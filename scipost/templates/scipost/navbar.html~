@@ -1,0 +1,19 @@
+<nav>
+  <div class="row">
+    <div class="col-8">
+      <a href="/scipost">SciPost Home</a>
+      <a href="{% url 'scipost:journals' %}">SciPost Journals</a>
+      <a href="{% url 'scipost:submissions' %}">SciPost Submissions</a>
+      <a href="{% url 'scipost:commentaries' %}">SciPost Commentaries</a>
+    </div>
+    <div class="col-4">
+      {% if user.is_authenticated %}
+      <p><i>Logged in as {{ user.username }} </i></p>
+      <a href="{% url 'scipost:logout' %}">Logout</a>
+      <a href="{% url 'scipost:personal_page' %}">Personal Page</a>
+      {% else %}
+      <a href="{% url 'scipost:login' %}">Login</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>

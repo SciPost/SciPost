@@ -1,0 +1,38 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% load mathjax %}
+{% mathjax_scripts %}
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+<section>
+  <h1>SciPost Submissions to Process</h1>
+  {% for submission in submissions_to_process %}
+  <br>
+  <hr>
+  <div class="row">
+    <div class="col-8">
+      <table>
+	<tr><td>Title: </td><td>{{ submission.title }}</td></tr>
+	<tr><td>Author(s): </td><td>{{ submission.author_list }}</td></tr>
+	<tr><td>arxiv Link: </td><td><a href="{{ submission.arxiv_link }}">{{ submission.arxiv_link }}</a></td></tr>
+	<tr><td>Date submitted: </td><td>{{ submission.submission_date }}</td></tr>
+      </table>
+      <br />
+      <h4>Abstract:</h4>
+      <p>{{ submission.abstract }}</p>
+    </div>
+    <div class="col-4">
+      <form action="{% url 'scipost:process_submission_ack' submission_id=submission.id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_ul }}
+        <input type="submit" value="Submit" />
+    </div>
+  </div>
+  {% endfor %}
+</section>
+
+
+{% include 'scipost/footer.html' %}

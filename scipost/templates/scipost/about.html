@@ -1,0 +1,70 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+<section>
+  <h1>About SciPost</h1>
+  <p>SciPost is a complete scientific publication portal. It is purely online-based, and offers freely, openly, globally and perpetually accessible science. Being managed by professional scientists, and making use of editor-sollicited and contributed reviews, it aims at the highest achievable standards of refereeing.</p>
+  <h3>Guiding principles</h3>
+  <p>The guiding principles in the conception, implementation and administration of SciPost are:</p>
+  <ul>
+    <li>stringent refereeing maximizes the quality of scientific publications</li>
+    <li>publicly-funded science should be openly accessible to scientists and the general public, perpetually, worldwide</li>
+    <li>peer evaluation is not completed at the moment of publication, but is an ongoing process</li>
+  </ul>
+  <p>The first principle is implemented using SciPost's maximally stringent <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> process.</p>
+  <p>The second principle is reflected in SciPost's not-for-profit status, financially backed by the generous support of national granting agencies, universities, foundations and individuals (see Acknowledgements below).</p>
+  <p>The third principle is implemented in the form of Commentary Pages associated to publications. These can either be SciPost publications, or papers published elsewhere.</p>
+</section>
+
+<section>
+  <h1>The SciPost Team</h1>
+  <h2>Founder and Enlightened Despot</h2>
+  <p>J.-S. Caux</p>
+  <h2>Advisory Board</h2>
+  <ul>
+    <li>(...)</li>
+  </ul>
+  <h2>Journals Editors-in-chief</h2>
+  <div class="row">
+    <div class="col-6">
+      <h3>SciPost Physics Letters (including Select)</h3>
+      <ul>
+	<li>(...)</li>
+      </ul>
+      <h3>SciPost Physics X</h3>
+      <ul>
+	<li>(...)</li>
+      </ul>
+    </div>
+    <div class="col-6">
+      <h3>SciPost Physics E</h3>
+      <ul>
+	<li>(...)</li>
+      </ul>
+      <h3>SciPost Physics T</h3>
+      <ul>
+	<li>(...)</li>
+      </ul>
+      <h3>SciPost Physics C</h3>
+      <ul>
+	<li>(...)</li>
+      </ul>
+    </div>
+  </div>
+
+
+  <h4>Code Development and Maintenance</h4>
+  <p>J.-S. Caux and M. Moeys.</p>
+
+</section>
+
+<section>
+  <h2>Acknowledgements</h2>
+  <h4>Funding</h4>
+  <p>SciPost acknowledges generous support from the J.-S. Caux Lack of Sleep Foundation.</p>
+</section>
+
+{% include 'scipost/footer.html' %}

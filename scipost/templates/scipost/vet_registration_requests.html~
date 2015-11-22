@@ -1,0 +1,36 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+<section>
+  <h1>SciPost Registration requests to vet:</h1>
+  <p>These Contributors are currently on rank 0 (submitting, commenting and voting disabled).</p>
+  <p>Use this form to promote to rank 1.</p>
+  {% for registration_to_vet in registration_requests_to_vet %}
+  <br>
+  <hr>
+  <div class="row">
+    <div class="col-8">
+      <table>
+	<tr><td>Title:</td><td>{{ registration_to_vet.title }}</td></tr>
+	<tr><td>First name:</td><td>{{ registration_to_vet.user.first_name }}</td></tr>
+	<tr><td>Last name:</td><td>{{ registration_to_vet.user.last_name }}</td></tr>
+	<tr><td>email:</td><td>{{ registration_to_vet.user.email }}</td></tr>
+	<tr><td>user name:</td><td>{{ registration_to_vet.user.username }}</td></tr>
+      </table>
+    </div>
+    <div class="col-4">
+      <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=registration_to_vet.id %}" method="post">
+	{% csrf_token %}
+	{{ form.as_p }}
+	<input type="submit" value="Submit" />
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</section>
+
+
+{% include 'scipost/footer.html' %}

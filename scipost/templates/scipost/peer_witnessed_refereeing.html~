@@ -1,0 +1,31 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+<section>
+  <h1>SciPost's Peer Review Method: Peer-Witnessed Refereeing.</h1>
+
+  <br/>
+  <h3>Shortcomings of traditional refereeing</h3>
+  <p>The traditional approach to refereeing is sub-optimal for a number of reasons: the choice of referees is exclusive to Journal editors; only up to a handful of referees are consulted; the best potential referees are not necessarily chosen; one cannot, as a specialist, volunteer to report on a paper (manuscript shortcomings are thus very often not flagged before publication); closed-door refereeing, with reports viewable only by editors and authors, is not fully accountable (referee reports are thus often of low quality); refereeing work is not credited (the quality of reports thus further suffers from a lack of incentive).</p>
+
+  <br/>
+  <h2>Principles of SciPost's Peer-Witnessed Refereeing</h2>
+  <ul>
+    <li>Reports are gathered from editorially-invited referees, but can also be volunteered by registered SciPost Contributors.</li>
+    <li>Reports are posted online (after rapid editorial vetting) on the Submission's Page, and can be rated, replied to (Authors only) or commented on by all Contributors.</li>
+    <li>Anonymity is enforced at all meaningful stages (Reports and Comments have their own id and are not publicly linked to their Contributor when posted; all ratings are backend-aggregated).</li>
+  </ul>
+  <ul>
+    <li>Ratings for Submissions, Reports and Comments determine the relevant Contributor's overall Ratings.</li>
+    <li>A Contributor's Reporting, Replying and Commenting statistics (number, ratings) are publicly available (an online search form allows to retrieve these statistics by performing a search by researcher's name).</li>
+  </ul>
+
+  <p>Contributors thus have additional incentives to provide not only high-quality Submissions, but also Reports and Comments of the highest achievable professional caliber.</p>
+  <p>Abusive behaviour is prevented by Editorial vetting of all Reports, Replies and Comments before public posting.</p>
+  <p>Contributors are encouraged to actively participate in the SciPost refereeing process by having their statistics publicly available (this information eventually belonging on a Contributor's CV).
+</section>
+
+{% include 'scipost/footer.html' %}

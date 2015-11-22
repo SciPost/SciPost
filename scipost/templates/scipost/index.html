@@ -1,0 +1,76 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+{% if not user.is_authenticated %}
+<section>
+  <h1>SciPost Contributors</h1>
+  <div class="row">
+    <div class="col-6">
+      <h3>Registered contributors:</h3> <a href="{% url 'scipost:login' %}">Login to your Personal Page</a>
+    </div>
+    <div class="col-6">
+      <h3>Register as a Contributor to SciPost:</h3>
+      <a href="{% url 'scipost:register' %}">Fill the registration form</a>
+      <br><br>
+      <h4>Registered contributors can:</h4>
+      <ul>
+	<li>Submit manuscripts to SciPost Journals</li>
+	<li>Post reports and comments on publications</li>
+	<li>Rate reports and comments</li>
+	<li>... and much more</li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section>
+  <h1><a href="{% url 'scipost:journals' %}">SciPost Journals</a></h1>
+  <br>
+  <p>SciPost publishes a family of online Journals covering all domains and specialties in the field of Physics.</p>
+  <p>Manuscripts submitted to SciPost undergo the extremely stringent <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> process (see details below), guaranteeing that papers published in SciPost Journals meet the highest possible academic standards.</p>
+  <p>All SciPost Journals are subscription-free and perpetually openly accessible.</p>
+  <div class="row">
+    <div class="col-6">
+      <h4>Broad interest:</h4>
+      <br/>
+      <h3>SciPost Physics Select</h3><p>(Editorially-selected Letters of superlative quality)</p>
+      <br/>
+      <h3>SciPost Physics Letters</h3><p>(Letters of broad interest and outstanding quality)</p>
+      <br/>
+      <h3>SciPost Physics X</h3><p>(cross-division articles)</p>
+    </div>
+    <div class="col-6">
+      <h4>Division-specific:</h4>
+      <br/>
+      <h3>SciPost Physics E</h3><p>(Experimental Physics)</p>
+      <br/>
+      <h3>SciPost Physics T</h3><p>(Theoretical Physics)</p>
+      <br/>
+      <h3>SciPost Physics C</h3><p>(Computational Physics)</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h1><a href="{% url 'scipost:submissions' %}">SciPost Submissions</a></h1>
+  <br>
+  <p>Submissions to SciPost Journals: papers currently under consideration for publication in a SciPost Journal.</p>
+</section>
+
+<section>
+  <h1><a href="{% url 'scipost:commentaries' %}">SciPost Commentaries</a></h1>
+  <br>
+  <p>SciPost Commentaries is a repository of Commentary Pages on scientific publications. Each Commentary Page contains summary info about the publication (Title, Author(s), arXiv preprint link, DOI link to published version, abstract), followed by Comments from Contributors and Author and Contributor Replies. </p>
+</section>
+
+<section>
+  <h1><a href="{% url 'scipost:about' %}">About SciPost</a></h1>
+</section>
+
+
+
+{% include 'scipost/footer.html' %}

@@ -1,0 +1,58 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% load mathjax %}
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+{% mathjax_scripts %}
+
+<section>
+  <h1>SciPost Submissions</h1>
+  <p>Submissions to SciPost Journals: papers currently under consideration for publication in a SciPost Journal.</p>
+  <br/>
+  <ul>
+    <li><a href="{% url 'scipost:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Search SciPost Submissions:</h2>
+  <form action="{% url 'scipost:submissions' %}" method="post">
+    {% csrf_token %}
+    <table>
+      <ul>
+	{{ form.as_table }}
+      </ul>
+    </table>
+    <input type="submit" name="Submit" />
+  </form>
+
+  {% if submission_search_list %}
+  <br />
+  <h3>Search results:</h3>
+  <ul>
+    {% for submission in submission_search_list %}
+    <li><a href="{% url 'scipost:submission' submission.id %}">{{ submission.title }}</a> by {{ submission.author_list }} (published {{ submission.submission_date }}) </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+</section>
+
+{% if submission_recent_list %}
+<section>
+  <h2>Recent Submissions:</h2>
+  <ul>  
+    {% for submission in submission_recent_list %}
+    <li><a href="{% url 'scipost:submission' submission.id %}">{{ submission.title }}</a> by {{ submission.author_list }} (submitted {{ submission.submission_date }}) </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+
+
+
+{% include 'scipost/footer.html' %}

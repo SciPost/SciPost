@@ -1,0 +1,38 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% load mathjax %}
+{% mathjax_scripts %}
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+<section>
+  <h1>SciPost Commentary Page requests to vet:</h1>
+  {% for commentary_to_vet in commentary_requests_to_vet %}
+  <br>
+  <hr>
+  <div class="row">
+    <div class="col-8">
+      <table>
+	<tr><th><td>Title: </td><td>{{ commentary_to_vet.pub_title }}</td></th></tr>
+	<tr><th><td>Author(s): </td><td>{{ commentary_to_vet.author_list }}</td></th></tr>
+	<tr><th><td>DOI Link: </td><td><a href="{{ commentary_to_vet.pub_DOI_link }}">{{ commentary_to_vet.pub_DOI_link }}</a></td></th></tr>
+	<tr><th><td>Date published: </td><td>{{ commentary_to_vet.pub_date }}</td></th></tr>
+      </table>
+      <br />
+      <h4>Abstract:</h4>
+      <p>{{ commentary_to_vet.pub_abstract }}</p>
+    </div>
+    <div class="col-4">
+      <form action="{% url 'scipost:vet_commentary_request_ack' commentary_id=commentary_to_vet.id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_ul }}
+        <input type="submit" value="Submit" />
+    </div>
+  </div>
+  {% endfor %}
+</section>
+
+
+{% include 'scipost/footer.html' %}

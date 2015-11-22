@@ -1,0 +1,54 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% load mathjax %}
+{% mathjax_scripts %}
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+<section>
+  <h1>SciPost Author Replies to vet:</h1>
+  {% for reply_to_vet in replies_to_vet %}
+  <br>
+  <hr>
+
+  {% if reply_to_vet.commentary %}
+  <h3>Commentary associated to Comment:</h3>
+  <table>
+    <tr><td>Title: </td><td>{{ reply_to_vet.commentary.pub_title }}</td></tr>
+    <tr><td>Author(s): </td><td>{{ reply_to_vet.commentary.author_list }}</td></tr>
+    <tr><td>DOI Link: </td><td><a href="{{ reply_to_vet.commentary.pub_DOI_link }}">{{ reply_to_vet.commentary.pub_DOI_link }}</a></td></tr>
+    <tr><td>Date published: </td><td>{{ reply_to_vet.commentary.pub_date }}</td></tr>
+  </table>
+  <br />
+  <h4>Abstract:</h4>
+  <p>{{ reply_to_vet.commentary.pub_abstract }}</p>
+  <hr style="border-style: dotted;" />
+  {% endif %}
+
+  {% if reply_to_vet.submission %}
+
+  {% if reply_to_vet.in_reply_to_comment %}
+  {% endif %}
+  {% endif %}
+
+<h3>The Comment to be vetted:</h3>
+  <div class="row">
+    <div class="col-8">
+      <p>Submitted: {{ comment_to_vet.date_submitted }}</p>
+      <p>{{ comment_to_vet.comment_text }}</p>
+    </div>
+    <div class="col-4">
+      <form action="{% url 'scipost:vet_submitted_comment_ack' comment_id=comment_to_vet.id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_ul }}
+        <input type="submit" value="Submit" />
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</section>
+
+
+{% include 'scipost/footer.html' %}
