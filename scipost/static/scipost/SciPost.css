@@ -222,6 +222,7 @@ section ul.ratingsdata {
 section ul.ratingsdata li{
   display: inline;
   padding: 2px 2px;
+  color: #ffffff;
 }
 section form.ratingsdata ul {
   display: inline-block;
@@ -237,9 +238,14 @@ section form.ratingsdata ul {
 section form.ratingsdata ul li {
   display: inline;
   padding: 0px 2px; 
+  color: #ffffff;
+}
+section form.ratingsdata ul li label {
+  color: #ffffff;
 }
 section div table.ratings {
   font-size: 90%;
+  color: #ffffff;
 }
 
 article {

@@ -4,9 +4,35 @@ from django.contrib.auth.models import User
 
 # All definitions for models (some also for forms):
 
+CONTRIBUTOR_RANKS = (
+    # ranks determine the type of Contributor:
+    # 0: newly registered (unverified; not allowed to submit, comment or vote)
+    # 1: normal user (allowed to submit, comment and vote)
+    # 2: scipost editor (1 + no need for vetting of comments, also allowed to vet commentary request and comments from normal users)
+    # 3: scipost journal editor (2 + allowed to accept papers in SciPost Journals)
+    # 4: scipost journal editor-in-chief 
+    # 5: Lead Editor (all rights granted, including rank promotions and overriding all)
+    #
+    # Negative ranks denote rejected requests or :
+    # -1: not a professional scientist (defined as at least PhD student in known university)
+    # -2: other account already exists for this person
+    # -3: barred from SciPost (abusive behaviour)
+    # -4: disabled account (deceased)
+    (0, 'newly registered'),
+    (1, 'normal user'),
+    (2, 'SciPost Commentary Editor'),
+    (3, 'SciPost Journal Editor'),
+    (4, 'SciPost Journal Editor-in-chief'),
+    (5, 'SciPost Lead Editor'),
+    (-1, 'not a professional scientist'),
+    (-2, 'other account already exists'),
+    (-3, 'barred from SciPost'),
+    (-4, 'account disabled'),
+    )
+
 COMMENTARY_TYPES = (
     ('published', 'published paper'),
-    ('preprint', 'arXiv preprint'),
+    ('preprint', 'arXiv preprint (from at least 4 weeks ago)'),
     )
 
 SCIPOST_JOURNALS = (
@@ -23,9 +49,11 @@ SCIPOST_JOURNALS = (
 #    ('SciPost Physics Q', 'SciPost Physics Q (Quantum Statistical Mechanics)'),
 #    ('SciPost Physics S', 'SciPost Physics S (Classical Statistical and Soft Matter Physics)'), 
 # Use the three fundamental branches of Physics: 
-    ('SciPost Physics E', 'SciPost Physics E (Experimental)'),
-    ('SciPost Physics T', 'SciPost Physics T (Theoretical)'),
-    ('SciPost Physics C', 'SciPost Physics C (Computational)'),
+#    ('SciPost Physics E', 'SciPost Physics E (Experimental)'),
+#    ('SciPost Physics T', 'SciPost Physics T (Theoretical)'),
+#    ('SciPost Physics C', 'SciPost Physics C (Computational)'),
+# Unified:
+    ('SciPost Physics', 'SciPost Physics (Experimental, Theoretical and Computational)'),
     )
 
 SCIPOST_JOURNALS_SUBMIT = ( # Same as SCIPOST_JOURNALS, but SP Select deactivated
@@ -33,14 +61,24 @@ SCIPOST_JOURNALS_SUBMIT = ( # Same as SCIPOST_JOURNALS, but SP Select deactivate
     ('SciPost Physics Letters', 'SciPost Physics Letters'),
     ('SciPost Physics X', 'SciPost Physics X (cross-division)'),
 # Use the three fundamental branches of Physics: 
-    ('SciPost Physics E', 'SciPost Physics E (Experimental)'),
-    ('SciPost Physics T', 'SciPost Physics T (Theoretical)'),
-    ('SciPost Physics C', 'SciPost Physics C (Computational)'),
+#    ('SciPost Physics E', 'SciPost Physics E (Experimental)'),
+#    ('SciPost Physics T', 'SciPost Physics T (Theoretical)'),
+#    ('SciPost Physics C', 'SciPost Physics C (Computational)'),
+# Unified:
+    ('SciPost Physics', 'SciPost Physics (Experimental, Theoretical and Computational)'),
     )
+
+SCIPOST_JOURNALS_DOMAINS = (
+    ('E', 'Experimental'),
+    ('T', 'Theoretical'),
+    ('C', 'Computational'),
+)
 
 SCIPOST_JOURNALS_SPECIALIZATIONS = (
     ('A', 'Atomic, Molecular and Optical Physics'),
+    ('B', 'Biophysics'),
     ('C', 'Condensed Matter Physics'),
+    ('F', 'Fluid Dynamics'),
     ('G', 'Gravitation, Cosmology and Astroparticle Physics'),
     ('H', 'High-Energy Physics'),
     ('M', 'Mathematical Physics'),
@@ -81,19 +119,7 @@ REPORT_REC = (
 class Contributor(models.Model):
     """ All users of SciPost are Contributors. Permissions determine the sub-types. """
     user = models.OneToOneField(User)
-    # ranks determine the type of Contributor:
-    # 0: newly registered (unverified; not allowed to submit, comment or vote)
-    # 1: normal user (allowed to submit, comment and vote)
-    # 2: scipost editor (1 + no need for vetting of comments, also allowed to vet commentary request and comments from normal users)
-    # 3: scipost journal editor (2 + allowed to accept papers in SciPost Journals)
-    # 4: editor-in-chief (all rights granted, including rank promotions and overriding all)
-    #
-    # Negative ranks denote rejected requests or :
-    # -1: not a professional scientist (defined as at least PhD student in known university)
-    # -2: other account already exists for this person
-    # -3: barred from SciPost (abusive behaviour)
-    # -4: disabled account (deceased)
-    rank = models.SmallIntegerField(default=0)
+    rank = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_RANKS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     # username, password, email, first_name and last_name are inherited from User
     orcid_id = models.CharField(max_length=20, blank=True, null=True, verbose_name="ORCID id", default='')
@@ -149,6 +175,7 @@ class Submission(models.Model):
     vetted = models.BooleanField(default=False)
     editor_in_charge = models.ForeignKey(Contributor, related_name="editor_in_charge", blank=True, null=True) # assigned by Journal Editor    open_for_reporting = models.BooleanField(default=False)
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS)
+    domain = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_DOMAINS, default='E')
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     status = models.SmallIntegerField(choices=SUBMISSION_STATUS) # set by Editors
     open_for_reporting = models.BooleanField(default=True)
@@ -189,6 +216,7 @@ class Report(models.Model):
     status = models.SmallIntegerField(default=0)
     submission = models.ForeignKey(Submission)
     author = models.ForeignKey(Contributor)
+    qualification = models.PositiveSmallIntegerField(default=0)
     strengths = models.TextField()
     weaknesses = models.TextField()
     report = models.TextField()

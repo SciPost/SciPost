@@ -27,6 +27,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Secure proxy SSL header and secure cookies                                                       
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+#SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = True
+
+# Session expire at browser close                                                                  
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Wsgi scheme                                                                                      
+os.environ['wsgi.url_scheme'] = 'https'
 
 # Application definition
 

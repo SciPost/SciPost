@@ -145,6 +145,7 @@ class AuthorReplyRatingForm(forms.Form):
 
 class SubmissionForm(forms.Form):
     submitted_to_journal = forms.ChoiceField(choices=SCIPOST_JOURNALS_SUBMIT, required=True, label='SciPost Journal to submit to:')
+    domain = forms.ChoiceField(choices=SCIPOST_JOURNALS_DOMAINS)
     specialization = forms.ChoiceField(choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     title = forms.CharField(max_length=300, required=True, label='Title')
     author_list = forms.CharField(max_length=1000, required=True)
@@ -167,6 +168,7 @@ class SubmissionRatingForm(forms.Form):
 
 
 class ReportForm(forms.Form):
+    qualification = forms.ChoiceField(RATING_CHOICES, label='Your degree of qualification in assessing this Submission')
     strengths = forms.CharField(widget=forms.Textarea(), required=False)
     weaknesses = forms.CharField(widget=forms.Textarea(), required=False)
     report = forms.CharField(widget=forms.Textarea(), required=False)

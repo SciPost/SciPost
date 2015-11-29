@@ -11,15 +11,7 @@
 <section>
   <h1>SciPost Commentaries</h1>
   <p>SciPost Commentaries is a repository of Commentary Pages on scientific publications. Each Commentary Page contains summary info about the publication (Title, Author(s), arXiv preprint link, DOI link to published version, abstract), followed by Comments from Contributors and Author and Contributor Replies. </p>
-  <br>
-  <h3>Activation procedure</h3>
-  <p>A Commentary Page can be requested by any registererd SciPost Contributor for any scientific paper by filling the <a href="{% url 'scipost:request_commentary' %}">Commentary request form</a>. After vetting by an Editor, the Commentary Page is activated and made open for Comments from registered SciPost Contributors. Authors can reply to Comments, and Contributors can add Comments to the chain. Authors who are registered SciPost Contributors can opt to receive email notifications of activity on any specific Commentary Page.</p>
-  <ul>
-    <li><a href="{% url 'scipost:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
-  </ul>
-  <br>
-  <h3>Ratings</h3>
-  <p>The original publication subject to the Commentary can be rated by Contributors. An aggregate of these ratings is displayed next to the publication's summary info. All Comments and Replies are similarly open to Contributor rating. Ratings in aggregated form are made publicly available.</p>
+  <h3><a href="{% url 'scipost:request_commentary' %}">Request opening a new SciPost Commentary Page</a></h3>
 </section>
 
 <section>
@@ -57,7 +49,17 @@
 </section>
 {% endif %}
 
-
+<section>
+  <h1>SciPost Commentaries how-to</h1>
+  <h3>Activation procedure</h3>
+  <p>A Commentary Page can be requested by any registererd SciPost Contributor for any scientific paper by filling the <a href="{% url 'scipost:request_commentary' %}">Commentary request form</a>. After vetting by an Editor, the Commentary Page is activated and made open for Comments from registered SciPost Contributors. Authors can reply to Comments, and Contributors can add Comments to the chain. Authors who are registered SciPost Contributors can opt to receive email notifications of activity on any specific Commentary Page.</p>
+  <ul>
+    <li><a href="{% url 'scipost:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
+  </ul>
+  <br>
+  <h3>Ratings</h3>
+  <p>The original publication subject to the Commentary can be rated by Contributors. An aggregate of these ratings is displayed next to the publication's summary info. All Comments and Replies are similarly open to Contributor rating. Ratings in aggregated form are made publicly available.</p>
+</section>
 
 
 {% include 'scipost/footer.html' %}

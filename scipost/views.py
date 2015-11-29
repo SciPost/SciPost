@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 
@@ -21,6 +21,12 @@ def index(request):
 
 def about(request):
     return render(request, 'scipost/about.html')
+
+def description(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="SciPost_Description.pdf"'
+    return response
+#    return HttpResponse("scipost/SciPost_Description.pdf", content_type="application/pdf")
 
 def peer_witnessed_refereeing(request):
     return render(request, 'scipost/peer_witnessed_refereeing.html')
@@ -93,7 +99,7 @@ def vet_registration_request_ack(request, contributor_id):
     context = {}
     return render(request, 'scipost/vet_registration_request_ack.html', context)
 
-
+@csrf_protect
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -152,27 +158,30 @@ def personal_page(request):
 
 @csrf_protect
 def request_commentary(request):
-    # If POST, process the form data
-    if request.method == 'POST':
-        form = RequestCommentaryForm(request.POST)
-        if form.is_valid():
-            contributor = Contributor.objects.get(user=request.user)
-            commentary = Commentary (
-                type = form.cleaned_data['type'],
-                pub_title = form.cleaned_data['pub_title'],
-                arxiv_link = form.cleaned_data['arxiv_link'],
-                pub_DOI_link = form.cleaned_data['pub_DOI_link'],
-                author_list = form.cleaned_data['author_list'],
-                pub_date = form.cleaned_data['pub_date'],
-                pub_abstract = form.cleaned_data['pub_abstract'],
-                latest_activity = timezone.now(),
-                )
-            commentary.save()
-            return HttpResponseRedirect('request_commentary_ack')
-    else:
-        form = RequestCommentaryForm()
-
-    return render(request, 'scipost/request_commentary.html', {'form': form})
+    # commentary pages can only be requested by registered contributors:
+    if request.user.is_authenticated():
+        # If POST, process the form data
+        if request.method == 'POST':
+            form = RequestCommentaryForm(request.POST)
+            if form.is_valid():
+                contributor = Contributor.objects.get(user=request.user)
+                commentary = Commentary (
+                    type = form.cleaned_data['type'],
+                    pub_title = form.cleaned_data['pub_title'],
+                    arxiv_link = form.cleaned_data['arxiv_link'],
+                    pub_DOI_link = form.cleaned_data['pub_DOI_link'],
+                    author_list = form.cleaned_data['author_list'],
+                    pub_date = form.cleaned_data['pub_date'],
+                    pub_abstract = form.cleaned_data['pub_abstract'],
+                    latest_activity = timezone.now(),
+                    )
+                commentary.save()
+                return HttpResponseRedirect('request_commentary_ack')
+        else:
+            form = RequestCommentaryForm()
+        return render(request, 'scipost/request_commentary.html', {'form': form})
+    else: # user is not authenticated:
+        return render(request, 'scipost/login.html')
 
 def request_commentary_ack(request):
     return render(request, 'scipost/request_commentary_ack.html')
@@ -482,6 +491,7 @@ def submit_manuscript(request):
             submission = Submission (
                 submitted_by = submitted_by,
                 submitted_to_journal = form.cleaned_data['submitted_to_journal'],
+                domain = form.cleaned_data['domain'],
                 specialization = form.cleaned_data['specialization'],
                 status = '0', 
                 title = form.cleaned_data['title'],
@@ -544,13 +554,7 @@ def submissions(request):
     submission_recent_list = Submission.objects.filter(status__gte=1)
     context = {'form': form, 'submission_search_list': submission_search_list, 'submission_recent_list': submission_recent_list }
     return render(request, 'scipost/submissions.html', context)
-"""
-@csrf_protect
-def submissions(request):
-    submission_list = Submission_set.all()
-    context = {'submission_list': submission_list}
-    return render(request, 'scipost/submissions.html', context)
-"""
+
 
 @csrf_protect
 def submission_detail(request, submission_id):
@@ -637,6 +641,7 @@ def submit_report(request, submission_id):
             newreport = Report (
                 submission = submission,
                 author = author,
+                qualification = form.cleaned_data['qualification'],
                 strengths = form.cleaned_data['strengths'],
                 weaknesses = form.cleaned_data['weaknesses'],
                 report = form.cleaned_data['report'],
