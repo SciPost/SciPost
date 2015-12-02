@@ -1,0 +1,5 @@
+*.pyc
+*~
+
+# ignore django settings file:
+SciPost_v1/settings.py
