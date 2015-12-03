@@ -1,0 +1,13 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+<section>
+  <h1>SciPost Registration request vetted.</h1>
+  <p><a href="{% url 'contributors:vet_registration_requests' %}">Back to Registration requests page</a></p>
+</section>
+
+
+{% include 'scipost/footer.html' %}

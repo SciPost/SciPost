@@ -1,0 +1,241 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% load mathjax %}
+{% mathjax_scripts %}
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+
+<section>
+  <div class="row">
+    <div class="col-6">
+      <h1>SciPost Submission Page</h1>
+    </div>
+    <div class="col-6">
+      <h4>(for papers submitted to SciPost Journals)</h4>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="row">
+    <div class="col-4">
+      <h2>Submission:</h2>
+    </div>
+    <div class="col-8">
+      <ul class="ratingsdata">
+        <li>Ratings: ({{ submission.nr_ratings }})</li>
+        <li>clarity: {{ submission.clarity_rating }}%</li>
+        <li>correctness: {{ submission.correctness_rating }}%</li>
+        <li>usefulness: {{ submission.usefulness_rating }}%</li>
+      </ul>
+
+      {% if user.is_authenticated %}
+      <form action="{% url 'ratings:vote_on_submission' submission_id=submission.id %}" method="post" class="ratingsdata">
+        {% csrf_token %}
+        <ul>
+          <li>Rate this publication:</li>
+          {{ submission_rating_form.as_ul }}
+          <li><input type="submit" value="Submit"></li>
+        </ul>
+
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <br>
+  <table>
+    <tr><td>Title: </td><td>{{ submission.title }}</td></tr>
+    <tr><td>Author(s): </td><td>{{ submission.author_list }}</td></tr>
+    <tr><td>arXiv link: </td><td><a href="{{ submission.arxiv_link }}">{{ submission.arxiv_link }}</a></td></tr>
+    <tr><td>Date submitted: </td><td>{{ submission.submission_date }}</td></tr>
+    <tr><td>Submitted to: </td><td>{{ submission.submitted_to_journal }}</td></tr>
+    <tr><td>Specialization: </td><td>{{ submission.specialization }}</td></tr>
+  </table>
+  <br />
+  <h3>Abstract:</h3>
+  <p>{{ submission.abstract }}</p>
+  
+</section>
+
+{% if reports %}
+<section>
+  <h2>Reports on this Submission</h2>
+  <hr>
+  {% for report in reports %}
+  <div class="row">
+
+    <div class="col-4">
+      <h3>{{ report.id }}</h3>
+      <h4>Date: {{ report.date_submitted }}</h4>
+    </div>
+
+    <div class="col-8">
+      <ul class="ratingsdata">
+	<li>Ratings: ({{ report.nr_ratings }})</li>
+	<li>clarity: {{ report.clarity_rating }}%</li>
+	<li>correctness: {{ report.correctness_rating }}%</li>
+	<li>usefulness: {{ report.usefulness_rating }}%</li>
+      </ul>
+
+      {% if user.is_authenticated %}
+      <form action="{% url 'ratings:vote_on_report' report_id=report.id %}" method="post" class="ratingsdata">
+	{% csrf_token %}
+	<ul>
+	  <li>Rate this report:</li>
+	  {{ report_rating_form.as_ul }}	  
+	  <li><input type="submit" value="Submit"></li>
+	</ul>
+
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-2">
+      <p>Strengths:</p>
+    </div>
+    <div class="col-10">
+      <p>{{ report.strengths }}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-2">
+      <p>Weaknesses:</p>
+    </div>
+    <div class="col-10">
+      <p>{{ report.weaknesses }}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-2">
+      <p>Report:</p>
+    </div>
+    <div class="col-10">
+      <p>{{ report.report }}</p>
+    </div>
+  </div>
+  {% for reply in author_replies %}
+  {% if reply.in_reply_to_report.id = report.id %}
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+      <h3>Author reply ({{ reply.date_submitted }}):</h3>
+      <p>{{ reply.reply_text }}</p>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+  <hr style="border-style: dotted;" />
+
+
+  <div class="row">
+    <div class="col-6">
+      <h3><a href="{% url 'comments:author_reply_to_report' report_id=report.id %}">Reply to this report (Author)</a></h3>
+    </div>
+  </div>
+  <hr>
+
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if user.is_authenticated and submission.open_for_reporting %}
+<section>
+  <div class="row">
+    <div class="col-3">
+      <h1>Contribute a Report</h1>
+    </div>
+    <div class="col-9">
+      <a href="{% url 'reports:submit_report' submission.id %}">Go to the Report page</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if comments %}
+<section>
+  <h2>Comments on this Submission</h2>
+  <hr>
+  {% for comment in comments %}
+  <div class="row">
+
+    <div class="col-4">
+      <h3>{{ comment.id }} &nbsp; {% if comment.in_reply_to %} (in reply to {{ comment.in_reply_to.id }}) {% endif %}</h3>
+      <h4>Date: {{ comment.date_submitted }}</h4>
+    </div>
+
+    <div class="col-8">
+      <ul class="ratingsdata">
+	<li>Ratings: ({{ comment.nr_ratings }})</li>
+	<li>clarity: {{ comment.clarity_rating }}%</li>
+	<li>correctness: {{ comment.correctness_rating }}%</li>
+	<li>usefulness: {{ comment.usefulness_rating }}%</li>
+      </ul>
+
+      {% if user.is_authenticated %}
+      <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post" class="ratingsdata">
+	{% csrf_token %}
+	<ul>
+	  <li>Rate this comment:</li>
+	  {{ comment_rating_form.as_ul }}	  
+	  <li><input type="submit" value="Submit"></li>
+	</ul>
+
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+      <p>{{ comment.comment_text }}</p>
+    </div>
+    <div class="col-1"></div>
+  </div>
+  {% for reply in author_replies %}
+  {% if reply.in_reply_to_comment.id = comment.id %}
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+      <h3>Author reply ({{ reply.date_submitted }}):</h3>
+      <p>{{ reply.reply_text }}</p>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+
+  <div class="row">
+    <div class="col-6">
+      <h3><a href="{% url 'comments:author_reply_to_comment' comment_id=comment.id %}">Reply to this comment (Author)</a></h3>
+    </div>
+    <div class="col-6">
+      <h3><a href="{% url 'comments:reply_to_comment' comment_id=comment.id %}">Reply to this comment (Contributor)</a></h3>
+    </div>
+  </div>
+  <hr>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if user.is_authenticated and submission.open_for_commenting %}
+<section>
+  <div class="row">
+    <div class="col-3">
+      <h1>Contribute a Comment</h1>
+    </div>
+    <div class="col-9">
+      <form action="{% url 'submissions:submission' submission.id %}" method="post">
+	{% csrf_token %}
+	{{ form }}
+	<input type="submit" value="Submit your Comment">
+      </form>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% include 'scipost/footer.html' %}

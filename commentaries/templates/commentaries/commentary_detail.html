@@ -1,0 +1,145 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+{% load mathjax %}
+{% mathjax_scripts %}
+
+{% include 'scipost/header.html' %}
+{% include 'scipost/navbar.html' %}
+
+
+<section>
+  <h1>SciPost Commentary Page &nbsp; (for non-SciPost publications)</h1>
+</section>
+
+<section>
+  <div class="row">
+    <div class="col-4">
+      <h2>Original publication: </h2>
+    </div>
+    <div class="col-8">
+      <ul class="ratingsdata">
+	<li>Ratings: ({{ commentary.nr_ratings }})</li>
+	<li>clarity: {{ commentary.clarity_rating }}%</li>
+	<li>correctness: {{ commentary.correctness_rating }}%</li>
+	<li>usefulness: {{ commentary.usefulness_rating }}%</li>
+      </ul>
+
+      {% if user.is_authenticated %}
+      <form action="{% url 'commentaries:vote_on_commentary' commentary_id=commentary.id %}" method="post" class="ratingsdata">
+	{% csrf_token %}
+	<ul>
+	  <li>Rate this publication:</li>
+	  {{ commentary_rating_form.as_ul }}	  
+	  <li><input type="submit" value="Submit"></li>
+	</ul>
+
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <br>
+  <table>
+    <tr><td>Title: </td><td>{{ commentary.pub_title }}</td></tr>
+    <tr><td>Author(s): </td><td>{{ commentary.author_list }}</td></tr>
+    <tr><td>arXiv link: </td><td><a href="{{ commentary.arxiv_link }}">{{ commentary.arxiv_link }}</a></td></tr>
+    <tr><td>DOI Link: </td><td><a href="{{ commentary.pub_DOI_link }}">{{ commentary.pub_DOI_link }}</a></td></tr>
+    <tr><td>Date published: </td><td>{{ commentary.pub_date }}</td></tr>
+  </table>
+  <br />
+  <h3>Abstract:</h3>
+  <p>{{ commentary.pub_abstract }}</p>
+  
+</section>
+
+{% if reports %}
+<section>
+  <h2>Reports on this publication</h2>
+  <hr>
+</section>
+{% endif %}
+
+{% if comments %}
+<section>
+  <h2>Comments on this publication</h2>
+  <hr>
+  {% for comment in comments %}
+  <div class="row">
+
+    <div class="col-4">
+      <h3>{{ comment.id }} &nbsp; {% if comment.in_reply_to %} (in reply to {{ comment.in_reply_to.id }}) {% endif %}</h3>
+      <h4>Date: {{ comment.date_submitted }}</h4>
+    </div>
+
+    <div class="col-8">
+      <ul class="ratingsdata">
+	<li>Ratings: ({{ comment.nr_ratings }})</li>
+	<li>clarity: {{ comment.clarity_rating }}%</li>
+	<li>correctness: {{ comment.correctness_rating }}%</li>
+	<li>usefulness: {{ comment.usefulness_rating }}%</li>
+      </ul>
+
+      {% if user.is_authenticated %}
+      <form action="{% url 'comments:vote_on_comment' comment_id=comment.id %}" method="post" class="ratingsdata">
+	{% csrf_token %}
+	<ul>
+	  <li>Rate this comment:</li>
+	  {{ comment_rating_form.as_ul }}	  
+	  <li><input type="submit" value="Submit"></li>
+	</ul>
+
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+      <p>{{ comment.comment_text }}</p>
+    </div>
+  </div>
+  {% for reply in author_replies %}
+  {% if reply.in_reply_to_comment.id = comment.id %}
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+      <h3>Author reply ({{ reply.date_submitted }}):</h3>
+      <p>{{ reply.reply_text }}</p>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+
+  <hr style="border-style: dotted;" />
+  <div class="row">
+    <div class="col-6">
+      <h3><a href="{% url 'comments:author_reply_to_comment' comment_id=comment.id %}">Reply to this comment (Author)</a></h3>
+    </div>
+    <div class="col-6">
+      <h3><a href="{% url 'comments:reply_to_comment' comment_id=comment.id %}">Reply to this comment (Contributor)</a></h3>
+    </div>
+  </div>
+  <hr>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if user.is_authenticated and commentary.open_for_commenting %}
+<section>
+  <div class="row">
+    <div class="col-2">
+      <h1>Contribute a Comment</h1>
+    </div>
+    <div class="col-10">
+      <form action="{% url 'commentaries:commentary' commentary.id %}" method="post">
+	{% csrf_token %}
+	{{ form }}
+	<input type="submit" value="Submit your Comment">
+      </form>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% include 'scipost/footer.html' %}
