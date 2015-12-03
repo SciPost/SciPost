@@ -48,7 +48,14 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_mathjax',
+    'commentaries',
+    'comments',
+    'contributors',
+    'journals',
+    'ratings',
+    'reports',
     'scipost',
+    'submissions',
 )
 MATHJAX_ENABLED = True
 MATHJAX_CONFIG_DATA = {

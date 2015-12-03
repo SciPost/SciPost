@@ -19,4 +19,11 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^scipost/', include('scipost.urls', namespace="scipost")),
+    url(r'^commentaries/', include('commentaries.urls', namespace="commentaries")),
+    url(r'^comments/', include('comments.urls', namespace="comments")),
+    url(r'^contributors/', include('contributors.urls', namespace="contributors")),
+    url(r'^journals/', include('journals.urls', namespace="journals")),
+    url(r'^ratings/', include('ratings.urls', namespace="ratings")),
+    url(r'^reports/', include('reports.urls', namespace="reports")),
+    url(r'^submissions/', include('submissions.urls', namespace="submissions")),
 ]
