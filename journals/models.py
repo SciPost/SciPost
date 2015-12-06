@@ -29,6 +29,7 @@ SCIPOST_JOURNALS = (
 #    ('SciPost Physics C', 'SciPost Physics C (Computational)'),
 # Unified:
     ('SciPost Physics', 'SciPost Physics (Experimental, Theoretical and Computational)'),
+    ('SciPost Physics Lecture Notes', 'SciPost Physics Lecture Notes'),
     )
 
 SCIPOST_JOURNALS_SUBMIT = ( # Same as SCIPOST_JOURNALS, but SP Select deactivated
