@@ -35,13 +35,14 @@ SCIPOST_JOURNALS = (
 SCIPOST_JOURNALS_SUBMIT = ( # Same as SCIPOST_JOURNALS, but SP Select deactivated
 #    ('SciPost Physics Select', 'SciPost Physics Select'), # cannot be submitted to: promoted from Letters
     ('SciPost Physics Letters', 'SciPost Physics Letters'),
-    ('SciPost Physics X', 'SciPost Physics X (cross-division)'),
+#    ('SciPost Physics X', 'SciPost Physics X (cross-division)'), # cannot be submitted to: promoted from SciPost Physics
 # Use the three fundamental branches of Physics: 
 #    ('SciPost Physics E', 'SciPost Physics E (Experimental)'),
 #    ('SciPost Physics T', 'SciPost Physics T (Theoretical)'),
 #    ('SciPost Physics C', 'SciPost Physics C (Computational)'),
 # Unified:
-    ('SciPost Physics', 'SciPost Physics (Experimental, Theoretical and Computational)'),
+    ('SciPost Physics', 'SciPost Physics'),
+    ('SciPost Physics Lecture Notes', 'SciPost Physics Lecture Notes'),
     )
 
 SCIPOST_JOURNALS_DOMAINS = (
