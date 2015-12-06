@@ -5,26 +5,46 @@
 {% include 'scipost/navbar.html' %}
 
 <section>
-  <h1>SciPost Home</h1>
-  <p>SciPost is a complete scientific publication portal. It is purely online-based, and offers freely, openly, globally and perpetually accessible science. Being managed by professional scientists, and making use of editor-sollicited and contributed reviews, its Journals aim at the highest achievable standards of refereeing. SciPost Commentaries allow Contributors to seamlessly comment on existing literature.</p>
-  <h3><a href="{% url 'scipost:about' %}">About SciPost</a></h3>
+  <div class="row">
+    <div class="col-3">
+      <h1><a href="{% url 'scipost:about' %}">About SciPost</a></h1>
+      <p>SciPost is a complete scientific publication portal managed by active professional scientists.</p>
+      <p>It is purely online-based, and offers freely, openly, globally and perpetually accessible science.</p>
+      <h3><a href="{% url 'scipost:about' %}">Read more</a></h3>
+    </div>
+    <div class="col-1"></div>
+    <div class="col-4">
+      <h1><a href="{% url 'journals:journals' %}">Journals</a></h1>
+      <p>SciPost publishes a portfolio high-quality open access scientific journals.</p>
+      <p>All SciPost Journals implement the maximally stringent <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> principle.</p>
+      <p>All Journals are fully managed by professional scientists and impose no publication charges.</p>
+      <h3><a href="{% url 'scipost:peer_witnessed_refereeing' %}">Learn about peer-witnessed refereeing</a></h3>
+      <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a></h3>
+    </div>
+    <div class="col-1"></div>
+    <div class="col-3">
+      <h1><a href="{% url 'commentaries:commentaries' %}">Commentaries</a></h1>
+      <p>SciPost Commentaries allow Contributors to seamlessly comment and build on all existing literature.</p>
+    </div>
+  </div>
 </section>
 
 {% if not user.is_authenticated %}
 <section>
-  <h1>SciPost Contributors</h1>
   <div class="row">
-    <div class="col-6">
+    <div class="col-4">
+      <h1>SciPost Contributors</h1>
       <h3>Registered contributors:</h3> <a href="{% url 'contributors:login' %}">Login to your Personal Page</a>
     </div>
-    <div class="col-6">
+    <div class="col-4">
       <h3>Register as a Contributor to SciPost:</h3>
       <a href="{% url 'contributors:register' %}">Fill the registration form</a>
-      <br><br>
+    </div>
+    <div class="col-4">
       <h4>Registered contributors can:</h4>
       <ul>
 	<li>Submit manuscripts to SciPost Journals</li>
-	<li>Post reports and comments on publications</li>
+	<li>Post reports and comments</li>
 	<li>Rate reports and comments</li>
 	<li>... and much more</li>
       </ul>
@@ -33,15 +53,17 @@
 </section>
 {% endif %}
 
+<!--
 <section>
-  <h1><a href="{% url 'journals:journals' %}">SciPost Journals</a></h1>
-  <p>SciPost publishes a family of online open-access peer-witnessed refereed Journals covering all domains and specialties in the field of Physics.</p>
   <div class="row">
+    <div class="col-4">
+      <h1><a href="{% url 'journals:journals' %}">SciPost Journals</a></h1>
+      <p>SciPost publishes a family of online open-access peer-witnessed refereed Journals covering all domains and specialties in the field of Physics.</p>
+    </div>
+    <div class="col-2"></div>
     <div class="col-6">
       <h3>SciPost Physics Select</h3>
       <h3>SciPost Physics Letters</h3>
-    </div>
-    <div class="col-6">
       <h3>SciPost Physics X</h3>
       <h3>SciPost Physics</h3>
     </div>
@@ -58,6 +80,6 @@
   <p>SciPost Commentaries is a repository of Commentary Pages on scientific publications. Each Commentary Page contains summary info about the publication (Title, Author(s), arXiv preprint link, DOI link to published version, abstract), followed by Comments from Contributors and Author and Contributor Replies. </p>
 </section>
 
-
+-->
 
 {% include 'scipost/footer.html' %}

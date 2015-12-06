@@ -17,6 +17,9 @@ from .forms import *
 # SUBMISSIONS:
 ###############
 
+def sub_and_ref_procedure(request):
+    return render(request, 'submissions/sub_and_ref_procedure.html')
+
 @csrf_protect
 def submit_manuscript(request):
     # If POST, process the form data

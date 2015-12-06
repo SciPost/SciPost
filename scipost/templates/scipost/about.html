@@ -1,3 +1,4 @@
+
 {% load staticfiles %}
 <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
 
@@ -5,49 +6,69 @@
 {% include 'scipost/navbar.html' %}
 
 <section>
-  <h1>About SciPost</h1>
-  <p>SciPost is a complete scientific publication portal. It is purely online-based, and offers freely, openly, globally and perpetually accessible science. Being managed by professional scientists, and making use of editor-sollicited and contributed reviews, its Journals aim at the highest achievable standards of refereeing. SciPost Commentaries allow Contributors to seamlessly comment on all existing literature.</p>
-  <h3>Guiding principles</h3>
-  <p>The guiding principles in the conception, implementation and administration of SciPost are:</p>
-  <ul>
-    <li>scientific publications should undergo the stringest possible peer refereeing process</li>
-    <li>peer refereeing should be accountable</li>
-    <li>publicly-funded science should be openly accessible to scientists and the general public, perpetually, worldwide</li>
-    <li>peer evaluation should not occur exclusively pre-publication</li>
-  </ul>
-  <p>The first two principles are implemented using SciPost's maximally stringent <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> process, and by the use of Contributor Ratings.</p>
-  <p>The third principle is reflected in SciPost's not-for-profit status, financially backed by the generous support of national granting agencies, universities, foundations and individuals (see Acknowledgements below).</p>
-  <p>The fourth principle is implemented in the form of Commentary Pages associated to publications. These can either be SciPost publications, or papers published elsewhere.</p>
-
-  <h4>Read the original <a href="{% static 'info/SciPost_Description.pdf' %}">SciPost description</a> document.
+  <div class="row">
+    <div class="col-6">
+      <h1>About SciPost</h1>
+      <h4>Read the original <a href="{% static 'info/SciPost_Description.pdf' %}">SciPost description document</a>.
+    </div>
+    <div class="col-6">
+      <p>SciPost is a complete scientific publication portal.</p>
+      <p>It is purely online-based, and offers freely, openly, globally and perpetually accessible science.</p>
+      <p>Being managed by professional scientists, and making use of editor-sollicited and contributed reviews, its Journals aim at the highest achievable standards of refereeing.</p>
+      <p>SciPost Commentaries allow Contributors to seamlessly comment on all existing literature.</p>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="row">
+    <div class="col-6">
+      <h3>Guiding principles</h3>
+      <p>The guiding principles in the conception, implementation and administration of SciPost are:</p>
+      <ul>
+	<li>scientific publications should undergo the stringest possible peer refereeing process</li>
+	<li>peer refereeing should be accountable and credited</li>
+	<li>publicly-funded science should be openly accessible to scientists and the general public, perpetually, worldwide</li>
+	<li>peer evaluation should not occur exclusively pre-publication</li>
+      </ul>
+    </div>
+    <div class="col-6">
+      <p>The first two principles are implemented using SciPost's maximally stringent <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> process, and by the use of Contributor Ratings.</p>
+      <p>The third principle is reflected in SciPost's not-for-profit status, financially backed by the generous support of national granting agencies, universities, foundations and individuals (see Acknowledgements below).</p>
+      <p>The fourth principle is implemented in the form of Commentary Pages associated to publications. These can either be SciPost publications, or papers published elsewhere.</p>
+    </div>
 </section>
 
 <section>
   <h1>The SciPost Team</h1>
-  <h3>Founder and Enlightened Despot</h3>
-  <p>J.-S. Caux</p>
-  <h3>Advisory Board</h3>
-  <ul>
-    <li>(...)</li>
-  </ul>
-  <br/>
-  <h3>Journals: Editors-in-chief</h3>
   <div class="row">
     <div class="col-6">
-      <h4>SciPost Physics Letters (including Select)</h4>
+      <h3>Founder and Temporary Enlightened Despot</h3>
+      <p>J.-S. Caux</p>
+      <h3>Advisory Board</h3>
       <ul>
 	<li>(...)</li>
       </ul>
     </div>
     <div class="col-6">
-      <h4>SciPost Physics X</h4>
-      <ul>
-	<li>(...)</li>
-      </ul>
-      <h4>SciPost Physics</h4>
-      <ul>
-	<li>(...)</li>
-      </ul>
+      <h3>Journals: Editors-in-chief</h3>
+      <div class="row">
+	<div class="col-6">
+	  <h4>SciPost Physics Letters (+ Select)</h4>
+	  <ul>
+	    <li>(...)</li>
+	  </ul>
+	</div>
+	<div class="col-6">
+	  <h4>SciPost Physics X</h4>
+	  <ul>
+	    <li>(...)</li>
+	  </ul>
+	  <h4>SciPost Physics</h4>
+	  <ul>
+	    <li>(...)</li>
+	  </ul>
+	</div>
+      </div>
     </div>
   </div>
 
@@ -56,14 +77,20 @@
 
 <section>
   <h2>Acknowledgements</h2>
-  <h4>Code Development and Maintenance</h4>
-  <p>J.-S. Caux</p>
-  <h4>Technical assistance</h4>
-  <p>M. Moeys, J. Roodhart</p>
-  <h4>Server</h4>
-  <p>The temporary server is provided by the FNWI and the U. of Amsterdam.</p>
-  <h4>Funding</h4>
-  <p>SciPost acknowledges generous support from the J.-S. Caux Lack of Sleep Foundation.</p>
+  <div class="row">
+    <div class="col-6">
+      <h4>Code Development and Maintenance</h4>
+      <p>J.-S. Caux</p>
+      <h4>Technical assistance</h4>
+      <p>M. Moeys, J. Roodhart</p>
+    </div>
+    <div class="col-6">
+      <h4>Server</h4>
+      <p>The temporary server is provided by the FNWI and the U. of Amsterdam.</p>
+      <h4>Funding</h4>
+      <p>SciPost acknowledges generous support from the J.-S. Caux Lack of Sleep Foundation.</p>
+    </div>
+  </div>
 </section>
 
 {% include 'scipost/footer.html' %}

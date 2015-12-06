@@ -14,7 +14,7 @@ General style sheet for SciPost
 
 [class*="col-"] {
     float: left;
-    padding: 10px;
+    padding: 5px;
 }
 /* For desktop: */
 .col-1 {width: 8.33%;}
@@ -38,7 +38,8 @@ General style sheet for SciPost
 
 
 body {
-  font-family: Verdana, sans-serif; 
+//  font-family: Verdana, sans-serif; 
+  font-family: Helvetica Neue, sans-serif; 
 //  font-family: Arial, sans-serif; 
 //  font-family: Helvetica sans-serif; 
   font-size: 80%;
@@ -46,12 +47,14 @@ body {
   margin: 0px;
   padding: 0px;
 //  background-color: #999999;
-  background-color: #778899;
+//  background-color: #778899;
+  background-color: #ffffff;
+//  background-color: #f0f4f8;
 }
 
 a {
   color: #eeeeee;
-  text-decoration: underline;
+//  text-decoration: underline;
   target: _parent;
 }
 a:hover {
@@ -62,17 +65,22 @@ a:hover {
 
 header {
 //  background-color: #333333;
-  background-color: #102040;
+//  background-color: #102040;
+//  background: linear-gradient(to right,#002240, #003360);
+  background: linear-gradient(to right,#103050, #204060);
   color: #ffffff;
-  border: 1px solid grey; border-radius:5px;
-  margin: 5px;
+//  border: 1px solid grey; border-radius:5px;
+  border: 0px solid grey; border-radius:0px;
+//  margin: 5px;
+  margin: 0px;
   padding: 0px; 5px;
 //  text-shadow: 2px 2px 4px #222222;
 }
 header h1 {
-    font-size: 40px;
-    margin: 0px;
-    padding: 10px;
+  font-size: 50px;
+  font-weight: 400;
+  margin: 0px;
+  padding: 10px;
 //    text-shadow: 1px 1px 2px #999999;
 }
 header a {
@@ -80,18 +88,24 @@ header a {
 }
 header a:hover {
   color: #ffffff;
-  text-decoration: underline;
+//  text-decoration: underline;
 }
 
 nav {
 //  background-color:#cccccc;
 //  background-color:#dddddd;
-  background-color:#e7ebf0;
-  border: 1px solid grey; border-radius:5px;
-  margin:5px; 
+//  background-color:#e7ebf0;
+//  background-color:#ffffff;
+  background-color: #f0f0f0;
+//  border: 1px solid grey; border-radius:5px;
+  border: 0px solid grey; border-radius:0px;
+//  margin:5px; 
+  margin:0px; 
   padding:0px;
   float:center;
   clear:both;
+  font-size: 16px;
+  font-weight: 500;
 }
 nav ul {
   margin: 0;
@@ -110,27 +124,36 @@ nav ul li {
   clear: both;
 }
 nav a {
-  margin: 2px;
+//  margin: 2px;
+  margin: 5px;
   padding: 5px;
 //  background-color: #444444;
 //  background-color: #153060;
-  background-color: #601015;
-  color: #dddddd;
+//  background-color: #601015;
+//  background-color: #ffffff;
+  background-color: #f0f0f0;
+//  color: #dddddd;
+  color: #000000;
 //  text-decoration: underline;
   text-decoration: none;
   display: inline-block;
   target: _parent;
-  text-shadow: 2px 2px 4px #222222;
+//  text-shadow: 2px 2px 4px #222222;
 }
 nav a:visited {
-  color: #eeeeee;
+//  color: #eeeeee;
+  color: #000000;
 }
 nav a:hover {
-  color: #ffffff;
-  text-decoration: underline;
+//  color: #ffffff;
+  color: #000000;
+//  text-decoration: underline;
+  text-decoration: none;
+//  background-color: #eeeeee;
+  background-color: #ffffff;
 }
 nav a:active {
-  color: #dddddd;
+  color: #222222;
 }
 nav p {
   display: inline-block;
@@ -147,22 +170,28 @@ section {
 //  background-color:#666666;
 //  background-color: #eeeeee;
   background-color: white;
-  border: 1px solid grey; border-radius: 5px;
-  margin: 5px; 
+  border: 1px solid grey; border-radius: 1px;
+  margin: 25px 15px; 
   padding: 10px; 
 //  text-shadow: 1px 1px 1px #222222;
 //  text-shadow: 0px 0px 1px #222222;
+//  width: 800px;
+  text-align: justify;
 }
 section a {
 //  color: #eeeeee;
-  color: #222222;
-  text-decoration: underline;
+//  color: #222222;
+  color: #103050;
+//  text-decoration: underline;
+  text-decoration: none;
   target: _parent;
 }
 section a:hover {
 //  color: #ffffff;
-  color: #000000;
-  font-weight: bold;
+//  color: #000000;
+//  color: #404080;
+  color: #103050;
+//  font-weight: bold;
   text-decoration: underline;
 }
 section div {
@@ -175,6 +204,7 @@ section h1, h2, h3, h4, h5, h6 {
   color: #103050;
 //  text-shadow: 2px 2px 4px #222222;
   text-shadow: 0px 0px 0px #222222;
+  font-weight: 500;
 }
 section form {
   margin: 0px;
@@ -183,11 +213,14 @@ section form {
 section form label {
 //  color: #dddddd;
 //  color: #222222;
-  color: #102040;
+//  color: #102040;
+//  color: #ffffff;
+  color: black;
 }
 section form ul li label {
 //  color: #ffffff;
-  color: #102040;
+  color: black;
+//  color: #102040;
 }
 section p {
   margin: 2px;
@@ -257,26 +290,36 @@ article {
 
 footer {
 //  background-color:#333333;
-  background-color:#102040;
+//  background-color:#102040;
+//  background: linear-gradient(to left,#002240, #003360);
+  background: linear-gradient(to left,#103050, #204060);
   color: #ffffff;
-  border: 1px solid grey; border-radius:5px;
+  border: 1px solid grey; border-radius:1px;
   margin:5px; margin-bottom:10px;
   padding:5px;
 }
 footer a {
   color: #eeeeee;
-  text-decoration: underline;
+//  text-decoration: underline;
 }
 footer a:hover {
   color: #ffffff;
   text-decoration: underline;
 }
 
-input {
-  background-color: #305090;
-  color: white;
+input, textarea {
+//  background-color: #305090;
+  background-color: #f8f8f8;
+//  color: white;
+  color: black;
 //  border: 1px solid white; border-radius: 3px;
-  border: 1px solid black; border-radius: 5px;
+  border: 1px solid black; border-radius: 1px;
+}
+input[type='text'], input[type='URL'], textarea {
+//  width: 400px;
+  width: 80%;
+  max-width: 800px;
+  min-width: 200px;
 }
 input:hover {
   text-decoration: underline;
@@ -285,8 +328,10 @@ input:hover {
 select {
 //  background-color: #111111;
 //  background-color: #333333;
-  background-color: #204080;
-  color: white;
+//  background-color: #204080;
+//  color: white;
+  background-color: #f8f8f8;
+  color: black;
 //  border: 1px solid white;
   border: 1px solid black;
 }

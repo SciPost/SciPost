@@ -1,12 +1,12 @@
 <nav>
   <div class="row">
-    <div class="col-8">
-      <a href="/scipost">SciPost Home</a>
-      <a href="{% url 'journals:journals' %}">SciPost Journals</a>
-      <a href="{% url 'submissions:submissions' %}">SciPost Submissions</a>
-      <a href="{% url 'commentaries:commentaries' %}">SciPost Commentaries</a>
+    <div class="col-6">
+      <a href="/scipost">Home</a>
+      <a href="{% url 'journals:journals' %}">Journals</a>
+      <a href="{% url 'submissions:submissions' %}">Submissions</a>
+      <a href="{% url 'commentaries:commentaries' %}">Commentaries</a>
     </div>
-    <div class="col-4">
+    <div class="col-6">
       {% if user.is_authenticated %}
       <p>Logged in as {{ user.username }}</p>
       <a href="{% url 'contributors:logout' %}">Logout</a>
