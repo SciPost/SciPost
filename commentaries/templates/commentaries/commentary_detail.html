@@ -26,7 +26,7 @@
       </ul>
 
       {% if user.is_authenticated %}
-      <form action="{% url 'commentaries:vote_on_commentary' commentary_id=commentary.id %}" method="post" class="ratingsdata">
+      <form action="{% url 'ratings:vote_on_commentary' commentary_id=commentary.id %}" method="post" class="ratingsdata">
 	{% csrf_token %}
 	<ul>
 	  <li>Rate this publication:</li>
@@ -81,7 +81,7 @@
       </ul>
 
       {% if user.is_authenticated %}
-      <form action="{% url 'comments:vote_on_comment' comment_id=comment.id %}" method="post" class="ratingsdata">
+      <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post" class="ratingsdata">
 	{% csrf_token %}
 	<ul>
 	  <li>Rate this comment:</li>

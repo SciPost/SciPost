@@ -12,6 +12,12 @@ from django.db.models import Avg
 from .models import *
 from .forms import *
 
+from comments.models import Comment, AuthorReply
+from contributors.models import Contributor
+from submissions.models import Submission
+
+from comments.forms import CommentForm
+from ratings.forms import CommentRatingForm, ReportRatingForm, SubmissionRatingForm
 
 ###############
 # SUBMISSIONS:

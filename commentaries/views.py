@@ -12,6 +12,9 @@ from django.db.models import Avg
 from .models import *
 from .forms import *
 
+from comments.models import Comment, AuthorReply
+from comments.forms import CommentForm
+from ratings.forms import CommentRatingForm, CommentaryRatingForm
 
 ################
 # Commentaries
@@ -54,7 +57,7 @@ def vet_commentary_requests(request):
     commentary_requests_to_vet = Commentary.objects.filter(vetted=False)
     form = VetCommentaryForm()
     context = {'contributor': contributor, 'commentary_requests_to_vet': commentary_requests_to_vet, 'form': form }
-    return render(request, 'scipost/vet_commentary_requests.html', context)
+    return render(request, 'commentaries/vet_commentary_requests.html', context)
 
 @csrf_protect
 def vet_commentary_request_ack(request, commentary_id):
