@@ -19,23 +19,14 @@
     </div>
     <div class="col-8">
       <ul class="ratingsdata">
-	<li>Ratings: ({{ commentary.nr_ratings }})</li>
-	<li>clarity: {{ commentary.clarity_rating }}%</li>
-	<li>correctness: {{ commentary.correctness_rating }}%</li>
-	<li>usefulness: {{ commentary.usefulness_rating }}%</li>
+	<li>Ratings: </li>
+	<li>clarity: {{ commentary.clarity_rating }}% ({{ commentary.nr_clarity_ratings }})</li>
+	<li>validity: {{ commentary.validity_rating }}% ({{ commentary.nr_validity_ratings }})</li>
+	<li>rigour: {{ commentary.rigour_rating }}% ({{ commentary.nr_rigour_ratings }})</li>
+	<li>originality: {{ commentary.originality_rating }}% ({{ commentary.nr_originality_ratings }})</li>
+	<li>significance: {{ commentary.significance_rating }}% ({{ commentary.nr_significance_ratings }})</li>
       </ul>
 
-      {% if user.is_authenticated %}
-      <form action="{% url 'ratings:vote_on_commentary' commentary_id=commentary.id %}" method="post" class="ratingsdata">
-	{% csrf_token %}
-	<ul>
-	  <li>Rate this publication:</li>
-	  {{ commentary_rating_form.as_ul }}	  
-	  <li><input type="submit" value="Submit"></li>
-	</ul>
-
-      </form>
-      {% endif %}
     </div>
   </div>
 
@@ -51,6 +42,18 @@
   <h3>Abstract:</h3>
   <p>{{ commentary.pub_abstract }}</p>
   
+  {% if user.is_authenticated %}
+  <form action="{% url 'ratings:vote_on_commentary' commentary_id=commentary.id %}" method="post" class="ratingsdata">
+    {% csrf_token %}
+    <ul>
+      <li>Rate this publication:</li>
+      {{ commentary_rating_form.as_ul }}	  
+      <li><input type="submit" value="Submit"></li>
+    </ul>
+    
+  </form>
+  {% endif %}
+
 </section>
 
 {% if reports %}
@@ -74,23 +77,14 @@
 
     <div class="col-8">
       <ul class="ratingsdata">
-	<li>Ratings: ({{ comment.nr_ratings }})</li>
-	<li>clarity: {{ comment.clarity_rating }}%</li>
-	<li>correctness: {{ comment.correctness_rating }}%</li>
-	<li>usefulness: {{ comment.usefulness_rating }}%</li>
+	<li>Ratings: </li>
+	<li>clarity: {{ comment.clarity_rating }}% ({{ comment.nr_clarity_ratings }})</li>
+	<li>validity: {{ comment.validity_rating }}% ({{ comment.nr_validity_ratings }})</li>
+	<li>rigour: {{ comment.rigour_rating }}% ({{ comment.nr_rigour_ratings }})</li>
+	<li>originality: {{ comment.originality_rating }}% ({{ comment.nr_originality_ratings }})</li>
+	<li>significance: {{ comment.significance_rating }}% ({{ comment.nr_significance_ratings }})</li>
       </ul>
 
-      {% if user.is_authenticated %}
-      <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post" class="ratingsdata">
-	{% csrf_token %}
-	<ul>
-	  <li>Rate this comment:</li>
-	  {{ comment_rating_form.as_ul }}	  
-	  <li><input type="submit" value="Submit"></li>
-	</ul>
-
-      </form>
-      {% endif %}
     </div>
   </div>
   <div class="row">
@@ -99,8 +93,22 @@
       <p>{{ comment.comment_text }}</p>
     </div>
   </div>
+
+  {% if user.is_authenticated %}
+  <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post" class="ratingsdata">
+    {% csrf_token %}
+    <ul>
+      <li>Rate this comment:</li>
+      {{ comment_rating_form.as_ul }}	  
+      <li><input type="submit" value="Submit"></li>
+    </ul>
+    
+  </form>
+  {% endif %}
+
   {% for reply in author_replies %}
   {% if reply.in_reply_to_comment.id = comment.id %}
+
   <div class="row">
     <div class="col-1"></div>
     <div class="col-10">

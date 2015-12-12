@@ -23,10 +23,18 @@ class Commentary(models.Model):
     author_list = models.CharField(max_length=1000)
     pub_date = models.DateField(verbose_name='date of original publication')
     pub_abstract = models.TextField()
-    nr_ratings = models.IntegerField(default=0)
-    clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    correctness_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    usefulness_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+
+    nr_clarity_ratings = models.IntegerField(default=0)
+    clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    nr_validity_ratings = models.IntegerField(default=0)
+    validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    nr_rigour_ratings = models.IntegerField(default=0)
+    rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    nr_originality_ratings = models.IntegerField(default=0)
+    originality_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    nr_significance_ratings = models.IntegerField(default=0)
+    significance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+
     latest_activity = models.DateTimeField(default=timezone.now)
 
     def __str__ (self):

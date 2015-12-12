@@ -48,9 +48,15 @@ class Report(models.Model):
     invited_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='invited_by')
     date_submitted = models.DateTimeField('date submitted')
     # Aggregates of ratings applied to this report:
-    nr_ratings = models.IntegerField(default=0)
-    clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    correctness_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    usefulness_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-
+    nr_clarity_ratings = models.IntegerField(default=0)
+    clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    nr_validity_ratings = models.IntegerField(default=0)
+    validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    nr_rigour_ratings = models.IntegerField(default=0)
+    rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    nr_originality_ratings = models.IntegerField(default=0)
+    originality_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    nr_significance_ratings = models.IntegerField(default=0)
+    significance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    
 

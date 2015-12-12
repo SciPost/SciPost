@@ -3,31 +3,33 @@ from django import forms
 from .models import *
 
 
-class CommentaryRatingForm(forms.Form):
+class RatingForm(forms.Form):
+    """ Abstract base class for all rating forms. """
     clarity = forms.ChoiceField(RATING_CHOICES)
-    correctness = forms.ChoiceField(RATING_CHOICES)
-    usefulness = forms.ChoiceField(RATING_CHOICES)
+    validity = forms.ChoiceField(RATING_CHOICES)
+    rigour = forms.ChoiceField(RATING_CHOICES)
+    originality = forms.ChoiceField(RATING_CHOICES)
+    significance = forms.ChoiceField(RATING_CHOICES)
+
+    class Meta:
+        abstract = True
 
 
-class CommentRatingForm(forms.Form):
-    clarity = forms.ChoiceField(RATING_CHOICES)
-    correctness = forms.ChoiceField(RATING_CHOICES)
-    usefulness = forms.ChoiceField(RATING_CHOICES)
+class CommentaryRatingForm(RatingForm):
+    pass
 
 
-class AuthorReplyRatingForm(forms.Form):
-    clarity = forms.ChoiceField(RATING_CHOICES)
-    correctness = forms.ChoiceField(RATING_CHOICES)
-    usefulness = forms.ChoiceField(RATING_CHOICES)
+class CommentRatingForm(RatingForm):
+    pass
 
 
-class SubmissionRatingForm(forms.Form):
-    clarity = forms.ChoiceField(RATING_CHOICES)
-    correctness = forms.ChoiceField(RATING_CHOICES)
-    usefulness = forms.ChoiceField(RATING_CHOICES)
+class AuthorReplyRatingForm(RatingForm):
+    pass
 
 
-class ReportRatingForm(forms.Form):
-    clarity = forms.ChoiceField(RATING_CHOICES)
-    correctness = forms.ChoiceField(RATING_CHOICES)
-    usefulness = forms.ChoiceField(RATING_CHOICES)
+class SubmissionRatingForm(RatingForm):
+    pass
+
+
+class ReportRatingForm(RatingForm):
+    pass
