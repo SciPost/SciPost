@@ -37,6 +37,10 @@ General style sheet for SciPost
 }
 
 
+.ratingsdata select {
+  font-size: 50%;
+}
+
 body {
 //  font-family: Verdana, sans-serif; 
   font-family: Helvetica Neue, sans-serif; 
@@ -277,6 +281,7 @@ section form.ratingsdata ul li {
 section form.ratingsdata ul li label {
   color: #ffffff;
 }
+
 section div table.ratings {
   font-size: 90%;
   color: #ffffff;

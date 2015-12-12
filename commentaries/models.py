@@ -21,6 +21,8 @@ class Commentary(models.Model):
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
     pub_DOI_link = models.URLField(verbose_name='DOI link to the original publication')
     author_list = models.CharField(max_length=1000)
+    # Authors which have been mapped to contributors:
+    authors = models.ManyToManyField (Contributor, blank=True, null=True, related_name='authors_com')
     pub_date = models.DateField(verbose_name='date of original publication')
     pub_abstract = models.TextField()
 

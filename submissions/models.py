@@ -30,6 +30,8 @@ class Submission(models.Model):
     open_for_commenting = models.BooleanField(default=True)
     title = models.CharField(max_length=300)
     author_list = models.CharField(max_length=1000)
+    # Authors which have been mapped to contributors:
+    authors = models.ManyToManyField (Contributor, blank=True, null=True, related_name='authors_sub')
     abstract = models.TextField()
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
     submission_date = models.DateField(verbose_name='date of original publication')

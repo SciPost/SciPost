@@ -64,17 +64,21 @@
     <div class="col-4">
       <table class="ratings">
 	<th>Reports</th><th>(nr: {{ contributor.nr_reports }})</th>
-	<tr><td>clarity:</td><td>{{ contributor.report_clarity_rating }}%</td></tr>
-	<tr><td>correctness:</td><td>{{ contributor.report_correctness_rating }}%</td></tr>
-	<tr><td>usefulness:</td><td>{{ contributor.report_usefulness_rating }}%</td></tr>
+	<tr><td>clarity:</td><td>{{ contributor.report_clarity_rating }}% ({{ contributor.nr_report_clarity_ratings }})</td></tr>
+	<tr><td>validity:</td><td>{{ contributor.report_validity_rating }}% ({{ contributor.nr_report_validity_ratings }})</td></tr>
+	<tr><td>rigour:</td><td>{{ contributor.report_rigour_rating }}% ({{ contributor.nr_report_rigour_ratings }})</td></tr>
+	<tr><td>originality:</td><td>{{ contributor.report_originality_rating }}% ({{ contributor.nr_report_originality_ratings }})</td></tr>
+	<tr><td>significance:</td><td>{{ contributor.report_significance_rating }}% ({{ contributor.nr_report_significance_ratings }})</td></tr>
       </table>
     </div>
     <div class="col-4">
       <table class="ratings">
 	<th>Comments</th><th>(nr: {{ contributor.nr_comments }})</th>
-	<tr><td>clarity:</td><td>{{ contributor.comment_clarity_rating }}%</td></tr>
-	<tr><td>correctness:</td><td>{{ contributor.comment_correctness_rating }}%</td></tr>
-	<tr><td>usefulness:</td><td>{{ contributor.comment_usefulness_rating }}%</td></tr>
+	<tr><td>clarity:</td><td>{{ contributor.comment_clarity_rating }}% ({{ contributor.nr_comment_clarity_ratings }})</td></tr>
+	<tr><td>validity:</td><td>{{ contributor.comment_validity_rating }}% ({{ contributor.nr_comment_validity_ratings }})</td></tr>
+	<tr><td>rigour:</td><td>{{ contributor.comment_rigour_rating }}% ({{ contributor.nr_comment_rigour_ratings }})</td></tr>
+	<tr><td>originality:</td><td>{{ contributor.comment_originality_rating }}% ({{ contributor.nr_comment_originality_ratings }})</td></tr>
+	<tr><td>significance:</td><td>{{ contributor.comment_significance_rating }}% ({{ contributor.nr_comment_significance_ratings }})</td></tr>
       </table>
     </div>
   </div>
