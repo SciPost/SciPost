@@ -18,8 +18,8 @@ RATING_CHOICES = (
     )
 
 
-class Rating(models.Model):
-    """ Abstract base class for all ratings. """
+class PublicationTypeRating(models.Model):
+    """ Abstract base class for all ratings of publication-type objects. """
     rater = models.ForeignKey(Contributor)
     clarity = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
     validity = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
@@ -31,25 +31,35 @@ class Rating(models.Model):
         abstract = True
 
 
-class CommentaryRating(Rating):
+class CommentTypeRating(models.Model):
+    """ Abstract base class for all ratings of comment-type objects. """
+    rater = models.ForeignKey(Contributor)
+    relevance = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
+    importance = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
+    clarity = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
+    validity = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
+    rigour = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
+    
+    class Meta:
+        abstract = True
+
+
+class CommentaryRating(PublicationTypeRating):
     """ A Commentary rating is a set of numbers quantifying the original publication subject to a Commentary. """
     commentary = models.ForeignKey(Commentary)
 
-
-class CommentRating(Rating):
+class CommentRating(CommentTypeRating):
     """ A Comment rating is a set of numbers quantifying various requirements of a Comment. """
     comment = models.ForeignKey(Comment)
 
-class AuthorReplyRating(Rating):
+class AuthorReplyRating(CommentTypeRating):
     reply = models.ForeignKey(AuthorReply)
 
-
-class ReportRating(Rating):
+class ReportRating(CommentTypeRating):
     """ A Report rating is a set of numbers quantifying various requirements of a Report. """
     report = models.ForeignKey(Report)
 
-
-class SubmissionRating(Rating):
+class SubmissionRating(PublicationTypeRating):
     """ A Submission rating is a set of numbers quantifying various requirements of a Submission. """
     submission = models.ForeignKey(Submission)
 

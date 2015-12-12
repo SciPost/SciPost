@@ -3,8 +3,8 @@ from django import forms
 from .models import *
 
 
-class RatingForm(forms.Form):
-    """ Abstract base class for all rating forms. """
+class PublicationTypeRatingForm(forms.Form):
+    """ Abstract base class for all publication-type rating forms. """
     clarity = forms.ChoiceField(RATING_CHOICES)
     validity = forms.ChoiceField(RATING_CHOICES)
     rigour = forms.ChoiceField(RATING_CHOICES)
@@ -14,22 +14,29 @@ class RatingForm(forms.Form):
     class Meta:
         abstract = True
 
+class CommentTypeRatingForm(forms.Form):
+    """ Abstract base class for all comment-type rating forms. """
+    relevance = forms.ChoiceField(RATING_CHOICES)
+    importance = forms.ChoiceField(RATING_CHOICES)
+    clarity = forms.ChoiceField(RATING_CHOICES)
+    validity = forms.ChoiceField(RATING_CHOICES)
+    rigour = forms.ChoiceField(RATING_CHOICES)
 
-class CommentaryRatingForm(RatingForm):
+    class Meta:
+        abstract = True
+
+
+class CommentaryRatingForm(PublicationTypeRatingForm):
     pass
 
-
-class CommentRatingForm(RatingForm):
+class CommentRatingForm(CommentTypeRatingForm):
     pass
 
-
-class AuthorReplyRatingForm(RatingForm):
+class AuthorReplyRatingForm(CommentTypeRatingForm):
     pass
 
-
-class SubmissionRatingForm(RatingForm):
+class SubmissionRatingForm(PublicationTypeRatingForm):
     pass
 
-
-class ReportRatingForm(RatingForm):
+class ReportRatingForm(CommentTypeRatingForm):
     pass

@@ -48,6 +48,10 @@ class Contributor(models.Model):
     address = models.CharField(max_length=1000, blank=True, verbose_name="address")
     personalwebpage = models.URLField(blank=True, verbose_name='personal web page')
 
+    nr_comment_relevance_ratings = models.IntegerField(default=0)
+    comment_relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+    nr_comment_importance_ratings = models.IntegerField(default=0)
+    comment_importance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
     nr_comments = models.PositiveSmallIntegerField(default=0)
     nr_comment_clarity_ratings = models.IntegerField(default=0)
     comment_clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
@@ -55,11 +59,11 @@ class Contributor(models.Model):
     comment_validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
     nr_comment_rigour_ratings = models.IntegerField(default=0)
     comment_rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_comment_originality_ratings = models.IntegerField(default=0)
-    comment_originality_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_comment_significance_ratings = models.IntegerField(default=0)
-    comment_significance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
 
+    nr_report_relevance_ratings = models.IntegerField(default=0)
+    report_relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+    nr_report_importance_ratings = models.IntegerField(default=0)
+    report_importance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
     nr_reports = models.PositiveSmallIntegerField(default=0)
     nr_report_clarity_ratings = models.IntegerField(default=0)
     report_clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
@@ -67,10 +71,6 @@ class Contributor(models.Model):
     report_validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
     nr_report_rigour_ratings = models.IntegerField(default=0)
     report_rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_report_originality_ratings = models.IntegerField(default=0)
-    report_originality_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_report_significance_ratings = models.IntegerField(default=0)
-    report_significance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
 
 
 
