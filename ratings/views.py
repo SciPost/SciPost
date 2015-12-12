@@ -91,6 +91,7 @@ def vote_on_comment(request, comment_id):
                 comment.originality_rating = CommentRating.objects.filter(comment=comment, originality__lte=100).aggregate(avg_originality=Avg('originality'))['avg_originality']
                 comment.significance_rating = CommentRating.objects.filter(comment=comment, significance__lte=100).aggregate(avg_significance=Avg('significance'))['avg_significance']
                 comment.save()
+
                 # Recalculate the comment_ratings for the comment's author:
                 comment.author.comment_clarity_rating = 0
                 comment.author.comment_validity_rating = 0
@@ -116,7 +117,7 @@ def vote_on_comment(request, comment_id):
                         clarity_rating_sum_author += com.nr_clarity_ratings * com.clarity_rating
                     nr_validity_ratings_author += com.nr_validity_ratings
                     if com.nr_validity_ratings > 0:
-                        clarity_rating_sum_author += com.nr_validity_ratings * com.validity_rating
+                        validity_rating_sum_author += com.nr_validity_ratings * com.validity_rating
                     nr_rigour_ratings_author += com.nr_rigour_ratings
                     if com.nr_rigour_ratings > 0:
                         rigour_rating_sum_author += com.nr_rigour_ratings * com.rigour_rating
@@ -127,23 +128,21 @@ def vote_on_comment(request, comment_id):
                     if com.nr_significance_ratings > 0:
                         significance_rating_sum_author += com.nr_significance_ratings * com.significance_rating
 
+                comment.author.nr_clarity_ratings = nr_clarity_ratings_author
                 comment.author.comment_clarity_rating = clarity_rating_sum_author/max(1, nr_clarity_ratings_author)
+                comment.author.nr_validity_ratings = nr_validity_ratings_author
                 comment.author.comment_validity_rating = validity_rating_sum_author/max(1, nr_validity_ratings_author)
+                comment.author.nr_rigour_ratings = nr_rigour_ratings_author
                 comment.author.comment_rigour_rating = rigour_rating_sum_author/max(1, nr_rigour_ratings_author)
+                comment.author.nr_originality_ratings = nr_originality_ratings_author
                 comment.author.comment_originality_rating = originality_rating_sum_author/max(1, nr_originality_ratings_author)
+                comment.author.nr_significance_ratings = nr_significance_ratings_author
                 comment.author.comment_significance_rating = significance_rating_sum_author/max(1, nr_significance_ratings_author)
 
                 comment.author.save()
-#            request.session['commentary_id'] = commentary_id
+
             return HttpResponseRedirect(reverse('ratings:vote_on_comment_ack'))
 
-#    commentary = Commentary(pk=commentary_id)
-#    comments = commentary.comment_set.all()
-#    form = CommentForm()
-#    comment_rating_form = CommentRatingForm()
-    
-#    context = {'commentary': commentary, 'comments': comments.order_by('date_submitted'), 'form': form, 'comment_rating_form': comment_rating_form}
-#    return render(request, 'ratings/commentary_detail.html', context)
     return render(request, 'ratings/vote_on_comment_ack.html')
 
 @csrf_protect            
@@ -223,10 +222,15 @@ def vote_on_report(request, report_id):
                     if rep.nr_significance_ratings > 0:
                         significance_rating_sum_author += rep.nr_significance_ratings * rep.significance_rating
 
+                report.author.nr_report_clarity_ratings = nr_clarity_ratings_author
                 report.author.report_clarity_rating = clarity_rating_sum_author/max(1, nr_clarity_ratings_author)
+                report.author.nr_report_validity_ratings = nr_validity_ratings_author
                 report.author.report_validity_rating = validity_rating_sum_author/max(1, nr_validity_ratings_author)
+                report.author.nr_report_rigour_ratings = nr_rigour_ratings_author
                 report.author.report_rigour_rating = rigour_rating_sum_author/max(1, nr_rigour_ratings_author)
+                report.author.nr_report_originality_ratings = nr_originality_ratings_author
                 report.author.report_originality_rating = originality_rating_sum_author/max(1, nr_originality_ratings_author)
+                report.author.nr_report_significance_ratings = nr_significance_ratings_author
                 report.author.report_significance_rating = significance_rating_sum_author/max(1, nr_significance_ratings_author)
 
                 report.author.save()
