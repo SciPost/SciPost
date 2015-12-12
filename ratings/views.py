@@ -35,7 +35,6 @@ def vote_on_commentary(request, commentary_id):
                 significance = form.cleaned_data['significance'],
                 )
             newrating.save()
-#            commentary.nr_ratings = CommentaryRating.objects.filter(commentary=commentary).count()
             commentary.nr_clarity_ratings = CommentaryRating.objects.filter(commentary=commentary, clarity__lte=100).count()
             commentary.nr_validity_ratings = CommentaryRating.objects.filter(commentary=commentary, validity__lte=100).count()
             commentary.nr_rigour_ratings = CommentaryRating.objects.filter(commentary=commentary, rigour__lte=100).count()
@@ -43,9 +42,6 @@ def vote_on_commentary(request, commentary_id):
             commentary.nr_significance_ratings = CommentaryRating.objects.filter(commentary=commentary, significance__lte=100).count()
             commentary.save()
             # Recalculate the ratings for this report:
-#            commentary.clarity_rating = CommentaryRating.objects.filter(commentary=commentary).aggregate(avg_clarity=Avg('clarity'))['avg_clarity']
-#            commentary.correctness_rating = CommentaryRating.objects.filter(commentary=commentary).aggregate(avg_correctness=Avg('correctness'))['avg_correctness']
-#            commentary.usefulness_rating = CommentaryRating.objects.filter(commentary=commentary).aggregate(avg_usefulness=Avg('usefulness'))['avg_usefulness']
             commentary.clarity_rating = CommentaryRating.objects.filter(commentary=commentary, clarity__lte=100).aggregate(avg_clarity=Avg('clarity'))['avg_clarity']
             commentary.validity_rating = CommentaryRating.objects.filter(commentary=commentary, validity__lte=100).aggregate(avg_validity=Avg('validity'))['avg_validity']
             commentary.rigour_rating = CommentaryRating.objects.filter(commentary=commentary, rigour__lte=100).aggregate(avg_rigour=Avg('rigour'))['avg_rigour']
@@ -81,8 +77,7 @@ def vote_on_comment(request, comment_id):
                     significance = form.cleaned_data['significance'],
                 )
                 newrating.save()
-                #                comment.nr_ratings += 1
-                #                comment.nr_ratings = CommentRating.objects.filter(comment=comment).count()
+
                 comment.nr_clarity_ratings = CommentRating.objects.filter(comment=comment, clarity__lte=100).count()
                 comment.nr_validity_ratings = CommentRating.objects.filter(comment=comment, validity__lte=100).count()
                 comment.nr_rigour_ratings = CommentRating.objects.filter(comment=comment, rigour__lte=100).count()
@@ -90,9 +85,6 @@ def vote_on_comment(request, comment_id):
                 comment.nr_significance_ratings = CommentRating.objects.filter(comment=comment, significance__lte=100).count()
                 comment.save()
                 # Recalculate the ratings for this comment:
-                #comment.clarity_rating = CommentRating.objects.filter(comment=comment).aggregate(avg_clarity=Avg('clarity'))['avg_clarity']
-                #comment.correctness_rating = CommentRating.objects.filter(comment=comment).aggregate(avg_correctness=Avg('correctness'))['avg_correctness']
-                #comment.usefulness_rating = CommentRating.objects.filter(comment=comment).aggregate(avg_usefulness=Avg('usefulness'))['avg_usefulness']
                 comment.clarity_rating = CommentRating.objects.filter(comment=comment, clarity__lte=100).aggregate(avg_clarity=Avg('clarity'))['avg_clarity']
                 comment.validity_rating = CommentRating.objects.filter(comment=comment, validity__lte=100).aggregate(avg_validity=Avg('validity'))['avg_validity']
                 comment.rigour_rating = CommentRating.objects.filter(comment=comment, rigour__lte=100).aggregate(avg_rigour=Avg('rigour'))['avg_rigour']
@@ -120,15 +112,20 @@ def vote_on_comment(request, comment_id):
                 comments_from_author = Comment.objects.filter(author=comment.author)
                 for com in comments_from_author:
                     nr_clarity_ratings_author += com.nr_clarity_ratings
-                    clarity_rating_sum_author += com.nr_clarity_ratings * com.clarity_rating
+                    if com.nr_clarity_ratings > 0:
+                        clarity_rating_sum_author += com.nr_clarity_ratings * com.clarity_rating
                     nr_validity_ratings_author += com.nr_validity_ratings
-                    clarity_rating_sum_author += com.nr_validity_ratings * com.validity_rating
+                    if com.nr_validity_ratings > 0:
+                        clarity_rating_sum_author += com.nr_validity_ratings * com.validity_rating
                     nr_rigour_ratings_author += com.nr_rigour_ratings
-                    rigour_rating_sum_author += com.nr_rigour_ratings * com.rigour_rating
+                    if com.nr_rigour_ratings > 0:
+                        rigour_rating_sum_author += com.nr_rigour_ratings * com.rigour_rating
                     nr_originality_ratings_author += com.nr_originality_ratings
-                    originality_rating_sum_author += com.nr_originality_ratings * com.originality_rating
+                    if com.nr_originality_ratings > 0:
+                        originality_rating_sum_author += com.nr_originality_ratings * com.originality_rating
                     nr_significance_ratings_author += com.nr_significance_ratings
-                    significance_rating_sum_author += com.nr_significance_ratings * com.significance_rating
+                    if com.nr_significance_ratings > 0:
+                        significance_rating_sum_author += com.nr_significance_ratings * com.significance_rating
 
                 comment.author.comment_clarity_rating = clarity_rating_sum_author/max(1, nr_clarity_ratings_author)
                 comment.author.comment_validity_rating = validity_rating_sum_author/max(1, nr_validity_ratings_author)
@@ -176,8 +173,7 @@ def vote_on_report(request, report_id):
                     significance = form.cleaned_data['significance'],
                     )
                 newrating.save()
-#                comment.nr_ratings += 1
-#                report.nr_ratings = ReportRating.objects.filter(report=report).count()
+
                 report.nr_clarity_ratings = ReportRating.objects.filter(report=report, clarity__lte=100).count()
                 report.nr_validity_ratings = ReportRating.objects.filter(report=report, validity__lte=100).count()
                 report.nr_rigour_ratings = ReportRating.objects.filter(report=report, rigour__lte=100).count()
@@ -185,9 +181,6 @@ def vote_on_report(request, report_id):
                 report.nr_significance_ratings = ReportRating.objects.filter(report=report, significance__lte=100).count()
                 report.save()
                 # Recalculate the ratings for this report:
-#                report.clarity_rating = ReportRating.objects.filter(report=report).aggregate(avg_clarity=Avg('clarity'))['avg_clarity']
-#                report.correctness_rating = ReportRating.objects.filter(report=report).aggregate(avg_correctness=Avg('correctness'))['avg_correctness']
-#                report.usefulness_rating = ReportRating.objects.filter(report=report).aggregate(avg_usefulness=Avg('usefulness'))['avg_usefulness']
                 report.clarity_rating = ReportRating.objects.filter(report=report, clarity__lte=100).aggregate(avg_clarity=Avg('clarity'))['avg_clarity']
                 report.validity_rating = ReportRating.objects.filter(report=report, validity__lte=100).aggregate(avg_validity=Avg('validity'))['avg_validity']
                 report.rigour_rating = ReportRating.objects.filter(report=report, rigour__lte=100).aggregate(avg_rigour=Avg('rigour'))['avg_rigour']
@@ -215,15 +208,20 @@ def vote_on_report(request, report_id):
                 reports_from_author = Report.objects.filter(author=report.author)
                 for rep in reports_from_author:
                     nr_clarity_ratings_author += rep.nr_clarity_ratings
-                    clarity_rating_sum_author += rep.nr_clarity_ratings * rep.clarity_rating
+                    if rep.nr_clarity_ratings > 0:
+                        clarity_rating_sum_author += rep.nr_clarity_ratings * rep.clarity_rating
                     nr_validity_ratings_author += rep.nr_validity_ratings
-                    clarity_rating_sum_author += rep.nr_validity_ratings * rep.validity_rating
+                    if rep.nr_validity_ratings > 0:
+                        clarity_rating_sum_author += rep.nr_validity_ratings * rep.validity_rating
                     nr_rigour_ratings_author += rep.nr_rigour_ratings
-                    rigour_rating_sum_author += rep.nr_rigour_ratings * rep.rigour_rating
+                    if rep.nr_rigour_ratings > 0:
+                        rigour_rating_sum_author += rep.nr_rigour_ratings * rep.rigour_rating
                     nr_originality_ratings_author += rep.nr_originality_ratings
-                    originality_rating_sum_author += rep.nr_originality_ratings * rep.originality_rating
+                    if rep.nr_originality_ratings > 0:
+                        originality_rating_sum_author += rep.nr_originality_ratings * rep.originality_rating
                     nr_significance_ratings_author += rep.nr_significance_ratings
-                    significance_rating_sum_author += rep.nr_significance_ratings * rep.significance_rating
+                    if rep.nr_significance_ratings > 0:
+                        significance_rating_sum_author += rep.nr_significance_ratings * rep.significance_rating
 
                 report.author.report_clarity_rating = clarity_rating_sum_author/max(1, nr_clarity_ratings_author)
                 report.author.report_validity_rating = validity_rating_sum_author/max(1, nr_validity_ratings_author)
