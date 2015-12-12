@@ -128,15 +128,15 @@ def vote_on_comment(request, comment_id):
                     if com.nr_significance_ratings > 0:
                         significance_rating_sum_author += com.nr_significance_ratings * com.significance_rating
 
-                comment.author.nr_clarity_ratings = nr_clarity_ratings_author
+                comment.author.nr_comment_clarity_ratings = nr_clarity_ratings_author
                 comment.author.comment_clarity_rating = clarity_rating_sum_author/max(1, nr_clarity_ratings_author)
-                comment.author.nr_validity_ratings = nr_validity_ratings_author
+                comment.author.nr_comment_validity_ratings = nr_validity_ratings_author
                 comment.author.comment_validity_rating = validity_rating_sum_author/max(1, nr_validity_ratings_author)
-                comment.author.nr_rigour_ratings = nr_rigour_ratings_author
+                comment.author.nr_comment_rigour_ratings = nr_rigour_ratings_author
                 comment.author.comment_rigour_rating = rigour_rating_sum_author/max(1, nr_rigour_ratings_author)
-                comment.author.nr_originality_ratings = nr_originality_ratings_author
+                comment.author.nr_comment_originality_ratings = nr_originality_ratings_author
                 comment.author.comment_originality_rating = originality_rating_sum_author/max(1, nr_originality_ratings_author)
-                comment.author.nr_significance_ratings = nr_significance_ratings_author
+                comment.author.nr_comment_significance_ratings = nr_significance_ratings_author
                 comment.author.comment_significance_rating = significance_rating_sum_author/max(1, nr_significance_ratings_author)
 
                 comment.author.save()
@@ -186,6 +186,7 @@ def vote_on_report(request, report_id):
                 report.originality_rating = ReportRating.objects.filter(report=report, originality__lte=100).aggregate(avg_originality=Avg('originality'))['avg_originality']
                 report.significance_rating = ReportRating.objects.filter(report=report, significance__lte=100).aggregate(avg_significance=Avg('significance'))['avg_significance']
                 report.save()
+
                 # Recalculate the report_ratings for the report's author:
                 report.author.report_clarity_rating = 0
                 report.author.report_validity_rating = 0
@@ -265,17 +266,15 @@ def vote_on_submission(request, submission_id):
                 significance = form.cleaned_data['significance'],
                 )
             newrating.save()
-            #submission.nr_ratings = SubmissionRating.objects.filter(submission=submission).count()
+
             submission.nr_clarity_ratings = SubmissionRating.objects.filter(submission=submission, clarity__lte=100).count()
             submission.nr_validity_ratings = SubmissionRating.objects.filter(submission=submission, validity__lte=100).count()
             submission.nr_rigour_ratings = SubmissionRating.objects.filter(submission=submission, rigour__lte=100).count()
             submission.nr_originality_ratings = SubmissionRating.objects.filter(submission=submission, originality__lte=100).count()
             submission.nr_significance_ratings = SubmissionRating.objects.filter(submission=submission, significance__lte=100).count()
             submission.save()
+
             # Recalculate the ratings for this report:
-#            submission.clarity_rating = SubmissionRating.objects.filter(submission=submission).aggregate(avg_clarity=Avg('clarity'))['avg_clarity']
-#            submission.correctness_rating = SubmissionRating.objects.filter(submission=submission).aggregate(avg_correctness=Avg('correctness'))['avg_correctness']
-#            submission.usefulness_rating = SubmissionRating.objects.filter(submission=submission).aggregate(avg_usefulness=Avg('usefulness'))['avg_usefulness']
             submission.clarity_rating = SubmissionRating.objects.filter(submission=submission, clarity__lte=100).aggregate(avg_clarity=Avg('clarity'))['avg_clarity']
             submission.validity_rating = SubmissionRating.objects.filter(submission=submission, validity__lte=100).aggregate(avg_validity=Avg('validity'))['avg_validity']
             submission.rigour_rating = SubmissionRating.objects.filter(submission=submission, rigour__lte=100).aggregate(avg_rigour=Avg('rigour'))['avg_rigour']
