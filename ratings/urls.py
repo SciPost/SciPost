@@ -11,4 +11,6 @@ urlpatterns = [
     url(r'^vote_on_commentary_ack$', views.vote_on_commentary_ack, name='vote_on_commentary_ack'),
     url(r'^vote_on_comment/(?P<comment_id>[0-9]+)$', views.vote_on_comment, name='vote_on_comment'),
     url(r'^vote_on_comment_ack$', views.vote_on_comment_ack, name='vote_on_comment_ack'),
+    url(r'^vote_on_authorreply/(?P<authorreply_id>[0-9]+)$', views.vote_on_authorreply, name='vote_on_authorreply'),
+    url(r'^vote_on_authorreply_ack$', views.vote_on_authorreply_ack, name='vote_on_authorreply_ack'),
 ]

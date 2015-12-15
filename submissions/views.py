@@ -17,7 +17,7 @@ from contributors.models import Contributor
 from submissions.models import Submission
 
 from comments.forms import CommentForm
-from ratings.forms import CommentRatingForm, ReportRatingForm, SubmissionRatingForm
+from ratings.forms import CommentRatingForm, AuthorReplyRatingForm, ReportRatingForm, SubmissionRatingForm
 
 ###############
 # SUBMISSIONS:
@@ -127,12 +127,13 @@ def submission_detail(request, submission_id):
     reports = submission.report_set.all()
     report_rating_form = ReportRatingForm()
     comment_rating_form = CommentRatingForm()
+    authorreply_rating_form = AuthorReplyRatingForm()
     submission_rating_form = SubmissionRatingForm()
     try:
         author_replies = AuthorReply.objects.filter(submission=submission)
     except AuthorReply.DoesNotExist:
         author_replies = ()
-    context = {'submission': submission, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 'reports': reports.filter(status__gte=1), 'author_replies': author_replies, 'form': form, 'report_rating_form': report_rating_form, 'submission_rating_form': submission_rating_form, 'comment_rating_form': comment_rating_form}
+    context = {'submission': submission, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 'reports': reports.filter(status__gte=1), 'author_replies': author_replies, 'form': form, 'report_rating_form': report_rating_form, 'submission_rating_form': submission_rating_form, 'comment_rating_form': comment_rating_form, 'authorreply_rating_form': authorreply_rating_form}
     return render(request, 'submissions/submission_detail.html', context)
 
 

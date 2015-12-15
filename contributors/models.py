@@ -60,6 +60,18 @@ class Contributor(models.Model):
     nr_comment_rigour_ratings = models.IntegerField(default=0)
     comment_rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
 
+    nr_authorreply_relevance_ratings = models.IntegerField(default=0)
+    authorreply_relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+    nr_authorreply_importance_ratings = models.IntegerField(default=0)
+    authorreply_importance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+    nr_authorreplys = models.PositiveSmallIntegerField(default=0)
+    nr_authorreply_clarity_ratings = models.IntegerField(default=0)
+    authorreply_clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+    nr_authorreply_validity_ratings = models.IntegerField(default=0)
+    authorreply_validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+    nr_authorreply_rigour_ratings = models.IntegerField(default=0)
+    authorreply_rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+
     nr_report_relevance_ratings = models.IntegerField(default=0)
     report_relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
     nr_report_importance_ratings = models.IntegerField(default=0)

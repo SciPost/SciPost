@@ -14,7 +14,7 @@ from .forms import *
 
 from comments.models import Comment, AuthorReply
 from comments.forms import CommentForm
-from ratings.forms import CommentRatingForm, CommentaryRatingForm
+from ratings.forms import CommentRatingForm, AuthorReplyRatingForm, CommentaryRatingForm
 
 ################
 # Commentaries
@@ -135,10 +135,11 @@ def commentary_detail(request, commentary_id):
         form = CommentForm()
 
     comment_rating_form = CommentRatingForm()
+    authorreply_rating_form = AuthorReplyRatingForm()
     commentary_rating_form = CommentaryRatingForm()
     try:
         author_replies = AuthorReply.objects.filter(commentary=commentary)
     except AuthorReply.DoesNotExist:
         author_replies = ()
-    context = {'commentary': commentary, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 'author_replies': author_replies, 'form': form, 'commentary_rating_form': commentary_rating_form, 'comment_rating_form': comment_rating_form}
+    context = {'commentary': commentary, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 'author_replies': author_replies, 'form': form, 'commentary_rating_form': commentary_rating_form, 'comment_rating_form': comment_rating_form, 'authorreply_rating_form': authorreply_rating_form}
     return render(request, 'commentaries/commentary_detail.html', context)

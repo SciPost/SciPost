@@ -100,7 +100,7 @@ def author_reply_to_report(request, report_id):
         form = AuthorReplyForm(request.POST)
         if form.is_valid():
             newreply = AuthorReply (
-                submission = comment.submission,
+                submission = report.submission,
                 in_reply_to_report = report,
                 author = Contributor.objects.get(user=request.user),
                 reply_text = form.cleaned_data['reply_text'],
