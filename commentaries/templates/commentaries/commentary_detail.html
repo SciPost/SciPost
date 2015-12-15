@@ -1,8 +1,20 @@
 {% load staticfiles %}
 <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+<!--<script type="text/javascript" src="{% static 'js/jquery.js' %}"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 {% load mathjax %}
 {% mathjax_scripts %}
+
+
+  <script>
+    $(document).ready(function(){
+    $("#commentsbutton").click(function(){
+    $("#commentslist").toggle();
+    });
+    });
+  </script>
+
 
 {% include 'scipost/header.html' %}
 {% include 'scipost/navbar.html' %}
@@ -66,7 +78,10 @@
 {% if comments %}
 <section>
   <h2>Comments on this publication</h2>
+  <button id="commentsbutton">Toggle view</button>
   <hr>
+
+  <div id="commentslist">
   {% for comment in comments %}
   <div class="row">
 
@@ -95,15 +110,19 @@
   </div>
 
   {% if user.is_authenticated %}
-  <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post" class="ratingsdata">
-    {% csrf_token %}
-    <ul>
-      <li>Rate this comment:</li>
-      {{ comment_rating_form.as_ul }}	  
-      <li><input type="submit" value="Submit"></li>
-    </ul>
-    
-  </form>
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-10">
+      <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post" class="ratingsdata">
+	{% csrf_token %}
+	<ul>
+	  <li>Rate this comment:</li>
+	  {{ comment_rating_form.as_ul }}	  
+	  <li><input type="submit" value="Submit"></li>
+	</ul>	
+      </form>
+    </div>
+  </div>
   {% endif %}
 
   {% for reply in author_replies %}
@@ -130,6 +149,7 @@
   </div>
   <hr>
   {% endfor %}
+  </div id="commentslist">
 </section>
 {% endif %}
 

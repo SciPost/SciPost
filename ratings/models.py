@@ -13,7 +13,7 @@ from submissions.models import Submission
 
 
 RATING_CHOICES = (
-    (101, 'abstain'), # Only values between 0 and 100 are kept, anything outside those limits is discarded.
+    (101, '-'), # Only values between 0 and 100 are kept, anything outside those limits is discarded.
     (100, '100%'), (90, '90%'), (80, '80%'), (70, '70%'), (60, '60%'), (50, '50%'), (40, '40%'), (30, '30%'), (20, '20%'), (10, '10%'), (0, '0%')
     )
 
