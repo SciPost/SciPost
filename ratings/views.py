@@ -152,6 +152,100 @@ def vote_on_comment_ack(request):
     context = {}
     return render(request, 'ratings/vote_on_comment_ack.html', context)
 
+@csrf_protect
+def vote_on_authorreply(request, authorreply_id):
+    authorreply = get_object_or_404(AuthorReply, pk=authorreply_id)
+    rater = Contributor.objects.get(user=request.user)
+    if request.method == 'POST':
+        form = AuthorReplyRatingForm(request.POST)
+        if form.is_valid():
+            if rater.id != authorreply.author.id:
+                # Any previous rating from this contributor for this authorreply is deleted:
+                AuthorReplyRating.objects.filter(rater=rater, authorreply=authorreply).delete()
+                newrating = AuthorReplyRating (
+                    authorreply = authorreply,
+                    rater = Contributor.objects.get(user=request.user),
+                    relevance = form.cleaned_data['relevance'],
+                    importance = form.cleaned_data['importance'],
+                    clarity = form.cleaned_data['clarity'],
+                    validity = form.cleaned_data['validity'],
+                    rigour = form.cleaned_data['rigour'],
+                )
+                newrating.save()
+
+                authorreply.nr_relevance_ratings = AuthorReplyRating.objects.filter(authorreply=authorreply, relevance__lte=100).count()
+                authorreply.nr_importance_ratings = AuthorReplyRating.objects.filter(authorreply=authorreply, importance__lte=100).count()
+                authorreply.nr_clarity_ratings = AuthorReplyRating.objects.filter(authorreply=authorreply, clarity__lte=100).count()
+                authorreply.nr_validity_ratings = AuthorReplyRating.objects.filter(authorreply=authorreply, validity__lte=100).count()
+                authorreply.nr_rigour_ratings = AuthorReplyRating.objects.filter(authorreply=authorreply, rigour__lte=100).count()
+                authorreply.save()
+
+                # Recalculate the ratings for this authorreply:
+                authorreply.relevance_rating = AuthorReplyRating.objects.filter(authorreply=authorreply, relevance__lte=100).aggregate(avg_relevance=Avg('relevance'))['avg_relevance']
+                authorreply.importance_rating = AuthorReplyRating.objects.filter(authorreply=authorreply, importance__lte=100).aggregate(avg_importance=Avg('importance'))['avg_importance']
+                authorreply.clarity_rating = AuthorReplyRating.objects.filter(authorreply=authorreply, clarity__lte=100).aggregate(avg_clarity=Avg('clarity'))['avg_clarity']
+                authorreply.validity_rating = AuthorReplyRating.objects.filter(authorreply=authorreply, validity__lte=100).aggregate(avg_validity=Avg('validity'))['avg_validity']
+                authorreply.rigour_rating = AuthorReplyRating.objects.filter(authorreply=authorreply, rigour__lte=100).aggregate(avg_rigour=Avg('rigour'))['avg_rigour']
+                authorreply.save()
+
+                # Recalculate the authorreply_ratings for the authorreply's author:
+                authorreply.author.authorreply_relevance_rating = 0
+                authorreply.author.authorreply_importance_rating = 0 
+                authorreply.author.authorreply_clarity_rating = 0
+                authorreply.author.authorreply_validity_rating = 0
+                authorreply.author.authorreply_rigour_rating = 0
+
+                nr_relevance_ratings_author = 0
+                nr_importance_ratings_author = 0
+                nr_clarity_ratings_author = 0
+                nr_validity_ratings_author = 0
+                nr_rigour_ratings_author = 0
+                relevance_rating_sum_author = 0
+                importance_rating_sum_author = 0
+                clarity_rating_sum_author = 0
+                validity_rating_sum_author = 0
+                rigour_rating_sum_author = 0
+
+                authorreplys_from_author = AuthorReply.objects.filter(author=authorreply.author)
+                for com in authorreplys_from_author:
+                    nr_relevance_ratings_author += com.nr_relevance_ratings
+                    if com.nr_relevance_ratings > 0:
+                        relevance_rating_sum_author += com.nr_relevance_ratings * com.relevance_rating
+                    nr_importance_ratings_author += com.nr_importance_ratings
+                    if com.nr_importance_ratings > 0:
+                        importance_rating_sum_author += com.nr_importance_ratings * com.importance_rating
+                    nr_clarity_ratings_author += com.nr_clarity_ratings
+                    if com.nr_clarity_ratings > 0:
+                        clarity_rating_sum_author += com.nr_clarity_ratings * com.clarity_rating
+                    nr_validity_ratings_author += com.nr_validity_ratings
+                    if com.nr_validity_ratings > 0:
+                        validity_rating_sum_author += com.nr_validity_ratings * com.validity_rating
+                    nr_rigour_ratings_author += com.nr_rigour_ratings
+                    if com.nr_rigour_ratings > 0:
+                        rigour_rating_sum_author += com.nr_rigour_ratings * com.rigour_rating
+
+                authorreply.author.nr_authorreply_relevance_ratings = nr_relevance_ratings_author
+                authorreply.author.authorreply_relevance_rating = relevance_rating_sum_author/max(1, nr_relevance_ratings_author)
+                authorreply.author.nr_authorreply_importance_ratings = nr_importance_ratings_author
+                authorreply.author.authorreply_importance_rating = importance_rating_sum_author/max(1, nr_importance_ratings_author)
+                authorreply.author.nr_authorreply_clarity_ratings = nr_clarity_ratings_author
+                authorreply.author.authorreply_clarity_rating = clarity_rating_sum_author/max(1, nr_clarity_ratings_author)
+                authorreply.author.nr_authorreply_validity_ratings = nr_validity_ratings_author
+                authorreply.author.authorreply_validity_rating = validity_rating_sum_author/max(1, nr_validity_ratings_author)
+                authorreply.author.nr_authorreply_rigour_ratings = nr_rigour_ratings_author
+                authorreply.author.authorreply_rigour_rating = rigour_rating_sum_author/max(1, nr_rigour_ratings_author)
+
+                authorreply.author.save()
+
+            return HttpResponseRedirect(reverse('ratings:vote_on_authorreply_ack'))
+
+    return render(request, 'ratings/vote_on_authorreply_ack.html')
+
+@csrf_protect            
+def vote_on_authorreply_ack(request):
+    context = {}
+    return render(request, 'ratings/vote_on_authorreply_ack.html', context)
+
 
 @csrf_protect
 def vote_on_report(request, report_id):

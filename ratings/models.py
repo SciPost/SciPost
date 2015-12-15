@@ -53,7 +53,8 @@ class CommentRating(CommentTypeRating):
     comment = models.ForeignKey(Comment)
 
 class AuthorReplyRating(CommentTypeRating):
-    reply = models.ForeignKey(AuthorReply)
+    """ An AuthorReply rating is a set of numbers quantifying various requirements of an author's reply to a Comment. """
+    authorreply = models.ForeignKey(AuthorReply)
 
 class ReportRating(CommentTypeRating):
     """ A Report rating is a set of numbers quantifying various requirements of a Report. """
