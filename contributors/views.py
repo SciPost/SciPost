@@ -3,7 +3,8 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
+#from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
@@ -73,14 +74,18 @@ def vet_registration_request_ack(request, contributor_id):
         contributor = Contributor.objects.get(pk=contributor_id)
         if form.is_valid():
             if form.cleaned_data['promote_to_rank_1']:
-#            if request.POST['promote_to_rank_1']:
-#            if form['promote_to_rank_1']:
                 contributor.rank = 1
                 contributor.save()
+                email_text = 'Dear' + contributor.title + ' ' + contributor.user.last_name + ', \n Your registration to the SciPost publication portal has been accepted. You can now login and contribute. \n\n The SciPost Team.'
+                #send_mail('SciPost registration accepted', email_text, 'noreply@scipost.org', [contributor.user.email, 'noreply@scipost.org'], fail_silently=False)
+                emailmessage = EmailMessage('SciPost registration accepted', email_text, 'noreply@scipost.org', [contributor.user.email, 'jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
+                emailmessage.send(fail_silently=False)
             else:
-                #            email_text = 'Dear ' . contributor.title . ' ' . contributor.user.last_name . ', \n Your registration to the SciPost publication portal has been turned down (you can still view all the content, just not submit papers, comments or votes). We nonetheless thank you for your interest. \n\n The SciPost team.' # Syntax error here, don't see it.
-                email_text = 'Dear'
-            #            send_mail('SciPost registration: unauthorized', email_text, 'admin@scipost.org', [contributor.user.email, 'admin@scipost.org'], fail_silently=False) # Activate later, when scipost email is running
+                email_text = 'Dear ' + contributor.title + ' ' + contributor.user.last_name + ', \n Your registration to the SciPost publication portal has been turned down, the reason being: ' + form.cleaned_data['refusal_reason'] + '. You can however still view all SciPost contents, just not submit papers, comments or votes. We nonetheless thank you for your interest. \n\n The SciPost Team.'
+                if form.cleaned_data['email_response_field']:
+                    email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
+                emailmessage = EmailMessage('SciPost registration: unsuccessful', email_text, 'noreply@scipost.org', [contributor.user.email, 'jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
+                emailmessage.send(fail_silently=False)
                 contributor.rank = form.cleaned_data['refusal_reason']
                 contributor.save()
 
@@ -116,6 +121,10 @@ def logout_view(request):
 def personal_page(request):
     if request.user.is_authenticated():
         contributor = Contributor.objects.get(user=request.user)
+        # email testing 2015-12-16: works!
+        #emailmessage = EmailMessage('Welcome to your personal page.', 'Hello', 'noreply@scipost.org', [contributor.user.email, 'jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
+        #emailmessage.send(fail_silently=False)
+
         # if an editor, count the number of actions required:
         nr_reg_to_vet = 0
         nr_submissions_to_process = 0
