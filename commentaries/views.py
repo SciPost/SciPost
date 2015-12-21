@@ -31,6 +31,7 @@ def request_commentary(request):
             if form.is_valid():
                 contributor = Contributor.objects.get(user=request.user)
                 commentary = Commentary (
+                    requested_by = contributor,
                     type = form.cleaned_data['type'],
                     pub_title = form.cleaned_data['pub_title'],
                     arxiv_link = form.cleaned_data['arxiv_link'],
@@ -133,11 +134,18 @@ def commentary_detail(request, commentary_id):
                 commentary = commentary,
                 in_reply_to = None,
                 author = author,
+                is_rem = form.cleaned_data['is_rem'],
+                is_que = form.cleaned_data['is_que'],
+                is_ans = form.cleaned_data['is_ans'],
+                is_obj = form.cleaned_data['is_obj'],
+                is_rep = form.cleaned_data['is_rep'],
+                is_val = form.cleaned_data['is_val'],
+                is_lit = form.cleaned_data['is_lit'],
+                is_sug = form.cleaned_data['is_sug'],
                 comment_text = form.cleaned_data['comment_text'],
                 date_submitted = timezone.now(),
                 )
             newcomment.save()
-#            author.nr_comments += 1
             author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()
             request.session['commentary_id'] = commentary_id
@@ -152,5 +160,5 @@ def commentary_detail(request, commentary_id):
         author_replies = AuthorReply.objects.filter(commentary=commentary)
     except AuthorReply.DoesNotExist:
         author_replies = ()
-    context = {'commentary': commentary, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 'author_replies': author_replies, 'form': form, 'commentary_rating_form': commentary_rating_form, 'comment_rating_form': comment_rating_form, 'authorreply_rating_form': authorreply_rating_form}
+    context = {'commentary': commentary, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 'author_replies': author_replies, 'form': form, 'commentary_rating_form': commentary_rating_form, 'comment_rating_form': comment_rating_form, 'authorreply_rating_form': authorreply_rating_form }
     return render(request, 'commentaries/commentary_detail.html', context)

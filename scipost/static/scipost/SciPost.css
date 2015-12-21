@@ -67,6 +67,23 @@ a:hover {
 }
 
 
+.commentcategorychoices {
+  list-style-type: none; // for categorizing comments
+}
+.commentcategorydisplay {
+  list-style-type: circle;
+  display: inline;
+}
+.commentcategorydisplay li {
+  float: left;
+  list-style-type: square;
+  padding: 2px 5px;
+  margin: 1px 0px;
+  background-color: #eeeeee;
+  border-right: 1px solid black;
+}
+
+
 header {
 //  background-color: #333333;
 //  background-color: #102040;

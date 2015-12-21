@@ -12,6 +12,9 @@
     $("#commentsbutton").click(function(){
     $("#commentslist").toggle();
     });
+    $("#ratingsbutton").click(function() {
+    $(".ratingsdata").toggle();
+    });
     });
   </script>
 
@@ -21,7 +24,15 @@
 
 
 <section>
-  <h1>SciPost Commentary Page &nbsp; (for non-SciPost publications)</h1>
+  <div class="row">
+    <div class="col-11">
+      <h1>SciPost Commentary Page &nbsp; (for non-SciPost publications)</h1>
+    </div>
+    <div class="col-1">
+      <br/>
+      <button id="ratingsbutton">Toggle ratings view</button>
+    </div>
+  </div>
 </section>
 
 <section>
@@ -54,7 +65,7 @@
   <h3>Abstract:</h3>
   <p>{{ commentary.pub_abstract }}</p>
   
-  {% if user.is_authenticated %}
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <form action="{% url 'ratings:vote_on_commentary' commentary_id=commentary.id %}" method="post" class="ratingsdata">
     {% csrf_token %}
     <ul>
@@ -77,8 +88,14 @@
 
 {% if comments %}
 <section>
-  <h2>Comments on this publication</h2>
-  <button id="commentsbutton">Toggle view</button>
+  <div class="row">
+    <div class="col-10">
+      <h2>Comments on this publication</h2>
+    </div>
+    <div class="col-2">
+      <button id="commentsbutton">Toggle comments/ratings view</button>
+    </div>
+  </div>
   <hr>
 
   <div id="commentslist">
@@ -91,6 +108,18 @@
     </div>
 
     <div class="col-8">
+      <ul class="commentcategorydisplay">
+	<li>Categories:</li>
+	{% if comment.is_rem %}<li>remark</li>{% endif %}
+	{% if comment.is_que %}<li>question</li>{% endif %}
+	{% if comment.is_ans %}<li>answer to question</li>{% endif %}
+	{% if comment.is_obj %}<li>objection</li>{% endif %}
+	{% if comment.is_rep %}<li>reply to objection</li>{% endif %}
+	{% if comment.is_val %}<li>validation or rederivation</li>{% endif %}
+	{% if comment.is_lit %}<li>pointer to related literature</li>{% endif %}
+	{% if comment.is_sug %}<li>suggestion for further work</li>{% endif %}
+      </ul>
+      <br/><br/>
       <ul class="ratingsdata">
 	<li>Ratings: </li>
 	<li>relevance: {{ comment.relevance_rating }}% ({{ comment.nr_relevance_ratings }})</li>
@@ -105,11 +134,11 @@
   <div class="row">
 <!--    <div class="col-1"></div> -->
     <div class="col-10">
-      <p>{{ comment.comment_text }}</p>
+      <p>{{ comment.comment_text|linebreaks }}</p>
     </div>
   </div>
 
-  {% if user.is_authenticated %}
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <div class="row">
 <!--    <div class="col-1"></div> -->
     <div class="col-10">
@@ -148,10 +177,10 @@
   <div class="row">
     <div class="col-1"></div>
     <div class="col-10">
-      <p>{{ reply.reply_text }}</p>
+      <p>{{ reply.reply_text|linebreaks }}</p>
     </div>
   </div>
-  {% if user.is_authenticated %}
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <div class="row">
     <div class="col-1"></div>
     <div class="col-10">
@@ -170,6 +199,7 @@
   {% endif %}
   {% endfor %}
 
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <hr style="border-style: dotted;" />
   <div class="row">
     <div class="col-6">
@@ -180,26 +210,46 @@
     </div>
   </div>
   <hr>
+  {% endif %}
   {% endfor %}
   </div id="commentslist">
 </section>
 {% endif %}
 
-{% if user.is_authenticated and commentary.open_for_commenting %}
+{% if user.is_authenticated and commentary.open_for_commenting and user.contributor.rank > 0 %}
 <section>
   <div class="row">
-    <div class="col-2">
+    <div class="col-3">
       <h1>Contribute a Comment</h1>
+      <p>Specify whick category your comment belongs to (you can choose more than one).</p>
+      <p>In your comment, you can use LaTeX \$...\$ for in-text equations or &#92; &#91; ... &#92; &#93; for separate equations.</p>
     </div>
-    <div class="col-10">
+    <div class="col-9">
       <form action="{% url 'commentaries:commentary' commentary.id %}" method="post">
 	{% csrf_token %}
-	{{ form }}
-	<input type="submit" value="Submit your Comment">
+	<div class="col-4">
+	  <ul class="commentcategorychoices">
+	    <li>{{ form.is_rem }} remark</li>
+	    <li>{{ form.is_que }} question</li>
+	    <li>{{ form.is_ans }} answer to question</li>
+	    <li>{{ form.is_obj }} objection</li>
+	    <li>{{ form.is_rep }} reply to objection</li>
+	    <li>{{ form.is_val }} validation or rederivation</li>
+	    <li>{{ form.is_lit }} pointer to related literature</li>
+	    <li>{{ form.is_sug }} suggestion for further work</li>
+	  </ul>
+	</div>
+	<div class="col-1"></div>
+	<div class="col-7">
+	  {{ form.comment_text }}
+	  <input type="submit" value="Submit your Comment">
+	</div>
       </form>
     </div>
   </div>
 </section>
 {% endif %}
+
+<p>{{ debugnote }}</p>
 
 {% include 'scipost/footer.html' %}

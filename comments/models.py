@@ -15,6 +15,25 @@ from contributors.models import Contributor
 from reports.models import Report
 from submissions.models import Submission
 
+
+COMMENT_CATEGORIES = (
+    ('REM', 'remark'),
+    ('QUE', 'question'),
+    ('ANS', 'answer to question'),
+    ('OBJ', 'objection'),
+    ('REP', 'reply to objection'),
+    ('VAL', 'validation or rederivation'),
+    ('LIT', 'pointer to related literature'),
+    ('SUG', 'suggestion for further work'),
+    )
+
+class CommentCategory(models.Model):
+    category = models.CharField(max_length=3, default='REM')
+
+    def __str__ (self):
+        return self.category
+
+
 class Comment(models.Model):
     """ A Comment is an unsollicited note, submitted by a Contributor, on a particular publication or in reply to an earlier Comment. """
     # status:
@@ -28,6 +47,15 @@ class Comment(models.Model):
     submission = models.ForeignKey(Submission, blank=True, null=True)
     in_reply_to = models.ForeignKey('self', blank=True, null=True)
     author = models.ForeignKey(Contributor)
+#    categories = models.ManyToManyField(CommentCategory)
+    is_rem = models.BooleanField(default=False, verbose_name='remark')
+    is_que = models.BooleanField(default=False, verbose_name='question')
+    is_ans = models.BooleanField(default=False, verbose_name='answer to question')
+    is_obj = models.BooleanField(default=False, verbose_name='objection')
+    is_rep = models.BooleanField(default=False, verbose_name='reply to objection')
+    is_val = models.BooleanField(default=False, verbose_name='validation or rederivation')
+    is_lit = models.BooleanField(default=False, verbose_name='pointer to related literature')
+    is_sug = models.BooleanField(default=False, verbose_name='suggestion for further work')
     comment_text = models.TextField()
     date_submitted = models.DateTimeField('date submitted')
     # Aggregates of ratings applied to this comment:

@@ -5,16 +5,25 @@
 {% include 'scipost/navbar.html' %}
 
 <section>
-  <h1>Log in to SciPost</h1>
-  <form action="{% url 'contributors:login' %}" method="post">
-    {% csrf_token %}
-    <table>
-      <ul>
-	{{ form.as_table }}
-      </ul>
-    </table>
-    <input type="submit" value="Login" />
-  </form>
+  <div class="row">
+    <div class="col-6">
+      <h1>Log in to SciPost</h1>
+      <form action="{% url 'contributors:login' %}" method="post">
+	{% csrf_token %}
+	<table>
+	  <ul>
+	    {{ form.as_table }}
+	  </ul>
+	</table>
+	<input type="submit" value="Login" />
+      </form>
+    </div>
+    <div class="col-6">
+      <h1>Not registered as a Contributor to SciPost?</h1>
+      <p>If you are a professional scientist (PhD student and above), you can register by filling the
+      <a href="{% url 'contributors:register' %}">registration form</a>.</p>
+    </div>
+  </div>
 </section>
 
 

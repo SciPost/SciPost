@@ -13,6 +13,7 @@ COMMENTARY_TYPES = (
 
 class Commentary(models.Model):
     """ A Commentary contains all the contents of a SciPost Commentary page for a given publication. """
+    requested_by = models.ForeignKey (Contributor, blank=True, null=True, related_name='requested_by')
     vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
     type = models.CharField(max_length=9) # published paper or arxiv preprint
@@ -22,7 +23,7 @@ class Commentary(models.Model):
     pub_DOI_link = models.URLField(verbose_name='DOI link to the original publication')
     author_list = models.CharField(max_length=1000)
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField (Contributor, blank=True, null=True, related_name='authors_com')
+    authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_com')
     pub_date = models.DateField(verbose_name='date of original publication')
     pub_abstract = models.TextField()
 

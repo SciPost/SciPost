@@ -49,15 +49,14 @@
   <h3>Abstract:</h3>
   <p>{{ submission.abstract }}</p>
   
-  {% if user.is_authenticated %}
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <form action="{% url 'ratings:vote_on_submission' submission_id=submission.id %}" method="post" class="ratingsdata">
     {% csrf_token %}
     <ul>
       <li>Rate this publication:</li>
       {{ submission_rating_form.as_ul }}
       <li><input type="submit" value="Submit"></li>
-    </ul>
-    
+    </ul>    
   </form>
   {% endif %}
 </section>
@@ -110,7 +109,7 @@
       <p>{{ report.report }}</p>
     </div>
   </div>
-  {% if user.is_authenticated %}
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <form action="{% url 'ratings:vote_on_report' report_id=report.id %}" method="post" class="ratingsdata">
     {% csrf_token %}
     <ul>
@@ -143,10 +142,10 @@
   <div class="row">
     <div class="col-1"></div>
     <div class="col-10"
-      <p>{{ reply.reply_text }}</p>
+      <p>{{ reply.reply_text|linebreaks }}</p>
     </div>
   </div>
-  {% if user.is_authenticated %}
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <div class="row">
     <div class="col-1"></div>
     <div class="col-10">
@@ -165,6 +164,7 @@
   {% endif %}
   {% endfor %}
 
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <hr style="border-style: dotted;" />
   <div class="row">
     <div class="col-6">
@@ -172,12 +172,13 @@
     </div>
   </div>
   <hr>
+  {% endif %}
 
   {% endfor %}
 </section>
 {% endif %}
 
-{% if user.is_authenticated and submission.open_for_reporting %}
+{% if user.is_authenticated and submission.open_for_reporting and user.contributor.rank > 0 %}
 <section>
   <div class="row">
     <div class="col-3">
@@ -216,11 +217,11 @@
   <div class="row">
     <div class="col-1"></div>
     <div class="col-10">
-      <p>{{ comment.comment_text }}</p>
+      <p>{{ comment.comment_text|linebreaks }}</p>
     </div>
     <div class="col-1"></div>
   </div>
-  {% if user.is_authenticated %}
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post" class="ratingsdata">
     {% csrf_token %}
     <ul>
@@ -252,10 +253,10 @@
   <div class="row">
     <div class="col-1"></div>
     <div class="col-10">
-      <p>{{ reply.reply_text }}</p>
+      <p>{{ reply.reply_text|linebreaks }}</p>
     </div>
   </div>
-  {% if user.is_authenticated %}
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <div class="row">
     <div class="col-1"></div>
     <div class="col-10">
@@ -274,6 +275,7 @@
   {% endif %}
   {% endfor %}
 
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
   <hr style="border-style: dotted;" />
   <div class="row">
     <div class="col-6">
@@ -284,11 +286,13 @@
     </div>
   </div>
   <hr>
+  {% endif %}
+
   {% endfor %}
 </section>
 {% endif %}
 
-{% if user.is_authenticated and submission.open_for_commenting %}
+{% if user.is_authenticated and submission.open_for_commenting and user.contributor.rank > 0 %}
 <section>
   <div class="row">
     <div class="col-3">

@@ -76,7 +76,7 @@ def vet_registration_request_ack(request, contributor_id):
             if form.cleaned_data['promote_to_rank_1']:
                 contributor.rank = 1
                 contributor.save()
-                email_text = 'Dear' + contributor.title + ' ' + contributor.user.last_name + ', \n Your registration to the SciPost publication portal has been accepted. You can now login and contribute. \n\n The SciPost Team.'
+                email_text = 'Dear ' + contributor.title + ' ' + contributor.user.last_name + ', \n Your registration to the SciPost publication portal has been accepted. You can now login and contribute. \n\n The SciPost Team.'
                 #send_mail('SciPost registration accepted', email_text, 'noreply@scipost.org', [contributor.user.email, 'noreply@scipost.org'], fail_silently=False)
                 emailmessage = EmailMessage('SciPost registration accepted', email_text, 'noreply@scipost.org', [contributor.user.email, 'jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
                 emailmessage.send(fail_silently=False)
