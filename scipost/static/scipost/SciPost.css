@@ -52,7 +52,7 @@ hr.hr12 {
 }
 .commentcategorydisplay {
   display: inline-block;
-  margin: 4px; 4px;
+  margin: 2px; 2px;
   padding: 1px;
   box-shadow: 1px 1px 3px #888888;
   background: linear-gradient(to right,#fcfcfc, #f0f0f0);
@@ -64,7 +64,7 @@ hr.hr12 {
 }
 .commentcategorydisplay li {
   display: inline-block;
-  margin: 4px;
+  margin: 0px;
   padding: 4px 8px;
   background-color: #dddddd;
   font-size: 90%;
@@ -134,6 +134,11 @@ hr.hr12 {
   height: 6px;
 }
 
+.reportid {
+  display: inline-block;
+  box-shadow: 5px 5px 10px #888888;
+  background: linear-gradient(to right,#f8f8f8, #e0e0e0);
+}
 
 .twocolumn {
   -webkit-column-count: 2; /* Chrome, Safari, Opera */

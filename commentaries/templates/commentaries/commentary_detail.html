@@ -6,7 +6,6 @@
 {% load mathjax %}
 {% mathjax_scripts %}
 
-
   <script>
     $(document).ready(function(){
     $("#commentsbutton").click(function(){
@@ -18,7 +17,6 @@
     });
     });
   </script>
-
 
 {% include 'scipost/header.html' %}
 {% include 'scipost/navbar.html' %}
@@ -44,50 +42,38 @@
   </div>
   <hr class="hr12">
 
-  <div class="row">
-    <div class="col-10">
-      <table>
-	<tr><td>Title: </td><td>{{ commentary.pub_title }}</td></tr>
-	<tr><td>Author(s): </td><td>{{ commentary.author_list }}</td></tr>
-	<tr><td>arXiv link: </td><td><a href="{{ commentary.arxiv_link }}">{{ commentary.arxiv_link }}</a></td></tr>
-	<tr><td>DOI Link: </td><td><a href="{{ commentary.pub_DOI_link }}">{{ commentary.pub_DOI_link }}</a></td></tr>
-	<tr><td>Date published: </td><td>{{ commentary.pub_date }}</td></tr>
-      </table>
-    </div>
-    
-    <div class="col-2">
-    </div>
+  <table>
+    <tr><td>Title: </td><td>{{ commentary.pub_title }}</td></tr>
+    <tr><td>Author(s): </td><td>{{ commentary.author_list }}</td></tr>
+    <tr><td>arXiv link: </td><td><a href="{{ commentary.arxiv_link }}">{{ commentary.arxiv_link }}</a></td></tr>
+    <tr><td>DOI Link: </td><td><a href="{{ commentary.pub_DOI_link }}">{{ commentary.pub_DOI_link }}</a></td></tr>
+    <tr><td>Date published: </td><td>{{ commentary.pub_date }}</td></tr>
+  </table>
 
+  <h3>Abstract:</h3>
+  <p>{{ commentary.pub_abstract }}</p>
+  
+  <div class="ratings">
+    <h4>Ratings:</h4>
+    <ul>
+      <li>clarity: {{ commentary.clarity_rating }}% ({{ commentary.nr_clarity_ratings }})</li>
+      <li>validity: {{ commentary.validity_rating }}% ({{ commentary.nr_validity_ratings }})</li>
+      <li>rigour: {{ commentary.rigour_rating }}% ({{ commentary.nr_rigour_ratings }})</li>
+      <li>originality: {{ commentary.originality_rating }}% ({{ commentary.nr_originality_ratings }})</li>
+      <li>significance: {{ commentary.significance_rating }}% ({{ commentary.nr_significance_ratings }})</li>
+    </ul>
   </div>
+  <br />
 
-  <div class="row">
-    <div class="col-10">
-      <h3>Abstract:</h3>
-      <p>{{ commentary.pub_abstract }}</p>
-
-      <div class="ratings">
-	<h4>Ratings:</h4>
-	<ul>
-	  <li>clarity: {{ commentary.clarity_rating }}% ({{ commentary.nr_clarity_ratings }})</li>
-	  <li>validity: {{ commentary.validity_rating }}% ({{ commentary.nr_validity_ratings }})</li>
-	  <li>rigour: {{ commentary.rigour_rating }}% ({{ commentary.nr_rigour_ratings }})</li>
-	  <li>originality: {{ commentary.originality_rating }}% ({{ commentary.nr_originality_ratings }})</li>
-	  <li>significance: {{ commentary.significance_rating }}% ({{ commentary.nr_significance_ratings }})</li>
-	</ul>
-      </div>
-      <br />
-      {% if user.is_authenticated and user.contributor.rank > 0 %}
-      <form action="{% url 'ratings:vote_on_commentary' commentary_id=commentary.id %}" method="post" class="ratingsinput">
-	{% csrf_token %}
-	<ul>
-	  {{ commentary_rating_form.as_ul }}	  
-	  <li><input type="submit" value="Rate this publication"></li>
-	</ul>
-      </form>
-      {% endif %}
-
-    </div>
-  </div>
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
+  <form action="{% url 'ratings:vote_on_commentary' commentary_id=commentary.id %}" method="post" class="ratingsinput">
+    {% csrf_token %}
+    <ul>
+      {{ commentary_rating_form.as_ul }}	  
+      <li><input type="submit" value="Rate this publication"></li>
+    </ul>
+  </form>
+  {% endif %}
 
 </section>
 
@@ -117,10 +103,8 @@
       
       <div class="col-3">
 	<div class="commentid">
-	  <span>
-	    <h3>{{ comment.id }} &nbsp; {% if comment.in_reply_to %} (in reply to {{ comment.in_reply_to.id }}) {% endif %}</h3>
-	    <h4>Date: {{ comment.date_submitted }}</h4>
-	  </span>
+	  <h3>{{ comment.id }} &nbsp; {% if comment.in_reply_to %} (in reply to {{ comment.in_reply_to.id }}) {% endif %}</h3>
+	  <h4>Date: {{ comment.date_submitted }}</h4>
 	</div>
       </div>
       
@@ -163,7 +147,6 @@
 	<br/>
 	<div class="ratingsinput">
 	  {% if user.is_authenticated and user.contributor.rank > 0 %}
-	  <!--	<h4>Rate this comment:</h4> -->
 	  <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post">
 	    {% csrf_token %}
 	    <ul>
@@ -283,7 +266,5 @@
   </div>
 </section>
 {% endif %}
-
-<p>{{ debugnote }}</p>
 
 {% include 'scipost/footer.html' %}
