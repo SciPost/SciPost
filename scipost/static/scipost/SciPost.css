@@ -200,10 +200,16 @@ header h1 {
 }
 header a {
   text-decoration: none;
+//  border: 1px solid white;
 }
 header a:hover {
   color: #ffffff;
 //  text-decoration: underline;
+}
+header img {
+  margin: 0px;
+  padding: 0px;
+//  border: 1px solid white;
 }
 
 nav {

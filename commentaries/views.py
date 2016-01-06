@@ -15,6 +15,7 @@ from .forms import *
 
 from comments.models import Comment, AuthorReply
 from comments.forms import CommentForm
+from contributors.forms import AuthenticationForm
 from ratings.forms import CommentRatingForm, AuthorReplyRatingForm, CommentaryRatingForm
 
 ################
@@ -47,7 +48,8 @@ def request_commentary(request):
             form = RequestCommentaryForm()
         return render(request, 'commentaries/request_commentary.html', {'form': form})
     else: # user is not authenticated:
-        return render(request, 'contributors/login.html')
+        form = AuthenticationForm()
+        return render(request, 'contributors/login.html', {'form': form})
 
 def request_commentary_ack(request):
     return render(request, 'commentaries/request_commentary_ack.html')

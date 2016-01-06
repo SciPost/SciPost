@@ -27,11 +27,6 @@ COMMENT_CATEGORIES = (
     ('SUG', 'suggestion for further work'),
     )
 
-class CommentCategory(models.Model):
-    category = models.CharField(max_length=3, default='REM')
-
-    def __str__ (self):
-        return self.category
 
 
 class Comment(models.Model):
@@ -47,7 +42,7 @@ class Comment(models.Model):
     submission = models.ForeignKey(Submission, blank=True, null=True)
     in_reply_to = models.ForeignKey('self', blank=True, null=True)
     author = models.ForeignKey(Contributor)
-#    categories = models.ManyToManyField(CommentCategory)
+    # Categories:
     is_rem = models.BooleanField(default=False, verbose_name='remark')
     is_que = models.BooleanField(default=False, verbose_name='question')
     is_ans = models.BooleanField(default=False, verbose_name='answer to question')
@@ -82,6 +77,7 @@ class AuthorReply(models.Model):
     # -1: rejected (unclear)
     # -2: rejected (incorrect)
     # -3: rejected (not useful)
+    # -4: not from author
     status = models.SmallIntegerField(default=0)
     commentary = models.ForeignKey(Commentary, blank=True, null=True)
     submission = models.ForeignKey(Submission, blank=True, null=True)
