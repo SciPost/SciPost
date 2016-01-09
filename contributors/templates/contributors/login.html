@@ -18,11 +18,14 @@
 	<input type="submit" value="Login" />
       </form>
     </div>
+    <!-- Temporary strip for online version -->
+    {% if user.is_authenticated %}
     <div class="col-6">
       <h1>Not registered as a Contributor to SciPost?</h1>
       <p>If you are a professional scientist (PhD student and above), you can register by filling the
       <a href="{% url 'contributors:register' %}">registration form</a>.</p>
     </div>
+    {% endif %}
   </div>
 </section>
 

@@ -5,6 +5,11 @@
 {% include 'scipost/header.html' %}
 {% include 'scipost/navbar.html' %}
 
+
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
+
+
 <section>
   <div class="row">
     <div class="col-6">
@@ -98,5 +103,8 @@
     </div>
   </div>
 </section>
+
+{% endif %} <!-- temporary strip -->
+
 
 {% include 'scipost/footer.html' %}

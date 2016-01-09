@@ -4,6 +4,10 @@
 {% include 'scipost/header.html' %}
 {% include 'scipost/navbar.html' %}
 
+
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
+
 <section>
   <h1>SciPost Journals</h1>
   <div class="row">
@@ -79,5 +83,7 @@
   <h1><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and Refereeing procedure</a></h1>
 </section>
     
+
+{% endif %} <!-- temporary strip -->
 
 {% include 'scipost/footer.html' %}

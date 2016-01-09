@@ -8,6 +8,9 @@
 
 {% mathjax_scripts %}
 
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
+
 <section>
   <h1>SciPost Submissions</h1>
   <p>Submissions to SciPost Journals: papers currently under consideration for publication in a SciPost Journal.</p>
@@ -50,6 +53,6 @@
 {% endif %}
 
 
-
+{% endif %} <!-- temporary strip -->
 
 {% include 'scipost/footer.html' %}

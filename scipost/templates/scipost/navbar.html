@@ -2,9 +2,12 @@
   <div class="row">
     <div class="col-6">
       <a href="/scipost">Home</a>
+      <!-- Temporary strip for online version -->
+      {% if user.is_authenticated %}
       <a href="{% url 'journals:journals' %}">Journals</a>
       <a href="{% url 'submissions:submissions' %}">Submissions</a>
       <a href="{% url 'commentaries:commentaries' %}">Commentaries</a>
+      {% endif %}
     </div>
     <div class="col-6">
       {% if user.is_authenticated %}

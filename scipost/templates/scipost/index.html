@@ -4,6 +4,8 @@
 {% include 'scipost/header.html' %}
 {% include 'scipost/navbar.html' %}
 
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
 <section>
   <div class="row">
     <div class="col-3">
@@ -28,6 +30,10 @@
     </div>
   </div>
 </section>
+{% endif %}
+
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
 
 {% if not user.is_authenticated %}
 <section>
@@ -55,6 +61,7 @@
 </section>
 {% endif %}
 
+{% endif %}
 <!--
 <section>
   <div class="row">
