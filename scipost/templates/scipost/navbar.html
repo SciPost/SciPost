@@ -1,7 +1,7 @@
 <nav>
   <div class="row">
     <div class="col-6">
-      <a href="/scipost">Home</a>
+      <a href="{% url 'scipost:index' %}">Home</a>
       <!-- Temporary strip for online version -->
       {% if user.is_authenticated %}
       <a href="{% url 'journals:journals' %}">Journals</a>
