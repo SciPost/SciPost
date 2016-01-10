@@ -21,6 +21,7 @@ class RegistrationForm(forms.Form):
     personalwebpage = forms.URLField(label='Personal web page', required=False)
     username = forms.CharField(label='username', max_length=100)
     password = forms.CharField(label='password', widget=forms.PasswordInput())
+    password_verif = forms.CharField(label='verify pwd', widget=forms.PasswordInput())
 
 class VetRegistrationForm(forms.Form):
     promote_to_rank_1 = forms.BooleanField(required=False)

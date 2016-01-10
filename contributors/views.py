@@ -19,6 +19,8 @@ from comments.models import Comment, AuthorReply
 from reports.models import Report
 from submissions.models import Submission
 
+title_dict = dict(TITLE_CHOICES)
+reg_ref_dict = dict(REGISTRATION_REFUSAL_CHOICES)
 
 ################
 # Registration
@@ -31,6 +33,12 @@ def register(request):
         form = RegistrationForm(request.POST)
         # check whether it's valid
         if form.is_valid():
+            # check for mismatching passwords
+            if form.cleaned_data['password'] != form.cleaned_data['password_verif']:
+                return render(request, 'contributors/register.html', {'form': form, 'errormessage': 'Your passwords must match'})
+            # check for already-existing username
+            if User.objects.filter(username=form.cleaned_data['username']).exists():
+                return render(request, 'contributors/register.html', {'form': form, 'errormessage': 'This username is already in use'})                
             # create the user
             user = User.objects.create_user (
                 first_name = form.cleaned_data['first_name'],
@@ -47,7 +55,7 @@ def register(request):
                 personalwebpage = form.cleaned_data['personalwebpage'],
                 )
             contributor.save()
-            email_text = 'Dear ' + contributor.title + ' ' + contributor.user.last_name + ', \n Your request for registration to the SciPost publication portal has been received, and will be processed soon. Many thanks for your interest.  \n\n The SciPost Team.'
+            email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\n Your request for registration to the SciPost publication portal has been received, and will be processed soon. Many thanks for your interest.  \n\n The SciPost Team.'
             emailmessage = EmailMessage('SciPost registration request received', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
             emailmessage.send(fail_silently=False)
             return HttpResponseRedirect('thanks_for_registering')
@@ -55,7 +63,8 @@ def register(request):
     else:
         form = RegistrationForm()
 
-    return render(request, 'contributors/register.html', {'form': form})
+    errormessage = ''
+    return render(request, 'contributors/register.html', {'form': form, 'errormessage': errormessage})
 
 
 def thanks_for_registering(request):
@@ -79,14 +88,15 @@ def vet_registration_request_ack(request, contributor_id):
             if form.cleaned_data['promote_to_rank_1']:
                 contributor.rank = 1
                 contributor.save()
-                email_text = 'Dear ' + contributor.title + ' ' + contributor.user.last_name + ', \n Your registration to the SciPost publication portal has been accepted. You can now login and contribute. \n\n The SciPost Team.'
-                emailmessage = EmailMessage('SciPost registration accepted', email_text, 'registration@scipost.org', [contributor.user.email, 'jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
+                email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\n Your registration to the SciPost publication portal has been accepted. You can now login and contribute. \n\n The SciPost Team.'
+                emailmessage = EmailMessage('SciPost registration accepted', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
             else:
-                email_text = 'Dear ' + contributor.title + ' ' + contributor.user.last_name + ', \n Your registration to the SciPost publication portal has been turned down, the reason being: ' + form.cleaned_data['refusal_reason'] + '. You can however still view all SciPost contents, just not submit papers, comments or votes. We nonetheless thank you for your interest. \n\n The SciPost Team.'
+                ref_reason = int(form.cleaned_data['refusal_reason'])
+                email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\n Your registration to the SciPost publication portal has been turned down, the reason being: ' + reg_ref_dict[ref_reason] + '. You can however still view all SciPost contents, just not submit papers, comments or votes. We nonetheless thank you for your interest. \n\n The SciPost Team.'
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
-                emailmessage = EmailMessage('SciPost registration: unsuccessful', email_text, 'noreply@scipost.org', [contributor.user.email, 'jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
+                emailmessage = EmailMessage('SciPost registration: unsuccessful', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
                 contributor.rank = form.cleaned_data['refusal_reason']
                 contributor.save()
@@ -100,7 +110,7 @@ def login_view(request):
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
-        if user is not None:
+        if user is not None and user.contributor.rank > 0:
             if user.is_active:
                 login(request, user)
                 contributor = Contributor.objects.get(user=request.user)
@@ -123,10 +133,6 @@ def logout_view(request):
 def personal_page(request):
     if request.user.is_authenticated():
         contributor = Contributor.objects.get(user=request.user)
-        # email testing 2015-12-16: works!
-        #emailmessage = EmailMessage('Welcome to your personal page.', 'Hello', 'noreply@scipost.org', [contributor.user.email, 'jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
-        #emailmessage.send(fail_silently=False)
-
         # if an editor, count the number of actions required:
         nr_reg_to_vet = 0
         nr_submissions_to_process = 0

@@ -37,7 +37,7 @@ def vet_submitted_comment_ack(request, comment_id):
                 # accept the comment as is
                 comment.status = 1
                 comment.save()
-                email_text = 'The Comment you have submitted, concerning publication with title '
+                email_text = 'Dear ' + comment.author.title + ' ' + comment.author.last_name + ', \n\n The Comment you have submitted, concerning publication with title '
                 if comment.commentary is not None:
                     email_text + comment.commentary.pub_title + ' by ' + comment.commentary.author_list
                 elif comment.submission is not None:

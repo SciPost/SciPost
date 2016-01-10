@@ -15,6 +15,9 @@
     </table>
     <input type="submit" value="Submit" />
   </form>
+  {% if errormessage %}
+  <p>{{ errormessage }}</p>
+  {% endif %}
 </section>
 
 {% endblock bodysup %}
