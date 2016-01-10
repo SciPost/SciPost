@@ -23,6 +23,16 @@ class RegistrationForm(forms.Form):
     password = forms.CharField(label='password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='verify pwd', widget=forms.PasswordInput())
 
+class UpdatePersonalDataForm(forms.Form):
+    title = forms.ChoiceField(choices=TITLE_CHOICES)
+    first_name = forms.CharField(label='First name', max_length=100)
+    last_name = forms.CharField(label='Last name', max_length=100)
+    email = forms.EmailField(label='email')
+    orcid_id = forms.CharField(label="ORCID id", max_length=20, required=False)
+    affiliation = forms.CharField(label='Affiliation', max_length=300)
+    address = forms.CharField(label='Address', max_length=1000, required=False)
+    personalwebpage = forms.URLField(label='Personal web page', required=False)
+
 class VetRegistrationForm(forms.Form):
     promote_to_rank_1 = forms.BooleanField(required=False)
     refusal_reason = forms.ChoiceField(choices=REGISTRATION_REFUSAL_CHOICES, required=False)
@@ -32,4 +42,8 @@ class AuthenticationForm(forms.Form):
     username = forms.CharField(label='username', max_length=100)
     password = forms.CharField(label='password', widget=forms.PasswordInput())
 
+class PasswordChangeForm(forms.Form):
+    password_prev = forms.CharField(label='Existing password', widget=forms.PasswordInput())
+    password_new = forms.CharField(label='New password', widget=forms.PasswordInput())
+    password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
 

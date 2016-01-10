@@ -156,4 +156,25 @@ def personal_page(request):
         context = {'form': form}
         return render(request, 'contributors/login.html', context)
 
+@csrf_protect
+def change_password(request):
+    if request.user.is_authenticated and request.method == 'POST':
+        form = PasswordChangeForm(request.POST)
+        if form.is_valid():
+            # verify existing password:
+            if not request.user.check_password(form.cleaned_data['password_prev']):
+                return render(request, 'contributors/change_password.html', {'form': form, 'errormessage': 'The currently existing password you entered is incorrect'})
+            # check for mismatching new passwords
+            if form.cleaned_data['password_new'] != form.cleaned_data['password_verif']:
+                return render(request, 'contributors/change_password.html', {'form': form, 'errormessage': 'Your new password entries must match'})
+            # otherwise simply change the pwd:
+            request.user.set_password(form.cleaned_data['password_new'])
+            request.user.save()
+            return render(request, 'contributors/change_password_ack.html')
+    else:
+        form = PasswordChangeForm()
+    return render (request, 'contributors/change_password.html', {'form': form})
 
+@csrf_protect
+def change_password_ack(request):
+    return render (request, 'contributors/change_password_ack.html')
