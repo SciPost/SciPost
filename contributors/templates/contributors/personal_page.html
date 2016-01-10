@@ -62,9 +62,18 @@
 {% if contributor.rank > 0 %}
 <section>
   <h1>Your SciPost Account</h1>
-  <ul>
-    <li><a href="{% url 'contributors:change_password' %}">Change your password</a></li>
-  </ul>
+  <div class="row">
+    <div class="col-6">
+      <ul>
+	<li><a href="{% url 'contributors:update_personal_data' %}">Update your personal data</a></li>
+      </ul>
+    </div>
+    <div class="col-6">
+      <ul>
+	<li><a href="{% url 'contributors:change_password' %}">Change your password</a></li>
+      </ul>
+    </div>
+  </div>
   <hr>
   <div class="row">
     <div class="col-3">

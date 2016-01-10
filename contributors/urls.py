@@ -14,4 +14,6 @@ urlpatterns = [
     url(r'^personal_page$', views.personal_page, name='personal_page'),
     url(r'^change_password$', views.change_password, name='change_password'),
     url(r'^change_password_ack$', views.change_password_ack, name='change_password_ack'),
+    url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
+    url(r'^update_personal_data_ack$', views.update_personal_data_ack, name='update_personal_data_ack'),
 ]

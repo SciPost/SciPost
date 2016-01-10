@@ -50,12 +50,13 @@ def register(request):
             contributor = Contributor (
                 user=user, 
                 title = form.cleaned_data['title'],
+                orcid_id = form.cleaned_data['orcid_id'],
                 address = form.cleaned_data['address'],
                 affiliation = form.cleaned_data['affiliation'],
                 personalwebpage = form.cleaned_data['personalwebpage'],
                 )
             contributor.save()
-            email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\n Your request for registration to the SciPost publication portal has been received, and will be processed soon. Many thanks for your interest.  \n\n The SciPost Team.'
+            email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\nYour request for registration to the SciPost publication portal has been received, and will be processed soon. Many thanks for your interest.  \n\nThe SciPost Team.'
             emailmessage = EmailMessage('SciPost registration request received', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
             emailmessage.send(fail_silently=False)
             return HttpResponseRedirect('thanks_for_registering')
@@ -88,12 +89,12 @@ def vet_registration_request_ack(request, contributor_id):
             if form.cleaned_data['promote_to_rank_1']:
                 contributor.rank = 1
                 contributor.save()
-                email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\n Your registration to the SciPost publication portal has been accepted. You can now login and contribute. \n\n The SciPost Team.'
+                email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\nYour registration to the SciPost publication portal has been accepted. You can now login and contribute. \n\nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost registration accepted', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
             else:
                 ref_reason = int(form.cleaned_data['refusal_reason'])
-                email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\n Your registration to the SciPost publication portal has been turned down, the reason being: ' + reg_ref_dict[ref_reason] + '. You can however still view all SciPost contents, just not submit papers, comments or votes. We nonetheless thank you for your interest. \n\n The SciPost Team.'
+                email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\nYour registration to the SciPost publication portal has been turned down, the reason being: ' + reg_ref_dict[ref_reason] + '. You can however still view all SciPost contents, just not submit papers, comments or votes. We nonetheless thank you for your interest. \n\nThe SciPost Team.'
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 emailmessage = EmailMessage('SciPost registration: unsuccessful', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
@@ -178,3 +179,33 @@ def change_password(request):
 @csrf_protect
 def change_password_ack(request):
     return render (request, 'contributors/change_password_ack.html')
+
+@csrf_protect
+def update_personal_data(request):
+    if request.user.is_authenticated:
+        contributor = Contributor.objects.get(user=request.user)
+        if request.method == 'POST':
+            form = UpdatePersonalDataForm(request.POST)
+            if form.is_valid():
+                request.user.email = form.cleaned_data['email']
+                request.user.first_name = form.cleaned_data['first_name']
+                request.user.last_name = form.cleaned_data['last_name']
+                request.user.contributor.title = form.cleaned_data['title']
+                request.user.contributor.orcid = form.cleaned_data['orcid_id']
+                request.user.contributor.address = form.cleaned_data['address']
+                request.user.contributor.affiliation = form.cleaned_data['affiliation']
+                request.user.contributor.personalwebpage = form.cleaned_data['personalwebpage']
+                request.user.save()
+                request.user.contributor.save()
+                return render(request, 'contributors/update_personal_data_ack.html')
+        else:
+            form = UpdatePersonalDataForm()
+            return render(request, 'contributors/update_personal_data.html', {'form': form, 'contributor': contributor})
+    else:
+        form = AuthenticationForm()
+        return render(request, 'contributors/login.html', {'form': form})
+
+@csrf_protect
+def update_personal_data_ack(request):
+    return render (request, 'contributors/update_personal_data_ack.html')
+
