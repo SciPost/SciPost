@@ -1,13 +1,11 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: comment submitted</title>
+{% block pagetitle %}: comment submitted{% endblock pagetitle %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
 <section>
   <h1>Thank you for contributing a comment.</h1>
 </section>
 
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

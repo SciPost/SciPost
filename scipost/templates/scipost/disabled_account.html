@@ -1,13 +1,9 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: account disabled</title>
+{% block pagetitle %}: account disabled{% endblock pagetitle %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
 <p>Your account is disabled.</p>
 
-
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

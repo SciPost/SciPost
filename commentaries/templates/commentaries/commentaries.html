@@ -1,14 +1,15 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: Commentaries</title>
+{% block pagetitle %}: Commentaries{% endblock pagetitle %}
 
-{% load mathjax %}
+{% block headsup %}
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+{% endblock headsup %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
-{% mathjax_scripts %}
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
 
 <section>
   <h1>SciPost Commentaries</h1>
@@ -61,5 +62,6 @@
   <p>The original publication subject to the Commentary can be rated by Contributors. An aggregate of these ratings is displayed next to the publication's summary info. All Comments and Replies are similarly open to Contributor rating. Ratings in aggregated form are made publicly available.</p>
 </section>
 
+{% endif %} <!-- Temporary strip -->
 
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

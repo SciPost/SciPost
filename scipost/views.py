@@ -25,6 +25,9 @@ def index(request):
 # Information
 ###############
 
+def base(request):
+    return render(request, 'scipost/base.html')
+
 def about(request):
     return render(request, 'scipost/about.html')
 

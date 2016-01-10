@@ -1,10 +1,13 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: submission and refereeing procedure</title>
+{% block pagetitle %}: submission and refereeing procedure{% endblock pagetitle %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block headsup %} {% load staticfiles %} {% endblock headsup %}
+
+{% block bodysup %}
+
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
 
 <section>
   <h1>Submission and Refereeing procedure</h1>
@@ -29,6 +32,6 @@
     <li>The Authors can respond to the Editorial decision by accepting an eventual publication offer (in which case the Submission Page and its contents are moved to a SciPost Publication Page), by revising their manuscript and resubmitting to SciPost, or by withdrawing their Submission (in which case the Submission Page is deactivated and all its contents removed from public view).</li>
   </ul>
 </section>
+{% endif %} <!-- Temporary strip -->
     
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

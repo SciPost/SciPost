@@ -1,10 +1,6 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost</title>
-
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
 <!-- Temporary strip for online version -->
 {% if user.is_authenticated %}
@@ -64,33 +60,5 @@
 {% endif %}
 
 {% endif %}
-<!--
-<section>
-  <div class="row">
-    <div class="col-4">
-      <h1><a href="{% url 'journals:journals' %}">SciPost Journals</a></h1>
-      <p>SciPost publishes a family of online open-access peer-witnessed refereed Journals covering all domains and specialties in the field of Physics.</p>
-    </div>
-    <div class="col-2"></div>
-    <div class="col-6">
-      <h3>SciPost Physics Select</h3>
-      <h3>SciPost Physics Letters</h3>
-      <h3>SciPost Physics X</h3>
-      <h3>SciPost Physics</h3>
-    </div>
-  </div>
-</section>
 
-<section>
-  <h1><a href="{% url 'submissions:submissions' %}">SciPost Submissions</a></h1>
-  <p>Submissions currently under consideration for publication in a SciPost Journal (open to Reporting and Commenting).</p>
-</section>
-
-<section>
-  <h1><a href="{% url 'commentaries:commentaries' %}">SciPost Commentaries</a></h1>
-  <p>SciPost Commentaries is a repository of Commentary Pages on scientific publications. Each Commentary Page contains summary info about the publication (Title, Author(s), arXiv preprint link, DOI link to published version, abstract), followed by Comments from Contributors and Author and Contributor Replies. </p>
-</section>
-
--->
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

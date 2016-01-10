@@ -1,14 +1,10 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-{% load mathjax %}
-{% mathjax_scripts %}
+{% block pagetitle %}: vet reports{% endblock pagetitle %}
 
-<title>SciPost: vet reports</title>
+{% block bodysup %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
-
+{% if submitted_reports_to_vet %}
 <section>
   <h1>SciPost Reports to vet:</h1>
   {% for report_to_vet in submitted_reports_to_vet %}
@@ -48,6 +44,6 @@
   </div>
   {% endfor %}
 </section>
+{% endif %}
 
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

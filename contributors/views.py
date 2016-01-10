@@ -15,7 +15,7 @@ from .forms import *
 
 from commentaries.models import Commentary
 from comments.models import Comment, AuthorReply
-from contributors.models import Contributor
+#from contributors.models import Contributor
 from reports.models import Report
 from submissions.models import Submission
 
@@ -47,6 +47,9 @@ def register(request):
                 personalwebpage = form.cleaned_data['personalwebpage'],
                 )
             contributor.save()
+            email_text = 'Dear ' + contributor.title + ' ' + contributor.user.last_name + ', \n Your request for registration to the SciPost publication portal has been received, and will be processed soon. Many thanks for your interest.  \n\n The SciPost Team.'
+            emailmessage = EmailMessage('SciPost registration request received', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+            emailmessage.send(fail_silently=False)
             return HttpResponseRedirect('thanks_for_registering')
     # if GET or other method, create a blank form
     else:
@@ -77,8 +80,7 @@ def vet_registration_request_ack(request, contributor_id):
                 contributor.rank = 1
                 contributor.save()
                 email_text = 'Dear ' + contributor.title + ' ' + contributor.user.last_name + ', \n Your registration to the SciPost publication portal has been accepted. You can now login and contribute. \n\n The SciPost Team.'
-                #send_mail('SciPost registration accepted', email_text, 'noreply@scipost.org', [contributor.user.email, 'noreply@scipost.org'], fail_silently=False)
-                emailmessage = EmailMessage('SciPost registration accepted', email_text, 'noreply@scipost.org', [contributor.user.email, 'jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
+                emailmessage = EmailMessage('SciPost registration accepted', email_text, 'registration@scipost.org', [contributor.user.email, 'jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
                 emailmessage.send(fail_silently=False)
             else:
                 email_text = 'Dear ' + contributor.title + ' ' + contributor.user.last_name + ', \n Your registration to the SciPost publication portal has been turned down, the reason being: ' + form.cleaned_data['refusal_reason'] + '. You can however still view all SciPost contents, just not submit papers, comments or votes. We nonetheless thank you for your interest. \n\n The SciPost Team.'
@@ -144,6 +146,8 @@ def personal_page(request):
         context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process }
         return render(request, 'contributors/personal_page.html', context)
     else:
-        return render(request, 'contributors/login.html')
+        form = AuthenticationForm()
+        context = {'form': form}
+        return render(request, 'contributors/login.html', context)
 
 

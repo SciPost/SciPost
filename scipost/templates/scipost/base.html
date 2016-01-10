@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+    <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
+
+    {% block headsup %}
+    {% endblock headsup %}
+  </head>
+
+  <body>
+    {% include 'scipost/header.html' %}
+    {% include 'scipost/navbar.html' %}
+
+    {% block bodysup %}
+    {% endblock bodysup %}
+
+    {% include 'scipost/footer.html' %}
+  </body>
+
+</html>    

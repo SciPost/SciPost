@@ -1,10 +1,8 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: login</title>
+{% block pagetitle %}: login{% endblock pagetitle %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
 <section>
   <div class="row">
@@ -31,5 +29,4 @@
   </div>
 </section>
 
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

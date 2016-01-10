@@ -1,12 +1,9 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
-<!--<script type="text/javascript" src="{% static 'js/jquery.js' %}"></script> -->
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Commentary detail{% endblock pagetitle %}
+
+{% block headsup %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-
-<title>SciPost: Commentary detail</title>
-
-{% load mathjax %}
-{% mathjax_scripts %}
 
   <script>
     $(document).ready(function(){
@@ -20,9 +17,16 @@
     });
   </script>
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/javascript">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}});</script>
 
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<!-- Temporary strip -->
+{% if user.is_authenticated %}
 
 <section>
   <div class="row">
@@ -269,4 +273,6 @@
 </section>
 {% endif %}
 
-{% include 'scipost/footer.html' %}
+{% endif %} <!-- Temporary strip -->
+
+{% endblock bodysup %}

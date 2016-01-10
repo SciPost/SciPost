@@ -1,10 +1,8 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: personal page</title>
+{% block pagetitle %}: personal page{% endblock pagetitle %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
 <section>
   <h1>Welcome to your SciPost Personal Page, {{ user.username }} (rank {{ contributor.rank }} Contributor)</h1>
@@ -109,6 +107,4 @@
 </section>
 {% endif %}
 
-
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

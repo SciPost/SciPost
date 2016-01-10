@@ -1,14 +1,11 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: submission processed</title>
+{% block pagetitle %}: submission processed{% endblock pagetitle %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
 <section>
   <h1>The new submission has been successfully assigned to an editor-in-charge.</h1>
 </section>
 
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

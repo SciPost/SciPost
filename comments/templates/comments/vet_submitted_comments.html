@@ -1,13 +1,8 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-{% load mathjax %}
-{% mathjax_scripts %}
+{% block pagetitle %}: vet comments{% endblock pagetitle %}
 
-<title>SciPost: vet comments</title>
-
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
 <section>
   <h1>SciPost Comments to vet:</h1>
@@ -59,5 +54,4 @@
   {% endfor %}
 </section>
 
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

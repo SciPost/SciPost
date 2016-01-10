@@ -1,11 +1,11 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: submit manuscript</title>
+{% block pagetitle %}: submit manuscript{% endblock pagetitle %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
+<!-- Temporary strip -->
+{% if user.is_authenticated %}
 <section>
   <h1>Submit a manuscript to SciPost</h1>
   <form action="{% url 'submissions:submit_manuscript' %}" method="post">
@@ -18,6 +18,6 @@
     <input type="submit" value="Submit"/>
   </form>
 </section>
+{% endif %} <!-- Temporary strip -->
 
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

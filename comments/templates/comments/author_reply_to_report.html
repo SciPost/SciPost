@@ -1,13 +1,8 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-{% load mathjax %}
-{% mathjax_scripts %}
+{% block pagetitle %}: author reply to report{% endblock pagetitle %}
 
-<title>SciPost: author reply to report</title>
-
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
 {% if user.is_authenticated %}
 <section>
@@ -79,4 +74,4 @@
 </section>
 {% endif %}
 
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

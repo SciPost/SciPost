@@ -1,15 +1,12 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: vet Commentary request (ack)</title>
+{% block pagetitle %}: vet Commentary request (ack){% endblock pagetitle %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
 <section>
   <h1>SciPost Commentary request vetted.</h1>
   <p><a href="{% url 'commentaries:vet_commentary_requests' %}">Back to Commentary requests page</a></p>
 </section>
 
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

@@ -1,12 +1,9 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
-<!--<script type="text/javascript" src="{% static 'js/jquery.js' %}"></script> -->
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: submission detail{% endblock pagetitle %}
+
+{% block headsup %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-
-<title>SciPost: submission detail</title>
-
-{% load mathjax %}
-{% mathjax_scripts %}
 
   <script>
     $(document).ready(function(){
@@ -22,10 +19,12 @@
     });
     });
   </script>
+{% endblock headsup %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
+<!-- Temporary strip -->
+{% if user.is_authenticated %}
 
 <section>
   <div class="row">
@@ -415,4 +414,6 @@
 </section>
 {% endif %}
 
-{% include 'scipost/footer.html' %}
+{% endif %} <!-- Temporary strip -->
+
+{% endblock bodysup %}

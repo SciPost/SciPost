@@ -1,11 +1,10 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: submit report</title>
+{% block pagetitle %}: submit report{% endblock pagetitle %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
+{% if user.is_authenticated %}
 <section>
   <h1>Submit a Report on a SciPost Submission</h1>
 </section>
@@ -38,6 +37,6 @@
     <input type="submit" value="Submit"/>
   </form>
 </section>
+{% endif %}
 
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

@@ -1,12 +1,9 @@
+{% extends 'scipost/base.html' %}
 
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% block pagetitle %}: About{% endblock pagetitle %}
 
-<title>SciPost: About</title>
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
-
+{% block bodysup %}
 
 <!-- Temporary strip for online version -->
 {% if user.is_authenticated %}
@@ -108,5 +105,4 @@
 
 {% endif %} <!-- temporary strip -->
 
-
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}

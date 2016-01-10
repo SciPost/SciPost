@@ -1,10 +1,8 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+{% extends 'scipost/base.html' %}
 
-<title>SciPost: peer-witnessed refereeing</title>
+{% block pagetitle %}: peer-witnessed refereeing{% endblock pagetitle %}
 
-{% include 'scipost/header.html' %}
-{% include 'scipost/navbar.html' %}
+{% block bodysup %}
 
 <section>
   <h1>SciPost's Peer Review Method: Peer-Witnessed Refereeing.</h1>
@@ -33,4 +31,4 @@
 
 </section>
 
-{% include 'scipost/footer.html' %}
+{% endblock bodysup %}
