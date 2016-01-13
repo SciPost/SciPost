@@ -24,7 +24,7 @@ title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
 # Commentaries
 ################
 
-@csrf_protect
+
 def request_commentary(request):
     # commentary pages can only be requested by registered contributors:
     if request.user.is_authenticated():
@@ -57,7 +57,7 @@ def request_commentary_ack(request):
     return render(request, 'commentaries/request_commentary_ack.html')
 
 
-@csrf_protect
+
 def vet_commentary_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     commentary_requests_to_vet = Commentary.objects.filter(vetted=False)
@@ -65,7 +65,7 @@ def vet_commentary_requests(request):
     context = {'contributor': contributor, 'commentary_requests_to_vet': commentary_requests_to_vet, 'form': form }
     return render(request, 'commentaries/vet_commentary_requests.html', context)
 
-@csrf_protect
+
 def vet_commentary_request_ack(request, commentary_id):
     if request.method == 'POST':
         form = VetCommentaryForm(request.POST)
@@ -102,8 +102,6 @@ def vet_commentary_request_ack(request, commentary_id):
 
 
 
-
-@csrf_protect
 def commentaries(request):
     if request.method == 'POST':
         form = CommentarySearchForm(request.POST)
@@ -126,7 +124,7 @@ def commentaries(request):
     context = {'form': form, 'commentary_search_list': commentary_search_list, 'commentary_recent_list': commentary_recent_list }
     return render(request, 'commentaries/commentaries.html', context)
 
-@csrf_protect
+
 def commentary_detail(request, commentary_id):
     commentary = get_object_or_404(Commentary, pk=commentary_id)
     comments = commentary.comment_set.all()

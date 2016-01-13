@@ -71,7 +71,7 @@ def register(request):
 def thanks_for_registering(request):
     return render(request, 'contributors/thanks_for_registering.html')
 
-@csrf_protect
+
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     registration_requests_to_vet = Contributor.objects.filter(rank=0)
@@ -79,7 +79,7 @@ def vet_registration_requests(request):
     context = {'contributor': contributor, 'registration_requests_to_vet': registration_requests_to_vet, 'form': form }
     return render(request, 'contributors/vet_registration_requests.html', context)
 
-@csrf_protect
+
 def vet_registration_request_ack(request, contributor_id):
     # process the form
     if request.method == 'POST':
@@ -105,7 +105,7 @@ def vet_registration_request_ack(request, contributor_id):
     context = {}
     return render(request, 'contributors/vet_registration_request_ack.html', context)
 
-@csrf_protect
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -125,12 +125,12 @@ def login_view(request):
         form = AuthenticationForm()
         return render(request, 'contributors/login.html', {'form': form})
 
-@csrf_protect
+
 def logout_view(request):
     logout(request)
     return render(request, 'contributors/logout.html')
 
-@csrf_protect
+
 def personal_page(request):
     if request.user.is_authenticated():
         contributor = Contributor.objects.get(user=request.user)
@@ -157,7 +157,7 @@ def personal_page(request):
         context = {'form': form}
         return render(request, 'contributors/login.html', context)
 
-@csrf_protect
+
 def change_password(request):
     if request.user.is_authenticated and request.method == 'POST':
         form = PasswordChangeForm(request.POST)
@@ -176,11 +176,11 @@ def change_password(request):
         form = PasswordChangeForm()
     return render (request, 'contributors/change_password.html', {'form': form})
 
-@csrf_protect
+
 def change_password_ack(request):
     return render (request, 'contributors/change_password_ack.html')
 
-@csrf_protect
+
 def update_personal_data(request):
     if request.user.is_authenticated:
         contributor = Contributor.objects.get(user=request.user)
@@ -208,7 +208,7 @@ def update_personal_data(request):
         form = AuthenticationForm()
         return render(request, 'contributors/login.html', {'form': form})
 
-@csrf_protect
+
 def update_personal_data_ack(request):
     return render (request, 'contributors/update_personal_data_ack.html')
 

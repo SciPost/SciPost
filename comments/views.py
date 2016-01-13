@@ -14,12 +14,12 @@ from .models import *
 from .forms import *
 
 
-@csrf_protect
+
 def comment_submission_ack(request):
     return render(request, 'comments/comment_submission_ack.html')
 
 
-@csrf_protect
+
 def vet_submitted_comments(request):
     contributor = Contributor.objects.get(user=request.user)
     submitted_comments_to_vet = Comment.objects.filter(status=0)
@@ -27,7 +27,7 @@ def vet_submitted_comments(request):
     context = {'contributor': contributor, 'submitted_comments_to_vet': submitted_comments_to_vet, 'form': form }
     return(render(request, 'comments/vet_submitted_comments.html', context))
 
-@csrf_protect
+
 def vet_submitted_comment_ack(request, comment_id):
     if request.method == 'POST':
         form = VetCommentForm(request.POST)
@@ -64,7 +64,7 @@ def vet_submitted_comment_ack(request, comment_id):
     return render(request, 'comments/vet_submitted_comment_ack.html', context)
 
 
-@csrf_protect
+
 def reply_to_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.method == 'POST':
@@ -96,7 +96,7 @@ def reply_to_comment(request, comment_id):
     return render(request, 'comments/reply_to_comment.html', context)
 
 
-@csrf_protect
+
 def author_reply_to_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     if request.method == 'POST':
@@ -120,7 +120,7 @@ def author_reply_to_comment(request, comment_id):
     return render(request, 'comments/author_reply_to_comment.html', context)
 
 
-@csrf_protect
+
 def author_reply_to_report(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     if request.method == 'POST':
@@ -142,7 +142,7 @@ def author_reply_to_report(request, report_id):
     return render(request, 'comments/author_reply_to_report.html', context)
 
 
-@csrf_protect
+
 def vet_author_replies(request):
     contributor = Contributor.objects.get(user=request.user)
     replies_to_vet = AuthorReply.objects.filter(status=0)
@@ -150,7 +150,7 @@ def vet_author_replies(request):
     context = {'contributor': contributor, 'replies_to_vet': replies_to_vet, 'form': form }
     return(render(request, 'comments/vet_author_replies.html', context))
 
-@csrf_protect
+
 def vet_author_reply_ack(request, reply_id):
     if request.method == 'POST':
         form = VetAuthorReplyForm(request.POST)

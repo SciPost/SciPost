@@ -15,7 +15,7 @@ from .forms import *
 
 
 
-@csrf_protect
+
 def vote_on_commentary(request, commentary_id):
     commentary = get_object_or_404(Commentary, pk=commentary_id)
     rater = Contributor.objects.get(user=request.user)
@@ -57,7 +57,7 @@ def vote_on_commentary_ack(request):
     return render(request, 'ratings/vote_on_commentary_ack.html', context)
 
 
-@csrf_protect
+
 def vote_on_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     rater = Contributor.objects.get(user=request.user)
@@ -146,13 +146,13 @@ def vote_on_comment(request, comment_id):
 
     return render(request, 'ratings/vote_on_comment_ack.html')
 
-@csrf_protect            
+
 def vote_on_comment_ack(request):
 #    context = {'commentary_id': request.session['commentary_id']}
     context = {}
     return render(request, 'ratings/vote_on_comment_ack.html', context)
 
-@csrf_protect
+
 def vote_on_authorreply(request, authorreply_id):
     authorreply = get_object_or_404(AuthorReply, pk=authorreply_id)
     rater = Contributor.objects.get(user=request.user)
@@ -241,13 +241,13 @@ def vote_on_authorreply(request, authorreply_id):
 
     return render(request, 'ratings/vote_on_authorreply_ack.html')
 
-@csrf_protect            
+
 def vote_on_authorreply_ack(request):
     context = {}
     return render(request, 'ratings/vote_on_authorreply_ack.html', context)
 
 
-@csrf_protect
+
 def vote_on_report(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     rater = Contributor.objects.get(user=request.user)
@@ -341,7 +341,7 @@ def vote_on_report_ack(request):
 
 
 
-@csrf_protect
+
 def vote_on_submission(request, submission_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     rater = Contributor.objects.get(user=request.user)

@@ -17,7 +17,7 @@ from .forms import *
 # Reports
 ###########
 
-@csrf_protect
+
 def submit_report(request, submission_id):
     submission = get_object_or_404 (Submission, pk=submission_id)
     if request.method == 'POST':
@@ -46,14 +46,14 @@ def submit_report(request, submission_id):
     context = {'submission': submission, 'form': form }
     return render(request, 'reports/submit_report.html', context)
 
-@csrf_protect
+
 def submit_report_ack(request):
 #    submission_id = request.session['submission_id']
 #    context = {'submission': Submission.objects.get(pk=submission_id) }
     context = {}
     return render(request, 'reports/submit_report_ack.html', context)
 
-@csrf_protect
+
 def vet_submitted_reports(request):
     contributor = Contributor.objects.get(user=request.user)
     submitted_reports_to_vet = Report.objects.filter(status=0)
@@ -61,7 +61,7 @@ def vet_submitted_reports(request):
     context = {'contributor': contributor, 'submitted_reports_to_vet': submitted_reports_to_vet, 'form': form }
     return(render(request, 'reports/vet_submitted_reports.html', context))
 
-@csrf_protect
+
 def vet_submitted_report_ack(request, report_id):
     if request.method == 'POST':
         form = VetReportForm(request.POST)

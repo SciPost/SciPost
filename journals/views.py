@@ -19,7 +19,7 @@ from .forms import *
 # Journals 
 ############
 
-@csrf_protect
+
 def journals(request):
     return render(request, 'journals/journals.html')
 

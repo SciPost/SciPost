@@ -26,7 +26,7 @@ from ratings.forms import CommentRatingForm, AuthorReplyRatingForm, ReportRating
 def sub_and_ref_procedure(request):
     return render(request, 'submissions/sub_and_ref_procedure.html')
 
-@csrf_protect
+
 def submit_manuscript(request):
     # If POST, process the form data
     if request.method == 'POST':
@@ -51,18 +51,18 @@ def submit_manuscript(request):
         form = SubmissionForm()
     return render(request, 'submissions/submit_manuscript.html', {'form': form})
 
-@csrf_protect
+
 def submit_manuscript_ack(request):
     return render(request, 'submissions/submit_manuscript_ack.html')
 
-@csrf_protect
+
 def process_new_submissions(request):
     submissions_to_process = Submission.objects.filter(status='0')
     form = ProcessSubmissionForm()
     context = {'submissions_to_process': submissions_to_process, 'form': form }
     return render(request, 'submissions/process_new_submissions.html', context)
 
-@csrf_protect
+
 def process_new_submission_ack(request, submission_id):
     if request.method == 'POST':
         form = ProcessSubmissionForm(request.POST)
@@ -76,7 +76,7 @@ def process_new_submission_ack(request, submission_id):
     context = {}
     return render(request, 'submissions/process_new_submission_ack.html', context)
 
-@csrf_protect
+
 def submissions(request):
     if request.method == 'POST':
         form = SubmissionSearchForm(request.POST)
@@ -101,7 +101,7 @@ def submissions(request):
     return render(request, 'submissions/submissions.html', context)
 
 
-@csrf_protect
+
 def submission_detail(request, submission_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     comments = submission.comment_set.all()
