@@ -97,7 +97,7 @@ def vet_commentary_request_ack(request, commentary_id):
                 commentary.delete()
 
 #    context = {'option': form.cleaned_data['action_option'], 'reason': form.cleaned_data['refusal_reason'] }
-    context = { }
+    context = {'commentary_id': commentary_id }
     return render(request, 'commentaries/vet_commentary_request_ack.html', context)
 
 

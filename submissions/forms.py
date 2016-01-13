@@ -13,7 +13,7 @@ class SubmissionForm(forms.Form):
     arxiv_link = forms.URLField(label='arXiv link (including version nr)', required=True)
 
 class ProcessSubmissionForm(forms.Form):
-    editor_in_charge = forms.ModelChoiceField(queryset=Contributor.objects.filter(rank__gte=3))
+    editor_in_charge = forms.ModelChoiceField(queryset=Contributor.objects.filter(rank__gte=3), required=True)
 
 class SubmissionSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author(s)")

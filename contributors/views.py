@@ -199,7 +199,10 @@ def update_personal_data(request):
                 request.user.contributor.save()
                 return render(request, 'contributors/update_personal_data_ack.html')
         else:
-            form = UpdatePersonalDataForm()
+            #form = UpdatePersonalDataForm()
+            aff = contributor.affiliation
+            prefilldata = {'affiliation': aff}
+            form = UpdatePersonalDataForm(initial=prefilldata)
             return render(request, 'contributors/update_personal_data.html', {'form': form, 'contributor': contributor})
     else:
         form = AuthenticationForm()

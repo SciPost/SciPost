@@ -1,7 +1,5 @@
 *.pyc
 
-settings.py
-
 */migrations/*
 */migrations/__pycache__/*
 
