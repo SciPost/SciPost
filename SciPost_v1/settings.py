@@ -27,14 +27,14 @@ host_settings = json.load(open(host_settings_path))
 SECRET_KEY = host_settings["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = host_settings["DEBUG"]
 
 ALLOWED_HOSTS = []
 
 # Secure proxy SSL header and secure cookies                                                       
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = host_settings["SESSION_COOKIE_SECURE"]
+CSRF_COOKIE_SECURE = host_settings["CSRF_COOKIE_SECURE"]
 
 # Session expire at browser close                                                                  
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -61,6 +61,7 @@ INSTALLED_APPS = (
     'scipost',
     'submissions',
 )
+
 MATHJAX_ENABLED = True
 MATHJAX_CONFIG_DATA = {
     "tex2jax": {
@@ -133,17 +134,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_URL = 'https://scipost.org/static/'
-STATIC_ROOT = '/home/jscaux/webapps/scipost_static/'
+STATIC_URL = host_settings["STATIC_URL"]
+STATIC_ROOT = host_settings["STATIC_ROOT"]
 
 # Email
-# For saving files:
-#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-#EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'emails')
-# SMTP:
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.webfaction.com'
-EMAIL_HOST_USER = 'scipostadmin'
-EMAIL_HOST_PASSWORD = 'scipostadminmbox1'
-DEFAULT_FROM_EMAIL = 'admin@scipost.org'
-SERVER_EMAIL = 'admin@scipost.org'
+EMAIL_BACKEND = host_settings["EMAIL_BACKEND"]
+EMAIL_FILE_PATH = host_settings["EMAIL_FILE_PATH"]
+EMAIL_HOST = host_settings["EMAIL_HOST"]
+EMAIL_HOST_USER = host_settings["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = host_settings["EMAIL_HOST_PASSWORD"]
+DEFAULT_FROM_EMAIL = host_settings["DEFAULT_FROM_EMAIL"]
+SERVER_EMAIL = host_settings["SERVER_EMAIL"]
