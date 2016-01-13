@@ -35,7 +35,6 @@ def description(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'filename="SciPost_Description.pdf"'
     return response
-#    return HttpResponse("scipost/SciPost_Description.pdf", content_type="application/pdf")
 
 def peer_witnessed_refereeing(request):
     return render(request, 'scipost/peer_witnessed_refereeing.html')

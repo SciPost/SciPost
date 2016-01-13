@@ -75,21 +75,21 @@ def vet_commentary_request_ack(request, commentary_id):
                 # accept the commentary as is
                 commentary.vetted = True
                 commentary.save()
-                email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\n The Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has been activated. You are now welcome to submit your comments.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
+                email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has been activated. You are now welcome to submit your comments.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'commentaries@scipost.org', [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['commentaries@scipost.org'])
                 emailmessage.send(fail_silently=False)                
             elif form.cleaned_data['action_option'] == '0':
                 # re-edit the form starting from the data provided
                 form2 = RequestCommentaryForm(initial={'pub_title': commentary.pub_title, 'arxiv_link': commentary.arxiv_link, 'pub_DOI_link': commentary.pub_DOI_link, 'author_list': commentary.author_list, 'pub_date': commentary.pub_date, 'pub_abstract': commentary.pub_abstract})
                 commentary.delete()
-                email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\n The Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has been activated (with slight modifications to your submitted details). You are now welcome to submit your comments.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
+                email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has been activated (with slight modifications to your submitted details). You are now welcome to submit your comments.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'commentaries@scipost.org', [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['commentaries@scipost.org'])
                 emailmessage.send(fail_silently=False)                
                 context = {'form': form2 }
                 return render(request, 'commentaries/request_commentary.html', context)
             elif form.cleaned_data['action_option'] == '2':
                 # the commentary request is simply rejected
-                email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\n The Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has not been activated for the following reason: ' + form.cleaned_data['refusal_reason'] + '.\n\nThank you for your interest, \nThe SciPost Team.'
+                email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has not been activated for the following reason: ' + form.cleaned_data['refusal_reason'] + '.\n\nThank you for your interest, \nThe SciPost Team.'
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'commentaries@scipost.org', [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['comentaries@scipost.org'])

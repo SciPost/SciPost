@@ -14,15 +14,12 @@ from .forms import *
 
 
 
-
-
 def vote_on_commentary(request, commentary_id):
     commentary = get_object_or_404(Commentary, pk=commentary_id)
     rater = Contributor.objects.get(user=request.user)
     if request.method == 'POST':
         form = CommentaryRatingForm(request.POST)
         if form.is_valid():
-#            if rater.id != report.author.id:
             # Any previous rating from this contributor for this report is deleted:
             CommentaryRating.objects.filter(rater=rater, commentary=commentary).delete()
             newrating = CommentaryRating (

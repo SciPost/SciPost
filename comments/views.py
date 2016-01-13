@@ -37,11 +37,11 @@ def vet_submitted_comment_ack(request, comment_id):
                 # accept the comment as is
                 comment.status = 1
                 comment.save()
-                email_text = 'Dear ' + comment.author.title + ' ' + comment.author.last_name + ', \n\n The Comment you have submitted, concerning publication with title '
+                email_text = 'Dear ' + comment.author.title + ' ' + comment.author.user.last_name + ', \n\nThe Comment you have submitted, concerning publication with title '
                 if comment.commentary is not None:
-                    email_text + comment.commentary.pub_title + ' by ' + comment.commentary.author_list
+                    email_text += comment.commentary.pub_title + ' by ' + comment.commentary.author_list
                 elif comment.submission is not None:
-                    email_text + comment.submission.title + ' by ' + comment.submission.author_list
+                    email_text += comment.submission.title + ' by ' + comment.submission.author_list
                 email_text += ', has been accepted and published online.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost Comment published', email_text, 'noreply@scipost.org', ['jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
                 emailmessage.send(fail_silently=False)
@@ -51,9 +51,9 @@ def vet_submitted_comment_ack(request, comment_id):
                 comment.save()
                 email_text = 'The Comment you have submitted, concerning publication with title '
                 if comment.commentary is not None:
-                    email_text + comment.commentary.pub_title + ' by ' + comment.commentary.author_list
+                    email_text += comment.commentary.pub_title + ' by ' + comment.commentary.author_list
                 elif comment.submission is not None:
-                    email_text + comment.submission.title + ' by ' + comment.submission.author_list
+                    email_text += comment.submission.title + ' by ' + comment.submission.author_list
                 email_text += ', has been rejected for the following reason:' + form.cleaned_data['refusal_reason'] + '.\n\nThank you for your contribution, \nThe SciPost Team.'
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
@@ -162,9 +162,9 @@ def vet_author_reply_ack(request, reply_id):
                 reply.save()
                 email_text = 'The Author Reply you have submitted, concerning publication with title '
                 if reply.commentary is not None:
-                    email_text + reply.commentary.pub_title + ' by ' + reply.commentary.author_list
+                    email_text += reply.commentary.pub_title + ' by ' + reply.commentary.author_list
                 elif reply.submission is not None:
-                    email_text + reply.submission.title + ' by ' + reply.submission.author_list
+                    email_text += reply.submission.title + ' by ' + reply.submission.author_list
                 email_text += ', has been accepted and published online.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost Author Reply published', email_text, 'noreply@scipost.org', ['jscaux@gmail.com'], reply_to=['J.S.Caux@uva.nl'])
                 emailmessage.send(fail_silently=False)
@@ -174,9 +174,9 @@ def vet_author_reply_ack(request, reply_id):
                 reply.save()
                 email_text = 'The Author Reply you have submitted, concerning publication with title '
                 if reply.commentary is not None:
-                    email_text + reply.commentary.pub_title + ' by ' + reply.commentary.author_list
+                    email_text += reply.commentary.pub_title + ' by ' + reply.commentary.author_list
                 elif reply.submission is not None:
-                    email_text + reply.submission.title + ' by ' + reply.submission.author_list
+                    email_text += reply.submission.title + ' by ' + reply.submission.author_list
                 email_text += ', has been rejected for the following reason:' + form.cleaned_data['refusal_reason'] + '.\n\nThank you for your contribution, \nThe SciPost Team.'
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
