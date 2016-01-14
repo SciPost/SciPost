@@ -33,8 +33,10 @@ ALLOWED_HOSTS = []
 
 # Secure proxy SSL header and secure cookies                                                       
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = host_settings["SESSION_COOKIE_SECURE"]
-CSRF_COOKIE_SECURE = host_settings["CSRF_COOKIE_SECURE"]
+#SESSION_COOKIE_SECURE = host_settings["SESSION_COOKIE_SECURE"]
+SESSION_COOKIE_SECURE = False
+#CSRF_COOKIE_SECURE = host_settings["CSRF_COOKIE_SECURE"]
+CSRF_COOKIE_SECURE = False
 
 # Session expire at browser close                                                                  
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

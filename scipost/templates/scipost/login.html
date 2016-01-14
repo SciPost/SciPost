@@ -8,7 +8,7 @@
   <div class="row">
     <div class="col-6">
       <h1>Log in to SciPost</h1>
-      <form action="{% url 'contributors:login' %}" method="post">
+      <form action="{% url 'scipost:login' %}" method="post">
 	{% csrf_token %}
 	<table>
 	  <ul>
@@ -23,7 +23,7 @@
     <div class="col-6">
       <h1>Not registered as a Contributor to SciPost?</h1>
       <p>If you are a professional scientist (PhD student and above), you can register by filling the
-      <a href="{% url 'contributors:register' %}">registration form</a>.</p>
+      <a href="{% url 'scipost:register' %}">registration form</a>.</p>
     </div>
     {% endif %}
   </div>

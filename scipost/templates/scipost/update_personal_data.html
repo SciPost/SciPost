@@ -6,7 +6,7 @@
 
 <section>
   <h1>Update your personal data</h1>
-  <form action="{% url 'contributors:update_personal_data' %}" method="post">
+  <form action="{% url 'scipost:update_personal_data' %}" method="post">
     {% csrf_token %}
     <table>
       <ul>

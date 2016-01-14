@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
@@ -62,10 +62,10 @@ def register(request):
         if form.is_valid():
             # check for mismatching passwords
             if form.cleaned_data['password'] != form.cleaned_data['password_verif']:
-                return render(request, 'register.html', {'form': form, 'errormessage': 'Your passwords must match'})
+                return render(request, 'scipost/register.html', {'form': form, 'errormessage': 'Your passwords must match'})
             # check for already-existing username
             if User.objects.filter(username=form.cleaned_data['username']).exists():
-                return render(request, 'register.html', {'form': form, 'errormessage': 'This username is already in use'})                
+                return render(request, 'scipost/register.html', {'form': form, 'errormessage': 'This username is already in use'})                
             # create the user
             user = User.objects.create_user (
                 first_name = form.cleaned_data['first_name'],
@@ -92,11 +92,11 @@ def register(request):
         form = RegistrationForm()
 
     errormessage = ''
-    return render(request, 'register.html', {'form': form, 'errormessage': errormessage})
+    return render(request, 'scipost/register.html', {'form': form, 'errormessage': errormessage})
 
 
 def thanks_for_registering(request):
-    return render(request, 'thanks_for_registering.html')
+    return render(request, 'scipost/thanks_for_registering.html')
 
 
 def vet_registration_requests(request):
@@ -104,7 +104,7 @@ def vet_registration_requests(request):
     registration_requests_to_vet = Contributor.objects.filter(rank=0)
     form = VetRegistrationForm()
     context = {'contributor': contributor, 'registration_requests_to_vet': registration_requests_to_vet, 'form': form }
-    return render(request, 'vet_registration_requests.html', context)
+    return render(request, 'scipost/vet_registration_requests.html', context)
 
 
 def vet_registration_request_ack(request, contributor_id):
@@ -130,7 +130,7 @@ def vet_registration_request_ack(request, contributor_id):
                 contributor.save()
 
     context = {}
-    return render(request, 'vet_registration_request_ack.html', context)
+    return render(request, 'scipost/vet_registration_request_ack.html', context)
 
 
 def login_view(request):
@@ -143,19 +143,19 @@ def login_view(request):
                 login(request, user)
                 contributor = Contributor.objects.get(user=request.user)
                 context = {'contributor': contributor }
-                return render(request, 'personal_page.html', context)
+                return render(request, 'scipost/personal_page.html', context)
             else:
-                return render(request, 'disabled_account.html')
+                return render(request, 'scipost/disabled_account.html')
         else:
-            return render(request, 'login_error.html')
+            return render(request, 'scipost/login_error.html')
     else:
         form = AuthenticationForm()
-        return render(request, 'login.html', {'form': form})
+        return render(request, 'scipost/login.html', {'form': form})
 
 
 def logout_view(request):
     logout(request)
-    return render(request, 'logout.html')
+    return render(request, 'scipost/logout.html')
 
 
 def personal_page(request):
@@ -178,11 +178,11 @@ def personal_page(request):
             nr_author_replies_to_vet = AuthorReply.objects.filter(status=0).count()
             nr_reports_to_vet = Report.objects.filter(status=0).count()
         context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process }
-        return render(request, 'personal_page.html', context)
+        return render(request, 'scipost/personal_page.html', context)
     else:
         form = AuthenticationForm()
         context = {'form': form}
-        return render(request, 'login.html', context)
+        return render(request, 'scipost/login.html', context)
 
 
 def change_password(request):
@@ -191,21 +191,21 @@ def change_password(request):
         if form.is_valid():
             # verify existing password:
             if not request.user.check_password(form.cleaned_data['password_prev']):
-                return render(request, 'change_password.html', {'form': form, 'errormessage': 'The currently existing password you entered is incorrect'})
+                return render(request, 'scipost/change_password.html', {'form': form, 'errormessage': 'The currently existing password you entered is incorrect'})
             # check for mismatching new passwords
             if form.cleaned_data['password_new'] != form.cleaned_data['password_verif']:
-                return render(request, 'change_password.html', {'form': form, 'errormessage': 'Your new password entries must match'})
+                return render(request, 'scipost/change_password.html', {'form': form, 'errormessage': 'Your new password entries must match'})
             # otherwise simply change the pwd:
             request.user.set_password(form.cleaned_data['password_new'])
             request.user.save()
-            return render(request, 'change_password_ack.html')
+            return render(request, 'scipost/change_password_ack.html')
     else:
         form = PasswordChangeForm()
-    return render (request, 'change_password.html', {'form': form})
+    return render (request, 'scipost/change_password.html', {'form': form})
 
 
 def change_password_ack(request):
-    return render (request, 'change_password_ack.html')
+    return render (request, 'scipost/change_password_ack.html')
 
 
 def update_personal_data(request):
@@ -224,18 +224,18 @@ def update_personal_data(request):
                 request.user.contributor.personalwebpage = form.cleaned_data['personalwebpage']
                 request.user.save()
                 request.user.contributor.save()
-                return render(request, 'update_personal_data_ack.html')
+                return render(request, 'scipost/update_personal_data_ack.html')
         else:
             #form = UpdatePersonalDataForm()
             aff = contributor.affiliation
             prefilldata = {'affiliation': aff}
             form = UpdatePersonalDataForm(initial=prefilldata)
-            return render(request, 'update_personal_data.html', {'form': form, 'contributor': contributor})
+            return render(request, 'scipost/update_personal_data.html', {'form': form, 'contributor': contributor})
     else:
         form = AuthenticationForm()
-        return render(request, 'login.html', {'form': form})
+        return render(request, 'scipost/login.html', {'form': form})
 
 
 def update_personal_data_ack(request):
-    return render (request, 'update_personal_data_ack.html')
+    return render (request, 'scipost/update_personal_data_ack.html')
 

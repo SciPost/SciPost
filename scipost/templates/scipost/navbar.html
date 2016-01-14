@@ -12,10 +12,10 @@
     <div class="col-6">
       {% if user.is_authenticated %}
       <p>Logged in as {{ user.username }}</p>
-      <a href="{% url 'contributors:logout' %}">Logout</a>
-      <a href="{% url 'contributors:personal_page' %}">Personal Page</a>
+      <a href="{% url 'scipost:logout' %}">Logout</a>
+      <a href="{% url 'scipost:personal_page' %}">Personal Page</a>
       {% else %}
-      <a href="{% url 'contributors:login' %}">Login</a>
+      <a href="{% url 'scipost:login' %}">Login</a>
       {% endif %}
     </div>
   </div>
