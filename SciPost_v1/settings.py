@@ -54,7 +54,7 @@ INSTALLED_APPS = (
     'django_mathjax',
     'commentaries',
     'comments',
-    'contributors',
+#    'contributors',
     'journals',
     'ratings',
     'reports',

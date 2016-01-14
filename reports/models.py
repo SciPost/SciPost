@@ -12,7 +12,7 @@ from .models import *
 #from submissions.models import *
 
 #from commentaries.models import Commentary
-from contributors.models import Contributor
+from scipost.models import Contributor
 #from reports.models import Report
 from submissions.models import Submission
 

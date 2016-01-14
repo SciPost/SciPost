@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from .models import *
 
-from contributors.models import Contributor
+from scipost.models import Contributor
 
 COMMENTARY_TYPES = (
     ('published', 'published paper'),

@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contributors', '0001_initial'),
+        ('scipost', '0001_initial'),
         ('submissions', '0001_initial'),
     ]
 
@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Report',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
                 ('status', models.SmallIntegerField(default=0)),
                 ('qualification', models.PositiveSmallIntegerField(default=0)),
                 ('strengths', models.TextField()),
@@ -26,17 +26,17 @@ class Migration(migrations.Migration):
                 ('date_invited', models.DateTimeField(verbose_name='date invited', null=True, blank=True)),
                 ('date_submitted', models.DateTimeField(verbose_name='date submitted')),
                 ('nr_relevance_ratings', models.IntegerField(default=0)),
-                ('relevance_rating', models.DecimalField(max_digits=3, default=0, null=True, decimal_places=0)),
+                ('relevance_rating', models.DecimalField(decimal_places=0, max_digits=3, null=True, default=0)),
                 ('nr_importance_ratings', models.IntegerField(default=0)),
-                ('importance_rating', models.DecimalField(max_digits=3, default=0, null=True, decimal_places=0)),
+                ('importance_rating', models.DecimalField(decimal_places=0, max_digits=3, null=True, default=0)),
                 ('nr_clarity_ratings', models.IntegerField(default=0)),
-                ('clarity_rating', models.DecimalField(max_digits=3, default=0, null=True, decimal_places=0)),
+                ('clarity_rating', models.DecimalField(decimal_places=0, max_digits=3, null=True, default=0)),
                 ('nr_validity_ratings', models.IntegerField(default=0)),
-                ('validity_rating', models.DecimalField(max_digits=3, default=0, null=True, decimal_places=0)),
+                ('validity_rating', models.DecimalField(decimal_places=0, max_digits=3, null=True, default=0)),
                 ('nr_rigour_ratings', models.IntegerField(default=0)),
-                ('rigour_rating', models.DecimalField(max_digits=3, default=0, null=True, decimal_places=0)),
-                ('author', models.ForeignKey(to='contributors.Contributor')),
-                ('invited_by', models.ForeignKey(null=True, related_name='invited_by', blank=True, to='contributors.Contributor')),
+                ('rigour_rating', models.DecimalField(decimal_places=0, max_digits=3, null=True, default=0)),
+                ('author', models.ForeignKey(to='scipost.Contributor')),
+                ('invited_by', models.ForeignKey(related_name='invited_by', null=True, blank=True, to='scipost.Contributor')),
                 ('submission', models.ForeignKey(to='submissions.Submission')),
             ],
         ),

@@ -7,7 +7,7 @@ from .models import *
 
 from commentaries.models import Commentary
 from comments.models import Comment, AuthorReply
-from contributors.models import Contributor
+from scipost.models import Contributor
 from reports.models import Report
 from submissions.models import Submission
 

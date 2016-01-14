@@ -8,14 +8,14 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contributors', '0001_initial'),
+        ('scipost', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='Commentary',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
                 ('vetted', models.BooleanField(default=False)),
                 ('type', models.CharField(max_length=9)),
                 ('open_for_commenting', models.BooleanField(default=True)),
@@ -26,19 +26,19 @@ class Migration(migrations.Migration):
                 ('pub_date', models.DateField(verbose_name='date of original publication')),
                 ('pub_abstract', models.TextField()),
                 ('nr_clarity_ratings', models.IntegerField(default=0)),
-                ('clarity_rating', models.DecimalField(max_digits=3, default=0, null=True, decimal_places=0)),
+                ('clarity_rating', models.DecimalField(decimal_places=0, max_digits=3, null=True, default=0)),
                 ('nr_validity_ratings', models.IntegerField(default=0)),
-                ('validity_rating', models.DecimalField(max_digits=3, default=0, null=True, decimal_places=0)),
+                ('validity_rating', models.DecimalField(decimal_places=0, max_digits=3, null=True, default=0)),
                 ('nr_rigour_ratings', models.IntegerField(default=0)),
-                ('rigour_rating', models.DecimalField(max_digits=3, default=0, null=True, decimal_places=0)),
+                ('rigour_rating', models.DecimalField(decimal_places=0, max_digits=3, null=True, default=0)),
                 ('nr_originality_ratings', models.IntegerField(default=0)),
-                ('originality_rating', models.DecimalField(max_digits=3, default=0, null=True, decimal_places=0)),
+                ('originality_rating', models.DecimalField(decimal_places=0, max_digits=3, null=True, default=0)),
                 ('nr_significance_ratings', models.IntegerField(default=0)),
-                ('significance_rating', models.DecimalField(max_digits=3, default=0, null=True, decimal_places=0)),
+                ('significance_rating', models.DecimalField(decimal_places=0, max_digits=3, null=True, default=0)),
                 ('latest_activity', models.DateTimeField(default=django.utils.timezone.now)),
-                ('authors', models.ManyToManyField(related_name='authors_com', blank=True, to='contributors.Contributor')),
-                ('requested_by', models.ForeignKey(null=True, related_name='requested_by', blank=True, to='contributors.Contributor')),
-                ('vetted_by', models.ForeignKey(null=True, to='contributors.Contributor', blank=True)),
+                ('authors', models.ManyToManyField(related_name='authors_com', to='scipost.Contributor', blank=True)),
+                ('requested_by', models.ForeignKey(related_name='requested_by', null=True, blank=True, to='scipost.Contributor')),
+                ('vetted_by', models.ForeignKey(null=True, blank=True, to='scipost.Contributor')),
             ],
         ),
     ]
