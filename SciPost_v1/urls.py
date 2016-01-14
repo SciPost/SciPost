@@ -25,6 +25,6 @@ urlpatterns = [
 #    url(r'^contributors/', include('contributors.urls', namespace="contributors")),
     url(r'^journals/', include('journals.urls', namespace="journals")),
     url(r'^ratings/', include('ratings.urls', namespace="ratings")),
-    url(r'^reports/', include('reports.urls', namespace="reports")),
+#    url(r'^reports/', include('reports.urls', namespace="reports")),
     url(r'^submissions/', include('submissions.urls', namespace="submissions")),
 ]

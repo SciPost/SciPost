@@ -35,7 +35,7 @@
       <p>{{ report_to_vet.recommendation }}</p>
     </div>
     <div class="col-4">
-      <form action="{% url 'reports:vet_submitted_report_ack' report_id=report_to_vet.id %}" method="post">
+      <form action="{% url 'submissions:vet_submitted_report_ack' report_id=report_to_vet.id %}" method="post">
         {% csrf_token %}
         {{ form.as_ul }}
         <input type="submit" value="Submit" />

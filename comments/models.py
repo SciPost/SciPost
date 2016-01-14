@@ -12,8 +12,7 @@ from .models import *
 
 from commentaries.models import Commentary
 from scipost.models import Contributor
-from reports.models import Report
-from submissions.models import Submission
+from submissions.models import Submission, Report
 
 
 COMMENT_CATEGORIES = (

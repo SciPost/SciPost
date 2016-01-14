@@ -28,7 +28,7 @@
       <li><a href="{% url 'commentaries:vet_commentary_requests' %}">Vet Commentary Page requests</a> ({{ nr_commentary_page_requests_to_vet }})</li>
       <li><a href="{% url 'comments:vet_submitted_comments' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
       <li><a href="{% url 'comments:vet_author_replies' %}">Vet submitted Author Replies</a> ({{ nr_author_replies_to_vet }})</li>
-      <li><a href="{% url 'reports:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+      <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
     </ul>
   </div>
   {% if contributor.rank >= 3 %}

@@ -8,8 +8,7 @@ from .models import *
 from commentaries.models import Commentary
 from comments.models import Comment, AuthorReply
 from scipost.models import Contributor
-from reports.models import Report
-from submissions.models import Submission
+from submissions.models import Submission, Report
 
 
 RATING_CHOICES = (

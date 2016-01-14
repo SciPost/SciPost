@@ -59,7 +59,7 @@ INSTALLED_APPS = (
 #    'contributors',
     'journals',
     'ratings',
-    'reports',
+#    'reports',
     'scipost',
     'submissions',
 )
