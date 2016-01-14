@@ -15,7 +15,7 @@ from .forms import *
 
 from comments.models import Comment, AuthorReply
 from comments.forms import CommentForm
-from contributors.forms import TITLE_CHOICES, AuthenticationForm
+from scipost.forms import TITLE_CHOICES, AuthenticationForm
 from ratings.forms import CommentRatingForm, AuthorReplyRatingForm, CommentaryRatingForm
 
 title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
@@ -51,7 +51,7 @@ def request_commentary(request):
         return render(request, 'commentaries/request_commentary.html', {'form': form})
     else: # user is not authenticated:
         form = AuthenticationForm()
-        return render(request, 'contributors/login.html', {'form': form})
+        return render(request, 'scipost/login.html', {'form': form})
 
 def request_commentary_ack(request):
     return render(request, 'commentaries/request_commentary_ack.html')
