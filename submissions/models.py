@@ -26,14 +26,14 @@ class Submission(models.Model):
     submitted_by = models.ForeignKey(Contributor)
     vetted = models.BooleanField(default=False)
     editor_in_charge = models.ForeignKey(Contributor, related_name="editor_in_charge", blank=True, null=True) # assigned by Journal Editor
-    submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS)
-    domain = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_DOMAINS, default='E')
+    submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT)
+    domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     status = models.SmallIntegerField(choices=SUBMISSION_STATUS) # set by Editors
     open_for_reporting = models.BooleanField(default=True)
     open_for_commenting = models.BooleanField(default=True)
     title = models.CharField(max_length=300)
-    author_list = models.CharField(max_length=1000)
+    author_list = models.CharField(max_length=1000, verbose_name="author list")
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_sub')
     abstract = models.TextField()
@@ -84,7 +84,7 @@ class Report(models.Model):
     strengths = models.TextField()
     weaknesses = models.TextField()
     report = models.TextField()
-    requested_changes = models.TextField()
+    requested_changes = models.TextField(verbose_name="requested changes")
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     date_invited = models.DateTimeField('date invited', blank=True, null=True)
     invited_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='invited_by')

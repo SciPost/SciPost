@@ -26,8 +26,6 @@ COMMENT_CATEGORIES = (
     ('SUG', 'suggestion for further work'),
     )
 
-
-
 class Comment(models.Model):
     """ A Comment is an unsollicited note, submitted by a Contributor, on a particular publication or in reply to an earlier Comment. """
     # status:
@@ -83,7 +81,7 @@ class AuthorReply(models.Model):
     in_reply_to_comment = models.ForeignKey(Comment, blank=True, null=True) # one of this and next must be not null
     in_reply_to_report = models.ForeignKey(Report, blank=True, null=True)
     author = models.ForeignKey(Contributor)
-    reply_text = models.TextField()
+    reply_text = models.TextField(verbose_name="")
     date_submitted = models.DateTimeField('date submitted')
     # Aggregates of ratings applied to this comment:
     nr_relevance_ratings = models.IntegerField(default=0)

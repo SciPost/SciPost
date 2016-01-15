@@ -49,6 +49,10 @@ SCIPOST_JOURNALS_DOMAINS = (
     ('E', 'Experimental'),
     ('T', 'Theoretical'),
     ('C', 'Computational'),
+    ('ET', 'Exp. & Theor.'),
+    ('EC', 'Exp. & Comp.'),
+    ('TC', 'Theor. & Comp.'),
+    ('ETC', 'Exp., Theor. & Comp.'), 
 )
 
 SCIPOST_JOURNALS_SPECIALIZATIONS = (

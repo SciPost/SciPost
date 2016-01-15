@@ -14,16 +14,18 @@ COMMENTARY_REFUSAL_CHOICES = (
     (-2, 'this paper cannot be traced'),
     )
 
-
-
-class RequestCommentaryForm(forms.Form):
-    type = forms.ChoiceField(choices=COMMENTARY_TYPES)
-    pub_title = forms.CharField(max_length=300, label="Title")
-    author_list = forms.CharField(max_length=1000)
-    pub_date = forms.DateField(label="Publication date (YYYY-MM-DD)")
-    arxiv_link = forms.URLField(label='arXiv link (including version nr)', required=False)
-    pub_DOI_link = forms.URLField(label='DOI link to the published version', required=False)
-    pub_abstract = forms.CharField(widget=forms.Textarea, label="Abstract") # need TextField but doesn't exist
+#class RequestCommentaryForm(forms.Form):
+#    type = forms.ChoiceField(choices=COMMENTARY_TYPES)
+#    pub_title = forms.CharField(max_length=300, label="Title")
+#    author_list = forms.CharField(max_length=1000)
+#    pub_date = forms.DateField(label="Publication date (YYYY-MM-DD)")
+#    arxiv_link = forms.URLField(label='arXiv link (including version nr)', required=False)
+#    pub_DOI_link = forms.URLField(label='DOI link to the published version', required=False)
+#    pub_abstract = forms.CharField(widget=forms.Textarea, label="Abstract") # need TextField but doesn't exist
+class RequestCommentaryForm(forms.ModelForm):
+    class Meta:
+        model = Commentary
+        fields = ['type', 'pub_title', 'author_list', 'pub_date', 'arxiv_link', 'pub_DOI_link', 'pub_abstract']
     
 class VetCommentaryForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect, choices=COMMENTARY_ACTION_CHOICES, required=True, label='Action')

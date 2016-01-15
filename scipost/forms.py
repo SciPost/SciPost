@@ -1,4 +1,4 @@
-from django import forms
+from django import forms 
 
 from .models import *
 
@@ -33,6 +33,11 @@ class UpdatePersonalDataForm(forms.Form):
     affiliation = forms.CharField(label='Affiliation', max_length=300)
     address = forms.CharField(label='Address', max_length=1000, required=False)
     personalwebpage = forms.URLField(label='Personal web page', required=False)
+#class UpdatePersonalDataForm(forms.ModelForm):
+#    class Meta:
+#        model = Contributor
+#        fields = ['title', 'user.first_name', 'user.last_name', 'user.email', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
+#        #fields = ['title', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
 
 class VetRegistrationForm(forms.Form):
     promote_to_rank_1 = forms.BooleanField(required=False)

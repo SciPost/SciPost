@@ -16,16 +16,16 @@ class Commentary(models.Model):
     requested_by = models.ForeignKey (Contributor, blank=True, null=True, related_name='requested_by')
     vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
-    type = models.CharField(max_length=9) # published paper or arxiv preprint
+    type = models.CharField(max_length=9, choices=COMMENTARY_TYPES) # published paper or arxiv preprint
     open_for_commenting = models.BooleanField(default=True)
-    pub_title = models.CharField(max_length=300)
-    arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
-    pub_DOI_link = models.URLField(verbose_name='DOI link to the original publication')
+    pub_title = models.CharField(max_length=300, verbose_name='title')
+    arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)
+    pub_DOI_link = models.URLField(verbose_name='DOI link to the original publication', blank=True)
     author_list = models.CharField(max_length=1000)
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_com')
     pub_date = models.DateField(verbose_name='date of original publication')
-    pub_abstract = models.TextField()
+    pub_abstract = models.TextField(verbose_name='abstract')
 
     nr_clarity_ratings = models.IntegerField(default=0)
     clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)

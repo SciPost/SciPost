@@ -229,6 +229,9 @@ def update_personal_data(request):
             prefilldata = {'affiliation': aff}
             form = UpdatePersonalDataForm(initial=prefilldata)
             return render(request, 'scipost/update_personal_data.html', {'form': form, 'contributor': contributor})
+            # Use ModelForm instead:
+            #form = UpdatePersonalDataForm(instance=contributor)
+            #return render(request, 'scipost/update_personal_data.html', {'form': form})
     else:
         form = AuthenticationForm()
         return render(request, 'scipost/login.html', {'form': form})
