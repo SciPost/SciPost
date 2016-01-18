@@ -319,6 +319,7 @@ section div {
   margin: 0px;
   padding: 0px;
 }
+
 section h1, h2, h3, h4, h5, h6 {
   margin: 0px;
   padding: 6px 2px;
@@ -338,6 +339,9 @@ section form label {
 //  color: #ffffff;
   color: black;
   font-weight: 400;
+}
+section form ul li {
+  padding: 0px;
 }
 section form ul li label {
 //  color: #ffffff;
@@ -362,6 +366,9 @@ section table th, td {
 
 section ul {
   margin: 0px;
+}
+section ul li {
+  padding: 2px;
 }
 
 section ul.ratingsdata {
@@ -456,4 +463,30 @@ select {
   border: 1px solid black;
 }
 
+@keyframes journalsannounceanim {
+  0% { background-color: #110000; }
+  50% { background-color: #aa0000; }
+  100% { background-color: #110000; }
+}
+
+#journalsannouncesmall {
+  background-color: #880000;
+  color: #ffffff;
+  padding: 5px;
+  font-size: 90%;
+  text-align: center;
+  animation-name: journalsannounceanim;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+#journalsannounce {
+  background-color: #880000;
+  color: #ffffff;
+  padding: 20px;
+  font-size: 150%;
+  text-align: center;
+  animation-name: journalsannounceanim;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
 

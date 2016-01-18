@@ -8,6 +8,9 @@
 {% if user.is_authenticated %}
 <section>
   <h1>Submit a manuscript to SciPost</h1>
+
+  <p id="journalsannounce">OPEN FOR SUBMISSION STARTING 1 MARCH 2016</p>
+
   <form action="{% url 'submissions:submit_manuscript' %}" method="post">
     {% csrf_token %}
     <table>

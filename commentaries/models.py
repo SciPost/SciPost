@@ -8,7 +8,7 @@ from scipost.models import Contributor
 
 COMMENTARY_TYPES = (
     ('published', 'published paper'),
-    ('preprint', 'arXiv preprint (from at least 4 weeks ago)'),
+    ('preprint', 'arXiv preprint (at least 8 weeks old)'),
     )
 
 class Commentary(models.Model):

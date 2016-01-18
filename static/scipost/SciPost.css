@@ -36,6 +36,121 @@ General style sheet for SciPost
     }
 }
 
+hr.hr6 {
+    height: 6px;
+    border: 0;
+    box-shadow: inset 0 6px 6px -6px rgba(0, 0, 0, 0.5);
+}
+hr.hr12 {
+    height: 12px;
+    border: 0;
+    box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);
+}
+
+.commentcategorychoices {
+  list-style-type: none; // for categorizing comments
+}
+.commentcategorydisplay {
+  display: inline-block;
+  margin: 2px; 2px;
+  padding: 1px;
+  box-shadow: 1px 1px 3px #888888;
+  background: linear-gradient(to right,#fcfcfc, #f0f0f0);
+}
+.commentcategorydisplay h4, .commentcategorydisplay ul {
+  display: inline-block;
+  margin: 2px;
+  padding: 0px;
+}
+.commentcategorydisplay li {
+  display: inline-block;
+  margin: 0px;
+  padding: 4px 8px;
+  background-color: #dddddd;
+  font-size: 90%;
+}
+
+.commentid {
+  display: inline-block;
+  box-shadow: 5px 5px 10px #888888;
+  background: linear-gradient(to right,#f8f8f8, #e0e0e0);
+}
+
+.ratings {
+  margin: 4px 4px;
+  padding: 1px;
+  display: inline-block;
+  box-shadow: 1px 1px 3px #888888;
+  background: linear-gradient(to right,#fcfcfc, #f0f0f0);
+}
+.ratings h4 {
+  display: inline-block;
+}
+.ratings ul {
+  display: inline-block;
+}
+.ratings li {
+  display: inline-block;
+  margin: 2px;
+  padding: 4px 8px;
+  color: #ffffff;
+  background-color: #204080;
+  font-size: 80%;
+}
+
+.ratingsinput {
+  margin: 1px;
+  padding: 4px;
+  display: inline-block;
+//  box-shadow: 1px 1px 3px #888888;
+//  background: linear-gradient(to right,#fcfcfc, #f0f0f0);
+}
+.ratingsinput h4, .ratingsinput form {
+  display: inline-block;
+}
+.ratingsinput ul {
+  display: inline-block;
+  background-color: #204080;
+  color: #ffffff;
+  padding: 2px;
+  box-shadow: 1px 1px 3px #888888;
+}
+.ratingsinput ul li {
+//  color: #ffffff;
+  display: inline-block;
+  margin: 0px;
+  padding: 0px 4px;
+}
+.ratingsinput label {
+  color: #ffffff;
+  font-size: 80%;
+}
+.ratingsinput input {
+  margin: 0px;
+}
+.ratingsinput select {
+  margin: 0px;
+  padding: 0px;
+  height: 6px;
+}
+
+.reportid {
+  display: inline-block;
+  box-shadow: 5px 5px 10px #888888;
+  background: linear-gradient(to right,#f8f8f8, #e0e0e0);
+}
+
+.twocolumn {
+  -webkit-column-count: 2; /* Chrome, Safari, Opera */
+  -moz-column-count: 2; /* Firefox */
+  column-count: 2;
+  -webkit-column-width: 360px; /* Chrome, Safari, Opera */
+  column-width: 360px;
+  -webkit-column-rule-width: 1px; /* Chrome, Safari, Opera */
+  -moz-column-rule-width: 1px; /* Firefox */
+  column-rule-width: 1px;
+}
+
 
 body {
 //  font-family: Verdana, sans-serif; 
@@ -85,10 +200,16 @@ header h1 {
 }
 header a {
   text-decoration: none;
+//  border: 1px solid white;
 }
 header a:hover {
   color: #ffffff;
 //  text-decoration: underline;
+}
+header img {
+  margin: 0px;
+  padding: 0px;
+//  border: 1px solid white;
 }
 
 nav {
@@ -198,6 +319,7 @@ section div {
   margin: 0px;
   padding: 0px;
 }
+
 section h1, h2, h3, h4, h5, h6 {
   margin: 0px;
   padding: 6px 2px;
@@ -216,6 +338,10 @@ section form label {
 //  color: #102040;
 //  color: #ffffff;
   color: black;
+  font-weight: 400;
+}
+section form ul li {
+  padding: 0px;
 }
 section form ul li label {
 //  color: #ffffff;
@@ -241,6 +367,10 @@ section table th, td {
 section ul {
   margin: 0px;
 }
+section ul li {
+  padding: 2px;
+}
+
 section ul.ratingsdata {
   display: inline-block;
   padding: 2px;
@@ -253,7 +383,7 @@ section ul.ratingsdata {
   font-size: 90%;
 }
 section ul.ratingsdata li{
-  display: inline;
+//  display: inline;
   padding: 2px 2px;
   color: #ffffff;
 }
@@ -269,17 +399,14 @@ section form.ratingsdata ul {
   font-size: 90%;
 }
 section form.ratingsdata ul li {
-  display: inline;
+//  display: inline;
   padding: 0px 2px; 
   color: #ffffff;
 }
 section form.ratingsdata ul li label {
   color: #ffffff;
 }
-section div table.ratings {
-  font-size: 90%;
-  color: #ffffff;
-}
+
 
 article {
   background-color:#eeeeee;
@@ -336,4 +463,30 @@ select {
   border: 1px solid black;
 }
 
+@keyframes journalsannounceanim {
+  0% { background-color: #110000; }
+  50% { background-color: #aa0000; }
+  100% { background-color: #110000; }
+}
+
+#journalsannouncesmall {
+  background-color: #880000;
+  color: #ffffff;
+  padding: 5px;
+  font-size: 90%;
+  text-align: center;
+  animation-name: journalsannounceanim;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+#journalsannounce {
+  background-color: #880000;
+  color: #ffffff;
+  padding: 20px;
+  font-size: 150%;
+  text-align: center;
+  animation-name: journalsannounceanim;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
 

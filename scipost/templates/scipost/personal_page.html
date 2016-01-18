@@ -8,6 +8,23 @@
   <h1>Welcome to your SciPost Personal Page, {{ user.username }} (rank {{ contributor.rank }} Contributor)</h1>
 </section>
 
+<section>
+  <h1>Your SciPost Account</h1>
+  <div class="row">
+    <div class="col-6">
+      <h3>Your personal details</h3>
+      {{ contributor.as_table|safe }}
+    </div>
+    <div class="col-6">
+      <h3>Update your personal data or password</h3>
+      <ul>
+	<li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
+	<li><a href="{% url 'scipost:change_password' %}">Change your password</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 {% if contributor.rank >= 2 %}
 <section>
   <h1>Pending SciPost Editorial Actions</h1>
@@ -61,24 +78,8 @@
 
 {% if contributor.rank > 0 %}
 <section>
-  <h1>Your SciPost Account</h1>
+  <h1>Your ratings:</h1>
   <div class="row">
-    <div class="col-6">
-      <ul>
-	<li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
-      </ul>
-    </div>
-    <div class="col-6">
-      <ul>
-	<li><a href="{% url 'scipost:change_password' %}">Change your password</a></li>
-      </ul>
-    </div>
-  </div>
-  <hr>
-  <div class="row">
-    <div class="col-3">
-      <h3>Your ratings:</h3>
-    </div>
     <div class="col-3">
       <table class="ratings">
 	<th>Reports</th><th>(nr: {{ contributor.nr_reports }})</th>

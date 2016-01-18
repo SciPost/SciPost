@@ -1,5 +1,7 @@
 {% extends 'scipost/base.html' %}
 
+{% load staticfiles %}
+
 {% block bodysup %}
 
 <!-- Temporary strip for online version -->
@@ -15,6 +17,7 @@
     <div class="col-1"></div>
     <div class="col-4">
       <h1><a href="{% url 'journals:journals' %}">Journals</a></h1>
+      <p id="journalsannouncesmall">OPEN FOR SUBMISSION STARTING 1 MARCH 2016</p>
       <p>SciPost publishes a portfolio of high-quality open access, charge-free scientific journals.</p>
       <p>All SciPost Journals implement the maximally stringent <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> principle.</p>
       <p>All Journals are fully managed by professional scientists.</p>
@@ -26,6 +29,23 @@
       <h1><a href="{% url 'commentaries:commentaries' %}">Commentaries</a></h1>
       <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
     </div>
+  </div>
+</section>
+
+<section>
+  <div class="row">
+    <div class="col-4">
+      <h1>SciPost is endorsed by the</h1>
+    </div>
+    <div class="col-4">
+      <a href="http://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width='300px' /></a>      
+    </div>
+<!--
+    <div class="col-4">
+      <a href="http://www.fom.nl/live/english/home.pag"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width='60px' /></a>      
+      <p style="font-size: 50%">FOM is part of NWO</p>
+    </div>
+-->
   </div>
 </section>
 {% endif %}

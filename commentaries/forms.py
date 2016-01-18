@@ -12,6 +12,7 @@ COMMENTARY_REFUSAL_CHOICES = (
     (0, '-'),
     (-1, 'a commentary on this paper already exists'),
     (-2, 'this paper cannot be traced'),
+    (-3, 'this arXiv preprint is too recent (< 8 weeks)'),
     )
 
 #class RequestCommentaryForm(forms.Form):
