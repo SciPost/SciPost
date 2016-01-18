@@ -44,10 +44,10 @@ class Contributor(models.Model):
     rank = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_RANKS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     # username, password, email, first_name and last_name are inherited from User
-    orcid_id = models.CharField(max_length=20, blank=True, null=True, verbose_name="ORCID id", default='')
+    orcid_id = models.CharField(max_length=20, verbose_name="ORCID id")
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
-    address = models.CharField(max_length=1000, blank=True, verbose_name="address")
-    personalwebpage = models.URLField(blank=True, verbose_name='personal web page')
+    address = models.CharField(max_length=1000, verbose_name="address")
+    personalwebpage = models.URLField(verbose_name='personal web page')
     #vetted_by = models.OneToOneField(Contributor, related_name='vetted_by') TO ACTIVATE
 
     nr_comments = models.PositiveSmallIntegerField(default=0)
