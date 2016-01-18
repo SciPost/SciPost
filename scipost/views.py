@@ -210,19 +210,6 @@ def update_personal_data(request):
     if request.user.is_authenticated:
         contributor = Contributor.objects.get(user=request.user)
         if request.method == 'POST':
-            #form = UpdatePersonalDataForm(request.POST)
-            #if form.is_valid():
-            #    request.user.email = form.cleaned_data['email']
-            #    request.user.first_name = form.cleaned_data['first_name']
-            #    request.user.last_name = form.cleaned_data['last_name']
-            #    request.user.contributor.title = form.cleaned_data['title']
-            #    request.user.contributor.orcid = form.cleaned_data['orcid_id']
-            #    request.user.contributor.address = form.cleaned_data['address']
-            #    request.user.contributor.affiliation = form.cleaned_data['affiliation']
-            #    request.user.contributor.personalwebpage = form.cleaned_data['personalwebpage']
-            #    request.user.save()
-            #    request.user.contributor.save()
-            #    return render(request, 'scipost/update_personal_data_ack.html')
             user_form = UpdateUserDataForm(request.POST)
             cont_form = UpdatePersonalDataForm(request.POST)
             if user_form.is_valid() and cont_form.is_valid():
@@ -230,7 +217,7 @@ def update_personal_data(request):
                 request.user.first_name = user_form.cleaned_data['first_name']
                 request.user.last_name = user_form.cleaned_data['last_name']
                 request.user.contributor.title = cont_form.cleaned_data['title']
-                request.user.contributor.orcid = cont_form.cleaned_data['orcid_id']
+                request.user.contributor.orcid_id = cont_form.cleaned_data['orcid_id']
                 request.user.contributor.address = cont_form.cleaned_data['address']
                 request.user.contributor.affiliation = cont_form.cleaned_data['affiliation']
                 request.user.contributor.personalwebpage = cont_form.cleaned_data['personalwebpage']
@@ -238,12 +225,6 @@ def update_personal_data(request):
                 request.user.contributor.save()
                 return render(request, 'scipost/update_personal_data_ack.html')
         else:
-            #form = UpdatePersonalDataForm()
-            #aff = contributor.affiliation
-            #prefilldata = {'affiliation': aff}
-            #form = UpdatePersonalDataForm(initial=prefilldata)
-            #return render(request, 'scipost/update_personal_data.html', {'form': form, 'contributor': contributor})
-            # Use ModelForm instead:
             user_form = UpdateUserDataForm(instance=contributor.user)
             cont_form = UpdatePersonalDataForm(instance=contributor)
             return render(request, 'scipost/update_personal_data.html', {'user_form': user_form, 'cont_form': cont_form})
