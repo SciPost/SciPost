@@ -178,14 +178,14 @@ def submit_report(request, submission_id):
     else:
         form = ReportForm()
     context = {'submission': submission, 'form': form }
-    return render(request, 'reports/submit_report.html', context)
+    return render(request, 'submissions/submit_report.html', context)
 
 
 def submit_report_ack(request):
 #    submission_id = request.session['submission_id']
 #    context = {'submission': Submission.objects.get(pk=submission_id) }
     context = {}
-    return render(request, 'reports/submit_report_ack.html', context)
+    return render(request, 'submissions/submit_report_ack.html', context)
 
 
 def vet_submitted_reports(request):
@@ -193,7 +193,7 @@ def vet_submitted_reports(request):
     submitted_reports_to_vet = Report.objects.filter(status=0)
     form = VetReportForm()
     context = {'contributor': contributor, 'submitted_reports_to_vet': submitted_reports_to_vet, 'form': form }
-    return(render(request, 'reports/vet_submitted_reports.html', context))
+    return(render(request, 'submissions/vet_submitted_reports.html', context))
 
 
 def vet_submitted_report_ack(request, report_id):
@@ -212,5 +212,5 @@ def vet_submitted_report_ack(request, report_id):
                 # email report author
 
     context = {}
-    return render(request, 'reports/vet_submitted_report_ack.html', context)
+    return render(request, 'submissions/vet_submitted_report_ack.html', context)
 

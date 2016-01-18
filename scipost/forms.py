@@ -24,20 +24,27 @@ class RegistrationForm(forms.Form):
     password = forms.CharField(label='password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='verify pwd', widget=forms.PasswordInput())
 
-class UpdatePersonalDataForm(forms.Form):
-    title = forms.ChoiceField(choices=TITLE_CHOICES)
-    first_name = forms.CharField(label='First name', max_length=100)
-    last_name = forms.CharField(label='Last name', max_length=100)
-    email = forms.EmailField(label='email')
-    orcid_id = forms.CharField(label="ORCID id", max_length=20, required=False)
-    affiliation = forms.CharField(label='Affiliation', max_length=300)
-    address = forms.CharField(label='Address', max_length=1000, required=False)
-    personalwebpage = forms.URLField(label='Personal web page', required=False)
-#class UpdatePersonalDataForm(forms.ModelForm):
-#    class Meta:
-#        model = Contributor
-#        fields = ['title', 'user.first_name', 'user.last_name', 'user.email', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
-#        #fields = ['title', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
+#class UpdatePersonalDataForm(forms.Form):
+#    title = forms.ChoiceField(choices=TITLE_CHOICES)
+#    first_name = forms.CharField(label='First name', max_length=100)
+#    last_name = forms.CharField(label='Last name', max_length=100)
+#    email = forms.EmailField(label='email')
+#    orcid_id = forms.CharField(label="ORCID id", max_length=20, required=False)
+#    affiliation = forms.CharField(label='Affiliation', max_length=300)
+#    address = forms.CharField(label='Address', max_length=1000, required=False)
+#    personalwebpage = forms.URLField(label='Personal web page', required=False)
+
+# Replace this by the following two ModelForms:
+class UpdateUserDataForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name']
+
+class UpdatePersonalDataForm(forms.ModelForm):
+    class Meta:
+        model = Contributor
+        #fields = ['title', 'first_name', 'last_name', 'email', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
+        fields = ['title', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
 
 class VetRegistrationForm(forms.Form):
     promote_to_rank_1 = forms.BooleanField(required=False)

@@ -224,13 +224,20 @@
     {% endfor %}
   </div>
 
-
-  {% if user.is_authenticated and submission.open_for_reporting and user.contributor.rank > 0 %}
-  <h1><a href="{% url 'reports:submit_report' submission.id %}">Contribute a Report</a></h1>
-  {% endif %}
-
 </section>
 {% endif %}
+
+
+{% if user.is_authenticated and submission.open_for_reporting and user.contributor.rank > 0 %}
+<section>
+  <div class="row">
+    <div class="col-3">
+      <h1><a href="{% url 'submissions:submit_report' submission.id %}">Contribute a Report</a></h1>
+    </div>
+  </div>
+</section>
+{% endif %}
+
 
 {% if comments %}
 <section>

@@ -10,7 +10,8 @@
     {% csrf_token %}
     <table>
       <ul>
-	{{ form.as_table }}
+	{{ user_form.as_table }}
+	{{ cont_form.as_table }}
       </ul>
     </table>
     <input type="submit" value="Update" />
