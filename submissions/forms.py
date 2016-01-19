@@ -17,6 +17,10 @@ class SubmissionForm(forms.ModelForm):
         model = Submission
         fields = ['submitted_to_journal', 'domain', 'specialization', 'title', 'author_list', 'abstract', 'arxiv_link']
 
+    def __init__(self, *args, **kwargs):
+        super(SubmissionForm, self).__init__(*args, **kwargs)
+        self.fields['arxiv_link'].widget.attrs.update({'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
+
 class ProcessSubmissionForm(forms.Form):
     editor_in_charge = forms.ModelChoiceField(queryset=Contributor.objects.filter(rank__gte=3), required=True)
 
