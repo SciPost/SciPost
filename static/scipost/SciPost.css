@@ -285,6 +285,10 @@ nav form {
   display: inline-block;
 }
 
+p#goodCommenter {
+  font-size: 80%;
+}
+
 section {
 //  color: #eeeeee;
   color: #111111;

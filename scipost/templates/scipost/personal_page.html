@@ -23,6 +23,8 @@
       </ul>
     </div>
   </div>
+  <h3>Your permissions:</h3>
+  {{ contributor.permissions_as_table|safe }}
 </section>
 
 {% if contributor.rank >= 2 %}
