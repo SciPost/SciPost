@@ -3,6 +3,7 @@ from django import forms
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
+from captcha.fields import CaptchaField
 
 from .models import *
 
@@ -29,6 +30,7 @@ class RegistrationForm(forms.Form):
     username = forms.CharField(label='username', max_length=100)
     password = forms.CharField(label='password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='verify pwd', widget=forms.PasswordInput())
+    captcha = CaptchaField()
 
 #class RegistrationFormUser(forms.ModelForm):
 #    class Meta:

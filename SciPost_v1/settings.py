@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_countries',
     'django_mathjax',
+    'captcha',
     'commentaries',
     'comments',
 #    'contributors',
@@ -64,6 +65,10 @@ INSTALLED_APPS = (
     'scipost',
     'submissions',
 )
+
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+CAPTCHA_LETTER_ROTATION = (-15, 15)
+CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_dots',)
 
 MATHJAX_ENABLED = True
 MATHJAX_CONFIG_DATA = {
