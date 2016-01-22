@@ -22,7 +22,7 @@ class RegistrationForm(forms.Form):
     email = forms.EmailField(label='email')
     orcid_id = forms.CharField(label="ORCID id", max_length=20)
     nationality = LazyTypedChoiceField(choices=countries, initial='CA', widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
-    country_of_employment = LazyTypedChoiceField(choices=countries, initial='CA', widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
+    country_of_employment = LazyTypedChoiceField(choices=countries, initial='NL', widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
     affiliation = forms.CharField(label='Affiliation', max_length=300)
     #address = forms.CharField(label='Address', max_length=1000)
     personalwebpage = forms.URLField(label='Personal web page')
