@@ -8,11 +8,13 @@
   <h1>Register to SciPost</h1>
   <div class="row">
     <div class="col-4">
-      <p>Please note that all fields are required.</p>
-      <p>Don't have an ORCID id yet?</p>
-      <p>Get one at  <a href="http://orcid.org">orcid.org</a>.</p>
+      <h3>Notes:</h3>
+      <p>Required fields are marked with a *.</p>
+      <p>An ORCID id is not formally required but helps preventing identification ambiguities.
+      You can easily get one at  <a href="http://orcid.org">orcid.org</a>.</p>
     </div>
-    <div class="col-8">
+    <div class="col-1"></div>
+    <div class="col-7">
       <form action="{% url 'scipost:register' %}" method="post">
 	{% csrf_token %}
 	<table>

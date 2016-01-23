@@ -5,8 +5,8 @@
 {% block bodysup %}
 
 <section>
-  <h1>SciPost Comments to vet:</h1>
-  {% for comment_to_vet in submitted_comments_to_vet %}
+  <h1>SciPost Comment to vet:</h1>
+
   <br>
   <hr>
   {% if comment_to_vet.commentary %}
@@ -51,7 +51,7 @@
       </form>
     </div>
   </div>
-  {% endfor %}
+
 </section>
 
 {% endblock bodysup %}

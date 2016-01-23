@@ -60,9 +60,9 @@ def request_commentary_ack(request):
 
 def vet_commentary_requests(request):
     contributor = Contributor.objects.get(user=request.user)
-    commentary_requests_to_vet = Commentary.objects.filter(vetted=False)
+    commentary_to_vet = Commentary.objects.filter(vetted=False).first() # only handle one at a time
     form = VetCommentaryForm()
-    context = {'contributor': contributor, 'commentary_requests_to_vet': commentary_requests_to_vet, 'form': form }
+    context = {'contributor': contributor, 'commentary_to_vet': commentary_to_vet, 'form': form }
     return render(request, 'commentaries/vet_commentary_requests.html', context)
 
 

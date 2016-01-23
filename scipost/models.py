@@ -52,7 +52,7 @@ class Contributor(models.Model):
     nationality = CountryField()
     country_of_employment = CountryField()
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
-    #address = models.CharField(max_length=1000, verbose_name="address")
+    address = models.CharField(max_length=1000, verbose_name="address", default='')
     personalwebpage = models.URLField(verbose_name='personal web page')
     #vetted_by = models.OneToOneField(Contributor, related_name='vetted_by') TO ACTIVATE
 

@@ -59,9 +59,9 @@ def submit_manuscript_ack(request):
 
 
 def process_new_submissions(request):
-    submissions_to_process = Submission.objects.filter(status='0')
+    submission_to_process = Submission.objects.filter(status='0').first() # only handle one at at time
     form = ProcessSubmissionForm()
-    context = {'submissions_to_process': submissions_to_process, 'form': form }
+    context = {'submission_to_process': submission_to_process, 'form': form }
     return render(request, 'submissions/process_new_submissions.html', context)
 
 
@@ -190,9 +190,9 @@ def submit_report_ack(request):
 
 def vet_submitted_reports(request):
     contributor = Contributor.objects.get(user=request.user)
-    submitted_reports_to_vet = Report.objects.filter(status=0)
+    report_to_vet = Report.objects.filter(status=0).first() # only handle one at a time
     form = VetReportForm()
-    context = {'contributor': contributor, 'submitted_reports_to_vet': submitted_reports_to_vet, 'form': form }
+    context = {'contributor': contributor, 'report_to_vet': report_to_vet, 'form': form }
     return(render(request, 'submissions/vet_submitted_reports.html', context))
 
 

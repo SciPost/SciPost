@@ -22,9 +22,9 @@ def comment_submission_ack(request):
 
 def vet_submitted_comments(request):
     contributor = Contributor.objects.get(user=request.user)
-    submitted_comments_to_vet = Comment.objects.filter(status=0)
+    comment_to_vet = Comment.objects.filter(status=0).first() # only handle one at a time
     form = VetCommentForm()
-    context = {'contributor': contributor, 'submitted_comments_to_vet': submitted_comments_to_vet, 'form': form }
+    context = {'contributor': contributor, 'submitted_comment_to_vet': comment_to_vet, 'form': form }
     return(render(request, 'comments/vet_submitted_comments.html', context))
 
 
@@ -145,9 +145,9 @@ def author_reply_to_report(request, report_id):
 
 def vet_author_replies(request):
     contributor = Contributor.objects.get(user=request.user)
-    replies_to_vet = AuthorReply.objects.filter(status=0)
+    reply_to_vet = AuthorReply.objects.filter(status=0).first # only handle one at a time
     form = VetAuthorReplyForm()
-    context = {'contributor': contributor, 'replies_to_vet': replies_to_vet, 'form': form }
+    context = {'contributor': contributor, 'reply_to_vet': reply_to_vet, 'form': form }
     return(render(request, 'comments/vet_author_replies.html', context))
 
 

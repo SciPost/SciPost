@@ -101,9 +101,9 @@ def thanks_for_registering(request):
 
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
-    registration_requests_to_vet = Contributor.objects.filter(rank=0)
+    contributor_to_vet = Contributor.objects.filter(rank=0).first() # limit to one at a time
     form = VetRegistrationForm()
-    context = {'contributor': contributor, 'registration_requests_to_vet': registration_requests_to_vet, 'form': form }
+    context = {'contributor': contributor, 'contributor_to_vet': contributor_to_vet, 'form': form }
     return render(request, 'scipost/vet_registration_requests.html', context)
 
 

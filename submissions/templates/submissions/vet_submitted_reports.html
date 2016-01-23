@@ -4,10 +4,9 @@
 
 {% block bodysup %}
 
-{% if submitted_reports_to_vet %}
 <section>
-  <h1>SciPost Reports to vet:</h1>
-  {% for report_to_vet in submitted_reports_to_vet %}
+  <h1>SciPost Report to vet:</h1>
+
   <br>
   <hr>
   <h3>Submission associated to Report:</h3>
@@ -42,8 +41,7 @@
       </form>
     </div>
   </div>
-  {% endfor %}
+
 </section>
-{% endif %}
 
 {% endblock bodysup %}
