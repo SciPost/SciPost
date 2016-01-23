@@ -53,9 +53,9 @@ def request_commentary(request):
         form = AuthenticationForm()
         return render(request, 'scipost/login.html', {'form': form})
 
+
 def request_commentary_ack(request):
     return render(request, 'commentaries/request_commentary_ack.html')
-
 
 
 def vet_commentary_requests(request):
@@ -66,6 +66,7 @@ def vet_commentary_requests(request):
         context = {'contributor': contributor, 'commentary_to_vet': commentary_to_vet, 'form': form }
         return render(request, 'commentaries/vet_commentary_requests.html', context)
     return render (request, 'commentaries/no_commentary_req_to_vet.html')
+
 
 def no_commentary_req_to_vet(request):
     return render (request, 'commentaries/no_commentary_req_to_vet.html')    
@@ -104,7 +105,6 @@ def vet_commentary_request_ack(request, commentary_id):
 #    context = {'option': form.cleaned_data['action_option'], 'reason': form.cleaned_data['refusal_reason'] }
     context = {'commentary_id': commentary_id }
     return render(request, 'commentaries/vet_commentary_request_ack.html', context)
-
 
 
 def commentaries(request):

@@ -13,7 +13,7 @@ from .models import *
 from .forms import *
 
 from comments.models import Comment, AuthorReply
-from scipost.models import Contributor
+from scipost.models import Contributor, title_dict
 from submissions.models import Submission
 
 from comments.forms import CommentForm
