@@ -23,9 +23,14 @@ def comment_submission_ack(request):
 def vet_submitted_comments(request):
     contributor = Contributor.objects.get(user=request.user)
     comment_to_vet = Comment.objects.filter(status=0).first() # only handle one at a time
-    form = VetCommentForm()
-    context = {'contributor': contributor, 'submitted_comment_to_vet': comment_to_vet, 'form': form }
-    return(render(request, 'comments/vet_submitted_comments.html', context))
+    if comment_to_vet is not None:
+        form = VetCommentForm()
+        context = {'contributor': contributor, 'submitted_comment_to_vet': comment_to_vet, 'form': form }
+        return(render(request, 'comments/vet_submitted_comments.html', context))
+    return render (request, 'comments/no_comment_to_vet.html')
+
+def no_comment_to_vet(request):
+    return render (request, 'comments/no_comment_to_vet.html')
 
 
 def vet_submitted_comment_ack(request, comment_id):
@@ -145,10 +150,15 @@ def author_reply_to_report(request, report_id):
 
 def vet_author_replies(request):
     contributor = Contributor.objects.get(user=request.user)
-    reply_to_vet = AuthorReply.objects.filter(status=0).first # only handle one at a time
-    form = VetAuthorReplyForm()
-    context = {'contributor': contributor, 'reply_to_vet': reply_to_vet, 'form': form }
-    return(render(request, 'comments/vet_author_replies.html', context))
+    reply_to_vet = AuthorReply.objects.filter(status=0).first() # only handle one at a time
+    if reply_to_vet is not None:
+        form = VetAuthorReplyForm()
+        context = {'contributor': contributor, 'reply_to_vet': reply_to_vet, 'form': form }
+        return(render(request, 'comments/vet_author_replies.html', context))
+    return render (request, 'comments/no_author_reply_to_vet.html')
+
+def no_author_reply_to_vet(request):
+    return render (request, 'comments/no_author_reply_to_vet.html')
 
 
 def vet_author_reply_ack(request, reply_id):

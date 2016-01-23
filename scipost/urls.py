@@ -15,14 +15,15 @@ urlpatterns = [
     ## Registration
     url(r'^register$', views.register, name='register'),
     url(r'^thanks_for_registering$', views.thanks_for_registering, name='thanks for registering'),
-    url(r'^vet_registration_requests$', views.vet_registration_requests, name='vet_registration_requests'),
-    url(r'^vet_registration_request_ack/(?P<contributor_id>[0-9]+)$', views.vet_registration_request_ack, name='vet_registration_request_ack'),
     url(r'^activation/(?P<key>.+)$', views.activation, name='activation'),
     url(r'^activation_ack$', views.activation_ack, name='activation_ack'),
     url(r'^request_new_activation_link/(?P<oldkey>.+)$', views.request_new_activation_link, name='request_new_activation_link'),
     #url(r'^request_new_activation_link$', views.request_new_activation_link, name='request_new_activation_link'),
     url(r'^request_new_activation_link_ack$', views.request_new_activation_link_ack, name='request_new_activation_link_ack'),
     url(r'^already_activated$', views.already_activated, name='already_activated'),
+    url(r'^vet_registration_requests$', views.vet_registration_requests, name='vet_registration_requests'),
+    url(r'^vet_registration_request_ack/(?P<contributor_id>[0-9]+)$', views.vet_registration_request_ack, name='vet_registration_request_ack'),
+    url(r'^no_registration_req_to_vet$', views.no_registration_req_to_vet, name='no_registration_req_to_vet'),
     ## Authentication
     url(r'^login$', views.login_view, name='login'),
     url(r'^logout$', views.logout_view, name='logout'),
