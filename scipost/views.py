@@ -1,4 +1,8 @@
 import datetime
+import hashlib
+import random
+import string
+
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
@@ -52,6 +56,8 @@ title_dict = dict(TITLE_CHOICES)
 reg_ref_dict = dict(REGISTRATION_REFUSAL_CHOICES)
 
 def register(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect('personal_page')
     # If POST, process the form data
     if request.method == 'POST':
         # create a form instance and populate it with the form data
@@ -72,18 +78,32 @@ def register(request):
                 username = form.cleaned_data['username'],
                 password = form.cleaned_data['password']
                 )
+            # Set to inactive until activation via email link
+            user.is_active = False 
+            user.save()
             contributor = Contributor (
                 user=user, 
                 title = form.cleaned_data['title'],
                 orcid_id = form.cleaned_data['orcid_id'],
                 nationality = form.cleaned_data['nationality'],
                 country_of_employment = form.cleaned_data['country_of_employment'],
-                #address = form.cleaned_data['address'],
+                address = form.cleaned_data['address'],
                 affiliation = form.cleaned_data['affiliation'],
                 personalwebpage = form.cleaned_data['personalwebpage'],
                 )
             contributor.save()
-            email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\nYour request for registration to the SciPost publication portal has been received, and will be processed soon. Many thanks for your interest.  \n\nThe SciPost Team.'
+            # Generate email activation key and link
+            salt = ""
+            for i in range(5):
+                salt = salt + random.choice(string.ascii_letters)
+            #salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[:5]
+            salt = salt.encode('utf8')
+            usernamesalt = contributor.user.username
+            usernamesalt = usernamesalt.encode('utf8')
+            contributor.activation_key = hashlib.sha1(salt+usernamesalt).hexdigest()
+            contributor.key_expires = datetime.datetime.strftime(datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
+            contributor.save()
+            email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\nYour request for registration to the SciPost publication portal has been received. You now need to validate your email by visiting this link within the next 48 hours: \n\n' + 'https://scipost.org/activation/' + contributor.activation_key + '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.'
             emailmessage = EmailMessage('SciPost registration request received', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
             emailmessage.send(fail_silently=False)
             return HttpResponseRedirect('thanks_for_registering')
@@ -99,9 +119,61 @@ def thanks_for_registering(request):
     return render(request, 'scipost/thanks_for_registering.html')
 
 
+def activation(request, key):
+    activation_expired = False
+    already_active = False
+    contributor = get_object_or_404(Contributor, activation_key=key)
+    if contributor.user.is_active == False:
+        if timezone.now() > contributor.key_expires:
+            activation_expired = True
+            id_user = contributor.user.id
+            context = {'oldkey': key}
+            return render(request, 'scipost/request_new_activation_link.html', context)
+        else: 
+            contributor.user.is_active = True
+            contributor.user.save()
+            return render(request, 'scipost/activation_ack.html')
+    else:
+        already_active = True
+        return render(request, 'scipost/already_activated.html')
+    # will never come beyond here
+    return render(request, 'scipost/index.html')
+
+
+def activation_ack(request):
+    return render(request, 'scipost/activation_ack.html')
+
+
+def request_new_activation_link(request, oldkey):
+    contributor = get_object_or_404(Contributor, activation_key=oldkey)
+    # Generate a new email activation key and link
+    salt = ""
+    for i in range(5):
+        salt = salt + random.choice(string.ascii_letters)
+            #salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[:5]
+    salt = salt.encode('utf8')
+    usernamesalt = contributor.user.username
+    usernamesalt = usernamesalt.encode('utf8')
+    contributor.activation_key = hashlib.sha1(salt+usernamesalt).hexdigest()
+    contributor.key_expires = datetime.datetime.strftime(datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
+    contributor.save()
+    email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\nYour request for a new email activation link for registration to the SciPost publication portal has been received. You now need to visit this link within the next 48 hours: \n\n' + 'https://scipost.org/activation/' + contributor.activation_key + '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.'
+    emailmessage = EmailMessage('SciPost registration: new email activation link', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+    emailmessage.send(fail_silently=False)
+    return render (request, 'scipost/request_new_activation_link_ack.html')
+
+
+def request_new_activation_link_ack(request):
+    return render (request, 'scipost/request_new_activation_link_ack.html')
+
+
+def already_activated(request):
+    return render (request, 'scipost/already_activated.html')
+
+
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
-    contributor_to_vet = Contributor.objects.filter(rank=0).first() # limit to one at a time
+    contributor_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).first() # limit to one at a time
     form = VetRegistrationForm()
     context = {'contributor': contributor, 'contributor_to_vet': contributor_to_vet, 'form': form }
     return render(request, 'scipost/vet_registration_requests.html', context)
@@ -163,10 +235,14 @@ def personal_page(request):
         contributor = Contributor.objects.get(user=request.user)
         # if an editor, count the number of actions required:
         nr_reg_to_vet = 0
+        nr_reg_awaiting_validation = 0
         nr_submissions_to_process = 0
         if contributor.rank >= 4:
+            now = timezone.now()
+            intwodays = now + timezone.timedelta(days=2)
             # count the number of pending registration request
-            nr_reg_to_vet = Contributor.objects.filter(rank=0).count()
+            nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).count()
+            nr_reg_awaiting_validation = Contributor.objects.filter(user__is_active=False, key_expires__gte=now, key_expires__lte=intwodays, rank=0).count()
             nr_submissions_to_process = Submission.objects.filter(vetted=False).count()
         nr_commentary_page_requests_to_vet = 0
         nr_comments_to_vet = 0
@@ -177,7 +253,7 @@ def personal_page(request):
             nr_comments_to_vet = Comment.objects.filter(status=0).count()
             nr_author_replies_to_vet = AuthorReply.objects.filter(status=0).count()
             nr_reports_to_vet = Report.objects.filter(status=0).count()
-        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process }
+        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process }
         return render(request, 'scipost/personal_page.html', context)
     else:
         form = AuthenticationForm()
