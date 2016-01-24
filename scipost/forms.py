@@ -20,16 +20,16 @@ class RegistrationForm(forms.Form):
     title = forms.ChoiceField(choices=TITLE_CHOICES, label='* Title')
     first_name = forms.CharField(label='* First name', max_length=100)
     last_name = forms.CharField(label='* Last name', max_length=100)
-    email = forms.EmailField(label='* email address')
+    email = forms.EmailField(label='* Email address')
     orcid_id = forms.CharField(label="  ORCID id", max_length=20, widget=forms.TextInput({'placeholder': 'Recommended. Get one at orcid.org'}), required=False)
-    nationality = LazyTypedChoiceField(choices=countries, label='* Nationality', initial='CA', widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
+    nationality = LazyTypedChoiceField(choices=countries, label='Nationality', initial='CA', required=False, widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
     country_of_employment = LazyTypedChoiceField(choices=countries, label='* Country of employment', initial='NL', widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
     affiliation = forms.CharField(label='* Affiliation', max_length=300)
     address = forms.CharField(label='Address', max_length=1000, widget=forms.TextInput({'placeholder': 'For eventual snail mail correspondence'}), required=False)
     personalwebpage = forms.URLField(label='Personal web page', widget=forms.TextInput({'placeholder': 'full URL, e.g. http://www.[yourpage].com'}), required=False)
-    username = forms.CharField(label='* username', max_length=100)
-    password = forms.CharField(label='* password', widget=forms.PasswordInput())
-    password_verif = forms.CharField(label='* verify pwd', widget=forms.PasswordInput())
+    username = forms.CharField(label='* Username', max_length=100)
+    password = forms.CharField(label='* Password', widget=forms.PasswordInput())
+    password_verif = forms.CharField(label='* Verify pwd', widget=forms.PasswordInput())
     captcha = CaptchaField(label='* Captcha')
 
 #class RegistrationFormUser(forms.ModelForm):
@@ -65,7 +65,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
         #fields = ['title', 'first_name', 'last_name', 'email', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
         #fields = ['title', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
         #fields = ['title', 'orcid_id', 'affiliation', 'personalwebpage']
-        fields = ['title', 'orcid_id', 'nationality', 'country_of_employment', 'affiliation', 'personalwebpage']
+        fields = ['title', 'orcid_id', 'nationality', 'country_of_employment', 'affiliation', 'address', 'personalwebpage']
         widgets = {'nationality': CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'), 'country_of_employment': CountrySelectWidget()}
 
 class VetRegistrationForm(forms.Form):
@@ -74,8 +74,8 @@ class VetRegistrationForm(forms.Form):
     email_response_field = forms.CharField(widget=forms.Textarea(), label='Justification (optional)', required=False)
 
 class AuthenticationForm(forms.Form):
-    username = forms.CharField(label='username', max_length=100)
-    password = forms.CharField(label='password', widget=forms.PasswordInput())
+    username = forms.CharField(label='Username', max_length=100)
+    password = forms.CharField(label='Password', widget=forms.PasswordInput())
 
 class PasswordChangeForm(forms.Form):
     password_prev = forms.CharField(label='Existing password', widget=forms.PasswordInput())

@@ -50,12 +50,12 @@ class Contributor(models.Model):
     rank = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_RANKS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     # username, password, email, first_name and last_name are inherited from User
-    orcid_id = models.CharField(max_length=20, verbose_name="ORCID id")
-    nationality = CountryField()
-    country_of_employment = CountryField()
+    orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)
+    nationality = CountryField(default='CA', blank=True)
+    country_of_employment = CountryField(default='NL')
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
-    address = models.CharField(max_length=1000, verbose_name="address", default='')
-    personalwebpage = models.URLField(verbose_name='personal web page')
+    address = models.CharField(max_length=1000, verbose_name="address", default='', blank=True)
+    personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
     #vetted_by = models.OneToOneField(Contributor, related_name='vetted_by') TO ACTIVATE
 
     # permissions
@@ -115,7 +115,7 @@ class Contributor(models.Model):
         output += '<tr><td>Nationality: </td><td>&nbsp;</td><td>' + str(self.nationality.name) + '</td></tr>'
         output += '<tr><td>Country of employment: </td><td>&nbsp;</td><td>' + str(self.country_of_employment.name) + '</td></tr>'
         output += '<tr><td>Affiliation: </td><td>&nbsp;</td><td>' + self.affiliation + '</td></tr>'
-        #output += '<tr><td>Address: </td><td>&nbsp;</td><td>' + self.address + '</td></tr>'
+        output += '<tr><td>Address: </td><td>&nbsp;</td><td>' + self.address + '</td></tr>'
         output += '<tr><td>Personal web page: </td><td>&nbsp;</td><td>' + self.personalwebpage + '</td></tr>'
         output += '</table>'
         return output

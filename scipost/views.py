@@ -303,7 +303,7 @@ def update_personal_data(request):
                 request.user.contributor.orcid_id = cont_form.cleaned_data['orcid_id']
                 request.user.contributor.nationality = cont_form.cleaned_data['nationality']
                 request.user.contributor.country_of_employment = cont_form.cleaned_data['country_of_employment']
-                #request.user.contributor.address = cont_form.cleaned_data['address']
+                request.user.contributor.address = cont_form.cleaned_data['address']
                 request.user.contributor.affiliation = cont_form.cleaned_data['affiliation']
                 request.user.contributor.personalwebpage = cont_form.cleaned_data['personalwebpage']
                 request.user.save()
@@ -312,7 +312,7 @@ def update_personal_data(request):
         else:
             user_form = UpdateUserDataForm(instance=contributor.user)
             cont_form = UpdatePersonalDataForm(instance=contributor)
-            return render(request, 'scipost/update_personal_data.html', {'user_form': user_form, 'cont_form': cont_form})
+        return render(request, 'scipost/update_personal_data.html', {'user_form': user_form, 'cont_form': cont_form})
     else:
         form = AuthenticationForm()
         return render(request, 'scipost/login.html', {'form': form})
