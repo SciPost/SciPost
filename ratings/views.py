@@ -45,9 +45,12 @@ def vote_on_commentary(request, commentary_id):
             commentary.originality_rating = CommentaryRating.objects.filter(commentary=commentary, originality__lte=100).aggregate(avg_originality=Avg('originality'))['avg_originality']
             commentary.significance_rating = CommentaryRating.objects.filter(commentary=commentary, significance__lte=100).aggregate(avg_significance=Avg('significance'))['avg_significance']
             commentary.save()
-            return HttpResponseRedirect(reverse('ratings:vote_on_commentary_ack'))
+            #return HttpResponseRedirect(reverse('ratings:vote_on_commentary_ack'))
+            context = {'commentary_id': commentary_id}
+            return render(request, 'ratings/vote_on_commentary_ack.html', context)
 
-    return render(request, 'ratings/vote_on_commentary_ack.html')
+    context = {'commentary_id': commentary_id}
+    return render(request, 'ratings/vote_on_commentary_ack.html', context)
             
 def vote_on_commentary_ack(request):
     context = {}
@@ -373,9 +376,12 @@ def vote_on_submission(request, submission_id):
             submission.originality_rating = SubmissionRating.objects.filter(submission=submission, originality__lte=100).aggregate(avg_originality=Avg('originality'))['avg_originality']
             submission.significance_rating = SubmissionRating.objects.filter(submission=submission, significance__lte=100).aggregate(avg_significance=Avg('significance'))['avg_significance']
             submission.save()
-            return HttpResponseRedirect(reverse('ratings:vote_on_submission_ack'))
+            #return HttpResponseRedirect(reverse('ratings:vote_on_submission_ack'))
+            context = {'submission_id': submission_id}
+            return render(request, 'ratings/vote_on_submission_ack.html', context)
 
-    return render(request, 'ratings/vote_on_submission_ack.html')
+    context = {'submission_id': submission_id}
+    return render(request, 'ratings/vote_on_submission_ack.html', context)
             
 def vote_on_submission_ack(request):
     context = {}

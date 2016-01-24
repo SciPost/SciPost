@@ -6,6 +6,9 @@
 
 <section>
   <h1>Thank you for rating a SciPost Submission.</h1>
+  {% if submission_id %}
+  <p><a href="{% url 'submissions:submission' submission_id %}">Return to the Submission</a></p>
+  {% endif %}
 </section>
 
 {% endblock bodysup %}

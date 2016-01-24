@@ -6,6 +6,9 @@
 
 <section>
   <h1>Thank you for rating the publication associated to this Commentary.</h1>
+  {% if commentary_id %}
+  <p><a href="{% url 'commentaries:commentary' commentary_id %}">Return to the Commentary</a></p>
+  {% endif %}
 </section>
 
 {% endblock bodysup %}
