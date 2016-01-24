@@ -25,7 +25,7 @@ class RegistrationForm(forms.Form):
     nationality = LazyTypedChoiceField(choices=countries, label='Nationality', initial='CA', required=False, widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
     country_of_employment = LazyTypedChoiceField(choices=countries, label='* Country of employment', initial='NL', widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
     affiliation = forms.CharField(label='* Affiliation', max_length=300)
-    address = forms.CharField(label='Address', max_length=1000, widget=forms.TextInput({'placeholder': 'For eventual snail mail correspondence'}), required=False)
+    address = forms.CharField(label='Address', max_length=1000, widget=forms.TextInput({'placeholder': 'For postal correspondence'}), required=False)
     personalwebpage = forms.URLField(label='Personal web page', widget=forms.TextInput({'placeholder': 'full URL, e.g. http://www.[yourpage].com'}), required=False)
     username = forms.CharField(label='* Username', max_length=100)
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
