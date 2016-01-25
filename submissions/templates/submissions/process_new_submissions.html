@@ -5,6 +5,11 @@
 {% block bodysup %}
 
 <section>
+  {% if not submission_to_process %}
+  <h1>There are no Submissions for you to process.</h1>
+
+  {% else %}
+
   <h1>SciPost Submission to Process</h1>
 
   <br>
@@ -29,6 +34,7 @@
     </div>
   </div>
 
+  {% endif %}
 </section>
 
 {% endblock bodysup %}

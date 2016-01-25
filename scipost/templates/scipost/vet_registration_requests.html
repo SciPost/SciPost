@@ -5,6 +5,10 @@
 {% block bodysup %}
 
 <section>
+  {% if not contributor_to_vet %}
+  <h1>There are no Registration requests for you to vet.</h1>
+
+  {% else %}
 
   <h1>SciPost Registration request to vet:</h1>
   <p>This Contributor is currently on rank 0 (submitting, commenting and voting disabled).</p>
@@ -32,6 +36,7 @@
     </div>
   </div>
 
+  {% endif %}
 </section>
 
 {% endblock bodysup %}

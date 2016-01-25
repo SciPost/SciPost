@@ -5,6 +5,11 @@
 {% block bodysup %}
 
 <section>
+  {% if not reply_to_vet %}
+  <h1>There are no Author Replies for you to vet.</h1>
+
+  {% else %}
+
   <h1>SciPost Author Reply to vet:</h1>
 
   <br>
@@ -59,6 +64,7 @@
     </div>
   </div>
 
+  {% endif %}
 </section>
 
 {% endblock bodysup %}

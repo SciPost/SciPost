@@ -23,7 +23,7 @@ urlpatterns = [
     url(r'^already_activated$', views.already_activated, name='already_activated'),
     url(r'^vet_registration_requests$', views.vet_registration_requests, name='vet_registration_requests'),
     url(r'^vet_registration_request_ack/(?P<contributor_id>[0-9]+)$', views.vet_registration_request_ack, name='vet_registration_request_ack'),
-    url(r'^no_registration_req_to_vet$', views.no_registration_req_to_vet, name='no_registration_req_to_vet'),
+    #url(r'^no_registration_req_to_vet$', views.no_registration_req_to_vet, name='no_registration_req_to_vet'),
     ## Authentication
     url(r'^login$', views.login_view, name='login'),
     url(r'^logout$', views.logout_view, name='logout'),

@@ -61,15 +61,15 @@ def request_commentary_ack(request):
 def vet_commentary_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     commentary_to_vet = Commentary.objects.filter(vetted=False).first() # only handle one at a time
-    if commentary_to_vet is not None:
-        form = VetCommentaryForm()
-        context = {'contributor': contributor, 'commentary_to_vet': commentary_to_vet, 'form': form }
-        return render(request, 'commentaries/vet_commentary_requests.html', context)
-    return render (request, 'commentaries/no_commentary_req_to_vet.html')
+    #if commentary_to_vet is not None:
+    form = VetCommentaryForm()
+    context = {'contributor': contributor, 'commentary_to_vet': commentary_to_vet, 'form': form }
+    return render(request, 'commentaries/vet_commentary_requests.html', context)
+    #return render (request, 'commentaries/no_commentary_req_to_vet.html')
 
 
-def no_commentary_req_to_vet(request):
-    return render (request, 'commentaries/no_commentary_req_to_vet.html')    
+#def no_commentary_req_to_vet(request):
+#    return render (request, 'commentaries/no_commentary_req_to_vet.html')    
 
 
 def vet_commentary_request_ack(request, commentary_id):

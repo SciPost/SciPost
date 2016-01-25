@@ -174,15 +174,15 @@ def already_activated(request):
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     contributor_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).first() # limit to one at a time
-    if contributor_to_vet is not None:
-        form = VetRegistrationForm()
-        context = {'contributor': contributor, 'contributor_to_vet': contributor_to_vet, 'form': form }
-        return render(request, 'scipost/vet_registration_requests.html', context)
-    return render (request, 'scipost/no_registration_req_to_vet.html')
+    #if contributor_to_vet is not None:
+    form = VetRegistrationForm()
+    context = {'contributor': contributor, 'contributor_to_vet': contributor_to_vet, 'form': form }
+    return render(request, 'scipost/vet_registration_requests.html', context)
+    #return render (request, 'scipost/no_registration_req_to_vet.html')
 
 
-def no_registration_req_to_vet(request):
-    return render(request, 'scipost/no_registration_req_to_vet.html')
+#def no_registration_req_to_vet(request):
+#    return render(request, 'scipost/no_registration_req_to_vet.html')
 
 def vet_registration_request_ack(request, contributor_id):
     # process the form
