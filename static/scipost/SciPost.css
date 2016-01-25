@@ -182,7 +182,8 @@ header {
 //  background-color: #333333;
 //  background-color: #102040;
 //  background: linear-gradient(to right,#002240, #003360);
-  background: linear-gradient(to right,#103050, #204060);
+//  background: linear-gradient(to right,#103050, #204060);
+  background-color: rgb(18, 52, 85);
   color: #ffffff;
 //  border: 1px solid grey; border-radius:5px;
   border: 0px solid grey; border-radius:0px;

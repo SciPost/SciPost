@@ -16,23 +16,24 @@
   <ol>
     <li>Prepare your manuscript using the SciPost LaTeX template (<a href="{% static 'submissions/latex/SciPost_LaTeX_template.tex' %}">.tex</a>, <a href="{% static 'submissions/latex/SciPost_LaTeX_template.pdf' %}">.pdf</a>)</li>
     <li>Make your preprint publicly available on <a href="http://arxiv.org">arXiv.org</a></li>
-    <li>After appearance on the arXiv, fill the SciPost <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form, choosing which SciPost Journal you wish to submit to. </li>
+    <li>After appearance on arxiv.org, fill the SciPost <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form, selecting which SciPost Journal to submit to and providing domain and speciality specifications.</li>
   </ol>
   <p>Note that you cannot submit directly to SciPost Physics Select or SciPost Physics X. Submissions to SciPost Physics Letters deemed of superlative quality will be editorially promoted to SPS (and similarly for articles from SciPost Physics to SciPost Physics X).</p>
   <br/>
   <h3>Refereeing procedure</h3>
-  <p>Papers submitted to SciPost are put through the <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> process, implementing the highest possible standard of refereeing. The precise procedure differs slightly between SciPost Journals but follows this pattern:</p>
+  <p>All incoming Submissions to SciPost Journals are peer-reviewed using SciPost's <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> process, implementing the highest standard of refereeing available. The precise procedure follows this pattern (the various types of Editors are described in the next section):</p>
   <ul>
-    <li>A SciPost Submission Page is activated for the Submission (this is similar to a Commentary Page, but with Reports also enabled). This page is immediately open to Contributor Comments and Author Replies.</li>
-    <li>An Editor-in-charge starts a Refereeing round (whose duration depends on the Journal), inviting specific Contributors to provide an Invited Report.</li>
+    <li>A Specialty Editor is internally selected and becomes Editor-in-charge of the manuscript. A Submission Page is activated (this is similar to a Commentary Page, but with Reports also enabled), and is immediately open to Contributor Comments and Author Replies, all of which are vetted by the Editor-in-charge of the submission.</li>
+    <li>The Editor-in-charge starts a Refereeing round (whose duration depends on the Journal, see below), inviting specific Contributors to provide an Invited Report.</li>
     <li>During a refereeing round, registered Contributors to SciPost can volunteer a Contributed Report.</li>
-    <li>Authors can continuously provide Replies to Reports and Comments.</li>
-    <li>At the end of the refereeing round, the Authors are given a short time to provide Replies to the gathered Reports and Comments.</li>
-    <li>Reports, Replies and Comments are assessed by SciPost Editors, and an Editorial decision is taken.</li>
-    <li>The Editorial decision consists in either a publication offer, request for resubmission (with minor revisions, or major revisions (leading to another refereeing round)), or rejection.</li>
-    <li>The Authors can respond to the Editorial decision by accepting an eventual publication offer (in which case the Submission Page and its contents are moved to a SciPost Publication Page), by revising their manuscript and resubmitting to SciPost, or by withdrawing their Submission (in which case the Submission Page is deactivated and all its contents removed from public view).</li>
+    <li>During the refereeing round, authors can continuously provide Replies to Reports and Comments.</li>
+    <li>At the end of the refereeing round, the Authors are given a 3 working days to provide Replies to the gathered Reports and Comments before the Editorial assessment takes place.</li>
+    <li>Reports, Replies and Comments are assessed by the Editor-in-charge, who formulates an editorial recommendation and forwards it to the Journal's Editors-in-chief, who fix the editorial decision.</li>
+    <li>The Editorial decision is communicated to the Authors. This consists in either a publication offer, request for resubmission (with minor revisions, or major revisions (leading to another refereeing round)), or rejection.</li>
+    <li>The Authors can respond to the Editorial decision by accepting an eventual publication offer (in which case the Submission Page and its contents are moved to a SciPost Publication Page), by revising their manuscript and resubmitting to SciPost (in which case a new Submission Page is opened, retaining a link to the previous version's Submission Page), or by withdrawing their Submission (in which case the Submission Page is deactivated and all its contents removed from public view).</li>
   </ul>
   <p>The duration of refereeing rounds depends on the Journal: 3 weeks for Letters, 4 weeks for traditional articles, and 8 weeks for Lecture Notes.</p>
+
 </section>
 {% endif %} <!-- Temporary strip -->
     

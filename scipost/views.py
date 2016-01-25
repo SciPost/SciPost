@@ -85,7 +85,7 @@ def register(request):
                 user=user, 
                 title = form.cleaned_data['title'],
                 orcid_id = form.cleaned_data['orcid_id'],
-                nationality = form.cleaned_data['nationality'],
+                #nationality = form.cleaned_data['nationality'],
                 country_of_employment = form.cleaned_data['country_of_employment'],
                 address = form.cleaned_data['address'],
                 affiliation = form.cleaned_data['affiliation'],
