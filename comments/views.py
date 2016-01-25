@@ -25,7 +25,7 @@ def vet_submitted_comments(request):
     comment_to_vet = Comment.objects.filter(status=0).first() # only handle one at a time
     if comment_to_vet is not None:
         form = VetCommentForm()
-        context = {'contributor': contributor, 'submitted_comment_to_vet': comment_to_vet, 'form': form }
+        context = {'contributor': contributor, 'comment_to_vet': comment_to_vet, 'form': form }
         return(render(request, 'comments/vet_submitted_comments.html', context))
     return render (request, 'comments/no_comment_to_vet.html')
 
@@ -68,7 +68,6 @@ def vet_submitted_comment_ack(request, comment_id):
 
     context = {}
     return render(request, 'comments/vet_submitted_comment_ack.html', context)
-
 
 
 def reply_to_comment(request, comment_id):
