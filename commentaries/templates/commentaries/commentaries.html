@@ -35,6 +35,8 @@
     <li><a href="{% url 'commentaries:commentary' commentary.id %}">{{ commentary.pub_title }}</a> by {{ commentary.author_list }} (published {{ commentary.pub_date }}) </li>
     {% endfor %}
   </ul>
+  {% else %}
+  <h3>No match found for your search query.</h3>
   {% endif %}
 
 </section>

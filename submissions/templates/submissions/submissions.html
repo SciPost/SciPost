@@ -36,6 +36,8 @@
     <li><a href="{% url 'submissions:submission' submission.id %}">{{ submission.title }}</a> by {{ submission.author_list }} (published {{ submission.submission_date }}) </li>
     {% endfor %}
   </ul>
+  {% else %}
+  <h3>No match found for your search query.</h3>
   {% endif %}
 
 </section>
