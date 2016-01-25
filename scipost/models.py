@@ -51,8 +51,8 @@ class Contributor(models.Model):
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     # username, password, email, first_name and last_name are inherited from User
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)
-    nationality = CountryField(default='CA', blank=True)
-    country_of_employment = CountryField(default='NL')
+    #nationality = CountryField(blank=True)
+    country_of_employment = CountryField()
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
     address = models.CharField(max_length=1000, verbose_name="address", default='', blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
@@ -112,7 +112,7 @@ class Contributor(models.Model):
         output += '<tr><td>Last name: </td><td>&nbsp;</td><td>' + self.user.last_name + '</td></tr>'
         output += '<tr><td>Email: </td><td>&nbsp;</td><td>' + self.user.email + '</td></tr>'
         output += '<tr><td>ORCID id: </td><td>&nbsp;</td><td>' + self.orcid_id + '</td></tr>'
-        output += '<tr><td>Nationality: </td><td>&nbsp;</td><td>' + str(self.nationality.name) + '</td></tr>'
+        #output += '<tr><td>Nationality: </td><td>&nbsp;</td><td>' + str(self.nationality.name) + '</td></tr>'
         output += '<tr><td>Country of employment: </td><td>&nbsp;</td><td>' + str(self.country_of_employment.name) + '</td></tr>'
         output += '<tr><td>Affiliation: </td><td>&nbsp;</td><td>' + self.affiliation + '</td></tr>'
         output += '<tr><td>Address: </td><td>&nbsp;</td><td>' + self.address + '</td></tr>'
