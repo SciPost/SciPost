@@ -1,22 +1,22 @@
 {% load staticfiles %}
     <header>
       <div class="row">
-	<div class="col-3">
+	<div class="col-4">
 <!--	  <a href="{% url 'scipost:index' %}"><h1>SciPost.org</h1></a> -->
 <h1> <font style="color: rgb(212,237,252)">Sci</font>
 <font style="color: rgb(247,164,0)">|</font>
 <font style="color: rgb(104,132,194)">Post</font>
 <font style="color: rgb(104,132,194)"></font></h1>
 	</div>
-	<div class="col-3">
+	<div class="col-4">
 	</div>
 
 	{% if user.is_authenticated %}
-	<div class="col-6">
+	<div class="col-4">
 	  <p>
 	    <i>The complete scientific publication portal</i><br />
 	    <i>Managed by professional scientists</i><br />
-	    <i>For freely, openly, globally and perpetually accessible science</i>
+	    <i>For open, global and perpetual access science</i>
 	  </p>
 	</div>
 	{% endif %}

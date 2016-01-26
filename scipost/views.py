@@ -16,6 +16,10 @@ from django.db.models import Avg
 from .models import *
 from .forms import *
 
+from .global_methods import *
+from .utils import *
+
+
 from commentaries.models import Commentary
 from comments.models import Comment, AuthorReply
 from submissions.models import Submission, Report
@@ -58,7 +62,7 @@ def peer_witnessed_refereeing(request):
 title_dict = dict(TITLE_CHOICES)
 reg_ref_dict = dict(REGISTRATION_REFUSAL_CHOICES)
 
-def register(request):
+def register_old(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect('personal_page')
     # If POST, process the form data
@@ -99,7 +103,6 @@ def register(request):
             salt = ""
             for i in range(5):
                 salt = salt + random.choice(string.ascii_letters)
-            #salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[:5]
             salt = salt.encode('utf8')
             usernamesalt = contributor.user.username
             usernamesalt = usernamesalt.encode('utf8')
@@ -114,6 +117,25 @@ def register(request):
     else:
         form = RegistrationForm()
 
+    errormessage = ''
+    return render(request, 'scipost/register.html', {'form': form, 'errormessage': errormessage})
+
+def register(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect('personal_page')
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        Utils.load({'form': form})
+        if form.is_valid():
+            if Utils.password_mismatch():
+                return render(request, 'scipost/register.html', {'form': form, 'errormessage': 'Your passwords must match'})
+            if Utils.username_already_taken():
+                return render(request, 'scipost/register.html', {'form': form, 'errormessage': 'This username is already in use'})
+            Utils.create_and_save_contributor()
+            Utils.send_registration_email()
+            return HttpResponseRedirect('thanks_for_registering')
+    else:
+        form = RegistrationForm()
     errormessage = ''
     return render(request, 'scipost/register.html', {'form': form, 'errormessage': errormessage})
 
@@ -282,15 +304,17 @@ def change_password(request):
             # otherwise simply change the pwd:
             request.user.set_password(form.cleaned_data['password_new'])
             request.user.save()
-            return render(request, 'scipost/change_password_ack.html')
+            #return render(request, 'scipost/change_password_ack.html')
+            context = {'acknowledgment': True, 'form': PasswordChangeForm()}
+            return render(request, 'scipost/change_password.html', context)
     else:
         form = PasswordChangeForm()
     return render (request, 'scipost/change_password.html', {'form': form})
 
 
-def change_password_ack(request):
-    return render (request, 'scipost/change_password_ack.html')
-
+#def change_password_ack(request):
+#    return render (request, 'scipost/change_password_ack.html')
+#
 
 def update_personal_data(request):
     if request.user.is_authenticated:
