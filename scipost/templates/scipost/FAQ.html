@@ -1,0 +1,45 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Frequently asked questions{% endblock pagetitle %}
+
+{% load staticfiles %}
+
+{% block bodysup %}
+
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
+
+
+<section>
+  <div class="row">
+    <h1>Frequently asked questions</h1>
+    <div class="col-5">
+      <h3>Why should I submit my manuscripts to SciPost?</h3>
+      <p>Because:</p>
+      <ul>
+	<li>you think your work can withstand the stringest form of pre-publication scrutiny: <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a></li>
+	<li>you want your referees to have to adhere to the same standards of professionalism which are expected of you as an author</li>
+	<li>you want all steps of the editorial process to be handled by professional scientists, not non-specialist journal staff editors</li>
+	<li>you want your published work to be openly accessible and not hidden behind a paywall</li>
+	<li>you do not think publishers should exploit your work for profit-making</li>
+	<li>you do not think that author(s) should be paying publication costs</li>
+      </ul>
+    </div>
+    <div class="col-1"></div>
+    <div class="col-5">
+      <h3>Why should I become an active Contributor?</h3>
+      <p>Because:</p>
+      <ul>
+	<li>you subscribe to the values underlining SciPost's <a href="{% url 'scipost:about' %}">guiding principles</a></li>
+	<li>you would like your arduous refereeing and commenting work to be recognized and credited</li>
+	<li>you would like to be entitled to report on submissions, even if you haven't been explicitly invited to do so by an editor</li>
+	<li>you are interested in building useful extra content (comments, rederivations, etc) on existing literature</li>
+	<li>you are willing to make your contributions as author and (anonymously) as reviewer and commenter openly accessible</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+{% endif %} <!-- temporary strip -->
+
+{% endblock bodysup %}
