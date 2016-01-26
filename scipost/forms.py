@@ -72,6 +72,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
 
 class VetRegistrationForm(forms.Form):
     promote_to_rank_1 = forms.BooleanField(required=False)
+    refuse = forms.BooleanField(required=False)
     refusal_reason = forms.ChoiceField(choices=REGISTRATION_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(), label='Justification (optional)', required=False)
 

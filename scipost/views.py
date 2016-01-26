@@ -199,15 +199,10 @@ def already_activated(request):
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     contributor_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).first() # limit to one at a time
-    #if contributor_to_vet is not None:
     form = VetRegistrationForm()
-    context = {'contributor': contributor, 'contributor_to_vet': contributor_to_vet, 'form': form }
+    context = {'contributor_to_vet': contributor_to_vet, 'form': form }
     return render(request, 'scipost/vet_registration_requests.html', context)
-    #return render (request, 'scipost/no_registration_req_to_vet.html')
 
-
-#def no_registration_req_to_vet(request):
-#    return render(request, 'scipost/no_registration_req_to_vet.html')
 
 def vet_registration_request_ack(request, contributor_id):
     # process the form
@@ -245,7 +240,8 @@ def login_view(request):
                 login(request, user)
                 contributor = Contributor.objects.get(user=request.user)
                 context = {'contributor': contributor }
-                return render(request, 'scipost/personal_page.html', context)
+                #return render(request, 'scipost/personal_page.html', context)
+                return HttpResponseRedirect('/personal_page')
             else:
                 return render(request, 'scipost/disabled_account.html')
         else:
@@ -295,26 +291,18 @@ def change_password(request):
     if request.user.is_authenticated and request.method == 'POST':
         form = PasswordChangeForm(request.POST)
         if form.is_valid():
-            # verify existing password:
             if not request.user.check_password(form.cleaned_data['password_prev']):
                 return render(request, 'scipost/change_password.html', {'form': form, 'errormessage': 'The currently existing password you entered is incorrect'})
-            # check for mismatching new passwords
             if form.cleaned_data['password_new'] != form.cleaned_data['password_verif']:
                 return render(request, 'scipost/change_password.html', {'form': form, 'errormessage': 'Your new password entries must match'})
-            # otherwise simply change the pwd:
             request.user.set_password(form.cleaned_data['password_new'])
             request.user.save()
-            #return render(request, 'scipost/change_password_ack.html')
             context = {'acknowledgment': True, 'form': PasswordChangeForm()}
             return render(request, 'scipost/change_password.html', context)
     else:
         form = PasswordChangeForm()
     return render (request, 'scipost/change_password.html', {'form': form})
 
-
-#def change_password_ack(request):
-#    return render (request, 'scipost/change_password_ack.html')
-#
 
 def update_personal_data(request):
     if request.user.is_authenticated:

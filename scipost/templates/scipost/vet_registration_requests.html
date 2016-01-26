@@ -3,6 +3,47 @@
 {% block pagetitle %}: registrations to vet{% endblock pagetitle %}
 
 {% block bodysup %}
+<script>
+
+$( document ).ready(function() {
+    function toggleBoxes(specificTarget){
+      if (typeof specificTarget === 'undefined') { 
+          $('select#id_refusal_reason').parent().toggle();
+          $('textarea#id_email_response_field').parent().toggle();
+      } else {
+        for (i = 0; i < specificTarget.length; i++){
+          $(specificTarget[i]).toggle()
+        }
+      }
+    }
+    toggleBoxes()
+
+    $("input:checkbox").on('click', function(event) {
+      var clickedBox = $(this)
+      var boxes = $(this).closest('div').find('input:checkbox')
+      var specificTarget = $(this).closest('div').find('p').slice(2,4)
+      if (!clickedBox.is(":checked")){
+          if (  clickedBox.prop('name') == 'refuse' && $(specificTarget[0]).is(":visible") ){
+            toggleBoxes(specificTarget)
+          }
+      }
+      else {
+        if (clickedBox.attr("name") == "promote_to_rank_1"){
+          $(boxes[1]).prop('checked', false);
+          if ($(specificTarget[0]).is(":visible")){
+            toggleBoxes(specificTarget)
+          }
+        }
+        else if (clickedBox.attr("name") == "refuse"){
+          $(boxes[0]).prop('checked', false);
+          if (!$(specificTarget[0]).is(":visible")){
+            toggleBoxes(specificTarget)
+          }
+        }
+      }
+    })
+});
+</script>
 
 <section>
   {% if not contributor_to_vet %}

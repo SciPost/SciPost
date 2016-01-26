@@ -5,5 +5,5 @@ from .models import *
 class Global(object):
 
     @classmethod
-    def get_user(cls, request):
+    def get_contributor(cls, request):
         Contributor.objects.get(user=request.user)
