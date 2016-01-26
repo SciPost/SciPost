@@ -14,7 +14,8 @@
   <div class="row">
     <div class="col-6">
       <h1>About SciPost</h1>
-      <h4>Read the original <a href="{% static 'scipost/info/SciPost_Description.pdf' %}">SciPost description document</a>.
+      <h4>Read the original <a href="{% static 'scipost/info/SciPost_Description.pdf' %}">SciPost description document</a>.</h4>
+      <h4><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a>.</h4>
     </div>
     <div class="col-6">
       <p>SciPost is a complete scientific publication portal.</p>
@@ -53,7 +54,7 @@
 <section>
   <div class="row">
     <div class="col-3">
-      <h1>SciPost is endorsed by the</h1>
+      <h1>SciPost is endorsed by</h1>
     </div>
     <div class="col-3">
       <a href="http://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width='300px' /></a>
@@ -64,7 +65,9 @@
       <p style="font-size: 50%">FOM is part of NWO</p>
     </div>
 -->
-    <div class="col-6">
+    <div class="col-1">
+    </div>
+    <div class="col-5">
       <p>All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as stipulated on the NWO’s <a href="http://www.nwo.nl/en/policies/open+science">Open Science page</a>.</p>
     </div>
   </div>

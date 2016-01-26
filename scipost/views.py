@@ -39,6 +39,9 @@ def base(request):
 def about(request):
     return render(request, 'scipost/about.html')
 
+def FAQ(request):
+    return render(request, 'scipost/FAQ.html')
+
 def description(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'filename="SciPost_Description.pdf"'

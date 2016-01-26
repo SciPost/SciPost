@@ -30,7 +30,7 @@ class RegistrationForm(forms.Form):
     username = forms.CharField(label='* Username', max_length=100)
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='* Verify pwd', widget=forms.PasswordInput())
-    captcha = CaptchaField(label='* Captcha')
+    captcha = CaptchaField(label='* I am not a robot')
 
 #class RegistrationFormUser(forms.ModelForm):
 #    class Meta:
