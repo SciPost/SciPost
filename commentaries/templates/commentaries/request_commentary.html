@@ -4,6 +4,66 @@
 
 {% block bodysup %}
 
+<script>
+  $(document).ready(function(){
+    $('label[for=id_pub_title]').hide()
+    $('input#id_pub_title').hide()
+    $('label[for=id_author_list]').hide()
+    $('input#id_author_list').hide()
+    $('label[for=id_pub_date]').hide()
+    $('input#id_pub_date').hide()
+    $('label[for=id_arxiv_link]').hide()
+    $('input#id_arxiv_link').hide()
+    $('label[for=id_pub_DOI_link]').hide()
+    $('input#id_pub_DOI_link').hide()
+    $('label[for=id_pub_abstract]').hide()
+    $('textarea#id_pub_abstract').hide()
+
+    $('select#id_type').on('change', function() {
+      var selection = $(this).val();
+      $('label[for=id_pub_title]').show()
+      $('input#id_pub_title').show()
+      $('label[for=id_author_list]').show()
+      $('input#id_author_list').show()
+      switch(selection){
+        case "published":
+          $('label[for=id_pub_date]').show()
+          $('input#id_pub_date').show()
+          $('label[for=id_arxiv_link]').hide()
+          $('input#id_arxiv_link').hide()
+          $('label[for=id_pub_DOI_link]').show()
+          $('input#id_pub_DOI_link').show()
+          $('label[for=id_pub_abstract]').show()
+          $('textarea#id_pub_abstract').show()
+          break;
+        case "preprint":
+          $('label[for=id_pub_date]').hide()
+          $('input#id_pub_date').hide()
+          $('label[for=id_arxiv_link]').show()
+          $('input#id_arxiv_link').show()
+          $('label[for=id_pub_DOI_link]').hide()
+          $('input#id_pub_DOI_link').hide()
+          $('label[for=id_pub_abstract]').show()
+          $('textarea#id_pub_abstract').show()
+          break;
+        default:
+          $('label[for=id_pub_title]').hide()
+          $('input#id_pub_title').hide()
+          $('label[for=id_author_list]').hide()
+          $('input#id_author_list').hide()
+          $('label[for=id_pub_date]').hide()
+          $('input#id_pub_date').hide()
+          $('label[for=id_arxiv_link]').hide()
+          $('input#id_arxiv_link').hide()
+          $('label[for=id_pub_DOI_link]').hide()
+          $('input#id_pub_DOI_link').hide()
+          $('label[for=id_pub_abstract]').hide()
+          $('textarea#id_pub_abstract').hide()
+      }
+    });
+  });
+</script>
+
 <section>
   <h1>Request Activation of a Commentary Page:</h1>
   <form action="{% url 'commentaries:request_commentary' %}" method="post">
