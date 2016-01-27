@@ -316,7 +316,6 @@ def update_personal_data(request):
                 request.user.last_name = user_form.cleaned_data['last_name']
                 request.user.contributor.title = cont_form.cleaned_data['title']
                 request.user.contributor.orcid_id = cont_form.cleaned_data['orcid_id']
-                request.user.contributor.nationality = cont_form.cleaned_data['nationality']
                 request.user.contributor.country_of_employment = cont_form.cleaned_data['country_of_employment']
                 request.user.contributor.address = cont_form.cleaned_data['address']
                 request.user.contributor.affiliation = cont_form.cleaned_data['affiliation']
