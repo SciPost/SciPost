@@ -29,7 +29,7 @@ SECRET_KEY = host_settings["SECRET_KEY"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = host_settings["DEBUG"]
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = host_settings["ALLOWED_HOSTS"]
 
 # Secure proxy SSL header and secure cookies                                                       
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
