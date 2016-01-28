@@ -2,6 +2,14 @@
 General style sheet for SciPost
 */
 
+
+@font-face {
+  font-family: 'Merriweather Sans';
+  src: url('/static/font/merriweather-sans/MerriweatherSans-Light.otf');
+//  src: local('../fonts/abc.ttf')
+}
+
+
 * {
     box-sizing: border-box;
 }
@@ -154,17 +162,16 @@ hr.hr12 {
 
 body {
 //  font-family: Verdana, sans-serif; 
-  font-family: Helvetica Neue, sans-serif; 
 //  font-family: Arial, sans-serif; 
 //  font-family: Helvetica sans-serif; 
-  font-size: 80%;
-//  font-size: 100%;
+//  font-family: Helvetica Neue, sans-serif; 
+//  font-family: Merriweather, sans-serif;
+//  font-size: 80%;
+  font-family: Merriweather, sans-serif;
+  font-weight: 400;
   margin: 0px;
   padding: 0px;
-//  background-color: #999999;
-//  background-color: #778899;
   background-color: #ffffff;
-//  background-color: #f0f4f8;
 }
 
 a {
@@ -183,7 +190,8 @@ header {
 //  background-color: #102040;
 //  background: linear-gradient(to right,#002240, #003360);
 //  background: linear-gradient(to right,#103050, #204060);
-  background-color: rgb(18, 52, 85);
+//  background-color: rgb(18, 52, 85);
+  background-color: #002B49;
   color: #ffffff;
 //  border: 1px solid grey; border-radius:5px;
   border: 0px solid grey; border-radius:0px;
@@ -195,7 +203,7 @@ header {
 header h1 {
   font-size: 50px;
   font-weight: 400;
-  margin: 0px;
+  margin: 10px;
   padding: 10px;
 //    text-shadow: 1px 1px 2px #999999;
 }
@@ -208,9 +216,13 @@ header a:hover {
 //  text-decoration: underline;
 }
 header img {
-  margin: 0px;
+  margin: 10px 20px;
   padding: 0px;
 //  border: 1px solid white;
+}
+header p {
+  border: 0px solid white;
+  margin: 25px;
 }
 
 nav {
@@ -424,7 +436,8 @@ footer {
 //  background-color:#333333;
 //  background-color:#102040;
 //  background: linear-gradient(to left,#002240, #003360);
-  background: linear-gradient(to left,#103050, #204060);
+//  background: linear-gradient(to left,#103050, #204060);
+  background-color: #002B49;
   color: #ffffff;
   border: 1px solid grey; border-radius:1px;
   margin:5px; margin-bottom:10px;

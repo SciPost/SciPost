@@ -102,8 +102,6 @@ hr.hr12 {
   margin: 1px;
   padding: 4px;
   display: inline-block;
-//  box-shadow: 1px 1px 3px #888888;
-//  background: linear-gradient(to right,#fcfcfc, #f0f0f0);
 }
 .ratingsinput h4, .ratingsinput form {
   display: inline-block;
@@ -116,7 +114,6 @@ hr.hr12 {
   box-shadow: 1px 1px 3px #888888;
 }
 .ratingsinput ul li {
-//  color: #ffffff;
   display: inline-block;
   margin: 0px;
   padding: 0px 4px;
@@ -153,19 +150,11 @@ hr.hr12 {
 
 
 body {
-//  font-family: Verdana, sans-serif; 
-//  font-family: Arial, sans-serif; 
-//  font-family: Helvetica sans-serif; 
-//  font-family: Helvetica Neue, sans-serif; 
   font-family: Merriweather, sans-serif;
   font-size: 80%;
-//  font-size: 100%;
   margin: 0px;
   padding: 0px;
-//  background-color: #999999;
-//  background-color: #778899;
   background-color: #ffffff;
-//  background-color: #f0f4f8;
 }
 
 a {
@@ -180,49 +169,35 @@ a:hover {
 
 
 header {
-//  background-color: #333333;
-//  background-color: #102040;
-//  background: linear-gradient(to right,#002240, #003360);
-//  background: linear-gradient(to right,#103050, #204060);
-  background-color: rgb(18, 52, 85);
+  background-color: #002B49;
   color: #ffffff;
-//  border: 1px solid grey; border-radius:5px;
   border: 0px solid grey; border-radius:0px;
-//  margin: 5px;
   margin: 0px;
   padding: 0px; 5px;
-//  text-shadow: 2px 2px 4px #222222;
 }
 header h1 {
   font-size: 50px;
   font-weight: 400;
-  margin: 0px;
+  margin: 10px;
   padding: 10px;
-//    text-shadow: 1px 1px 2px #999999;
 }
 header a {
   text-decoration: none;
-//  border: 1px solid white;
 }
 header a:hover {
   color: #ffffff;
-//  text-decoration: underline;
 }
 header img {
-  margin: 0px;
+  margin: 10px 20px;
   padding: 0px;
-//  border: 1px solid white;
+}
+header p {
+  border: 0px solid white;
+  margin: 25px;
 }
 
 nav {
-//  background-color:#cccccc;
-//  background-color:#dddddd;
-//  background-color:#e7ebf0;
-//  background-color:#ffffff;
   background-color: #f0f0f0;
-//  border: 1px solid grey; border-radius:5px;
-  border: 0px solid grey; border-radius:0px;
-//  margin:5px; 
   margin:0px; 
   padding:0px;
   float:center;
@@ -238,41 +213,26 @@ nav ul li {
   display: inline;
   margin: 5px;
   padding: 5px;
-//  background-color: #444444;
-//  background-color: #bbbbbb;
   background-color: #204080;
-//  color: #dddddd;
   color: #222222;
   float: center;
   clear: both;
 }
 nav a {
-//  margin: 2px;
   margin: 5px;
   padding: 5px;
-//  background-color: #444444;
-//  background-color: #153060;
-//  background-color: #601015;
-//  background-color: #ffffff;
   background-color: #f0f0f0;
-//  color: #dddddd;
   color: #000000;
-//  text-decoration: underline;
   text-decoration: none;
   display: inline-block;
   target: _parent;
-//  text-shadow: 2px 2px 4px #222222;
 }
 nav a:visited {
-//  color: #eeeeee;
   color: #000000;
 }
 nav a:hover {
-//  color: #ffffff;
   color: #000000;
-//  text-decoration: underline;
   text-decoration: none;
-//  background-color: #eeeeee;
   background-color: #ffffff;
 }
 nav a:active {
@@ -292,33 +252,20 @@ p#goodCommenter {
 }
 
 section {
-//  color: #eeeeee;
   color: #111111;
-//  background-color:#666666;
-//  background-color: #eeeeee;
   background-color: white;
   border: 1px solid grey; border-radius: 1px;
   margin: 25px 15px; 
   padding: 10px; 
-//  text-shadow: 1px 1px 1px #222222;
-//  text-shadow: 0px 0px 1px #222222;
-//  width: 800px;
   text-align: justify;
 }
 section a {
-//  color: #eeeeee;
-//  color: #222222;
   color: #103050;
-//  text-decoration: underline;
   text-decoration: none;
   target: _parent;
 }
 section a:hover {
-//  color: #ffffff;
-//  color: #000000;
-//  color: #404080;
   color: #103050;
-//  font-weight: bold;
   text-decoration: underline;
 }
 section div {
@@ -330,7 +277,6 @@ section h1, h2, h3, h4, h5, h6 {
   margin: 0px;
   padding: 6px 2px;
   color: #103050;
-//  text-shadow: 2px 2px 4px #222222;
   text-shadow: 0px 0px 0px #222222;
   font-weight: 500;
 }
@@ -339,10 +285,6 @@ section form {
   padding: 0px;
 }
 section form label {
-//  color: #dddddd;
-//  color: #222222;
-//  color: #102040;
-//  color: #ffffff;
   color: black;
   font-weight: 400;
 }
@@ -350,9 +292,7 @@ section form ul li {
   padding: 0px;
 }
 section form ul li label {
-//  color: #ffffff;
   color: black;
-//  color: #102040;
 }
 section p {
   margin: 2px;
@@ -363,8 +303,6 @@ section table {
   padding: 0px;
 }
 section table th, td {
-//  color: #dddddd;
-//  color: #222222;
   color: #102040;
   text-align: left;
   padding: 0px;
@@ -381,15 +319,12 @@ section ul.ratingsdata {
   display: inline-block;
   padding: 2px;
   margin: 2px;
-//  background-color: #303030;
-//  background-color: #cccccc;
   background-color: #204080;
   color: #ffffff;
   border-radius: 2px;
   font-size: 90%;
 }
 section ul.ratingsdata li{
-//  display: inline;
   padding: 2px 2px;
   color: #ffffff;
 }
@@ -397,15 +332,12 @@ section form.ratingsdata ul {
   display: inline-block;
   padding: 2px;
   margin: 2px;
-//  background-color: #333333;
-//  background-color: #cccccc;
   background-color: #204080;
   color: #ffffff;
   border-radius: 2px;
   font-size: 90%;
 }
 section form.ratingsdata ul li {
-//  display: inline;
   padding: 0px 2px; 
   color: #ffffff;
 }
@@ -422,10 +354,7 @@ article {
 }
 
 footer {
-//  background-color:#333333;
-//  background-color:#102040;
-//  background: linear-gradient(to left,#002240, #003360);
-  background: linear-gradient(to left,#103050, #204060);
+  background-color: #002B49;
   color: #ffffff;
   border: 1px solid grey; border-radius:1px;
   margin:5px; margin-bottom:10px;
@@ -433,7 +362,6 @@ footer {
 }
 footer a {
   color: #eeeeee;
-//  text-decoration: underline;
 }
 footer a:hover {
   color: #ffffff;
@@ -441,15 +369,11 @@ footer a:hover {
 }
 
 input, textarea {
-//  background-color: #305090;
   background-color: #f8f8f8;
-//  color: white;
   color: black;
-//  border: 1px solid white; border-radius: 3px;
   border: 1px solid black; border-radius: 1px;
 }
 input[type='text'], input[type='URL'], textarea {
-//  width: 400px;
   width: 80%;
   max-width: 800px;
   min-width: 200px;
@@ -459,13 +383,8 @@ input:hover {
 }
 
 select {
-//  background-color: #111111;
-//  background-color: #333333;
-//  background-color: #204080;
-//  color: white;
   background-color: #f8f8f8;
   color: black;
-//  border: 1px solid white;
   border: 1px solid black;
 }
 
