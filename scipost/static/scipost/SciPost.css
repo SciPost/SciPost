@@ -2,6 +2,8 @@
 General style sheet for SciPost
 */
 
+@import url(//fonts.googleapis.com/css?family=Merriweather+Sans);
+
 * {
     box-sizing: border-box;
 }
@@ -150,7 +152,8 @@ hr.hr12 {
 
 
 body {
-  font-family: Merriweather, sans-serif;
+//  font-family: Merriweather, sans-serif;
+  font-family: 'Merriweather Sans';
   font-size: 80%;
   margin: 0px;
   padding: 0px;
@@ -198,6 +201,7 @@ header p {
 
 nav {
   background-color: #f0f0f0;
+  color: #002B49;
   margin:0px; 
   padding:0px;
   float:center;
@@ -214,7 +218,8 @@ nav ul li {
   margin: 5px;
   padding: 5px;
   background-color: #204080;
-  color: #222222;
+  color: #002B49;
+//  color: #222222;
   float: center;
   clear: both;
 }
@@ -222,16 +227,19 @@ nav a {
   margin: 5px;
   padding: 5px;
   background-color: #f0f0f0;
-  color: #000000;
+  color: #002B49;
+//  color: #000000;
   text-decoration: none;
   display: inline-block;
   target: _parent;
 }
 nav a:visited {
-  color: #000000;
+  color: #002B49;
+//  color: #000000;
 }
 nav a:hover {
   color: #000000;
+//  color: #FFA300
   text-decoration: none;
   background-color: #ffffff;
 }
@@ -276,7 +284,7 @@ section div {
 section h1, h2, h3, h4, h5, h6 {
   margin: 0px;
   padding: 6px 2px;
-  color: #103050;
+//  color: #103050;
   text-shadow: 0px 0px 0px #222222;
   font-weight: 500;
 }
