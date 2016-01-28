@@ -44,6 +44,7 @@ SCIPOST_JOURNALS_SUBMIT = ( # Same as SCIPOST_JOURNALS, but SP Select deactivate
     ('SciPost Physics', 'SciPost Physics'),
     ('SciPost Physics Lecture Notes', 'SciPost Physics Lecture Notes'),
     )
+journals_submit_dict = dict(SCIPOST_JOURNALS_SUBMIT)
 
 SCIPOST_JOURNALS_DOMAINS = (
     ('E', 'Experimental'),
@@ -54,6 +55,7 @@ SCIPOST_JOURNALS_DOMAINS = (
     ('TC', 'Theor. & Comp.'),
     ('ETC', 'Exp., Theor. & Comp.'), 
 )
+journals_domains_dict = dict(SCIPOST_JOURNALS_DOMAINS)
 
 SCIPOST_JOURNALS_SPECIALIZATIONS = (
     ('A', 'Atomic, Molecular and Optical Physics'),
@@ -67,6 +69,7 @@ SCIPOST_JOURNALS_SPECIALIZATIONS = (
     ('Q', 'Quantum Statistical Mechanics'),
     ('S', 'Statistical and Soft Matter Physics'),
     )
+journals_spec_dict = dict(SCIPOST_JOURNALS_SPECIALIZATIONS)
 
 PHYSICS_SUBJECTS = (
     ('A', 'Atomic, Molecular and Optical Physics'),

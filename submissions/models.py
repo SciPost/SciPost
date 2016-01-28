@@ -21,6 +21,7 @@ SUBMISSION_STATUS = (
     (4, 'reviewed, peer checked, editorial decision pending'),
     (5, 'editorial decision'),
     )
+submission_status_dict = dict(SUBMISSION_STATUS)
 
 class Submission(models.Model):
     submitted_by = models.ForeignKey(Contributor)
@@ -38,7 +39,7 @@ class Submission(models.Model):
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_sub')
     abstract = models.TextField()
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
-    submission_date = models.DateField(verbose_name='date of original publication')
+    submission_date = models.DateField(verbose_name='submission date')
 
     nr_clarity_ratings = models.IntegerField(default=0)
     clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
@@ -55,6 +56,26 @@ class Submission(models.Model):
     def __str__ (self):
         return self.title
 
+    def header_as_table (self):
+        header = '<table>'
+        header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.title + '</td></tr>'
+        header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author_list + '</td></tr>'
+        header += '<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="' + self.arxiv_link + '">' + self.arxiv_link + '</a></td></tr>'
+        header += '<tr><td>Date submitted: </td><td>&nbsp;</td><td>' + str(self.submission_date) + '</td></tr>'
+        header += '<tr><td>Submitted by: </td><td>&nbsp;</td><td>' + str(self.submitted_by) + '</td></tr>'
+        header += '<tr><td>Submitted to: </td><td>&nbsp;</td><td>' + journals_submit_dict[self.submitted_to_journal] + '</td></tr>'
+        header += '<tr><td>Domain(s): </td><td>&nbsp;</td><td>' + journals_domains_dict[self.domain] + '</td></tr>'
+        header += '<tr><td>Specialization: </td><td>&nbsp;</td><td>' + journals_spec_dict[self.specialization] + '</td></tr>'
+        header += '</table>'
+        return header
+
+    def submission_info_as_table (self):
+        header = '<table>'
+        header += '<tr><td>Editor in charge: </td><td>&nbsp;</td><td>' + str(self.editor_in_charge) + '</td></tr>'
+        header += '<tr><td>Vetted: </td><td>&nbsp;</td><td>' + str(self.vetted) + '</td></tr>'
+        header += '<tr><td>Status: </td><td>&nbsp;</td><td>' + submission_status_dict[self.status] + '</td></tr>'
+        header += '</table>'
+        return header
 
 ###########
 # Reports:

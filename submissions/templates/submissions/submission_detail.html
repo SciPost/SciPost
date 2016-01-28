@@ -45,16 +45,7 @@
     </div>
   </div>
   <hr class="hr12">
-
-  <table>
-    <tr><td>Title: </td><td>{{ submission.title }}</td></tr>
-    <tr><td>Author(s): </td><td>{{ submission.author_list }}</td></tr>
-    <tr><td>arXiv link: </td><td><a href="{{ submission.arxiv_link }}">{{ submission.arxiv_link }}</a></td></tr>
-    <tr><td>Date submitted: </td><td>{{ submission.submission_date }}</td></tr>
-    <tr><td>Submitted to: </td><td>{{ submission.submitted_to_journal }}</td></tr>
-    <tr><td>Specialization: </td><td>{{ submission.specialization }}</td></tr>
-  </table>
-
+  {{ submission.header_as_table|safe }}
   <h3>Abstract:</h3>
   <p>{{ submission.abstract }}</p>
 

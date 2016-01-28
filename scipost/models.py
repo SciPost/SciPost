@@ -103,7 +103,8 @@ class Contributor(models.Model):
     report_rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
 
     def __str__ (self):
-        return self.user.username
+#        return self.user.username
+        return self.user.last_name + ', ' + self.user.first_name
 
     def as_table (self):
         output = '<table>'

@@ -52,9 +52,7 @@
   <form action="{% url 'commentaries:request_commentary' %}" method="post">
     {% csrf_token %}
     <table>
-      <ul>
-	{{ form.as_table }}
-      </ul>
+      {{ form.as_table }}
     </table>
     <input type="submit" value="Submit"/>
   </form>
