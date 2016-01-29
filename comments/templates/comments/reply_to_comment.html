@@ -7,13 +7,7 @@
 {% if user.is_authenticated %}
 <section>
   <hr class="hr12">
-  <div class="row">
-    <div class="col-6">
-      <h1>SciPost Reply to Comment Page</h1>
-    </div>
-  </div>
-</section>
-<section>
+  <h1>SciPost Reply to Comment Page</h1>
   <hr class="hr12">
   {% if comment.commentary %}
   <h1>The Commentary concerned:</h1>
@@ -45,7 +39,7 @@
   <p>{{ comment.submission.abstract }}</p>
   {% endif %}
   
-  <hr>
+  <hr class="hr6">
   <h2>The Comment you wish to reply to:</h2>
   <div class="row">
     <div class="col-1"></div>
@@ -54,42 +48,15 @@
       <div class="twocolumn">{{ comment.comment_text|linebreaks }}</div>
     </div>
   </div>
-  <hr>
 
-  <div class="row">
-    <div class="col-3">
-      <h1>Write your Reply to this Comment here:</h1>
-    </div>
+  <hr class="hr6">
+  <h1>Your Reply to this Comment:</h1>
+  <form action="{% url 'comments:reply_to_comment' comment.id %}" method="post">
+    {% csrf_token %}
+    {% load crispy_forms_tags %}
+    {% crispy form %}
+  </form>
 
-    <div class="col-9">
-      <form action="{% url 'comments:reply_to_comment' comment.id %}" method="post">
-	{% csrf_token %}
-	<div class="row">
-          <div class="col-4">
-            <ul class="commentcategorychoices">
-              <li><h3>Specify categorization:</h3></li>
-              <li>{{ form.is_rem }} remark</li>
-              <li>{{ form.is_que }} question</li>
-              <li>{{ form.is_ans }} answer to question</li>
-              <li>{{ form.is_obj }} objection</li>
-              <li>{{ form.is_rep }} reply to objection</li>
-              <li>{{ form.is_val }} validation or rederivation</li>
-              <li>{{ form.is_lit }} pointer to related literature</li>
-              <li>{{ form.is_sug }} suggestion for further work</li>
-            </ul>
-          </div>
-          <div class="col-1"></div>
-          <div class="col-7">
-            <h3>Write your comment here:</h3>
-            {{ form.comment_text }}
-            <input type="submit" value="Submit your Reply">
-          </div>
-        </div>
-      </form>
-    </div>
-
-
-  </div>
 </section>
 {% endif %}
 

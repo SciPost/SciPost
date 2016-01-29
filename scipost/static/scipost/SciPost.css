@@ -194,7 +194,8 @@ a:hover {
 
 .submitComment {
   background-color: #002B49;
-  color: #FFA300;
+  color: #ffffff;
+  border: 1px solid #FFA300;
 }
 
 header {

@@ -6,13 +6,10 @@
 
 {% if user.is_authenticated %}
 <section>
-  <div class="row">
-    <div class="col-6">
-      <h1>SciPost Reply to Comment Page (for Authors)</h1>
-    </div>
-  </div>
-</section>
-<section>
+  <hr class="hr12">
+  <h1>SciPost Reply to Comment Page (for Authors)</h1>
+  <br/>
+  <hr class="hr12">
   {% if comment.commentary %}
   <h1>The Commentary concerned:</h1>
   {% endif %}
@@ -38,7 +35,7 @@
   <h4>Abstract:</h4>
   <p>{{ comment.commentary.pub_abstract }}</p>
   
-  <hr>
+  <hr class="hr6">
   <h2>The Comment you wish to reply to:</h2>
   <div class="row">
     <div class="col-1"></div>
@@ -49,17 +46,16 @@
     </div>
 
   </div>
-  <hr>
-
+  <hr class="hr6">
   <div class="row">
-    <div class="col-2">
-      <h1>Write your Reply to this Comment here:</h1>
+    <div class="col-3">
+      <h1>Your Author Reply:</h1>
     </div>
-    <div class="col-10">
+    <div class="col-9">
       <form action="{% url 'comments:author_reply_to_comment' comment.id %}" method="post">
 	{% csrf_token %}
 	{{ form }}
-	<input type="submit" value="Submit your Reply">
+	<input type="submit" value="Submit your Reply" class="submitComment">
       </form>
     </div>
   </div>

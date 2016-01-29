@@ -55,22 +55,21 @@ class CommentForm(forms.ModelForm):
         self.fields['comment_text'].widget.attrs.update({'placeholder': 'NOTE: only serious and meaningful Comments will be accepted.'})
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            HTML('<h1>Contribute a Comment</h1>'),
             Div(
                 Div(
                     Fieldset(
                         'Specify categorization',
                         'is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug',
-                        style="border: 0px"),
-                    css_class="col-4"),
+                        style="border: 0px; font-size: 80%"),
+                    css_class="col-3"),
                 Div(
                     Field('comment_text'), 
                     Field('anonymous'),
                     HTML('<p>In your comment, you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.</p>'),
                     HTML('<p id="goodCommenter"><i>Be professional. Only serious and meaningful comments will be vetted through.</i></p>'),
                     HTML('<p id="goodCommenter"><i> By clicking on Submit, the commenter certifies that all sources used are duly referenced and cited. Failure to do so will lead to exclusion from the portal.</i></p>'),
-                    Submit('submit', 'Submit', css_class="submitComment"),
-                    css_class="col-8"),
+                    Submit('submit', 'Submit your Comment for vetting', css_class="submitComment"),
+                    css_class="col-9"),
                 css_class="row"),
             )
         
