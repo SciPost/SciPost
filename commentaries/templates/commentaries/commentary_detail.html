@@ -16,6 +16,7 @@
   });
 </script>
 
+{% load crispy_forms_tags %}
 
 {% endblock headsup %}
 
@@ -240,11 +241,13 @@
 <section>
   <hr class="hr12">
   <div class="row">
+<!--
     <div class="col-3">
       <h1>Contribute a Comment</h1>
       <p>Specify which category your comment belongs to (you can choose more than one).</p>
       <p>In your comment, you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.</p>
     </div>
+
     <div class="col-9">
       <form action="{% url 'commentaries:commentary' commentary.id %}" method="post">
 	{% csrf_token %}
@@ -272,6 +275,13 @@
 	  </div>
 	</div>
       </form>
+-->
+
+    <form action="{% url 'commentaries:commentary' commentary.id %}" method="post">
+      {% csrf_token %}
+      {% crispy form %}
+    </form>
+
     </div>
   </div>
 </section>

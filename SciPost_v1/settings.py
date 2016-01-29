@@ -54,6 +54,7 @@ INSTALLED_APPS = (
     'django_countries',
     'django_mathjax',
     'captcha',
+    'crispy_forms',
     'commentaries',
     'comments',
     'journals',

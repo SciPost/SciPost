@@ -2,6 +2,10 @@ from django import *
 
 from .models import *
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
+
+
 COMMENT_ACTION_CHOICES = (
 #    (0, 'modify'), 
     (1, 'accept'), 
@@ -49,6 +53,29 @@ class CommentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CommentForm, self).__init__(*args, **kwargs)
         self.fields['comment_text'].widget.attrs.update({'placeholder': 'NOTE: only serious and meaningful Comments will be accepted.'})
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            HTML('<h1>Contribute a Comment</h1>'),
+            Div(
+                Div(
+                    Fieldset(
+                        'Specify categorization',
+                        'is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug',
+                        style="border: 0px"),
+                    css_class="col-4"),
+                Div(
+                    Field('comment_text'), 
+                    Field('anonymous'),
+                    HTML('<p>In your comment, you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.</p>'),
+                    HTML('<p id="goodCommenter"><i>Be professional. Only serious and meaningful comments will be vetted through.</i></p>'),
+                    HTML('<p id="goodCommenter"><i> By clicking on Submit, the commenter certifies that all sources used are duly referenced and cited. Failure to do so will lead to exclusion from the portal.</i></p>'),
+                    Submit('submit', 'Submit', css_class="submitComment"),
+                    css_class="col-8"),
+                css_class="row"),
+            )
+        
+                
+    
 
 class VetCommentForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect, choices=COMMENT_ACTION_CHOICES, required=True, label='Action')

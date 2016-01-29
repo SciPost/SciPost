@@ -192,6 +192,10 @@ a:hover {
   text-decoration: underline;
 }
 
+.submitComment {
+  background-color: #002B49;
+  color: #FFA300;
+}
 
 header {
   background-color: #002B49;
