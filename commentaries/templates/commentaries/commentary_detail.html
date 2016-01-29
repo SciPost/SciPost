@@ -25,6 +25,7 @@
 {% if user.is_authenticated %}
 
 <section>
+  <hr class="hr12">
   <div class="row">
     <div class="col-10">
       <h1>SciPost Commentary Page &nbsp; (for non-SciPost publications)</h1>
@@ -37,12 +38,12 @@
 </section>
 
 <section>
+  <hr class="hr12">
   <div class="row">
     <div class="col-4">
       <h2>Original publication: </h2>
     </div>
   </div>
-  <hr class="hr12">
 
   <table>
     <tr><td>Title: </td><td>{{ commentary.pub_title }}</td></tr>
@@ -81,6 +82,7 @@
 
 {% if reports %}
 <section>
+  <hr class="hr12">
   <h2>Reports on this publication</h2>
   <hr>
 </section>
@@ -88,6 +90,7 @@
 
 {% if comments %}
 <section>
+  <hr class="hr12">
   <div class="row">
     <div class="col-10">
       <h2>Comments on this publication</h2>
@@ -96,18 +99,21 @@
       <button id="commentsbutton">Toggle comments view</button>
     </div>
   </div>
-  <hr class="hr12">
 
   <div id="commentslist">
     {% for comment in comments %}
     
+    <hr class="hr6">
     <div class="row">
       
       <div class="col-3">
+	{{ comment.print_identifier|safe }}
+<!--
 	<div class="commentid">
-	  <h3>{{ comment.id }} &nbsp; {% if comment.in_reply_to %} (in reply to {{ comment.in_reply_to.id }}) {% endif %}</h3>
+	  <h3>{{ comment.id }} {% if not comment.anonymous %}&nbsp; by {{ comment.author.user.first_name }} {{ comment.author.user.last_name }} {% endif %}&nbsp; {% if comment.in_reply_to %} (in reply to {{ comment.in_reply_to.id }}) {% endif %}</h3>
 	  <h4>Date: {{ comment.date_submitted }}</h4>
 	</div>
+-->
       </div>
       
       <div class="col-9">
@@ -224,7 +230,6 @@
 	<h3><a href="{% url 'comments:reply_to_comment' comment_id=comment.id %}">Reply to this comment (Contributor)</a></h3>
       </div>
     </div>
-    <hr class="hr12">
     {% endif %}
     {% endfor %}
   </div id="commentslist">
@@ -233,11 +238,12 @@
 
 {% if user.is_authenticated and commentary.open_for_commenting and user.contributor.rank > 0 %}
 <section>
+  <hr class="hr12">
   <div class="row">
     <div class="col-3">
       <h1>Contribute a Comment</h1>
       <p>Specify which category your comment belongs to (you can choose more than one).</p>
-      <p>In your comment, you can use LaTeX \$...\$ for in-text equations or &#92; &#91; ... &#92; &#93; for separate equations.</p>
+      <p>In your comment, you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.</p>
     </div>
     <div class="col-9">
       <form action="{% url 'commentaries:commentary' commentary.id %}" method="post">
@@ -260,6 +266,7 @@
 	  <div class="col-7">
 	    <h3>Write your comment here:</h3>
 	    {{ form.comment_text }}
+	    <p>Publish anonymously {{ form.anonymous }}</p>
 	    <input type="submit" value="Submit your Comment">
 	    <p id="goodCommenter"><i>Be professional. Only serious and meaningful comments will be vetted through. By clicking on Submit, the commenter certifies that all sources used are duly referenced and cited. Failure to do so will lead to exclusion from the portal.</i></p>
 	  </div>

@@ -5,10 +5,12 @@
 {% block bodysup %}
 
 <section>
+  <hr class="hr12">
   <h1>Welcome to your SciPost Personal Page, {{ user.username }} (rank {{ contributor.rank }} Contributor)</h1>
 </section>
 
 <section>
+  <hr class="hr12">
   <h1>Your SciPost Account</h1>
   <div class="row">
     <div class="col-6">
@@ -31,6 +33,7 @@
 
 {% if contributor.rank >= 2 %}
 <section>
+  <hr class="hr12">
   <h1>Pending SciPost Editorial Actions</h1>
   <br>
   <div class="row">
@@ -68,6 +71,7 @@
 {% endif %}
 
 <section>
+  <hr class="hr12">
   <h1>SciPost Submissions</h1>
   <ul>
     <li><a href="{% url 'submissions:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></li>
@@ -75,6 +79,7 @@
 </section>
 
 <section>
+  <hr class="hr12">
   <h1>SciPost Commentaries</h1>
   <ul>
     <li><a href="{% url 'commentaries:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
@@ -83,6 +88,7 @@
 
 {% if contributor.rank > 0 %}
 <section>
+  <hr class="hr12">
   <h1>Your ratings:</h1>
   <div class="row">
     <div class="col-3">
@@ -121,12 +127,14 @@
 
 {% else %}
 <section>
+  <hr class="hr12">
   <p>Your credentials will soon be verified by an Editor. If accepted, your rank (currently 0: newly registered) will be set to 1 (normal user), enabling you to submit, comment and vote.</p>
 </section>
 {% endif %}
 
 {% if own_comments %}
 <section>
+  <hr class="hr12">
   <h1>Your Comments</h1>
   <ul>
     {% for own_comment in own_comments %}

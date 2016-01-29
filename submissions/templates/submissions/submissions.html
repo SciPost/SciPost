@@ -8,15 +8,16 @@
 {% if user.is_authenticated %}
 
 <section>
+  <hr class="hr12">
   <h1>SciPost Submissions</h1>
-  <p>Submissions to SciPost Journals: papers currently under consideration for publication in a SciPost Journal.</p>
+
+  <br/>
   <h3><a href="{% url 'submissions:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></h3>
-
-  <p id="journalsannouncesmall">OPEN FOR SUBMISSION STARTING 1 MARCH 2016</p>
-
+  <p id="journalsannounce">OPEN FOR SUBMISSION STARTING 1 MARCH 2016</p>
 </section>
 
 <section>
+  <hr class="hr12">
   <h2>Search SciPost Submissions:</h2>
   <form action="{% url 'submissions:submissions' %}" method="post">
     {% csrf_token %}
@@ -44,6 +45,7 @@
 
 {% if submission_recent_list %}
 <section>
+  <hr class="hr12">
   <h2>Recent Submissions:</h2>
   <ul>  
     {% for submission in submission_recent_list %}

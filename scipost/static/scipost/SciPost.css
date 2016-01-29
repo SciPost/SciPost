@@ -50,11 +50,11 @@ hr.hr12 {
 }
 
 .commentcategorychoices {
-  list-style-type: none; // for categorizing comments
+  list-style-type: none; 
 }
 .commentcategorydisplay {
   display: inline-block;
-  margin: 2px; 2px;
+  margin: 2px 2px;
   padding: 1px;
   box-shadow: 1px 1px 3px #888888;
   background: linear-gradient(to right,#fcfcfc, #f0f0f0);
@@ -164,7 +164,7 @@ hr.hr12 {
 
 
 body {
-//  font-family: Merriweather, sans-serif;
+/*  font-family: Merriweather, sans-serif; */
   font-family: 'Merriweather Sans';
   font-weight: lighter;
   font-size: 80%;
@@ -184,7 +184,7 @@ body section div.sectionbox {
 
 a {
   color: #eeeeee;
-//  text-decoration: underline;
+/*  text-decoration: underline; */
   target: _parent;
 }
 a:hover {
@@ -198,7 +198,7 @@ header {
   color: #ffffff;
   border: 0px solid grey; border-radius:0px;
   margin: 0px;
-  padding: 0px; 5px;
+  padding: 0px 5px;
 }
 header h1 {
   font-size: 50px;
@@ -241,7 +241,7 @@ nav ul li {
   padding: 5px;
   background-color: #204080;
   color: #002B49;
-//  color: #222222;
+/*  color: #222222; */
   float: center;
   clear: both;
 }
@@ -250,18 +250,18 @@ nav a {
   padding: 5px;
   background-color: #f0f0f0;
   color: #002B49;
-//  color: #000000;
+/*  color: #000000; */
   text-decoration: none;
   display: inline-block;
   target: _parent;
 }
 nav a:visited {
   color: #002B49;
-//  color: #000000;
+/*  color: #000000; */
 }
 nav a:hover {
   color: #000000;
-//  color: #FFA300
+/*  color: #FFA300 */
   text-decoration: none;
   background-color: #ffffff;
 }
@@ -284,7 +284,7 @@ p#goodCommenter {
 section {
   color: #111111;
   background-color: white;
-//  border: 1px solid grey; border-radius: 1px;
+/*  border: 1px solid grey; border-radius: 1px; */
   margin: 25px 15px; 
   padding: 10px; 
   text-align: justify;
@@ -306,7 +306,7 @@ section div {
 section h1, h2, h3, h4, h5, h6 {
   margin: 0px;
   padding: 6px 2px;
-//  color: #103050;
+/*  color: #103050; */
   text-shadow: 0px 0px 0px #222222;
   font-weight: 500;
 }
@@ -425,25 +425,25 @@ select {
 }
 
 #journalsannouncesmall {
-//  background-color: #880000;
+/*  background-color: #880000; */
   background-color: #002B49;
   color: #FFA300;
   padding: 10px;
   font-size: 90%;
   text-align: center;
-//  animation-name: journalsannounceanim;
-//  animation-duration: 2s;
-//  animation-iteration-count: infinite;
+/*  animation-name: journalsannounceanim; */
+/*  animation-duration: 2s; */
+/*  animation-iteration-count: infinite; */
 }
 #journalsannounce {
-//  background-color: #880000;
+/*  background-color: #880000; */
   background-color: #002B49;
   color: #FFA300;
   padding: 20px;
   font-size: 150%;
   text-align: center;
-//  animation-name: journalsannounceanim;
-//  animation-duration: 2s;
-//  animation-iteration-count: infinite;
+/*  animation-name: journalsannounceanim; */
+/*  animation-duration: 2s; */
+/*  animation-iteration-count: infinite; */
 }
 

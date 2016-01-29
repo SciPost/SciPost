@@ -39,6 +39,7 @@ class Comment(models.Model):
     submission = models.ForeignKey(Submission, blank=True, null=True)
     in_reply_to = models.ForeignKey('self', blank=True, null=True)
     author = models.ForeignKey(Contributor)
+    anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
     # Categories:
     is_rem = models.BooleanField(default=False, verbose_name='remark')
     is_que = models.BooleanField(default=False, verbose_name='question')
@@ -64,6 +65,16 @@ class Comment(models.Model):
 
     def __str__ (self):
         return self.comment_text
+
+    def print_identifier (self):
+        output = '<div class="commentid">\n'
+        output += '<h3>' + str(self.id)
+        if not self.anonymous:
+            output += ' by ' + self.author.user.first_name + ' ' + self.author.user.last_name
+        if self.in_reply_to:
+            output += ' in reply to ' + str(self.in_reply_to.id) + '</h3>\n'
+        output += '<h4>Date: ' + self.date_submitted.strftime("%Y-%m-%d") + '</h4>\n</div>\n'
+        return output
 
 
 class AuthorReply(models.Model):

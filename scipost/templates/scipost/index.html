@@ -79,8 +79,7 @@
     <div class="flex-greybox">
       <h1><a href="{% url 'commentaries:commentaries' %}">Commentaries</a></h1>
       <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
-    </div>
-    <div class="flex-greybox">
+      <br/>
       <h3>Search SciPost Commentaries:</h3>
       <form action="{% url 'commentaries:commentaries' %}" method="post">
 	{% csrf_token %}
@@ -95,6 +94,7 @@
 
 
 <section>
+  <hr class="hr12">
   <div class="row">
     <div class="col-4">
       <h1>SciPost is endorsed by</h1>

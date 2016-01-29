@@ -44,7 +44,7 @@ AUTHOR_REPLY_REFUSAL_CHOICES = (
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug', 'comment_text']
+        fields = ['is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug', 'comment_text', 'anonymous']
 
     def __init__(self, *args, **kwargs):
         super(CommentForm, self).__init__(*args, **kwargs)
