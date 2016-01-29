@@ -6,6 +6,7 @@
 
 <!-- Temporary strip for online version -->
 {% if user.is_authenticated %}
+<!--
 <section>
   <div class="row">
     <div class="col-3">
@@ -22,7 +23,7 @@
       <p>SciPost publishes a portfolio of high-quality two-way open access scientific journals.</p>
       <p>All SciPost Journals implement the maximally stringent <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> principle.</p>
       <p>All Journals are fully managed by professional scientists.</p>
-      <h3><a href="{% url 'scipost:peer_witnessed_refereeing' %}">Learn about peer-witnessed refereeing</a></h3>
+      <h3><a href="{% url 'scipost:peer_witnessed_refereeing' %}">About peer-witnessed refereeing</a></h3>
       <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a></h3>
     </div>
     <div class="col-1"></div>
@@ -32,6 +33,66 @@
     </div>
   </div>
 </section>
+-->
+<!--
+<section>
+  <div class="sectionbox">
+    <h1><a href="{% url 'scipost:about' %}">About SciPost</a></h1>
+    <p>SciPost is a complete scientific publication portal managed by active professional scientists.</p>
+    <p>It is purely online-based and offers freely, openly, globally and perpetually accessible science.</p>
+    <h3><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h3>
+    <h3><a href="{% url 'scipost:about' %}">Read more</a></h3>
+  </div>
+  <div class="sectionbox">
+    <h1><a href="{% url 'journals:journals' %}">Journals</a></h1>
+    <p id="journalsannouncesmall">OPEN FOR SUBMISSION STARTING 1 MARCH 2016</p>
+    <p>SciPost publishes a portfolio of high-quality two-way open access scientific journals.</p>
+    <p>All SciPost Journals implement the maximally stringent <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> principle.</p>
+    <p>All Journals are fully managed by professional scientists.</p>
+    <h3><a href="{% url 'scipost:peer_witnessed_refereeing' %}">About peer-witnessed refereeing</a></h3>
+    <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a></h3>
+  </div>
+  <div class="sectionbox">
+    <h1><a href="{% url 'commentaries:commentaries' %}">Commentaries</a></h1>
+    <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
+  </div>
+</section>
+-->
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h1><a href="{% url 'scipost:about' %}">About SciPost</a></h1>
+      <p>SciPost is a complete scientific publication portal managed by active professional scientists.</p>
+      <p>It is purely online-based and offers freely, openly, globally and perpetually accessible science.</p>
+      <h3><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h3>
+      <h3><a href="{% url 'scipost:about' %}">Read more</a></h3>
+    </div>
+    <div class="flex-greybox">
+      <h1><a href="{% url 'journals:journals' %}">Journals</a></h1>
+      <p id="journalsannouncesmall">OPEN FOR SUBMISSION FROM 1 MARCH 2016</p>
+      <p>SciPost publishes a portfolio of high-quality two-way open access scientific journals.</p>
+      <p>All SciPost Journals implement the maximally stringent <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> principle.</p>
+      <p>All Journals are fully managed by professional scientists.</p>
+      <h3><a href="{% url 'scipost:peer_witnessed_refereeing' %}">About peer-witnessed refereeing</a></h3>
+      <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a></h3>
+    </div>
+    <div class="flex-greybox">
+      <h1><a href="{% url 'commentaries:commentaries' %}">Commentaries</a></h1>
+      <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
+    </div>
+    <div class="flex-greybox">
+      <h3>Search SciPost Commentaries:</h3>
+      <form action="{% url 'commentaries:commentaries' %}" method="post">
+	{% csrf_token %}
+	<table>
+	  {{ commentary_search_form.as_table }}
+	</table>
+	<input type="submit" name="Submit" />
+      </form>
+    </div>
+  </div>
+</section>
+
 
 <section>
   <div class="row">

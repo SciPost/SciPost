@@ -21,6 +21,7 @@ from .utils import *
 
 
 from commentaries.models import Commentary
+from commentaries.forms import CommentarySearchForm
 from comments.models import Comment, AuthorReply
 from submissions.models import Submission, Report
 
@@ -30,7 +31,9 @@ from submissions.models import Submission, Report
 #############
 
 def index(request):
-    return render(request, 'scipost/index.html')
+    commentary_search_form = CommentarySearchForm(request.POST)
+    context = {'commentary_search_form': commentary_search_form}
+    return render(request, 'scipost/index.html', context)
 
 
 ###############

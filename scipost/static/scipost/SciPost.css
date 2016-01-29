@@ -150,14 +150,36 @@ hr.hr12 {
   column-rule-width: 1px;
 }
 
+.flex-container {
+  display: -webkit-flex;
+  display: flex;
+  flex-wrap: wrap;
+}
+.flex-greybox {
+  background-color: #f4f4f4;
+  width: 320px;
+  margin: 10px;
+  padding: 10px;
+}
+
 
 body {
 //  font-family: Merriweather, sans-serif;
   font-family: 'Merriweather Sans';
+  font-weight: lighter;
   font-size: 80%;
   margin: 0px;
   padding: 0px;
   background-color: #ffffff;
+}
+
+body section div.sectionbox {
+  width: 300px;
+  background-color: #f4f4f4;
+  margin: 10px;
+  padding: 10px;
+  display: inline-block;
+  vertical-align: top;
 }
 
 a {
@@ -262,7 +284,7 @@ p#goodCommenter {
 section {
   color: #111111;
   background-color: white;
-  border: 1px solid grey; border-radius: 1px;
+//  border: 1px solid grey; border-radius: 1px;
   margin: 25px 15px; 
   padding: 10px; 
   text-align: justify;
@@ -403,23 +425,25 @@ select {
 }
 
 #journalsannouncesmall {
-  background-color: #880000;
-  color: #ffffff;
-  padding: 5px;
+//  background-color: #880000;
+  background-color: #002B49;
+  color: #FFA300;
+  padding: 10px;
   font-size: 90%;
   text-align: center;
-  animation-name: journalsannounceanim;
-  animation-duration: 2s;
-  animation-iteration-count: infinite;
+//  animation-name: journalsannounceanim;
+//  animation-duration: 2s;
+//  animation-iteration-count: infinite;
 }
 #journalsannounce {
-  background-color: #880000;
-  color: #ffffff;
+//  background-color: #880000;
+  background-color: #002B49;
+  color: #FFA300;
   padding: 20px;
   font-size: 150%;
   text-align: center;
-  animation-name: journalsannounceanim;
-  animation-duration: 2s;
-  animation-iteration-count: infinite;
+//  animation-name: journalsannounceanim;
+//  animation-duration: 2s;
+//  animation-iteration-count: infinite;
 }
 
