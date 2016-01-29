@@ -57,19 +57,22 @@ class CommentForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Fieldset(
-                        'Specify categorization',
-                        'is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug',
-                        style="border: 0px; font-size: 80%"),
-                    css_class="col-3"),
-                Div(
                     Field('comment_text'), 
-                    Field('anonymous'),
                     HTML('<p>In your comment, you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.</p>'),
                     HTML('<p id="goodCommenter"><i>Be professional. Only serious and meaningful comments will be vetted through.</i></p>'),
                     HTML('<p id="goodCommenter"><i> By clicking on Submit, the commenter certifies that all sources used are duly referenced and cited. Failure to do so will lead to exclusion from the portal.</i></p>'),
-                    Submit('submit', 'Submit your Comment for vetting', css_class="submitComment"),
                     css_class="col-9"),
+                Div(
+                    Fieldset(
+                        'Specify categorization:',
+                        'is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug',
+                        style="border: 0px; font-size: 90%"),
+                    HTML('<br>'),
+                    Div(
+                        Field('anonymous'),
+                        Submit('submit', 'Submit your Comment for vetting', css_class="submitComment"),
+                        ),
+                    css_class="col-3"),
                 css_class="row"),
             )
         
