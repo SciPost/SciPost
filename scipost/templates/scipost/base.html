@@ -5,6 +5,11 @@
     <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
 
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     
     <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
 

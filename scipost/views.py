@@ -282,7 +282,8 @@ def personal_page(request):
             nr_comments_to_vet = Comment.objects.filter(status=0).count()
             nr_author_replies_to_vet = AuthorReply.objects.filter(status=0).count()
             nr_reports_to_vet = Report.objects.filter(status=0).count()
-        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process }
+        own_comments = Comment.objects.filter(author=contributor)
+        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process, 'own_comments': own_comments}
         return render(request, 'scipost/personal_page.html', context)
     else:
         form = AuthenticationForm()

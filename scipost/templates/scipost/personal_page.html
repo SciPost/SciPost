@@ -125,4 +125,15 @@
 </section>
 {% endif %}
 
+{% if own_comments %}
+<section>
+  <h1>Your Comments</h1>
+  <ul>
+    {% for own_comment in own_comments %}
+    <li>{{ own_comment.comment_text }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
 {% endblock bodysup %}

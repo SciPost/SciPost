@@ -270,7 +270,7 @@ nav a:active {
 }
 nav p {
   display: inline-block;
-  margin: 0px;
+  margin: 10px;
   padding: 0px;
 }
 nav form {
