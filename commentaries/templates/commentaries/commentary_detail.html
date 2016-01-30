@@ -39,19 +39,18 @@
 -->
 <section>
   <div class="flex-greybox">
-    <h1>SciPost Commentary Page &nbsp; (for non-SciPost publications)</h1>
+    <h1>SciPost Commentary Page &nbsp; (non-SciPost publications)</h1>
     <button id="ratingsbutton">Toggle ratings view</button>
   </div>
-</section>
 
-<section>
   <hr class="hr12">
   <div class="row">
     <div class="col-4">
       <h2>Original publication: </h2>
     </div>
   </div>
-
+  {{ commentary.header_as_table|safe }}
+<!--
   <table>
     <tr><td>Title: </td><td>{{ commentary.pub_title }}</td></tr>
     <tr><td>Author(s): </td><td>{{ commentary.author_list }}</td></tr>
@@ -59,6 +58,7 @@
     <tr><td>DOI Link: </td><td><a href="{{ commentary.pub_DOI_link }}">{{ commentary.pub_DOI_link }}</a></td></tr>
     <tr><td>Date published: </td><td>{{ commentary.pub_date }}</td></tr>
   </table>
+-->
 
   <h3>Abstract:</h3>
   <p>{{ commentary.pub_abstract }}</p>
