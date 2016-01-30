@@ -50,7 +50,7 @@ class CommentForm(forms.ModelForm):
                     HTML('<p>In your comment, you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.</p>'),
                     HTML('<p id="goodCommenter"><i>Be professional. Only serious and meaningful comments will be vetted through.</i></p>'),
                     HTML('<p id="goodCommenter"><i>By clicking on Submit, the commenter certifies that all sources used are duly referenced and cited.</i></p>'),
-                    HTML('<p id="goodCommenter"><i>Failure to do so will lead to exclusion from the portal.</i></p>'),
+                    HTML('<p id="goodCommenter"><i>Failure to do so could lead to exclusion from the portal.</i></p>'),
                     css_class="col-9"),
                 Div(
                     Fieldset(

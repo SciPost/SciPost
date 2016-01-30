@@ -2,13 +2,7 @@
 General style sheet for SciPost
 */
 
-
-@font-face {
-  font-family: 'Merriweather Sans';
-  src: url('/static/font/merriweather-sans/MerriweatherSans-Light.otf');
-//  src: local('../fonts/abc.ttf')
-}
-
+@import url(//fonts.googleapis.com/css?family=Merriweather+Sans);
 
 * {
     box-sizing: border-box;
@@ -56,11 +50,11 @@ hr.hr12 {
 }
 
 .commentcategorychoices {
-  list-style-type: none; // for categorizing comments
+  list-style-type: none; 
 }
 .commentcategorydisplay {
   display: inline-block;
-  margin: 2px; 2px;
+  margin: 2px 2px;
   padding: 1px;
   box-shadow: 1px 1px 3px #888888;
   background: linear-gradient(to right,#fcfcfc, #f0f0f0);
@@ -110,8 +104,6 @@ hr.hr12 {
   margin: 1px;
   padding: 4px;
   display: inline-block;
-//  box-shadow: 1px 1px 3px #888888;
-//  background: linear-gradient(to right,#fcfcfc, #f0f0f0);
 }
 .ratingsinput h4, .ratingsinput form {
   display: inline-block;
@@ -124,7 +116,6 @@ hr.hr12 {
   box-shadow: 1px 1px 3px #888888;
 }
 .ratingsinput ul li {
-//  color: #ffffff;
   display: inline-block;
   margin: 0px;
   padding: 0px 4px;
@@ -159,24 +150,50 @@ hr.hr12 {
   column-rule-width: 1px;
 }
 
+.flex-container {
+  display: -webkit-flex;
+  display: flex;
+  flex-wrap: wrap;
+}
+.flex-greybox {
+  background-color: #f4f4f4; 
+  margin: 10px;
+  padding: 10px;
+}
+.flex-greybox320 {
+  background-color: #f4f4f4; 
+  width: 320px;
+  margin: 10px;
+  padding: 10px;
+}
+.flex-whitebox {
+  margin: 10px;
+  padding: 10px;
+}
+
 
 body {
-//  font-family: Verdana, sans-serif; 
-//  font-family: Arial, sans-serif; 
-//  font-family: Helvetica sans-serif; 
-//  font-family: Helvetica Neue, sans-serif; 
-//  font-family: Merriweather, sans-serif;
-//  font-size: 80%;
-  font-family: Merriweather, sans-serif;
-  font-weight: 400;
+/*  font-family: Merriweather, sans-serif; */
+  font-family: 'Merriweather Sans';
+  font-weight: lighter;
+  font-size: 80%;
   margin: 0px;
   padding: 0px;
   background-color: #ffffff;
 }
 
+body section div.sectionbox {
+  width: 300px;
+  background-color: #f4f4f4;
+  margin: 10px;
+  padding: 10px;
+  display: inline-block;
+  vertical-align: top;
+}
+
 a {
   color: #eeeeee;
-//  text-decoration: underline;
+/*  text-decoration: underline; */
   target: _parent;
 }
 a:hover {
@@ -184,41 +201,35 @@ a:hover {
   text-decoration: underline;
 }
 
-
-header {
-//  background-color: #333333;
-//  background-color: #102040;
-//  background: linear-gradient(to right,#002240, #003360);
-//  background: linear-gradient(to right,#103050, #204060);
-//  background-color: rgb(18, 52, 85);
+.submitComment {
   background-color: #002B49;
   color: #ffffff;
-//  border: 1px solid grey; border-radius:5px;
+  border: 1px solid #FFA300;
+  padding: 5px;
+}
+
+header {
+  background-color: #002B49;
+  color: #ffffff;
   border: 0px solid grey; border-radius:0px;
-//  margin: 5px;
   margin: 0px;
-  padding: 0px; 5px;
-//  text-shadow: 2px 2px 4px #222222;
+  padding: 0px 5px;
 }
 header h1 {
   font-size: 50px;
   font-weight: 400;
   margin: 10px;
   padding: 10px;
-//    text-shadow: 1px 1px 2px #999999;
 }
 header a {
   text-decoration: none;
-//  border: 1px solid white;
 }
 header a:hover {
   color: #ffffff;
-//  text-decoration: underline;
 }
 header img {
   margin: 10px 20px;
   padding: 0px;
-//  border: 1px solid white;
 }
 header p {
   border: 0px solid white;
@@ -226,14 +237,8 @@ header p {
 }
 
 nav {
-//  background-color:#cccccc;
-//  background-color:#dddddd;
-//  background-color:#e7ebf0;
-//  background-color:#ffffff;
   background-color: #f0f0f0;
-//  border: 1px solid grey; border-radius:5px;
-  border: 0px solid grey; border-radius:0px;
-//  margin:5px; 
+  color: #002B49;
   margin:0px; 
   padding:0px;
   float:center;
@@ -249,41 +254,30 @@ nav ul li {
   display: inline;
   margin: 5px;
   padding: 5px;
-//  background-color: #444444;
-//  background-color: #bbbbbb;
   background-color: #204080;
-//  color: #dddddd;
-  color: #222222;
+  color: #002B49;
+/*  color: #222222; */
   float: center;
   clear: both;
 }
 nav a {
-//  margin: 2px;
   margin: 5px;
   padding: 5px;
-//  background-color: #444444;
-//  background-color: #153060;
-//  background-color: #601015;
-//  background-color: #ffffff;
   background-color: #f0f0f0;
-//  color: #dddddd;
-  color: #000000;
-//  text-decoration: underline;
+  color: #002B49;
+/*  color: #000000; */
   text-decoration: none;
   display: inline-block;
   target: _parent;
-//  text-shadow: 2px 2px 4px #222222;
 }
 nav a:visited {
-//  color: #eeeeee;
-  color: #000000;
+  color: #002B49;
+/*  color: #000000; */
 }
 nav a:hover {
-//  color: #ffffff;
   color: #000000;
-//  text-decoration: underline;
+/*  color: #FFA300 */
   text-decoration: none;
-//  background-color: #eeeeee;
   background-color: #ffffff;
 }
 nav a:active {
@@ -291,7 +285,7 @@ nav a:active {
 }
 nav p {
   display: inline-block;
-  margin: 0px;
+  margin: 10px;
   padding: 0px;
 }
 nav form {
@@ -299,37 +293,24 @@ nav form {
 }
 
 p#goodCommenter {
-  font-size: 80%;
+  font-size: 90%;
 }
 
 section {
-//  color: #eeeeee;
   color: #111111;
-//  background-color:#666666;
-//  background-color: #eeeeee;
   background-color: white;
-  border: 1px solid grey; border-radius: 1px;
+/*  border: 1px solid grey; border-radius: 1px; */
   margin: 25px 15px; 
   padding: 10px; 
-//  text-shadow: 1px 1px 1px #222222;
-//  text-shadow: 0px 0px 1px #222222;
-//  width: 800px;
   text-align: justify;
 }
 section a {
-//  color: #eeeeee;
-//  color: #222222;
   color: #103050;
-//  text-decoration: underline;
   text-decoration: none;
   target: _parent;
 }
 section a:hover {
-//  color: #ffffff;
-//  color: #000000;
-//  color: #404080;
   color: #103050;
-//  font-weight: bold;
   text-decoration: underline;
 }
 section div {
@@ -340,8 +321,7 @@ section div {
 section h1, h2, h3, h4, h5, h6 {
   margin: 0px;
   padding: 6px 2px;
-  color: #103050;
-//  text-shadow: 2px 2px 4px #222222;
+/*  color: #103050; */
   text-shadow: 0px 0px 0px #222222;
   font-weight: 500;
 }
@@ -350,10 +330,6 @@ section form {
   padding: 0px;
 }
 section form label {
-//  color: #dddddd;
-//  color: #222222;
-//  color: #102040;
-//  color: #ffffff;
   color: black;
   font-weight: 400;
 }
@@ -361,9 +337,7 @@ section form ul li {
   padding: 0px;
 }
 section form ul li label {
-//  color: #ffffff;
   color: black;
-//  color: #102040;
 }
 section p {
   margin: 2px;
@@ -374,8 +348,6 @@ section table {
   padding: 0px;
 }
 section table th, td {
-//  color: #dddddd;
-//  color: #222222;
   color: #102040;
   text-align: left;
   padding: 0px;
@@ -392,15 +364,12 @@ section ul.ratingsdata {
   display: inline-block;
   padding: 2px;
   margin: 2px;
-//  background-color: #303030;
-//  background-color: #cccccc;
   background-color: #204080;
   color: #ffffff;
   border-radius: 2px;
   font-size: 90%;
 }
 section ul.ratingsdata li{
-//  display: inline;
   padding: 2px 2px;
   color: #ffffff;
 }
@@ -408,15 +377,12 @@ section form.ratingsdata ul {
   display: inline-block;
   padding: 2px;
   margin: 2px;
-//  background-color: #333333;
-//  background-color: #cccccc;
   background-color: #204080;
   color: #ffffff;
   border-radius: 2px;
   font-size: 90%;
 }
 section form.ratingsdata ul li {
-//  display: inline;
   padding: 0px 2px; 
   color: #ffffff;
 }
@@ -433,10 +399,6 @@ article {
 }
 
 footer {
-//  background-color:#333333;
-//  background-color:#102040;
-//  background: linear-gradient(to left,#002240, #003360);
-//  background: linear-gradient(to left,#103050, #204060);
   background-color: #002B49;
   color: #ffffff;
   border: 1px solid grey; border-radius:1px;
@@ -445,7 +407,6 @@ footer {
 }
 footer a {
   color: #eeeeee;
-//  text-decoration: underline;
 }
 footer a:hover {
   color: #ffffff;
@@ -453,15 +414,11 @@ footer a:hover {
 }
 
 input, textarea {
-//  background-color: #305090;
   background-color: #f8f8f8;
-//  color: white;
   color: black;
-//  border: 1px solid white; border-radius: 3px;
   border: 1px solid black; border-radius: 1px;
 }
 input[type='text'], input[type='URL'], textarea {
-//  width: 400px;
   width: 80%;
   max-width: 800px;
   min-width: 200px;
@@ -471,13 +428,8 @@ input:hover {
 }
 
 select {
-//  background-color: #111111;
-//  background-color: #333333;
-//  background-color: #204080;
-//  color: white;
   background-color: #f8f8f8;
   color: black;
-//  border: 1px solid white;
   border: 1px solid black;
 }
 
@@ -488,23 +440,25 @@ select {
 }
 
 #journalsannouncesmall {
-  background-color: #880000;
-  color: #ffffff;
-  padding: 5px;
+/*  background-color: #880000; */
+  background-color: #002B49;
+  color: #FFA300;
+  padding: 10px;
   font-size: 90%;
   text-align: center;
-  animation-name: journalsannounceanim;
-  animation-duration: 2s;
-  animation-iteration-count: infinite;
+/*  animation-name: journalsannounceanim; */
+/*  animation-duration: 2s; */
+/*  animation-iteration-count: infinite; */
 }
 #journalsannounce {
-  background-color: #880000;
-  color: #ffffff;
+/*  background-color: #880000; */
+  background-color: #002B49;
+  color: #FFA300;
   padding: 20px;
   font-size: 150%;
   text-align: center;
-  animation-name: journalsannounceanim;
-  animation-duration: 2s;
-  animation-iteration-count: infinite;
+/*  animation-name: journalsannounceanim; */
+/*  animation-duration: 2s; */
+/*  animation-iteration-count: infinite; */
 }
 

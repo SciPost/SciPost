@@ -35,7 +35,6 @@ def index(request):
     context = {'commentary_search_form': commentary_search_form}
     return render(request, 'scipost/index.html', context)
 
-
 ###############
 # Information
 ###############
