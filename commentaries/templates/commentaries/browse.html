@@ -36,32 +36,17 @@
     </div>
   </div>
 
-  {% if commentary_search_list %}
+  {% if commentary_list %}
   <br />
-  <h3>Search results:</h3>
+  <h3>Commentaries in {{ discipline }} in the last {{ nrweeksback }} weeks:</h3>
   <ul>
-    {% for commentary in commentary_search_list %}
+    {% for commentary in commentary_list %}
     <li><a href="{% url 'commentaries:commentary' commentary.id %}">{{ commentary.pub_title }}</a> by {{ commentary.author_list }} (published {{ commentary.pub_date }}) </li>
     {% endfor %}
   </ul>
-  {% elif form.has_changed %}
-  <h3>No match found for your search query.</h3>
   {% endif %}
 
 </section>
-
-{% if commentary_recent_list %}
-<section>
-  <hr class="hr12">
-  <h2>Recently active Commentaries:</h2>
-  <ul>  
-    {% for commentary in commentary_recent_list %}
-    <li><a href="{% url 'commentaries:commentary' commentary.id %}">{{ commentary.pub_title }}</a> by {{ commentary.author_list }} (published {{ commentary.pub_date }}) </li>
-    {% endfor %}
-  </ul>
-</section>
-{% endif %}
-
 
 {% endif %} <!-- Temporary strip -->
 

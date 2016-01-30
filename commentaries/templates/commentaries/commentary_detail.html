@@ -23,6 +23,7 @@
 <!-- Temporary strip -->
 {% if user.is_authenticated %}
 
+<!--
 <section>
   <hr class="hr12">
   <div class="row">
@@ -33,6 +34,13 @@
       <br/>
       <button id="ratingsbutton">Toggle ratings view</button>
     </div>
+  </div>
+</section>
+-->
+<section>
+  <div class="flex-greybox">
+    <h1>SciPost Commentary Page &nbsp; (for non-SciPost publications)</h1>
+    <button id="ratingsbutton">Toggle ratings view</button>
   </div>
 </section>
 
@@ -82,7 +90,9 @@
 {% if reports %}
 <section>
   <hr class="hr12">
-  <h2>Reports on this publication</h2>
+  <div class="flex-greybox">
+    <h2>Reports on this publication</h2>
+  </div>
   <hr>
 </section>
 {% endif %}
@@ -90,13 +100,9 @@
 {% if comments %}
 <section>
   <hr class="hr12">
-  <div class="row">
-    <div class="col-10">
-      <h2>Comments on this publication</h2>
-    </div>
-    <div class="col-2">
-      <button id="commentsbutton">Toggle comments view</button>
-    </div>
+  <div class="flex-greybox">
+    <h2>Comments on this publication</h2>
+    <button id="commentsbutton">Toggle comments view</button>
   </div>
 
   <div id="commentslist">
@@ -238,7 +244,9 @@
 {% if user.is_authenticated and commentary.open_for_commenting and user.contributor.rank > 0 %}
 <section>
   <hr class="hr12">
-  <h1>Contribute a Comment:</h1>
+  <div class="flex-greybox">
+    <h1>Contribute a Comment:</h1>
+  </div>
   <form action="{% url 'commentaries:commentary' commentary.id %}" method="post">
     {% csrf_token %}
     {% load crispy_forms_tags %}

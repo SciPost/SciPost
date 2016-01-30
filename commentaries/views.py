@@ -25,6 +25,9 @@ title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
 ################
 
 
+def howto(request):
+    return render(request, 'commentaries/howto.html')
+
 def request_commentary(request):
     # commentary pages can only be requested by registered contributors:
     if request.user.is_authenticated():
@@ -36,6 +39,7 @@ def request_commentary(request):
                 commentary = Commentary (
                     requested_by = contributor,
                     type = form.cleaned_data['type'],
+                    discipline = form.cleaned_data['discipline'],
                     pub_title = form.cleaned_data['pub_title'],
                     arxiv_link = form.cleaned_data['arxiv_link'],
                     pub_DOI_link = form.cleaned_data['pub_DOI_link'],
@@ -128,6 +132,28 @@ def commentaries(request):
     commentary_recent_list = Commentary.objects.filter(vetted=True, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7))
     context = {'form': form, 'commentary_search_list': commentary_search_list, 'commentary_recent_list': commentary_recent_list }
     return render(request, 'commentaries/commentaries.html', context)
+
+
+def browse(request, discipline, nrweeksback):
+    if request.method == 'POST':
+        form = CommentarySearchForm(request.POST)
+        if form.is_valid() and form.has_changed():
+            commentary_search_list = Commentary.objects.filter(
+                pub_title__contains=form.cleaned_data['pub_title_keyword'],
+                author_list__contains=form.cleaned_data['pub_author'],
+                pub_abstract__contains=form.cleaned_data['pub_abstract_keyword'],
+                vetted=True,
+                )
+            commentary_search_list.order_by('-pub_date')
+        else:
+            commentary_search_list = [] 
+        context = {'form': form, 'commentary_search_list': commentary_search_list }
+        return HttpResponseRedirect(request, 'commentaries/commentaries.html', context)
+    else:
+        form = CommentarySearchForm()
+    commentary_list = Commentary.objects.filter(vetted=True, discipline=discipline, latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
+    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 'commentary_list': commentary_list }
+    return render(request, 'commentaries/browse.html', context)
 
 
 def commentary_detail(request, commentary_id):

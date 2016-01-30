@@ -1,0 +1,29 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Commentaries{% endblock pagetitle %}
+
+{% block headsup %}
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
+
+<section>
+  <hr class="hr12">
+  <h1>SciPost Commentaries how-to</h1>
+  <h3>Activation procedure</h3>
+  <p>A Commentary Page can be requested by any registererd SciPost Contributor for any published scientific paper or arXiv preprint (at least 8 weeks old) by filling the <a href="{% url 'commentaries:request_commentary' %}">Commentary request form</a>. After vetting by an Editor, the Commentary Page is activated and made open for Comments from registered SciPost Contributors. Authors can reply to Comments, and Contributors can add Comments to the chain.</p>
+  <ul>
+    <li><a href="{% url 'commentaries:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
+  </ul>
+  <br>
+  <h3>Ratings</h3>
+  <p>The original publication subject to the Commentary can be rated by Contributors. An aggregate of these ratings is displayed next to the publication's summary info. All Comments and Replies are similarly open to Contributor rating. Ratings in aggregated form are made publicly available.</p>
+</section>
+
+{% endif %} <!-- Temporary strip -->
+
+{% endblock bodysup %}

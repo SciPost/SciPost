@@ -34,17 +34,6 @@ AUTHOR_REPLY_REFUSAL_CHOICES = (
     )
 
 
-#class CommentForm(forms.Form):
-##    category = forms.MultipleChoiceField(choices=COMMENT_CATEGORIES, widget=forms.CheckboxSelectMultiple(), label='Please categorize your comment (multiple choices allowed):')
-#    is_rem = forms.BooleanField(required=False, label='remark')
-#    is_que = forms.BooleanField(required=False, label='question')
-#    is_ans = forms.BooleanField(required=False, label='answer to question')
-#    is_obj = forms.BooleanField(required=False, label='objection')
-#    is_rep = forms.BooleanField(required=False, label='reply to objection')
-#    is_val = forms.BooleanField(required=False, label='validation or rederivation')
-#    is_lit = forms.BooleanField(required=False, label='pointer to related literature')
-#    is_sug = forms.BooleanField(required=False, label='suggestions for further work')
-#    comment_text = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols':80}), label='', required=True) # need TextField but doesn't exist
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
@@ -60,7 +49,8 @@ class CommentForm(forms.ModelForm):
                     Field('comment_text'), 
                     HTML('<p>In your comment, you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.</p>'),
                     HTML('<p id="goodCommenter"><i>Be professional. Only serious and meaningful comments will be vetted through.</i></p>'),
-                    HTML('<p id="goodCommenter"><i> By clicking on Submit, the commenter certifies that all sources used are duly referenced and cited. Failure to do so will lead to exclusion from the portal.</i></p>'),
+                    HTML('<p id="goodCommenter"><i>By clicking on Submit, the commenter certifies that all sources used are duly referenced and cited.</i></p>'),
+                    HTML('<p id="goodCommenter"><i>Failure to do so will lead to exclusion from the portal.</i></p>'),
                     css_class="col-9"),
                 Div(
                     Fieldset(
@@ -85,9 +75,6 @@ class VetCommentForm(forms.Form):
     email_response_field = forms.CharField(widget=forms.Textarea(), label='Justification (optional)', required=False)
 
 
-#class AuthorReplyForm(forms.Form):
-#    reply_text = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols':80}), label='', required=True) 
-## need TextField but doesn't exist
 class AuthorReplyForm(forms.ModelForm):
     class Meta:
         model = AuthorReply
