@@ -8,11 +8,12 @@
 {% if user.is_authenticated %}
 
 <section>
-  <hr class="hr12">
-  <h1>SciPost Submissions</h1>
-
+  <div class="flex-greybox">
+    <h1>SciPost Submissions</h1>
+  </div>
   <br/>
   <h3><a href="{% url 'submissions:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></h3>
+  <br/>
   <p id="journalsannounce">OPEN FOR SUBMISSION STARTING 1 MARCH 2016</p>
 </section>
 

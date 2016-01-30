@@ -1,11 +1,11 @@
 <footer>
   <div class="row">
+    <!-- Temporary strip for online version -->
+    {% if user.is_authenticated %}
     <div class="col-6">
       Copyright &copy; SciPost.org. 
       <a href="mailto:admin@scipost.org">Contact the administrators.</a>  
     </div>
-    <!-- Temporary strip for online version -->
-    {% if user.is_authenticated %}
     <div class="col-6">
       All SciPost content is licensed under the <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a>.
     </div>

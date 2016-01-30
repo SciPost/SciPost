@@ -6,6 +6,9 @@ from django_countries.fields import CountryField
 
 from .models import *
 
+SCIPOST_DISCIPLINES = (
+    ('physics', 'Physics'),
+    )
 
 CONTRIBUTOR_RANKS = (
     # ranks determine the type of Contributor:
@@ -45,11 +48,12 @@ title_dict = dict(TITLE_CHOICES)
 class Contributor(models.Model):
     """ All users of SciPost are Contributors. Permissions determine the sub-types. """
     user = models.OneToOneField(User)
+    # username, password, email, first_name and last_name are inherited from User
     activation_key = models.CharField(max_length=40, default='')
     key_expires = models.DateTimeField(default=timezone.now)
     rank = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_RANKS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    # username, password, email, first_name and last_name are inherited from User
+    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)
     #nationality = CountryField(blank=True)
     country_of_employment = CountryField()

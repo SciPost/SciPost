@@ -4,11 +4,7 @@ from django.contrib.auth.models import User
 
 from .models import *
 
-from scipost.models import Contributor
-
-COMMENTARY_DISCIPLINES = (
-    ('physics', 'Physics'),
-    )
+from scipost.models import *
 
 COMMENTARY_TYPES = (
     ('published', 'published paper'),
@@ -21,7 +17,7 @@ class Commentary(models.Model):
     vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
     type = models.CharField(max_length=9, choices=COMMENTARY_TYPES) # published paper or arxiv preprint
-    discipline = models.CharField(max_length=20, choices=COMMENTARY_DISCIPLINES, default='physics')
+    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     open_for_commenting = models.BooleanField(default=True)
     pub_title = models.CharField(max_length=300, verbose_name='title')
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)
