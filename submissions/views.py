@@ -90,9 +90,9 @@ def submissions(request):
         form = SubmissionSearchForm(request.POST)
         if form.is_valid() and form.has_changed():
             submission_search_list = Submission.objects.filter(
-                title__iexact=form.cleaned_data['title_keyword'],
-                author_list__iexact=form.cleaned_data['author'],
-                abstract__iexact=form.cleaned_data['abstract_keyword'],
+                title__icontains=form.cleaned_data['title_keyword'],
+                author_list__icontains=form.cleaned_data['author'],
+                abstract__icontains=form.cleaned_data['abstract_keyword'],
                 status__gte=1,
                 )
             submission_search_list.order_by('-pub_date')
