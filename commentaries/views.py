@@ -116,9 +116,9 @@ def commentaries(request):
         form = CommentarySearchForm(request.POST)
         if form.is_valid() and form.has_changed():
             commentary_search_list = Commentary.objects.filter(
-                pub_title__contains=form.cleaned_data['pub_title_keyword'],
-                author_list__contains=form.cleaned_data['pub_author'],
-                pub_abstract__contains=form.cleaned_data['pub_abstract_keyword'],
+                pub_title__iexact=form.cleaned_data['pub_title_keyword'],
+                author_list__iexact=form.cleaned_data['pub_author'],
+                pub_abstract__iexact=form.cleaned_data['pub_abstract_keyword'],
                 vetted=True,
                 )
             commentary_search_list.order_by('-pub_date')
@@ -139,9 +139,9 @@ def browse(request, discipline, nrweeksback):
         form = CommentarySearchForm(request.POST)
         if form.is_valid() and form.has_changed():
             commentary_search_list = Commentary.objects.filter(
-                pub_title__contains=form.cleaned_data['pub_title_keyword'],
-                author_list__contains=form.cleaned_data['pub_author'],
-                pub_abstract__contains=form.cleaned_data['pub_abstract_keyword'],
+                pub_title__iexact=form.cleaned_data['pub_title_keyword'],
+                author_list__iexact=form.cleaned_data['pub_author'],
+                pub_abstract__iexact=form.cleaned_data['pub_abstract_keyword'],
                 vetted=True,
                 )
             commentary_search_list.order_by('-pub_date')
