@@ -7,11 +7,13 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
+
 
 from .models import *
 from .forms import *
@@ -305,6 +307,17 @@ def change_password(request):
     else:
         form = PasswordChangeForm()
     return render (request, 'scipost/change_password.html', {'form': form})
+
+
+def reset_password_confirm(request, uidb64=None, token=None):
+    return password_reset_confirm(request, template_name='scipost/reset_password_confirm.html',
+                                  uidb64=uidb64, token=token, post_reset_redirect=reverse('scipost:login'))
+
+def reset_password(request):
+    return password_reset(request, template_name='scipost/reset_password.html',
+        email_template_name='scipost/reset_password_email.html',
+        subject_template_name='scipost/reset_password_subject.txt',
+        post_reset_redirect=reverse('scipost:login'))
 
 
 def update_personal_data(request):

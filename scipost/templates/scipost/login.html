@@ -17,6 +17,8 @@
 	</table>
 	<input type="submit" value="Login" />
       </form>
+      <br/>
+      <a href="{% url 'scipost:reset_password' %}">Forgot your password?</a>
     </div>
     <!-- Temporary strip for online version -->
     {% if user.is_authenticated %}
