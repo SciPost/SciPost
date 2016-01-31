@@ -32,6 +32,13 @@ class Utils(object):
             return False
 
     @classmethod
+    def email_already_taken(cls):
+        if User.objects.filter(email=cls.form.cleaned_data['email']).exists():
+            return True
+        else:
+            return False
+
+    @classmethod
     def create_and_save_contributor(cls):
         user = User.objects.create_user (
             first_name = cls.form.cleaned_data['first_name'],

@@ -135,6 +135,8 @@ def register(request):
                 return render(request, 'scipost/register.html', {'form': form, 'errormessage': 'Your passwords must match'})
             if Utils.username_already_taken():
                 return render(request, 'scipost/register.html', {'form': form, 'errormessage': 'This username is already in use'})
+            if Utils.email_already_taken():
+                return render(request, 'scipost/register.html', {'form': form, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor()
             Utils.send_registration_email()
             return HttpResponseRedirect('thanks_for_registering')
