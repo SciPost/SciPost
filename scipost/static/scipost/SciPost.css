@@ -157,10 +157,14 @@ hr.hr12 {
 }
 .flex-container #headerflex {
   align-contents: center;
+  justify-content: space-between;
+  margin: 0px;
+  padding: 0px;
 }
 .flex-logobox {
   align-self: center;
-  margin: 10px;
+  margin: 0px;
+  padding: 0px;
 }
 .flex-blurbbox {
   margin: 0px;
