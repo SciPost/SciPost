@@ -304,7 +304,7 @@ def change_password(request):
                 return render(request, 'scipost/change_password.html', {'form': form, 'errormessage': 'Your new password entries must match'})
             request.user.set_password(form.cleaned_data['password_new'])
             request.user.save()
-            context = {'acknowledgment': True, 'form': PasswordChangeForm()}
+            context = {'acknowledgement': True, 'form': PasswordChangeForm()}
             return render(request, 'scipost/change_password.html', context)
     else:
         form = PasswordChangeForm()

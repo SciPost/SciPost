@@ -69,11 +69,6 @@ def vet_commentary_requests(request):
     form = VetCommentaryForm()
     context = {'contributor': contributor, 'commentary_to_vet': commentary_to_vet, 'form': form }
     return render(request, 'commentaries/vet_commentary_requests.html', context)
-    #return render (request, 'commentaries/no_commentary_req_to_vet.html')
-
-
-#def no_commentary_req_to_vet(request):
-#    return render (request, 'commentaries/no_commentary_req_to_vet.html')    
 
 
 def vet_commentary_request_ack(request, commentary_id):
@@ -84,6 +79,7 @@ def vet_commentary_request_ack(request, commentary_id):
             if form.cleaned_data['action_option'] == '1':
                 # accept the commentary as is
                 commentary.vetted = True
+                commentary.vetted_by = Contributor.objects.get(user=request.user)
                 commentary.save()
                 email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has been activated. You are now welcome to submit your comments.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'commentaries@scipost.org', [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['commentaries@scipost.org'])

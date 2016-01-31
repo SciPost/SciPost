@@ -1,22 +1,19 @@
 {% load staticfiles %}
     <header>
-      <div class="row">
-<!-- Temporary strip -->
-	{% if user.is_authenticated %}
-	<div class="col-4">
-	  <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width='240px' /></a>
-	</div>
-	<div class="col-3">
-	</div>
-
-	<div class="col-5">
-	  <p>
-	    <i>The complete scientific publication portal</i><br />
-	    <i>Managed by professional scientists</i><br />
-	    <i>For open, global and perpetual access to science</i>
-	  </p>
-	</div>
-	{% endif %}
+    <!-- Temporary strip -->
+    {% if user.is_authenticated %}
+    <div class="flex-container" id="headerflex">
+      <div class="flex-logobox">
+	<a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width='240px' /></a>
       </div>
+      <div class="flex-blurbbox">
+	<p>
+	  <i>The complete scientific publication portal</i><br />
+	  <i>Managed by professional scientists</i><br />
+	  <i>For open, global and perpetual access to science</i>
+	</p>
+      </div>
+      
+      {% endif %}
     </header>
 

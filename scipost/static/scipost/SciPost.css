@@ -155,6 +155,19 @@ hr.hr12 {
   display: flex;
   flex-wrap: wrap;
 }
+.flex-container #headerflex {
+  align-contents: center;
+}
+.flex-logobox {
+  align-self: center;
+  margin: 10px;
+}
+.flex-blurbbox {
+  margin: 0px;
+  padding: 0px;
+  align-self: center;
+  margin-left: auto;
+}
 .flex-greybox {
   background-color: #f4f4f4; 
   margin: 10px;
