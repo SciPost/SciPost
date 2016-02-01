@@ -37,20 +37,20 @@ AUTHOR_REPLY_REFUSAL_CHOICES = (
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug', 'comment_text', 'anonymous']
+        fields = ['is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug', 'comment_text', 'remarks_for_editors', 'anonymous']
 
     def __init__(self, *args, **kwargs):
         super(CommentForm, self).__init__(*args, **kwargs)
         self.fields['comment_text'].widget.attrs.update({'placeholder': 'NOTE: only serious and meaningful Comments will be accepted.'})
+        self.fields['remarks_for_editors'].widget.attrs.update({'rows': 3, 'placeholder': '(these remarks will not publicly visible)'})
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
                 Div(
                     Field('comment_text'), 
                     HTML('<p>In your comment, you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.</p>'),
-                    HTML('<p id="goodCommenter"><i>Be professional. Only serious and meaningful comments will be vetted through.</i></p>'),
-                    HTML('<p id="goodCommenter"><i>By clicking on Submit, the commenter certifies that all sources used are duly referenced and cited.</i></p>'),
-                    HTML('<p id="goodCommenter"><i>Failure to do so could lead to exclusion from the portal.</i></p>'),
+                    HTML('<p id="goodCommenter"><i>Be professional. Only serious and meaningful comments will be vetted through.</i></p><br/>'),
+                    Field('remarks_for_editors'),
                     css_class="col-9"),
                 Div(
                     Fieldset(
@@ -61,6 +61,7 @@ class CommentForm(forms.ModelForm):
                     Div(
                         Field('anonymous'),
                         Submit('submit', 'Submit your Comment for vetting', css_class="submitComment"),
+                        HTML('<p id="goodCommenter"><i>By clicking on Submit, the commenter certifies that all sources used are duly referenced and cited. Failure to do so could lead to exclusion from the portal.</i></p>'),
                         ),
                     css_class="col-3"),
                 css_class="row"),

@@ -130,6 +130,7 @@ def submission_detail(request, submission_id):
                 is_lit = form.cleaned_data['is_lit'],
                 is_sug = form.cleaned_data['is_sug'],
                 comment_text = form.cleaned_data['comment_text'],
+                remarks_for_editors = form.cleaned_data['remarks_for_editors'],
                 date_submitted = timezone.now(),
                 )
             newcomment.save()

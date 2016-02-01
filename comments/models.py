@@ -50,6 +50,7 @@ class Comment(models.Model):
     is_lit = models.BooleanField(default=False, verbose_name='pointer to related literature')
     is_sug = models.BooleanField(default=False, verbose_name='suggestion for further work')
     comment_text = models.TextField()
+    remarks_for_editors = models.TextField(default='', blank=True, verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted')
     # Aggregates of ratings applied to this comment:
     nr_relevance_ratings = models.IntegerField(default=0)

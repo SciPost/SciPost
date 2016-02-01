@@ -48,7 +48,9 @@
 </script>
 
 <section>
-  <h1>Request Activation of a Commentary Page:</h1>
+  <div class="flex-greybox">
+    <h1>Request Activation of a Commentary Page:</h1>
+  </div>
   <form action="{% url 'commentaries:request_commentary' %}" method="post">
     {% csrf_token %}
     <table>
