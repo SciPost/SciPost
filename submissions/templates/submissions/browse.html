@@ -2,6 +2,10 @@
 
 {% block pagetitle %}: Submissions{% endblock pagetitle %}
 
+{% block headsup %}
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+{% endblock headsup %}
+
 {% block bodysup %}
 
 <!-- Temporary strip for online version -->
@@ -20,9 +24,7 @@
       <form action="{% url 'submissions:submissions' %}" method="post">
 	{% csrf_token %}
 	<table>
-	  <ul>
-	    {{ form.as_table }}
-	  </ul>
+	  {{ form.as_table }}
 	</table>
 	<input type="submit" name="Submit" />
       </form>
@@ -30,40 +32,23 @@
     <div class="flex-greybox320">
       <h2>View SciPost Submissions</h2>
       <ul>
-        <li>Physics: last <a href="{% url 'submissions:browse' discipline='physics' nrweeksback=1 %}">week</a> <a href="{% url 'submissions:browse' discipline='physics' nrweeksb\
-ack=4 %}">month</a> <a href="{% url 'submissions:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
+	<li>Physics: last <a href="{% url 'submissions:browse' discipline='physics' nrweeksback=1 %}">week</a> <a href="{% url 'submissions:browse' discipline='physics' nrweeksback=4 %}">month</a> <a href="{% url 'submissions:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
       </ul>
     </div>
   </div>
 
-  {% if submission_search_list %}
+  {% if submission_list %}
   <br />
-  <hr class="hr12">
-  <h3>Search results:</h3>
+  <h3>Submissions in {{ discipline }} in the last {{ nrweeksback }} weeks:</h3>
   <ul>
-    {% for submission in submission_search_list %}
+    {% for submission in submission_list %}
     <li><a href="{% url 'submissions:submission' submission.id %}">{{ submission.title }}</a> by {{ submission.author_list }} (published {{ submission.submission_date }}) </li>
     {% endfor %}
   </ul>
-  {% elif form.has_changed %}
-  <h3>No match found for your search query.</h3>
   {% endif %}
 
 </section>
 
-{% if submission_recent_list %}
-<section>
-  <hr class="hr12">
-  <h2>Recent Submissions:</h2>
-  <ul>  
-    {% for submission in submission_recent_list %}
-    <li><a href="{% url 'submissions:submission' submission.id %}">{{ submission.title }}</a> by {{ submission.author_list }} (submitted {{ submission.submission_date }}) </li>
-    {% endfor %}
-  </ul>
-</section>
-{% endif %}
-
-
-{% endif %} <!-- temporary strip -->
+{% endif %} <!-- Temporary strip -->
 
 {% endblock bodysup %}

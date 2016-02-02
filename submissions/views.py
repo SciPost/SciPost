@@ -38,6 +38,7 @@ def submit_manuscript(request):
             submission = Submission (
                 submitted_by = submitted_by,
                 submitted_to_journal = form.cleaned_data['submitted_to_journal'],
+                discipline = form.cleaned_data['discipline'],
                 domain = form.cleaned_data['domain'],
                 specialization = form.cleaned_data['specialization'],
                 status = '0', 
@@ -108,6 +109,27 @@ def submissions(request):
     context = {'form': form, 'submission_search_list': submission_search_list, 'submission_recent_list': submission_recent_list }
     return render(request, 'submissions/submissions.html', context)
 
+
+def browse(request, discipline, nrweeksback):
+    if request.method == 'POST':
+        form = SubmissionSearchForm(request.POST)
+        if form.is_valid() and form.has_changed():
+            submission_search_list = Submission.objects.filter(
+                title__icontains=form.cleaned_data['title_keyword'],
+                author_list__icontains=form.cleaned_data['author'],
+                abstract__icontains=form.cleaned_data['abstract_keyword'],
+                vetted=True,
+                )
+            submission_search_list.order_by('-submission_date')
+        else:
+            submission_search_list = []
+        context = {'form': form, 'submission_search_list': submission_search_list }
+        return HttpResponseRedirect(request, 'submissions/submissions.html', context)
+    else:
+        form = SubmissionSearchForm()
+    submission_list = Submission.objects.filter(vetted=True, discipline=discipline, latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
+    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 'submission_list': submission_list }
+    return render(request, 'submissions/browse.html', context)
 
 
 def submission_detail(request, submission_id):

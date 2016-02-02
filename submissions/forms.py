@@ -15,7 +15,7 @@ from ratings.models import *
 class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
-        fields = ['submitted_to_journal', 'domain', 'specialization', 'title', 'author_list', 'abstract', 'arxiv_link']
+        fields = ['discipline', 'submitted_to_journal', 'domain', 'specialization', 'title', 'author_list', 'abstract', 'arxiv_link']
 
     def __init__(self, *args, **kwargs):
         super(SubmissionForm, self).__init__(*args, **kwargs)

@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     # Submissions
     url(r'^$', views.submissions, name='submissions'),
+    url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]+)/$', views.browse, name='browse'),
     url(r'^sub_and_ref_procedure$', views.sub_and_ref_procedure, name='sub_and_ref_procedure'),
     url(r'^submission/(?P<submission_id>[0-9]+)/$', views.submission_detail, name='submission'),
     url(r'^submit_manuscript$', views.submit_manuscript, name='submit_manuscript'),
