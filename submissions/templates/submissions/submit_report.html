@@ -6,19 +6,15 @@
 
 {% if user.is_authenticated %}
 <section>
-  <h1>Submit a Report on a SciPost Submission</h1>
-</section>
+  <div class="flex-greybox">
+    <h1>Submit a Report on a SciPost Submission</h1>
+  </div>
 
-<section>
-  <h2>Submission summary and link</h2>
-  <br>
-  <table>
-    <tr><td>Title: </td><td>{{ submission.title }}</td></tr>
-    <tr><td>Author(s): </td><td>{{ submission.author_list }}</td></tr>
-    <tr><td>arXiv link: </td><td>{{ submission.arxiv_link }}</td></tr>
-    <tr><td>Date submitted: </td><td>{{ submission.submission_date }}</td></tr>
-    <tr><td>Submitted to: </td><td>{{ submission.submitted_to_journal }}</td></tr>
-  </table>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h2>Submission summary and link</h2>
+  </div>
+  {{ submission.header_as_table|safe }}
   <br />
   <h3>Abstract:</h3>
   <p>{{ submission.abstract }}</p>
@@ -26,7 +22,10 @@
 </section>
 
 <section>
-  <h1>Your report:</h1>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Your report:</h1>
+  </div>
   <form action="{% url 'submissions:submit_report' submission.id %}" method="post">
     {% csrf_token %}
     <table>

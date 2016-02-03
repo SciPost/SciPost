@@ -55,3 +55,22 @@ class Commentary(models.Model):
         header += '<tr><td>Date: </td><td>&nbsp;</td><td>' + str(self.pub_date) + '</td></tr>'
         header += '</table>'
         return header
+
+    def header_as_li (self):
+#        header = '<li><table><tr><td><a href="{% url \'commentaries:commentary\' ' + str(self.id) + ' %}">' + self.pub_title + '</a></td></tr>'
+#        header += '<tr><td>by ' + self.author_list + '</td></tr><tr><td> (published ' + str(self.pub_date) + ')</td></tr></table></li>'
+#        header = '<li><ul><li><a href="{% url \'commentaries:commentary\' ' + str(self.id) + ' %}">' + self.pub_title + '</a></li>'
+#        header += '<li>by ' + self.author_list + '</li><li> (published ' + str(self.pub_date) + ')</li></ul></li>'
+#        header = '<li><p><a href="{% url \'commentaries:commentary\' ' + str(self.id) + ' %}">' + self.pub_title + '</a></p>'
+#        header += '<p>by ' + self.author_list + '</p><p> (published ' + str(self.pub_date) + ')</p></li>'
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0"><p><a href="/commentaries/commentary/' + str(self.id) + '">' + self.pub_title + '</a></p>'
+        header += '<p>by ' + self.author_list + '</p><p> (published ' + str(self.pub_date) + ')</p></div>'
+        header += '<div class="flex-whitebox0"><p>Latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
+        header += '</div></li>'
+        #header = '<li>'
+        #header += '<p><a href="{% url \'commentaries:commentary\' commentary_id=' + str(self.id) + ' %}">' + self.pub_title + '</a></p>'
+        #header += '<p>by ' + self.author_list + '</p><p> (published ' + str(self.pub_date) + ')</p>'
+        #header += '<p>Latest activity: ' + str(self.latest_activity) + '</p>'
+        #header += '</li>'
+        return header

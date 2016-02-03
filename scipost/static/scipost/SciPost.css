@@ -187,7 +187,10 @@ hr.hr12 {
   margin: 10px;
   padding: 10px;
 }
-
+.flex-whitebox0 {
+  margin: 0px;
+  padding: 0px;
+}
 
 body {
 /*  font-family: Merriweather, sans-serif; */

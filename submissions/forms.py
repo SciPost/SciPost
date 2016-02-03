@@ -58,7 +58,14 @@ REPORT_REFUSAL_CHOICES = (
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
-        fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes', 'recommendation']
+        fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes', 'formatting', 'grammar', 'recommendation']
+    def __init__(self, *args, **kwargs):
+        super(ReportForm, self).__init__(*args, **kwargs)
+        self.fields['strengths'].widget.attrs.update({'placeholder': 'Give a point-by-point (numbered 1-, 2-, ...) list of the paper\'s strengths', 'rows': 10, 'cols': 100})
+        self.fields['weaknesses'].widget.attrs.update({'placeholder': 'Give a point-by-point (numbered 1-, 2-, ...) list of the paper\'s weaknesses', 'rows': 10, 'cols': 100})
+        self.fields['report'].widget.attrs.update({'placeholder': 'Your general remarks', 'rows': 10, 'cols': 100})
+        self.fields['requested_changes'].widget.attrs.update({'placeholder': 'Give a numbered (1-, 2-, ...) list of specifically requested changes', 'cols': 100})
+
 
 class VetReportForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect, choices=REPORT_ACTION_CHOICES, required=True, label='Action')

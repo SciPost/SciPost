@@ -147,9 +147,11 @@ def browse(request, discipline, nrweeksback):
         return HttpResponseRedirect(request, 'commentaries/commentaries.html', context)
     else:
         form = CommentarySearchForm()
-    commentary_list = Commentary.objects.filter(vetted=True, discipline=discipline, latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
-    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 'commentary_list': commentary_list }
-    return render(request, 'commentaries/browse.html', context)
+    commentary_browse_list = Commentary.objects.filter(vetted=True, discipline=discipline, latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
+    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 'commentary_browse_list': commentary_browse_list }
+    #return render(request, 'commentaries/browse.html', context)
+    #return HttpResponseRedirect(request, 'commentaries/commentaries.html', context)
+    return render(request, 'commentaries/commentaries.html', context)
 
 
 def commentary_detail(request, commentary_id):

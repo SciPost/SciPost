@@ -7,16 +7,12 @@
   <script>
   $(document).ready(function(){
 
-    // Looking at the DOM we can see that all the relevant stuff we want to hide/show is packed in a table. Hint: to play around with jquery, go to devtools, and just write your selectors there. $('tbody') will grab the table from the DOM I just mentioned.
-
-    // Hiding all the rows for initial set-up
-    var allToggableRows = $('tr').slice(1)   // Slices off the first element of the array. Read the documentation on this one, its quite useful. Same for .each and .map in upcoming code.
+    var allToggableRows = $('tr').slice(1)
 
     allToggableRows.each(function(index){
-      $(this).hide() // this is the object we're handling in the current iteration of the loop. It is wrapped in $(' ... ') to make it an jQuery object, so that we can call a jQuery function on it like .hide()
+      $(this).hide()
     })
 
-    // Indices to remove in order to show thing named by variable name
     var preprint = [3,5]
     var published = [4]
 

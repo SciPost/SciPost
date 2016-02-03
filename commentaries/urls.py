@@ -6,6 +6,7 @@ urlpatterns = [
     # Commentaries
     url(r'^$', views.commentaries, name='commentaries'),
     url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]+)/$', views.browse, name='browse'),
+    #url(r'^(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]+)/$', views.browse),
     url(r'^howto$', views.howto, name='howto'),
     url(r'^commentary/(?P<commentary_id>[0-9]+)/$', views.commentary_detail, name='commentary'),
     url(r'^request_commentary$', views.request_commentary, name='request_commentary'),

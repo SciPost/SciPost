@@ -195,6 +195,8 @@ def submit_report(request, submission_id):
                 weaknesses = form.cleaned_data['weaknesses'],
                 report = form.cleaned_data['report'],
                 requested_changes = form.cleaned_data['requested_changes'],
+                formatting = form.cleaned_data['formatting'],
+                grammar = form.cleaned_data['grammar'],
                 recommendation = form.cleaned_data['recommendation'],
                 date_submitted = timezone.now(),
                 )

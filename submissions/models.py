@@ -82,6 +82,25 @@ class Submission(models.Model):
 # Reports:
 ###########
 
+REFEREE_QUALIFICATION = (
+    (0, 'not qualified'),
+    (1, 'generally qualified'),
+    (2, 'knowledgeable in this subject'),
+    (3, 'very knowledgeable in this subject'),
+    (4, 'expert in this subject'),
+    )
+ref_qualif_dict = dict(REFEREE_QUALIFICATION)
+
+QUALITY_SPEC = (
+    (0, 'mediocre'),
+    (1, 'below threshold'),
+    (2, 'acceptable'),
+    (3, 'reasonable'),
+    (4, 'good'),
+    (5, 'excellent'),
+    (6, 'perfect'),
+    )
+
 REPORT_REC = (
     (1, 'Publish as Tier I (top 10% of papers in this journal)'),
     (2, 'Publish as Tier II (top 50% of papers in this journal)'),
@@ -102,11 +121,13 @@ class Report(models.Model):
     status = models.SmallIntegerField(default=0)
     submission = models.ForeignKey(Submission)
     author = models.ForeignKey(Contributor)
-    qualification = models.PositiveSmallIntegerField(default=0)
+    qualification = models.PositiveSmallIntegerField(choices=REFEREE_QUALIFICATION, verbose_name="Qualification to referee this: I am ", blank=True)
     strengths = models.TextField()
     weaknesses = models.TextField()
     report = models.TextField()
     requested_changes = models.TextField(verbose_name="requested changes")
+    formatting = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, default=0, verbose_name="Quality of paper formatting")
+    grammar = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, default=0, verbose_name="Quality of English grammar")
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     date_invited = models.DateTimeField('date invited', blank=True, null=True)
     invited_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='invited_by')
