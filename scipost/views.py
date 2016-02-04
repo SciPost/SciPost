@@ -283,7 +283,7 @@ def personal_page(request):
         nr_comments_to_vet = 0
         nr_author_replies_to_vet = 0
         nr_reports_to_vet = 0
-        nr_thesislinks_to_vet = 0
+        nr_thesislink_requests_to_vet = 0
         if contributor.rank >= 2:
             nr_commentary_page_requests_to_vet = Commentary.objects.filter(vetted=False).count()
             nr_comments_to_vet = Comment.objects.filter(status=0).count()
