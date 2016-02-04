@@ -26,6 +26,7 @@ from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment, AuthorReply
 from submissions.models import Submission, Report
+from theses.models import ThesisLink
 
 
 #############
@@ -280,13 +281,15 @@ def personal_page(request):
         nr_comments_to_vet = 0
         nr_author_replies_to_vet = 0
         nr_reports_to_vet = 0
+        nr_thesislinks_to_vet = 0
         if contributor.rank >= 2:
             nr_commentary_page_requests_to_vet = Commentary.objects.filter(vetted=False).count()
             nr_comments_to_vet = Comment.objects.filter(status=0).count()
             nr_author_replies_to_vet = AuthorReply.objects.filter(status=0).count()
             nr_reports_to_vet = Report.objects.filter(status=0).count()
+            nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
         own_comments = Comment.objects.filter(author=contributor)
-        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process, 'own_comments': own_comments}
+        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process, 'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet, 'own_comments': own_comments}
         return render(request, 'scipost/personal_page.html', context)
     else:
         form = AuthenticationForm()

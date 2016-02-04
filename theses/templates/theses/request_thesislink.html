@@ -1,0 +1,20 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: request Thesis Link{% endblock pagetitle %}
+
+{% block bodysup %}
+
+<section>
+  <div class="flex-greybox">
+    <h1>Request Activation of a Thesis Link:</h1>
+  </div>
+  <form action="{% url 'theses:request_thesislink' %}" method="post">
+    {% csrf_token %}
+    <table>
+      {{ form.as_table }}
+    </table>
+    <input type="submit" value="Submit"/>
+  </form>
+</section>
+
+{% endblock bodysup %}

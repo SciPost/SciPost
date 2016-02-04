@@ -40,6 +40,8 @@ def request_commentary(request):
                     requested_by = contributor,
                     type = form.cleaned_data['type'],
                     discipline = form.cleaned_data['discipline'],
+                    domain = form.cleaned_data['domain'],
+                    specialization = form.cleaned_data['specialization'],
                     pub_title = form.cleaned_data['pub_title'],
                     arxiv_link = form.cleaned_data['arxiv_link'],
                     pub_DOI_link = form.cleaned_data['pub_DOI_link'],

@@ -388,3 +388,44 @@ def vote_on_submission_ack(request):
     return render(request, 'ratings/vote_on_submission_ack.html', context)
 
 
+def vote_on_thesis(request, thesislink_id):
+    thesislink = get_object_or_404(ThesisLink, pk=thesislink_id)
+    rater = Contributor.objects.get(user=request.user)
+    if request.method == 'POST':
+        form = ThesisLinkRatingForm(request.POST)
+        if form.is_valid():
+            # Any previous rating from this contributor for this report is deleted:
+            ThesisLinkRating.objects.filter(rater=rater, thesislink=thesislink).delete()
+            newrating = ThesisLinkRating (
+                thesislink = thesislink,
+                rater = Contributor.objects.get(user=request.user),
+                clarity = form.cleaned_data['clarity'],
+                validity = form.cleaned_data['validity'],
+                rigour = form.cleaned_data['rigour'],
+                originality = form.cleaned_data['originality'],
+                significance = form.cleaned_data['significance'],
+                )
+            newrating.save()
+            thesislink.nr_clarity_ratings = ThesisLinkRating.objects.filter(thesislink=thesislink, clarity__lte=100).count()
+            thesislink.nr_validity_ratings = ThesisLinkRating.objects.filter(thesislink=thesislink, validity__lte=100).count()
+            thesislink.nr_rigour_ratings = ThesisLinkRating.objects.filter(thesislink=thesislink, rigour__lte=100).count()
+            thesislink.nr_originality_ratings = ThesisLinkRating.objects.filter(thesislink=thesislink, originality__lte=100).count()
+            thesislink.nr_significance_ratings = ThesisLinkRating.objects.filter(thesislink=thesislink, significance__lte=100).count()
+            thesislink.save()
+            # Recalculate the ratings for this thesislink:
+            thesislink.clarity_rating = ThesisLinkRating.objects.filter(thesislink=thesislink, clarity__lte=100).aggregate(avg_clarity=Avg('clarity'))['avg_clarity']
+            thesislink.validity_rating = ThesisLinkRating.objects.filter(thesislink=thesislink, validity__lte=100).aggregate(avg_validity=Avg('validity'))['avg_validity']
+            thesislink.rigour_rating = ThesisLinkRating.objects.filter(thesislink=thesislink, rigour__lte=100).aggregate(avg_rigour=Avg('rigour'))['avg_rigour']
+            thesislink.originality_rating = ThesisLinkRating.objects.filter(thesislink=thesislink, originality__lte=100).aggregate(avg_originality=Avg('originality'))['avg_originality']
+            thesislink.significance_rating = ThesisLinkRating.objects.filter(thesislink=thesislink, significance__lte=100).aggregate(avg_significance=Avg('significance'))['avg_significance']
+            thesislink.save()
+            context = {'thesislink_id': thesislink_id}
+            return render(request, 'ratings/vote_on_thesis_ack.html', context)
+
+    context = {'thesislink_id': thesislink_id}
+    return render(request, 'ratings/vote_on_thesis_ack.html', context)
+            
+def vote_on_thesis_ack(request):
+    context = {}
+    return render(request, 'ratings/vote_on_thesis_ack.html', context)
+

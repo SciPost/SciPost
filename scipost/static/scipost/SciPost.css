@@ -326,6 +326,7 @@ section {
 }
 section a {
   color: #103050;
+  color: #6884C2; 
   text-decoration: none;
   target: _parent;
 }

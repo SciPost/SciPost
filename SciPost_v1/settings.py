@@ -61,6 +61,7 @@ INSTALLED_APPS = (
     'ratings',
     'scipost',
     'submissions',
+    'theses',
 )
 
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'

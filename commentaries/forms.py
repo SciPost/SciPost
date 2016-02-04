@@ -26,7 +26,7 @@ COMMENTARY_REFUSAL_CHOICES = (
 class RequestCommentaryForm(forms.ModelForm):
     class Meta:
         model = Commentary
-        fields = ['type', 'discipline', 'pub_title', 'author_list', 'pub_date', 'arxiv_link', 'pub_DOI_link', 'pub_abstract']
+        fields = ['type', 'discipline', 'domain', 'specialization', 'pub_title', 'author_list', 'pub_date', 'arxiv_link', 'pub_DOI_link', 'pub_abstract']
 
     def __init__(self, *args, **kwargs):
         super(RequestCommentaryForm, self).__init__(*args, **kwargs)

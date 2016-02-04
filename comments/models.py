@@ -13,7 +13,7 @@ from .models import *
 from commentaries.models import Commentary
 from scipost.models import Contributor
 from submissions.models import Submission, Report
-
+from theses.models import ThesisLink
 
 COMMENT_CATEGORIES = (
     ('REM', 'remark'),
@@ -37,6 +37,7 @@ class Comment(models.Model):
     status = models.SmallIntegerField(default=0)
     commentary = models.ForeignKey(Commentary, blank=True, null=True) # a Comment is either for a Commentary or Submission
     submission = models.ForeignKey(Submission, blank=True, null=True)
+    thesislink = models.ForeignKey(ThesisLink, blank=True, null=True)
     in_reply_to = models.ForeignKey('self', blank=True, null=True)
     author = models.ForeignKey(Contributor)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
@@ -90,6 +91,7 @@ class AuthorReply(models.Model):
     status = models.SmallIntegerField(default=0)
     commentary = models.ForeignKey(Commentary, blank=True, null=True)
     submission = models.ForeignKey(Submission, blank=True, null=True)
+    thesislink = models.ForeignKey(ThesisLink, blank=True, null=True)
     in_reply_to_comment = models.ForeignKey(Comment, blank=True, null=True) # one of this and next must be not null
     in_reply_to_report = models.ForeignKey(Report, blank=True, null=True)
     author = models.ForeignKey(Contributor)

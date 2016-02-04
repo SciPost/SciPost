@@ -40,3 +40,7 @@ class SubmissionRatingForm(PublicationTypeRatingForm):
 
 class ReportRatingForm(CommentTypeRatingForm):
     pass
+
+class ThesisRatingForm(PublicationTypeRatingForm):
+    pass
+

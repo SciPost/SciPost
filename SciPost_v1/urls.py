@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^ratings/', include('ratings.urls', namespace="ratings")),
 #    url(r'^reports/', include('reports.urls', namespace="reports")),
     url(r'^submissions/', include('submissions.urls', namespace="submissions")),
+    url(r'^theses/', include('theses.urls', namespace="theses")),
     url(r'^captcha/', include('captcha.urls')),
 ]
 

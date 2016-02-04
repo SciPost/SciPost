@@ -1,0 +1,222 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Thesis Link detail{% endblock pagetitle %}
+
+{% block headsup %}
+
+<script>
+  $(document).ready(function(){
+  $("#commentsbutton").click(function(){
+  $("#commentslist").toggle();
+  });
+  $("#ratingsbutton").click(function() {
+  $(".ratings").toggle();
+  $(".ratingsinput").toggle();
+  });
+  });
+</script>
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<!-- Temporary strip -->
+{% if user.is_authenticated %}
+
+<section>
+  <div class="flex-greybox">
+    <h1>SciPost Thesis Link</h1>
+    <button id="ratingsbutton">Toggle ratings view</button>
+  </div>
+
+  <hr class="hr12">
+  <div class="row">
+    <div class="col-4">
+      <h2>Thesis information: </h2>
+    </div>
+  </div>
+  {{ thesislink.header_as_table|safe }}
+
+  <h3>Abstract:</h3>
+  <p>{{ thesis.abstract }}</p>
+  
+  <div class="ratings">
+    <h4>Ratings:</h4>
+    <ul>
+      <li>clarity: {{ thesislink.clarity_rating }}% ({{ thesislink.nr_clarity_ratings }})</li>
+      <li>validity: {{ thesislink.validity_rating }}% ({{ thesislink.nr_validity_ratings }})</li>
+      <li>rigour: {{ thesislink.rigour_rating }}% ({{ thesislink.nr_rigour_ratings }})</li>
+      <li>originality: {{ thesislink.originality_rating }}% ({{ thesislink.nr_originality_ratings }})</li>
+      <li>significance: {{ thesislink.significance_rating }}% ({{ thesislink.nr_significance_ratings }})</li>
+    </ul>
+  </div>
+  <br />
+
+  {% if user.is_authenticated and user.contributor.rank > 0 %}
+  <form action="{% url 'ratings:vote_on_thesis' thesislink_id=thesislink.id %}" method="post" class="ratingsinput">
+    {% csrf_token %}
+    <ul>
+      {{ thesislink_rating_form.as_ul }}	  
+      <li><input type="submit" value="Rate this thesis"></li>
+    </ul>
+  </form>
+  {% endif %}
+
+</section>
+
+
+{% if comments %}
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h2>Comments on this thesis</h2>
+    <button id="commentsbutton">Toggle comments view</button>
+  </div>
+
+  <div id="commentslist">
+    {% for comment in comments %}
+    
+    <hr class="hr6">
+    <div class="row">
+      
+      <div class="col-3">
+	{{ comment.print_identifier|safe }}
+      </div>
+      
+      <div class="col-9">
+	<div class="commentcategorydisplay">
+	  <h4>Category:</h4>
+	  <ul>
+	    {% if comment.is_rem %}<li>remark</li>{% endif %}
+	    {% if comment.is_que %}<li>question</li>{% endif %}
+	    {% if comment.is_ans %}<li>answer to question</li>{% endif %}
+	    {% if comment.is_obj %}<li>objection</li>{% endif %}
+	    {% if comment.is_rep %}<li>reply to objection</li>{% endif %}
+	    {% if comment.is_val %}<li>validation or rederivation</li>{% endif %}
+	    {% if comment.is_lit %}<li>pointer to related literature</li>{% endif %}
+	    {% if comment.is_sug %}<li>suggestion for further work</li>{% endif %}
+	  </ul>
+	</div>
+	<br/>
+	<div class="ratings">
+	  <h4>Ratings:</h4>
+	  <ul>
+	    <li>Relevance: {{ comment.relevance_rating }}% ({{ comment.nr_relevance_ratings }})</li>
+	    <li>Importance: {{ comment.importance_rating }}% ({{ comment.nr_importance_ratings }})</li>
+	    <li>Clarity: {{ comment.clarity_rating }}% ({{ comment.nr_clarity_ratings }})</li>
+	    <li>Validity: {{ comment.validity_rating }}% ({{ comment.nr_validity_ratings }})</li>
+	    <li>Rigour: {{ comment.rigour_rating }}% ({{ comment.nr_rigour_ratings }})</li>
+	  </ul>
+	</div>
+	
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col-1"></div>
+      <div class="col-10">
+	<h3>Comment text:</h3>
+	<div class="twocolumn">{{ comment.comment_text|linebreaks }}</div>
+	
+	<br/>
+	<div class="ratingsinput">
+	  {% if user.is_authenticated and user.contributor.rank > 0 %}
+	  <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post">
+	    {% csrf_token %}
+	    <ul>
+	      {{ comment_rating_form.as_ul }}	  
+	      <li><input type="submit" value="Rate this comment"></li>
+	    </ul>
+	  </form>
+	  {% endif %}
+	</div>
+	
+      </div>
+    </div>
+  
+    {% for reply in author_replies %}
+    {% if reply.in_reply_to_comment.id = comment.id %}
+    
+    <div class="row">
+      <div class="col-1"></div>
+      <hr style="border-style: dotted;" />
+      <div class="col-3">
+	<h3>Author reply ({{ reply.date_submitted }}):</h3>
+      </div>
+      <div class="col-8">
+	<div class="ratings">
+	  <h4>Ratings: </h4>
+	  <ul>
+	    <li>relevance: {{ reply.relevance_rating }}% ({{ reply.nr_relevance_ratings }})</li>
+	    <li>importance: {{ reply.importance_rating }}% ({{ reply.nr_importance_ratings }})</li>
+	    <li>clarity: {{ reply.clarity_rating }}% ({{ reply.nr_clarity_ratings }})</li>
+	    <li>validity: {{ reply.validity_rating }}% ({{ reply.nr_validity_ratings }})</li>
+	    <li>rigour: {{ reply.rigour_rating }}% ({{ reply.nr_rigour_ratings }})</li>
+	  </ul>
+	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-1"></div>
+      <div class="col-10">
+	<p>{{ reply.reply_text|linebreaks }}</p>
+      </div>
+    </div>
+    {% if user.is_authenticated and user.contributor.rank > 0 %}
+    <div class="row">
+      <div class="col-1"></div>
+      <div class="col-10">
+	<div class="ratingsinput">
+	  <form action="{% url 'ratings:vote_on_authorreply' authorreply_id=reply.id %}" method="post">
+	    {% csrf_token %}
+	    <ul>
+	      {{ authorreply_rating_form.as_ul }}	  
+	      <li><input type="submit" value="Rate this author reply"></li>
+	    </ul>
+	  </form>
+	</div>
+      </div>
+    </div>
+    {% endif %}
+    
+    {% endif %}
+    {% endfor %}
+    
+    {% if user.is_authenticated and user.contributor.rank > 0 %}
+    <div class="row">
+      <div class="col-1"></div>
+      <hr class="hr6"/>
+    </div>
+    <div class="row">
+      <div class="col-1"></div>
+      <div class="col-5">
+	<h3><a href="{% url 'comments:author_reply_to_comment' comment_id=comment.id %}">Reply to this comment (Author)</a></h3>
+      </div>
+      <div class="col-5">
+	<h3><a href="{% url 'comments:reply_to_comment' comment_id=comment.id %}">Reply to this comment (Contributor)</a></h3>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div id="commentslist">
+</section>
+{% endif %}
+
+{% if user.is_authenticated and thesislink.open_for_commenting and user.contributor.rank > 0 %}
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Contribute a Comment:</h1>
+  </div>
+  <form action="{% url 'theses:thesis' thesislink.id %}" method="post">
+    {% csrf_token %}
+    {% load crispy_forms_tags %}
+    {% crispy form %}
+  </form>
+</section>
+{% endif %}
+
+{% endif %} <!-- Temporary strip -->
+
+{% endblock bodysup %}

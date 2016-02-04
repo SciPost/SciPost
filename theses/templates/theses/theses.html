@@ -1,0 +1,80 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Theses{% endblock pagetitle %}
+
+{% block headsup %}
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox320">
+      <h1>SciPost Theses</h1>
+      <h3><a href="{% url 'theses:request_thesislink' %}">Request a new Thesis Link</a></h3>
+    </div>
+    <div class="flex-greybox320">
+      <h2>Search SciPost Theses:</h2>
+      <form action="{% url 'theses:theses' %}" method="post">
+        {% csrf_token %}
+        <table>
+          {{ form.as_table }}
+        </table>
+        <input type="submit" name="Submit" />
+      </form>
+    </div>
+    <div class="flex-greybox320">
+      <h2>View SciPost Theses</h2>
+      <ul>
+        <li>Physics: last <a href="{% url 'theses:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'theses:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'theses:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
+      </ul>
+    </div>
+  </div>
+
+  {% if thesislink_search_list %}
+  <br />
+  <hr class="hr12">
+  <h3>Search results:</h3>
+  <ul>
+    {% for thesislink in thesislink_search_list %}
+    {{ thesislink.header_as_li|safe }}
+    {% endfor %}
+  </ul>
+  {% elif form.has_changed %}
+  <h3>No match found for your search query.</h3>
+  {% endif %}
+
+</section>
+
+{% if thesislink_recent_list %}
+<section>
+  <hr class="hr12">
+  <h2>Recently active Thesis Links:</h2>
+  <ul>
+    {% for thesislink in thesislink_recent_list %}
+    {{ thesislink.header_as_li|safe }}
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if thesislink_browse_list %}
+<section>
+  <hr class="hr12">
+  <h2>Thesis Links in {{ discipline }} in the last {{ nrweeksback }} weeks:</h2>
+  <ul>
+    {% for thesislink in thesislink_browse_list %}
+    {{ thesislink.header_as_li|safe }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+
+{% endif %} <!-- Temporary strip -->
+
+{% endblock bodysup %}
