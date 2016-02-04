@@ -16,6 +16,9 @@
   {% if comment.submission %}
   <h1>The Submission concerned:</h1>
   {% endif %}  
+  {% if comment.thesislink %}
+  <h1>The Thesis concerned:</h1>
+  {% endif %}
   <br>
   <table>
     {% if comment.commentary %}
@@ -25,16 +28,26 @@
     <tr><td>Date published: </td><td>{{ comment.commentary.pub_date }}</td></tr>
     {% endif %}
     {% if comment.submission %}
-    <tr><td>Title: </td><td>{{ comment.submission.pub_title }}</td></tr>
+    <tr><td>Title: </td><td>{{ comment.submission.title }}</td></tr>
     <tr><td>Author(s): </td><td>{{ comment.submission.author_list }}</td></tr>
     <tr><td>arxiv Link: </td><td><a href="{{ comment.submission.arxiv_link }}">{{ comment.submission.arxiv_link }}</a></td></tr>
     <tr><td>Date submitted: </td><td>{{ comment.submission.submission_date }}</td></tr>
     {% endif %}
+    {% if comment.thesislink %}
+    {{ comment.thesislink.header_as_table|safe }}
+    {% endif %}
   </table>
   <br />
   <h4>Abstract:</h4>
+  {% if comment.commentary %}
   <p>{{ comment.commentary.pub_abstract }}</p>
-  
+  {% endif %}
+  {% if comment.submission %}
+  <p>{{ comment.submission.abstract }}</p>
+  {% endif %}
+  {% if comment.thesislink %}
+  <p>{{ comment.thesislink.abstract }}</p>
+  {% endif %}
   <hr class="hr6">
   <h2>The Comment you wish to reply to:</h2>
   <div class="row">

@@ -27,6 +27,7 @@ from commentaries.forms import CommentarySearchForm
 from comments.models import Comment, AuthorReply
 from submissions.models import Submission, Report
 from theses.models import ThesisLink
+from theses.forms import ThesisLinkSearchForm
 
 
 #############
@@ -35,7 +36,8 @@ from theses.models import ThesisLink
 
 def index(request):
     commentary_search_form = CommentarySearchForm(request.POST)
-    context = {'commentary_search_form': commentary_search_form}
+    thesislink_search_form = ThesisLinkSearchForm(request.POST)
+    context = {'commentary_search_form': commentary_search_form, 'thesislink_search_form': thesislink_search_form}
     return render(request, 'scipost/index.html', context)
 
 ###############

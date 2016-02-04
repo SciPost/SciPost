@@ -23,6 +23,7 @@ class RequestThesisLinkForm(forms.ModelForm):
         super(RequestThesisLinkForm, self).__init__(*args, **kwargs)
         self.fields['defense_date'].widget.attrs.update({'placeholder': 'Format: YYYY-MM-DD'})
         self.fields['pub_link'].widget.attrs.update({'placeholder': 'Full URL'})
+        self.fields['abstract'].widget.attrs.update({'cols': 100})
     
 class VetThesisLinkForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect, choices=THESIS_ACTION_CHOICES, required=True, label='Action')

@@ -10,8 +10,9 @@ from scipost.models import *
 THESIS_TYPES = (
     ('MA', 'Master\'s'),
     ('PhD', 'Ph.D.'),
+    ('Hab', 'Habilitation'),
     )
-theses_type_dict = dict(THESIS_TYPES)
+thesis_type_dict = dict(THESIS_TYPES)
 
 
 class ThesisLink(models.Model):
@@ -21,8 +22,8 @@ class ThesisLink(models.Model):
     vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
     type = models.CharField(max_length=3, choices=THESIS_TYPES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-    domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS, default='E')
-    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS, default='A')
+    domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS, blank=True)
+    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS, blank=True)
     open_for_commenting = models.BooleanField(default=True)
     title = models.CharField(max_length=300, verbose_name='title')
     pub_link = models.URLField(verbose_name='URL (external repository)')
@@ -61,7 +62,7 @@ class ThesisLink(models.Model):
     def header_as_li (self):
         header = '<li><div class="flex-container">'
         header += '<div class="flex-whitebox0"><p><a href="/theses/thesis/' + str(self.id) + '">' + self.title + '</a></p>'
-        header += '<p>by ' + self.author + '</p><p> (published ' + str(self.defense_date) + ')</p></div>'
+        header += '<p>' + thesis_type_dict[self.type] + ' thesis by ' + self.author + '</p><p> (published ' + str(self.defense_date) + ')</p></div>'
         header += '<div class="flex-whitebox0"><p>Latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
         header += '</div></li>'
         return header

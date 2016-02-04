@@ -11,14 +11,14 @@
 
 
 <section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>Frequently asked questions</h1>
-    </div>
+  <div class="flex-greybox">
+    <h1>Frequently asked questions</h1>
   </div>
   <div class="row">
     <div class="col-5">
-      <hr class="hr6">
+      <div class="flex-greybox">
+	<h2>SciPost Journals</h2>
+      </div>
       <h3>What are the distinguishing features of SciPost Journals?</h3>
       <p>All SciPost Journals are subscription-free, two-way open access (free for readers, free for authors) online journals.</p>
       <p>Manuscripts submitted to SciPost undergo the extremely stringent <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> process, guaranteeing that papers published in SciPost Journals meet the highest possible academic standards.</p>
@@ -36,6 +36,10 @@
       </ul>
       <br/>
       <hr class="hr6">
+      <h3>How do I submit my manuscript to SciPost?</h3>
+      <p>After registering as a Contributor, simply follow the <a href="{% url 'submissions:sub_and_ref_procedure' %}">submission procedure</a>.</p>
+      <br/>
+      <hr class="hr6">
       <h3>Will my SciPost publications be citable?</h3>
       <p>All SciPost publications will obtain a unique DOI, enabling citations and metrics as per other journals.</p>
       <br/>
@@ -51,13 +55,31 @@
       <h3>Will my papers always be available?</h3>
       <p>Yes. SciPost is here to stay, and authors should not worry that their SciPost publications could potentially disappear. This would require the dismantling not only of SciPost, but also of the arXiv (where the published version of the SciPost papers (with unique DOI identifier) can be posted by the authors).</p>
       <br/>
-      <hr class="hr6">
+      <div class="flex-greybox">
+	<h2>SciPost Commentaries</h2>
+      </div>
       <h3>What are Commentaries?</h3>
-      <p>SciPost Commentaries is a repository of Commentary Pages on scientific publications. Each Commentary Page contains some relevant summary info about the publication (such as Title, Author(s), DOI link to published version, abstract, ...), followed by Comments from Contributors and Author and Contributor Replies. </p>
+      <p>SciPost Commentaries is a searchable repository of Commentary Pages on scientific publications. Each Commentary Page contains some relevant summary info about the publication (such as Title, Author(s), DOI link to published version, abstract, ...), followed by Comments from Contributors and Author and Contributor Replies. </p>
+      <br/>
+      <hr class="hr6">
+      <h3>How are Commentary Pages activated?</h3>
+      <p>Any registered Contributor can request the activation of a Commentary Page by filling is the <a href="{% url 'commentaries:request_commentary' %}">Commentary request page</a>.</p>
+      <br/>
+      <div class="flex-greybox">
+	<h2>SciPost Theses</h2>
+      </div>
+      <h3>What are Theses?</h3>
+      <p>SciPost Theses is a searchable repository of external links to Master's, Ph.D. and Habilitation theses. Besides a validated URL pointing to the original document, Each Thesis Link page contains some relevant summary info (such as Title, Author, degree granting institution, abstract, ...), followed by Comments from Contributors and Author and Contributor Replies. </p>
+      <br/>
+      <hr class="hr6">
+      <h3>How are Thesis Link pages activated?</h3>
+      <p>As a registered Contributor, the author of the thesis (or, if unavailable, the supervisor) can request the activation of a Thesis Link by filling is the <a href="{% url 'theses:request_thesislink' %}">Thesis Link request page</a>.</p>
     </div>
     <div class="col-1"></div>
     <div class="col-5">
-      <hr class="hr6">
+      <div class="flex-greybox">
+	<h2>SciPost Contributors</h2>
+      </div>
       <h3>Why should I become an active Contributor?</h3>
       <p>Because:</p>
       <ul>
@@ -68,7 +90,9 @@
 	<li>you are willing to make your contributions as author and (anonymously) as reviewer and commenter openly accessible</li>
       </ul>
       <br/>
-      <hr class="hr6">
+      <div class="flex-greybox">
+	<h2>Over SciPost</h2>
+      </div>
       <h3>Who is behind SciPost?</h3>
       <ul>
 	<li>SciPost was founded by <a href="http://staff.fnwi.uva.nl/j.s.caux">J.-S. Caux</a>, Professor of Theoretical Physics at the University of Amsterdam.</li>
@@ -83,6 +107,10 @@
       <h3>Which fields of science does SciPost cater to?</h3>
       <p>The initial rollout of SciPost offers a Physics portal.</p>
       <p>Portals in other disciplines will be opened if the SciPost model proves to be successful.</p>
+      <br/>
+      <hr class="hr6">
+      <h3>Is SciPost moderated?</h3>
+      <p>Yes. All content is thoroughly vetted by the editorial team before being made public. Only meaningful, professional-level scientific content is accepted.</p>
       <br/>
       <hr class="hr6">
       <h3>How is SciPost funded?</h3>

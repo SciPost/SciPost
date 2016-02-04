@@ -33,7 +33,8 @@ class RequestCommentaryForm(forms.ModelForm):
         self.fields['pub_date'].widget.attrs.update({'placeholder': 'Format: YYYY-MM-DD'})
         self.fields['arxiv_link'].widget.attrs.update({'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
         self.fields['pub_DOI_link'].widget.attrs.update({'placeholder': 'ex.: dx.doi.org/10.1103/PhysRevLett.000.000000'})
-    
+        self.fields['pub_abstract'].widget.attrs.update({'cols': 100})
+
 class VetCommentaryForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect, choices=COMMENTARY_ACTION_CHOICES, required=True, label='Action')
     refusal_reason = forms.ChoiceField(choices=COMMENTARY_REFUSAL_CHOICES, required=False)
