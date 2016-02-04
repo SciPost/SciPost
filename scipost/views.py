@@ -304,11 +304,12 @@ def change_password(request):
                 return render(request, 'scipost/change_password.html', {'form': form, 'errormessage': 'Your new password entries must match'})
             request.user.set_password(form.cleaned_data['password_new'])
             request.user.save()
-            context = {'acknowledgement': True, 'form': PasswordChangeForm()}
-            return render(request, 'scipost/change_password.html', context)
+            ack = True
+        context = {'ack': True, 'form': form}
     else:
         form = PasswordChangeForm()
-    return render (request, 'scipost/change_password.html', {'form': form})
+        context = {'ack': False, 'form': form}
+    return render (request, 'scipost/change_password.html', context)
 
 
 def reset_password_confirm(request, uidb64=None, token=None):
