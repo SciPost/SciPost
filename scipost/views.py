@@ -207,9 +207,11 @@ def already_activated(request):
 
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
-    contributor_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).first() # limit to one at a time
+    #contributor_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).first() # limit to one at a time
+    contributors_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).order_by('key_expires')
     form = VetRegistrationForm()
-    context = {'contributor_to_vet': contributor_to_vet, 'form': form }
+    #context = {'contributor_to_vet': contributor_to_vet, 'form': form }
+    context = {'contributors_to_vet': contributors_to_vet, 'form': form }
     return render(request, 'scipost/vet_registration_requests.html', context)
 
 
