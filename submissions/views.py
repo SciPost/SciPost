@@ -30,7 +30,6 @@ def sub_and_ref_procedure(request):
 
 
 def submit_manuscript(request):
-    # If POST, process the form data
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
         if form.is_valid():
@@ -61,15 +60,9 @@ def submit_manuscript_ack(request):
 
 def process_new_submissions(request):
     submission_to_process = Submission.objects.filter(status='0').first() # only handle one at at time
-    #if submission_to_process is not None:
     form = ProcessSubmissionForm()
     context = {'submission_to_process': submission_to_process, 'form': form }
     return render(request, 'submissions/process_new_submissions.html', context)
-    #return render(request, 'submissions/no_new_submission_to_process.html')
-
-
-#def no_new_submission_to_process(request):
-#    return render(request, 'submissions/no_new_submission_to_process.html')
 
 
 def process_new_submission_ack(request, submission_id):
@@ -213,8 +206,6 @@ def submit_report(request, submission_id):
 
 
 def submit_report_ack(request):
-#    submission_id = request.session['submission_id']
-#    context = {'submission': Submission.objects.get(pk=submission_id) }
     context = {}
     return render(request, 'submissions/submit_report_ack.html', context)
 
@@ -222,15 +213,9 @@ def submit_report_ack(request):
 def vet_submitted_reports(request):
     contributor = Contributor.objects.get(user=request.user)
     report_to_vet = Report.objects.filter(status=0).first() # only handle one at a time
-    #if report_to_vet is not None:
     form = VetReportForm()
     context = {'contributor': contributor, 'report_to_vet': report_to_vet, 'form': form }
     return(render(request, 'submissions/vet_submitted_reports.html', context))
-    #return render(request, 'submissions/no_report_to_vet.html')
-
-
-#def no_report_to_vet(request):
-#    return render(request, 'submissions/no_report_to_vet.html')
 
 
 def vet_submitted_report_ack(request, report_id):

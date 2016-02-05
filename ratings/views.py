@@ -45,7 +45,6 @@ def vote_on_commentary(request, commentary_id):
             commentary.originality_rating = CommentaryRating.objects.filter(commentary=commentary, originality__lte=100).aggregate(avg_originality=Avg('originality'))['avg_originality']
             commentary.significance_rating = CommentaryRating.objects.filter(commentary=commentary, significance__lte=100).aggregate(avg_significance=Avg('significance'))['avg_significance']
             commentary.save()
-            #return HttpResponseRedirect(reverse('ratings:vote_on_commentary_ack'))
             context = {'commentary_id': commentary_id}
             return render(request, 'ratings/vote_on_commentary_ack.html', context)
 
@@ -148,7 +147,6 @@ def vote_on_comment(request, comment_id):
 
 
 def vote_on_comment_ack(request):
-#    context = {'commentary_id': request.session['commentary_id']}
     context = {}
     return render(request, 'ratings/vote_on_comment_ack.html', context)
 
@@ -335,7 +333,6 @@ def vote_on_report(request, report_id):
     return render(request, 'ratings/vote_on_report_ack.html')
             
 def vote_on_report_ack(request):
-#    context = {'commentary_id': request.session['commentary_id']}
     context = {}
     return render(request, 'ratings/vote_on_report_ack.html', context)
 
@@ -348,7 +345,6 @@ def vote_on_submission(request, submission_id):
     if request.method == 'POST':
         form = SubmissionRatingForm(request.POST)
         if form.is_valid():
-#            if rater.id != report.author.id:
             # Any previous rating from this contributor for this report is deleted:
             SubmissionRating.objects.filter(rater=rater, submission=submission).delete()
             newrating = SubmissionRating (
@@ -376,7 +372,6 @@ def vote_on_submission(request, submission_id):
             submission.originality_rating = SubmissionRating.objects.filter(submission=submission, originality__lte=100).aggregate(avg_originality=Avg('originality'))['avg_originality']
             submission.significance_rating = SubmissionRating.objects.filter(submission=submission, significance__lte=100).aggregate(avg_significance=Avg('significance'))['avg_significance']
             submission.save()
-            #return HttpResponseRedirect(reverse('ratings:vote_on_submission_ack'))
             context = {'submission_id': submission_id}
             return render(request, 'ratings/vote_on_submission_ack.html', context)
 

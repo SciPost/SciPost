@@ -3,7 +3,6 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-#from django.core.mail import send_mail
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -31,7 +30,6 @@ def howto(request):
 def request_commentary(request):
     # commentary pages can only be requested by registered contributors:
     if request.user.is_authenticated():
-        # If POST, process the form data
         if request.method == 'POST':
             form = RequestCommentaryForm(request.POST)
             if form.is_valid():
@@ -67,7 +65,6 @@ def request_commentary_ack(request):
 def vet_commentary_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     commentary_to_vet = Commentary.objects.filter(vetted=False).first() # only handle one at a time
-    #if commentary_to_vet is not None:
     form = VetCommentaryForm()
     context = {'contributor': contributor, 'commentary_to_vet': commentary_to_vet, 'form': form }
     return render(request, 'commentaries/vet_commentary_requests.html', context)
@@ -104,7 +101,6 @@ def vet_commentary_request_ack(request, commentary_id):
                 emailmessage.send(fail_silently=False)                
                 commentary.delete()
 
-#    context = {'option': form.cleaned_data['action_option'], 'reason': form.cleaned_data['refusal_reason'] }
     context = {'commentary_id': commentary_id }
     return render(request, 'commentaries/vet_commentary_request_ack.html', context)
 
@@ -151,8 +147,6 @@ def browse(request, discipline, nrweeksback):
         form = CommentarySearchForm()
     commentary_browse_list = Commentary.objects.filter(vetted=True, discipline=discipline, latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
     context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 'commentary_browse_list': commentary_browse_list }
-    #return render(request, 'commentaries/browse.html', context)
-    #return HttpResponseRedirect(request, 'commentaries/commentaries.html', context)
     return render(request, 'commentaries/commentaries.html', context)
 
 

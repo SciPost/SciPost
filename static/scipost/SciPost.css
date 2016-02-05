@@ -187,7 +187,10 @@ hr.hr12 {
   margin: 10px;
   padding: 10px;
 }
-
+.flex-whitebox0 {
+  margin: 0px;
+  padding: 0px;
+}
 
 body {
 /*  font-family: Merriweather, sans-serif; */
@@ -323,6 +326,7 @@ section {
 }
 section a {
   color: #103050;
+  color: #6884C2; 
   text-decoration: none;
   target: _parent;
 }

@@ -12,8 +12,6 @@ from django.db.models import Avg
 from .models import *
 from .forms import *
 
-#from journals.forms import *
-#from journals.models import *
 
 ############
 # Journals 
