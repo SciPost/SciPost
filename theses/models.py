@@ -68,9 +68,9 @@ class ThesisLink(models.Model):
 
     def header_as_li (self):
         header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0v"><p><a href="/theses/thesis/' + str(self.id) + '">' + self.title + '</a></p>'
+        header += '<div class="flex-thesesbox"><p><a href="/theses/thesis/' + str(self.id) + '">' + self.title + '</a></p>'
         header += '<p>' + thesis_type_dict[self.type] + ' thesis by ' + self.author + ' (supervisor(s): ' + self.supervisor + ')</p>'
         header += '<p>in ' + disciplines_dict[self.discipline] + ', ' + journals_domains_dict[self.domain] + ' ' + journals_spec_dict[self.specialization] + '</p></div>'
-        header += '<div class="flex-whitebox0v"><p>Defense date: ' + str(self.defense_date) + '</p><p>Latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
+        header += '<div class="flex-thesesbox"><p>Defense date: ' + str(self.defense_date) + '</p><p>Latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
         header += '</div></li>'
         return header
