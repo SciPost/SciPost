@@ -60,7 +60,7 @@ def vet_submitted_comment_ack(request, comment_id):
                     email_text += comment.commentary.pub_title + ' by ' + comment.commentary.author_list
                 elif comment.submission is not None:
                     email_text += comment.submission.title + ' by ' + comment.submission.author_list
-                email_text += ', has been rejected for the following reason:' + form.cleaned_data['refusal_reason'] + '.\n\nThank you for your contribution, \nThe SciPost Team.'
+                email_text += ', has been rejected for the following reason:' + comment_refusal_dict[form.cleaned_data['refusal_reason']] + '.\n\nThank you for your contribution, \nThe SciPost Team.'
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 emailmessage = EmailMessage('SciPost Comment rejected', email_text, 'comments@scipost.org', [comment.author.user.email, 'comments@scipost.org'], reply_to=['comments@scipost.org'])

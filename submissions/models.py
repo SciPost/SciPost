@@ -14,12 +14,13 @@ from journals.models import *
 ###############
 
 SUBMISSION_STATUS = (
-    (0, 'unassigned'),
-    (1, 'editor in charge assigned'),
-    (2, 'under review'),
-    (3, 'reviewed, peer checking period'),
-    (4, 'reviewed, peer checked, editorial decision pending'),
-    (5, 'editorial decision'),
+    ('unassigned', 'unassigned'),
+    ('forwarded', 'forwarded to a specialty editor'),
+    ('SEICassigned', 'specialty editor-in-charge assigned'),
+    ('under_review', 'under review'),
+    ('review_completed', 'review period closed, editorial recommendation pending'),
+    ('SEIC_has_recommended', 'specialty editor-in-charge has provided recommendation'),
+    ('decided', 'journal editor-in-chief has fixed decision'),
     )
 submission_status_dict = dict(SUBMISSION_STATUS)
 
@@ -31,7 +32,7 @@ class Submission(models.Model):
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
-    status = models.SmallIntegerField(choices=SUBMISSION_STATUS) # set by Editors
+    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
     open_for_reporting = models.BooleanField(default=True)
     open_for_commenting = models.BooleanField(default=True)
     title = models.CharField(max_length=300)

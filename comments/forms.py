@@ -18,6 +18,7 @@ COMMENT_REFUSAL_CHOICES = (
     (-2, 'incorrect'),
     (-3, 'not useful'),
     )
+comment_refusal_dict = dict(COMMENT_REFUSAL_CHOICES)
 
 AUTHOR_REPLY_ACTION_CHOICES = (
 #    (0, 'modify'), 

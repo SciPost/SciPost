@@ -58,18 +58,11 @@ $( document ).ready(function() {
   {% for contributor_to_vet in contributors_to_vet %}
   <br>
   <hr>
-  <div class="row">
-    <div class="col-8">
-      <table>
-	<tr><td>Title:</td><td>{{ contributor_to_vet.title }}</td></tr>
-	<tr><td>First name:</td><td>{{ contributor_to_vet.user.first_name }}</td></tr>
-	<tr><td>Last name:</td><td>{{ contributor_to_vet.user.last_name }}</td></tr>
-	<tr><td>email:</td><td>{{ contributor_to_vet.user.email }}</td></tr>
-	<tr><td>user name:</td><td>{{ contributor_to_vet.user.username }}</td></tr>
-	<tr><td>orcid_id:</td><td>{{ contributor_to_vet.orcid_id }}</td></tr>
-      </table>
+  <div class="flex-container">
+    <div class="flex-whitebox">
+      {{ contributor_to_vet.as_table|safe }}
     </div>
-    <div class="col-4">
+    <div class="flex-whitebox">
       <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">
 	{% csrf_token %}
 	{{ form.as_p }}
