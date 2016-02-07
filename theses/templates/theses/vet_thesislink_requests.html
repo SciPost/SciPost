@@ -19,7 +19,7 @@
       {{ thesislink_to_vet.header_as_table|safe }}
       <br />
       <h4>Abstract:</h4>
-      <p>{{ thesislink_to_vet.pub_abstract }}</p>
+      <p>{{ thesislink_to_vet.abstract }}</p>
     </div>
     <div class="col-4">
       <form action="{% url 'theses:vet_thesislink_request_ack' thesislink_id=thesislink_to_vet.id %}" method="post">

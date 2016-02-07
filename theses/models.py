@@ -31,7 +31,7 @@ class ThesisLink(models.Model):
     author_as_cont = models.ManyToManyField (Contributor, blank=True, related_name='author_cont')
     institution = models.CharField(max_length=300, verbose_name='degree granting institution')
     defense_date = models.DateField(verbose_name='date of thesis defense')
-    abstract = models.TextField(verbose_name='abstract')
+    abstract = models.TextField(verbose_name='abstract, outline or summary')
 
     nr_clarity_ratings = models.IntegerField(default=0)
     clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
