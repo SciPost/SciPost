@@ -17,7 +17,7 @@ THESIS_REFUSAL_CHOICES = (
 class RequestThesisLinkForm(forms.ModelForm):
     class Meta:
         model = ThesisLink
-        fields = ['type', 'discipline', 'domain', 'specialization', 'title', 'author', 'institution', 'defense_date', 'pub_link', 'abstract']
+        fields = ['type', 'discipline', 'domain', 'specialization', 'title', 'author', 'supervisor', 'institution', 'defense_date', 'pub_link', 'abstract']
 
     def __init__(self, *args, **kwargs):
         super(RequestThesisLinkForm, self).__init__(*args, **kwargs)

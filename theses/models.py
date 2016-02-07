@@ -29,6 +29,8 @@ class ThesisLink(models.Model):
     pub_link = models.URLField(verbose_name='URL (external repository)')
     author = models.CharField(max_length=1000)
     author_as_cont = models.ManyToManyField (Contributor, blank=True, related_name='author_cont')
+    supervisor = models.CharField(max_length=1000, default='')
+    supervisor_as_cont = models.ManyToManyField (Contributor, blank=True, verbose_name='supervisor(s)', related_name='supervisor_cont')
     institution = models.CharField(max_length=300, verbose_name='degree granting institution')
     defense_date = models.DateField(verbose_name='date of thesis defense')
     abstract = models.TextField(verbose_name='abstract, outline or summary')
@@ -59,6 +61,7 @@ class ThesisLink(models.Model):
         header += '<tr><td>Specialization: </td><td></td><td>' + journals_spec_dict[self.specialization] + '</td></tr>'
         header += '<tr><td>URL: </td><td>&nbsp;</td><td><a href="' + self.pub_link + '">' + self.pub_link + '</a></td></tr>'
         header += '<tr><td>Degree granting institution: </td><td>&nbsp;</td><td>' + self.institution + '</td></tr>'
+        header += '<tr><td>Supervisor(s): </td><td></td><td>' + self.supervisor + '</td></tr>'
         header += '<tr><td>Defense date: </td><td>&nbsp;</td><td>' + str(self.defense_date) + '</td></tr>'
         header += '</table>'
         return header
@@ -66,7 +69,7 @@ class ThesisLink(models.Model):
     def header_as_li (self):
         header = '<li><div class="flex-container">'
         header += '<div class="flex-whitebox0v"><p><a href="/theses/thesis/' + str(self.id) + '">' + self.title + '</a></p>'
-        header += '<p>' + thesis_type_dict[self.type] + ' thesis by ' + self.author + '</p>'
+        header += '<p>' + thesis_type_dict[self.type] + ' thesis by ' + self.author + ' (supervisor(s): ' + self.supervisor + ')</p>'
         header += '<p>in ' + disciplines_dict[self.discipline] + ', ' + journals_domains_dict[self.domain] + ' ' + journals_spec_dict[self.specialization] + '</p></div>'
         header += '<div class="flex-whitebox0v"><p>Defense date: ' + str(self.defense_date) + '</p><p>Latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
         header += '</div></li>'
