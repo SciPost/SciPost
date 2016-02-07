@@ -53,6 +53,10 @@ class ThesisLink(models.Model):
         header = '<table>'
         header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.title + '</td></tr>'
         header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author + '</td></tr>'
+        header += '<tr><td>Type: </td><td></td><td>' + thesis_type_dict[self.type] + '</td></tr>'
+        header += '<tr><td>Discipline: </td><td></td><td>' + disciplines_dict[self.discipline] + '</td></tr>'
+        header += '<tr><td>Domain: </td><td></td><td>' + journals_domains_dict[self.domain] + '</td></tr>'
+        header += '<tr><td>Specialization: </td><td></td><td>' + journals_spec_dict[self.specialization] + '</td></tr>'
         header += '<tr><td>URL: </td><td>&nbsp;</td><td><a href="' + self.pub_link + '">' + self.pub_link + '</a></td></tr>'
         header += '<tr><td>Degree granting institution: </td><td>&nbsp;</td><td>' + self.institution + '</td></tr>'
         header += '<tr><td>Defense date: </td><td>&nbsp;</td><td>' + str(self.defense_date) + '</td></tr>'
@@ -61,8 +65,9 @@ class ThesisLink(models.Model):
 
     def header_as_li (self):
         header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0"><p><a href="/theses/thesis/' + str(self.id) + '">' + self.title + '</a></p>'
-        header += '<p>' + thesis_type_dict[self.type] + ' thesis by ' + self.author + '</p><p> (published ' + str(self.defense_date) + ')</p></div>'
-        header += '<div class="flex-whitebox0"><p>Latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
+        header += '<div class="flex-whitebox0v"><p><a href="/theses/thesis/' + str(self.id) + '">' + self.title + '</a></p>'
+        header += '<p>' + thesis_type_dict[self.type] + ' thesis by ' + self.author + '</p>'
+        header += '<p>in ' + disciplines_dict[self.discipline] + ', ' + journals_domains_dict[self.domain] + ' ' + journals_spec_dict[self.specialization] + '</p></div>'
+        header += '<div class="flex-whitebox0v"><p>Defense date: ' + str(self.defense_date) + '</p><p>Latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
         header += '</div></li>'
         return header

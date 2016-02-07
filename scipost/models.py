@@ -9,6 +9,7 @@ from .models import *
 SCIPOST_DISCIPLINES = (
     ('physics', 'Physics'),
     )
+disciplines_dict = dict(SCIPOST_DISCIPLINES)
 
 CONTRIBUTOR_RANKS = (
     # ranks determine the type of Contributor:
