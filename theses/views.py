@@ -39,6 +39,7 @@ def request_thesislink(request):
                     specialization = form.cleaned_data['specialization'],
                     title = form.cleaned_data['title'],
                     author = form.cleaned_data['author'],
+                    supervisor = form.cleaned_data['supervisor'],
                     institution = form.cleaned_data['institution'],
                     defense_date = form.cleaned_data['defense_date'],
                     pub_link = form.cleaned_data['pub_link'],
@@ -109,6 +110,7 @@ def theses(request):
                 title__icontains=form.cleaned_data['title_keyword'],
                 author__icontains=form.cleaned_data['author'],
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
+                supervisor__icontains=form.cleaned_data['supervisor'],
                 vetted=True,
                 )
             thesislink_search_list.order_by('-pub_date')
@@ -132,6 +134,7 @@ def browse(request, discipline, nrweeksback):
                 title__icontains=form.cleaned_data['title_keyword'],
                 author__icontains=form.cleaned_data['author'],
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
+                supervisor__icontains=form.cleaned_data['supervisor'],
                 vetted=True,
                 )
             thesislink_search_list.order_by('-pub_date')

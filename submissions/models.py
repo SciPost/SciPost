@@ -84,22 +84,22 @@ class Submission(models.Model):
 ###########
 
 REFEREE_QUALIFICATION = (
-    (0, 'not qualified'),
-    (1, 'generally qualified'),
-    (2, 'knowledgeable in this subject'),
-    (3, 'very knowledgeable in this subject'),
     (4, 'expert in this subject'),
+    (3, 'very knowledgeable in this subject'),
+    (2, 'knowledgeable in this subject'),
+    (1, 'generally qualified'),
+    (0, 'not qualified'),
     )
 ref_qualif_dict = dict(REFEREE_QUALIFICATION)
 
 QUALITY_SPEC = (
-    (0, 'mediocre'),
-    (1, 'below threshold'),
-    (2, 'acceptable'),
-    (3, 'reasonable'),
-    (4, 'good'),
-    (5, 'excellent'),
     (6, 'perfect'),
+    (5, 'excellent'),
+    (4, 'good'),
+    (3, 'reasonable'),
+    (2, 'acceptable'),
+    (1, 'below threshold'),
+    (0, 'mediocre'),
     )
 
 REPORT_REC = (

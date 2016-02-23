@@ -13,7 +13,9 @@ from submissions.models import Submission, Report
 
 RATING_CHOICES = (
     (101, '-'), # Only values between 0 and 100 are kept, anything outside those limits is discarded.
-    (100, '100%'), (90, '90%'), (80, '80%'), (70, '70%'), (60, '60%'), (50, '50%'), (40, '40%'), (30, '30%'), (20, '20%'), (10, '10%'), (0, '0%')
+    #(100, '100%'), (90, '90%'), (80, '80%'), (70, '70%'), (60, '60%'), (50, '50%'), (40, '40%'), (30, '30%'), (20, '20%'), (10, '10%'), (0, '0%')
+    #(100, 'perfect'), (90, '--'), (80, 'excellent'), (70, '--'), (60, 'good'), (50, '--'), (40, 'reasonable'), (30, '--'), (20, 'acceptable'), (10, '--'), (0, 'below threshold')
+    (100, 'top'), (80, 'high'), (60, 'good'), (40, 'ok'), (20, 'low'), (0, 'poor')
     )
 
 
