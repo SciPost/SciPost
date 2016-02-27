@@ -40,7 +40,7 @@ def submit_manuscript(request):
                 discipline = form.cleaned_data['discipline'],
                 domain = form.cleaned_data['domain'],
                 specialization = form.cleaned_data['specialization'],
-                status = '0', 
+                status = 'unassigned', 
                 title = form.cleaned_data['title'],
                 author_list = form.cleaned_data['author_list'],
                 abstract = form.cleaned_data['abstract'],
@@ -59,7 +59,7 @@ def submit_manuscript_ack(request):
 
 
 def process_new_submissions(request):
-    submission_to_process = Submission.objects.filter(status='0').first() # only handle one at at time
+    submission_to_process = Submission.objects.filter(status='unassigned').first() # only handle one at at time
     form = ProcessSubmissionForm()
     context = {'submission_to_process': submission_to_process, 'form': form }
     return render(request, 'submissions/process_new_submissions.html', context)
@@ -197,7 +197,7 @@ def submit_report(request, submission_id):
             author.nr_reports = Report.objects.filter(author=author).count()
             author.save()
             request.session['submission_id'] = submission_id
-            return HttpResponseRedirect(reverse('reports:submit_report_ack'))
+            return HttpResponseRedirect(reverse('submissions:submit_report_ack'))
 
     else:
         form = ReportForm()

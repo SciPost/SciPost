@@ -22,11 +22,11 @@ RATING_CHOICES = (
 class PublicationTypeRating(models.Model):
     """ Abstract base class for all ratings of publication-type objects. """
     rater = models.ForeignKey(Contributor)
-    clarity = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
-    validity = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
-    rigour = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
-    originality = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
-    significance = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
+    clarity = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
+    validity = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
+    rigour = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
+    originality = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
+    significance = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
     
     class Meta:
         abstract = True
@@ -35,11 +35,11 @@ class PublicationTypeRating(models.Model):
 class CommentTypeRating(models.Model):
     """ Abstract base class for all ratings of comment-type objects. """
     rater = models.ForeignKey(Contributor)
-    relevance = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
-    importance = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
-    clarity = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
-    validity = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
-    rigour = models.PositiveSmallIntegerField(RATING_CHOICES, default=0, null=True)
+    relevance = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
+    importance = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
+    clarity = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
+    validity = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
+    rigour = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
     
     class Meta:
         abstract = True

@@ -36,15 +36,15 @@ class ThesisLink(models.Model):
     abstract = models.TextField(verbose_name='abstract, outline or summary')
 
     nr_clarity_ratings = models.IntegerField(default=0)
-    clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    clarity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
     nr_validity_ratings = models.IntegerField(default=0)
-    validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    validity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
     nr_rigour_ratings = models.IntegerField(default=0)
-    rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    rigour_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
     nr_originality_ratings = models.IntegerField(default=0)
-    originality_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    originality_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
     nr_significance_ratings = models.IntegerField(default=0)
-    significance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0, null=True)
+    significance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
 
     latest_activity = models.DateTimeField(default=timezone.now)
 

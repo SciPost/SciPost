@@ -16,6 +16,8 @@
   });
 </script>
 
+{% load rating_extras %}
+
 {% endblock headsup %}
 
 {% block bodysup %}
@@ -43,11 +45,11 @@
   <div class="ratings">
     <h4>Ratings:</h4>
     <ul>
-      <li>clarity: {{ thesislink.clarity_rating }}% ({{ thesislink.nr_clarity_ratings }})</li>
-      <li>validity: {{ thesislink.validity_rating }}% ({{ thesislink.nr_validity_ratings }})</li>
-      <li>rigour: {{ thesislink.rigour_rating }}% ({{ thesislink.nr_rigour_ratings }})</li>
-      <li>originality: {{ thesislink.originality_rating }}% ({{ thesislink.nr_originality_ratings }})</li>
-      <li>significance: {{ thesislink.significance_rating }}% ({{ thesislink.nr_significance_ratings }})</li>
+      <li>clarity: {{ thesislink.clarity_rating|rating_as_text }} ({{ thesislink.nr_clarity_ratings }})</li>
+      <li>validity: {{ thesislink.validity_rating|rating_as_text }} ({{ thesislink.nr_validity_ratings }})</li>
+      <li>rigour: {{ thesislink.rigour_rating|rating_as_text }} ({{ thesislink.nr_rigour_ratings }})</li>
+      <li>originality: {{ thesislink.originality_rating|rating_as_text }} ({{ thesislink.nr_originality_ratings }})</li>
+      <li>significance: {{ thesislink.significance_rating|rating_as_text }} ({{ thesislink.nr_significance_ratings }})</li>
     </ul>
   </div>
   <br />
@@ -101,11 +103,11 @@
 	<div class="ratings">
 	  <h4>Ratings:</h4>
 	  <ul>
-	    <li>Relevance: {{ comment.relevance_rating }}% ({{ comment.nr_relevance_ratings }})</li>
-	    <li>Importance: {{ comment.importance_rating }}% ({{ comment.nr_importance_ratings }})</li>
-	    <li>Clarity: {{ comment.clarity_rating }}% ({{ comment.nr_clarity_ratings }})</li>
-	    <li>Validity: {{ comment.validity_rating }}% ({{ comment.nr_validity_ratings }})</li>
-	    <li>Rigour: {{ comment.rigour_rating }}% ({{ comment.nr_rigour_ratings }})</li>
+	    <li>Relevance: {{ comment.relevance_rating|rating_as_text }} ({{ comment.nr_relevance_ratings }})</li>
+	    <li>Importance: {{ comment.importance_rating|rating_as_text }} ({{ comment.nr_importance_ratings }})</li>
+	    <li>Clarity: {{ comment.clarity_rating|rating_as_text }} ({{ comment.nr_clarity_ratings }})</li>
+	    <li>Validity: {{ comment.validity_rating|rating_as_text }} ({{ comment.nr_validity_ratings }})</li>
+	    <li>Rigour: {{ comment.rigour_rating|rating_as_text }} ({{ comment.nr_rigour_ratings }})</li>
 	  </ul>
 	</div>
 	
@@ -148,11 +150,11 @@
 	<div class="ratings">
 	  <h4>Ratings: </h4>
 	  <ul>
-	    <li>relevance: {{ reply.relevance_rating }}% ({{ reply.nr_relevance_ratings }})</li>
-	    <li>importance: {{ reply.importance_rating }}% ({{ reply.nr_importance_ratings }})</li>
-	    <li>clarity: {{ reply.clarity_rating }}% ({{ reply.nr_clarity_ratings }})</li>
-	    <li>validity: {{ reply.validity_rating }}% ({{ reply.nr_validity_ratings }})</li>
-	    <li>rigour: {{ reply.rigour_rating }}% ({{ reply.nr_rigour_ratings }})</li>
+	    <li>relevance: {{ reply.relevance_rating|rating_as_text }} ({{ reply.nr_relevance_ratings }})</li>
+	    <li>importance: {{ reply.importance_rating|rating_as_text }} ({{ reply.nr_importance_ratings }})</li>
+	    <li>clarity: {{ reply.clarity_rating|rating_as_text }} ({{ reply.nr_clarity_ratings }})</li>
+	    <li>validity: {{ reply.validity_rating|rating_as_text }} ({{ reply.nr_validity_ratings }})</li>
+	    <li>rigour: {{ reply.rigour_rating|rating_as_text }} ({{ reply.nr_rigour_ratings }})</li>
 	  </ul>
 	</div>
       </div>
