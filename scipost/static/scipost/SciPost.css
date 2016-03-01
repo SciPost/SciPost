@@ -307,10 +307,14 @@ nav a:hover {
   color: #000000;
 /*  color: #FFA300 */
   text-decoration: none;
-  background-color: #ffffff;
+  background-color: #FFFFFF;
 }
 nav a:active {
   color: #222222;
+}
+nav a.highlighted {
+/*  background-color: #FFFFFF; */
+  border: 1px solid black;
 }
 nav p {
   display: inline-block;

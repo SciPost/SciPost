@@ -2,6 +2,10 @@
 
 {% block pagetitle %}: personal page{% endblock pagetitle %}
 
+{% block headsup %}
+{% load rating_extras %}
+{% endblock headsup %}
+
 {% block bodysup %}
 
 <section>
@@ -104,31 +108,31 @@
     <div class="col-3">
       <table class="ratings">
 	<th>Reports</th><th>(nr: {{ contributor.nr_reports }})</th>
-	<tr><td>relevance:</td><td>{{ contributor.report_relevance_rating }}% ({{ contributor.nr_report_relevance_ratings }})</td></tr>
-	<tr><td>importance:</td><td>{{ contributor.report_importance_rating }}% ({{ contributor.nr_report_importance_ratings }})</td></tr>
-	<tr><td>clarity:</td><td>{{ contributor.report_clarity_rating }}% ({{ contributor.nr_report_clarity_ratings }})</td></tr>
-	<tr><td>validity:</td><td>{{ contributor.report_validity_rating }}% ({{ contributor.nr_report_validity_ratings }})</td></tr>
-	<tr><td>rigour:</td><td>{{ contributor.report_rigour_rating }}% ({{ contributor.nr_report_rigour_ratings }})</td></tr>
+	<tr><td>relevance:</td><td>{{ contributor.report_relevance_rating }}% {{ contributor.report_relevance_rating|rating_as_text }} ({{ contributor.nr_report_relevance_ratings }})</td></tr>
+	<tr><td>importance:</td><td>{{ contributor.report_importance_rating }}% {{ contributor.report_importance_rating|rating_as_text }} ({{ contributor.nr_report_importance_ratings }})</td></tr>
+	<tr><td>clarity:</td><td>{{ contributor.report_clarity_rating }}% {{ contributor.report_importance_rating|rating_as_text }} ({{ contributor.nr_report_clarity_ratings }})</td></tr>
+	<tr><td>validity:</td><td>{{ contributor.report_validity_rating }}% {{ contributor.report_validity_rating|rating_as_text }} ({{ contributor.nr_report_validity_ratings }})</td></tr>
+	<tr><td>rigour:</td><td>{{ contributor.report_rigour_rating }}% {{ contributor.report_rigour_rating|rating_as_text }} ({{ contributor.nr_report_rigour_ratings }})</td></tr>
       </table>
     </div>
     <div class="col-3">
       <table class="ratings">
 	<th>Comments</th><th>(nr: {{ contributor.nr_comments }})</th>
-	<tr><td>relevance:</td><td>{{ contributor.comment_relevance_rating }}% ({{ contributor.nr_comment_relevance_ratings }})</td></tr>
-	<tr><td>importance:</td><td>{{ contributor.comment_importance_rating }}% ({{ contributor.nr_comment_importance_ratings }})</td></tr>
-	<tr><td>clarity:</td><td>{{ contributor.comment_clarity_rating }}% ({{ contributor.nr_comment_clarity_ratings }})</td></tr>
-	<tr><td>validity:</td><td>{{ contributor.comment_validity_rating }}% ({{ contributor.nr_comment_validity_ratings }})</td></tr>
-	<tr><td>rigour:</td><td>{{ contributor.comment_rigour_rating }}% ({{ contributor.nr_comment_rigour_ratings }})</td></tr>
+	<tr><td>relevance:</td><td>{{ contributor.comment_relevance_rating }}% {{ contributor.comment_relevance_rating|rating_as_text }} ({{ contributor.nr_comment_relevance_ratings }})</td></tr>
+	<tr><td>importance:</td><td>{{ contributor.comment_importance_rating }}% {{ contributor.comment_importance_rating|rating_as_text }} ({{ contributor.nr_comment_importance_ratings }})</td></tr>
+	<tr><td>clarity:</td><td>{{ contributor.comment_clarity_rating }}% {{ contributor.comment_clarity_rating|rating_as_text }} ({{ contributor.nr_comment_clarity_ratings }})</td></tr>
+	<tr><td>validity:</td><td>{{ contributor.comment_validity_rating }}% {{ contributor.comment_validity_rating|rating_as_text }} ({{ contributor.nr_comment_validity_ratings }})</td></tr>
+	<tr><td>rigour:</td><td>{{ contributor.comment_rigour_rating }}% {{ contributor.comment_rigour_rating|rating_as_text }} ({{ contributor.nr_comment_rigour_ratings }})</td></tr>
       </table>
     </div>
     <div class="col-3">
       <table class="ratings">
 	<th>Author Replies</th><th>(nr: {{ contributor.nr_authorreplies }})</th>
-	<tr><td>relevance:</td><td>{{ contributor.authorreply_relevance_rating }}% ({{ contributor.nr_authorreply_relevance_ratings }})</td></tr>
-	<tr><td>importance:</td><td>{{ contributor.authorreply_importance_rating }}% ({{ contributor.nr_authorreply_importance_ratings }})</td></tr>
-	<tr><td>clarity:</td><td>{{ contributor.authorreply_clarity_rating }}% ({{ contributor.nr_authorreply_clarity_ratings }})</td></tr>
-	<tr><td>validity:</td><td>{{ contributor.authorreply_validity_rating }}% ({{ contributor.nr_authorreply_validity_ratings }})</td></tr>
-	<tr><td>rigour:</td><td>{{ contributor.authorreply_rigour_rating }}% ({{ contributor.nr_authorreply_rigour_ratings }})</td></tr>
+	<tr><td>relevance:</td><td>{{ contributor.authorreply_relevance_rating }}% {{ contributor.authorreply_relevance_rating|rating_as_text }} ({{ contributor.nr_authorreply_relevance_ratings }})</td></tr>
+	<tr><td>importance:</td><td>{{ contributor.authorreply_importance_rating }}% {{ contributor.authorreply_importance_rating|rating_as_text }} ({{ contributor.nr_authorreply_importance_ratings }})</td></tr>
+	<tr><td>clarity:</td><td>{{ contributor.authorreply_clarity_rating }}% {{ contributor.authorreply_clarity_rating|rating_as_text }} ({{ contributor.nr_authorreply_clarity_ratings }})</td></tr>
+	<tr><td>validity:</td><td>{{ contributor.authorreply_validity_rating }}% {{ contributor.authorreply_validity_rating|rating_as_text }} ({{ contributor.nr_authorreply_validity_ratings }})</td></tr>
+	<tr><td>rigour:</td><td>{{ contributor.authorreply_rigour_rating }}% {{ contributor.authorreply_rigour_rating|rating_as_text }} ({{ contributor.nr_authorreply_rigour_ratings }})</td></tr>
       </table>
     </div>
   </div>

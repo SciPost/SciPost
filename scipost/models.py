@@ -144,4 +144,3 @@ class Contributor(models.Model):
         return output
 
 
-#class LeadEditorGroup(models.Group)
