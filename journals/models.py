@@ -12,8 +12,8 @@ from .models import *
 
 SCIPOST_JOURNALS = (
     ('SciPost Physics Select', 'SciPost Physics Select'),
-    ('SciPost Physics Letters', 'SciPost Physics Letters'),
-    ('SciPost Physics X', 'SciPost Physics X (cross-division)'),
+#    ('SciPost Physics Letters', 'SciPost Physics Letters'),
+#    ('SciPost Physics X', 'SciPost Physics X (cross-division)'),
 #    ('SciPost Physics Rapid', 'SciPost Physics Rapid'),
 # Possible further specializations: instead of SciPost Physics,
 #    ('SciPost Physics A', 'SciPost Physics A (Atomic, Molecular and Optical Physics)'),
@@ -34,7 +34,7 @@ SCIPOST_JOURNALS = (
 
 SCIPOST_JOURNALS_SUBMIT = ( # Same as SCIPOST_JOURNALS, but SP Select deactivated
 #    ('SciPost Physics Select', 'SciPost Physics Select'), # cannot be submitted to: promoted from Letters
-    ('SciPost Physics Letters', 'SciPost Physics Letters'),
+#    ('SciPost Physics Letters', 'SciPost Physics Letters'),
 #    ('SciPost Physics X', 'SciPost Physics X (cross-division)'), # cannot be submitted to: promoted from SciPost Physics
 # Use the three fundamental branches of Physics: 
 #    ('SciPost Physics E', 'SciPost Physics E (Experimental)'),
