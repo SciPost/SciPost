@@ -9,7 +9,7 @@ from commentaries.models import Commentary
 from comments.models import Comment, AuthorReply
 from scipost.models import Contributor
 from submissions.models import Submission, Report
-
+from theses.models import ThesisLink
 
 RATING_CHOICES = (
     (101, '-'), # Only values between 0 and 100 are kept, anything outside those limits is discarded.
@@ -65,5 +65,8 @@ class SubmissionRating(PublicationTypeRating):
     """ A Submission rating is a set of numbers quantifying various requirements of a Submission. """
     submission = models.ForeignKey(Submission)
 
+class ThesisLinkRating(PublicationTypeRating):
+    """ A Thesis rating is a set of numbers quantifying various requirements of a Thesis. """
+    thesislink = models.ForeignKey(ThesisLink)
 
 

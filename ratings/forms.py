@@ -47,6 +47,6 @@ class SubmissionRatingForm(PublicationTypeRatingForm):
 class ReportRatingForm(CommentTypeRatingForm):
     pass
 
-class ThesisRatingForm(PublicationTypeRatingForm):
+class ThesisLinkRatingForm(PublicationTypeRatingForm):
     pass
 

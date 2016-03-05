@@ -15,7 +15,7 @@ from .forms import *
 from comments.models import Comment, AuthorReply
 from comments.forms import CommentForm
 from scipost.forms import TITLE_CHOICES, AuthenticationForm
-from ratings.forms import CommentRatingForm, AuthorReplyRatingForm, CommentaryRatingForm, ThesisRatingForm
+from ratings.forms import CommentRatingForm, AuthorReplyRatingForm, CommentaryRatingForm, ThesisLinkRatingForm
 
 title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
 
@@ -182,7 +182,7 @@ def thesis_detail(request, thesislink_id):
 
     comment_rating_form = CommentRatingForm()
     authorreply_rating_form = AuthorReplyRatingForm()
-    thesislink_rating_form = ThesisRatingForm()
+    thesislink_rating_form = ThesisLinkRatingForm()
     try:
         author_replies = AuthorReply.objects.filter(thesislink=thesislink)
     except AuthorReply.DoesNotExist:

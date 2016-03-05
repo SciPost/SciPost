@@ -12,7 +12,7 @@ from django.db.models import Avg
 from .models import *
 from .forms import *
 
-
+from theses.models import ThesisLink
 
 def vote_on_commentary(request, commentary_id):
     commentary = get_object_or_404(Commentary, pk=commentary_id)
