@@ -51,10 +51,6 @@ def vote_on_commentary(request, commentary_id):
     context = {'commentary_id': commentary_id}
     return render(request, 'ratings/vote_on_commentary_ack.html', context)
             
-def vote_on_commentary_ack(request):
-    context = {}
-    return render(request, 'ratings/vote_on_commentary_ack.html', context)
-
 
 
 def vote_on_comment(request, comment_id):
@@ -146,10 +142,6 @@ def vote_on_comment(request, comment_id):
     return render(request, 'ratings/vote_on_comment_ack.html')
 
 
-def vote_on_comment_ack(request):
-    context = {}
-    return render(request, 'ratings/vote_on_comment_ack.html', context)
-
 
 def vote_on_authorreply(request, authorreply_id):
     authorreply = get_object_or_404(AuthorReply, pk=authorreply_id)
@@ -240,11 +232,6 @@ def vote_on_authorreply(request, authorreply_id):
     return render(request, 'ratings/vote_on_authorreply_ack.html')
 
 
-def vote_on_authorreply_ack(request):
-    context = {}
-    return render(request, 'ratings/vote_on_authorreply_ack.html', context)
-
-
 
 def vote_on_report(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
@@ -332,11 +319,6 @@ def vote_on_report(request, report_id):
 
     return render(request, 'ratings/vote_on_report_ack.html')
             
-def vote_on_report_ack(request):
-    context = {}
-    return render(request, 'ratings/vote_on_report_ack.html', context)
-
-
 
 
 def vote_on_submission(request, submission_id):

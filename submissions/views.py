@@ -25,10 +25,6 @@ from ratings.forms import CommentRatingForm, AuthorReplyRatingForm, ReportRating
 # SUBMISSIONS:
 ###############
 
-def sub_and_ref_procedure(request):
-    return render(request, 'submissions/sub_and_ref_procedure.html')
-
-
 def submit_manuscript(request):
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
@@ -52,10 +48,6 @@ def submit_manuscript(request):
     else:
         form = SubmissionForm()
     return render(request, 'submissions/submit_manuscript.html', {'form': form})
-
-
-def submit_manuscript_ack(request):
-    return render(request, 'submissions/submit_manuscript_ack.html')
 
 
 def process_new_submissions(request):
@@ -203,11 +195,6 @@ def submit_report(request, submission_id):
         form = ReportForm()
     context = {'submission': submission, 'form': form }
     return render(request, 'submissions/submit_report.html', context)
-
-
-def submit_report_ack(request):
-    context = {}
-    return render(request, 'submissions/submit_report_ack.html', context)
 
 
 def vet_submitted_reports(request):

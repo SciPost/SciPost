@@ -24,9 +24,6 @@ title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
 ################
 
 
-def howto(request):
-    return render(request, 'commentaries/howto.html')
-
 def request_commentary(request):
     # commentary pages can only be requested by registered contributors:
     if request.user.is_authenticated():
@@ -56,10 +53,6 @@ def request_commentary(request):
     else: # user is not authenticated:
         form = AuthenticationForm()
         return render(request, 'scipost/login.html', {'form': form})
-
-
-def request_commentary_ack(request):
-    return render(request, 'commentaries/request_commentary_ack.html')
 
 
 def vet_commentary_requests(request):

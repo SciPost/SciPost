@@ -16,10 +16,6 @@ from .forms import *
 from scipost.models import title_dict
 
 
-def comment_submission_ack(request):
-    return render(request, 'comments/comment_submission_ack.html')
-
-
 def vet_submitted_comments(request):
     contributor = Contributor.objects.get(user=request.user)
     comment_to_vet = Comment.objects.filter(status=0).first() # only handle one at a time
@@ -27,11 +23,6 @@ def vet_submitted_comments(request):
     form = VetCommentForm()
     context = {'contributor': contributor, 'comment_to_vet': comment_to_vet, 'form': form }
     return(render(request, 'comments/vet_submitted_comments.html', context))
-    #return render (request, 'comments/no_comment_to_vet.html')
-
-
-#def no_comment_to_vet(request):
-#    return render (request, 'comments/no_comment_to_vet.html')
 
 
 def vet_submitted_comment_ack(request, comment_id):

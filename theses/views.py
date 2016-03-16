@@ -56,10 +56,6 @@ def request_thesislink(request):
         return render(request, 'scipost/login.html', {'form': form})
 
 
-def request_thesislink_ack(request):
-    return render(request, 'theses/request_thesislink_ack.html')
-
-
 def vet_thesislink_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     thesislink_to_vet = ThesisLink.objects.filter(vetted=False).first() # only handle one at a time
