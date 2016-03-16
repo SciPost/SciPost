@@ -26,6 +26,7 @@ from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment, AuthorReply
 from submissions.models import Submission, Report
+from submissions.forms import SubmissionSearchForm
 from theses.models import ThesisLink
 from theses.forms import ThesisLinkSearchForm
 
@@ -35,9 +36,10 @@ from theses.forms import ThesisLinkSearchForm
 #############
 
 def index(request):
+    submission_search_form = SubmissionSearchForm(request.POST)
     commentary_search_form = CommentarySearchForm(request.POST)
     thesislink_search_form = ThesisLinkSearchForm(request.POST)
-    context = {'commentary_search_form': commentary_search_form, 'thesislink_search_form': thesislink_search_form}
+    context = {'submission_search_form': submission_search_form, 'commentary_search_form': commentary_search_form, 'thesislink_search_form': thesislink_search_form}
     return render(request, 'scipost/index.html', context)
 
 ###############
@@ -47,28 +49,15 @@ def index(request):
 def base(request):
     return render(request, 'scipost/base.html')
 
-def about(request):
-    return render(request, 'scipost/about.html')
-
-def FAQ(request):
-    return render(request, 'scipost/FAQ.html')
-
 def description(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'filename="SciPost_Description.pdf"'
     return response
 
-def peer_witnessed_refereeing(request):
-    return render(request, 'scipost/peer_witnessed_refereeing.html')
-
 
 ################
 # Contributors:
 ################
-
-title_dict = dict(TITLE_CHOICES)
-reg_ref_dict = dict(REGISTRATION_REFUSAL_CHOICES)
-
 
 def register(request):
     if request.user.is_authenticated():
@@ -92,9 +81,6 @@ def register(request):
     return render(request, 'scipost/register.html', {'form': form, 'errormessage': errormessage})
 
 
-def thanks_for_registering(request):
-    return render(request, 'scipost/thanks_for_registering.html')
-
 
 def activation(request, key):
     activation_expired = False
@@ -117,9 +103,6 @@ def activation(request, key):
     return render(request, 'scipost/index.html')
 
 
-def activation_ack(request):
-    return render(request, 'scipost/activation_ack.html')
-
 
 def request_new_activation_link(request, oldkey):
     contributor = get_object_or_404(Contributor, activation_key=oldkey)
@@ -139,13 +122,6 @@ def request_new_activation_link(request, oldkey):
     emailmessage.send(fail_silently=False)
     return render (request, 'scipost/request_new_activation_link_ack.html')
 
-
-def request_new_activation_link_ack(request):
-    return render (request, 'scipost/request_new_activation_link_ack.html')
-
-
-def already_activated(request):
-    return render (request, 'scipost/already_activated.html')
 
 
 def vet_registration_requests(request):
@@ -300,7 +276,4 @@ def update_personal_data(request):
         form = AuthenticationForm()
         return render(request, 'scipost/login.html', {'form': form})
 
-
-def update_personal_data_ack(request):
-    return render (request, 'scipost/update_personal_data_ack.html')
 

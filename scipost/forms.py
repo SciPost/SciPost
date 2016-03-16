@@ -15,6 +15,7 @@ REGISTRATION_REFUSAL_CHOICES = (
     (-2, 'another account already exists for this person'),
     (-3, 'barred from SciPost (abusive behaviour)'),
     )
+reg_ref_dict = dict(REGISTRATION_REFUSAL_CHOICES)
 
 class RegistrationForm(forms.Form):
     title = forms.ChoiceField(choices=TITLE_CHOICES, label='* Title')
