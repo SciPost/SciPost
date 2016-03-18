@@ -14,7 +14,7 @@ from .forms import *
 
 from comments.models import Comment, AuthorReply
 from comments.forms import CommentForm
-from scipost.forms import TITLE_CHOICES, AuthenticationForm
+from scipost.forms import TITLE_CHOICES, AuthenticationForm, RatingForm
 from ratings.forms import CommentRatingForm, AuthorReplyRatingForm, CommentaryRatingForm
 
 title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
@@ -177,9 +177,10 @@ def commentary_detail(request, commentary_id):
     comment_rating_form = CommentRatingForm()
     authorreply_rating_form = AuthorReplyRatingForm()
     commentary_rating_form = CommentaryRatingForm()
+    commentary_rating_form_new = RatingForm()
     try:
         author_replies = AuthorReply.objects.filter(commentary=commentary)
     except AuthorReply.DoesNotExist:
         author_replies = ()
-    context = {'commentary': commentary, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 'author_replies': author_replies, 'form': form, 'commentary_rating_form': commentary_rating_form, 'comment_rating_form': comment_rating_form, 'authorreply_rating_form': authorreply_rating_form }
+    context = {'commentary': commentary, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 'author_replies': author_replies, 'form': form, 'commentary_rating_form': commentary_rating_form, 'commentary_rating_form_new': commentary_rating_form_new, 'comment_rating_form': comment_rating_form, 'authorreply_rating_form': authorreply_rating_form }
     return render(request, 'commentaries/commentary_detail.html', context)

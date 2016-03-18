@@ -133,6 +133,36 @@ hr.hr12 {
   height: 6px;
 }
 
+.ratingsform {
+  margin: 1px;
+  padding: 4px;
+  display: inline-block;
+  background-color: #204080;
+}
+.ratingsform ul {
+  display: inline-block;
+  color: #ffffff;
+  padding: 2px;
+  box-shadow: 1px 1px 3px #888888;
+}
+.ratingsform ul li {
+  display: inline-block;
+  margin: 0px;
+  padding: 0px 4px;
+}
+.ratingsform label {
+  color: #ffffff;
+  font-size: 80%;
+}
+.ratingsform input {
+  margin: 0px;
+}
+.ratingsform select {
+  margin: 0px;
+  padding: 0px;
+  height: 6px;
+}
+
 .reportid {
   display: inline-block;
   box-shadow: 5px 5px 10px #888888;

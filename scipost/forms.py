@@ -87,3 +87,8 @@ class PasswordChangeForm(forms.Form):
     password_new = forms.CharField(label='New password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
 
+
+class RatingForm(forms.ModelForm):
+    class Meta:
+        model = RatingItem
+        fields = ['relevance', 'importance', 'clarity', 'validity', 'rigour', 'originality', 'significance']

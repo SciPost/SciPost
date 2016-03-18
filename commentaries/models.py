@@ -42,6 +42,8 @@ class Commentary(models.Model):
     nr_significance_ratings = models.IntegerField(default=0)
     significance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
 
+    rating_agg = models.OneToOneField(RatingAggregate, null=True)
+
     latest_activity = models.DateTimeField(default=timezone.now)
 
     def __str__ (self):

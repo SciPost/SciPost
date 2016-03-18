@@ -253,6 +253,12 @@
     {% csrf_token %}
     {% load crispy_forms_tags %}
     {% crispy form %}
+    <div class="ratingsform">
+      <ul>
+	<li>Rate this publication:</li>
+	{{ commentary_rating_form_new.as_ul }}
+      </ul>
+    </div>
   </form>
 </section>
 {% endif %}

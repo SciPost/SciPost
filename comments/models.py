@@ -53,6 +53,8 @@ class Comment(models.Model):
     comment_text = models.TextField()
     remarks_for_editors = models.TextField(default='', blank=True, verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted')
+
+    
     # Aggregates of ratings applied to this comment:
     nr_relevance_ratings = models.IntegerField(default=0)
     relevance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
