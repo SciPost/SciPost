@@ -60,6 +60,14 @@ class Submission(models.Model):
         header += '</table>'
         return header
 
+    def header_as_li (self):
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0"><p><a href="/submissions/submission/' + str(self.id) + '" class="pubtitleli">' + self.title + '</a></p>'
+        header += '<p>by ' + self.author_list + '</p><p> (submitted ' + str(self.submission_date) + ' to ' + journals_submit_dict[self.submitted_to_journal] + ') - latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
+        header += '</div></li>'
+        return header
+
+
     def submission_info_as_table (self):
         header = '<table>'
         header += '<tr><td>Editor in charge: </td><td>&nbsp;</td><td>' + str(self.editor_in_charge) + '</td></tr>'

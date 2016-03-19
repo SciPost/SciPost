@@ -35,21 +35,25 @@ def vet_submitted_comment_ack(request, comment_id):
                 email_text = 'Dear ' + title_dict[comment.author.title] + ' ' + comment.author.user.last_name + ', \n\nThe Comment you have submitted, concerning publication with title '
                 if comment.commentary is not None:
                     email_text += comment.commentary.pub_title + ' by ' + comment.commentary.author_list
+                    comment.commentary.latest_activity = timezone.now()
+                    comment.commentary.save()
                 elif comment.submission is not None:
                     email_text += comment.submission.title + ' by ' + comment.submission.author_list
+                    comment.submission.latest_activity = timezone.now()
+                    comment.submission.save()
                 email_text += ', has been accepted and published online.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost Comment published', email_text, 'comments@scipost.org', [comment.author.user.email, 'comments@scipost.org'], reply_to=['comments@scipost.org'])
                 emailmessage.send(fail_silently=False)
             elif form.cleaned_data['action_option'] == '2':
                 # the comment request is simply rejected
-                comment.status = form.cleaned_data['refusal_reason']
+                comment.status = int(form.cleaned_data['refusal_reason'])
                 comment.save()
                 email_text = 'Dear ' + title_dict[comment.author.title] + ' ' + comment.author.user.last_name + ', \n\nThe Comment you have submitted, concerning publication with title '
                 if comment.commentary is not None:
                     email_text += comment.commentary.pub_title + ' by ' + comment.commentary.author_list
                 elif comment.submission is not None:
                     email_text += comment.submission.title + ' by ' + comment.submission.author_list
-                email_text += ', has been rejected for the following reason:' + comment_refusal_dict[form.cleaned_data['refusal_reason']] + '.\n\nThank you for your contribution, \nThe SciPost Team.'
+                email_text += ', has been rejected for the following reason:' + comment_refusal_dict[comment.status] + '.\n\nThank you for your contribution, \nThe SciPost Team.'
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 emailmessage = EmailMessage('SciPost Comment rejected', email_text, 'comments@scipost.org', [comment.author.user.email, 'comments@scipost.org'], reply_to=['comments@scipost.org'])
@@ -78,6 +82,7 @@ def reply_to_comment(request, comment_id):
                 is_lit = form.cleaned_data['is_lit'],
                 is_sug = form.cleaned_data['is_sug'],
                 comment_text = form.cleaned_data['comment_text'],
+                remarks_for_editors = form.cleaned_data['remarks_for_editors'],
                 date_submitted = timezone.now(),
                 )
             newcomment.save()
@@ -157,8 +162,12 @@ def vet_author_reply_ack(request, reply_id):
                 email_text = 'The Author Reply you have submitted, concerning publication with title '
                 if reply.commentary is not None:
                     email_text += reply.commentary.pub_title + ' by ' + reply.commentary.author_list
+                    reply.commentary.latest_activity = timezone.now()
+                    reply.commentary.save()
                 elif reply.submission is not None:
                     email_text += reply.submission.title + ' by ' + reply.submission.author_list
+                    reply.submission.latest_activity = timezone.now()
+                    reply.submission.save()
                 email_text += ', has been accepted and published online.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost Author Reply published', email_text, 'comments@scipost.org', [reply.author.user.email, 'comments@scipost.org'], reply_to=['comments@scipost.org'])
                 emailmessage.send(fail_silently=False)

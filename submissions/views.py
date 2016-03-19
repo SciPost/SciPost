@@ -64,6 +64,7 @@ def process_new_submission_ack(request, submission_id):
             submission.vetted = True
             submission.editor_in_charge = form.cleaned_data['editor_in_charge']
             submission.status = 1
+            submission.latest_activity = timezone.now()
             submission.save()
 
     context = {}

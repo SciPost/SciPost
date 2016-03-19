@@ -71,6 +71,7 @@ def vet_commentary_request_ack(request, commentary_id):
                 # accept the commentary as is
                 commentary.vetted = True
                 commentary.vetted_by = Contributor.objects.get(user=request.user)
+                commentary.latest_activity = timezone.now()
                 commentary.save()
                 email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has been activated. You are now welcome to submit your comments.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'commentaries@scipost.org', [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['commentaries@scipost.org'])
@@ -115,7 +116,8 @@ def commentaries(request):
         form = CommentarySearchForm()
         commentary_search_list = []
 
-    commentary_recent_list = Commentary.objects.filter(vetted=True, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7))
+    #commentary_recent_list = Commentary.objects.filter(vetted=True, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7))
+    commentary_recent_list = Commentary.objects.filter(vetted=True).order_by('-latest_activity')[:10]
     context = {'form': form, 'commentary_search_list': commentary_search_list, 'commentary_recent_list': commentary_recent_list }
     return render(request, 'commentaries/commentaries.html', context)
 

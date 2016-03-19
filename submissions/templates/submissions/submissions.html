@@ -42,7 +42,7 @@ ack=4 %}">month</a> <a href="{% url 'submissions:browse' discipline='physics' nr
   <h3>Search results:</h3>
   <ul>
     {% for submission in submission_search_list %}
-    <li><a href="{% url 'submissions:submission' submission.id %}">{{ submission.title }}</a> by {{ submission.author_list }} (published {{ submission.submission_date }}) </li>
+    {{ submission.header_as_li|safe }}
     {% endfor %}
   </ul>
   {% elif form.has_changed %}
@@ -57,7 +57,7 @@ ack=4 %}">month</a> <a href="{% url 'submissions:browse' discipline='physics' nr
   <h2>Recent Submissions:</h2>
   <ul>  
     {% for submission in submission_recent_list %}
-    <li><a href="{% url 'submissions:submission' submission.id %}">{{ submission.title }}</a> by {{ submission.author_list }} (submitted {{ submission.submission_date }}) </li>
+    {{ submission.header_as_li|safe }}
     {% endfor %}
   </ul>
 </section>

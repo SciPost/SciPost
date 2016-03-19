@@ -237,6 +237,14 @@ hr.hr12 {
   padding: 0px;
 }
 
+.pubtitleli {
+  martin: 1px;
+  padding: 3px 5px;
+  background-color: #f4f4f4;
+  border-radius: 4px;
+  border: 1px solid orange;
+}
+
 body {
 /*  font-family: Merriweather, sans-serif; */
   font-family: 'Merriweather Sans';
