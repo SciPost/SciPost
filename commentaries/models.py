@@ -30,20 +30,6 @@ class Commentary(models.Model):
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_com')
     pub_date = models.DateField(verbose_name='date of original publication')
     pub_abstract = models.TextField(verbose_name='abstract')
-
-    nr_clarity_ratings = models.IntegerField(default=0)
-    clarity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_validity_ratings = models.IntegerField(default=0)
-    validity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_rigour_ratings = models.IntegerField(default=0)
-    rigour_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_originality_ratings = models.IntegerField(default=0)
-    originality_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_significance_ratings = models.IntegerField(default=0)
-    significance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-
-    rating_agg = models.OneToOneField(RatingAggregate, null=True)
-
     latest_activity = models.DateTimeField(default=timezone.now)
 
     def __str__ (self):

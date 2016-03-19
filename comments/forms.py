@@ -2,8 +2,6 @@ from django import *
 
 from .models import *
 
-from scipost.forms import RatingForm
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
 

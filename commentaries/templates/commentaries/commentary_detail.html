@@ -9,14 +9,8 @@
   $("#commentsbutton").click(function(){
   $("#commentslist").toggle();
   });
-  $("#ratingsbutton").click(function() {
-  $(".ratings").toggle();
-  $(".ratingsinput").toggle();
-  });
   });
 </script>
-
-{% load rating_extras %}
 
 {% endblock headsup %}
 
@@ -25,24 +19,9 @@
 <!-- Temporary strip -->
 {% if user.is_authenticated %}
 
-<!--
-<section>
-  <hr class="hr12">
-  <div class="row">
-    <div class="col-10">
-      <h1>SciPost Commentary Page &nbsp; (for non-SciPost publications)</h1>
-    </div>
-    <div class="col-2">
-      <br/>
-      <button id="ratingsbutton">Toggle ratings view</button>
-    </div>
-  </div>
-</section>
--->
 <section>
   <div class="flex-greybox">
     <h1>SciPost Commentary Page &nbsp; (non-SciPost publications)</h1>
-    <button id="ratingsbutton">Toggle ratings view</button>
   </div>
 
   <hr class="hr12">
@@ -52,41 +31,10 @@
     </div>
   </div>
   {{ commentary.header_as_table|safe }}
-<!--
-  <table>
-    <tr><td>Title: </td><td>{{ commentary.pub_title }}</td></tr>
-    <tr><td>Author(s): </td><td>{{ commentary.author_list }}</td></tr>
-    <tr><td>arXiv link: </td><td><a href="{{ commentary.arxiv_link }}">{{ commentary.arxiv_link }}</a></td></tr>
-    <tr><td>DOI Link: </td><td><a href="{{ commentary.pub_DOI_link }}">{{ commentary.pub_DOI_link }}</a></td></tr>
-    <tr><td>Date published: </td><td>{{ commentary.pub_date }}</td></tr>
-  </table>
--->
 
   <h3>Abstract:</h3>
   <p>{{ commentary.pub_abstract }}</p>
   
-  <div class="ratings">
-    <h4>Ratings:</h4>
-    <ul>
-      <li>clarity: {{ commentary.clarity_rating|rating_as_text }} ({{ commentary.nr_clarity_ratings }})</li>
-      <li>validity: {{ commentary.validity_rating|rating_as_text }} ({{ commentary.nr_validity_ratings }})</li>
-      <li>rigour: {{ commentary.rigour_rating|rating_as_text }} ({{ commentary.nr_rigour_ratings }})</li>
-      <li>originality: {{ commentary.originality_rating|rating_as_text }} ({{ commentary.nr_originality_ratings }})</li>
-      <li>significance: {{ commentary.significance_rating|rating_as_text }} ({{ commentary.nr_significance_ratings }})</li>
-    </ul>
-  </div>
-  <br />
-
-  {% if user.is_authenticated and user.contributor.rank > 0 %}
-  <form action="{% url 'ratings:vote_on_commentary' commentary_id=commentary.id %}" method="post" class="ratingsinput">
-    {% csrf_token %}
-    <ul>
-      {{ commentary_rating_form.as_ul }}	  
-      <li><input type="submit" value="Rate this publication"></li>
-    </ul>
-  </form>
-  {% endif %}
-
 </section>
 
 {% if reports %}
@@ -115,12 +63,6 @@
       
       <div class="col-3">
 	{{ comment.print_identifier|safe }}
-<!--
-	<div class="commentid">
-	  <h3>{{ comment.id }} {% if not comment.anonymous %}&nbsp; by {{ comment.author.user.first_name }} {{ comment.author.user.last_name }} {% endif %}&nbsp; {% if comment.in_reply_to %} (in reply to {{ comment.in_reply_to.id }}) {% endif %}</h3>
-	  <h4>Date: {{ comment.date_submitted }}</h4>
-	</div>
--->
       </div>
       
       <div class="col-9">
@@ -137,18 +79,6 @@
 	    {% if comment.is_sug %}<li>suggestion for further work</li>{% endif %}
 	  </ul>
 	</div>
-	<br/>
-	<div class="ratings">
-	  <h4>Ratings:</h4>
-	  <ul>
-	    <li>Relevance: {{ comment.relevance_rating|rating_as_text }} ({{ comment.nr_relevance_ratings }})</li>
-	    <li>Importance: {{ comment.importance_rating|rating_as_text }} ({{ comment.nr_importance_ratings }})</li>
-	    <li>Clarity: {{ comment.clarity_rating|rating_as_text }} ({{ comment.nr_clarity_ratings }})</li>
-	    <li>Validity: {{ comment.validity_rating|rating_as_text }} ({{ comment.nr_validity_ratings }})</li>
-	    <li>Rigour: {{ comment.rigour_rating|rating_as_text }} ({{ comment.nr_rigour_ratings }})</li>
-	  </ul>
-	</div>
-	
       </div>
 
     </div>
@@ -158,20 +88,6 @@
       <div class="col-10">
 	<h3>Comment text:</h3>
 	<div class="twocolumn">{{ comment.comment_text|linebreaks }}</div>
-	
-	<br/>
-	<div class="ratingsinput">
-	  {% if user.is_authenticated and user.contributor.rank > 0 %}
-	  <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post">
-	    {% csrf_token %}
-	    <ul>
-	      {{ comment_rating_form.as_ul }}	  
-	      <li><input type="submit" value="Rate this comment"></li>
-	    </ul>
-	  </form>
-	  {% endif %}
-	</div>
-	
       </div>
     </div>
   
@@ -184,18 +100,6 @@
       <div class="col-3">
 	<h3>Author reply ({{ reply.date_submitted }}):</h3>
       </div>
-      <div class="col-8">
-	<div class="ratings">
-	  <h4>Ratings: </h4>
-	  <ul>
-	    <li>relevance: {{ reply.relevance_rating|rating_as_text }} ({{ reply.nr_relevance_ratings }})</li>
-	    <li>importance: {{ reply.importance_rating|rating_as_text }} ({{ reply.nr_importance_ratings }})</li>
-	    <li>clarity: {{ reply.clarity_rating|rating_as_text }} ({{ reply.nr_clarity_ratings }})</li>
-	    <li>validity: {{ reply.validity_rating|rating_as_text }} ({{ reply.nr_validity_ratings }})</li>
-	    <li>rigour: {{ reply.rigour_rating|rating_as_text }} ({{ reply.nr_rigour_ratings }})</li>
-	  </ul>
-	</div>
-      </div>
     </div>
     <div class="row">
       <div class="col-1"></div>
@@ -203,22 +107,6 @@
 	<p>{{ reply.reply_text|linebreaks }}</p>
       </div>
     </div>
-    {% if user.is_authenticated and user.contributor.rank > 0 %}
-    <div class="row">
-      <div class="col-1"></div>
-      <div class="col-10">
-	<div class="ratingsinput">
-	  <form action="{% url 'ratings:vote_on_authorreply' authorreply_id=reply.id %}" method="post">
-	    {% csrf_token %}
-	    <ul>
-	      {{ authorreply_rating_form.as_ul }}	  
-	      <li><input type="submit" value="Rate this author reply"></li>
-	    </ul>
-	  </form>
-	</div>
-      </div>
-    </div>
-    {% endif %}
     
     {% endif %}
     {% endfor %}
@@ -253,12 +141,6 @@
     {% csrf_token %}
     {% load crispy_forms_tags %}
     {% crispy form %}
-    <div class="ratingsform">
-      <ul>
-	<li>Rate this publication:</li>
-	{{ commentary_rating_form_new.as_ul }}
-      </ul>
-    </div>
   </form>
 </section>
 {% endif %}

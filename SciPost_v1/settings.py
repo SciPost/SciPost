@@ -58,7 +58,6 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'journals',
-    'ratings',
     'scipost',
     'submissions',
     'theses',

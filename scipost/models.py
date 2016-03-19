@@ -58,59 +58,14 @@ class Contributor(models.Model):
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)
-    #nationality = CountryField(blank=True)
     country_of_employment = CountryField()
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
     address = models.CharField(max_length=1000, verbose_name="address", default='', blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
     #vetted_by = models.OneToOneField(Contributor, related_name='vetted_by') TO ACTIVATE
 
-    # permissions
-    can_vet_reg_req = models.BooleanField(default=False, verbose_name='can vet registration requests')
-    can_vet_commentary_req = models.BooleanField(default=False, verbose_name='can vet commentary page requests')
-    can_process_incoming_submissions = models.BooleanField(default=False, verbose_name='can process incoming submissions')
-    can_vet_comments = models.BooleanField(default=False, verbose_name='can vet submitted comments')
-    can_vet_author_replies = models.BooleanField(default=False, verbose_name='can vet submitted author replies')
-    can_vet_reports = models.BooleanField(default=False, verbose_name='can vet submitted reports')
-
-    nr_comments = models.PositiveSmallIntegerField(default=0)
-    nr_comment_relevance_ratings = models.IntegerField(default=0)
-    comment_relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_comment_importance_ratings = models.IntegerField(default=0)
-    comment_importance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_comment_clarity_ratings = models.IntegerField(default=0)
-    comment_clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_comment_validity_ratings = models.IntegerField(default=0)
-    comment_validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_comment_rigour_ratings = models.IntegerField(default=0)
-    comment_rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-
-    nr_authorreplies = models.PositiveSmallIntegerField(default=0)
-    nr_authorreply_relevance_ratings = models.IntegerField(default=0)
-    authorreply_relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_authorreply_importance_ratings = models.IntegerField(default=0)
-    authorreply_importance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_authorreply_clarity_ratings = models.IntegerField(default=0)
-    authorreply_clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_authorreply_validity_ratings = models.IntegerField(default=0)
-    authorreply_validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_authorreply_rigour_ratings = models.IntegerField(default=0)
-    authorreply_rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-
-    nr_reports = models.PositiveSmallIntegerField(default=0)
-    nr_report_relevance_ratings = models.IntegerField(default=0)
-    report_relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_report_importance_ratings = models.IntegerField(default=0)
-    report_importance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_report_clarity_ratings = models.IntegerField(default=0)
-    report_clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_report_validity_ratings = models.IntegerField(default=0)
-    report_validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_report_rigour_ratings = models.IntegerField(default=0)
-    report_rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
 
     def __str__ (self):
-#        return self.user.username
         return self.user.last_name + ', ' + self.user.first_name
 
     def as_table (self):
@@ -120,7 +75,6 @@ class Contributor(models.Model):
         output += '<tr><td>Last name: </td><td>&nbsp;</td><td>' + self.user.last_name + '</td></tr>'
         output += '<tr><td>Email: </td><td>&nbsp;</td><td>' + self.user.email + '</td></tr>'
         output += '<tr><td>ORCID id: </td><td>&nbsp;</td><td>' + self.orcid_id + '</td></tr>'
-        #output += '<tr><td>Nationality: </td><td>&nbsp;</td><td>' + str(self.nationality.name) + '</td></tr>'
         output += '<tr><td>Country of employment: </td><td>&nbsp;</td><td>' + str(self.country_of_employment.name) + '</td></tr>'
         output += '<tr><td>Affiliation: </td><td>&nbsp;</td><td>' + self.affiliation + '</td></tr>'
         output += '<tr><td>Address: </td><td>&nbsp;</td><td>' + self.address + '</td></tr>'
@@ -128,57 +82,41 @@ class Contributor(models.Model):
         output += '</table>'
         return output
 
-    def permissions_as_table (self):
-        output = '<table>'
-        if self.can_vet_reg_req:
-            output += '<tr><td>Can vet registration requests</td></tr>'
-        if self.can_vet_commentary_req:
-            output += '<tr><td>Can vet commentary page requests</td></tr>'
-        if self.can_process_incoming_submissions:
-            output += '<tr><td>Can process incoming submissions</td></tr>'
-        if self.can_vet_comments:
-            output += '<tr><td>Can vet submitted comments</td></tr>'
-        if self.can_vet_author_replies:
-            output += '<tr><td>Can vet submitted author replies</td></tr>'
-        if self.can_vet_reports:
-            output += '<tr><td>Can vet submitted reports</td></tr>'
-        output += '</table>'
-        return output
 
 
-#####################
-### Ratings objects
-#####################
+#######################
+### Assessments objects
+#######################
 
 
-### RatingItems
+### Assessments
 
-RATING_CHOICES = (
+ASSESSMENT_CHOICES = (
     (101, '-'), # Only values between 0 and 100 are kept, anything outside those limits is discarded.
     (100, 'top'), (80, 'high'), (60, 'good'), (40, 'ok'), (20, 'low'), (0, 'poor')
     )
 
-class RatingItem(models.Model):
+class Assessment(models.Model):
     """ 
-    Base class for all ratings.
+    Base class for all assessments.
     """
     rater = models.ForeignKey(Contributor)
     submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
     comment = models.ForeignKey('comments.Comment', blank=True, null=True)
-    relevance = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
-    importance = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
-    clarity = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
-    validity = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
-    rigour = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
-    originality = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
-    significance = models.PositiveSmallIntegerField(choices=RATING_CHOICES, default=101)
+    relevance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+    importance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+    clarity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+    validity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+    rigour = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+    originality = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+    significance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
 
 
-### RatingAggregates
+### AssessmentAggregates
 
-class RatingAggregate(models.Model):
+class AssessmentAggregate(models.Model):
     """
-    Aggregated ratings for an object.
+    Aggregated assessments for an object.
     """
     nr = models.PositiveSmallIntegerField(default=0)
     nr_relevance_ratings = models.IntegerField(default=0)

@@ -15,14 +15,6 @@ COMMENTARY_REFUSAL_CHOICES = (
     (-3, 'this arXiv preprint is too recent (< 8 weeks)'),
     )
 
-#class RequestCommentaryForm(forms.Form):
-#    type = forms.ChoiceField(choices=COMMENTARY_TYPES)
-#    pub_title = forms.CharField(max_length=300, label="Title")
-#    author_list = forms.CharField(max_length=1000)
-#    pub_date = forms.DateField(label="Publication date (YYYY-MM-DD)")
-#    arxiv_link = forms.URLField(label='arXiv link (including version nr)', required=False)
-#    pub_DOI_link = forms.URLField(label='DOI link to the published version', required=False)
-#    pub_abstract = forms.CharField(widget=forms.Textarea, label="Abstract") # need TextField but doesn't exist
 class RequestCommentaryForm(forms.ModelForm):
     class Meta:
         model = Commentary

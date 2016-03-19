@@ -42,17 +42,6 @@ class Submission(models.Model):
     abstract = models.TextField()
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
     submission_date = models.DateField(verbose_name='submission date')
-
-    nr_clarity_ratings = models.IntegerField(default=0)
-    clarity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_validity_ratings = models.IntegerField(default=0)
-    validity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_rigour_ratings = models.IntegerField(default=0)
-    rigour_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_originality_ratings = models.IntegerField(default=0)
-    originality_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_significance_ratings = models.IntegerField(default=0)
-    significance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
     latest_activity = models.DateTimeField(default=timezone.now)
 
     def __str__ (self):
@@ -133,15 +122,3 @@ class Report(models.Model):
     date_invited = models.DateTimeField('date invited', blank=True, null=True)
     invited_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='invited_by')
     date_submitted = models.DateTimeField('date submitted')
-    # Aggregates of ratings applied to this report:
-    nr_relevance_ratings = models.IntegerField(default=0)
-    relevance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_importance_ratings = models.IntegerField(default=0)
-    importance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_clarity_ratings = models.IntegerField(default=0)
-    clarity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_validity_ratings = models.IntegerField(default=0)
-    validity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_rigour_ratings = models.IntegerField(default=0)
-    rigour_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    

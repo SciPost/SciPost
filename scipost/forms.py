@@ -23,7 +23,6 @@ class RegistrationForm(forms.Form):
     last_name = forms.CharField(label='* Last name', max_length=100)
     email = forms.EmailField(label='* Email address')
     orcid_id = forms.CharField(label="  ORCID id", max_length=20, widget=forms.TextInput({'placeholder': 'Recommended. Get one at orcid.org'}), required=False)
-    #nationality = LazyTypedChoiceField(choices=countries, label='Nationality', initial='CA', required=False, widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
     country_of_employment = LazyTypedChoiceField(choices=countries, label='* Country of employment', initial='NL', widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
     affiliation = forms.CharField(label='* Affiliation', max_length=300)
@@ -34,28 +33,7 @@ class RegistrationForm(forms.Form):
     password_verif = forms.CharField(label='* Verify pwd', widget=forms.PasswordInput())
     captcha = CaptchaField(label='* I am not a robot')
 
-#class RegistrationFormUser(forms.ModelForm):
-#    class Meta:
-#        model = User
-#        fields = ['email', 'first_name', 'last_name']
 
-#class RegistrationFormContributor(forms.ModelForm):
-#    class Meta:
-#        model = Contributor
-#        fields = ['title', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
-
-
-#class UpdatePersonalDataForm(forms.Form):
-#    title = forms.ChoiceField(choices=TITLE_CHOICES)
-#    first_name = forms.CharField(label='First name', max_length=100)
-#    last_name = forms.CharField(label='Last name', max_length=100)
-#    email = forms.EmailField(label='email')
-#    orcid_id = forms.CharField(label="ORCID id", max_length=20, required=False)
-#    affiliation = forms.CharField(label='Affiliation', max_length=300)
-#    address = forms.CharField(label='Address', max_length=1000, required=False)
-#    personalwebpage = forms.URLField(label='Personal web page', required=False)
-
-# Replace this by the following two ModelForms:
 class UpdateUserDataForm(forms.ModelForm):
     class Meta:
         model = User
@@ -64,11 +42,6 @@ class UpdateUserDataForm(forms.ModelForm):
 class UpdatePersonalDataForm(forms.ModelForm):
     class Meta:
         model = Contributor
-        #fields = ['title', 'first_name', 'last_name', 'email', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
-        #fields = ['title', 'orcid_id', 'affiliation', 'address', 'personalwebpage']
-        #fields = ['title', 'orcid_id', 'affiliation', 'personalwebpage']
-        #fields = ['title', 'orcid_id', 'nationality', 'country_of_employment', 'affiliation', 'address', 'personalwebpage']
-        #widgets = {'nationality': CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'), 'country_of_employment': CountrySelectWidget()}
         fields = ['title', 'discipline', 'orcid_id', 'country_of_employment', 'affiliation', 'address', 'personalwebpage']
         widgets = {'country_of_employment': CountrySelectWidget()}
 
@@ -88,7 +61,7 @@ class PasswordChangeForm(forms.Form):
     password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
 
 
-class RatingForm(forms.ModelForm):
+class AssessmentForm(forms.ModelForm):
     class Meta:
-        model = RatingItem
+        model = Assessment
         fields = ['relevance', 'importance', 'clarity', 'validity', 'rigour', 'originality', 'significance']

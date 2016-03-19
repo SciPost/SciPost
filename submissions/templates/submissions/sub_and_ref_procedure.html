@@ -10,7 +10,12 @@
 {% if user.is_authenticated %}
 
 <section>
-  <h1>Submission and Refereeing procedure</h1>
+  <div class="flex-greybox">
+    <h1>Submission and Refereeing procedure</h1>
+  </div>
+
+  <hr class="hr6"/>
+
   <h3>Submission</h3>
   <p>To submit your article for publication in a SciPost Journal, authors must:</p>
   <ol>
@@ -20,6 +25,8 @@
   </ol>
   <p>Note that you cannot submit directly to SciPost Physics Select. Submissions to SciPost Physics deemed of superlative quality will be editorially promoted to SPS.</p>
   <br/>
+
+  <hr class="hr6"/>
   <h3>Refereeing procedure</h3>
   <p>All incoming Submissions to SciPost Journals are peer-reviewed using SciPost's <a href="{% url 'scipost:peer_witnessed_refereeing' %}">peer-witnessed refereeing</a> process, implementing the highest standard of refereeing available. The precise procedure follows this pattern (the various types of Editors are described in the next section):</p>
   <ul>

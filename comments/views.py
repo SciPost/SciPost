@@ -3,7 +3,6 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-#from django.core.mail import send_mail
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -19,7 +18,6 @@ from scipost.models import title_dict
 def vet_submitted_comments(request):
     contributor = Contributor.objects.get(user=request.user)
     comment_to_vet = Comment.objects.filter(status=0).first() # only handle one at a time
-    #if comment_to_vet is not None:
     form = VetCommentForm()
     context = {'contributor': contributor, 'comment_to_vet': comment_to_vet, 'form': form }
     return(render(request, 'comments/vet_submitted_comments.html', context))
@@ -142,14 +140,9 @@ def author_reply_to_report(request, report_id):
 def vet_author_replies(request):
     contributor = Contributor.objects.get(user=request.user)
     reply_to_vet = AuthorReply.objects.filter(status=0).first() # only handle one at a time
-    #if reply_to_vet is not None:
     form = VetAuthorReplyForm()
     context = {'contributor': contributor, 'reply_to_vet': reply_to_vet, 'form': form }
     return(render(request, 'comments/vet_author_replies.html', context))
-    #return render (request, 'comments/no_author_reply_to_vet.html')
-
-#def no_author_reply_to_vet(request):
-#    return render (request, 'comments/no_author_reply_to_vet.html')
 
 
 def vet_author_reply_ack(request, reply_id):

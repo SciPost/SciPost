@@ -3,7 +3,6 @@
 {% block pagetitle %}: submission detail{% endblock pagetitle %}
 
 {% block headsup %}
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->
 
   <script>
     $(document).ready(function(){
@@ -13,14 +12,8 @@
     $("#commentsbutton").click(function(){
     $("#commentslist").toggle();
     });
-    $("#ratingsbutton").click(function() {
-    $(".ratings").toggle();
-    $(".ratingsinput").toggle();
-    });
     });
   </script>
-
-{% load rating_extras %}
 
 {% endblock headsup %}
 
@@ -32,7 +25,6 @@
 <section>
   <div class="flex-greybox">
     <h1>SciPost Submission Page &nbsp; (for papers submitted to SciPost)</h1>
-    <button id="ratingsbutton">Toggle ratings view</button>
   </div>
 
   <hr class="hr12">
@@ -44,28 +36,6 @@
   {{ submission.header_as_table|safe }}
   <h3>Abstract:</h3>
   <p>{{ submission.abstract }}</p>
-
-  <div class="ratings">
-    <h4>Ratings: </h4>
-    <ul>
-      <li>clarity: {{ submission.clarity_rating|rating_as_text }} ({{ submission.nr_clarity_ratings }})</li>
-      <li>validity: {{ submission.validity_rating|rating_as_text }} ({{ submission.nr_validity_ratings }})</li>
-      <li>rigour: {{ submission.rigour_rating|rating_as_text }} ({{ submission.nr_rigour_ratings }})</li>
-      <li>originality: {{ submission.originality_rating|rating_as_text }} ({{ submission.nr_originality_ratings }})</li>
-      <li>significance: {{ submission.significance_rating|rating_as_text }} ({{ submission.nr_significance_ratings }})</li>
-    </ul>
-  </div>
-  <br/>
-  
-  {% if user.is_authenticated and user.contributor.rank > 0 %}
-  <form action="{% url 'ratings:vote_on_submission' submission_id=submission.id %}" method="post" class="ratingsinput">
-    {% csrf_token %}
-    <ul>
-      {{ submission_rating_form.as_ul }}
-      <li><input type="submit" value="Rate this submission"></li>
-    </ul>    
-  </form>
-  {% endif %}
 
 </section>
 
@@ -86,19 +56,6 @@
 	<div class="reportid">
 	  <h3>{{ report.id }}</h3>
 	  <h4>Date: {{ report.date_submitted }}</h4>
-	</div>
-      </div>
-
-      <div class="col-9">
-	<div class="ratings">
-	  <h4>Ratings: </h4>
-	  <ul>
-	    <li>relevance: {{ report.relevance_rating|rating_as_text }} ({{ report.nr_relevance_ratings }})</li>
-	    <li>importance: {{ report.importance_rating|rating_as_text }} ({{ report.nr_importance_ratings }})</li>
-	    <li>clarity: {{ report.clarity_rating|rating_as_text }} ({{ report.nr_clarity_ratings }})</li>
-	    <li>validity: {{ report.validity_rating|rating_as_text }} ({{ report.nr_validity_ratings }})</li>
-	    <li>rigour: {{ report.rigour_rating|rating_as_text }} ({{ report.nr_rigour_ratings }})</li>
-	  </ul>
 	</div>
       </div>
     </div>
@@ -128,20 +85,6 @@
       </div>
     </div>
 
-    <br/>
-    <div class="ratingsinput">
-      {% if user.is_authenticated and user.contributor.rank > 0 %}
-      <form action="{% url 'ratings:vote_on_report' report_id=report.id %}" method="post">
-	{% csrf_token %}
-	<ul>
-	  {{ report_rating_form.as_ul }}	  
-	  <li><input type="submit" value="Rate this Report"></li>
-	</ul>
-      </form>
-      {% endif %}
-    </div>
-
-
     {% for reply in author_replies %}
     {% if reply.in_reply_to_report.id = report.id %}
     <div class="row">
@@ -149,18 +92,6 @@
       <hr style="border-style: dotted;" />
       <div class="col-3">
 	<h3>Author reply ({{ reply.date_submitted }}):</h3>
-      </div>
-      <div class="col-8">
-	<div class="ratings">
-	  <h4>Ratings: </h4>
-	  <ul>
-	    <li>relevance: {{ reply.relevance_rating|rating_as_text }} ({{ reply.nr_relevance_ratings }})</li>
-	    <li>importance: {{ reply.importance_rating|rating_as_text }} ({{ reply.nr_importance_ratings }})</li>
-	    <li>clarity: {{ reply.clarity_rating|rating_as_text }} ({{ reply.nr_clarity_ratings }})</li>
-	    <li>validity: {{ reply.validity_rating|rating_as_text }} ({{ reply.nr_validity_ratings }})</li>
-	    <li>rigour: {{ reply.rigour_rating|rating_as_text }} ({{ reply.nr_rigour_ratings }})</li>
-	  </ul>
-	</div>
       </div>
     </div>
 
@@ -170,23 +101,6 @@
 	<p>{{ reply.reply_text|linebreaks }}</p>
       </div>
     </div>
-    {% if user.is_authenticated and user.contributor.rank > 0 %}
-    <div class="row">
-      <div class="col-1"></div>
-      <div class="col-10">
-	<div class="ratingsinput">
-	  <form action="{% url 'ratings:vote_on_authorreply' authorreply_id=reply.id %}" method="post">
-            {% csrf_token %}
-            <ul>
-              {{ authorreply_rating_form.as_ul }}
-              <li><input type="submit" value="Rate this Author Reply"></li>
-            </ul>
-	  </form>
-	</div>
-      </div>
-    </div>
-    {% endif %}
-
     {% endif %}
     {% endfor %}
 
@@ -257,40 +171,13 @@
             {% if comment.is_sug %}<li>suggestion for further work</li>{% endif %}
           </ul>
         </div>
-        <br/>
-        <div class="ratings">
-          <h4>Ratings:</h4>
-          <ul>
-            <li>Relevance: {{ comment.relevance_rating|rating_as_text }} ({{ comment.nr_relevance_ratings }})</li>
-            <li>Importance: {{ comment.importance_rating|rating_as_text }} ({{ comment.nr_importance_ratings }})</li>
-            <li>Clarity: {{ comment.clarity_rating|rating_as_text }} ({{ comment.nr_clarity_ratings }})</li>
-            <li>Validity: {{ comment.validity_rating|rating_as_text }} ({{ comment.nr_validity_ratings }})</li>
-            <li>Rigour: {{ comment.rigour_rating|rating_as_text }} ({{ comment.nr_rigour_ratings }})</li>
-          </ul>
-        </div>
-
       </div>
-
     </div>
     
     <div class="row">
       <div class="col-1"></div>
       <div class="col-10">
 	<p>{{ comment.comment_text|linebreaks }}</p>
-
-        <br/>
-        <div class="ratingsinput">
-          {% if user.is_authenticated and user.contributor.rank > 0 %}
-          <form action="{% url 'ratings:vote_on_comment' comment_id=comment.id %}" method="post">
-            {% csrf_token %}
-            <ul>
-              {{ comment_rating_form.as_ul }}
-              <li><input type="submit" value="Rate this comment"></li>
-            </ul>
-          </form>
-          {% endif %}
-        </div>
-
       </div>
     </div>
 
@@ -302,18 +189,6 @@
       <div class="col-3">
 	<h3>Author reply ({{ reply.date_submitted }}):</h3>
       </div>
-      <div class="col-8">
-	<div class="ratings">
-	  <h4>Ratings:</h4>
-	  <ul>
-	    <li>relevance: {{ reply.relevance_rating|rating_as_text }} ({{ reply.nr_relevance_ratings }})</li>
-	    <li>importance: {{ reply.importance_rating|rating_as_text }} ({{ reply.nr_importance_ratings }})</li>
-	    <li>clarity: {{ reply.clarity_rating|rating_as_text }} ({{ reply.nr_clarity_ratings }})</li>
-	    <li>validity: {{ reply.validity_rating|rating_as_text }} ({{ reply.nr_validity_ratings }})</li>
-	    <li>rigour: {{ reply.rigour_rating|rating_as_text }} ({{ reply.nr_rigour_ratings }})</li>
-	  </ul>
-	</div>
-      </div>
     </div>
 
     <div class="row">
@@ -322,23 +197,6 @@
 	<p>{{ reply.reply_text|linebreaks }}</p>
       </div>
     </div>
-    {% if user.is_authenticated and user.contributor.rank > 0 %}
-    <div class="row">
-      <div class="col-1"></div>
-      <div class="col-10">
-	<div class="ratingsinput">
-	  <form action="{% url 'ratings:vote_on_authorreply' authorreply_id=reply.id %}" method="post">
-            {% csrf_token %}
-            <ul>
-              {{ authorreply_rating_form.as_ul }}
-              <li><input type="submit" value="Rate this Author Reply"></li>
-            </ul>
-	  </form>
-	</div>
-      </div>
-    </div>
-    {% endif %}
-
     {% endif %}
     {% endfor %}
 

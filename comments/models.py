@@ -54,18 +54,6 @@ class Comment(models.Model):
     remarks_for_editors = models.TextField(default='', blank=True, verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted')
 
-    
-    # Aggregates of ratings applied to this comment:
-    nr_relevance_ratings = models.IntegerField(default=0)
-    relevance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_importance_ratings = models.IntegerField(default=0)
-    importance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_clarity_ratings = models.IntegerField(default=0)
-    clarity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_validity_ratings = models.IntegerField(default=0)
-    validity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_rigour_ratings = models.IntegerField(default=0)
-    rigour_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
 
     def __str__ (self):
         return self.comment_text
@@ -99,17 +87,6 @@ class AuthorReply(models.Model):
     author = models.ForeignKey(Contributor)
     reply_text = models.TextField(verbose_name="")
     date_submitted = models.DateTimeField('date submitted')
-    # Aggregates of ratings applied to this comment:
-    nr_relevance_ratings = models.IntegerField(default=0)
-    relevance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_importance_ratings = models.IntegerField(default=0)
-    importance_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_clarity_ratings = models.IntegerField(default=0)
-    clarity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_validity_ratings = models.IntegerField(default=0)
-    validity_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
-    nr_rigour_ratings = models.IntegerField(default=0)
-    rigour_rating = models.DecimalField(default=101, max_digits=3, decimal_places=0, null=True)
 
     def __str__ (self):
         return self.reply_text
