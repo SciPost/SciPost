@@ -39,7 +39,7 @@ class Comment(models.Model):
     submission = models.ForeignKey(Submission, blank=True, null=True)
     thesislink = models.ForeignKey(ThesisLink, blank=True, null=True)
     in_reply_to = models.ForeignKey('self', blank=True, null=True)
-    author = models.ForeignKey(Contributor)
+    author = models.ForeignKey(Contributor, default=1)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
     # Categories:
     is_rem = models.BooleanField(default=False, verbose_name='remark')
@@ -84,7 +84,7 @@ class AuthorReply(models.Model):
     thesislink = models.ForeignKey(ThesisLink, blank=True, null=True)
     in_reply_to_comment = models.ForeignKey(Comment, blank=True, null=True) # one of this and next must be not null
     in_reply_to_report = models.ForeignKey(Report, blank=True, null=True)
-    author = models.ForeignKey(Contributor)
+    author = models.ForeignKey(Contributor, default=1)
     reply_text = models.TextField(verbose_name="")
     date_submitted = models.DateTimeField('date submitted')
 
