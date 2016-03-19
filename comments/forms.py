@@ -45,7 +45,7 @@ class CommentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CommentForm, self).__init__(*args, **kwargs)
         self.fields['comment_text'].widget.attrs.update({'placeholder': 'NOTE: only serious and meaningful Comments will be accepted.'})
-        self.fields['remarks_for_editors'].widget.attrs.update({'rows': 3, 'placeholder': '(these remarks will not publicly visible)'})
+        self.fields['remarks_for_editors'].widget.attrs.update({'rows': 3, 'placeholder': '(these remarks will not be publicly visible)'})
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -57,7 +57,7 @@ class CommentForm(forms.ModelForm):
                     css_class="col-9"),
                 Div(
                     Fieldset(
-                        'Specify categorization:',
+                        'Specify categorization(s):',
                         'is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug',
                         style="border: 0px; font-size: 90%"),
                     HTML('<br>'),
