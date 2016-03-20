@@ -169,6 +169,7 @@ hr.hr12 {
   background: linear-gradient(to right,#f8f8f8, #e0e0e0);
 }
 
+/* For two-column text display */
 .twocolumn {
   -webkit-column-count: 2; /* Chrome, Safari, Opera */
   -moz-column-count: 2; /* Firefox */

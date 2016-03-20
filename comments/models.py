@@ -68,6 +68,18 @@ class Comment(models.Model):
         output += '<h4>Date: ' + self.date_submitted.strftime("%Y-%m-%d") + '</h4>\n</div>\n'
         return output
 
+    def header_as_li (self):
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0"><p> \"' + self.comment_text[:50] + '\"</p><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+        if self.submission is not None:
+            header += ' in submission on <a href="/submission/submission/' + str(self.submission.id) + '" class="pubtitleli">' + self.submission.title + '</a> by ' + self.submission.author_list + '</p></div>'
+        if self.commentary is not None:
+            header += ' in commentary on <a href="/commentaries/commentary/' + str(self.commentary.id) + '" class="pubtitleli">' + self.commentary.pub_title + '</a> by ' + self.commentary.author_list + '</p></div>'
+        if self.thesislink is not None:
+            header += ' in thesislink on <a href="/theses/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.pub_title + '</a> by ' + self.thesislink.author_list + '</p></div>'
+        header += '</div></li>'
+        return header
+
 
 class AuthorReply(models.Model):
     """ Reply to a Comment or Report. """

@@ -109,7 +109,7 @@
   </div>
   <ul>
     {% for own_comment in own_comments %}
-    <li>{{ own_comment.comment_text }}</li>
+    {{ own_comment.header_as_li|safe }}
     {% endfor %}
   </ul>
 </section>
