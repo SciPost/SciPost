@@ -63,27 +63,24 @@ class Comment(models.Model):
     remarks_for_editors = models.TextField(default='', blank=True, verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted')
     # Opinions 
-    nr_FA = models.PositiveIntegerField(default=0)
-    nr_MA = models.PositiveIntegerField(default=0)
-    nr_DIS = models.PositiveIntegerField(default=0)
-    nr_OBJ = models.PositiveIntegerField(default=0)
+    nr_A = models.PositiveIntegerField(default=0)
+    nr_N = models.PositiveIntegerField(default=0)
+    nr_D = models.PositiveIntegerField(default=0)
 
     def __str__ (self):
         return self.comment_text
 
     def recalculate_nr_opinions(self):
-        self.nr_FA = Opinion.objects.filter(comment=self, opinion='FA').count()
-        self.nr_MA = Opinion.objects.filter(comment=self, opinion='MA').count()
-        self.nr_DIS = Opinion.objects.filter(comment=self, opinion='DIS').count()
-        self.nr_OBJ = Opinion.objects.filter(comment=self, opinion='OBJ').count()
+        self.nr_A = Opinion.objects.filter(comment=self, opinion='A').count()
+        self.nr_N = Opinion.objects.filter(comment=self, opinion='N').count()
+        self.nr_D = Opinion.objects.filter(comment=self, opinion='D').count()
         self.save()
 
     def opinions_as_ul(self):
         output = '<div class="opinionsDisplay"><ul>'
-        output += '<li>Fully agree: ' + str(self.nr_FA) + '</li>'
-        output += '<li>Mostly agree: ' + str(self.nr_MA) + '</li>'
-        output += '<li>Disagree: ' + str(self.nr_DIS) + '</li>'
-        output += '<li>Object: ' + str(self.nr_OBJ) + '</li>'
+        output += '<li>Agree: ' + str(self.nr_A) + '</li>'
+        output += '<li>Neutral: ' + str(self.nr_N) + '</li>'
+        output += '<li>Disagree: ' + str(self.nr_D) + '</li>'
         output += '</ul></div>'
         return output
 

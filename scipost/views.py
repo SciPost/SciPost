@@ -39,7 +39,9 @@ def index(request):
     submission_search_form = SubmissionSearchForm(request.POST)
     commentary_search_form = CommentarySearchForm(request.POST)
     thesislink_search_form = ThesisLinkSearchForm(request.POST)
-    context = {'submission_search_form': submission_search_form, 'commentary_search_form': commentary_search_form, 'thesislink_search_form': thesislink_search_form}
+    context = {'submission_search_form': submission_search_form, 
+               'commentary_search_form': commentary_search_form, 
+               'thesislink_search_form': thesislink_search_form}
     return render(request, 'scipost/index.html', context)
 
 ###############
@@ -67,11 +69,14 @@ def register(request):
         Utils.load({'form': form})
         if form.is_valid():
             if Utils.password_mismatch():
-                return render(request, 'scipost/register.html', {'form': form, 'errormessage': 'Your passwords must match'})
+                return render(request, 'scipost/register.html', 
+                              {'form': form, 'errormessage': 'Your passwords must match'})
             if Utils.username_already_taken():
-                return render(request, 'scipost/register.html', {'form': form, 'errormessage': 'This username is already in use'})
+                return render(request, 'scipost/register.html', 
+                              {'form': form, 'errormessage': 'This username is already in use'})
             if Utils.email_already_taken():
-                return render(request, 'scipost/register.html', {'form': form, 'errormessage': 'This email address is already in use'})
+                return render(request, 'scipost/register.html', 
+                              {'form': form, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor()
             Utils.send_registration_email()
             return HttpResponseRedirect('thanks_for_registering')
@@ -117,8 +122,13 @@ def request_new_activation_link(request, oldkey):
     contributor.activation_key = hashlib.sha1(salt+usernamesalt).hexdigest()
     contributor.key_expires = datetime.datetime.strftime(datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
     contributor.save()
-    email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\nYour request for a new email activation link for registration to the SciPost publication portal has been received. You now need to visit this link within the next 48 hours: \n\n' + 'https://scipost.org/activation/' + contributor.activation_key + '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.'
-    emailmessage = EmailMessage('SciPost registration: new email activation link', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+    email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
+                  ', \n\nYour request for a new email activation link for registration to the SciPost ' +
+                  'publication portal has been received. You now need to visit this link within the next 48 hours: \n\n' + 
+                  'https://scipost.org/activation/' + contributor.activation_key + 
+                  '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.')
+    emailmessage = EmailMessage('SciPost registration: new email activation link', email_text, 'registration@scipost.org', 
+                                [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
     emailmessage.send(fail_silently=False)
     return render (request, 'scipost/request_new_activation_link_ack.html')
 
@@ -143,15 +153,23 @@ def vet_registration_request_ack(request, contributor_id):
             if form.cleaned_data['promote_to_rank_1']:
                 contributor.rank = 1
                 contributor.save()
-                email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\nYour registration to the SciPost publication portal has been accepted. You can now login and contribute. \n\nThe SciPost Team.'
-                emailmessage = EmailMessage('SciPost registration accepted', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+                email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
+                              ', \n\nYour registration to the SciPost publication portal has been accepted. ' +
+                              'You can now login and contribute. \n\nThe SciPost Team.')
+                emailmessage = EmailMessage('SciPost registration accepted', email_text, 'registration@scipost.org', 
+                                            [contributor.user.email, 'registration@scipost.org'], 
+                                            reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
             else:
                 ref_reason = int(form.cleaned_data['refusal_reason'])
-                email_text = 'Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + ', \n\nYour registration to the SciPost publication portal has been turned down, the reason being: ' + reg_ref_dict[ref_reason] + '. You can however still view all SciPost contents, just not submit papers, comments or votes. We nonetheless thank you for your interest. \n\nThe SciPost Team.'
+                email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
+                              ', \n\nYour registration to the SciPost publication portal has been turned down, the reason being: ' + 
+                              reg_ref_dict[ref_reason] + '. You can however still view all SciPost contents, just not submit papers, ' +
+                              'comments or votes. We nonetheless thank you for your interest. \n\nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
-                emailmessage = EmailMessage('SciPost registration: unsuccessful', email_text, 'registration@scipost.org', [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+                emailmessage = EmailMessage('SciPost registration: unsuccessful', email_text, 'registration@scipost.org', 
+                                            [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
                 contributor.rank = form.cleaned_data['refusal_reason']
                 contributor.save()
@@ -198,7 +216,9 @@ def personal_page(request):
             intwodays = now + timezone.timedelta(days=2)
             # count the number of pending registration request
             nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).count()
-            nr_reg_awaiting_validation = Contributor.objects.filter(user__is_active=False, key_expires__gte=now, key_expires__lte=intwodays, rank=0).count()
+            nr_reg_awaiting_validation = Contributor.objects.filter(
+                user__is_active=False, key_expires__gte=now, key_expires__lte=intwodays, rank=0
+                ).count()
             nr_submissions_to_process = Submission.objects.filter(vetted=False).count()
         nr_commentary_page_requests_to_vet = 0
         nr_comments_to_vet = 0
@@ -213,7 +233,15 @@ def personal_page(request):
             nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
         own_comments = Comment.objects.filter(author=contributor).order_by('-date_submitted')
         own_authorreplies = AuthorReply.objects.filter(author=contributor).order_by('-date_submitted')
-        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process, 'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet, 'own_comments': own_comments, 'own_authorreplies': own_authorreplies}
+        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 
+                   'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 
+                   'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 
+                   'nr_comments_to_vet': nr_comments_to_vet, 
+                   'nr_author_replies_to_vet': nr_author_replies_to_vet, 
+                   'nr_reports_to_vet': nr_reports_to_vet, 
+                   'nr_submissions_to_process': nr_submissions_to_process, 
+                   'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet, 
+                   'own_comments': own_comments, 'own_authorreplies': own_authorreplies}
         return render(request, 'scipost/personal_page.html', context)
     else:
         form = AuthenticationForm()
@@ -226,9 +254,11 @@ def change_password(request):
         form = PasswordChangeForm(request.POST)
         if form.is_valid():
             if not request.user.check_password(form.cleaned_data['password_prev']):
-                return render(request, 'scipost/change_password.html', {'form': form, 'errormessage': 'The currently existing password you entered is incorrect'})
+                return render(request, 'scipost/change_password.html', 
+                              {'form': form, 'errormessage': 'The currently existing password you entered is incorrect'})
             if form.cleaned_data['password_new'] != form.cleaned_data['password_verif']:
-                return render(request, 'scipost/change_password.html', {'form': form, 'errormessage': 'Your new password entries must match'})
+                return render(request, 'scipost/change_password.html', 
+                              {'form': form, 'errormessage': 'Your new password entries must match'})
             request.user.set_password(form.cleaned_data['password_new'])
             request.user.save()
             ack = True

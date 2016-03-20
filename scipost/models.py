@@ -112,15 +112,13 @@ class Assessment(models.Model):
     significance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
 
 
-
 ### Opinions
 
 OPINION_CHOICES = (
     ('ABS', '-'),
-    ('FA', 'I fully agree'),
-    ('MA', 'I mostly agree'),
-    ('DIS', 'I disagree'),
-    ('OBJ', 'I object to this'),
+    ('A', 'agree'),
+    ('N', 'neutral'),
+    ('D', 'disagree'),
 )
 opinion_choices_dict = dict(OPINION_CHOICES)
 
