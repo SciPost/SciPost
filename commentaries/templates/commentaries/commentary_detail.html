@@ -86,7 +86,6 @@
     <div class="row">
       <div class="col-1"></div>
       <div class="col-10">
-	<h3>Comment text:</h3>
 	<p>{{ comment.comment_text|linebreaks }}</p>
       </div>
     </div>
@@ -98,7 +97,7 @@
       <div class="col-1"></div>
       <hr style="border-style: dotted;" />
       <div class="col-3">
-	<h3>Author reply ({{ reply.date_submitted }}):</h3>
+	{{ reply.print_identifier|safe }}
       </div>
     </div>
     <div class="row">

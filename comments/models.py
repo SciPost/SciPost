@@ -26,6 +26,15 @@ COMMENT_CATEGORIES = (
     ('SUG', 'suggestion for further work'),
     )
 
+COMMENT_STATUS = (
+    (1, 'vetted'),
+    (0, 'not yet vetted (pending)'),
+    (-1, 'rejected (unclear)'),
+    (-2, 'rejected (incorrect)'),
+    (-3, 'rejected (not useful)'),
+)
+comment_status_dict = dict(COMMENT_STATUS)
+
 class Comment(models.Model):
     """ A Comment is an unsollicited note, submitted by a Contributor, on a particular publication or in reply to an earlier Comment. """
     # status:
@@ -60,22 +69,33 @@ class Comment(models.Model):
 
     def print_identifier (self):
         output = '<div class="commentid">\n'
-        output += '<h3>' + str(self.id)
+        output += '<h3><a id="comment_id' + str(self.id) + '">' + str(self.id) + '</a>'
         if not self.anonymous:
             output += ' by ' + self.author.user.first_name + ' ' + self.author.user.last_name
+        output += '</h3>'
         if self.in_reply_to:
-            output += ' in reply to ' + str(self.in_reply_to.id) + '</h3>\n'
-        output += '<h4>Date: ' + self.date_submitted.strftime("%Y-%m-%d") + '</h4>\n</div>\n'
+            output += '<h4>in reply to ' + str(self.in_reply_to.id) + '</h4>\n'
+        output += '<h4>' + self.date_submitted.strftime("%Y-%m-%d") + '</h4>\n</div>\n'
         return output
 
     def header_as_li (self):
         header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0"><p> \"' + self.comment_text[:50] + '\"</p><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+        header += '<div class="flex-whitebox0">'
+        header += 'Nr ' + str(self.id)
+        if self.status <= 0:
+            header += ', status: <span style="color:red">' + comment_status_dict[self.status] + '</span>'
+        text_cut = self.comment_text[:50]
+        if len(self.comment_text) > 50:
+            text_cut += '...'
+        header += ': '
         if self.submission is not None:
-            header += ' in submission on <a href="/submission/submission/' + str(self.submission.id) + '" class="pubtitleli">' + self.submission.title + '</a> by ' + self.submission.author_list + '</p></div>'
+            header += '<a href="/submissions/submission/' + str(self.submission.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+            header += ' in submission on <a href="/submissions/submission/' + str(self.submission.id) + '" class="pubtitleli">' + self.submission.title + '</a> by ' + self.submission.author_list + '</p></div>'
         if self.commentary is not None:
+            header += '<a href="/commentaries/commentary/' + str(self.commentary.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
             header += ' in commentary on <a href="/commentaries/commentary/' + str(self.commentary.id) + '" class="pubtitleli">' + self.commentary.pub_title + '</a> by ' + self.commentary.author_list + '</p></div>'
         if self.thesislink is not None:
+            header += '<a href="/theses/thesis/' + str(self.thesislink.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
             header += ' in thesislink on <a href="/theses/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.pub_title + '</a> by ' + self.thesislink.author_list + '</p></div>'
         header += '</div></li>'
         return header
@@ -102,4 +122,37 @@ class AuthorReply(models.Model):
 
     def __str__ (self):
         return self.reply_text
+
+    def print_identifier (self):
+        output = '<div class="commentid">\n'
+        output += '<h3><a id="authorreply_id' + str(self.id) + '">A' + str(self.id) + '</a>'
+        output += ' by ' + self.author.user.first_name + ' ' + self.author.user.last_name + '</h3>'
+        if self.in_reply_to_comment:
+            output += '<p>in reply to <a id="comment_id' + str(self.in_reply_to_comment.id) + '">' + str(self.in_reply_to_comment.id) + '</a></p>\n'
+        if self.in_reply_to_report:
+            output += '<h4>in reply to ' + str(self.in_reply_to_report.id) + '</h4>\n'
+        output += '<h4>Date: ' + self.date_submitted.strftime("%Y-%m-%d") + '</h4>\n</div>\n'
+        return output
+
+    def header_as_li (self):
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0">'
+        header += 'Nr A' + str(self.id)
+        if self.status <= 0:
+            header += ', status: <span style="color:red">' + comment_status_dict[self.status] + '</span>'
+        text_cut = self.reply_text[:50]
+        if len(self.reply_text) > 50:
+            text_cut += '...'
+        header += ': '
+        if self.submission is not None:
+            header += '<a href="/submissions/submission/' + str(self.submission.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+            header += ' in submission on <a href="/submissions/submission/' + str(self.submission.id) + '" class="pubtitleli">' + self.submission.title + '</a> by ' + self.submission.author_list + '</p></div>'
+        if self.commentary is not None:
+            header += '<a href="/commentaries/commentary/' + str(self.commentary.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+            header += ' in commentary on <a href="/commentaries/commentary/' + str(self.commentary.id) + '" class="pubtitleli">' + self.commentary.pub_title + '</a> by ' + self.commentary.author_list + '</p></div>'
+        if self.thesislink is not None:
+            header += '<a href="/theses/thesis/' + str(self.thesislink.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+            header += ' in thesislink on <a href="/theses/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.pub_title + '</a> by ' + self.thesislink.author_list + '</p></div>'
+        header += '</div></li>'
+        return header
 

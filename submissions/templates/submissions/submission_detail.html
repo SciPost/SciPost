@@ -91,7 +91,7 @@
       <div class="col-1"></div>
       <hr style="border-style: dotted;" />
       <div class="col-3">
-	<h3>Author reply ({{ reply.date_submitted }}):</h3>
+	{{ reply.print_identifier|safe }}
       </div>
     </div>
 
@@ -151,10 +151,7 @@
     <div class="row">
       
       <div class="col-3">
-	<div class="commentid">
-	  <h3>{{ comment.id }} &nbsp; {% if comment.in_reply_to %} (in reply to {{ comment.in_reply_to.id }}) {% endif %}</h3>
-	  <h4>Date: {{ comment.date_submitted }}</h4>
-	</div>
+	{{ comment.print_identifier|safe }}
       </div>
       
       <div class="col-9">
@@ -187,7 +184,7 @@
       <div class="col-1"></div>
       <hr style="border-style: dotted;" />
       <div class="col-3">
-	<h3>Author reply ({{ reply.date_submitted }}):</h3>
+	{{ reply.print_identifier|safe }}
       </div>
     </div>
 

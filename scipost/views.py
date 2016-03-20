@@ -212,7 +212,8 @@ def personal_page(request):
             nr_reports_to_vet = Report.objects.filter(status=0).count()
             nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
         own_comments = Comment.objects.filter(author=contributor).order_by('-date_submitted')
-        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process, 'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet, 'own_comments': own_comments}
+        own_authorreplies = AuthorReply.objects.filter(author=contributor).order_by('-date_submitted')
+        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 'nr_comments_to_vet': nr_comments_to_vet, 'nr_author_replies_to_vet': nr_author_replies_to_vet, 'nr_reports_to_vet': nr_reports_to_vet, 'nr_submissions_to_process': nr_submissions_to_process, 'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet, 'own_comments': own_comments, 'own_authorreplies': own_authorreplies}
         return render(request, 'scipost/personal_page.html', context)
     else:
         form = AuthenticationForm()

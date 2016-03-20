@@ -4,6 +4,17 @@
 
 {% block headsup %}
 
+<script>
+  $(document).ready(function(){
+  $("#mycommentsbutton").click(function(){
+  $("#mycommentslist").toggle();
+  });
+  $("#myauthorrepliesbutton").click(function(){
+  $("#myauthorreplieslist").toggle();
+  });
+  });
+</script>
+
 {% endblock headsup %}
 
 {% block bodysup %}
@@ -106,12 +117,32 @@
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Your Comments</h1>
+    <button id="mycommentsbutton">View/hide your comments</button>
   </div>
-  <ul>
-    {% for own_comment in own_comments %}
-    {{ own_comment.header_as_li|safe }}
-    {% endfor %}
-  </ul>
+  <div id="mycommentslist">
+    <ul>
+      {% for own_comment in own_comments %}
+      {{ own_comment.header_as_li|safe }}
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+{% if own_authorreplies %}
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Your Author Replies</h1>
+    <button id="myauthorrepliesbutton">View/hide your author replies</button>
+  </div>
+  <div id="myauthorreplieslist">
+    <ul>
+      {% for own_reply in own_authorreplies %}
+      {{ own_reply.header_as_li|safe }}
+      {% endfor %}
+    </ul>
+  </div>
 </section>
 {% endif %}
 
