@@ -42,7 +42,8 @@
   <h3>Submissions in {{ discipline }} in the last {{ nrweeksback }} weeks:</h3>
   <ul>
     {% for submission in submission_list %}
-    <li><a href="{% url 'submissions:submission' submission.id %}">{{ submission.title }}</a> by {{ submission.author_list }} (published {{ submission.submission_date }}) </li>
+<!--    <li><a href="{% url 'submissions:submission' submission.id %}">{{ submission.title }}</a> by {{ submission.author_list }} (published {{ submission.submission_date }}) </li> -->
+    {{ submission.header_as_li|safe }}
     {% endfor %}
   </ul>
   {% endif %}

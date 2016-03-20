@@ -107,14 +107,14 @@ class Comment(models.Model):
             text_cut += '...'
         header += ': '
         if self.submission is not None:
-            header += '<a href="/submissions/submission/' + str(self.submission.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in submission on <a href="/submissions/submission/' + str(self.submission.id) + '" class="pubtitleli">' + self.submission.title + '</a> by ' + self.submission.author_list + '</p></div>'
+            header += '<a href="/submission/' + str(self.submission.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+            header += ' in submission on <a href="/submission/' + str(self.submission.id) + '" class="pubtitleli">' + self.submission.title + '</a> by ' + self.submission.author_list + '</p></div>'
         if self.commentary is not None:
-            header += '<a href="/commentaries/commentary/' + str(self.commentary.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in commentary on <a href="/commentaries/commentary/' + str(self.commentary.id) + '" class="pubtitleli">' + self.commentary.pub_title + '</a> by ' + self.commentary.author_list + '</p></div>'
+            header += '<a href="/commentary/' + str(self.commentary.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+            header += ' in commentary on <a href="/commentary/' + str(self.commentary.id) + '" class="pubtitleli">' + self.commentary.pub_title + '</a> by ' + self.commentary.author_list + '</p></div>'
         if self.thesislink is not None:
-            header += '<a href="/theses/thesis/' + str(self.thesislink.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in thesislink on <a href="/theses/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.title + '</a> by ' + self.thesislink.author + '</p></div>'
+            header += '<a href="/thesis/' + str(self.thesislink.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+            header += ' in thesislink on <a href="/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.title + '</a> by ' + self.thesislink.author + '</p></div>'
         header += '</div></li>'
         return header
 
@@ -163,14 +163,14 @@ class AuthorReply(models.Model):
             text_cut += '...'
         header += ': '
         if self.submission is not None:
-            header += '<a href="/submissions/submission/' + str(self.submission.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in submission on <a href="/submissions/submission/' + str(self.submission.id) + '" class="pubtitleli">' + self.submission.title + '</a> by ' + self.submission.author_list + '</p></div>'
+            header += '<a href="/submission/' + str(self.submission.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+            header += ' in submission on <a href="/submission/' + str(self.submission.id) + '" class="pubtitleli">' + self.submission.title + '</a> by ' + self.submission.author_list + '</p></div>'
         if self.commentary is not None:
-            header += '<a href="/commentaries/commentary/' + str(self.commentary.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in commentary on <a href="/commentaries/commentary/' + str(self.commentary.id) + '" class="pubtitleli">' + self.commentary.pub_title + '</a> by ' + self.commentary.author_list + '</p></div>'
+            header += '<a href="/commentary/' + str(self.commentary.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+            header += ' in commentary on <a href="/commentary/' + str(self.commentary.id) + '" class="pubtitleli">' + self.commentary.pub_title + '</a> by ' + self.commentary.author_list + '</p></div>'
         if self.thesislink is not None:
-            header += '<a href="/theses/thesis/' + str(self.thesislink.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in thesislink on <a href="/theses/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.pub_title + '</a> by ' + self.thesislink.author_list + '</p></div>'
+            header += '<a href="/thesis/' + str(self.thesislink.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
+            header += ' in thesislink on <a href="/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.pub_title + '</a> by ' + self.thesislink.author_list + '</p></div>'
         header += '</div></li>'
         return header
 

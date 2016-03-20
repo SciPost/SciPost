@@ -204,11 +204,11 @@ def express_opinion(request, comment_id):
             newopinion.save()
             comment.recalculate_nr_opinions()
             if comment.submission is not None:
-                return HttpResponseRedirect('/submissions/submission/' + str(comment.submission.id) + '/#comment_id' + str(comment.id))
+                return HttpResponseRedirect('/submission/' + str(comment.submission.id) + '/#comment_id' + str(comment.id))
             if comment.commentary is not None:
-                return HttpResponseRedirect('/commentaries/commentary/' + str(comment.commentary.id) + '/#comment_id' + str(comment.id))
+                return HttpResponseRedirect('/commentary/' + str(comment.commentary.id) + '/#comment_id' + str(comment.id))
             if comment.thesislink is not None:
-                return HttpResponseRedirect('/theses/thesis/' + str(comment.thesislink.id) + '/#comment_id' + str(comment.id))
+                return HttpResponseRedirect('/thesis/' + str(comment.thesislink.id) + '/#comment_id' + str(comment.id))
     else: 
         # will never call this
         return(render(request, 'scipost/index.html'))

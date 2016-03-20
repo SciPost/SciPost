@@ -20,10 +20,13 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('scipost.urls', namespace="scipost")),
     url(r'^commentaries/', include('commentaries.urls', namespace="commentaries")),
+    url(r'^commentary/', include('commentaries.urls', namespace="commentaries")),
     url(r'^comments/', include('comments.urls', namespace="comments")),
     url(r'^journals/', include('journals.urls', namespace="journals")),
     url(r'^submissions/', include('submissions.urls', namespace="submissions")),
+    url(r'^submission/', include('submissions.urls', namespace="submissions")),
     url(r'^theses/', include('theses.urls', namespace="theses")),
+    url(r'^thesis/', include('theses.urls', namespace="theses")),
     url(r'^captcha/', include('captcha.urls')),
 ]
 
