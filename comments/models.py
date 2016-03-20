@@ -11,7 +11,7 @@ from .models import *
 #from submissions.models import *
 
 from commentaries.models import Commentary
-from scipost.models import Contributor
+from scipost.models import Contributor, Opinion
 from submissions.models import Submission, Report
 from theses.models import ThesisLink
 
@@ -62,10 +62,31 @@ class Comment(models.Model):
     comment_text = models.TextField()
     remarks_for_editors = models.TextField(default='', blank=True, verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted')
-
+    # Opinions 
+    nr_FA = models.PositiveIntegerField(default=0)
+    nr_MA = models.PositiveIntegerField(default=0)
+    nr_DIS = models.PositiveIntegerField(default=0)
+    nr_OBJ = models.PositiveIntegerField(default=0)
 
     def __str__ (self):
         return self.comment_text
+
+    def recalculate_nr_opinions(self):
+        self.nr_FA = Opinion.objects.filter(comment=self, opinion='FA').count()
+        self.nr_MA = Opinion.objects.filter(comment=self, opinion='MA').count()
+        self.nr_DIS = Opinion.objects.filter(comment=self, opinion='DIS').count()
+        self.nr_OBJ = Opinion.objects.filter(comment=self, opinion='OBJ').count()
+        self.save()
+
+    def opinions_as_ul(self):
+        output = '<div class="opinionsDisplay"><ul>'
+        output += '<li>Fully agree: ' + str(self.nr_FA) + '</li>'
+        output += '<li>Mostly agree: ' + str(self.nr_MA) + '</li>'
+        output += '<li>Disagree: ' + str(self.nr_DIS) + '</li>'
+        output += '<li>Object: ' + str(self.nr_OBJ) + '</li>'
+        output += '</ul></div>'
+        return output
+
 
     def print_identifier (self):
         output = '<div class="commentid">\n'
@@ -96,7 +117,7 @@ class Comment(models.Model):
             header += ' in commentary on <a href="/commentaries/commentary/' + str(self.commentary.id) + '" class="pubtitleli">' + self.commentary.pub_title + '</a> by ' + self.commentary.author_list + '</p></div>'
         if self.thesislink is not None:
             header += '<a href="/theses/thesis/' + str(self.thesislink.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in thesislink on <a href="/theses/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.pub_title + '</a> by ' + self.thesislink.author_list + '</p></div>'
+            header += ' in thesislink on <a href="/theses/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.title + '</a> by ' + self.thesislink.author + '</p></div>'
         header += '</div></li>'
         return header
 

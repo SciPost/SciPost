@@ -36,3 +36,4 @@ class CommentarySearchForm(forms.Form):
     pub_author = forms.CharField(max_length=100, required=False, label="Author(s)")
     pub_title_keyword = forms.CharField(max_length=100, label="Title", required=False)
     pub_abstract_keyword = forms.CharField(max_length=1000, required=False, label="Abstract")
+

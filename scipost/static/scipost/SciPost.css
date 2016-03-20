@@ -469,6 +469,30 @@ section form.ratingsdata ul li label {
   color: #ffffff;
 }
 
+.opinionsDisplay {
+  margin: 0px 4px;
+  padding: 1px;
+  display: inline-block;
+  box-shadow: 1px 1px 3px #888888;
+  background: linear-gradient(to right,#fcfcfc, #f0f0f0);
+  font-size: 90%;
+}
+.opinionsDisplay form {
+  display: inline-block;
+}
+.opinionsDisplay ul {
+  border-radius: 2px;
+  color: #ffffff;
+  display: inline-block;
+  margin: 0px;
+  padding: 2px;
+}
+.opinionsDisplay li {
+  display: inline-block;
+  background-color: #204080;
+  margin: 1px 3px;
+  padding: 2px 4px;
+}
 
 article {
   background-color:#eeeeee;

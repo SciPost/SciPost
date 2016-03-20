@@ -112,6 +112,24 @@ class Assessment(models.Model):
     significance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
 
 
+
+### Opinions
+
+OPINION_CHOICES = (
+    ('ABS', '-'),
+    ('FA', 'I fully agree'),
+    ('MA', 'I mostly agree'),
+    ('DIS', 'I disagree'),
+    ('OBJ', 'I object to this'),
+)
+opinion_choices_dict = dict(OPINION_CHOICES)
+
+class Opinion(models.Model):
+    rater = models.ForeignKey(Contributor)
+    comment = models.ForeignKey('comments.Comment')
+    opinion = models.CharField(max_length=3, choices=OPINION_CHOICES, default='ABS')
+
+
 ### AssessmentAggregates
 
 class AssessmentAggregate(models.Model):

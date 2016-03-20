@@ -61,6 +61,10 @@ class PasswordChangeForm(forms.Form):
     password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
 
 
+class OpinionForm(forms.Form):
+    opinion = forms.ChoiceField(choices=OPINION_CHOICES, label='Your opinion on this Comment: ')
+
+
 class AssessmentForm(forms.ModelForm):
     class Meta:
         model = Assessment
