@@ -13,6 +13,7 @@ class UserAdmin(UserAdmin):
     inlines = [
         ContributorInline, 
         ]
+    search_fields = ['last_name', 'email']
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
