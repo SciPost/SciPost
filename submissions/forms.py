@@ -44,7 +44,8 @@ class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
         fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes', 
-                  'validity', 'significance', 'originality', 'clarity', 'formatting', 'grammar', 
+                  #'validity', 'significance', 'originality', 'clarity', 'formatting', 'grammar', 
+                  'validity', 'significance', 'originality', 'formatting', 'grammar', 
                   'recommendation']
     def __init__(self, *args, **kwargs):
         super(ReportForm, self).__init__(*args, **kwargs)

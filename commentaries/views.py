@@ -74,24 +74,40 @@ def vet_commentary_request_ack(request, commentary_id):
                 commentary.vetted_by = Contributor.objects.get(user=request.user)
                 commentary.latest_activity = timezone.now()
                 commentary.save()
-                email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has been activated. You are now welcome to submit your comments.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
-                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'commentaries@scipost.org', [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['commentaries@scipost.org'])
+                email_text = ('Dear ' + title_dict[commentary.requested_by.title] + ' ' + 
+                              commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + 
+                              commentary.pub_title + ' by ' + commentary.author_list + 
+                              ', has been activated. You are now welcome to submit your comments.' + 
+                              '\n\nThank you for your contribution, \nThe SciPost Team.')
+                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 
+                                            'commentaries@scipost.org', [commentary.requested_by.user.email, 'commentaries@scipost.org'], 
+                                            reply_to=['commentaries@scipost.org'])
                 emailmessage.send(fail_silently=False)                
             elif form.cleaned_data['action_option'] == '0':
                 # re-edit the form starting from the data provided
-                form2 = RequestCommentaryForm(initial={'pub_title': commentary.pub_title, 'arxiv_link': commentary.arxiv_link, 'pub_DOI_link': commentary.pub_DOI_link, 'author_list': commentary.author_list, 'pub_date': commentary.pub_date, 'pub_abstract': commentary.pub_abstract})
+                form2 = RequestCommentaryForm(initial={'pub_title': commentary.pub_title, 'arxiv_link': commentary.arxiv_link, 
+                                                       'pub_DOI_link': commentary.pub_DOI_link, 'author_list': commentary.author_list, 
+                                                       'pub_date': commentary.pub_date, 'pub_abstract': commentary.pub_abstract})
                 commentary.delete()
-                email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has been activated (with slight modifications to your submitted details). You are now welcome to submit your comments.' + '\n\nThank you for your contribution, \nThe SciPost Team.'
-                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'commentaries@scipost.org', [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['commentaries@scipost.org'])
+                email_text = ('Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + 
+                              ', \n\nThe Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + 
+                              ' by ' + commentary.author_list + ', has been activated (with slight modifications to your submitted details).' + 
+                              ' You are now welcome to submit your comments.' + '\n\nThank you for your contribution, \nThe SciPost Team.')
+                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'commentaries@scipost.org', 
+                                            [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['commentaries@scipost.org'])
                 emailmessage.send(fail_silently=False)                
                 context = {'form': form2 }
                 return render(request, 'commentaries/request_commentary.html', context)
             elif form.cleaned_data['action_option'] == '2':
                 # the commentary request is simply rejected
-                email_text = 'Dear ' + title_dict[commentary.requested_by.title] + ' ' + commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + ' by ' + commentary.author_list + ', has not been activated for the following reason: ' + form.cleaned_data['refusal_reason'] + '.\n\nThank you for your interest, \nThe SciPost Team.'
+                email_text = ('Dear ' + title_dict[commentary.requested_by.title] + ' ' + 
+                              commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + 
+                              commentary.pub_title + ' by ' + commentary.author_list + ', has not been activated for the following reason: ' + 
+                              form.cleaned_data['refusal_reason'] + '.\n\nThank you for your interest, \nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
-                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'commentaries@scipost.org', [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['comentaries@scipost.org'])
+                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'commentaries@scipost.org', 
+                                            [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['comentaries@scipost.org'])
                 emailmessage.send(fail_silently=False)                
                 commentary.delete()
 
@@ -140,8 +156,12 @@ def browse(request, discipline, nrweeksback):
         return HttpResponseRedirect(request, 'commentaries/commentaries.html', context)
     else:
         form = CommentarySearchForm()
-    commentary_browse_list = Commentary.objects.filter(vetted=True, discipline=discipline, latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
-    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 'commentary_browse_list': commentary_browse_list }
+    commentary_browse_list = Commentary.objects.filter(
+        vetted=True, discipline=discipline, 
+        latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
+        )
+    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 
+               'commentary_browse_list': commentary_browse_list }
     return render(request, 'commentaries/commentaries.html', context)
 
 
@@ -181,5 +201,6 @@ def commentary_detail(request, commentary_id):
     except AuthorReply.DoesNotExist:
         author_replies = ()
     opinion_form = OpinionForm()
-    context = {'commentary': commentary, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 'author_replies': author_replies, 'form': form, 'opinion_form': opinion_form}
+    context = {'commentary': commentary, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 
+               'author_replies': author_replies, 'form': form, 'opinion_form': opinion_form}
     return render(request, 'commentaries/commentary_detail.html', context)

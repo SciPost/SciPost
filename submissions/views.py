@@ -90,9 +90,12 @@ def submissions(request):
         form = SubmissionSearchForm()
         submission_search_list = []
 
-    submission_recent_list = Submission.objects.filter(status__gte=1, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7))
+    submission_recent_list = Submission.objects.filter(
+        status__gte=1, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)
+        )
     submission_recent_list = Submission.objects.filter(status__gte=1)
-    context = {'form': form, 'submission_search_list': submission_search_list, 'submission_recent_list': submission_recent_list }
+    context = {'form': form, 'submission_search_list': submission_search_list, 
+               'submission_recent_list': submission_recent_list }
     return render(request, 'submissions/submissions.html', context)
 
 
@@ -113,8 +116,12 @@ def browse(request, discipline, nrweeksback):
         return HttpResponseRedirect(request, 'submissions/submissions.html', context)
     else:
         form = SubmissionSearchForm()
-    submission_list = Submission.objects.filter(vetted=True, discipline=discipline, latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
-    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 'submission_list': submission_list }
+    submission_list = Submission.objects.filter(
+        vetted=True, discipline=discipline, 
+        latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
+        )
+    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 
+               'submission_list': submission_list }
     return render(request, 'submissions/browse.html', context)
 
 
@@ -155,7 +162,9 @@ def submission_detail(request, submission_id):
     except AuthorReply.DoesNotExist:
         author_replies = ()
     opinion_form = OpinionForm()
-    context = {'submission': submission, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 'reports': reports.filter(status__gte=1), 'author_replies': author_replies, 'form': form, 'opinion_form': opinion_form}
+    context = {'submission': submission, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 
+               'reports': reports.filter(status__gte=1), 'author_replies': author_replies, 
+               'form': form, 'opinion_form': opinion_form}
     return render(request, 'submissions/submission_detail.html', context)
 
 
