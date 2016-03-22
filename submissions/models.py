@@ -137,6 +137,7 @@ class Report(models.Model):
     validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
     significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
     originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
+    clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
     formatting = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, verbose_name="Quality of paper formatting")
     grammar = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, verbose_name="Quality of English grammar")
     # 
