@@ -99,6 +99,11 @@ QUALITY_SPEC = (
     (0, 'mediocre'),
     )
 
+RANKING_CHOICES = (
+    (101, '-'), # Only values between 0 and 100 are kept, anything outside those limits is discarded.
+    (100, 'top'), (80, 'high'), (60, 'good'), (40, 'ok'), (20, 'low'), (0, 'poor')
+    )
+
 REPORT_REC = (
     (1, 'Publish as Tier I (top 10% of papers in this journal)'),
     (2, 'Publish as Tier II (top 50% of papers in this journal)'),
@@ -118,15 +123,22 @@ class Report(models.Model):
     # -3: rejected (not useful)
     status = models.SmallIntegerField(default=0)
     submission = models.ForeignKey(Submission)
+    date_invited = models.DateTimeField('date invited', blank=True, null=True)
+    invited_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='invited_by')
+    date_submitted = models.DateTimeField('date submitted')
     author = models.ForeignKey(Contributor)
-    qualification = models.PositiveSmallIntegerField(choices=REFEREE_QUALIFICATION, verbose_name="Qualification to referee this: I am ", blank=True)
+    qualification = models.PositiveSmallIntegerField(choices=REFEREE_QUALIFICATION, verbose_name="Qualification to referee this: I am ")
+    # Text-based reporting
     strengths = models.TextField()
     weaknesses = models.TextField()
     report = models.TextField()
     requested_changes = models.TextField(verbose_name="requested changes")
-    formatting = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, default=1, verbose_name="Quality of paper formatting")
-    grammar = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, default=1, verbose_name="Quality of English grammar")
+    # Qualities:
+    validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
+    significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
+    originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
+    clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
+    formatting = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, verbose_name="Quality of paper formatting")
+    grammar = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, verbose_name="Quality of English grammar")
+    # 
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
-    date_invited = models.DateTimeField('date invited', blank=True, null=True)
-    invited_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='invited_by')
-    date_submitted = models.DateTimeField('date submitted')

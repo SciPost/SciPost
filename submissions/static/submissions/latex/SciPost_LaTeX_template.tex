@@ -1,5 +1,5 @@
 % SciPost LaTeX template
-% Version 1.0 December 2015
+% Version 1.0 March 2016
 %
 % Submissions to SciPost Journals should make use of this template.
 %
@@ -10,18 +10,13 @@
 %   appear on the outer margins of both columns
 %
 
-%\documentclass[10pt,twocolumn]{article}
 \documentclass[10pt]{article}
 \usepackage{a4wide}
 
 % Layout
 \usepackage[top=10mm,bottom=10mm,left=16mm,right=16mm,head=10mm,includeheadfoot]{geometry}
 
-\setlength\columnsep{8mm}
-
 \bigskipamount 6mm
-
-\usepackage[colaction]{multicol}
 
 % Unicode characters
 \usepackage[utf8]{inputenc}
@@ -33,7 +28,7 @@
 \usepackage{hyperref}
 
 % Include line numbers in submissions
-\usepackage[switch,columnwise]{lineno} % line numbers alternately left/right for left/right column
+\usepackage{lineno}
 
 % SciPost BiBTeX style
 %\bibliographystyle{scipostbib}
@@ -51,9 +46,8 @@
 \rhead{
 \colorbox{scipostblue}
 % TODO: Select the appropriate journal:
-{\strut \bf \color{white} SciPost Physics Letters}
-%{\strut \bf \color{white} SciPost Physics X}
-%{\strut \bf \color{white} SciPost Physics}
+{\strut \bf \color{white} SciPost Physics}
+%{\strut \bf \color{white} SciPost Physics Lecture Notes}
 }
 
 \lfoot{\bf SciPost Submission}
@@ -66,8 +60,6 @@
 
 % Document
 \begin{document}
-
-\def\makeLineNumber{\docolaction{\makeLineNumberLeft}{}{\makeLineNumberRight}}
 
 \begin{center}
 {\Large
@@ -93,42 +85,32 @@ Initials2 Surname2\textsuperscript{2*}
 {\bf 2} Affiliation2
 \\
 % TODO: provide email address of corresponding author
-* CorrespondingAuthor@affiliation.edu
+* CorrespondingAuthor@email.address
 \bigskip
 \end{center}
 
 \linenumbers
 
-\begin{multicols}{2}
 
 \section*{Abstract}
 {\bf 
 % TODO: write your abstract here.
-% The abstract is in boldface, and should fit in 8 lines.
+The abstract is in boldface, and should fit in 8 lines.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam sapien tellus, commodo id velit id, eleifend volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium diam, quis maximus dolor faucibus id. Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim ultrices, ultrices elit pulvinar, volutpat risus.
 }
 
 \section{Introduction}
-% TODO: the stage is yours. Write your article here.
+% TODO: 
+The stage is yours. Write your article here.
 Lorem ipsum dolor sit amet\cite{Cite1}, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam sapien tellus, commodo id velit id, eleifend volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium diam, quis maximus dolor faucibus id. Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim ultrices, ultrices elit pulvinar, volutpat risus.
 
 \section{A Section}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam sapien tellus, commodo id velit id, eleifend volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium diam, quis maximus dolor faucibus id. Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim ultrices, ultrices elit pulvinar, volutpat risus.
 
 \begin{equation}
-H = \sum_{j=1}^N \left[J (S^x_j S^x_{j+1} + S^y_j S^y_{j+1} + \Delta S^z_j S^z_{j+1}) - h S^z_j \right]
+H = \sum_{j=1}^N \left[J (S^x_j S^x_{j+1} + S^y_j S^y_{j+1} + \Delta S^z_j S^z_{j+1}) - h S^z_j \right].
 \end{equation}
 
-You can also easily switch between two columns format and single column format for longer equations like
-% To switch between single and double columns, proceed as in the following example:
-\end{multicols}
-\begin{equation}
-H = \sum_{j=1}^N \left[J (S^x_j S^x_{j+1} + S^y_j S^y_{j+1} + \Delta S^z_j S^z_{j+1}) - h S^z_j + J' (S^x_j S^x_{j+2} + S^y_j S^y_{j+2} + \Delta' S^z_j S^z_{j+2}) \right]
-\label{eq:HXXZnnn}
-\end{equation}
-% After you're done with the long equation(s), simply restart the two columns environment
-\begin{multicols}{2}
-after which you can go back to two columns format.
 
 \section{Another Section}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta erat. Morbi consectetur est vel gravida pretium. Suspendisse ut dui eu ante cursus gravida non sed sem. Nullam sapien tellus, commodo id velit id, eleifend volutpat quam. Phasellus mauris velit, dapibus finibus elementum vel, pulvinar non tellus. Nunc pellentesque pretium diam, quis maximus dolor faucibus id. Nunc convallis sodales ante, ut ullamcorper est egestas vitae. Nam sit amet enim ultrices, ultrices elit pulvinar, volutpat risus.
@@ -155,5 +137,5 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eget porta er
 \bibitem{Cite1} L. Ipsum, `Dolor sit amet', Cons. ad. I p.1 (2015).
 \end{thebibliography}
 
-\end{multicols}
+%\end{multicols}
 \end{document}
