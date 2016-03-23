@@ -1,0 +1,81 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: personal page{% endblock pagetitle %}
+
+{% block headsup %}
+
+<script>
+  $(document).ready(function(){
+  $("#mycommentsbutton").click(function(){
+  $("#mycommentslist").toggle();
+  });
+  $("#myauthorrepliesbutton").click(function(){
+  $("#myauthorreplieslist").toggle();
+  });
+  });
+</script>
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<section>
+  <div class="flex-greybox">
+    <h1>Contributor info</h1>
+  </div>
+  <div class="row">
+    <div class="col-6">
+      {{ contributor.as_table|safe }}
+    </div>
+  </div>
+</section>
+
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>SciPost Submissions</h1>
+  </div>
+</section>
+
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>SciPost Commentaries</h1>
+  </div>
+</section>
+
+{% if contributor_comments %}
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Comments</h1>
+    <button id="mycommentsbutton">View/hide comments</button>
+  </div>
+  <div id="mycommentslist">
+    <ul>
+      {% for comment in contributor_comments %}
+      {{ comment.header_as_li|safe }}
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+{% if own_authorreplies %}
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Your Author Replies</h1>
+    <button id="myauthorrepliesbutton">View/hide author replies</button>
+  </div>
+  <div id="myauthorreplieslist">
+    <ul>
+      {% for reply in contributor_authorreplies %}
+      {{ own_reply.header_as_li|safe }}
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+{% endblock bodysup %}

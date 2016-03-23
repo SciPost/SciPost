@@ -231,6 +231,8 @@ def personal_page(request):
             nr_author_replies_to_vet = AuthorReply.objects.filter(status=0).count()
             nr_reports_to_vet = Report.objects.filter(status=0).count()
             nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
+        # Verify if there exist objects authored by this contributor, whose authorship hasn't been claimed yet
+        submission_authorships_to_claim = Submission.objects.filter(author_list__contains=contributor.user.last_name)
         own_comments = Comment.objects.filter(author=contributor).order_by('-date_submitted')
         own_authorreplies = AuthorReply.objects.filter(author=contributor).order_by('-date_submitted')
         context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 
@@ -241,6 +243,7 @@ def personal_page(request):
                    'nr_reports_to_vet': nr_reports_to_vet, 
                    'nr_submissions_to_process': nr_submissions_to_process, 
                    'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet, 
+                   'submission_authorships_to_claim': submission_authorships_to_claim,
                    'own_comments': own_comments, 'own_authorreplies': own_authorreplies}
         return render(request, 'scipost/personal_page.html', context)
     else:
@@ -307,4 +310,18 @@ def update_personal_data(request):
         form = AuthenticationForm()
         return render(request, 'scipost/login.html', {'form': form})
 
+
+def contributor_info(request, contributor_id):
+    if request.user.is_authenticated():
+        contributor = Contributor.objects.get(pk=contributor_id)
+        contributor_comments = Comment.objects.filter(author=contributor, status__gte=1).order_by('-date_submitted')
+        contributor_authorreplies = AuthorReply.objects.filter(author=contributor, status__gte=1).order_by('-date_submitted')
+        context = {'contributor': contributor, 
+                   'contributor_comments': contributor_comments, 
+                   'contributor_authorreplies': contributor_authorreplies}
+        return render(request, 'scipost/contributor_info.html', context)
+    else:
+        form = AuthenticationForm()
+        context = {'form': form}
+        return render(request, 'scipost/login.html', context)
 

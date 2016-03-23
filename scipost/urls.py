@@ -37,4 +37,7 @@ urlpatterns = [
     url(r'^reset_password/$', views.reset_password, name='reset_password'),
     url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
     url(r'^update_personal_data_ack$', TemplateView.as_view(template_name='scipost/update_personal_data_ack.html'), name='update_personal_data_ack'),
+
+    # Contributor info
+    url(r'^(?P<contributor_id>[0-9]+)$', views.contributor_info, name="contributor_info"),
 ]

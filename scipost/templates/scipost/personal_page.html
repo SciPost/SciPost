@@ -90,6 +90,12 @@
   <div class="flex-greybox">
     <h1>SciPost Submissions</h1>
   </div>
+  {% if submission_authorships_to_claim %}
+  <ul>
+    {% for sub in submission_authorships_to_claim %}
+    {{ submission.header_as_li|safe %}
+    {% endfor %}
+  {% endif %}
   <ul>
     <li><a href="{% url 'submissions:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></li>
   </ul>

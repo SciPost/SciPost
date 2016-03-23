@@ -19,6 +19,7 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('scipost.urls', namespace="scipost")),
+    url(r'^contributor/', include('scipost.urls', namespace="scipost")),
     url(r'^commentaries/', include('commentaries.urls', namespace="commentaries")),
     url(r'^commentary/', include('commentaries.urls', namespace="commentaries")),
     url(r'^comments/', include('comments.urls', namespace="comments")),

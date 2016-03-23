@@ -89,7 +89,8 @@ class Comment(models.Model):
         output = '<div class="commentid">\n'
         output += '<h3><a id="comment_id' + str(self.id) + '">' + str(self.id) + '</a>'
         if not self.anonymous:
-            output += ' by ' + self.author.user.first_name + ' ' + self.author.user.last_name
+            output += (' by <a href="/contributor/' + str(self.author.id) + '">' +
+                       self.author.user.first_name + ' ' + self.author.user.last_name + '</a>')
         output += '</h3>'
         if self.in_reply_to:
             output += '<h4>in reply to ' + str(self.in_reply_to.id) + '</h4>\n'
