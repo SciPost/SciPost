@@ -1,0 +1,51 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: authorship claims{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<section>
+  <div class="flex-greybox">
+    <h1>Contributor Authorship Claims</h1>
+  </div>
+
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>SciPost Submissions</h1>
+  </div>
+  {% if submission_authorships_to_claim %}
+  <h3>Potential authorships to claim (auto-detected)</h3>
+  <ul>
+    {% for sub in submission_authorships_to_claim %}
+    {{ sub.header_as_li | safe }}
+    <form action="{% url 'scipost:claim_sub_authorship' submission_id=sub.id claim=1%}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="I am an author" />
+    </form>
+    <form action="{% url 'scipost:claim_sub_authorship' submission_id=sub.id claim=0%}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="I am not an author" />
+    </form>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>SciPost Commentaries</h1>
+  </div>
+  {% if commentary_authorships_to_claim %}
+  <h3>Potential authorships to claim (auto-detected)</h3>
+  <ul>
+    {% for com in commentary_authorships_to_claim %}
+    {{ com.header_as_li | safe }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+{% endblock bodysup %}

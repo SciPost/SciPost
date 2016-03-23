@@ -82,6 +82,20 @@ class Contributor(models.Model):
         output += '</table>'
         return output
 
+AUTHORSHIP_CLAIM_STATUS = (
+    (1, 'accepted'),
+    (0, 'not yet vetted (pending)'),
+    (-1, 'rejected'),
+)
+
+class AuthorshipClaim(models.Model):
+    claimant = models.ForeignKey(Contributor, related_name='claimant')
+    submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
+    commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True)
+    vetted = models.BooleanField(default=False)
+    vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
+    status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS, default=0)
+    
 
 
 #######################
@@ -117,7 +131,7 @@ class Assessment(models.Model):
 OPINION_CHOICES = (
     ('ABS', '-'),
     ('A', 'agree'),
-    ('N', 'neutral'),
+    ('N', 'not sure'),
     ('D', 'disagree'),
 )
 opinion_choices_dict = dict(OPINION_CHOICES)

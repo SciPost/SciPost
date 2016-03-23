@@ -40,4 +40,11 @@ urlpatterns = [
 
     # Contributor info
     url(r'^(?P<contributor_id>[0-9]+)$', views.contributor_info, name="contributor_info"),
+
+    # Authorship claims
+    url(r'^claim_authorships$', views.claim_authorships, name="claim_authorships"),
+    url(r'^claim_sub_authorship/(?P<submission_id>[0-9]+)/(?P<claim>[0-1])$', views.claim_sub_authorship, name="claim_sub_authorship"),
+    url(r'^vet_authorship_claims$', views.vet_authorship_claims, name="vet_authorship_claims"),
+    url(r'^vet_sub_authorship_claim/(?P<submission_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_sub_authorship_claim, name="vet_sub_authorship_claim"),
+    url(r'^vet_com_authorship_claim/(?P<commentary_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_com_authorship_claim, name="vet_com_authorship_claim"),
 ]

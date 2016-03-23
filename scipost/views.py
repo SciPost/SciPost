@@ -225,14 +225,19 @@ def personal_page(request):
         nr_author_replies_to_vet = 0
         nr_reports_to_vet = 0
         nr_thesislink_requests_to_vet = 0
+        nr_authorship_claims_to_vet = 0
         if contributor.rank >= 2:
             nr_commentary_page_requests_to_vet = Commentary.objects.filter(vetted=False).count()
             nr_comments_to_vet = Comment.objects.filter(status=0).count()
             nr_author_replies_to_vet = AuthorReply.objects.filter(status=0).count()
             nr_reports_to_vet = Report.objects.filter(status=0).count()
             nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
+            nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
         # Verify if there exist objects authored by this contributor, whose authorship hasn't been claimed yet
-        submission_authorships_to_claim = Submission.objects.filter(author_list__contains=contributor.user.last_name)
+        own_submissions = Submission.objects.filter(authors__in=[contributor])
+        own_commentaries = Commentary.objects.filter(authors__in=[contributor])
+        nr_submission_authorships_to_claim = Submission.objects.filter(author_list__contains=contributor.user.last_name).exclude(authors__in=[contributor]).exclude(authors_claims__in=[contributor]).exclude(authors_false_claims__in=[contributor]).count()
+        nr_commentary_authorships_to_claim = Commentary.objects.filter(author_list__contains=contributor.user.last_name).count()
         own_comments = Comment.objects.filter(author=contributor).order_by('-date_submitted')
         own_authorreplies = AuthorReply.objects.filter(author=contributor).order_by('-date_submitted')
         context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 
@@ -243,7 +248,10 @@ def personal_page(request):
                    'nr_reports_to_vet': nr_reports_to_vet, 
                    'nr_submissions_to_process': nr_submissions_to_process, 
                    'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet, 
-                   'submission_authorships_to_claim': submission_authorships_to_claim,
+                   'nr_authorship_claims_to_vet': nr_authorship_claims_to_vet,
+                   'nr_submission_authorships_to_claim': nr_submission_authorships_to_claim,
+                   'nr_commentary_authorships_to_claim': nr_commentary_authorships_to_claim,
+                   'own_submissions': own_submissions, 'own_commentaries': own_commentaries,
                    'own_comments': own_comments, 'own_authorreplies': own_authorreplies}
         return render(request, 'scipost/personal_page.html', context)
     else:
@@ -309,6 +317,89 @@ def update_personal_data(request):
     else:
         form = AuthenticationForm()
         return render(request, 'scipost/login.html', {'form': form})
+
+
+def claim_authorships(request):
+    if request.user.is_authenticated:
+       contributor = Contributor.objects.get(user=request.user)
+
+       submission_authorships_to_claim = Submission.objects.filter(author_list__contains=contributor.user.last_name).exclude(authors__in=[contributor]).exclude(authors_claims__in=[contributor]).exclude(authors_false_claims__in=[contributor])
+       sub_auth_claim_form = AuthorshipClaimForm()
+       commentary_authorships_to_claim = Commentary.objects.filter(author_list__contains=contributor.user.last_name)
+
+       context = {'submission_authorships_to_claim': submission_authorships_to_claim,
+                  'sub_auth_claim_form': sub_auth_claim_form,
+                  'commentary_authorships_to_claim': commentary_authorships_to_claim,}
+       return render(request, 'scipost/claim_authorships.html', context)
+    else:
+        form = AuthenticationForm()
+        return render(request, 'scipost/login.html', {'form': form})
+
+
+def claim_sub_authorship(request, submission_id, claim):
+    if request.method == 'POST':
+        contributor = Contributor.objects.get(user=request.user)
+        submission = get_object_or_404(Submission,pk=submission_id)
+        if claim == '1':
+            submission.authors_claims.add(contributor)
+            newclaim = AuthorshipClaim(claimant=contributor, submission=submission)
+            newclaim.save()
+        elif claim == '0':
+            submission.authors_false_claims.add(contributor)
+        submission.save()
+    return render(request, 'scipost/claim_authorships.html')
+
+def claim_com_authorship(request, commentary_id, claim):
+    if request.method == 'POST':
+        contributor = Contributor.objects.get(user=request.user)
+        commentary = get_object_or_404(Commentary,pk=commentary_id)
+        if claim == '1':
+            commentary.authors_claims.add(contributor)
+            newclaim = AuthorshipClaim(claimant=contributor, commentary=commentary)
+            newclaim.save()
+        elif claim == '0':
+            commentary.authors_false_claims.add(contributor)
+        commentary.save()
+    return render(request, 'scipost/claim_authorships.html')
+
+
+def vet_authorship_claims(request):
+    contributor = Contributor.objects.get(user=request.user)
+    claims_to_vet = AuthorshipClaim.objects.filter(status='0')
+    context = {'claims_to_vet': claims_to_vet }
+    return render(request, 'scipost/vet_authorship_claims.html', context)
+
+def vet_sub_authorship_claim(request, submission_id, claim):
+    if request.method == 'POST':
+        contributor = Contributor.objects.get(user=request.user)
+        submission = Submission.objects.get(pk=submission_id)
+        submission.authors_claims.remove(contributor)
+        claim_to_vet = AuthorshipClaim.objects.get(claimant=contributor, submission=submission)
+        if claim == '1':
+            submission.authors.add(contributor)
+            claim_to_vet.status = '1'
+        elif claim == '0':
+            submission.authors_false_claims.add(contributor)
+            claim_to_vet.status = '-1'
+        submission.save()
+        claim_to_vet.save()
+    return render(request, 'scipost/claim_authorships.html')
+
+def vet_com_authorship_claim(request, commentary_id, claim):
+    if request.method == 'POST':
+        contributor = Contributor.objects.get(user=request.user)
+        commentary = Commentary.objects.get(pk=commentary_id)
+        commentary.authors_claims.remove(contributor)
+        claim_to_vet = AuthorshipClaim.objects.get(claimant=contributor, commentary=commentary)
+        if claim == '1':
+            commentary.authors.add(contributor)
+        elif claim == '0':
+            commentary.authors_false_claims.add(contributor)
+        claim_to_vet.status = claim
+        commentary.save()
+        claim_to_vet.save()
+    return render(request, 'scipost/claim_authorships.html')
+
 
 
 def contributor_info(request, contributor_id):

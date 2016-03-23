@@ -66,7 +66,7 @@ hr.hr12 {
 }
 .commentcategorydisplay li {
   display: inline-block;
-  margin: 0px;
+  margin: 2px;
   padding: 4px 8px;
   background-color: #dddddd;
   font-size: 90%;
@@ -202,6 +202,11 @@ hr.hr12 {
   padding: 0px;
   align-self: center;
   margin-left: auto;
+}
+.flex-commentbox {
+  background-color: #f4f4f4; 
+  margin: 0px;
+  padding: 0px;
 }
 .flex-greybox {
   background-color: #f4f4f4; 

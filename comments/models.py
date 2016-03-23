@@ -78,23 +78,28 @@ class Comment(models.Model):
 
     def opinions_as_ul(self):
         output = '<div class="opinionsDisplay"><ul>'
-        output += '<li>Agree: ' + str(self.nr_A) + '</li>'
-        output += '<li>Neutral: ' + str(self.nr_N) + '</li>'
-        output += '<li>Disagree: ' + str(self.nr_D) + '</li>'
+        output += '<li style="background-color: #000099">Agree: ' + str(self.nr_A) + '</li>'
+        output += '<li style="background-color: #555555">Not sure: ' + str(self.nr_N) + '</li>'
+        output += '<li style="background-color: #990000">Disagree: ' + str(self.nr_D) + '</li>'
         output += '</ul></div>'
         return output
 
 
     def print_identifier (self):
         output = '<div class="commentid">\n'
-        output += '<h3><a id="comment_id' + str(self.id) + '">' + str(self.id) + '</a>'
+        #output += '<h3><a id="comment_id' + str(self.id) + '">' + str(self.id) + '</a>'
+        output += '<h3><a id="comment_id' + str(self.id) + '"></a>'
         if not self.anonymous:
-            output += (' by <a href="/contributor/' + str(self.author.id) + '">' +
-                       self.author.user.first_name + ' ' + self.author.user.last_name + '</a>')
-        output += '</h3>'
+            output += (' <a href="/contributor/' + str(self.author.id) + '">' +
+                       self.author.user.first_name + ' ' + self.author.user.last_name + '</a> on ')
+        output += self.date_submitted.strftime("%Y-%m-%d")
+        #output += '</h3>'
         if self.in_reply_to:
-            output += '<h4>in reply to ' + str(self.in_reply_to.id) + '</h4>\n'
-        output += '<h4>' + self.date_submitted.strftime("%Y-%m-%d") + '</h4>\n</div>\n'
+            #output += '<h4>in reply to ' + str(self.in_reply_to.id) + '</h4>\n'
+            output += (' <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">(in reply to ' + str(self.in_reply_to.author.user.first_name) + ' ' + 
+                       str(self.in_reply_to.author.user.last_name) + ' on ' + self.in_reply_to.date_submitted.strftime("%Y-%m-%d") + ')</a>')
+        #output += '<h4>' + self.date_submitted.strftime("%Y-%m-%d") + '</h4>\n</div>\n'
+        output += '</h3></div>'
         return output
 
     def header_as_li (self):
@@ -118,6 +123,27 @@ class Comment(models.Model):
             header += ' in thesislink on <a href="/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.title + '</a> by ' + self.thesislink.author + '</p></div>'
         header += '</div></li>'
         return header
+
+    def categories_as_ul(self):
+        output = '<div class="commentcategorydisplay"><h4>Category:</h4><ul>'
+        if self.is_rem:
+            output += '<li>remark</li>'
+        if self.is_que:
+            output += '<li>question</li>'
+        if self.is_ans:
+            output += '<li>answer to question</li>'
+        if self.is_obj:
+            output += '<li>objection</li>'
+        if self.is_rep:
+            output += '<li>reply to objection</li>'
+        if self.is_val:
+            output += '<li>validation or rederivation</li>'
+        if self.is_lit:
+            output += '<li>pointer to related literature</li>'
+        if self.is_sug:
+            output += '<li>suggestion for further work</li>'
+        output += '</ul></div>'
+        return output
 
 
 class AuthorReply(models.Model):

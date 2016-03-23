@@ -68,7 +68,8 @@
       <li><a href="{% url 'comments:vet_submitted_comments' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
       <li><a href="{% url 'comments:vet_author_replies' %}">Vet submitted Author Replies</a> ({{ nr_author_replies_to_vet }})</li>
       <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
-      <li><a href="{% url 'theses:vet_thesislink_requests' %}">Vet Thesis Link requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
+      <li><a href="{% url 'theses:vet_thesislink_requests' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
+      <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
     </ul>
   </div>
   {% if contributor.rank >= 3 %}
@@ -90,12 +91,18 @@
   <div class="flex-greybox">
     <h1>SciPost Submissions</h1>
   </div>
-  {% if submission_authorships_to_claim %}
+  {% if own_submissions %}
+  <h3>Submissions for which you are an author:</h3>
   <ul>
-    {% for sub in submission_authorships_to_claim %}
+    {% for sub in own_submissions %}
+    {{ sub.header_as_li|safe }}
     {% endfor %}
+  </ul>  
   {% endif %}
   <ul>
+    {% if nr_submission_authorships_to_claim > 0 %}
+    <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_submission_authorships_to_claim}})</a></li>
+    {% endif %}
     <li><a href="{% url 'submissions:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></li>
   </ul>
 </section>
@@ -105,7 +112,18 @@
   <div class="flex-greybox">
     <h1>SciPost Commentaries</h1>
   </div>
+  {% if own_commentaries %}
+  <h3>Commentaries for which you are an author:</h3>
   <ul>
+    {% for com in own_commentaries %}
+    {{ com.header_as_li|safe }}
+    {% endfor %}
+  </ul>  
+  {% endif %}
+  <ul>
+    {% if nr_commentary_authorships_to_claim > 0 %}
+    <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_commentary_authorships_to_claim}})</a></li>
+    {% endif %}
     <li><a href="{% url 'commentaries:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
   </ul>
 </section>

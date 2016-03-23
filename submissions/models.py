@@ -39,6 +39,8 @@ class Submission(models.Model):
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_sub')
+    authors_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_sub_claims')
+    authors_false_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_sub_false_claims')
     abstract = models.TextField()
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
     submission_date = models.DateField(verbose_name='submission date')
@@ -62,8 +64,13 @@ class Submission(models.Model):
 
     def header_as_li (self):
         header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0"><p><a href="/submission/' + str(self.id) + '" class="pubtitleli">' + self.title + '</a></p>'
-        header += '<p>by ' + self.author_list + '</p><p> (submitted ' + str(self.submission_date) + ' to ' + journals_submit_dict[self.submitted_to_journal] + ') - latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
+        header += ('<div class="flex-whitebox0"><p><a href="/submission/' + str(self.id) + 
+                   '" class="pubtitleli">' + self.title + '</a></p>')
+        header += ('<p>by ' + self.author_list + 
+                   '</p><p> (submitted ' + str(self.submission_date) + 
+                   ' to ' + journals_submit_dict[self.submitted_to_journal] + 
+                   ') - latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + 
+                   '</p></div>')
         header += '</div></li>'
         return header
 

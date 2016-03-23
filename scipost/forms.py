@@ -60,6 +60,14 @@ class PasswordChangeForm(forms.Form):
     password_new = forms.CharField(label='New password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
 
+AUTHORSHIP_CLAIM_CHOICES = (
+    ('-', '-'),
+    ('True', 'I am an author'),
+    ('False', 'I am not an author'),
+    )
+
+class AuthorshipClaimForm(forms.Form):
+    claim = forms.ChoiceField(choices=AUTHORSHIP_CLAIM_CHOICES, required=False)
 
 class OpinionForm(forms.Form):
     opinion = forms.ChoiceField(choices=OPINION_CHOICES, label='Your opinion on this Comment: ')
