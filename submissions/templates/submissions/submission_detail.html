@@ -148,12 +148,11 @@
     {% for comment in comments %}
 
     <hr class="hr6">
+<!--
     <div class="row">
-      
       <div class="col-3">
 	{{ comment.print_identifier|safe }}
       </div>
-      
       <div class="col-9">
         <div class="commentcategorydisplay">
           <h4>Category:</h4>
@@ -181,7 +180,25 @@
         </div>
       </div>
     </div>
-    
+-->    
+    <div class="flex-container">
+      <div class="flex-commentbox">
+        {{ comment.print_identifier|safe }}
+        {{ comment.categories_as_ul|safe }}
+        <div class="opinionsDisplay">
+          {% if user.is_authenticated and user.contributor.rank > 0 and user.contributor != comment.author %}
+          <form action="{% url 'comments:express_opinion' comment.id %}" method="post">
+            {% csrf_token %}
+            {{ opinion_form }}
+            <input type="submit" value="Submit"/>
+          </form>
+          {% endif %}
+          {{ comment.opinions_as_ul|safe }}
+        </div>
+      </div>
+    </div>
+
+
     <div class="row">
       <div class="col-1"></div>
       <div class="col-10">
