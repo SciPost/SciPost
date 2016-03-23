@@ -149,4 +149,3 @@ class Report(models.Model):
     grammar = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, verbose_name="Quality of English grammar")
     # 
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
-    anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
