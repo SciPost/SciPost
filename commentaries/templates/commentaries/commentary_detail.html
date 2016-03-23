@@ -81,7 +81,7 @@
 	</div>
 	<br/>
 	<div class="opinionsDisplay">
-	  {% if user.is_authenticated and user.contributor.rank > 0 %}
+	  {% if user.is_authenticated and user.contributor.rank > 0 and user.contributor != comment.author %}
 	  <form action="{% url 'comments:express_opinion' comment.id %}" method="post">
 	    {% csrf_token %}
 	    {{ opinion_form }}
