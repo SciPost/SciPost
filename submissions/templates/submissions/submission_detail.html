@@ -138,6 +138,20 @@
 
 {% include 'scipost/comments_block.html' %}
 
+{% if user.is_authenticated and submission.open_for_commenting and user.contributor.rank > 0 %}
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Contribute a Comment:</h1>
+  </div>
+  <form action="{% url 'submissions:submission' submission.id %}" method="post">
+    {% csrf_token %}
+    {% load crispy_forms_tags %}
+    {% crispy form %}
+  </form>
+</section>
+{% endif %}
+
 {% endif %} <!-- Temporary strip -->
 
 {% endblock bodysup %}
