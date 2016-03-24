@@ -14,7 +14,7 @@ from .forms import *
 
 from comments.models import Comment, AuthorReply
 from comments.forms import CommentForm
-from scipost.forms import TITLE_CHOICES, AuthenticationForm, OpinionForm
+from scipost.forms import TITLE_CHOICES, AuthenticationForm#, OpinionForm
 
 title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
 
@@ -203,7 +203,6 @@ def thesis_detail(request, thesislink_id):
         author_replies = AuthorReply.objects.filter(thesislink=thesislink)
     except AuthorReply.DoesNotExist:
         author_replies = ()
-    opinion_form = OpinionForm()
     context = {'thesislink': thesislink, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 
-               'author_replies': author_replies, 'form': form, 'opinion_form': opinion_form}
+               'author_replies': author_replies, 'form': form}
     return render(request, 'theses/thesis_detail.html', context)

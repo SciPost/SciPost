@@ -14,7 +14,7 @@ from .forms import *
 
 from comments.models import Comment, AuthorReply
 from scipost.models import Contributor, title_dict
-from scipost.forms import OpinionForm
+#from scipost.forms import OpinionForm
 from submissions.models import Submission
 
 from comments.forms import CommentForm
@@ -161,10 +161,9 @@ def submission_detail(request, submission_id):
         author_replies = AuthorReply.objects.filter(submission=submission)
     except AuthorReply.DoesNotExist:
         author_replies = ()
-    opinion_form = OpinionForm()
-    context = {'submission': submission, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 
+    context = {'submission': submission, 'comments': comments.filter(status__gte=1).order_by('-date_submitted'), 
                'reports': reports.filter(status__gte=1), 'author_replies': author_replies, 
-               'form': form, 'opinion_form': opinion_form}
+               'form': form, }
     return render(request, 'submissions/submission_detail.html', context)
 
 

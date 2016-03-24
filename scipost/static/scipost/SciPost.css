@@ -498,6 +498,19 @@ section form.ratingsdata ul li label {
   margin: 1px 3px;
   padding: 2px 4px;
 }
+.opinionsDisplay form input[type=submit] {
+  color: #ffffff;;
+}
+.opinionsDisplay form input[type=submit].agree {
+  background-color: #000099;
+}
+.opinionsDisplay form input[type=submit].notsure {
+  background-color: #555555;
+}
+.opinionsDisplay form input[type=submit].disagree {
+  background-color: #990000;
+}
+
 
 article {
   background-color:#eeeeee;

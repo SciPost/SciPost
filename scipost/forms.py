@@ -69,8 +69,8 @@ AUTHORSHIP_CLAIM_CHOICES = (
 class AuthorshipClaimForm(forms.Form):
     claim = forms.ChoiceField(choices=AUTHORSHIP_CLAIM_CHOICES, required=False)
 
-class OpinionForm(forms.Form):
-    opinion = forms.ChoiceField(choices=OPINION_CHOICES, label='Your opinion on this Comment: ')
+#class OpinionForm(forms.Form):
+#    opinion = forms.ChoiceField(choices=OPINION_CHOICES, label='Your opinion on this Comment: ')
 
 
 class AssessmentForm(forms.ModelForm):

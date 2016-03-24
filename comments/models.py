@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
 from .models import *
 #from commentaries.models import *
@@ -11,7 +12,7 @@ from .models import *
 #from submissions.models import *
 
 from commentaries.models import Commentary
-from scipost.models import Contributor, Opinion
+from scipost.models import Contributor#, Opinion
 from submissions.models import Submission, Report
 from theses.models import ThesisLink
 
@@ -64,17 +65,37 @@ class Comment(models.Model):
     date_submitted = models.DateTimeField('date submitted')
     # Opinions 
     nr_A = models.PositiveIntegerField(default=0)
+    in_agreement = models.ManyToManyField(Contributor, related_name='in_agreement')
     nr_N = models.PositiveIntegerField(default=0)
+    in_notsure = models.ManyToManyField(Contributor, related_name='in_notsure')
     nr_D = models.PositiveIntegerField(default=0)
+    in_disagreement = models.ManyToManyField(Contributor, related_name='in_disagreement')
 
     def __str__ (self):
         return self.comment_text
 
-    def recalculate_nr_opinions(self):
-        self.nr_A = Opinion.objects.filter(comment=self, opinion='A').count()
-        self.nr_N = Opinion.objects.filter(comment=self, opinion='N').count()
-        self.nr_D = Opinion.objects.filter(comment=self, opinion='D').count()
+#    def recalculate_nr_opinions(self):
+#        self.nr_A = Opinion.objects.filter(comment=self, opinion='A').count()
+#        self.nr_N = Opinion.objects.filter(comment=self, opinion='N').count()
+#        self.nr_D = Opinion.objects.filter(comment=self, opinion='D').count()
+#        self.save()
+
+    def update_opinions(self, contributor_id, opinion):
+        contributor = get_object_or_404(Contributor, pk=contributor_id)
+        self.in_agreement.remove(contributor)
+        self.in_notsure.remove(contributor)
+        self.in_disagreement.remove(contributor)
+        if opinion == 'A':
+            self.in_agreement.add(contributor)
+        elif opinion == 'N':
+            self.in_notsure.add(contributor)
+        elif opinion == 'D':
+            self.in_disagreement.add(contributor)
+        self.nr_A = self.in_agreement.count()
+        self.nr_N = self.in_notsure.count()
+        self.nr_D = self.in_disagreement.count()
         self.save()
+
 
     def opinions_as_ul(self):
         output = '<div class="opinionsDisplay"><ul>'
@@ -96,8 +117,9 @@ class Comment(models.Model):
         #output += '</h3>'
         if self.in_reply_to:
             #output += '<h4>in reply to ' + str(self.in_reply_to.id) + '</h4>\n'
-            output += (' <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">(in reply to ' + str(self.in_reply_to.author.user.first_name) + ' ' + 
-                       str(self.in_reply_to.author.user.last_name) + ' on ' + self.in_reply_to.date_submitted.strftime("%Y-%m-%d") + ')</a>')
+            output += (' (in reply to <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">' + 
+                       str(self.in_reply_to.author.user.first_name) + ' ' + 
+                       str(self.in_reply_to.author.user.last_name) + '</a> on ' + self.in_reply_to.date_submitted.strftime("%Y-%m-%d"))
         #output += '<h4>' + self.date_submitted.strftime("%Y-%m-%d") + '</h4>\n</div>\n'
         output += '</h3></div>'
         return output

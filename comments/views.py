@@ -12,8 +12,8 @@ from django.db.models import Avg
 from .models import *
 from .forms import *
 
-from scipost.models import title_dict, Opinion
-from scipost.forms import OpinionForm
+from scipost.models import title_dict#, Opinion
+#from scipost.forms import OpinionForm
 
 
 def vet_submitted_comments(request):
@@ -208,8 +208,8 @@ def vet_author_reply_ack(request, reply_id):
     context = {}
     return render(request, 'comments/vet_author_reply_ack.html', context)
 
-
-def express_opinion(request, comment_id):
+# OLD
+def express_opinion_old(request, comment_id):
     # A contributor has expressed an opinion on a comment
     contributor = request.user.contributor
     comment = get_object_or_404(Comment, pk=comment_id)
@@ -227,6 +227,42 @@ def express_opinion(request, comment_id):
                 return HttpResponseRedirect('/commentary/' + str(comment.commentary.id) + '/#comment_id' + str(comment.id))
             if comment.thesislink is not None:
                 return HttpResponseRedirect('/thesis/' + str(comment.thesislink.id) + '/#comment_id' + str(comment.id))
+    else: 
+        # will never call this
+        return(render(request, 'scipost/index.html'))
+
+def express_opinion_old(request, comment_id, opinion):
+    # A contributor has expressed an opinion on a comment
+    contributor = request.user.contributor
+    comment = get_object_or_404(Comment, pk=comment_id)
+    # delete any previous opinion on this by this contributor
+    Opinion.objects.filter(rater=contributor, comment=comment).delete()
+    newopinion = Opinion(rater=request.user.contributor, comment=comment, opinion=opinion)
+    newopinion.save()
+    comment.recalculate_nr_opinions()
+    if comment.submission is not None:
+        return HttpResponseRedirect('/submission/' + str(comment.submission.id) + '/#comment_id' + str(comment.id))
+    if comment.commentary is not None:
+        return HttpResponseRedirect('/commentary/' + str(comment.commentary.id) + '/#comment_id' + str(comment.id))
+    if comment.thesislink is not None:
+        return HttpResponseRedirect('/thesis/' + str(comment.thesislink.id) + '/#comment_id' + str(comment.id))
+    else: 
+        # will never call this
+        return(render(request, 'scipost/index.html'))
+# ENDOLD
+
+
+def express_opinion(request, comment_id, opinion):
+    # A contributor has expressed an opinion on a comment
+    contributor = request.user.contributor
+    comment = get_object_or_404(Comment, pk=comment_id)
+    comment.update_opinions (contributor.id, opinion)
+    if comment.submission is not None:
+        return HttpResponseRedirect('/submission/' + str(comment.submission.id) + '/#comment_id' + str(comment.id))
+    if comment.commentary is not None:
+        return HttpResponseRedirect('/commentary/' + str(comment.commentary.id) + '/#comment_id' + str(comment.id))
+    if comment.thesislink is not None:
+        return HttpResponseRedirect('/thesis/' + str(comment.thesislink.id) + '/#comment_id' + str(comment.id))
     else: 
         # will never call this
         return(render(request, 'scipost/index.html'))

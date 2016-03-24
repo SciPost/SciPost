@@ -128,18 +128,18 @@ class Assessment(models.Model):
 
 ### Opinions
 
-OPINION_CHOICES = (
-    ('ABS', '-'),
-    ('A', 'agree'),
-    ('N', 'not sure'),
-    ('D', 'disagree'),
-)
-opinion_choices_dict = dict(OPINION_CHOICES)
+#OPINION_CHOICES = (
+#    ('ABS', '-'),
+#    ('A', 'agree'),
+#    ('N', 'not sure'),
+#    ('D', 'disagree'),
+#)
+#opinion_choices_dict = dict(OPINION_CHOICES)
 
-class Opinion(models.Model):
-    rater = models.ForeignKey(Contributor)
-    comment = models.ForeignKey('comments.Comment')
-    opinion = models.CharField(max_length=3, choices=OPINION_CHOICES, default='ABS')
+#class Opinion(models.Model):
+#    rater = models.ForeignKey(Contributor)
+#    comment = models.ForeignKey('comments.Comment')
+#    opinion = models.CharField(max_length=3, choices=OPINION_CHOICES, default='ABS')
 
 
 ### AssessmentAggregates
