@@ -114,8 +114,8 @@ class Comment(models.Model):
         if self.in_reply_to:
             output += (' (in reply to <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">' + 
                        str(self.in_reply_to.author.user.first_name) + ' ' + 
-                       str(self.in_reply_to.author.user.last_name) + '</a> on ' + 
-                       self.in_reply_to.date_submitted.strftime("%Y-%m-%d"))
+                       str(self.in_reply_to.author.user.last_name) + ' on ' + 
+                       self.in_reply_to.date_submitted.strftime("%Y-%m-%d") + '</a>')
         output += '</h3></div>'
         return output
 
