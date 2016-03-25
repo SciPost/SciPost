@@ -102,6 +102,14 @@ class Comment(models.Model):
         output += '</ul>'
         return output
 
+    def opinions_as_ul_tiny(self):
+        output = '<ul class="opinionsDisplay">'
+        output += '<li style="background-color: #000099; font-size: 8px; padding: 2px;">' + str(self.nr_A) + '</li>'
+        output += '<li style="background-color: #555555; font-size: 8px; padding: 2px;">' + str(self.nr_N) + '</li>'
+        output += '<li style="background-color: #990000; font-size: 8px; padding: 2px;">' + str(self.nr_D) + '</li>'
+        output += '</ul>'
+        return output
+
 
     def print_identifier (self):
         # for display 
@@ -112,7 +120,7 @@ class Comment(models.Model):
                        self.author.user.first_name + ' ' + self.author.user.last_name + '</a> on ')
         output += self.date_submitted.strftime("%Y-%m-%d")
         if self.in_reply_to:
-            output += (' (in reply to <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">' + 
+            output += (', in reply to <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">' + 
                        str(self.in_reply_to.author.user.first_name) + ' ' + 
                        str(self.in_reply_to.author.user.last_name) + ' on ' + 
                        self.in_reply_to.date_submitted.strftime("%Y-%m-%d") + '</a>')
@@ -120,7 +128,7 @@ class Comment(models.Model):
         return output
 
     def print_identifier_for_vetting (self):
-        # for display, same as print_identifier but named, not linked 
+        # for display, same as print_identifier but named even if anonymous, not linked 
         output = '<div class="commentid">\n'
         output += '<h3>'
         output += (' <a href="/contributor/' + str(self.author.id) + '">' +
@@ -141,6 +149,7 @@ class Comment(models.Model):
         header = '<li><div class="flex-container">'
         header += '<div class="flex-whitebox0">'
         header += 'Nr ' + str(self.id)
+        header += ', <div class="opinionsDisplay">' + self.opinions_as_ul_tiny() + '</div>'
         if self.status <= 0:
             header += ', status: <span style="color:red">' + comment_status_dict[self.status] + '</span>'
         text_cut = self.comment_text[:50]
@@ -149,26 +158,26 @@ class Comment(models.Model):
         header += ': '
         if self.submission is not None:
             header += ('<a href="/submission/' + str(self.submission.id) + 
-                       '#comment_id' + str(self.id) + '"> \"' + text_cut + 
-                       '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d"))
+                       '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a>' + 
+                       '<p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d"))
             header += (' in submission on <a href="/submission/' + str(self.submission.id) + 
                        '" class="pubtitleli">' + self.submission.title + '</a> by ' + 
-                       self.submission.author_list + '</p></div>')
+                       self.submission.author_list + '</p>')
         if self.commentary is not None:
             header += ('<a href="/commentary/' + str(self.commentary.id) + 
                        '#comment_id' + str(self.id) + '"> \"' + text_cut + 
                        '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d"))
             header += (' in commentary on <a href="/commentary/' + str(self.commentary.id) + 
                        '" class="pubtitleli">' + self.commentary.pub_title + 
-                       '</a> by ' + self.commentary.author_list + '</p></div>')
+                       '</a> by ' + self.commentary.author_list + '</p>')
         if self.thesislink is not None:
             header += ('<a href="/thesis/' + str(self.thesislink.id) + 
                        '#comment_id' + str(self.id) + '"> \"' + text_cut + 
                        '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d"))
             header += (' in thesislink on <a href="/thesis/' + str(self.thesislink.id) + 
                        '" class="pubtitleli">' + self.thesislink.title + 
-                       '</a> by ' + self.thesislink.author + '</p></div>')
-        header += '</div></li>'
+                       '</a> by ' + self.thesislink.author + '</p>')
+        header += '</div></div></li>'
         return header
 
     def categories_as_ul(self):

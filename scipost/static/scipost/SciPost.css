@@ -74,8 +74,8 @@ hr.hr12 {
 
 .commentid {
   display: inline-block;
-  box-shadow: 1px 1px 3px #888888;
-  background: linear-gradient(to right,#f8f8f8, #e0e0e0);
+/*  box-shadow: 1px 1px 3px #888888;*/
+/*  background: linear-gradient(to right,#f8f8f8, #e0e0e0);*/
 }
 
 .ratings {
@@ -207,6 +207,8 @@ hr.hr12 {
 /*  background-color: #f4f4f4; */
   margin: 0px;
   padding: 0px;
+  box-shadow: 1px 1px 3px #888888;
+  background: linear-gradient(to right,#f8f8f8, #e0e0e0);
 }
 .flex-greybox {
   background-color: #f4f4f4; 
