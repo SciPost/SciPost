@@ -47,7 +47,7 @@ class CommentForm(forms.ModelForm):
                     HTML('<br>'),
                     Div(
                         Submit('submit', 'Submit your Comment for vetting', css_class="submitComment"),
-                        HTML('<p id="goodCommenter"><i>By clicking on Submit, the commenter certifies that all sources used are duly referenced and cited. Failure to do so could lead to exclusion from the portal.</i></p>'),
+                        HTML('<p id="goodCommenter"><i>By clicking on Submit, the commenter agrees to the <a href="{% url \'scipost:terms_and_conditions\' %}">Terms and Conditions</a>.</i></p>'),
                         ),
                     css_class="col-3"),
                 css_class="row"),

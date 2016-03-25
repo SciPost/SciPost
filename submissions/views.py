@@ -149,7 +149,7 @@ def submission_detail(request, submission_id):
                 date_submitted = timezone.now(),
                 )
             newcomment.save()
-            author.nr_comments += 1
+            author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()
             request.session['submission_id'] = submission_id
             return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
