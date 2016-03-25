@@ -72,10 +72,19 @@ class Utils(object):
         usernamesalt = cls.contributor.user.username
         usernamesalt = usernamesalt.encode('utf8')
         cls.contributor.activation_key = hashlib.sha1(salt+usernamesalt).hexdigest()
-        cls.contributor.key_expires = datetime.datetime.strftime(datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
+        cls.contributor.key_expires = datetime.datetime.strftime(
+            datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
         cls.contributor.save()
-        email_text = 'Dear ' + title_dict[cls.contributor.title] + ' ' + cls.contributor.user.last_name + ', \n\nYour request for registration to the SciPost publication portal has been received. You now need to validate your email by visiting this link within the next 48 hours: \n\n' + 'https://scipost.org/activation/' + cls.contributor.activation_key + '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.'
-        emailmessage = EmailMessage('SciPost registration request received', email_text, 'registration@scipost.org', [cls.contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+        email_text = ('Dear ' + title_dict[cls.contributor.title] + ' ' + 
+                      cls.contributor.user.last_name + 
+                      ', \n\nYour request for registration to the SciPost publication portal' +
+                      ' has been received. You now need to validate your email by visiting ' +
+                      'this link within the next 48 hours: \n\n' + 'https://scipost.org/activation/' + 
+                      cls.contributor.activation_key + 
+                      '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost registration request received', email_text, 'registration@scipost.org', 
+            [cls.contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
         emailmessage.send(fail_silently=False)
             
 

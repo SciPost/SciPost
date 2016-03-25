@@ -12,7 +12,7 @@ from django.db.models import Avg
 from .models import *
 from .forms import *
 
-from comments.models import Comment, AuthorReply
+from comments.models import Comment
 from scipost.models import Contributor, title_dict
 #from scipost.forms import OpinionForm
 from submissions.models import Submission
@@ -158,8 +158,8 @@ def submission_detail(request, submission_id):
 
     reports = submission.report_set.all()
     try:
-        author_replies = AuthorReply.objects.filter(submission=submission)
-    except AuthorReply.DoesNotExist:
+        author_replies = Comment.objects.filter(submission=submission, is_author_reply=True)
+    except Comment.DoesNotExist:
         author_replies = ()
     context = {'submission': submission, 'comments': comments.filter(status__gte=1).order_by('-date_submitted'), 
                'reports': reports.filter(status__gte=1), 'author_replies': author_replies, 
@@ -186,6 +186,10 @@ def submit_report(request, submission_id):
                 weaknesses = form.cleaned_data['weaknesses'],
                 report = form.cleaned_data['report'],
                 requested_changes = form.cleaned_data['requested_changes'],
+                validity = form.cleaned_data['validity'],
+                significance = form.cleaned_data['significance'],
+                originality = form.cleaned_data['originality'],
+                clarity = form.cleaned_data['clarity'],
                 formatting = form.cleaned_data['formatting'],
                 grammar = form.cleaned_data['grammar'],
                 recommendation = form.cleaned_data['recommendation'],

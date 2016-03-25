@@ -74,7 +74,7 @@ hr.hr12 {
 
 .commentid {
   display: inline-block;
-  box-shadow: 5px 5px 10px #888888;
+  box-shadow: 1px 1px 3px #888888;
   background: linear-gradient(to right,#f8f8f8, #e0e0e0);
 }
 
@@ -204,7 +204,7 @@ hr.hr12 {
   margin-left: auto;
 }
 .flex-commentbox {
-  background-color: #f4f4f4; 
+/*  background-color: #f4f4f4; */
   margin: 0px;
   padding: 0px;
 }
@@ -475,31 +475,51 @@ section form.ratingsdata ul li label {
 }
 
 .opinionsDisplay {
+  font-family: 'Merriweather Sans';
+  font-size: 90%;
   margin: 0px 4px;
   padding: 1px;
   display: inline-block;
-  box-shadow: 1px 1px 3px #888888;
+  box-shadow: 1px 1px 4px #888888;
   background: linear-gradient(to right,#fcfcfc, #f0f0f0);
-  font-size: 90%;
-}
-.opinionsDisplay form {
-  display: inline-block;
 }
 .opinionsDisplay ul {
+  color: #ffffff;
+  display: inline-block;
+  font-family: 'Merriweather Sans';
+  margin: 0px;
+  padding: 2px 1px;
+}
+.opinionsDisplay_old ul {
   border-radius: 2px;
   color: #ffffff;
   display: inline-block;
   margin: 0px;
-  padding: 2px;
+  padding: 0px;
 }
-.opinionsDisplay li {
+.opinionsDisplay ul li {
+  border: 1px solid black;
+  display: inline-block;
+  font-family: 'Merriweather Sans';
+  font-size: 10px;
+  margin: 1px 2px;
+  padding: 3px 6px;
+}
+.opinionsDisplay_old ul li {
   display: inline-block;
   background-color: #204080;
   margin: 1px 3px;
   padding: 2px 4px;
 }
+.opinionsDisplay form {
+  display: inline-block;
+  font-family: 'Merriweather Sans';
+  margin: 2px;
+}
 .opinionsDisplay form input[type=submit] {
-  color: #ffffff;;
+  color: #ffffff;
+  font-family: 'Merriweather Sans';
+  font-size: 10px;
 }
 .opinionsDisplay form input[type=submit].agree {
   background-color: #000099;

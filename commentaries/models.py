@@ -28,6 +28,8 @@ class Commentary(models.Model):
     author_list = models.CharField(max_length=1000)
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_com')
+    authors_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_com_claims')
+    authors_false_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_com_false_claims')
     pub_date = models.DateField(verbose_name='date of original publication')
     pub_abstract = models.TextField(verbose_name='abstract')
     latest_activity = models.DateTimeField(default=timezone.now)
@@ -36,6 +38,7 @@ class Commentary(models.Model):
         return self.pub_title
 
     def header_as_table (self):
+        # for display in Commentary page itself
         header = '<table>'
         header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.pub_title + '</td></tr>'
         header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author_list + '</td></tr>'
@@ -48,6 +51,7 @@ class Commentary(models.Model):
         return header
 
     def header_as_li (self):
+        # for display in search lists
         header = '<li><div class="flex-container">'
         header += '<div class="flex-whitebox0"><p><a href="/commentary/' + str(self.id) + '" class="pubtitleli">' + self.pub_title + '</a></p>'
         header += '<p>by ' + self.author_list + '</p><p> (published ' + str(self.pub_date) + ') - latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'

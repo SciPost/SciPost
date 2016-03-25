@@ -43,6 +43,14 @@
   <ul>
     {% for com in commentary_authorships_to_claim %}
     {{ com.header_as_li | safe }}
+    <form action="{% url 'scipost:claim_com_authorship' commentary_id=com.id claim=1%}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="I am an author" />
+    </form>
+    <form action="{% url 'scipost:claim_com_authorship' commentary_id=com.id claim=0%}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="I am not an author" />
+    </form>
     {% endfor %}
   </ul>
   {% endif %}

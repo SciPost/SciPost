@@ -50,6 +50,7 @@ class Submission(models.Model):
         return self.title
 
     def header_as_table (self):
+        # for Submission page
         header = '<table>'
         header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.title + '</td></tr>'
         header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author_list + '</td></tr>'
@@ -63,6 +64,7 @@ class Submission(models.Model):
         return header
 
     def header_as_li (self):
+        # for search lists
         header = '<li><div class="flex-container">'
         header += ('<div class="flex-whitebox0"><p><a href="/submission/' + str(self.id) + 
                    '" class="pubtitleli">' + self.title + '</a></p>')

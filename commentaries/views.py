@@ -12,7 +12,7 @@ from django.db.models import Avg
 from .models import *
 from .forms import *
 
-from comments.models import Comment, AuthorReply
+from comments.models import Comment
 from comments.forms import CommentForm
 from scipost.forms import TITLE_CHOICES, AuthenticationForm#, OpinionForm
 
@@ -197,8 +197,8 @@ def commentary_detail(request, commentary_id):
         form = CommentForm()
 
     try:
-        author_replies = AuthorReply.objects.filter(commentary=commentary)
-    except AuthorReply.DoesNotExist:
+        author_replies = Comment.objects.filter(commentary=commentary, is_author_reply=True)
+    except Comment.DoesNotExist:
         author_replies = ()
     context = {'commentary': commentary, 'comments': comments.filter(status__gte=1).order_by('-date_submitted'), 
                'author_replies': author_replies, 'form': form}

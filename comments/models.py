@@ -48,7 +48,9 @@ class Comment(models.Model):
     commentary = models.ForeignKey(Commentary, blank=True, null=True) # a Comment is either for a Commentary or Submission
     submission = models.ForeignKey(Submission, blank=True, null=True)
     thesislink = models.ForeignKey(ThesisLink, blank=True, null=True)
+    is_author_reply = models.BooleanField(default=False)
     in_reply_to = models.ForeignKey('self', blank=True, null=True)
+    in_reply_to_report = models.ForeignKey(Report, blank=True, null=True)
     author = models.ForeignKey(Contributor, default=1)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
     # Categories:
@@ -74,11 +76,6 @@ class Comment(models.Model):
     def __str__ (self):
         return self.comment_text
 
-#    def recalculate_nr_opinions(self):
-#        self.nr_A = Opinion.objects.filter(comment=self, opinion='A').count()
-#        self.nr_N = Opinion.objects.filter(comment=self, opinion='N').count()
-#        self.nr_D = Opinion.objects.filter(comment=self, opinion='D').count()
-#        self.save()
 
     def update_opinions(self, contributor_id, opinion):
         contributor = get_object_or_404(Contributor, pk=contributor_id)
@@ -98,33 +95,49 @@ class Comment(models.Model):
 
 
     def opinions_as_ul(self):
-        output = '<div class="opinionsDisplay"><ul>'
-        output += '<li style="background-color: #000099">Agree: ' + str(self.nr_A) + '</li>'
-        output += '<li style="background-color: #555555">Not sure: ' + str(self.nr_N) + '</li>'
-        output += '<li style="background-color: #990000">Disagree: ' + str(self.nr_D) + '</li>'
-        output += '</ul></div>'
+        output = '<ul class="opinionsDisplay">'
+        output += '<li style="background-color: #000099">Agree ' + str(self.nr_A) + '</li>'
+        output += '<li style="background-color: #555555">Not sure ' + str(self.nr_N) + '</li>'
+        output += '<li style="background-color: #990000">Disagree ' + str(self.nr_D) + '</li>'
+        output += '</ul>'
         return output
 
 
     def print_identifier (self):
+        # for display 
         output = '<div class="commentid">\n'
-        #output += '<h3><a id="comment_id' + str(self.id) + '">' + str(self.id) + '</a>'
         output += '<h3><a id="comment_id' + str(self.id) + '"></a>'
         if not self.anonymous:
             output += (' <a href="/contributor/' + str(self.author.id) + '">' +
                        self.author.user.first_name + ' ' + self.author.user.last_name + '</a> on ')
         output += self.date_submitted.strftime("%Y-%m-%d")
-        #output += '</h3>'
         if self.in_reply_to:
-            #output += '<h4>in reply to ' + str(self.in_reply_to.id) + '</h4>\n'
             output += (' (in reply to <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">' + 
                        str(self.in_reply_to.author.user.first_name) + ' ' + 
-                       str(self.in_reply_to.author.user.last_name) + '</a> on ' + self.in_reply_to.date_submitted.strftime("%Y-%m-%d"))
-        #output += '<h4>' + self.date_submitted.strftime("%Y-%m-%d") + '</h4>\n</div>\n'
+                       str(self.in_reply_to.author.user.last_name) + '</a> on ' + 
+                       self.in_reply_to.date_submitted.strftime("%Y-%m-%d"))
         output += '</h3></div>'
         return output
 
+    def print_identifier_for_vetting (self):
+        # for display, same as print_identifier but named, not linked 
+        output = '<div class="commentid">\n'
+        output += '<h3>'
+        output += (' <a href="/contributor/' + str(self.author.id) + '">' +
+                   self.author.user.first_name + ' ' + self.author.user.last_name + '</a> on ')
+        output += self.date_submitted.strftime("%Y-%m-%d")
+        if self.in_reply_to:
+            output += (' (in reply to <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">' + 
+                       str(self.in_reply_to.author.user.first_name) + ' ' + 
+                       str(self.in_reply_to.author.user.last_name) + '</a> on ' + 
+                       self.in_reply_to.date_submitted.strftime("%Y-%m-%d"))
+        output += '</h3></div>'
+        return output
+
+
+
     def header_as_li (self):
+        # for search lists
         header = '<li><div class="flex-container">'
         header += '<div class="flex-whitebox0">'
         header += 'Nr ' + str(self.id)
@@ -135,14 +148,26 @@ class Comment(models.Model):
             text_cut += '...'
         header += ': '
         if self.submission is not None:
-            header += '<a href="/submission/' + str(self.submission.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in submission on <a href="/submission/' + str(self.submission.id) + '" class="pubtitleli">' + self.submission.title + '</a> by ' + self.submission.author_list + '</p></div>'
+            header += ('<a href="/submission/' + str(self.submission.id) + 
+                       '#comment_id' + str(self.id) + '"> \"' + text_cut + 
+                       '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d"))
+            header += (' in submission on <a href="/submission/' + str(self.submission.id) + 
+                       '" class="pubtitleli">' + self.submission.title + '</a> by ' + 
+                       self.submission.author_list + '</p></div>')
         if self.commentary is not None:
-            header += '<a href="/commentary/' + str(self.commentary.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in commentary on <a href="/commentary/' + str(self.commentary.id) + '" class="pubtitleli">' + self.commentary.pub_title + '</a> by ' + self.commentary.author_list + '</p></div>'
+            header += ('<a href="/commentary/' + str(self.commentary.id) + 
+                       '#comment_id' + str(self.id) + '"> \"' + text_cut + 
+                       '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d"))
+            header += (' in commentary on <a href="/commentary/' + str(self.commentary.id) + 
+                       '" class="pubtitleli">' + self.commentary.pub_title + 
+                       '</a> by ' + self.commentary.author_list + '</p></div>')
         if self.thesislink is not None:
-            header += '<a href="/thesis/' + str(self.thesislink.id) + '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in thesislink on <a href="/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.title + '</a> by ' + self.thesislink.author + '</p></div>'
+            header += ('<a href="/thesis/' + str(self.thesislink.id) + 
+                       '#comment_id' + str(self.id) + '"> \"' + text_cut + 
+                       '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d"))
+            header += (' in thesislink on <a href="/thesis/' + str(self.thesislink.id) + 
+                       '" class="pubtitleli">' + self.thesislink.title + 
+                       '</a> by ' + self.thesislink.author + '</p></div>')
         header += '</div></li>'
         return header
 
@@ -167,59 +192,4 @@ class Comment(models.Model):
         output += '</ul></div>'
         return output
 
-
-class AuthorReply(models.Model):
-    """ Reply to a Comment or Report. """
-    # status:
-    # 1: vetted (by Contributor with rank >= 2) 
-    # 0: unvetted
-    # -1: rejected (unclear)
-    # -2: rejected (incorrect)
-    # -3: rejected (not useful)
-    # -4: not from author
-    status = models.SmallIntegerField(default=0)
-    commentary = models.ForeignKey(Commentary, blank=True, null=True)
-    submission = models.ForeignKey(Submission, blank=True, null=True)
-    thesislink = models.ForeignKey(ThesisLink, blank=True, null=True)
-    in_reply_to_comment = models.ForeignKey(Comment, blank=True, null=True) # one of this and next must be not null
-    in_reply_to_report = models.ForeignKey(Report, blank=True, null=True)
-    author = models.ForeignKey(Contributor, default=1)
-    reply_text = models.TextField(verbose_name="")
-    date_submitted = models.DateTimeField('date submitted')
-
-    def __str__ (self):
-        return self.reply_text
-
-    def print_identifier (self):
-        output = '<div class="commentid">\n'
-        output += '<h3><a id="authorreply_id' + str(self.id) + '">A' + str(self.id) + '</a>'
-        output += ' by ' + self.author.user.first_name + ' ' + self.author.user.last_name + '</h3>'
-        if self.in_reply_to_comment:
-            output += '<p>in reply to <a id="comment_id' + str(self.in_reply_to_comment.id) + '">' + str(self.in_reply_to_comment.id) + '</a></p>\n'
-        if self.in_reply_to_report:
-            output += '<h4>in reply to ' + str(self.in_reply_to_report.id) + '</h4>\n'
-        output += '<h4>Date: ' + self.date_submitted.strftime("%Y-%m-%d") + '</h4>\n</div>\n'
-        return output
-
-    def header_as_li (self):
-        header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0">'
-        header += 'Nr A' + str(self.id)
-        if self.status <= 0:
-            header += ', status: <span style="color:red">' + comment_status_dict[self.status] + '</span>'
-        text_cut = self.reply_text[:50]
-        if len(self.reply_text) > 50:
-            text_cut += '...'
-        header += ': '
-        if self.submission is not None:
-            header += '<a href="/submission/' + str(self.submission.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in submission on <a href="/submission/' + str(self.submission.id) + '" class="pubtitleli">' + self.submission.title + '</a> by ' + self.submission.author_list + '</p></div>'
-        if self.commentary is not None:
-            header += '<a href="/commentary/' + str(self.commentary.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in commentary on <a href="/commentary/' + str(self.commentary.id) + '" class="pubtitleli">' + self.commentary.pub_title + '</a> by ' + self.commentary.author_list + '</p></div>'
-        if self.thesislink is not None:
-            header += '<a href="/thesis/' + str(self.thesislink.id) + '#authorreply_id' + str(self.id) + '"> \"' + text_cut + '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d")
-            header += ' in thesislink on <a href="/thesis/' + str(self.thesislink.id) + '" class="pubtitleli">' + self.thesislink.pub_title + '</a> by ' + self.thesislink.author_list + '</p></div>'
-        header += '</div></li>'
-        return header
 

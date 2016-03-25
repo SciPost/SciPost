@@ -30,7 +30,7 @@
       <input type="submit" value="Deny" />
     </form>
     {% elif claim.commentary %}
-    <h4>Commentary:</h4>
+    <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
     {{ claim.commentary.header_as_li | safe }}
     <form action="{% url 'scipost:vet_com_authorship_claim' commentary_id=claim.commentary.id claim=1%}" method="post">
       {% csrf_token %}

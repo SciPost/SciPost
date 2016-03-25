@@ -24,7 +24,7 @@ from .utils import *
 
 from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
-from comments.models import Comment, AuthorReply
+from comments.models import Comment
 from submissions.models import Submission, Report
 from submissions.forms import SubmissionSearchForm
 from theses.models import ThesisLink
@@ -222,14 +222,12 @@ def personal_page(request):
             nr_submissions_to_process = Submission.objects.filter(vetted=False).count()
         nr_commentary_page_requests_to_vet = 0
         nr_comments_to_vet = 0
-        nr_author_replies_to_vet = 0
         nr_reports_to_vet = 0
         nr_thesislink_requests_to_vet = 0
         nr_authorship_claims_to_vet = 0
         if contributor.rank >= 2:
             nr_commentary_page_requests_to_vet = Commentary.objects.filter(vetted=False).count()
             nr_comments_to_vet = Comment.objects.filter(status=0).count()
-            nr_author_replies_to_vet = AuthorReply.objects.filter(status=0).count()
             nr_reports_to_vet = Report.objects.filter(status=0).count()
             nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
             nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
@@ -237,14 +235,13 @@ def personal_page(request):
         own_submissions = Submission.objects.filter(authors__in=[contributor])
         own_commentaries = Commentary.objects.filter(authors__in=[contributor])
         nr_submission_authorships_to_claim = Submission.objects.filter(author_list__contains=contributor.user.last_name).exclude(authors__in=[contributor]).exclude(authors_claims__in=[contributor]).exclude(authors_false_claims__in=[contributor]).count()
-        nr_commentary_authorships_to_claim = Commentary.objects.filter(author_list__contains=contributor.user.last_name).count()
-        own_comments = Comment.objects.filter(author=contributor).order_by('-date_submitted')
-        own_authorreplies = AuthorReply.objects.filter(author=contributor).order_by('-date_submitted')
+        nr_commentary_authorships_to_claim = Commentary.objects.filter(author_list__contains=contributor.user.last_name).exclude(authors__in=[contributor]).exclude(authors_claims__in=[contributor]).exclude(authors_false_claims__in=[contributor]).count()
+        own_comments = Comment.objects.filter(author=contributor,is_author_reply=False).order_by('-date_submitted')
+        own_authorreplies = Comment.objects.filter(author=contributor,is_author_reply=True).order_by('-date_submitted')
         context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 
                    'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 
                    'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 
                    'nr_comments_to_vet': nr_comments_to_vet, 
-                   'nr_author_replies_to_vet': nr_author_replies_to_vet, 
                    'nr_reports_to_vet': nr_reports_to_vet, 
                    'nr_submissions_to_process': nr_submissions_to_process, 
                    'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet, 
@@ -325,11 +322,13 @@ def claim_authorships(request):
 
        submission_authorships_to_claim = Submission.objects.filter(author_list__contains=contributor.user.last_name).exclude(authors__in=[contributor]).exclude(authors_claims__in=[contributor]).exclude(authors_false_claims__in=[contributor])
        sub_auth_claim_form = AuthorshipClaimForm()
-       commentary_authorships_to_claim = Commentary.objects.filter(author_list__contains=contributor.user.last_name)
+       commentary_authorships_to_claim = Commentary.objects.filter(author_list__contains=contributor.user.last_name).exclude(authors__in=[contributor]).exclude(authors_claims__in=[contributor]).exclude(authors_false_claims__in=[contributor])
+       com_auth_claim_form = AuthorshipClaimForm()
 
        context = {'submission_authorships_to_claim': submission_authorships_to_claim,
                   'sub_auth_claim_form': sub_auth_claim_form,
-                  'commentary_authorships_to_claim': commentary_authorships_to_claim,}
+                  'commentary_authorships_to_claim': commentary_authorships_to_claim,
+                  'com_auth_claim_form': com_auth_claim_form,}
        return render(request, 'scipost/claim_authorships.html', context)
     else:
         form = AuthenticationForm()
@@ -405,8 +404,8 @@ def vet_com_authorship_claim(request, commentary_id, claim):
 def contributor_info(request, contributor_id):
     if request.user.is_authenticated():
         contributor = Contributor.objects.get(pk=contributor_id)
-        contributor_comments = Comment.objects.filter(author=contributor, status__gte=1).order_by('-date_submitted')
-        contributor_authorreplies = AuthorReply.objects.filter(author=contributor, status__gte=1).order_by('-date_submitted')
+        contributor_comments = Comment.objects.filter(author=contributor, is_author_reply=False, status__gte=1).order_by('-date_submitted')
+        contributor_authorreplies = Comment.objects.filter(author=contributor, is_author_reply=True, status__gte=1).order_by('-date_submitted')
         context = {'contributor': contributor, 
                    'contributor_comments': contributor_comments, 
                    'contributor_authorreplies': contributor_authorreplies}

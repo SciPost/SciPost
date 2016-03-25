@@ -59,7 +59,7 @@
     <div class="row">
       <div class="col-1"></div>
       <div class="col-10">
-	<p>{{ reply.reply_text|linebreaks }}</p>
+	<p>{{ reply.text|linebreaks }}</p>
       </div>
     </div>
     
@@ -74,10 +74,7 @@
     <div class="row">
       <div class="col-1"></div>
       <div class="col-5">
-	<h3><a href="{% url 'comments:author_reply_to_comment' comment_id=comment.id %}">Reply to this comment (Author)</a></h3>
-      </div>
-      <div class="col-5">
-	<h3><a href="{% url 'comments:reply_to_comment' comment_id=comment.id %}">Reply to this comment (Contributor)</a></h3>
+	<h3><a href="{% url 'comments:reply_to_comment' comment_id=comment.id %}">Reply to this comment</a></h3>
       </div>
     </div>
     {% endif %}

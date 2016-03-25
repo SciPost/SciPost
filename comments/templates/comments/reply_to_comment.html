@@ -60,6 +60,11 @@
 
   <hr class="hr6">
   <h1>Your Reply to this Comment:</h1>
+  {% if is_author %}
+  <h3>(you are identified as an author, your reply will appear as an author reply)</h3>
+  {% else %}
+  <h3>(you are not identified as an author of this publication; you can claim authorship on your Personal Page)</h3>
+  {% endif %}
   <form action="{% url 'comments:reply_to_comment' comment.id %}" method="post">
     {% csrf_token %}
     {% load crispy_forms_tags %}
