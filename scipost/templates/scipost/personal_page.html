@@ -66,6 +66,7 @@
     <ul>
       <li><a href="{% url 'scipost:vet_registration_requests' %}">Vet Registration requests</a> ({{ nr_reg_to_vet }})</li>
       <li>Awaiting validation ({{ nr_reg_awaiting_validation }}) (no action necessary)</li>
+      <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration invitations</a></li>
     </ul>
   </div>
   {% endif %}

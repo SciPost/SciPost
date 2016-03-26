@@ -94,6 +94,28 @@ class Contributor(models.Model):
         output += '</table>'
         return output
 
+
+INVITATION_TYPE = (
+    ('F', 'Editorial Fellow'),
+    ('C', 'Contributor'),
+    )
+
+class RegistrationInvitation(models.Model):
+    """ 
+    Invitation to particular persons for registration
+    """
+    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    first_name = models.CharField(max_length=30, default='')
+    last_name = models.CharField(max_length=30, default='')
+    email_address = models.EmailField()
+    invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE, default='C')
+    invitation_key = models.CharField(max_length=40, default='')
+    key_expires = models.DateTimeField(default=timezone.now)
+    date_sent = models.DateTimeField(default=timezone.now)
+    responded = models.BooleanField(default=False)
+
+
+
 AUTHORSHIP_CLAIM_STATUS = (
     (1, 'accepted'),
     (0, 'not yet vetted (pending)'),

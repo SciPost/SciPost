@@ -179,6 +179,45 @@ def vet_registration_request_ack(request, contributor_id):
     return render(request, 'scipost/vet_registration_request_ack.html', context)
 
 
+def registration_invitations(request):
+    # List invitations sent; send new ones
+    if request.method == 'POST':
+        # Send invitation from form information
+        reg_inv_form = RegistrationInvitationForm(request.POST)
+        Utils.load({'reg_inv_form': reg_inv_form})
+        if reg_inv_form.is_valid():
+            Utils.create_and_save_invitation()
+            Utils.send_registration_invitation_email()
+        return HttpResponseRedirect('registration_invitation_sent')
+    else:
+        reg_inv_form = RegistrationInvitationForm()
+    sent_reg_inv_fellows = RegistrationInvitation.objects.filter(invitation_type='F').order_by('last_name')
+    sent_reg_inv_contrib = RegistrationInvitation.objects.filter(invitation_type='C').order_by('last_name')
+    context = {'reg_inv_form': reg_inv_form,
+               'sent_reg_inv_fellows': sent_reg_inv_fellows,
+               'sent_reg_inv_contrib': sent_reg_inv_contrib}
+    return render(request, 'scipost/registration_invitations.html', context)
+
+
+def accept_invitation(request, key):
+    invitation = get_object_or_404(RegistrationInvitation, invitation_key=key)
+    if timezone.now() > invitation.key_expires:
+        invitation_expired = True
+        errormessage = 'The invitation key has expired.'
+    elif invitation.responded:
+        errormessage = 'This invitation token has already been used.'
+    else:
+        form = RegistrationForm()
+        form.fields['last_name'].initial = invitation.last_name
+        form.fields['first_name'].initial = invitation.first_name
+        form.fields['email'].initial = invitation.email_address
+        errormessage = ''
+        return render(request, 'scipost/register.html', {'form': form, 'errormessage': errormessage})
+
+    context = {'errormessage': errormessage}
+    return render(request, 'scipost/invitation_error.html', context)
+
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']

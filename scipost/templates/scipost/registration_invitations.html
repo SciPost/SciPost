@@ -1,0 +1,57 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: registration invitations{% endblock pagetitle %}
+
+{% block bodysup %}
+
+<section>
+  <div class="flex-greybox">
+    <h1>Registration Invitations</h1>
+  </div>
+
+  <div class="flex-greybox">
+    <h2>Send a new invitation:</h2>
+    <form action="{% url 'scipost:registration_invitations' %}" method="post">
+      {% csrf_token %}
+      <table>
+	{{ reg_inv_form.as_table }}
+      </table>
+      <input type="submit" value="Submit" />
+    </form>
+  </div>
+
+  <div class="flex-greybox">
+    <h2>Invitations sent:</h2>
+
+    <h3>Editorial Fellows</h3>
+    <table>
+      <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type (Fellow, Contrib)</td><td>Responded</td></tr>
+      {% for fellow in sent_reg_inv_fellows %}
+      <tr>
+	<td>{{ fellow.last_name }}</td>
+	<td>{{ fellow.first_name }}</td>
+	<td>{{ fellow.email_address }}</td>
+	<td>{{ fellow.date_sent }} </td>
+	<td>{{ fellow.invitation_type }}</td>
+	<td>{{ fellow.responded }}</td></tr>
+      {% endfor %}
+    </table>
+
+    <h3>Normal Contributors</h3>
+    <table>
+      <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type (Fellow, Contrib)</td><td>Responded</td></tr>
+      {% for fellow in sent_reg_inv_contrib %}
+      <tr>
+	<td>{{ fellow.last_name }}</td>
+	<td>{{ fellow.first_name }}</td>
+	<td>{{ fellow.email_address }}</td>
+	<td>{{ fellow.date_sent }} </td>
+	<td>{{ fellow.invitation_type }}</td>
+	<td>{{ fellow.responded }}</td></tr>
+      {% endfor %}
+    </table>
+
+  </div>
+</section>
+
+{% endblock bodysup %}

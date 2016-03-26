@@ -29,6 +29,10 @@ urlpatterns = [
     url(r'^already_activated$', TemplateView.as_view(template_name='scipost/already_activated.html'), name='already_activated'),
     url(r'^vet_registration_requests$', views.vet_registration_requests, name='vet_registration_requests'),
     url(r'^vet_registration_request_ack/(?P<contributor_id>[0-9]+)$', views.vet_registration_request_ack, name='vet_registration_request_ack'),
+    url(r'^registration_invitations$', views.registration_invitations, name="registration_invitations"),
+    url(r'^registration_invitation_sent$', TemplateView.as_view(template_name='scipost/registration_invitation_sent.html'), name='registration_invitation_sent'),
+    url(r'^invitation/(?P<key>.+)$', views.accept_invitation, name='accept_invitation'),
+    url(r'^accept_invitation_error$', TemplateView.as_view(template_name='scipost/accept_invitation_error.html'), name='accept_invitation_error'),
 
     ## Authentication
     url(r'^login$', views.login_view, name='login'),
@@ -45,11 +49,11 @@ urlpatterns = [
 
     # Authorship claims
     url(r'^claim_authorships$', views.claim_authorships, name="claim_authorships"),
-    url(r'^claim_sub_authorship/(?P<submission_id>[0-9]+)/(?P<claim>[0-1])$', views.claim_sub_authorship, name="claim_sub_authorship"),
-    url(r'^claim_com_authorship/(?P<commentary_id>[0-9]+)/(?P<claim>[0-1])$', views.claim_com_authorship, name="claim_com_authorship"),
-    url(r'^claim_thesis_authorship/(?P<thesis_id>[0-9]+)/(?P<claim>[0-1])$', views.claim_thesis_authorship, name="claim_thesis_authorship"),
+    url(r'^claim_sub_authorship/(?P<submission_id>[0-9]+)/(?P<claim>[0-1])$', views.claim_sub_authorship, name='claim_sub_authorship'),
+    url(r'^claim_com_authorship/(?P<commentary_id>[0-9]+)/(?P<claim>[0-1])$', views.claim_com_authorship, name='claim_com_authorship'),
+    url(r'^claim_thesis_authorship/(?P<thesis_id>[0-9]+)/(?P<claim>[0-1])$', views.claim_thesis_authorship, name='claim_thesis_authorship'),
     url(r'^vet_authorship_claims$', views.vet_authorship_claims, name="vet_authorship_claims"),
-    url(r'^vet_sub_authorship_claim/(?P<submission_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_sub_authorship_claim, name="vet_sub_authorship_claim"),
-    url(r'^vet_com_authorship_claim/(?P<commentary_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_com_authorship_claim, name="vet_com_authorship_claim"),
-    url(r'^vet_thesis_authorship_claim/(?P<thesis_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_thesis_authorship_claim, name="vet_thesis_authorship_claim"),
+    url(r'^vet_sub_authorship_claim/(?P<submission_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_sub_authorship_claim, name='vet_sub_authorship_claim'),
+    url(r'^vet_com_authorship_claim/(?P<commentary_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_com_authorship_claim, name='vet_com_authorship_claim'),
+    url(r'^vet_thesis_authorship_claim/(?P<thesis_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_thesis_authorship_claim, name='vet_thesis_authorship_claim'),
 ]

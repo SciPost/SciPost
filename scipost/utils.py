@@ -88,4 +88,40 @@ class Utils(object):
         emailmessage.send(fail_silently=False)
             
 
+
+    @classmethod
+    def create_and_save_invitation(cls):
+        invitation = RegistrationInvitation (
+            title = cls.reg_inv_form.cleaned_data['title'],
+            first_name = cls.reg_inv_form.cleaned_data['first_name'],
+            last_name = cls.reg_inv_form.cleaned_data['last_name'],
+            email_address = cls.reg_inv_form.cleaned_data['email_address'],
+            invitation_type = cls.reg_inv_form.cleaned_data['invitation_type'],
+            )
+        Utils.load({'invitation': invitation})
+
+    @classmethod
+    def send_registration_invitation_email(cls):
+        # Generate email activation key and link
+        salt = ""
+        for i in range(5):
+            salt = salt + random.choice(string.ascii_letters)
+        salt = salt.encode('utf8')
+        invitationsalt = cls.invitation.last_name
+        invitationsalt = invitationsalt.encode('utf8')
+        cls.invitation.invitation_key = hashlib.sha1(salt+invitationsalt).hexdigest()
+        cls.invitation.key_expires = datetime.datetime.strftime(
+            datetime.datetime.now() + datetime.timedelta(days=14), "%Y-%m-%d %H:%M:%S")
+        cls.invitation.save()
+        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' ' +
+                      cls.invitation.last_name +
+                      ', \n\nYou are invited to register to the SciPost publication portal.' +
+                      ' You can do this by visiting ' +
+                      'this link within the next 2 weeks: \n\n' + 'https://scipost.org/invitation/' +
+                      cls.invitation.invitation_key +
+                      '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost registration invitation', email_text, 'jscaux@scipost.org',
+            [cls.invitation.email_address, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+        emailmessage.send(fail_silently=False)
     

@@ -34,6 +34,11 @@ class RegistrationForm(forms.Form):
     captcha = CaptchaField(label='* I am not a robot')
 
 
+class RegistrationInvitationForm(forms.ModelForm):
+    class Meta:
+        model = RegistrationInvitation
+        fields = ['title', 'first_name', 'last_name', 'email_address', 'invitation_type']
+
 class UpdateUserDataForm(forms.ModelForm):
     class Meta:
         model = User
