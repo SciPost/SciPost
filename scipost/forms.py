@@ -34,10 +34,16 @@ class RegistrationForm(forms.Form):
     captcha = CaptchaField(label='* I am not a robot')
 
 
+
 class RegistrationInvitationForm(forms.ModelForm):
     class Meta:
         model = RegistrationInvitation
-        fields = ['title', 'first_name', 'last_name', 'email_address', 'invitation_type']
+        fields = ['title', 'first_name', 'last_name', 'email_address', 'invitation_type', 'message_style', 'personal_message']
+
+    def __init__(self, *args, **kwargs):
+        super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
+        self.fields['personal_message'].widget.attrs.update({'placeholder': 'NOTE: a personal phrase or two. The bulk of the text will be auto-generated.'})
+ 
 
 class UpdateUserDataForm(forms.ModelForm):
     class Meta:

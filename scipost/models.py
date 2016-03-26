@@ -100,6 +100,11 @@ INVITATION_TYPE = (
     ('C', 'Contributor'),
     )
 
+INVITATION_STYLE = (
+    ('F', 'formal'),
+    ('P', 'personal'),
+    )
+
 class RegistrationInvitation(models.Model):
     """ 
     Invitation to particular persons for registration
@@ -109,6 +114,8 @@ class RegistrationInvitation(models.Model):
     last_name = models.CharField(max_length=30, default='')
     email_address = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE, default='C')
+    message_style = models.CharField(max_length=1, choices=INVITATION_STYLE, default='F')
+    personal_message = models.TextField(blank=True, null=True)
     invitation_key = models.CharField(max_length=40, default='')
     key_expires = models.DateTimeField(default=timezone.now)
     date_sent = models.DateTimeField(default=timezone.now)
