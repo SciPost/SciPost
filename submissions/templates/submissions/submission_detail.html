@@ -86,6 +86,7 @@
     </div>
 
     {% for reply in author_replies %}
+    {% if reply.in_reply_to_report %}
     {% if reply.in_reply_to_report.id = report.id %}
     <div class="row">
       <div class="col-1"></div>
@@ -102,21 +103,9 @@
       </div>
     </div>
     {% endif %}
+    {% endif %}
     {% endfor %}
 
-    {% if user.is_authenticated and user.contributor.rank > 0 %}
-    <div class="row">
-      <div class="col-1"></div>
-      <hr class="hr6"/>
-    </div>
-    <div class="row">
-      <div class="col-1"></div>
-      <div class="col-5">
-	<h3><a href="{% url 'comments:author_reply_to_report' report_id=report.id %}">Reply to this Report (Author)</a></h3>
-      </div>
-    </div>
-    {% endif %}
-    
     {% endfor %}
   </div>
 

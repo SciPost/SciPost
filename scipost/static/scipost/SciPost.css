@@ -54,6 +54,7 @@ hr.hr12 {
 }
 .commentcategorydisplay {
   display: inline-block;
+  font-size: 10px;
   margin: 2px 2px;
   padding: 1px;
   box-shadow: 1px 1px 3px #888888;
@@ -76,92 +77,9 @@ hr.hr12 {
   display: inline-block;
 /*  box-shadow: 1px 1px 3px #888888;*/
 /*  background: linear-gradient(to right,#f8f8f8, #e0e0e0);*/
+  font-size: 10px;
 }
 
-.ratings {
-  margin: 4px 4px;
-  padding: 1px;
-  display: inline-block;
-  box-shadow: 1px 1px 3px #888888;
-  background: linear-gradient(to right,#fcfcfc, #f0f0f0);
-}
-.ratings h4 {
-  display: inline-block;
-}
-.ratings ul {
-  display: inline-block;
-}
-.ratings li {
-  display: inline-block;
-  margin: 2px;
-  padding: 4px 8px;
-  color: #ffffff;
-  background-color: #204080;
-  font-size: 80%;
-}
-
-.ratingsinput {
-  margin: 1px;
-  padding: 4px;
-  display: inline-block;
-}
-.ratingsinput h4, .ratingsinput form {
-  display: inline-block;
-}
-.ratingsinput ul {
-  display: inline-block;
-  background-color: #204080;
-  color: #ffffff;
-  padding: 2px;
-  box-shadow: 1px 1px 3px #888888;
-}
-.ratingsinput ul li {
-  display: inline-block;
-  margin: 0px;
-  padding: 0px 4px;
-}
-.ratingsinput label {
-  color: #ffffff;
-  font-size: 80%;
-}
-.ratingsinput input {
-  margin: 0px;
-}
-.ratingsinput select {
-  margin: 0px;
-  padding: 0px;
-  height: 6px;
-}
-
-.ratingsform {
-  margin: 1px;
-  padding: 4px;
-  display: inline-block;
-  background-color: #204080;
-}
-.ratingsform ul {
-  display: inline-block;
-  color: #ffffff;
-  padding: 2px;
-  box-shadow: 1px 1px 3px #888888;
-}
-.ratingsform ul li {
-  display: inline-block;
-  margin: 0px;
-  padding: 0px 4px;
-}
-.ratingsform label {
-  color: #ffffff;
-  font-size: 80%;
-}
-.ratingsform input {
-  margin: 0px;
-}
-.ratingsform select {
-  margin: 0px;
-  padding: 0px;
-  height: 6px;
-}
 
 .reportid {
   display: inline-block;
@@ -323,8 +241,11 @@ nav {
   padding:0px;
   float:center;
   clear:both;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
+}
+nav #loggedinas {
+  font-size: 12px;
 }
 nav ul {
   margin: 0;
@@ -445,39 +366,9 @@ section ul li {
   padding: 2px;
 }
 
-section ul.ratingsdata {
-  display: inline-block;
-  padding: 2px;
-  margin: 2px;
-  background-color: #204080;
-  color: #ffffff;
-  border-radius: 2px;
-  font-size: 90%;
-}
-section ul.ratingsdata li{
-  padding: 2px 2px;
-  color: #ffffff;
-}
-section form.ratingsdata ul {
-  display: inline-block;
-  padding: 2px;
-  margin: 2px;
-  background-color: #204080;
-  color: #ffffff;
-  border-radius: 2px;
-  font-size: 90%;
-}
-section form.ratingsdata ul li {
-  padding: 0px 2px; 
-  color: #ffffff;
-}
-section form.ratingsdata ul li label {
-  color: #ffffff;
-}
-
 .opinionsDisplay {
   font-family: 'Merriweather Sans';
-  font-size: 90%;
+  font-size: 10px;
   margin: 0px 4px;
   padding: 1px;
   display: inline-block;
@@ -502,7 +393,7 @@ section form.ratingsdata ul li label {
   border: 1px solid black;
   display: inline-block;
   font-family: 'Merriweather Sans';
-  font-size: 10px;
+  font-size: 8px;
   margin: 1px 2px;
   padding: 3px 6px;
 }
@@ -515,12 +406,13 @@ section form.ratingsdata ul li label {
 .opinionsDisplay form {
   display: inline-block;
   font-family: 'Merriweather Sans';
+  font-size: 8px;
   margin: 2px;
 }
 .opinionsDisplay form input[type=submit] {
   color: #ffffff;
   font-family: 'Merriweather Sans';
-  font-size: 10px;
+  font-size: 8px;
 }
 .opinionsDisplay form input[type=submit].agree {
   background-color: #000099;

@@ -7,35 +7,20 @@
 {% if user.is_authenticated %}
 <section>
   <hr class="hr12">
-  <h1>SciPost Reply to Comment Page</h1>
+  <h1>SciPost Reply to Report Page</h1>
   <hr class="hr12">
-  {% if comment.commentary %}
-  <h1>The Commentary concerned:</h1>
-  {{ commentary.header_as_table|safe }}
-  <h3>Abstract:</h3>
-  <p>{{ commentary.pub_abstract }}</p>
-  {% endif %}
-  {% if comment.submission %}
   <h1>The Submission concerned:</h1>
   {{ submission.header_as_table|safe }}
   <h3>Abstract:</h3>
   <p>{{ submission.abstract }}</p>
-  {% endif %}  
-  {% if comment.thesislink %}
-  <h1>The Thesis concerned:</h1>
-  {{ thesislink.header_as_table|safe }}
-  <h3>Abstract:</h3>
-  <p>{{ thesislink.abstract }}</p>
-  {% endif %}  
   <br>
   
   <hr class="hr6">
-  <h2>The Comment you wish to reply to:</h2>
+  <h2>The Report you wish to reply to:</h2>
 
    <div class="flex-container">
       <div class="flex-commentbox">
 	{{ comment.print_identifier|safe }}
-	{{ comment.categories_as_ul|safe }}
         <div class="opinionsDisplay">
 	  {{ comment.opinions_as_ul|safe }}
 	</div>

@@ -174,7 +174,6 @@ def commentary_detail(request, commentary_id):
             author = Contributor.objects.get(user=request.user)
             newcomment = Comment (
                 commentary = commentary,
-                in_reply_to = None,
                 author = author,
                 is_rem = form.cleaned_data['is_rem'],
                 is_que = form.cleaned_data['is_que'],

@@ -12,7 +12,7 @@
     </div>
     <div class="col-6">
       {% if user.is_authenticated %}
-      <p>Logged in as {{ user.username }}</p>
+      <p id="loggedinas"><em>Logged in as {{ user.username }}</em></p>
       <a href="{% url 'scipost:logout' %}">Logout</a>
       <a href="{% url 'scipost:personal_page' %}" {% if "/personal_page" in request.path %}class="highlighted"{% endif %}>Personal Page</a>
       {% else %}

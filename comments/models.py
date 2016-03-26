@@ -4,15 +4,9 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from .models import *
-#from commentaries.models import *
-#from contributors.models import *
-##from journals.models import *
-##from ratings.models import *
-#from reports.models import *
-#from submissions.models import *
 
 from commentaries.models import Commentary
-from scipost.models import Contributor#, Opinion
+from scipost.models import Contributor
 from submissions.models import Submission, Report
 from theses.models import ThesisLink
 
@@ -49,7 +43,7 @@ class Comment(models.Model):
     submission = models.ForeignKey(Submission, blank=True, null=True)
     thesislink = models.ForeignKey(ThesisLink, blank=True, null=True)
     is_author_reply = models.BooleanField(default=False)
-    in_reply_to = models.ForeignKey('self', blank=True, null=True)
+    in_reply_to_comment = models.ForeignKey('self', blank=True, null=True)
     in_reply_to_report = models.ForeignKey(Report, blank=True, null=True)
     author = models.ForeignKey(Contributor, default=1)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
@@ -118,13 +112,27 @@ class Comment(models.Model):
         if not self.anonymous:
             output += (' <a href="/contributor/' + str(self.author.id) + '">' +
                        self.author.user.first_name + ' ' + self.author.user.last_name + '</a> on ')
-        output += self.date_submitted.strftime("%Y-%m-%d")
-        if self.in_reply_to:
-            output += (', in reply to <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">' + 
-                       str(self.in_reply_to.author.user.first_name) + ' ' + 
-                       str(self.in_reply_to.author.user.last_name) + ' on ' + 
-                       self.in_reply_to.date_submitted.strftime("%Y-%m-%d") + '</a>')
-        output += '</h3></div>'
+#        output += self.date_submitted.strftime("%Y-%m-%d")
+#        if self.in_reply_to:
+#            output += (', in reply to <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">' + 
+#                       str(self.in_reply_to.author.user.first_name) + ' ' + 
+#                       str(self.in_reply_to.author.user.last_name) + ' on ' + 
+#                       self.in_reply_to.date_submitted.strftime("%Y-%m-%d") + '</a>')
+        output += self.date_submitted.strftime("%Y-%m-%d") + ' (in reply to '
+        if self.in_reply_to_comment:
+            output += ('<a href="#comment_id' + str(self.in_reply_to_comment_id) + '">' + 
+                       str(self.in_reply_to_comment.author.user.first_name) + ' ' + 
+                       str(self.in_reply_to_comment.author.user.last_name)  + ' on ' + 
+                       self.in_reply_to_comment.date_submitted.strftime("%Y-%m-%d"))
+        elif self.in_reply_to_report:
+            output += ('<a href="#report_id' + str(self.in_reply_to_report_id) + '">')
+            if not self.in_reply_to_report.anonymous:
+                output += (str(self.in_reply_to_report.author.user.first_name) + ' ' + 
+                           str(self.in_reply_to_report.author.user.last_name))
+            else:
+                output += 'Report ' + str(self.in_reply_to_report_id)
+            output += '</a> on ' + self.in_reply_to_report.date_submitted.strftime("%Y-%m-%d")
+        output += '</a>)</h3></div>'
         return output
 
     def print_identifier_for_vetting (self):
@@ -133,13 +141,21 @@ class Comment(models.Model):
         output += '<h3>'
         output += (' <a href="/contributor/' + str(self.author.id) + '">' +
                    self.author.user.first_name + ' ' + self.author.user.last_name + '</a> on ')
-        output += self.date_submitted.strftime("%Y-%m-%d")
-        if self.in_reply_to:
-            output += (' (in reply to <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">' + 
-                       str(self.in_reply_to.author.user.first_name) + ' ' + 
-                       str(self.in_reply_to.author.user.last_name) + '</a> on ' + 
-                       self.in_reply_to.date_submitted.strftime("%Y-%m-%d"))
-        output += '</h3></div>'
+        output += self.date_submitted.strftime("%Y-%m-%d") + ' (in reply to '
+        if self.in_reply_to_comment:
+            output += ('<a href="#comment_id' + str(self.in_reply_to_comment_id) + '">' + 
+                       str(self.in_reply_to_comment.author.user.first_name) + ' ' + 
+                       str(self.in_reply_to_comment.author.user.last_name)  + ' on ' + 
+                       self.in_reply_to_comment.date_submitted.strftime("%Y-%m-%d"))
+        elif self.in_reply_to_report:
+            output += ('<a href="#report_id' + str(self.in_reply_to_report_id) + '">')
+            if not self.in_reply_to_report.anonymous:
+                output += (str(self.in_reply_to_report.author.user.first_name) + ' ' + 
+                           str(self.in_reply_to_report.author.user.last_name))
+            else:
+                output += 'Report ' + str(self.in_reply_to_report_id)
+            output += ' on ' + self.in_reply_to_report.date_submitted.strftime("%Y-%m-%d")
+        output += '</a>)</h3></div>'
         return output
 
 

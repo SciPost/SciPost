@@ -13,7 +13,7 @@
     <h1>Vet Authorship Claims</h1>
   </div>
   {% if not claims_to_vet %}
-  <h3>There are no authorship claims to vet %}</h3>
+  <h3>There are no authorship claims to vet</h3>
   {% else %}
   <hr class="hr12">
   <ul>
@@ -29,6 +29,7 @@
       {% csrf_token %}
       <input type="submit" value="Deny" />
     </form>
+
     {% elif claim.commentary %}
     <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
     {{ claim.commentary.header_as_li | safe }}
@@ -37,6 +38,18 @@
       <input type="submit" value="Accept" />
     </form>
     <form action="{% url 'scipost:vet_com_authorship_claim' commentary_id=claim.commentary.id claim=0%}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Deny" />
+    </form>
+
+    {% elif claim.thesislink %}
+    <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Thesis:</h4>
+    {{ claim.thesislink.header_as_li | safe }}
+    <form action="{% url 'scipost:vet_thesis_authorship_claim' thesis_id=claim.thesislink.id claim=1%}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Accept" />
+    </form>
+    <form action="{% url 'scipost:vet_thesis_authorship_claim' thesis_id=claim.thesislink.id claim=0%}" method="post">
       {% csrf_token %}
       <input type="submit" value="Deny" />
     </form>

@@ -12,15 +12,15 @@ from django.db.models import Avg
 from .models import *
 from .forms import *
 
-from scipost.models import title_dict#, Opinion
-#from scipost.forms import OpinionForm
+from scipost.models import title_dict
 
 
 def vet_submitted_comments(request):
     contributor = Contributor.objects.get(user=request.user)
-    comment_to_vet = Comment.objects.filter(status=0).first() # only handle one at a time
+    #comment_to_vet = Comment.objects.filter(status=0).first() # only handle one at a time
+    comments_to_vet = Comment.objects.filter(status=0).order_by('date_submitted')
     form = VetCommentForm()
-    context = {'contributor': contributor, 'comment_to_vet': comment_to_vet, 'form': form }
+    context = {'contributor': contributor, 'comments_to_vet': comments_to_vet, 'form': form }
     return(render(request, 'comments/vet_submitted_comments.html', context))
 
 
@@ -60,7 +60,7 @@ def vet_submitted_comment_ack(request, comment_id):
                     email_text += comment.commentary.pub_title + ' by ' + comment.commentary.author_list
                 elif comment.submission is not None:
                     email_text += comment.submission.title + ' by ' + comment.submission.author_list
-                email_text += (', has been rejected for the following reason:' + comment_refusal_dict[comment.status] + '.' +
+                email_text += (', has been rejected for the following reason: ' + comment_refusal_dict[comment.status] + '.' +
                                '\n\nWe copy it below for your convenience.' + 
                                '\n\nThank you for your contribution, \nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
@@ -94,7 +94,7 @@ def reply_to_comment(request, comment_id):
                 commentary = comment.commentary, # one of commentary or submission will be not Null
                 submission = comment.submission,
                 is_author_reply = is_author,
-                in_reply_to = comment,
+                in_reply_to_comment = comment,
                 author = Contributor.objects.get(user=request.user),
                 is_rem = form.cleaned_data['is_rem'],
                 is_que = form.cleaned_data['is_que'],

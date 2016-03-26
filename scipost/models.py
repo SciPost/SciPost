@@ -104,6 +104,7 @@ class AuthorshipClaim(models.Model):
     claimant = models.ForeignKey(Contributor, related_name='claimant')
     submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
     commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True)
+    thesislink = models.ForeignKey('theses.ThesisLink', blank=True, null=True)
     vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
     status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS, default=0)

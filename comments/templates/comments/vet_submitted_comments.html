@@ -5,26 +5,26 @@
 {% block bodysup %}
 
 <section>
-  {% if not comment_to_vet %}
+  {% if not comments_to_vet %}
   <h1>There are no comments for you to vet.</h1>
 
   {% else %}
 
   <h1>SciPost Comment to vet:</h1>
-  <hr>
+  <hr class="hr12"/>
+
+  {% for comment_to_vet in comments_to_vet %}
+
   {% if comment_to_vet.commentary %}
+  <h3>From Commentary (<a href="{% url 'commentaries:commentary' commentary_id=comment_to_vet.commentary.id %}">link</a>)</h3>
   {{ comment_to_vet.commentary.header_as_table|safe }}
   <br />
-  <h4>Abstract:</h4>
-  <p>{{ comment_to_vet.commentary.pub_abstract }}</p>
   {% endif %}
 
   {% if comment_to_vet.submission %}
-  <h3>Submission associated to Comment:</h3>
+  <h3>From Submission (<a href="{% url 'submissions:submission' submission_id=comment_to_vet.submission.id %}">link</a>)</h3>
   {{ comment_to_vet.submission.header_as_table|safe }}
   <br />
-  <h3>Abstract:</h3>
-  <p>{{ comment_to_vet.submission.abstract }}</p>
   {% endif %}
 
 
@@ -49,8 +49,11 @@
       </form>
     </div>
   </div>
+  <hr class="hr12"/>
 
+  {% endfor %}
   {% endif %}
+
 </section>
 
 {% endblock bodysup %}

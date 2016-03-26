@@ -111,6 +111,9 @@
   <div class="flex-greybox">
     <h1>SciPost Commentaries</h1>
     <ul>
+      {% if nr_commentary_authorships_to_claim > 0 %}
+      <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_commentary_authorships_to_claim}})</a></li>
+      {% endif %}
       <li><a href="{% url 'commentaries:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
     </ul>
   </div>
@@ -122,8 +125,26 @@
     {% endfor %}
   </ul>  
   {% endif %}
-  {% if nr_commentary_authorships_to_claim > 0 %}
-  <h3><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim</a> (auto-detected: {{ nr_commentary_authorships_to_claim}})</h3>
+</section>
+
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>SciPost Theses</h1>
+    <ul>
+      {% if nr_thesis_authorships_to_claim > 0 %}
+      <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_thesis_authorships_to_claim}})</a></li>
+      {% endif %}
+      <li><a href="{% url 'theses:request_thesislink' %}">Request a SciPost ThesisLink</a></li>
+    </ul>
+  </div>
+  {% if own_thesislinks %}
+  <h3>Theses for which you are identified an author:</h3>
+  <ul>
+    {% for thesis in own_thesislinks %}
+    {{ thesis.header_as_li|safe }}
+    {% endfor %}
+  </ul>
   {% endif %}
 </section>
 

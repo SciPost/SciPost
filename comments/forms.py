@@ -53,7 +53,6 @@ class CommentForm(forms.ModelForm):
                 css_class="row"),
             )
         
-                
     
 
 class VetCommentForm(forms.Form):

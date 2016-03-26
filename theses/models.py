@@ -29,6 +29,8 @@ class ThesisLink(models.Model):
     pub_link = models.URLField(verbose_name='URL (external repository)')
     author = models.CharField(max_length=1000)
     author_as_cont = models.ManyToManyField (Contributor, blank=True, related_name='author_cont')
+    author_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_thesis_claims')
+    author_false_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_thesis_false_claims')
     supervisor = models.CharField(max_length=1000, default='')
     supervisor_as_cont = models.ManyToManyField (Contributor, blank=True, verbose_name='supervisor(s)', related_name='supervisor_cont')
     institution = models.CharField(max_length=300, verbose_name='degree granting institution')

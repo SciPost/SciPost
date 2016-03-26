@@ -47,13 +47,41 @@
     </div>
   
     {% for reply in author_replies %}
-    {% if reply.in_reply_to_comment.id = comment.id %}
-    
+    {% if reply.in_reply_to_comment %}
+    {% if reply.in_reply_to_comment.id = comment.id %}    
     <div class="row">
       <div class="col-1"></div>
       <hr style="border-style: dotted;" />
+<!--
       <div class="col-3">
 	{{ reply.print_identifier|safe }}
+      </div>
+-->
+      <div class="flex-container">
+	<div class="flex-commentbox">
+          {{ reply.print_identifier|safe }}
+          {{ reply.categories_as_ul|safe }}
+          <div class="opinionsDisplay">
+            {% if user.is_authenticated and user.contributor.rank > 0 %}
+	    {% if user.contributor != reply.author %}
+	    <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='A' %}" method="post">
+	      {% csrf_token %}
+	      <input type="submit" class="agree" value="Agree {{ reply.nr_A }} "/>
+	    </form>
+	    <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='N' %}" method="post">
+	      {% csrf_token %}
+	      <input type="submit" class="notsure" value="Not sure {{ reply.nr_N }}"/>
+	    </form>
+	    <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='D'%}" method="post">
+	      {% csrf_token %}
+	      <input type="submit" class="disagree" value="Disagree {{ reply.nr_D }}"/>
+	    </form>
+	    {% else %}
+	    {{ reply.opinions_as_ul|safe }}
+	    {% endif %}
+            {% endif %}
+          </div>
+	</div>
       </div>
     </div>
     <div class="row">
@@ -61,8 +89,9 @@
       <div class="col-10">
 	<p>{{ reply.text|linebreaks }}</p>
       </div>
-    </div>
-    
+    </div>    
+
+    {% endif %}
     {% endif %}
     {% endfor %}
     
