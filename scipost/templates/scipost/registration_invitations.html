@@ -16,10 +16,8 @@
   </div>
     <form action="{% url 'scipost:registration_invitations' %}" method="post">
       {% csrf_token %}
-      <table>
-	{{ reg_inv_form.as_table }}
-      </table>
-      <input type="submit" value="Submit" />
+      {% load crispy_forms_tags %}
+      {% crispy reg_inv_form %}
     </form>
 </section>
 <hr class="hr12"/>

@@ -5,6 +5,9 @@ from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
 from captcha.fields import CaptchaField
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
+
 from .models import *
 
 
@@ -43,7 +46,19 @@ class RegistrationInvitationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
         self.fields['personal_message'].widget.attrs.update({'placeholder': 'NOTE: a personal phrase or two. The bulk of the text will be auto-generated.'})
- 
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('title'), Field('first_name'), Field('last_name'), Field('email_address'), Field('invitation_type'),
+                    css_class="col-6"),
+                Div(
+                    Field('message_style'),
+                    Field('personal_message'), 
+                    Submit('submit', 'Send invitation'),
+                    css_class="col-6"),
+                css_class="row"),
+            )
 
 class UpdateUserDataForm(forms.ModelForm):
     class Meta:

@@ -207,6 +207,8 @@ def accept_invitation(request, key):
     elif invitation.responded:
         errormessage = 'This invitation token has already been used.'
     else:
+        invitation.reponded = True
+        invitation.save()
         form = RegistrationForm()
         form.fields['last_name'].initial = invitation.last_name
         form.fields['first_name'].initial = invitation.first_name
