@@ -445,9 +445,15 @@ def vet_thesis_authorship_claim(request, thesis_id, claim):
 def contributor_info(request, contributor_id):
     if request.user.is_authenticated():
         contributor = Contributor.objects.get(pk=contributor_id)
+        contributor_submissions = Submission.objects.filter(authors__in=[contributor])
+        contributor_commentaries = Commentary.objects.filter(authors__in=[contributor])
+        contributor_theses = ThesisLink.objects.filter(author_as_cont__in=[contributor])
         contributor_comments = Comment.objects.filter(author=contributor, is_author_reply=False, status__gte=1).order_by('-date_submitted')
         contributor_authorreplies = Comment.objects.filter(author=contributor, is_author_reply=True, status__gte=1).order_by('-date_submitted')
         context = {'contributor': contributor, 
+                   'contributor_submissions': contributor_submissions,
+                   'contributor_commentaries': contributor_commentaries,
+                   'contributor_theses': contributor_theses,
                    'contributor_comments': contributor_comments, 
                    'contributor_authorreplies': contributor_authorreplies}
         return render(request, 'scipost/contributor_info.html', context)

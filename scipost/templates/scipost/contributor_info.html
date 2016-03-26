@@ -6,6 +6,15 @@
 
 <script>
   $(document).ready(function(){
+  $("#mysubmissionsbutton").click(function(){
+  $("#mysubmissionslist").toggle();
+  });
+  $("#mycommentariesbutton").click(function(){
+  $("#mycommentarieslist").toggle();
+  });
+  $("#mythesesbutton").click(function(){
+  $("#mytheseslist").toggle();
+  });
   $("#mycommentsbutton").click(function(){
   $("#mycommentslist").toggle();
   });
@@ -30,19 +39,59 @@
   </div>
 </section>
 
+{% if contributor_submissions %}
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
-    <h1>SciPost Submissions</h1>
+    <h1>Submissions</h1>
+    <button id="mysubmissionsbutton">View/hide submissions</button>
+  </div>
+  <div id="mysubmissionslist">
+    <h3>Submissions for which this Contributor is identified as an author:</h3>
+    <ul>
+      {% for sub in contributor_submissions %}
+      {{ sub.header_as_li|safe }}
+      {% endfor %}
+    </ul>
   </div>
 </section>
+{% endif %}
 
+{% if contributor_commentaries %}
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
-    <h1>SciPost Commentaries</h1>
+    <h1>Commentaries</h1>
+    <button id="mycommentariesbutton">View/hide commentaries</button>
+  </div>
+  <div id="mycommentarieslist">
+    <h3>Commentaries for which this Contributor is identified as an author:</h3>
+    <ul>
+      {% for com in contributor_commentaries %}
+      {{ com.header_as_li|safe }}
+      {% endfor %}
+    </ul>
   </div>
 </section>
+{% endif %}
+
+{% if contributor_theses %}
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Theses</h1>
+    <button id="mythesesbutton">View/hide theses</button>
+  </div>
+  <div id="mytheseslist">
+    <h3>Theses for which this Contributor is identified as an author:</h3>
+    <ul>
+      {% for thesis in contributor_theses %}
+      {{ thesis.header_as_li|safe }}
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
 
 {% if contributor_comments %}
 <section>
@@ -61,17 +110,17 @@
 </section>
 {% endif %}
 
-{% if own_authorreplies %}
+{% if contributor_authorreplies %}
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
-    <h1>Your Author Replies</h1>
+    <h1>Author Replies</h1>
     <button id="myauthorrepliesbutton">View/hide author replies</button>
   </div>
   <div id="myauthorreplieslist">
     <ul>
       {% for reply in contributor_authorreplies %}
-      {{ own_reply.header_as_li|safe }}
+      {{ contributor_reply.header_as_li|safe }}
       {% endfor %}
     </ul>
   </div>

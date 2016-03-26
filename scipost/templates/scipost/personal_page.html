@@ -6,6 +6,15 @@
 
 <script>
   $(document).ready(function(){
+  $("#mysubmissionsbutton").click(function(){
+  $("#mysubmissionslist").toggle();
+  });
+  $("#mycommentariesbutton").click(function(){
+  $("#mycommentarieslist").toggle();
+  });
+  $("#mythesesbutton").click(function(){
+  $("#mytheseslist").toggle();
+  });
   $("#mycommentsbutton").click(function(){
   $("#mycommentslist").toggle();
   });
@@ -26,7 +35,7 @@
 
   <hr class="hr12">
   <div class="flex-greybox">
-    <h1>Your SciPost Account</h1>
+    <h1>Your Account</h1>
   </div>
   <div class="row">
     <div class="col-6">
@@ -47,7 +56,7 @@
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
-    <h1>Pending SciPost Editorial Actions</h1>
+    <h1>Pending Editorial Actions</h1>
   </div>
   <br>
   <div class="row">
@@ -88,7 +97,8 @@
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
-    <h1>SciPost Submissions</h1>
+    <h1>Submissions</h1>
+    <button id="mysubmissionsbutton">View/hide your submissions</button>
     <ul>
       {% if nr_submission_authorships_to_claim > 0 %}
       <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_submission_authorships_to_claim}})</a></li>
@@ -96,20 +106,23 @@
       <li><a href="{% url 'submissions:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></li>
     </ul>
   </div>
-  {% if own_submissions %}
-  <h3>Submissions for which you are identified an author:</h3>
-  <ul>
-    {% for sub in own_submissions %}
-    {{ sub.header_as_li|safe }}
-    {% endfor %}
-  </ul>  
-  {% endif %}
+  <div id="mysubmissionslist">
+    {% if own_submissions %}
+    <h3>Submissions for which you are identified as an author:</h3>
+    <ul>
+      {% for sub in own_submissions %}
+      {{ sub.header_as_li|safe }}
+      {% endfor %}
+    </ul>  
+    {% endif %}
+  </div>
 </section>
 
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
-    <h1>SciPost Commentaries</h1>
+    <h1>Commentaries</h1>
+    <button id="mycommentariesbutton">View/hide commentaries on your papers</button>
     <ul>
       {% if nr_commentary_authorships_to_claim > 0 %}
       <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_commentary_authorships_to_claim}})</a></li>
@@ -117,20 +130,23 @@
       <li><a href="{% url 'commentaries:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
     </ul>
   </div>
-  {% if own_commentaries %}
-  <h3>Commentaries for which you are identified an author:</h3>
-  <ul>
-    {% for com in own_commentaries %}
-    {{ com.header_as_li|safe }}
-    {% endfor %}
-  </ul>  
-  {% endif %}
+  <div id="mycommentarieslist">
+    {% if own_commentaries %}
+    <h3>Commentaries for which you are identified as an author:</h3>
+    <ul>
+      {% for com in own_commentaries %}
+      {{ com.header_as_li|safe }}
+      {% endfor %}
+    </ul>  
+    {% endif %}
+  </div>
 </section>
 
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
-    <h1>SciPost Theses</h1>
+    <h1>Theses</h1>
+    <button id="mythesesbutton">View/hide your theses</button>
     <ul>
       {% if nr_thesis_authorships_to_claim > 0 %}
       <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_thesis_authorships_to_claim}})</a></li>
@@ -138,14 +154,16 @@
       <li><a href="{% url 'theses:request_thesislink' %}">Request a SciPost ThesisLink</a></li>
     </ul>
   </div>
-  {% if own_thesislinks %}
-  <h3>Theses for which you are identified an author:</h3>
-  <ul>
-    {% for thesis in own_thesislinks %}
-    {{ thesis.header_as_li|safe }}
-    {% endfor %}
-  </ul>
-  {% endif %}
+  <div id="mytheseslist">
+    {% if own_thesislinks %}
+    <h3>Theses for which you are identified as an author:</h3>
+    <ul>
+      {% for thesis in own_thesislinks %}
+      {{ thesis.header_as_li|safe }}
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
 </section>
 
 {% if contributor.rank == 0 %}

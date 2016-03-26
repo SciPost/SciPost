@@ -372,7 +372,7 @@ section ul li {
   margin: 0px 4px;
   padding: 1px;
   display: inline-block;
-  box-shadow: 1px 1px 4px #888888;
+  box-shadow: 1px 1px 1px #888888;
   background: linear-gradient(to right,#fcfcfc, #f0f0f0);
 }
 .opinionsDisplay ul {
