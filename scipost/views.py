@@ -184,18 +184,23 @@ def registration_invitations(request):
     if request.method == 'POST':
         # Send invitation from form information
         reg_inv_form = RegistrationInvitationForm(request.POST)
-        Utils.load({'reg_inv_form': reg_inv_form})
+        
+        Utils.load({'contributor': request.user.contributor, 'reg_inv_form': reg_inv_form})
         if reg_inv_form.is_valid():
             Utils.create_and_save_invitation()
             Utils.send_registration_invitation_email()
         return HttpResponseRedirect('registration_invitation_sent')
     else:
         reg_inv_form = RegistrationInvitationForm()
-    sent_reg_inv_fellows = RegistrationInvitation.objects.filter(invitation_type='F').order_by('last_name')
-    sent_reg_inv_contrib = RegistrationInvitation.objects.filter(invitation_type='C').order_by('last_name')
+    sent_reg_inv_fellows = RegistrationInvitation.objects.filter(invitation_type='F', responded=False).order_by('last_name')
+    sent_reg_inv_contrib = RegistrationInvitation.objects.filter(invitation_type='C', responded=False).order_by('last_name')
+    resp_reg_inv_fellows = RegistrationInvitation.objects.filter(invitation_type='F', responded=True).order_by('last_name')
+    resp_reg_inv_contrib = RegistrationInvitation.objects.filter(invitation_type='C', responded=True).order_by('last_name')
     context = {'reg_inv_form': reg_inv_form,
                'sent_reg_inv_fellows': sent_reg_inv_fellows,
-               'sent_reg_inv_contrib': sent_reg_inv_contrib}
+               'sent_reg_inv_contrib': sent_reg_inv_contrib,
+               'resp_reg_inv_fellows': resp_reg_inv_fellows,
+               'resp_reg_inv_contrib': resp_reg_inv_contrib}
     return render(request, 'scipost/registration_invitations.html', context)
 
 
@@ -207,17 +212,19 @@ def accept_invitation(request, key):
     elif invitation.responded:
         errormessage = 'This invitation token has already been used.'
     else:
-        invitation.reponded = True
+        invitation.responded = True
         invitation.save()
         form = RegistrationForm()
+        form.fields['title'].initial = invitation.title
         form.fields['last_name'].initial = invitation.last_name
         form.fields['first_name'].initial = invitation.first_name
         form.fields['email'].initial = invitation.email_address
         errormessage = ''
-        return render(request, 'scipost/register.html', {'form': form, 'errormessage': errormessage})
+        welcome_message = 'Welcome, ' + title_dict[invitation.title] + ' ' + invitation.last_name + ', and thanks in advance for registering (by completing this form)'
+        return render(request, 'scipost/register.html', {'form': form, 'errormessage': errormessage, 'welcome_message': welcome_message})
 
     context = {'errormessage': errormessage}
-    return render(request, 'scipost/invitation_error.html', context)
+    return render(request, 'scipost/accept_invitation_error.html', context)
 
 
 def login_view(request):

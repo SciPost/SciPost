@@ -6,6 +6,11 @@
 
 <section>
   <h1>Register to SciPost</h1>
+  {% if welcome_message %}
+  <div class="flex-greybox">
+    <h2>{{ welcome_message }}</h2>
+  </div>
+  {% endif %}
   <div class="row">
     <div class="col-4">
       <h3>Notes:</h3>

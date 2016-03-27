@@ -23,11 +23,11 @@
 <hr class="hr12"/>
 <section>
   <div class="flex-greybox">
-    <h2>Invitations sent:</h2>
+    <h2>Invitations sent (response pending):</h2>
   </div>
   <h3>Editorial Fellows</h3>
   <table class="tableofInvitees">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type (Fellow, Contrib)</td><td>Responded</td></tr>
+    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td><td>Responded</td></tr>
     {% for fellow in sent_reg_inv_fellows %}
     <tr>
       <td>{{ fellow.last_name }}</td>
@@ -35,13 +35,14 @@
       <td>{{ fellow.email_address }}</td>
       <td>{{ fellow.date_sent }} </td>
       <td>{{ fellow.invitation_type }}</td>
+      <td>{{ fellow.invited_by.user.last_name }}</td>
       <td>{{ fellow.responded }}</td></tr>
     {% endfor %}
   </table>
-  
+  <hr class="hr6"/>  
   <h3>Normal Contributors</h3>
   <table class="tableofInvitees">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type (Fellow, Contrib)</td><td>Responded</td></tr>
+    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td><td>Responded</td></tr>
     {% for fellow in sent_reg_inv_contrib %}
     <tr>
       <td>{{ fellow.last_name }}</td>
@@ -49,6 +50,42 @@
       <td>{{ fellow.email_address }}</td>
       <td>{{ fellow.date_sent }} </td>
       <td>{{ fellow.invitation_type }}</td>
+      <td>{{ fellow.invited_by.user.last_name }}</td>
+      <td>{{ fellow.responded }}</td></tr>
+    {% endfor %}
+  </table>
+</section>
+  <hr class="hr12"/>
+<section>
+  <div class="flex-greybox">
+    <h2>Invitations sent (responded):</h2>
+  </div>
+  <h3>Editorial Fellows</h3>
+  <table class="tableofInvitees">
+    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td><td>Responded</td></tr>
+    {% for fellow in resp_reg_inv_fellows %}
+    <tr>
+      <td>{{ fellow.last_name }}</td>
+      <td>{{ fellow.first_name }}</td>
+      <td>{{ fellow.email_address }}</td>
+      <td>{{ fellow.date_sent }} </td>
+      <td>{{ fellow.invitation_type }}</td>
+      <td>{{ fellow.invited_by.user.last_name }}</td>
+      <td>{{ fellow.responded }}</td></tr>
+    {% endfor %}
+  </table>
+  <hr class="hr6"/>
+  <h3>Normal Contributors</h3>
+  <table class="tableofInvitees">
+    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td><td>Responded</td></tr>
+    {% for fellow in resp_reg_inv_contrib %}
+    <tr>
+      <td>{{ fellow.last_name }}</td>
+      <td>{{ fellow.first_name }}</td>
+      <td>{{ fellow.email_address }}</td>
+      <td>{{ fellow.date_sent }} </td>
+      <td>{{ fellow.invitation_type }}</td>
+      <td>{{ fellow.invited_by.user.last_name }}</td>
       <td>{{ fellow.responded }}</td></tr>
     {% endfor %}
   </table>

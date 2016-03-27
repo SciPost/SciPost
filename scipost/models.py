@@ -119,6 +119,7 @@ class RegistrationInvitation(models.Model):
     invitation_key = models.CharField(max_length=40, default='')
     key_expires = models.DateTimeField(default=timezone.now)
     date_sent = models.DateTimeField(default=timezone.now)
+    invited_by = models.ForeignKey(Contributor, blank=True, null=True)
     responded = models.BooleanField(default=False)
 
 

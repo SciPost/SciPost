@@ -170,6 +170,10 @@ hr.hr12 {
   border-radius: 4px;
 }
 
+.tableofInvitees td {
+  padding: 0px 4px;
+}
+
 body {
 /*  font-family: Merriweather, sans-serif; */
   font-family: 'Merriweather Sans';
