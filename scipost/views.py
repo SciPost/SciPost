@@ -12,6 +12,7 @@ from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
+from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 
@@ -153,6 +154,7 @@ def vet_registration_request_ack(request, contributor_id):
         if form.is_valid():
             if form.cleaned_data['promote_to_rank_1']:
                 contributor.rank = 1
+                contributor.vetted_by = request.user.contributor
                 contributor.save()
                 email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
                               ', \n\nYour registration to the SciPost publication portal has been accepted. ' +
@@ -193,14 +195,18 @@ def registration_invitations(request):
     else:
         reg_inv_form = RegistrationInvitationForm()
     sent_reg_inv_fellows = RegistrationInvitation.objects.filter(invitation_type='F', responded=False).order_by('last_name')
+    nr_sent_reg_inv_fellows = sent_reg_inv_fellows.count()
     sent_reg_inv_contrib = RegistrationInvitation.objects.filter(invitation_type='C', responded=False).order_by('last_name')
+    nr_sent_reg_inv_contrib = sent_reg_inv_contrib.count()
     resp_reg_inv_fellows = RegistrationInvitation.objects.filter(invitation_type='F', responded=True).order_by('last_name')
+    nr_resp_reg_inv_fellows = resp_reg_inv_fellows.count()
     resp_reg_inv_contrib = RegistrationInvitation.objects.filter(invitation_type='C', responded=True).order_by('last_name')
+    nr_resp_reg_inv_contrib = resp_reg_inv_contrib.count()
     context = {'reg_inv_form': reg_inv_form,
-               'sent_reg_inv_fellows': sent_reg_inv_fellows,
-               'sent_reg_inv_contrib': sent_reg_inv_contrib,
-               'resp_reg_inv_fellows': resp_reg_inv_fellows,
-               'resp_reg_inv_contrib': resp_reg_inv_contrib}
+               'sent_reg_inv_fellows': sent_reg_inv_fellows, 'nr_sent_reg_inv_fellows': nr_sent_reg_inv_fellows,
+               'sent_reg_inv_contrib': sent_reg_inv_contrib, 'nr_sent_reg_inv_contrib': nr_sent_reg_inv_contrib,
+               'resp_reg_inv_fellows': resp_reg_inv_fellows, 'nr_resp_reg_inv_fellows': nr_resp_reg_inv_fellows,
+               'resp_reg_inv_contrib': resp_reg_inv_contrib, 'nr_resp_reg_inv_contrib': nr_resp_reg_inv_contrib }
     return render(request, 'scipost/registration_invitations.html', context)
 
 
@@ -435,57 +441,44 @@ def claim_thesis_authorship(request, thesis_id, claim):
 
 
 def vet_authorship_claims(request):
-    contributor = Contributor.objects.get(user=request.user)
     claims_to_vet = AuthorshipClaim.objects.filter(status='0')
     context = {'claims_to_vet': claims_to_vet}
     return render(request, 'scipost/vet_authorship_claims.html', context)
 
-
-def vet_sub_authorship_claim(request, submission_id, claim):
+def vet_authorship_claim(request, claim_id, claim):
     if request.method == 'POST':
-        contributor = Contributor.objects.get(user=request.user)
-        submission = Submission.objects.get(pk=submission_id)
-        submission.authors_claims.remove(contributor)
-        claim_to_vet = AuthorshipClaim.objects.get(claimant=contributor, submission=submission)
-        if claim == '1':
-            submission.authors.add(contributor)
-            claim_to_vet.status = '1'
-        elif claim == '0':
-            submission.authors_false_claims.add(contributor)
-            claim_to_vet.status = '-1'
-        submission.save()
-        claim_to_vet.save()
-    return redirect('scipost:vet_authorship_claims')
+        vetting_contributor = Contributor.objects.get(user=request.user)
+        claim_to_vet = AuthorshipClaim.objects.get(pk=claim_id)
 
+        if claim_to_vet.submission is not None:
+            claim_to_vet.submission.authors_claims.remove(claim_to_vet.claimant)
+            if claim == '1':
+                claim_to_vet.submission.authors.add(claim_to_vet.claimant)
+                claim_to_vet.status = '1'
+            elif claim == '0':
+                claim_to_vet.submission.authors_false_claims.add(claim_to_vet.claimant)
+                claim_to_vet.status = '-1'
+                claim_to_vet.submission.save()
+        if claim_to_vet.commentary is not None:
+            claim_to_vet.commentary.authors_claims.remove(claim_to_vet.claimant)
+            if claim == '1':
+                claim_to_vet.commentary.authors.add(claim_to_vet.claimant)
+                claim_to_vet.status = '1'
+            elif claim == '0':
+                claim_to_vet.commentary.authors_false_claims.add(claim_to_vet.claimant)
+                claim_to_vet.status = '-1'
+                claim_to_vet.commentary.save()
+        if claim_to_vet.thesislink is not None:
+            claim_to_vet.thesislink.author_claims.remove(claim_to_vet.claimant)
+            if claim == '1':
+                claim_to_vet.thesislink.author_as_cont.add(claim_to_vet.claimant)
+                claim_to_vet.status = '1'
+            elif claim == '0':
+                claim_to_vet.thesislink.author_false_claims.add(claim_to_vet.claimant)
+                claim_to_vet.status = '-1'
+                claim_to_vet.thesislink.save()
 
-def vet_com_authorship_claim(request, commentary_id, claim):
-    if request.method == 'POST':
-        contributor = Contributor.objects.get(user=request.user)
-        commentary = Commentary.objects.get(pk=commentary_id)
-        commentary.authors_claims.remove(contributor)
-        claim_to_vet = AuthorshipClaim.objects.get(claimant=contributor, commentary=commentary)
-        if claim == '1':
-            commentary.authors.add(contributor)
-        elif claim == '0':
-            commentary.authors_false_claims.add(contributor)
-        claim_to_vet.status = claim
-        commentary.save()
-        claim_to_vet.save()
-    return redirect('scipost:vet_authorship_claims')
-
-
-def vet_thesis_authorship_claim(request, thesis_id, claim):
-    if request.method == 'POST':
-        contributor = Contributor.objects.get(user=request.user)
-        thesislink = ThesisLink.objects.get(pk=thesis_id)
-        thesislink.author_claims.remove(contributor)
-        claim_to_vet = AuthorshipClaim.objects.get(claimant=contributor, thesislink=thesislink)
-        if claim == '1':
-            thesislink.author_as_cont.add(contributor)
-        elif claim == '0':
-            thesislink.author_false_claims.add(contributor)
-        claim_to_vet.status = claim
-        thesislink.save()
+        claim_to_vet.vetted_by = vetting_contributor
         claim_to_vet.save()
     return redirect('scipost:vet_authorship_claims')
 

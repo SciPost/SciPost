@@ -121,7 +121,9 @@ class Utils(object):
             email_text += title_dict[cls.invitation.title] + ' ' + cls.invitation.last_name
         else:
             email_text += cls.invitation.first_name
-        email_text +=  ',\n\n' + cls.invitation.personal_message + '\n\n'
+        email_text +=  ',\n\n'
+        if cls.invitation.personal_message is not None:
+            email_text += cls.invitation.personal_message + '\n\n'
         email_text += ('You will have noticed that the world of scientific publishing is currently undergoing many changes, but you will ll perhaps agree that it is not completely clear that the best interests of science and scientists are being served. In recent times, and after much thinking of how best to address this issue, I have decided to forge ahead and implement a new online publication portal by and for scientists.\n\nThe initiative, called SciPost, can in a sense be viewed as an extra layer on arXiv.org. To summarize, SciPost will be a complete scientific publication platform, run by and for professional scientists, providing:\n\n' +
                        '- a means to comment on all existing literature\n\n' +
                        '- a repository of links to theses (Habilitation, PhD, Master’s)\n\n' +

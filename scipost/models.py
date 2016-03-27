@@ -62,7 +62,7 @@ class Contributor(models.Model):
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
     address = models.CharField(max_length=1000, verbose_name="address", default='', blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
-    #vetted_by = models.OneToOneField(Contributor, related_name='vetted_by') TO ACTIVATE
+    vetted_by = models.OneToOneField('self', blank=True, null=True)
 
 
     def __str__ (self):
@@ -135,7 +135,7 @@ class AuthorshipClaim(models.Model):
     submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
     commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True)
     thesislink = models.ForeignKey('theses.ThesisLink', blank=True, null=True)
-    vetted = models.BooleanField(default=False)
+#    vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
     status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS, default=0)
     

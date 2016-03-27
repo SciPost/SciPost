@@ -15,48 +15,33 @@
   {% if not claims_to_vet %}
   <h3>There are no authorship claims to vet</h3>
   {% else %}
+
   <hr class="hr12">
   <ul>
     {% for claim in claims_to_vet %}
     {% if claim.submission %}
     <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
     {{ claim.submission.header_as_li | safe }}
-    <form action="{% url 'scipost:vet_sub_authorship_claim' submission_id=claim.submission.id claim=1%}" method="post">
-      {% csrf_token %}
-      <input type="submit" value="Accept" />
-    </form>
-    <form action="{% url 'scipost:vet_sub_authorship_claim' submission_id=claim.submission.id claim=0%}" method="post">
-      {% csrf_token %}
-      <input type="submit" value="Deny" />
-    </form>
-
     {% elif claim.commentary %}
     <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
     {{ claim.commentary.header_as_li | safe }}
-    <form action="{% url 'scipost:vet_com_authorship_claim' commentary_id=claim.commentary.id claim=1%}" method="post">
-      {% csrf_token %}
-      <input type="submit" value="Accept" />
-    </form>
-    <form action="{% url 'scipost:vet_com_authorship_claim' commentary_id=claim.commentary.id claim=0%}" method="post">
-      {% csrf_token %}
-      <input type="submit" value="Deny" />
-    </form>
-
     {% elif claim.thesislink %}
     <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Thesis:</h4>
     {{ claim.thesislink.header_as_li | safe }}
-    <form action="{% url 'scipost:vet_thesis_authorship_claim' thesis_id=claim.thesislink.id claim=1%}" method="post">
+    {% endif %}
+
+    <form action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=1%}" method="post">
       {% csrf_token %}
       <input type="submit" value="Accept" />
     </form>
-    <form action="{% url 'scipost:vet_thesis_authorship_claim' thesis_id=claim.thesislink.id claim=0%}" method="post">
+    <form action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=0%}" method="post">
       {% csrf_token %}
       <input type="submit" value="Deny" />
     </form>
-    {% endif %}
     {% endfor %}
   </ul>
   {% endif %}
+
 </section>
 
 {% endblock bodysup %}
