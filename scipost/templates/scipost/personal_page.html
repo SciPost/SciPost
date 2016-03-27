@@ -4,6 +4,8 @@
 
 {% block headsup %}
 
+{% load scipost_extras %}
+
 <script>
   $(document).ready(function(){
   $("#mysubmissionsbutton").click(function(){
@@ -28,9 +30,18 @@
 
 {% block bodysup %}
 
+{% if not request.user|is_in_group:'Registered Contributors' %}
+<section>
+  <hr class="hr12">
+  <h3>Your credentials will soon be verified by an Editor.</h3> 
+  <p>If accepted, you will become a registered Contributor, enabling you to submit, comment and vote.</p>
+</section>
+
+{% else %}
+
 <section>
   <div class="flex-greybox">
-    <h1>Welcome to your SciPost Personal Page, {{ user.username }} (rank {{ contributor.rank }} Contributor)</h1>
+    <h1>Welcome to your SciPost Personal Page, {{ user.username }} </h1>
   </div>
 
   <hr class="hr12">
@@ -43,6 +54,22 @@
       {{ contributor.private_info_as_table|safe }}
     </div>
     <div class="col-6">
+      {% if request.user|is_in_group:'SciPost Administrators' %}
+      <h3>You are a SciPost Administrator.</h3>
+      {% endif %}
+      {% if request.user|is_in_group:'Advisory Board' %}
+      <h3>You are a member of the Advisory Board.</h3>
+      {% endif %}
+      {% if request.user|is_in_group:'Editorial College' %}
+      <h3>You are a member of the Editorial College.</h3>
+      {% endif %}
+      {% if request.user|is_in_group:'Vetting Editors' %}
+      <h3>You are a SciPost Vetting Editor.</h3>
+      {% endif %}
+      {% if request.user|is_in_group:'Registered Contributors' %}
+      <h3>You are a Registered Contributor.</h3>
+      {% endif %}
+      <br/>
       <h3>Update your personal data or password</h3>
       <ul>
 	<li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
@@ -52,7 +79,7 @@
   </div>
 </section>
 
-{% if contributor.rank >= 2 %}
+{% if request.user|is_in_group:'Vetting Editors' %}
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
@@ -60,13 +87,13 @@
   </div>
   <br>
   <div class="row">
-  {% if contributor.rank >= 4 %}
+  {% if request.user|is_in_group:'SciPost Administrators' %}
   <div class="col-4">
     <h3>Registration actions</h3>
     <ul>
       <li><a href="{% url 'scipost:vet_registration_requests' %}">Vet Registration requests</a> ({{ nr_reg_to_vet }})</li>
-      <li>Awaiting validation ({{ nr_reg_awaiting_validation }}) (no action necessary)</li>
-      <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
+       <li>Awaiting validation ({{ nr_reg_awaiting_validation }}) (no action necessary)</li>
+     <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
     </ul>
   </div>
   {% endif %}
@@ -81,13 +108,11 @@
       <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
     </ul>
   </div>
-  {% if contributor.rank >= 3 %}
+  {% if request.user|is_in_group:'Editorial College' %}
   <div class="col-4">
     <h3>Submissions processing</h3>
     <ul>
-      {% if contributor.rank >= 4 %}
       <li><a href="{% url 'submissions:process_new_submissions' %}">Process new SciPost Submissions</a> ({{ nr_submissions_to_process }})</li>
-      {% endif %}
     </ul>
   </div>
   {% endif %}
@@ -167,13 +192,6 @@
   </div>
 </section>
 
-{% if contributor.rank == 0 %}
-<section>
-  <hr class="hr12">
-  <p>Your credentials will soon be verified by an Editor. If accepted, your rank (currently 0: newly registered) will be set to 1 (normal user), enabling you to submit, comment and vote.</p>
-</section>
-{% endif %}
-
 {% if own_comments %}
 <section>
   <hr class="hr12">
@@ -206,6 +224,8 @@
     </ul>
   </div>
 </section>
+{% endif %}
+
 {% endif %}
 
 {% endblock bodysup %}

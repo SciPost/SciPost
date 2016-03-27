@@ -1,6 +1,6 @@
 from django.utils import timezone
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from django_countries.fields import CountryField
 
@@ -64,6 +64,17 @@ class Contributor(models.Model):
     personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
     vetted_by = models.OneToOneField('self', blank=True, null=True)
 
+    class Meta:
+        permissions = (
+            ('can_manage_registration_invitations', 'Can manage registration invitations'),
+            ('can_vet_registration_requests', 'Can vet registration requests'),
+            ('can_vet_commentary_requests', 'Can vet Commentary page requests'),
+            ('can_vet_thesislink_requests', 'Can vet Thesis Link requests'),
+            ('can_vet_authorship_claims', 'Can vet Authorship claims'),
+            ('can_vet_comments', 'Can vet submitted comments'),
+            ('can_process_incoming_submissions', 'Can process incoming Submissions'),
+            ('can_vet_submitted_reports', 'Can vet submitted Reports'),
+            )
 
     def __str__ (self):
         return self.user.last_name + ', ' + self.user.first_name
@@ -93,6 +104,24 @@ class Contributor(models.Model):
         output += '<tr><td>Personal web page: </td><td>&nbsp;</td><td>' + self.personalwebpage + '</td></tr>'
         output += '</table>'
         return output
+
+
+
+
+##################
+#### Groups ######
+##################
+
+SciPostAdmin, created = Group.objects.get_or_create(name='SciPost Administrators')
+
+AdvisoryBoard, created = Group.objects.get_or_create(name='Advisory Board')
+
+EditorialCollege, created = Group.objects.get_or_create(name='Editorial College')
+
+VettingEditors, created = Group.objects.get_or_create(name='Vetting Editors')
+
+RegisteredContributors, created = Group.objects.get_or_create(name='Registered Contributors')
+
 
 
 INVITATION_TYPE = (

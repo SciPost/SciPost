@@ -6,7 +6,8 @@ import string
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
@@ -31,6 +32,32 @@ from submissions.models import Submission, Report
 from submissions.forms import SubmissionSearchForm
 from theses.models import ThesisLink
 from theses.forms import ThesisLinkSearchForm
+
+
+################################
+# Assign permissions to groups #
+################################
+
+# Registration
+can_manage_registration_invitations = Permission.objects.get(codename='can_manage_registration_invitations')
+can_vet_registration_requests = Permission.objects.get(codename='can_vet_registration_requests')
+# Vetting of simple objects
+can_vet_commentary_requests = Permission.objects.get(codename='can_vet_commentary_requests')
+can_vet_thesislink_requests = Permission.objects.get(codename='can_vet_thesislink_requests')
+can_vet_authorship_claims = Permission.objects.get(codename='can_vet_authorship_claims')
+can_vet_comments = Permission.objects.get(codename='can_vet_comments')
+# Submission handling
+can_process_incoming_submissions = Permission.objects.get(codename='can_process_incoming_submissions')
+can_vet_submitted_reports = Permission.objects.get(codename='can_vet_submitted_reports')
+
+SciPostAdmin.permissions.add(can_manage_registration_invitations,
+                             can_vet_registration_requests,
+                             can_vet_commentary_requests, can_vet_thesislink_requests, 
+                             can_vet_authorship_claims, can_vet_comments,
+                             )
+VettingEditors.permissions.add(can_vet_commentary_requests, can_vet_thesislink_requests, 
+                               can_vet_authorship_claims, can_vet_comments,
+                               )
 
 
 #############
@@ -135,7 +162,7 @@ def request_new_activation_link(request, oldkey):
     return render (request, 'scipost/request_new_activation_link_ack.html')
 
 
-
+@permission_required('scipost.can_vet_registration_requests')
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     #contributor_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).first() # limit to one at a time
@@ -145,7 +172,7 @@ def vet_registration_requests(request):
     context = {'contributors_to_vet': contributors_to_vet, 'form': form }
     return render(request, 'scipost/vet_registration_requests.html', context)
 
-
+@permission_required('scipost.can_vet_registration_requests')
 def vet_registration_request_ack(request, contributor_id):
     # process the form
     if request.method == 'POST':
@@ -156,6 +183,8 @@ def vet_registration_request_ack(request, contributor_id):
                 contributor.rank = 1
                 contributor.vetted_by = request.user.contributor
                 contributor.save()
+                group = Groups.objects.get(name='Registered Contributors')
+                request.user.groups.add(group)
                 email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
                               ', \n\nYour registration to the SciPost publication portal has been accepted. ' +
                               'You can now login and contribute. \n\nThe SciPost Team.')

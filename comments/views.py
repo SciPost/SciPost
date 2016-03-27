@@ -53,6 +53,8 @@ def vet_submitted_comment_ack(request, comment_id):
             elif form.cleaned_data['action_option'] == '2':
                 # the comment request is simply rejected
                 comment.status = int(form.cleaned_data['refusal_reason'])
+                if comment.status == 0:
+                    comment.status == -1
                 comment.save()
                 email_text = ('Dear ' + title_dict[comment.author.title] + ' ' + comment.author.user.last_name + 
                               ', \n\nThe Comment you have submitted, concerning publication with title ')
