@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User, Group
 
 from .models import *
 
@@ -14,7 +15,7 @@ class SubmissionForm(forms.ModelForm):
         self.fields['abstract'].widget.attrs.update({'cols': 100})
 
 class ProcessSubmissionForm(forms.Form):
-    editor_in_charge = forms.ModelChoiceField(queryset=Contributor.objects.filter(rank__gte=3), required=True, label='Select an Editor-in-charge')
+    editor_in_charge = forms.ModelChoiceField(queryset=Contributor.objects.filter(user__groups__name='Editorial College'), required=True, label='Select an Editor-in-charge')
 
 class SubmissionSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author(s)")

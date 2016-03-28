@@ -28,7 +28,7 @@ $( document ).ready(function() {
           }
       }
       else {
-        if (clickedBox.attr("name") == "promote_to_rank_1"){
+        if (clickedBox.attr("name") == "promote_to_registered_contributor"){
           $(boxes[1]).prop('checked', false);
           if ($(specificTarget[0]).is(":visible")){
             toggleBoxes(specificTarget)
@@ -52,8 +52,8 @@ $( document ).ready(function() {
   {% else %}
 
   <h1>SciPost Registration requests to vet:</h1>
-  <p>These Contributors are currently on rank 0 (submitting, commenting and voting disabled).</p>
-  <p>Use this page to promote them to rank 1 or refuse registration.</p>
+  <p>These Contributors are currently not registered (submitting, commenting and voting disabled).</p>
+  <p>Use this page to promote them to give them registered status, or refuse registration.</p>
 
   {% for contributor_to_vet in contributors_to_vet %}
   <br>

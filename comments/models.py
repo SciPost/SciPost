@@ -33,7 +33,7 @@ comment_status_dict = dict(COMMENT_STATUS)
 class Comment(models.Model):
     """ A Comment is an unsollicited note, submitted by a Contributor, on a particular publication or in reply to an earlier Comment. """
     # status:
-    # 1: vetted (by Contributor with rank >= 2) 
+    # 1: vetted
     # 0: unvetted
     # -1: rejected (unclear)
     # -2: rejected (incorrect)

@@ -60,6 +60,23 @@ VettingEditors.permissions.add(can_vet_commentary_requests, can_vet_thesislink_r
                                )
 
 
+##############
+# Utilitites #
+##############
+
+def is_registered(user):
+    return user.groups.filter(name='Registered Contributors').exists()
+
+def is_SP_Admin(user):
+    return user.groups.filter(name='SciPost Administrators').exists()
+
+def is_MEC(user):
+    return user.groups.filter(name='Editorial College').exists()
+
+def is_VE(user):
+    return user.groups.filter(name='Vetting Editors').exists()
+
+
 #############
 # Main view
 #############
@@ -165,10 +182,9 @@ def request_new_activation_link(request, oldkey):
 @permission_required('scipost.can_vet_registration_requests')
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
-    #contributor_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).first() # limit to one at a time
-    contributors_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).order_by('key_expires')
+    contributors_to_vet = Contributor.objects.filter(user__is_active=True, status=0).order_by('key_expires')
+    reg_cont_group = Group.objects.get(name='Registered Contributors')
     form = VetRegistrationForm()
-    #context = {'contributor_to_vet': contributor_to_vet, 'form': form }
     context = {'contributors_to_vet': contributors_to_vet, 'form': form }
     return render(request, 'scipost/vet_registration_requests.html', context)
 
@@ -179,11 +195,11 @@ def vet_registration_request_ack(request, contributor_id):
         form = VetRegistrationForm(request.POST)
         contributor = Contributor.objects.get(pk=contributor_id)
         if form.is_valid():
-            if form.cleaned_data['promote_to_rank_1']:
-                contributor.rank = 1
+            if form.cleaned_data['promote_to_registered_contributor']:
+                contributor.status = 1
                 contributor.vetted_by = request.user.contributor
                 contributor.save()
-                group = Groups.objects.get(name='Registered Contributors')
+                group = Group.objects.get(name='Registered Contributors')
                 request.user.groups.add(group)
                 email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
                               ', \n\nYour registration to the SciPost publication portal has been accepted. ' +
@@ -203,7 +219,7 @@ def vet_registration_request_ack(request, contributor_id):
                 emailmessage = EmailMessage('SciPost registration: unsuccessful', email_text, 'registration@scipost.org', 
                                             [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
-                contributor.rank = form.cleaned_data['refusal_reason']
+                contributor.status = form.cleaned_data['refusal_reason']
                 contributor.save()
 
     context = {}
@@ -267,7 +283,7 @@ def login_view(request):
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
-        if user is not None and user.contributor.rank > 0:
+        if user is not None and is_registered(user):
             if user.is_active:
                 login(request, user)
                 contributor = Contributor.objects.get(user=request.user)
@@ -295,21 +311,20 @@ def personal_page(request):
         nr_reg_to_vet = 0
         nr_reg_awaiting_validation = 0
         nr_submissions_to_process = 0
-        if contributor.rank >= 4:
+        if is_SP_Admin(request.user):
             now = timezone.now()
             intwodays = now + timezone.timedelta(days=2)
-            # count the number of pending registration request
-            nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, rank=0).count()
+            # count the number of pending registration requests
+            nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, status=0).count()
             nr_reg_awaiting_validation = Contributor.objects.filter(
-                user__is_active=False, key_expires__gte=now, key_expires__lte=intwodays, rank=0
-                ).count()
+                user__is_active=False, key_expires__gte=now, key_expires__lte=intwodays, status=0).count()
             nr_submissions_to_process = Submission.objects.filter(vetted=False).count()
         nr_commentary_page_requests_to_vet = 0
         nr_comments_to_vet = 0
         nr_reports_to_vet = 0
         nr_thesislink_requests_to_vet = 0
         nr_authorship_claims_to_vet = 0
-        if contributor.rank >= 2:
+        if is_VE(request.user):
             nr_commentary_page_requests_to_vet = Commentary.objects.filter(vetted=False).count()
             nr_comments_to_vet = Comment.objects.filter(status=0).count()
             nr_reports_to_vet = Report.objects.filter(status=0).count()

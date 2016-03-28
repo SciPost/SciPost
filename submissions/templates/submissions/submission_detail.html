@@ -4,6 +4,8 @@
 
 {% block headsup %}
 
+{% load scipost_extras %}
+
   <script>
     $(document).ready(function(){
     $("#reportsbutton").click(function(){
@@ -113,7 +115,7 @@
 {% endif %}
 
 
-{% if user.is_authenticated and submission.open_for_reporting and user.contributor.rank > 0 %}
+{% if user.is_authenticated and submission.open_for_reporting and user|is_in_group:'Registered Contributors' %}
 <section>
   <hr class="hr6">
   <div class="row">
@@ -127,7 +129,7 @@
 
 {% include 'scipost/comments_block.html' %}
 
-{% if user.is_authenticated and submission.open_for_commenting and user.contributor.rank > 0 %}
+{% if user.is_authenticated and submission.open_for_commenting and user|is_in_group:'Registered Contributors' %}
 <section>
   <hr class="hr12">
   <div class="flex-greybox">

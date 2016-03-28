@@ -125,7 +125,7 @@ REPORT_REC = (
 class Report(models.Model):    
     """ Both types of reports, invited or contributed. """
     # status:
-    # 1: vetted (by Contributor with rank >= 2) 
+    # 1: vetted
     # 0: unvetted
     # -1: rejected (unclear)
     # -2: rejected (incorrect)

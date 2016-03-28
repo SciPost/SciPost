@@ -13,26 +13,18 @@ disciplines_dict = dict(SCIPOST_DISCIPLINES)
 
 
 
-CONTRIBUTOR_RANKS = (
-    # ranks determine the type of Contributor:
+CONTRIBUTOR_STATUS = (
+    # status determine the type of Contributor:
     # 0: newly registered (unverified; not allowed to submit, comment or vote)
-    # 1: normal user (allowed to submit, comment and vote)
-    # 2: scipost editor (1 + no need for vetting of comments, also allowed to vet commentary request and comments from normal users)
-    # 3: scipost journal editor (2 + allowed to accept papers in SciPost Journals)
-    # 4: scipost journal editor-in-chief 
-    # 5: Lead Editor (all rights granted, including rank promotions and overriding all)
+    # 1: contributor has been vetted through
     #
-    # Negative ranks denote rejected requests or :
+    # Negative status denotes rejected requests or:
     # -1: not a professional scientist (defined as at least PhD student in known university)
     # -2: other account already exists for this person
     # -3: barred from SciPost (abusive behaviour)
     # -4: disabled account (deceased)
     (0, 'newly registered'),
     (1, 'normal user'),
-    (2, 'Commentary Editor'),
-    (3, 'Journal Specialty Editor'),
-    (4, 'Journal Editor-in-chief'),
-    (5, 'Field Head Editor'),
     (-1, 'not a professional scientist'),
     (-2, 'other account already exists'),
     (-3, 'barred from SciPost'),
@@ -54,7 +46,7 @@ class Contributor(models.Model):
     # username, password, email, first_name and last_name are inherited from User
     activation_key = models.CharField(max_length=40, default='')
     key_expires = models.DateTimeField(default=timezone.now)
-    rank = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_RANKS)
+    status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)

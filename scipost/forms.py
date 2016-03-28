@@ -72,7 +72,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
         widgets = {'country_of_employment': CountrySelectWidget()}
 
 class VetRegistrationForm(forms.Form):
-    promote_to_rank_1 = forms.BooleanField(required=False)
+    promote_to_registered_contributor = forms.BooleanField(required=False, label='Accept registration')
     refuse = forms.BooleanField(required=False)
     refusal_reason = forms.ChoiceField(choices=REGISTRATION_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(), label='Justification (optional)', required=False)
