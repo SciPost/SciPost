@@ -114,6 +114,9 @@ def register(request):
         form = RegistrationForm(request.POST)
         Utils.load({'form': form})
         if form.is_valid():
+            if form['invited'] == False:
+                return render(request, 'scipost/register.html',
+                              {'form': form, 'errormessage': 'Registration is by invitation only at this stage. Come back after 1 May!'})
             if Utils.password_mismatch():
                 return render(request, 'scipost/register.html', 
                               {'form': form, 'errormessage': 'Your passwords must match'})
@@ -128,6 +131,7 @@ def register(request):
             return HttpResponseRedirect('thanks_for_registering')
     else:
         form = RegistrationForm()
+        form['invited'] = False
     context = {'form': form}
     return render(request, 'scipost/register.html', context)
 
@@ -271,6 +275,7 @@ def accept_invitation(request, key):
         form.fields['last_name'].initial = invitation.last_name
         form.fields['first_name'].initial = invitation.first_name
         form.fields['email'].initial = invitation.email_address
+        form.fields['invited'].initial = True
         errormessage = ''
         welcome_message = 'Welcome, ' + title_dict[invitation.title] + ' ' + invitation.last_name + ', and thanks in advance for registering (by completing this form)'
         return render(request, 'scipost/register.html', {'form': form, 'errormessage': errormessage, 'welcome_message': welcome_message})

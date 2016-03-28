@@ -7,7 +7,7 @@
 <section>
   <h1>Register to SciPost</h1>
 
-  {% if welcome_message %}<!-- Temporary: only see form if invited (thus welcome_message exists) -->
+  {% if form.invited %}<!-- Temporary: only see form if invited (thus welcome_message exists) -->
 
   <div class="flex-greybox">
     <h2>{{ welcome_message }}</h2>
