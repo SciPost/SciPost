@@ -49,7 +49,7 @@ class ThesisLink(models.Model):
         header += '<tr><td>Discipline: </td><td></td><td>' + disciplines_dict[self.discipline] + '</td></tr>'
         header += '<tr><td>Domain: </td><td></td><td>' + journals_domains_dict[self.domain] + '</td></tr>'
         header += '<tr><td>Specialization: </td><td></td><td>' + journals_spec_dict[self.specialization] + '</td></tr>'
-        header += '<tr><td>URL: </td><td>&nbsp;</td><td><a href="' + self.pub_link + '">' + self.pub_link + '</a></td></tr>'
+        header += '<tr><td>URL: </td><td>&nbsp;</td><td><a href="' + self.pub_link + '" target="_blank">' + self.pub_link + '</a></td></tr>'
         header += '<tr><td>Degree granting institution: </td><td>&nbsp;</td><td>' + self.institution + '</td></tr>'
         header += '<tr><td>Supervisor(s): </td><td></td><td>' + self.supervisor + '</td></tr>'
         header += '<tr><td>Defense date: </td><td>&nbsp;</td><td>' + str(self.defense_date) + '</td></tr>'

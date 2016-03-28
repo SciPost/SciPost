@@ -54,7 +54,7 @@ class Submission(models.Model):
         header = '<table>'
         header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.title + '</td></tr>'
         header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author_list + '</td></tr>'
-        header += '<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="' + self.arxiv_link + '">' + self.arxiv_link + '</a></td></tr>'
+        header += '<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="' + self.arxiv_link + '" target="_blank">' + self.arxiv_link + '</a></td></tr>'
         header += '<tr><td>Date submitted: </td><td>&nbsp;</td><td>' + str(self.submission_date) + '</td></tr>'
         header += '<tr><td>Submitted by: </td><td>&nbsp;</td><td>' + str(self.submitted_by) + '</td></tr>'
         header += '<tr><td>Submitted to: </td><td>&nbsp;</td><td>' + journals_submit_dict[self.submitted_to_journal] + '</td></tr>'

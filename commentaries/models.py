@@ -43,7 +43,7 @@ class Commentary(models.Model):
         header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.pub_title + '</td></tr>'
         header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author_list + '</td></tr>'
         if self.type == 'published':
-            header += '<tr><td>DOI: </td><td>&nbsp;</td><td><a href="' + self.pub_DOI_link + '">' + self.pub_DOI_link + '</a></td></tr>'
+            header += '<tr><td>DOI: </td><td>&nbsp;</td><td><a href="' + self.pub_DOI_link + '" target="_blank">' + self.pub_DOI_link + '</a></td></tr>'
         elif self.type == 'preprint':
             header += '<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="' + self.arxiv_link + '">' + self.arxiv_link + '</a></td></tr>'
         header += '<tr><td>Date: </td><td>&nbsp;</td><td>' + str(self.pub_date) + '</td></tr>'

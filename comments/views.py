@@ -43,6 +43,10 @@ def vet_submitted_comment_ack(request, comment_id):
                     email_text += comment.submission.title + ' by ' + comment.submission.author_list
                     comment.submission.latest_activity = timezone.now()
                     comment.submission.save()
+                elif comment.thesislink is not None:
+                    email_text += comment.thesislink.title + ' by ' + comment.thesis.author
+                    comment.thesislink.latest_activity = timezone.now()
+                    comment.thesislink.save()
                 email_text += (', has been accepted and published online.' + 
                                '\n\nWe copy it below for your convenience.' + 
                                '\n\nThank you for your contribution, \nThe SciPost Team.' +
@@ -62,6 +66,8 @@ def vet_submitted_comment_ack(request, comment_id):
                     email_text += comment.commentary.pub_title + ' by ' + comment.commentary.author_list
                 elif comment.submission is not None:
                     email_text += comment.submission.title + ' by ' + comment.submission.author_list
+                elif comment.thesislink is not None:
+                    email_text += comment.thesislink.title + ' by ' + comment.thesislink.author
                 email_text += (', has been rejected for the following reason: ' + comment_refusal_dict[comment.status] + '.' +
                                '\n\nWe copy it below for your convenience.' + 
                                '\n\nThank you for your contribution, \nThe SciPost Team.')
