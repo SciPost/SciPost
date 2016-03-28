@@ -128,8 +128,8 @@ def register(request):
             return HttpResponseRedirect('thanks_for_registering')
     else:
         form = RegistrationForm()
-    errormessage = ''
-    return render(request, 'scipost/register.html', {'form': form, 'errormessage': errormessage})
+    context = {'form': form}
+    return render(request, 'scipost/register.html', context)
 
 
 
@@ -256,6 +256,7 @@ def registration_invitations(request):
 
 
 def accept_invitation(request, key):
+    """ Register, by invitation """
     invitation = get_object_or_404(RegistrationInvitation, invitation_key=key)
     if timezone.now() > invitation.key_expires:
         invitation_expired = True
