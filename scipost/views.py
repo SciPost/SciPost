@@ -34,32 +34,6 @@ from theses.models import ThesisLink
 from theses.forms import ThesisLinkSearchForm
 
 
-################################
-# Assign permissions to groups #
-################################
-
-# Registration
-can_manage_registration_invitations = Permission.objects.get(codename='can_manage_registration_invitations')
-can_vet_registration_requests = Permission.objects.get(codename='can_vet_registration_requests')
-# Vetting of simple objects
-can_vet_commentary_requests = Permission.objects.get(codename='can_vet_commentary_requests')
-can_vet_thesislink_requests = Permission.objects.get(codename='can_vet_thesislink_requests')
-can_vet_authorship_claims = Permission.objects.get(codename='can_vet_authorship_claims')
-can_vet_comments = Permission.objects.get(codename='can_vet_comments')
-# Submission handling
-can_process_incoming_submissions = Permission.objects.get(codename='can_process_incoming_submissions')
-can_vet_submitted_reports = Permission.objects.get(codename='can_vet_submitted_reports')
-
-SciPostAdmin.permissions.add(can_manage_registration_invitations,
-                             can_vet_registration_requests,
-                             can_vet_commentary_requests, can_vet_thesislink_requests, 
-                             can_vet_authorship_claims, can_vet_comments,
-                             )
-VettingEditors.permissions.add(can_vet_commentary_requests, can_vet_thesislink_requests, 
-                               can_vet_authorship_claims, can_vet_comments,
-                               )
-
-
 ##############
 # Utilitites #
 ##############

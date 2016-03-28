@@ -100,21 +100,10 @@ class Contributor(models.Model):
 
 
 
+
 ##################
-#### Groups ######
+## Invitations ###
 ##################
-
-SciPostAdmin, created = Group.objects.get_or_create(name='SciPost Administrators')
-
-AdvisoryBoard, created = Group.objects.get_or_create(name='Advisory Board')
-
-EditorialCollege, created = Group.objects.get_or_create(name='Editorial College')
-
-VettingEditors, created = Group.objects.get_or_create(name='Vetting Editors')
-
-RegisteredContributors, created = Group.objects.get_or_create(name='Registered Contributors')
-
-
 
 INVITATION_TYPE = (
     ('F', 'Editorial Fellow'),
