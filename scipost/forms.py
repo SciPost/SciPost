@@ -98,7 +98,7 @@ class AuthorshipClaimForm(forms.Form):
 #    opinion = forms.ChoiceField(choices=OPINION_CHOICES, label='Your opinion on this Comment: ')
 
 
-class AssessmentForm(forms.ModelForm):
-    class Meta:
-        model = Assessment
-        fields = ['relevance', 'importance', 'clarity', 'validity', 'rigour', 'originality', 'significance']
+#class AssessmentForm(forms.ModelForm):
+#    class Meta:
+#        model = Assessment
+#        fields = ['relevance', 'importance', 'clarity', 'validity', 'rigour', 'originality', 'significance']

@@ -147,25 +147,25 @@ class AuthorshipClaim(models.Model):
 
 ### Assessments
 
-ASSESSMENT_CHOICES = (
-    (101, '-'), # Only values between 0 and 100 are kept, anything outside those limits is discarded.
-    (100, 'top'), (80, 'high'), (60, 'good'), (40, 'ok'), (20, 'low'), (0, 'poor')
-    )
+#ASSESSMENT_CHOICES = (
+#    (101, '-'), # Only values between 0 and 100 are kept, anything outside those limits is discarded.
+#    (100, 'top'), (80, 'high'), (60, 'good'), (40, 'ok'), (20, 'low'), (0, 'poor')
+#    )
 
-class Assessment(models.Model):
-    """ 
-    Base class for all assessments.
-    """
-    rater = models.ForeignKey(Contributor)
-    submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
-    comment = models.ForeignKey('comments.Comment', blank=True, null=True)
-    relevance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-    importance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-    clarity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-    validity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-    rigour = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-    originality = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-    significance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+#class Assessment(models.Model):
+#    """ 
+#    Base class for all assessments.
+#    """
+#    rater = models.ForeignKey(Contributor)
+#    submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
+#    comment = models.ForeignKey('comments.Comment', blank=True, null=True)
+#    relevance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+#    importance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+#    clarity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+#    validity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+#    rigour = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+#    originality = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
+#    significance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
 
 
 ### Opinions
@@ -186,23 +186,23 @@ class Assessment(models.Model):
 
 ### AssessmentAggregates
 
-class AssessmentAggregate(models.Model):
-    """
-    Aggregated assessments for an object.
-    """
-    nr = models.PositiveSmallIntegerField(default=0)
-    nr_relevance_ratings = models.IntegerField(default=0)
-    relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_importance_ratings = models.IntegerField(default=0)
-    importance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_clarity_ratings = models.IntegerField(default=0)
-    clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_validity_ratings = models.IntegerField(default=0)
-    validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_rigour_ratings = models.IntegerField(default=0)
-    rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_originality_ratings = models.IntegerField(default=0)
-    originality_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-    nr_significance_ratings = models.IntegerField(default=0)
-    significance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+#class AssessmentAggregate(models.Model):
+#    """
+#    Aggregated assessments for an object.
+#    """
+#    nr = models.PositiveSmallIntegerField(default=0)
+#    nr_relevance_ratings = models.IntegerField(default=0)
+#    relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+#    nr_importance_ratings = models.IntegerField(default=0)
+#    importance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+#    nr_clarity_ratings = models.IntegerField(default=0)
+#    clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+#    nr_validity_ratings = models.IntegerField(default=0)
+#    validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+#    nr_rigour_ratings = models.IntegerField(default=0)
+#    rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+#    nr_originality_ratings = models.IntegerField(default=0)
+#    originality_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
+#    nr_significance_ratings = models.IntegerField(default=0)
+#    significance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
 
