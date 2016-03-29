@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from commentaries.models import *
+from commentaries.models import Commentary
 
 
 class CommentaryAdmin(admin.ModelAdmin):

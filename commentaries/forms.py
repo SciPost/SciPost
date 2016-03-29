@@ -1,6 +1,7 @@
 from django import forms
 
-from .models import *
+from .models import Commentary
+
 
 COMMENTARY_ACTION_CHOICES = (
     (0, 'modify'), 

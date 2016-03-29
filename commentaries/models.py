@@ -2,10 +2,12 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 
-from .models import *
 
-from journals.models import *
-from scipost.models import *
+from journals.models import SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
+from scipost.models import Contributor
+from scipost.models import SCIPOST_DISCIPLINES
+
+
 
 COMMENTARY_TYPES = (
     ('published', 'published paper'),

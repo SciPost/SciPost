@@ -9,15 +9,15 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 
-from .models import *
-from .forms import *
+from .models import Commentary
+from .forms import RequestCommentaryForm, VetCommentaryForm, CommentarySearchForm
 
 from comments.models import Comment
 from comments.forms import CommentForm
-from scipost.forms import TITLE_CHOICES, AuthenticationForm#, OpinionForm
+from scipost.models import Contributor
+from scipost.models import title_dict
+from scipost.forms import AuthenticationForm
 
-
-title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
 
 ################
 # Commentaries
