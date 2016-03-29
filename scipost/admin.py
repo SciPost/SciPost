@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 
 from scipost.models import *
 
@@ -24,3 +24,5 @@ admin.site.register(RegistrationInvitation)
 
 admin.site.register(AuthorshipClaim)
 #admin.site.register(Opinion)
+
+admin.site.register(Permission)

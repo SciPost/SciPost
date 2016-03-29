@@ -56,17 +56,6 @@ class Contributor(models.Model):
     personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
     vetted_by = models.OneToOneField('self', blank=True, null=True)
 
-    class Meta:
-        permissions = (
-            ('can_manage_registration_invitations', 'Can manage registration invitations'),
-            ('can_vet_registration_requests', 'Can vet registration requests'),
-            ('can_vet_commentary_requests', 'Can vet Commentary page requests'),
-            ('can_vet_thesislink_requests', 'Can vet Thesis Link requests'),
-            ('can_vet_authorship_claims', 'Can vet Authorship claims'),
-            ('can_vet_comments', 'Can vet submitted comments'),
-            ('can_process_incoming_submissions', 'Can process incoming Submissions'),
-            ('can_vet_submitted_reports', 'Can vet submitted Reports'),
-            )
 
     def __str__ (self):
         return self.user.last_name + ', ' + self.user.first_name

@@ -4,9 +4,10 @@ from django.contrib.auth.models import User
 
 from .models import *
 
-from scipost.models import *
-from journals.models import *
-
+from scipost.models import Contributor
+from scipost.models import SCIPOST_DISCIPLINES
+from journals.models import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
+from journals.models import journals_submit_dict, journals_domains_dict, journals_spec_dict
 
 
 ###############

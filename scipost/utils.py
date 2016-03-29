@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: latin-1 -*-
-
 import datetime
 import hashlib
 import random
