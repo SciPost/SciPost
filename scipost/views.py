@@ -116,18 +116,18 @@ def accept_invitation(request, key):
         Utils.load({'form': form})
         if form.is_valid():
             if Utils.password_mismatch():
-                return render(request, 'scipost/register.html', 
+                return render(request, reverse('accept_invitation', kwargs={'key': key}),
                               {'form': form, 'invited': True, 'errormessage': 'Your passwords must match'})
             if Utils.username_already_taken():
-                return render(request, 'scipost/register.html', 
+                return render(request, reverse('accept_invitation', kwargs={'key': key}),
                               {'form': form, 'invited': True, 'errormessage': 'This username is already in use'})
             if Utils.email_already_taken():
-                return render(request, 'scipost/register.html', 
+                return render(request, reverse('accept_invitation', kwargs={'key': key}),
                               {'form': form, 'invited': True, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor()
             Utils.send_registration_email()
             return HttpResponseRedirect('thanks_for_registering')
-    if timezone.now() > invitation.key_expires:
+    elif timezone.now() > invitation.key_expires:
         invitation_expired = True
         errormessage = 'The invitation key has expired.'
     elif invitation.responded:

@@ -121,6 +121,9 @@ class RegistrationInvitation(models.Model):
     invited_by = models.ForeignKey(Contributor, blank=True, null=True)
     responded = models.BooleanField(default=False)
 
+    def __str__ (self):
+        return self.invitation_type + ' ' + self.first_name + ' ' + self.last_name + ' on ' + self.date_sent.strftime("%Y-%m-%d")
+
 
 
 AUTHORSHIP_CLAIM_STATUS = (

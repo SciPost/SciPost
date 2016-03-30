@@ -145,7 +145,7 @@ class Utils(object):
                            "If you do develop sympathy for the initiative, besides participating in the online platform, we'd be very grateful if you considered submitting a publication to one of the journals within the near future, in order to help establish their reputation. I'll also be looking forward to your reaction, your comments and suggestions, be they positive or negative.\n\n")
 
         email_text += ("On behalf of the SciPost Foundation,\n\n" +
-                       "Prof. dr Jean-Sébastien Caux\n---------------------------------------------\nInstitute for Theoretial Physics\nUniversity of Amsterdam\nScience Park 904\n1098 XH Amsterdam\nThe Netherlands\n---------------------------------------------\ntel.: +31(0)20 5255775\nfax: +31 (0)20 5255778\n---------------------------------------------")
+                       "Prof. dr Jean-Sébastien Caux\n---------------------------------------------\nInstitute for Theoretial Physics\nUniversity of Amsterdam\nScience Park 904\n1098 XH Amsterdam\nThe Netherlands\n---------------------------------------------\ntel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778\n---------------------------------------------")
 
         emailmessage = EmailMessage(
             'SciPost registration invitation', email_text, 'jscaux@scipost.org',
