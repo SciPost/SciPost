@@ -221,7 +221,7 @@ def vet_registration_request_ack(request, contributor_id):
                 contributor.vetted_by = request.user.contributor
                 contributor.save()
                 group = Group.objects.get(name='Registered Contributors')
-                request.user.groups.add(group)
+                contributor.user.groups.add(group)
                 email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
                               ', \n\nYour registration to the SciPost publication portal has been accepted. ' +
                               'You can now login and contribute. \n\nThe SciPost Team.')
