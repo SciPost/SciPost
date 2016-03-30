@@ -126,7 +126,7 @@ def invitation(request, key):
                               {'form': form, 'invited': True, 'key': key, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor()
             Utils.send_registration_email()
-            return HttpResponseRedirect('thanks_for_registering')
+            return HttpResponseRedirect(reverse('thanks_for_registering'))
         else:
             errormessage = 'form is invalidly filled'
             return render(request, 'scipost/register.html',
