@@ -35,7 +35,7 @@ class RegistrationForm(forms.Form):
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='* Verify pwd', widget=forms.PasswordInput())
     captcha = CaptchaField(label='* I am not a robot')
-    invited = forms.BooleanField(widget=forms.HiddenInput())
+#    invited = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
 class RegistrationInvitationForm(forms.ModelForm):
     class Meta:

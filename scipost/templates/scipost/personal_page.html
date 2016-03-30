@@ -79,7 +79,7 @@
   </div>
 </section>
 
-{% if request.user|is_in_group:'Vetting Editors' %}
+{% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' %}
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
@@ -108,7 +108,8 @@
       <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
     </ul>
   </div>
-  {% if request.user|is_in_group:'Editorial College' %}
+
+  {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial College' %}
   <div class="col-4">
     <h3>Submissions processing</h3>
     <ul>
