@@ -21,7 +21,7 @@ urlpatterns = [
 
     ## Registration
     url(r'^register$', views.register, name='register'),
-    url(r'^thanks_for_registering$', TemplateView.as_view(template_name='scipost/thanks_for_registering.html'), name='thanks for registering'),
+    url(r'^thanks_for_registering$', TemplateView.as_view(template_name='scipost/thanks_for_registering.html'), name='thanks_for_registering'),
     url(r'^activation/(?P<key>.+)$', views.activation, name='activation'),
     url(r'^activation_ack$', TemplateView.as_view(template_name='scipost/activation_ack.html'), name='activation_ack'),
     url(r'^request_new_activation_link/(?P<oldkey>.+)$', views.request_new_activation_link, name='request_new_activation_link'),
