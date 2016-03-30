@@ -116,17 +116,21 @@ def invitation(request, key):
         Utils.load({'form': form})
         if form.is_valid():
             if Utils.password_mismatch():
-                return render(request, reverse('invitation', kwargs={'key': key}),
-                              {'form': form, 'invited': True, 'errormessage': 'Your passwords must match'})
+                return render(request, 'scipost/register.html',
+                                {'form': form, 'invited': True, 'key': key, 'errormessage': 'Your passwords must match'})
             if Utils.username_already_taken():
-                return render(request, reverse('invitation', kwargs={'key': key}),
-                              {'form': form, 'invited': True, 'errormessage': 'This username is already in use'})
+                return render(request, 'scipost/register.html',
+                              {'form': form, 'invited': True, 'key': key, 'errormessage': 'This username is already in use'})
             if Utils.email_already_taken():
-                return render(request, reverse('invitation', kwargs={'key': key}),
-                              {'form': form, 'invited': True, 'errormessage': 'This email address is already in use'})
+                return render(request, 'scipost/register.html',
+                              {'form': form, 'invited': True, 'key': key, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor()
             Utils.send_registration_email()
             return HttpResponseRedirect('thanks_for_registering')
+        else:
+            errormessage = 'form is invalidly filled'
+            return render(request, 'scipost/register.html',
+                          {'form': form, 'invited': True, 'key': key, 'errormessage': 'This email address is already in use'})
     elif timezone.now() > invitation.key_expires:
         invitation_expired = True
         errormessage = 'The invitation key has expired.'
@@ -142,8 +146,8 @@ def invitation(request, key):
         form.fields['email'].initial = invitation.email_address
         errormessage = ''
         welcome_message = 'Welcome, ' + title_dict[invitation.title] + ' ' + invitation.last_name + ', and thanks in advance for registering (by completing this form)'
-        return render(request, reverse('invitation', kwargs={'key': key}), 
-                      {'form': form, 'invited': True, 'errormessage': errormessage, 'welcome_message': welcome_message})
+        return render(request, 'scipost/register.html',
+                        {'form': form, 'invited': True, 'key': key, 'errormessage': errormessage, 'welcome_message': welcome_message})
 
     context = {'errormessage': errormessage}
     return render(request, 'scipost/accept_invitation_error.html', context)

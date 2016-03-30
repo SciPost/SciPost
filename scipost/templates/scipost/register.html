@@ -23,7 +23,8 @@
     </div>
     <div class="col-1"></div>
     <div class="col-7">
-      <form action="{% url 'scipost:register' %}" method="post">
+      {% if invited %} <!-- Temporary: remove (leaving only the next block) once registrations are open -->
+      <form action="{% url 'scipost:invitation' key=key %}" method="post">	
 	{% csrf_token %}
 	<table>
 	  <ul>
@@ -32,6 +33,17 @@
 	</table>
 	<input type="submit" value="Submit" />
       </form>
+      {% else %}
+      <form action="{% url 'scipost:register' %}" method="post">	
+	{% csrf_token %}
+	<table>
+	  <ul>
+	    {{ form.as_table }}
+	  </ul>
+	</table>
+	<input type="submit" value="Submit" />
+      </form>
+      {% endif %}
       {% if errormessage %}
       <p>{{ errormessage }}</p>
       {% endif %}
