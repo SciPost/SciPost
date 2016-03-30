@@ -142,7 +142,8 @@ def accept_invitation(request, key):
         form.fields['email'].initial = invitation.email_address
         errormessage = ''
         welcome_message = 'Welcome, ' + title_dict[invitation.title] + ' ' + invitation.last_name + ', and thanks in advance for registering (by completing this form)'
-        return render(request, 'scipost/register.html', {'form': form, 'invited': True, 'errormessage': errormessage, 'welcome_message': welcome_message})
+        return render(request, reverse('accept_invitation', kwargs={'key': key}), 
+                      {'form': form, 'invited': True, 'errormessage': errormessage, 'welcome_message': welcome_message})
 
     context = {'errormessage': errormessage}
     return render(request, 'scipost/accept_invitation_error.html', context)
