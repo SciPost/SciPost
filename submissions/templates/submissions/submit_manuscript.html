@@ -9,7 +9,7 @@
 <section>
   <h1>Submit a manuscript to SciPost</h1>
 
-  <p id="journalsannounce">OPEN FOR SUBMISSION STARTING 30 MAY 2016</p>
+  <p id="journalsannounce">OPEN FOR SUBMISSION STARTING JUNE 2016</p>
 
   <form action="{% url 'submissions:submit_manuscript' %}" method="post">
     {% csrf_token %}
@@ -18,7 +18,9 @@
 	{{ form.as_table }}
       </ul>
     </table>
+    <!-- Deactivated until launch!
     <input type="submit" value="Submit"/>
+    -->
   </form>
 </section>
 {% endif %} <!-- Temporary strip -->

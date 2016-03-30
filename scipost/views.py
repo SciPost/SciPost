@@ -99,7 +99,7 @@ def register(request):
                               {'form': form, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor()
             Utils.send_registration_email()
-            return HttpResponseRedirect('thanks_for_registering')
+            return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
     else:
         form = RegistrationForm()
     # Remove invited from next two lines to open registrations without invitation
@@ -126,7 +126,7 @@ def invitation(request, key):
                               {'form': form, 'invited': True, 'key': key, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor()
             Utils.send_registration_email()
-            return HttpResponseRedirect(reverse('thanks_for_registering'))
+            return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
         else:
             errormessage = 'form is invalidly filled'
             return render(request, 'scipost/register.html',
@@ -224,7 +224,7 @@ def vet_registration_request_ack(request, contributor_id):
                 contributor.user.groups.add(group)
                 email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
                               ', \n\nYour registration to the SciPost publication portal has been accepted. ' +
-                              'You can now login and contribute. \n\nThe SciPost Team.')
+                              'You can now login at https://scipost.org and contribute. \n\nThe SciPost Team.')
                 emailmessage = EmailMessage('SciPost registration accepted', email_text, 'registration@scipost.org', 
                                             [contributor.user.email, 'registration@scipost.org'], 
                                             reply_to=['registration@scipost.org'])
@@ -288,7 +288,7 @@ def login_view(request):
                 contributor = Contributor.objects.get(user=request.user)
                 context = {'contributor': contributor }
                 #return render(request, 'scipost/personal_page.html', context)
-                return HttpResponseRedirect('/personal_page')
+                return HttpResponseRedirect('personal_page')
             else:
                 return render(request, 'scipost/disabled_account.html')
         else:
