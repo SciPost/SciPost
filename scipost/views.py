@@ -108,7 +108,7 @@ def register(request):
     return render(request, 'scipost/register.html', context)
 
 
-def accept_invitation(request, key):
+def invitation(request, key):
     """ Register, by invitation """
     invitation = get_object_or_404(RegistrationInvitation, invitation_key=key)
     if request.method == 'POST':
@@ -116,13 +116,13 @@ def accept_invitation(request, key):
         Utils.load({'form': form})
         if form.is_valid():
             if Utils.password_mismatch():
-                return render(request, reverse('accept_invitation', kwargs={'key': key}),
+                return render(request, reverse('invitation', kwargs={'key': key}),
                               {'form': form, 'invited': True, 'errormessage': 'Your passwords must match'})
             if Utils.username_already_taken():
-                return render(request, reverse('accept_invitation', kwargs={'key': key}),
+                return render(request, reverse('invitation', kwargs={'key': key}),
                               {'form': form, 'invited': True, 'errormessage': 'This username is already in use'})
             if Utils.email_already_taken():
-                return render(request, reverse('accept_invitation', kwargs={'key': key}),
+                return render(request, reverse('invitation', kwargs={'key': key}),
                               {'form': form, 'invited': True, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor()
             Utils.send_registration_email()
@@ -142,7 +142,7 @@ def accept_invitation(request, key):
         form.fields['email'].initial = invitation.email_address
         errormessage = ''
         welcome_message = 'Welcome, ' + title_dict[invitation.title] + ' ' + invitation.last_name + ', and thanks in advance for registering (by completing this form)'
-        return render(request, reverse('accept_invitation', kwargs={'key': key}), 
+        return render(request, reverse('invitation', kwargs={'key': key}), 
                       {'form': form, 'invited': True, 'errormessage': errormessage, 'welcome_message': welcome_message})
 
     context = {'errormessage': errormessage}

@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^registration_invitations$', views.registration_invitations, name="registration_invitations"),
     url(r'^registration_invitation_sent$', TemplateView.as_view(template_name='scipost/registration_invitation_sent.html'), name='registration_invitation_sent'),
     #url(r'^invitation/(?P<key>.+)$', views.accept_invitation, name='accept_invitation'),
-    url(r'^invitation/(?P<key>.+)$', views.accept_invitation, name='accept_invitation'),
+    url(r'^invitation/(?P<key>.+)$', views.invitation, name='invitation'),
     url(r'^accept_invitation_error$', TemplateView.as_view(template_name='scipost/accept_invitation_error.html'), name='accept_invitation_error'),
 
     ## Authentication
