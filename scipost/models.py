@@ -54,7 +54,7 @@ class Contributor(models.Model):
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
     address = models.CharField(max_length=1000, verbose_name="address", default='', blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
-    vetted_by = models.OneToOneField('self', blank=True, null=True)
+    vetted_by = models.ForeignKey('self', related_name="contrib_vetted_by", blank=True, null=True)
 
 
     def __str__ (self):

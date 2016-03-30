@@ -102,8 +102,50 @@ def register(request):
             return HttpResponseRedirect('thanks_for_registering')
     else:
         form = RegistrationForm()
-    context = {'form': form}
+    # Remove invited from next two lines to open registrations without invitation
+    invited = False
+    context = {'form': form, 'invited': invited}
     return render(request, 'scipost/register.html', context)
+
+
+def accept_invitation(request, key):
+    """ Register, by invitation """
+    invitation = get_object_or_404(RegistrationInvitation, invitation_key=key)
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        Utils.load({'form': form})
+        if form.is_valid():
+            if Utils.password_mismatch():
+                return render(request, 'scipost/register.html', 
+                              {'form': form, 'invited': True, 'errormessage': 'Your passwords must match'})
+            if Utils.username_already_taken():
+                return render(request, 'scipost/register.html', 
+                              {'form': form, 'invited': True, 'errormessage': 'This username is already in use'})
+            if Utils.email_already_taken():
+                return render(request, 'scipost/register.html', 
+                              {'form': form, 'invited': True, 'errormessage': 'This email address is already in use'})
+            Utils.create_and_save_contributor()
+            Utils.send_registration_email()
+            return HttpResponseRedirect('thanks_for_registering')
+    if timezone.now() > invitation.key_expires:
+        invitation_expired = True
+        errormessage = 'The invitation key has expired.'
+    elif invitation.responded:
+        errormessage = 'This invitation token has already been used.'
+    else:
+        invitation.responded = True
+        invitation.save()
+        form = RegistrationForm()
+        form.fields['title'].initial = invitation.title
+        form.fields['last_name'].initial = invitation.last_name
+        form.fields['first_name'].initial = invitation.first_name
+        form.fields['email'].initial = invitation.email_address
+        errormessage = ''
+        welcome_message = 'Welcome, ' + title_dict[invitation.title] + ' ' + invitation.last_name + ', and thanks in advance for registering (by completing this form)'
+        return render(request, 'scipost/register.html', {'form': form, 'invited': True, 'errormessage': errormessage, 'welcome_message': welcome_message})
+
+    context = {'errormessage': errormessage}
+    return render(request, 'scipost/accept_invitation_error.html', context)
 
 
 
@@ -210,7 +252,7 @@ def registration_invitations(request):
         if reg_inv_form.is_valid():
             Utils.create_and_save_invitation()
             Utils.send_registration_invitation_email()
-        return HttpResponseRedirect('registration_invitation_sent')
+            return HttpResponseRedirect('registration_invitation_sent')
     else:
         reg_inv_form = RegistrationInvitationForm()
     sent_reg_inv_fellows = RegistrationInvitation.objects.filter(invitation_type='F', responded=False).order_by('last_name')
@@ -228,29 +270,6 @@ def registration_invitations(request):
                'resp_reg_inv_contrib': resp_reg_inv_contrib, 'nr_resp_reg_inv_contrib': nr_resp_reg_inv_contrib }
     return render(request, 'scipost/registration_invitations.html', context)
 
-
-def accept_invitation(request, key):
-    """ Register, by invitation """
-    invitation = get_object_or_404(RegistrationInvitation, invitation_key=key)
-    if timezone.now() > invitation.key_expires:
-        invitation_expired = True
-        errormessage = 'The invitation key has expired.'
-    elif invitation.responded:
-        errormessage = 'This invitation token has already been used.'
-    else:
-        invitation.responded = True
-        invitation.save()
-        form = RegistrationForm()
-        form.fields['title'].initial = invitation.title
-        form.fields['last_name'].initial = invitation.last_name
-        form.fields['first_name'].initial = invitation.first_name
-        form.fields['email'].initial = invitation.email_address
-        errormessage = ''
-        welcome_message = 'Welcome, ' + title_dict[invitation.title] + ' ' + invitation.last_name + ', and thanks in advance for registering (by completing this form)'
-        return render(request, 'scipost/register.html', {'form': form, 'errormessage': errormessage, 'welcome_message': welcome_message})
-
-    context = {'errormessage': errormessage}
-    return render(request, 'scipost/accept_invitation_error.html', context)
 
 
 def login_view(request):
