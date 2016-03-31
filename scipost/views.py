@@ -194,7 +194,7 @@ def request_new_activation_link(request, oldkey):
                   'publication portal has been received. You now need to visit this link within the next 48 hours: \n\n' + 
                   'https://scipost.org/activation/' + contributor.activation_key + 
                   '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.')
-    emailmessage = EmailMessage('SciPost registration: new email activation link', email_text, 'registration@scipost.org', 
+    emailmessage = EmailMessage('SciPost registration: new email activation link', email_text, 'SciPost registration <registration@scipost.org>', 
                                 [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
     emailmessage.send(fail_silently=False)
     return render (request, 'scipost/request_new_activation_link_ack.html')
@@ -225,7 +225,7 @@ def vet_registration_request_ack(request, contributor_id):
                 email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
                               ', \n\nYour registration to the SciPost publication portal has been accepted. ' +
                               'You can now login at https://scipost.org and contribute. \n\nThe SciPost Team.')
-                emailmessage = EmailMessage('SciPost registration accepted', email_text, 'registration@scipost.org', 
+                emailmessage = EmailMessage('SciPost registration accepted', email_text, 'SciPost registration <registration@scipost.org>', 
                                             [contributor.user.email, 'registration@scipost.org'], 
                                             reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
@@ -237,7 +237,7 @@ def vet_registration_request_ack(request, contributor_id):
                               'comments or votes. We nonetheless thank you for your interest. \n\nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
-                emailmessage = EmailMessage('SciPost registration: unsuccessful', email_text, 'registration@scipost.org', 
+                emailmessage = EmailMessage('SciPost registration: unsuccessful', email_text, 'SciPost registration <registration@scipost.org>', 
                                             [contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
                 contributor.status = form.cleaned_data['refusal_reason']

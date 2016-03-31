@@ -83,7 +83,7 @@ class Utils(object):
                       cls.contributor.activation_key + 
                       '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.')
         emailmessage = EmailMessage(
-            'SciPost registration request received', email_text, 'registration@scipost.org', 
+            'SciPost registration request received', email_text, 'SciPost registration <registration@scipost.org>', 
             [cls.contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
         emailmessage.send(fail_silently=False)
             
@@ -149,7 +149,7 @@ class Utils(object):
                        "Prof. dr Jean-Sébastien Caux\n---------------------------------------------\nInstitute for Theoretial Physics\nUniversity of Amsterdam\nScience Park 904\n1098 XH Amsterdam\nThe Netherlands\n---------------------------------------------\ntel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778\n---------------------------------------------")
 
         emailmessage = EmailMessage(
-            'SciPost registration invitation', email_text, 'jscaux@scipost.org',
+            'SciPost registration invitation', email_text, 'J-S Caux <jscaux@scipost.org>',
             [cls.invitation.email_address, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
         emailmessage.send(fail_silently=False)
     

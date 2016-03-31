@@ -77,7 +77,7 @@ def vet_thesislink_request_ack(request, thesislink_id):
                               ', \n\nThe Thesis Link you have requested, concerning thesis with title ' + 
                               thesislink.title + ' by ' + thesislink.author + 
                               ', has been activated.' + '\n\nThank you for your contribution, \nThe SciPost Team.')
-                emailmessage = EmailMessage('SciPost Thesis Link activated', email_text, 'theses@scipost.org', 
+                emailmessage = EmailMessage('SciPost Thesis Link activated', email_text, 'SciPost Theses <theses@scipost.org>', 
                                             [thesislink.requested_by.user.email, 'theses@scipost.org'], 
                                             reply_to=['theses@scipost.org'])
                 emailmessage.send(fail_silently=False)                
@@ -93,7 +93,7 @@ def vet_thesislink_request_ack(request, thesislink_id):
                               thesislink.title + ' by ' + thesislink.author_list + 
                               ', has been activated (with slight modifications to your submitted details).' + 
                               '\n\nThank you for your contribution, \nThe SciPost Team.')
-                emailmessage = EmailMessage('SciPost Thesis Link activated', email_text, 'theses@scipost.org', 
+                emailmessage = EmailMessage('SciPost Thesis Link activated', email_text, 'SciPost Theses <theses@scipost.org>', 
                                             [thesislink.requested_by.user.email, 'theses@scipost.org'], 
                                             reply_to=['theses@scipost.org'])
                 # Don't send email yet... only when option 1 has succeeded!
@@ -110,7 +110,7 @@ def vet_thesislink_request_ack(request, thesislink_id):
                               '.\n\nThank you for your interest, \nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
-                emailmessage = EmailMessage('SciPost Thesis Link', email_text, 'theses@scipost.org', 
+                emailmessage = EmailMessage('SciPost Thesis Link', email_text, 'SciPost Theses <theses@scipost.org>', 
                                             [thesislink.requested_by.user.email, 'theses@scipost.org'], 
                                             reply_to=['theses@scipost.org'])
                 emailmessage.send(fail_silently=False)                

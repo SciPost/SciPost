@@ -173,6 +173,10 @@ hr.hr12 {
 .tableofInvitees td {
   padding: 0px 4px;
 }
+.tableofInviteesResponded td {
+  background-color: #f0f0f0;
+  padding: 0px 4px;
+}
 
 body {
 /*  font-family: Merriweather, sans-serif; */
