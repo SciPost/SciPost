@@ -116,13 +116,13 @@ def browse(request, discipline, nrweeksback):
         return HttpResponseRedirect(request, 'submissions/submissions.html', context)
     else:
         form = SubmissionSearchForm()
-    submission_list = Submission.objects.filter(
+    submission_browse_list = Submission.objects.filter(
         vetted=True, discipline=discipline, 
         latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
         )
     context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 
-               'submission_list': submission_list }
-    return render(request, 'submissions/browse.html', context)
+               'submission_browse_list': submission_browse_list }
+    return render(request, 'submissions/submissions.html', context)
 
 
 def submission_detail(request, submission_id):
