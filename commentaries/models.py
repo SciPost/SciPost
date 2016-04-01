@@ -27,12 +27,13 @@ class Commentary(models.Model):
     pub_title = models.CharField(max_length=300, verbose_name='title')
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)
     pub_DOI_link = models.URLField(verbose_name='DOI link to the original publication', blank=True)
+    arxiv_or_DOI_string = models.CharField(max_length=100, verbose_name='string form of arxiv nr or DOI for commentary url', default='')
     author_list = models.CharField(max_length=1000)
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_com')
     authors_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_com_claims')
     authors_false_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_com_false_claims')
-    pub_date = models.DateField(verbose_name='date of original publication')
+    pub_date = models.DateField(verbose_name='date of original publication', blank=True, null=True)
     pub_abstract = models.TextField(verbose_name='abstract')
     latest_activity = models.DateTimeField(default=timezone.now)
 
@@ -55,7 +56,34 @@ class Commentary(models.Model):
     def header_as_li (self):
         # for display in search lists
         header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0"><p><a href="/commentary/' + str(self.id) + '" class="pubtitleli">' + self.pub_title + '</a></p>'
+        #header += '<div class="flex-whitebox0"><p><a href="/commentary/' + str(self.id) + '" class="pubtitleli">' + self.pub_title + '</a></p>'
+        header += '<div class="flex-whitebox0"><p><a href="' + self.scipost_url() + '" class="pubtitleli">' + self.pub_title + '</a></p>'
         header += '<p>by ' + self.author_list + '</p><p> (published ' + str(self.pub_date) + ') - latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
         header += '</div></li>'
         return header
+
+    def parse_link_into_url (self):
+        """ Takes the arXiv nr or DOI and turns it into the url suffix """
+        if self.pub_DOI_link:
+            self.arxiv_or_DOI_string = str(self.pub_DOI_link)
+            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('http://dx.doi.org/', '')
+        else:
+            self.arxiv_or_DOI_string = str(self.arxiv_link)
+            # Format required: either identifier arXiv:1234.56789v10 or old-style arXiv:cond-mat/9712001v1
+            # strip: 
+            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('http://', '')
+            # Old style: from arxiv.org/abs/1234.5678 into arXiv:1234.5678 (new identifier style)
+            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('arxiv.org/', '')
+            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('abs/', '')
+            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('pdf/', '')
+            # make sure arXiv prefix is there:
+            self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_or_DOI_string
+        self.save()
+
+    def scipost_url (self):
+        """ Returns the url of the SciPost Commentary Page """
+        return '/commentary/' + self.arxiv_or_DOI_string 
+
+    def scipost_url_full (self):
+        """ Returns the url of the SciPost Commentary Page """
+        return 'https://scipost.org/commentary/' + self.arxiv_or_DOI_string 

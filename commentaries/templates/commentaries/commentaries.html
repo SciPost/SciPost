@@ -42,13 +42,6 @@
   <h3>Search results:</h3>
   <ul>
     {% for commentary in commentary_search_list %}
-    <!--
-    <li>
-      <p><a href="{% url 'commentaries:commentary' commentary.id %}">{{ commentary.pub_title }}</a></p>
-      <p>by {{ commentary.author_list }}</p>
-      <p>(published {{ commentary.pub_date }})</p>
-    </li>
-    -->
     {{ commentary.header_as_li|safe }}
     {% endfor %}
   </ul>

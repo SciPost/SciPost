@@ -57,7 +57,7 @@
   <div class="flex-greybox">
     <h1>Contribute a Comment:</h1>
   </div>
-  <form action="{% url 'commentaries:commentary' commentary.id %}" method="post">
+  <form action="{% url 'commentaries:commentary' arxiv_or_DOI_string=commentary.arxiv_or_DOI_string %}" method="post">
     {% csrf_token %}
     {% load crispy_forms_tags %}
     {% crispy form %}

@@ -16,7 +16,7 @@
   {% for comment_to_vet in comments_to_vet %}
 
   {% if comment_to_vet.commentary %}
-  <h3>From Commentary (<a href="{% url 'commentaries:commentary' commentary_id=comment_to_vet.commentary.id %}">link</a>)</h3>
+  <h3>From Commentary (<a href="{% url 'commentaries:commentary' arxiv_or_DOI_string=comment_to_vet.commentary.arxiv_or_DOI_string %}">link</a>)</h3>
   {{ comment_to_vet.commentary.header_as_table|safe }}
   <br />
   {% endif %}

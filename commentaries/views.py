@@ -45,6 +45,7 @@ def request_commentary(request):
                     pub_abstract = form.cleaned_data['pub_abstract'],
                     latest_activity = timezone.now(),
                     )
+                commentary.parse_link_into_url()
                 commentary.save()
                 return HttpResponseRedirect('request_commentary_ack')
         else:
@@ -77,7 +78,7 @@ def vet_commentary_request_ack(request, commentary_id):
                 email_text = ('Dear ' + title_dict[commentary.requested_by.title] + ' ' + 
                               commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + 
                               commentary.pub_title + ' by ' + commentary.author_list + 
-                              ', has been activated. You are now welcome to submit your comments.' + 
+                              ', has been activated at https://scipost.org/commentary/' + str(commentary.id) + '. You are now welcome to submit your comments.' + 
                               '\n\nThank you for your contribution, \nThe SciPost Team.')
                 emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 
                                             'SciPost commentaries <commentaries@scipost.org>', [commentary.requested_by.user.email, 'commentaries@scipost.org'], 
@@ -165,8 +166,10 @@ def browse(request, discipline, nrweeksback):
     return render(request, 'commentaries/commentaries.html', context)
 
 
-def commentary_detail(request, commentary_id):
-    commentary = get_object_or_404(Commentary, pk=commentary_id)
+#def commentary_detail(request, commentary_id):
+#    commentary = get_object_or_404(Commentary, pk=commentary_id)
+def commentary_detail(request, arxiv_or_DOI_string):
+    commentary = get_object_or_404(Commentary, arxiv_or_DOI_string=arxiv_or_DOI_string)
     comments = commentary.comment_set.all()
     if request.method == 'POST':
         form = CommentForm(request.POST)
