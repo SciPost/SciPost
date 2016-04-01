@@ -76,7 +76,7 @@ def vet_thesislink_request_ack(request, thesislink_id):
                               thesislink.requested_by.user.last_name + 
                               ', \n\nThe Thesis Link you have requested, concerning thesis with title ' + 
                               thesislink.title + ' by ' + thesislink.author + 
-                              ', has been activated.' + '\n\nThank you for your contribution, \nThe SciPost Team.')
+                              ', has been activated at https://scipost.org/thesis/' + str(thesislink.id) + '.' + '\n\nThank you for your contribution, \nThe SciPost Team.')
                 emailmessage = EmailMessage('SciPost Thesis Link activated', email_text, 'SciPost Theses <theses@scipost.org>', 
                                             [thesislink.requested_by.user.email, 'theses@scipost.org'], 
                                             reply_to=['theses@scipost.org'])
@@ -91,7 +91,8 @@ def vet_thesislink_request_ack(request, thesislink_id):
                               thesislink.requested_by.user.last_name + 
                               ', \n\nThe Thesis Link you have requested, concerning thesis with title ' + 
                               thesislink.title + ' by ' + thesislink.author_list + 
-                              ', has been activated (with slight modifications to your submitted details).' + 
+                              ', has been activated (with slight modifications to your submitted details) at ' + 
+                              'https://scipost.org/thesis/' + str(thesislink.id) + '.' +
                               '\n\nThank you for your contribution, \nThe SciPost Team.')
                 emailmessage = EmailMessage('SciPost Thesis Link activated', email_text, 'SciPost Theses <theses@scipost.org>', 
                                             [thesislink.requested_by.user.email, 'theses@scipost.org'], 

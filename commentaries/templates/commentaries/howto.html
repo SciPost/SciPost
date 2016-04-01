@@ -15,10 +15,16 @@
   <hr class="hr12">
   <h1>SciPost Commentaries how-to</h1>
   <h3>Activation procedure</h3>
-  <p>A Commentary Page can be requested by any registererd SciPost Contributor for any published scientific paper or arXiv preprint (at least 8 weeks old) by filling the <a href="{% url 'commentaries:request_commentary' %}">Commentary request form</a>. After vetting by an Editor, the Commentary Page is activated and made open for Comments from registered SciPost Contributors. Authors can reply to Comments, and Contributors can add Comments to the chain.</p>
+  <p>A Commentary Page can be requested by any registered SciPost Contributor for any published scientific paper or arXiv preprint (at least 8 weeks old) by filling the <a href="{% url 'commentaries:request_commentary' %}">Commentary request form</a>. After vetting by an Editor, the Commentary Page is activated and made open for Comments from registered SciPost Contributors. Authors can reply to Comments, and Contributors can add Comments to the chain.</p>
   <ul>
     <li><a href="{% url 'commentaries:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
   </ul>
+  <br/>
+  <h3>Standardized URLs</h3>
+  <p>In order to facilitate localization of commentaries on particular publications, within SciPost, all Commentary Pages have a standardized URL of the form</p>
+  <p>https://scipost.org/commentary/IDENTIFIER</p>
+  <p>where IDENTIFIER is either the (by definition unique and stable) DOI of the published paper, or the arXiv identifier in new (arXiv:####.#####v#) or old (cond-mat/#######v#) style. NOTE: for arXiv, we systematically require the presence of the version number in order to avoid confusion (and yes, we do so even if there exists only one version).</p>
+
 </section>
 
 {% endif %} <!-- Temporary strip -->

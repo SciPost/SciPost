@@ -36,15 +36,18 @@ def vet_submitted_comment_ack(request, comment_id):
                 email_text = ('Dear ' + title_dict[comment.author.title] + ' ' + comment.author.user.last_name + 
                               ', \n\nThe Comment you have submitted, concerning publication with title ')
                 if comment.commentary is not None:
-                    email_text += comment.commentary.pub_title + ' by ' + comment.commentary.author_list
+                    email_text += (comment.commentary.pub_title + ' by ' + comment.commentary.author_list +
+                                   ' at Commentary Page https://scipost.org/commentary/' + comment.commentary.arxiv_or_DOI_string)
                     comment.commentary.latest_activity = timezone.now()
                     comment.commentary.save()
                 elif comment.submission is not None:
-                    email_text += comment.submission.title + ' by ' + comment.submission.author_list
+                    email_text += (comment.submission.title + ' by ' + comment.submission.author_list +
+                                   ' at Submission page https://scipost.org/submission/' + str(comment.submission.id))
                     comment.submission.latest_activity = timezone.now()
                     comment.submission.save()
                 elif comment.thesislink is not None:
-                    email_text += comment.thesislink.title + ' by ' + comment.thesis.author
+                    email_text += (comment.thesislink.title + ' by ' + comment.thesis.author +
+                                   ' at Thesis Link https://scipost.org/thesis/' + str(comment.thesis.id))
                     comment.thesislink.latest_activity = timezone.now()
                     comment.thesislink.save()
                 email_text += (', has been accepted and published online.' + 

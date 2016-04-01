@@ -78,7 +78,7 @@ def vet_commentary_request_ack(request, commentary_id):
                 email_text = ('Dear ' + title_dict[commentary.requested_by.title] + ' ' + 
                               commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + 
                               commentary.pub_title + ' by ' + commentary.author_list + 
-                              ', has been activated at https://scipost.org/commentary/' + str(commentary.id) + '. You are now welcome to submit your comments.' + 
+                              ', has been activated at https://scipost.org/commentary/' + str(commentary.arxiv_or_DOI_string) + '. You are now welcome to submit your comments.' + 
                               '\n\nThank you for your contribution, \nThe SciPost Team.')
                 emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 
                                             'SciPost commentaries <commentaries@scipost.org>', [commentary.requested_by.user.email, 'commentaries@scipost.org'], 

@@ -44,7 +44,14 @@ class ThesisLink(models.Model):
     def header_as_table (self):
         header = '<table>'
         header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.title + '</td></tr>'
-        header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author + '</td></tr>'
+        header += '<tr><td>Author: </td><td>&nbsp;</td><td>' + self.author + '</td></tr>'
+        header += '<tr><td>As Contributor: </td><td>&nbsp;</td>'
+        if self.author_as_cont.all():
+            for auth in self.author_as_cont.all():
+                header += '<td><a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name + ' ' + auth.user.last_name + '</a></td>'
+        else:
+            header += '<td>(not claimed)</td>'
+        header += '</tr>'
         header += '<tr><td>Type: </td><td></td><td>' + thesis_type_dict[self.type] + '</td></tr>'
         header += '<tr><td>Discipline: </td><td></td><td>' + disciplines_dict[self.discipline] + '</td></tr>'
         header += '<tr><td>Domain: </td><td></td><td>' + journals_domains_dict[self.domain] + '</td></tr>'

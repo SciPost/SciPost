@@ -1,0 +1,54 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Quick Tour{% endblock pagetitle %}
+
+{% load staticfiles %}
+
+{% block bodysup %}
+
+<!-- Temporary strip for online version -->
+{% if user.is_authenticated %}
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>SciPost: Quick Tour</h1>
+  </div>
+
+  <div class="row">
+    <div class="col-5">
+      <div class="flex-greybox">
+	<h2>Commentaries</h2>
+      </div>
+      <h3>Want to comment on a paper (<em>any</em> published paper)?</h3>
+      <ul>
+	<li><a href="{% url 'commentaries:commentaries' %}">Check</a> if a Commentary Page already exists.</li>
+	<li>No? <a href="{% url 'commentaries:request_commentary' %}">Request</a> one.</li>
+	<li>Wait for email confirmation of page activation.</li>
+	<li>Go to the page, write (remembering: no anonymity for Comments) your Comment in the box and submit it.</li>
+	<li>After an Editorial Fellow vets it, it will appear online.</li>
+      </ul>
+      <p>For more details, visit the <a href="{% url 'commentaries:howto' %}">Commentaries how-to</a>.</p>
+      <br/>
+      <h3>Want to reply (as an author) to a Comment?</h3>
+      <p>First, make sure the system has recognized you as an Author: go to your Personal Page and look at the Commentaries section; potential authorships are auto-detected, but you need to claim them by following the Claim Authorships link. After verification by an Editor, you will be enabled to reply as as Author for this and all other Comments on that particular page.</p>
+      <br/>
+      <h3>Want to give your opinion on a Comment?</h3>
+      <p>If you are registered as a Contributor, you can express your opinion by clicking on one of the coloured boxes next to the Comment (Agree, Not sure, Disagree). Any earlier opinion you had expressed gets erased. Aggregated opinions are given, and you cannot give an opinion on your own Comments.</p>
+    </div>
+    <div class="col-1"></div>
+    <div class="col-5">
+      <div class="flex-greybox">
+	<h2>Theses</h2>
+      </div>
+      <p>Similar to Commentaries, Theses is a searchable repository of links to Master's, PhD and Habilitation theses (often held in a local institutional repository).</p>
+      <p>After <a href="{% url 'theses:request_thesislink' %}">requesting the Thesis Link</a>, a page will be opened with the summary and external link, and the possibility to post Comments.</p>
+    </div>
+  </div>
+</section>
+
+
+
+{% endif %} <!-- temporary strip -->
+
+{% endblock bodysup %}

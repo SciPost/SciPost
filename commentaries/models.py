@@ -45,6 +45,13 @@ class Commentary(models.Model):
         header = '<table>'
         header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.pub_title + '</td></tr>'
         header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author_list + '</td></tr>'
+        header += '<tr><td>As Contributors: </td><td>&nbsp;</td>'
+        if self.authors.all():
+            for auth in self.authors.all():
+                header += '<td><a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name + ' ' + auth.user.last_name + '</a></td>'
+        else:
+            header += '<td>(none claimed)</td>'
+        header += '</tr>'
         if self.type == 'published':
             header += '<tr><td>DOI: </td><td>&nbsp;</td><td><a href="' + self.pub_DOI_link + '" target="_blank">' + self.pub_DOI_link + '</a></td></tr>'
         elif self.type == 'preprint':

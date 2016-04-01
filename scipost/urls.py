@@ -9,6 +9,7 @@ urlpatterns = [
 
     ## Info
     url(r'^about$', TemplateView.as_view(template_name='scipost/about.html'), name='about'),
+    url(r'^tour$', TemplateView.as_view(template_name='scipost/quick_tour.html'), name='quick_tour'),
     url(r'^FAQ$', TemplateView.as_view(template_name='scipost/FAQ.html'), name='FAQ'),
     url(r'^terms_and_conditions$', TemplateView.as_view(template_name='scipost/terms_and_conditions.html'), name='terms_and_conditions'),
     url(r'^privacy_policy$', TemplateView.as_view(template_name='scipost/privacy_policy.html'), name='privacy_policy'),
