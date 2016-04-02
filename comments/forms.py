@@ -24,7 +24,7 @@ comment_refusal_dict = dict(COMMENT_REFUSAL_CHOICES)
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug', 'comment_text', 'remarks_for_editors']
+        fields = ['is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_cor', 'is_val', 'is_lit', 'is_sug', 'comment_text', 'remarks_for_editors']
 
     def __init__(self, *args, **kwargs):
         super(CommentForm, self).__init__(*args, **kwargs)
@@ -42,7 +42,7 @@ class CommentForm(forms.ModelForm):
                 Div(
                     Fieldset(
                         'Specify categorization(s):',
-                        'is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_val', 'is_lit', 'is_sug',
+                        'is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep', 'is_cor', 'is_val', 'is_lit', 'is_sug',
                         style="border: 0px; font-size: 90%"),
                     HTML('<br>'),
                     Div(

@@ -39,6 +39,7 @@ class Comment(models.Model):
     # -2: rejected (incorrect)
     # -3: rejected (not useful)
     status = models.SmallIntegerField(default=0)
+    vetted_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='comment_vetted_by')
     commentary = models.ForeignKey(Commentary, blank=True, null=True) # a Comment is either for a Commentary or Submission
     submission = models.ForeignKey(Submission, blank=True, null=True)
     thesislink = models.ForeignKey(ThesisLink, blank=True, null=True)
@@ -53,6 +54,7 @@ class Comment(models.Model):
     is_ans = models.BooleanField(default=False, verbose_name='answer to question')
     is_obj = models.BooleanField(default=False, verbose_name='objection')
     is_rep = models.BooleanField(default=False, verbose_name='reply to objection')
+    is_cor = models.BooleanField(default=False, verbose_name='correction')
     is_val = models.BooleanField(default=False, verbose_name='validation or rederivation')
     is_lit = models.BooleanField(default=False, verbose_name='pointer to related literature')
     is_sug = models.BooleanField(default=False, verbose_name='suggestion for further work')
@@ -212,6 +214,8 @@ class Comment(models.Model):
             output += '<li>objection</li>'
         if self.is_rep:
             output += '<li>reply to objection</li>'
+        if self.is_cor:
+            output += '<li>correction</li>'
         if self.is_val:
             output += '<li>validation or rederivation</li>'
         if self.is_lit:

@@ -32,6 +32,7 @@ def vet_submitted_comment_ack(request, comment_id):
             if form.cleaned_data['action_option'] == '1':
                 # accept the comment as is
                 comment.status = 1
+                comment.vetted_by = request.user.contributor
                 comment.save()
                 email_text = ('Dear ' + title_dict[comment.author.title] + ' ' + comment.author.user.last_name + 
                               ', \n\nThe Comment you have submitted, concerning publication with title ')
@@ -112,6 +113,7 @@ def reply_to_comment(request, comment_id):
                 is_ans = form.cleaned_data['is_ans'],
                 is_obj = form.cleaned_data['is_obj'],
                 is_rep = form.cleaned_data['is_rep'],
+                is_cor = form.cleaned_data['is_cor'],
                 is_val = form.cleaned_data['is_val'],
                 is_lit = form.cleaned_data['is_lit'],
                 is_sug = form.cleaned_data['is_sug'],
