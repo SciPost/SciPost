@@ -138,7 +138,7 @@ def express_opinion(request, comment_id, opinion):
     if comment.submission is not None:
         return HttpResponseRedirect('/submission/' + str(comment.submission.id) + '/#comment_id' + str(comment.id))
     if comment.commentary is not None:
-        return HttpResponseRedirect('/commentary/' + str(comment.commentary.id) + '/#comment_id' + str(comment.id))
+        return HttpResponseRedirect('/commentary/' + str(comment.commentary.arxiv_or_DOI_string) + '/#comment_id' + str(comment.id))
     if comment.thesislink is not None:
         return HttpResponseRedirect('/thesis/' + str(comment.thesislink.id) + '/#comment_id' + str(comment.id))
     else: 

@@ -166,8 +166,6 @@ def browse(request, discipline, nrweeksback):
     return render(request, 'commentaries/commentaries.html', context)
 
 
-#def commentary_detail(request, commentary_id):
-#    commentary = get_object_or_404(Commentary, pk=commentary_id)
 def commentary_detail(request, arxiv_or_DOI_string):
     commentary = get_object_or_404(Commentary, arxiv_or_DOI_string=arxiv_or_DOI_string)
     comments = commentary.comment_set.all()
@@ -193,7 +191,7 @@ def commentary_detail(request, arxiv_or_DOI_string):
             newcomment.save()
             author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()
-            request.session['commentary_id'] = commentary_id
+            request.session['commentary_id'] = commentary.id
             return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
     else:
         form = CommentForm()
