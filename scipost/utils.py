@@ -9,7 +9,6 @@ from django.utils import timezone
 
 from .models import *
 
-
 class Utils(object):
 
     @classmethod
@@ -34,6 +33,13 @@ class Utils(object):
     @classmethod
     def email_already_taken(cls):
         if User.objects.filter(email=cls.form.cleaned_data['email']).exists():
+            return True
+        else:
+            return False
+
+    @classmethod
+    def email_already_invited(cls):
+        if RegistrationInvitation.objects.filter(email_address=cls.reg_inv_form.cleaned_data['email_address']).exists():
             return True
         else:
             return False

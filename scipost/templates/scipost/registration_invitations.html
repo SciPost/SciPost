@@ -14,11 +14,14 @@
   <div class="flex-greybox">
     <h2>Send a new invitation:</h2>
   </div>
-    <form action="{% url 'scipost:registration_invitations' %}" method="post">
-      {% csrf_token %}
-      {% load crispy_forms_tags %}
-      {% crispy reg_inv_form %}
-    </form>
+  {% if errormessage %}
+  <h3>{{ errormessage }}</h3>
+  {% endif %}
+  <form action="{% url 'scipost:registration_invitations' %}" method="post">
+    {% csrf_token %}
+    {% load crispy_forms_tags %}
+    {% crispy reg_inv_form %}
+  </form>
 </section>
 <hr class="hr12"/>
 <section>

@@ -249,15 +249,18 @@ def vet_registration_request_ack(request, contributor_id):
 
 def registration_invitations(request):
     # List invitations sent; send new ones
+    errormessage = ''
     if request.method == 'POST':
         # Send invitation from form information
         reg_inv_form = RegistrationInvitationForm(request.POST)
-        
         Utils.load({'contributor': request.user.contributor, 'reg_inv_form': reg_inv_form})
         if reg_inv_form.is_valid():
-            Utils.create_and_save_invitation()
-            Utils.send_registration_invitation_email()
-            return HttpResponseRedirect('registration_invitation_sent')
+            if Utils.email_already_invited():
+                errormessage = 'DUPLICATE ERROR: This email address has already been used for an invitation'
+            else:
+                Utils.create_and_save_invitation()
+                Utils.send_registration_invitation_email()
+                return HttpResponseRedirect('registration_invitation_sent')
     else:
         reg_inv_form = RegistrationInvitationForm()
     sent_reg_inv_fellows = RegistrationInvitation.objects.filter(invitation_type='F', responded=False).order_by('last_name')
@@ -268,7 +271,7 @@ def registration_invitations(request):
     nr_resp_reg_inv_fellows = resp_reg_inv_fellows.count()
     resp_reg_inv_contrib = RegistrationInvitation.objects.filter(invitation_type='C', responded=True).order_by('last_name')
     nr_resp_reg_inv_contrib = resp_reg_inv_contrib.count()
-    context = {'reg_inv_form': reg_inv_form,
+    context = {'reg_inv_form': reg_inv_form, 'errormessage': errormessage,
                'sent_reg_inv_fellows': sent_reg_inv_fellows, 'nr_sent_reg_inv_fellows': nr_sent_reg_inv_fellows,
                'sent_reg_inv_contrib': sent_reg_inv_contrib, 'nr_sent_reg_inv_contrib': nr_sent_reg_inv_contrib,
                'resp_reg_inv_fellows': resp_reg_inv_fellows, 'nr_resp_reg_inv_fellows': nr_resp_reg_inv_fellows,
