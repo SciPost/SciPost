@@ -2,6 +2,7 @@ from django.conf.urls import include, patterns, url
 from django.views.generic import TemplateView
 
 from . import views
+from .feeds import LatestCommentFeed
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -56,4 +57,7 @@ urlpatterns = [
     url(r'^claim_thesis_authorship/(?P<thesis_id>[0-9]+)/(?P<claim>[0-1])$', views.claim_thesis_authorship, name='claim_thesis_authorship'),
     url(r'^vet_authorship_claims$', views.vet_authorship_claims, name="vet_authorship_claims"),
     url(r'^vet_authorship_claim/(?P<claim_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_authorship_claim, name='vet_authorship_claim'),
+
+    # Feeds
+    url(r'^latest_comment/feed/$', LatestCommentFeed()),
 ]
