@@ -49,7 +49,7 @@ class Commentary(models.Model):
         if self.authors.all():
             header += '<td>'
             for auth in self.authors.all():
-                header += '<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name + ' ' + auth.user.last_name + '</a>'
+                header += '<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name + ' ' + auth.user.last_name + '</a>,&nbsp;'
             header += '<td>'
         else:
             header += '<td>(none claimed)</td>'
