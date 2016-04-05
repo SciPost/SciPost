@@ -47,8 +47,10 @@ class Commentary(models.Model):
         header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author_list + '</td></tr>'
         header += '<tr><td>As Contributors: </td><td>&nbsp;</td>'
         if self.authors.all():
+            header += '<td>'
             for auth in self.authors.all():
-                header += '<td><a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name + ' ' + auth.user.last_name + '</a></td>'
+                header += '<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name + ' ' + auth.user.last_name + '</a>'
+            header += '<td>'
         else:
             header += '<td>(none claimed)</td>'
         header += '</tr>'

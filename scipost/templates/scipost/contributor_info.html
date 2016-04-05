@@ -32,11 +32,7 @@
   <div class="flex-greybox">
     <h1>Contributor info</h1>
   </div>
-  <div class="row">
-    <div class="col-6">
-      {{ contributor.public_info_as_table|safe }}
-    </div>
-  </div>
+  {{ contributor.public_info_as_table|safe }}
 </section>
 
 {% if contributor_submissions %}
