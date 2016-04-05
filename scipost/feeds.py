@@ -1,11 +1,14 @@
 from django.contrib.syndication.views import Feed
+from django.utils.feedgenerator import Atom1Feed
 from django.core.urlresolvers import reverse
 
 from comments.models import Comment
 
 class LatestCommentFeed(Feed):
     title = "SciPost Latest Comments"
+    subtitle = "SciPost Latest Comments"
     link = "/"
+    feed_type = Atom1Feed
 
     def items(self):
         return Comment.objects.filter(status__gte=0).order_by('-date_submitted')[:5]
@@ -13,8 +16,8 @@ class LatestCommentFeed(Feed):
     def item_title(self, item):
         return item.comment_text[:50]
 
-#    def item_description(self, item):
-#        return item.description
+    def item_subtitle(self, item):
+        return item.subtitle
 
     def item_link(self, item):
         if item.commentary:
