@@ -29,6 +29,9 @@ SECRET_KEY = host_settings["SECRET_KEY"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = host_settings["DEBUG"]
 
+# Emails for server error reporting
+ADMINS = host_settings["ADMINS"]
+
 ALLOWED_HOSTS = host_settings["ALLOWED_HOSTS"]
 
 # Secure proxy SSL header and secure cookies                                                       
