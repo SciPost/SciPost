@@ -1,0 +1,59 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: accept or decline refereeing invitations{% endblock pagetitle %}
+
+{% block bodysup %}
+
+<script>
+$(document).ready(function(){
+
+  $('#ref_reason').hide();
+
+  $('#id_accept').on('change', function() {
+      if ($('#id_accept_1').is(':checked')) {
+          $('#ref_reason').show();
+      }
+      else {
+          $('#ref_reason').hide();
+      }
+    });
+  });
+</script>
+
+
+
+<section>
+  {% if not invitation_to_consider %}
+  <h1>There are no Refereeing Invitations for you to consider.</h1>
+
+  {% else %}
+
+  <div class="flex-greybox">
+    <h1>SciPost Submission which you are asked to Referee (see below to accept/decline):</h1>
+  </div>
+  <br>
+  <hr>
+  {{ invitation_to_consider.submission.header_as_table|safe }}
+  <br />
+  <h4>Abstract:</h4>
+  <p>{{ invitation_to_consider.submission.abstract }}</p>
+  <br/>
+  <hr>
+  <div class="flex-greybox">
+    <h1>Accept or Decline this Refereeing Invitation</h1>
+  </div>
+  <h3>Please let us know if you can provide us with a Report for this Submission:</h3>
+  <form action="{% url 'submissions:accept_or_decline_ref_invitation_ack' invitation_id=invitation_to_consider.id %}" method="post">
+    {% csrf_token %}
+    {{ form.accept }}
+    <div id="ref_reason">
+      <p>Please select a reason for declining this invitation:</p>
+      {{ form.refusal_reason }}
+    </div>
+    <input type="submit" value="Submit" />
+  </form>
+
+  {% endif %}
+</section>
+
+{% endblock bodysup %}

@@ -70,7 +70,8 @@ class Comment(models.Model):
     in_disagreement = models.ManyToManyField(Contributor, related_name='in_disagreement')
 
     def __str__ (self):
-        return self.comment_text
+        return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name + 
+                ' on ' + self.date_submitted.strftime('%Y-%m-%d') + ', '   + self.comment_text[:30])
 
 
     def update_opinions(self, contributor_id, opinion):

@@ -14,13 +14,50 @@ class SubmissionForm(forms.ModelForm):
         self.fields['arxiv_link'].widget.attrs.update({'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
         self.fields['abstract'].widget.attrs.update({'cols': 100})
 
-class ProcessSubmissionForm(forms.Form):
-    editor_in_charge = forms.ModelChoiceField(queryset=Contributor.objects.filter(user__groups__name='Editorial College'), required=True, label='Select an Editor-in-charge')
 
 class SubmissionSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title_keyword = forms.CharField(max_length=100, label="Title", required=False)
     abstract_keyword = forms.CharField(max_length=1000, required=False, label="Abstract")
+
+
+######################
+# Editorial workflow #
+######################
+
+class AssignSubmissionForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        discipline = kwargs.pop('discipline')
+#        specialization = kwargs.pop('specialization') # Reactivate later on, once the Editorial College is large enough
+        super(AssignSubmissionForm,self).__init__(*args, **kwargs)
+        self.fields['editor_in_charge'] = forms.ModelChoiceField(
+            queryset=Contributor.objects.filter(user__groups__name='Editorial College', 
+                                                user__contributor__discipline=discipline, 
+#                                                user__contributor__specializations__contains=[specialization,] # Reactivate later on, once the Editorial College is large enough
+                                                ), required=True, label='Select an Editor-in-charge')
+
+    editor_in_charge = forms.ModelChoiceField(queryset=...)
+
+
+class ConsiderAssignmentForm(forms.Form):
+    accept = forms.ChoiceField(widget=forms.RadioSelect, choices=ASSIGNMENT_BOOL, label="Are you willing to take charge of this Submission?")
+    refusal_reason = forms.ChoiceField(choices=ASSIGNMENT_REFUSAL_REASONS, required=False)
+
+
+class RefereeSelectForm(forms.Form):
+#    def __init__(self, *args, **kwargs):
+#        super(RefereeSelectForm, self).__init__(*args, **kwargs)
+#        self.fields['last_name'].widget.attrs.update({'size': 20, 'placeholder': 'Search in contributors database'})
+
+#    last_name = forms.CharField()
+
+    last_name=forms.CharField(widget=forms.TextInput(attrs={'size': 20, 'placeholder': 'search Contributors'}))
+
+
+class ConsiderRefereeInvitationForm(forms.Form):
+    accept = forms.ChoiceField(widget=forms.RadioSelect, choices=ASSIGNMENT_BOOL, label="Are you willing to referee this Submission?")
+    refusal_reason = forms.ChoiceField(choices=ASSIGNMENT_REFUSAL_REASONS, required=False)
 
 
 ############
@@ -46,7 +83,7 @@ class ReportForm(forms.ModelForm):
         model = Report
         fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes', 
                   'validity', 'significance', 'originality', 'clarity', 'formatting', 'grammar', 
-                  'recommendation']
+                  'recommendation', 'remarks_for_editors', 'anonymous']
     def __init__(self, *args, **kwargs):
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields['strengths'].widget.attrs.update({'placeholder': 'Give a point-by-point (numbered 1-, 2-, ...) list of the paper\'s strengths', 'rows': 10, 'cols': 100})

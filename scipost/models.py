@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User, Group
+from django.contrib.postgres.fields import JSONField
 
 from django_countries.fields import CountryField
 
@@ -11,6 +12,19 @@ SCIPOST_DISCIPLINES = (
     )
 disciplines_dict = dict(SCIPOST_DISCIPLINES)
 
+PHYSICS_SPECIALIZATIONS = (
+    ('A', 'Atomic, Molecular and Optical Physics'),
+    ('B', 'Biophysics'),
+    ('C', 'Condensed Matter Physics'),
+    ('F', 'Fluid Dynamics'),
+    ('G', 'Gravitation, Cosmology and Astroparticle Physics'),
+    ('H', 'High-Energy Physics'),
+    ('M', 'Mathematical Physics'),
+    ('N', 'Nuclear Physics'),
+    ('Q', 'Quantum Statistical Mechanics'),
+    ('S', 'Statistical and Soft Matter Physics'),
+    )
+physics_specializations = dict(PHYSICS_SPECIALIZATIONS)
 
 
 CONTRIBUTOR_STATUS = (
@@ -49,6 +63,7 @@ class Contributor(models.Model):
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
+    specializations = JSONField(default={})
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)
     country_of_employment = CountryField()
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')

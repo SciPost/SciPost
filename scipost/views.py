@@ -28,7 +28,7 @@ from .utils import *
 from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
-from submissions.models import Submission, Report
+from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report
 from submissions.forms import SubmissionSearchForm
 from theses.models import ThesisLink
 from theses.forms import ThesisLinkSearchForm
@@ -312,7 +312,7 @@ def personal_page(request):
         # if an editor, count the number of actions required:
         nr_reg_to_vet = 0
         nr_reg_awaiting_validation = 0
-        nr_submissions_to_process = 0
+        nr_submissions_to_assign = 0
         if is_SP_Admin(request.user):
             now = timezone.now()
             intwodays = now + timezone.timedelta(days=2)
@@ -320,7 +320,12 @@ def personal_page(request):
             nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, status=0).count()
             nr_reg_awaiting_validation = Contributor.objects.filter(
                 user__is_active=False, key_expires__gte=now, key_expires__lte=intwodays, status=0).count()
-            nr_submissions_to_process = Submission.objects.filter(vetted=False).count()
+            nr_submissions_to_assign = Submission.objects.filter(assigned=False).count()
+        nr_assignments_to_consider = 0
+        active_assignments = None
+        if is_MEC(request.user):
+            nr_assignments_to_consider = EditorialAssignment.objects.filter(to=contributor, accepted=None).count()
+            active_assignments = EditorialAssignment.objects.filter(to=contributor, accepted=True, completed=False)
         nr_commentary_page_requests_to_vet = 0
         nr_comments_to_vet = 0
         nr_reports_to_vet = 0
@@ -332,6 +337,8 @@ def personal_page(request):
             nr_reports_to_vet = Report.objects.filter(status=0).count()
             nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
             nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
+        nr_ref_inv_to_consider = RefereeInvitation.objects.filter(referee=contributor, accepted=None).count()
+        pending_ref_tasks = RefereeInvitation.objects.filter(referee=contributor, accepted=True, fulfilled=False)
         # Verify if there exist objects authored by this contributor, whose authorship hasn't been claimed yet
         own_submissions = Submission.objects.filter(authors__in=[contributor])
         own_commentaries = Commentary.objects.filter(authors__in=[contributor])
@@ -345,13 +352,17 @@ def personal_page(request):
                    'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 
                    'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 
                    'nr_comments_to_vet': nr_comments_to_vet, 
-                   'nr_reports_to_vet': nr_reports_to_vet, 
-                   'nr_submissions_to_process': nr_submissions_to_process, 
                    'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet, 
                    'nr_authorship_claims_to_vet': nr_authorship_claims_to_vet,
+                   'nr_reports_to_vet': nr_reports_to_vet, 
+                   'nr_submissions_to_assign': nr_submissions_to_assign, 
+                   'nr_assignments_to_consider': nr_assignments_to_consider,
+                   'active_assignments': active_assignments,
                    'nr_submission_authorships_to_claim': nr_submission_authorships_to_claim,
                    'nr_commentary_authorships_to_claim': nr_commentary_authorships_to_claim,
                    'nr_thesis_authorships_to_claim': nr_thesis_authorships_to_claim,
+                   'nr_ref_inv_to_consider': nr_ref_inv_to_consider,
+                   'pending_ref_tasks': pending_ref_tasks,
                    'own_submissions': own_submissions, 
                    'own_commentaries': own_commentaries,
                    'own_thesislinks': own_thesislinks,

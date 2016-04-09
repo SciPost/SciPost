@@ -91,9 +91,13 @@
   <div class="col-4">
     <h3>Registration actions</h3>
     <ul>
+      {% if perms.scipost.can_vet_registration_requests %}
       <li><a href="{% url 'scipost:vet_registration_requests' %}">Vet Registration requests</a> ({{ nr_reg_to_vet }})</li>
-       <li>Awaiting validation ({{ nr_reg_awaiting_validation }}) (no action necessary)</li>
-     <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
+      <li>Awaiting validation ({{ nr_reg_awaiting_validation }}) (no action necessary)</li>
+      {% endif %}
+      {% if perms.scipost.can_manage_registration_invitations %}
+      <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
+      {% endif %}
     </ul>
   </div>
   {% endif %}
@@ -101,25 +105,66 @@
   <div class="col-4">
     <h3>Vetting actions</h3>
     <ul>
+      {% if perms.scipost.can_vet_commentary_requests %}
       <li><a href="{% url 'commentaries:vet_commentary_requests' %}">Vet Commentary Page requests</a> ({{ nr_commentary_page_requests_to_vet }})</li>
+      {% endif %}
+      {% if perms.scipost.can_vet_comments %}
       <li><a href="{% url 'comments:vet_submitted_comments' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
-      <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+      {% endif %}
+      {% if perms.scipost.can_vet_thesislink_requests %}
       <li><a href="{% url 'theses:vet_thesislink_requests' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
+      {% endif %}
+      {% if perms.scipost.can_vet_authorship_claims %}
       <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
+      {% endif %}
+      {% if perms.scipost.can_vet_submitted_reports %}
+      <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+      {% endif %}
     </ul>
   </div>
 
   {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial College' %}
   <div class="col-4">
-    <h3>Submissions processing</h3>
+    <h3>Submissions assignments</h3>
     <ul>
-      <li><a href="{% url 'submissions:process_new_submissions' %}">Process new SciPost Submissions</a> ({{ nr_submissions_to_process }})</li>
+      {% if perms.scipost.can_process_incoming_submissions %}
+      <li><a href="{% url 'submissions:assign_submissions' %}">Assign SciPost Submissions</a> ({{ nr_submissions_to_assign }})</li>
+      {% endif %}
+      {% if perms.scipost.can_take_charge_of_submissions %}
+      <li><a href="{% url 'submissions:accept_or_decline_assignments' %}">Accept or decline assignments</a> ({{ nr_assignments_to_consider }})</li>
+      {% endif %}
     </ul>
   </div>
   {% endif %}
+  </div>
 
+  <div class="flex-whitebox">
+    <h3>Submissions for which you are Editor-in-charge</h3>
+    <ul>
+      {% for assignment in active_assignments %}
+      {{ assignment.header_as_li }}
+      {% endfor %}
+    </ul>
+  </div>
 </section>
 {% endif %}
+
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Refereeing Tasks</h1>
+    <li><a href="{% url 'submissions:accept_or_decline_ref_invitations' %}">Accept/decline refereeing invitations</a> ({{ nr_ref_inv_to_consider }})</li>
+  </div>
+  {% if pending_ref_tasks %}
+  <h3>Refereeing tasks to fulfill: please provide a Report on the following Submissions
+  <ul>
+    {% for task in pending_ref_tasks %}
+    {{ task.submission.header_as_li|safe }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+  
+</section>
 
 <section>
   <hr class="hr12">

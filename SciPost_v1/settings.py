@@ -39,6 +39,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = host_settings["SESSION_COOKIE_SECURE"]
 CSRF_COOKIE_SECURE = host_settings["CSRF_COOKIE_SECURE"]
 
+LOGIN_URL = '/login/'
+
 # Session expire at browser close                                                                  
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 

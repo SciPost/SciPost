@@ -1,0 +1,57 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: select referee for submission{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% load scipost_extras %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<!-- Temporary strip -->
+{% if user.is_authenticated %}
+
+<section>
+  <div class="flex-greybox">
+    <h1>Referee Selection Page for Submission</h1>
+  </div>
+
+  <hr class="hr12">
+  <div class="row">
+    <div class="col-4">
+      <h2>Submission:</h2>
+    </div>
+  </div>
+  {{ submission.header_as_table|safe }}
+  <h3>Abstract:</h3>
+  <p>{{ submission.abstract }}</p>
+
+</section>
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>Select an additional Referee</h1>
+  </div>
+  <form action="{% url 'submissions:select_referee' submission_id=submission.id %}" method="post">
+    {% csrf_token %}
+    {{ ref_search_form }}
+    <input type="submit" value="Find referee">
+  </form>
+  {% if contributors_found %}
+  <h3>Identified as contributor:</h3>
+  {% for contributor in contributors_found %}
+  <p>{{ contributor.user.first_name }} {{contributor.user.last_name }} 
+    <a href="{% url 'submissions:send_refereeing_invitation' submission_id=submission.id contributor_id=contributor.id %}">Send refereeing invitation</a></p>
+  {% endfor %}
+  {% elif ref_search_form.has_changed %}
+  <p>No Contributor with this last name could be identified.</p>
+  {% endif %}
+</section>
+
+
+{% endif %} <!-- Temporary strip -->
+
+{% endblock bodysup %}

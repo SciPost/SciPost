@@ -1,0 +1,17 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: accept or decline refereeing invitation (ack){% endblock pagetitle %}
+
+{% block bodysup %}
+
+<section>
+  {% if invitation.accepted == True %}
+  <h1>Thank you for agree to referee this Submission.</h1>
+  <p>When you are ready, please go to the <a href="{% url 'submissions:submission' submission_id=invitation.submission.id %}">Submission's page</a> to submit your Report.</p>
+  {% else %}
+  <h1>You have declined to contribute a Report.</h1>
+  <p>Nonetheless, we thank you very much for considering this refereeing invitation.</p>
+  {% endif %}
+</section>
+
+{% endblock bodysup %}

@@ -1,7 +1,8 @@
 import datetime
 from django.utils import timezone
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
@@ -14,8 +15,6 @@ from .forms import *
 
 from comments.models import Comment
 from scipost.models import Contributor, title_dict
-#from scipost.forms import OpinionForm
-from submissions.models import Submission
 
 from comments.forms import CommentForm
 
@@ -25,6 +24,7 @@ from comments.forms import CommentForm
 # SUBMISSIONS:
 ###############
 
+#@permission_required('scipost.can_submit_manuscript', raise_exception=True)
 def submit_manuscript(request):
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
@@ -48,28 +48,6 @@ def submit_manuscript(request):
     else:
         form = SubmissionForm()
     return render(request, 'submissions/submit_manuscript.html', {'form': form})
-
-
-def process_new_submissions(request):
-    submission_to_process = Submission.objects.filter(status='unassigned').first() # only handle one at at time
-    form = ProcessSubmissionForm()
-    context = {'submission_to_process': submission_to_process, 'form': form }
-    return render(request, 'submissions/process_new_submissions.html', context)
-
-
-def process_new_submission_ack(request, submission_id):
-    if request.method == 'POST':
-        form = ProcessSubmissionForm(request.POST)
-        if form.is_valid():
-            submission = Submission.objects.get(pk=submission_id)
-            submission.vetted = True
-            submission.editor_in_charge = form.cleaned_data['editor_in_charge']
-            submission.status = 1
-            submission.latest_activity = timezone.now()
-            submission.save()
-
-    context = {}
-    return render(request, 'submissions/process_new_submission_ack.html', context)
 
 
 def submissions(request):
@@ -134,7 +112,6 @@ def submission_detail(request, submission_id):
             author = Contributor.objects.get(user=request.user)
             newcomment = Comment (
                 submission = submission,
-                in_reply_to = None,
                 author = author,
                 is_rem = form.cleaned_data['is_rem'],
                 is_que = form.cleaned_data['is_que'],
@@ -161,10 +138,130 @@ def submission_detail(request, submission_id):
         author_replies = Comment.objects.filter(submission=submission, is_author_reply=True)
     except Comment.DoesNotExist:
         author_replies = ()
-    context = {'submission': submission, 'comments': comments.filter(status__gte=1).order_by('-date_submitted'), 
-               'reports': reports.filter(status__gte=1), 'author_replies': author_replies, 
+    context = {'submission': submission, 'comments': comments.filter(status__gte=1, is_author_reply=False).order_by('-date_submitted'), 
+               'invited_reports': reports.filter(status__gte=1, invited=True), 
+               'contributed_reports': reports.filter(status__gte=1, invited=False), 
+               'author_replies': author_replies, 
                'form': form, }
     return render(request, 'submissions/submission_detail.html', context)
+
+
+######################
+# Editorial workflow #
+######################
+
+
+def assign_submissions(request):
+    submission_to_assign = Submission.objects.filter(status='unassigned').first() # only handle one at at time
+#    form = AssignSubmissionForm(discipline=submission_to_assign.discipline, specialization=submission_to_assign.specialization)
+    form = AssignSubmissionForm(discipline=submission_to_assign.discipline)
+    context = {'submission_to_assign': submission_to_assign, 'form': form }
+    return render(request, 'submissions/assign_submissions.html', context)
+
+
+def assign_submission_ack(request, submission_id):
+    submission = Submission.objects.get(pk=submission_id)
+    if request.method == 'POST':
+        form = AssignSubmissionForm(request.POST, discipline=submission.discipline)
+        if form.is_valid():
+            editor_in_charge = form.cleaned_data['editor_in_charge']
+            ed_assignment = EditorialAssignment(submission=submission,
+                                                to=editor_in_charge,
+                                                date_created=timezone.now())
+            ed_assignment.save()
+            submission.assigned = True
+            submission.assignment = ed_assignment
+            submission.status = 'assigned'
+            submission.latest_activity = timezone.now()
+            submission.save()
+    context = {}
+    return render(request, 'submissions/assign_submission_ack.html', context)
+
+
+def accept_or_decline_assignments(request):
+    contributor = Contributor.objects.get(user=request.user)
+    assignment = EditorialAssignment.objects.filter(to=contributor, accepted=None).first()
+    form = ConsiderAssignmentForm()
+    context = {'assignment_to_consider': assignment, 'form': form}
+    return render(request, 'submissions/accept_or_decline_assignments.html', context)
+
+
+def accept_or_decline_assignment_ack(request, assignment_id):
+    contributor = Contributor.objects.get(user=request.user)
+    assignment = get_object_or_404 (EditorialAssignment, pk=assignment_id)
+    if request.method == 'POST':
+        form = ConsiderAssignmentForm(request.POST)
+        if form.is_valid():
+            assignment.date_answered = timezone.now()
+            if form.cleaned_data['accept'] == 'True':
+                assignment.accepted = True
+                assignment.to = contributor
+            else:
+                assignment.accepted = False
+                assignment.refusal_reason = form.cleaned_data['refusal_reason']
+            assignment.save()
+
+    context = {'assignment': assignment}
+    return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
+
+
+def editorial_page(request, submission_id):
+    submission = get_object_or_404(Submission, pk=submission_id)
+    ref_invitations = RefereeInvitation.objects.filter(submission=submission)
+    context = {'submission': submission, 'ref_invitations': ref_invitations}
+    return render(request, 'submissions/editorial_page.html', context)
+
+
+def select_referee(request, submission_id):
+    submission = get_object_or_404(Submission, pk=submission_id)
+    if request.method == 'POST':
+        ref_search_form = RefereeSelectForm(request.POST)
+        if ref_search_form.is_valid():
+            contributors_found = Contributor.objects.filter(user__last_name=ref_search_form.cleaned_data['last_name'])
+    else:
+        ref_search_form = RefereeSelectForm()
+        contributors_found = None
+    context = {'submission': submission, 'ref_search_form': ref_search_form, 'contributors_found': contributors_found}
+    return render(request, 'submissions/select_referee.html', context)
+
+
+def send_refereeing_invitation(request, submission_id, contributor_id):
+    submission = get_object_or_404(Submission, pk=submission_id)
+    contributor = get_object_or_404(Contributor, pk=contributor_id)
+    invitation = RefereeInvitation(submission=submission,
+                                   referee=contributor, title=contributor.title, 
+                                   first_name=contributor.user.first_name, last_name=contributor.user.last_name,
+                                   email_address=contributor.user.email,
+                                   date_invited=timezone.now(),
+                                   invited_by = request.user.contributor)
+    invitation.save()                                   
+    return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
+
+
+def accept_or_decline_ref_invitations(request):
+    contributor = Contributor.objects.get(user=request.user)
+    invitation = RefereeInvitation.objects.filter(referee=contributor, accepted=None).first()
+    form = ConsiderRefereeInvitationForm()
+    context = {'invitation_to_consider': invitation, 'form': form}
+    return render(request, 'submissions/accept_or_decline_ref_invitations.html', context)
+
+
+def accept_or_decline_ref_invitation_ack(request, invitation_id):
+    contributor = Contributor.objects.get(user=request.user)
+    invitation = get_object_or_404 (RefereeInvitation, pk=invitation_id)
+    if request.method == 'POST':
+        form = ConsiderRefereeInvitationForm(request.POST)
+        if form.is_valid():
+            invitation.date_responded = timezone.now()
+            if form.cleaned_data['accept'] == 'True':
+                invitation.accepted = True
+            else:
+                invitation.accepted = False
+                invitation.refusal_reason = form.cleaned_data['refusal_reason']
+            invitation.save()
+
+    context = {'invitation': invitation}
+    return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)
 
 
 
@@ -178,9 +275,11 @@ def submit_report(request, submission_id):
         form = ReportForm(request.POST)
         if form.is_valid():
             author = Contributor.objects.get(user=request.user)
+            invited = RefereeInvitation.objects.filter(submission=submission, referee=request.user.contributor).exists()
             newreport = Report (
                 submission = submission,
                 author = author,
+                invited = invited,
                 qualification = form.cleaned_data['qualification'],
                 strengths = form.cleaned_data['strengths'],
                 weaknesses = form.cleaned_data['weaknesses'],
@@ -193,6 +292,8 @@ def submit_report(request, submission_id):
                 formatting = form.cleaned_data['formatting'],
                 grammar = form.cleaned_data['grammar'],
                 recommendation = form.cleaned_data['recommendation'],
+                remarks_for_editors = form.cleaned_data['remarks_for_editors'],
+                anonymous = form.cleaned_data['anonymous'],
                 date_submitted = timezone.now(),
                 )
             newreport.save()

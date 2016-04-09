@@ -41,15 +41,3 @@ SCIPOST_JOURNALS_SPECIALIZATIONS = (
     )
 journals_spec_dict = dict(SCIPOST_JOURNALS_SPECIALIZATIONS)
 
-PHYSICS_SUBJECTS = (
-    ('A', 'Atomic, Molecular and Optical Physics'),
-    ('B', 'Biophysics'),
-    ('C', 'Condensed Matter Physics'),
-    ('F', 'Fluid Dynamics'),
-    ('G', 'Gravitation, Cosmology and Astroparticle Physics'),
-    ('H', 'High-Energy Physics'),
-    ('M', 'Mathematical Physics'),
-    ('N', 'Nuclear Physics'),
-    ('Q', 'Quantum Statistical Mechanics'),
-    ('S', 'Statistical and Soft Matter Physics'),
-    )

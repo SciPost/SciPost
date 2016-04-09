@@ -1,0 +1,46 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: editorial page for submission{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% load scipost_extras %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<!-- Temporary strip -->
+{% if user.is_authenticated %}
+
+<section>
+  <div class="flex-greybox">
+    <h1>Editorial Page for Submission</h1>
+  </div>
+
+  <hr class="hr12">
+  <div class="row">
+    <div class="col-4">
+      <h2>Submission:</h2>
+    </div>
+  </div>
+  {{ submission.header_as_table|safe }}
+  <h3>Abstract:</h3>
+  <p>{{ submission.abstract }}</p>
+
+</section>
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>Refereeing invitations</h1>
+  </div>
+  {% for invitation in ref_invitations %}
+  {{ invitation.summary_as_li }}
+  {% endfor %}
+  <h3><a href="{% url 'submissions:select_referee' submission_id=submission.id %}">Select an additional referee</a></h3>
+</section>
+
+{% endif %} <!-- Temporary strip -->
+
+{% endblock bodysup %}

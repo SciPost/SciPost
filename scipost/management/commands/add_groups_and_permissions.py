@@ -18,15 +18,17 @@ class Command(BaseCommand):
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
+
         # Registration
-        can_manage_registration_invitations, created = Permission.objects.get_or_create(
-            codename='can_manage_registration_invitations',
-            name= 'Can manage registration invitations',
-            content_type=content_type)
         can_vet_registration_requests, created = Permission.objects.get_or_create(
             codename='can_vet_registration_requests',
             name= 'Can vet registration requests',
             content_type=content_type)
+        can_manage_registration_invitations, created = Permission.objects.get_or_create(
+            codename='can_manage_registration_invitations',
+            name= 'Can manage registration invitations',
+            content_type=content_type)
+
         # Vetting of simple objects
         can_vet_commentary_requests, created = Permission.objects.get_or_create(
             codename='can_vet_commentary_requests',
@@ -44,10 +46,21 @@ class Command(BaseCommand):
             codename='can_vet_comments',
             name= 'Can vet submitted Comments',
             content_type=content_type)
+
+        # Submissions
+        can_submit_manuscript, created = Permission.objects.get_or_create(
+            codename='can_submit_manuscript',
+            name='Can submit manuscript',
+            content_type=content_type)
+
         # Submission handling
         can_process_incoming_submissions, created = Permission.objects.get_or_create(
             codename='can_process_incoming_submissions',
             name= 'Can process incoming Submissions',
+            content_type=content_type)
+        can_take_charge_of_submissions, created = Permission.objects.get_or_create(
+            codename='can_take_charge_of_submissions',
+            name= 'Can take charge of submissions',
             content_type=content_type)
         can_vet_submitted_reports, created = Permission.objects.get_or_create(
             codename='can_vet_submitted_reports', 
@@ -61,7 +74,11 @@ class Command(BaseCommand):
                                      can_vet_thesislink_requests,
                                      can_vet_authorship_claims, 
                                      can_vet_comments,
+                                     can_process_incoming_submissions,
                                      )
+        EditorialCollege.permissions.add(can_take_charge_of_submissions,
+                                         can_vet_submitted_reports,
+                                         )
         VettingEditors.permissions.add(can_vet_commentary_requests, 
                                        can_vet_thesislink_requests,
                                        can_vet_authorship_claims, 

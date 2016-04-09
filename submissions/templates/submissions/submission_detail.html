@@ -8,8 +8,11 @@
 
   <script>
     $(document).ready(function(){
-    $("#reportsbutton").click(function(){
-    $("#reportslist").toggle();
+    $("#invitedreportsbutton").click(function(){
+    $("#invitedreportslist").toggle();
+    });
+    $("#contributedreportsbutton").click(function(){
+    $("#contributedreportslist").toggle();
     });
     $("#commentsbutton").click(function(){
     $("#commentslist").toggle();
@@ -41,51 +44,25 @@
 
 </section>
 
-{% if reports %}
+{% if invited_reports %}
 <section>
   <hr class="hr12">
   <div class="flex-breybox">
-    <h2>Reports on this Submission</h2>
-    <button id="reportsbutton">Toggle reports view</button>
+    <h2>Invited Reports on this Submission</h2>
+    <button id="invitedreportsbutton">Toggle invited reports view</button>
   </div>
 
-  <div id="reportslist">
-    {% for report in reports %}
-
-    <hr class="hr6">
-    <div class="row">
-      <div class="col-3">
-	<div class="reportid">
-	  <h3>{{ report.id }}</h3>
-	  <h4>Date: {{ report.date_submitted }}</h4>
-	</div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-2">
-	<p>Strengths:</p>
-      </div>
-      <div class="col-10">
-	<p>{{ report.strengths }}</p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-2">
-	<p>Weaknesses:</p>
-      </div>
-      <div class="col-10">
-	<p>{{ report.weaknesses }}</p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-2">
-	<p>Report:</p>
-      </div>
-      <div class="col-10">
-	<p>{{ report.report }}</p>
-      </div>
-    </div>
+  <div id="invitedreportslist">
+    {% for report in invited_reports %}
+    <hr class="hr6"/>
+    {{ report.print_identifier }} 
+    {% if user|is_in_group:'Editorial College' %}
+    {{ report.print_contents_for_editors }} 
+    {% else %}
+    {{ report.print_contents }} 
+    {% endif %}
+    <br/>
+    <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
 
     {% for reply in author_replies %}
     {% if reply.in_reply_to_report %}
@@ -93,17 +70,108 @@
     <div class="row">
       <div class="col-1"></div>
       <hr style="border-style: dotted;" />
-      <div class="col-3">
-	{{ reply.print_identifier|safe }}
+
+      <div class="flex-container">
+        <div class="flex-commentbox">
+          {{ reply.print_identifier|safe }}
+          {{ reply.categories_as_ul|safe }}
+          <div class="opinionsDisplay">
+            {% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
+            {% if user.contributor != reply.author %}
+            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='A' %}" method="post">
+              {% csrf_token %}
+              <input type="submit" class="agree" value="Agree {{ reply.nr_A }} "/>
+            </form>
+            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='N' %}" method="post">
+              {% csrf_token %}
+              <input type="submit" class="notsure" value="Not sure {{ reply.nr_N }}"/>
+            </form>
+            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='D'%}" method="post">
+              {% csrf_token %}
+              <input type="submit" class="disagree" value="Disagree {{ reply.nr_D }}"/>
+            </form>
+            {% else %}
+            {{ reply.opinions_as_ul|safe }}
+            {% endif %}
+            {% endif %}
+          </div>
+        </div>
       </div>
     </div>
-
     <div class="row">
       <div class="col-1"></div>
       <div class="col-10">
-	<p>{{ reply.reply_text|linebreaks }}</p>
+        <p>{{ reply.comment_text|linebreaks }}</p>
       </div>
     </div>
+
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+
+    {% endfor %}
+  </div>
+
+</section>
+{% endif %}
+
+{% if contributed_reports %}
+<section>
+  <hr class="hr12">
+  <div class="flex-breybox">
+    <h2>Contributed Reports on this Submission</h2>
+    <button id="contributedreportsbutton">Toggle contributed reports view</button>
+  </div>
+
+  <div id="contributedreportslist">
+    {% for report in contributed_reports %}
+    <hr class="hr6"/>
+    {{ report.print_identifier }} 
+    {{ report.print_contents }} 
+
+    <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
+
+    {% for reply in author_replies %}
+    {% if reply.in_reply_to_report %}
+    {% if reply.in_reply_to_report.id = report.id %}
+    <div class="row">
+      <div class="col-1"></div>
+      <hr style="border-style: dotted;" />
+
+      <div class="flex-container">
+        <div class="flex-commentbox">
+          {{ reply.print_identifier|safe }}
+          {{ reply.categories_as_ul|safe }}
+          <div class="opinionsDisplay">
+            {% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
+            {% if user.contributor != reply.author %}
+            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='A' %}" method="post">
+              {% csrf_token %}
+              <input type="submit" class="agree" value="Agree {{ reply.nr_A }} "/>
+            </form>
+            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='N' %}" method="post">
+              {% csrf_token %}
+              <input type="submit" class="notsure" value="Not sure {{ reply.nr_N }}"/>
+            </form>
+            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='D'%}" method="post">
+              {% csrf_token %}
+              <input type="submit" class="disagree" value="Disagree {{ reply.nr_D }}"/>
+            </form>
+            {% else %}
+            {{ reply.opinions_as_ul|safe }}
+            {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-1"></div>
+      <div class="col-10">
+        <p>{{ reply.comment_text|linebreaks }}</p>
+      </div>
+    </div>
+
     {% endif %}
     {% endif %}
     {% endfor %}

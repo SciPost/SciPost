@@ -131,6 +131,43 @@ def reply_to_comment(request, comment_id):
     return render(request, 'comments/reply_to_comment.html', context)
 
 
+def reply_to_report(request, report_id):
+    report = get_object_or_404(Report, pk=report_id)
+    # Verify if this is from an author:
+    is_author = False
+    if report.submission.authors.filter(id=request.user.contributor.id).exists():
+        is_author = True
+
+    if is_author and request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            newcomment = Comment (
+                submission = report.submission,
+                is_author_reply = is_author,
+                in_reply_to_report = report,
+                author = Contributor.objects.get(user=request.user),
+                is_rem = form.cleaned_data['is_rem'],
+                is_que = form.cleaned_data['is_que'],
+                is_ans = form.cleaned_data['is_ans'],
+                is_obj = form.cleaned_data['is_obj'],
+                is_rep = form.cleaned_data['is_rep'],
+                is_cor = form.cleaned_data['is_cor'],
+                is_val = form.cleaned_data['is_val'],
+                is_lit = form.cleaned_data['is_lit'],
+                is_sug = form.cleaned_data['is_sug'],
+                comment_text = form.cleaned_data['comment_text'],
+                remarks_for_editors = form.cleaned_data['remarks_for_editors'],
+                date_submitted = timezone.now(),
+                )
+            newcomment.save()
+            return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
+    else:
+        form = CommentForm()
+
+    context = {'report': report, 'is_author': is_author, 'form': form}
+    return render(request, 'comments/reply_to_report.html', context)
+
+
 
 def express_opinion(request, comment_id, opinion):
     # A contributor has expressed an opinion on a comment

@@ -1,6 +1,6 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: reply to comment{% endblock pagetitle %}
+{% block pagetitle %}: reply to report{% endblock pagetitle %}
 
 {% block bodysup %}
 
@@ -8,44 +8,35 @@
 <section>
   <hr class="hr12">
   <h1>SciPost Reply to Report Page</h1>
+
+  {% if not is_author %}
+  <h3>(you are not identified as an author of this Submission; if you are, you can claim authorship on your Personal Page)</h3>
+  {% else %}
+
   <hr class="hr12">
   <h1>The Submission concerned:</h1>
-  {{ submission.header_as_table|safe }}
+  {{ report.submission.header_as_table|safe }}
   <h3>Abstract:</h3>
-  <p>{{ submission.abstract }}</p>
+  <p>{{ report.submission.abstract }}</p>
   <br>
   
   <hr class="hr6">
   <h2>The Report you wish to reply to:</h2>
 
-   <div class="flex-container">
-      <div class="flex-commentbox">
-	{{ comment.print_identifier|safe }}
-        <div class="opinionsDisplay">
-	  {{ comment.opinions_as_ul|safe }}
-	</div>
-      </div>
-   </div>
-   <div class="row">
-     <div class="col-1"></div>
-     <div class="col-10">
-       <p>{{ comment.comment_text|linebreaks }}</p>
-     </div>
-   </div>
+  {{ report.print_identifier }}
+  {{ report.print_contents }}
+
 
   <hr class="hr6">
-  <h1>Your Reply to this Comment:</h1>
-  {% if is_author %}
-  <h3>(you are identified as an author, your reply will appear as an author reply)</h3>
-  {% else %}
-  <h3>(you are not identified as an author of this publication; if you are, you can claim authorship on your Personal Page)</h3>
-  {% endif %}
-  <form action="{% url 'comments:reply_to_comment' comment.id %}" method="post">
+  <h1>Your Reply to this Report:</h1>
+
+  <form action="{% url 'comments:reply_to_report' report_id=report.id %}" method="post">
     {% csrf_token %}
     {% load crispy_forms_tags %}
     {% crispy form %}
   </form>
 
+  {% endif %}
 </section>
 {% endif %}
 

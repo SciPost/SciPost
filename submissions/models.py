@@ -1,11 +1,12 @@
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.db import models
 from django.contrib.auth.models import User
 
 from .models import *
 
 from scipost.models import Contributor
-from scipost.models import SCIPOST_DISCIPLINES
+from scipost.models import SCIPOST_DISCIPLINES, TITLE_CHOICES
 from journals.models import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
 from journals.models import journals_submit_dict, journals_domains_dict, journals_spec_dict
 
@@ -15,20 +16,26 @@ from journals.models import journals_submit_dict, journals_domains_dict, journal
 ###############
 
 SUBMISSION_STATUS = (
-    ('unassigned', 'unassigned'),
-    ('forwarded', 'forwarded to a specialty editor'),
-    ('SEICassigned', 'specialty editor-in-charge assigned'),
-    ('under_review', 'under review'),
-    ('review_completed', 'review period closed, editorial recommendation pending'),
-    ('SEIC_has_recommended', 'specialty editor-in-charge has provided recommendation'),
-    ('decided', 'journal editor-in-chief has fixed decision'),
+    ('unassigned', 'Unassigned'),
+    ('assigned', 'Assigned to a specialty editor (response pending)'),
+    ('SEICassigned', 'Specialty editor-in-charge assigned'),
+    ('under_review', 'Under review'),
+    ('review_completed', 'Review period closed, editorial recommendation pending'),
+    ('SEIC_has_recommended', 'Specialty editor-in-charge has provided recommendation'),
+    ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
+    ('EC_vote_completed', 'Editorial College voting rounded up'),
+    ('decided', 'Publication decision taken'),
     )
 submission_status_dict = dict(SUBMISSION_STATUS)
 
 class Submission(models.Model):
     submitted_by = models.ForeignKey(Contributor)
-    vetted = models.BooleanField(default=False)
-    editor_in_charge = models.ForeignKey(Contributor, related_name="editor_in_charge", blank=True, null=True) # assigned by Journal Editor
+#    vetted = models.BooleanField(default=False)
+    assigned = models.BooleanField(default=False)
+#    assignment = models.ForeignKey('submissions.EditorialAssignment', related_name='assignment', blank=True, null=True) # not needed, assignment has submission as ForeignKey
+#    assigned_to = models.ForeignKey(Contributor, related_name="assigned_to", blank=True, null=True)
+#    declined_assignment = models.ManyToManyField (Contributor, related_name="declined_assignment", blank=True)
+#    editor_in_charge = models.ForeignKey(Contributor, related_name="editor_in_charge", blank=True, null=True) # non-null only if assignment has been accepted
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT, verbose_name="Journal to be submitted to")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
@@ -87,11 +94,89 @@ class Submission(models.Model):
 
     def submission_info_as_table (self):
         header = '<table>'
-        header += '<tr><td>Editor in charge: </td><td>&nbsp;</td><td>' + str(self.editor_in_charge) + '</td></tr>'
-        header += '<tr><td>Vetted: </td><td>&nbsp;</td><td>' + str(self.vetted) + '</td></tr>'
+        if self.assignment is not None:
+            header += '<tr><td>Editor in charge: </td><td>&nbsp;</td><td>' + str(self.assignment.to) + '</td></tr>'
+        header += '<tr><td>Assigned: </td><td>&nbsp;</td><td>' + str(self.assigned) + '</td></tr>'
         header += '<tr><td>Status: </td><td>&nbsp;</td><td>' + submission_status_dict[self.status] + '</td></tr>'
         header += '</table>'
         return header
+
+
+######################
+# Editorial workflow #
+######################
+
+ASSIGNMENT_BOOL = ((True, 'Accept'), (False, 'Decline'))
+ASSIGNMENT_NULLBOOL = ((None, 'Response pending'), (True, 'Accept'), (False, 'Decline'))
+
+ASSIGNMENT_REFUSAL_REASONS = (
+    ('BUS', 'Too busy'),
+    ('COI', 'Conflict of interest: coauthor in last 5 years'),
+    ('CCC', 'Conflict of interest: close colleague'),
+    ('NIR', 'Cannot give an impartial assessment'),
+    ('NIE', 'Not interested enough'),
+    ('DNP', 'SciPost should not even consider this paper'),
+    )
+assignment_refusal_reasons_dict = dict(ASSIGNMENT_REFUSAL_REASONS)
+
+class EditorialAssignment(models.Model):
+    submission = models.ForeignKey(Submission)
+    to = models.ForeignKey(Contributor)
+    accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
+    completed = models.BooleanField(default=False)
+    refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, blank=True, null=True)
+    date_created = models.DateTimeField(default=timezone.now)
+    date_answered = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return (self.to.user.first_name + ' ' + self.to.user.last_name + ' to become EIC of ' + 
+                self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
+                ', assigned on ' + self.date_created.strftime('%Y-%m-%d'))
+    
+    def header_as_li(self):
+        header = '<li><div class="flex-container">'
+        header += ('<div class="flex-whitebox0"><p><a href="/submissions/editorial_page/' + str(self.submission.id) +
+                   '" class="pubtitleli">' + self.submission.title + '</a></p>')
+        header += ('<p>by ' + self.submission.author_list +
+                   '</p><p> (submitted ' + str(self.submission.submission_date) +
+                   ' to ' + journals_submit_dict[self.submission.submitted_to_journal] +
+                   ')</p></div>')
+        header += '</div></li>'
+        return mark_safe(header)
+
+
+class RefereeInvitation(models.Model):
+    submission = models.ForeignKey(Submission)
+    referee = models.ForeignKey(Contributor, related_name='referee')
+    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    first_name = models.CharField(max_length=30, default='')
+    last_name = models.CharField(max_length=30, default='')
+    email_address = models.EmailField()
+    date_invited = models.DateTimeField(default=timezone.now)
+    invited_by = models.ForeignKey(Contributor, related_name='referee_invited_by', blank=True, null=True)
+    accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
+    date_responded = models.DateTimeField(blank=True, null=True)
+    refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, blank=True, null=True)
+    fulfilled = models.BooleanField(default=False) # True if a Report has been submitted
+
+    def __str__(self):
+        return (self.referee.user.first_name + ' ' + self.referee.user.last_name + ' to referee ' + 
+                self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
+                ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))
+    
+    def summary_as_li(self):
+        output = '<li>' + self.referee.user.first_name + ' ' + self.referee.user.last_name + ', '
+        output += 'invited ' + self.date_invited.strftime('%Y-%m-%d %H:%M') + ', '
+        if self.accepted is not None:
+            if self.accepted:
+                output += 'accepted '
+            else:
+                output += 'declined ' 
+            output += self.date_responded.strftime('%Y-%m-%d %H:%M')
+        else:
+            output += 'response pending'
+        return mark_safe(output)
+    
 
 ###########
 # Reports:
@@ -115,11 +200,14 @@ QUALITY_SPEC = (
     (1, 'below threshold'),
     (0, 'mediocre'),
     )
+quality_spec_dict = dict(QUALITY_SPEC)
+
 
 RANKING_CHOICES = (
     (101, '-'), # Only values between 0 and 100 are kept, anything outside those limits is discarded.
     (100, 'top'), (80, 'high'), (60, 'good'), (40, 'ok'), (20, 'low'), (0, 'poor')
     )
+ranking_choices_dict = dict(RANKING_CHOICES)
 
 REPORT_REC = (
     (1, 'Publish as Tier I (top 10% of papers in this journal)'),
@@ -129,6 +217,7 @@ REPORT_REC = (
     (-2, 'Ask for major revision'),
     (-3, 'Reject')
     )
+report_rec_dict = dict(REPORT_REC)
 
 class Report(models.Model):    
     """ Both types of reports, invited or contributed. """
@@ -140,8 +229,9 @@ class Report(models.Model):
     # -3: rejected (not useful)
     status = models.SmallIntegerField(default=0)
     submission = models.ForeignKey(Submission)
-    date_invited = models.DateTimeField('date invited', blank=True, null=True)
-    invited_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='invited_by')
+#    date_invited = models.DateTimeField('date invited', blank=True, null=True)
+#    invited_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='invited_by')
+    invited = models.BooleanField(default=False) # filled from RefereeInvitation objects at moment of report submission
     date_submitted = models.DateTimeField('date submitted')
     author = models.ForeignKey(Contributor)
     qualification = models.PositiveSmallIntegerField(choices=REFEREE_QUALIFICATION, verbose_name="Qualification to referee this: I am ")
@@ -155,8 +245,48 @@ class Report(models.Model):
     significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
     originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
     clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
-    formatting = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, verbose_name="Quality of paper formatting")
-    grammar = models.SmallIntegerField(choices=QUALITY_SPEC, blank=True, verbose_name="Quality of English grammar")
+    formatting = models.SmallIntegerField(choices=QUALITY_SPEC, verbose_name="Quality of paper formatting")
+    grammar = models.SmallIntegerField(choices=QUALITY_SPEC, verbose_name="Quality of English grammar")
     # 
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
+    remarks_for_editors = models.TextField(default='', blank=True, verbose_name='optional remarks for the Editors only')
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
+
+
+    def print_identifier(self):
+        output = '<div class="reportid">\n'
+        output += '<h3><a id="report_id' + str(self.id) + '"></a>'
+        if self.anonymous:
+            output += 'Anonymous'
+        else:
+            output += ('<a href="/contributor/' + str(self.author.id) + '">' +
+                       self.author.user.first_name + ' ' + self.author.user.last_name + '</a>')
+        output += ' on ' + self.date_submitted.strftime("%Y-%m-%d")
+        output += '</h3></div>'
+        return mark_safe(output)
+    
+    def print_contents(self):
+        output = ('<div class="row"><div class="col-2"><p>Strengths:</p></div><div class="col-10"><p>' +
+                  self.strengths + '</p></div></div>' + 
+                  '<div class="row"><div class="col-2"><p>Weaknesses:</p></div><div class="col-10"><p>' +
+                  self.weaknesses + '</p></div></div>' +
+                  '<div class="row"><div class="col-2"><p>Report:</p></div><div class="col-10"><p>' +
+                  self.report + '</p></div></div>' +
+                  '<div class="row"><div class="col-2"><p>Requested changes:</p></div><div class="col-10"><p>' +
+                  self.requested_changes + '</p></div></div>')
+        output += '<div class="reportRatings"><ul>'
+        output += '<li>validity: ' + ranking_choices_dict[self.validity] + '</li>'
+        output += '<li>significance: ' + ranking_choices_dict[self.significance] + '</li>'
+        output += '<li>originality: ' + ranking_choices_dict[self.originality] + '</li>'
+        output += '<li>clarity: ' + ranking_choices_dict[self.clarity] + '</li>'
+        output += '<li>formatting: ' + quality_spec_dict[self.formatting] + '</li>'
+        output += '<li>grammar: ' + quality_spec_dict[self.grammar] + '</li>'
+        output += '</ul></div>'
+        return mark_safe(output)
+                  
+    def print_contents_for_editors(self):
+        output = ('<div class="row"><div class="col-2">Qualification:</p></div><div class="col-10"><p>' + 
+                  ref_qualif_dict[self.qualification] + '</p></div></div>')
+        output += self.print_contents()
+        output += '<h3>Recommendation: ' + report_rec_dict[self.recommendation] + '</h3>'
+        return mark_safe(output)

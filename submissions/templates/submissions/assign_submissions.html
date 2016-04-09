@@ -1,0 +1,37 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: assign submissions{% endblock pagetitle %}
+
+{% block bodysup %}
+
+<section>
+  {% if not submission_to_assign %}
+  <h1>There are no Submissions for you to assign.</h1>
+
+  {% else %}
+
+  <h1>SciPost Submission to Assign</h1>
+
+  <br>
+  <hr>
+  {{ submission_to_assign.header_as_table|safe }}
+  <br />
+  <h4>Abstract:</h4>
+  <p>{{ submission_to_assign.abstract }}</p>
+  <br/>
+  <hr/>
+  {{ submission_to_assign.submission_info_as_table|safe }}
+
+  <br/>
+  <hr>
+  <h1>Required actions:</h1>
+  <form action="{% url 'submissions:assign_submission_ack' submission_id=submission_to_assign.id %}" method="post">
+    {% csrf_token %}
+    {{ form.as_ul }}
+    <input type="submit" value="Submit" />
+  </form>
+
+  {% endif %}
+</section>
+
+{% endblock bodysup %}

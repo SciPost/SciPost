@@ -9,6 +9,18 @@ class SubmissionAdmin(admin.ModelAdmin):
 admin.site.register(Submission, SubmissionAdmin)
 
 
+class EditorialAssignmentAdmin(admin.ModelAdmin):
+    search_fields = ['submission', 'to']
+
+admin.site.register(EditorialAssignment, EditorialAssignmentAdmin)
+
+
+class RefereeInvitationAdmin(admin.ModelAdmin):
+    search_fields = ['submission']
+
+admin.site.register(RefereeInvitation, RefereeInvitationAdmin)
+
+
 class ReportAdmin(admin.ModelAdmin):
     search_fields = ['author__user__username']
 
