@@ -25,3 +25,9 @@ class ReportAdmin(admin.ModelAdmin):
     search_fields = ['author__user__username']
 
 admin.site.register(Report, ReportAdmin)
+
+
+class EditorialCommunicationAdmin(admin.ModelAdmin):
+    search_fields = ['submission', 'referee', 'text']
+
+admin.site.register(EditorialCommunication, EditorialCommunicationAdmin)

@@ -43,8 +43,10 @@
   <h3>Actions:</h3>
   <ul>
     <li><a href="{% url 'submissions:select_referee' submission_id=submission.id %}">Select an additional referee</a></li>
-    <li>Extend the reporting deadline
-      (currently {{ submission.reporting_deadline }})
+    <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline }}) by 
+      <a href="{% url 'submissions:extend_refereeing_deadline' submission_id=submission.id days=2 %}">2 days</a>,
+      <a href="{% url 'submissions:extend_refereeing_deadline' submission_id=submission.id days=7 %}">1 week</a> or
+      <a href="{% url 'submissions:extend_refereeing_deadline' submission_id=submission.id days=14 %}">2 weeks</a>
       {% if submission.reporting_deadline_has_passed %}
       <b style="color: red">THE REPORTING DEADLINE HAS PASSED</b>
       {% endif %}
@@ -52,7 +54,18 @@
     {% if not submission.reporting_deadline_has_passed %}
     <li><a href="{% url 'submissions:close_refereeing_round' submission_id=submission.id %}">Close the refereeing round</a></li>
     {% endif %}
-    <li>Request author response to Reports and Comments</li>
+    <li><a href="{% url 'submissions:communication' submission_id=submission.id type='EtoA' %}">Communicate with the submitting Author</a></li>
+    <li>Communicate with a Referee:
+    <ul>
+      {% for invitation in ref_invitations %}
+      {% if invitation.referee %}
+      <li><a href="{% url 'submissions:communication' submission_id=submission.id type='EtoR' referee_id=invitation.referee.id %}">
+	  {{ invitation.first_name }} {{ invitation.last_name }}</a></li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+    </li>
+    <li><a href="{% url 'submissions:communication' submission_id=submission.id type='EtoS' %}">Communicate with SciPost Editorial Administration</a></li>
     <li>Formulate an Editorial Recommendation and send it to Editorial College for ratification</li>
     <li>Inform authors of Editorial Decisions</li>
   </ul>

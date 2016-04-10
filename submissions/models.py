@@ -63,7 +63,7 @@ class Submission(models.Model):
     latest_activity = models.DateTimeField(default=timezone.now)
 
     def __str__ (self):
-        return self.title
+        return self.title[:30]
 
     @property
     def reporting_deadline_has_passed(self):
@@ -185,17 +185,16 @@ class RefereeInvitation(models.Model):
         output += 'invited ' + self.date_invited.strftime('%Y-%m-%d %H:%M') + ', '
         if self.accepted is not None:
             if self.accepted:
-                output += 'accepted '
+                output += 'task accepted '
             else:
-                output += 'declined ' 
+                output += 'task declined ' 
             output += self.date_responded.strftime('%Y-%m-%d %H:%M')
         else:
             output += 'response pending'
-        output += '; task fulfilled: '
         if self.fulfilled:
-            output += 'True'
+            output += '; Report has been delivered'
         else:
-            output += 'False'
+            output += '; (no Report yet)'
         return mark_safe(output)
     
 
@@ -319,3 +318,32 @@ class Report(models.Model):
         output += self.print_contents()
         output += '<h3>Recommendation: ' + report_rec_dict[self.recommendation] + '</h3>'
         return mark_safe(output)
+
+
+###########################
+# EditorialCorrespondence #
+###########################
+
+ED_CORR_CHOICES = (
+    ('EtoA', 'Editor-in-charge to Author'),
+    ('AtoE', 'Author to Editor-in-charge'),
+    ('EtoR', 'Editor-in-charge to Referee'),
+    ('RtoE', 'Referee to Editor-in-Charge'),
+    ('EtoS', 'Editor-in-charge to SciPost Editorial Administration'),
+    ('StoE', 'SciPost Editorial Administration to Editor-in-charge'),
+    )
+ed_corr_choices_dict = dict(ED_CORR_CHOICES)
+
+class EditorialCommunication(models.Model):
+    """ 
+    Each individual communication between Editor-in-charge 
+    to and from Referees and Authors becomes an instance of this class.
+    """
+    submission = models.ForeignKey(Submission)
+    referee = models.ForeignKey(Contributor, related_name='referee_in_correspondence', blank=True, null=True)
+    type = models.CharField(max_length=4, choices=ED_CORR_CHOICES)
+    timestamp = models.DateTimeField(default=timezone.now)
+    text = models.TextField()
+
+    def __str__ (self):
+        return self.type + ' for submission ' + self.submission.title[:30] + ' by ' + self.submission.author_list[:30]

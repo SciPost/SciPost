@@ -1,0 +1,42 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: communication{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% load scipost_extras %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<!-- Temporary strip -->
+{% if user.is_authenticated %}
+
+<section>
+  <div class="flex-greybox">
+    <h1>Send a Communication</h1>
+  </div>
+  {% if type == 'EtoA' %}
+  <p>to the submitting Author of Submission</p>
+  {% elif type == 'AtoE' or type == 'RtoE' or type == 'StoE' %}
+  <p>to the Editor-in-charge of Submission</p>
+  {% elif type == 'EtoR' %}
+  <p>to Referee of Submission</p>
+  {% elif type == 'EtoS' %}
+  <p>to SciPost Editorial Administrators</p>
+  {% endif %}
+  <ul>{{ submission.header_as_li|safe }}</ul>
+
+  <br/>
+  <form action="{% url 'submissions:communication' submission_id=submission.id type=type %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Send communication"/>
+  </form>
+
+</section>
+
+{% endif %} <!-- Temporary strip -->
+
+{% endblock bodysup %}

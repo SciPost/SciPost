@@ -118,3 +118,14 @@ class VetReportForm(forms.Form):
         super(VetReportForm, self).__init__(*args, **kwargs)
         self.fields['email_response_field'].widget.attrs.update({'placeholder': 'Optional: give a textual justification (will be emailed to the Report\'s author)', 'rows': 3})
 
+
+###################
+# Communications #
+###################
+
+class EditorialCommunicationForm(forms.Form):
+    text = forms.CharField(widget=forms.Textarea(), label='')
+
+    def __init__(self, *args, **kwargs):
+        super(EditorialCommunicationForm, self).__init__(*args, **kwargs)
+        self.fields['text'].widget.attrs.update({'rows': 5, 'cols': 50, 'placeholder': 'Write your message in this box.'})

@@ -332,6 +332,14 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
 
 
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+def extend_refereeing_deadline(request, submission_id, days):
+    submission = get_object_or_404 (Submission, pk=submission_id)
+    submission.reporting_deadline += datetime.timedelta(days=int(days))
+    submission.save()
+    return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
+    
+
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def close_refereeing_round(request, submission_id):
     submission = get_object_or_404 (Submission, pk=submission_id)
     submission.open_for_reporting = False
@@ -341,6 +349,26 @@ def close_refereeing_round(request, submission_id):
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
 
 
+def communication(request, submission_id, type, referee_id=None):
+    submission = get_object_or_404 (Submission, pk=submission_id)
+    if request.method == 'POST':
+        form = EditorialCommunicationForm(request.POST)
+        if form.is_valid():
+            communication = EditorialCommunication(submission=submission,
+                                                   type=type,
+                                                   timestamp=timezone.now(),
+                                                   text=form.cleaned_data['text'])
+            communication.save()
+            if type == 'EtoA' or type == 'EtoR' or type == 'EtoS':
+                return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
+            elif type == 'AtoE' or type == 'RtoE' or type == 'StoE':
+                return redirect(request, reverse('scipost:personal_page'))
+    else:
+        form = EditorialCommunicationForm()
+    context = {'submission': submission, 'type': type, 'form': form}
+    return render(request, 'submissions/communication.html', context)
+
+        
 ###########
 # Reports
 ###########
