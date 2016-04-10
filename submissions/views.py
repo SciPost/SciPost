@@ -224,7 +224,7 @@ def select_referee(request, submission_id):
     if request.method == 'POST':
         ref_search_form = RefereeSelectForm(request.POST)
         if ref_search_form.is_valid():
-            contributors_found = Contributor.objects.filter(user__last_name=ref_search_form.cleaned_data['last_name'])
+            contributors_found = Contributor.objects.filter(user__last_name__icontains=ref_search_form.cleaned_data['last_name'])
     else:
         ref_search_form = RefereeSelectForm()
         contributors_found = None
@@ -246,6 +246,7 @@ def recruit_referee(request, submission_id):
     if request.method == 'POST':
         ref_recruit_form = RefereeRecruitmentForm(request.POST)
         if ref_recruit_form.is_valid():
+            # TODO check if email already taken
             ref_invitation = RefereeInvitation(submission=submission, 
                                                title=ref_recruit_form.cleaned_data['title'],
                                                first_name=ref_recruit_form.cleaned_data['first_name'],
@@ -337,6 +338,10 @@ def submit_report(request, submission_id):
         if form.is_valid():
             author = Contributor.objects.get(user=request.user)
             invited = RefereeInvitation.objects.filter(submission=submission, referee=request.user.contributor).exists()
+            if invited:
+                invitation = RefereeInvitation.objects.get(submission=submission, referee=request.user.contributor)
+                invitation.fulfilled = True
+                invitation.save()
             newreport = Report (
                 submission = submission,
                 author = author,

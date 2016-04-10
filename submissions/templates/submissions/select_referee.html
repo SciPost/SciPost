@@ -43,16 +43,20 @@
 
   {% if contributors_found %}
   <h3>Identified as contributor:</h3>
-  {% for contributor in contributors_found %}
-  <p>{{ contributor.user.first_name }} {{ contributor.user.last_name }} 
-    <a href="{% url 'submissions:send_refereeing_invitation' submission_id=submission.id contributor_id=contributor.id %}">Send refereeing invitation</a></p>
-  {% endfor %}
+  <table>
+    {% for contributor in contributors_found %}
+    <tr><td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td><td>&nbsp;</td>
+      <td><a href="{% url 'submissions:send_refereeing_invitation' submission_id=submission.id contributor_id=contributor.id %}">Send refereeing invitation</a></td></tr>
+    {% endfor %}
+  </table>
   {% elif ref_search_form.has_changed %}
   <p>No Contributor with this last name could be identified.</p>
+  <br/>
   <p>You can send a registration and refereeing invitation by filling this form:</p>
   <form action="{% url 'submissions:recruit_referee' submission_id=submission.id %}" method="post">
     {% csrf_token %}
-    {{ ref_recruit_form }}
+    {% load crispy_forms_tags %}
+    {% crispy ref_recruit_form %}
     <input type="submit" value="Send invitation">
   </form>
   {% endif %}

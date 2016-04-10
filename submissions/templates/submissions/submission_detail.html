@@ -72,10 +72,10 @@
   <div id="invitedreportslist">
     {% for report in invited_reports %}
     <hr class="hr6"/>
-    {{ report.print_identifier }} 
     {% if user|is_in_group:'Editorial College' %}
     {{ report.print_contents_for_editors }} 
     {% else %}
+    {{ report.print_identifier }} 
     {{ report.print_contents }} 
     {% endif %}
 
@@ -144,8 +144,12 @@
   <div id="contributedreportslist">
     {% for report in contributed_reports %}
     <hr class="hr6"/>
-    {{ report.print_identifier }} 
-    {{ report.print_contents }} 
+    {% if user|is_in_group:'Editorial College' %}
+    {{ report.print_contents_for_editors }}
+    {% else %}
+    {{ report.print_identifier }}
+    {{ report.print_contents }}
+    {% endif %}
 
     <hr style="border-style: dotted;" />
     <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>

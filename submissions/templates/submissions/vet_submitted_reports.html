@@ -2,6 +2,26 @@
 
 {% block pagetitle %}: vet reports{% endblock pagetitle %}
 
+{% block headsup %}
+
+<script>
+$(document).ready(function(){
+
+  $('#refusal').hide();
+
+  $('#id_action_option').on('change', function() {
+      if ($('#id_action_option_1').is(':checked')) {
+          $('#refusal').show();
+      }
+      else {
+          $('#refusal').hide();
+      }
+    });
+  });
+</script>
+
+{% endblock headsup %}
+
 {% block bodysup %}
 
 <section>
@@ -25,27 +45,26 @@
   <h4>Abstract:</h4>
   <p>{{ report_to_vet.submission.abstract }}</p>
   <hr style="border-style: dotted;" />
-  <h3>Report to vet:</h3>
-  <div class="row">
-    <div class="col-8">
-      <p>{{ report_to_vet.date_submitted }}</p>
-      <h4>Strengths:</h4>
-      <p>{{ report_to_vet.strengths }}</p>
-      <h4>Weaknesses:</h4>
-      <p>{{ report_to_vet.weaknesses }}</p>
-      <h4>Report:</h4>
-      <p>{{ report_to_vet.report }}</p>
-      <h4>Recommendation:</h4>
-      <p>{{ report_to_vet.recommendation }}</p>
-    </div>
-    <div class="col-4">
-      <form action="{% url 'submissions:vet_submitted_report_ack' report_id=report_to_vet.id %}" method="post">
-        {% csrf_token %}
-        {{ form.as_ul }}
-        <input type="submit" value="Submit" />
-      </form>
-    </div>
+  <div class="flex-greybox">
+    <h3>Report to vet:</h3>
   </div>
+  {{ report_to_vet.print_contents_for_editors }}
+
+  <hr class="hr6"/>
+  <div class="flex-greaybox">
+    <h2>Please vet this Report:</h2>
+  </div>
+  <form action="{% url 'submissions:vet_submitted_report_ack' report_id=report_to_vet.id %}" method="post">
+    {% csrf_token %}
+    {{ form.action_option }}
+    <div id="refusal">
+      <ul>
+	<li>Refusal reason: {{ form.refusal_reason }}</li>
+	<li>{{ form.email_response_field }}</li>
+      </ul>
+    </div>
+    <input type="submit" value="Submit" />
+  </form>
 
   {% endif %}
 </section>

@@ -299,7 +299,15 @@ class Report(models.Model):
         return mark_safe(output)
                   
     def print_contents_for_editors(self):
-        output = ('<div class="row"><div class="col-2">Qualification:</p></div><div class="col-10"><p>' + 
+        output = '<div class="reportid">\n'
+        output += '<h3><a id="report_id' + str(self.id) + '"></a>'
+        if self.anonymous:
+            output += '(chose public anonymity) '
+        output += ('<a href="/contributor/' + str(self.author.id) + '">' +
+                   self.author.user.first_name + ' ' + self.author.user.last_name + '</a>')
+        output += ' on ' + self.date_submitted.strftime("%Y-%m-%d")
+        output += '</h3></div>'
+        output += ('<div class="row"><div class="col-2">Qualification:</p></div><div class="col-10"><p>' + 
                   ref_qualif_dict[self.qualification] + '</p></div></div>')
         output += self.print_contents()
         output += '<h3>Recommendation: ' + report_rec_dict[self.recommendation] + '</h3>'

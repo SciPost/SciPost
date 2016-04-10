@@ -3,6 +3,9 @@ from django.contrib.auth.models import User, Group
 
 from .models import *
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
+
 
 class SubmissionForm(forms.ModelForm):
     class Meta:
@@ -52,8 +55,6 @@ class RefereeSelectForm(forms.Form):
 
     last_name = forms.CharField()
 
-#    last_name=forms.CharField(widget=forms.TextInput(attrs={'size': 20, 'placeholder': 'search Contributors'}))
-
 
 class RefereeRecruitmentForm(forms.ModelForm):
     class Meta:
@@ -64,6 +65,11 @@ class RefereeRecruitmentForm(forms.ModelForm):
         super(RefereeRecruitmentForm, self).__init__(*args, **kwargs)
         self.fields['first_name'].widget.attrs.update({'size': 20})
         self.fields['last_name'].widget.attrs.update({'size': 20})
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(Field('title'), Field('first_name'), Field('last_name'), Field('email_address'), 
+                css_class="flex-whitebox320")
+            )
 
 
 class ConsiderRefereeInvitationForm(forms.Form):
@@ -78,7 +84,7 @@ class ConsiderRefereeInvitationForm(forms.Form):
 REPORT_ACTION_CHOICES = (
 #    (0, 'modify'), 
     (1, 'accept'), 
-    (2, 'refuse (give reason below)'),
+    (2, 'refuse'),
     )
 
 REPORT_REFUSAL_CHOICES = (
@@ -105,7 +111,10 @@ class ReportForm(forms.ModelForm):
 
 class VetReportForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect, choices=REPORT_ACTION_CHOICES, required=True, label='Action')
-    refusal_reason = forms.ChoiceField(choices=REPORT_REFUSAL_CHOICES)
+    refusal_reason = forms.ChoiceField(choices=REPORT_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(), label='Justification (optional)', required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(VetReportForm, self).__init__(*args, **kwargs)
+        self.fields['email_response_field'].widget.attrs.update({'placeholder': 'Optional: give a textual justification (will be emailed to the Report\'s author)', 'rows': 3})
 
