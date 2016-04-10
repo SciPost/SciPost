@@ -200,7 +200,7 @@ def request_new_activation_link(request, oldkey):
     return render (request, 'scipost/request_new_activation_link_ack.html')
 
 
-@permission_required('scipost.can_vet_registration_requests')
+@permission_required('scipost.can_vet_registration_requests', raise_exception=True)
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     contributors_to_vet = Contributor.objects.filter(user__is_active=True, status=0).order_by('key_expires')
@@ -209,7 +209,7 @@ def vet_registration_requests(request):
     context = {'contributors_to_vet': contributors_to_vet, 'form': form }
     return render(request, 'scipost/vet_registration_requests.html', context)
 
-@permission_required('scipost.can_vet_registration_requests')
+@permission_required('scipost.can_vet_registration_requests', raise_exception=True)
 def vet_registration_request_ack(request, contributor_id):
     # process the form
     if request.method == 'POST':

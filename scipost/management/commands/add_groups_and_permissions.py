@@ -29,6 +29,20 @@ class Command(BaseCommand):
             name= 'Can manage registration invitations',
             content_type=content_type)
 
+        # Contributions (not related to submissions)
+        can_submit_comments, created = Permission.objects.get_or_create(
+            codename='can_submit_comments',
+            name= 'Can submit Comments',
+            content_type=content_type)
+        can_request_commentary_pages, created = Permission.objects.get_or_create(
+            codename='can_request_commentary_pages',
+            name= 'Can request opening of Commentara Pages',
+            content_type=content_type)
+        can_request_thesislinks, created = Permission.objects.get_or_create(
+            codename='can_request_thesislinks',
+            name= 'Can request Thesis Links',
+            content_type=content_type)
+
         # Vetting of simple objects
         can_vet_commentary_requests, created = Permission.objects.get_or_create(
             codename='can_vet_commentary_requests',
@@ -54,17 +68,23 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Submission handling
-        can_process_incoming_submissions, created = Permission.objects.get_or_create(
-            codename='can_process_incoming_submissions',
-            name= 'Can process incoming Submissions',
+        can_assign_submissions, created = Permission.objects.get_or_create(
+            codename='can_assign_submissions',
+            name= 'Can assign incoming Submissions to potential Editor-in-charge',
             content_type=content_type)
         can_take_charge_of_submissions, created = Permission.objects.get_or_create(
             codename='can_take_charge_of_submissions',
-            name= 'Can take charge of submissions',
+            name= 'Can take charge (become Editor-in-charge) of submissions',
             content_type=content_type)
         can_vet_submitted_reports, created = Permission.objects.get_or_create(
             codename='can_vet_submitted_reports', 
             name='Can vet submitted Reports', 
+            content_type=content_type)
+
+        # Refereeing
+        can_referee, created = Permission.objects.get_or_create(
+            codename='can_referee',
+            name= 'Can act as a referee and submit reports on Submissions',
             content_type=content_type)
 
         # Assign permissions to groups
@@ -74,7 +94,7 @@ class Command(BaseCommand):
                                      can_vet_thesislink_requests,
                                      can_vet_authorship_claims, 
                                      can_vet_comments,
-                                     can_process_incoming_submissions,
+                                     can_assign_submissions,
                                      )
         EditorialCollege.permissions.add(can_take_charge_of_submissions,
                                          can_vet_submitted_reports,

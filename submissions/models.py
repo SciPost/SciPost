@@ -42,6 +42,7 @@ SUBMISSION_ACTION_REQUIRED = (
 class Submission(models.Model):
     submitted_by = models.ForeignKey(Contributor)
     assigned = models.BooleanField(default=False)
+    editor_in_charge = models.ForeignKey(Contributor, related_name='EIC', blank=True, null=True)
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT, verbose_name="Journal to be submitted to")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
@@ -63,6 +64,12 @@ class Submission(models.Model):
 
     def __str__ (self):
         return self.title
+
+    @property
+    def reporting_deadline_has_passed(self):
+        if timezone.now() > self.reporting_deadline:
+            return True
+        return False
 
     def header_as_table (self):
         # for Submission page

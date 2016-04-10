@@ -127,7 +127,7 @@
   <div class="col-4">
     <h3>Submissions assignments</h3>
     <ul>
-      {% if perms.scipost.can_process_incoming_submissions %}
+      {% if perms.scipost.can_assign_submissions %}
       <li><a href="{% url 'submissions:assign_submissions' %}">Assign SciPost Submissions</a> ({{ nr_submissions_to_assign }})</li>
       {% endif %}
       {% if perms.scipost.can_take_charge_of_submissions %}
@@ -148,6 +148,7 @@
 </section>
 {% endif %}
 
+{% if perms.scipost.can_referee %}
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
@@ -164,8 +165,8 @@
     {% endfor %}
   </ul>
   {% endif %}
-  
 </section>
+{% endif %}
 
 <section>
   <hr class="hr12">
