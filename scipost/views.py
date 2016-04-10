@@ -97,7 +97,7 @@ def register(request):
             if Utils.email_already_taken():
                 return render(request, 'scipost/register.html', 
                               {'form': form, 'errormessage': 'This email address is already in use'})
-            Utils.create_and_save_contributor()
+            Utils.create_and_save_contributor('')
             Utils.send_registration_email()
             return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
     else:
@@ -124,13 +124,13 @@ def invitation(request, key):
             if Utils.email_already_taken():
                 return render(request, 'scipost/register.html',
                               {'form': form, 'invited': True, 'key': key, 'errormessage': 'This email address is already in use'})
-            Utils.create_and_save_contributor()
+            Utils.create_and_save_contributor(key)
             Utils.send_registration_email()
             return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
         else:
             errormessage = 'form is invalidly filled'
             return render(request, 'scipost/register.html',
-                          {'form': form, 'invited': True, 'key': key, 'errormessage': 'This email address is already in use'})
+                          {'form': form, 'invited': True, 'key': key, 'errormessage': errormessage})
     elif timezone.now() > invitation.key_expires:
         invitation_expired = True
         errormessage = 'The invitation key has expired.'
@@ -222,9 +222,21 @@ def vet_registration_request_ack(request, contributor_id):
                 contributor.save()
                 group = Group.objects.get(name='Registered Contributors')
                 contributor.user.groups.add(group)
+                # Verify if there is a pending refereeing invitation
+                pending_ref_inv_exists = True
+                try:
+                    pending_ref_inv = RefereeInvitation.objects.get(invitation_key=contributor.invitation_key)
+                    pending_ref_inv.referee = contributor
+                    pending_ref_inv.save()
+                except DoesNotExist:
+                    pending_ref_inv_exists = False
+
                 email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
                               ', \n\nYour registration to the SciPost publication portal has been accepted. ' +
-                              'You can now login at https://scipost.org and contribute. \n\nThe SciPost Team.')
+                              'You can now login at https://scipost.org and contribute. \n\n')
+                if pending_ref_inv_exists:
+                    email_text += 'Note that you have pending refereeing invitations; please navigate to your Personal Page to accept or decline them.\n\n'
+                email_text += 'Thank you very much in advance, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost registration accepted', email_text, 'SciPost registration <registration@scipost.org>', 
                                             [contributor.user.email, 'registration@scipost.org'], 
                                             reply_to=['registration@scipost.org'])

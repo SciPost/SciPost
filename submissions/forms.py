@@ -46,13 +46,24 @@ class ConsiderAssignmentForm(forms.Form):
 
 
 class RefereeSelectForm(forms.Form):
-#    def __init__(self, *args, **kwargs):
-#        super(RefereeSelectForm, self).__init__(*args, **kwargs)
-#        self.fields['last_name'].widget.attrs.update({'size': 20, 'placeholder': 'Search in contributors database'})
+    def __init__(self, *args, **kwargs):
+        super(RefereeSelectForm, self).__init__(*args, **kwargs)
+        self.fields['last_name'].widget.attrs.update({'size': 20, 'placeholder': 'Search in contributors database'})
 
-#    last_name = forms.CharField()
+    last_name = forms.CharField()
 
-    last_name=forms.CharField(widget=forms.TextInput(attrs={'size': 20, 'placeholder': 'search Contributors'}))
+#    last_name=forms.CharField(widget=forms.TextInput(attrs={'size': 20, 'placeholder': 'search Contributors'}))
+
+
+class RefereeRecruitmentForm(forms.ModelForm):
+    class Meta:
+        model = RefereeInvitation
+        fields = ['title', 'first_name', 'last_name', 'email_address']
+
+    def __init__(self, *args, **kwargs):
+        super(RefereeRecruitmentForm, self).__init__(*args, **kwargs)
+        self.fields['first_name'].widget.attrs.update({'size': 20})
+        self.fields['last_name'].widget.attrs.update({'size': 20})
 
 
 class ConsiderRefereeInvitationForm(forms.Form):

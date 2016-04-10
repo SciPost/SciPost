@@ -87,6 +87,10 @@ hr.hr12 {
   background: linear-gradient(to right,#f8f8f8, #e0e0e0);
 }
 
+.reportingDeadline {
+  color: #ff0000;
+}
+
 /* For two-column text display */
 .twocolumn {
   -webkit-column-count: 2; /* Chrome, Safari, Opera */
@@ -317,8 +321,7 @@ p#goodCommenter {
 section {
   color: #111111;
   background-color: white;
-/*  border: 1px solid grey; border-radius: 1px; */
-  margin: 25px 15px; 
+  margin: 0px 15px; 
   padding: 10px; 
   text-align: justify;
 }
@@ -358,6 +361,13 @@ section form ul li {
 section form ul li label {
   color: black;
 }
+
+form#refereeSearch input#id_last_name{
+  width: 20em;
+  margin: 1em;
+}
+
+
 section p {
   margin: 2px;
   padding: 2px;

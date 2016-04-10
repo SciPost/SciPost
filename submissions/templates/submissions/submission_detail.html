@@ -44,10 +44,27 @@
 
 </section>
 
+{% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
+<section>
+  <div class="flex-greybox">
+    <h1>Actions</h1>
+  </div>
+  <ul>
+    {% if submission.open_for_reporting %}
+    <li><h3><a href="{% url 'submissions:submit_report' submission.id %}">Contribute a Report</a>
+      <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline }}</div></h3></li>
+    {% else %}
+    <li>Reporting for this Submission is now closed.</li>
+    {% endif %}
+    <li><h3><a href="#contribute_comment">Contribute a Comment</a></h3></li>
+  </ul>
+</section>
+{% endif %}
+
 {% if invited_reports %}
 <section>
   <hr class="hr12">
-  <div class="flex-breybox">
+  <div class="flex-greybox">
     <h2>Invited Reports on this Submission</h2>
     <button id="invitedreportsbutton">Toggle invited reports view</button>
   </div>
@@ -61,7 +78,8 @@
     {% else %}
     {{ report.print_contents }} 
     {% endif %}
-    <br/>
+
+    <hr style="border-style: dotted;" />
     <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
 
     {% for reply in author_replies %}
@@ -118,7 +136,7 @@
 {% if contributed_reports %}
 <section>
   <hr class="hr12">
-  <div class="flex-breybox">
+  <div class="flex-greybox">
     <h2>Contributed Reports on this Submission</h2>
     <button id="contributedreportsbutton">Toggle contributed reports view</button>
   </div>
@@ -129,6 +147,7 @@
     {{ report.print_identifier }} 
     {{ report.print_contents }} 
 
+    <hr style="border-style: dotted;" />
     <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
 
     {% for reply in author_replies %}
@@ -183,22 +202,11 @@
 {% endif %}
 
 
-{% if user.is_authenticated and submission.open_for_reporting and user|is_in_group:'Registered Contributors' %}
-<section>
-  <hr class="hr6">
-  <div class="row">
-    <div class="col-3">
-      <h1><a href="{% url 'submissions:submit_report' submission.id %}">Contribute a Report</a></h1>
-    </div>
-  </div>
-</section>
-{% endif %}
-
 
 {% include 'scipost/comments_block.html' %}
 
 {% if user.is_authenticated and submission.open_for_commenting and user|is_in_group:'Registered Contributors' %}
-<section>
+<section id="contribute_comment">
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Contribute a Comment:</h1>

@@ -58,6 +58,7 @@ class Contributor(models.Model):
     """ All users of SciPost are Contributors. Permissions determine the sub-types. """
     user = models.OneToOneField(User)
     # username, password, email, first_name and last_name are inherited from User
+    invitation_key = models.CharField(max_length=40, default='', blank=True, null=True)
     activation_key = models.CharField(max_length=40, default='')
     key_expires = models.DateTimeField(default=timezone.now)
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
@@ -112,6 +113,7 @@ class Contributor(models.Model):
 INVITATION_TYPE = (
     ('F', 'Editorial Fellow'),
     ('C', 'Contributor'),
+    ('R', 'Refereeing'),
     )
 
 INVITATION_STYLE = (

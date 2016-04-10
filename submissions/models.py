@@ -18,30 +18,37 @@ from journals.models import journals_submit_dict, journals_domains_dict, journal
 SUBMISSION_STATUS = (
     ('unassigned', 'Unassigned'),
     ('assigned', 'Assigned to a specialty editor (response pending)'),
-    ('SEICassigned', 'Specialty editor-in-charge assigned'),
-    ('under_review', 'Under review'),
-    ('review_completed', 'Review period closed, editorial recommendation pending'),
-    ('SEIC_has_recommended', 'Specialty editor-in-charge has provided recommendation'),
+    ('EICassigned', 'Editor-in-charge assigned, manuscript under review'),
+    ('review_closed', 'Review period closed, editorial recommendation pending'),
+    ('EIC_has_recommended', 'Editor-in-charge has provided recommendation'),
     ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
     ('EC_vote_completed', 'Editorial College voting rounded up'),
     ('decided', 'Publication decision taken'),
     )
 submission_status_dict = dict(SUBMISSION_STATUS)
 
+SUBMISSION_ACTION_REQUIRED = (
+    ('assign_EIC', 'Editor-in-charge to be assigned'),
+    ('Fellow_accepts_or_refuse_assignment', 'Fellow must accept or refuse assignment'),
+    ('EIC_runs_refereeing_round', 'Editor-in-charge to run refereeing round (inviting referees)'),
+    ('EIC_closes_refereeing_round', 'Editor-in-charge to close refereeing round'),
+    ('EIC_invites_author_response', 'Editor-in-charge invites authors to complete their replies'),
+    ('EIC_formulates_editorial_recommendation', 'Editor-in-charge to formulate editorial recommendation'),
+    ('EC_ratification', 'Editorial College ratifies editorial recommendation'),
+    ('Decision_to_authors', 'Editor-in-charge forwards decision to authors'),
+    )
+
+
 class Submission(models.Model):
     submitted_by = models.ForeignKey(Contributor)
-#    vetted = models.BooleanField(default=False)
     assigned = models.BooleanField(default=False)
-#    assignment = models.ForeignKey('submissions.EditorialAssignment', related_name='assignment', blank=True, null=True) # not needed, assignment has submission as ForeignKey
-#    assigned_to = models.ForeignKey(Contributor, related_name="assigned_to", blank=True, null=True)
-#    declined_assignment = models.ManyToManyField (Contributor, related_name="declined_assignment", blank=True)
-#    editor_in_charge = models.ForeignKey(Contributor, related_name="editor_in_charge", blank=True, null=True) # non-null only if assignment has been accepted
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT, verbose_name="Journal to be submitted to")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
     open_for_reporting = models.BooleanField(default=True)
+    reporting_deadline = models.DateTimeField(default=timezone.now)
     open_for_commenting = models.BooleanField(default=True)
     title = models.CharField(max_length=300)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
@@ -91,15 +98,14 @@ class Submission(models.Model):
         header += '</div></li>'
         return header
 
-
-    def submission_info_as_table (self):
+    def status_info_as_table (self):
         header = '<table>'
-        if self.assignment is not None:
-            header += '<tr><td>Editor in charge: </td><td>&nbsp;</td><td>' + str(self.assignment.to) + '</td></tr>'
-        header += '<tr><td>Assigned: </td><td>&nbsp;</td><td>' + str(self.assigned) + '</td></tr>'
-        header += '<tr><td>Status: </td><td>&nbsp;</td><td>' + submission_status_dict[self.status] + '</td></tr>'
+#        if self.assignment is not None:
+#            header += '<tr><td>Editor in charge: </td><td>&nbsp;</td><td>' + str(self.assignment.to) + '</td></tr>'
+#        header += '<tr><td>Assigned: </td><td>&nbsp;</td><td>' + str(self.assigned) + '</td></tr>'
+        header += '<tr><td>Current status: </td><td>&nbsp;</td><td>' + submission_status_dict[self.status] + '</td></tr>'
         header += '</table>'
-        return header
+        return mark_safe(header)
 
 
 ######################
@@ -135,23 +141,26 @@ class EditorialAssignment(models.Model):
     
     def header_as_li(self):
         header = '<li><div class="flex-container">'
-        header += ('<div class="flex-whitebox0"><p><a href="/submissions/editorial_page/' + str(self.submission.id) +
+        header += ('<div class="flex-whitebox0"><p><a href="/submission/' + str(self.submission.id) +
                    '" class="pubtitleli">' + self.submission.title + '</a></p>')
         header += ('<p>by ' + self.submission.author_list +
                    '</p><p> (submitted ' + str(self.submission.submission_date) +
                    ' to ' + journals_submit_dict[self.submission.submitted_to_journal] +
-                   ')</p></div>')
-        header += '</div></li>'
+                   ')</p>')
+        header += ('<p>Status: ' + submission_status_dict[self.submission.status] + 
+                   '</p><p>Manage this Submission from its <a href="/submissions/editorial_page/' + str(self.submission.id) + '">Editorial Page</a>.</p>')
+        header += '</div></div></li>'
         return mark_safe(header)
 
 
 class RefereeInvitation(models.Model):
     submission = models.ForeignKey(Submission)
-    referee = models.ForeignKey(Contributor, related_name='referee')
+    referee = models.ForeignKey(Contributor, related_name='referee', blank=True, null=True)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30, default='')
     last_name = models.CharField(max_length=30, default='')
     email_address = models.EmailField()
+    invitation_key = models.CharField(max_length=40, default='') # if Contributor not found, person is invited to register
     date_invited = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey(Contributor, related_name='referee_invited_by', blank=True, null=True)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
@@ -160,12 +169,12 @@ class RefereeInvitation(models.Model):
     fulfilled = models.BooleanField(default=False) # True if a Report has been submitted
 
     def __str__(self):
-        return (self.referee.user.first_name + ' ' + self.referee.user.last_name + ' to referee ' + 
+        return (self.first_name + ' ' + self.last_name + ' to referee ' + 
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))
     
     def summary_as_li(self):
-        output = '<li>' + self.referee.user.first_name + ' ' + self.referee.user.last_name + ', '
+        output = '<li>' + self.first_name + ' ' + self.last_name + ', '
         output += 'invited ' + self.date_invited.strftime('%Y-%m-%d %H:%M') + ', '
         if self.accepted is not None:
             if self.accepted:
@@ -175,6 +184,11 @@ class RefereeInvitation(models.Model):
             output += self.date_responded.strftime('%Y-%m-%d %H:%M')
         else:
             output += 'response pending'
+        output += '; task fulfilled: '
+        if self.fulfilled:
+            output += 'True'
+        else:
+            output += 'False'
         return mark_safe(output)
     
 
@@ -257,7 +271,7 @@ class Report(models.Model):
         output = '<div class="reportid">\n'
         output += '<h3><a id="report_id' + str(self.id) + '"></a>'
         if self.anonymous:
-            output += 'Anonymous'
+            output += 'Anonymous Report ' + str(self.id)
         else:
             output += ('<a href="/contributor/' + str(self.author.id) + '">' +
                        self.author.user.first_name + ' ' + self.author.user.last_name + '</a>')

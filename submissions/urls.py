@@ -18,9 +18,11 @@ urlpatterns = [
     url(r'^accept_or_decline_assignment_ack/(?P<assignment_id>[0-9]+)$', views.accept_or_decline_assignment_ack, name='accept_or_decline_assignment_ack'),
     url(r'^editorial_page/(?P<submission_id>[0-9]+)$', views.editorial_page, name='editorial_page'),
     url(r'^select_referee/(?P<submission_id>[0-9]+)$', views.select_referee, name='select_referee'),
+    url(r'^recruit_referee/(?P<submission_id>[0-9]+)$', views.recruit_referee, name='recruit_referee'),
     url(r'^send_refereeing_invitation/(?P<submission_id>[0-9]+)/(?P<contributor_id>[0-9]+)$', views.send_refereeing_invitation, name='send_refereeing_invitation'),
     url(r'^accept_or_decline_ref_invitations$', views.accept_or_decline_ref_invitations, name='accept_or_decline_ref_invitations'),
     url(r'^accept_or_decline_ref_invitation/(?P<invitation_id>[0-9]+)$', views.accept_or_decline_ref_invitation_ack, name='accept_or_decline_ref_invitation_ack'),
+    url(r'^close_refereeing_round/(?P<submission_id>[0-9]+)$', views.close_refereeing_round, name='close_refereeing_round'),
     # Reports
     url(r'^submit_report/(?P<submission_id>[0-9]+)$', views.submit_report, name='submit_report'),
     url(r'^submit_report_ack$', TemplateView.as_view(template_name='submissions/submit_report_ack.html'), name='submit_report_ack'),

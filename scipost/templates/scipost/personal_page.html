@@ -138,14 +138,13 @@
   {% endif %}
   </div>
 
-  <div class="flex-whitebox">
-    <h3>Submissions for which you are Editor-in-charge</h3>
-    <ul>
-      {% for assignment in active_assignments %}
-      {{ assignment.header_as_li }}
-      {% endfor %}
-    </ul>
-  </div>
+  <h3>Submissions for which you are Editor-in-charge</h3>
+  <ul>
+    {% for assignment in active_assignments %}
+    {{ assignment.header_as_li }}
+    {% endfor %}
+  </ul>
+
 </section>
 {% endif %}
 
@@ -153,10 +152,12 @@
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Refereeing Tasks</h1>
-    <li><a href="{% url 'submissions:accept_or_decline_ref_invitations' %}">Accept/decline refereeing invitations</a> ({{ nr_ref_inv_to_consider }})</li>
+    <ul>
+      <li><a href="{% url 'submissions:accept_or_decline_ref_invitations' %}">Accept/decline refereeing invitations</a> ({{ nr_ref_inv_to_consider }})</li>
+    </ul>
   </div>
   {% if pending_ref_tasks %}
-  <h3>Refereeing tasks to fulfill: please provide a Report on the following Submissions
+  <h3>Refereeing tasks to fulfill: please provide a Report on the following Submissions</h3>
   <ul>
     {% for task in pending_ref_tasks %}
     {{ task.submission.header_as_li|safe }}

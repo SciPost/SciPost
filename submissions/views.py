@@ -14,7 +14,9 @@ from .models import *
 from .forms import *
 
 from comments.models import Comment
-from scipost.models import Contributor, title_dict
+from scipost.models import Contributor, title_dict, RegistrationInvitation
+
+from scipost.utils import Utils
 
 from comments.forms import CommentForm
 
@@ -153,8 +155,11 @@ def submission_detail(request, submission_id):
 
 def assign_submissions(request):
     submission_to_assign = Submission.objects.filter(status='unassigned').first() # only handle one at at time
-#    form = AssignSubmissionForm(discipline=submission_to_assign.discipline, specialization=submission_to_assign.specialization)
-    form = AssignSubmissionForm(discipline=submission_to_assign.discipline)
+    if submission_to_assign is not None:
+        form = AssignSubmissionForm(discipline=submission_to_assign.discipline)
+#        form = AssignSubmissionForm(discipline=submission_to_assign.discipline, specialization=submission_to_assign.specialization) # reactivate later on
+    else:
+        form = AssignSubmissionForm(discipline='physics')        
     context = {'submission_to_assign': submission_to_assign, 'form': form }
     return render(request, 'submissions/assign_submissions.html', context)
 
@@ -196,6 +201,8 @@ def accept_or_decline_assignment_ack(request, assignment_id):
             if form.cleaned_data['accept'] == 'True':
                 assignment.accepted = True
                 assignment.to = contributor
+                assignment.submission.status = 'EICassigned'
+                assignment.submission.save()
             else:
                 assignment.accepted = False
                 assignment.refusal_reason = form.cleaned_data['refusal_reason']
@@ -221,10 +228,56 @@ def select_referee(request, submission_id):
     else:
         ref_search_form = RefereeSelectForm()
         contributors_found = None
-    context = {'submission': submission, 'ref_search_form': ref_search_form, 'contributors_found': contributors_found}
+    ref_recruit_form = RefereeRecruitmentForm()
+    context = {'submission': submission, 'ref_search_form': ref_search_form, 
+               'contributors_found': contributors_found, 'ref_recruit_form': ref_recruit_form}
     return render(request, 'submissions/select_referee.html', context)
 
 
+def recruit_referee(request, submission_id):
+    """
+    If the Editor-in-charge does not find the desired referee among Contributors,
+    he/she can invite somebody by providing some personal details.
+    This function sends a registration invitation to this person.
+    The pending refereeing invitation is then recognized upon registration,
+    using the invitation token.
+    """
+    submission = get_object_or_404(Submission, pk=submission_id)
+    if request.method == 'POST':
+        ref_recruit_form = RefereeRecruitmentForm(request.POST)
+        if ref_recruit_form.is_valid():
+            ref_invitation = RefereeInvitation(submission=submission, 
+                                               title=ref_recruit_form.cleaned_data['title'],
+                                               first_name=ref_recruit_form.cleaned_data['first_name'],
+                                               last_name=ref_recruit_form.cleaned_data['last_name'],
+                                               email_address=ref_recruit_form.cleaned_data['email_address'],
+                                               date_invited=timezone.now(),
+                                               invited_by = request.user.contributor)
+            ref_invitation.save()
+
+            # Create and send a registration invitation
+            ref_inv_message_head = ('You have been invited to referee a Submission to SciPost Physics, namely\n' +
+                                    submission.title[:50] + '\nby ' + submission.author_list + '.')
+            reg_invitation = RegistrationInvitation (
+                title = ref_recruit_form.cleaned_data['title'],
+                first_name = ref_recruit_form.cleaned_data['first_name'],
+                last_name = ref_recruit_form.cleaned_data['last_name'],
+                email_address = ref_recruit_form.cleaned_data['email_address'],
+                invitation_type = 'R',
+                invited_by = request.user.contributor,
+                message_style = 'F',
+                personal_message = ref_inv_message_head,
+            )
+            reg_invitation.save()
+            Utils.load({'invitation': reg_invitation})
+            Utils.send_registration_invitation_email()
+            # Copy the key to the refereeing invitation:
+            ref_invitation.invitation_key = reg_invitation.invitation_key
+            ref_invitation.save()
+
+    return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
+
+            
 def send_refereeing_invitation(request, submission_id, contributor_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     contributor = get_object_or_404(Contributor, pk=contributor_id)
@@ -263,6 +316,14 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
     context = {'invitation': invitation}
     return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)
 
+
+def close_refereeing_round(request, submission_id):
+    submission = get_object_or_404 (Submission, pk=submission_id)
+    submission.open_for_reporting = False
+    submission.status = 'review_closed'
+    submission.reporting_deadline = timezone.now()
+    submission.save()
+    return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
 
 
 ###########

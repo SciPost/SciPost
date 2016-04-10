@@ -35,19 +35,26 @@
   <div class="flex-greybox">
     <h1>Select an additional Referee</h1>
   </div>
-  <form action="{% url 'submissions:select_referee' submission_id=submission.id %}" method="post">
+  <form action="{% url 'submissions:select_referee' submission_id=submission.id %}" method="post" id="refereeSearch">
     {% csrf_token %}
     {{ ref_search_form }}
     <input type="submit" value="Find referee">
   </form>
+
   {% if contributors_found %}
   <h3>Identified as contributor:</h3>
   {% for contributor in contributors_found %}
-  <p>{{ contributor.user.first_name }} {{contributor.user.last_name }} 
+  <p>{{ contributor.user.first_name }} {{ contributor.user.last_name }} 
     <a href="{% url 'submissions:send_refereeing_invitation' submission_id=submission.id contributor_id=contributor.id %}">Send refereeing invitation</a></p>
   {% endfor %}
   {% elif ref_search_form.has_changed %}
   <p>No Contributor with this last name could be identified.</p>
+  <p>You can send a registration and refereeing invitation by filling this form:</p>
+  <form action="{% url 'submissions:recruit_referee' submission_id=submission.id %}" method="post">
+    {% csrf_token %}
+    {{ ref_recruit_form }}
+    <input type="submit" value="Send invitation">
+  </form>
   {% endif %}
 </section>
 
