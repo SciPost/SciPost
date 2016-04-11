@@ -40,7 +40,7 @@ class AssignSubmissionForm(forms.Form):
 #                                                user__contributor__specializations__contains=[specialization,] # Reactivate later on, once the Editorial College is large enough
                                                 ), required=True, label='Select an Editor-in-charge')
 
-    editor_in_charge = forms.ModelChoiceField(queryset=...)
+    #editor_in_charge = forms.ModelChoiceField(queryset=...)
 
 
 class ConsiderAssignmentForm(forms.Form):
