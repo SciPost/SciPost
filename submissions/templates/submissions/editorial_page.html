@@ -66,12 +66,19 @@
     </ul>
     </li>
     <li><a href="{% url 'submissions:communication' submission_id=submission.id type='EtoS' %}">Communicate with SciPost Editorial Administration</a></li>
-    <li>Formulate an Editorial Recommendation and send it to Editorial College for ratification</li>
-    <li>Inform authors of Editorial Decisions</li>
+    <li><a href="{% url 'submissions:eic_recommendation' submission_id=submission.id %}">Formulate an Editorial Recommendation</a>
+    <p>If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
+      <br/>If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.</p>
+    </li>
+    <li>Inform authors of Editorial Decision</li>
   </ul>
 
-  <hr class="hr6"/>
-  <h3>Refereeing invitations</h3>
+</section>
+
+<section>
+  <div class="flex-greybox">
+    <h1>Refereeing invitations</h1>
+  </div>
   {% if ref_invitations %}
   <ul>
     {% for invitation in ref_invitations %}
@@ -80,6 +87,22 @@
   </ul>
   {% else %}
   <p>You have not invited any referees yet.</p>
+  {% endif %}
+
+</section>
+
+<section>
+  <div class="flex-greybox">
+    <h1>Communications</h1>
+  </div>
+  {% if communications %}
+  <ul>
+    {% for comm in communications %}
+    {{ comm.print_contents_as_li }}
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>There have been no communications for this Submission.</p>
   {% endif %}
 </section>
 

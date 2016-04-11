@@ -63,7 +63,7 @@ class Submission(models.Model):
     latest_activity = models.DateTimeField(default=timezone.now)
 
     def __str__ (self):
-        return self.title[:30]
+        return self.title[:30] + ' by ' + self.author_list[:30]
 
     @property
     def reporting_deadline_has_passed(self):
@@ -320,9 +320,9 @@ class Report(models.Model):
         return mark_safe(output)
 
 
-###########################
-# EditorialCorrespondence #
-###########################
+##########################
+# EditorialCommunication #
+##########################
 
 ED_CORR_CHOICES = (
     ('EtoA', 'Editor-in-charge to Author'),
@@ -346,4 +346,61 @@ class EditorialCommunication(models.Model):
     text = models.TextField()
 
     def __str__ (self):
-        return self.type + ' for submission ' + self.submission.title[:30] + ' by ' + self.submission.author_list[:30]
+        output = self.type 
+        if self.referee is not None:
+            output += ' ' + self.referee.user.first_name + ' ' + self.referee.user.last_name
+        output += ' for submission ' + self.submission.title[:30] + ' by ' + self.submission.author_list[:30]
+        return output
+
+    def print_contents_as_li(self):
+        output = '<li><p>'
+        if self.type == 'EtoA':
+            output += 'From you to Authors'
+        elif self.type == 'EtoR':
+            output += 'From you to Referee '
+            try:
+                output += self.referee.user.first_name + ' ' + self.referee.user.last_name
+            except AttributeError:
+                pass
+        elif self.type == 'EtoS':
+            output += 'From you to SciPost Ed Admin'
+        elif self.type == 'AtoE':
+            output += 'From Authors to you'
+        elif self.type == 'RtoE':
+            output += 'From Referee '
+            try:
+                output += self.referee.user.first_name + ' ' + self.referee.user.last_name + ' to you'
+            except AttributeError:
+                pass
+        elif self.type == 'StoE':
+            output += 'From SciPost Ed Admin to you'
+        output += ' on ' + self.timestamp.strftime("%Y-%m-%d %H:%M") + '</p>'
+        output += '<p>' + self.text + '</p>'
+        return mark_safe(output)
+
+
+
+############################
+# Editorial Recommendation #
+############################
+
+# From the Editor-in-charge of a Submission
+class EICRecommendation(models.Model):
+    submission = models.ForeignKey(Submission)
+    date_submitted = models.DateTimeField('date submitted')
+    remarks_for_authors = models.TextField(blank=True, null=True)
+    requested_changes = models.TextField(verbose_name="requested changes", blank=True, null=True)
+    remarks_for_editorial_college = models.TextField(default='', blank=True, null=True, verbose_name='optional remarks for the Editorial College')
+    recommendation = models.SmallIntegerField(choices=REPORT_REC)
+    # Editorial Fellows who have assessed this recommendation:
+    voted_for = models.ManyToManyField (Contributor, blank=True, related_name='voted_for')
+    voted_against = models.ManyToManyField (Contributor, blank=True, related_name='voted_against')
+    voting_deadline = models.DateTimeField('date submitted', default=timezone.now)
+ 
+    @property
+    def nr_for(self):
+        return self.voted_for.count()
+        
+    @property
+    def nr_against(self):
+        return self.voted_against.count()

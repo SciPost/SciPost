@@ -129,3 +129,19 @@ class EditorialCommunicationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(EditorialCommunicationForm, self).__init__(*args, **kwargs)
         self.fields['text'].widget.attrs.update({'rows': 5, 'cols': 50, 'placeholder': 'Write your message in this box.'})
+
+
+
+######################
+# EIC Recommendation #
+######################
+
+class EICRecommendationForm(forms.ModelForm):
+    class Meta:
+        model = EICRecommendation
+        fields = ['remarks_for_authors', 'requested_changes', 'recommendation', 'remarks_for_editorial_college']
+    def __init__(self, *args, **kwargs):
+        super(EICRecommendationForm, self).__init__(*args, **kwargs)
+        self.fields['remarks_for_authors'].widget.attrs.update({'placeholder': 'Your general remarks for the authors', 'rows': 10, 'cols': 100})
+        self.fields['requested_changes'].widget.attrs.update({'placeholder': 'If you request revisions, give a numbered (1-, 2-, ...) list of specifically requested changes', 'cols': 100})
+        self.fields['remarks_for_editorial_college'].widget.attrs.update({'placeholder': 'If you recommend to accept or refuse, the Editorial College will vote; write any relevant remarks for the EC here.'})

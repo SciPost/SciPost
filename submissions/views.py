@@ -222,8 +222,9 @@ def accept_or_decline_assignment_ack(request, assignment_id):
 def editorial_page(request, submission_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     ref_invitations = RefereeInvitation.objects.filter(submission=submission)
-    
-    context = {'submission': submission, 'ref_invitations': ref_invitations}
+
+    communications = EditorialCommunication.objects.filter(submission=submission).order_by('timestamp')
+    context = {'submission': submission, 'ref_invitations': ref_invitations, 'communications': communications}
     return render(request, 'submissions/editorial_page.html', context)
 
 
@@ -358,6 +359,9 @@ def communication(request, submission_id, type, referee_id=None):
                                                    type=type,
                                                    timestamp=timezone.now(),
                                                    text=form.cleaned_data['text'])
+            if referee_id is not None:
+                referee = get_object_or_404(Contributor, pk=referee_id)
+                communication.referee = referee
             communication.save()
             if type == 'EtoA' or type == 'EtoR' or type == 'EtoS':
                 return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
@@ -367,6 +371,26 @@ def communication(request, submission_id, type, referee_id=None):
         form = EditorialCommunicationForm()
     context = {'submission': submission, 'type': type, 'form': form}
     return render(request, 'submissions/communication.html', context)
+
+
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+def eic_recommendation(request, submission_id):
+    submission = get_object_or_404 (Submission, pk=submission_id)
+    if request.method == 'POST':
+        form = EICRecommendationForm(request.POST)
+        if form.is_valid():
+            recommendation = form.save()
+            recommendation.submission = submission
+            recommendation.date_submitted = timezone.now()
+            recommendation.voting_deadline = timezone.now() + datetime.timedelta(days=7)
+            recommendation.save()
+            # If recommendation is to accept or reject, it is forwarded to the Editorial College for voting
+            # If it is to carry out minor or major revisions, it is returned to the Author who is asked to resubmit
+            return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
+    else:
+        form = EICRecommendationForm()
+    context = {'submission': submission, 'form': form}
+    return render(request, 'submissions/eic_recommendation.html', context)
 
         
 ###########

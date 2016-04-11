@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^close_refereeing_round/(?P<submission_id>[0-9]+)$', views.close_refereeing_round, name='close_refereeing_round'),
     url(r'^communication/(?P<submission_id>[0-9]+)/(?P<type>[a-zA-Z]{4,})$', views.communication, name='communication'),
     url(r'^communication/(?P<submission_id>[0-9]+)/(?P<type>[a-zA-Z]{4,})/(?P<referee_id>[0-9]+)$', views.communication, name='communication'),
+    url(r'^eic_recommendation/(?P<submission_id>[0-9]+)$', views.eic_recommendation, name='eic_recommendation'),
     # Reports
     url(r'^submit_report/(?P<submission_id>[0-9]+)$', views.submit_report, name='submit_report'),
     url(r'^submit_report_ack$', TemplateView.as_view(template_name='submissions/submit_report_ack.html'), name='submit_report_ack'),

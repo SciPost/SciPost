@@ -1,0 +1,54 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: editorial recommendation for submission{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% load scipost_extras %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<!-- Temporary strip -->
+{% if user.is_authenticated %}
+
+<section>
+  <div class="flex-greybox">
+    <h1>Formulate Editorial Recommendation for Submission</h1>
+    <h3>(go to the <a href="{% url 'submissions:submission' submission_id=submission.id %}">Submissions Page</a> to view Reports and Comments)</h3>
+    <h3>(go back to the <a href="{% url 'submissions:editorial_page' submission_id=submission.id %}">Editorial Page</a> to take editorial actions)</h3>
+  </div>
+
+  <hr class="hr12">
+  <div class="row">
+    <div class="col-4">
+      <h2>Submission:</h2>
+    </div>
+  </div>
+  {{ submission.header_as_table|safe }}
+  <h3>Abstract:</h3>
+  <p>{{ submission.abstract }}</p>
+
+</section>
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>Your Editorial Recommendation (to be forwarded to the Editorial College for ratification)</h1>
+  </div>
+
+  <form action="{% url 'submissions:eic_recommendation' submission_id=submission.id %}" method="post">
+    {% csrf_token %}
+    <table>
+      <ul>
+        {{ form.as_table }}
+      </ul>
+    </table>
+    <input type="submit" value="Submit"/>
+  </form>
+</section>
+
+{% endif %} <!-- Temporary strip -->
+
+{% endblock bodysup %}
