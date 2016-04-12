@@ -86,7 +86,7 @@ def browse(request, discipline, nrweeksback):
                 title__icontains=form.cleaned_data['title_keyword'],
                 author_list__icontains=form.cleaned_data['author'],
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
-                vetted=True,
+                assigned=True,
                 )
             submission_search_list.order_by('-submission_date')
         else:
@@ -96,7 +96,7 @@ def browse(request, discipline, nrweeksback):
     else:
         form = SubmissionSearchForm()
     submission_browse_list = Submission.objects.filter(
-        vetted=True, discipline=discipline, 
+        assigned=True, discipline=discipline, 
         latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
         )
     context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 

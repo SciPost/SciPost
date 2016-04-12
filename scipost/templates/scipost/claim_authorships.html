@@ -21,7 +21,7 @@
   <h3>Potential authorships to claim (auto-detected)</h3>
   <ul>
     {% for sub in submission_authorships_to_claim %}
-    {{ sub.header_as_li | safe }}
+    {{ sub.header_as_li }}
     <form action="{% url 'scipost:claim_sub_authorship' submission_id=sub.id claim=1%}" method="post">
       {% csrf_token %}
       <input type="submit" value="I am an author" />
@@ -42,7 +42,7 @@
   <h3>Potential authorships to claim (auto-detected)</h3>
   <ul>
     {% for com in commentary_authorships_to_claim %}
-    {{ com.header_as_li | safe }}
+    {{ com.header_as_li }}
     <form action="{% url 'scipost:claim_com_authorship' commentary_id=com.id claim=1%}" method="post">
       {% csrf_token %}
       <input type="submit" value="I am an author" />
@@ -63,7 +63,7 @@
   <h3>Potential authorships to claim (auto-detected)</h3>
   <ul>
     {% for thesis in thesis_authorships_to_claim %}
-    {{ thesis.header_as_li | safe }}
+    {{ thesis.header_as_li }}
     <form action="{% url 'scipost:claim_thesis_authorship' thesis_id=thesis.id claim=1%}" method="post">
       {% csrf_token %}
       <input type="submit" value="I am an author" />

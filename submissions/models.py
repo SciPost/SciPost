@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.db import models
 from django.contrib.auth.models import User
+from django.template import Template, Context
 
 from .models import *
 
@@ -71,11 +72,12 @@ class Submission(models.Model):
             return True
         return False
 
+
     def header_as_table (self):
         # for Submission page
         header = '<table>'
-        header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.title + '</td></tr>'
-        header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author_list + '</td></tr>'
+        header += '<tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>'
+        header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>{{ author_list }}</td></tr>'
         header += '<tr><td>As Contributors: </td><td>&nbsp;</td>'
         if self.authors.all():
             for auth in self.authors.all():
@@ -83,33 +85,36 @@ class Submission(models.Model):
         else:
             header += '<td>(none claimed)</td>'
         header += '</tr>'
-        header += '<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="' + self.arxiv_link + '" target="_blank">' + self.arxiv_link + '</a></td></tr>'
-        header += '<tr><td>Date submitted: </td><td>&nbsp;</td><td>' + str(self.submission_date) + '</td></tr>'
-        header += '<tr><td>Submitted by: </td><td>&nbsp;</td><td>' + str(self.submitted_by) + '</td></tr>'
-        header += '<tr><td>Submitted to: </td><td>&nbsp;</td><td>' + journals_submit_dict[self.submitted_to_journal] + '</td></tr>'
-        header += '<tr><td>Domain(s): </td><td>&nbsp;</td><td>' + journals_domains_dict[self.domain] + '</td></tr>'
-        header += '<tr><td>Specialization: </td><td>&nbsp;</td><td>' + journals_spec_dict[self.specialization] + '</td></tr>'
+        header += '<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="{{ arxiv_link }}" target="_blank">{{ arxiv_link }}</a></td></tr>'
+        header += '<tr><td>Date submitted: </td><td>&nbsp;</td><td>{{ submission_date }}</td></tr>'
+        header += '<tr><td>Submitted by: </td><td>&nbsp;</td><td>{{ submitted_by }}</td></tr>'
+        header += '<tr><td>Submitted to: </td><td>&nbsp;</td><td>{{ to_journal }}</td></tr>'
+        header += '<tr><td>Domain(s): </td><td>&nbsp;</td><td>{{ domain }}</td></tr>'
+        header += '<tr><td>Specialization: </td><td>&nbsp;</td><td>{{ spec }}</td></tr>'
         header += '</table>'
-        return header
+        template = Template(header)
+        context = Context({'title': self.title, 'author_list': self.author_list,
+                           'arxiv_link': self.arxiv_link, 'submission_date': self.submission_date,
+                           'submitted_by': self.submitted_by, 'to_journal': journals_submit_dict[self.submitted_to_journal],
+                           'domain': journals_domains_dict[self.domain], 'spec': journals_spec_dict[self.specialization]})
+        return template.render(context)
+
 
     def header_as_li (self):
         # for search lists
         header = '<li><div class="flex-container">'
-        header += ('<div class="flex-whitebox0"><p><a href="/submission/' + str(self.id) + 
-                   '" class="pubtitleli">' + self.title + '</a></p>')
-        header += ('<p>by ' + self.author_list + 
-                   '</p><p> (submitted ' + str(self.submission_date) + 
-                   ' to ' + journals_submit_dict[self.submitted_to_journal] + 
-                   ') - latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + 
-                   '</p></div>')
-        header += '</div></li>'
-        return header
+        header += '<div class="flex-whitebox0"><p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
+        header += ('<p>by {{ author_list }}</p><p> (submitted {{ submission_date }} to {{ to_journal }})' +
+                   ' - latest activity: {{ latest_activity }}</p></div></div></li>')
+        context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list,
+                           'submission_date': self.submission_date, 
+                           'to_journal': journals_submit_dict[self.submitted_to_journal],
+                           'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
+        template = Template(header)
+        return template.render(context)
 
     def status_info_as_table (self):
         header = '<table>'
-#        if self.assignment is not None:
-#            header += '<tr><td>Editor in charge: </td><td>&nbsp;</td><td>' + str(self.assignment.to) + '</td></tr>'
-#        header += '<tr><td>Assigned: </td><td>&nbsp;</td><td>' + str(self.assigned) + '</td></tr>'
         header += '<tr><td>Current status: </td><td>&nbsp;</td><td>' + submission_status_dict[self.status] + '</td></tr>'
         header += '</table>'
         return mark_safe(header)
@@ -148,16 +153,17 @@ class EditorialAssignment(models.Model):
     
     def header_as_li(self):
         header = '<li><div class="flex-container">'
-        header += ('<div class="flex-whitebox0"><p><a href="/submission/' + str(self.submission.id) +
-                   '" class="pubtitleli">' + self.submission.title + '</a></p>')
-        header += ('<p>by ' + self.submission.author_list +
-                   '</p><p> (submitted ' + str(self.submission.submission_date) +
-                   ' to ' + journals_submit_dict[self.submission.submitted_to_journal] +
-                   ')</p>')
-        header += ('<p>Status: ' + submission_status_dict[self.submission.status] + 
-                   '</p><p>Manage this Submission from its <a href="/submissions/editorial_page/' + str(self.submission.id) + '">Editorial Page</a>.</p>')
-        header += '</div></div></li>'
-        return mark_safe(header)
+        header += '<div class="flex-whitebox0"><p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
+        header += '<p>by {{ author_list }}</p><p> (submitted {{ date }} to {{ to_journal }})</p>'
+        header += '<p>Status: {{ status }}</p><p>Manage this Submission from its '
+        header += '<a href="/submissions/editorial_page/{{ id }}">Editorial Page</a>.</p></div></div></li>'
+        template = Template(header)
+        context = Context({'id': self.submission.id, 'title': self.submission.title,
+                   'author_list': self.submission.author_list, 'date': self.submission.submission_date,
+                   'to_journal': journals_submit_dict[self.submission.submitted_to_journal],
+                   'status': submission_status_dict[self.submission.status]})
+        return template.render(context)
+    
 
 
 class RefereeInvitation(models.Model):
@@ -181,21 +187,24 @@ class RefereeInvitation(models.Model):
                 ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))
     
     def summary_as_li(self):
-        output = '<li>' + self.first_name + ' ' + self.last_name + ', '
-        output += 'invited ' + self.date_invited.strftime('%Y-%m-%d %H:%M') + ', '
+        context = Context({'first_name': self.first_name, 'last_name': self.last_name,
+                           'date_invited': self.date_invited.strftime('%Y-%m-%d %H:%M')})
+        output = '<li>{{ first_name }} {{ last_name }}, invited {{ date_invited }}, '
         if self.accepted is not None:
             if self.accepted:
                 output += 'task accepted '
             else:
                 output += 'task declined ' 
-            output += self.date_responded.strftime('%Y-%m-%d %H:%M')
+            output += '{{ date_responded }}'
+            context['date_responded'] = self.date_responded.strftime('%Y-%m-%d %H:%M')
         else:
             output += 'response pending'
         if self.fulfilled:
             output += '; Report has been delivered'
         else:
             output += '; (no Report yet)'
-        return mark_safe(output)
+        template = Template(output)
+        return template.render(context)
     
 
 ###########
@@ -274,26 +283,28 @@ class Report(models.Model):
 
 
     def print_identifier(self):
+        context = Context({'id': self.id, 'author_id': self.author.id,
+                           'first_name': self.author.user.first_name,
+                           'last_name': self.author.user.last_name,
+                           'date_submitted': self.date_submitted.strftime("%Y-%m-%d")})
         output = '<div class="reportid">\n'
-        output += '<h3><a id="report_id' + str(self.id) + '"></a>'
+        output += '<h3><a id="report_id{{ id }}"></a>'
         if self.anonymous:
-            output += 'Anonymous Report ' + str(self.id)
+            output += 'Anonymous Report {{ id }}'
         else:
-            output += ('<a href="/contributor/' + str(self.author.id) + '">' +
-                       self.author.user.first_name + ' ' + self.author.user.last_name + '</a>')
-        output += ' on ' + self.date_submitted.strftime("%Y-%m-%d")
-        output += '</h3></div>'
-        return mark_safe(output)
+            output += '<a href="/contributor/{{ author_id }}">{{ first_name }} {{ last_name }}</a>'
+        output += ' on {{ date_submitted }}</h3></div>'
+        template = Template(output)
+        return template.render(context)
+
     
     def print_contents(self):
-        output = ('<div class="row"><div class="col-2"><p>Strengths:</p></div><div class="col-10"><p>' +
-                  self.strengths + '</p></div></div>' + 
-                  '<div class="row"><div class="col-2"><p>Weaknesses:</p></div><div class="col-10"><p>' +
-                  self.weaknesses + '</p></div></div>' +
-                  '<div class="row"><div class="col-2"><p>Report:</p></div><div class="col-10"><p>' +
-                  self.report + '</p></div></div>' +
-                  '<div class="row"><div class="col-2"><p>Requested changes:</p></div><div class="col-10"><p>' +
-                  self.requested_changes + '</p></div></div>')
+        context = Context({'strengths': self.strengths, 'weaknesses': self.weaknesses,
+                           'report': self.report, 'requested_changes': self.requested_changes})
+        output = ('<div class="row"><div class="col-2"><p>Strengths:</p></div><div class="col-10"><p>{{ strengths }}</p></div></div>' + 
+                  '<div class="row"><div class="col-2"><p>Weaknesses:</p></div><div class="col-10"><p>{{ weaknesses }}</p></div></div>' +
+                  '<div class="row"><div class="col-2"><p>Report:</p></div><div class="col-10"><p>{{ report }}</p></div></div>' +
+                  '<div class="row"><div class="col-2"><p>Requested changes:</p></div><div class="col-10"><p>{{ requested_changes }}</p></div></div>')
         output += '<div class="reportRatings"><ul>'
         output += '<li>validity: ' + ranking_choices_dict[self.validity] + '</li>'
         output += '<li>significance: ' + ranking_choices_dict[self.significance] + '</li>'
@@ -302,22 +313,27 @@ class Report(models.Model):
         output += '<li>formatting: ' + quality_spec_dict[self.formatting] + '</li>'
         output += '<li>grammar: ' + quality_spec_dict[self.grammar] + '</li>'
         output += '</ul></div>'
-        return mark_safe(output)
+        template = Template(output)
+        return template.render(context)
+    
                   
     def print_contents_for_editors(self):
+        context = Context({'id': self.id, 'author_id': self.author.id,
+                           'author_first_name': self.author.user.first_name,
+                           'author_last_name': self.author.user.last_name,
+                           'date_submitted': self.date_submitted.strftime("%Y-%m-%d")})
         output = '<div class="reportid">\n'
-        output += '<h3><a id="report_id' + str(self.id) + '"></a>'
+        output += '<h3><a id="report_id{{ id }}"></a>'
         if self.anonymous:
             output += '(chose public anonymity) '
-        output += ('<a href="/contributor/' + str(self.author.id) + '">' +
-                   self.author.user.first_name + ' ' + self.author.user.last_name + '</a>')
-        output += ' on ' + self.date_submitted.strftime("%Y-%m-%d")
-        output += '</h3></div>'
+        output += '<a href="/contributor/{{ author_id }}">{{ author_first_name }} {{ author_last_name }}</a>'
+        output += ' on {{ date_submitted }}</h3></div>'
         output += ('<div class="row"><div class="col-2">Qualification:</p></div><div class="col-10"><p>' + 
                   ref_qualif_dict[self.qualification] + '</p></div></div>')
         output += self.print_contents()
         output += '<h3>Recommendation: ' + report_rec_dict[self.recommendation] + '</h3>'
-        return mark_safe(output)
+        template = Template(output)
+        return template.render(context)
 
 
 ##########################
@@ -353,6 +369,7 @@ class EditorialCommunication(models.Model):
         return output
 
     def print_contents_as_li(self):
+        context = Context({'timestamp': self.timestamp.strftime("%Y-%m-%d %H:%M"), 'text': self.text})
         output = '<li><p>'
         if self.type == 'EtoA':
             output += 'From you to Authors'
@@ -374,9 +391,9 @@ class EditorialCommunication(models.Model):
                 pass
         elif self.type == 'StoE':
             output += 'From SciPost Ed Admin to you'
-        output += ' on ' + self.timestamp.strftime("%Y-%m-%d %H:%M") + '</p>'
-        output += '<p>' + self.text + '</p>'
-        return mark_safe(output)
+        output += ' on {{ timestamp }}</p><p>{{ text }}</p>'
+        template = Template(output)
+        return template.render(context)
 
 
 

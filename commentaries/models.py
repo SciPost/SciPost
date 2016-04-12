@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.template import Template, Context
 
 from journals.models import SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
 from scipost.models import Contributor
@@ -40,36 +40,56 @@ class Commentary(models.Model):
     def __str__ (self):
         return self.pub_title
 
-    def header_as_table (self):
+
+    def header_as_table(self):
         # for display in Commentary page itself
         header = '<table>'
-        header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.pub_title + '</td></tr>'
-        header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>' + self.author_list + '</td></tr>'
+        header += '<tr><td>Title: </td><td>&nbsp;</td><td>{{ pub_title }}</td></tr>'
+        header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>{{ author_list }}</td></tr>'
         header += '<tr><td>As Contributors: </td><td>&nbsp;</td>'
         if self.authors.all():
             header += '<td>'
             for auth in self.authors.all():
                 header += '<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name + ' ' + auth.user.last_name + '</a>,&nbsp;'
-            header += '<td>'
+            header += '</td>'
         else:
             header += '<td>(none claimed)</td>'
         header += '</tr>'
         if self.type == 'published':
-            header += '<tr><td>DOI: </td><td>&nbsp;</td><td><a href="' + self.pub_DOI_link + '" target="_blank">' + self.pub_DOI_link + '</a></td></tr>'
+            header += '<tr><td>DOI: </td><td>&nbsp;</td><td><a href="{{ pub_DOI_link }}" target="_blank">{{ pub_DOI_link }}</a></td></tr>'
         elif self.type == 'preprint':
-            header += '<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="' + self.arxiv_link + '">' + self.arxiv_link + '</a></td></tr>'
-        header += '<tr><td>Date: </td><td>&nbsp;</td><td>' + str(self.pub_date) + '</td></tr>'
+            header += '<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="{{ arxiv_link }}">{{ arxiv_link }}</a></td></tr>'
+        if self.pub_date:
+            header += '<tr><td>Date: </td><td>&nbsp;</td><td>{{ pub_date }}</td></tr>'
         header += '</table>'
-        return header
+        template = Template(header)
+        context = Context({
+                'pub_title': self.pub_title, 'author_list': self.author_list, 
+                })
+        if self.type == 'published':
+            context['pub_DOI_link'] = self.pub_DOI_link
+            context['pub_date'] = self.pub_date
+        elif self.type == 'preprint':
+            context['arxiv_link'] = self.arxiv_link
+        return template.render(context)
+
 
     def header_as_li (self):
         # for display in search lists
         header = '<li><div class="flex-container">'
-        #header += '<div class="flex-whitebox0"><p><a href="/commentary/' + str(self.id) + '" class="pubtitleli">' + self.pub_title + '</a></p>'
-        header += '<div class="flex-whitebox0"><p><a href="' + self.scipost_url() + '" class="pubtitleli">' + self.pub_title + '</a></p>'
-        header += '<p>by ' + self.author_list + '</p><p> (published ' + str(self.pub_date) + ') - latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
-        header += '</div></li>'
-        return header
+        header += '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" class="pubtitleli">{{ pub_title }}</a></p>'
+        header += '<p>by {{ author_list }}</p>'
+        if self.pub_date:
+            header += '<p> (published {{ pub_date }}) - '
+        header += 'latest activity: {{ latest_activity }}</p></div></div></li>'
+        template = Template(header)
+        context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
+                           'author_list': self.author_list, 
+                           'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
+        if self.pub_date:
+            context['pub_date'] = str(self.pub_date)
+        return template.render(context)
+
 
     def parse_link_into_url (self):
         """ Takes the arXiv nr or DOI and turns it into the url suffix """

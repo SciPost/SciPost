@@ -42,7 +42,7 @@
   <h3>Search results:</h3>
   <ul>
     {% for commentary in commentary_search_list %}
-    {{ commentary.header_as_li|safe }}
+    {{ commentary.header_as_li }}
     {% endfor %}
   </ul>
   {% elif form.has_changed %}
@@ -57,7 +57,7 @@
   <h2>Recently active Commentaries:</h2>
   <ul>  
     {% for commentary in commentary_recent_list %}
-    {{ commentary.header_as_li|safe }}
+    {{ commentary.header_as_li }}
     {% endfor %}
   </ul>
 </section>
@@ -69,7 +69,7 @@
   <h2>Commentaries in {{ discipline }} in the last {{ nrweeksback }} weeks:</h2>
   <ul>
     {% for commentary in commentary_browse_list %}
-    {{ commentary.header_as_li|safe }}
+    {{ commentary.header_as_li }}
     {% endfor %}
   </ul>
   {% endif %}

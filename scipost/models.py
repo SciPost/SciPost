@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User, Group
 from django.contrib.postgres.fields import JSONField
+from django.template import Template, Context
 
 from django_countries.fields import CountryField
 
@@ -76,33 +77,59 @@ class Contributor(models.Model):
     def __str__ (self):
         return self.user.last_name + ', ' + self.user.first_name
 
+
     def private_info_as_table (self):
-        output = '<table>'
-        output += '<tr><td>Title: </td><td>&nbsp;</td><td>' + title_dict[self.title] + '</td></tr>'
-        output += '<tr><td>First name: </td><td>&nbsp;</td><td>' + self.user.first_name + '</td></tr>'
-        output += '<tr><td>Last name: </td><td>&nbsp;</td><td>' + self.user.last_name + '</td></tr>'
-        output += '<tr><td>Email: </td><td>&nbsp;</td><td>' + self.user.email + '</td></tr>'
-        output += '<tr><td>ORCID id: </td><td>&nbsp;</td><td>' + self.orcid_id + '</td></tr>'
-        output += '<tr><td>Country of employment: </td><td>&nbsp;</td><td>' + str(self.country_of_employment.name) + '</td></tr>'
-        output += '<tr><td>Affiliation: </td><td>&nbsp;</td><td>' + self.affiliation + '</td></tr>'
-        output += '<tr><td>Address: </td><td>&nbsp;</td><td>' + self.address + '</td></tr>'
-        output += '<tr><td>Personal web page: </td><td>&nbsp;</td><td>' + self.personalwebpage + '</td></tr>'
-        output += '</table>'
-        return output
+        template = Template('''
+        <table>
+        <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
+        <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
+        <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
+        <tr><td>Email: </td><td>&nbsp;</td><td>{{ email }}</td></tr>
+        <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
+        <tr><td>Country of employment: </td><td>&nbsp;</td><td>{{ country_of_employment }}</td></tr>
+        <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
+        <tr><td>Address: </td><td>&nbsp;</td><td>{{ address }}</td></tr>
+        <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
+        </table>
+        ''')
+        context = Context({
+                'title': title_dict[self.title],
+                'first_name': self.user.first_name,
+                'last_name': self.user.last_name,
+                'email': self.user.email,
+                'orcid_id': self.orcid_id,
+                'country_of_employment': str(self.country_of_employment.name),
+                'affiliation': self.affiliation,
+                'address': self.address,
+                'personalwebpage': self.personalwebpage
+                })
+        return template.render(context)
+
 
     def public_info_as_table (self):
-        output = '<table>'
-        output += '<tr><td>Title: </td><td>&nbsp;</td><td>' + title_dict[self.title] + '</td></tr>'
-        output += '<tr><td>First name: </td><td>&nbsp;</td><td>' + self.user.first_name + '</td></tr>'
-        output += '<tr><td>Last name: </td><td>&nbsp;</td><td>' + self.user.last_name + '</td></tr>'
-        output += '<tr><td>ORCID id: </td><td>&nbsp;</td><td>' + self.orcid_id + '</td></tr>'
-        output += '<tr><td>Country of employment: </td><td>&nbsp;</td><td>' + str(self.country_of_employment.name) + '</td></tr>'
-        output += '<tr><td>Affiliation: </td><td>&nbsp;</td><td>' + self.affiliation + '</td></tr>'
-        output += '<tr><td>Personal web page: </td><td>&nbsp;</td><td>' + self.personalwebpage + '</td></tr>'
-        output += '</table>'
-        return output
-
-
+        template = Template('''
+        <table>
+        <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
+        <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
+        <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
+        <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
+        <tr><td>Country of employment: </td><td>&nbsp;</td><td>{{ country_of_employment }}</td></tr>
+        <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
+        <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
+        </table>
+        ''')
+        context = Context({
+                'title': title_dict[self.title],
+                'first_name': self.user.first_name,
+                'last_name': self.user.last_name,
+                'email': self.user.email,
+                'orcid_id': self.orcid_id,
+                'country_of_employment': str(self.country_of_employment.name),
+                'affiliation': self.affiliation,
+                'address': self.address,
+                'personalwebpage': self.personalwebpage
+                })
+        return template.render(context)
 
 
 
@@ -154,7 +181,6 @@ class AuthorshipClaim(models.Model):
     submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
     commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True)
     thesislink = models.ForeignKey('theses.ThesisLink', blank=True, null=True)
-#    vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
     status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS, default=0)
     

@@ -41,7 +41,7 @@
   <h3>Search results:</h3>
   <ul>
     {% for thesislink in thesislink_search_list %}
-    {{ thesislink.header_as_li|safe }}
+    {{ thesislink.header_as_li }}
     {% endfor %}
   </ul>
   {% elif form.has_changed %}
@@ -56,7 +56,7 @@
   <h2>Recently active Thesis Links:</h2>
   <ul>
     {% for thesislink in thesislink_recent_list %}
-    {{ thesislink.header_as_li|safe }}
+    {{ thesislink.header_as_li }}
     {% endfor %}
   </ul>
 </section>
@@ -68,7 +68,7 @@
   <h2>Thesis Links in {{ discipline }} in the last {{ nrweeksback }} weeks:</h2>
   <ul>
     {% for thesislink in thesislink_browse_list %}
-    {{ thesislink.header_as_li|safe }}
+    {{ thesislink.header_as_li }}
     {% endfor %}
   </ul>
   {% endif %}

@@ -51,7 +51,7 @@
   <div class="row">
     <div class="col-6">
       <h3>Your personal details</h3>
-      {{ contributor.private_info_as_table|safe }}
+      {{ contributor.private_info_as_table }}
     </div>
     <div class="col-6">
       {% if request.user|is_in_group:'SciPost Administrators' %}
@@ -188,7 +188,7 @@
     <h3>Submissions for which you are identified as an author:</h3>
     <ul>
       {% for sub in own_submissions %}
-      {{ sub.header_as_li|safe }}
+      {{ sub.header_as_li }}
       {% endfor %}
     </ul>  
     {% endif %}
@@ -212,7 +212,7 @@
     <h3>Commentaries for which you are identified as an author:</h3>
     <ul>
       {% for com in own_commentaries %}
-      {{ com.header_as_li|safe }}
+      {{ com.header_as_li }}
       {% endfor %}
     </ul>  
     {% endif %}
@@ -236,7 +236,7 @@
     <h3>Theses for which you are identified as an author:</h3>
     <ul>
       {% for thesis in own_thesislinks %}
-      {{ thesis.header_as_li|safe }}
+      {{ thesis.header_as_li }}
       {% endfor %}
     </ul>
     {% endif %}
@@ -253,7 +253,7 @@
   <div id="mycommentslist">
     <ul>
       {% for own_comment in own_comments %}
-      {{ own_comment.header_as_li|safe }}
+      {{ own_comment.header_as_li }}
       {% endfor %}
     </ul>
   </div>
@@ -270,7 +270,7 @@
   <div id="myauthorreplieslist">
     <ul>
       {% for own_reply in own_authorreplies %}
-      {{ own_reply.header_as_li|safe }}
+      {{ own_reply.header_as_li }}
       {% endfor %}
     </ul>
   </div>

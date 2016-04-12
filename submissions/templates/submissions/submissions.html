@@ -43,7 +43,7 @@
   <h3>Search results:</h3>
   <ul>
     {% for submission in submission_search_list %}
-    {{ submission.header_as_li|safe }}
+    {{ submission.header_as_li }}
     {% endfor %}
   </ul>
   {% elif form.has_changed %}
@@ -58,7 +58,7 @@
   <h2>Recent Submissions:</h2>
   <ul>  
     {% for submission in submission_recent_list %}
-    {{ submission.header_as_li|safe }}
+    {{ submission.header_as_li }}
     {% endfor %}
   </ul>
 </section>
@@ -70,7 +70,7 @@
   <h2>Submissions in {{ discipline }} in the last {{ nrweeksback }} weeks:</h2>
   <ul>
     {% for submission in submission_browse_list %}
-    {{ submission.header_as_li|safe }}
+    {{ submission.header_as_li }}
     {% endfor %}
   </ul>
   {% endif %}

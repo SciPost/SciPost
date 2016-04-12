@@ -14,8 +14,8 @@
 
     <div class="flex-container">
       <div class="flex-commentbox">
-        {{ comment.print_identifier|safe }}
-        {{ comment.categories_as_ul|safe }}
+        {{ comment.print_identifier }}
+        {{ comment.categories_as_ul }}
         <div class="opinionsDisplay">
           {% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
 	  {% if user.contributor != comment.author %}
@@ -32,7 +32,7 @@
 	    <input type="submit" class="disagree" value="Disagree {{ comment.nr_D }}"/>
 	  </form>
 	  {% else %}
-	  {{ comment.opinions_as_ul|safe }}
+	  {{ comment.opinions_as_ul }}
 	  {% endif %}
           {% endif %}
         </div>
@@ -56,8 +56,8 @@
 
       <div class="flex-container">
 	<div class="flex-commentbox">
-          {{ reply.print_identifier|safe }}
-          {{ reply.categories_as_ul|safe }}
+          {{ reply.print_identifier }}
+          {{ reply.categories_as_ul }}
           <div class="opinionsDisplay">
             {% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
 	    {% if user.contributor != reply.author %}
@@ -74,7 +74,7 @@
 	      <input type="submit" class="disagree" value="Disagree {{ reply.nr_D }}"/>
 	    </form>
 	    {% else %}
-	    {{ reply.opinions_as_ul|safe }}
+	    {{ reply.opinions_as_ul }}
 	    {% endif %}
             {% endif %}
           </div>

@@ -60,7 +60,7 @@ $( document ).ready(function() {
   <hr>
   <div class="flex-container">
     <div class="flex-whitebox">
-      {{ contributor_to_vet.private_info_as_table|safe }}
+      {{ contributor_to_vet.private_info_as_table }}
     </div>
     <div class="flex-whitebox">
       <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">

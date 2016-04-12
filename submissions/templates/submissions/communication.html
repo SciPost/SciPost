@@ -26,7 +26,7 @@
   {% elif type == 'EtoS' %}
   <p>to SciPost Editorial Administrators</p>
   {% endif %}
-  <ul>{{ submission.header_as_li|safe }}</ul>
+  <ul>{{ submission.header_as_li }}</ul>
 
   <br/>
   <form action="{% url 'submissions:communication' submission_id=submission.id type=type %}" method="post">

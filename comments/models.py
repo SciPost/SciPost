@@ -2,6 +2,8 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.template import Template, Context
+from django.utils.safestring import mark_safe
 
 from .models import *
 
@@ -92,116 +94,149 @@ class Comment(models.Model):
 
 
     def opinions_as_ul(self):
-        output = '<ul class="opinionsDisplay">'
-        output += '<li style="background-color: #000099">Agree ' + str(self.nr_A) + '</li>'
-        output += '<li style="background-color: #555555">Not sure ' + str(self.nr_N) + '</li>'
-        output += '<li style="background-color: #990000">Disagree ' + str(self.nr_D) + '</li>'
-        output += '</ul>'
-        return output
+        template = Template('''
+        <ul class="opinionsDisplay">
+        <li style="background-color: #000099">Agree {{ nr_A }}</li>
+        <li style="background-color: #555555">Not sure {{ nr_N }}</li>
+        <li style="background-color: #990000">Disagree {{ nr_D }}</li>
+        </ul>
+        ''')
+        context = Context ({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
+        return template.render(context)
 
+    
     def opinions_as_ul_tiny(self):
-        output = '<ul class="opinionsDisplay">'
-        output += '<li style="background-color: #000099; font-size: 8px; padding: 2px;">' + str(self.nr_A) + '</li>'
-        output += '<li style="background-color: #555555; font-size: 8px; padding: 2px;">' + str(self.nr_N) + '</li>'
-        output += '<li style="background-color: #990000; font-size: 8px; padding: 2px;">' + str(self.nr_D) + '</li>'
-        output += '</ul>'
-        return output
+        template = Template('''
+        <ul class="opinionsDisplay">
+        <li style="background-color: #000099; font-size: 8px; padding: 2px;">Agree {{ nr_A }}</li>
+        <li style="background-color: #555555; font-size: 8px; padding: 2px;">Not sure {{ nr_N }}</li>
+        <li style="background-color: #990000; font-size: 8px; padding: 2px;">Disagree {{ nr_D }}</li>
+        </ul>
+        ''')
+        context = Context ({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
+        return template.render(context)
 
 
     def print_identifier (self):
         # for display 
         output = '<div class="commentid">\n'
-        output += '<h3><a id="comment_id' + str(self.id) + '"></a>'
+        output += '<h3><a id="comment_id{{ id }}"></a>'
+        context = Context({'id': self.id})
         if self.is_author_reply:
             output += 'Author '
         if not self.anonymous:
-            output += (' <a href="/contributor/' + str(self.author.id) + '">' +
-                       self.author.user.first_name + ' ' + self.author.user.last_name + '</a> on ')
-#        output += self.date_submitted.strftime("%Y-%m-%d")
-#        if self.in_reply_to:
-#            output += (', in reply to <a href="#comment_id' + str(self.in_reply_to_id) + '" style="font-size: 80%">' + 
-#                       str(self.in_reply_to.author.user.first_name) + ' ' + 
-#                       str(self.in_reply_to.author.user.last_name) + ' on ' + 
-#                       self.in_reply_to.date_submitted.strftime("%Y-%m-%d") + '</a>')
-        output += self.date_submitted.strftime("%Y-%m-%d")
+            output += ' <a href="/contributor/{{ author_id }}">{{ first_name }} {{ last_name }}</a> on '
+            context['author_id'] = self.author.id
+            context['first_name'] = self.author.user.first_name
+            context['last_name'] = self.author.user.last_name
+        output += '{{ date_submitted }}'
+        context['date_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
         if self.in_reply_to_comment:
-            output += (' (in reply to <a href="#comment_id' + str(self.in_reply_to_comment_id) + '">' + 
-                       str(self.in_reply_to_comment.author.user.first_name) + ' ' + 
-                       str(self.in_reply_to_comment.author.user.last_name)  + ' on ' + 
-                       self.in_reply_to_comment.date_submitted.strftime("%Y-%m-%d") + '</a>)')
+            output += (' (in reply to <a href="#comment_id{{ in_reply_to_comment_id }}">' + 
+                       '{{ in_reply_to_comment_first_name }} {{ in_reply_to_comment_last_name }} on ' + 
+                       '{{ in_reply_to_comment_date }}</a>)')
+            context['in_reply_to_comment_id'] = self.in_reply_to_comment_id
+            context['in_reply_to_comment_first_name'] = self.in_reply_to_comment.author.user.first_name
+            context['in_reply_to_comment_last_name'] = self.in_reply_to_comment.author.user.last_name
+            context['in_reply_to_comment_date'] = self.in_reply_to_comment.date_submitted.strftime("%Y-%m-%d")
         elif self.in_reply_to_report:
-            output += (' (in reply to <a href="#report_id' + str(self.in_reply_to_report_id) + '">')
+            output += ' (in reply to <a href="#report_id{{ in_reply_to_report_id }}">'
+            context['in_reply_to_report_id'] = self.in_reply_to_report_id
             if not self.in_reply_to_report.anonymous:
-                output += (str(self.in_reply_to_report.author.user.first_name) + ' ' + 
-                           str(self.in_reply_to_report.author.user.last_name))
+                output += '{{ in_reply_to_report_first_name }} {{ in_reply_to_report_last_name}}'
+                context['in_reply_to_report_first_name'] = self.in_reply_to_report.author.user.first_name
+                context['in_reply_to_report_last_name'] = self.in_reply_to_report.author.user.last_name
             else:
-                output += 'Report ' + str(self.in_reply_to_report_id)
-            output += '</a> on ' + self.in_reply_to_report.date_submitted.strftime("%Y-%m-%d") + '</a>)'
+                output += 'Report {{ in_reply_to_report_id }}'
+                context['in_reply_to_report_id'] = self.in_reply_to_report_id
+            output += ' on {{ date_submitted }}</a>)'
+            context['date_submitted'] = self.in_reply_to_report.date_submitted.strftime("%Y-%m-%d")
         output += '</h3></div>'
-        return output
+        template = Template(output)
+        return template.render(context)
+
 
     def print_identifier_for_vetting (self):
         # for display, same as print_identifier but named even if anonymous, not linked 
         output = '<div class="commentid">\n'
         output += '<h3>'
+        context = Context()
         if self.is_author_reply:
             output += 'Author '
-        output += (' <a href="/contributor/' + str(self.author.id) + '">' +
-                   self.author.user.first_name + ' ' + self.author.user.last_name + '</a> on ')
-        output += self.date_submitted.strftime("%Y-%m-%d")
+        output += ' <a href="/contributor/{{ author_id }}">{{ first_name }}{{ last_name }}</a> on '
+        context['author_id'] = self.author.id
+        context['first_name'] = self.author.user.first_name
+        context['last_name'] = self.author.user.last_name
+        output += '{{ date_submitted }}'
+        context['date_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
         if self.in_reply_to_comment:
-            output += (' (in reply to <a href="#comment_id' + str(self.in_reply_to_comment_id) + '">' + 
-                       str(self.in_reply_to_comment.author.user.first_name) + ' ' + 
-                       str(self.in_reply_to_comment.author.user.last_name)  + ' on ' + 
-                       self.in_reply_to_comment.date_submitted.strftime("%Y-%m-%d") + '</a>)')
+            output += (' (in reply to <a href="#comment_id{{ in_reply_to_comment_id }}">' + 
+                       '{{ in_reply_to_comment_first_name }} {{ in_reply_to_comment_last_name }} on ' + 
+                       '{{ in_reply_to_comment_date }}</a>)')
+            context['in_reply_to_comment_id'] = self.in_reply_to_comment_id
+            context['in_reply_to_comment_first_name'] = self.in_reply_to_comment.author.user.first_name
+            context['in_reply_to_comment_last_name'] = self.in_reply_to_comment.author.user.last_name
+            context['in_reply_to_comment_date'] = self.in_reply_to_comment.date_submitted.strftime("%Y-%m-%d")            
         elif self.in_reply_to_report:
-            output += (' (in reply to <a href="#report_id' + str(self.in_reply_to_report_id) + '">')
+            output += ' (in reply to <a href="#report_id{{ in_reply_to_report_id }}">'
+            context['in_reply_to_report_id'] = self.in_reply_to_report_id
             if not self.in_reply_to_report.anonymous:
-                output += (str(self.in_reply_to_report.author.user.first_name) + ' ' + 
-                           str(self.in_reply_to_report.author.user.last_name))
+                output += '{{ in_reply_to_report_first_name }} {{ in_reply_to_report_last_name}}'
+                context['in_reply_to_report_first_name'] = self.in_reply_to_report.author.user.first_name
+                context['in_reply_to_report_last_name'] = self.in_reply_to_report.author.user.last_name
             else:
-                output += 'Report ' + str(self.in_reply_to_report_id)
-            output += ' on ' + self.in_reply_to_report.date_submitted.strftime("%Y-%m-%d") + '</a>)'
+                output += 'Report {{ in_reply_to_report_id }}'
+                context['in_reply_to_report_id'] = self.in_reply_to_report_id
+            output += '</a> on {{ date_submitted }})'
+            context['date_submitted'] = self.in_reply_to_report.date_submitted.strftime("%Y-%m-%d")
         output += '</h3></div>'
-        return output
-
+        template = Template(output)
+        return template.render(context)
 
 
     def header_as_li (self):
         # for search lists
         header = '<li><div class="flex-container">'
         header += '<div class="flex-whitebox0">'
-        header += 'Nr ' + str(self.id)
+        header += 'Nr {{ id }}'
+        context = Context({'id': self.id})
         header += ', <div class="opinionsDisplay">' + self.opinions_as_ul_tiny() + '</div>'
         if self.status <= 0:
             header += ', status: <span style="color:red">' + comment_status_dict[self.status] + '</span>'
         text_cut = self.comment_text[:50]
         if len(self.comment_text) > 50:
             text_cut += '...'
+        context['id'] = self.id
+        context['text_cut'] = text_cut
+        context['date_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
         header += ': '
         if self.submission is not None:
-            header += ('<a href="/submission/' + str(self.submission.id) + 
-                       '#comment_id' + str(self.id) + '"> \"' + text_cut + '\"</a>' + 
-                       '<p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d"))
-            header += (' in submission on <a href="/submission/' + str(self.submission.id) + 
-                       '" class="pubtitleli">' + self.submission.title + '</a> by ' + 
-                       self.submission.author_list + '</p>')
+            header += ('<a href="/submission/{{ submission_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>' + 
+                       '<p>submitted on {{ date_submitted }}')
+            header += (' in submission on <a href="/submission/{{ submission_id }}" class="pubtitleli">' + 
+                       '{{ submission_title }}</a> by {{ submission_author_list }}</p>')
+            context['submission_id'] = self.submission.id
+            context['submission_title'] = self.submission.title
+            context['submission_author_list'] = self.submission.author_list
         if self.commentary is not None:
-            header += ('<a href="/commentary/' + str(self.commentary.id) + 
-                       '#comment_id' + str(self.id) + '"> \"' + text_cut + 
-                       '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d"))
-            header += (' in commentary on <a href="/commentary/' + str(self.commentary.id) + 
-                       '" class="pubtitleli">' + self.commentary.pub_title + 
-                       '</a> by ' + self.commentary.author_list + '</p>')
+            header += ('<a href="/commentary/{{ commentary_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>' +
+                       '<p>submitted on {{ date_submitted }}')
+            header += (' in commentary on <a href="/commentary/{{ commentary_id }}" class="pubtitleli">' + 
+                       '{{ commentary_pub_title }}</a> by {{ commentary_author_list }}</p>')
+            context['commentary_id'] = self.commentary.id
+            context['commentary_pub_title'] = self.commentary.pub_title
+            context['commentary_author_list'] = self.commentary.author_list
         if self.thesislink is not None:
-            header += ('<a href="/thesis/' + str(self.thesislink.id) + 
-                       '#comment_id' + str(self.id) + '"> \"' + text_cut + 
-                       '\"</a><p>submitted on ' + self.date_submitted.strftime("%Y-%m-%d"))
-            header += (' in thesislink on <a href="/thesis/' + str(self.thesislink.id) + 
-                       '" class="pubtitleli">' + self.thesislink.title + 
-                       '</a> by ' + self.thesislink.author + '</p>')
+            header += ('<a href="/thesis/{{ thesislink_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>' +
+                       '<p>submitted on {{ date_submitted }}')
+            header += (' in thesislink on <a href="/thesis/{{ thesislink_id }}" class="pubtitleli">' + 
+                       '{{ thesislink_title }}</a> by {{ thesislink_author }}</p>')
+            context['thesislink_id'] = self.thesis.link.id
+            context['thesislink_title'] = self.thesislink.title
+            context['thesislink_author'] = self.thesislink.author
         header += '</div></div></li>'
-        return header
+        template = Template(header)
+        return template.render(context)
 
     def categories_as_ul(self):
         output = '<div class="commentcategorydisplay"><h4>Category:</h4><ul>'
@@ -224,6 +259,6 @@ class Comment(models.Model):
         if self.is_sug:
             output += '<li>suggestion for further work</li>'
         output += '</ul></div>'
-        return output
+        return mark_safe(output)
 
 

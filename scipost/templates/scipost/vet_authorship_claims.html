@@ -21,13 +21,13 @@
     {% for claim in claims_to_vet %}
     {% if claim.submission %}
     <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
-    {{ claim.submission.header_as_li | safe }}
+    {{ claim.submission.header_as_li }}
     {% elif claim.commentary %}
     <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
-    {{ claim.commentary.header_as_li | safe }}
+    {{ claim.commentary.header_as_li }}
     {% elif claim.thesislink %}
     <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Thesis:</h4>
-    {{ claim.thesislink.header_as_li | safe }}
+    {{ claim.thesislink.header_as_li }}
     {% endif %}
 
     <form action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=1%}" method="post">

@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
+from django.template import Template, Context
 
 from .models import *
 
@@ -42,9 +43,12 @@ class ThesisLink(models.Model):
         return self.title
 
     def header_as_table (self):
+        context = Context({'title': self.title, 'author': self.author,
+                           'pub_link': self.pub_link, 'instituation': self.institution,
+                           'supervisor': self.supervisor, 'defense_date': self.defense_date})
         header = '<table>'
-        header += '<tr><td>Title: </td><td>&nbsp;</td><td>' + self.title + '</td></tr>'
-        header += '<tr><td>Author: </td><td>&nbsp;</td><td>' + self.author + '</td></tr>'
+        header += '<tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>'
+        header += '<tr><td>Author: </td><td>&nbsp;</td><td>{{ author }}</td></tr>'
         header += '<tr><td>As Contributor: </td><td>&nbsp;</td>'
         if self.author_as_cont.all():
             for auth in self.author_as_cont.all():
@@ -56,18 +60,25 @@ class ThesisLink(models.Model):
         header += '<tr><td>Discipline: </td><td></td><td>' + disciplines_dict[self.discipline] + '</td></tr>'
         header += '<tr><td>Domain: </td><td></td><td>' + journals_domains_dict[self.domain] + '</td></tr>'
         header += '<tr><td>Specialization: </td><td></td><td>' + journals_spec_dict[self.specialization] + '</td></tr>'
-        header += '<tr><td>URL: </td><td>&nbsp;</td><td><a href="' + self.pub_link + '" target="_blank">' + self.pub_link + '</a></td></tr>'
-        header += '<tr><td>Degree granting institution: </td><td>&nbsp;</td><td>' + self.institution + '</td></tr>'
-        header += '<tr><td>Supervisor(s): </td><td></td><td>' + self.supervisor + '</td></tr>'
-        header += '<tr><td>Defense date: </td><td>&nbsp;</td><td>' + str(self.defense_date) + '</td></tr>'
+        header += '<tr><td>URL: </td><td>&nbsp;</td><td><a href="{{ pub_link }}" target="_blank">{{ pub_link }}</a></td></tr>'
+        header += '<tr><td>Degree granting institution: </td><td>&nbsp;</td><td>{{ institution }}</td></tr>'
+        header += '<tr><td>Supervisor(s): </td><td></td><td>{{ supervisor </td></tr>'
+        header += '<tr><td>Defense date: </td><td>&nbsp;</td><td>{{ defense_date }}</td></tr>'
         header += '</table>'
-        return header
+        template = Template(header)
+        return template.render(context)
+
 
     def header_as_li (self):
+        context = Context({'id': self.id, 'title': self.title, 'author': self.author,
+                           'pub_link': self.pub_link, 'instituation': self.institution,
+                           'supervisor': self.supervisor, 'defense_date': self.defense_date,
+                           'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
         header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0"><p><a href="/thesis/' + str(self.id) + '" class="pubtitleli">' + self.title + '</a></p>'
-        header += '<p>' + thesis_type_dict[self.type] + ' thesis by ' + self.author + ' (supervisor(s): ' + self.supervisor + ') in ' 
+        header += '<div class="flex-whitebox0"><p><a href="/thesis/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
+        header += '<p>' + thesis_type_dict[self.type] + ' thesis by {{ author }} (supervisor(s): {{ supervisor }}) in ' 
         header += disciplines_dict[self.discipline] + ', ' + journals_domains_dict[self.domain] + ' ' + journals_spec_dict[self.specialization] + '</p>'
-        header += '<p>Defense date: ' + str(self.defense_date) + ' - Latest activity: ' + self.latest_activity.strftime('%Y-%m-%d %H:%M') + '</p></div>'
+        header += '<p>Defense date: {{ defense_date }} - Latest activity: {{ latest_activity }}</p></div>'
         header += '</div></li>'
-        return header
+        template = Template(header)
+        return template.render(context)
