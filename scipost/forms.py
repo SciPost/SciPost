@@ -1,5 +1,7 @@
 from django import forms 
 
+from django.db.models import Q
+
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
@@ -102,3 +104,36 @@ class AuthorshipClaimForm(forms.Form):
 #    class Meta:
 #        model = Assessment
 #        fields = ['relevance', 'importance', 'clarity', 'validity', 'rigour', 'originality', 'significance']
+
+
+class CreateTeamForm(forms.ModelForm):
+    class Meta:
+        model = Team
+        fields = ['name', ]
+
+    def __init__(self, *args, **kwargs):
+        super(CreateTeamForm, self).__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs.update({'size': 30, 'placeholder': 'Descriptive name for the new Team'})
+
+
+class AddTeamMemberForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(AddTeamMemberForm, self).__init__(*args, **kwargs)
+        self.fields['last_name'].widget.attrs.update({'size': 20, 'placeholder': 'Search in contributors database'})
+
+    last_name = forms.CharField()
+
+
+class CreateGraphForm(forms.ModelForm):
+    class Meta:
+        model = Graph
+        fields = ['title', 'description', 'private', 'teams_with_access']
+
+    def __init__(self, *args, **kwargs):
+        contributor = kwargs.pop('contributor')
+        super(CreateGraphForm, self).__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'size': 30, 'placeholder': 'Descriptive title for the new Graph'})
+        self.fields['private'].widget.attrs.update({'placeholder': 'Private?'})
+        self.fields['teams_with_access'] = forms.ModelMultipleChoiceField(
+            queryset=Team.objects.filter(Q(leader=contributor) | Q(members__in=[contributor])))
+        self.fields['teams_with_access'].widget.attrs.update({'placeholder': 'Team to be given access rights:'})

@@ -360,6 +360,10 @@ def personal_page(request):
         nr_thesis_authorships_to_claim = ThesisLink.objects.filter(author__contains=contributor.user.last_name).exclude(author_as_cont__in=[contributor]).exclude(author_claims__in=[contributor]).exclude(author_false_claims__in=[contributor]).count()
         own_comments = Comment.objects.filter(author=contributor,is_author_reply=False).order_by('-date_submitted')
         own_authorreplies = Comment.objects.filter(author=contributor,is_author_reply=True).order_by('-date_submitted')
+        teams_led = Team.objects.filter(leader=contributor)
+        teams = Team.objects.filter(members__in=[contributor])
+        graphs_owned = Graph.objects.filter(owner=contributor)
+        graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor) | Q(teams_with_access__members__in=[contributor]))
         context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 
                    'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 
                    'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 
@@ -378,7 +382,12 @@ def personal_page(request):
                    'own_submissions': own_submissions, 
                    'own_commentaries': own_commentaries,
                    'own_thesislinks': own_thesislinks,
-                   'own_comments': own_comments, 'own_authorreplies': own_authorreplies}
+                   'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
+                   'teams_led': teams_led,
+                   'teams': teams,
+                   'graphs_owned': graphs_owned,
+                   'graphs_private': graphs_private,
+                   }
         return render(request, 'scipost/personal_page.html', context)
     else:
         form = AuthenticationForm()
@@ -571,4 +580,88 @@ def contributor_info(request, contributor_id):
         form = AuthenticationForm()
         context = {'form': form}
         return render(request, 'scipost/login.html', context)
+
+
+
+#########
+# Teams #
+#########
+
+@permission_required('scipost.can_create_team', raise_exception=True)
+def create_team(request):
+    if request.method == "POST":
+        create_team_form = CreateTeamForm(request.POST)
+        if create_team_form.is_valid():
+            newteam = Team(leader=request.user.contributor,
+                           name=create_team_form.cleaned_data['name'],
+                           established=timezone.now())
+            newteam.save()
+            return redirect(reverse('scipost:add_team_member', kwargs={'team_id': newteam.id}))
+    else:
+        create_team_form = CreateTeamForm()
+    add_team_member_form = AddTeamMemberForm()
+    context = {'create_team_form': create_team_form, 
+               'add_team_member_form': add_team_member_form}
+    return render(request, 'scipost/create_team.html', context)
+
+@permission_required('scipost.can_create_team', raise_exception=True)
+def add_team_member(request, team_id, contributor_id=None):
+    team = get_object_or_404(Team, pk=team_id)
+    contributors_found = None
+    if contributor_id is not None:
+        contributor = get_object_or_404(Contributor, pk=contributor_id)
+        team.members.add(contributor)
+        team.save()
+        return redirect(reverse('scipost:add_team_member', kwargs={'team_id': team_id}))
+    if request.method == "POST":
+        add_team_member_form = AddTeamMemberForm(request.POST)
+        if add_team_member_form.is_valid():
+            contributors_found = Contributor.objects.filter(user__last_name__icontains=add_team_member_form.cleaned_data['last_name'])
+    else:
+        add_team_member_form = AddTeamMemberForm()
+    context = {'team': team, 'add_team_member_form': add_team_member_form,
+               'contributors_found': contributors_found}
+    return render(request, 'scipost/add_team_member.html', context)
+
+
+##########
+# Graphs #
+##########
+
+@permission_required('scipost.can_create_graph', raise_exception=True)
+def create_graph(request):
+    graphcreated = False
+    message = None
+    if request.method == "POST":
+        create_graph_form = CreateGraphForm(request.POST, contributor=request.user.contributor)
+        if create_graph_form.is_valid():
+            newgraph = Graph(owner=request.user.contributor,
+                             title=create_graph_form.cleaned_data['title'],
+                             private=create_graph_form.cleaned_data['private'],
+                             teams_with_access=form.cleaned_data['teams_with_access'],
+                             created=timezone.now())
+            newgraph.save()
+            graphcreated = True
+            message = 'Graph' + create_graph_form.cleaned_data['title'] + ' was successfully created.'
+    else:
+        create_graph_form = CreateGraphForm(contributor=request.user.contributor)
+    context = {'create_graph_form': create_graph_form, 'graphcreated': graphcreated,
+               'message': message}
+    return render(request, 'scipost/create_graph.html', context)
+
+
+@permission_required('scipost.can_create_graph', raise_exception=True)
+def graph(request, graph_id, node_id=None):
+    graph = get_object_or_404(Graph, pk=graph_id)
+#    if node_id is not None:
+#        node = get_object_or_404(Node, pk=node_id)
+#    base_node = Node.objects.filter(graph=graph, arcs_in=None)
+    context = {'graph': graph}
+    return render(request, 'scipost/graph.html', context)
+
+@permission_required('scipost.can_create_graph', raise_exception=True)
+def add_node_upstream(request, graph_id, node_id):
+    """ Adds a node upstream from the one at node_id """
+    node = get_object_or_404(Node, pk=node_id)
+    
 

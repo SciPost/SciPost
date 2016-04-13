@@ -1,0 +1,30 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: create team{% endblock pagetitle %}
+
+{% block bodysup %}
+
+<section>
+  {% if teamcreated %}
+  <p>{{ message }}</p>
+
+  <form action="{% url 'scipost:add_team_member' team_id=team.id %}" method="post">
+    {% csrf_token %}
+    <table>
+      {{ add_team_member_form.as_table }} 
+    </table>
+    <input type="submit" value="Search" />
+  </form>
+  {% else %}
+  <h1>Create a new collaborative Team</h1>
+  <form action="{% url 'scipost:create_team' %}" method="post">
+    {% csrf_token %}
+    <table>
+      {{ create_team_form.as_table }}
+    </table>
+    <input type="submit" value="Create Team" />
+  </form>
+  {% endif %}
+</section>
+
+{% endblock bodysup %}

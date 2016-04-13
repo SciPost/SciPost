@@ -87,6 +87,20 @@ class Command(BaseCommand):
             name= 'Can act as a referee and submit reports on Submissions',
             content_type=content_type)
 
+        # Teams
+        can_create_team, created = Permission.objects.get_or_create(
+            codename='can_create_team',
+            name= 'Can create a new Team',
+            content_type=content_type)
+
+        # Graphs
+        can_create_graph, created = Permission.objects.get_or_create(
+            codename='can_create_graph',
+            name= 'Can create a new Graph',
+            content_type=content_type)
+
+
+
         # Assign permissions to groups
         SciPostAdmin.permissions.add(can_manage_registration_invitations,
                                      can_vet_registration_requests,

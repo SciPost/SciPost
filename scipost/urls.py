@@ -60,4 +60,14 @@ urlpatterns = [
 
     # Feeds
     url(r'^latest_comment/feed/$', LatestCommentFeed()),
+
+    # Teams
+    url(r'^create_team$', views.create_team, name='create_team'),
+    url(r'^add_team_member/(?P<team_id>[0-9]+)$', views.add_team_member, name='add_team_member'),
+    url(r'^add_team_member/(?P<team_id>[0-9]+)/(?P<contributor_id>[0-9]+)$', views.add_team_member, name='add_team_member'),
+
+    # Graphs
+    url(r'^create_graph$', views.create_graph, name='create_graph'),
+#    url(r'^add_graph_node/(?P<graph_id>[0-9]+)$', views.add_graph_node, name='add_graph_node'),
+    url(r'^graph/(?P<graph_id>[0-9]+)$', views.graph, name='graph'),
 ]

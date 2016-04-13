@@ -26,3 +26,9 @@ admin.site.register(AuthorshipClaim)
 #admin.site.register(Opinion)
 
 admin.site.register(Permission)
+
+admin.site.register(Team)
+
+admin.site.register(Graph)
+
+admin.site.register(Node)

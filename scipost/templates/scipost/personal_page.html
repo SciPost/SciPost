@@ -60,6 +60,18 @@
     $(".TabSection").hide();
     $("#AuthorReplies").show();
    });
+   $("#TeamsTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#TeamsTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#Teams").show();
+   });
+   $("#GraphsTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#GraphsTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#Graphs").show();
+   });
   });
 </script>
 
@@ -83,13 +95,21 @@
 
   <ul class="personalTabMenu">
     <li><a class="TabItem" id="AccountTab">Account</a></li>
+    {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' %}
     <li><a class="TabItem" id="EdActionTab">Editorial Actions</a></li>
+    {% endif %}
     <li><a class="TabItem" id="RefereeingTab">Refereeing</a></li>
     <li><a class="TabItem" id="SubmissionsTab">Submissions</a></li>
     <li><a class="TabItem" id="CommentariesTab">Commentaries</a></li>
     <li><a class="TabItem" id="ThesesTab">Theses</a></li>
     <li><a class="TabItem" id="CommentsTab">Comments</a></li>
     <li><a class="TabItem" id="AuthorRepliesTab">Author Replies</a></li>
+    {% if perms.scipost.can_create_team %}
+    <li><a class="TabItem" id="TeamsTab">Teams</a></li>
+    {% endif %}
+    {% if perms.scipost.can_create_graph %}
+    <li><a class="TabItem" id="GraphsTab">Graphs</a></li>
+    {% endif %}
   </ul>
 </section>
 
@@ -325,6 +345,62 @@
   </div>
 </section>
 {% endif %}
+
+<section class="TabSection" id="Teams">
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Teams</h1>
+    <ul>
+      <li><a href="{% url 'scipost:create_team' %}">Create a new Team</a></li>
+    </ul>
+  </div>
+  {% if teams_led %}
+  <h3>Teams you are leading:</h3>
+  <ul>
+    {% for team in teams_led %}
+    {{ team.header_as_li }}
+    <a href="{% url 'scipost:add_team_member' team_id=team.id %}">Add a member</a>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if teams %}
+  <h3>Teams of which you are a member:</h3>
+  <ul>
+    {% for team in teams %}
+    {{ team.header_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+</section>
+
+<section class="TabSection" id="Graphs">
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Graphs</h1>
+    <ul>
+      <li><a href="{% url 'scipost:create_graph' %}">Create a new Graph</a></li>
+    </ul>
+  </div>
+
+  {% if graphs_owned %}
+  <h3>Graphs you own:</h3>
+  <ul>
+    {% for graph in graphs_owned %}
+    {{ graph.header_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if graphs_private %}
+  <h3>Private graphs which you can access:</h3>
+  <ul>
+    {% for graph in graphs_private %}
+    {{ graph.header_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+</section>
 
 {% endif %}
 

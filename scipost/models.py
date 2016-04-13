@@ -6,8 +6,6 @@ from django.template import Template, Context
 
 from django_countries.fields import CountryField
 
-from mptt.models import MPTTModel, TreeForeignKey
-
 from .models import *
 
 SCIPOST_DISCIPLINES = (
@@ -267,28 +265,79 @@ class Team(models.Model):
     leader = models.ForeignKey(Contributor)
     members = models.ManyToManyField (Contributor, blank=True, related_name='team_members')
     name = models.CharField(max_length=20)
+    established = models.DateField(default=timezone.now)
 
     def __str__(self):
-        return name + ' (led by ' + leader.user.first_name + ' ' + leader.user.last_name + ')'
-    
+        return self.name + ' (led by ' + self.leader.user.first_name + ' ' + self.leader.user.last_name + ')'
 
-#########
-# Lists #
-#########
+    def header_as_li(self):
+        context = Context({'name': self.name,})
+        output = '<li><p>Team {{ name }}, led by ' + self.leader.user.first_name + ' ' + self.leader.user.last_name + '</p>'
+        output += '<p>Members: '
+        if not self.members.all():
+            output += '(none yet, except for the leader)'
+        else :
+            for member in self.members.all():
+                output += member.user.first_name + ' ' + member.user.last_name + ', '
+        output += '</p></li>'
+        template = Template(output)
+        return template.render(context)
 
-class Node(MPTTModel):
+
+##########
+# Graphs #
+##########
+
+class Graph(models.Model):
+    """ 
+    A Graph is a collection of Nodes with directed arrows,
+    representing e.g. a reading list, exploration path, etc.
+    If private, only the teams in teams_with_access can see/edit it.
     """
-    Node of a list (tree of submissions, commentaries, thesislinks). 
-    Requires django-mptt.
-    """
-    owner = models.ForeignKey(Team)
-    name = models.CharField(max_length=100)
+    owner = models.ForeignKey(Contributor)
     private = models.BooleanField(default=True)
-    parent = TreeForeignKey('self', blank=True, null=True, related_name='children', db_index=True)
+    teams_with_access = models.ManyToManyField(Team, blank=True)
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    created = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' ' + self.owner.user.last_name + ')'
+
+    def header_as_li(self):
+        context = Context({'id': self.id, 'title': self.title, 
+                           'first_name': self.owner.user.first_name, 
+                           'last_name': self.owner.user.last_name})
+        template = Template('''
+           <li><p>Graph <a href="{% url 'scipost:graph' graph_id=id %}">{{ title }}</a> (owner: {{ first_name }} {{ last_name }})</li>
+        ''')
+        return template.render(context)
+
+    def contents(self):
+        context = Context({})
+        output = self.description
+        template = Template(output)
+        return template.render(context)
+
+
+class Node(models.Model):
+    """
+    Node of a graph (directed).
+    Each node is composed of a set of submissions, commentaries, thesislinks. 
+    Accessibility rights are set in the Graph ForeignKey.
+    """
+    graph = models.ForeignKey(Graph, default=None)
+    added_by = models.ForeignKey(Contributor, default=None)
+    created = models.DateTimeField(default=timezone.now)
+    name = models.CharField(max_length=100)
+    arcs_in = models.ManyToManyField('self', blank=True, related_name='node_arcs_in') # arcs pointing into this node
     description = models.TextField(blank=True, null=True)
     submissions = models.ManyToManyField('submissions.Submission', blank=True, related_name='node_submissions')
     commentaries = models.ManyToManyField('commentaries.Commentary', blank=True, related_name='node_commentaries')
     thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True, related_name='node_thesislinks')
     annotation = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.graph.title[:20] + ': ' + self.name[:20] + ' (owner: ' + self.owner.user.first_name + ' ' + self.owner.user.last_name + ')'
 
     

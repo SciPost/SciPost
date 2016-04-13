@@ -52,6 +52,7 @@ hr.hr12 {
 ul.personalTabMenu {
   background-color: #dddddd;
   display: inline-block;
+  font-size: 12px;
   padding: 0px;
 }
 ul.personalTabMenu li {
