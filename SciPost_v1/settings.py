@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     'django_mathjax',
     'captcha',
     'crispy_forms',
+    'mptt',
     'commentaries',
     'comments',
     'journals',

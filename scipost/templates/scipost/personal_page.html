@@ -8,21 +8,58 @@
 
 <script>
   $(document).ready(function(){
-  $("#mysubmissionsbutton").click(function(){
-  $("#mysubmissionslist").toggle();
-  });
-  $("#mycommentariesbutton").click(function(){
-  $("#mycommentarieslist").toggle();
-  });
-  $("#mythesesbutton").click(function(){
-  $("#mytheseslist").toggle();
-  });
-  $("#mycommentsbutton").click(function(){
-  $("#mycommentslist").toggle();
-  });
-  $("#myauthorrepliesbutton").click(function(){
-  $("#myauthorreplieslist").toggle();
-  });
+   $(".TabSection").hide();
+   $(".TabItem").attr("class", "TabItem inactive");
+   $("#AccountTab").attr("class", "TabItem active");
+   $("#Account").show();
+   $("#AccountTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#AccountTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#Account").show();
+   });
+   $("#EdActionTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#EdActionTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#EdActions").show();
+   });
+   $("#RefereeingTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#RefereeingTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#Refereeing").show();
+   });
+   $("#SubmissionsTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#SubmissionsTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#Submissions").show();
+   });
+   $("#CommentariesTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#CommentariesTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#Commentaries").show();
+   });
+   $("#ThesesTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#ThesesTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#Theses").show();
+   });
+   $("#CommentsTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#CommentsTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#Comments").show();
+   });
+   $("#AuthorRepliesTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#AuthorRepliesTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#AuthorReplies").show();
+   });
   });
 </script>
 
@@ -44,6 +81,19 @@
     <h1>Welcome to your SciPost Personal Page, {{ user.username }} </h1>
   </div>
 
+  <ul class="personalTabMenu">
+    <li><a class="TabItem" id="AccountTab">Account</a></li>
+    <li><a class="TabItem" id="EdActionTab">Editorial Actions</a></li>
+    <li><a class="TabItem" id="RefereeingTab">Refereeing</a></li>
+    <li><a class="TabItem" id="SubmissionsTab">Submissions</a></li>
+    <li><a class="TabItem" id="CommentariesTab">Commentaries</a></li>
+    <li><a class="TabItem" id="ThesesTab">Theses</a></li>
+    <li><a class="TabItem" id="CommentsTab">Comments</a></li>
+    <li><a class="TabItem" id="AuthorRepliesTab">Author Replies</a></li>
+  </ul>
+</section>
+
+<section class="TabSection" id="Account">
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Your Account</h1>
@@ -79,8 +129,9 @@
   </div>
 </section>
 
+
 {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' %}
-<section>
+<section class="TabSection" id="EdActions">
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Pending Editorial Actions</h1>
@@ -148,8 +199,9 @@
 </section>
 {% endif %}
 
+
 {% if perms.scipost.can_referee %}
-<section>
+<section class="TabSection" id="Refereeing">
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Refereeing Tasks</h1>
@@ -171,11 +223,10 @@
 </section>
 {% endif %}
 
-<section>
+<section class="TabSection" id="Submissions">
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Submissions</h1>
-    <button id="mysubmissionsbutton">View/hide your submissions</button>
     <ul>
       {% if nr_submission_authorships_to_claim > 0 %}
       <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_submission_authorships_to_claim}})</a></li>
@@ -195,11 +246,11 @@
   </div>
 </section>
 
-<section>
+
+<section class="TabSection" id="Commentaries">
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Commentaries</h1>
-    <button id="mycommentariesbutton">View/hide commentaries on your papers</button>
     <ul>
       {% if nr_commentary_authorships_to_claim > 0 %}
       <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_commentary_authorships_to_claim}})</a></li>
@@ -219,11 +270,11 @@
   </div>
 </section>
 
-<section>
+
+<section class="TabSection" id="Theses">
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Theses</h1>
-    <button id="mythesesbutton">View/hide your theses</button>
     <ul>
       {% if nr_thesis_authorships_to_claim > 0 %}
       <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_thesis_authorships_to_claim}})</a></li>
@@ -244,11 +295,10 @@
 </section>
 
 {% if own_comments %}
-<section>
+<section class="TabSection" id="Comments">
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Your Comments</h1>
-    <button id="mycommentsbutton">View/hide your comments</button>
   </div>
   <div id="mycommentslist">
     <ul>
@@ -261,11 +311,10 @@
 {% endif %}
 
 {% if own_authorreplies %}
-<section>
+<section class="TabSection" id="AuthorReplies">
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Your Author Replies</h1>
-    <button id="myauthorrepliesbutton">View/hide your author replies</button>
   </div>
   <div id="myauthorreplieslist">
     <ul>
