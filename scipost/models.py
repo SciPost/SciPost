@@ -330,7 +330,7 @@ class Node(models.Model):
     added_by = models.ForeignKey(Contributor, default=None)
     created = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=100)
-    arcs_in = models.ManyToManyField('self', blank=True, related_name='node_arcs_in') # arcs pointing into this node
+    arcs_in = models.ManyToManyField('self', blank=True, related_name='node_arcs_in', symmetrical=False) # arcs from another node pointing into this node
     description = models.TextField(blank=True, null=True)
     submissions = models.ManyToManyField('submissions.Submission', blank=True, related_name='node_submissions')
     commentaries = models.ManyToManyField('commentaries.Commentary', blank=True, related_name='node_commentaries')
@@ -338,6 +338,23 @@ class Node(models.Model):
     annotation = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.graph.title[:20] + ': ' + self.name[:20] + ' (owner: ' + self.owner.user.first_name + ' ' + self.owner.user.last_name + ')'
+        return self.graph.title[:20] + ': ' + self.name[:20] 
 
-    
+    def header_as_p(self):
+        context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name})
+        output = '<p><a href="{% url \'scipost:graph\' graph_id=graph_id node_id=id %}">{{ name }}</a></p>'
+        template = Template(output)
+        return template.render(context)
+
+    def contents(self):
+        context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name, 
+                           'description': self.description, 'annotation': self.annotation})
+        output = '''<h3><a href="{% url 'scipost:graph' graph_id=graph_id node_id=id %}">{{ name }}</a></h3>
+                 <p>{{ description }}</p><p>{{ annotation }}</p>'''
+        template = Template(output)
+        return template.render(context)
+
+    def contents_small(self):
+        output = '<div style="font-size: 60%">' + self.contents + '</div>'
+        template = Template(output)
+        return template.render()

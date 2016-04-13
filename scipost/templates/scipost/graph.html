@@ -6,9 +6,32 @@
 
 <section>
   <h1>Graph</h1>
-
   {{ graph.contents }}
 
+  <hr class="hr6"/>
+
+  {% if node.arcs_in.all %}
+  <h3>Pointed to from:</h3>
+  <ul>
+    {% for node_in in node.arcs_in.all %}
+    {{ node_in.header_as_p }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {{ node.contents }}
+
+  {% if nodes_out %}
+  <h3>Pointing to:</h3>
+  <ul>
+    {% for node_out in nodes_out.all %}
+    {{ node_out.header_as_p }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <hr class="hr6"/>
+  <h3><a href="{% url 'scipost:add_graph_node' graph_id=node.graph.id %}">Add a Node</a></h3>
 
 </section>
 

@@ -137,3 +137,20 @@ class CreateGraphForm(forms.ModelForm):
         self.fields['teams_with_access'] = forms.ModelMultipleChoiceField(
             queryset=Team.objects.filter(Q(leader=contributor) | Q(members__in=[contributor])))
         self.fields['teams_with_access'].widget.attrs.update({'placeholder': 'Team to be given access rights:'})
+
+
+class CreateNodeForm(forms.ModelForm):
+    arcs_out = forms.ModelMultipleChoiceField(Node, required=False)
+    class Meta:
+        model = Node
+        fields = ['name', 'description', 'annotation', 'arcs_in', 'arcs_out']
+
+    def __init__(self, *args, **kwargs):
+        graph = kwargs.pop('graph')
+        super(CreateNodeForm, self).__init__(*args, **kwargs)
+        self.fields['arcs_in'] = forms.ModelMultipleChoiceField( 
+            queryset=Node.objects.filter(graph=graph))
+        self.fields['arcs_in'].required=False
+        self.fields['arcs_out'] = forms.ModelMultipleChoiceField(
+            queryset=Node.objects.filter(graph=graph))
+        self.fields['arcs_out'].required=False

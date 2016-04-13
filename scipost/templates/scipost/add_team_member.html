@@ -24,7 +24,9 @@
   <p>Add a member to the Team:</p>
   <form action="{% url 'scipost:add_team_member' team_id=team.id %}" method="post">
     {% csrf_token %}
-    {{ add_team_member_form }}
+    <table>
+      {{ add_team_member_form.as_table }}
+    </table>
     <input type="submit" value="Search" />
   </form>
   {% endif %}

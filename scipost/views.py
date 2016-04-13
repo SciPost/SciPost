@@ -653,15 +653,39 @@ def create_graph(request):
 @permission_required('scipost.can_create_graph', raise_exception=True)
 def graph(request, graph_id, node_id=None):
     graph = get_object_or_404(Graph, pk=graph_id)
-#    if node_id is not None:
-#        node = get_object_or_404(Node, pk=node_id)
-#    base_node = Node.objects.filter(graph=graph, arcs_in=None)
-    context = {'graph': graph}
-    return render(request, 'scipost/graph.html', context)
+    if node_id is not None:
+        node = get_object_or_404(Node, pk=node_id)
+        nodes_out = Node.objects.filter(graph=graph, arcs_in__in=[node])
+        context = {'graph': graph, 'node': node, 'nodes_out': nodes_out}
+        return render(request, 'scipost/graph.html', context)
+    elif Node.objects.filter(graph=graph).exists():
+        node = Node.objects.filter(graph=graph).first()
+        return redirect(reverse('scipost:graph', kwargs={'graph_id': graph.id, 'node_id': node.id}))
+    else:
+        return redirect(reverse('scipost:add_graph_node', kwargs={'graph_id': graph.id}))
+
 
 @permission_required('scipost.can_create_graph', raise_exception=True)
-def add_node_upstream(request, graph_id, node_id):
-    """ Adds a node upstream from the one at node_id """
-    node = get_object_or_404(Node, pk=node_id)
-    
-
+def add_graph_node(request, graph_id):
+    """ Adds a node """
+    graph = get_object_or_404(Graph, pk=graph_id)
+    if request.method == "POST":
+        create_node_form = CreateNodeForm(request.POST, graph=graph)
+        if create_node_form.is_valid():
+            newnode = Node(graph=graph, 
+                           added_by=request.user.contributor,
+                           created=timezone.now(),
+                           name=create_node_form.cleaned_data['name'],
+                           description=create_node_form.cleaned_data['description'],
+                           annotation=create_node_form.cleaned_data['annotation'])
+            newnode.save() # Need to save first, before addressing attribute in next line
+            newnode.arcs_in = create_node_form.cleaned_data['arcs_in']
+            newnode.save()
+            for outnode in create_node_form.cleaned_data['arcs_out']:
+                outnode.arcs_in.add(newnode)
+                outnode.save()
+            return redirect(reverse('scipost:graph', kwargs={'graph_id': graph.id, 'node_id': newnode.id}))
+    else:
+        create_node_form = CreateNodeForm(graph=graph)
+    context = {'graph': graph, 'create_node_form': create_node_form}
+    return render(request, 'scipost/add_graph_node.html', context)
