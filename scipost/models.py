@@ -342,15 +342,14 @@ class Node(models.Model):
 
     def header_as_p(self):
         context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name})
-        output = '<p><a href="{% url \'scipost:graph\' graph_id=graph_id node_id=id %}">{{ name }}</a></p>'
+        output = '<p class="node_p" id="node_id{{ id }}"><a href="{% url \'scipost:graph\' graph_id=graph_id %}">{{ name }}</a></p>'
         template = Template(output)
         return template.render(context)
 
     def contents(self):
         context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name, 
                            'description': self.description, 'annotation': self.annotation})
-        output = '''<h3><a href="{% url 'scipost:graph' graph_id=graph_id node_id=id %}">{{ name }}</a></h3>
-                 <p>{{ description }}</p><p>{{ annotation }}</p>'''
+        output = '<div class="node_contents" id="node_id{{ id }}"><h3>{{ name }}</h3><p>{{ description }}</p><p>{{ annotation }}</p></div>'
         template = Template(output)
         return template.render(context)
 

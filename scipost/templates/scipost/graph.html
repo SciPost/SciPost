@@ -2,36 +2,160 @@
 
 {% block pagetitle %}: graph{% endblock pagetitle %}
 
+{% block headsup %}
+
+<style>
+.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+circle {
+  fill: #ccc;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+text {
+  font: 12px sans-serif;
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+</style>
+
+{% endblock headsup %}
+
 {% block bodysup %}
+
+
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+
+$(document).ready(function(){
+$(".node_contents").hide();
+$("#NodeForm").hide();
+$("#NodeFormButton").click(function(){
+$("#NodeForm").toggle();
+});
+});
+
+var links;
+d3.json("{% url 'scipost:api_graph' graph_id=graph.id %}", function(error, json) {
+  if (error) return console.warn(error);
+  links = json;
+
+var nodes = {};
+
+// Compute the distinct nodes from the links.
+links.forEach(function(link) {
+  link.source = nodes[link.from] || (nodes[link.from] = {name: link.from, id: link.from_id});
+  link.target = nodes[link.to] || (nodes[link.to] = {name: link.to, id: link.to_id});
+});
+
+var width = 700,
+    height = 300;
+
+var force = d3.layout.force()
+    .nodes(d3.values(nodes))
+    .links(links)
+    .size([width, height])
+    .linkDistance(100)
+    .charge(-300)
+    .on("tick", tick)
+    .start();
+
+var svg = d3.select("#graphic").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+svg.append("defs").append("marker")
+    .attr("id", "arrowhead")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 15)
+    .attr("refY", -1.5)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+     .attr("d", "M0,-5L10,0L0,5");
+
+var path = svg.append("g").selectAll("path")
+    .data(force.links())
+  .enter().append("path")
+    .attr("class", "link")
+    .attr("marker-end", "url(#arrowhead)");
+
+var circle = svg.append("g").selectAll("circle")
+    .data(force.nodes())
+  .enter().append("circle")
+    .attr("r", 6)
+    .attr("id", function(d) { return d.id; })
+    .call(force.drag);
+
+circle.on("click", function(){
+  d3.selectAll("circle").style("fill", "#ccc");
+  d3.select(this).style("fill", "blue");
+  $(".node_contents").hide();
+  $("#node_id" + $(this).attr("id")).show();
+});
+
+circle.on("dblclick", function()
+  {d3.select(this).style("fill", "red");});
+
+var text = svg.append("g").selectAll("text")
+    .data(force.nodes())
+  .enter().append("text")
+    .attr("x", 8)
+    .attr("y", ".31em")
+    .text(function(d) { return d.name; });
+
+// Use elliptical arc path segments to doubly-encode directionality.
+function tick() {
+  path.attr("d", linkArc);
+  circle.attr("transform", transform);
+  text.attr("transform", transform);
+}
+
+function linkArc(d) {
+  var dx = d.target.x - d.source.x,
+      dy = d.target.y - d.source.y,
+      dr = Math.sqrt(dx * dx + dy * dy);
+  return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+}
+
+function transform(d) {
+  return "translate(" + d.x + "," + d.y + ")";
+}
+
+
+});
+
+
+</script>
+
+
 
 <section>
   <h1>Graph</h1>
   {{ graph.contents }}
 
+  <div id="graphic"></div>
+
+  <button id="NodeFormButton"><h1>Add Node to Graph</h1> (show/hide form)</button>
+  <form action="{% url 'scipost:graph' graph_id=graph.id %}" method="post" id="NodeForm">
+    {% csrf_token %}
+    <table>
+      {{ create_node_form.as_table }}
+    </table>
+    <input type="submit" value="Create Node" />
+  </form>
+
   <hr class="hr6"/>
 
-  {% if node.arcs_in.all %}
-  <h3>Pointed to from:</h3>
-  <ul>
-    {% for node_in in node.arcs_in.all %}
-    {{ node_in.header_as_p }}
-    {% endfor %}
-  </ul>
-  {% endif %}
-
+  {% for node in nodes %}
   {{ node.contents }}
-
-  {% if nodes_out %}
-  <h3>Pointing to:</h3>
-  <ul>
-    {% for node_out in nodes_out.all %}
-    {{ node_out.header_as_p }}
-    {% endfor %}
-  </ul>
-  {% endif %}
-
-  <hr class="hr6"/>
-  <h3><a href="{% url 'scipost:add_graph_node' graph_id=node.graph.id %}">Add a Node</a></h3>
+  {% endfor %}
 
 </section>
 

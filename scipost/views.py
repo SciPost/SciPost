@@ -11,7 +11,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
@@ -651,24 +651,9 @@ def create_graph(request):
 
 
 @permission_required('scipost.can_create_graph', raise_exception=True)
-def graph(request, graph_id, node_id=None):
+def graph(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
-    if node_id is not None:
-        node = get_object_or_404(Node, pk=node_id)
-        nodes_out = Node.objects.filter(graph=graph, arcs_in__in=[node])
-        context = {'graph': graph, 'node': node, 'nodes_out': nodes_out}
-        return render(request, 'scipost/graph.html', context)
-    elif Node.objects.filter(graph=graph).exists():
-        node = Node.objects.filter(graph=graph).first()
-        return redirect(reverse('scipost:graph', kwargs={'graph_id': graph.id, 'node_id': node.id}))
-    else:
-        return redirect(reverse('scipost:add_graph_node', kwargs={'graph_id': graph.id}))
-
-
-@permission_required('scipost.can_create_graph', raise_exception=True)
-def add_graph_node(request, graph_id):
-    """ Adds a node """
-    graph = get_object_or_404(Graph, pk=graph_id)
+    nodes = Node.objects.filter(graph=graph)
     if request.method == "POST":
         create_node_form = CreateNodeForm(request.POST, graph=graph)
         if create_node_form.is_valid():
@@ -684,8 +669,20 @@ def add_graph_node(request, graph_id):
             for outnode in create_node_form.cleaned_data['arcs_out']:
                 outnode.arcs_in.add(newnode)
                 outnode.save()
-            return redirect(reverse('scipost:graph', kwargs={'graph_id': graph.id, 'node_id': newnode.id}))
+            return redirect(reverse('scipost:graph', kwargs={'graph_id': graph.id}))
     else:
         create_node_form = CreateNodeForm(graph=graph)
-    context = {'graph': graph, 'create_node_form': create_node_form}
-    return render(request, 'scipost/add_graph_node.html', context)
+
+    context = {'graph': graph, 'nodes': nodes, 'create_node_form': create_node_form}
+    return render(request, 'scipost/graph.html', context)
+
+
+def api_graph(request, graph_id):
+    """ Produce JSON data to plot graph """
+    graph = get_object_or_404(Graph, pk=graph_id)
+    nodes = Node.objects.filter(graph=graph)
+    links = []
+    for node in nodes:
+        for origin in node.arcs_in.all():
+            links.append({'from': origin.name, 'from_id': origin.id, 'to': node.name, 'to_id': node.id})
+    return JsonResponse(links, safe=False)

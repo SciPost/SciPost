@@ -68,7 +68,6 @@ urlpatterns = [
 
     # Graphs
     url(r'^create_graph$', views.create_graph, name='create_graph'),
-    url(r'^add_graph_node/(?P<graph_id>[0-9]+)$', views.add_graph_node, name='add_graph_node'),
     url(r'^graph/(?P<graph_id>[0-9]+)$', views.graph, name='graph'),
-    url(r'^graph/(?P<graph_id>[0-9]+)/(?P<node_id>[0-9]+)$', views.graph, name='graph'),
+    url(r'^api/graph/(?P<graph_id>[0-9]+)$', views.api_graph, name='api_graph'),
 ]
