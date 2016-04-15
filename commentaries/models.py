@@ -91,6 +91,18 @@ class Commentary(models.Model):
         return template.render(context)
 
 
+    def simple_header_as_li (self):
+        # for display in Lists
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" class="pubtitleli">{{ pub_title }}</a></p>'
+        header += '<p>by {{ author_list }}</p>'
+        header += '</div></div></li>'
+        template = Template(header)
+        context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
+                           'author_list': self.author_list})
+        return template.render(context)
+
+
     def parse_link_into_url (self):
         """ Takes the arXiv nr or DOI and turns it into the url suffix """
         if self.pub_DOI_link:

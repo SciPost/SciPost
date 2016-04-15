@@ -27,6 +27,8 @@ admin.site.register(AuthorshipClaim)
 
 admin.site.register(Permission)
 
+admin.site.register(List)
+
 admin.site.register(Team)
 
 admin.site.register(Graph)

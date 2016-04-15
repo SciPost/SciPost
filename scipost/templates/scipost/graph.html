@@ -35,22 +35,44 @@ text {
 $(document).ready(function(){
 $(".node_contents").hide();
 $("#NodeForm").hide();
+$("#LinkForm").hide();
 $("#NodeFormButton").click(function(){
 $("#NodeForm").toggle();
+//$("#EditNodeForm").hide();
+$("#LinkForm").hide();
+});
+//$("#EditNodeFormButton").click(function(){
+//$("#NodeForm").hide();
+//$("#EditNodeForm").toggle();
+//$("#LinkForm").hide();
+//});
+$("#LinkFormButton").click(function(){
+$("#NodeForm").hide();
+//$("#EditNodeForm").hide();
+$("#LinkForm").toggle();
 });
 });
 
-var links;
+//var links;
 d3.json("{% url 'scipost:api_graph' graph_id=graph.id %}", function(error, json) {
   if (error) return console.warn(error);
-  links = json;
+//  links = json;
 
+var nodesjson = json['nodes'];
 var nodes = {};
+nodesjson.forEach(function(node) {
+  nodes[node.name] = node;
+});
 
+var links = json['links'];
 // Compute the distinct nodes from the links.
 links.forEach(function(link) {
-  link.source = nodes[link.from] || (nodes[link.from] = {name: link.from, id: link.from_id});
-  link.target = nodes[link.to] || (nodes[link.to] = {name: link.to, id: link.to_id});
+//  link.source = nodes[link.from] || (nodes[link.from] = {name: link.from, id: link.from_id});
+//  link.target = nodes[link.to] || (nodes[link.to] = {name: link.to, id: link.to_id});
+//  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source, id: link.source_id});
+//  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target, id: link.target_id});
+  link.source = nodes[link.source];
+  link.target = nodes[link.target];
 });
 
 var width = 700,
@@ -97,7 +119,7 @@ circle.on("click", function(){
   d3.selectAll("circle").style("fill", "#ccc");
   d3.select(this).style("fill", "blue");
   $(".node_contents").hide();
-  $("#node_id" + $(this).attr("id")).show();
+  $(".node_id" + $(this).attr("id")).show();
 });
 
 circle.on("dblclick", function()
@@ -137,25 +159,43 @@ function transform(d) {
 
 
 <section>
-  <h1>Graph</h1>
-  {{ graph.contents }}
-
   <div id="graphic"></div>
 
-  <button id="NodeFormButton"><h1>Add Node to Graph</h1> (show/hide form)</button>
-  <form action="{% url 'scipost:graph' graph_id=graph.id %}" method="post" id="NodeForm">
-    {% csrf_token %}
-    <table>
-      {{ create_node_form.as_table }}
-    </table>
-    <input type="submit" value="Create Node" />
-  </form>
-
+  <div class="row">
+    <div class="col-8">
+      <h1>Graph</h1>
+      {{ graph }}
+      <br/>
+      {{ graph.contents }}
+    </div>
+    <div class="col-2">
+      <button id="NodeFormButton"><h1>Add a Node</h1> (show/hide form)</button>
+      <form action="{% url 'scipost:graph' graph_id=graph.id %}" method="post" id="NodeForm">
+	{% csrf_token %}
+	<table>
+	  {{ create_node_form.as_table }}
+	</table>
+	<input type="submit" value="Create Node" />
+      </form>
+    </div>
+    <div class="col-2">
+      <button id="LinkFormButton"><h1>Add a Link</h1> (show/hide form)</button>
+      <form action="{% url 'scipost:graph' graph_id=graph.id %}" method="post" id="LinkForm">
+	{% csrf_token %}
+	<table>
+	  {{ create_link_form.as_table }}
+	</table>
+	<input type="submit" value="Create Link" />
+      </form>
+    </div>
+  </div>
   <hr class="hr6"/>
 
   {% for node in nodes %}
   {{ node.contents }}
+  <a href="{% url 'scipost:edit_graph_node' node_id=node.id %}" class="node_contents node_id{{ node.id}}">Edit this Node</a>
   {% endfor %}
+
 
 </section>
 

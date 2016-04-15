@@ -360,6 +360,8 @@ def personal_page(request):
         nr_thesis_authorships_to_claim = ThesisLink.objects.filter(author__contains=contributor.user.last_name).exclude(author_as_cont__in=[contributor]).exclude(author_claims__in=[contributor]).exclude(author_false_claims__in=[contributor]).count()
         own_comments = Comment.objects.filter(author=contributor,is_author_reply=False).order_by('-date_submitted')
         own_authorreplies = Comment.objects.filter(author=contributor,is_author_reply=True).order_by('-date_submitted')
+        lists_owned = List.objects.filter(owner=contributor)
+        lists = List.objects.filter(teams_with_access__members__in=[contributor])
         teams_led = Team.objects.filter(leader=contributor)
         teams = Team.objects.filter(members__in=[contributor])
         graphs_owned = Graph.objects.filter(owner=contributor)
@@ -383,6 +385,8 @@ def personal_page(request):
                    'own_commentaries': own_commentaries,
                    'own_thesislinks': own_thesislinks,
                    'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
+                   'lists_owned': lists_owned,
+                   'lists': lists,
                    'teams_led': teams_led,
                    'teams': teams,
                    'graphs_owned': graphs_owned,
@@ -584,6 +588,45 @@ def contributor_info(request, contributor_id):
 
 
 #########
+# Lists #
+#########
+
+@permission_required('scipost.can_create_list', raise_exception=True)
+def create_list(request):
+    listcreated = False
+    message = None
+    if request.method == "POST":
+        create_list_form = CreateListForm(request.POST)
+        if create_list_form.is_valid():
+            newlist = List(owner=request.user.contributor,
+                           title=create_list_form.cleaned_data['title'],
+                           description=create_list_form.cleaned_data['description'],
+                           private=create_list_form.cleaned_data['private'],
+                           created=timezone.now())
+            newlist.save()
+            listcreated = True
+            message = 'List ' + create_list_form.cleaned_data['title'] + ' was successfully created.'
+    else:
+        create_list_form = CreateListForm()
+    context = {'create_list_form': create_list_form, 'listcreated': listcreated, 
+               'message': message}
+    return render(request, 'scipost/create_list.html', context)
+
+
+@permission_required('scipost.can_create_list', raise_exception=True)
+def list(request, list_id):
+    list = get_object_or_404(List, pk=list_id)
+    context = {'list': list}
+    return render(request, 'scipost/list.html', context)
+
+
+@permission_required('scipost.can_create_list', raise_exception=True)
+def add_list_element(request, list_id):
+    list = get_object_or_404(List, pk=list_id)
+
+
+
+#########
 # Teams #
 #########
 
@@ -633,18 +676,18 @@ def create_graph(request):
     graphcreated = False
     message = None
     if request.method == "POST":
-        create_graph_form = CreateGraphForm(request.POST, contributor=request.user.contributor)
+        create_graph_form = CreateGraphForm(request.POST)
         if create_graph_form.is_valid():
             newgraph = Graph(owner=request.user.contributor,
                              title=create_graph_form.cleaned_data['title'],
+                             description=create_graph_form.cleaned_data['description'],
                              private=create_graph_form.cleaned_data['private'],
-                             teams_with_access=form.cleaned_data['teams_with_access'],
                              created=timezone.now())
             newgraph.save()
             graphcreated = True
-            message = 'Graph' + create_graph_form.cleaned_data['title'] + ' was successfully created.'
+            message = 'Graph ' + create_graph_form.cleaned_data['title'] + ' was successfully created.'
     else:
-        create_graph_form = CreateGraphForm(contributor=request.user.contributor)
+        create_graph_form = CreateGraphForm()
     context = {'create_graph_form': create_graph_form, 'graphcreated': graphcreated,
                'message': message}
     return render(request, 'scipost/create_graph.html', context)
@@ -655,34 +698,60 @@ def graph(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
     nodes = Node.objects.filter(graph=graph)
     if request.method == "POST":
-        create_node_form = CreateNodeForm(request.POST, graph=graph)
-        if create_node_form.is_valid():
+        create_node_form = CreateNodeForm(request.POST)
+        create_link_form = CreateLinkForm(request.POST, graph=graph)
+        if create_node_form.has_changed() and create_node_form.is_valid():
             newnode = Node(graph=graph, 
                            added_by=request.user.contributor,
                            created=timezone.now(),
                            name=create_node_form.cleaned_data['name'],
-                           description=create_node_form.cleaned_data['description'],
-                           annotation=create_node_form.cleaned_data['annotation'])
-            newnode.save() # Need to save first, before addressing attribute in next line
-            newnode.arcs_in = create_node_form.cleaned_data['arcs_in']
+                           description=create_node_form.cleaned_data['description'])
             newnode.save()
-            for outnode in create_node_form.cleaned_data['arcs_out']:
-                outnode.arcs_in.add(newnode)
-                outnode.save()
-            return redirect(reverse('scipost:graph', kwargs={'graph_id': graph.id}))
+            context =  {'create_node_form': create_node_form,
+                        'create_link_form': create_link_form}
+            return redirect(reverse('scipost:graph', kwargs={'graph_id': graph.id}), context)
+        elif create_link_form.has_changed() and create_link_form.is_valid():
+            sourcenode = create_link_form.cleaned_data['source']
+            targetnode = create_link_form.cleaned_data['target']
+            targetnode.arcs_in.add(sourcenode)
+            targetnode.save()            
     else:
-        create_node_form = CreateNodeForm(graph=graph)
-
-    context = {'graph': graph, 'nodes': nodes, 'create_node_form': create_node_form}
+        create_node_form = CreateNodeForm()
+        create_link_form = CreateLinkForm(graph=graph)
+    context = {'graph': graph, 'nodes': nodes, 
+               'create_node_form': create_node_form,
+               'create_link_form': create_link_form}
     return render(request, 'scipost/graph.html', context)
+
+
+@permission_required('scipost.can_create_graph', raise_exception=True)
+def edit_graph_node(request, node_id):
+    node = get_object_or_404(Node, pk=node_id)
+    if request.method == "POST":
+        edit_node_form = CreateNodeForm(request.POST, instance=node)
+        if edit_node_form.is_valid():
+            node.name=edit_node_form.cleaned_data['name']
+            node.description=edit_node_form.cleaned_data['description']
+            node.save()
+            create_node_form = CreateNodeForm()
+            create_link_form = CreateLinkForm(graph=node.graph)
+            context =  {'create_node_form': create_node_form,
+                        'create_link_form': create_link_form}
+            return redirect(reverse('scipost:graph', kwargs={'graph_id': node.graph.id}), context)
+    else:
+        edit_node_form = CreateNodeForm(instance=node)
+    context = {'graph': graph, 'node': node, 'edit_node_form': edit_node_form}
+    return render(request, 'scipost/edit_graph_node.html', context)
 
 
 def api_graph(request, graph_id):
     """ Produce JSON data to plot graph """
     graph = get_object_or_404(Graph, pk=graph_id)
     nodes = Node.objects.filter(graph=graph)
+    nodesjson = []
     links = []
     for node in nodes:
+        nodesjson.append({'name': node.name, 'id': node.id})
         for origin in node.arcs_in.all():
-            links.append({'from': origin.name, 'from_id': origin.id, 'to': node.name, 'to_id': node.id})
-    return JsonResponse(links, safe=False)
+            links.append({'source': origin.name, 'source_id': origin.id, 'target': node.name, 'target_id': node.id})
+    return JsonResponse({'nodes': nodesjson, 'links': links}, safe=False)

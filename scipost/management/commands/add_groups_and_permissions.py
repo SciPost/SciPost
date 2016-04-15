@@ -87,6 +87,11 @@ class Command(BaseCommand):
             name= 'Can act as a referee and submit reports on Submissions',
             content_type=content_type)
 
+        # Lists
+        can_create_list, created = Permission.objects.get_or_create(
+            codename='can_create_list',
+            name= 'Can create a new List',
+            content_type=content_type)
         # Teams
         can_create_team, created = Permission.objects.get_or_create(
             codename='can_create_team',

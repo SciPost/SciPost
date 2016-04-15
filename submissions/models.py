@@ -113,6 +113,17 @@ class Submission(models.Model):
         template = Template(header)
         return template.render(context)
 
+
+    def simple_header_as_li (self):
+        # for Lists
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0"><p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
+        header += '<p>by {{ author_list }}</p></div></div></li>'
+        context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list})
+        template = Template(header)
+        return template.render(context)
+
+
     def status_info_as_table (self):
         header = '<table>'
         header += '<tr><td>Current status: </td><td>&nbsp;</td><td>' + submission_status_dict[self.status] + '</td></tr>'

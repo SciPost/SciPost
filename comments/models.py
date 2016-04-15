@@ -238,6 +238,23 @@ class Comment(models.Model):
         template = Template(header)
         return template.render(context)
 
+
+    def simple_header_as_li (self):
+        # for Lists
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0">'
+        header += 'Nr {{ id }}'
+        context = Context({'id': self.id})
+        text_cut = self.comment_text[:30]
+        if len(self.comment_text) > 30:
+            text_cut += '...'
+        context['id'] = self.id
+        context['text_cut'] = text_cut
+        header += '</div></div></li>'
+        template = Template(header)
+        return template.render(context)
+
+
     def categories_as_ul(self):
         output = '<div class="commentcategorydisplay"><h4>Category:</h4><ul>'
         if self.is_rem:

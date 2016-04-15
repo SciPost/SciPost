@@ -58,6 +58,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_countries',
     'django_mathjax',
+    'rest_framework',
     'captcha',
     'crispy_forms',
     'commentaries',

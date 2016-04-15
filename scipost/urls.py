@@ -58,6 +58,10 @@ urlpatterns = [
     url(r'^vet_authorship_claims$', views.vet_authorship_claims, name="vet_authorship_claims"),
     url(r'^vet_authorship_claim/(?P<claim_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_authorship_claim, name='vet_authorship_claim'),
 
+    # Lists
+    url(r'^create_list$', views.create_list, name='create_list'),
+    url(r'^list/(?P<list_id>[0-9]+)$', views.list, name='list'),
+
     # Feeds
     url(r'^latest_comment/feed/$', LatestCommentFeed()),
 
@@ -69,5 +73,6 @@ urlpatterns = [
     # Graphs
     url(r'^create_graph$', views.create_graph, name='create_graph'),
     url(r'^graph/(?P<graph_id>[0-9]+)$', views.graph, name='graph'),
+    url(r'^edit_graph_node/(?P<node_id>[0-9]+)$', views.edit_graph_node, name='edit_graph_node'),
     url(r'^api/graph/(?P<graph_id>[0-9]+)$', views.api_graph, name='api_graph'),
 ]

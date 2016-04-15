@@ -60,6 +60,12 @@
     $(".TabSection").hide();
     $("#AuthorReplies").show();
    });
+   $("#ListsTab").click(function(){
+    $(".TabItem").attr("class", "TabItem inactive");
+    $("#ListsTab").attr("class", "TabItem active");
+    $(".TabSection").hide();
+    $("#Lists").show();
+   });
    $("#TeamsTab").click(function(){
     $(".TabItem").attr("class", "TabItem inactive");
     $("#TeamsTab").attr("class", "TabItem active");
@@ -104,6 +110,9 @@
     <li><a class="TabItem" id="ThesesTab">Theses</a></li>
     <li><a class="TabItem" id="CommentsTab">Comments</a></li>
     <li><a class="TabItem" id="AuthorRepliesTab">Author Replies</a></li>
+    {% if perms.scipost.can_create_list %}
+    <li><a class="TabItem" id="ListsTab">Lists</a></li>
+    {% endif %}
     {% if perms.scipost.can_create_team %}
     <li><a class="TabItem" id="TeamsTab">Teams</a></li>
     {% endif %}
@@ -345,6 +354,33 @@
   </div>
 </section>
 {% endif %}
+
+<section class="TabSection" id="Lists">
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Lists</h1>
+    <ul>
+      <li><a href="{% url 'scipost:create_list' %}">Create a new List</a></li>
+    </ul>
+  </div>
+  {% if lists_owned %}
+  <h3>Lists you own:</h3>
+  <ul>
+    {% for list in lists_owned %}
+    {{ list.header_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if lists %}
+  <h3>Lists to which you have access:</h3>
+  <ul>
+    {% for list in lists %}
+    {{ list.header_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+</section>
 
 <section class="TabSection" id="Teams">
   <hr class="hr12">

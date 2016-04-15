@@ -106,6 +106,25 @@ class AuthorshipClaimForm(forms.Form):
 #        fields = ['relevance', 'importance', 'clarity', 'validity', 'rigour', 'originality', 'significance']
 
 
+
+class DocumentsSearchForm(forms.Form):
+    author = forms.CharField(max_length=100, required=False, label="Author(s)")
+    title_keyword = forms.CharField(max_length=100, label="Title", required=False)
+    abstract_keyword = forms.CharField(max_length=1000, required=False, label="Abstract")
+
+
+
+class CreateListForm(forms.ModelForm):
+    class Meta:
+        model = List
+        fields = ['title', 'description', 'private']
+
+    def __init__(self, *args, **kwargs):
+        super(CreateListForm, self).__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'size': 30, 'placeholder': 'Descriptive title for the new List'})
+        self.fields['private'].widget.attrs.update({'placeholder': 'Private?'})
+
+
 class CreateTeamForm(forms.ModelForm):
     class Meta:
         model = Team
@@ -127,30 +146,37 @@ class AddTeamMemberForm(forms.Form):
 class CreateGraphForm(forms.ModelForm):
     class Meta:
         model = Graph
-        fields = ['title', 'description', 'private', 'teams_with_access']
+        fields = ['title', 'description', 'private']
+
+    def __init__(self, *args, **kwargs):
+        super(CreateGraphForm, self).__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'size': 30, 'placeholder': 'Descriptive title for the new Graph'})
+        self.fields['description'].widget.attrs.update({'placeholder': 'Detailed description'})
+
+
+class GiveTeamGraphAccessForm(forms.Form):
+    teams_with_access = forms.ModelMultipleChoiceField(queryset=None)
 
     def __init__(self, *args, **kwargs):
         contributor = kwargs.pop('contributor')
         super(CreateGraphForm, self).__init__(*args, **kwargs)
-        self.fields['title'].widget.attrs.update({'size': 30, 'placeholder': 'Descriptive title for the new Graph'})
-        self.fields['private'].widget.attrs.update({'placeholder': 'Private?'})
-        self.fields['teams_with_access'] = forms.ModelMultipleChoiceField(
-            queryset=Team.objects.filter(Q(leader=contributor) | Q(members__in=[contributor])))
-        self.fields['teams_with_access'].widget.attrs.update({'placeholder': 'Team to be given access rights:'})
+        self.fields['teams_with_access'].queryset=Team.objects.filter(Q(leader=contributor) | Q(members__in=[contributor]))
+        self.fields['teams_with_access'].widget.attrs.update({'placeholder': 'Team(s) to be given access rights:'})
 
 
 class CreateNodeForm(forms.ModelForm):
-    arcs_out = forms.ModelMultipleChoiceField(Node, required=False)
     class Meta:
         model = Node
-        fields = ['name', 'description', 'annotation', 'arcs_in', 'arcs_out']
+        fields = ['name', 'description']
+
+
+class CreateLinkForm(forms.Form):
+    source = forms.ModelChoiceField(queryset=None)
+    target = forms.ModelChoiceField(queryset=None)
 
     def __init__(self, *args, **kwargs):
         graph = kwargs.pop('graph')
-        super(CreateNodeForm, self).__init__(*args, **kwargs)
-        self.fields['arcs_in'] = forms.ModelMultipleChoiceField( 
-            queryset=Node.objects.filter(graph=graph))
-        self.fields['arcs_in'].required=False
-        self.fields['arcs_out'] = forms.ModelMultipleChoiceField(
-            queryset=Node.objects.filter(graph=graph))
-        self.fields['arcs_out'].required=False
+        super(CreateLinkForm, self).__init__(*args, **kwargs)
+        self.fields['source'].queryset = Node.objects.filter(graph=graph)
+        self.fields['target'].queryset = Node.objects.filter(graph=graph)
+    
