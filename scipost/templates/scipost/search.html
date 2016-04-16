@@ -1,0 +1,61 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: list{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+
+<section>
+  <h1>Search results</h1>
+
+  {% if commentary_search_list %}
+  <br />
+  <hr class="hr12">
+  <h3>Commentaries:</h3>
+  <ul>
+    {% for commentary in commentary_search_list %}
+    {{ commentary.header_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if submission_search_list %}
+  <br />
+  <hr class="hr12">
+  <h3>Submissions:</h3>
+  <ul>
+    {% for submission in submission_search_list %}
+    {{ submission.header_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if thesislink_search_list %}
+  <br />
+  <hr class="hr12">
+  <h3>Theses:</h3>
+  <ul>
+    {% for thesislink in thesislink_search_list %}
+    {{ thesislink.header_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if comment_search_list %}
+  <br />
+  <hr class="hr12">
+  <h3>Comments:</h3>
+  <ul>
+    {% for comment in comment_search_list %}
+    {{ comment.header_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+</section>
+
+{% endblock bodysup %}

@@ -51,6 +51,64 @@ def is_VE(user):
     return user.groups.filter(name='Vetting Editors').exists()
 
 
+# Global search
+
+#def documentsSearchResults(title_keyword, author, abstract_keyword):
+def documentsSearchResults(query):
+    """
+    Searches through commentaries, submissions and thesislinks.
+    Returns a Context object which can be further used in templates.
+    """
+    keyword = query
+    title_keyword = query
+    author = query
+    abstract_keyword = query
+    commentary_search_list = Commentary.objects.filter(
+        pub_title__icontains=title_keyword,
+        author_list__icontains=author,
+        pub_abstract__icontains=abstract_keyword,
+        vetted=True,
+        )
+    commentary_search_list.order_by('-pub_date')
+    submission_search_list = Submission.objects.filter(
+        title__icontains=title_keyword,
+        author_list__icontains=author,
+        abstract__icontains=abstract_keyword,
+        status__gte=1,
+        )
+    submission_search_list.order_by('-pub_date')
+    thesislink_search_list = ThesisLink.objects.filter(
+        title__icontains=title_keyword,
+        author__icontains=author,
+        abstract__icontains=abstract_keyword,
+#        supervisor__icontains=supervisor,
+        vetted=True,
+        )
+    thesislink_search_list.order_by('-pub_date')
+    comment_search_list = Comment.objects.filter(
+        comment_text__icontains=keyword,
+        status__gte='1',
+        )
+    comment_search_list.order_by('-pub_date')
+    context = {'commentary_search_list': commentary_search_list,
+               'submission_search_list': submission_search_list,
+               'thesislink_search_list': thesislink_search_list,
+               'comment_search_list': comment_search_list}
+    return context
+
+
+def search(request):
+    if request.method == 'POST':
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            context = documentsSearchResults(form.cleaned_data['query'])
+        else:
+            context = {}
+    else:
+        context = {}
+    return render(request, 'scipost/search.html', context)
+
+
 #############
 # Main view
 #############
@@ -61,7 +119,8 @@ def index(request):
     thesislink_search_form = ThesisLinkSearchForm(request.POST)
     context = {'submission_search_form': submission_search_form, 
                'commentary_search_form': commentary_search_form, 
-               'thesislink_search_form': thesislink_search_form}
+               'thesislink_search_form': thesislink_search_form,
+               }
     return render(request, 'scipost/index.html', context)
 
 ###############
@@ -366,7 +425,8 @@ def personal_page(request):
         teams = Team.objects.filter(members__in=[contributor])
         graphs_owned = Graph.objects.filter(owner=contributor)
         graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor) | Q(teams_with_access__members__in=[contributor]))
-        context = {'contributor': contributor, 'nr_reg_to_vet': nr_reg_to_vet, 
+        context = {'contributor': contributor, 
+                   'nr_reg_to_vet': nr_reg_to_vet, 
                    'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 
                    'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 
                    'nr_comments_to_vet': nr_comments_to_vet, 

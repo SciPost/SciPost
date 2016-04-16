@@ -219,11 +219,11 @@ class Comment(models.Model):
             context['submission_title'] = self.submission.title
             context['submission_author_list'] = self.submission.author_list
         if self.commentary is not None:
-            header += ('<a href="/commentary/{{ commentary_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>' +
+            header += ('<a href="/commentary/{{ commentary_url }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>' +
                        '<p>submitted on {{ date_submitted }}')
-            header += (' in commentary on <a href="/commentary/{{ commentary_id }}" class="pubtitleli">' + 
+            header += (' in commentary on <a href="/commentary/{{ commentary_url }}" class="pubtitleli">' + 
                        '{{ commentary_pub_title }}</a> by {{ commentary_author_list }}</p>')
-            context['commentary_id'] = self.commentary.id
+            context['commentary_url'] = self.commentary.arxiv_or_DOI_string
             context['commentary_pub_title'] = self.commentary.pub_title
             context['commentary_author_list'] = self.commentary.author_list
         if self.thesislink is not None:

@@ -106,12 +106,8 @@ class AuthorshipClaimForm(forms.Form):
 #        fields = ['relevance', 'importance', 'clarity', 'validity', 'rigour', 'originality', 'significance']
 
 
-
-class DocumentsSearchForm(forms.Form):
-    author = forms.CharField(max_length=100, required=False, label="Author(s)")
-    title_keyword = forms.CharField(max_length=100, label="Title", required=False)
-    abstract_keyword = forms.CharField(max_length=1000, required=False, label="Abstract")
-
+class SearchForm(forms.Form):
+    query = forms.CharField(max_length=100, label='')
 
 
 class CreateListForm(forms.ModelForm):

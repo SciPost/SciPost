@@ -17,6 +17,10 @@ urlpatterns = [
     #url(r'^description$', views.description, name='description'),
     url(r'^peer_witnessed_refereeing$', TemplateView.as_view(template_name='scipost/peer_witnessed_refereeing.html'), name='peer_witnessed_refereeing'),
 
+    # Search 
+    url(r'^search$', views.search, name='search'),
+
+
     ################
     # Contributors:
     ################

@@ -100,6 +100,7 @@
   </div>
 
   <ul class="personalTabMenu">
+
     <li><a class="TabItem" id="AccountTab">Account</a></li>
     {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' %}
     <li><a class="TabItem" id="EdActionTab">Editorial Actions</a></li>
