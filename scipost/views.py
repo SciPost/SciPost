@@ -64,23 +64,23 @@ def documentsSearchResults(query):
     author = query
     abstract_keyword = query
     commentary_search_list = Commentary.objects.filter(
-        pub_title__icontains=title_keyword,
-        author_list__icontains=author,
-        pub_abstract__icontains=abstract_keyword,
+        Q(pub_title__icontains=title_keyword) |
+        Q(author_list__icontains=author) |
+        Q(pub_abstract__icontains=abstract_keyword),
         vetted=True,
         )
     commentary_search_list.order_by('-pub_date')
     submission_search_list = Submission.objects.filter(
-        title__icontains=title_keyword,
-        author_list__icontains=author,
-        abstract__icontains=abstract_keyword,
+        Q(title__icontains=title_keyword) |
+        Q(author_list__icontains=author) |
+        Q(abstract__icontains=abstract_keyword),
         status__gte=1,
         )
     submission_search_list.order_by('-pub_date')
     thesislink_search_list = ThesisLink.objects.filter(
-        title__icontains=title_keyword,
-        author__icontains=author,
-        abstract__icontains=abstract_keyword,
+        Q(title__icontains=title_keyword) |
+        Q(author__icontains=author) |
+        Q(abstract__icontains=abstract_keyword),
 #        supervisor__icontains=supervisor,
         vetted=True,
         )
@@ -677,13 +677,32 @@ def create_list(request):
 def list(request, list_id):
     list = get_object_or_404(List, pk=list_id)
     context = {'list': list}
+    if request.method == "POST":
+        search_for_list_form = SearchForm(request.POST)
+        if search_for_list_form.is_valid():
+            context.update(documentsSearchResults(search_for_list_form.cleaned_data['query']))
+    else:
+        search_for_list_form = SearchForm()
+    context.update({'search_for_list_form': search_for_list_form})
     return render(request, 'scipost/list.html', context)
 
 
 @permission_required('scipost.can_create_list', raise_exception=True)
-def add_list_element(request, list_id):
+def list_add_element(request, list_id, type, element_id):
     list = get_object_or_404(List, pk=list_id)
-
+    if type == 'C':
+        commentary = get_object_or_404(Commentary, pk=element_id)
+        list.commentaries.add(commentary)
+    elif type == 'S':
+        submission = get_object_or_404(Submission, pk=element_id)
+        list.submissions.add(submission)
+    elif type == 'T':
+        thesislink = get_object_or_404(ThesisLink, pk=element_id)
+        list.thesislinks.add(thesislink)
+    elif type == 'c':
+        comment = get_object_or_404(Comment, pk=element_id)
+        list.comments.add(comment)
+    return redirect(reverse('scipost:list', kwargs={'list_id': list_id}))
 
 
 #########
@@ -758,27 +777,38 @@ def graph(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
     nodes = Node.objects.filter(graph=graph)
     if request.method == "POST":
+        attach_teams_form = ManageTeamsForm(request.POST, 
+                                            contributor=request.user.contributor, 
+                                            initial={'teams_with_access': graph.teams_with_access.all()}
+                                            )
         create_node_form = CreateNodeForm(request.POST)
         create_link_form = CreateLinkForm(request.POST, graph=graph)
-        if create_node_form.has_changed() and create_node_form.is_valid():
+        if attach_teams_form.has_changed() and attach_teams_form.is_valid():
+            graph.teams_with_access = attach_teams_form.cleaned_data['teams_with_access']
+            graph.save()
+        elif create_node_form.has_changed() and create_node_form.is_valid():
             newnode = Node(graph=graph, 
                            added_by=request.user.contributor,
                            created=timezone.now(),
                            name=create_node_form.cleaned_data['name'],
                            description=create_node_form.cleaned_data['description'])
             newnode.save()
-            context =  {'create_node_form': create_node_form,
-                        'create_link_form': create_link_form}
-            return redirect(reverse('scipost:graph', kwargs={'graph_id': graph.id}), context)
+#            context =  {'create_node_form': create_node_form,
+#                        'create_link_form': create_link_form}
+#            return redirect(reverse('scipost:graph', kwargs={'graph_id': graph.id}), context)
         elif create_link_form.has_changed() and create_link_form.is_valid():
             sourcenode = create_link_form.cleaned_data['source']
             targetnode = create_link_form.cleaned_data['target']
             targetnode.arcs_in.add(sourcenode)
             targetnode.save()            
     else:
+        attach_teams_form = ManageTeamsForm(contributor=request.user.contributor, 
+                                            initial={'teams_with_access': graph.teams_with_access.all()}
+                                            )
         create_node_form = CreateNodeForm()
         create_link_form = CreateLinkForm(graph=graph)
     context = {'graph': graph, 'nodes': nodes, 
+               'attach_teams_form': attach_teams_form,
                'create_node_form': create_node_form,
                'create_link_form': create_link_form}
     return render(request, 'scipost/graph.html', context)

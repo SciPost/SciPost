@@ -33,22 +33,23 @@ text {
 <script>
 
 $(document).ready(function(){
+
+$("#ManageTeamsForm").hide();
+$("#ManageTeamsFormButton").click(function(){
+$("#ManageTeamsForm").toggle();
+});
+
 $(".node_contents").hide();
 $("#NodeForm").hide();
 $("#LinkForm").hide();
+
 $("#NodeFormButton").click(function(){
 $("#NodeForm").toggle();
-//$("#EditNodeForm").hide();
 $("#LinkForm").hide();
 });
-//$("#EditNodeFormButton").click(function(){
-//$("#NodeForm").hide();
-//$("#EditNodeForm").toggle();
-//$("#LinkForm").hide();
-//});
+
 $("#LinkFormButton").click(function(){
 $("#NodeForm").hide();
-//$("#EditNodeForm").hide();
 $("#LinkForm").toggle();
 });
 });
@@ -159,16 +160,19 @@ function transform(d) {
 
 
 <section>
-  <div id="graphic"></div>
+  <h1>Graph</h1>
+  {{ graph }}
 
   <div class="row">
-    <div class="col-8">
-      <h1>Graph</h1>
-      {{ graph }}
-      <br/>
-      {{ graph.contents }}
-    </div>
-    <div class="col-2">
+    <div class="col-3">
+      {% if graph.private %}
+      <button id="ManageTeamsFormButton"><h1>Manage Team(s)</h1> (show/hide form)</button>
+      <form action="{% url 'scipost:graph' graph_id=graph.id %}" method="post" id="ManageTeamsForm">
+	{% csrf_token %}
+	{{ attach_teams_form }}
+	<input type="submit" value="Submit" />
+      </form>
+      {% endif %}
       <button id="NodeFormButton"><h1>Add a Node</h1> (show/hide form)</button>
       <form action="{% url 'scipost:graph' graph_id=graph.id %}" method="post" id="NodeForm">
 	{% csrf_token %}
@@ -177,8 +181,6 @@ function transform(d) {
 	</table>
 	<input type="submit" value="Create Node" />
       </form>
-    </div>
-    <div class="col-2">
       <button id="LinkFormButton"><h1>Add a Link</h1> (show/hide form)</button>
       <form action="{% url 'scipost:graph' graph_id=graph.id %}" method="post" id="LinkForm">
 	{% csrf_token %}
@@ -188,12 +190,18 @@ function transform(d) {
 	<input type="submit" value="Create Link" />
       </form>
     </div>
+    <div class="col-9">
+      <div id="graphic"></div>
+    </div>
   </div>
   <hr class="hr6"/>
+  <br/>
+  {{ graph.contents }}
+
 
   {% for node in nodes %}
   {{ node.contents }}
-  <a href="{% url 'scipost:edit_graph_node' node_id=node.id %}" class="node_contents node_id{{ node.id}}">Edit this Node</a>
+  <a href="{% url 'scipost:edit_graph_node' node_id=node.id %}" class="node_contents node_id{{ node.id}}">Edit this Node's contents</a>
   {% endfor %}
 
 

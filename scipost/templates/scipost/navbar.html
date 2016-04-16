@@ -20,11 +20,14 @@
       {% endif %}      
     </div>
     <div class="col-3">
+      <!-- Temporary strip for online version -->
+      {% if user.is_authenticated %}
       <form action="{% url 'scipost:search' %}" method="post">
 	{% csrf_token %}
 	{{ search_form }}
 	<input type="submit" value="Search"/>
       </form>
+      {% endif %}
     </div>
   </div>
 </nav>

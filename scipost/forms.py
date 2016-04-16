@@ -150,12 +150,12 @@ class CreateGraphForm(forms.ModelForm):
         self.fields['description'].widget.attrs.update({'placeholder': 'Detailed description'})
 
 
-class GiveTeamGraphAccessForm(forms.Form):
+class ManageTeamsForm(forms.Form):
     teams_with_access = forms.ModelMultipleChoiceField(queryset=None)
 
     def __init__(self, *args, **kwargs):
         contributor = kwargs.pop('contributor')
-        super(CreateGraphForm, self).__init__(*args, **kwargs)
+        super(ManageTeamsForm, self).__init__(*args, **kwargs)
         self.fields['teams_with_access'].queryset=Team.objects.filter(Q(leader=contributor) | Q(members__in=[contributor]))
         self.fields['teams_with_access'].widget.attrs.update({'placeholder': 'Team(s) to be given access rights:'})
 

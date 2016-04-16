@@ -14,9 +14,84 @@
 
 
   {{ list.header }}
+  <hr class="hr6"/>
   <br/>
   {{ list.contents }}
 
+  <hr class="hr6"/>
+
+  <h3>Add elements to this List</h3>
+  <form action="{% url 'scipost:list' list_id=list.id %}" method="post">
+    {% csrf_token %}
+    <table>
+      {{ search_for_list_form.as_table }}
+    </table>
+    <input type="submit" name="Submit">
+  </form>
+
+  {% if search_for_list_form.has_changed %}
+  <h1>Search results</h1>
+  {% endif %}
+
+  {% if commentary_search_list %}
+  <br />
+  <hr class="hr12">
+  <h3>Commentaries:</h3>
+  <ul>
+    {% for commentary in commentary_search_list %}
+    {{ commentary.header_as_li }}
+    <form action="{% url 'scipost:list_add_element' list_id=list.id type='C' element_id=commentary.id %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Add to List"/>
+    </form>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if submission_search_list %}
+  <br />
+  <hr class="hr12">
+  <h3>Submissions:</h3>
+  <ul>
+    {% for submission in submission_search_list %}
+    {{ submission.header_as_li }}
+    <form action="{% url 'scipost:list_add_element' list_id=list.id type='S' element_id=submission.id %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Add to List"/>
+    </form>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if thesislink_search_list %}
+  <br />
+  <hr class="hr12">
+  <h3>Theses:</h3>
+  <ul>
+    {% for thesislink in thesislink_search_list %}
+    {{ thesislink.header_as_li }}
+    <form action="{% url 'scipost:list_add_element' list_id=list.id type='T' element_id=thesislink.id %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Add to List"/>
+    </form>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if comment_search_list %}
+  <br />
+  <hr class="hr12">
+  <h3>Comments:</h3>
+  <ul>
+    {% for comment in comment_search_list %}
+    {{ comment.header_as_li }}
+    <form action="{% url 'scipost:list_add_element' list_id=list.id type='c' element_id=comment.id %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Add to List"/>
+    </form>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
 </section>
 
