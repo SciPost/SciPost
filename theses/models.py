@@ -62,7 +62,7 @@ class ThesisLink(models.Model):
         header += '<tr><td>Specialization: </td><td></td><td>' + journals_spec_dict[self.specialization] + '</td></tr>'
         header += '<tr><td>URL: </td><td>&nbsp;</td><td><a href="{{ pub_link }}" target="_blank">{{ pub_link }}</a></td></tr>'
         header += '<tr><td>Degree granting institution: </td><td>&nbsp;</td><td>{{ institution }}</td></tr>'
-        header += '<tr><td>Supervisor(s): </td><td></td><td>{{ supervisor </td></tr>'
+        header += '<tr><td>Supervisor(s): </td><td></td><td>{{ supervisor }}</td></tr>'
         header += '<tr><td>Defense date: </td><td>&nbsp;</td><td>{{ defense_date }}</td></tr>'
         header += '</table>'
         template = Template(header)
