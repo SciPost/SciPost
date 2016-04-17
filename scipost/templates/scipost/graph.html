@@ -162,7 +162,7 @@ function transform(d) {
 <section>
   <h1>Graph</h1>
   {{ graph }}
-  {% if graph.private }}
+  {% if graph.private %}
   <h3>Teams with access:</h3>
   <ul>
     {% for team in graph.teams_with_access.all %}
