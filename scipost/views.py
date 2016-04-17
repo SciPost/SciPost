@@ -130,11 +130,6 @@ def index(request):
 def base(request):
     return render(request, 'scipost/base.html')
 
-def description(request):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'filename="SciPost_Description.pdf"'
-    return response
-
 
 ################
 # Contributors:

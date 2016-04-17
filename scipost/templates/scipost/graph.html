@@ -162,6 +162,14 @@ function transform(d) {
 <section>
   <h1>Graph</h1>
   {{ graph }}
+  {% if graph.private }}
+  <h3>Teams with access:</h3>
+  <ul>
+    {% for team in graph.teams_with_access %}
+    {{ team.header_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
 
   <div class="row">
     <div class="col-3">
