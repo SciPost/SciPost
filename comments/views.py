@@ -17,7 +17,6 @@ from scipost.models import title_dict
 
 def vet_submitted_comments(request):
     contributor = Contributor.objects.get(user=request.user)
-    #comment_to_vet = Comment.objects.filter(status=0).first() # only handle one at a time
     comments_to_vet = Comment.objects.filter(status=0).order_by('date_submitted')
     form = VetCommentForm()
     context = {'contributor': contributor, 'comments_to_vet': comments_to_vet, 'form': form }
@@ -56,7 +55,8 @@ def vet_submitted_comment_ack(request, comment_id):
                                '\n\nThank you for your contribution, \nThe SciPost Team.' +
                                '\n\n' + comment.comment_text)
                 emailmessage = EmailMessage('SciPost Comment published', email_text, 'comments@scipost.org', 
-                                            [comment.author.user.email, 'comments@scipost.org'], reply_to=['comments@scipost.org'])
+                                            [comment.author.user.email, 'comments@scipost.org'], 
+                                            reply_to=['comments@scipost.org'])
                 emailmessage.send(fail_silently=False)
             elif form.cleaned_data['action_option'] == '2':
                 # the comment request is simply rejected
@@ -79,7 +79,8 @@ def vet_submitted_comment_ack(request, comment_id):
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 email_text += '\n\n' + comment.comment_text
                 emailmessage = EmailMessage('SciPost Comment rejected', email_text, 'comments@scipost.org', 
-                                            [comment.author.user.email, 'comments@scipost.org'], reply_to=['comments@scipost.org'])
+                                            [comment.author.user.email, 'comments@scipost.org'], 
+                                            reply_to=['comments@scipost.org'])
                 emailmessage.send(fail_silently=False)
 
     context = {}
@@ -94,8 +95,6 @@ def reply_to_comment(request, comment_id):
         if comment.submission.authors.filter(id=request.user.contributor.id).exists():
             is_author = True
     elif comment.commentary is not None:
-        #if comment.commentary.authors__contains(request.user.contributor):
-        #if request.user.contributor.comment_set.filter(id=comment_id).exists():
         if comment.commentary.authors.filter(id=request.user.contributor.id).exists():
             is_author = True
 
@@ -122,7 +121,6 @@ def reply_to_comment(request, comment_id):
                 date_submitted = timezone.now(),
                 )
             newcomment.save()
-#            request.session['commentary_id'] = comment.commentary.id
             return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
     else:
         form = CommentForm()
@@ -175,11 +173,14 @@ def express_opinion(request, comment_id, opinion):
     comment = get_object_or_404(Comment, pk=comment_id)
     comment.update_opinions (contributor.id, opinion)
     if comment.submission is not None:
-        return HttpResponseRedirect('/submission/' + str(comment.submission.id) + '/#comment_id' + str(comment.id))
+        return HttpResponseRedirect('/submission/' + str(comment.submission.id) + 
+                                    '/#comment_id' + str(comment.id))
     if comment.commentary is not None:
-        return HttpResponseRedirect('/commentary/' + str(comment.commentary.arxiv_or_DOI_string) + '/#comment_id' + str(comment.id))
+        return HttpResponseRedirect('/commentary/' + str(comment.commentary.arxiv_or_DOI_string) + 
+                                    '/#comment_id' + str(comment.id))
     if comment.thesislink is not None:
-        return HttpResponseRedirect('/thesis/' + str(comment.thesislink.id) + '/#comment_id' + str(comment.id))
+        return HttpResponseRedirect('/thesis/' + str(comment.thesislink.id) + 
+                                    '/#comment_id' + str(comment.id))
     else: 
         # will never call this
         return(render(request, 'scipost/index.html'))

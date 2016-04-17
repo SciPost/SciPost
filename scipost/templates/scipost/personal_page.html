@@ -219,12 +219,14 @@
   {% endif %}
   </div>
 
+  {% if active_assignments %}
   <h3>Submissions for which you are Editor-in-charge</h3>
   <ul>
     {% for assignment in active_assignments %}
     {{ assignment.header_as_li }}
     {% endfor %}
   </ul>
+  {% endif %}
 
 </section>
 {% endif %}

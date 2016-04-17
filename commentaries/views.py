@@ -134,9 +134,10 @@ def commentaries(request):
         form = CommentarySearchForm()
         commentary_search_list = []
 
-    #commentary_recent_list = Commentary.objects.filter(vetted=True, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7))
-    commentary_recent_list = Commentary.objects.filter(vetted=True).order_by('-latest_activity')[:10]
-    context = {'form': form, 'commentary_search_list': commentary_search_list, 'commentary_recent_list': commentary_recent_list }
+    commentary_recent_list = (Commentary.objects.filter(vetted=True)
+                              .order_by('-latest_activity')[:10])
+    context = {'form': form, 'commentary_search_list': commentary_search_list, 
+               'commentary_recent_list': commentary_recent_list }
     return render(request, 'commentaries/commentaries.html', context)
 
 
@@ -200,6 +201,7 @@ def commentary_detail(request, arxiv_or_DOI_string):
         author_replies = Comment.objects.filter(commentary=commentary, is_author_reply=True)
     except Comment.DoesNotExist:
         author_replies = ()
-    context = {'commentary': commentary, 'comments': comments.filter(status__gte=1).order_by('-date_submitted'), 
+    context = {'commentary': commentary, 
+               'comments': comments.filter(status__gte=1).order_by('-date_submitted'), 
                'author_replies': author_replies, 'form': form}
     return render(request, 'commentaries/commentary_detail.html', context)

@@ -58,11 +58,14 @@ def documentsSearchResults(query):
     """
     Searches through commentaries, submissions and thesislinks.
     Returns a Context object which can be further used in templates.
+    Naive implementation based on exact match of query.
+    NEEDS UPDATING with e.g. Haystack.
     """
     keyword = query
     title_keyword = query
     author = query
     abstract_keyword = query
+    supervisor = query
     commentary_search_list = Commentary.objects.filter(
         Q(pub_title__icontains=title_keyword) |
         Q(author_list__icontains=author) |
@@ -81,7 +84,7 @@ def documentsSearchResults(query):
         Q(title__icontains=title_keyword) |
         Q(author__icontains=author) |
         Q(abstract__icontains=abstract_keyword),
-#        supervisor__icontains=supervisor,
+        supervisor__icontains=supervisor,
         vetted=True,
         )
     thesislink_search_list.order_by('-pub_date')
@@ -313,6 +316,7 @@ def vet_registration_request_ack(request, contributor_id):
     return render(request, 'scipost/vet_registration_request_ack.html', context)
 
 
+@permission_required('scipost.can_manage_registration_invitations', raise_exception=True)
 def registration_invitations(request):
     # List invitations sent; send new ones
     errormessage = ''
@@ -409,9 +413,24 @@ def personal_page(request):
         own_submissions = Submission.objects.filter(authors__in=[contributor])
         own_commentaries = Commentary.objects.filter(authors__in=[contributor])
         own_thesislinks = ThesisLink.objects.filter(author_as_cont__in=[contributor])
-        nr_submission_authorships_to_claim = Submission.objects.filter(author_list__contains=contributor.user.last_name).exclude(authors__in=[contributor]).exclude(authors_claims__in=[contributor]).exclude(authors_false_claims__in=[contributor]).count()
-        nr_commentary_authorships_to_claim = Commentary.objects.filter(author_list__contains=contributor.user.last_name).exclude(authors__in=[contributor]).exclude(authors_claims__in=[contributor]).exclude(authors_false_claims__in=[contributor]).count()
-        nr_thesis_authorships_to_claim = ThesisLink.objects.filter(author__contains=contributor.user.last_name).exclude(author_as_cont__in=[contributor]).exclude(author_claims__in=[contributor]).exclude(author_false_claims__in=[contributor]).count()
+        nr_submission_authorships_to_claim = (Submission.objects
+                                              .filter(author_list__contains=contributor.user.last_name)
+                                              .exclude(authors__in=[contributor])
+                                              .exclude(authors_claims__in=[contributor])
+                                              .exclude(authors_false_claims__in=[contributor])
+                                              .count())
+        nr_commentary_authorships_to_claim = (Commentary.objects
+                                              .filter(author_list__contains=contributor.user.last_name)
+                                              .exclude(authors__in=[contributor])
+                                              .exclude(authors_claims__in=[contributor])
+                                              .exclude(authors_false_claims__in=[contributor])
+                                              .count())
+        nr_thesis_authorships_to_claim = (ThesisLink.objects
+                                          .filter(author__contains=contributor.user.last_name)
+                                          .exclude(author_as_cont__in=[contributor])
+                                          .exclude(author_claims__in=[contributor])
+                                          .exclude(author_false_claims__in=[contributor])
+                                          .count())
         own_comments = Comment.objects.filter(author=contributor,is_author_reply=False).order_by('-date_submitted')
         own_authorreplies = Comment.objects.filter(author=contributor,is_author_reply=True).order_by('-date_submitted')
         lists_owned = List.objects.filter(owner=contributor)
@@ -419,7 +438,8 @@ def personal_page(request):
         teams_led = Team.objects.filter(leader=contributor)
         teams = Team.objects.filter(members__in=[contributor])
         graphs_owned = Graph.objects.filter(owner=contributor)
-        graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor) | Q(teams_with_access__members__in=[contributor]))
+        graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor) 
+                                              | Q(teams_with_access__members__in=[contributor]))
         context = {'contributor': contributor, 
                    'nr_reg_to_vet': nr_reg_to_vet, 
                    'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 
@@ -517,11 +537,23 @@ def claim_authorships(request):
     if request.user.is_authenticated:
        contributor = Contributor.objects.get(user=request.user)
 
-       submission_authorships_to_claim = Submission.objects.filter(author_list__contains=contributor.user.last_name).exclude(authors__in=[contributor]).exclude(authors_claims__in=[contributor]).exclude(authors_false_claims__in=[contributor])
+       submission_authorships_to_claim = (Submission.objects
+                                          .filter(author_list__contains=contributor.user.last_name)
+                                          .exclude(authors__in=[contributor])
+                                          .exclude(authors_claims__in=[contributor])
+                                          .exclude(authors_false_claims__in=[contributor]))
        sub_auth_claim_form = AuthorshipClaimForm()
-       commentary_authorships_to_claim = Commentary.objects.filter(author_list__contains=contributor.user.last_name).exclude(authors__in=[contributor]).exclude(authors_claims__in=[contributor]).exclude(authors_false_claims__in=[contributor])
+       commentary_authorships_to_claim = (Commentary.objects
+                                          .filter(author_list__contains=contributor.user.last_name)
+                                          .exclude(authors__in=[contributor])
+                                          .exclude(authors_claims__in=[contributor])
+                                          .exclude(authors_false_claims__in=[contributor]))
        com_auth_claim_form = AuthorshipClaimForm()
-       thesis_authorships_to_claim = ThesisLink.objects.filter(author__contains=contributor.user.last_name).exclude(author_as_cont__in=[contributor]).exclude(author_claims__in=[contributor]).exclude(author_false_claims__in=[contributor])
+       thesis_authorships_to_claim = (ThesisLink.objects
+                                      .filter(author__contains=contributor.user.last_name)
+                                      .exclude(author_as_cont__in=[contributor])
+                                      .exclude(author_claims__in=[contributor])
+                                      .exclude(author_false_claims__in=[contributor]))
        thesis_auth_claim_form = AuthorshipClaimForm()
 
        context = {'submission_authorships_to_claim': submission_authorships_to_claim,
@@ -626,8 +658,12 @@ def contributor_info(request, contributor_id):
         contributor_submissions = Submission.objects.filter(authors__in=[contributor])
         contributor_commentaries = Commentary.objects.filter(authors__in=[contributor])
         contributor_theses = ThesisLink.objects.filter(author_as_cont__in=[contributor])
-        contributor_comments = Comment.objects.filter(author=contributor, is_author_reply=False, status__gte=1).order_by('-date_submitted')
-        contributor_authorreplies = Comment.objects.filter(author=contributor, is_author_reply=True, status__gte=1).order_by('-date_submitted')
+        contributor_comments = (Comment.objects
+                                .filter(author=contributor, is_author_reply=False, status__gte=1)
+                                .order_by('-date_submitted'))
+        contributor_authorreplies = (Comment.objects
+                                     .filter(author=contributor, is_author_reply=True, status__gte=1)
+                                     .order_by('-date_submitted'))
         context = {'contributor': contributor, 
                    'contributor_submissions': contributor_submissions,
                    'contributor_commentaries': contributor_commentaries,
@@ -788,9 +824,6 @@ def graph(request, graph_id):
                            name=create_node_form.cleaned_data['name'],
                            description=create_node_form.cleaned_data['description'])
             newnode.save()
-#            context =  {'create_node_form': create_node_form,
-#                        'create_link_form': create_link_form}
-#            return redirect(reverse('scipost:graph', kwargs={'graph_id': graph.id}), context)
         elif create_link_form.has_changed() and create_link_form.is_valid():
             sourcenode = create_link_form.cleaned_data['source']
             targetnode = create_link_form.cleaned_data['target']
@@ -838,5 +871,6 @@ def api_graph(request, graph_id):
     for node in nodes:
         nodesjson.append({'name': node.name, 'id': node.id})
         for origin in node.arcs_in.all():
-            links.append({'source': origin.name, 'source_id': origin.id, 'target': node.name, 'target_id': node.id})
+            links.append({'source': origin.name, 'source_id': origin.id, 
+                          'target': node.name, 'target_id': node.id})
     return JsonResponse({'nodes': nodesjson, 'links': links}, safe=False)

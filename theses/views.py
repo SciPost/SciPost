@@ -14,7 +14,7 @@ from .forms import *
 
 from comments.models import Comment
 from comments.forms import CommentForm
-from scipost.forms import TITLE_CHOICES, AuthenticationForm#, OpinionForm
+from scipost.forms import TITLE_CHOICES, AuthenticationForm
 
 title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
 
@@ -76,7 +76,8 @@ def vet_thesislink_request_ack(request, thesislink_id):
                               thesislink.requested_by.user.last_name + 
                               ', \n\nThe Thesis Link you have requested, concerning thesis with title ' + 
                               thesislink.title + ' by ' + thesislink.author + 
-                              ', has been activated at https://scipost.org/thesis/' + str(thesislink.id) + '.' + '\n\nThank you for your contribution, \nThe SciPost Team.')
+                              ', has been activated at https://scipost.org/thesis/' + str(thesislink.id) + '.' + 
+                              '\n\nThank you for your contribution, \nThe SciPost Team.')
                 emailmessage = EmailMessage('SciPost Thesis Link activated', email_text, 'SciPost Theses <theses@scipost.org>', 
                                             [thesislink.requested_by.user.email, 'theses@scipost.org'], 
                                             reply_to=['theses@scipost.org'])
@@ -140,8 +141,10 @@ def theses(request):
         form = ThesisLinkSearchForm()
         thesislink_search_list = []
 
-    thesislink_recent_list = ThesisLink.objects.filter(vetted=True, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7))
-    context = {'form': form, 'thesislink_search_list': thesislink_search_list, 'thesislink_recent_list': thesislink_recent_list }
+    thesislink_recent_list = (ThesisLink.objects
+                              .filter(vetted=True, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)))
+    context = {'form': form, 'thesislink_search_list': thesislink_search_list, 
+               'thesislink_recent_list': thesislink_recent_list }
     return render(request, 'theses/theses.html', context)
 
 
@@ -163,9 +166,11 @@ def browse(request, discipline, nrweeksback):
         return HttpResponseRedirect(request, 'theses/theses.html', context)
     else:
         form = ThesisLinkSearchForm()
-    thesislink_browse_list = ThesisLink.objects.filter(vetted=True, discipline=discipline, 
-                                                       latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
-    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 'thesislink_browse_list': thesislink_browse_list }
+    thesislink_browse_list = (ThesisLink.objects
+                              .filter(vetted=True, discipline=discipline, 
+                                      latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))))
+    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 
+               'thesislink_browse_list': thesislink_browse_list }
     return render(request, 'theses/theses.html', context)
 
 
@@ -204,6 +209,7 @@ def thesis_detail(request, thesislink_id):
         author_replies = Comment.objects.filter(thesislink=thesislink, is_author_reply=True)
     except Comment.DoesNotExist:
         author_replies = ()
-    context = {'thesislink': thesislink, 'comments': comments.filter(status__gte=1).order_by('date_submitted'), 
+    context = {'thesislink': thesislink, 
+               'comments': comments.filter(status__gte=1).order_by('date_submitted'), 
                'author_replies': author_replies, 'form': form}
     return render(request, 'theses/thesis_detail.html', context)
