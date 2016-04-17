@@ -165,7 +165,7 @@ function transform(d) {
   {% if graph.private }}
   <h3>Teams with access:</h3>
   <ul>
-    {% for team in graph.teams_with_access %}
+    {% for team in graph.teams_with_access.all %}
     {{ team.header_as_li }}
     {% endfor %}
   </ul>
