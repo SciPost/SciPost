@@ -16,6 +16,8 @@ class Command(BaseCommand):
         VettingEditors, created = Group.objects.get_or_create(name='Vetting Editors')
         RegisteredContributors, created = Group.objects.get_or_create(name='Registered Contributors')
 
+        Testers, created = Group.objects.get_or_create(name='Testers')
+
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
 
@@ -33,6 +35,10 @@ class Command(BaseCommand):
         can_submit_comments, created = Permission.objects.get_or_create(
             codename='can_submit_comments',
             name= 'Can submit Comments',
+            content_type=content_type)
+        can_express_opinion_on_comments, created = Permission.objects.get_or_create(
+            codename='can_express_opinion_on_comments',
+            name= 'Can express opinion on Comments',
             content_type=content_type)
         can_request_commentary_pages, created = Permission.objects.get_or_create(
             codename='can_request_commentary_pages',
@@ -123,5 +129,15 @@ class Command(BaseCommand):
                                        can_vet_authorship_claims, 
                                        can_vet_comments,
                                        )
+        RegisteredContributors.permissions.add(can_submit_comments, 
+                                               can_express_opinion_on_comments,
+                                               can_request_commentary_pages,
+                                               can_request_thesislinks,
+                                               can_referee,
+                                               )
+        Testers.permissions.add(can_create_list,
+                                can_create_team,
+                                can_create_graph,
+                                )
 
         self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions'))

@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import random
+import re
 import string
 
 from django.utils import timezone
@@ -53,6 +54,31 @@ def is_VE(user):
 
 # Global search
 
+def normalize_query(query_string,
+                    findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
+                    normspace=re.compile(r'\s{2,}').sub):
+    """ Splits a query string in individual keywords, keeping quoted words together. """
+    return [normspace(' ', (t[0] or t[1]).strip()) for t in findterms(query_string)]
+
+def get_query(query_string, search_fields):
+    """ Returns a query, namely a combination of Q objects. """
+    query = None
+    terms = normalize_query(query_string)
+    for term in terms:
+        or_query = None
+        for field_name in search_fields:
+            q = Q(**{"%s__icontains" % field_name: term})
+            if or_query is None:
+                or_query = q
+            else:
+                or_query = or_query | q
+        if query is None:
+            query = or_query
+        else:
+            query = query & or_query
+    return query
+
+
 #def documentsSearchResults(title_keyword, author, abstract_keyword):
 def documentsSearchResults(query):
     """
@@ -61,38 +87,31 @@ def documentsSearchResults(query):
     Naive implementation based on exact match of query.
     NEEDS UPDATING with e.g. Haystack.
     """
-    keyword = query
-    title_keyword = query
-    author = query
-    abstract_keyword = query
-    supervisor = query
+    commentary_query = get_query(query, 
+                                 ['pub_title', 'author_list', 'pub_abstract'])
+    submission_query = get_query(query, 
+                                 ['title', 'author_list', 'abstract'])
+    thesislink_query = get_query(query, 
+                                 ['title', 'author', 'abstract', 'supervisor'])
+    comment_query = get_query(query,
+                              ['comment_text'])
+
     commentary_search_list = Commentary.objects.filter(
-        Q(pub_title__icontains=title_keyword) |
-        Q(author_list__icontains=author) |
-        Q(pub_abstract__icontains=abstract_keyword),
+        commentary_query,
         vetted=True,
-        )
-    commentary_search_list.order_by('-pub_date')
+        ).order_by('-pub_date')
     submission_search_list = Submission.objects.filter(
-        Q(title__icontains=title_keyword) |
-        Q(author_list__icontains=author) |
-        Q(abstract__icontains=abstract_keyword),
+        submission_query,
         status__gte=1,
-        )
-    submission_search_list.order_by('-pub_date')
+        ).order_by('-submission_date')
     thesislink_search_list = ThesisLink.objects.filter(
-        Q(title__icontains=title_keyword) |
-        Q(author__icontains=author) |
-        Q(abstract__icontains=abstract_keyword),
-        supervisor__icontains=supervisor,
+        thesislink_query,
         vetted=True,
-        )
-    thesislink_search_list.order_by('-pub_date')
+        ).order_by('-defense_date')
     comment_search_list = Comment.objects.filter(
-        comment_text__icontains=keyword,
+        comment_query,
         status__gte='1',
-        )
-    comment_search_list.order_by('-pub_date')
+        ).order_by('-date_submitted')
     context = {'commentary_search_list': commentary_search_list,
                'submission_search_list': submission_search_list,
                'thesislink_search_list': thesislink_search_list,

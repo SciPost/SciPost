@@ -54,10 +54,8 @@ $("#LinkForm").toggle();
 });
 });
 
-//var links;
 d3.json("{% url 'scipost:api_graph' graph_id=graph.id %}", function(error, json) {
   if (error) return console.warn(error);
-//  links = json;
 
 var nodesjson = json['nodes'];
 var nodes = {};
@@ -66,12 +64,7 @@ nodesjson.forEach(function(node) {
 });
 
 var links = json['links'];
-// Compute the distinct nodes from the links.
 links.forEach(function(link) {
-//  link.source = nodes[link.from] || (nodes[link.from] = {name: link.from, id: link.from_id});
-//  link.target = nodes[link.to] || (nodes[link.to] = {name: link.to, id: link.to_id});
-//  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source, id: link.source_id});
-//  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target, id: link.target_id});
   link.source = nodes[link.source];
   link.target = nodes[link.target];
 });

@@ -137,10 +137,12 @@ class Utils(object):
 
         if cls.invitation.invitation_type == 'R':
             # Refereeing invitation
-            email_text += ('Our records show that you are not a registered Contributor to SciPost; ' +
-                           'we would hereby like to invite you to become one, by completing the pre-filled form at\n\n' +
+            # TO BE COMPLETED
+            email_text += ('We would hereby like to cordially invite you to become a Contributor on SciPost ' +
+                '(our records show that you are not yet registered); ' +
+                           'we have prepared a pre-filled form for you at\n\n' +
                            'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n' +
-                           'after which your registration will be activated, allowing you (among others) to referee.\n\n' +
+                           'after which your registration will be activated, allowing you to contribute.\n\n' +
                            'Many thanks in advance,\n\nThe SciPost Team')
             emailmessage = EmailMessage(
                 'SciPost registration invitation', email_text, 'SciPost Registration <registration@scipost.org>',
@@ -156,16 +158,16 @@ class Utils(object):
                 email_text += ('The SciPost.org portal has been intensively developed over the last few months. It is legally based on a not-for-profit foundation and will operate in perpetuity as a non-commercial entity at the exclusive service of the academic sector. We are now entering the next phase in the implementation, which is to build up the community of professional academics who will help operate it.\n\n' +
                                'To go straight to the point, on behalf of the foundation, I hereby have the honour to invite you to become an Editorial Fellow and thus join the Editorial College of SciPost Physics.\n\n' +
                                'Please note that only well-known and respected senior academics are being contacted. Academic reputation and involvement in the community are the most important criteria guiding our considerations of who should belong to the Editorial College.\n\n' +
-                               "To help you in considering this, it would be best if you were to take the time to look at the website itself. At the moment, registration is by invitation only, and the site is temporarily stripped of content for non-registered users. You can personally register (to become a Contributor, without necessarily committing to membership of the Editorial College, this to be discussed separately) by visiting the following single-use link within the next 2 weeks: \n\n" + 
+                               "To help you in considering this, it would be best if you were to take the time to look at the website itself. You can personally register (to become a Contributor, without necessarily committing to membership of the Editorial College, this to be discussed separately) by visiting the following single-use link within the next 2 weeks, containing a partly pre-filled form for your convenience: \n\n" + 
                                'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n' +
-                               'I will then activate your account, allowing you to directly see all the content. Many details about the initiative can then be found at scipost.org/about and at scipost.org/FAQ.\n\n' +
+                               'I will then activate your account. Many details about the initiative can then be found at scipost.org/about and at scipost.org/FAQ.\n\n' +
                                "Since the success of this initiative is dependent on the involvement of the very people it is meant to serve, we'd be very grateful if you were to give due consideration to this proposal. We would expect you to commit just 2-4 hours per month to help perform Editorial duties; we will adjust the number of Editorial Fellows to ensure this is the case. You could try it out for 6 months or a year, and of course you could quit any time you wished. We'd be even more grateful if you considered submitting a publication to one of the journals (which will open for submission in a few weeks) in the near future, in order to help establish their reputation.\n\n" +
                                "I'd be happy to provide you with more information, should you require it. In view of our development plans, I would be grateful if you could react (by replying to this email) within the next two or three weeks, if possible. I'll be looking forward to your reaction, your comments and suggestions, be they positive or negative. If you need more time to consider, that's also fine; just let me know.\n\n")
             elif cls.invitation.invitation_type == 'C':
                 email_text += ('The SciPost.org portal has been intensively developed over the last few months. It is legally based on a not-for-profit foundation and will operate in perpetuity as a non-commercial entity at the exclusive service of the academic sector. We are now entering the next phase in the implementation, which is to build up the community of professional academics who will hopefully make use of the portal in their daily activities.\n\n' +
-                               "It's perhaps best if you take the time to look at the website itself. At the moment, registration is by invitation only, and the site is temporarily stripped of content for non-registered users. You can personally register by visiting the following single-use link within the next 2 weeks: \n\n" +
+                               "It's perhaps best if you take the time to look at the website itself. You can personally register by visiting the following single-use link within the next 2 weeks, containing a partly pre-filled form for your convenience: \n\n" +
                                'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n' +
-                               'I will then activate your account, allowing you to directly see all the content. Many details about the initiative can then be found at scipost.org/about and at scipost.org/FAQ.\n\n' +
+                               'I will then activate your account. Many details about the initiative can then be found at scipost.org/about and at scipost.org/FAQ.\n\n' +
                                "If you do develop sympathy for the initiative, besides participating in the online platform, we'd be very grateful if you considered submitting a publication to one of the journals (which will open for submission in a few weeks) within the near future, in order to help establish their reputation. I'll also be looking forward to your reaction, your comments and suggestions, be they positive or negative.\n\n")
                 
                 email_text += ("On behalf of the SciPost Foundation,\n\n" +

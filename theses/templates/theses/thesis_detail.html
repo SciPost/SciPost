@@ -42,7 +42,7 @@
 {% include 'scipost/comments_block.html' %}
 
 
-{% if user.is_authenticated and thesislink.open_for_commenting and user|is_in_group:'Registered Contributors' %}
+{% if user.is_authenticated and thesislink.open_for_commenting and perms.scipost.can_submit_comments %}
 <section>
   <hr class="hr12">
   <div class="flex-greybox">
