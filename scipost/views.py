@@ -187,7 +187,11 @@ def register(request):
 def invitation(request, key):
     """ Register, by invitation """
     invitation = get_object_or_404(RegistrationInvitation, invitation_key=key)
-    if request.method == 'POST':
+    if invitation.responded:
+        errormessage = 'This invitation token has already been used.'
+    elif timezone.now() > invitation.key_expires:
+        errormessage = 'The invitation key has expired.'
+    elif request.method == 'POST':
         form = RegistrationForm(request.POST)
         Utils.load({'form': form})
         if form.is_valid():
@@ -200,6 +204,8 @@ def invitation(request, key):
             if Utils.email_already_taken():
                 return render(request, 'scipost/register.html',
                               {'form': form, 'invited': True, 'key': key, 'errormessage': 'This email address is already in use'})
+            invitation.responded = True
+            invitation.save()
             Utils.create_and_save_contributor(key)
             Utils.send_registration_email()
             return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
@@ -207,14 +213,7 @@ def invitation(request, key):
             errormessage = 'form is invalidly filled'
             return render(request, 'scipost/register.html',
                           {'form': form, 'invited': True, 'key': key, 'errormessage': errormessage})
-    elif timezone.now() > invitation.key_expires:
-        invitation_expired = True
-        errormessage = 'The invitation key has expired.'
-    elif invitation.responded:
-        errormessage = 'This invitation token has already been used.'
     else:
-        invitation.responded = True
-        invitation.save()
         form = RegistrationForm()
         form.fields['title'].initial = invitation.title
         form.fields['last_name'].initial = invitation.last_name
@@ -231,12 +230,12 @@ def invitation(request, key):
 
 
 def activation(request, key):
-    activation_expired = False
-    already_active = False
+#    activation_expired = False
+#    already_active = False
     contributor = get_object_or_404(Contributor, activation_key=key)
     if contributor.user.is_active == False:
         if timezone.now() > contributor.key_expires:
-            activation_expired = True
+#            activation_expired = True
             id_user = contributor.user.id
             context = {'oldkey': key}
             return render(request, 'scipost/request_new_activation_link.html', context)
@@ -245,10 +244,10 @@ def activation(request, key):
             contributor.user.save()
             return render(request, 'scipost/activation_ack.html')
     else:
-        already_active = True
+#        already_active = True
         return render(request, 'scipost/already_activated.html')
-    # will never come beyond here
-    return render(request, 'scipost/index.html')
+#    # will never come beyond here
+#    return render(request, 'scipost/index.html')
 
 
 
