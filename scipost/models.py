@@ -3,7 +3,6 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
-from django.template import defaultfilters
 
 from django_countries.fields import CountryField
 
@@ -302,7 +301,7 @@ class List(models.Model):
 
     def contents(self):
         context = Context({})
-        output = defaultfilters.linebreaks(self.description)
+        output = self.description
         output += '<hr class="hr6"/>'
         emptylist = True
         if self.submissions.exists():
@@ -396,7 +395,7 @@ class Graph(models.Model):
 
     def contents(self):
         context = Context({})
-        output = defaultfilters.linebreaks(self.description)
+        output = self.description
         template = Template(output)
         return template.render(context)
 
@@ -428,7 +427,7 @@ class Node(models.Model):
 
     def contents(self):
         context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name, 
-                           'description': defaultfilters.linebreaks(self.description)})
+                           'description': self.description})
         output = '<div class="node_contents node_id{{ id }}"><h3>{{ name }}</h3><p>{{ description }}</p></div>'
         template = Template(output)
         return template.render(context)

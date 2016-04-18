@@ -2,6 +2,7 @@ import datetime
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
@@ -23,38 +24,35 @@ title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
 ################
 
 
+@permission_required('scipost.can_request_thesislink')
 def request_thesislink(request):
-    if request.user.is_authenticated():
-        # If POST, process the form data
-        if request.method == 'POST':
-            form = RequestThesisLinkForm(request.POST)
-            if form.is_valid():
-                contributor = Contributor.objects.get(user=request.user)
-                thesislink = ThesisLink (
-                    requested_by = contributor,
-                    type = form.cleaned_data['type'],
-                    discipline = form.cleaned_data['discipline'],
-                    domain = form.cleaned_data['domain'],
-                    specialization = form.cleaned_data['specialization'],
-                    title = form.cleaned_data['title'],
-                    author = form.cleaned_data['author'],
-                    supervisor = form.cleaned_data['supervisor'],
-                    institution = form.cleaned_data['institution'],
-                    defense_date = form.cleaned_data['defense_date'],
-                    pub_link = form.cleaned_data['pub_link'],
-                    abstract = form.cleaned_data['abstract'],
-                    latest_activity = timezone.now(),
-                    )
-                thesislink.save()
-                return HttpResponseRedirect('request_thesislink_ack')
-        else:
-            form = RequestThesisLinkForm()
-        return render(request, 'theses/request_thesislink.html', {'form': form})
-    else: # user is not authenticated:
-        form = AuthenticationForm()
-        return render(request, 'scipost/login.html', {'form': form})
+    if request.method == 'POST':
+        form = RequestThesisLinkForm(request.POST)
+        if form.is_valid():
+            contributor = Contributor.objects.get(user=request.user)
+            thesislink = ThesisLink (
+                requested_by = contributor,
+                type = form.cleaned_data['type'],
+                discipline = form.cleaned_data['discipline'],
+                domain = form.cleaned_data['domain'],
+                specialization = form.cleaned_data['specialization'],
+                title = form.cleaned_data['title'],
+                author = form.cleaned_data['author'],
+                supervisor = form.cleaned_data['supervisor'],
+                institution = form.cleaned_data['institution'],
+                defense_date = form.cleaned_data['defense_date'],
+                pub_link = form.cleaned_data['pub_link'],
+                abstract = form.cleaned_data['abstract'],
+                latest_activity = timezone.now(),
+                )
+            thesislink.save()
+            return HttpResponseRedirect('request_thesislink_ack')
+    else:
+        form = RequestThesisLinkForm()
+    return render(request, 'theses/request_thesislink.html', {'form': form})
 
 
+@permission_required('scipost.can_vet_thesislink_requests')
 def vet_thesislink_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     thesislink_to_vet = ThesisLink.objects.filter(vetted=False).first() # only handle one at a time
@@ -62,7 +60,7 @@ def vet_thesislink_requests(request):
     context = {'contributor': contributor, 'thesislink_to_vet': thesislink_to_vet, 'form': form }
     return render(request, 'theses/vet_thesislink_requests.html', context)
 
-
+@permission_required('scipost.can_vet_thesislink_requests')
 def vet_thesislink_request_ack(request, thesislink_id):
     if request.method == 'POST':
         form = VetThesisLinkForm(request.POST)

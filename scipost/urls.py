@@ -40,7 +40,7 @@ urlpatterns = [
     url(r'^accept_invitation_error$', TemplateView.as_view(template_name='scipost/accept_invitation_error.html'), name='accept_invitation_error'),
 
     ## Authentication
-    url(r'^login$', views.login_view, name='login'),
+    url(r'^login/$', views.login_view, name='login'),
     url(r'^logout$', views.logout_view, name='logout'),
     url(r'^personal_page$', views.personal_page, name='personal_page'),
     url(r'^change_password$', views.change_password, name='change_password'),

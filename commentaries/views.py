@@ -2,6 +2,7 @@ import datetime
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
@@ -24,38 +25,36 @@ from scipost.forms import AuthenticationForm
 ################
 
 
+@login_required
+@permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def request_commentary(request):
-    # commentary pages can only be requested by registered contributors:
-    if request.user.is_authenticated():
-        if request.method == 'POST':
-            form = RequestCommentaryForm(request.POST)
-            if form.is_valid():
-                contributor = Contributor.objects.get(user=request.user)
-                commentary = Commentary (
-                    requested_by = contributor,
-                    type = form.cleaned_data['type'],
-                    discipline = form.cleaned_data['discipline'],
-                    domain = form.cleaned_data['domain'],
-                    specialization = form.cleaned_data['specialization'],
-                    pub_title = form.cleaned_data['pub_title'],
-                    arxiv_link = form.cleaned_data['arxiv_link'],
-                    pub_DOI_link = form.cleaned_data['pub_DOI_link'],
-                    author_list = form.cleaned_data['author_list'],
-                    pub_date = form.cleaned_data['pub_date'],
-                    pub_abstract = form.cleaned_data['pub_abstract'],
-                    latest_activity = timezone.now(),
-                    )
-                commentary.parse_link_into_url()
-                commentary.save()
-                return HttpResponseRedirect('request_commentary_ack')
-        else:
-            form = RequestCommentaryForm()
-        return render(request, 'commentaries/request_commentary.html', {'form': form})
-    else: # user is not authenticated:
-        form = AuthenticationForm()
-        return render(request, 'scipost/login.html', {'form': form})
+    if request.method == 'POST':
+        form = RequestCommentaryForm(request.POST)
+        if form.is_valid():
+            contributor = Contributor.objects.get(user=request.user)
+            commentary = Commentary (
+                requested_by = contributor,
+                type = form.cleaned_data['type'],
+                discipline = form.cleaned_data['discipline'],
+                domain = form.cleaned_data['domain'],
+                specialization = form.cleaned_data['specialization'],
+                pub_title = form.cleaned_data['pub_title'],
+                arxiv_link = form.cleaned_data['arxiv_link'],
+                pub_DOI_link = form.cleaned_data['pub_DOI_link'],
+                author_list = form.cleaned_data['author_list'],
+                pub_date = form.cleaned_data['pub_date'],
+                pub_abstract = form.cleaned_data['pub_abstract'],
+                latest_activity = timezone.now(),
+                )
+            commentary.parse_link_into_url()
+            commentary.save()
+            return HttpResponseRedirect('request_commentary_ack')
+    else:
+        form = RequestCommentaryForm()
+    return render(request, 'commentaries/request_commentary.html', {'form': form})
 
 
+@permission_required('scipost.can_vet_commentary_requests', raise_exception=True)
 def vet_commentary_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     commentary_to_vet = Commentary.objects.filter(vetted=False).first() # only handle one at a time
@@ -63,7 +62,7 @@ def vet_commentary_requests(request):
     context = {'contributor': contributor, 'commentary_to_vet': commentary_to_vet, 'form': form }
     return render(request, 'commentaries/vet_commentary_requests.html', context)
 
-
+@permission_required('scipost.can_vet_commentary_requests', raise_exception=True)
 def vet_commentary_request_ack(request, commentary_id):
     if request.method == 'POST':
         form = VetCommentaryForm(request.POST)

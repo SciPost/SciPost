@@ -7,7 +7,7 @@ import string
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.mail import EmailMessage
@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from django.template import RequestContext
+from django.utils.http import is_safe_url
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 
@@ -275,7 +276,7 @@ def request_new_activation_link(request, oldkey):
     return render (request, 'scipost/request_new_activation_link_ack.html')
 
 
-@permission_required('scipost.can_vet_registration_requests', raise_exception=True)
+@permission_required('scipost.can_vet_registration_requests')
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     contributors_to_vet = Contributor.objects.filter(user__is_active=True, status=0).order_by('key_expires')
@@ -284,7 +285,7 @@ def vet_registration_requests(request):
     context = {'contributors_to_vet': contributors_to_vet, 'form': form }
     return render(request, 'scipost/vet_registration_requests.html', context)
 
-@permission_required('scipost.can_vet_registration_requests', raise_exception=True)
+@permission_required('scipost.can_vet_registration_requests')
 def vet_registration_request_ack(request, contributor_id):
     # process the form
     if request.method == 'POST':
@@ -334,7 +335,7 @@ def vet_registration_request_ack(request, contributor_id):
     return render(request, 'scipost/vet_registration_request_ack.html', context)
 
 
-@permission_required('scipost.can_manage_registration_invitations', raise_exception=True)
+@permission_required('scipost.can_manage_registration_invitations')
 def registration_invitations(request):
     # List invitations sent; send new ones
     errormessage = ''
@@ -345,6 +346,8 @@ def registration_invitations(request):
         if reg_inv_form.is_valid():
             if Utils.email_already_invited():
                 errormessage = 'DUPLICATE ERROR: This email address has already been used for an invitation'
+            elif Utils.email_already_taken():
+                errormessage = 'DUPLICATE ERROR: This email address is already associated to a Contributor'
             else:
                 Utils.create_and_save_invitation()
                 Utils.send_registration_invitation_email()
@@ -369,6 +372,13 @@ def registration_invitations(request):
 
 
 def login_view(request):
+    redirect_to = request.POST.get('next', 
+                                   request.GET.get('next', reverse('scipost:personal_page')))
+    redirect_to = (redirect_to 
+                   if is_safe_url(redirect_to, request.get_host()) 
+                   else reverse('scipost:personal_page'))
+    if request.user.is_authenticated: # for users who navigate back to pre-logged in page
+        return redirect(redirect_to)
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -378,15 +388,14 @@ def login_view(request):
                 login(request, user)
                 contributor = Contributor.objects.get(user=request.user)
                 context = {'contributor': contributor }
-                #return render(request, 'scipost/personal_page.html', context)
-                return HttpResponseRedirect('personal_page')
+                return redirect(redirect_to)
             else:
                 return render(request, 'scipost/disabled_account.html')
         else:
             return render(request, 'scipost/login_error.html')
     else:
         form = AuthenticationForm()
-        return render(request, 'scipost/login.html', {'form': form})
+        return render(request, 'scipost/login.html', {'form': form, 'next': redirect_to})
 
 
 def logout_view(request):
@@ -492,8 +501,12 @@ def personal_page(request):
         return render(request, 'scipost/login.html', context)
 
 
+@login_required
 def change_password(request):
-    if request.user.is_authenticated and request.method == 'POST':
+#    if not request.user.is_authenticated:
+#        form = AuthenticationForm()
+#        return render(request, 'scipost/login.html', {'form': form})
+    if request.method == 'POST':
         form = PasswordChangeForm(request.POST)
         if form.is_valid():
             if not request.user.check_password(form.cleaned_data['password_prev']):
@@ -523,70 +536,65 @@ def reset_password(request):
         post_reset_redirect=reverse('scipost:login'))
 
 
+@login_required
 def update_personal_data(request):
-    if request.user.is_authenticated:
-        contributor = Contributor.objects.get(user=request.user)
-        if request.method == 'POST':
-            user_form = UpdateUserDataForm(request.POST)
-            cont_form = UpdatePersonalDataForm(request.POST)
-            if user_form.is_valid() and cont_form.is_valid():
-                request.user.email = user_form.cleaned_data['email']
-                request.user.first_name = user_form.cleaned_data['first_name']
-                request.user.last_name = user_form.cleaned_data['last_name']
-                request.user.contributor.title = cont_form.cleaned_data['title']
-                request.user.contributor.orcid_id = cont_form.cleaned_data['orcid_id']
-                request.user.contributor.country_of_employment = cont_form.cleaned_data['country_of_employment']
-                request.user.contributor.address = cont_form.cleaned_data['address']
-                request.user.contributor.affiliation = cont_form.cleaned_data['affiliation']
-                request.user.contributor.personalwebpage = cont_form.cleaned_data['personalwebpage']
-                request.user.save()
-                request.user.contributor.save()
-                return render(request, 'scipost/update_personal_data_ack.html')
-        else:
-            user_form = UpdateUserDataForm(instance=contributor.user)
-            cont_form = UpdatePersonalDataForm(instance=contributor)
-        return render(request, 'scipost/update_personal_data.html', {'user_form': user_form, 'cont_form': cont_form})
+    contributor = Contributor.objects.get(user=request.user)
+    if request.method == 'POST':
+        user_form = UpdateUserDataForm(request.POST)
+        cont_form = UpdatePersonalDataForm(request.POST)
+        if user_form.is_valid() and cont_form.is_valid():
+            request.user.email = user_form.cleaned_data['email']
+            request.user.first_name = user_form.cleaned_data['first_name']
+            request.user.last_name = user_form.cleaned_data['last_name']
+            request.user.contributor.title = cont_form.cleaned_data['title']
+            request.user.contributor.orcid_id = cont_form.cleaned_data['orcid_id']
+            request.user.contributor.country_of_employment = cont_form.cleaned_data['country_of_employment']
+            request.user.contributor.address = cont_form.cleaned_data['address']
+            request.user.contributor.affiliation = cont_form.cleaned_data['affiliation']
+            request.user.contributor.personalwebpage = cont_form.cleaned_data['personalwebpage']
+            request.user.save()
+            request.user.contributor.save()
+            return render(request, 'scipost/update_personal_data_ack.html')
     else:
-        form = AuthenticationForm()
-        return render(request, 'scipost/login.html', {'form': form})
+        user_form = UpdateUserDataForm(instance=contributor.user)
+        cont_form = UpdatePersonalDataForm(instance=contributor)
+    return render(request, 'scipost/update_personal_data.html', {'user_form': user_form, 'cont_form': cont_form})
 
 
+@login_required
 def claim_authorships(request):
-    if request.user.is_authenticated:
-       contributor = Contributor.objects.get(user=request.user)
-
-       submission_authorships_to_claim = (Submission.objects
-                                          .filter(author_list__contains=contributor.user.last_name)
-                                          .exclude(authors__in=[contributor])
-                                          .exclude(authors_claims__in=[contributor])
-                                          .exclude(authors_false_claims__in=[contributor]))
-       sub_auth_claim_form = AuthorshipClaimForm()
-       commentary_authorships_to_claim = (Commentary.objects
-                                          .filter(author_list__contains=contributor.user.last_name)
-                                          .exclude(authors__in=[contributor])
-                                          .exclude(authors_claims__in=[contributor])
-                                          .exclude(authors_false_claims__in=[contributor]))
-       com_auth_claim_form = AuthorshipClaimForm()
-       thesis_authorships_to_claim = (ThesisLink.objects
-                                      .filter(author__contains=contributor.user.last_name)
-                                      .exclude(author_as_cont__in=[contributor])
-                                      .exclude(author_claims__in=[contributor])
-                                      .exclude(author_false_claims__in=[contributor]))
-       thesis_auth_claim_form = AuthorshipClaimForm()
-
-       context = {'submission_authorships_to_claim': submission_authorships_to_claim,
-                  'sub_auth_claim_form': sub_auth_claim_form,
-                  'commentary_authorships_to_claim': commentary_authorships_to_claim,
-                  'com_auth_claim_form': com_auth_claim_form,
-                  'thesis_authorships_to_claim': thesis_authorships_to_claim,
-                  'thesis_auth_claim_form': thesis_auth_claim_form,
-                  }
-       return render(request, 'scipost/claim_authorships.html', context)
-    else:
-        form = AuthenticationForm()
-        return render(request, 'scipost/login.html', {'form': form})
+    contributor = Contributor.objects.get(user=request.user)
+    
+    submission_authorships_to_claim = (Submission.objects
+                                       .filter(author_list__contains=contributor.user.last_name)
+                                       .exclude(authors__in=[contributor])
+                                       .exclude(authors_claims__in=[contributor])
+                                       .exclude(authors_false_claims__in=[contributor]))
+    sub_auth_claim_form = AuthorshipClaimForm()
+    commentary_authorships_to_claim = (Commentary.objects
+                                       .filter(author_list__contains=contributor.user.last_name)
+                                       .exclude(authors__in=[contributor])
+                                       .exclude(authors_claims__in=[contributor])
+                                       .exclude(authors_false_claims__in=[contributor]))
+    com_auth_claim_form = AuthorshipClaimForm()
+    thesis_authorships_to_claim = (ThesisLink.objects
+                                   .filter(author__contains=contributor.user.last_name)
+                                   .exclude(author_as_cont__in=[contributor])
+                                   .exclude(author_claims__in=[contributor])
+                                   .exclude(author_false_claims__in=[contributor]))
+    thesis_auth_claim_form = AuthorshipClaimForm()
+    
+    context = {'submission_authorships_to_claim': submission_authorships_to_claim,
+               'sub_auth_claim_form': sub_auth_claim_form,
+               'commentary_authorships_to_claim': commentary_authorships_to_claim,
+               'com_auth_claim_form': com_auth_claim_form,
+               'thesis_authorships_to_claim': thesis_authorships_to_claim,
+               'thesis_auth_claim_form': thesis_auth_claim_form,
+               }
+    return render(request, 'scipost/claim_authorships.html', context)
 
 
+@login_required
 def claim_sub_authorship(request, submission_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -600,6 +608,7 @@ def claim_sub_authorship(request, submission_id, claim):
         submission.save()
     return redirect('scipost:claim_authorships')
 
+@login_required
 def claim_com_authorship(request, commentary_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -613,6 +622,7 @@ def claim_com_authorship(request, commentary_id, claim):
         commentary.save()
     return redirect('scipost:claim_authorships')
 
+@login_required
 def claim_thesis_authorship(request, thesis_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -627,11 +637,13 @@ def claim_thesis_authorship(request, thesis_id, claim):
     return redirect('scipost:claim_authorships')
 
 
+@permission_required('scipost.can_vet_authorship_claims')
 def vet_authorship_claims(request):
     claims_to_vet = AuthorshipClaim.objects.filter(status='0')
     context = {'claims_to_vet': claims_to_vet}
     return render(request, 'scipost/vet_authorship_claims.html', context)
 
+@permission_required('scipost.can_vet_authorship_claims')
 def vet_authorship_claim(request, claim_id, claim):
     if request.method == 'POST':
         vetting_contributor = Contributor.objects.get(user=request.user)
@@ -670,29 +682,25 @@ def vet_authorship_claim(request, claim_id, claim):
     return redirect('scipost:vet_authorship_claims')
 
 
+@login_required
 def contributor_info(request, contributor_id):
-    if request.user.is_authenticated():
-        contributor = Contributor.objects.get(pk=contributor_id)
-        contributor_submissions = Submission.objects.filter(authors__in=[contributor])
-        contributor_commentaries = Commentary.objects.filter(authors__in=[contributor])
-        contributor_theses = ThesisLink.objects.filter(author_as_cont__in=[contributor])
-        contributor_comments = (Comment.objects
-                                .filter(author=contributor, is_author_reply=False, status__gte=1)
-                                .order_by('-date_submitted'))
-        contributor_authorreplies = (Comment.objects
-                                     .filter(author=contributor, is_author_reply=True, status__gte=1)
-                                     .order_by('-date_submitted'))
-        context = {'contributor': contributor, 
-                   'contributor_submissions': contributor_submissions,
-                   'contributor_commentaries': contributor_commentaries,
-                   'contributor_theses': contributor_theses,
-                   'contributor_comments': contributor_comments, 
-                   'contributor_authorreplies': contributor_authorreplies}
-        return render(request, 'scipost/contributor_info.html', context)
-    else:
-        form = AuthenticationForm()
-        context = {'form': form}
-        return render(request, 'scipost/login.html', context)
+    contributor = Contributor.objects.get(pk=contributor_id)
+    contributor_submissions = Submission.objects.filter(authors__in=[contributor])
+    contributor_commentaries = Commentary.objects.filter(authors__in=[contributor])
+    contributor_theses = ThesisLink.objects.filter(author_as_cont__in=[contributor])
+    contributor_comments = (Comment.objects
+                            .filter(author=contributor, is_author_reply=False, status__gte=1)
+                            .order_by('-date_submitted'))
+    contributor_authorreplies = (Comment.objects
+                                 .filter(author=contributor, is_author_reply=True, status__gte=1)
+                                 .order_by('-date_submitted'))
+    context = {'contributor': contributor, 
+               'contributor_submissions': contributor_submissions,
+               'contributor_commentaries': contributor_commentaries,
+               'contributor_theses': contributor_theses,
+               'contributor_comments': contributor_comments, 
+               'contributor_authorreplies': contributor_authorreplies}
+    return render(request, 'scipost/contributor_info.html', context)
 
 
 
@@ -700,7 +708,7 @@ def contributor_info(request, contributor_id):
 # Lists #
 #########
 
-@permission_required('scipost.can_create_list', raise_exception=True)
+@permission_required('scipost.can_create_list')
 def create_list(request):
     listcreated = False
     message = None
@@ -722,7 +730,7 @@ def create_list(request):
     return render(request, 'scipost/create_list.html', context)
 
 
-@permission_required('scipost.can_create_list', raise_exception=True)
+@permission_required('scipost.can_create_list')
 def list(request, list_id):
     list = get_object_or_404(List, pk=list_id)
     context = {'list': list}
@@ -736,7 +744,7 @@ def list(request, list_id):
     return render(request, 'scipost/list.html', context)
 
 
-@permission_required('scipost.can_create_list', raise_exception=True)
+@permission_required('scipost.can_create_list')
 def list_add_element(request, list_id, type, element_id):
     list = get_object_or_404(List, pk=list_id)
     if type == 'C':
@@ -758,7 +766,7 @@ def list_add_element(request, list_id, type, element_id):
 # Teams #
 #########
 
-@permission_required('scipost.can_create_team', raise_exception=True)
+@permission_required('scipost.can_create_team')
 def create_team(request):
     if request.method == "POST":
         create_team_form = CreateTeamForm(request.POST)
@@ -775,7 +783,7 @@ def create_team(request):
                'add_team_member_form': add_team_member_form}
     return render(request, 'scipost/create_team.html', context)
 
-@permission_required('scipost.can_create_team', raise_exception=True)
+@permission_required('scipost.can_create_team')
 def add_team_member(request, team_id, contributor_id=None):
     team = get_object_or_404(Team, pk=team_id)
     contributors_found = None
@@ -799,7 +807,7 @@ def add_team_member(request, team_id, contributor_id=None):
 # Graphs #
 ##########
 
-@permission_required('scipost.can_create_graph', raise_exception=True)
+@permission_required('scipost.can_create_graph')
 def create_graph(request):
     graphcreated = False
     message = None
@@ -821,7 +829,7 @@ def create_graph(request):
     return render(request, 'scipost/create_graph.html', context)
 
 
-@permission_required('scipost.can_create_graph', raise_exception=True)
+@permission_required('scipost.can_create_graph')
 def graph(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
     nodes = Node.objects.filter(graph=graph)
@@ -860,7 +868,7 @@ def graph(request, graph_id):
     return render(request, 'scipost/graph.html', context)
 
 
-@permission_required('scipost.can_create_graph', raise_exception=True)
+@permission_required('scipost.can_create_graph')
 def edit_graph_node(request, node_id):
     node = get_object_or_404(Node, pk=node_id)
     if request.method == "POST":
@@ -880,6 +888,7 @@ def edit_graph_node(request, node_id):
     return render(request, 'scipost/edit_graph_node.html', context)
 
 
+@login_required
 def api_graph(request, graph_id):
     """ Produce JSON data to plot graph """
     graph = get_object_or_404(Graph, pk=graph_id)

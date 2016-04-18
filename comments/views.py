@@ -2,6 +2,7 @@ import datetime
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
@@ -15,6 +16,7 @@ from .forms import *
 from scipost.models import title_dict
 
 
+@permission_required('scipost.can_vet_comments')
 def vet_submitted_comments(request):
     contributor = Contributor.objects.get(user=request.user)
     comments_to_vet = Comment.objects.filter(status=0).order_by('date_submitted')
@@ -22,7 +24,7 @@ def vet_submitted_comments(request):
     context = {'contributor': contributor, 'comments_to_vet': comments_to_vet, 'form': form }
     return(render(request, 'comments/vet_submitted_comments.html', context))
 
-
+@permission_required('scipost.can_vet_comments')
 def vet_submitted_comment_ack(request, comment_id):
     if request.method == 'POST':
         form = VetCommentForm(request.POST)
@@ -87,6 +89,7 @@ def vet_submitted_comment_ack(request, comment_id):
     return render(request, 'comments/vet_submitted_comment_ack.html', context)
 
 
+@permission_required('scipost.can_submit_comments')
 def reply_to_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     # Verify if this is from an author:
@@ -129,13 +132,13 @@ def reply_to_comment(request, comment_id):
     return render(request, 'comments/reply_to_comment.html', context)
 
 
+@permission_required('scipost.can_submit_comments')
 def reply_to_report(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
     # Verify if this is from an author:
     is_author = False
     if report.submission.authors.filter(id=request.user.contributor.id).exists():
         is_author = True
-
     if is_author and request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
@@ -166,7 +169,7 @@ def reply_to_report(request, report_id):
     return render(request, 'comments/reply_to_report.html', context)
 
 
-
+@permission_required('scipost.can_express_opinion_on_comments')
 def express_opinion(request, comment_id, opinion):
     # A contributor has expressed an opinion on a comment
     contributor = request.user.contributor

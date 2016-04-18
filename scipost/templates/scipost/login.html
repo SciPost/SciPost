@@ -16,6 +16,9 @@
 	  </ul>
 	</table>
 	<input type="submit" value="Login" />
+	{% if next %}
+	<input type="hidden" name="next" value="{{ next }}"/>
+	{% endif %}
       </form>
       <br/>
       <a href="{% url 'scipost:reset_password' %}">Forgot your password?</a>
