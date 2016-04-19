@@ -134,10 +134,5 @@ class Command(BaseCommand):
                                                can_request_thesislinks,
                                                can_referee,
                                                )
-        Testers.permissions.add(
-            can_create_list,
-            can_create_team,
-            can_create_graph,
-            )
 
         self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions'))
