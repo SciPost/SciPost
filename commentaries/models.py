@@ -37,6 +37,10 @@ class Commentary(models.Model):
     pub_abstract = models.TextField(verbose_name='abstract')
     latest_activity = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        verbose_name_plural = 'Commentaries'
+
+
     def __str__ (self):
         return self.pub_title
 

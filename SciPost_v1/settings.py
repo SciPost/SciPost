@@ -39,6 +39,11 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = host_settings["SESSION_COOKIE_SECURE"]
 CSRF_COOKIE_SECURE = host_settings["CSRF_COOKIE_SECURE"]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', 
+    'guardian.backends.ObjectPermissionBackend'
+    )
+
 LOGIN_URL = '/login/'
 
 # Session expire at browser close                                                                  
@@ -58,9 +63,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_countries',
     'django_mathjax',
-    'rest_framework',
     'captcha',
     'crispy_forms',
+    'rest_framework',
+    'guardian',
+    'habanero',
     'commentaries',
     'comments',
     'journals',
