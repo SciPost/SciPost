@@ -111,13 +111,13 @@
     <li><a class="TabItem" id="ThesesTab">Theses</a></li>
     <li><a class="TabItem" id="CommentsTab">Comments</a></li>
     <li><a class="TabItem" id="AuthorRepliesTab">Author Replies</a></li>
-    {% if perms.scipost.can_create_list %}
+    {% if request.user|is_in_group:'Testers' %}
     <li><a class="TabItem" id="ListsTab">Lists</a></li>
     {% endif %}
-    {% if perms.scipost.can_create_team %}
+    {% if request.user|is_in_group:'Testers' %}
     <li><a class="TabItem" id="TeamsTab">Teams</a></li>
     {% endif %}
-    {% if perms.scipost.can_create_graph %}
+    {% if request.user|is_in_group:'Testers' %}
     <li><a class="TabItem" id="GraphsTab">Graphs</a></li>
     {% endif %}
   </ul>

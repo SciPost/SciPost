@@ -93,22 +93,21 @@ class Command(BaseCommand):
             name= 'Can act as a referee and submit reports on Submissions',
             content_type=content_type)
 
-        # Lists
-        can_create_list, created = Permission.objects.get_or_create(
-            codename='can_create_list',
-            name= 'Can create a new List',
-            content_type=content_type)
-        # Teams
-        can_create_team, created = Permission.objects.get_or_create(
-            codename='can_create_team',
-            name= 'Can create a new Team',
-            content_type=content_type)
-
-        # Graphs
-        can_create_graph, created = Permission.objects.get_or_create(
-            codename='can_create_graph',
-            name= 'Can create a new Graph',
-            content_type=content_type)
+#        # Lists
+#        can_create_list, created = Permission.objects.get_or_create(
+#            codename='can_create_list',
+#            name= 'Can create a new List',
+#            content_type=content_type)
+#        # Teams
+#        can_create_team, created = Permission.objects.get_or_create(
+#            codename='can_create_team',
+#            name= 'Can create a new Team',
+#            content_type=content_type)
+#        # Graphs
+#        can_create_graph, created = Permission.objects.get_or_create(
+#            codename='can_create_graph',
+#            name= 'Can create a new Graph',
+#            content_type=content_type)
 
 
 
@@ -135,9 +134,10 @@ class Command(BaseCommand):
                                                can_request_thesislinks,
                                                can_referee,
                                                )
-        Testers.permissions.add(can_create_list,
-                                can_create_team,
-                                can_create_graph,
-                                )
+        Testers.permissions.add(
+            can_create_list,
+            can_create_team,
+            can_create_graph,
+            )
 
         self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions'))

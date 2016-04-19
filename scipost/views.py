@@ -7,7 +7,8 @@ import string
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required 
+#from django.contrib.auth.decorators import permission_required   # Superseded by guardian
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.mail import EmailMessage
@@ -19,6 +20,8 @@ from django.utils.http import is_safe_url
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 
+from guardian.decorators import permission_required, permission_required_or_403
+from guardian.shortcuts import assign_perm
 
 from .models import *
 from .forms import *
@@ -276,7 +279,7 @@ def request_new_activation_link(request, oldkey):
     return render (request, 'scipost/request_new_activation_link_ack.html')
 
 
-@permission_required('scipost.can_vet_registration_requests')
+@permission_required('scipost.can_vet_registration_requests', return_403=True)
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     contributors_to_vet = Contributor.objects.filter(user__is_active=True, status=0).order_by('key_expires')
@@ -285,7 +288,7 @@ def vet_registration_requests(request):
     context = {'contributors_to_vet': contributors_to_vet, 'form': form }
     return render(request, 'scipost/vet_registration_requests.html', context)
 
-@permission_required('scipost.can_vet_registration_requests')
+@permission_required('scipost.can_vet_registration_requests', return_403=True)
 def vet_registration_request_ack(request, contributor_id):
     # process the form
     if request.method == 'POST':
@@ -335,7 +338,7 @@ def vet_registration_request_ack(request, contributor_id):
     return render(request, 'scipost/vet_registration_request_ack.html', context)
 
 
-@permission_required('scipost.can_manage_registration_invitations')
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def registration_invitations(request):
     # List invitations sent; send new ones
     errormessage = ''
@@ -377,8 +380,6 @@ def login_view(request):
     redirect_to = (redirect_to 
                    if is_safe_url(redirect_to, request.get_host()) 
                    else reverse('scipost:personal_page'))
-    if request.user.is_authenticated: # for users who navigate back to pre-logged in page
-        return redirect(redirect_to)
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -637,13 +638,13 @@ def claim_thesis_authorship(request, thesis_id, claim):
     return redirect('scipost:claim_authorships')
 
 
-@permission_required('scipost.can_vet_authorship_claims')
+@permission_required('scipost.can_vet_authorship_claims', return_403=True)
 def vet_authorship_claims(request):
     claims_to_vet = AuthorshipClaim.objects.filter(status='0')
     context = {'claims_to_vet': claims_to_vet}
     return render(request, 'scipost/vet_authorship_claims.html', context)
 
-@permission_required('scipost.can_vet_authorship_claims')
+@permission_required('scipost.can_vet_authorship_claims', return_403=True)
 def vet_authorship_claim(request, claim_id, claim):
     if request.method == 'POST':
         vetting_contributor = Contributor.objects.get(user=request.user)
@@ -708,7 +709,7 @@ def contributor_info(request, contributor_id):
 # Lists #
 #########
 
-@permission_required('scipost.can_create_list')
+@permission_required('scipost.add_list', return_403=True)
 def create_list(request):
     listcreated = False
     message = None
@@ -722,6 +723,9 @@ def create_list(request):
                            created=timezone.now())
             newlist.save()
             listcreated = True
+            assign_perm('scipost.change_list', request.user, newlist)
+            assign_perm('scipost.view_list', request.user, newlist)
+            assign_perm('scipost.delete_list', request.user, newlist)
             message = 'List ' + create_list_form.cleaned_data['title'] + ' was successfully created.'
     else:
         create_list_form = CreateListForm()
@@ -730,7 +734,7 @@ def create_list(request):
     return render(request, 'scipost/create_list.html', context)
 
 
-@permission_required('scipost.can_create_list')
+@permission_required_or_403('scipost.view_list', (List, 'id', 'list_id'))
 def list(request, list_id):
     list = get_object_or_404(List, pk=list_id)
     context = {'list': list}
@@ -744,7 +748,7 @@ def list(request, list_id):
     return render(request, 'scipost/list.html', context)
 
 
-@permission_required('scipost.can_create_list')
+@permission_required_or_403('scipost.change_list', (List, 'id', 'list_id'))
 def list_add_element(request, list_id, type, element_id):
     list = get_object_or_404(List, pk=list_id)
     if type == 'C':
@@ -766,7 +770,7 @@ def list_add_element(request, list_id, type, element_id):
 # Teams #
 #########
 
-@permission_required('scipost.can_create_team')
+@permission_required('scipost.add_team', return_403=True)
 def create_team(request):
     if request.method == "POST":
         create_team_form = CreateTeamForm(request.POST)
@@ -775,6 +779,9 @@ def create_team(request):
                            name=create_team_form.cleaned_data['name'],
                            established=timezone.now())
             newteam.save()
+            assign_perm('scipost.change_team', request.user, newteam)
+            assign_perm('scipost.view_team', request.user, newteam)
+            assign_perm('scipost.delete_team', request.user, newteam)
             return redirect(reverse('scipost:add_team_member', kwargs={'team_id': newteam.id}))
     else:
         create_team_form = CreateTeamForm()
@@ -783,7 +790,7 @@ def create_team(request):
                'add_team_member_form': add_team_member_form}
     return render(request, 'scipost/create_team.html', context)
 
-@permission_required('scipost.can_create_team')
+@permission_required_or_403('scipost.change_team', (Team, 'id', 'team_id'))
 def add_team_member(request, team_id, contributor_id=None):
     team = get_object_or_404(Team, pk=team_id)
     contributors_found = None
@@ -791,6 +798,7 @@ def add_team_member(request, team_id, contributor_id=None):
         contributor = get_object_or_404(Contributor, pk=contributor_id)
         team.members.add(contributor)
         team.save()
+        assign_perm('scipost.view_team', contributor.user, team)
         return redirect(reverse('scipost:add_team_member', kwargs={'team_id': team_id}))
     if request.method == "POST":
         add_team_member_form = AddTeamMemberForm(request.POST)
@@ -807,7 +815,7 @@ def add_team_member(request, team_id, contributor_id=None):
 # Graphs #
 ##########
 
-@permission_required('scipost.can_create_graph')
+@permission_required('scipost.add_graph', return_403=True)
 def create_graph(request):
     graphcreated = False
     message = None
@@ -820,6 +828,9 @@ def create_graph(request):
                              private=create_graph_form.cleaned_data['private'],
                              created=timezone.now())
             newgraph.save()
+            assign_perm('scipost.change_graph', request.user, newgraph)
+            assign_perm('scipost.view_graph', request.user, newgraph)
+            assign_perm('scipost.delete_graph', request.user, newgraph)
             graphcreated = True
             message = 'Graph ' + create_graph_form.cleaned_data['title'] + ' was successfully created.'
     else:
@@ -829,7 +840,7 @@ def create_graph(request):
     return render(request, 'scipost/create_graph.html', context)
 
 
-@permission_required('scipost.can_create_graph')
+@permission_required_or_403('scipost.view_graph', (Graph, 'id', 'graph_id'))
 def graph(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
     nodes = Node.objects.filter(graph=graph)
@@ -868,10 +879,12 @@ def graph(request, graph_id):
     return render(request, 'scipost/graph.html', context)
 
 
-@permission_required('scipost.can_create_graph')
 def edit_graph_node(request, node_id):
     node = get_object_or_404(Node, pk=node_id)
-    if request.method == "POST":
+    errormessage = ''
+    if not request.user.has_perm('scipost.change_graph', node.graph):
+        errormessage = 'You do not have permission to edit this graph.'
+    elif request.method == "POST":
         edit_node_form = CreateNodeForm(request.POST, instance=node)
         if edit_node_form.is_valid():
             node.name=edit_node_form.cleaned_data['name']
@@ -884,11 +897,12 @@ def edit_graph_node(request, node_id):
             return redirect(reverse('scipost:graph', kwargs={'graph_id': node.graph.id}), context)
     else:
         edit_node_form = CreateNodeForm(instance=node)
-    context = {'graph': graph, 'node': node, 'edit_node_form': edit_node_form}
+    context = {'graph': graph, 'node': node, 'edit_node_form': edit_node_form,
+               'errormessage': errormessage}
     return render(request, 'scipost/edit_graph_node.html', context)
 
 
-@login_required
+@permission_required_or_403('scipost.view_graph', (Graph, 'id', 'graph_id'))
 def api_graph(request, graph_id):
     """ Produce JSON data to plot graph """
     graph = get_object_or_404(Graph, pk=graph_id)

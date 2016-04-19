@@ -274,6 +274,9 @@ class List(models.Model):
     thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True, related_name='list_thesislinks')
     comments = models.ManyToManyField('comments.Comment', blank=True, related_name='list_comments')
 
+    class Meta:
+        default_permissions = ['add', 'view', 'change', 'delete']
+
 
     def __str__(self):
         return self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' ' + self.owner.user.last_name + ')'
@@ -347,6 +350,10 @@ class Team(models.Model):
     name = models.CharField(max_length=100)
     established = models.DateField(default=timezone.now)
 
+    class Meta:
+        default_permissions = ['add', 'view', 'change', 'delete']
+
+
     def __str__(self):
         return self.name + ' (led by ' + self.leader.user.first_name + ' ' + self.leader.user.last_name + ')'
 
@@ -380,6 +387,10 @@ class Graph(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     created = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        default_permissions = ['add', 'view', 'change', 'delete']
+
 
     def __str__(self):
         return self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' ' + self.owner.user.last_name + ')'
@@ -415,6 +426,10 @@ class Node(models.Model):
     submissions = models.ManyToManyField('submissions.Submission', blank=True, related_name='node_submissions')
     commentaries = models.ManyToManyField('commentaries.Commentary', blank=True, related_name='node_commentaries')
     thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True, related_name='node_thesislinks')
+
+    class Meta:
+        default_permissions = ['add', 'view', 'change', 'delete']
+
 
     def __str__(self):
         return self.graph.title[:20] + ': ' + self.name[:20] 

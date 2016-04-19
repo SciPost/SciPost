@@ -46,6 +46,8 @@ AUTHENTICATION_BACKENDS = (
 
 LOGIN_URL = '/login/'
 
+GUARDIAN_RENDER_403 = True
+
 # Session expire at browser close                                                                  
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 

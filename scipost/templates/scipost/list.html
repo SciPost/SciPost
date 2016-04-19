@@ -18,8 +18,11 @@
   <br/>
   {{ list.contents }}
 
-  <hr class="hr6"/>
+  {% load guardian_tags %}
+  {% get_obj_perms request.user for list as "list_perms" %}
+  {% if "change_list" in list_perms %}
 
+  <hr class="hr6"/>
   <h3>Add elements to this List</h3>
   <form action="{% url 'scipost:list' list_id=list.id %}" method="post">
     {% csrf_token %}
@@ -93,6 +96,7 @@
   </ul>
   {% endif %}
 
+  {% endif %}
 </section>
 
 {% endblock bodysup %}

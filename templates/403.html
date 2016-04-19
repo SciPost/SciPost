@@ -1,0 +1,19 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: 403{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+
+<section>
+  <h1>You are not authorized to view the requested page.</h1>
+  {% if exception %}
+  <p>Exception: {{ exception }}</p>
+  {% endif %}
+</section>
+
+{% endblock bodysup %}

@@ -164,6 +164,11 @@ function transform(d) {
   </ul>
   {% endif %}
 
+
+  {% load guardian_tags %}
+  {% get_obj_perms request.user for graph as "graph_perms" %}
+  {% if "change_graph" in graph_perms %}
+
   <div class="row">
     <div class="col-3">
       {% if graph.private %}
@@ -197,12 +202,15 @@ function transform(d) {
   </div>
   <hr class="hr6"/>
   <br/>
+
+  {% endif %}
+
   {{ graph.contents }}
 
 
   {% for node in nodes %}
   {{ node.contents }}
-  <a href="{% url 'scipost:edit_graph_node' node_id=node.id %}" class="node_contents node_id{{ node.id}}">Edit this Node's contents</a>
+  <a href="{% url 'scipost:edit_graph_node' graph_id=graph.id node_id=node.id %}" class="node_contents node_id{{ node.id}}">Edit this Node's contents</a>
   {% endfor %}
 
 

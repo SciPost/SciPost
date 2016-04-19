@@ -24,7 +24,7 @@ title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
 ################
 
 
-@permission_required('scipost.can_request_thesislink')
+@permission_required('scipost.can_request_thesislink', raise_exception=True)
 def request_thesislink(request):
     if request.method == 'POST':
         form = RequestThesisLinkForm(request.POST)
@@ -52,7 +52,7 @@ def request_thesislink(request):
     return render(request, 'theses/request_thesislink.html', {'form': form})
 
 
-@permission_required('scipost.can_vet_thesislink_requests')
+@permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
 def vet_thesislink_requests(request):
     contributor = Contributor.objects.get(user=request.user)
     thesislink_to_vet = ThesisLink.objects.filter(vetted=False).first() # only handle one at a time
@@ -60,7 +60,7 @@ def vet_thesislink_requests(request):
     context = {'contributor': contributor, 'thesislink_to_vet': thesislink_to_vet, 'form': form }
     return render(request, 'theses/vet_thesislink_requests.html', context)
 
-@permission_required('scipost.can_vet_thesislink_requests')
+@permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
 def vet_thesislink_request_ack(request, thesislink_id):
     if request.method == 'POST':
         form = VetThesisLinkForm(request.POST)

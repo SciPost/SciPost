@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Permission
 
+from guardian.admin import GuardedModelAdmin
+
 from scipost.models import *
 
 class ContributorInline(admin.StackedInline):
@@ -27,7 +29,10 @@ admin.site.register(AuthorshipClaim)
 
 admin.site.register(Permission)
 
-admin.site.register(List)
+class ListAdmin(GuardedModelAdmin):
+    search_fields = ['owner', 'title']
+
+admin.site.register(List, ListAdmin)
 
 admin.site.register(Team)
 

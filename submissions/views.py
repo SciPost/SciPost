@@ -26,7 +26,7 @@ from comments.forms import CommentForm
 # SUBMISSIONS:
 ###############
 
-@permission_required('scipost.can_submit_manuscript')
+@permission_required('scipost.can_submit_manuscript', raise_exception=True)
 def submit_manuscript(request):
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
@@ -152,7 +152,7 @@ def submission_detail(request, submission_id):
 # Editorial workflow #
 ######################
 
-@permission_required('scipost.can_assign_submissions')
+@permission_required('scipost.can_assign_submissions', raise_exception=True)
 def assign_submissions(request):
     submission_to_assign = Submission.objects.filter(status='unassigned').first() # only handle one at at time
     if submission_to_assign is not None:
@@ -164,7 +164,7 @@ def assign_submissions(request):
     return render(request, 'submissions/assign_submissions.html', context)
 
 
-@permission_required('scipost.can_assign_submissions')
+@permission_required('scipost.can_assign_submissions', raise_exception=True)
 def assign_submission_ack(request, submission_id):
     submission = Submission.objects.get(pk=submission_id)
     if request.method == 'POST':
@@ -183,7 +183,7 @@ def assign_submission_ack(request, submission_id):
     return render(request, 'submissions/assign_submission_ack.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def accept_or_decline_assignments(request):
     contributor = Contributor.objects.get(user=request.user)
     assignment = EditorialAssignment.objects.filter(to=contributor, accepted=None).first()
@@ -192,7 +192,7 @@ def accept_or_decline_assignments(request):
     return render(request, 'submissions/accept_or_decline_assignments.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def accept_or_decline_assignment_ack(request, assignment_id):
     contributor = Contributor.objects.get(user=request.user)
     assignment = get_object_or_404 (EditorialAssignment, pk=assignment_id)
@@ -219,7 +219,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
     return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def editorial_page(request, submission_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     ref_invitations = RefereeInvitation.objects.filter(submission=submission)
@@ -229,7 +229,7 @@ def editorial_page(request, submission_id):
     return render(request, 'submissions/editorial_page.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def select_referee(request, submission_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     if request.method == 'POST':
@@ -245,7 +245,7 @@ def select_referee(request, submission_id):
     return render(request, 'submissions/select_referee.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def recruit_referee(request, submission_id):
     """
     If the Editor-in-charge does not find the desired referee among Contributors,
@@ -291,7 +291,7 @@ def recruit_referee(request, submission_id):
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
 
             
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def send_refereeing_invitation(request, submission_id, contributor_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     contributor = get_object_or_404(Contributor, pk=contributor_id)
@@ -305,7 +305,7 @@ def send_refereeing_invitation(request, submission_id, contributor_id):
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
 
 
-@permission_required('scipost.can_referee')
+@permission_required('scipost.can_referee', raise_exception=True)
 def accept_or_decline_ref_invitations(request):
     contributor = Contributor.objects.get(user=request.user)
     invitation = RefereeInvitation.objects.filter(referee=contributor, accepted=None).first()
@@ -314,7 +314,7 @@ def accept_or_decline_ref_invitations(request):
     return render(request, 'submissions/accept_or_decline_ref_invitations.html', context)
 
 
-@permission_required('scipost.can_referee')
+@permission_required('scipost.can_referee', raise_exception=True)
 def accept_or_decline_ref_invitation_ack(request, invitation_id):
     contributor = Contributor.objects.get(user=request.user)
     invitation = get_object_or_404 (RefereeInvitation, pk=invitation_id)
@@ -333,7 +333,7 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
     return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def extend_refereeing_deadline(request, submission_id, days):
     submission = get_object_or_404 (Submission, pk=submission_id)
     submission.reporting_deadline += datetime.timedelta(days=int(days))
@@ -341,7 +341,7 @@ def extend_refereeing_deadline(request, submission_id, days):
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
     
 
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def close_refereeing_round(request, submission_id):
     submission = get_object_or_404 (Submission, pk=submission_id)
     submission.open_for_reporting = False
@@ -375,7 +375,7 @@ def communication(request, submission_id, type, referee_id=None):
     return render(request, 'submissions/communication.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def eic_recommendation(request, submission_id):
     submission = get_object_or_404 (Submission, pk=submission_id)
     if request.method == 'POST':
@@ -399,7 +399,7 @@ def eic_recommendation(request, submission_id):
 # Reports
 ###########
 
-@permission_required('scipost.can_referee')
+@permission_required('scipost.can_referee', raise_exception=True)
 def submit_report(request, submission_id):
     submission = get_object_or_404 (Submission, pk=submission_id)
     if request.method == 'POST':
@@ -443,7 +443,7 @@ def submit_report(request, submission_id):
     return render(request, 'submissions/submit_report.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def vet_submitted_reports(request):
     contributor = Contributor.objects.get(user=request.user)
     report_to_vet = Report.objects.filter(status=0).first() # only handle one at a time
@@ -452,7 +452,7 @@ def vet_submitted_reports(request):
     return(render(request, 'submissions/vet_submitted_reports.html', context))
 
 
-@permission_required('scipost.can_take_charge_of_submissions')
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def vet_submitted_report_ack(request, report_id):
     if request.method == 'POST':
         form = VetReportForm(request.POST)
