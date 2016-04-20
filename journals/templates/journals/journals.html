@@ -4,8 +4,6 @@
 
 {% block bodysup %}
 
-<!-- Temporary strip for online version -->
-{% if user.is_authenticated %}
 
 <section>
   <div class="flex-greybox">
@@ -63,7 +61,5 @@
   <h1><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and Refereeing procedure</a></h1>
 </section>
     
-
-{% endif %} <!-- temporary strip -->
 
 {% endblock bodysup %}
