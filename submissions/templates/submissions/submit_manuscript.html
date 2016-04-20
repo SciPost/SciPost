@@ -4,14 +4,14 @@
 
 {% block bodysup %}
 
-<!-- Temporary strip -->
-{% if user.is_authenticated %}
+
 <section>
   <h1>Submit a manuscript to SciPost</h1>
 
   <p id="journalsannounce">OPEN FOR SUBMISSION STARTING JUNE 2016</p>
 
-  {% if false %}
+  {% if false %} <!-- Temporary deactivate submissions -->
+
   {% if perms.scipost.can_submit_manuscript %}
   <form action="{% url 'submissions:submit_manuscript' %}" method="post">
     {% csrf_token %}
@@ -28,6 +28,6 @@
 
   {% endif %}
 </section>
-{% endif %} <!-- Temporary strip -->
+
 
 {% endblock bodysup %}

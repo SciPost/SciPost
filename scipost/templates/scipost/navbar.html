@@ -2,13 +2,10 @@
   <div class="row">
     <div class="col-5">
       <a href="{% url 'scipost:index' %}" {% if request.path == '/' %}class="highlighted"{% endif %}>Home</a>
-      <!-- Temporary strip for online version -->
-      {% if user.is_authenticated %}
       <a href="{% url 'journals:journals' %}" {% if "/journals/" in request.path %}class="highlighted"{% endif %}>Journals</a>
       <a href="{% url 'submissions:submissions' %}" {% if "/submissions/" in request.path %}class="highlighted"{% endif %}>Submissions</a>
       <a href="{% url 'commentaries:commentaries' %}" {% if "/commentaries/" in request.path %}class="highlighted"{% endif %}>Commentaries</a>
       <a href="{% url 'theses:theses' %}" {% if "/theses/" in request.path %}class="highlighted"{% endif %}>Theses</a>
-      {% endif %}
     </div>
     <div class="col-4">
       {% if user.is_authenticated %}
@@ -20,14 +17,11 @@
       {% endif %}      
     </div>
     <div class="col-3">
-      <!-- Temporary strip for online version -->
-      {% if user.is_authenticated %}
       <form action="{% url 'scipost:search' %}" method="post">
 	{% csrf_token %}
 	{{ search_form }}
 	<input type="submit" value="Search"/>
       </form>
-      {% endif %}
     </div>
   </div>
 </nav>

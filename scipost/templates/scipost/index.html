@@ -4,8 +4,6 @@
 
 {% block bodysup %}
 
-<!-- Temporary strip for online version -->
-{% if user.is_authenticated %}
 
 <section>
   <div class="flex-container">
@@ -17,6 +15,22 @@
       <h3><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h3>
       <h3><a href="{% url 'scipost:about' %}">Read more</a></h3>
     </div>
+
+    {% if not user.is_authenticated %}
+    <div class="flex-greybox320">
+      <h1><a href="{% url 'scipost:register' %}">Register</a></h1>
+      <p>Professional scientists (PhD students and above) can become Contributors to SciPost by filling the 
+	<a href="{% url 'scipost:register' %}">registration form</a>.</p>
+      <h4>Registered contributors can among others:</h4>
+      <ul>
+	<li>Submit manuscripts to SciPost Journals</li>
+	<li>Post reports and comments</li>
+	<li>Express opinions on contributions</li>
+	<li>Subscribe to feeds</li>
+	<li>Use productivity tools</li>
+      </ul>
+    </div>
+    {% endif %}
 
     <div class="flex-greybox320">
       <h1><a href="{% url 'journals:journals' %}">Journals</a></h1>
@@ -96,41 +110,10 @@
     </div>
     <div class="col-6">
       <h1>SciPost is a member of</h1>
+      <br/>
       <img src="http://assets.crossref.org/logo/crossref-logo-200.svg" width="100px" alt="Crossref logo">
     </div>
   </div>
 </section>
-{% endif %}
-
-<!-- Temporary strip for online version -->
-{% if user.is_authenticated %}
-
-{% if not user.is_authenticated %}
-<section>
-  <div class="row">
-    <div class="col-4">
-      <h1>SciPost Contributors</h1>
-      <h3>Registered contributors:</h3> <a href="{% url 'scipost:login' %}">Login to your Personal Page</a>
-    </div>
-    <div class="col-4">
-      <h1>Register</h1>
-      <p>Professional scientists (PhD students and above) can become Contributors to SciPost by filling the 
-      <a href="{% url 'scipost:register' %}">registration form</a>.</p>
-    </div>
-    <div class="col-4">
-      <h4>Registered contributors can:</h4>
-      <ul>
-	<li>Submit manuscripts to SciPost Journals</li>
-	<li>Post reports and comments</li>
-	<li>Rate reports and comments</li>
-	<li>Manage notifications</li>
-	<li>... and much more</li>
-      </ul>
-    </div>
-  </div>
-</section>
-{% endif %}
-
-{% endif %}
 
 {% endblock bodysup %}

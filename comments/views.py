@@ -164,7 +164,6 @@ def reply_to_report(request, report_id):
             return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
     else:
         form = CommentForm()
-
     context = {'report': report, 'is_author': is_author, 'form': form}
     return render(request, 'comments/reply_to_report.html', context)
 

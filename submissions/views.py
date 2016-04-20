@@ -353,7 +353,12 @@ def close_refereeing_round(request, submission_id):
 
 @login_required
 def communication(request, submission_id, type, referee_id=None):
+    """ 
+    Communication between editor-in-charge, author or referee
+    occurring during the submission refereeing.
+    """
     submission = get_object_or_404 (Submission, pk=submission_id)
+    # TODO: Verify that this is requested by an authorized contributor (eic, ref, author)
     if request.method == 'POST':
         form = EditorialCommunicationForm(request.POST)
         if form.is_valid():
