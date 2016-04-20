@@ -65,7 +65,7 @@ def prefill_using_DOI(request):
         doiform = DOIToQueryForm(request.POST)
         if doiform.is_valid():
             try:
-                queryurl = 'http://api.crossref.org/works/%s' % doiform.cleaned_data['url']
+                queryurl = 'http://api.crossref.org/works/%s' % doiform.cleaned_data['doi']
                 doiquery = requests.get(queryurl)
                 doiqueryJSON = doiquery.json()
                 pub_title = doiqueryJSON['message']['title'][0]

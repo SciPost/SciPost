@@ -78,18 +78,26 @@
 <section>
   <hr class="hr12">
   <div class="row">
-    <div class="col-4">
+    <div class="col-6">
       <h1>SciPost is endorsed by</h1>
+      <div class="row">
+	<div class="col-6">
+	  <a href="http://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width='300px' /></a>
+	  <p id="NWOOpenAccess">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as 
+	    stipulated on the NWO’s <a href="http://www.nwo.nl/en/policies/open+science">Open Science page</a>.</p>
+	</div>
+	<div class="col-1">
+	</div>
+	<div class="col-4">
+	  <a href="http://www.fom.nl/live/english/home.pag"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width='100px' /></a>
+	  <p style="font-size: 50%">FOM is part of NWO</p>
+	</div>
+      </div>
     </div>
-    <div class="col-4">
-      <a href="http://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width='300px' /></a>      
+    <div class="col-6">
+      <h1>SciPost is a member of</h1>
+      <img src="http://assets.crossref.org/logo/crossref-logo-200.svg" width="100px" alt="Crossref logo">
     </div>
-<!--
-    <div class="col-4">
-      <a href="http://www.fom.nl/live/english/home.pag"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width='60px' /></a>      
-      <p style="font-size: 50%">FOM is part of NWO</p>
-    </div>
--->
   </div>
 </section>
 {% endif %}

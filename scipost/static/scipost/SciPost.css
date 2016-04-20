@@ -104,6 +104,9 @@ ul.personalTabMenu li a.inactive {
   font-size: 10px;
 }
 
+.forTesters {
+  background-color: #eeeeff;
+}
 
 .reportid {
   display: inline-block;

@@ -17,7 +17,7 @@ COMMENTARY_REFUSAL_CHOICES = (
     )
 
 class DOIToQueryForm(forms.Form):
-    url = forms.CharField(widget=forms.TextInput({'placeholder': 'ex.: 10.1103/PhysRevLett.000.000000'}))
+    doi = forms.CharField(widget=forms.TextInput({'placeholder': 'ex.: 10.1103/PhysRevLett.000.000000'}))
 
 
 class RequestCommentaryForm(forms.ModelForm):

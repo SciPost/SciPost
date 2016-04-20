@@ -59,7 +59,7 @@
     {% else %}
     <li>Reporting for this Submission is now closed.</li>
     {% endif %}
-    {% is perms.scipost.can_submit_comments %}
+    {% if perms.scipost.can_submit_comments %}
     <li><h3><a href="#contribute_comment">Contribute a Comment</a></h3></li>
     {% endif %}
   </ul>

@@ -11,6 +11,7 @@
 
   <p id="journalsannounce">OPEN FOR SUBMISSION STARTING JUNE 2016</p>
 
+  {% if false %}
   {% if perms.scipost.can_submit_manuscript %}
   <form action="{% url 'submissions:submit_manuscript' %}" method="post">
     {% csrf_token %}
@@ -25,6 +26,7 @@
   <h3>You are currently not allowed to submit a manuscript.</h3>
   {% endif %}
 
+  {% endif %}
 </section>
 {% endif %} <!-- Temporary strip -->
 

@@ -24,7 +24,7 @@ title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
 ################
 
 
-@permission_required('scipost.can_request_thesislink', raise_exception=True)
+@permission_required('scipost.can_request_thesislinks', raise_exception=True)
 def request_thesislink(request):
     if request.method == 'POST':
         form = RequestThesisLinkForm(request.POST)

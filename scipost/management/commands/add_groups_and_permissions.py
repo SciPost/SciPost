@@ -128,7 +128,8 @@ class Command(BaseCommand):
                                        can_vet_authorship_claims, 
                                        can_vet_comments,
                                        )
-        RegisteredContributors.permissions.add(can_submit_comments, 
+        RegisteredContributors.permissions.add(can_submit_manuscript,
+                                               can_submit_comments, 
                                                can_express_opinion_on_comments,
                                                can_request_commentary_pages,
                                                can_request_thesislinks,
