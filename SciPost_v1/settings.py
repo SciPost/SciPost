@@ -69,7 +69,6 @@ INSTALLED_APPS = (
     'crispy_forms',
     'rest_framework',
     'guardian',
-    'habanero',
     'commentaries',
     'comments',
     'journals',

@@ -1,4 +1,6 @@
 import datetime
+import requests
+
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
@@ -7,11 +9,12 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 
 from .models import Commentary
-from .forms import RequestCommentaryForm, VetCommentaryForm, CommentarySearchForm
+from .forms import RequestCommentaryForm, DOIToQueryForm, VetCommentaryForm, CommentarySearchForm
 
 from comments.models import Comment
 from comments.forms import CommentForm
@@ -51,8 +54,36 @@ def request_commentary(request):
             return HttpResponseRedirect('request_commentary_ack')
     else:
         form = RequestCommentaryForm()
-    return render(request, 'commentaries/request_commentary.html', {'form': form})
+        doiform = DOIToQueryForm()
+        context = {'form': form, 'doiform': doiform}
+    return render(request, 'commentaries/request_commentary.html', context)
 
+@permission_required('scipost.can_request_commentary_pages', raise_exception=True)
+def prefill_using_DOI(request): 
+    """ Probes CrossRef API with the DOI, to pre-fill the form. """
+    if request.method == "POST":
+        doiform = DOIToQueryForm(request.POST)
+        if doiform.is_valid():
+            try:
+                queryurl = 'http://api.crossref.org/works/%s' % doiform.cleaned_data['url']
+                doiquery = requests.get(queryurl)
+                doiqueryJSON = doiquery.json()
+                pub_title = doiqueryJSON['message']['title'][0]
+                authorlist = (doiqueryJSON['message']['author'][0]['given'] + ' ' + 
+                              doiqueryJSON['message']['author'][0]['family'])
+                for author in doiqueryJSON['message']['author'][1:]:
+                    authorlist += ', ' + author['given'] + ' ' + author['family']
+                form = RequestCommentaryForm(
+                    initial={'pub_title': pub_title,
+                             'author_list': authorlist})
+                context = {'form': form, 'doiform': doiform}
+                context['title'] = pub_title
+                return render(request, 'commentaries/request_commentary.html', context)
+            except:
+                pass
+        else:
+            pass
+    return redirect(reverse('commentaries:request_commentary'))
 
 @permission_required('scipost.can_vet_commentary_requests', raise_exception=True)
 def vet_commentary_requests(request):

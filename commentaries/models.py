@@ -21,8 +21,8 @@ class Commentary(models.Model):
     vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
     type = models.CharField(max_length=9, choices=COMMENTARY_TYPES) # published paper or arxiv preprint
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-    domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS, default='E')
-    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS, default='A')
+    domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
+    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     open_for_commenting = models.BooleanField(default=True)
     pub_title = models.CharField(max_length=300, verbose_name='title')
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)

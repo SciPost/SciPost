@@ -16,6 +16,10 @@ COMMENTARY_REFUSAL_CHOICES = (
     (-3, 'this arXiv preprint is too recent (< 8 weeks)'),
     )
 
+class DOIToQueryForm(forms.Form):
+    url = forms.CharField(widget=forms.TextInput({'placeholder': 'ex.: 10.1103/PhysRevLett.000.000000'}))
+
+
 class RequestCommentaryForm(forms.ModelForm):
     class Meta:
         model = Commentary

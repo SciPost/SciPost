@@ -4,6 +4,8 @@
 
 {% block bodysup %}
 
+{% load scipost_extras %}
+
   <script>
   $(document).ready(function(){
 
@@ -54,6 +56,16 @@
     </table>
     <input type="submit" value="Submit"/>
   </form>
+
+  {% if request.user|is_in_group:'Testers' %}
+  <h1>For Testers:</h1>
+  <h3>Prefill form using the DOI:</h3>
+  <form action="{% url 'commentaries:prefill_using_DOI' %}" method="post">
+    {% csrf_token %}
+    {{ doiform }}
+    <input type="submit" value="Query DOI"/>
+  </form>
+  {% endif %}
 </section>
 
 {% endblock bodysup %}
