@@ -42,7 +42,7 @@ class Utils(object):
 
     @classmethod
     def email_already_invited(cls):
-        if RegistrationInvitation.objects.filter(email_address=cls.reg_inv_form.cleaned_data['email_address']).exists():
+        if RegistrationInvitation.objects.filter(email=cls.form.cleaned_data['email']).exists():
             return True
         else:
             return False
@@ -102,14 +102,14 @@ class Utils(object):
     @classmethod
     def create_and_save_invitation(cls):
         invitation = RegistrationInvitation (
-            title = cls.reg_inv_form.cleaned_data['title'],
-            first_name = cls.reg_inv_form.cleaned_data['first_name'],
-            last_name = cls.reg_inv_form.cleaned_data['last_name'],
-            email_address = cls.reg_inv_form.cleaned_data['email_address'],
-            invitation_type = cls.reg_inv_form.cleaned_data['invitation_type'],
+            title = cls.form.cleaned_data['title'],
+            first_name = cls.form.cleaned_data['first_name'],
+            last_name = cls.form.cleaned_data['last_name'],
+            email = cls.form.cleaned_data['email'],
+            invitation_type = cls.form.cleaned_data['invitation_type'],
             invited_by = cls.contributor,
-            message_style = cls.reg_inv_form.cleaned_data['message_style'],
-            personal_message = cls.reg_inv_form.cleaned_data['personal_message'],
+            message_style = cls.form.cleaned_data['message_style'],
+            personal_message = cls.form.cleaned_data['personal_message'],
             )
         Utils.load({'invitation': invitation})
 
@@ -126,7 +126,10 @@ class Utils(object):
         cls.invitation.key_expires = datetime.datetime.strftime(
             datetime.datetime.now() + datetime.timedelta(days=14), "%Y-%m-%d %H:%M:%S")
         cls.invitation.save()
-        email_text = 'Dear '
+        email_text = ''
+        if cls.invitation.invitation_type == 'F':
+            email_text += 'RE: Invitation to join the Editorial College of SciPost\n\n'
+        email_text += 'Dear '
         if cls.invitation.message_style == 'F':
             email_text += title_dict[cls.invitation.title] + ' ' + cls.invitation.last_name
         else:
@@ -146,10 +149,10 @@ class Utils(object):
                            'Many thanks in advance,\n\nThe SciPost Team')
             emailmessage = EmailMessage(
                 'SciPost registration invitation', email_text, 'SciPost Registration <registration@scipost.org>',
-                [cls.invitation.email_address, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+                [cls.invitation.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
 
         else:
-            email_text += ('You will have noticed that the world of scientific publishing is currently undergoing many changes, but you may agree that it is not completely clear that the best interests of science and scientists are being served. After much thinking and discussion about how best to address this issue, I recently decided to forge ahead and implement a new online publication portal by and for scientists.\n\nThe initiative, called SciPost, aims to build on the best traditions within our community (as exemplified by the arXiv.org preprint server) by offering a complete scientific publication platform, run by and for professional scientists, providing:\n\n' +
+            email_text += ('You will have noticed that scientific publishing is currently undergoing many changes, and you will hopefully agree that it is of the utmost importance that the best interests of science and scientists be served by these developments. After much thinking and discussion about this issue, I recently decided to forge ahead and implement a new online publication portal by and for scientists.\n\nThe initiative, called SciPost, aims to build on the best traditions within our community (as exemplified by the arXiv.org preprint server) by offering a complete scientific publication platform, run by and for professional scientists, providing:\n\n' +
                            '- a means to comment on all existing literature;\n\n' +
                            "- a repository of links to theses (Habilitation, PhD, Master's);\n\n" +
                            '- and, most importantly, a collection of community-run two-way open access (no subscription fees, no author fees) journals with extremely stringent (peer-witnessed) refereeing.\n\n' +
@@ -157,8 +160,8 @@ class Utils(object):
             if cls.invitation.invitation_type == 'F':
                 email_text += ('The SciPost.org portal has been intensively developed over the last few months. It is legally based on a not-for-profit foundation and will operate in perpetuity as a non-commercial entity at the exclusive service of the academic sector. We are now entering the next phase in the implementation, which is to build up the community of professional academics who will help operate it.\n\n' +
                                'To go straight to the point, on behalf of the foundation, I hereby have the honour to invite you to become an Editorial Fellow and thus join the Editorial College of SciPost Physics.\n\n' +
-                               'Please note that only well-known and respected senior academics are being contacted. Academic reputation and involvement in the community are the most important criteria guiding our considerations of who should belong to the Editorial College.\n\n' +
-                               "To help you in considering this, it would be best if you were to take the time to look at the website itself. You can personally register (to become a Contributor, without necessarily committing to membership of the Editorial College, this to be discussed separately) by visiting the following single-use link within the next 2 weeks, containing a partly pre-filled form for your convenience: \n\n" + 
+                               'Please note that only well-known and respected senior academics are being contacted for this purpose. Academic reputation and involvement in the community are the most important criteria guiding our considerations of who should belong to the Editorial College. We envision each subfield of physics to be represented by around a dozen Editorial Fellows.\n\n' +
+                               "To help you in considering this, it would be best if you were to take the time to look at the website itself. Besides nagivating the site, you can also personally register (to become a Contributor, without necessarily committing to membership of the Editorial College, this to be discussed separately) by visiting the following single-use link within the next 2 weeks, containing a partly pre-filled form for your convenience: \n\n" + 
                                'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n' +
                                'I will then activate your account. Many details about the initiative can then be found at scipost.org/about and at scipost.org/FAQ.\n\n' +
                                "Since the success of this initiative is dependent on the involvement of the very people it is meant to serve, we'd be very grateful if you were to give due consideration to this proposal. We would expect you to commit just 2-4 hours per month to help perform Editorial duties; we will adjust the number of Editorial Fellows to ensure this is the case. You could try it out for 6 months or a year, and of course you could quit any time you wished. We'd be even more grateful if you considered submitting a publication to one of the journals (which will open for submission in a few weeks) in the near future, in order to help establish their reputation.\n\n" +
@@ -170,12 +173,12 @@ class Utils(object):
                                'I will then activate your account. Many details about the initiative can then be found at scipost.org/about and at scipost.org/FAQ.\n\n' +
                                "If you do develop sympathy for the initiative, besides participating in the online platform, we'd be very grateful if you considered submitting a publication to one of the journals (which will open for submission in a few weeks) within the near future, in order to help establish their reputation. I'll also be looking forward to your reaction, your comments and suggestions, be they positive or negative.\n\n")
                 
-                email_text += ("On behalf of the SciPost Foundation,\n\n" +
-                               "Prof. dr Jean-Sébastien Caux\n---------------------------------------------\nInstitute for Theoretial Physics\nUniversity of Amsterdam\nScience Park 904\n1098 XH Amsterdam\nThe Netherlands\n---------------------------------------------\ntel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778\n---------------------------------------------")
+            email_text += ("On behalf of the SciPost Foundation,\n\n" +
+                           "Prof. dr Jean-Sébastien Caux\n---------------------------------------------\nInstitute for Theoretial Physics\nUniversity of Amsterdam\nScience Park 904\n1098 XH Amsterdam\nThe Netherlands\n---------------------------------------------\ntel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778\n---------------------------------------------")
                 
             emailmessage = EmailMessage(
                 'SciPost registration invitation', email_text, 'J-S Caux <jscaux@scipost.org>',
-                [cls.invitation.email_address, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+                [cls.invitation.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
 
         # This function is now for all invitation types:
         emailmessage.send(fail_silently=False)

@@ -42,7 +42,7 @@ class RegistrationForm(forms.Form):
 class RegistrationInvitationForm(forms.ModelForm):
     class Meta:
         model = RegistrationInvitation
-        fields = ['title', 'first_name', 'last_name', 'email_address', 'invitation_type', 'message_style', 'personal_message']
+        fields = ['title', 'first_name', 'last_name', 'email', 'invitation_type', 'message_style', 'personal_message']
 
     def __init__(self, *args, **kwargs):
         super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
@@ -51,7 +51,7 @@ class RegistrationInvitationForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field('title'), Field('first_name'), Field('last_name'), Field('email_address'), Field('invitation_type'),
+                    Field('title'), Field('first_name'), Field('last_name'), Field('email'), Field('invitation_type'),
                     css_class="col-6"),
                 Div(
                     Field('message_style'),

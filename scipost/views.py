@@ -346,7 +346,7 @@ def registration_invitations(request):
     if request.method == 'POST':
         # Send invitation from form information
         reg_inv_form = RegistrationInvitationForm(request.POST)
-        Utils.load({'contributor': request.user.contributor, 'reg_inv_form': reg_inv_form})
+        Utils.load({'contributor': request.user.contributor, 'form': reg_inv_form})
         if reg_inv_form.is_valid():
             if Utils.email_already_invited():
                 errormessage = 'DUPLICATE ERROR: This email address has already been used for an invitation'

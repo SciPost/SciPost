@@ -155,7 +155,7 @@ class RegistrationInvitation(models.Model):
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30, default='')
     last_name = models.CharField(max_length=30, default='')
-    email_address = models.EmailField()
+    email = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE, default='C')
     message_style = models.CharField(max_length=1, choices=INVITATION_STYLE, default='F')
     personal_message = models.TextField(blank=True, null=True)
