@@ -767,6 +767,24 @@ def list_add_element(request, list_id, type, element_id):
     return redirect(reverse('scipost:list', kwargs={'list_id': list_id}))
 
 
+@permission_required_or_403('scipost.change_list', (List, 'id', 'list_id'))
+def list_remove_element(request, list_id, type, element_id):
+    list = get_object_or_404(List, pk=list_id)
+    if type == 'C':
+        commentary = get_object_or_404(Commentary, pk=element_id)
+        list.commentaries.remove(commentary)
+    elif type == 'S':
+        submission = get_object_or_404(Submission, pk=element_id)
+        list.submissions.remove(submission)
+    elif type == 'T':
+        thesislink = get_object_or_404(ThesisLink, pk=element_id)
+        list.thesislinks.remove(thesislink)
+    elif type == 'c':
+        comment = get_object_or_404(Comment, pk=element_id)
+        list.comments.remove(comment)
+    return redirect(reverse('scipost:list', kwargs={'list_id': list_id}))
+
+
 #########
 # Teams #
 #########

@@ -304,7 +304,7 @@ class List(models.Model):
 
     def contents(self):
         context = Context({})
-        output = self.description
+        output = '<p>' + self.description + '</p>'
         output += '<hr class="hr6"/>'
         emptylist = True
         if self.submissions.exists():

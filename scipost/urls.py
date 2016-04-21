@@ -64,6 +64,7 @@ urlpatterns = [
     url(r'^create_list$', views.create_list, name='create_list'),
     url(r'^list/(?P<list_id>[0-9]+)$', views.list, name='list'),
     url(r'^list_add_element/(?P<list_id>[0-9]+)/(?P<type>[SCTc])/(?P<element_id>[0-9]+)$', views.list_add_element, name='list_add_element'),
+    url(r'^list_remove_element/(?P<list_id>[0-9]+)/(?P<type>[SCTc])/(?P<element_id>[0-9]+)$', views.list_remove_element, name='list_remove_element'),
 
     # Feeds
     url(r'^latest_comment/feed/$', LatestCommentFeed()),

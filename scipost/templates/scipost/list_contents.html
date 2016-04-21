@@ -1,0 +1,85 @@
+
+{% if not "change_list" in list_perms %}
+
+{{ list.contents }}
+
+{% else %}
+
+<p>Description:
+<p>{{ list.description }}</p>
+</p>
+
+
+<hr class="hr6"/>
+
+{% if list.submissions.exists or list.commentaries.exists or list.thesislinks.exists or list.comments.exists %}
+
+{% if list.submissions.exists %}
+<p>Submissions:
+  <ul>
+    {% for sub in list.submissions.all %}
+    {{ sub.simple_header_as_li }}
+    {% if "change_list" in list_perms %}
+    <form action="{% url 'scipost:list_remove_element' list_id=list.id type='S' element_id=sub.id %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Remove from List"/>
+    </form>
+    {% endif %}
+    {% endfor %}
+  </ul>
+</p>
+{% endif %}
+
+{% if list.commentaries.exists %}
+<p>Commentaries:
+  <ul>
+    {% for com in list.commentaries.all %}
+    {{ com.simple_header_as_li }}
+    {% if "change_list" in list_perms %}
+    <form action="{% url 'scipost:list_remove_element' list_id=list.id type='C' element_id=com.id %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Remove from List"/>
+    </form>
+    {% endif %}
+    {% endfor %}
+  </ul>
+</p>
+{% endif %}
+
+{% if list.thesislinks.exists %}
+<p>Thesis links:
+  <ul>
+    {% for tl in list.thesislinks.all %}
+    {{ tl.simple_header_as_li }}
+    {% if "change_list" in list_perms %}
+    <form action="{% url 'scipost:list_remove_element' list_id=list.id type='T' element_id=tl.id %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Remove from List"/>
+    </form>
+    {% endif %}
+    {% endfor %}
+  </ul>
+</p>
+{% endif %}
+
+{% if list.comments.exists %}
+<p>Comments:
+  <ul>
+    {% for comment in list.comments.all %}
+    {{ comment.simple_header_as_li }}
+    {% if "change_list" in list_perms %}
+    <form action="{% url 'scipost:list_remove_element' list_id=list.id type='c' element_id=comment.id %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Remove from List"/>
+    </form>
+    {% endif %}
+    {% endfor %}
+  </ul>
+</p>
+{% endif %}
+
+{% else %}
+<br/><h3>This List is empty.</h3>
+{% endif %}
+
+{% endif %}

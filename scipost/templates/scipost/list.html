@@ -12,14 +12,14 @@
 <section>
   <h1>List detail</h1>
 
-
   {{ list.header }}
-  <hr class="hr6"/>
   <br/>
-  {{ list.contents }}
 
   {% load guardian_tags %}
   {% get_obj_perms request.user for list as "list_perms" %}
+
+  {% include 'scipost/list_contents.html' %}
+
   {% if "change_list" in list_perms %}
 
   <hr class="hr6"/>
