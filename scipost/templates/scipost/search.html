@@ -12,6 +12,11 @@
 <section>
   <h1>Search results</h1>
 
+  {% if commentary_search_list or submission_search_list or thesislink_search_list or comment_search_link %}
+  {% else %}
+  <p>Your search query did not return any result.</p>
+  {% endif %}
+
   {% if commentary_search_list %}
   <br />
   <hr class="hr12">

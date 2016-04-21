@@ -20,7 +20,8 @@ from django.utils.http import is_safe_url
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 
-from guardian.decorators import permission_required, permission_required_or_403
+from guardian.decorators import permission_required
+from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
 
 from .models import *
