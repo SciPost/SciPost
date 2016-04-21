@@ -308,7 +308,7 @@ def vet_registration_request_ack(request, contributor_id):
                     pending_ref_inv = RefereeInvitation.objects.get(invitation_key=contributor.invitation_key)
                     pending_ref_inv.referee = contributor
                     pending_ref_inv.save()
-                except DoesNotExist:
+                except RefereeInvitation.DoesNotExist:
                     pending_ref_inv_exists = False
 
                 email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
