@@ -223,7 +223,7 @@ def invitation(request, key):
         form.fields['title'].initial = invitation.title
         form.fields['last_name'].initial = invitation.last_name
         form.fields['first_name'].initial = invitation.first_name
-        form.fields['email'].initial = invitation.email_address
+        form.fields['email'].initial = invitation.email
         errormessage = ''
         welcome_message = 'Welcome, ' + title_dict[invitation.title] + ' ' + invitation.last_name + ', and thanks in advance for registering (by completing this form)'
         return render(request, 'scipost/register.html',
