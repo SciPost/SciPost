@@ -95,7 +95,7 @@ def prefill_using_DOI(request):
             errormessage = ''
             existing_commentary = None
             if not doipattern.match(doiform.cleaned_data['doi']):
-                errormessage = 'The form of the DOI you entered is improperly formatted.'
+                errormessage = 'The DOI you entered is improperly formatted.'
             elif Commentary.objects.filter(pub_DOI=doiform.cleaned_data['doi']).exists():
                 errormessage = 'There already exists a Commentary Page on this publication, see'
                 existing_commentary = get_object_or_404(Commentary, pub_DOI=doiform.cleaned_data['doi'])
