@@ -93,11 +93,19 @@ def prefill_using_DOI(request):
             # Check if given doi is of expected form:
             doipattern = re.compile("10.[0-9]{4,9}/[-._;()/:a-zA-Z0-9]+")
             errormessage = ''
+            existing_commentary = None
             if not doipattern.match(doiform.cleaned_data['doi']):
                 errormessage = 'The form of the DOI you entered is improperly formatted.'
+            elif Commentary.objects.filter(pub_DOI=doiform.cleaned_data['doi']).exists():
+                errormessage = 'There already exists a Commentary Page on this publication, see'
+                existing_commentary = get_object_or_404(Commentary, pub_DOI=doiform.cleaned_data['pub_DOI'])
+            if errormessage != '':
                 form = RequestCommentaryForm()
-                context = {'form': form, 'doiform': doiform, 'errormessage': errormessage}
+                context = {'form': form, 'doiform': doiform, 
+                           'errormessage': errormessage,
+                           'existing_commentary': existing_commentary}
                 return render(request, 'commentaries/request_commentary.html', context)
+            # Otherwise we query Crossref for the information:
             try:
                 queryurl = 'http://api.crossref.org/works/%s' % doiform.cleaned_data['doi']
                 doiquery = requests.get(queryurl)
