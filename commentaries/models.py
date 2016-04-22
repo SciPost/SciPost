@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
 
 from journals.models import SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
@@ -25,8 +26,11 @@ class Commentary(models.Model):
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     open_for_commenting = models.BooleanField(default=True)
     pub_title = models.CharField(max_length=300, verbose_name='title')
+    arxiv_identifier = models.CharField(max_length=100, verbose_name="arXiv identifier (including version nr)", blank=True, null=True)
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)
+    pub_DOI = models.CharField(max_length=200, verbose_name='DOI of the original publication', blank=True, null=True)
     pub_DOI_link = models.URLField(verbose_name='DOI link to the original publication', blank=True)
+    metadata = JSONField(default={}, blank=True, null=True)
     arxiv_or_DOI_string = models.CharField(max_length=100, verbose_name='string form of arxiv nr or DOI for commentary url', default='')
     author_list = models.CharField(max_length=1000)
     # Authors which have been mapped to contributors:
@@ -110,22 +114,27 @@ class Commentary(models.Model):
         return template.render(context)
 
 
-    def parse_link_into_url (self):
-        """ Takes the arXiv nr or DOI and turns it into the url suffix """
-        if self.pub_DOI_link:
-            self.arxiv_or_DOI_string = str(self.pub_DOI_link)
-            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('http://dx.doi.org/', '')
-        else:
-            self.arxiv_or_DOI_string = str(self.arxiv_link)
-            # Format required: either identifier arXiv:1234.56789v10 or old-style arXiv:cond-mat/9712001v1
-            # strip: 
-            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('http://', '')
-            # Old style: from arxiv.org/abs/1234.5678 into arXiv:1234.5678 (new identifier style)
-            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('arxiv.org/', '')
-            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('abs/', '')
-            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('pdf/', '')
-            # make sure arXiv prefix is there:
-            self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_or_DOI_string
+    def parse_links_into_urls (self):
+        """ Takes the arXiv nr or DOI and turns it into the urls """
+        if self.pub_DOI:
+            self.arxiv_or_DOI_string = self.pub_DOI
+#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('http://dx.doi.org/', '')
+            self.pub_DOI_link = 'http://dx.doi.org/' + self.pub_DOI
+        elif self.arxiv_identifier:
+#            self.arxiv_or_DOI_string = str(self.arxiv_link)
+#            # Format required: either identifier arXiv:1234.56789v10 or old-style arXiv:cond-mat/9712001v1
+#            # strip: 
+#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('http://', '')
+#            # Old style: from arxiv.org/abs/1234.5678 into arXiv:1234.5678 (new identifier style)
+#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('arxiv.org/', '')
+#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('abs/', '')
+#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('pdf/', '')
+#            # make sure arXiv prefix is there:
+#            self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_or_DOI_string
+            self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_identifier
+            self.arxiv_link = 'http://arxiv.org/abs/' + self.arxiv_identifier 
+        else: # should never come here 
+            pass
         self.save()
 
     def scipost_url (self):

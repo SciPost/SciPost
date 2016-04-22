@@ -44,7 +44,7 @@ class ThesisLink(models.Model):
 
     def header_as_table (self):
         context = Context({'title': self.title, 'author': self.author,
-                           'pub_link': self.pub_link, 'instituation': self.institution,
+                           'pub_link': self.pub_link, 'institution': self.institution,
                            'supervisor': self.supervisor, 'defense_date': self.defense_date})
         header = '<table>'
         header += '<tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>'
