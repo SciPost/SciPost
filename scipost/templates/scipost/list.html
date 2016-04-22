@@ -45,7 +45,7 @@
     {{ commentary.header_as_li }}
     <form action="{% url 'scipost:list_add_element' list_id=list.id type='C' element_id=commentary.id %}" method="post">
       {% csrf_token %}
-      <input type="submit" value="Add to List"/>
+      <input class="AddItemToList" type="submit" value="Add"/>
     </form>
     {% endfor %}
   </ul>
@@ -60,7 +60,7 @@
     {{ submission.header_as_li }}
     <form action="{% url 'scipost:list_add_element' list_id=list.id type='S' element_id=submission.id %}" method="post">
       {% csrf_token %}
-      <input type="submit" value="Add to List"/>
+      <input class="AddItemToList" type="submit" value="Add"/>
     </form>
     {% endfor %}
   </ul>
@@ -75,7 +75,7 @@
     {{ thesislink.header_as_li }}
     <form action="{% url 'scipost:list_add_element' list_id=list.id type='T' element_id=thesislink.id %}" method="post">
       {% csrf_token %}
-      <input type="submit" value="Add to List"/>
+      <input class="AddItemToList" type="submit" value="Add"/>
     </form>
     {% endfor %}
   </ul>
@@ -90,7 +90,7 @@
     {{ comment.header_as_li }}
     <form action="{% url 'scipost:list_add_element' list_id=list.id type='c' element_id=comment.id %}" method="post">
       {% csrf_token %}
-      <input type="submit" value="Add to List"/>
+      <input class="AddItemToList" type="submit" value="Add"/>
     </form>
     {% endfor %}
   </ul>

@@ -73,9 +73,13 @@ def prefill_using_DOI(request):
                               doiqueryJSON['message']['author'][0]['family'])
                 for author in doiqueryJSON['message']['author'][1:]:
                     authorlist += ', ' + author['given'] + ' ' + author['family']
+                journal = doiqueryJSON['message']['container-title'][1]
+                volume = doiqueryJSON['message']['volume']
+                pages = doiqueryJSON['message']['article-number']
                 form = RequestCommentaryForm(
                     initial={'pub_title': pub_title,
-                             'author_list': authorlist})
+                             'author_list': authorlist,
+                             'journal': journal, 'volume': volume, 'pages': pages})
                 context = {'form': form, 'doiform': doiform}
                 context['title'] = pub_title
                 return render(request, 'commentaries/request_commentary.html', context)

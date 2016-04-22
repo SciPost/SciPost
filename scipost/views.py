@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 #from django.contrib.auth.decorators import permission_required   # Superseded by guardian
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
+from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -883,8 +884,9 @@ def graph(request, graph_id):
         elif create_link_form.has_changed() and create_link_form.is_valid():
             sourcenode = create_link_form.cleaned_data['source']
             targetnode = create_link_form.cleaned_data['target']
-            targetnode.arcs_in.add(sourcenode)
-            targetnode.save()            
+            if sourcenode != targetnode:
+                targetnode.arcs_in.add(sourcenode)
+                targetnode.save()            
     else:
         attach_teams_form = ManageTeamsForm(contributor=request.user.contributor, 
                                             initial={'teams_with_access': graph.teams_with_access.all()}
@@ -919,6 +921,21 @@ def edit_graph_node(request, node_id):
     context = {'graph': graph, 'node': node, 'edit_node_form': edit_node_form,
                'errormessage': errormessage}
     return render(request, 'scipost/edit_graph_node.html', context)
+
+
+def delete_graph_node(request, node_id):
+    node = get_object_or_404(Node, pk=node_id)
+    errormessage = ''
+    if not request.user.has_perm('scipost.change_graph', node.graph):
+        raise PermissionDenied
+    else:
+        # Remove all the graph arcs 
+        nodes = Node.objects.filter(graph=node.graph)
+        for othernode in nodes:
+            othernode.arcs_in.remove(node)
+            othernode.save()
+        node.delete()
+    return redirect(reverse('scipost:graph', kwargs={'graph_id': node.graph.id}))
 
 
 @permission_required_or_403('scipost.view_graph', (Graph, 'id', 'graph_id'))

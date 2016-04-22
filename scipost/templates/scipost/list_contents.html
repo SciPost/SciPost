@@ -22,7 +22,7 @@
     {% if "change_list" in list_perms %}
     <form action="{% url 'scipost:list_remove_element' list_id=list.id type='S' element_id=sub.id %}" method="post">
       {% csrf_token %}
-      <input type="submit" value="Remove from List"/>
+      <input class="RemoveItemFromList" type="submit" value="Remove"/>
     </form>
     {% endif %}
     {% endfor %}
@@ -38,7 +38,7 @@
     {% if "change_list" in list_perms %}
     <form action="{% url 'scipost:list_remove_element' list_id=list.id type='C' element_id=com.id %}" method="post">
       {% csrf_token %}
-      <input type="submit" value="Remove from List"/>
+      <input class="RemoveItemFromList" type="submit" value="Remove"/>
     </form>
     {% endif %}
     {% endfor %}
@@ -54,7 +54,7 @@
     {% if "change_list" in list_perms %}
     <form action="{% url 'scipost:list_remove_element' list_id=list.id type='T' element_id=tl.id %}" method="post">
       {% csrf_token %}
-      <input type="submit" value="Remove from List"/>
+      <input class="RemoveItemFromList" type="submit" value="Remove"/>
     </form>
     {% endif %}
     {% endfor %}
@@ -70,7 +70,7 @@
     {% if "change_list" in list_perms %}
     <form action="{% url 'scipost:list_remove_element' list_id=list.id type='c' element_id=comment.id %}" method="post">
       {% csrf_token %}
-      <input type="submit" value="Remove from List"/>
+      <input class="RemoveItemFromList" type="submit" value="Remove"/>
     </form>
     {% endif %}
     {% endfor %}

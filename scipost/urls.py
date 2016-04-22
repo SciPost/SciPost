@@ -78,5 +78,6 @@ urlpatterns = [
     url(r'^create_graph$', views.create_graph, name='create_graph'),
     url(r'^graph/(?P<graph_id>[0-9]+)$', views.graph, name='graph'),
     url(r'^edit_graph_node/(?P<node_id>[0-9]+)$', views.edit_graph_node, name='edit_graph_node'),
+    url(r'^delete_graph_node/(?P<node_id>[0-9]+)$', views.delete_graph_node, name='delete_graph_node'),
     url(r'^api/graph/(?P<graph_id>[0-9]+)$', views.api_graph, name='api_graph'),
 ]

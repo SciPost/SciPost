@@ -108,6 +108,30 @@ ul.personalTabMenu li a.inactive {
   background-color: #eeeeff;
 }
 
+.AddItemToList {
+  background-color: #000099;
+  border: 1px;
+  color: white;
+  padding: 4px;
+  font-size: 50%;
+}
+.RemoveItemFromList {
+  background-color: #990000;
+  border: 1px;
+  color: white;
+  padding: 4px;
+  font-size: 50%;
+}
+
+.GraphButton {
+  background-color: #dddddd;
+  font-size: 50%;
+  padding: 4px;
+}
+.GraphButton h1 {
+  padding: 1px;
+}
+
 .reportid {
   display: inline-block;
   box-shadow: 5px 5px 10px #888888;
