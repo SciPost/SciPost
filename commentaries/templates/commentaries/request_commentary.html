@@ -34,15 +34,23 @@
     switch ($('select#id_type').val()) {
      case "":
        allToggableRows.hide()
+       $("#DOIprefill").hide();
+       $("#arXivprefill").hide();
        break;
      case "published":
        show(published)
+       $("#DOIprefill").show()
+       $("#arXivprefill").hide();
        break;
      case "preprint":
        show(preprint)
+       $("#DOIprefill").hide()
+       $("#arXivprefill").show();
        break;
      default:
        allToggableRows.hide()
+       $("#DOIprefill").hide();
+       $("#arXivprefill").hide();
     }
 
     $('select#id_type').on('change', function() {
@@ -50,9 +58,13 @@
       switch(selection){
         case "published":
           show(published)
+          $("#DOIprefill").show()
+          $("#arXivprefill").hide();
           break;
         case "preprint":
           show(preprint)
+          $("#DOIprefill").hide()
+          $("#arXivprefill").show();
           break;
         default:
           allToggableRows.hide()
@@ -73,14 +85,24 @@
   <br/>
   {% endif %}
 
-  <h3><em>For published papers, you can prefill the form (except for domain, specialization and abstract) using the DOI:</em></h3>
-  <p><em>(give the DOI as 10.[4 to 9 digits]/[string], without prefix, as per the placeholder)</em></p>
-  <form action="{% url 'commentaries:prefill_using_DOI' %}" method="post">
-    {% csrf_token %}
-    {{ doiform }}
-    <input type="submit" value="Query DOI"/>
-  </form>
-
+  <div id="DOIprefill">
+    <h3><em>For published papers, you can prefill the form (except for domain, specialization and abstract) using the DOI:</em></h3>
+    <p><em>(give the DOI as 10.[4 to 9 digits]/[string], without prefix, as per the placeholder)</em></p>
+    <form action="{% url 'commentaries:prefill_using_DOI' %}" method="post">
+      {% csrf_token %}
+      {{ doiform }}
+      <input type="submit" value="Query DOI"/>
+    </form>
+  </div>
+  <div id="arXivprefill">
+    <h3><em>For preprints, you can prefill the form using the arXiv identifier:</em></h3>
+    <p><em>(give the identifier without prefix, as per the placeholder)</em></p>
+    <form action="{% url 'commentaries:prefill_using_identifier' %}" method="post">
+      {% csrf_token %}
+      {{ identifierform }}
+      <input type="submit" value="Query arXiv"/>
+    </form>
+  </div>
   <br/>
   <form action="{% url 'commentaries:request_commentary' %}" method="post">
     {% csrf_token %}

@@ -13,11 +13,16 @@ COMMENTARY_REFUSAL_CHOICES = (
     (0, '-'),
     (-1, 'a commentary on this paper already exists'),
     (-2, 'this paper cannot be traced'),
-    (-3, 'this arXiv preprint is too recent (< 8 weeks)'),
+    (-3, 'there exists a more revent version of this arXiv preprint'),
     )
+commentary_refusal_dict = dict(COMMENTARY_REFUSAL_CHOICES)
 
 class DOIToQueryForm(forms.Form):
     doi = forms.CharField(widget=forms.TextInput({'label': 'DOI', 'placeholder': 'ex.: 10.21468/00.000.000000'}))
+
+class IdentifierToQueryForm(forms.Form):
+    identifier = forms.CharField(widget=forms.TextInput({'label': 'arXiv identifier', 
+                                                         'placeholder': 'new style ####.####(#)v# or old-style e.g. cond-mat/#######'}))
 
 
 class RequestCommentaryForm(forms.ModelForm):

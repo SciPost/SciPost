@@ -1,4 +1,5 @@
 import datetime
+import feedparser
 import re
 import requests
 
@@ -16,7 +17,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 
 from .models import Commentary
-from .forms import RequestCommentaryForm, DOIToQueryForm, VetCommentaryForm, CommentarySearchForm
+from .forms import RequestCommentaryForm, DOIToQueryForm, IdentifierToQueryForm
+from .forms import VetCommentaryForm, CommentarySearchForm, commentary_refusal_dict
 
 from comments.models import Comment
 from comments.forms import CommentForm
@@ -51,7 +53,8 @@ def request_commentary(request):
                 existing_commentary = get_object_or_404(Commentary, pub_DOI=form.cleaned_data['pub_DOI'])
             if errormessage != '':
                 doiform = DOIToQueryForm()
-                context = {'form': form, 'doiform': doiform, 
+                identifierform = IdentifierToQueryForm()
+                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform, 
                            'errormessage': errormessage, 
                            'existing_commentary': existing_commentary}
                 return render(request, 'commentaries/request_commentary.html', context)
@@ -81,7 +84,8 @@ def request_commentary(request):
     else:
         form = RequestCommentaryForm()
     doiform = DOIToQueryForm()
-    context = {'form': form, 'doiform': doiform}
+    identifierform = IdentifierToQueryForm()
+    context = {'form': form, 'doiform': doiform, 'identifierform': identifierform}
     return render(request, 'commentaries/request_commentary.html', context)
 
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
@@ -101,7 +105,8 @@ def prefill_using_DOI(request):
                 existing_commentary = get_object_or_404(Commentary, pub_DOI=doiform.cleaned_data['doi'])
             if errormessage != '':
                 form = RequestCommentaryForm()
-                context = {'form': form, 'doiform': doiform, 
+                identifierform = IdentifierToQueryForm()
+                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform, 
                            'errormessage': errormessage,
                            'existing_commentary': existing_commentary}
                 return render(request, 'commentaries/request_commentary.html', context)
@@ -144,7 +149,8 @@ def prefill_using_DOI(request):
                              'journal': journal, 'volume': volume, 
                              'pages': pages, 'pub_date': pub_date,
                              'pub_DOI': pub_DOI})
-                context = {'form': form, 'doiform': doiform}
+                identifierform = IdentifierToQueryForm()
+                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,}
                 context['title'] = pub_title
                 return render(request, 'commentaries/request_commentary.html', context)
             except:
@@ -152,6 +158,76 @@ def prefill_using_DOI(request):
         else:
             pass
     return redirect(reverse('commentaries:request_commentary'))
+
+@permission_required('scipost.can_request_commentary_pages', raise_exception=True)
+def prefill_using_identifier(request): 
+    """ Probes arXiv with the identifier, to pre-fill the form. """
+    if request.method == "POST":
+        identifierform = IdentifierToQueryForm(request.POST)
+        if identifierform.is_valid():
+            # Check if given identifier is of expected form:
+            identifierpattern_new = re.compile("[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}") # we allow 1 or 2 digits for version
+            identifierpattern_old = re.compile("[-.a-z]+/[0-9]{7,}v[0-9]{1,2}")
+            errormessage = ''
+            existing_commentary = None
+            if not (identifierpattern_new.match(identifierform.cleaned_data['identifier']) or
+                    identifierpattern_old.match(identifierform.cleaned_data['identifier'])):
+                errormessage = 'The identifier you entered is improperly formatted (did you forget the version number?).'
+            elif Commentary.objects.filter(arxiv_identifier=identifierform.cleaned_data['identifier']).exists():
+                errormessage = 'There already exists a Commentary Page on this preprint, see'
+                existing_commentary = get_object_or_404(Commentary, arxiv_identifier=identifierform.cleaned_data['identifier'])
+            if errormessage != '':
+                form = RequestCommentaryForm()
+                doiform = DOIToQueryForm()
+                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform, 
+                           'errormessage': errormessage,
+                           'existing_commentary': existing_commentary}
+                return render(request, 'commentaries/request_commentary.html', context)
+            # Otherwise we query arXiv for the information:
+            try:
+                queryurl = 'http://export.arxiv.org/api/query?id_list=%s' % identifierform.cleaned_data['identifier']
+                arxivquery = feedparser.parse(queryurl)
+                # If paper has been published, should comment on published version
+                try:
+                    arxiv_journal_ref = arxivquery['entries'][0]['arxiv_journal_ref']
+                    errormessage = 'This paper has been published as ' + arxiv_journal_ref + '. Please comment on the published version.'
+                except: 
+                    pass
+                try:
+                    arxiv_doi = arxivquery['entries'][0]['arxiv_doi']
+                    errormessage = 'This paper has been published under DOI ' + arxiv_DOI + '. Please comment on the published version.'
+                except:
+                    pass
+                if errormessage != '':
+                    form = RequestCommentaryForm()
+                    doiform = DOIToQueryForm()
+                    context = {'form': form, 'doiform': doiform, 'identifierform': identifierform, 
+                               'errormessage': errormessage,
+                               'existing_commentary': existing_commentary}
+                    return render(request, 'commentaries/request_commentary.html', context)
+                # otherwise prefill the form:
+                metadata = arxivquery
+                pub_title = arxivquery['entries'][0]['title']
+                authorlist = arxivquery['entries'][0]['authors'][0]['name']
+                for author in arxivquery['entries'][0]['authors'][1:]:
+                    authorlist += ', ' + author['name']
+                arxiv_link = arxivquery['entries'][0]['id']
+                abstract = arxivquery['entries'][0]['summary']
+                form = RequestCommentaryForm(
+                    initial={'type': 'preprint', 'metadata': metadata,
+                             'pub_title': pub_title, 'author_list': authorlist,
+                             'arxiv_identifier': identifierform.cleaned_data['identifier'],
+                             'arxiv_link': arxiv_link, 'pub_abstract': abstract})
+                doiform = DOIToQueryForm()
+                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform}
+                context['title'] = pub_title
+                return render(request, 'commentaries/request_commentary.html', context)
+            except:
+                pass
+        else:
+            pass
+    return redirect(reverse('commentaries:request_commentary'))
+
 
 @permission_required('scipost.can_vet_commentary_requests', raise_exception=True)
 def vet_commentary_requests(request):
@@ -202,7 +278,7 @@ def vet_commentary_request_ack(request, commentary_id):
                 email_text = ('Dear ' + title_dict[commentary.requested_by.title] + ' ' + 
                               commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + 
                               commentary.pub_title + ' by ' + commentary.author_list + ', has not been activated for the following reason: ' + 
-                              form.cleaned_data['refusal_reason'] + '.\n\nThank you for your interest, \nThe SciPost Team.')
+                              commentary_refusal_dict(form.cleaned_data['refusal_reason']) + '.\n\nThank you for your interest, \nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'SciPost commentaries <commentaries@scipost.org>', 

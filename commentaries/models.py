@@ -12,7 +12,7 @@ from scipost.models import SCIPOST_DISCIPLINES
 
 COMMENTARY_TYPES = (
     ('published', 'published paper'),
-    ('preprint', 'arXiv preprint (at least 8 weeks old)'),
+    ('preprint', 'arXiv preprint'),
     )
 
 class Commentary(models.Model):
