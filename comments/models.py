@@ -65,11 +65,11 @@ class Comment(models.Model):
     date_submitted = models.DateTimeField('date submitted')
     # Opinions 
     nr_A = models.PositiveIntegerField(default=0)
-    in_agreement = models.ManyToManyField(Contributor, related_name='in_agreement', blank=True, null=True)
+    in_agreement = models.ManyToManyField(Contributor, related_name='in_agreement', blank=True)
     nr_N = models.PositiveIntegerField(default=0)
-    in_notsure = models.ManyToManyField(Contributor, related_name='in_notsure', blank=True, null=True)
+    in_notsure = models.ManyToManyField(Contributor, related_name='in_notsure', blank=True)
     nr_D = models.PositiveIntegerField(default=0)
-    in_disagreement = models.ManyToManyField(Contributor, related_name='in_disagreement', blank=True, null=True)
+    in_disagreement = models.ManyToManyField(Contributor, related_name='in_disagreement', blank=True)
 
     def __str__ (self):
         return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name + 
