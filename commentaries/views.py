@@ -308,9 +308,13 @@ def commentaries(request):
         form = CommentarySearchForm()
         commentary_search_list = []
 
+    comment_recent_list = (Comment.objects.filter(status='1')
+                           .order_by('-date_submitted')[:10])
+
     commentary_recent_list = (Commentary.objects.filter(vetted=True)
                               .order_by('-latest_activity')[:10])
     context = {'form': form, 'commentary_search_list': commentary_search_list, 
+               'comment_recent_list': comment_recent_list,
                'commentary_recent_list': commentary_recent_list }
     return render(request, 'commentaries/commentaries.html', context)
 

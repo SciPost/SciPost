@@ -248,6 +248,8 @@ class Comment(models.Model):
         if len(self.comment_text) > 30:
             text_cut += '...'
         context['text_cut'] = text_cut
+        context['name'] = self.author.user.first_name + ' ' + self.author.user.last_name
+        header += '{{ name }}, '
         if self.submission is not None:
             header += '<a href="/submission/{{ submission_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>'
             header += (' in submission on <a href="/submission/{{ submission_id }}" class="pubtitleli">' + 

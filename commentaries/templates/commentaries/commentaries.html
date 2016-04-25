@@ -49,6 +49,19 @@
 
 </section>
 
+
+{% if comment_recent_list %}
+<section>
+ <hr class="hr12">
+ <h2>Recent Comments</h2>
+ <ul>
+   {% for comment in comment_recent_list %}
+   {{ comment.simple_header_as_li }}
+   {% endfor %}
+ </ul>
+</section>
+{% endif %}
+
 {% if commentary_recent_list %}
 <section>
   <hr class="hr12">
