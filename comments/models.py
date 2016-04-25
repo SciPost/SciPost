@@ -210,6 +210,11 @@ class Comment(models.Model):
         context['text_cut'] = text_cut
         context['date_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
         header += ': '
+        if not self.anonymous:
+            header += ' <a href="/contributor/{{ author_id }}">{{ first_name }} {{ last_name }}</a>, '
+            context['author_id'] = self.author.id
+            context['first_name'] = self.author.user.first_name
+            context['last_name'] = self.author.user.last_name
         if self.submission is not None:
             header += ('<a href="/submission/{{ submission_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>' + 
                        '<p>submitted on {{ date_submitted }}')
@@ -248,8 +253,11 @@ class Comment(models.Model):
         if len(self.comment_text) > 30:
             text_cut += '...'
         context['text_cut'] = text_cut
-        context['name'] = self.author.user.first_name + ' ' + self.author.user.last_name
-        header += '{{ name }}, '
+        if not self.anonymous:
+            header += ' <a href="/contributor/{{ author_id }}">{{ first_name }} {{ last_name }}</a>, '
+            context['author_id'] = self.author.id
+            context['first_name'] = self.author.user.first_name
+            context['last_name'] = self.author.user.last_name
         if self.submission is not None:
             header += '<a href="/submission/{{ submission_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>'
             header += (' in submission on <a href="/submission/{{ submission_id }}" class="pubtitleli">' + 
