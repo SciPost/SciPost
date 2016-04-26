@@ -1,0 +1,84 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: author guidelines{% endblock pagetitle %}
+
+{% block headsup %} {% load staticfiles %} {% endblock headsup %}
+
+{% block bodysup %}
+
+
+<section>
+
+  <div class="flex-greybox">
+    <h1>Author Guidelines</h1>
+  </div>
+  <p>Before submitting to SciPost, you should familiarize yourself with the 
+    <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
+
+  <hr class="hr12"/>
+  <h2>Manuscript preparation</h2>
+
+  <p>We prefer authors to prepare their manuscript using the SciPost LaTeX template (<a href="{% static 'submissions/latex/SciPost_LaTeX_template.tex' %}">.tex</a>, <a href="{% static 'submissions/latex/SciPost_LaTeX_template.pdf' %}">.pdf example</a>).</p>
+  <p>The article should contain the following elements:</p>
+  <ul>
+    <li>Title
+      <p>The title should ideally be 120 characters or less, and be descriptive of the research reported.</p>
+    </li>
+    <li>Authors
+      <p>Authors should be listed by initials and last name, with superscript reference to their affiliation. 
+	The corresponding author should be indicated with a superscript asterisk.</p>
+    <li>Abstract
+      <p>The abstract should fit within 8 lines of the template.</p>
+    </li>
+    <li>Bulk Sections
+      <p>The bulk of the paper should be clearly divided into sections with short descriptive titles, including an introduction and a conclusion.</p>
+    </li>
+    <li>Figures
+      <p>Figures should only occupy the stricly necessary space, in any case individually fitting on a single page. 
+	Each figure item should be appropriately labeled and accompanied by a descriptive caption. 
+	SciPost does not accept creative figures or artist's impressions; 
+	on the other hand, technical drawings and scientifically accurate representations are encouraged.</p>
+    </li>
+    <li>Acknowledgements
+      <p>Acknowledgements should follow immediately after the conclusion.
+	Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.</p>
+    </li>
+    <li>Author contributions
+      <p>Contributions should be succinctly described using author initials.</p>
+    </li>
+    <li>Appendices
+      <p>Supplementary material which goes beyond the paper's bulk contents can be provided in appendices, which should be
+	labeled using capital letters.</p>
+    </li>
+    <li>References
+      <p>Items in the list of references should include authors, title, journal reference and most importantly
+	DOI link.</p>
+    </li>
+  </ul>
+
+  <p>All equations and references should be hyperlinked to ensure ease of navigation.</p>
+  <p>There is no strict length limitation, but the authors are strongly encouraged to keep contents to the
+    strict minimum necessary for peers to reproduce the research described in the paper.</p>
+
+
+  <hr class="hr12"/>
+  <h2>Manuscript submission</h2>
+  <p>Submitting your manuscript to SciPost is extremely easy. You should:</p>
+  <ul>
+    <li>Make your preprint publicly available on <a href="http://arxiv.org">arXiv.org</a></li>
+    <li>After appearance on arxiv.org, fill the SciPost <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form, selecting which SciPost Journal 
+      to submit to and providing domain and speciality specifications.</li>
+  </ul>
+  <p>By submitting your manuscript, you assert that you have read and agree with the 
+    <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
+
+  <p>At the moment of submission, you will have the chance to provide names of editors or referees which
+    you would prefer to exclude from the peer evaluation of your manuscript. The Editorial College will
+    make every reasonable effort to implement such requests, except in cases where this is interpreted as
+    interfering with a rigorous assessment of the work.</p>
+
+
+</section>
+
+    
+{% endblock bodysup %}

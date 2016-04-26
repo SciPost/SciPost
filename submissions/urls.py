@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^$', views.submissions, name='submissions'),
     url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]+)/$', views.browse, name='browse'),
     url(r'^sub_and_ref_procedure$', TemplateView.as_view(template_name='submissions/sub_and_ref_procedure.html'), name='sub_and_ref_procedure'),
+    url(r'^author_guidelines$', TemplateView.as_view(template_name='submissions/author_guidelines.html'), name='author_guidelines'),
     #url(r'^submission/(?P<submission_id>[0-9]+)/$', views.submission_detail, name='submission'),
     url(r'^(?P<submission_id>[0-9]+)/$', views.submission_detail, name='submission'),
     url(r'^submit_manuscript$', views.submit_manuscript, name='submit_manuscript'),
