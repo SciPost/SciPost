@@ -31,6 +31,12 @@ class Command(BaseCommand):
             name= 'Can manage registration invitations',
             content_type=content_type)
 
+        # Editorial College
+        view_bylaws, created = Permission.objects.get_or_create(
+            codename='view_bylaws',
+            name= 'Can view By-laws of Editorial College',
+            content_type=content_type)
+
         # Contributions (not related to submissions)
         can_submit_comments, created = Permission.objects.get_or_create(
             codename='can_submit_comments',
@@ -105,6 +111,7 @@ class Command(BaseCommand):
                                      )
         EditorialCollege.permissions.add(can_take_charge_of_submissions,
                                          can_vet_submitted_reports,
+                                         view_bylaws,
                                          )
         VettingEditors.permissions.add(can_vet_commentary_requests, 
                                        can_vet_thesislink_requests,

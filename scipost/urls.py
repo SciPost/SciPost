@@ -18,7 +18,6 @@ urlpatterns = [
     # Search 
     url(r'^search$', views.search, name='search'),
 
-
     ################
     # Contributors:
     ################
@@ -59,6 +58,11 @@ urlpatterns = [
     url(r'^claim_thesis_authorship/(?P<thesis_id>[0-9]+)/(?P<claim>[0-1])$', views.claim_thesis_authorship, name='claim_thesis_authorship'),
     url(r'^vet_authorship_claims$', views.vet_authorship_claims, name="vet_authorship_claims"),
     url(r'^vet_authorship_claim/(?P<claim_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_authorship_claim, name='vet_authorship_claim'),
+
+    #####################
+    # Editorial College #
+    #####################
+    url(r'^EdCol_by-laws$', views.EdCol_bylaws, name='EdCol_by-laws'),
 
     # Lists
     url(r'^create_list$', views.create_list, name='create_list'),

@@ -10,6 +10,8 @@ from .models import *
 
 SCIPOST_DISCIPLINES = (
     ('physics', 'Physics'),
+#    ('mathematics', 'Mathematics'),
+#    ('computerscience', 'Computer Science'),
     )
 disciplines_dict = dict(SCIPOST_DISCIPLINES)
 

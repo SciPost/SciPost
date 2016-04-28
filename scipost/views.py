@@ -706,6 +706,14 @@ def contributor_info(request, contributor_id):
     return render(request, 'scipost/contributor_info.html', context)
 
 
+#####################
+# Editorial College #
+#####################
+
+@permission_required('scipost.view_bylaws', return_403=True)
+def EdCol_bylaws(request):
+    return render(request, 'scipost/EdCol_by-laws.html')
+
 
 #########
 # Lists #
