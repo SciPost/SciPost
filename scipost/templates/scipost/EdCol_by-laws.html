@@ -52,14 +52,13 @@
 	  <li>Number of Fellows
 	    <p>The size of the Editorial College will be such that each stated specialization
 	      will be represented by at least 8 Fellows. There is no maximum. The number of Fellows
-	      caring for a stated specialization shall be chosen to ensure an average workload 
-	      of 5 submissions to process per calendar year per Fellow.
+	      caring for a stated specialization shall be adjusted to ensure a workload per Fellow
+	      limited to approximately one half-day per month on average.
 	    </p>
 	  </li>
 	  <li>Appointment by the Foundation
 	    <p>If the number of Fellows in a stated specialty is below the required minimum number, 
-	      or if the number of currently available (namely: not currently Editor-in-charge of a Submission) 
-	      Fellows in a stated specialty has diminished to a level 
+	      or if the number of currently available Fellows in a stated specialty has diminished to a level 
 	      where processing of Submissions becomes delayed, 
 	      the Foundation has the right to directly nominate and immediately appoint 
 	      individuals deemed to fulfill the eligibility criteria.
@@ -70,7 +69,7 @@
 	      Fellows of the Editorial College can nominate candidates for an Editorial Fellowship.
 	      Candidates must fulfill the eligiblity criteria. 
 	      These nominations shall be forwarded to the Editorial College for voting, at the
-	      latest at the first following Virtual General Meeting. 
+	      latest at the next Virtual General Meeting. 
 	      If a candidate secures a positive vote from at least three quarters of the Fellows currently
 	      caring for the candidate's stated main specialization, and if no veto is received from
 	      Fellows in other specializations, from the Advisory Board or from the Foundation's Board,
@@ -82,18 +81,23 @@
 	  <li>Duration
 	    <p>An appointment as Fellow of the Editorial College is for a duration of 2 years.</p>
 	  </li>
+	  <li>Visibility
+	    <p>The composition of the Editorial College is publicly known. The list of Editorial 
+	      Fellows and their stated specializations is published on the website.</p>
+	  </li>
 	  <li>Renewal
 	    <p>An appointment is renewable without limitation. A Fellow coming to the end of 
-	      an appointment is put up for re-election by the Editorial College, unless the Foundation
-	      or the Advisory Board vetoes it.</p>
+	      an appointment is automatically put up for re-election by the Editorial College, unless 
+	      the said Fellow has informed the Foundation of his/her desire not to renew, or if the Foundation
+	      or the Advisory Board vetoes the renewal.</p>
 	  </li>
 	  <li>End of appointment
 	    <p>Appointment as an Editorial Fellow immediately ends upon:
 	      <ul>
 		<li>the Fellow informing the Foundation of his/her wish to cease his/her Fellowship</li>
 		<li>the Fellow ceasing to fulfill the eligibility criteria</li>
-		<li>the Foundation terminating the appointment due to conduct which is improper or in
-		  conflict with the aims of the Foundation.</li>
+		<li>the Foundation terminating the appointment due to conduct which it deems to be improper or in
+		  conflict with the general aims and guiding principles of the Foundation.</li>
 	      </ul>
 	    </p>
 	  </li>
@@ -123,13 +127,15 @@
 	      among the items at the meeting.</p>
 	    <p>At the end of the week, the meeting is closed, and motions are put forward
 	      for voting, which is open online for one week after the end of the VGM.</p>
+	    <p>Within one week following the end of voting, the Foundation implements the decisions taken
+	      and releases the minutes of the VGM to the Advisory Board and Editorial College.</p>
 	  </li>
 	  <li>Extraordinary Virtual Meetings
 	    <p>At any time, the Foundation can call an Extraordinary Virtual Meeting, to
 	      discuss pressing issues with the Editorial College. This meeting must be
-	      announced at least two weeks before its scheduled start. An EVM, like a VGM,
-	      consists of one week of online discussions followed by one week of voting on
-	      motions.</p>
+	      announced at least one week before its scheduled start. 
+	      An EVM otherwise follows the same procedures as a VGM.
+	      </p>
 	  </li>
 	</ol>
       </div>
@@ -149,7 +155,7 @@
 	      Each item in the queue represents a single Submission's whole history, including
 	      possible earlier (pre-resubmission) versions.</p>
 	    <p>
-	      Submissions in the queue can have one of the following statuses:
+	      Submissions in the queue can be in any of the following stages:
 	      <ul>
 		<li>Pre-screening</li>
 		<li>Editor-in-charge appointed</li>
@@ -232,9 +238,11 @@
 	      </li>
 	      <li>Admissibility of Reports and Comments
 		<p>The Editor-in-charge must ensure that referees he/she invites to report on a given manuscript
-		  are not in conflict of interest, personal or hierarchical relationship with any of the authors.
+		  are in particular not in conflict of interest, personal or hierarchical relationship with any of the authors
+		  and more generally fulfill the conditions stated in the 
+		  <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_obligations">referee obligations</a>.
 		  Similarly, the Editor-in-charge must verify that the authors of contributed Reports and Comments 
-		  also fulfill these conditions. If such a conflict or relationship exists, the Editor-in-charge
+		  also fulfill these conditions. If in doubt, the Editor-in-charge
 		  must disregard the Reports and Comments in question when formulating the Editorial Recommendation.</p>
 	      </li>
 	      <li>Closing and author reponse
@@ -320,18 +328,19 @@
 		    a Fellow vetoes the recommendation to reject the paper, that Fellow automatically 
 		    takes over as Editor-in-charge of the Submission and is required to start a new refereeing round.</p>
 		  <p>Otherwise, if a majority is not reached but no Fellow has vetoed the rejection recommendation, 
-		    the paper is deemed as rejected.</p>
+		    the paper is rejected.</p>
 		  <p>Upon rejection, the authors are informed, the Submission Page
-		    is deactivated and its contents removed from public view.
+		    is deactivated and its contents removed from public view, unless the authors explicitly request
+		    otherwise.
 		  </p>
 		</li>
 	      </ol>
 	    </p>
 	  </li>
 	  <li>Production
-	    <p>Post-acceptance, the paper is handled by the production team, who produce the final .pdf
+	    <p>Post-acceptance, the paper is handled by the production team, who produce the final version
 	      of the manuscript and ensure compliance with publication requirements (including outbound 
-	      references linking). The final .pdf is assigned a DOI and published online in the appropriate SciPost Journal.</p>
+	      references linking). The final version is assigned a DOI and published online in the appropriate SciPost Journal.</p>
 	  </li>
 	</ol>
       </div>

@@ -15,6 +15,36 @@
   <div class="row">
     <div class="col-5">
       <div class="flex-greybox">
+	<h2>SciPost in bullet points:</h2>
+      </div>
+      <ul>
+	<li>high-quality two-way open access journals</li>
+	<li>commentaries on existing literature</li>
+	<li>links to theses, with searchable abstracts database</li>
+      </ul>
+
+      <div class="flex-greybox">
+	<h2>Where should I start?</h2>
+      </div>
+      <ul>
+	<li>See what it's <a href="{% url 'scipost:about' %}">about</li>
+	<li>Read the <a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
+	<li>Pro academic? <a href="{% url 'scipost:register' %}">Register</a></li>
+	</ul>
+      <h4>After registration,</h4>
+      <ul>
+	<li><a href="{% url 'theses:request_thesislink' %}">Link</a> your theses</li>
+	<li>Consider <a href="{% url 'submissions:submit_manuscript' %}">submitting</a> your preprints</li>
+	<li>Consider <a href="{% url 'commentaries:request_commentary' %}">initiating commentaries</a></li>
+      </ul>
+      <p>For example, you might have some corrections to point out on your or others' existing papers.
+	Simply request a Commentary page, wait for activation, and then post a Comment.</p>
+    </div>
+
+
+    <div class="col-1"></div>
+    <div class="col-5">
+      <div class="flex-greybox">
 	<h2>Commentaries</h2>
       </div>
       <h3>Want to comment on a paper (<em>any</em> published paper)?</h3>
@@ -32,9 +62,7 @@
       <br/>
       <h3>Want to give your opinion on a Comment?</h3>
       <p>If you are registered as a Contributor, you can express your opinion by clicking on one of the coloured boxes next to the Comment (Agree, Not sure, Disagree). Any earlier opinion you had expressed gets erased. Aggregated opinions are given, and you cannot give an opinion on your own Comments.</p>
-    </div>
-    <div class="col-1"></div>
-    <div class="col-5">
+
       <div class="flex-greybox">
 	<h2>Theses</h2>
       </div>
