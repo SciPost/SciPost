@@ -30,7 +30,7 @@
 });
 </script>
 
-{% if request.user|is_in_group:'Editorial College' or request.user|is_in_group:'SciPost Administrators' %}
+
 <section>
   <h1>SciPost Editorial College By-laws</h1>
 
@@ -362,6 +362,5 @@
 
 </section>
 
-{% endif %}
 
 {% endblock bodysup %}
