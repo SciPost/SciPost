@@ -67,6 +67,7 @@ class Commentary(models.Model):
             header += '<td>(none claimed)</td>'
         header += '</tr>'
         if self.type == 'published':
+            header += '<tr><td>Journal ref.: </td><td>&nbsp;</td><td>{{ journal }} {{ volume }}, {{ pages }}</td></tr>'
             header += '<tr><td>DOI: </td><td>&nbsp;</td><td><a href="{{ pub_DOI_link }}" target="_blank">{{ pub_DOI_link }}</a></td></tr>'
         elif self.type == 'preprint':
             header += '<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="{{ arxiv_link }}">{{ arxiv_link }}</a></td></tr>'
@@ -78,6 +79,9 @@ class Commentary(models.Model):
                 'pub_title': self.pub_title, 'author_list': self.author_list, 
                 })
         if self.type == 'published':
+            context['journal'] = self.journal
+            context['volume'] = self.volume
+            context['pages'] = self.pages
             context['pub_DOI_link'] = self.pub_DOI_link
             context['pub_date'] = self.pub_date
         elif self.type == 'preprint':
@@ -87,30 +91,48 @@ class Commentary(models.Model):
 
     def header_as_li (self):
         # for display in search lists
-        header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" class="pubtitleli">{{ pub_title }}</a></p>'
-        header += '<p>by {{ author_list }}</p>'
-        if self.pub_date:
-            header += '<p> (published {{ pub_date }}) - '
-        header += 'latest activity: {{ latest_activity }}</p></div></div></li>'
-        template = Template(header)
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
                            'author_list': self.author_list, 
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" class="pubtitleli">{{ pub_title }}</a></p>'
+        header += '<p>by {{ author_list }}'
+        if self.type == 'published':
+            header += ', {{ journal }} {{ volume }}, {{ pages }}'
+            context['journal'] = self.journal
+            context['volume'] = self.volume
+            context['pages'] = self.pages
+        elif self.type == 'preprint':
+            header += ', <a href="{{ arxiv_link }}">{{ arxiv_link }}</a>'
+            context['arxiv_link'] = self.arxiv_link
+        header += '</p>'
         if self.pub_date:
+            header += '<p> (published {{ pub_date }}) - '
             context['pub_date'] = str(self.pub_date)
+        header += 'latest activity: {{ latest_activity }}</p></div></div></li>'
+        template = Template(header)
+
         return template.render(context)
 
 
     def simple_header_as_li (self):
         # for display in Lists
-        header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" class="pubtitleli">{{ pub_title }}</a></p>'
-        header += '<p>by {{ author_list }}</p>'
-        header += '</div></div></li>'
-        template = Template(header)
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
                            'author_list': self.author_list})
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" class="pubtitleli">{{ pub_title }}</a></p>'
+        header += '<p>by {{ author_list }}'
+        if self.type == 'published':
+            header += ', {{ journal }} {{ volume }}, {{ pages }}'
+            context['journal'] = self.journal
+            context['volume'] = self.volume
+            context['pages'] = self.pages
+        elif self.type == 'preprint':
+            header += ', <a href="{{ arxiv_link }}">{{ arxiv_link }}</a>'
+            context['arxiv_link'] = self.arxiv_link
+        header += '</p>'
+        header += '</div></div></li>'
+        template = Template(header)
         return template.render(context)
 
 

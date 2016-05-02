@@ -1,0 +1,109 @@
+% =========================================================================
+% SciPost LaTeX template
+% Version 1 (2016/05/01)
+%
+% Submissions to SciPost Journals should make use of this template.
+%
+% INSTRUCTIONS: simply look for the `TODO:' tokens and adapt your file.
+%
+% - please enable line numbers (package: lineno)
+% - you should run LaTeX twice in order for the line numbers to appear
+% =========================================================================
+
+
+% TODO: uncommente ONE of the class declarations below
+% If you are submitting a paper to SciPost Physics: uncomment next line
+\documentclass[submission]{SciPost}
+% If you are submitting a paper to SciPost Physics Lecture Notes: uncomment next line
+%\documentclass[submission,LectureNotes]{SciPost}
+
+
+\begin{document}
+
+% TODO: write your article's title here. 
+% The article title is centered, Large boldface, and should fit in two lines
+\begin{center}{\Large \textbf{
+Article Title, as descriptive as possible, ideally fitting in two lines (approximately 150 characters) or less
+}}\end{center}
+
+% TODO: write the author list here. Use initials + surname format.
+% Separate subsequent authors by a comma, omit comma at the end of the list.
+% Mark the corresponding author with a superscript *. 
+\begin{center}
+Initials1 Surname1\textsuperscript{1}, 
+A.B. Cee\textsuperscript{2}, 
+Initials3 Surname3\textsuperscript{3*}
+\end{center}
+
+% TODO: write all affiliations here. 
+% Format: institute, city, country
+\begin{center}
+{\bf 1} Affiliation1
+\\
+{\bf 2} Affiliation2
+\\
+% TODO: provide email address of corresponding author
+* CorrespondingAuthor@email.address
+\bigskip
+\end{center}
+
+\linenumbers
+
+\section*{Abstract}
+{\bf 
+% TODO: write your abstract here.
+The abstract is in boldface, and should fit in 8 lines.
+It should be written in a clear and accessible style, emphasizing the context, the problem(s) studied, the methods used, the results obtained, the conclusions reached, and the outlook. 
+}
+
+\section{Introduction}
+% TODO: write your article here.
+The stage is yours. Write your article here.
+The bulk of the paper should be clearly divided into sections with short descriptive titles, including an introduction and a conclusion.
+
+
+\section{A Section}
+Use sections to structure your article's presentation. 
+
+Equations should be centered; multi-line equations should be aligned.
+\begin{equation}
+H = \sum_{j=1}^N \left[J (S^x_j S^x_{j+1} + S^y_j S^y_{j+1} + \Delta S^z_j S^z_{j+1}) - h S^z_j \right].
+\end{equation}
+
+Items in the list of references\cite{1931_Bethe_ZP_71} should include authors, title, journal reference and most importantly DOI link. All equations and references should be hyperlinked to ensure ease of navigation.
+
+\section{Another Section}
+There is no strict length limitation, but the authors are strongly encouraged to keep contents to the strict minimum necessary for peers to reproduce the research described in the paper.
+
+\subsection{A first subsection}
+You are free to use dividers as you see fit.
+\subsection{Another subsection}
+Figures should only occupy the stricly necessary space, in any case individually fitting on a single page. Each figure item should be appropriately labeled and accompanied by a descriptive caption. SciPost does not accept creative figures or artist's impressions; on the other hand, technical drawings and scientifically accurate representations are encouraged.
+
+
+\section{Conclusion}
+You must include a conclusion.
+
+\section*{Acknowledgements}
+Acknowledgements should follow immediately after the conclusion. 
+
+% TODO: include author contributions
+\paragraph{Author contributions}
+Contributions should be succinctly described in a paragraph, using author initials.
+
+% TODO: include funding information
+\paragraph{Funding information}
+Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.
+
+
+% TODO: 
+% Provide your bibliography here, either by:
+% - writing it directly, following the example below, including Author(s), Title, Journal Ref. with year in parentheses at the end, followed by the DOI number.
+% - running BiBTeX using the class SciPost_bibstyle_v1.bst and pasting the .bbl file contents here.
+\begin{thebibliography}{99}
+\bibitem{1931_Bethe_ZP_71} H. A. Bethe, `Zur Theorie der Metalle', Z. Phys. 71, 205 (1931), \doi{10.1007\%2FBF01341708}.
+\end{thebibliography}
+
+\nolinenumbers
+
+\end{document}

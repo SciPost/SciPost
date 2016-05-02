@@ -18,11 +18,24 @@
   <hr class="hr12"/>
   <h2>Manuscript preparation</h2>
 
-  <p>We prefer authors to prepare their manuscript using the SciPost LaTeX template (<a href="{% static 'submissions/latex/SciPost_LaTeX_template.tex' %}">.tex</a>, <a href="{% static 'submissions/latex/SciPost_LaTeX_template.pdf' %}">.pdf example</a>).</p>
-  <p>The article should contain the following elements:</p>
+  <p>We prefer authors to prepare their manuscript using the SciPost LaTeX2e style, which you can download
+    as a <a href="{% static 'submissions/latex/SciPost_LaTeX_Style_v1.tar.gz' %}">gzipped tarball</a>, 
+    composed of the following individual files:
+    <ul>
+      <li><a href="{% static 'submissions/latex/SciPost_LaTeX_Template.tex' %}">LaTeX2e template (.tex)</a></li>
+      <li><a href="{% static 'submissions/latex/SciPost_LaTeX_Template.pdf' %}">LaTeX2e template (.pdf)</a></li>
+      <li><a href="{% static 'submissions/latex/SciPost.cls' %}">class file (.cls)</a></li>
+      <li><a href="{% static 'submissions/latex/SciPost_bibstyle_v1.bst' %}">BiBTeX style file (.bst)</a></li>
+    </ul>
+    While we also accept submissions in general LaTeX formats, using the SciPost style will simplify and accelerate 
+    production of the published version of your article in case of acceptance.
+  </p>
+
+  <h3>The article should contain the following elements:</h3>
   <ul>
     <li>Title
-      <p>The title should ideally be 120 characters or less, and be descriptive of the research reported.</p>
+      <p>The title should ideally fit in two lines (approximately 150 characters) or less, 
+	and be descriptive of the research reported.</p>
     </li>
     <li>Authors
       <p>Authors should be listed by initials and last name, with superscript reference to their affiliation. 
@@ -34,17 +47,19 @@
       <p>The bulk of the paper should be clearly divided into sections with short descriptive titles, including an introduction and a conclusion.</p>
     </li>
     <li>Figures
-      <p>Figures should only occupy the stricly necessary space, in any case individually fitting on a single page. 
+      <p>If figures are included, they should only occupy the stricly necessary space, in any case individually fitting on a single page. 
 	Each figure item should be appropriately labeled and accompanied by a descriptive caption. 
 	SciPost does not accept creative figures or artist's impressions; 
 	on the other hand, technical drawings and scientifically accurate representations are encouraged.</p>
     </li>
     <li>Acknowledgements
-      <p>Acknowledgements should follow immediately after the conclusion.
-	Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.</p>
+      <p>Acknowledgements should follow immediately after the conclusion.</p>
     </li>
     <li>Author contributions
       <p>Contributions should be succinctly described using author initials.</p>
+    </li>
+    <li>Funding information
+      <p>Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.</p>
     </li>
     <li>Appendices
       <p>Supplementary material which goes beyond the paper's bulk contents can be provided in appendices, which should be
@@ -52,7 +67,7 @@
     </li>
     <li>References
       <p>Items in the list of references should include authors, title, journal reference and most importantly
-	DOI link.</p>
+	<b>** include the DOI link **</b> (see the template above for an example).</p>
     </li>
   </ul>
 
