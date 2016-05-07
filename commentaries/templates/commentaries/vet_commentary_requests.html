@@ -16,17 +16,10 @@
   <hr>
   <div class="row">
     <div class="col-8">
-      <table>
-	<tr><td>Title: </td><td>{{ commentary_to_vet.pub_title }}</td></tr>
-	<tr><td>Author(s): </td><td>{{ commentary_to_vet.author_list }}</td></tr>
-	<tr><td>arXiv link (including version nr): </td><td><a href="{{ commentary_to_vet.arxiv_link }}">{{ commentary_to_vet.arxiv_link }}</a></td></tr>
-	<tr><td>DOI Link: </td><td><a href="{{ commentary_to_vet.pub_DOI_link }}">{{ commentary_to_vet.pub_DOI_link }}</a></td></tr>
-	<tr><td>URL suffix for SP use: </td><td>{{ commentary_to_vet.arxiv_or_DOI_string }}</td></tr>
-	<tr><td>Date published: </td><td>{{ commentary_to_vet.pub_date }}</td></tr>
-      </table>
-      <br />
-      <h4>Abstract:</h4>
+      {{ commentary_to_vet.header_as_table }}
+      <h3>Abstract:</h3>
       <p>{{ commentary_to_vet.pub_abstract }}</p>
+
     </div>
     <div class="col-4">
       <form action="{% url 'commentaries:vet_commentary_request_ack' commentary_id=commentary_to_vet.id %}" method="post">
