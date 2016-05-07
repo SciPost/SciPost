@@ -122,7 +122,10 @@ def prefill_using_DOI(request):
                 for author in doiqueryJSON['message']['author'][1:]:
                     authorlist += ', ' + author['given'] + ' ' + author['family']
                 journal = doiqueryJSON['message']['container-title'][0]
-                volume = doiqueryJSON['message']['volume']
+                try:
+                    volume = doiqueryJSON['message']['volume']
+                except:
+                    volume = ''
                 pages = ''
                 try:
                     pages = doiqueryJSON['message']['article-number'] # for Phys Rev
