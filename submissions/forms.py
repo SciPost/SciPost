@@ -7,15 +7,25 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
 
 
+class SubmissionIdentifierForm(forms.Form):
+    identifier = forms.CharField(widget=forms.TextInput({'label': 'arXiv identifier',
+                                                         'placeholder': 'new style (with version nr) ####.####(#)v#(#)',
+                                                         'cols': 20}))
+
 class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
-        fields = ['discipline', 'submitted_to_journal', 'domain', 'specialization', 'title', 'author_list', 'abstract', 'arxiv_link']
+        fields = ['discipline', 'submitted_to_journal', 'domain', 'specialization', 
+                  'title', 'author_list', 'abstract', 'arxiv_link', 'metadata', 'referees_flagged']
 
     def __init__(self, *args, **kwargs):
         super(SubmissionForm, self).__init__(*args, **kwargs)
         self.fields['arxiv_link'].widget.attrs.update({'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
+        self.fields['metadata'].widget = forms.HiddenInput()
         self.fields['abstract'].widget.attrs.update({'cols': 100})
+        self.fields['referees_flagged'].widget.attrs.update({
+                'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
+                'rows': 3})
 
 
 class SubmissionSearchForm(forms.Form):

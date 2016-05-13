@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
 
 from .models import *
@@ -49,6 +50,7 @@ class Submission(models.Model):
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
+    referees_flagged = models.TextField(blank=True, null=True)
     open_for_reporting = models.BooleanField(default=True)
     reporting_deadline = models.DateTimeField(default=timezone.now)
     open_for_commenting = models.BooleanField(default=True)
@@ -60,6 +62,7 @@ class Submission(models.Model):
     authors_false_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_sub_false_claims')
     abstract = models.TextField()
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
+    metadata = JSONField(default={}, blank=True, null=True)
     submission_date = models.DateField(verbose_name='submission date')
     latest_activity = models.DateTimeField(default=timezone.now)
 
@@ -272,6 +275,7 @@ class Report(models.Model):
 #    date_invited = models.DateTimeField('date invited', blank=True, null=True)
 #    invited_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='invited_by')
     invited = models.BooleanField(default=False) # filled from RefereeInvitation objects at moment of report submission
+    flagged = models.BooleanField(default=False) # if author of report has been flagged by submission authors (surname check only)
     date_submitted = models.DateTimeField('date submitted')
     author = models.ForeignKey(Contributor)
     qualification = models.PositiveSmallIntegerField(choices=REFEREE_QUALIFICATION, verbose_name="Qualification to referee this: I am ")

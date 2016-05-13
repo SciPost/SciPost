@@ -27,6 +27,10 @@
   <h3>Abstract:</h3>
   <p>{{ submission.abstract }}</p>
 
+  {% if submission.referees_flagged %}
+  <h3>Referees flagged upon submission (treat reports with caution):</h3>
+  <p>{{ submission.referees_flagged }}</p>
+  {% endif %}
 </section>
 
 
@@ -40,7 +44,7 @@
   <hr class="hr6"/>
   <h3>Actions:</h3>
   <ul>
-    <li><a href="{% url 'submissions:select_referee' submission_id=submission.id %}">Select an additional referee</a></li>
+    <li><a href="{% url 'submissions:select_referee' submission_id=submission.id %}">Select an additional referee</a> (bear in mind flagged referees if any)</li>
     <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline }}) by 
       <a href="{% url 'submissions:extend_refereeing_deadline' submission_id=submission.id days=2 %}">2 days</a>,
       <a href="{% url 'submissions:extend_refereeing_deadline' submission_id=submission.id days=7 %}">1 week</a> or

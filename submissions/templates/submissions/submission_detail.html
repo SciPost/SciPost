@@ -76,6 +76,9 @@
     {% for report in invited_reports %}
     <hr class="hr6"/>
     {% if user|is_in_group:'Editorial College' %}
+    {% if report.flagged %}
+    <h4 style="color: red">CAUTION: check if this referee has been flagged by the authors</h4>
+    {% endif %}
     {{ report.print_contents_for_editors }} 
     {% else %}
     {{ report.print_identifier }} 
@@ -148,6 +151,9 @@
     {% for report in contributed_reports %}
     <hr class="hr6"/>
     {% if user|is_in_group:'Editorial College' %}
+    {% if report.flagged %}
+    <h4 style="color: red">CAUTION: check if this referee has been flagged by the authors</h4>
+    {% endif %}
     {{ report.print_contents_for_editors }}
     {% else %}
     {{ report.print_identifier }}

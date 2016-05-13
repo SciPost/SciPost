@@ -4,15 +4,29 @@
 
 {% block bodysup %}
 
-
 <section>
   <h1>Submit a manuscript to SciPost</h1>
 
   <p id="journalsannounce">OPEN FOR SUBMISSION STARTING JUNE 2016</p>
 
-  {% if false %} <!-- Temporary deactivate submissions -->
+  {% if False %} <!-- Temporary deactivate submissions -->
 
   {% if perms.scipost.can_submit_manuscript %}
+
+  <div class="flex-greybox">
+    <h3><em>You can prefill part of the form using the arXiv identifier:</em></h3>
+    <p><em>(give the identifier without prefix, as per the placeholder)</em></p>
+    {% if errormessage %}
+    <h3 style="color: red;">Error: {{ errormessage }}</h3>
+    {% endif %}
+    <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
+      {% csrf_token %}
+      {{ identifierform }}
+      <input type="submit" value="Query arXiv"/>
+    </form>
+  </div>
+  <br/>
+  
   <form action="{% url 'submissions:submit_manuscript' %}" method="post">
     {% csrf_token %}
     <table>

@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^author_guidelines$', TemplateView.as_view(template_name='submissions/author_guidelines.html'), name='author_guidelines'),
     #url(r'^submission/(?P<submission_id>[0-9]+)/$', views.submission_detail, name='submission'),
     url(r'^(?P<submission_id>[0-9]+)/$', views.submission_detail, name='submission'),
+    url(r'^prefill_using_identifier$', views.prefill_using_identifier, name='prefill_using_identifier'),
     url(r'^submit_manuscript$', views.submit_manuscript, name='submit_manuscript'),
     url(r'^submit_manuscript_ack$', TemplateView.as_view(template_name='submissions/submit_manuscript_ack.html'), name='submit_manuscript_ack'),
     url(r'^assign_submissions$', views.assign_submissions, name='assign_submissions'),

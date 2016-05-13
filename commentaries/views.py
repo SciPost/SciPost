@@ -95,7 +95,7 @@ def prefill_using_DOI(request):
         doiform = DOIToQueryForm(request.POST)
         if doiform.is_valid():
             # Check if given doi is of expected form:
-            doipattern = re.compile("10.[0-9]{4,9}/[-._;()/:a-zA-Z0-9]+")
+            doipattern = re.compile("^10.[0-9]{4,9}/[-._;()/:a-zA-Z0-9]+")
             errormessage = ''
             existing_commentary = None
             if not doipattern.match(doiform.cleaned_data['doi']):
@@ -169,8 +169,8 @@ def prefill_using_identifier(request):
         identifierform = IdentifierToQueryForm(request.POST)
         if identifierform.is_valid():
             # Check if given identifier is of expected form:
-            identifierpattern_new = re.compile("[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}") # we allow 1 or 2 digits for version
-            identifierpattern_old = re.compile("[-.a-z]+/[0-9]{7,}v[0-9]{1,2}")
+            identifierpattern_new = re.compile("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$") # we allow 1 or 2 digits for version
+            identifierpattern_old = re.compile("^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$")
             errormessage = ''
             existing_commentary = None
             if not (identifierpattern_new.match(identifierform.cleaned_data['identifier']) or

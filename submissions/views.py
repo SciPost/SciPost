@@ -1,4 +1,8 @@
 import datetime
+import feedparser
+import re
+import requests
+
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -27,6 +31,61 @@ from comments.forms import CommentForm
 ###############
 
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
+def prefill_using_identifier(request):
+    if request.method == "POST":
+        identifierform = SubmissionIdentifierForm(request.POST)
+        if identifierform.is_valid():
+            identifierpattern = re.compile("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$") # we allow 1 or 2 digits for version
+            errormessage = ''
+            if not identifierpattern.match(identifierform.cleaned_data['identifier']):
+                errormessage = 'The identifier you entered is improperly formatted (did you forget the version number?).'
+                form = SubmissionForm()
+                return render(request, 'submissions/submit_manuscript.html',
+                              {'identifierform': identifierform, 'form': form,
+                               'errormessage': errormessage})
+            # Otherwise we query arXiv for the information:
+            try:
+                queryurl = 'http://export.arxiv.org/api/query?id_list=%s' % identifierform.cleaned_data['identifier']
+                arxivquery = feedparser.parse(queryurl)
+                # If paper has been published, should comment on published version
+                try:
+                    arxiv_journal_ref = arxivquery['entries'][0]['arxiv_journal_ref']
+                    errormessage = 'This paper has been published as ' + arxiv_journal_ref + '. You cannot submit it to SciPost anymore.'
+                except: 
+                    pass
+                try:
+                    arxiv_doi = arxivquery['entries'][0]['arxiv_doi']
+                    errormessage = 'This paper has been published under DOI ' + arxiv_DOI + '. You cannot submit it to SciPost anymore.'
+                except:
+                    pass
+                if errormessage != '':
+                    form = SubmissionForm()
+                    context = {'identifierform': identifierform, 'form': form,
+                               'errormessage': errormessage}
+                    return render(request, 'submissions/submit_manuscript.html', context)
+                # otherwise prefill the form:
+                metadata = arxivquery
+                title = arxivquery['entries'][0]['title']
+                authorlist = arxivquery['entries'][0]['authors'][0]['name']
+                for author in arxivquery['entries'][0]['authors'][1:]:
+                    authorlist += ', ' + author['name']
+                arxiv_link = arxivquery['entries'][0]['id']
+                abstract = arxivquery['entries'][0]['summary']
+                form = SubmissionForm(
+                    initial={'metadata': metadata,
+                             'title': title, 'author_list': authorlist,
+                             'arxiv_identifier': identifierform.cleaned_data['identifier'],
+                             'arxiv_link': arxiv_link, 'abstract': abstract})
+                context = {'identifierform': identifierform, 'form': form}
+                return render(request, 'submissions/submit_manuscript.html', context)
+            except:
+                pass
+        else:
+            pass
+    return redirect(reverse('submissions:submit_manuscript'))
+
+                
+@permission_required('scipost.can_submit_manuscript', raise_exception=True)
 def submit_manuscript(request):
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
@@ -44,12 +103,15 @@ def submit_manuscript(request):
                 abstract = form.cleaned_data['abstract'],
                 arxiv_link = form.cleaned_data['arxiv_link'],
                 submission_date = timezone.now(),
+                referees_flagged = form.cleaned_data['referees_flagged'],
                 )
             submission.save()
             return HttpResponseRedirect(reverse('submissions:submit_manuscript_ack'))
     else:
+        identifierform = SubmissionIdentifierForm()
         form = SubmissionForm()
-    return render(request, 'submissions/submit_manuscript.html', {'form': form})
+    return render(request, 'submissions/submit_manuscript.html',
+                  {'identifierform': identifierform, 'form': form})
 
 
 def submissions(request):
@@ -416,10 +478,14 @@ def submit_report(request, submission_id):
                 invitation = RefereeInvitation.objects.get(submission=submission, referee=request.user.contributor)
                 invitation.fulfilled = True
                 invitation.save()
+            flagged = False
+            if author.user.last_name in submission.referees_flagged:
+                flagged = True
             newreport = Report (
                 submission = submission,
                 author = author,
                 invited = invited,
+                flagged = flagged,
                 qualification = form.cleaned_data['qualification'],
                 strengths = form.cleaned_data['strengths'],
                 weaknesses = form.cleaned_data['weaknesses'],

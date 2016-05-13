@@ -413,6 +413,22 @@ class Graph(models.Model):
         return template.render(context)
 
 
+# ARC_LENGTHS = [
+#     (4, '4'), (8, '8'), (16, '16'), (32, '32'), (64, '64'), (128, '128')
+#     ]
+
+# class Arc(models.Model):
+#     """
+#     Arc of a graph, linking two nodes.
+#     The length is user-adjustable.
+#     """
+#     graph = models.ForeignKey(Graph, default=None)
+#     added_by = models.ForeignKey(Contributor, default=None)
+#     created = models.DateTimeField(default=timezone.now)
+#     node_from = models.ForeignKey(Node)
+#     node_to = models.ForeignKey(Node)
+#     length = models.PositiveSmallIntegerField(choices=ARC_LENGTHS)
+
 class Node(models.Model):
     """
     Node of a graph (directed).
