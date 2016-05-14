@@ -413,22 +413,6 @@ class Graph(models.Model):
         return template.render(context)
 
 
-# ARC_LENGTHS = [
-#     (4, '4'), (8, '8'), (16, '16'), (32, '32'), (64, '64'), (128, '128')
-#     ]
-
-# class Arc(models.Model):
-#     """
-#     Arc of a graph, linking two nodes.
-#     The length is user-adjustable.
-#     """
-#     graph = models.ForeignKey(Graph, default=None)
-#     added_by = models.ForeignKey(Contributor, default=None)
-#     created = models.DateTimeField(default=timezone.now)
-#     node_from = models.ForeignKey(Node)
-#     node_to = models.ForeignKey(Node)
-#     length = models.PositiveSmallIntegerField(choices=ARC_LENGTHS)
-
 class Node(models.Model):
     """
     Node of a graph (directed).
@@ -439,7 +423,7 @@ class Node(models.Model):
     added_by = models.ForeignKey(Contributor, default=None)
     created = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=100)
-    arcs_in = models.ManyToManyField('self', blank=True, related_name='node_arcs_in', symmetrical=False) # arcs from another node pointing into this node
+# REPLACED BY CLASS Arc   arcs_in = models.ManyToManyField('self', blank=True, related_name='node_arcs_in', symmetrical=False) # arcs from another node pointing into this node
     description = models.TextField(blank=True, null=True)
     submissions = models.ManyToManyField('submissions.Submission', blank=True, related_name='node_submissions')
     commentaries = models.ManyToManyField('commentaries.Commentary', blank=True, related_name='node_commentaries')
@@ -469,3 +453,22 @@ class Node(models.Model):
         output = '<div style="font-size: 60%">' + self.contents + '</div>'
         template = Template(output)
         return template.render()
+
+
+ARC_LENGTHS = [
+#    (4, '4'), (8, '8'), (16, '16'), (32, '32'), (64, '64'), (128, '128')
+    (1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'), (6, '6'), (7, '7'), (8, '8'),
+    ]
+
+class Arc(models.Model):
+    """
+    Arc of a graph, linking two nodes.
+    The length is user-adjustable.
+    """
+    graph = models.ForeignKey(Graph, default=None)
+    added_by = models.ForeignKey(Contributor, default=None)
+    created = models.DateTimeField(default=timezone.now)
+    source = models.ForeignKey(Node, related_name='source')
+    target = models.ForeignKey(Node, related_name='target')
+    length = models.PositiveSmallIntegerField(choices=ARC_LENGTHS, default=32)
+

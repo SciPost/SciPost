@@ -872,13 +872,14 @@ def create_graph(request):
 def graph(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
     nodes = Node.objects.filter(graph=graph)
+    arcs = Arc.objects.filter(graph=graph)
     if request.method == "POST":
         attach_teams_form = ManageTeamsForm(request.POST, 
                                             contributor=request.user.contributor, 
                                             initial={'teams_with_access': graph.teams_with_access.all()}
                                             )
         create_node_form = CreateNodeForm(request.POST)
-        create_link_form = CreateLinkForm(request.POST, graph=graph)
+        create_arc_form = CreateArcForm(request.POST, graph=graph)
         if attach_teams_form.has_changed() and attach_teams_form.is_valid():
             graph.teams_with_access = attach_teams_form.cleaned_data['teams_with_access']
             graph.save()
@@ -889,22 +890,28 @@ def graph(request, graph_id):
                            name=create_node_form.cleaned_data['name'],
                            description=create_node_form.cleaned_data['description'])
             newnode.save()
-        elif create_link_form.has_changed() and create_link_form.is_valid():
-            sourcenode = create_link_form.cleaned_data['source']
-            targetnode = create_link_form.cleaned_data['target']
+        elif create_arc_form.has_changed() and create_arc_form.is_valid():
+            sourcenode = create_arc_form.cleaned_data['source']
+            targetnode = create_arc_form.cleaned_data['target']
             if sourcenode != targetnode:
-                targetnode.arcs_in.add(sourcenode)
-                targetnode.save()            
+                newarc = Arc(graph=graph,
+                             added_by=request.user.contributor,
+                             created=timezone.now(),
+                             source=sourcenode,
+                             target=targetnode,
+                             length=create_arc_form.cleaned_data['length']
+                             )
+                newarc.save()            
     else:
         attach_teams_form = ManageTeamsForm(contributor=request.user.contributor, 
                                             initial={'teams_with_access': graph.teams_with_access.all()}
                                             )
         create_node_form = CreateNodeForm()
-        create_link_form = CreateLinkForm(graph=graph)
+        create_arc_form = CreateArcForm(graph=graph)
     context = {'graph': graph, 'nodes': nodes, 
                'attach_teams_form': attach_teams_form,
                'create_node_form': create_node_form,
-               'create_link_form': create_link_form}
+               'create_arc_form': create_arc_form}
     return render(request, 'scipost/graph.html', context)
 
 
@@ -920,9 +927,9 @@ def edit_graph_node(request, node_id):
             node.description=edit_node_form.cleaned_data['description']
             node.save()
             create_node_form = CreateNodeForm()
-            create_link_form = CreateLinkForm(graph=node.graph)
+            create_arc_form = CreateArcForm(graph=node.graph)
             context =  {'create_node_form': create_node_form,
-                        'create_link_form': create_link_form}
+                        'create_arc_form': create_arc_form}
             return redirect(reverse('scipost:graph', kwargs={'graph_id': node.graph.id}), context)
     else:
         edit_node_form = CreateNodeForm(instance=node)
@@ -938,10 +945,9 @@ def delete_graph_node(request, node_id):
         raise PermissionDenied
     else:
         # Remove all the graph arcs 
-        nodes = Node.objects.filter(graph=node.graph)
-        for othernode in nodes:
-            othernode.arcs_in.remove(node)
-            othernode.save()
+        Arc.objects.filter(source=node).delete()
+        Arc.objects.filter(target=node).delete()
+        # Delete node itself
         node.delete()
     return redirect(reverse('scipost:graph', kwargs={'graph_id': node.graph.id}))
 
@@ -951,11 +957,17 @@ def api_graph(request, graph_id):
     """ Produce JSON data to plot graph """
     graph = get_object_or_404(Graph, pk=graph_id)
     nodes = Node.objects.filter(graph=graph)
+    arcs = Arc.objects.filter(graph=graph)
     nodesjson = []
-    links = []
+    arcsjson = []
     for node in nodes:
         nodesjson.append({'name': node.name, 'id': node.id})
-        for origin in node.arcs_in.all():
-            links.append({'source': origin.name, 'source_id': origin.id, 
-                          'target': node.name, 'target_id': node.id})
-    return JsonResponse({'nodes': nodesjson, 'links': links}, safe=False)
+#        for origin in node.arcs_in.all():
+#            links.append({'source': origin.name, 'source_id': origin.id, 
+#                          'target': node.name, 'target_id': node.id})
+    for arc in arcs:
+        arcsjson.append({'id': arc.id,
+                         'source': arc.source.name, 'source_id': arc.source.id,
+                         'target': arc.target.name, 'target_id': arc.target.id,
+                         'length': arc.length})
+    return JsonResponse({'nodes': nodesjson, 'arcs': arcsjson}, safe=False)

@@ -36,6 +36,23 @@ admin.site.register(List, ListAdmin)
 
 admin.site.register(Team)
 
-admin.site.register(Graph)
+#admin.site.register(Graph)
 
-admin.site.register(Node)
+#admin.site.register(Node)
+
+#admin.site.register(Arc)
+
+class NodeInline(admin.StackedInline):
+    model = Node
+
+class ArcInline(admin.StackedInline):
+    model = Arc
+    
+class GraphAdmin(GuardedModelAdmin):
+    inlines = [
+        NodeInline,
+        ArcInline,
+        ]
+    search_fields = ['last_name', 'email']
+
+admin.site.register(Graph, GraphAdmin)

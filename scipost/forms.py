@@ -166,13 +166,14 @@ class CreateNodeForm(forms.ModelForm):
         fields = ['name', 'description']
 
 
-class CreateLinkForm(forms.Form):
+class CreateArcForm(forms.Form):
     source = forms.ModelChoiceField(queryset=None)
     target = forms.ModelChoiceField(queryset=None)
+    length = forms.ChoiceField(choices=ARC_LENGTHS)
 
     def __init__(self, *args, **kwargs):
         graph = kwargs.pop('graph')
-        super(CreateLinkForm, self).__init__(*args, **kwargs)
+        super(CreateArcForm, self).__init__(*args, **kwargs)
         self.fields['source'].queryset = Node.objects.filter(graph=graph)
         self.fields['target'].queryset = Node.objects.filter(graph=graph)
     
