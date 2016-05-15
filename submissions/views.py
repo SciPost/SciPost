@@ -435,7 +435,7 @@ def communication(request, submission_id, type, referee_id=None):
             if type == 'EtoA' or type == 'EtoR' or type == 'EtoS':
                 return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
             elif type == 'AtoE' or type == 'RtoE' or type == 'StoE':
-                return redirect(request, reverse('scipost:personal_page'))
+                return redirect(reverse('scipost:personal_page'))
     else:
         form = EditorialCommunicationForm()
     context = {'submission': submission, 'type': type, 'form': form}
@@ -479,8 +479,9 @@ def submit_report(request, submission_id):
                 invitation.fulfilled = True
                 invitation.save()
             flagged = False
-            if author.user.last_name in submission.referees_flagged:
-                flagged = True
+            if submission.referees_flagged is not None:
+                if author.user.last_name in submission.referees_flagged:
+                    flagged = True
             newreport = Report (
                 submission = submission,
                 author = author,
