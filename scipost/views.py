@@ -420,7 +420,7 @@ def personal_page(request):
             nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, status=0).count()
             nr_reg_awaiting_validation = Contributor.objects.filter(
                 user__is_active=False, key_expires__gte=now, key_expires__lte=intwodays, status=0).count()
-            nr_submissions_to_assign = Submission.objects.filter(assigned=False).count()
+            nr_submissions_to_assign = Submission.objects.filter(status__in=['unassigned']).count()
         nr_assignments_to_consider = 0
         active_assignments = None
         if is_MEC(request.user):
@@ -440,8 +440,12 @@ def personal_page(request):
         nr_ref_inv_to_consider = RefereeInvitation.objects.filter(referee=contributor, accepted=None).count()
         pending_ref_tasks = RefereeInvitation.objects.filter(referee=contributor, accepted=True, fulfilled=False)
         # Verify if there exist objects authored by this contributor, whose authorship hasn't been claimed yet
-        own_submissions = Submission.objects.filter(authors__in=[contributor])
-        own_commentaries = Commentary.objects.filter(authors__in=[contributor])
+        own_submissions = (Submission.objects
+                           .filter(Q(authors__in=[contributor]) | Q(submitted_by=contributor))
+                           .order_by('-submission_date'))
+        own_commentaries = (Commentary.objects
+                            .filter(authors__in=[contributor])
+                            .order_by('-latest_activity'))
         own_thesislinks = ThesisLink.objects.filter(author_as_cont__in=[contributor])
         nr_submission_authorships_to_claim = (Submission.objects
                                               .filter(author_list__contains=contributor.user.last_name)
@@ -461,8 +465,12 @@ def personal_page(request):
                                           .exclude(author_claims__in=[contributor])
                                           .exclude(author_false_claims__in=[contributor])
                                           .count())
-        own_comments = Comment.objects.filter(author=contributor,is_author_reply=False).order_by('-date_submitted')
-        own_authorreplies = Comment.objects.filter(author=contributor,is_author_reply=True).order_by('-date_submitted')
+        own_comments = (Comment.objects
+                        .filter(author=contributor,is_author_reply=False)
+                        .order_by('-date_submitted'))
+        own_authorreplies = (Comment.objects
+                             .filter(author=contributor,is_author_reply=True)
+                             .order_by('-date_submitted'))
         lists_owned = List.objects.filter(owner=contributor)
         lists = List.objects.filter(teams_with_access__members__in=[contributor])
         teams_led = Team.objects.filter(leader=contributor)

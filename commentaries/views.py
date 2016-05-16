@@ -281,7 +281,7 @@ def vet_commentary_request_ack(request, commentary_id):
                 email_text = ('Dear ' + title_dict[commentary.requested_by.title] + ' ' + 
                               commentary.requested_by.user.last_name + ', \n\nThe Commentary Page you have requested, concerning publication with title ' + 
                               commentary.pub_title + ' by ' + commentary.author_list + ', has not been activated for the following reason: ' + 
-                              commentary_refusal_dict(form.cleaned_data['refusal_reason']) + '.\n\nThank you for your interest, \nThe SciPost Team.')
+                              commentary_refusal_dict[form.cleaned_data['refusal_reason']] + '.\n\nThank you for your interest, \nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'SciPost commentaries <commentaries@scipost.org>', 

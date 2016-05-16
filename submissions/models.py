@@ -20,6 +20,7 @@ from journals.models import journals_submit_dict, journals_domains_dict, journal
 SUBMISSION_STATUS = (
     ('unassigned', 'Unassigned'),
     ('assigned', 'Assigned to a specialty editor (response pending)'),
+    ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
     ('EICassigned', 'Editor-in-charge assigned, manuscript under review'),
     ('review_closed', 'Review period closed, editorial recommendation pending'),
     ('EIC_has_recommended', 'Editor-in-charge has provided recommendation'),
@@ -43,7 +44,6 @@ SUBMISSION_ACTION_REQUIRED = (
 
 class Submission(models.Model):
     submitted_by = models.ForeignKey(Contributor)
-    assigned = models.BooleanField(default=False)
     editor_in_charge = models.ForeignKey(Contributor, related_name='EIC', blank=True, null=True)
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT, verbose_name="Journal to be submitted to")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
@@ -51,9 +51,9 @@ class Submission(models.Model):
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
     referees_flagged = models.TextField(blank=True, null=True)
-    open_for_reporting = models.BooleanField(default=True)
+    open_for_reporting = models.BooleanField(default=False)
     reporting_deadline = models.DateTimeField(default=timezone.now)
-    open_for_commenting = models.BooleanField(default=True)
+    open_for_commenting = models.BooleanField(default=False)
     title = models.CharField(max_length=300)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     # Authors which have been mapped to contributors:
@@ -117,6 +117,29 @@ class Submission(models.Model):
         return template.render(context)
 
 
+    def header_as_li_for_Fellows (self):
+        # for submissions queue
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0"><p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
+        header += ('<p>by {{ author_list }}</p><p> (submitted {{ submission_date }} to {{ to_journal }})'
+                   ' - latest activity: {{ latest_activity }}</p>'
+                   '<p>Editor-in-charge: {{ EIC }}</p>')
+        if self.status == 'unassigned':
+            header += ('<p style="color: red">Status: {{ status }}.'
+                       ' You can <a href="/submissions/volunteer_as_EIC/{{ id }}">volunteer</a> to become Editor-in-charge</p>')
+        else:
+            header += '<p>Status: {{ status }}</p>'
+        header += '</div></div></li>'
+        context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list,
+                           'submission_date': self.submission_date, 
+                           'to_journal': journals_submit_dict[self.submitted_to_journal],
+                           'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M'),
+                           'EIC': str(self.editor_in_charge),
+                           'status': submission_status_dict[self.status]})
+        template = Template(header)
+        return template.render(context)
+    
+
     def simple_header_as_li (self):
         # for Lists
         header = '<li><div class="flex-container">'
@@ -177,8 +200,22 @@ class EditorialAssignment(models.Model):
                    'to_journal': journals_submit_dict[self.submission.submitted_to_journal],
                    'status': submission_status_dict[self.submission.status]})
         return template.render(context)
-    
 
+    def declination_as_li(self):
+        output = '<li'
+        if self.refusal_reason == 'NIE' or self.refusal_reason == 'DNP':
+            output += ' style="color: red"'
+        output += ('>Fellow {{ first_name }} {{ last_name }}, '
+                  'assigned {{ date_created }}, declined {{ date_answered }}, '
+                   'reason: {{ reason }}</li>')
+        template = Template(output)
+        context = Context({'first_name': self.to.user.first_name,
+                           'last_name': self.to.user.last_name,
+                           'date_created': self.date_created.strftime('%Y-%m-%d %H:%M'),
+                           'date_answered': self.date_answered.strftime('%Y-%m-%d %H:%M'),
+                           'reason': assignment_refusal_reasons_dict[self.refusal_reason]})
+        return template.render(context)
+    
 
 class RefereeInvitation(models.Model):
     submission = models.ForeignKey(Submission)
@@ -372,12 +409,12 @@ class EditorialCommunication(models.Model):
     """
     submission = models.ForeignKey(Submission)
     referee = models.ForeignKey(Contributor, related_name='referee_in_correspondence', blank=True, null=True)
-    type = models.CharField(max_length=4, choices=ED_CORR_CHOICES)
+    comtype = models.CharField(max_length=4, choices=ED_CORR_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
 
     def __str__ (self):
-        output = self.type 
+        output = self.comtype 
         if self.referee is not None:
             output += ' ' + self.referee.user.first_name + ' ' + self.referee.user.last_name
         output += ' for submission ' + self.submission.title[:30] + ' by ' + self.submission.author_list[:30]
@@ -386,25 +423,25 @@ class EditorialCommunication(models.Model):
     def print_contents_as_li(self):
         context = Context({'timestamp': self.timestamp.strftime("%Y-%m-%d %H:%M"), 'text': self.text})
         output = '<li><p>'
-        if self.type == 'EtoA':
+        if self.comtype == 'EtoA':
             output += 'From you to Authors'
-        elif self.type == 'EtoR':
+        elif self.comtype == 'EtoR':
             output += 'From you to Referee '
             try:
                 output += self.referee.user.first_name + ' ' + self.referee.user.last_name
             except AttributeError:
                 pass
-        elif self.type == 'EtoS':
+        elif self.comtype == 'EtoS':
             output += 'From you to SciPost Ed Admin'
-        elif self.type == 'AtoE':
+        elif self.comtype == 'AtoE':
             output += 'From Authors to you'
-        elif self.type == 'RtoE':
+        elif self.comtype == 'RtoE':
             output += 'From Referee '
             try:
                 output += self.referee.user.first_name + ' ' + self.referee.user.last_name + ' to you'
             except AttributeError:
                 pass
-        elif self.type == 'StoE':
+        elif self.comtype == 'StoE':
             output += 'From SciPost Ed Admin to you'
         output += ' on {{ timestamp }}</p><p>{{ text }}</p>'
         template = Template(output)

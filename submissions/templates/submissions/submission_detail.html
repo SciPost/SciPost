@@ -57,7 +57,7 @@
     {% else %}
     <li>Reporting for this Submission is now closed.</li>
     {% endif %}
-    {% if perms.scipost.can_submit_comments %}
+    {% if submission.open_for_commenting and perms.scipost.can_submit_comments %}
     <li><h3><a href="#contribute_comment">Contribute a Comment</a></h3></li>
     {% endif %}
   </ul>
@@ -79,10 +79,10 @@
     {% if report.flagged %}
     <h4 style="color: red">CAUTION: check if this referee has been flagged by the authors</h4>
     {% endif %}
-    {{ report.print_contents_for_editors }} 
+    {{ report.print_contents_for_editors|linebreaks }} 
     {% else %}
     {{ report.print_identifier }} 
-    {{ report.print_contents }} 
+    {{ report.print_contents|linebreaks }} 
     {% endif %}
 
     <hr style="border-style: dotted;" />

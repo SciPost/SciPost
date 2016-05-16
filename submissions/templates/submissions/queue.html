@@ -1,0 +1,23 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Submissions Queue{% endblock pagetitle %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox320">
+      <h1>SciPost Submissions Queue</h1>
+    </div>
+  </div>
+
+  <ul>
+    {% for sub in submissions_in_queue %}
+    {{ sub.header_as_li_for_Fellows }}
+    {% endfor %}
+  </ul>
+  
+</section>
+
+{% endblock bodysup %}

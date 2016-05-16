@@ -56,18 +56,18 @@
     {% if not submission.reporting_deadline_has_passed %}
     <li><a href="{% url 'submissions:close_refereeing_round' submission_id=submission.id %}">Close the refereeing round</a></li>
     {% endif %}
-    <li><a href="{% url 'submissions:communication' submission_id=submission.id type='EtoA' %}">Communicate with the submitting Author</a></li>
+    <li><a href="{% url 'submissions:communication' submission_id=submission.id comtype='EtoA' %}">Communicate with the submitting Author</a></li>
     <li>Communicate with a Referee:
     <ul>
       {% for invitation in ref_invitations %}
       {% if invitation.referee %}
-      <li><a href="{% url 'submissions:communication' submission_id=submission.id type='EtoR' referee_id=invitation.referee.id %}">
+      <li><a href="{% url 'submissions:communication' submission_id=submission.id comtype='EtoR' referee_id=invitation.referee.id %}">
 	  {{ invitation.first_name }} {{ invitation.last_name }}</a></li>
       {% endif %}
       {% endfor %}
     </ul>
     </li>
-    <li><a href="{% url 'submissions:communication' submission_id=submission.id type='EtoS' %}">Communicate with SciPost Editorial Administration</a></li>
+    <li><a href="{% url 'submissions:communication' submission_id=submission.id comtype='EtoS' %}">Communicate with SciPost Editorial Administration</a></li>
     <li><a href="{% url 'submissions:eic_recommendation' submission_id=submission.id %}">Formulate an Editorial Recommendation</a>
     <p>If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
       <br/>If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.</p>

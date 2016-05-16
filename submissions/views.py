@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
@@ -39,6 +39,9 @@ def prefill_using_identifier(request):
             errormessage = ''
             if not identifierpattern.match(identifierform.cleaned_data['identifier']):
                 errormessage = 'The identifier you entered is improperly formatted (did you forget the version number?).'
+            elif Submission.objects.filter(arxiv_link__contains=identifierform.cleaned_data['identifier']).exists():
+                errormessage = 'This preprint has already been submitted to SciPost.'
+            if errormessage != '':
                 form = SubmissionForm()
                 return render(request, 'submissions/submit_manuscript.html',
                               {'identifierform': identifierform, 'form': form,
@@ -102,6 +105,7 @@ def submit_manuscript(request):
                 author_list = form.cleaned_data['author_list'],
                 abstract = form.cleaned_data['abstract'],
                 arxiv_link = form.cleaned_data['arxiv_link'],
+                metadata = form.cleaned_data['metadata'],
                 submission_date = timezone.now(),
                 referees_flagged = form.cleaned_data['referees_flagged'],
                 )
@@ -122,9 +126,7 @@ def submissions(request):
                 title__icontains=form.cleaned_data['title_keyword'],
                 author_list__icontains=form.cleaned_data['author'],
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
-                status__gte=1,
-                )
-            submission_search_list.order_by('-pub_date')
+                ).exclude(status__in=['unassigned', 'assigned', 'assignment_failed']).order_by('-submission_date')
         else:
             submission_search_list = [] 
            
@@ -133,9 +135,8 @@ def submissions(request):
         submission_search_list = []
 
     submission_recent_list = Submission.objects.filter(
-        status__gte=1, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)
-        )
-    submission_recent_list = Submission.objects.filter(status__gte=1)
+        latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)
+    ).exclude(status__in=['unassigned', 'assigned', 'assignment_failed']).order_by('-submission_date')
     context = {'form': form, 'submission_search_list': submission_search_list, 
                'submission_recent_list': submission_recent_list }
     return render(request, 'submissions/submissions.html', context)
@@ -149,9 +150,7 @@ def browse(request, discipline, nrweeksback):
                 title__icontains=form.cleaned_data['title_keyword'],
                 author_list__icontains=form.cleaned_data['author'],
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
-                assigned=True,
-                )
-            submission_search_list.order_by('-submission_date')
+                ).exclude(status__in=['unassigned', 'assigned', 'assignment_failed']).order_by('-submission_date')
         else:
             submission_search_list = []
         context = {'form': form, 'submission_search_list': submission_search_list }
@@ -159,9 +158,9 @@ def browse(request, discipline, nrweeksback):
     else:
         form = SubmissionSearchForm()
     submission_browse_list = Submission.objects.filter(
-        assigned=True, discipline=discipline, 
+        discipline=discipline, 
         latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
-        )
+        ).exclude(status__in=['unassigned', 'assigned', 'assignment_failed']).order_by('-submission_date')
     context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 
                'submission_browse_list': submission_browse_list }
     return render(request, 'submissions/submissions.html', context)
@@ -214,15 +213,35 @@ def submission_detail(request, submission_id):
 # Editorial workflow #
 ######################
 
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+def queue(request):
+    """
+    The Submissions queue contains all submissions which are undergoing
+    the editorial process, from assignment acceptance (Editor-in-charge appointed)
+    to publication acceptance or rejection.
+    All members of the Editorial College have access.
+    """
+    submissions_in_queue=Submission.objects.all().exclude(status__in=['decided'])
+
+    context = {'submissions_in_queue': submissions_in_queue}
+    return render(request, 'submissions/queue.html', context)
+
+    
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 def assign_submissions(request):
     submission_to_assign = Submission.objects.filter(status='unassigned').first() # only handle one at at time
+    assignments_declined = None
     if submission_to_assign is not None:
-        form = AssignSubmissionForm(discipline=submission_to_assign.discipline)
 #        form = AssignSubmissionForm(discipline=submission_to_assign.discipline, specialization=submission_to_assign.specialization) # reactivate later on
+        form = AssignSubmissionForm(discipline=submission_to_assign.discipline)
+        assignments_declined = (EditorialAssignment.objects
+                                .filter(submission=submission_to_assign, accepted=False)
+                                .order_by('date_created'))
     else:
         form = AssignSubmissionForm(discipline='physics')        
-    context = {'submission_to_assign': submission_to_assign, 'form': form }
+    context = {'submission_to_assign': submission_to_assign,
+               'form': form,
+               'assignments_declined': assignments_declined}
     return render(request, 'submissions/assign_submissions.html', context)
 
 
@@ -237,14 +256,30 @@ def assign_submission_ack(request, submission_id):
                                                 to=editor_in_charge,
                                                 date_created=timezone.now())
             ed_assignment.save()
-            submission.assigned = True
             submission.status = 'assigned'
             submission.latest_activity = timezone.now()
             submission.save()
+            # Email Fellow
+            email_text = ('Dear ' + title_dict[ed_assignment.to.title] + ' ' +
+                          ed_assignment.to.user.last_name +
+                          ', \n\nWe have received a Submission to SciPost ' +
+                          'for which we would like you to consider becoming Editor-in-charge:\n\n' +
+                          submission.title + ' by ' + submission.author_list +
+                          '\n\nPlease visit https://scipost.org/submissions/accept_or_decline_assignments \n' +
+                          'in order to accept or decline. Many thanks in advance for your consideration.  ' +
+                          '\n\nThe SciPost Team.')
+            emailmessage = EmailMessage(
+                'SciPost: potential Submission assignment', email_text,
+                'SciPost Editorial Admin <submissions@scipost.org>',
+                [ed_assignment.to.user.email, 'submissions@scipost.org'],
+                reply_to=['submissions@scipost.org'])
+            emailmessage.send(fail_silently=False)
+                        
     context = {}
     return render(request, 'submissions/assign_submission_ack.html', context)
 
 
+@login_required
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def accept_or_decline_assignments(request):
     contributor = Contributor.objects.get(user=request.user)
@@ -270,15 +305,56 @@ def accept_or_decline_assignment_ack(request, assignment_id):
                 assignment.to = contributor
                 assignment.submission.status = 'EICassigned'
                 assignment.submission.editor_in_charge = contributor
+                assignment.submission.open_for_reporting = True
                 assignment.submission.reporting_deadline = deadline
-                assignment.submission.save()
+                assignment.submission.open_for_commenting = True
             else:
                 assignment.accepted = False
                 assignment.refusal_reason = form.cleaned_data['refusal_reason']
+                assignment.submission.status = 'unassigned'
             assignment.save()
+            assignment.submission.save()
 
     context = {'assignment': assignment}
     return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
+
+
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+def volunteer_as_EIC(request, submission_id):
+    """ 
+    Called when a Fellow volunteers while perusing the submissions queue.
+    This is an adapted version of the accept_or_decline_assignment_ack method.
+    """
+    submission = get_object_or_404(Submission, pk=submission_id)
+    contributor = Contributor.objects.get(user=request.user)
+    assignment = EditorialAssignment(submission=submission,
+                                     to=contributor,
+                                     accepted=True,
+                                     date_created=timezone.now(),
+                                     date_answered=timezone.now())
+    deadline = timezone.now() + datetime.timedelta(days=28) # for papers
+    if submission.submitted_to_journal == 'SciPost Physics Lecture Notes':
+        deadline += datetime.timedelta(days=28)
+    submission.status = 'EICassigned'
+    submission.editor_in_charge = contributor
+    submission.open_for_reporting = True
+    submission.reporting_deadline = deadline
+    submission.open_for_commenting = True
+    assignment.save()
+    submission.save()
+    context = {'assignment': assignment}
+    return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
+    
+
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+def assignment_failed(request, submission_id):
+    """
+    No Editorial Fellow has accepted or volunteered to become Editor-in-charge.
+    The submission is rejected.
+    This method is called from assign_submissions.html.
+    """
+    submission = get_object_or_404(Submission, pk=submission_id)
+    # TODO
 
 
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
@@ -361,12 +437,36 @@ def send_refereeing_invitation(request, submission_id, contributor_id):
                                    referee=contributor, title=contributor.title, 
                                    first_name=contributor.user.first_name, last_name=contributor.user.last_name,
                                    email_address=contributor.user.email,
+                                   invitation_key='notused', # the key is only used for inviting unregistered users
                                    date_invited=timezone.now(),
-                                   invited_by = request.user.contributor)
+                                   invited_by=request.user.contributor)
     invitation.save()                                   
+    # Email Contributor
+    email_text = ('Dear ' + title_dict[contributor.title] + ' ' +
+                  contributor.user.last_name +
+                  ', \n\nWe have received a Submission to SciPost '
+                  'which, in view of your expertise, we would like to invite you to referee:\n\n' +
+                  submission.title + ' by ' + submission.author_list +
+                  ' (see https://scipost.org/submission/' + submission_id + ').'
+                  '\n\nPlease visit https://scipost.org/submissions/accept_or_decline_ref_invitations '
+                  '(login required) in order to accept or decline this invitation.'
+                  '\n\nIf you accept, your report can be submitted by simply clicking on the "Contribute a Report" link at '
+                  'https://scipost.org/submission/' + submission_id + ' before the reporting deadline '
+                  '(currently set at ' + datetime.datetime.strftime(submission.reporting_deadline, "%Y-%m-%d") +
+                  '; your report will be automatically recognized as an invited report).'
+                  '\n\nWe would be extremely grateful for your contribution, '
+                  'and thank you in advance for your consideration.'
+                  '\n\nThe SciPost Team.')
+    emailmessage = EmailMessage(
+        'SciPost: refereeing request', email_text,
+        'SciPost Editorial Admin <submissions@scipost.org>',
+        [contributor.user.email, 'submissions@scipost.org'],
+        reply_to=['submissions@scipost.org'])
+    emailmessage.send(fail_silently=False)
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
 
 
+@login_required
 @permission_required('scipost.can_referee', raise_exception=True)
 def accept_or_decline_ref_invitations(request):
     contributor = Contributor.objects.get(user=request.user)
@@ -414,7 +514,7 @@ def close_refereeing_round(request, submission_id):
 
 
 @login_required
-def communication(request, submission_id, type, referee_id=None):
+def communication(request, submission_id, comtype, referee_id=None):
     """ 
     Communication between editor-in-charge, author or referee
     occurring during the submission refereeing.
@@ -425,20 +525,20 @@ def communication(request, submission_id, type, referee_id=None):
         form = EditorialCommunicationForm(request.POST)
         if form.is_valid():
             communication = EditorialCommunication(submission=submission,
-                                                   type=type,
+                                                   comtype=comtype,
                                                    timestamp=timezone.now(),
                                                    text=form.cleaned_data['text'])
             if referee_id is not None:
                 referee = get_object_or_404(Contributor, pk=referee_id)
                 communication.referee = referee
             communication.save()
-            if type == 'EtoA' or type == 'EtoR' or type == 'EtoS':
+            if comtype == 'EtoA' or comtype == 'EtoR' or comtype == 'EtoS':
                 return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
-            elif type == 'AtoE' or type == 'RtoE' or type == 'StoE':
+            elif comtype == 'AtoE' or comtype == 'RtoE' or comtype == 'StoE':
                 return redirect(reverse('scipost:personal_page'))
     else:
         form = EditorialCommunicationForm()
-    context = {'submission': submission, 'type': type, 'form': form}
+    context = {'submission': submission, 'comtype': comtype, 'form': form}
     return render(request, 'submissions/communication.html', context)
 
 

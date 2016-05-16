@@ -20,9 +20,15 @@
   <p>{{ submission_to_assign.abstract }}</p>
   <br/>
   <hr/>
-  {{ submission_to_assign.status_info_as_table }}
+
+  {% if submission_to_assign.referees_flagged %}
+  <h3>Referees flagged upon submission (treat reports with caution):</h3>
+  <p>{{ submission_to_assign.referees_flagged }}</p>
+  {% endif %}
 
   <br/>
+  <hr>
+  {{ submission_to_assign.status_info_as_table }}
   <hr>
   <h1>Required actions:</h1>
   <form action="{% url 'submissions:assign_submission_ack' submission_id=submission_to_assign.id %}" method="post">
@@ -30,6 +36,16 @@
     {{ form.as_ul }}
     <input type="submit" value="Submit" />
   </form>
+
+  {% if assignments_declined %}
+  <h3>If more than 5 Fellows have declined an assignment for a red-marked reason, the Submission should be rejected.</h3>
+  <h3>Previously-declined Assignments:</h3>
+  <ul>
+    {% for assignment in assignments_declined %}
+    {{ assignment.declination_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
 
   {% endif %}
 </section>

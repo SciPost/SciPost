@@ -14,22 +14,22 @@
   <div class="flex-greybox">
     <h1>Send a Communication</h1>
   </div>
-  {% if type == 'EtoA' %}
+  {% if comtype == 'EtoA' %}
   <p>to the submitting Author of Submission</p>
-  {% elif type == 'AtoE' or type == 'RtoE' or type == 'StoE' %}
+  {% elif comtype == 'AtoE' or comtype == 'RtoE' or comtype == 'StoE' %}
   <p>to the Editor-in-charge of Submission</p>
-  {% elif type == 'EtoR' %}
+  {% elif comtype == 'EtoR' %}
   <p>to Referee of Submission</p>
-  {% elif type == 'EtoS' %}
+  {% elif comtype == 'EtoS' %}
   <p>to SciPost Editorial Administrators</p>
   {% endif %}
   <ul>{{ submission.header_as_li }}</ul>
 
   <br/>
-  <form action="{% url 'submissions:communication' submission_id=submission.id type=type %}" method="post">
+  <form action="{% url 'submissions:communication' submission_id=submission.id comtype=comtype %}" method="post">
     {% csrf_token %}
     {{ form }}
-    <input type="submit" value="Send communication"/>
+    <input comtype="submit" value="Send communication"/>
   </form>
 
 </section>

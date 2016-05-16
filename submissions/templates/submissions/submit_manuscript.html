@@ -5,17 +5,24 @@
 {% block bodysup %}
 
 <section>
-  <h1>Submit a manuscript to SciPost</h1>
-
+  <div class="flex-greybox">
+    <h1>Submit a manuscript to SciPost</h1>
+  </div>
+  
   <p id="journalsannounce">OPEN FOR SUBMISSION STARTING JUNE 2016</p>
 
-  {% if False %} <!-- Temporary deactivate submissions -->
+  <p>Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
+  <p>In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a>
+    and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.</p>
+  <p>Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.</p>
+  
+  {% if True %} <!-- Temporary deactivate submissions -->
 
   {% if perms.scipost.can_submit_manuscript %}
 
   <div class="flex-greybox">
     <h3><em>You can prefill part of the form using the arXiv identifier:</em></h3>
-    <p><em>(give the identifier without prefix, as per the placeholder)</em></p>
+    <p><em>(give the identifier without prefix but with version number, as per the placeholder)</em></p>
     {% if errormessage %}
     <h3 style="color: red;">Error: {{ errormessage }}</h3>
     {% endif %}
