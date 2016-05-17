@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^prefill_using_identifier$', views.prefill_using_identifier, name='prefill_using_identifier'),
     url(r'^submit_manuscript$', views.submit_manuscript, name='submit_manuscript'),
     url(r'^submit_manuscript_ack$', TemplateView.as_view(template_name='submissions/submit_manuscript_ack.html'), name='submit_manuscript_ack'),
-    url(r'^queue$', views.queue, name='queue'),
+    url(r'^pool$', views.pool, name='pool'),
     # Assignment of Editor-in-charge
     url(r'^assign_submissions$', views.assign_submissions, name='assign_submissions'),
     url(r'^assign_submission_ack/(?P<submission_id>[0-9]+)$', views.assign_submission_ack, name='assign_submission_ack'),

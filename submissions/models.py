@@ -19,7 +19,7 @@ from journals.models import journals_submit_dict, journals_domains_dict, journal
 
 SUBMISSION_STATUS = (
     ('unassigned', 'Unassigned'),
-    ('assigned', 'Assigned to a specialty editor (response pending)'),
+#    ('EICrequested', 'A request to become EIC has been sent to a specialty editor (response pending)'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
     ('EICassigned', 'Editor-in-charge assigned, manuscript under review'),
     ('review_closed', 'Review period closed, editorial recommendation pending'),
@@ -32,7 +32,7 @@ submission_status_dict = dict(SUBMISSION_STATUS)
 
 SUBMISSION_ACTION_REQUIRED = (
     ('assign_EIC', 'Editor-in-charge to be assigned'),
-    ('Fellow_accepts_or_refuse_assignment', 'Fellow must accept or refuse assignment'),
+#    ('Fellow_accepts_or_refuse_assignment', 'Fellow must accept or refuse assignment'),
     ('EIC_runs_refereeing_round', 'Editor-in-charge to run refereeing round (inviting referees)'),
     ('EIC_closes_refereeing_round', 'Editor-in-charge to close refereeing round'),
     ('EIC_invites_author_response', 'Editor-in-charge invites authors to complete their replies'),
@@ -118,7 +118,7 @@ class Submission(models.Model):
 
 
     def header_as_li_for_Fellows (self):
-        # for submissions queue
+        # for submissions pool
         header = '<li><div class="flex-container">'
         header += '<div class="flex-whitebox0"><p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
         header += ('<p>by {{ author_list }}</p><p> (submitted {{ submission_date }} to {{ to_journal }})'
@@ -178,6 +178,7 @@ class EditorialAssignment(models.Model):
     submission = models.ForeignKey(Submission)
     to = models.ForeignKey(Contributor)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
+    deprecated = models.BooleanField(default=False) # becomes True if another Fellow becomes Editor-in-charge
     completed = models.BooleanField(default=False)
     refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, blank=True, null=True)
     date_created = models.DateTimeField(default=timezone.now)
@@ -186,7 +187,7 @@ class EditorialAssignment(models.Model):
     def __str__(self):
         return (self.to.user.first_name + ' ' + self.to.user.last_name + ' to become EIC of ' + 
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
-                ', assigned on ' + self.date_created.strftime('%Y-%m-%d'))
+                ', requested on ' + self.date_created.strftime('%Y-%m-%d'))
     
     def header_as_li(self):
         header = '<li><div class="flex-container">'
@@ -206,7 +207,7 @@ class EditorialAssignment(models.Model):
         if self.refusal_reason == 'NIE' or self.refusal_reason == 'DNP':
             output += ' style="color: red"'
         output += ('>Fellow {{ first_name }} {{ last_name }}, '
-                  'assigned {{ date_created }}, declined {{ date_answered }}, '
+                  'requested {{ date_created }}, declined {{ date_answered }}, '
                    'reason: {{ reason }}</li>')
         template = Template(output)
         context = Context({'first_name': self.to.user.first_name,

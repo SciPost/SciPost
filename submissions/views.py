@@ -126,7 +126,7 @@ def submissions(request):
                 title__icontains=form.cleaned_data['title_keyword'],
                 author_list__icontains=form.cleaned_data['author'],
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
-                ).exclude(status__in=['unassigned', 'assigned', 'assignment_failed']).order_by('-submission_date')
+                ).exclude(status__in=['unassigned', 'assignment_failed']).order_by('-submission_date')
         else:
             submission_search_list = [] 
            
@@ -136,7 +136,7 @@ def submissions(request):
 
     submission_recent_list = Submission.objects.filter(
         latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)
-    ).exclude(status__in=['unassigned', 'assigned', 'assignment_failed']).order_by('-submission_date')
+    ).exclude(status__in=['unassigned', 'assignment_failed']).order_by('-submission_date')
     context = {'form': form, 'submission_search_list': submission_search_list, 
                'submission_recent_list': submission_recent_list }
     return render(request, 'submissions/submissions.html', context)
@@ -150,7 +150,7 @@ def browse(request, discipline, nrweeksback):
                 title__icontains=form.cleaned_data['title_keyword'],
                 author_list__icontains=form.cleaned_data['author'],
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
-                ).exclude(status__in=['unassigned', 'assigned', 'assignment_failed']).order_by('-submission_date')
+                ).exclude(status__in=['unassigned', 'assignment_failed']).order_by('-submission_date')
         else:
             submission_search_list = []
         context = {'form': form, 'submission_search_list': submission_search_list }
@@ -160,7 +160,7 @@ def browse(request, discipline, nrweeksback):
     submission_browse_list = Submission.objects.filter(
         discipline=discipline, 
         latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
-        ).exclude(status__in=['unassigned', 'assigned', 'assignment_failed']).order_by('-submission_date')
+        ).exclude(status__in=['unassigned', 'assignment_failed']).order_by('-submission_date')
     context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 
                'submission_browse_list': submission_browse_list }
     return render(request, 'submissions/submissions.html', context)
@@ -214,17 +214,17 @@ def submission_detail(request, submission_id):
 ######################
 
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
-def queue(request):
+def pool(request):
     """
-    The Submissions queue contains all submissions which are undergoing
-    the editorial process, from assignment acceptance (Editor-in-charge appointed)
+    The Submissions pool contains all submissions which are undergoing
+    the editorial process, from submission
     to publication acceptance or rejection.
     All members of the Editorial College have access.
     """
-    submissions_in_queue=Submission.objects.all().exclude(status__in=['decided'])
+    submissions_in_pool=Submission.objects.all().exclude(status__in=['decided'])
 
-    context = {'submissions_in_queue': submissions_in_queue}
-    return render(request, 'submissions/queue.html', context)
+    context = {'submissions_in_pool': submissions_in_pool}
+    return render(request, 'submissions/pool.html', context)
 
     
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
@@ -251,20 +251,17 @@ def assign_submission_ack(request, submission_id):
     if request.method == 'POST':
         form = AssignSubmissionForm(request.POST, discipline=submission.discipline)
         if form.is_valid():
-            editor_in_charge = form.cleaned_data['editor_in_charge']
+            suggested_editor_in_charge = form.cleaned_data['editor_in_charge']
             ed_assignment = EditorialAssignment(submission=submission,
-                                                to=editor_in_charge,
+                                                to=suggested_editor_in_charge,
                                                 date_created=timezone.now())
             ed_assignment.save()
-            submission.status = 'assigned'
-            submission.latest_activity = timezone.now()
-            submission.save()
             # Email Fellow
             email_text = ('Dear ' + title_dict[ed_assignment.to.title] + ' ' +
                           ed_assignment.to.user.last_name +
                           ', \n\nWe have received a Submission to SciPost ' +
                           'for which we would like you to consider becoming Editor-in-charge:\n\n' +
-                          submission.title + ' by ' + submission.author_list +
+                          submission.title + ' by ' + submission.author_list + '.' +
                           '\n\nPlease visit https://scipost.org/submissions/accept_or_decline_assignments \n' +
                           'in order to accept or decline. Many thanks in advance for your consideration.  ' +
                           '\n\nThe SciPost Team.')
@@ -284,8 +281,20 @@ def assign_submission_ack(request, submission_id):
 def accept_or_decline_assignments(request):
     contributor = Contributor.objects.get(user=request.user)
     assignment = EditorialAssignment.objects.filter(to=contributor, accepted=None).first()
+    errormessage = None
+    if assignment.submission.statue == 'assignment_failed':
+        errormessage = 'This Submission has failed pre-screening and has been rejected.'
+        assignment.deprecated = True
+        assignment.save()
+    elif assignment.submission.status != 'unassigned': # already assigned, or deprecated
+        errormessage = (title_dict[assignment.submission.editor_in_charge.title] +
+                        assignment.submission.editor_in_charge.user.last_name + 
+                        ' has already agreed to be Editor-in-charge of this Submission.')
+        assignment.deprecated = True
+        assignment.save()
     form = ConsiderAssignmentForm()
-    context = {'assignment_to_consider': assignment, 'form': form}
+    context = {'assignment_to_consider': assignment, 'form': form,
+               'errormessage': errormessage}
     return render(request, 'submissions/accept_or_decline_assignments.html', context)
 
 
@@ -297,15 +306,15 @@ def accept_or_decline_assignment_ack(request, assignment_id):
         form = ConsiderAssignmentForm(request.POST)
         if form.is_valid():
             assignment.date_answered = timezone.now()
-            deadline = timezone.now() + datetime.timedelta(days=28) # for papers
-            if assignment.submission.submitted_to_journal == 'SciPost Physics Lecture Notes':
-                deadline += datetime.timedelta(days=28)
             if form.cleaned_data['accept'] == 'True':
                 assignment.accepted = True
                 assignment.to = contributor
                 assignment.submission.status = 'EICassigned'
                 assignment.submission.editor_in_charge = contributor
                 assignment.submission.open_for_reporting = True
+                deadline = timezone.now() + datetime.timedelta(days=28) # for papers
+                if assignment.submission.submitted_to_journal == 'SciPost Physics Lecture Notes':
+                    deadline += datetime.timedelta(days=28)
                 assignment.submission.reporting_deadline = deadline
                 assignment.submission.open_for_commenting = True
             else:
@@ -322,7 +331,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def volunteer_as_EIC(request, submission_id):
     """ 
-    Called when a Fellow volunteers while perusing the submissions queue.
+    Called when a Fellow volunteers while perusing the submissions pool.
     This is an adapted version of the accept_or_decline_assignment_ack method.
     """
     submission = get_object_or_404(Submission, pk=submission_id)
@@ -342,6 +351,12 @@ def volunteer_as_EIC(request, submission_id):
     submission.open_for_commenting = True
     assignment.save()
     submission.save()
+    # Deactivate the other assignments
+    assignments_to_deactivate = EditorialAssignment.objects.filter(
+        submission=submission, accepted=None)
+    for a_to_deact in assignments_to_deactivate:
+        a_to_deact.deprecated = True
+        a_to_deact.save()
     context = {'assignment': assignment}
     return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
     

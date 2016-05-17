@@ -26,8 +26,11 @@ $(document).ready(function(){
   {% if not assignment_to_consider %}
   <h1>There are no Assignments for you to consider.</h1>
 
-  {% else %}
+  {% elif errormessage %}
+  <h1></h1>
+  <p>{{ errormessage }}</p>
 
+  {% else %}
   <div class="flex-greybox">
     <h1>SciPost Submission: can you act as Editor-in-charge? (see below to accept/decline):</h1>
   </div>
