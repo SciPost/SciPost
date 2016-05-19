@@ -126,7 +126,7 @@ class Submission(models.Model):
                    '<p>Editor-in-charge: {{ EIC }}</p>')
         if self.status == 'unassigned':
             header += ('<p style="color: red">Status: {{ status }}.'
-                       ' You can <a href="/submissions/volunteer_as_EIC/{{ id }}">volunteer</a> to become Editor-in-charge</p>')
+                       ' You can volunteer to become Editor-in-charge by <a href="/submissions/volunteer_as_EIC/{{ id }}">clicking here</a>.</p>')
         else:
             header += '<p>Status: {{ status }}</p>'
         header += '</div></div></li>'
@@ -188,7 +188,35 @@ class EditorialAssignment(models.Model):
         return (self.to.user.first_name + ' ' + self.to.user.last_name + ' to become EIC of ' + 
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', requested on ' + self.date_created.strftime('%Y-%m-%d'))
-    
+
+    def info_as_li(self):
+        context = Context({'first_name': self.to.user.first_name,
+                           'last_name': self.to.user.last_name,
+                           'date_created': self.date_created.strftime('%Y-%m-%d %H:%M')})
+        info = '<li'
+        if self.accepted:
+            info += ' style="color: green"'
+        elif self.deprecated:
+            info += ' style="color: purple"'
+        elif self.accepted == False:
+            if self.refusal_reason == 'NIE' or self.refusal_reason == 'DNP':
+                info += ' style="color: #CC0000"'
+            else:
+                info += ' style="color: #FF7700"'
+        info += '>{{ first_name }} {{ last_name }}, requested {{ date_created }}'
+        if self.accepted:
+            info += ', accepted {{ date_answered }}'
+            context['date_answered'] = self.date_answered.strftime('%Y-%m-%d %H:%M')
+        if self.deprecated:
+            info += ', deprecated'
+        if self.refusal_reason:
+            info += ', declined {{ date_answered }}, reason: {{ reason }}'
+            context['date_answered'] = self.date_answered.strftime('%Y-%m-%d %H:%M')
+            context['reason'] = assignment_refusal_reasons_dict[self.refusal_reason]
+        info += '</li>'
+        template = Template(info)
+        return template.render(context)
+        
     def header_as_li(self):
         header = '<li><div class="flex-container">'
         header += '<div class="flex-whitebox0"><p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
@@ -202,21 +230,6 @@ class EditorialAssignment(models.Model):
                    'status': submission_status_dict[self.submission.status]})
         return template.render(context)
 
-    def declination_as_li(self):
-        output = '<li'
-        if self.refusal_reason == 'NIE' or self.refusal_reason == 'DNP':
-            output += ' style="color: red"'
-        output += ('>Fellow {{ first_name }} {{ last_name }}, '
-                  'requested {{ date_created }}, declined {{ date_answered }}, '
-                   'reason: {{ reason }}</li>')
-        template = Template(output)
-        context = Context({'first_name': self.to.user.first_name,
-                           'last_name': self.to.user.last_name,
-                           'date_created': self.date_created.strftime('%Y-%m-%d %H:%M'),
-                           'date_answered': self.date_answered.strftime('%Y-%m-%d %H:%M'),
-                           'reason': assignment_refusal_reasons_dict[self.refusal_reason]})
-        return template.render(context)
-    
 
 class RefereeInvitation(models.Model):
     submission = models.ForeignKey(Submission)

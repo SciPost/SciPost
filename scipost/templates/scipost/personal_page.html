@@ -209,10 +209,10 @@
     <h3>Submissions assignments</h3>
     <ul>
       {% if perms.scipost.can_assign_submissions %}
-      <li><a href="{% url 'submissions:assign_submissions' %}">Assign SciPost Submissions</a> ({{ nr_submissions_to_assign }})</li>
+      <li>Assign Submissions via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_submissions_to_assign }})</li>
       {% endif %}
       {% if perms.scipost.can_take_charge_of_submissions %}
-      <li><a href="{% url 'submissions:accept_or_decline_assignments' %}">Accept or decline assignments</a> ({{ nr_assignments_to_consider }})</li>
+      <li>Accept or decline assignments via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_assignments_to_consider }})</li>
       {% endif %}
     </ul>
   </div>

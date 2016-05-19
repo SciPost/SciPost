@@ -46,8 +46,8 @@ class CommentForm(forms.ModelForm):
                         style="border: 0px; font-size: 90%"),
                     HTML('<br>'),
                     Div(
-                        Submit('submit', 'Submit your Comment for vetting', css_class="submitComment"),
-                        HTML('<p id="goodCommenter"><i>By clicking on Submit, the commenter agrees to the <a href="{% url \'scipost:terms_and_conditions\' %}">Terms and Conditions</a>.</i></p>'),
+                        Submit('submit', 'Submit your Comment for vetting', css_class="submitButton"),
+                        HTML('<p id="goodCommenter"><i>By clicking on Submit, you agree with the <a href="{% url \'scipost:terms_and_conditions\' %}">Terms and Conditions</a>.</i></p>'),
                         ),
                     css_class="col-3"),
                 css_class="row"),

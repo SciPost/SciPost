@@ -55,10 +55,11 @@
     <li><h3><a href="{% url 'submissions:submit_report' submission.id %}">Contribute a Report</a>
       <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline }}</div></h3></li>
     {% else %}
-    <li>Reporting for this Submission is now closed.</li>
+    <li>Reporting for this Submission is closed.</li>
     {% endif %}
     {% if submission.open_for_commenting and perms.scipost.can_submit_comments %}
     <li><h3><a href="#contribute_comment">Contribute a Comment</a></h3></li>
+    <li>Commenting on this Submission is closed.</li>
     {% endif %}
   </ul>
 </section>

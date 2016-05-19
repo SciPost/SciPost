@@ -4,8 +4,61 @@
 
 {% block bodysup %}
 
+<script>
+$(document).ready(function(){
+
+  $('#ref_reason').hide();
+
+  $('#id_accept').on('change', function() {
+      if ($('#id_accept_1').is(':checked')) {
+          $('#ref_reason').show();
+      }
+      else {
+          $('#ref_reason').hide();
+      }
+    });
+  });
+</script>
+
 
 <section>
+  {% if assignments_to_consider %}
+
+  {% for assignment_to_consider in assignments_to_consider %}
+
+  <div class="flex-greybox">
+    <h1>Assignment request: can you act as Editor-in-charge? (see below to accept/decline):</h1>
+  </div>
+  <br>
+  <hr>
+
+  {{ assignment_to_consider.submission.header_as_table }}
+  <br />
+  <h4>Abstract:</h4>
+  <p>{{ assignment_to_consider.submission.abstract }}</p>
+  <br/>
+
+  <hr>
+  <div class="flex-greybox">
+    <h1>Accept or Decline this Assignment</h1>
+  </div>
+  <h3>By accepting, you will be required to start a refereeing round on the next screen.</h3>
+  <form action="{% url 'submissions:accept_or_decline_assignment_ack' assignment_id=assignment_to_consider.id %}" method="post">
+    {% csrf_token %}
+    {{ form.accept }}
+    <div id="ref_reason">
+      <p>Please select a reason for declining this assignment:</p>
+      {{ form.refusal_reason }}
+    </div>
+    <input type="submit" value="Submit" />
+  </form>
+
+  <hr class="hr6"/>
+  {% endfor %}
+
+  <hr class="hr12"/>
+  {% endif %}
+
   <div class="flex-container">
     <div class="flex-greybox320">
       <h1>SciPost Submissions Pool</h1>
@@ -14,7 +67,25 @@
 
   <ul>
     {% for sub in submissions_in_pool %}
+    <br/>
     {{ sub.header_as_li_for_Fellows }}
+    {% if perms.scipost.can_assign_submissions %}
+    {% if sub.editorialassignment_set.all %}
+    <h4>EIC Assignment requests:</h4>
+    <ul>
+      {% for assignment in sub.editorialassignment_set.all %}
+      {{ assignment.info_as_li }}
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if sub.editor_in_charge == None %}
+    <h4>Actions:</h4>
+    <ul>
+      <li><a href="{% url 'submissions:assign_submission' submission_id=sub.id %}">Send a new assignment request</a></li>
+      <li><a href="{% url 'submissions:assignment_failed' submission_id=sub.id %}">Close pre-screening: failure to find EIC</a></li>
+    </ul>
+    {% endif %}
+    {% endif %}
     {% endfor %}
   </ul>
   

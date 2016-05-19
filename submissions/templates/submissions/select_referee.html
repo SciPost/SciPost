@@ -28,6 +28,10 @@
   <h3>Abstract:</h3>
   <p>{{ submission.abstract }}</p>
 
+  {% if submission.referees_flagged %}
+  <h3>Referees flagged upon submission (treat reports with caution):</h3>
+  <p>{{ submission.referees_flagged }}</p>
+  {% endif %}
 </section>
 
 
@@ -57,7 +61,6 @@
     {% csrf_token %}
     {% load crispy_forms_tags %}
     {% crispy ref_recruit_form %}
-    <input type="submit" value="Send invitation">
   </form>
   {% endif %}
 </section>

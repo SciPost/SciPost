@@ -1,16 +1,12 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: assign submissions{% endblock pagetitle %}
+{% block pagetitle %}: assign submission{% endblock pagetitle %}
 
 {% block bodysup %}
 
 <section>
-  {% if not submission_to_assign %}
-  <h1>There are no Submissions for you to assign.</h1>
 
-  {% else %}
-
-  <h1>SciPost Submission to Assign</h1>
+  <h1>SciPost Submission: send an Assignment Request</h1>
 
   <br>
   <hr>
@@ -30,24 +26,24 @@
   <hr>
   {{ submission_to_assign.status_info_as_table }}
   <hr>
-  <h1>Required actions:</h1>
+
+  {% if submission_to_assign.editorialassignment_set.all %}
+  <h4>EIC Assignment requests already sent:</h4>
+  <h3>If more than 5 Fellows have declined an assignment for a red-marked reason, the Submission should be rejected.</h3>
+  <ul>
+    {% for assignment in sub.editorialassignment_set.all %}
+    {{ assignment.info_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <h1>Send a new assignment request:</h1>
   <form action="{% url 'submissions:assign_submission_ack' submission_id=submission_to_assign.id %}" method="post">
     {% csrf_token %}
     {{ form.as_ul }}
     <input type="submit" value="Submit" />
   </form>
 
-  {% if assignments_declined %}
-  <h3>If more than 5 Fellows have declined an assignment for a red-marked reason, the Submission should be rejected.</h3>
-  <h3>Previously-declined Assignments:</h3>
-  <ul>
-    {% for assignment in assignments_declined %}
-    {{ assignment.declination_as_li }}
-    {% endfor %}
-  </ul>
-  {% endif %}
-
-  {% endif %}
 </section>
 
 {% endblock bodysup %}

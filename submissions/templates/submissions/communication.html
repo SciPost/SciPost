@@ -29,7 +29,7 @@
   <form action="{% url 'submissions:communication' submission_id=submission.id comtype=comtype %}" method="post">
     {% csrf_token %}
     {{ form }}
-    <input comtype="submit" value="Send communication"/>
+    <input type="submit" value="Send communication"/>
   </form>
 
 </section>

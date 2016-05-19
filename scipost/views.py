@@ -424,7 +424,9 @@ def personal_page(request):
         nr_assignments_to_consider = 0
         active_assignments = None
         if is_MEC(request.user):
-            nr_assignments_to_consider = EditorialAssignment.objects.filter(to=contributor, accepted=None).count()
+            nr_assignments_to_consider = (EditorialAssignment.objects
+                                          .filter(to=contributor, accepted=None, deprecated=False)
+                                          .count())
             active_assignments = EditorialAssignment.objects.filter(to=contributor, accepted=True, completed=False)
         nr_commentary_page_requests_to_vet = 0
         nr_comments_to_vet = 0

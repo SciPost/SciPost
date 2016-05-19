@@ -16,16 +16,13 @@
     and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.</p>
   <p>Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.</p>
   
-  {% if False %} <!-- Temporary deactivate submissions -->
+  {% if True %} <!-- Temporary deactivate submissions -->
 
   {% if perms.scipost.can_submit_manuscript %}
 
   <div class="flex-greybox">
     <h3><em>You can prefill part of the form using the arXiv identifier:</em></h3>
     <p><em>(give the identifier without prefix but with version number, as per the placeholder)</em></p>
-    {% if errormessage %}
-    <h3 style="color: red;">Error: {{ errormessage }}</h3>
-    {% endif %}
     <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
       {% csrf_token %}
       {{ identifierform }}
@@ -33,6 +30,9 @@
     </form>
   </div>
   <br/>
+  {% if errormessage %}
+  <h3 style="color: red;">Error: {{ errormessage }}</h3>
+  {% endif %}
   
   <form action="{% url 'submissions:submit_manuscript' %}" method="post">
     {% csrf_token %}
@@ -41,6 +41,10 @@
 	{{ form.as_table }}
       </ul>
     </table>
+    <p>By clicking on Submit, you state that you have read and agree with
+      the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>,
+      the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a>
+      and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.</p>
     <input type="submit" value="Submit"/>
   </form>
   {% else %}

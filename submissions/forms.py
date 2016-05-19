@@ -76,6 +76,7 @@ class RefereeRecruitmentForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(Field('title'), Field('first_name'), Field('last_name'), Field('email_address'), 
+                Submit('submit', 'Send invitation', css_class="submitButton"),
                 css_class="flex-whitebox320")
             )
 
