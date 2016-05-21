@@ -53,6 +53,6 @@ class GraphAdmin(GuardedModelAdmin):
         NodeInline,
         ArcInline,
         ]
-    search_fields = ['last_name', 'email']
+    search_fields = ['owner___user__last_name', 'title']
 
 admin.site.register(Graph, GraphAdmin)

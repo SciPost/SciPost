@@ -16,7 +16,7 @@
     and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.</p>
   <p>Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.</p>
   
-  {% if False %} <!-- Temporary deactivate submissions -->
+  {% if True %} <!-- Temporary deactivate submissions -->
 
   {% if perms.scipost.can_submit_manuscript %}
 

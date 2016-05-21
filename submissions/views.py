@@ -14,8 +14,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
 
+from guardian.decorators import permission_required_or_403
+from guardian.shortcuts import assign_perm
+
 from .models import *
 from .forms import *
+from .utils import SubmissionUtils
 
 from comments.models import Comment
 from scipost.models import Contributor, title_dict, RegistrationInvitation
@@ -88,6 +92,7 @@ def prefill_using_identifier(request):
     return redirect(reverse('submissions:submit_manuscript'))
 
 
+@login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
 def submit_manuscript(request):
     if request.method == 'POST':
@@ -118,6 +123,8 @@ def submit_manuscript(request):
                 referees_flagged = form.cleaned_data['referees_flagged'],
                 )
             submission.save()
+            submission.authors.add(submitted_by) # must be author to be able to submit
+            submission.save()
             email_text = ('Dear ' + title_dict[submitted_by.title] + ' ' +
                           submitted_by.user.last_name +
                           ', \n\nWe have received your Submission to SciPost,\n\n' +
@@ -135,9 +142,11 @@ def submit_manuscript(request):
                 reply_to=['submissions@scipost.org'])
             emailmessage.send(fail_silently=False)
             return HttpResponseRedirect(reverse('submissions:submit_manuscript_ack'))
+        else: # form is invalid
+            pass
     else:
-        identifierform = SubmissionIdentifierForm()
         form = SubmissionForm()
+    identifierform = SubmissionIdentifierForm()
     return render(request, 'submissions/submit_manuscript.html',
                   {'identifierform': identifierform, 'form': form})
 
@@ -258,7 +267,8 @@ def pool(request):
                'assignments_to_consider': assignments_to_consider, 'form': form}
     return render(request, 'submissions/pool.html', context)
 
-    
+
+@login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 def assign_submission(request, submission_id):
     submission_to_assign = get_object_or_404 (Submission, pk=submission_id)
@@ -269,6 +279,7 @@ def assign_submission(request, submission_id):
     return render(request, 'submissions/assign_submission.html', context)
 
 
+@login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 def assign_submission_ack(request, submission_id):
     submission = Submission.objects.get(pk=submission_id)
@@ -286,9 +297,10 @@ def assign_submission_ack(request, submission_id):
                           'for which we would like you to consider becoming Editor-in-charge:\n\n' +
                           submission.title + ' by ' + submission.author_list + '.' +
                           '\n\nPlease visit https://scipost.org/submissions/pool ' +
-                          'in order to accept or decline (on a first come, first serve basis: '
-                          'this assignment request is automatically deprecated if another Fellow '
-                          'takes charge of this Submission or if the latter fails pre-screening). '
+                          'in order to accept or decline (it is important for you to inform us '
+                          'even if you decline, since this affects the result of the pre-screening process). '
+                          'Note that this assignment request is automatically deprecated if another Fellow '
+                          'takes charge of this Submission or if pre-screening fails in the meantime.'
                           '\n\nMany thanks in advance for your collaboration,' +
                           '\n\nThe SciPost Team.')
             emailmessage = EmailMessage(
@@ -302,6 +314,7 @@ def assign_submission_ack(request, submission_id):
     return render(request, 'submissions/assign_submission_ack.html', context)
 
 
+@login_required
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def accept_or_decline_assignment_ack(request, assignment_id):
     contributor = Contributor.objects.get(user=request.user)
@@ -332,28 +345,11 @@ def accept_or_decline_assignment_ack(request, assignment_id):
                     deadline += datetime.timedelta(days=28)
                 assignment.submission.reporting_deadline = deadline
                 assignment.submission.open_for_commenting = True
-                # Deprecate all other assignments related to this submission
-                assignments_to_deprecate = EditorialAssignment.objects.filter(
-                    submission=assignment.submission, accepted=None)
-                for atd in assignments_to_deprecate:
-                    atd.deprecated = True
-                    atd.save()
-                # Email EIC
-                email_text = ('Dear ' + title_dict[assignment.to.title] + ' ' +
-                              assignment.to.user.last_name +
-                              ', \n\nThank you for accepting to become Editor-in-charge of the SciPost Submission\n\n' +
-                              submission.title + ' by ' + submission.author_list + '.' +
-                              '\n\nYou can take your editorial actions from the editorial page '
-                              'https://scipost.org/submission/editorial_page/' + str(submission.id) +
-                              ' (also accessible from your personal page https://scipost.org/personal_page under the Editorial Actions tab).'
-                              '\n\nMany thanks in advance for your collaboration,' +
-                              '\n\nThe SciPost Team.')
-                emailmessage = EmailMessage(
-                    'SciPost: assignment as EIC', email_text,
-                    'SciPost Editorial Admin <submissions@scipost.org>',
-                    [assignment.to.user.email, 'submissions@scipost.org'],
-                    reply_to=['submissions@scipost.org'])
-                emailmessage.send(fail_silently=False)
+
+                SubmissionUtils.load({'assignment': assignment})
+                SubmissionUtils.deprecate_other_assignments()
+                assign_perm('can_take_editorial_actions', contributor.user, assignment.submission)
+                SubmissionUtils.send_EIC_appointment_email()
             else:
                 assignment.accepted = False
                 assignment.refusal_reason = form.cleaned_data['refusal_reason']
@@ -365,6 +361,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
     return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
 
 
+@login_required
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def volunteer_as_EIC(request, submission_id):
     """ 
@@ -399,62 +396,37 @@ def volunteer_as_EIC(request, submission_id):
     submission.open_for_commenting = True
     assignment.save()
     submission.save()
-    # Deprecate all other assignments related to this submission
-    assignments_to_deprecate = EditorialAssignment.objects.filter(
-        submission=assignment.submission, accepted=None)
-    for atd in assignments_to_deprecate:
-        atd.deprecated = True
-        atd.save()
-    # Email EIC
-    email_text = ('Dear ' + title_dict[assignment.to.title] + ' ' +
-                  assignment.to.user.last_name +
-                  ', \n\nThank you for accepting to become Editor-in-charge of the SciPost Submission\n\n' +
-                  submission.title + ' by ' + submission.author_list + '.' +
-                  '\n\nYou can take your editorial actions from the editorial page '
-                  'https://scipost.org/submission/editorial_page/' + submission.id +
-                  ' (also accessible from your personal page https://scipost.org/personal_page under the Editorial Actions tab).'
-                  '\n\nMany thanks in advance for your collaboration,' +
-                  '\n\nThe SciPost Team.')
-    emailmessage = EmailMessage(
-        'SciPost: assignment as EIC', email_text,
-        'SciPost Editorial Admin <submissions@scipost.org>',
-        [assignment.to.user.email, 'submissions@scipost.org'],
-        reply_to=['submissions@scipost.org'])
-    emailmessage.send(fail_silently=False)
+
+    SubmissionUtils.load({'assignment': assignment})
+    SubmissionUtils.deprecate_other_assignments()
+    assign_perm('can_take_editorial_actions', contributor.user, submission)
+    SubmissionUtils.send_EIC_appointment_email()
     
     context = {'assignment': assignment}
     return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
     
 
+@login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 def assignment_failed(request, submission_id):
     """
     No Editorial Fellow has accepted or volunteered to become Editor-in-charge.
     The submission is rejected.
-    This method is called from pool.html.
+    This method is called from pool.html by an Editorial Administrator.
     """
     submission = get_object_or_404(Submission, pk=submission_id)
     submission.status = 'assignment_failed'
     submission.save()
-    # Email author
-    email_text = ('Dear ' + title_dict[submission.submitted_by.title] + ' ' +
-                  submission.submitted_by.user.last_name +
-                  ', \n\nYou recent Submission to SciPost,\n\n' +
-                  submission.title + ' by ' + submission.author_list +
-                  '\n\nhas unfortunately not passed the pre-screening stage. '
-                  'We therefore regret to inform you that your paper will not be '
-                  'processed further towards publication.'
-                  '\n\nMany thanks in advance for your collaboration,' +
-                  '\n\nThe SciPost Team.')
-    emailmessage = EmailMessage(
-        'SciPost: pre-screening not passed', email_text,
-        'SciPost Editorial Admin <submissions@scipost.org>',
-        [submission.submitted_by.user.email, 'submissions@scipost.org'],
-        reply_to=['submissions@scipost.org'])
-    emailmessage.send(fail_silently=False)
+    SubmissionUtils.load({'submission': submission})
+    SubmissionUtils.deprecate_all_assignments()
+    SubmissionUtils.assignment_failed_email_authors()
 
+    context = {'submission': submission}
+    return render(request, 'submissions/assignment_failed_ack.html', context)
+    
 
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@login_required
+@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def editorial_page(request, submission_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     ref_invitations = RefereeInvitation.objects.filter(submission=submission)
@@ -464,7 +436,8 @@ def editorial_page(request, submission_id):
     return render(request, 'submissions/editorial_page.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@login_required
+@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def select_referee(request, submission_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     if request.method == 'POST':
@@ -480,7 +453,8 @@ def select_referee(request, submission_id):
     return render(request, 'submissions/select_referee.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@login_required
+@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def recruit_referee(request, submission_id):
     """
     If the Editor-in-charge does not find the desired referee among Contributors,
@@ -525,7 +499,8 @@ def recruit_referee(request, submission_id):
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
 
             
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@login_required
+@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def send_refereeing_invitation(request, submission_id, contributor_id):
     """
     This method is called by the EIC from the submission's editorial_page,
@@ -543,29 +518,8 @@ def send_refereeing_invitation(request, submission_id, contributor_id):
                                    date_invited=timezone.now(),
                                    invited_by=request.user.contributor)
     invitation.save()                                   
-    # Email Contributor
-    email_text = ('Dear ' + title_dict[contributor.title] + ' ' +
-                  contributor.user.last_name +
-                  ', \n\nWe have received a Submission to SciPost '
-                  'which, in view of your expertise, we would like to invite you to referee:\n\n' +
-                  submission.title + ' by ' + submission.author_list +
-                  ' (see https://scipost.org/submission/' + submission_id + ').'
-                  '\n\nPlease visit https://scipost.org/submissions/accept_or_decline_ref_invitations '
-                  '(login required) as soon as possible (ideally within the next 2 days) '
-                  'in order to accept or decline this invitation.'
-                  '\n\nIf you accept, your report can be submitted by simply clicking on the "Contribute a Report" link at '
-                  'https://scipost.org/submission/' + submission_id + ' before the reporting deadline '
-                  '(currently set at ' + datetime.datetime.strftime(submission.reporting_deadline, "%Y-%m-%d") +
-                  '; your report will be automatically recognized as an invited report).'
-                  '\n\nWe would be extremely grateful for your contribution, '
-                  'and thank you in advance for your consideration.'
-                  '\n\nThe SciPost Team.')
-    emailmessage = EmailMessage(
-        'SciPost: refereeing request', email_text,
-        'SciPost Editorial Admin <submissions@scipost.org>',
-        [contributor.user.email, 'submissions@scipost.org'],
-        reply_to=['submissions@scipost.org'])
-    emailmessage.send(fail_silently=False)
+    SubmissionUtils.load({'invitation': invitation})
+    SubmissionUtils.send_refereeing_invitation_email()
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
 
 
@@ -579,6 +533,7 @@ def accept_or_decline_ref_invitations(request):
     return render(request, 'submissions/accept_or_decline_ref_invitations.html', context)
 
 
+@login_required
 @permission_required('scipost.can_referee', raise_exception=True)
 def accept_or_decline_ref_invitation_ack(request, invitation_id):
     contributor = Contributor.objects.get(user=request.user)
@@ -593,12 +548,15 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
                 invitation.accepted = False
                 invitation.refusal_reason = form.cleaned_data['refusal_reason']
             invitation.save()
-
+            SubmissionUtils.load({'invitation': invitation})
+            SubmissionUtils.email_referee_response_to_EIC()
+            
     context = {'invitation': invitation}
     return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@login_required
+@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def extend_refereeing_deadline(request, submission_id, days):
     submission = get_object_or_404 (Submission, pk=submission_id)
     submission.reporting_deadline += datetime.timedelta(days=int(days))
@@ -606,7 +564,8 @@ def extend_refereeing_deadline(request, submission_id, days):
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
     
 
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@login_required
+@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def close_refereeing_round(request, submission_id):
     submission = get_object_or_404 (Submission, pk=submission_id)
     submission.open_for_reporting = False
@@ -645,7 +604,8 @@ def communication(request, submission_id, comtype, referee_id=None):
     return render(request, 'submissions/communication.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@login_required
+@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def eic_recommendation(request, submission_id):
     submission = get_object_or_404 (Submission, pk=submission_id)
     if request.method == 'POST':

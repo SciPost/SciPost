@@ -1,0 +1,14 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: assignment failed (ack){% endblock pagetitle %}
+
+{% block bodysup %}
+
+<section>
+  <h1>Assignment has failed for Submission</h1>
+  <p>{{ submission.title }} by {{ submission.author_list }}.</p>
+  <p>The Submission has been removed from the pool, and authors have been informed.</p>
+  <p>Return to the <a href="{% url 'submissions:pool' %}">Submissions Pool</a>.</p>
+</section>
+
+{% endblock bodysup %}

@@ -66,6 +66,11 @@ class Submission(models.Model):
     submission_date = models.DateField(verbose_name='submission date')
     latest_activity = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        permissions = (
+            ('can_take_editorial_actions', 'Can take editorial actions'),
+            )
+    
     def __str__ (self):
         return self.title[:30] + ' by ' + self.author_list[:30]
 
@@ -108,11 +113,28 @@ class Submission(models.Model):
         header = '<li><div class="flex-container">'
         header += '<div class="flex-whitebox0"><p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
         header += ('<p>by {{ author_list }}</p><p> (submitted {{ submission_date }} to {{ to_journal }})' +
-                   ' - latest activity: {{ latest_activity }}</p></div></div></li>')
+                   ' - latest activity: {{ latest_activity }}</p>'
+                   '</div></div></li>')
         context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list,
                            'submission_date': self.submission_date, 
                            'to_journal': journals_submit_dict[self.submitted_to_journal],
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
+        template = Template(header)
+        return template.render(context)
+
+
+    def header_as_li_for_authors (self):
+        # for search lists
+        header = '<li><div class="flex-container">'
+        header += '<div class="flex-whitebox0"><p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
+        header += ('<p>by {{ author_list }}</p><p> (submitted {{ submission_date }} to {{ to_journal }})' +
+                   ' - latest activity: {{ latest_activity }}</p>'
+                   '<p>Status: {{ status }}</p></div></div></li>')
+        context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list,
+                           'submission_date': self.submission_date, 
+                           'to_journal': journals_submit_dict[self.submitted_to_journal],
+                           'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M'),
+                           'status': submission_status_dict[self.status]})
         template = Template(header)
         return template.render(context)
 
@@ -257,17 +279,16 @@ class RefereeInvitation(models.Model):
         output = '<li>{{ first_name }} {{ last_name }}, invited {{ date_invited }}, '
         if self.accepted is not None:
             if self.accepted:
-                output += 'task accepted '
+                output += '<strong style="color: green">task accepted</strong> '
             else:
-                output += 'task declined ' 
+                output += '<strong style="color: red">task declined</strong> ' 
             output += '{{ date_responded }}'
             context['date_responded'] = self.date_responded.strftime('%Y-%m-%d %H:%M')
         else:
             output += 'response pending'
         if self.fulfilled:
             output += '; Report has been delivered'
-        else:
-            output += '; (no Report yet)'
+
         template = Template(output)
         return template.render(context)
     

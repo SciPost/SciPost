@@ -102,7 +102,7 @@
   <ul class="personalTabMenu">
 
     <li><a class="TabItem" id="AccountTab">Account</a></li>
-    {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' %}
+    {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' %}
     <li><a class="TabItem" id="EdActionTab">Editorial Actions</a></li>
     {% endif %}
     <li><a class="TabItem" id="RefereeingTab">Refereeing</a></li>
@@ -137,6 +137,9 @@
       {% if request.user|is_in_group:'SciPost Administrators' %}
       <h3>You are a SciPost Administrator.</h3>
       {% endif %}
+      {% if request.user|is_in_group:'Editorial Administrators' %}
+      <h3>You are a SciPost Editorial Administrator.</h3>
+      {% endif %}
       {% if request.user|is_in_group:'Advisory Board' %}
       <h3>You are a member of the Advisory Board.</h3>
       {% endif %}
@@ -149,6 +152,9 @@
       {% if request.user|is_in_group:'Registered Contributors' %}
       <h3>You are a Registered Contributor.</h3>
       {% endif %}
+      {% if request.user|is_in_group:'Testers' %}
+      <h3>You are a SciPost Tester.</h3>
+      {% endif %}
       <br/>
       <h3>Update your personal data or password</h3>
       <ul>
@@ -160,7 +166,7 @@
 </section>
 
 
-{% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' %}
+{% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' %}
 <section class="TabSection" id="EdActions">
   <hr class="hr12">
   <div class="flex-greybox">
@@ -204,7 +210,7 @@
     </ul>
   </div>
 
-  {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial College' %}
+  {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' %}
   <div class="col-4">
     <h3>Submissions assignments</h3>
     <ul>
@@ -271,7 +277,7 @@
     <h3>Submissions for which you are identified as an author:</h3>
     <ul>
       {% for sub in own_submissions %}
-      {{ sub.header_as_li }}
+      {{ sub.header_as_li_for_authors }}
       {% endfor %}
     </ul>  
     {% endif %}

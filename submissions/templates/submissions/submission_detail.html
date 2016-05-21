@@ -51,14 +51,19 @@
     <h1>Actions</h1>
   </div>
   <ul>
-    {% if submission.open_for_reporting and perms.scipost.can_referee %}
-    <li><h3><a href="{% url 'submissions:submit_report' submission.id %}">Contribute a Report</a>
-      <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline }}</div></h3></li>
+    {% if submission.open_for_reporting %}
+    {% if perms.scipost.can_referee %}
+    <li><h3><a href="{% url 'submissions:submit_report' submission.id %}">Contribute a Report</a></h3>
+      <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline }}</div></li>
+    {% endif %}
     {% else %}
     <li>Reporting for this Submission is closed.</li>
     {% endif %}
-    {% if submission.open_for_commenting and perms.scipost.can_submit_comments %}
+    {% if submission.open_for_commenting %}
+    {% if perms.scipost.can_submit_comments %}
     <li><h3><a href="#contribute_comment">Contribute a Comment</a></h3></li>
+    {% endif %}
+    {% else %}
     <li>Commenting on this Submission is closed.</li>
     {% endif %}
   </ul>

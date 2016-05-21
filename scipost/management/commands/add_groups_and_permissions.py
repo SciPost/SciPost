@@ -12,10 +12,10 @@ class Command(BaseCommand):
         # Create Groups
         SciPostAdmin, created = Group.objects.get_or_create(name='SciPost Administrators')
         AdvisoryBoard, created = Group.objects.get_or_create(name='Advisory Board')
+        EditorialAdmin, created = Group.objects.get_or_create(name='Editorial Administrators') 
         EditorialCollege, created = Group.objects.get_or_create(name='Editorial College')
         VettingEditors, created = Group.objects.get_or_create(name='Vetting Editors')
         RegisteredContributors, created = Group.objects.get_or_create(name='Registered Contributors')
-
         Testers, created = Group.objects.get_or_create(name='Testers')
 
         # Create Permissions
@@ -36,7 +36,11 @@ class Command(BaseCommand):
             codename='view_bylaws',
             name= 'Can view By-laws of Editorial College',
             content_type=content_type)
-
+        #can_take_editorial_actions, created = Permission.objects.get_or_create(
+        #    codename='can_take_editorial_actions',
+        #    name= 'Can take editorial actions',
+        #    content_type=content_type)
+        
         # Contributions (not related to submissions)
         can_submit_comments, created = Permission.objects.get_or_create(
             codename='can_submit_comments',
@@ -110,6 +114,7 @@ class Command(BaseCommand):
                                      can_assign_submissions,
                                      )
         EditorialCollege.permissions.add(can_take_charge_of_submissions,
+                                         #can_take_editorial_actions,
                                          can_vet_submitted_reports,
                                          view_bylaws,
                                          )

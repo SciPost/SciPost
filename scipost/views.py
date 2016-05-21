@@ -85,7 +85,6 @@ def get_query(query_string, search_fields):
     return query
 
 
-#def documentsSearchResults(title_keyword, author, abstract_keyword):
 def documentsSearchResults(query):
     """
     Searches through commentaries, submissions and thesislinks.
@@ -184,7 +183,6 @@ def register(request):
             return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
     else:
         form = RegistrationForm()
-    # Remove invited from next two lines to open registrations without invitation
     invited = False
     context = {'form': form, 'invited': invited}
     return render(request, 'scipost/register.html', context)
@@ -316,9 +314,12 @@ def vet_registration_request_ack(request, contributor_id):
                               ', \n\nYour registration to the SciPost publication portal has been accepted. ' +
                               'You can now login at https://scipost.org and contribute. \n\n')
                 if pending_ref_inv_exists:
-                    email_text += 'Note that you have pending refereeing invitations; please navigate to your Personal Page to accept or decline them.\n\n'
+                    email_text += ('Note that you have pending refereeing invitations; please navigate to '
+                                   'https://scipost.org/submissions/accept_or_decline_ref_invitations '
+                                   '(login required) to accept or decline them.\n\n')
                 email_text += 'Thank you very much in advance, \nThe SciPost Team.'
-                emailmessage = EmailMessage('SciPost registration accepted', email_text, 'SciPost registration <registration@scipost.org>', 
+                emailmessage = EmailMessage('SciPost registration accepted', email_text,
+                                            'SciPost registration <registration@scipost.org>', 
                                             [contributor.user.email, 'registration@scipost.org'], 
                                             reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
@@ -443,7 +444,8 @@ def personal_page(request):
         pending_ref_tasks = RefereeInvitation.objects.filter(referee=contributor, accepted=True, fulfilled=False)
         # Verify if there exist objects authored by this contributor, whose authorship hasn't been claimed yet
         own_submissions = (Submission.objects
-                           .filter(Q(authors__in=[contributor]) | Q(submitted_by=contributor))
+                           #.filter(Q(authors__in=[contributor]) | Q(submitted_by=contributor)) # submitters must be authors
+                           .filter(authors__in=[contributor])
                            .order_by('-submission_date'))
         own_commentaries = (Commentary.objects
                             .filter(authors__in=[contributor])
