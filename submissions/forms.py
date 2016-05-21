@@ -98,11 +98,13 @@ REPORT_ACTION_CHOICES = (
 
 REPORT_REFUSAL_CHOICES = (
     (0, '-'),
-    (-1, 'unclear'),
-    (-2, 'incorrect'),
-    (-3, 'not useful'),
-    (-4, 'not academic in style'),
+    (-1, 'insufficiently clear'),
+    (-2, 'not fully factually correct'),
+    (-3, 'not useful for the authors'),
+    (-4, 'not sufficiently academic in style'),
     )
+report_refusal_choices_dict=dict(REPORT_REFUSAL_CHOICES)
+
 
 class ReportForm(forms.ModelForm):
     class Meta:
@@ -125,7 +127,7 @@ class VetReportForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(VetReportForm, self).__init__(*args, **kwargs)
-        self.fields['email_response_field'].widget.attrs.update({'placeholder': 'Optional: give a textual justification (will be emailed to the Report\'s author)', 'rows': 3})
+        self.fields['email_response_field'].widget.attrs.update({'placeholder': 'Optional: give a textual justification (will be included in the email to the Report\'s author)', 'rows': 5})
 
 
 ###################

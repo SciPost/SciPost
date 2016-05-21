@@ -90,14 +90,16 @@ class Utils(object):
                       cls.contributor.activation_key + 
                       '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.')
         emailmessage = EmailMessage(
-            'SciPost registration request received', email_text, 'SciPost registration <registration@scipost.org>', 
-            [cls.contributor.user.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+            'SciPost registration request received', email_text,
+            'SciPost registration <registration@scipost.org>', 
+            [cls.contributor.user.email],
+            ['registration@scipost.org'],
+            reply_to=['registration@scipost.org'])
         emailmessage.send(fail_silently=False)
-            
 
-
+        
     @classmethod
-    def create_and_save_invitation(cls):
+    def create_invitation(cls):
         invitation = RegistrationInvitation (
             title = cls.form.cleaned_data['title'],
             first_name = cls.form.cleaned_data['first_name'],
@@ -146,8 +148,11 @@ class Utils(object):
                            'in particular by providing referee reports.\n\n' +
                            'Many thanks in advance,\n\nThe SciPost Team')
             emailmessage = EmailMessage(
-                'SciPost registration invitation', email_text, 'SciPost Registration <registration@scipost.org>',
-                [cls.invitation.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+                'SciPost registration invitation', email_text,
+                'SciPost Registration <registration@scipost.org>',
+                [cls.invitation.email],
+                ['registration@scipost.org'],
+                reply_to=['registration@scipost.org'])
 
         else:
             email_text += ('You will have noticed that scientific publishing is currently undergoing many changes, and you will hopefully agree that it is of the utmost importance that the best interests of science and scientists be served by these developments. After much thinking and discussion about this issue, I recently decided to forge ahead and implement a new online publication portal by and for scientists.\n\nThe initiative, called SciPost, aims to build on the best traditions within our community (as exemplified by the arXiv.org preprint server) by offering a complete scientific publication platform, run by and for professional scientists, providing:\n\n' +
@@ -175,8 +180,11 @@ class Utils(object):
                            "Prof. dr Jean-Sébastien Caux\n---------------------------------------------\nInstitute for Theoretial Physics\nUniversity of Amsterdam\nScience Park 904\n1098 XH Amsterdam\nThe Netherlands\n---------------------------------------------\ntel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778\n---------------------------------------------")
                 
             emailmessage = EmailMessage(
-                'SciPost registration invitation', email_text, 'J-S Caux <jscaux@scipost.org>',
-                [cls.invitation.email, 'registration@scipost.org'], reply_to=['registration@scipost.org'])
+                'SciPost registration invitation', email_text,
+                'J-S Caux <jscaux@scipost.org>',
+                [cls.invitation.email],
+                ['registration@scipost.org'],
+                reply_to=['registration@scipost.org'])
 
         # This function is now for all invitation types:
         emailmessage.send(fail_silently=False)

@@ -258,7 +258,9 @@ def vet_commentary_request_ack(request, commentary_id):
                               ', has been activated at https://scipost.org/commentary/' + str(commentary.arxiv_or_DOI_string) + '. You are now welcome to submit your comments.' + 
                               '\n\nThank you for your contribution, \nThe SciPost Team.')
                 emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 
-                                            'SciPost commentaries <commentaries@scipost.org>', [commentary.requested_by.user.email, 'commentaries@scipost.org'], 
+                                            'SciPost commentaries <commentaries@scipost.org>',
+                                            [commentary.requested_by.user.email],
+                                            ['commentaries@scipost.org'], 
                                             reply_to=['commentaries@scipost.org'])
                 emailmessage.send(fail_silently=False)                
             elif form.cleaned_data['action_option'] == '0':
@@ -271,8 +273,11 @@ def vet_commentary_request_ack(request, commentary_id):
                               ', \n\nThe Commentary Page you have requested, concerning publication with title ' + commentary.pub_title + 
                               ' by ' + commentary.author_list + ', has been activated (with slight modifications to your submitted details).' + 
                               ' You are now welcome to submit your comments.' + '\n\nThank you for your contribution, \nThe SciPost Team.')
-                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'SciPost commentaries <commentaries@scipost.org>', 
-                                            [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['commentaries@scipost.org'])
+                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text,
+                                            'SciPost commentaries <commentaries@scipost.org>', 
+                                            [commentary.requested_by.user.email],
+                                            ['commentaries@scipost.org'],
+                                            reply_to=['commentaries@scipost.org'])
                 emailmessage.send(fail_silently=False)                
                 context = {'form': form2 }
                 return render(request, 'commentaries/request_commentary.html', context)
@@ -284,8 +289,11 @@ def vet_commentary_request_ack(request, commentary_id):
                               commentary_refusal_dict[int(form.cleaned_data['refusal_reason'])] + '.\n\nThank you for your interest, \nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
-                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text, 'SciPost commentaries <commentaries@scipost.org>', 
-                                            [commentary.requested_by.user.email, 'commentaries@scipost.org'], reply_to=['comentaries@scipost.org'])
+                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text,
+                                            'SciPost commentaries <commentaries@scipost.org>', 
+                                            [commentary.requested_by.user.email],
+                                            ['commentaries@scipost.org'],
+                                            reply_to=['comentaries@scipost.org'])
                 emailmessage.send(fail_silently=False)                
                 commentary.delete()
 

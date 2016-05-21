@@ -6,6 +6,7 @@ from scipost.models import title_dict
 
 from submissions.models import EditorialAssignment
 from submissions.models import assignment_refusal_reasons_dict
+from submissions.forms import report_refusal_choices_dict
 
 
 class SubmissionUtils(object):
@@ -48,13 +49,16 @@ class SubmissionUtils(object):
                       cls.assignment.submission.title + ' by ' + cls.assignment.submission.author_list + '.' +
                       '\n\nYou can take your editorial actions from the editorial page '
                       'https://scipost.org/submission/editorial_page/' + str(cls.assignment.submission.id) +
-                      ' (also accessible from your personal page https://scipost.org/personal_page under the Editorial Actions tab).'
+                      ' (also accessible from your personal page https://scipost.org/personal_page under the Editorial Actions tab). '
+                      'In particular, you should now invite 3 referees; you might want to make sure you are aware of the '
+                      'detailed procedure described in the Editorial College by-laws at https://scipost.org/EdCol_by-laws.'
                       '\n\nMany thanks in advance for your collaboration,' +
                       '\n\nThe SciPost Team.')
         emailmessage = EmailMessage(
             'SciPost: assignment as EIC', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.assignment.to.user.email, 'submissions@scipost.org'],
+            [cls.assignment.to.user.email],
+            ['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
 
@@ -75,7 +79,8 @@ class SubmissionUtils(object):
         emailmessage = EmailMessage(
             'SciPost: pre-screening not passed', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.submission.submitted_by.user.email, 'submissions@scipost.org'],
+            [cls.submission.submitted_by.user.email],
+            ['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
         
@@ -104,7 +109,8 @@ class SubmissionUtils(object):
         emailmessage = EmailMessage(
             'SciPost: refereeing request', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.invitation.referee.user.email, 'submissions@scipost.org'],
+            [cls.invitation.referee.user.email],
+            ['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
     
@@ -132,7 +138,67 @@ class SubmissionUtils(object):
         emailmessage = EmailMessage(
             email_subject, email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.invitation.submission.editor_in_charge.user.email, 'submissions@scipost.org'],
+            [cls.invitation.submission.editor_in_charge.user.email],
+            ['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
 
+
+    @classmethod
+    def email_EIC_report_delivered(cls):
+        email_text = ('Dear ' + title_dict[cls.report.submission.editor_in_charge.title] + ' ' +
+                      cls.report.submission.editor_in_charge.user.last_name + ','
+                      '\n\nReferee ' + title_dict[cls.report.author.title] + ' ' +
+                      cls.report.author.user.last_name +
+                      ' has delivered a Report for Submission\n\n' +
+                       cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.'
+                      '\n\nPlease vet this Report via your personal page at '
+                      'https://scipost.org/personal_page/ under the Editorial Actions tab.')
+        email_text += ('\n\nMany thanks for your collaboration,' +
+                       '\n\nThe SciPost Team.')
+        
+        emailmessage = EmailMessage(
+            'SciPost: Report delivered', email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            [cls.report.submission.editor_in_charge.user.email],
+            ['submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
+
+
+    @classmethod
+    def acknowledge_report_email(cls):
+        email_text = ('Dear ' + title_dict[cls.report.author.title] + ' ' +
+                      cls.report.author.user.last_name + ','
+                      '\n\nMany thanks for your Report on Submission\n\n' +
+                       cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.')
+        if cls.report.status == 1:
+            email_text += ('\n\nYour Report has been vetted through and is viewable at '
+                           'https://scipost.org/submissions/' + str(cls.report.submission.id) + '.')
+        else:
+            email_text += ('\n\nYour Report has been reviewed by the Editor-in-charge of the Submission, '
+                           'who decided not to admit it for online posting, citing the reason: '
+                           + report_refusal_choices_dict[int(cls.report.status)] + '.'
+                           ' We copy the text entries of your report below for your convenience, '
+                           'if ever you wish to reformulate it and resubmit it.')
+        email_text += ('\n\nMany thanks for your collaboration,' +
+                       '\n\nThe SciPost Team.')
+        if cls.report.status != 1:
+            if cls.email_response is not None:
+                email_text += '\n\nAdditional info from the Editor-in-charge: \n'
+                email_text += cls.email_response
+            email_text += ('\n\nThe text entries of your Report: ' +
+                           '\n\nStrengths: \n' + cls.report.strengths +
+                           '\n\nWeaknesses: \n' + cls.report.weaknesses +
+                           '\n\nReport: \n' + cls.report.report +
+                           '\n\nRequested changes: \n' + cls.report.requested_changes +
+                           '\n\nRemarks for Editors: \n' + cls.report.remarks_for_editors)
+        
+        emailmessage = EmailMessage(
+            'SciPost: Report acknowledgement', email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            [cls.report.author.user.email],
+            [cls.report.submission.editor_in_charge.user.email, 'submissions@scipost.org'], # bcc EIC
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
+        

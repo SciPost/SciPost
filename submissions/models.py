@@ -144,13 +144,22 @@ class Submission(models.Model):
         header = '<li><div class="flex-container">'
         header += '<div class="flex-whitebox0"><p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
         header += ('<p>by {{ author_list }}</p><p> (submitted {{ submission_date }} to {{ to_journal }})'
-                   ' - latest activity: {{ latest_activity }}</p>'
-                   '<p>Editor-in-charge: {{ EIC }}</p>')
+                   ' - latest activity: {{ latest_activity }}</p>')
         if self.status == 'unassigned':
             header += ('<p style="color: red">Status: {{ status }}.'
                        ' You can volunteer to become Editor-in-charge by <a href="/submissions/volunteer_as_EIC/{{ id }}">clicking here</a>.</p>')
         else:
-            header += '<p>Status: {{ status }}</p>'
+            header += '<p>Editor-in-charge: {{ EIC }}</p><p>Status: {{ status }}</p>'
+        nr_ref_invited = RefereeInvitation.objects.filter(submission=self).count()
+        nr_invited_reports_in = Report.objects.filter(submission=self, status=1, invited=True).count()
+        nr_contrib_reports_in = Report.objects.filter(submission=self, status=1, invited=False).count()
+        nr_reports_awaiting_vetting = Report.objects.filter(submission=self, status=0).count()
+        nr_reports_refused = Report.objects.filter(submission=self, status__lte=-1).count()
+        header += ('<p>Nr referees invited: ' + str(nr_ref_invited) + ', nr reports obtained: ' +
+                   str(nr_invited_reports_in + nr_contrib_reports_in) + ' [' +
+                   str(nr_invited_reports_in) + ' invited/ ' + str(nr_contrib_reports_in) +
+                   ' contributed], nr refused: ' + str(nr_reports_refused) +
+                   ', nr awaiting vetting: ' + str(nr_reports_awaiting_vetting) )
         header += '</div></div></li>'
         context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list,
                            'submission_date': self.submission_date, 
@@ -336,16 +345,15 @@ report_rec_dict = dict(REPORT_REC)
 
 class Report(models.Model):    
     """ Both types of reports, invited or contributed. """
-    # status:
+    # status: see forms.py:REPORT_REFUSAL_CHOICES
     # 1: vetted
     # 0: unvetted
     # -1: rejected (unclear)
     # -2: rejected (incorrect)
     # -3: rejected (not useful)
+    # -4: rejected (not academic in style)
     status = models.SmallIntegerField(default=0)
     submission = models.ForeignKey(Submission)
-#    date_invited = models.DateTimeField('date invited', blank=True, null=True)
-#    invited_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='invited_by')
     invited = models.BooleanField(default=False) # filled from RefereeInvitation objects at moment of report submission
     flagged = models.BooleanField(default=False) # if author of report has been flagged by submission authors (surname check only)
     date_submitted = models.DateTimeField('date submitted')
@@ -368,6 +376,10 @@ class Report(models.Model):
     remarks_for_editors = models.TextField(default='', blank=True, verbose_name='optional remarks for the Editors only')
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
 
+
+    def __str__(self):
+        return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
+                self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
 
     def print_identifier(self):
         context = Context({'id': self.id, 'author_id': self.author.id,

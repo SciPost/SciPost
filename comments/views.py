@@ -56,8 +56,10 @@ def vet_submitted_comment_ack(request, comment_id):
                                '\n\nWe copy it below for your convenience.' + 
                                '\n\nThank you for your contribution, \nThe SciPost Team.' +
                                '\n\n' + comment.comment_text)
-                emailmessage = EmailMessage('SciPost Comment published', email_text, 'comments@scipost.org', 
-                                            [comment.author.user.email, 'comments@scipost.org'], 
+                emailmessage = EmailMessage('SciPost Comment published', email_text,
+                                            'comments@scipost.org', 
+                                            [comment.author.user.email],
+                                            ['comments@scipost.org'], 
                                             reply_to=['comments@scipost.org'])
                 emailmessage.send(fail_silently=False)
             elif form.cleaned_data['action_option'] == '2':
@@ -80,8 +82,10 @@ def vet_submitted_comment_ack(request, comment_id):
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 email_text += '\n\n' + comment.comment_text
-                emailmessage = EmailMessage('SciPost Comment rejected', email_text, 'comments@scipost.org', 
-                                            [comment.author.user.email, 'comments@scipost.org'], 
+                emailmessage = EmailMessage('SciPost Comment rejected', email_text,
+                                            'comments@scipost.org', 
+                                            [comment.author.user.email],
+                                            ['comments@scipost.org'], 
                                             reply_to=['comments@scipost.org'])
                 emailmessage.send(fail_silently=False)
 

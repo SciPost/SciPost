@@ -669,6 +669,8 @@ def submit_report(request, submission_id):
             newreport.save()
             author.nr_reports = Report.objects.filter(author=author).count()
             author.save()
+            SubmissionUtils.load({'report': newreport})
+            SubmissionUtils.email_EIC_report_delivered()
             request.session['submission_id'] = submission_id
             return HttpResponseRedirect(reverse('submissions:submit_report_ack'))
 
@@ -701,8 +703,9 @@ def vet_submitted_report_ack(request, report_id):
                 # the report is simply rejected
                 report.status = form.cleaned_data['refusal_reason']
                 report.save()
-                # email report author
-
+            # email report author
+            SubmissionUtils.load({'report': report, 'email_response': form.cleaned_data['email_response_field']})
+            SubmissionUtils.acknowledge_report_email() # email report author, bcc EIC
     context = {}
     return render(request, 'submissions/vet_submitted_report_ack.html', context)
 

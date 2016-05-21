@@ -355,7 +355,7 @@ def registration_invitations(request):
             elif Utils.email_already_taken():
                 errormessage = 'DUPLICATE ERROR: This email address is already associated to a Contributor'
             else:
-                Utils.create_and_save_invitation()
+                Utils.create_invitation()
                 Utils.send_registration_invitation_email()
                 return HttpResponseRedirect('registration_invitation_sent')
     else:
@@ -424,20 +424,20 @@ def personal_page(request):
             nr_submissions_to_assign = Submission.objects.filter(status__in=['unassigned']).count()
         nr_assignments_to_consider = 0
         active_assignments = None
+        nr_reports_to_vet = 0
         if is_MEC(request.user):
             nr_assignments_to_consider = (EditorialAssignment.objects
                                           .filter(to=contributor, accepted=None, deprecated=False)
                                           .count())
             active_assignments = EditorialAssignment.objects.filter(to=contributor, accepted=True, completed=False)
+            nr_reports_to_vet = Report.objects.filter(status=0, submission__editor_in_charge=contributor).count()
         nr_commentary_page_requests_to_vet = 0
         nr_comments_to_vet = 0
-        nr_reports_to_vet = 0
         nr_thesislink_requests_to_vet = 0
         nr_authorship_claims_to_vet = 0
         if is_VE(request.user):
             nr_commentary_page_requests_to_vet = Commentary.objects.filter(vetted=False).count()
             nr_comments_to_vet = Comment.objects.filter(status=0).count()
-            nr_reports_to_vet = Report.objects.filter(status=0).count()
             nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
             nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
         nr_ref_inv_to_consider = RefereeInvitation.objects.filter(referee=contributor, accepted=None).count()
