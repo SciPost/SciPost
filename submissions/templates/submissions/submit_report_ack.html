@@ -5,7 +5,11 @@
 {% block bodysup %}
 
 <section>
+  {% if errormessage %}
+  <p>{{ errormessage }}</p>
+  {% else %}
   <h1>Thank you for your Report.</h1>
+  {% endif %}
 </section>
 
 {% endblock bodysup %}

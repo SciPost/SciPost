@@ -52,9 +52,13 @@
   </div>
   <ul>
     {% if submission.open_for_reporting %}
-    {% if perms.scipost.can_referee %}
+    {% if perms.scipost.can_referee and not is_author and not is_author_unchecked %}
     <li><h3><a href="{% url 'submissions:submit_report' submission.id %}">Contribute a Report</a></h3>
       <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline }}</div></li>
+    {% elif is_author_unchecked %}
+    <li><h3>Contribute a Report [deactivated]: the system flagged you as a potential author of this Submission.
+	Please go to your <a href="{% url 'scipost:personal_page' %}">personal page</a>
+	under the Submissions tab to clarify this.</h3></li>
     {% endif %}
     {% else %}
     <li>Reporting for this Submission is closed.</li>

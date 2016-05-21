@@ -234,11 +234,16 @@ def submission_detail(request, submission_id):
         author_replies = Comment.objects.filter(submission=submission, is_author_reply=True)
     except Comment.DoesNotExist:
         author_replies = ()
+    # To check in template whether the user can submit a report:
+    is_author = request.user.contributor in submission.authors.all()
+    is_author_unchecked = (not is_author
+                           and not (request.user.contributor in submission.authors_false_claims.all())
+                           and (request.user.last_name in submission.author_list))
     context = {'submission': submission, 'comments': comments.filter(status__gte=1, is_author_reply=False).order_by('-date_submitted'), 
                'invited_reports': reports.filter(status__gte=1, invited=True), 
                'contributed_reports': reports.filter(status__gte=1, invited=False), 
-               'author_replies': author_replies, 
-               'form': form, }
+               'author_replies': author_replies, 'form': form,
+               'is_author': is_author, 'is_author_unchecked': is_author_unchecked}
     return render(request, 'submissions/submission_detail.html', context)
 
 
@@ -629,9 +634,25 @@ def eic_recommendation(request, submission_id):
 # Reports
 ###########
 
+@login_required
 @permission_required('scipost.can_referee', raise_exception=True)
 def submit_report(request, submission_id):
     submission = get_object_or_404 (Submission, pk=submission_id)
+    # Check whether the user can submit a report:
+    is_author = request.user.contributor in submission.authors.all()
+    is_author_unchecked = (not is_author
+                           and not (request.user.contributor in submission.authors_false_claims.all())
+                           and (request.user.last_name in submission.author_list))
+    errormessage = None
+    if is_author:
+        errormessage = 'You are an author of this Submission and cannot submit a Report.'
+    if is_author_unchecked:
+        errormessage = ('The system flagged you as a potential author of this Submission. '
+                        'Please go to your personal page under the Submissions tab to clarify this.')
+    if errormessage:
+        context = {'errormessage': errormessage}
+        return render(request, 'submissions/submit_report_ack.html', context)
+        
     if request.method == 'POST':
         form = ReportForm(request.POST)
         if form.is_valid():
@@ -680,6 +701,7 @@ def submit_report(request, submission_id):
     return render(request, 'submissions/submit_report.html', context)
 
 
+@login_required
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def vet_submitted_reports(request):
     contributor = Contributor.objects.get(user=request.user)
