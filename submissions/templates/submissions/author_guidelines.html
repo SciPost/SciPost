@@ -19,7 +19,7 @@
   <h2>Manuscript preparation</h2>
 
   <p>We prefer authors to prepare their manuscript using the SciPost LaTeX2e style, which you can download
-    as a <a href="{% static 'submissions/latex/SciPost_LaTeX_Style_v1.tar.gz' %}">gzipped tarball</a>, 
+    as a <a href="{% static 'submissions/latex/SciPost_LaTeX_Style_v1.1.tar.gz' %}">gzipped tarball</a>, 
     composed of the following individual files:
     <ul>
       <li><a href="{% static 'submissions/latex/SciPost_LaTeX_Template.tex' %}">LaTeX2e template (.tex)</a></li>
@@ -27,8 +27,15 @@
       <li><a href="{% static 'submissions/latex/SciPost.cls' %}">class file (.cls)</a></li>
       <li><a href="{% static 'submissions/latex/SciPost_bibstyle_v1.bst' %}">BiBTeX style file (.bst)</a></li>
     </ul>
-    While we also accept submissions in general LaTeX formats, using the SciPost style will simplify and accelerate 
-    production of the published version of your article in case of acceptance.
+    <p>While we also accept submissions in general LaTeX formats, using the SciPost style will simplify and accelerate 
+    production of the published version of your article in case of acceptance. If you are not using our template,
+    please ensure the following:</p>
+    <ul>
+      <li>include the DOI in your citations (using the <em>doi</em> package)</li>
+      <li>to ease navigation within your text, use hyperlinking for your equations and references (using the <em>hyperref</em> package)</li>
+      <li>include line numbering for easier feedback (using the <em>lineno</em> package)</li>
+    </ul>
+    <p>Including the DOI is particularly important: the paper can only be published if references are externally linked.</p>
   </p>
 
   <h3>The article should contain the following elements:</h3>
@@ -56,7 +63,7 @@
       <p>Acknowledgements should follow immediately after the conclusion.</p>
     </li>
     <li>Author contributions
-      <p>Contributions should be succinctly described using author initials.</p>
+      <p>This is optional. If desired, contributions should be succinctly described using author initials.</p>
     </li>
     <li>Funding information
       <p>Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.</p>
@@ -80,7 +87,7 @@
   <h2>Manuscript submission</h2>
   <p>Submitting your manuscript to SciPost is extremely easy. You should:</p>
   <ul>
-    <li>Make your preprint publicly available on <a href="http://arxiv.org">arXiv.org</a></li>
+    <li>Make your preprint publicly available on <a href="http://arxiv.org">arXiv.org</a> (please include a statement as `Submission to SciPost' in the Comments)</li>
     <li>After appearance on arxiv.org, fill the SciPost <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form, selecting which SciPost Journal 
       to submit to and providing domain and speciality specifications.</li>
   </ul>

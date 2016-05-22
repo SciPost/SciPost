@@ -1,12 +1,12 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{SciPost} % SciPost Latex Template v1 (2016/05/01)
+\ProvidesClass{SciPost} % SciPost Latex Template v1.1 (2016/05/22)
 
 
 \LoadClass[10pt]{article}
 
 
 % Layout
-\RequirePackage{a4wide}
+\RequirePackage{a4}
 \RequirePackage[top=10mm,bottom=10mm,left=16mm,right=16mm,head=10mm,includeheadfoot]{geometry}
 \bigskipamount 6mm
 
@@ -35,14 +35,10 @@
 
 \RequirePackage{xcolor}
 \definecolor{scipostdeepblue}{HTML}{002B49}
-\definecolor{scipostblue}{HTML}{6884C2}
-\definecolor{scipostorange}{HTML}{FFA300}
-\definecolor{scipostlightblue}{HTML}{A7E6AD}
 
-\setlength\headheight{28pt}
 
 \lhead{
-  \colorbox{scipostdeepblue}{\strut \bf \color{white} ~SciPost Submission }
+  \colorbox{scipostdeepblue}{\strut \bf \color{white} ~Submission }
 }
 
 \rhead{
@@ -56,5 +52,3 @@
 }
 \ProcessOptions\relax
 
-\lfoot{\bf SciPost Submission}
-\rfoot{\sf SciPost.org}

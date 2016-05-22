@@ -1,6 +1,6 @@
 % =========================================================================
 % SciPost LaTeX template
-% Version 1 (2016/05/01)
+% Version 1.1 (2016/05/22)
 %
 % Submissions to SciPost Journals should make use of this template.
 %
@@ -57,6 +57,7 @@ It should be written in a clear and accessible style, emphasizing the context, t
 }
 
 \section{Introduction}
+\label{sec:intro}
 % TODO: write your article here.
 The stage is yours. Write your article here.
 The bulk of the paper should be clearly divided into sections with short descriptive titles, including an introduction and a conclusion.
@@ -70,9 +71,10 @@ Equations should be centered; multi-line equations should be aligned.
 H = \sum_{j=1}^N \left[J (S^x_j S^x_{j+1} + S^y_j S^y_{j+1} + \Delta S^z_j S^z_{j+1}) - h S^z_j \right].
 \end{equation}
 
-Items in the list of references\cite{1931_Bethe_ZP_71} should include authors, title, journal reference and most importantly DOI link. All equations and references should be hyperlinked to ensure ease of navigation.
+Items in the list of references\cite{1931_Bethe_ZP_71} should include authors, title, journal reference and most importantly DOI link. All equations and references should be hyperlinked to ensure ease of navigation. This also holds for [sub]sections: jump to Section \ref{sec:another}.
 
 \section{Another Section}
+\label{sec:another}
 There is no strict length limitation, but the authors are strongly encouraged to keep contents to the strict minimum necessary for peers to reproduce the research described in the paper.
 
 \subsection{A first subsection}
@@ -89,12 +91,22 @@ Acknowledgements should follow immediately after the conclusion.
 
 % TODO: include author contributions
 \paragraph{Author contributions}
-Contributions should be succinctly described in a paragraph, using author initials.
+This is optional. If desired, contributions should be succinctly described in a single short paragraph, using author initials.
 
 % TODO: include funding information
 \paragraph{Funding information}
 Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.
 
+
+\begin{appendix}
+
+\section{First appendix}
+Add material which is better left outside the main text in a series of Appendices.
+
+\section{Second appendix}
+Appendices should be labeled by capital letters.
+
+\end{appendix}
 
 % TODO: 
 % Provide your bibliography here, either by:
