@@ -6,7 +6,6 @@
 
 
 % Layout
-\RequirePackage{a4}
 \RequirePackage[top=10mm,bottom=10mm,left=16mm,right=16mm,head=10mm,includeheadfoot]{geometry}
 \bigskipamount 6mm
 
