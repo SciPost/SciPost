@@ -355,6 +355,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
                 SubmissionUtils.deprecate_other_assignments()
                 assign_perm('can_take_editorial_actions', contributor.user, assignment.submission)
                 SubmissionUtils.send_EIC_appointment_email()
+                SubmissionUtils.send_author_prescreening_passed_email()
             else:
                 assignment.accepted = False
                 assignment.refusal_reason = form.cleaned_data['refusal_reason']

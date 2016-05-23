@@ -62,7 +62,31 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
 
+        
+    @classmethod
+    def send_author_prescreening_passed_email(cls):
+        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+                      cls.submission.submitted_by.user.last_name +
+                      ', \n\nWe are pleased to inform you that your recent Submission to SciPost,\n\n' +
+                      cls.submission.title + ' by ' + cls.submission.author_list +
+                      '\n\nhas successfully passed the pre-screening stage. '
+                      '\n\nA Submission Page has been activated at '
+                      'https://scipost.org/submission/' + str(cls.submission.id) +
+                      'and a refereeing round has been started, with deadline '
+                      'currently set at ' + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d") +
+                      '. '
+                      '\n\nWe thank you very much for your contribution.'
+                      '\n\nSincerely,' +
+                      '\n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost: pre-screening passed', email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            [cls.submission.submitted_by.user.email],
+            ['submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
 
+        
     @classmethod
     def assignment_failed_email_authors(cls):
         email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +

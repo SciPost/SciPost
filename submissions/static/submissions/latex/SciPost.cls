@@ -6,8 +6,14 @@
 
 
 % Layout
-\RequirePackage[top=10mm,bottom=10mm,left=16mm,right=16mm,head=10mm,includeheadfoot]{geometry}
+\RequirePackage[top=12mm,bottom=12mm,left=24mm,right=24mm,head=12mm,includeheadfoot]{geometry}
 \bigskipamount 6mm
+
+% For table of contents: remove trailing dots
+\RequirePackage{tocloft}
+\renewcommand{\cftdot}{}
+% Add References to TOC
+\RequirePackage[nottoc,notlot,notlof]{tocbibind}
 
 
 % Unicode characters
@@ -26,7 +32,7 @@
 \RequirePackage{lineno}
 
 % SciPost BiBTeX style
-\bibliographystyle{SciPost_bibstyle_v1}
+\bibliographystyle{SciPost_bibstyle_v1-1}
 
 % SciPost header and footer
 \RequirePackage{fancyhdr}

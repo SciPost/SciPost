@@ -53,8 +53,19 @@ Initials3 Surname3\textsuperscript{3*}
 {\bf 
 % TODO: write your abstract here.
 The abstract is in boldface, and should fit in 8 lines.
-It should be written in a clear and accessible style, emphasizing the context, the problem(s) studied, the methods used, the results obtained, the conclusions reached, and the outlook. 
+It should be written in a clear and accessible style, emphasizing the context, the problem(s) studied, the methods used, the results obtained, the conclusions reached, and the outlook. You can add a table contents, recommended if your paper is more than 6 pages long. 
 }
+
+
+% TODO: include a table of contents (optional)
+% Guideline: if your paper is longer that 6 pages, include a TOC
+% To remove the TOC, simply cut the following block
+\vspace{10pt}
+\noindent\rule{\textwidth}{1pt}
+\tableofcontents\thispagestyle{fancy}
+\noindent\rule{\textwidth}{1pt}
+\vspace{10pt}
+
 
 \section{Introduction}
 \label{sec:intro}
@@ -71,7 +82,7 @@ Equations should be centered; multi-line equations should be aligned.
 H = \sum_{j=1}^N \left[J (S^x_j S^x_{j+1} + S^y_j S^y_{j+1} + \Delta S^z_j S^z_{j+1}) - h S^z_j \right].
 \end{equation}
 
-Items in the list of references\cite{1931_Bethe_ZP_71} should include authors, title, journal reference and most importantly DOI link. All equations and references should be hyperlinked to ensure ease of navigation. This also holds for [sub]sections: jump to Section \ref{sec:another}.
+Items in the list of references\cite{1931_Bethe_ZP_71} should include authors, title, journal reference and most importantly DOI link. All equations and references should be hyperlinked to ensure ease of navigation. This also holds for [sub]sections: readers should be able to easily jump to Section \ref{sec:another}.
 
 \section{Another Section}
 \label{sec:another}
@@ -79,8 +90,8 @@ There is no strict length limitation, but the authors are strongly encouraged to
 
 \subsection{A first subsection}
 You are free to use dividers as you see fit.
-\subsection{Another subsection}
-Figures should only occupy the stricly necessary space, in any case individually fitting on a single page. Each figure item should be appropriately labeled and accompanied by a descriptive caption. SciPost does not accept creative figures or artist's impressions; on the other hand, technical drawings and scientifically accurate representations are encouraged.
+\subsection{A note about figures}
+Figures should only occupy the stricly necessary space, in any case individually fitting on a single page. Each figure item should be appropriately labeled and accompanied by a descriptive caption. {\bf SciPost does not accept creative or promotional figures or artist's impressions}; on the other hand, technical drawings and scientifically accurate representations are encouraged.
 
 
 \section{Conclusion}
@@ -101,11 +112,10 @@ Authors are required to provide funding information, including relevant agencies
 \begin{appendix}
 
 \section{First appendix}
-Add material which is better left outside the main text in a series of Appendices.
+Add material which is better left outside the main text in a series of Appendices labeled by capital letters.
 
-\section{Second appendix}
-Appendices should be labeled by capital letters.
-
+\section{About references}
+Your references should start with the comma-separated author list (initials + last name), the publication title in italics, the journal reference with volume in bold, start page number, publication year in parenthesis, completed by the DOI link (linking must be implemented before publication). If using BiBTeX, please use the style files provided  on \url{https://scipost.org/submissions/author_guidelines}. 
 \end{appendix}
 
 % TODO: 
@@ -113,7 +123,7 @@ Appendices should be labeled by capital letters.
 % - writing it directly, following the example below, including Author(s), Title, Journal Ref. with year in parentheses at the end, followed by the DOI number.
 % - running BiBTeX using the class SciPost_bibstyle_v1.bst and pasting the .bbl file contents here.
 \begin{thebibliography}{99}
-\bibitem{1931_Bethe_ZP_71} H. A. Bethe, `Zur Theorie der Metalle', Z. Phys. 71, 205 (1931), \doi{10.1007\%2FBF01341708}.
+\bibitem{1931_Bethe_ZP_71} H. A. Bethe, {\it Zur Theorie der Metalle. i. Eigenwerte und Eigenfunktionen der linearen Atomkette}, Zeit. f{\"u}r Phys. {\bf 71}, 205 (1931), \doi{10.1007\%2FBF01341708}.
 \end{thebibliography}
 
 \nolinenumbers
