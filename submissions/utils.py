@@ -35,7 +35,7 @@ class SubmissionUtils(object):
         Called when the pre-screening has failed.
         """
         assignments_to_deprecate = (EditorialAssignment.objects
-                                    .filter(submission=cls.submission, accepted=None))
+                                    .filter(submission=cls.assignment.submission, accepted=None))
         for atd in assignments_to_deprecate:
             atd.deprecated = True
             atd.save()
