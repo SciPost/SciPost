@@ -706,7 +706,7 @@ def submit_report(request, submission_id):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def vet_submitted_reports(request):
     contributor = Contributor.objects.get(user=request.user)
-    report_to_vet = Report.objects.filter(status=0).first() # only handle one at a time
+    report_to_vet = Report.objects.filter(status=0, submission__editor_in_charge=contributor).first() # only handle one at a time
     form = VetReportForm()
     context = {'contributor': contributor, 'report_to_vet': report_to_vet, 'form': form }
     return(render(request, 'submissions/vet_submitted_reports.html', context))
@@ -729,6 +729,7 @@ def vet_submitted_report_ack(request, report_id):
             # email report author
             SubmissionUtils.load({'report': report, 'email_response': form.cleaned_data['email_response_field']})
             SubmissionUtils.acknowledge_report_email() # email report author, bcc EIC
+            SubmissionUtils.send_author_report_received_email()
     context = {}
     return render(request, 'submissions/vet_submitted_report_ack.html', context)
 

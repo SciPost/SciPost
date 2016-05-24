@@ -47,6 +47,7 @@ def vet_submitted_comment_ack(request, comment_id):
                                    ' at Submission page https://scipost.org/submission/' + str(comment.submission.id))
                     comment.submission.latest_activity = timezone.now()
                     comment.submission.save()
+                    SubmissionUtils.send_author_comment_received_email()
                 elif comment.thesislink is not None:
                     email_text += (comment.thesislink.title + ' by ' + comment.thesis.author +
                                    ' at Thesis Link https://scipost.org/thesis/' + str(comment.thesis.id))

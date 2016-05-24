@@ -226,3 +226,41 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
         
+
+    @classmethod
+    def send_author_report_received_email(cls):
+        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+                      cls.submission.submitted_by.user.last_name +
+                      ', \n\nA Report has been posted on your recent Submission to SciPost,\n\n' +
+                      cls.submission.title + ' by ' + cls.submission.author_list + '.'
+                      '\n\nYou can view it at the Submission Page '
+                      'https://scipost.org/submission/' + str(cls.submission.id) + '.'
+                      '\n\nWe thank you very much for your contribution.'
+                      '\n\nSincerely,' +
+                      '\n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost: Report received on your Submission', email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            [cls.submission.submitted_by.user.email],
+            ['submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
+        
+    @classmethod
+    def send_author_comment_received_email(cls):
+        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+                      cls.submission.submitted_by.user.last_name +
+                      ', \n\nA Comment has been posted on your recent Submission to SciPost,\n\n' +
+                      cls.submission.title + ' by ' + cls.submission.author_list + '.'
+                      '\n\nYou can view it at the Submission Page '
+                      'https://scipost.org/submission/' + str(cls.submission.id) + '.'
+                      '\n\nWe thank you very much for your contribution.'
+                      '\n\nSincerely,' +
+                      '\n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost: Comment received on your Submission', email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            [cls.submission.submitted_by.user.email],
+            ['submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
