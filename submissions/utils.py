@@ -71,7 +71,7 @@ class SubmissionUtils(object):
                       cls.assignment.submission.title + ' by ' + cls.assignment.submission.author_list +
                       '\n\nhas successfully passed the pre-screening stage. '
                       '\n\nA Submission Page has been activated at '
-                      'https://scipost.org/submission/' + str(cls.submission.id) +
+                      'https://scipost.org/submission/' + str(cls.assignment.submission.id) +
                       'and a refereeing round has been started, with deadline '
                       'currently set at ' + datetime.datetime.strftime(cls.assignment.submission.reporting_deadline, "%Y-%m-%d") +
                       '. '
