@@ -235,10 +235,14 @@ def submission_detail(request, submission_id):
     except Comment.DoesNotExist:
         author_replies = ()
     # To check in template whether the user can submit a report:
-    is_author = request.user.contributor in submission.authors.all()
-    is_author_unchecked = (not is_author
-                           and not (request.user.contributor in submission.authors_false_claims.all())
-                           and (request.user.last_name in submission.author_list))
+    try:
+        is_author = request.user.contributor in submission.authors.all()
+        is_author_unchecked = (not is_author
+                               and not (request.user.contributor in submission.authors_false_claims.all())
+                               and (request.user.last_name in submission.author_list))
+    except AttributeError:
+        is_author = False
+        is_author_unchecked = False
     context = {'submission': submission, 'comments': comments.filter(status__gte=1, is_author_reply=False).order_by('-date_submitted'), 
                'invited_reports': reports.filter(status__gte=1, invited=True), 
                'contributed_reports': reports.filter(status__gte=1, invited=False), 
