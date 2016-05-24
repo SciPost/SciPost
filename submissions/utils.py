@@ -43,6 +43,7 @@ class SubmissionUtils(object):
         
     @classmethod
     def send_EIC_appointment_email(cls):
+        """ Requires loading 'assignment' attribute. """
         email_text = ('Dear ' + title_dict[cls.assignment.to.title] + ' ' +
                       cls.assignment.to.user.last_name +
                       ', \n\nThank you for accepting to become Editor-in-charge of the SciPost Submission\n\n' +
@@ -65,6 +66,7 @@ class SubmissionUtils(object):
         
     @classmethod
     def send_author_prescreening_passed_email(cls):
+        """ Requires loading 'assignment' attribute. """
         email_text = ('Dear ' + title_dict[cls.assignment.submission.submitted_by.title] + ' ' +
                       cls.assignment.submission.submitted_by.user.last_name +
                       ', \n\nWe are pleased to inform you that your recent Submission to SciPost,\n\n' +
@@ -89,6 +91,7 @@ class SubmissionUtils(object):
         
     @classmethod
     def assignment_failed_email_authors(cls):
+        """ Requires loading 'submission' attribute. """
         email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nYou recent Submission to SciPost,\n\n' +
@@ -111,6 +114,7 @@ class SubmissionUtils(object):
 
     @classmethod
     def send_refereeing_invitation_email(cls):
+        """ Requires loading 'invitation' attribute. """
         email_text = ('Dear ' + title_dict[cls.invitation.referee.title] + ' ' +
                       cls.invitation.referee.user.last_name +
                       ', \n\nWe have received a Submission to SciPost '
@@ -141,6 +145,7 @@ class SubmissionUtils(object):
         
     @classmethod
     def email_referee_response_to_EIC(cls):
+        """ Requires loading 'invitation' attribute. """
         email_text = ('Dear ' + title_dict[cls.invitation.submission.editor_in_charge.title] + ' ' +
                       cls.invitation.submission.editor_in_charge.user.last_name + ','
                       '\n\nReferee ' + title_dict[cls.invitation.referee.title] + ' ' +
@@ -170,6 +175,7 @@ class SubmissionUtils(object):
 
     @classmethod
     def email_EIC_report_delivered(cls):
+        """ Requires loading 'report' attribute. """
         email_text = ('Dear ' + title_dict[cls.report.submission.editor_in_charge.title] + ' ' +
                       cls.report.submission.editor_in_charge.user.last_name + ','
                       '\n\nReferee ' + title_dict[cls.report.author.title] + ' ' +
@@ -192,6 +198,7 @@ class SubmissionUtils(object):
 
     @classmethod
     def acknowledge_report_email(cls):
+        """ Requires loading 'report' attribute. """
         email_text = ('Dear ' + title_dict[cls.report.author.title] + ' ' +
                       cls.report.author.user.last_name + ','
                       '\n\nMany thanks for your Report on Submission\n\n' +
@@ -229,25 +236,28 @@ class SubmissionUtils(object):
 
     @classmethod
     def send_author_report_received_email(cls):
-        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
-                      cls.submission.submitted_by.user.last_name +
+        """ Requires loading 'report' attribute. """
+        email_text = ('Dear ' + title_dict[cls.report.submission.submitted_by.title] + ' ' +
+                      cls.report.submission.submitted_by.user.last_name +
                       ', \n\nA Report has been posted on your recent Submission to SciPost,\n\n' +
-                      cls.submission.title + ' by ' + cls.submission.author_list + '.'
+                      cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.'
                       '\n\nYou can view it at the Submission Page '
-                      'https://scipost.org/submission/' + str(cls.submission.id) + '.'
+                      'https://scipost.org/submission/' + str(cls.report.submission.id) + '.'
                       '\n\nWe thank you very much for your contribution.'
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
         emailmessage = EmailMessage(
             'SciPost: Report received on your Submission', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.submission.submitted_by.user.email],
+            [cls.report.submission.submitted_by.user.email],
             ['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
+
         
     @classmethod
     def send_author_comment_received_email(cls):
+        """ Requires loading 'submission' attribute. """
         email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nA Comment has been posted on your recent Submission to SciPost,\n\n' +

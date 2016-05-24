@@ -14,6 +14,7 @@ from .models import *
 from .forms import *
 
 from scipost.models import title_dict
+from submissions.utils import SubmissionUtils
 
 
 @permission_required('scipost.can_vet_comments', raise_exception=True)
@@ -47,6 +48,7 @@ def vet_submitted_comment_ack(request, comment_id):
                                    ' at Submission page https://scipost.org/submission/' + str(comment.submission.id))
                     comment.submission.latest_activity = timezone.now()
                     comment.submission.save()
+                    SubmissionUtils.load({'submission': comment.submission})
                     SubmissionUtils.send_author_comment_received_email()
                 elif comment.thesislink is not None:
                     email_text += (comment.thesislink.title + ' by ' + comment.thesis.author +
