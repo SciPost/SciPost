@@ -13,6 +13,7 @@ from submissions.models import Submission, Report
 from theses.models import ThesisLink
 
 COMMENT_CATEGORIES = (
+    ('ERR', 'erratum'),
     ('REM', 'remark'),
     ('QUE', 'question'),
     ('ANS', 'answer to question'),
@@ -51,12 +52,12 @@ class Comment(models.Model):
     author = models.ForeignKey(Contributor, default=1)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
     # Categories:
+    is_cor = models.BooleanField(default=False, verbose_name='correction/erratum')
     is_rem = models.BooleanField(default=False, verbose_name='remark')
     is_que = models.BooleanField(default=False, verbose_name='question')
     is_ans = models.BooleanField(default=False, verbose_name='answer to question')
     is_obj = models.BooleanField(default=False, verbose_name='objection')
     is_rep = models.BooleanField(default=False, verbose_name='reply to objection')
-    is_cor = models.BooleanField(default=False, verbose_name='correction')
     is_val = models.BooleanField(default=False, verbose_name='validation or rederivation')
     is_lit = models.BooleanField(default=False, verbose_name='pointer to related literature')
     is_sug = models.BooleanField(default=False, verbose_name='suggestion for further work')

@@ -253,7 +253,7 @@
     {% for task in pending_ref_tasks %}
     <li>{{ task.submission }}, due {{ task.submission.reporting_deadline }}. &nbsp;
       <a href="{% url 'submissions:submit_report' submission_id=task.submission.id %}">Submit your Report</a>.&nbsp;
-      <a href="{% url 'submissions:communication' submission_id=task.submission.id comtype='RtoE' %}">Write to the Editor-in-charge</a>.
+      <a href="{% url 'submissions:communication' submission_id=task.submission.id comtype='RtoE' referee_id=request.user.contributor.id %}">Write to the Editor-in-charge</a>.
     </li>
     {% endfor %}
   </ul>

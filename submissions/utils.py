@@ -5,7 +5,7 @@ from django.core.mail import EmailMessage
 from scipost.models import title_dict
 
 from submissions.models import EditorialAssignment
-from submissions.models import assignment_refusal_reasons_dict
+from submissions.models import assignment_refusal_reasons_dict, ed_comm_choices_dict
 from submissions.forms import report_refusal_choices_dict
 
 
@@ -142,7 +142,48 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
     
-        
+
+    @classmethod
+    def send_ref_reminder_email(cls):
+        """
+        This method is used to remind a referee who is not registered as a Contributor.
+        It is called from the ref_invitation_reminder method in submissions/views.py.
+        """
+        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' ' + cls.invitation.last_name + ',\n\n' 
+                      'On behalf of the Editor-in-charge ' +
+                      title_dict[cls.invitation.submission.editor_in_charge.title] + ' ' +
+                      cls.invitation.submission.editor_in_charge.user.last_name +
+                      ', we would like to cordially remind you of our recent request to referee\n\n' +
+                      cls.invitation.submission.title + ' by ' + cls.invitation.submission.author_list + '.')
+        if cls.invitation.referee is None:
+            email_text += ('\n\nWe would also like to renew our invitation to become a Contributor on SciPost ' +
+                           '(our records show that you are not yet registered); ' +
+                           'your partially pre-filled registration form is still available at\n\n' +
+                           'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n' +
+                           'after which your registration will be activated, giving you full access to '
+                           'the portal\'s facilities (in particular allowing you to provide referee reports).')
+        if cls.invitation.accepted is None:
+            email_text += ('\n\nPlease visit https://scipost.org/submissions/accept_or_decline_ref_invitations '
+                           '(login required) as soon as possible (ideally within the next 2 days) '
+                           'in order to accept or decline this invitation.')
+        email_text += ('\n\nYour report can be submitted by simply clicking on the "Contribute a Report" link at '
+                       'https://scipost.org/submission/' + str(cls.invitation.submission.id) + ' before the reporting deadline '
+                       '(currently set at ' + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d") +
+                       '; your report will be automatically recognized as an invited report). You might want to '
+                       'make sure you are familiar with our refereeing code of conduct '
+                       'https://scipost.org/journals/journals_terms_and_conditions and with the '
+                       'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.')
+        email_text += ('\n\nWe very much hope we can count on your expertise,'
+                       '\n\nMany thanks in advance,\n\nThe SciPost Team')
+        emailmessage = EmailMessage(
+            'SciPost: reminder (refereeing request and registration invitation)', email_text,
+            'SciPost Submissions <submissions@scipost.org>',
+            [cls.invitation.email_address],
+            ['submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
+    
+
     @classmethod
     def email_referee_response_to_EIC(cls):
         """ Requires loading 'invitation' attribute. """
@@ -272,5 +313,66 @@ class SubmissionUtils(object):
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.submission.submitted_by.user.email],
             ['submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
+
+
+    @classmethod
+    def send_communication_email(cls):
+        """ 
+        After an EditorialCommunication has been created and saved,
+        this method sends emails to the relevant people.
+        Requires loading 'communication' attribute. 
+        """
+        recipient_email = []
+        bcc_emails = []
+        further_action_page = None
+        if cls.communication.comtype in ['AtoE', 'RtoE', 'StoE']:
+            recipient_email.append(cls.communication.submission.editor_in_charge.user.email)
+            recipient_greeting = ('Dear ' +
+                                  title_dict[cls.communication.submission.editor_in_charge.title] + ' ' +
+                                  cls.communication.submission.editor_in_charge.user.last_name)
+            further_action_page = ('https://scipost.org/submission/editorial_page/' +
+                                   str(cls.communication.submission.id))
+            if cls.communication.comtype == 'AtoE':
+                bcc_emails.append(cls.communication.submission.submitted_by.user.email)
+            elif cls.communication.comtype == 'RtoE':
+                bcc_emails.append(cls.communication.referee.user.email)
+        elif cls.communication.comtype in ['EtoA']:
+            recipient_email.append(cls.communication.submission.submitted_by.user.email)
+            recipient_greeting = ('Dear ' +
+                                  title_dict[cls.communication.submission.submitted_by.title] + ' ' +
+                                  cls.communication.submission.submitted_by.user.last_name)
+            bcc_emails.append(cls.communication.submission.editor_in_charge)
+        elif cls.communication.comtype in ['EtoR']:
+            recipient_email.append(cls.communication.referee.user.email)
+            recipient_greeting = ('Dear ' +
+                                  title_dict[cls.communication.referee.title] + ' ' +
+                                  cls.communication.referee.user.last_name)
+            bcc_emails.append(cls.communication.submission.editor_in_charge)
+        elif cls.communication.comtype in ['EtoS']:
+            recipient_email.append('submissions@scipost.org')
+            recipient_greeting = 'Dear Editorial Administrators'
+            bcc_emails.append(cls.communication.submission.editor_in_charge)
+            further_action_page = 'https://scipost.org/submissions/pool'
+                   
+        email_text = (recipient_greeting + 
+                      ', \n\nPlease find here a communication (' +
+                      ed_comm_choices_dict[cls.communication.comtype] + ') '
+                      'concerning Submission\n\n' +
+                      cls.communication.submission.title + ' by ' + cls.communication.submission.author_list + '.'
+                      '\n\nText of the communication:\n------------------------------------------\n' +
+                      cls.communication.text + '\n------------------------------------------')
+        if further_action_page:
+            email_text += '\n\nYou can take follow-up actions from ' + further_action_page + '.'
+        email_text += ('\n\nWe thank you very much for your contribution.'
+                       '\n\nSincerely,' +
+                       '\n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost: communication (' + ed_comm_choices_dict[cls.communication.comtype] + ')',
+            email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            recipient_email,
+            bcc_emails,
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)

@@ -141,6 +141,28 @@ class Submission(models.Model):
         return template.render(context)
 
 
+    def refereeing_status_as_p (self):
+        nr_ref_invited = RefereeInvitation.objects.filter(submission=self).count()
+        nr_ref_accepted = RefereeInvitation.objects.filter(submission=self, accepted=True).count()
+        nr_ref_declined = RefereeInvitation.objects.filter(submission=self, accepted=False).count()
+        nr_invited_reports_in = Report.objects.filter(submission=self, status=1, invited=True).count()
+        nr_contrib_reports_in = Report.objects.filter(submission=self, status=1, invited=False).count()
+        nr_reports_awaiting_vetting = Report.objects.filter(submission=self, status=0).count()
+        nr_reports_refused = Report.objects.filter(submission=self, status__lte=-1).count()
+        header = ('<p>Nr referees invited: ' + str(nr_ref_invited) +
+                  ' [' + str(nr_ref_accepted) + ' accepted/ ' +
+                  str(nr_ref_declined) + ' declined/ ' +
+                  str(nr_ref_invited - nr_ref_accepted - nr_ref_declined) + ' response pending]</p>' +
+                  '<p>Nr reports obtained: ' +
+                  str(nr_invited_reports_in + nr_contrib_reports_in) + ' [' +
+                  str(nr_invited_reports_in) + ' invited/ ' + str(nr_contrib_reports_in) +
+                  ' contributed], nr refused: ' + str(nr_reports_refused) +
+                  ', nr awaiting vetting: ' + str(nr_reports_awaiting_vetting) + '</p>')
+        template = Template(header)
+        context = Context({})
+        return template.render(context)
+    
+
     def header_as_li_for_Fellows (self):
         # for submissions pool
         header = '<li><div class="flex-container">'
@@ -152,16 +174,7 @@ class Submission(models.Model):
                        ' You can volunteer to become Editor-in-charge by <a href="/submissions/volunteer_as_EIC/{{ id }}">clicking here</a>.</p>')
         else:
             header += '<p>Editor-in-charge: {{ EIC }}</p><p>Status: {{ status }}</p>'
-        nr_ref_invited = RefereeInvitation.objects.filter(submission=self).count()
-        nr_invited_reports_in = Report.objects.filter(submission=self, status=1, invited=True).count()
-        nr_contrib_reports_in = Report.objects.filter(submission=self, status=1, invited=False).count()
-        nr_reports_awaiting_vetting = Report.objects.filter(submission=self, status=0).count()
-        nr_reports_refused = Report.objects.filter(submission=self, status__lte=-1).count()
-        header += ('<p>Nr referees invited: ' + str(nr_ref_invited) + ', nr reports obtained: ' +
-                   str(nr_invited_reports_in + nr_contrib_reports_in) + ' [' +
-                   str(nr_invited_reports_in) + ' invited/ ' + str(nr_contrib_reports_in) +
-                   ' contributed], nr refused: ' + str(nr_reports_refused) +
-                   ', nr awaiting vetting: ' + str(nr_reports_awaiting_vetting) )
+        header += self.refereeing_status_as_p()
         header += '</div></div></li>'
         context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list,
                            'submission_date': self.submission_date, 
@@ -274,6 +287,8 @@ class RefereeInvitation(models.Model):
     invitation_key = models.CharField(max_length=40, default='') # if Contributor not found, person is invited to register
     date_invited = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey(Contributor, related_name='referee_invited_by', blank=True, null=True)
+    nr_reminders = models.PositiveSmallIntegerField(default=0)
+    date_last_reminded = models.DateTimeField(blank=True, null=True)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
     date_responded = models.DateTimeField(blank=True, null=True)
     refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, blank=True, null=True)
@@ -284,22 +299,40 @@ class RefereeInvitation(models.Model):
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))
     
-    def summary_as_li(self):
+    # def summary_as_li(self):
+    #     context = Context({'first_name': self.first_name, 'last_name': self.last_name,
+    #                        'date_invited': self.date_invited.strftime('%Y-%m-%d %H:%M')})
+    #     output = '<li>{{ first_name }} {{ last_name }}, invited {{ date_invited }}, '
+    #     if self.accepted is not None:
+    #         if self.accepted:
+    #             output += '<strong style="color: green">task accepted</strong> '
+    #         else:
+    #             output += '<strong style="color: red">task declined</strong> ' 
+    #         output += '{{ date_responded }}'
+    #         context['date_responded'] = self.date_responded.strftime('%Y-%m-%d %H:%M')
+    #     else:
+    #         output += 'response pending'
+    #     if self.fulfilled:
+    #         output += '; Report has been delivered'
+    #     template = Template(output)
+    #     return template.render(context)
+
+    def summary_as_tds(self):
         context = Context({'first_name': self.first_name, 'last_name': self.last_name,
                            'date_invited': self.date_invited.strftime('%Y-%m-%d %H:%M')})
-        output = '<li>{{ first_name }} {{ last_name }}, invited {{ date_invited }}, '
+        output = '<td>{{ first_name }} {{ last_name }}</td><td>invited <br/>{{ date_invited }}</td><td>'
         if self.accepted is not None:
             if self.accepted:
                 output += '<strong style="color: green">task accepted</strong> '
             else:
                 output += '<strong style="color: red">task declined</strong> ' 
-            output += '{{ date_responded }}'
+            output += '<br/>{{ date_responded }}'
             context['date_responded'] = self.date_responded.strftime('%Y-%m-%d %H:%M')
         else:
             output += 'response pending'
         if self.fulfilled:
             output += '; Report has been delivered'
-
+        output += '</td>'
         template = Template(output)
         return template.render(context)
     
@@ -441,15 +474,15 @@ class Report(models.Model):
 # EditorialCommunication #
 ##########################
 
-ED_CORR_CHOICES = (
+ED_COMM_CHOICES = (
     ('EtoA', 'Editor-in-charge to Author'),
-    ('AtoE', 'Author to Editor-in-charge'),
     ('EtoR', 'Editor-in-charge to Referee'),
-    ('RtoE', 'Referee to Editor-in-Charge'),
     ('EtoS', 'Editor-in-charge to SciPost Editorial Administration'),
+    ('AtoE', 'Author to Editor-in-charge'),
+    ('RtoE', 'Referee to Editor-in-Charge'),
     ('StoE', 'SciPost Editorial Administration to Editor-in-charge'),
     )
-ed_corr_choices_dict = dict(ED_CORR_CHOICES)
+ed_comm_choices_dict = dict(ED_COMM_CHOICES)
 
 class EditorialCommunication(models.Model):
     """ 
@@ -458,7 +491,7 @@ class EditorialCommunication(models.Model):
     """
     submission = models.ForeignKey(Submission)
     referee = models.ForeignKey(Contributor, related_name='referee_in_correspondence', blank=True, null=True)
-    comtype = models.CharField(max_length=4, choices=ED_CORR_CHOICES)
+    comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
 

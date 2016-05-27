@@ -141,14 +141,16 @@ class Utils(object):
             # Refereeing invitation
             # Details of the submission to referee are already in the personal_message field
             email_text += ('We would hereby like to cordially invite you to become a Contributor on SciPost ' +
-                           '(our records show that you are not yet registered); ' +
-                           'we have prepared a pre-filled form for you at\n\n' +
+                           '(this is required in order to deliver reports; '
+                           'our records show that you are not yet registered); ' +
+                           'for your convenience, we have prepared a pre-filled form for you at\n\n' +
                            'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n' +
                            'after which your registration will be activated, allowing you to contribute, '
                            'in particular by providing referee reports.\n\n' +
+                           'We very much hope that we can count on your expertise,\n\n'
                            'Many thanks in advance,\n\nThe SciPost Team')
             emailmessage = EmailMessage(
-                'SciPost registration invitation', email_text,
+                'SciPost: refereeing request (and registration invitation)', email_text,
                 'SciPost Registration <registration@scipost.org>',
                 [cls.invitation.email],
                 ['registration@scipost.org'],

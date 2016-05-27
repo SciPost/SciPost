@@ -354,7 +354,8 @@ def accept_or_decline_assignment_ack(request, assignment_id):
                     deadline += datetime.timedelta(days=28)
                 assignment.submission.reporting_deadline = deadline
                 assignment.submission.open_for_commenting = True
-
+                assignment.submission.latest_activity = timezone.now()
+                
                 SubmissionUtils.load({'assignment': assignment})
                 SubmissionUtils.deprecate_other_assignments()
                 assign_perm('can_take_editorial_actions', contributor.user, assignment.submission)
@@ -404,6 +405,7 @@ def volunteer_as_EIC(request, submission_id):
     submission.open_for_reporting = True
     submission.reporting_deadline = deadline
     submission.open_for_commenting = True
+    submission.latest_activity = timezone.now()
     assignment.save()
     submission.save()
 
@@ -426,6 +428,7 @@ def assignment_failed(request, submission_id):
     """
     submission = get_object_or_404(Submission, pk=submission_id)
     submission.status = 'assignment_failed'
+    submission.latest_activity = timezone.now()
     submission.save()
     SubmissionUtils.load({'submission': submission})
     SubmissionUtils.deprecate_all_assignments()
@@ -440,9 +443,12 @@ def assignment_failed(request, submission_id):
 def editorial_page(request, submission_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     ref_invitations = RefereeInvitation.objects.filter(submission=submission)
+    nr_reports_to_vet = Report.objects.filter(status=0, submission__editor_in_charge=request.user.contributor).count()
 
     communications = EditorialCommunication.objects.filter(submission=submission).order_by('timestamp')
-    context = {'submission': submission, 'ref_invitations': ref_invitations, 'communications': communications}
+    context = {'submission': submission, 'ref_invitations': ref_invitations,
+               'nr_reports_to_vet': nr_reports_to_vet,
+               'communications': communications}
     return render(request, 'submissions/editorial_page.html', context)
 
 
@@ -487,7 +493,10 @@ def recruit_referee(request, submission_id):
                                                invited_by = request.user.contributor)
             ref_invitation.save()
             # Create and send a registration invitation
-            ref_inv_message_head = ('You have been invited to referee a Submission to SciPost Physics, namely\n\n' +
+            ref_inv_message_head = ('On behalf of the Editor-in-charge ' +
+                                    title_dict[submission.editor_in_charge.title] + ' ' +
+                                    submission.editor_in_charge.user.last_name +
+                                    ', we would like to invite you to referee a Submission to SciPost Physics, namely\n\n' +
                                     submission.title + '\nby ' + submission.author_list + '.')
             reg_invitation = RegistrationInvitation (
                 title = ref_recruit_form.cleaned_data['title'],
@@ -508,7 +517,7 @@ def recruit_referee(request, submission_id):
 
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
 
-            
+
 @login_required
 @permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def send_refereeing_invitation(request, submission_id, contributor_id):
@@ -521,8 +530,10 @@ def send_refereeing_invitation(request, submission_id, contributor_id):
     submission = get_object_or_404(Submission, pk=submission_id)
     contributor = get_object_or_404(Contributor, pk=contributor_id)
     invitation = RefereeInvitation(submission=submission,
-                                   referee=contributor, title=contributor.title, 
-                                   first_name=contributor.user.first_name, last_name=contributor.user.last_name,
+                                   referee=contributor,
+                                   title=contributor.title, 
+                                   first_name=contributor.user.first_name,
+                                   last_name=contributor.user.last_name,
                                    email_address=contributor.user.email,
                                    invitation_key='notused', # the key is only used for inviting unregistered users
                                    date_invited=timezone.now(),
@@ -531,6 +542,23 @@ def send_refereeing_invitation(request, submission_id, contributor_id):
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_refereeing_invitation_email()
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
+
+
+@login_required
+@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
+def ref_invitation_reminder(request, submission_id, invitation_id):
+    """
+    This method is used by the Editor-in-charge from the editorial_page
+    when a referee has been invited but hasn't answered yet.
+    It can be used for registered as well as unregistered referees.
+    """
+    invitation = get_object_or_404 (RefereeInvitation, pk=invitation_id)
+    invitation.nr_reminders += 1
+    invitation.date_last_reminded = timezone.now()
+    invitation.save()
+    SubmissionUtils.load({'invitation': invitation})
+    SubmissionUtils.send_ref_reminder_email()
+    return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))    
 
 
 @login_required
@@ -569,7 +597,11 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
 @permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def extend_refereeing_deadline(request, submission_id, days):
     submission = get_object_or_404 (Submission, pk=submission_id)
-    submission.reporting_deadline += datetime.timedelta(days=int(days))
+    submission.reporting_deadline = timezone.now() + datetime.timedelta(days=int(days))
+    submission.open_for_reporting = True
+    submission.open_for_commenting = True
+    submission.status = 'EICassigned'
+    submission.latest_activity = timezone.now()
     submission.save()
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
     
@@ -579,8 +611,10 @@ def extend_refereeing_deadline(request, submission_id, days):
 def close_refereeing_round(request, submission_id):
     submission = get_object_or_404 (Submission, pk=submission_id)
     submission.open_for_reporting = False
+    submission.open_for_commenting = False
     submission.status = 'review_closed'
     submission.reporting_deadline = timezone.now()
+    submission.latest_activity = timezone.now()
     submission.save()
     return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
 
@@ -592,7 +626,27 @@ def communication(request, submission_id, comtype, referee_id=None):
     occurring during the submission refereeing.
     """
     submission = get_object_or_404 (Submission, pk=submission_id)
+    errormessage = None
+    if not comtype in ed_comm_choices_dict.keys():
+        errormessage = 'Unknown type of cummunication.'
     # TODO: Verify that this is requested by an authorized contributor (eic, ref, author)
+    elif (comtype in ['EtoA', 'EtoR', 'EtoS'] and
+          not request.user.has_perm('can_take_editorial_actions', submission)):
+        errormessage = 'Only the Editor-in-charge can perform this action.'
+    elif (comtype in ['AtoE'] and
+          not (request.user.contributor == submission.submitted_by)):
+        errormessage = 'Only the corresponding author can perform this action.'
+    elif (comtype in ['RtoE'] and
+          not (RefereeInvitation.objects
+               .filter(submission=submission, referee=request.user.contributor).exists())):
+        errormessage = 'Only invited referees for this Submission can perform this action.'
+    elif (comtype in ['StoE'] and
+          not request.user.groups.filter(name='Editorial Administrators').exists()):
+        errormessage = 'Only Editorial Administrators can perform this action.'
+    if errormessage is not None:
+        context = {'errormessage': errormessage, 'comtype': comtype}
+        return render(request, 'submissions/communication.html', context)
+
     if request.method == 'POST':
         form = EditorialCommunicationForm(request.POST)
         if form.is_valid():
@@ -604,13 +658,17 @@ def communication(request, submission_id, comtype, referee_id=None):
                 referee = get_object_or_404(Contributor, pk=referee_id)
                 communication.referee = referee
             communication.save()
+            SubmissionUtils.load({'communication': communication})
+            SubmissionUtils.send_communication_email()
             if comtype == 'EtoA' or comtype == 'EtoR' or comtype == 'EtoS':
                 return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
-            elif comtype == 'AtoE' or comtype == 'RtoE' or comtype == 'StoE':
+            elif comtype == 'AtoE' or comtype == 'RtoE':
                 return redirect(reverse('scipost:personal_page'))
+            elif comtype == 'StoE':
+                return redirect(reverse('submissions:pool'))
     else:
         form = EditorialCommunicationForm()
-    context = {'submission': submission, 'comtype': comtype, 'form': form}
+    context = {'submission': submission, 'comtype': comtype, 'referee_id': referee_id, 'form': form}
     return render(request, 'submissions/communication.html', context)
 
 
@@ -726,6 +784,8 @@ def vet_submitted_report_ack(request, report_id):
                 # accept the report as is
                 report.status = 1
                 report.save()
+                report.submission.latest_activity = timezone.now()
+                report.submission.save()
             elif form.cleaned_data['action_option'] == '2':
                 # the report is simply rejected
                 report.status = form.cleaned_data['refusal_reason']
@@ -734,6 +794,6 @@ def vet_submitted_report_ack(request, report_id):
             SubmissionUtils.load({'report': report, 'email_response': form.cleaned_data['email_response_field']})
             SubmissionUtils.acknowledge_report_email() # email report author, bcc EIC
             SubmissionUtils.send_author_report_received_email()
-    context = {}
+    context = {'submission': report.submission}
     return render(request, 'submissions/vet_submitted_report_ack.html', context)
 

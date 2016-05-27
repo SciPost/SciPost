@@ -11,6 +11,9 @@
 {% block bodysup %}
 
 <section>
+  {% if errormessage %}
+  <p>{{ errormessage }}</p>
+  {% else %}
   <div class="flex-greybox">
     <h1>Send a Communication</h1>
   </div>
@@ -26,12 +29,21 @@
   <ul>{{ submission.header_as_li }}</ul>
 
   <br/>
+  {% if referee_id %}
+  <form action="{% url 'submissions:communication' submission_id=submission.id comtype=comtype referee_id=referee_id %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Send communication"/>
+  </form>
+  {% else %}
   <form action="{% url 'submissions:communication' submission_id=submission.id comtype=comtype %}" method="post">
     {% csrf_token %}
     {{ form }}
     <input type="submit" value="Send communication"/>
   </form>
+  {% endif %}
 
+  {% endif %}
 </section>
 
 {% endblock bodysup %}

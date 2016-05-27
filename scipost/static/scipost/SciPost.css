@@ -230,6 +230,19 @@ ul.personalTabMenu li a.inactive {
   border-radius: 4px;
 }
 
+.ref_listing {
+    border-collapse: collapse;
+    margin: 0px 5px;
+    padding: 0px;
+}
+.ref_listing tr {
+    background-color: #dddddd;
+    border: 1px solid black;
+}
+.ref_listing td {
+    padding: 2px 8px;
+}
+
 .tableofInvitees td {
   padding: 0px 4px;
 }
