@@ -338,18 +338,21 @@ class SubmissionUtils(object):
                 bcc_emails.append(cls.communication.submission.submitted_by.user.email)
             elif cls.communication.comtype == 'RtoE':
                 bcc_emails.append(cls.communication.referee.user.email)
+            bcc_emails.append('submissions@scipost.org')
         elif cls.communication.comtype in ['EtoA']:
             recipient_email.append(cls.communication.submission.submitted_by.user.email)
             recipient_greeting = ('Dear ' +
                                   title_dict[cls.communication.submission.submitted_by.title] + ' ' +
                                   cls.communication.submission.submitted_by.user.last_name)
             bcc_emails.append(cls.communication.submission.editor_in_charge)
+            bcc_emails.append('submissions@scipost.org')
         elif cls.communication.comtype in ['EtoR']:
             recipient_email.append(cls.communication.referee.user.email)
             recipient_greeting = ('Dear ' +
                                   title_dict[cls.communication.referee.title] + ' ' +
                                   cls.communication.referee.user.last_name)
             bcc_emails.append(cls.communication.submission.editor_in_charge)
+            bcc_emails.append('submissions@scipost.org')
         elif cls.communication.comtype in ['EtoS']:
             recipient_email.append('submissions@scipost.org')
             recipient_greeting = 'Dear Editorial Administrators'

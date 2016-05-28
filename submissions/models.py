@@ -331,7 +331,7 @@ class RefereeInvitation(models.Model):
         else:
             output += 'response pending'
         if self.fulfilled:
-            output += '; Report has been delivered'
+            output += '<br/><strong style="color: green">task fulfilled</strong>'
         output += '</td>'
         template = Template(output)
         return template.render(context)

@@ -56,7 +56,13 @@
 	    (not yet registered)
 	    {% endif %}
 	  </td>
-	  <td><a href="{% url 'submissions:ref_invitation_reminder' submission_id=submission.id invitation_id=invitation.id %}">Send reminder email</a></td>
+	  <td>
+	  {% if not invitation.fulfilled %}
+	  <a href="{% url 'submissions:ref_invitation_reminder' submission_id=submission.id invitation_id=invitation.id %}">Send reminder email</a>
+	  {% else %}
+	  <strong style="color: green">Report has been delivered</strong>
+	  {% endif %}
+	  </td>
 	  {% else %}
 	  <td></td><td></td>
 	  {% endif %}
