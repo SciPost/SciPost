@@ -73,7 +73,7 @@ class Contributor(models.Model):
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
     address = models.CharField(max_length=1000, verbose_name="address", default='', blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
-    vetted_by = models.ForeignKey('self', related_name="contrib_vetted_by", blank=True, null=True)
+    vetted_by = models.ForeignKey('self', related_name="contrib_vetted_by", blank=True, null=True)  
 
 
     def __str__ (self):
@@ -168,7 +168,8 @@ class RegistrationInvitation(models.Model):
     responded = models.BooleanField(default=False)
 
     def __str__ (self):
-        return self.invitation_type + ' ' + self.first_name + ' ' + self.last_name + ' on ' + self.date_sent.strftime("%Y-%m-%d")
+        return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name 
+                + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
 
 
 
@@ -196,7 +197,7 @@ class AuthorshipClaim(models.Model):
 ### Assessments
 
 #ASSESSMENT_CHOICES = (
-#    (101, '-'), # Only values between 0 and 100 are kept, anything outside those limits is discarded.
+#    (101, '-'), # Only values between 0 and 100 are kept, anything outside limits is discarded.
 #    (100, 'top'), (80, 'high'), (60, 'good'), (40, 'ok'), (20, 'low'), (0, 'poor')
 #    )
 
@@ -271,17 +272,22 @@ class List(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     created = models.DateTimeField(default=timezone.now)
-    submissions = models.ManyToManyField('submissions.Submission', blank=True, related_name='list_submissions')
-    commentaries = models.ManyToManyField('commentaries.Commentary', blank=True, related_name='list_commentaries')
-    thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True, related_name='list_thesislinks')
-    comments = models.ManyToManyField('comments.Comment', blank=True, related_name='list_comments')
+    submissions = models.ManyToManyField('submissions.Submission', blank=True, 
+                                         related_name='list_submissions')
+    commentaries = models.ManyToManyField('commentaries.Commentary', blank=True, 
+                                          related_name='list_commentaries')
+    thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True, 
+                                         related_name='list_thesislinks')
+    comments = models.ManyToManyField('comments.Comment', blank=True, 
+                                      related_name='list_comments')
 
     class Meta:
         default_permissions = ['add', 'view', 'change', 'delete']
 
 
     def __str__(self):
-        return self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' ' + self.owner.user.last_name + ')'
+        return (self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' ' 
+                + self.owner.user.last_name + ')')
 
 
     def header(self):
@@ -289,7 +295,8 @@ class List(models.Model):
                            'first_name': self.owner.user.first_name,
                            'last_name': self.owner.user.last_name})
         template = Template('''
-            <p>List <a href="{% url 'scipost:list' list_id=id %}">{{ title }}</a> (owner: {{ first_name }} {{ last_name }})</p>
+        <p>List <a href="{% url 'scipost:list' list_id=id %}">{{ title }}
+        </a> (owner: {{ first_name }} {{ last_name }})</p>
         ''')
         return template.render(context)
 
@@ -299,7 +306,8 @@ class List(models.Model):
                            'first_name': self.owner.user.first_name,
                            'last_name': self.owner.user.last_name})
         template = Template('''
-           <li><p>List <a href="{% url 'scipost:list' list_id=id %}">{{ title }}</a> (owner: {{ first_name }} {{ last_name }})</p></li>
+        <li><p>List <a href="{% url 'scipost:list' list_id=id %}">
+        {{ title }}</a> (owner: {{ first_name }} {{ last_name }})</p></li>
         ''')
         return template.render(context)
 
@@ -357,11 +365,13 @@ class Team(models.Model):
 
 
     def __str__(self):
-        return self.name + ' (led by ' + self.leader.user.first_name + ' ' + self.leader.user.last_name + ')'
+        return (self.name + ' (led by ' + self.leader.user.first_name + ' ' 
+                + self.leader.user.last_name + ')')
 
     def header_as_li(self):
         context = Context({'name': self.name,})
-        output = '<li><p>Team {{ name }}, led by ' + self.leader.user.first_name + ' ' + self.leader.user.last_name + '</p>'
+        output = ('<li><p>Team {{ name }}, led by ' + self.leader.user.first_name + ' ' 
+                  + self.leader.user.last_name + '</p>')
         output += '<p>Members: '
         if not self.members.all():
             output += '(none yet, except for the leader)'
@@ -395,14 +405,16 @@ class Graph(models.Model):
 
 
     def __str__(self):
-        return self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' ' + self.owner.user.last_name + ')'
+        return (self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' ' 
+                + self.owner.user.last_name + ')')
 
     def header_as_li(self):
         context = Context({'id': self.id, 'title': self.title, 
                            'first_name': self.owner.user.first_name, 
                            'last_name': self.owner.user.last_name})
         template = Template('''
-           <li><p>Graph <a href="{% url 'scipost:graph' graph_id=id %}">{{ title }}</a> (owner: {{ first_name }} {{ last_name }})</li>
+        <li><p>Graph <a href="{% url 'scipost:graph' graph_id=id %}">
+        {{ title }}</a> (owner: {{ first_name }} {{ last_name }})</li>
         ''')
         return template.render(context)
 
@@ -423,11 +435,13 @@ class Node(models.Model):
     added_by = models.ForeignKey(Contributor, default=None)
     created = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=100)
-# REPLACED BY CLASS Arc   arcs_in = models.ManyToManyField('self', blank=True, related_name='node_arcs_in', symmetrical=False) # arcs from another node pointing into this node
     description = models.TextField(blank=True, null=True)
-    submissions = models.ManyToManyField('submissions.Submission', blank=True, related_name='node_submissions')
-    commentaries = models.ManyToManyField('commentaries.Commentary', blank=True, related_name='node_commentaries')
-    thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True, related_name='node_thesislinks')
+    submissions = models.ManyToManyField('submissions.Submission', blank=True, 
+                                         related_name='node_submissions')
+    commentaries = models.ManyToManyField('commentaries.Commentary', blank=True, 
+                                          related_name='node_commentaries')
+    thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True, 
+                                         related_name='node_thesislinks')
 
     class Meta:
         default_permissions = ['add', 'view', 'change', 'delete']
@@ -438,14 +452,16 @@ class Node(models.Model):
 
     def header_as_p(self):
         context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name})
-        output = '<p class="node_p" id="node_id{{ id }}"><a href="{% url \'scipost:graph\' graph_id=graph_id %}">{{ name }}</a></p>'
+        output = ('<p class="node_p" id="node_id{{ id }}">'
+                  + '<a href="{% url \'scipost:graph\' graph_id=graph_id %}">{{ name }}</a></p>')
         template = Template(output)
         return template.render(context)
 
     def contents(self):
         context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name, 
                            'description': self.description})
-        output = '<div class="node_contents node_id{{ id }}"><h3>{{ name }}</h3><p>{{ description }}</p></div>'
+        output = ('<div class="node_contents node_id{{ id }}">'
+                  + '<h3>{{ name }}</h3><p>{{ description }}</p></div>')
         template = Template(output)
         return template.render(context)
 

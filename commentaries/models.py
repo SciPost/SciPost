@@ -16,7 +16,9 @@ COMMENTARY_TYPES = (
     )
 
 class Commentary(models.Model):
-    """ A Commentary contains all the contents of a SciPost Commentary page for a given publication. """
+    """ 
+    A Commentary contains all the contents of a SciPost Commentary page for a given publication. 
+    """
     requested_by = models.ForeignKey (Contributor, blank=True, null=True, related_name='requested_by')
     vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
@@ -26,17 +28,25 @@ class Commentary(models.Model):
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     open_for_commenting = models.BooleanField(default=True)
     pub_title = models.CharField(max_length=300, verbose_name='title')
-    arxiv_identifier = models.CharField(max_length=100, verbose_name="arXiv identifier (including version nr)", blank=True, null=True)
+    arxiv_identifier = models.CharField(max_length=100, 
+                                        verbose_name="arXiv identifier (including version nr)", 
+                                        blank=True, null=True)
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)
-    pub_DOI = models.CharField(max_length=200, verbose_name='DOI of the original publication', blank=True, null=True)
+    pub_DOI = models.CharField(max_length=200, verbose_name='DOI of the original publication', 
+                               blank=True, null=True)
     pub_DOI_link = models.URLField(verbose_name='DOI link to the original publication', blank=True)
     metadata = JSONField(default={}, blank=True, null=True)
-    arxiv_or_DOI_string = models.CharField(max_length=100, verbose_name='string form of arxiv nr or DOI for commentary url', default='')
+    arxiv_or_DOI_string = models.CharField(max_length=100, 
+                                           verbose_name='string form of arxiv nr or DOI for commentary url', 
+                                           default='')
     author_list = models.CharField(max_length=1000)
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_com')
-    authors_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_com_claims')
-    authors_false_claims = models.ManyToManyField (Contributor, blank=True, related_name='authors_com_false_claims')
+    authors = models.ManyToManyField (Contributor, blank=True, 
+                                      related_name='authors_com')
+    authors_claims = models.ManyToManyField (Contributor, blank=True, 
+                                             related_name='authors_com_claims')
+    authors_false_claims = models.ManyToManyField (Contributor, blank=True, 
+                                                   related_name='authors_com_false_claims')
     journal = models.CharField(max_length=300, blank=True, null=True)
     volume = models.CharField(max_length=50, blank=True, null=True)
     pages = models.CharField(max_length=50, blank=True, null=True)
@@ -61,16 +71,20 @@ class Commentary(models.Model):
         if self.authors.all():
             header += '<td>'
             for auth in self.authors.all():
-                header += '<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name + ' ' + auth.user.last_name + '</a>,&nbsp;'
+                header += ('<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name 
+                           + ' ' + auth.user.last_name + '</a>,&nbsp;')
             header += '</td>'
         else:
             header += '<td>(none claimed)</td>'
         header += '</tr>'
         if self.type == 'published':
-            header += '<tr><td>Journal ref.: </td><td>&nbsp;</td><td>{{ journal }} {{ volume }}, {{ pages }}</td></tr>'
-            header += '<tr><td>DOI: </td><td>&nbsp;</td><td><a href="{{ pub_DOI_link }}" target="_blank">{{ pub_DOI_link }}</a></td></tr>'
+            header += ('<tr><td>Journal ref.: </td><td>&nbsp;</td><td>{{ journal }} {{ volume }}, '
+                       '{{ pages }}</td></tr>')
+            header += ('<tr><td>DOI: </td><td>&nbsp;</td><td><a href="{{ pub_DOI_link }}" '
+                       'target="_blank">{{ pub_DOI_link }}</a></td></tr>')
         elif self.type == 'preprint':
-            header += '<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="{{ arxiv_link }}">{{ arxiv_link }}</a></td></tr>'
+            header += ('<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="{{ arxiv_link }}">'
+                       '{{ arxiv_link }}</a></td></tr>')
         if self.pub_date:
             header += '<tr><td>Date: </td><td>&nbsp;</td><td>{{ pub_date }}</td></tr>'
         header += '</table>'
@@ -95,7 +109,8 @@ class Commentary(models.Model):
                            'author_list': self.author_list, 
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
         header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" class="pubtitleli">{{ pub_title }}</a></p>'
+        header += ('<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" '
+                   'class="pubtitleli">{{ pub_title }}</a></p>')
         header += '<p>by {{ author_list }}'
         if self.type == 'published':
             header += ', {{ journal }} {{ volume }}, {{ pages }}'
@@ -120,7 +135,8 @@ class Commentary(models.Model):
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
                            'author_list': self.author_list})
         header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" class="pubtitleli">{{ pub_title }}</a></p>'
+        header += ('<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" '
+                   'class="pubtitleli">{{ pub_title }}</a></p>')
         header += '<p>by {{ author_list }}'
         if self.type == 'published':
             header += ', {{ journal }} {{ volume }}, {{ pages }}'

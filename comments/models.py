@@ -34,7 +34,8 @@ COMMENT_STATUS = (
 comment_status_dict = dict(COMMENT_STATUS)
 
 class Comment(models.Model):
-    """ A Comment is an unsollicited note, submitted by a Contributor, on a particular publication or in reply to an earlier Comment. """
+    """ A Comment is an unsollicited note, submitted by a Contributor, 
+    on a particular publication or in reply to an earlier Comment. """
     # status:
     # 1: vetted
     # 0: unvetted
@@ -42,8 +43,10 @@ class Comment(models.Model):
     # -2: rejected (incorrect)
     # -3: rejected (not useful)
     status = models.SmallIntegerField(default=0)
-    vetted_by = models.ForeignKey(Contributor, blank=True, null=True, related_name='comment_vetted_by')
-    commentary = models.ForeignKey(Commentary, blank=True, null=True) # a Comment is either for a Commentary or Submission
+    vetted_by = models.ForeignKey(Contributor, blank=True, null=True, 
+                                  related_name='comment_vetted_by')
+    # a Comment is either for a Commentary or Submission
+    commentary = models.ForeignKey(Commentary, blank=True, null=True) 
     submission = models.ForeignKey(Submission, blank=True, null=True)
     thesislink = models.ForeignKey(ThesisLink, blank=True, null=True)
     is_author_reply = models.BooleanField(default=False)
@@ -62,15 +65,19 @@ class Comment(models.Model):
     is_lit = models.BooleanField(default=False, verbose_name='pointer to related literature')
     is_sug = models.BooleanField(default=False, verbose_name='suggestion for further work')
     comment_text = models.TextField()
-    remarks_for_editors = models.TextField(default='', blank=True, verbose_name='optional remarks for the Editors only')
+    remarks_for_editors = models.TextField(default='', blank=True, 
+                                           verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted')
     # Opinions 
     nr_A = models.PositiveIntegerField(default=0)
-    in_agreement = models.ManyToManyField(Contributor, related_name='in_agreement', blank=True)
+    in_agreement = models.ManyToManyField(Contributor, 
+                                          related_name='in_agreement', blank=True)
     nr_N = models.PositiveIntegerField(default=0)
-    in_notsure = models.ManyToManyField(Contributor, related_name='in_notsure', blank=True)
+    in_notsure = models.ManyToManyField(Contributor, 
+                                        related_name='in_notsure', blank=True)
     nr_D = models.PositiveIntegerField(default=0)
-    in_disagreement = models.ManyToManyField(Contributor, related_name='in_disagreement', blank=True)
+    in_disagreement = models.ManyToManyField(Contributor, 
+                                             related_name='in_disagreement', blank=True)
 
     def __str__ (self):
         return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name + 
@@ -126,27 +133,34 @@ class Comment(models.Model):
         if self.is_author_reply:
             output += 'Author '
         if not self.anonymous:
-            output += ' <a href="/contributor/{{ author_id }}">{{ first_name }} {{ last_name }}</a> on '
+            output += (' <a href="/contributor/{{ author_id }}">' 
+                       + '{{ first_name }} {{ last_name }}</a> on ')
             context['author_id'] = self.author.id
             context['first_name'] = self.author.user.first_name
             context['last_name'] = self.author.user.last_name
         output += '{{ date_submitted }}'
         context['date_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
         if self.in_reply_to_comment:
-            output += (' (in reply to <a href="#comment_id{{ in_reply_to_comment_id }}">' + 
-                       '{{ in_reply_to_comment_first_name }} {{ in_reply_to_comment_last_name }} on ' + 
+            output += (' (in reply to <a href="#comment_id{{ in_reply_to_comment_id }}">' 
+                       '{{ in_reply_to_comment_first_name }} '
+                       '{{ in_reply_to_comment_last_name }} on '
                        '{{ in_reply_to_comment_date }}</a>)')
             context['in_reply_to_comment_id'] = self.in_reply_to_comment_id
-            context['in_reply_to_comment_first_name'] = self.in_reply_to_comment.author.user.first_name
-            context['in_reply_to_comment_last_name'] = self.in_reply_to_comment.author.user.last_name
-            context['in_reply_to_comment_date'] = self.in_reply_to_comment.date_submitted.strftime("%Y-%m-%d")
+            context['in_reply_to_comment_first_name'] = (self.in_reply_to_comment
+                                                         .author.user.first_name)
+            context['in_reply_to_comment_last_name'] = (self.in_reply_to_comment
+                                                        .author.user.last_name)
+            context['in_reply_to_comment_date'] = (self.in_reply_to_comment
+                                                   .date_submitted.strftime("%Y-%m-%d"))
         elif self.in_reply_to_report:
             output += ' (in reply to <a href="#report_id{{ in_reply_to_report_id }}">'
             context['in_reply_to_report_id'] = self.in_reply_to_report_id
             if not self.in_reply_to_report.anonymous:
                 output += '{{ in_reply_to_report_first_name }} {{ in_reply_to_report_last_name}}'
-                context['in_reply_to_report_first_name'] = self.in_reply_to_report.author.user.first_name
-                context['in_reply_to_report_last_name'] = self.in_reply_to_report.author.user.last_name
+                context['in_reply_to_report_first_name'] = (self.in_reply_to_report
+                                                            .author.user.first_name)
+                context['in_reply_to_report_last_name'] = (self.in_reply_to_report
+                                                           .author.user.last_name)
             else:
                 output += 'Report {{ in_reply_to_report_id }}'
                 context['in_reply_to_report_id'] = self.in_reply_to_report_id
@@ -171,20 +185,25 @@ class Comment(models.Model):
         output += '{{ date_submitted }}'
         context['date_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
         if self.in_reply_to_comment:
-            output += (' (in reply to <a href="#comment_id{{ in_reply_to_comment_id }}">' + 
-                       '{{ in_reply_to_comment_first_name }} {{ in_reply_to_comment_last_name }} on ' + 
-                       '{{ in_reply_to_comment_date }}</a>)')
+            output += (' (in reply to <a href="#comment_id{{ in_reply_to_comment_id }}">'
+                       '{{ in_reply_to_comment_first_name }} {{ in_reply_to_comment_last_name }} '
+                       'on {{ in_reply_to_comment_date }}</a>)')
             context['in_reply_to_comment_id'] = self.in_reply_to_comment_id
-            context['in_reply_to_comment_first_name'] = self.in_reply_to_comment.author.user.first_name
-            context['in_reply_to_comment_last_name'] = self.in_reply_to_comment.author.user.last_name
-            context['in_reply_to_comment_date'] = self.in_reply_to_comment.date_submitted.strftime("%Y-%m-%d")            
+            context['in_reply_to_comment_first_name'] = (self.in_reply_to_comment
+                                                         .author.user.first_name)
+            context['in_reply_to_comment_last_name'] = (self.in_reply_to_comment
+                                                        .author.user.last_name)
+            context['in_reply_to_comment_date'] = (self.in_reply_to_comment
+                                                   .date_submitted.strftime("%Y-%m-%d"))
         elif self.in_reply_to_report:
             output += ' (in reply to <a href="#report_id{{ in_reply_to_report_id }}">'
             context['in_reply_to_report_id'] = self.in_reply_to_report_id
             if not self.in_reply_to_report.anonymous:
                 output += '{{ in_reply_to_report_first_name }} {{ in_reply_to_report_last_name}}'
-                context['in_reply_to_report_first_name'] = self.in_reply_to_report.author.user.first_name
-                context['in_reply_to_report_last_name'] = self.in_reply_to_report.author.user.last_name
+                context['in_reply_to_report_first_name'] = (self.in_reply_to_report
+                                                            .author.user.first_name)
+                context['in_reply_to_report_last_name'] = (self.in_reply_to_report
+                                                           .author.user.last_name)
             else:
                 output += 'Report {{ in_reply_to_report_id }}'
                 context['in_reply_to_report_id'] = self.in_reply_to_report_id
@@ -203,7 +222,8 @@ class Comment(models.Model):
         context = Context({'id': self.id})
         header += ', <div class="opinionsDisplay">' + self.opinions_as_ul_tiny() + '</div>'
         if self.status <= 0:
-            header += ', status: <span style="color:red">' + comment_status_dict[self.status] + '</span>'
+            header += (', status: <span style="color:red">' 
+                       + comment_status_dict[self.status] + '</span>')
         text_cut = self.comment_text[:50]
         if len(self.comment_text) > 50:
             text_cut += '...'
@@ -212,30 +232,33 @@ class Comment(models.Model):
         context['date_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
         header += ': '
         if not self.anonymous:
-            header += ' <a href="/contributor/{{ author_id }}">{{ first_name }} {{ last_name }}</a>, '
+            header += (' <a href="/contributor/{{ author_id }}">'
+                       '{{ first_name }} {{ last_name }}</a>, ')
             context['author_id'] = self.author.id
             context['first_name'] = self.author.user.first_name
             context['last_name'] = self.author.user.last_name
         if self.submission is not None:
-            header += ('<a href="/submission/{{ submission_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>' + 
-                       '<p>submitted on {{ date_submitted }}')
-            header += (' in submission on <a href="/submission/{{ submission_id }}" class="pubtitleli">' + 
-                       '{{ submission_title }}</a> by {{ submission_author_list }}</p>')
+            header += ('<a href="/submission/{{ submission_id }}#comment_id{{ id }}">'
+                       ' \"{{ text_cut }}\"</a><p>submitted on {{ date_submitted }}')
+            header += (' in submission on <a href="/submission/{{ submission_id }}"'
+                       ' class="pubtitleli">{{ submission_title }}</a> by '
+                       '{{ submission_author_list }}</p>')
             context['submission_id'] = self.submission.id
             context['submission_title'] = self.submission.title
             context['submission_author_list'] = self.submission.author_list
         if self.commentary is not None:
-            header += ('<a href="/commentary/{{ commentary_url }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>' +
-                       '<p>submitted on {{ date_submitted }}')
-            header += (' in commentary on <a href="/commentary/{{ commentary_url }}" class="pubtitleli">' + 
+            header += ('<a href="/commentary/{{ commentary_url }}#comment_id{{ id }}">'
+                       ' \"{{ text_cut }}\"</a><p>submitted on {{ date_submitted }}')
+            header += (' in commentary on <a href="/commentary/{{ commentary_url }}"'
+                       ' class="pubtitleli">'  
                        '{{ commentary_pub_title }}</a> by {{ commentary_author_list }}</p>')
             context['commentary_url'] = self.commentary.arxiv_or_DOI_string
             context['commentary_pub_title'] = self.commentary.pub_title
             context['commentary_author_list'] = self.commentary.author_list
         if self.thesislink is not None:
-            header += ('<a href="/thesis/{{ thesislink_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>' +
-                       '<p>submitted on {{ date_submitted }}')
-            header += (' in thesislink on <a href="/thesis/{{ thesislink_id }}" class="pubtitleli">' + 
+            header += ('<a href="/thesis/{{ thesislink_id }}#comment_id{{ id }}">'
+                       ' \"{{ text_cut }}\"</a><p>submitted on {{ date_submitted }}')
+            header += (' in thesislink on <a href="/thesis/{{ thesislink_id }}" class="pubtitleli">'
                        '{{ thesislink_title }}</a> by {{ thesislink_author }}</p>')
             context['thesislink_id'] = self.thesis.link.id
             context['thesislink_title'] = self.thesislink.title
