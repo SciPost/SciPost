@@ -11,10 +11,16 @@
   
   <p id="journalsannounce">OPEN FOR SUBMISSION STARTING JUNE 2016</p>
 
-  <p>Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
-  <p>In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a>
-    and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.</p>
-  <p>Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.</p>
+  <p>Before submitting, make sure you agree with the
+    <a href="{% url 'journals:journals_terms_and_conditions' %}">
+      SciPost Journals Terms and Conditions</a>.</p>
+  <p>In particular, make sure you are familiar with the 
+    <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">
+      license and copyright agreement</a>
+    and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">
+      author obligations</a>.</p>
+  <p>Please prepare your manuscript according to the 
+    <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.</p>
   
   {% if False %} <!-- Temporary deactivate submissions -->
 
@@ -22,7 +28,9 @@
 
   <div class="flex-greybox">
     <h3><em>You can prefill part of the form using the arXiv identifier:</em></h3>
-    <p><em>(give the identifier without prefix but with version number, as per the placeholder)</em></p>
+    <p>
+      <em>(give the identifier without prefix but with version number, as per the placeholder)</em>
+    </p>
     <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
       {% csrf_token %}
       {{ identifierform }}
@@ -42,9 +50,12 @@
       </ul>
     </table>
     <p>By clicking on Submit, you state that you have read and agree with
-      the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>,
-      the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a>
-      and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.</p>
+      the <a href="{% url 'journals:journals_terms_and_conditions' %}">
+	SciPost Journals Terms and Conditions</a>, the
+      <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">
+	license and copyright agreement</a>
+      and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">
+	author obligations</a>.</p>
     <input type="submit" value="Submit"/>
   </form>
   {% else %}

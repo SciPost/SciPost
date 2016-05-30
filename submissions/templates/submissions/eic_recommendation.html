@@ -14,8 +14,10 @@
 <section>
   <div class="flex-greybox">
     <h1>Formulate Editorial Recommendation for Submission</h1>
-    <h3>(go to the <a href="{% url 'submissions:submission' submission_id=submission.id %}">Submissions Page</a> to view Reports and Comments)</h3>
-    <h3>(go back to the <a href="{% url 'submissions:editorial_page' submission_id=submission.id %}">Editorial Page</a> to take editorial actions)</h3>
+    <h3>(go to the <a href="{% url 'submissions:submission' submission_id=submission.id %}">
+	Submissions Page</a> to view Reports and Comments)</h3>
+    <h3>(go back to the <a href="{% url 'submissions:editorial_page' submission_id=submission.id %}">
+	Editorial Page</a> to take editorial actions)</h3>
   </div>
 
   <hr class="hr12">
@@ -33,7 +35,11 @@
 
 <section>
   <div class="flex-greybox">
-    <h1>Your Editorial Recommendation (to be forwarded to the Editorial College for ratification)</h1>
+    <h1>Your Editorial Recommendation</h1>
+    <p>You recommendation will be processed by the Editorial Administration.</p>
+    <ul>
+      <li>acceptance or rejection: forwarded to the Editorial College for ratification</li>
+      <li>request for revision: sent directly to the authors</li>
   </div>
 
   <form action="{% url 'submissions:eic_recommendation' submission_id=submission.id %}" method="post">

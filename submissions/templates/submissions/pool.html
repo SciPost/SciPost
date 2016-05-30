@@ -20,6 +20,7 @@ $(document).ready(function(){
   });
 </script>
 
+{% load guardian_tags %}
 {% load scipost_extras %}
 
 <section>
@@ -70,6 +71,11 @@ $(document).ready(function(){
     {% for sub in submissions_in_pool %}
     <br/>
     {{ sub.header_as_li_for_Fellows }}
+    {% get_obj_perms request.user for sub as "sub_perms" %}
+    {% if "can_take_editorial_actions" in sub_perms or request.user|is_in_group:'Editorial Administrators' %}
+    <h4><a href="{% url 'submissions:editorial_page' submission_id=sub.id %}">
+      Go to this Submission's Editorial Page</a></h4>
+    {% endif %}
     {% if perms.scipost.can_assign_submissions %}
     {% if sub.editorialassignment_set.all %}
     <h4>EIC Assignment requests:</h4>

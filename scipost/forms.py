@@ -27,12 +27,23 @@ class RegistrationForm(forms.Form):
     first_name = forms.CharField(label='* First name', max_length=100)
     last_name = forms.CharField(label='* Last name', max_length=100)
     email = forms.EmailField(label='* Email address')
-    orcid_id = forms.CharField(label="  ORCID id", max_length=20, widget=forms.TextInput({'placeholder': 'Recommended. Get one at orcid.org'}), required=False)
+    orcid_id = forms.CharField(
+        label="  ORCID id", max_length=20, 
+        widget=forms.TextInput({'placeholder': 'Recommended. Get one at orcid.org'}), 
+        required=False)
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
-    country_of_employment = LazyTypedChoiceField(choices=countries, label='* Country of employment', initial='NL', widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
+    country_of_employment = LazyTypedChoiceField(
+        choices=countries, label='* Country of employment', initial='NL', 
+        widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
     affiliation = forms.CharField(label='* Affiliation', max_length=300)
-    address = forms.CharField(label='Address', max_length=1000, widget=forms.TextInput({'placeholder': 'For postal correspondence'}), required=False)
-    personalwebpage = forms.URLField(label='Personal web page', widget=forms.TextInput({'placeholder': 'full URL, e.g. http://www.[yourpage].com'}), required=False)
+    address = forms.CharField(
+        label='Address', max_length=1000, 
+        widget=forms.TextInput({'placeholder': 'For postal correspondence'}), 
+        required=False)
+    personalwebpage = forms.URLField(
+        label='Personal web page', 
+        widget=forms.TextInput({'placeholder': 'full URL, e.g. http://www.[yourpage].com'}), 
+        required=False)
     username = forms.CharField(label='* Username', max_length=100)
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='* Verify pwd', widget=forms.PasswordInput())
@@ -42,16 +53,19 @@ class RegistrationForm(forms.Form):
 class RegistrationInvitationForm(forms.ModelForm):
     class Meta:
         model = RegistrationInvitation
-        fields = ['title', 'first_name', 'last_name', 'email', 'invitation_type', 'message_style', 'personal_message']
+        fields = ['title', 'first_name', 'last_name', 'email', 
+                  'invitation_type', 'message_style', 'personal_message']
 
     def __init__(self, *args, **kwargs):
         super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
-        self.fields['personal_message'].widget.attrs.update({'placeholder': 'NOTE: a personal phrase or two. The bulk of the text will be auto-generated.'})
+        self.fields['personal_message'].widget.attrs.update(
+            {'placeholder': 'NOTE: a personal phrase or two. The bulk of the text will be auto-generated.'})
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field('title'), Field('first_name'), Field('last_name'), Field('email'), Field('invitation_type'),
+                    Field('title'), Field('first_name'), Field('last_name'), 
+                    Field('email'), Field('invitation_type'),
                     css_class="col-6"),
                 Div(
                     Field('message_style'),
@@ -69,14 +83,16 @@ class UpdateUserDataForm(forms.ModelForm):
 class UpdatePersonalDataForm(forms.ModelForm):
     class Meta:
         model = Contributor
-        fields = ['title', 'discipline', 'orcid_id', 'country_of_employment', 'affiliation', 'address', 'personalwebpage']
+        fields = ['title', 'discipline', 'orcid_id', 'country_of_employment', 
+                  'affiliation', 'address', 'personalwebpage']
         widgets = {'country_of_employment': CountrySelectWidget()}
 
 class VetRegistrationForm(forms.Form):
     promote_to_registered_contributor = forms.BooleanField(required=False, label='Accept registration')
     refuse = forms.BooleanField(required=False)
     refusal_reason = forms.ChoiceField(choices=REGISTRATION_REFUSAL_CHOICES, required=False)
-    email_response_field = forms.CharField(widget=forms.Textarea(), label='Justification (optional)', required=False)
+    email_response_field = forms.CharField(widget=forms.Textarea(), 
+                                           label='Justification (optional)', required=False)
 
 class AuthenticationForm(forms.Form):
     username = forms.CharField(label='Username', max_length=100)
@@ -117,7 +133,8 @@ class CreateListForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CreateListForm, self).__init__(*args, **kwargs)
-        self.fields['title'].widget.attrs.update({'size': 30, 'placeholder': 'Descriptive title for the new List'})
+        self.fields['title'].widget.attrs.update(
+            {'size': 30, 'placeholder': 'Descriptive title for the new List'})
         self.fields['private'].widget.attrs.update({'placeholder': 'Private?'})
 
 
@@ -128,13 +145,15 @@ class CreateTeamForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CreateTeamForm, self).__init__(*args, **kwargs)
-        self.fields['name'].widget.attrs.update({'size': 30, 'placeholder': 'Descriptive name for the new Team'})
+        self.fields['name'].widget.attrs.update(
+            {'size': 30, 'placeholder': 'Descriptive name for the new Team'})
 
 
 class AddTeamMemberForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(AddTeamMemberForm, self).__init__(*args, **kwargs)
-        self.fields['last_name'].widget.attrs.update({'size': 20, 'placeholder': 'Search in contributors database'})
+        self.fields['last_name'].widget.attrs.update(
+            {'size': 20, 'placeholder': 'Search in contributors database'})
 
     last_name = forms.CharField()
 
@@ -146,7 +165,8 @@ class CreateGraphForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CreateGraphForm, self).__init__(*args, **kwargs)
-        self.fields['title'].widget.attrs.update({'size': 30, 'placeholder': 'Descriptive title for the new Graph'})
+        self.fields['title'].widget.attrs.update(
+            {'size': 30, 'placeholder': 'Descriptive title for the new Graph'})
         self.fields['description'].widget.attrs.update({'placeholder': 'Detailed description'})
 
 
@@ -156,8 +176,10 @@ class ManageTeamsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         contributor = kwargs.pop('contributor')
         super(ManageTeamsForm, self).__init__(*args, **kwargs)
-        self.fields['teams_with_access'].queryset=Team.objects.filter(Q(leader=contributor) | Q(members__in=[contributor]))
-        self.fields['teams_with_access'].widget.attrs.update({'placeholder': 'Team(s) to be given access rights:'})
+        self.fields['teams_with_access'].queryset=Team.objects.filter(
+            Q(leader=contributor) | Q(members__in=[contributor]))
+        self.fields['teams_with_access'].widget.attrs.update(
+            {'placeholder': 'Team(s) to be given access rights:'})
 
 
 class CreateNodeForm(forms.ModelForm):

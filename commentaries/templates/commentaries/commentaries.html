@@ -77,7 +77,7 @@
 {% if commentary_browse_list %}
 <section>
   <hr class="hr12">
-  <h2>Commentaries in {{ discipline }} in the last {{ nrweeksback }} weeks:</h2>
+  <h2>Commentaries in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
   <ul>
     {% for commentary in commentary_browse_list %}
     {{ commentary.header_as_li }}

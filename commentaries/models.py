@@ -36,9 +36,10 @@ class Commentary(models.Model):
                                blank=True, null=True)
     pub_DOI_link = models.URLField(verbose_name='DOI link to the original publication', blank=True)
     metadata = JSONField(default={}, blank=True, null=True)
-    arxiv_or_DOI_string = models.CharField(max_length=100, 
-                                           verbose_name='string form of arxiv nr or DOI for commentary url', 
-                                           default='')
+    arxiv_or_DOI_string = models.CharField(
+        max_length=100, 
+        verbose_name='string form of arxiv nr or DOI for commentary url', 
+        default='')
     author_list = models.CharField(max_length=1000)
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField (Contributor, blank=True, 
@@ -64,10 +65,10 @@ class Commentary(models.Model):
 
     def header_as_table(self):
         # for display in Commentary page itself
-        header = '<table>'
-        header += '<tr><td>Title: </td><td>&nbsp;</td><td>{{ pub_title }}</td></tr>'
-        header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>{{ author_list }}</td></tr>'
-        header += '<tr><td>As Contributors: </td><td>&nbsp;</td>'
+        header = ('<table>'
+                  '<tr><td>Title: </td><td>&nbsp;</td><td>{{ pub_title }}</td></tr>'
+                  '<tr><td>Author(s): </td><td>&nbsp;</td><td>{{ author_list }}</td></tr>'
+                  '<tr><td>As Contributors: </td><td>&nbsp;</td>')
         if self.authors.all():
             header += '<td>'
             for auth in self.authors.all():
@@ -79,8 +80,8 @@ class Commentary(models.Model):
         header += '</tr>'
         if self.type == 'published':
             header += ('<tr><td>Journal ref.: </td><td>&nbsp;</td><td>{{ journal }} {{ volume }}, '
-                       '{{ pages }}</td></tr>')
-            header += ('<tr><td>DOI: </td><td>&nbsp;</td><td><a href="{{ pub_DOI_link }}" '
+                       '{{ pages }}</td></tr>'
+                       '<tr><td>DOI: </td><td>&nbsp;</td><td><a href="{{ pub_DOI_link }}" '
                        'target="_blank">{{ pub_DOI_link }}</a></td></tr>')
         elif self.type == 'preprint':
             header += ('<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="{{ arxiv_link }}">'
@@ -108,10 +109,10 @@ class Commentary(models.Model):
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
                            'author_list': self.author_list, 
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
-        header = '<li><div class="flex-container">'
-        header += ('<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" '
-                   'class="pubtitleli">{{ pub_title }}</a></p>')
-        header += '<p>by {{ author_list }}'
+        header = ('<li><div class="flex-container">'
+                  '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" '
+                  'class="pubtitleli">{{ pub_title }}</a></p>'
+                  '<p>by {{ author_list }}')
         if self.type == 'published':
             header += ', {{ journal }} {{ volume }}, {{ pages }}'
             context['journal'] = self.journal
@@ -134,10 +135,10 @@ class Commentary(models.Model):
         # for display in Lists
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
                            'author_list': self.author_list})
-        header = '<li><div class="flex-container">'
-        header += ('<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" '
-                   'class="pubtitleli">{{ pub_title }}</a></p>')
-        header += '<p>by {{ author_list }}'
+        header = ('<li><div class="flex-container">'
+                  '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" '
+                  'class="pubtitleli">{{ pub_title }}</a></p>'
+                  '<p>by {{ author_list }}')
         if self.type == 'published':
             header += ', {{ journal }} {{ volume }}, {{ pages }}'
             context['journal'] = self.journal

@@ -63,7 +63,7 @@
 {% if thesislink_browse_list %}
 <section>
   <hr class="hr12">
-  <h2>Thesis Links in {{ discipline }} in the last {{ nrweeksback }} weeks:</h2>
+  <h2>Thesis Links in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
   <ul>
     {% for thesislink in thesislink_browse_list %}
     {{ thesislink.header_as_li }}

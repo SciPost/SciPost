@@ -260,7 +260,7 @@ class Comment(models.Model):
                        ' \"{{ text_cut }}\"</a><p>submitted on {{ date_submitted }}')
             header += (' in thesislink on <a href="/thesis/{{ thesislink_id }}" class="pubtitleli">'
                        '{{ thesislink_title }}</a> by {{ thesislink_author }}</p>')
-            context['thesislink_id'] = self.thesis.link.id
+            context['thesislink_id'] = self.thesislink.id
             context['thesislink_title'] = self.thesislink.title
             context['thesislink_author'] = self.thesislink.author
         header += '</div></div></li>'
@@ -283,15 +283,17 @@ class Comment(models.Model):
             context['first_name'] = self.author.user.first_name
             context['last_name'] = self.author.user.last_name
         if self.submission is not None:
-            header += '<a href="/submission/{{ submission_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>'
-            header += (' in submission on <a href="/submission/{{ submission_id }}" class="pubtitleli">' + 
+            header += ('<a href="/submission/{{ submission_id }}#comment_id{{ id }}"> '
+                       '\"{{ text_cut }}\"</a>'
+                       ' in submission on <a href="/submission/{{ submission_id }}" class="pubtitleli">'
                        '{{ submission_title }}</a> by {{ submission_author_list }}</p>')
             context['submission_id'] = self.submission.id
             context['submission_title'] = self.submission.title
             context['submission_author_list'] = self.submission.author_list
         if self.commentary is not None:
-            header += '<a href="/commentary/{{ commentary_url }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>'
-            header += (' in commentary on <a href="/commentary/{{ commentary_url }}" class="pubtitleli">' + 
+            header += ('<a href="/commentary/{{ commentary_url }}#comment_id{{ id }}"> '
+                       '\"{{ text_cut }}\"</a>'
+                       ' in commentary on <a href="/commentary/{{ commentary_url }}" class="pubtitleli">'
                        '{{ commentary_pub_title }}</a> by {{ commentary_author_list }}</p>')
             context['commentary_url'] = self.commentary.arxiv_or_DOI_string
             context['commentary_pub_title'] = self.commentary.pub_title
@@ -300,7 +302,7 @@ class Comment(models.Model):
             header += '<a href="/thesis/{{ thesislink_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>'
             header += (' in thesislink on <a href="/thesis/{{ thesislink_id }}" class="pubtitleli">' + 
                        '{{ thesislink_title }}</a> by {{ thesislink_author }}</p>')
-            context['thesislink_id'] = self.thesis.link.id
+            context['thesislink_id'] = self.thesislink.id
             context['thesislink_title'] = self.thesislink.title
             context['thesislink_author'] = self.thesislink.author
         header += '</div></div></li>'

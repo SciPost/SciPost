@@ -64,7 +64,7 @@
 {% if submission_browse_list %}
 <section>
   <hr class="hr12">
-  <h2>Submissions in {{ discipline }} in the last {{ nrweeksback }} weeks:</h2>
+  <h2>Submissions in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
   <ul>
     {% for submission in submission_browse_list %}
     {{ submission.header_as_li }}

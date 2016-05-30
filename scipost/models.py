@@ -73,7 +73,8 @@ class Contributor(models.Model):
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
     address = models.CharField(max_length=1000, verbose_name="address", default='', blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
-    vetted_by = models.ForeignKey('self', related_name="contrib_vetted_by", blank=True, null=True)  
+    vetted_by = models.ForeignKey('self', related_name="contrib_vetted_by", 
+                                  blank=True, null=True)  
 
 
     def __str__ (self):
@@ -88,7 +89,8 @@ class Contributor(models.Model):
         <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
         <tr><td>Email: </td><td>&nbsp;</td><td>{{ email }}</td></tr>
         <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
-        <tr><td>Country of employment: </td><td>&nbsp;</td><td>{{ country_of_employment }}</td></tr>
+        <tr><td>Country of employment: </td><td>&nbsp;</td>
+        <td>{{ country_of_employment }}</td></tr>
         <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
         <tr><td>Address: </td><td>&nbsp;</td><td>{{ address }}</td></tr>
         <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
@@ -115,7 +117,8 @@ class Contributor(models.Model):
         <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
         <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
         <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
-        <tr><td>Country of employment: </td><td>&nbsp;</td><td>{{ country_of_employment }}</td></tr>
+        <tr><td>Country of employment: </td><td>&nbsp;</td>
+        <td>{{ country_of_employment }}</td></tr>
         <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
         <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
         </table>
@@ -453,12 +456,13 @@ class Node(models.Model):
     def header_as_p(self):
         context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name})
         output = ('<p class="node_p" id="node_id{{ id }}">'
-                  + '<a href="{% url \'scipost:graph\' graph_id=graph_id %}">{{ name }}</a></p>')
+                  '<a href="{% url \'scipost:graph\' graph_id=graph_id %}">{{ name }}</a></p>')
         template = Template(output)
         return template.render(context)
 
     def contents(self):
-        context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name, 
+        context = Context({'graph_id': self.graph.id, 
+                           'id': self.id, 'name': self.name, 
                            'description': self.description})
         output = ('<div class="node_contents node_id{{ id }}">'
                   + '<h3>{{ name }}</h3><p>{{ description }}</p></div>')

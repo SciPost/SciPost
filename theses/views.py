@@ -70,12 +70,13 @@ def vet_thesislink_request_ack(request, thesislink_id):
                 thesislink.vetted = True
                 thesislink.vetted_by = Contributor.objects.get(user=request.user)
                 thesislink.save()
-                email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' ' + 
-                              thesislink.requested_by.user.last_name + 
-                              ', \n\nThe Thesis Link you have requested, concerning thesis with title ' + 
-                              thesislink.title + ' by ' + thesislink.author + 
-                              ', has been activated at https://scipost.org/thesis/' + str(thesislink.id) + '.' + 
-                              '\n\nThank you for your contribution, \nThe SciPost Team.')
+                email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
+                              + thesislink.requested_by.user.last_name
+                              + ', \n\nThe Thesis Link you have requested, concerning thesis with title '
+                              + thesislink.title + ' by ' + thesislink.author
+                              + ', has been activated at https://scipost.org/thesis/' 
+                              + str(thesislink.id) + '.'
+                              + '\n\nThank you for your contribution, \nThe SciPost Team.')
                 emailmessage = EmailMessage('SciPost Thesis Link activated', email_text,
                                             'SciPost Theses <theses@scipost.org>', 
                                             [thesislink.requested_by.user.email],
@@ -84,16 +85,20 @@ def vet_thesislink_request_ack(request, thesislink_id):
                 emailmessage.send(fail_silently=False)                
             elif form.cleaned_data['action_option'] == '0':
                 # re-edit the form starting from the data provided
-                form2 = RequestThesisLinkForm(initial={'title': thesislink.pub_title, 'pub_ink': thesislink.pub_link, 
-                                                       'author': thesislink.author, 'institution': thesislink.institution, 
-                                                       'defense_date': thesislink.defense_date, 'abstract': thesislink.abstract})
+                form2 = RequestThesisLinkForm(initial={'title': thesislink.pub_title, 
+                                                       'pub_ink': thesislink.pub_link, 
+                                                       'author': thesislink.author, 
+                                                       'institution': thesislink.institution, 
+                                                       'defense_date': thesislink.defense_date, 
+                                                       'abstract': thesislink.abstract})
                 thesislink.delete()
-                email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' ' + 
-                              thesislink.requested_by.user.last_name + 
-                              ', \n\nThe Thesis Link you have requested, concerning thesis with title ' + 
-                              thesislink.title + ' by ' + thesislink.author_list + 
-                              ', has been activated (with slight modifications to your submitted details) at ' + 
-                              'https://scipost.org/thesis/' + str(thesislink.id) + '.' +
+                email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
+                              + thesislink.requested_by.user.last_name
+                              + ', \n\nThe Thesis Link you have requested, concerning thesis with title '
+                              + thesislink.title + ' by ' + thesislink.author_list
+                              + ', has been activated '
+                              '(with slight modifications to your submitted details) at '
+                              'https://scipost.org/thesis/' + str(thesislink.id) + '.'
                               '\n\nThank you for your contribution, \nThe SciPost Team.')
                 emailmessage = EmailMessage('SciPost Thesis Link activated', email_text,
                                             'SciPost Theses <theses@scipost.org>', 
@@ -105,13 +110,13 @@ def vet_thesislink_request_ack(request, thesislink_id):
                 context = {'form': form2 }
                 return render(request, 'theses/request_thesislink.html', context)
             elif form.cleaned_data['action_option'] == '2':
-                email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' ' + 
-                              thesislink.requested_by.user.last_name + 
-                              ', \n\nThe Thesis Link you have requested, concerning thesis with title ' + 
-                              thesislink.title + ' by ' + thesislink.author + 
-                              ', has not been activated for the following reason: ' + 
-                              form.cleaned_data['refusal_reason'] + 
-                              '.\n\nThank you for your interest, \nThe SciPost Team.')
+                email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
+                              + thesislink.requested_by.user.last_name
+                              + ', \n\nThe Thesis Link you have requested, concerning thesis with title '
+                              + thesislink.title + ' by ' + thesislink.author
+                              + ', has not been activated for the following reason: '
+                              + form.cleaned_data['refusal_reason']
+                              + '.\n\nThank you for your interest, \nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 emailmessage = EmailMessage('SciPost Thesis Link', email_text,
@@ -146,7 +151,8 @@ def theses(request):
         thesislink_search_list = []
 
     thesislink_recent_list = (ThesisLink.objects
-                              .filter(vetted=True, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)))
+                              .filter(vetted=True, 
+                                      latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)))
     context = {'form': form, 'thesislink_search_list': thesislink_search_list, 
                'thesislink_recent_list': thesislink_recent_list }
     return render(request, 'theses/theses.html', context)
@@ -170,10 +176,11 @@ def browse(request, discipline, nrweeksback):
         return HttpResponseRedirect(request, 'theses/theses.html', context)
     else:
         form = ThesisLinkSearchForm()
-    thesislink_browse_list = (ThesisLink.objects
-                              .filter(vetted=True, discipline=discipline, 
-                                      latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))))
-    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 
+    thesislink_browse_list = (ThesisLink.objects.filter(
+        vetted=True, discipline=discipline, 
+        latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))))
+    context = {'form': form, 'discipline': discipline, 
+               'nrweeksback': nrweeksback, 
                'thesislink_browse_list': thesislink_browse_list }
     return render(request, 'theses/theses.html', context)
 
@@ -187,7 +194,6 @@ def thesis_detail(request, thesislink_id):
             author = Contributor.objects.get(user=request.user)
             newcomment = Comment (
                 thesislink = thesislink,
-                in_reply_to = None,
                 author = author,
                 is_rem = form.cleaned_data['is_rem'],
                 is_que = form.cleaned_data['is_que'],

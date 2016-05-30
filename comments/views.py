@@ -36,23 +36,27 @@ def vet_submitted_comment_ack(request, comment_id):
                 comment.status = 1
                 comment.vetted_by = request.user.contributor
                 comment.save()
-                email_text = ('Dear ' + title_dict[comment.author.title] + ' ' + comment.author.user.last_name + 
+                email_text = ('Dear ' + title_dict[comment.author.title] + ' ' 
+                              + comment.author.user.last_name + 
                               ', \n\nThe Comment you have submitted, concerning publication with title ')
                 if comment.commentary is not None:
-                    email_text += (comment.commentary.pub_title + ' by ' + comment.commentary.author_list +
-                                   ' at Commentary Page https://scipost.org/commentary/' + comment.commentary.arxiv_or_DOI_string)
+                    email_text += (comment.commentary.pub_title + ' by ' + comment.commentary.author_list
+                                   + ' at Commentary Page https://scipost.org/commentary/' 
+                                   + comment.commentary.arxiv_or_DOI_string)
                     comment.commentary.latest_activity = timezone.now()
                     comment.commentary.save()
                 elif comment.submission is not None:
-                    email_text += (comment.submission.title + ' by ' + comment.submission.author_list +
-                                   ' at Submission page https://scipost.org/submission/' + str(comment.submission.id))
+                    email_text += (comment.submission.title + ' by ' + comment.submission.author_list 
+                                   + ' at Submission page https://scipost.org/submission/' 
+                                   + str(comment.submission.id))
                     comment.submission.latest_activity = timezone.now()
                     comment.submission.save()
                     SubmissionUtils.load({'submission': comment.submission})
                     SubmissionUtils.send_author_comment_received_email()
                 elif comment.thesislink is not None:
-                    email_text += (comment.thesislink.title + ' by ' + comment.thesis.author +
-                                   ' at Thesis Link https://scipost.org/thesis/' + str(comment.thesis.id))
+                    email_text += (comment.thesislink.title + ' by ' + comment.thesislink.author +
+                                   ' at Thesis Link https://scipost.org/thesis/' 
+                                   + str(comment.thesislink.id))
                     comment.thesislink.latest_activity = timezone.now()
                     comment.thesislink.save()
                 email_text += (', has been accepted and published online.' + 
@@ -71,15 +75,18 @@ def vet_submitted_comment_ack(request, comment_id):
                 if comment.status == 0:
                     comment.status == -1
                 comment.save()
-                email_text = ('Dear ' + title_dict[comment.author.title] + ' ' + comment.author.user.last_name + 
-                              ', \n\nThe Comment you have submitted, concerning publication with title ')
+                email_text = ('Dear ' + title_dict[comment.author.title] + ' ' 
+                              + comment.author.user.last_name
+                              + ', \n\nThe Comment you have submitted, '
+                              'concerning publication with title ')
                 if comment.commentary is not None:
                     email_text += comment.commentary.pub_title + ' by ' + comment.commentary.author_list
                 elif comment.submission is not None:
                     email_text += comment.submission.title + ' by ' + comment.submission.author_list
                 elif comment.thesislink is not None:
                     email_text += comment.thesislink.title + ' by ' + comment.thesislink.author
-                email_text += (', has been rejected for the following reason: ' + comment_refusal_dict[comment.status] + '.' +
+                email_text += (', has been rejected for the following reason: ' 
+                               + comment_refusal_dict[comment.status] + '.' +
                                '\n\nWe copy it below for your convenience.' + 
                                '\n\nThank you for your contribution, \nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
