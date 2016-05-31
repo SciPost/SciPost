@@ -376,27 +376,44 @@ def registration_invitations(request):
                 return HttpResponseRedirect('registration_invitation_sent')
     else:
         reg_inv_form = RegistrationInvitationForm()
-    sent_reg_inv_fellows = (RegistrationInvitation.objects
-                            .filter(invitation_type='F', responded=False).order_by('last_name'))
+
+    sent_reg_inv = RegistrationInvitation.objects.filter(responded=False)
+    sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
     nr_sent_reg_inv_fellows = sent_reg_inv_fellows.count()
-    sent_reg_inv_contrib = (RegistrationInvitation.objects
-                            .filter(invitation_type='C', responded=False).order_by('last_name'))
+    sent_reg_inv_contrib = sent_reg_inv.filter(invitation_type='C').order_by('last_name')
     nr_sent_reg_inv_contrib = sent_reg_inv_contrib.count()
-    resp_reg_inv_fellows = (RegistrationInvitation.objects
-                            .filter(invitation_type='F', responded=True).order_by('last_name'))
+    sent_reg_inv_ref = sent_reg_inv.filter(invitation_type='R').order_by('last_name')
+    nr_sent_reg_inv_ref = sent_reg_inv_ref.count()
+    sent_reg_inv_cited = sent_reg_inv.filter(invitation_type='ci').order_by('last_name')
+    nr_sent_reg_inv_cited = sent_reg_inv_cited.count()
+
+    resp_reg_inv = RegistrationInvitation.objects.filter(responded=True)
+    resp_reg_inv_fellows = resp_reg_inv.filter(invitation_type='F').order_by('last_name')
     nr_resp_reg_inv_fellows = resp_reg_inv_fellows.count()
-    resp_reg_inv_contrib = (RegistrationInvitation.objects
-                            .filter(invitation_type='C', responded=True).order_by('last_name'))
+    resp_reg_inv_contrib = resp_reg_inv.filter(invitation_type='C').order_by('last_name')
     nr_resp_reg_inv_contrib = resp_reg_inv_contrib.count()
+    resp_reg_inv_ref = resp_reg_inv.filter(invitation_type='R').order_by('last_name')
+    nr_resp_reg_inv_ref = resp_reg_inv_ref.count()
+    resp_reg_inv_cited = resp_reg_inv.filter(invitation_type='ci').order_by('last_name')
+    nr_resp_reg_inv_cited = resp_reg_inv_cited.count()
+
     context = {'reg_inv_form': reg_inv_form, 'errormessage': errormessage,
                'sent_reg_inv_fellows': sent_reg_inv_fellows, 
                'nr_sent_reg_inv_fellows': nr_sent_reg_inv_fellows,
                'sent_reg_inv_contrib': sent_reg_inv_contrib, 
                'nr_sent_reg_inv_contrib': nr_sent_reg_inv_contrib,
+               'sent_reg_inv_ref': sent_reg_inv_ref,
+               'nr_sent_reg_inv_ref': nr_sent_reg_inv_ref,
+               'sent_reg_inv_cited': sent_reg_inv_cited,
+               'nr_sent_reg_inv_cited': nr_sent_reg_inv_cited,
                'resp_reg_inv_fellows': resp_reg_inv_fellows, 
                'nr_resp_reg_inv_fellows': nr_resp_reg_inv_fellows,
                'resp_reg_inv_contrib': resp_reg_inv_contrib, 
-               'nr_resp_reg_inv_contrib': nr_resp_reg_inv_contrib }
+               'nr_resp_reg_inv_contrib': nr_resp_reg_inv_contrib,
+               'resp_reg_inv_ref': resp_reg_inv_ref,
+               'nr_resp_reg_inv_ref': nr_resp_reg_inv_ref,
+               'resp_reg_inv_cited': resp_reg_inv_cited,
+               'nr_resp_reg_inv_cited': nr_resp_reg_inv_cited, }
     return render(request, 'scipost/registration_invitations.html', context)
 
 

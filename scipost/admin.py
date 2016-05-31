@@ -7,6 +7,8 @@ from guardian.admin import GuardedModelAdmin
 
 from scipost.models import *
 
+#admin.site.register(Contributor)
+
 class ContributorInline(admin.StackedInline):
 #class ContributorInline(admin.TabularInline):
     model = Contributor
@@ -20,9 +22,12 @@ class UserAdmin(UserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
-admin.site.register(RegistrationInvitation)
 
-#admin.site.register(Contributor)
+class RegistrationInvitationAdmin(admin.ModelAdmin):
+    search_fields = ['last_name', 'email']
+
+admin.site.register(RegistrationInvitation, RegistrationInvitationAdmin)
+
 
 admin.site.register(AuthorshipClaim)
 #admin.site.register(Opinion)

@@ -8,6 +8,7 @@ from django_countries.fields import CountryField
 
 from .models import *
 
+
 SCIPOST_DISCIPLINES = (
     ('physics', 'Physics'),
 #    ('mathematics', 'Mathematics'),
@@ -146,6 +147,7 @@ INVITATION_TYPE = (
     ('F', 'Editorial Fellow'),
     ('C', 'Contributor'),
     ('R', 'Refereeing'),
+    ('ci', 'cited'),
     )
 
 INVITATION_STYLE = (
@@ -162,6 +164,7 @@ class RegistrationInvitation(models.Model):
     last_name = models.CharField(max_length=30, default='')
     email = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE, default='C')
+    cited_in_submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
     message_style = models.CharField(max_length=1, choices=INVITATION_STYLE, default='F')
     personal_message = models.TextField(blank=True, null=True)
     invitation_key = models.CharField(max_length=40, default='')

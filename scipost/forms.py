@@ -54,7 +54,7 @@ class RegistrationInvitationForm(forms.ModelForm):
     class Meta:
         model = RegistrationInvitation
         fields = ['title', 'first_name', 'last_name', 'email', 
-                  'invitation_type', 'message_style', 'personal_message']
+                  'invitation_type', 'cited_in_submission', 'message_style', 'personal_message']
 
     def __init__(self, *args, **kwargs):
         super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
@@ -66,6 +66,7 @@ class RegistrationInvitationForm(forms.ModelForm):
                 Div(
                     Field('title'), Field('first_name'), Field('last_name'), 
                     Field('email'), Field('invitation_type'),
+                    Field('cited_in_submission'),
                     css_class="col-6"),
                 Div(
                     Field('message_style'),
