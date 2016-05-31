@@ -4,6 +4,7 @@
 
 {% block bodysup %}
 
+
 <section>
   <div class="flex-greybox">
     <h1>Submit a manuscript to SciPost</h1>
@@ -39,7 +40,7 @@
   <h3 style="color: red;">Error: {{ errormessage }}</h3>
   {% endif %}
   
-  <form action="{% url 'submissions:submit_manuscript' %}" method="post">
+  <form id="full_submission_form" action="{% url 'submissions:submit_manuscript' %}" method="post">
     {% csrf_token %}
     <table>
       <ul>

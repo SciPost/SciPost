@@ -492,7 +492,8 @@ def select_referee(request, submission_id):
 @permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def recruit_referee(request, submission_id):
     """
-    If the Editor-in-charge does not find the desired referee among Contributors,
+    If the Editor-in-charge does not find the desired referee among Contributors
+    (otherwise, the method send_refereeing_invitation below is used instead),
     he/she can invite somebody by providing name + contact details.
     This function emails a registration invitation to this person.
     The pending refereeing invitation is then recognized upon registration,

@@ -114,21 +114,32 @@ class SubmissionUtils(object):
 
     @classmethod
     def send_refereeing_invitation_email(cls):
-        """ Requires loading 'invitation' attribute. """
+        """ 
+        This method is called by send_refereeing_invitation in submissions/views.
+        It is used when the referee is already a registered contributor.
+        If a referee is not yet registered, the method recruit_referee is used 
+        instead, which calls the send_registration_email method in scipost/utils.
+        Requires loading 'invitation' attribute. 
+        """
         email_text = ('Dear ' + title_dict[cls.invitation.referee.title] + ' ' +
                       cls.invitation.referee.user.last_name +
                       ', \n\nWe have received a Submission to SciPost '
-                      'which, in view of your expertise, we would like to invite you to referee:\n\n' +
-                      cls.invitation.submission.title + ' by ' + cls.invitation.submission.author_list +
-                      ' (see https://scipost.org/submission/' + str(cls.invitation.submission.id) + ').'
+                      'which, in view of your expertise and on behalf of the Editor-in-charge '
+                      + title_dict[cls.invitation.submission.editor_in_charge.title] + ' ' 
+                      + cls.invitation.submission.editor_in_charge.user.last_name
+                      + ', we would like to invite you to referee:\n\n'
+                      + cls.invitation.submission.title + ' by ' + cls.invitation.submission.author_list
+                      + ' (see https://scipost.org/submission/' + str(cls.invitation.submission.id) + ').'
                       '\n\nPlease visit https://scipost.org/submissions/accept_or_decline_ref_invitations '
                       '(login required) as soon as possible (ideally within the next 2 days) '
                       'in order to accept or decline this invitation.'
-                      '\n\nIf you accept, your report can be submitted by simply clicking on the "Contribute a Report" link at '
-                      'https://scipost.org/submission/' + str(cls.invitation.submission.id) + ' before the reporting deadline '
-                      '(currently set at ' + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d") +
-                      '; your report will be automatically recognized as an invited report). You might want to '
-                      'make sure you are familiar with our refereeing code of conduct '
+                      '\n\nIf you accept, your report can be submitted by simply '
+                      'clicking on the "Contribute a Report" link at '
+                      'https://scipost.org/submission/' + str(cls.invitation.submission.id) 
+                      + ' before the reporting deadline (currently set at ' 
+                      + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d") +
+                      '; your report will be automatically recognized as an invited report). '
+                      'You might want to make sure you are familiar with our refereeing code of conduct '
                       'https://scipost.org/journals/journals_terms_and_conditions and with the '
                       'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.' 
                       '\n\nWe would be extremely grateful for your contribution, '
@@ -150,27 +161,32 @@ class SubmissionUtils(object):
         It is called from the ref_invitation_reminder method in submissions/views.py.
         """
         email_text = ('Dear ' + title_dict[cls.invitation.title] + ' ' + cls.invitation.last_name + ',\n\n' 
-                      'On behalf of the Editor-in-charge ' +
-                      title_dict[cls.invitation.submission.editor_in_charge.title] + ' ' +
-                      cls.invitation.submission.editor_in_charge.user.last_name +
-                      ', we would like to cordially remind you of our recent request to referee\n\n' +
-                      cls.invitation.submission.title + ' by ' + cls.invitation.submission.author_list + '.')
+                      'On behalf of the Editor-in-charge '
+                      + title_dict[cls.invitation.submission.editor_in_charge.title] + ' '
+                      + cls.invitation.submission.editor_in_charge.user.last_name
+                      + ', we would like to cordially remind you of our recent request to referee\n\n'
+                      + cls.invitation.submission.title + ' by ' 
+                      + cls.invitation.submission.author_list + '.')
         if cls.invitation.referee is None:
-            email_text += ('\n\nWe would also like to renew our invitation to become a Contributor on SciPost ' +
-                           '(our records show that you are not yet registered); ' +
-                           'your partially pre-filled registration form is still available at\n\n' +
-                           'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n' +
+            email_text += ('\n\nWe would also like to renew '
+                           'our invitation to become a Contributor on SciPost '
+                           '(our records show that you are not yet registered); '
+                           'your partially pre-filled registration form is still available at\n\n'
+                           'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n'
                            'after which your registration will be activated, giving you full access to '
                            'the portal\'s facilities (in particular allowing you to provide referee reports).')
         if cls.invitation.accepted is None:
-            email_text += ('\n\nPlease visit https://scipost.org/submissions/accept_or_decline_ref_invitations '
+            email_text += ('\n\nPlease visit '
+                           'https://scipost.org/submissions/accept_or_decline_ref_invitations '
                            '(login required) as soon as possible (ideally within the next 2 days) '
                            'in order to accept or decline this invitation.')
-        email_text += ('\n\nYour report can be submitted by simply clicking on the "Contribute a Report" link at '
-                       'https://scipost.org/submission/' + str(cls.invitation.submission.id) + ' before the reporting deadline '
-                       '(currently set at ' + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d") +
-                       '; your report will be automatically recognized as an invited report). You might want to '
-                       'make sure you are familiar with our refereeing code of conduct '
+        email_text += ('\n\nYour report can be submitted by simply clicking on '
+                       'the "Contribute a Report" link at '
+                       'https://scipost.org/submission/' + str(cls.invitation.submission.id) 
+                       + ' before the reporting deadline (currently set at ' 
+                       + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
+                       + '; your report will be automatically recognized as an invited report). '
+                       'You might want to make sure you are familiar with our refereeing code of conduct '
                        'https://scipost.org/journals/journals_terms_and_conditions and with the '
                        'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.')
         email_text += ('\n\nWe very much hope we can count on your expertise,'
@@ -196,13 +212,16 @@ class SubmissionUtils(object):
             email_text += 'accepted '
             email_subject = 'SciPost: referee accepts to review'
         elif cls.invitation.accepted == False:
-            email_text += 'declined (due to reason: ' + assignment_refusal_reasons_dict[cls.invitation.refusal_reason] + ') '
-        email_text += ('to referee Submission\n\n' +
-                       cls.invitation.submission.title + ' by ' + cls.invitation.submission.author_list + '.')
+            email_text += ('declined (due to reason: ' 
+                           + assignment_refusal_reasons_dict[cls.invitation.refusal_reason] + ') ')
+        email_text += ('to referee Submission\n\n'
+                       + cls.invitation.submission.title + ' by ' 
+                       + cls.invitation.submission.author_list + '.')
         if cls.invitation.accepted == False:
-            email_text += ('\n\nPlease invite another referee from the Submission\'s editorial page at '
-                           'https://scipost.org/submissions/editorial_page/' + str(cls.invitation.submission.id) + '.')
-        email_text += ('\n\nMany thanks for your collaboration,' +
+            email_text += ('\n\nPlease invite another referee from the Submission\'s editorial page '
+                           'at https://scipost.org/submissions/editorial_page/' 
+                           + str(cls.invitation.submission.id) + '.')
+        email_text += ('\n\nMany thanks for your collaboration,'
                        '\n\nThe SciPost Team.')
         
         emailmessage = EmailMessage(
@@ -217,12 +236,13 @@ class SubmissionUtils(object):
     @classmethod
     def email_EIC_report_delivered(cls):
         """ Requires loading 'report' attribute. """
-        email_text = ('Dear ' + title_dict[cls.report.submission.editor_in_charge.title] + ' ' +
-                      cls.report.submission.editor_in_charge.user.last_name + ','
-                      '\n\nReferee ' + title_dict[cls.report.author.title] + ' ' +
-                      cls.report.author.user.last_name +
-                      ' has delivered a Report for Submission\n\n' +
-                       cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.'
+        email_text = ('Dear ' + title_dict[cls.report.submission.editor_in_charge.title] + ' '
+                      + cls.report.submission.editor_in_charge.user.last_name + ','
+                      '\n\nReferee ' + title_dict[cls.report.author.title] + ' '
+                      + cls.report.author.user.last_name +
+                      ' has delivered a Report for Submission\n\n'
+                      + cls.report.submission.title + ' by ' 
+                      + cls.report.submission.author_list + '.'
                       '\n\nPlease vet this Report via your personal page at '
                       'https://scipost.org/personal_page/ under the Editorial Actions tab.')
         email_text += ('\n\nMany thanks for your collaboration,' +
