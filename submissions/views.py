@@ -373,6 +373,8 @@ def accept_or_decline_assignment_ack(request, assignment_id):
                 SubmissionUtils.load({'assignment': assignment})
                 SubmissionUtils.deprecate_other_assignments()
                 assign_perm('can_take_editorial_actions', contributor.user, assignment.submission)
+                ed_admins = Group.objects.get(name='Editorial Administrators')
+                assign_perm('can_take_editorial_actions', ed_admins, assignment.submission)
                 SubmissionUtils.send_EIC_appointment_email()
                 SubmissionUtils.send_author_prescreening_passed_email()
             else:
@@ -475,7 +477,8 @@ def select_referee(request, submission_id):
     if request.method == 'POST':
         ref_search_form = RefereeSelectForm(request.POST)
         if ref_search_form.is_valid():
-            contributors_found = Contributor.objects.filter(user__last_name__icontains=ref_search_form.cleaned_data['last_name'])
+            contributors_found = Contributor.objects.filter(
+                user__last_name__icontains=ref_search_form.cleaned_data['last_name'])
     else:
         ref_search_form = RefereeSelectForm()
         contributors_found = None

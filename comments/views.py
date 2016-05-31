@@ -88,7 +88,7 @@ def vet_submitted_comment_ack(request, comment_id):
                 email_text += (', has been rejected for the following reason: ' 
                                + comment_refusal_dict[comment.status] + '.' +
                                '\n\nWe copy it below for your convenience.' + 
-                               '\n\nThank you for your contribution, \nThe SciPost Team.')
+                               '\n\nThank you for your contribution, \n\nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 email_text += '\n\n' + comment.comment_text
