@@ -176,7 +176,7 @@ def submissions(request):
         submission_search_list = []
 
     submission_recent_list = Submission.objects.filter(
-        latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)
+        latest_activity__gte=timezone.now() + datetime.timedelta(days=-28)
     ).exclude(status__in=['unassigned', 'assignment_failed']).order_by('-submission_date')
     context = {'form': form, 'submission_search_list': submission_search_list, 
                'submission_recent_list': submission_recent_list }
