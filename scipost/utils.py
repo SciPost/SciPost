@@ -201,6 +201,46 @@ class Utils(object):
                 ['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
 
+        elif cls.invitation.invitation_type == 'C':
+            email_text += ('I would hereby like to quickly introduce '
+                           'you to the SciPost initiative, and to invite you to become an active '
+                           'Contributor to the site.'
+                           '\n\nIn summary, SciPost.org is a publication portal managed by '
+                           'professional scientists, offering (among others) high-quality '
+                           'Open Access journals with innovative forms of refereeing, and a '
+                           'means of commenting on all existing literature. SciPost is a '
+                           'not-for-profit foundation devoted to serving the interests of the '
+                           'international scientific community.'
+                           '\n\nThe site is anchored at https://scipost.org. Many further details '
+                           'about SciPost can be found at https://scipost.org/about and '
+                           'https://scipost.org/FAQ.'
+                           '\n\nAs a professional academic, you can register at '
+                           'https://scipost.org/register, enabling you to contribute to the site’s '
+                           'contents, for example by offering reports and comments.'
+                           '\n\nFor your convenience, I have prepared a partly pre-filled registration '
+                           'form (valid for two weeks) at '
+                           'https://scipost.org/invitation/' + cls.invitation.invitation_key + '.\n\n'
+                           'If you do develop sympathy for the initiative, besides participating in the '
+                           'online platform, I\'d be very grateful if you considered submitting a '
+                           'publication to one of the journals within the near future, in order to help '
+                           'establish their reputation. I\'ll also be looking forward to your reaction, '
+                           'comments and suggestions about the initiative.'
+                           '\n\nMany thanks in advance for taking a few minutes to look into it,'
+                           '\n\nOn behalf of the SciPost Foundation,\n\n'
+                           'Prof. dr Jean-Sébastien Caux\n---------------------------------------------'
+                           '\nInstitute for Theoretial Physics\nUniversity of Amsterdam\nScience Park 904'
+                           '\n1098 XH Amsterdam\nThe Netherlands\n'
+                           '---------------------------------------------\ntel.: +31 (0)20 5255775'
+                           '\nfax: +31 (0)20 5255778\n---------------------------------------------')
+            emailmessage = EmailMessage(
+                'SciPost: (registration invitation)', email_text,
+                'J.-S. Caux <jscaux@scipost.org>',
+                [cls.invitation.email],
+                ['registration@scipost.org'],
+                reply_to=['registration@scipost.org'])
+
+
+
         else:
             email_text += ('You will have noticed that scientific publishing is currently undergoing many changes, and you will hopefully agree that it is of the utmost importance that the best interests of science and scientists be served by these developments. After much thinking and discussion about this issue, I recently decided to forge ahead and implement a new online publication portal by and for scientists.\n\nThe initiative, called SciPost, aims to build on the best traditions within our community (as exemplified by the arXiv.org preprint server) by offering a complete scientific publication platform, run by and for professional scientists, providing:\n\n' +
                            '- a means to comment on all existing literature;\n\n' +
