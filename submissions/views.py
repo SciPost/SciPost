@@ -474,17 +474,34 @@ def editorial_page(request, submission_id):
 @permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def select_referee(request, submission_id):
     submission = get_object_or_404(Submission, pk=submission_id)
+    queryresults = ''
     if request.method == 'POST':
         ref_search_form = RefereeSelectForm(request.POST)
         if ref_search_form.is_valid():
             contributors_found = Contributor.objects.filter(
                 user__last_name__icontains=ref_search_form.cleaned_data['last_name'])
+            # Check for recent co-authorship (thus referee disqualification)
+            if submission.metadata is not None:
+                sub_auth_boolean_str = '((' + (submission
+                                               .metadata['entries'][0]['authors'][0]['name']
+                                               .split()[-1])
+                for author in submission.metadata['entries'][0]['authors'][1:]:
+                    sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
+                sub_auth_boolean_str += ')+AND+'
+                search_str = sub_auth_boolean_str + ref_search_form.cleaned_data['last_name'] + ')'
+                queryurl = ('http://export.arxiv.org/api/query?search_query=au:%s' 
+                            % search_str + '&sortBy=submittedDate&sortOrder=descending'
+                            '&max_results=5')
+                arxivquery = feedparser.parse(queryurl)
+                queryresults = arxivquery
     else:
         ref_search_form = RefereeSelectForm()
         contributors_found = None
     ref_recruit_form = RefereeRecruitmentForm()
     context = {'submission': submission, 'ref_search_form': ref_search_form, 
-               'contributors_found': contributors_found, 'ref_recruit_form': ref_recruit_form}
+               'contributors_found': contributors_found, 
+               'ref_recruit_form': ref_recruit_form,
+               'queryresults': queryresults}
     return render(request, 'submissions/select_referee.html', context)
 
 

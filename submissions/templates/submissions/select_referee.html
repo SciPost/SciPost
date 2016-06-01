@@ -43,6 +43,26 @@
     <input type="submit" value="Find referee">
   </form>
 
+  {% if queryresults.entries %}
+  <div style="background-color: #ffdddd">
+    <h3 style="color: red">The system identified the following potential coauthorships (from arXiv datqbase)</h3>
+    <p style="color: red">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
+    <ul>
+      {% for entry in queryresults.entries %}
+      <li>
+	<p><a href="{{ entry.id }}">{{ entry.id }}</a></p>
+	<p>{{ entry.title }}</p>
+	<p>{% for author in entry.authors %}
+	  {{ author.name }}, &nbsp;
+	  {% endfor %}
+	</p>
+	<p>{{ entry.published }}</p>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
   {% if contributors_found %}
   <h3>Identified as contributor:</h3>
   <table>
