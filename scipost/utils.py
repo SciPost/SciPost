@@ -164,7 +164,7 @@ class Utils(object):
                         '\n\nMany thanks in advance for taking a few minutes to look into it,'
                         '\n\nOn behalf of the SciPost Foundation,\n\n'
                         'Prof. dr Jean-Sébastien Caux\n---------------------------------------------'
-                        '\nInstitute for Theoretial Physics\nUniversity of Amsterdam\nScience Park 904'
+                        '\nInstitute for Theoretical Physics\nUniversity of Amsterdam\nScience Park 904'
                         '\n1098 XH Amsterdam\nThe Netherlands\n'
                         '---------------------------------------------\ntel.: +31 (0)20 5255775'
                         '\nfax: +31 (0)20 5255778\n---------------------------------------------')
@@ -183,6 +183,18 @@ class Utils(object):
                            'in particular by providing referee reports.\n\n'
                            'We very much hope that we can count on your expertise,\n\n'
                            'Many thanks in advance,\n\nThe SciPost Team')
+            email_text += ('\n\n--------------------------------------------------'
+                           '\n\nAbout SciPost:\n\n'
+                           'In summary, SciPost.org is a publication portal managed by '
+                           'professional scientists, offering (among others) high-quality '
+                           'Open Access journals with innovative forms of refereeing, and a '
+                           'means of commenting on all existing literature. SciPost is established as '
+                           'a not-for-profit foundation devoted to serving the interests of the '
+                           'international scientific community.'
+                           '\n\nThe site is anchored at https://scipost.org. Many further details '
+                           'about SciPost, its principles, ideals and implementation can be found at '
+                           'https://scipost.org/about and https://scipost.org/FAQ.')
+
             emailmessage = EmailMessage(
                 'SciPost: refereeing request (and registration invitation)', email_text,
                 'SciPost Registration <registration@scipost.org>',

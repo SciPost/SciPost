@@ -22,6 +22,7 @@ from .forms import *
 from .utils import SubmissionUtils
 
 from comments.models import Comment
+from journals.models import journals_submit_dict
 from scipost.models import Contributor, title_dict, RegistrationInvitation
 
 from scipost.utils import Utils
@@ -521,21 +522,23 @@ def recruit_referee(request, submission_id):
         ref_recruit_form = RefereeRecruitmentForm(request.POST)
         if ref_recruit_form.is_valid():
             # TODO check if email already taken
-            ref_invitation = RefereeInvitation(submission=submission, 
-                                               title=ref_recruit_form.cleaned_data['title'],
-                                               first_name=ref_recruit_form.cleaned_data['first_name'],
-                                               last_name=ref_recruit_form.cleaned_data['last_name'],
-                                               email_address=ref_recruit_form.cleaned_data['email_address'],
-                                               date_invited=timezone.now(),
-                                               invited_by = request.user.contributor)
+            ref_invitation = RefereeInvitation(
+                submission=submission, 
+                title=ref_recruit_form.cleaned_data['title'],
+                first_name=ref_recruit_form.cleaned_data['first_name'],
+                last_name=ref_recruit_form.cleaned_data['last_name'],
+                email_address=ref_recruit_form.cleaned_data['email_address'],
+                date_invited=timezone.now(),
+                invited_by = request.user.contributor)
             ref_invitation.save()
             # Create and send a registration invitation
             ref_inv_message_head = ('On behalf of the Editor-in-charge ' +
                                     title_dict[submission.editor_in_charge.title] + ' ' +
                                     submission.editor_in_charge.user.last_name +
-                                    ', we would like to invite you to referee a '
-                                    'Submission to SciPost Physics, namely\n\n' +
-                                    submission.title + '\nby ' + submission.author_list + '.')
+                                    ', we would like to invite you to referee a Submission to ' 
+                                    + journals_submit_dict[submission.submitted_to_journal] 
+                                    + ', namely\n\n' + submission.title 
+                                    + '\nby ' + submission.author_list + '.')
             reg_invitation = RegistrationInvitation (
                 title = ref_recruit_form.cleaned_data['title'],
                 first_name = ref_recruit_form.cleaned_data['first_name'],
