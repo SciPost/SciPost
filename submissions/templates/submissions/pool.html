@@ -22,6 +22,7 @@ $(document).ready(function(){
 
 {% load guardian_tags %}
 {% load scipost_extras %}
+{% load submissions_extras %}
 
 <section>
   {% if assignments_to_consider %}
@@ -69,6 +70,7 @@ $(document).ready(function(){
 
   <ul>
     {% for sub in submissions_in_pool %}
+    {% if request.user|is_not_author_of_submission:sub.id %}
     <br/>
     {{ sub.header_as_li_for_Fellows }}
     {% get_obj_perms request.user for sub as "sub_perms" %}
@@ -95,6 +97,7 @@ $(document).ready(function(){
     {% endif %}
     {% if request.user|is_in_group:'Editorial Administrators' %}
     <h4><a href="{% url 'submissions:communication' submission_id=sub.id comtype='StoE' %}">Send a communication to the Editor-in-charge</a></h4>
+    {% endif %}
     {% endif %}
     {% endfor %}
   </ul>

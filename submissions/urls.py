@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^volunteer_as_EIC/(?P<submission_id>[0-9]+)$', views.volunteer_as_EIC, name='volunteer_as_EIC'),
     url(r'^assignment_failed/(?P<submission_id>[0-9]+)$', views.assignment_failed, name='assignment_failed'),
     # Editorial workflow and refereeing
+    url(r'^editorial_workflow$', views.editorial_workflow, name='editorial_workflow'),
     url(r'^editorial_page/(?P<submission_id>[0-9]+)$', views.editorial_page, name='editorial_page'),
     url(r'^select_referee/(?P<submission_id>[0-9]+)$', views.select_referee, name='select_referee'),
     url(r'^recruit_referee/(?P<submission_id>[0-9]+)$', views.recruit_referee, name='recruit_referee'),

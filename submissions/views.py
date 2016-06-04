@@ -269,6 +269,16 @@ def submission_detail(request, submission_id):
 
 @login_required
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+def editorial_workflow(request):
+    """
+    Summary page for Editorial Fellows, containing a digest
+    of the actions to take to handle Submissions.
+    """
+    return render(request, 'submissions/editorial_workflow.html')
+
+
+@login_required
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def pool(request):
     """
     The Submissions pool contains all submissions which are undergoing
@@ -330,7 +340,8 @@ def assign_submission_ack(request, submission_id):
             emailmessage = EmailMessage(
                 'SciPost: potential Submission assignment', email_text,
                 'SciPost Editorial Admin <submissions@scipost.org>',
-                [ed_assignment.to.user.email, 'submissions@scipost.org'],
+                [ed_assignment.to.user.email], 
+                ['submissions@scipost.org'],
                 reply_to=['submissions@scipost.org'])
             emailmessage.send(fail_silently=False)
                         
@@ -844,7 +855,8 @@ def vet_submitted_report_ack(request, report_id):
             SubmissionUtils.load({'report': report, 
                                   'email_response': form.cleaned_data['email_response_field']})
             SubmissionUtils.acknowledge_report_email() # email report author, bcc EIC
-            SubmissionUtils.send_author_report_received_email()
+            if report.status == 1:
+                SubmissionUtils.send_author_report_received_email()
     context = {'submission': report.submission}
     return render(request, 'submissions/vet_submitted_report_ack.html', context)
 

@@ -44,16 +44,22 @@ class SubmissionUtils(object):
     @classmethod
     def send_EIC_appointment_email(cls):
         """ Requires loading 'assignment' attribute. """
-        email_text = ('Dear ' + title_dict[cls.assignment.to.title] + ' ' +
-                      cls.assignment.to.user.last_name +
-                      ', \n\nThank you for accepting to become Editor-in-charge of the SciPost Submission\n\n' +
-                      cls.assignment.submission.title + ' by ' + cls.assignment.submission.author_list + '.' +
+        email_text = ('Dear ' + title_dict[cls.assignment.to.title] + ' '
+                      + cls.assignment.to.user.last_name
+                      + ', \n\nThank you for accepting to become Editor-in-charge '
+                      'of the SciPost Submission\n\n' 
+                      + cls.assignment.submission.title + ' by ' 
+                      + cls.assignment.submission.author_list + '.'
                       '\n\nYou can take your editorial actions from the editorial page '
-                      'https://scipost.org/submission/editorial_page/' + str(cls.assignment.submission.id) +
-                      ' (also accessible from your personal page https://scipost.org/personal_page under the Editorial Actions tab). '
-                      'In particular, you should now invite 3 referees; you might want to make sure you are aware of the '
-                      'detailed procedure described in the Editorial College by-laws at https://scipost.org/EdCol_by-laws.'
-                      '\n\nMany thanks in advance for your collaboration,' +
+                      'https://scipost.org/submission/editorial_page/' 
+                      + str(cls.assignment.submission.id)
+                      + ' (also accessible from your personal page '
+                      'https://scipost.org/personal_page under the Editorial Actions tab). '
+                      'In particular, you should now invite at least 3 referees; you might want to '
+                      'make sure you are aware of the '
+                      'detailed procedure described in the Editorial College by-laws at '
+                      'https://scipost.org/EdCol_by-laws.'
+                      '\n\nMany thanks in advance for your collaboration,'
                       '\n\nThe SciPost Team.')
         emailmessage = EmailMessage(
             'SciPost: assignment as EIC', email_text,
@@ -67,16 +73,17 @@ class SubmissionUtils(object):
     @classmethod
     def send_author_prescreening_passed_email(cls):
         """ Requires loading 'assignment' attribute. """
-        email_text = ('Dear ' + title_dict[cls.assignment.submission.submitted_by.title] + ' ' +
-                      cls.assignment.submission.submitted_by.user.last_name +
-                      ', \n\nWe are pleased to inform you that your recent Submission to SciPost,\n\n' +
-                      cls.assignment.submission.title + ' by ' + cls.assignment.submission.author_list +
-                      '\n\nhas successfully passed the pre-screening stage. '
+        email_text = ('Dear ' + title_dict[cls.assignment.submission.submitted_by.title] + ' '
+                      + cls.assignment.submission.submitted_by.user.last_name
+                      + ', \n\nWe are pleased to inform you that your recent Submission to SciPost,\n\n'
+                      + cls.assignment.submission.title + ' by ' + cls.assignment.submission.author_list
+                      + '\n\nhas successfully passed the pre-screening stage. '
                       '\n\nA Submission Page has been activated at '
-                      'https://scipost.org/submission/' + str(cls.assignment.submission.id) +
-                      ' and a refereeing round has been started, with deadline '
-                      'currently set at ' + datetime.datetime.strftime(cls.assignment.submission.reporting_deadline, "%Y-%m-%d") +
-                      '. '
+                      'https://scipost.org/submission/' + str(cls.assignment.submission.id)
+                      + ' and a refereeing round has been started, with deadline '
+                      'currently set at ' 
+                      + datetime.datetime.strftime(cls.assignment.submission.reporting_deadline, "%Y-%m-%d")
+                      + '. '
                       '\n\nWe thank you very much for your contribution.'
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
@@ -92,11 +99,11 @@ class SubmissionUtils(object):
     @classmethod
     def assignment_failed_email_authors(cls):
         """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
-                      cls.submission.submitted_by.user.last_name +
-                      ', \n\nYou recent Submission to SciPost,\n\n' +
-                      cls.submission.title + ' by ' + cls.submission.author_list +
-                      '\n\nhas unfortunately not passed the pre-screening stage. '
+        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' '
+                      + cls.submission.submitted_by.user.last_name
+                      + ', \n\nYou recent Submission to SciPost,\n\n'
+                      + cls.submission.title + ' by ' + cls.submission.author_list
+                      + '\n\nhas unfortunately not passed the pre-screening stage. '
                       'We therefore regret to inform you that we will not '
                       'process your paper further towards publication, and that you '
                       'are now free to send your manuscript to an alternative journal.'
@@ -137,8 +144,8 @@ class SubmissionUtils(object):
                       'clicking on the "Contribute a Report" link at '
                       'https://scipost.org/submission/' + str(cls.invitation.submission.id) 
                       + ' before the reporting deadline (currently set at ' 
-                      + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d") +
-                      '; your report will be automatically recognized as an invited report). '
+                      + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
+                      + '; your report will be automatically recognized as an invited report). '
                       'You might want to make sure you are familiar with our refereeing code of conduct '
                       'https://scipost.org/journals/journals_terms_and_conditions and with the '
                       'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.' 
