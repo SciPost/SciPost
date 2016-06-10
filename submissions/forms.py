@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User, Group
+#from django.contrib.auth.models import User, Group
 
 from .models import *
 
@@ -170,8 +170,9 @@ class EditorialCommunicationForm(forms.Form):
 class EICRecommendationForm(forms.ModelForm):
     class Meta:
         model = EICRecommendation
-        fields = ['remarks_for_authors', 'requested_changes', 
-                  'recommendation', 'remarks_for_editorial_college']
+        fields = ['recommendation', 
+                  'remarks_for_authors', 'requested_changes', 
+                  'remarks_for_editorial_college']
     def __init__(self, *args, **kwargs):
         super(EICRecommendationForm, self).__init__(*args, **kwargs)
         self.fields['remarks_for_authors'].widget.attrs.update(
@@ -182,3 +183,4 @@ class EICRecommendationForm(forms.ModelForm):
              'cols': 100})
         self.fields['remarks_for_editorial_college'].widget.attrs.update(
             {'placeholder': 'If you recommend to accept or refuse, the Editorial College will vote; write any relevant remarks for the EC here.'})
+

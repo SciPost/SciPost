@@ -743,6 +743,16 @@ def eic_recommendation(request, submission_id):
             # it is forwarded to the Editorial College for voting
             # If it is to carry out minor or major revisions, 
             # it is returned to the Author who is asked to resubmit
+            if (recommendation.recommendation == 1 
+                or recommendation.recommendation == 2 
+                or recommendation.recommendation == 3
+                or recommendation.recommendation == -3):
+                submission.status = 'put_to_EC_voting'
+            elif (recommendation.recommendation == -1
+                  or recommendation.recommendation == -2):
+                submission.status = 'revision_requested'
+            submission.save()
+
             return redirect(reverse('submissions:editorial_page', 
                                     kwargs={'submission_id': submission_id}))
     else:
@@ -841,6 +851,7 @@ def vet_submitted_report_ack(request, report_id):
         form = VetReportForm(request.POST)
         report = Report.objects.get(pk=report_id)
         if form.is_valid():
+            report.vetted_by = request.user.contributor
             if form.cleaned_data['action_option'] == '1':
                 # accept the report as is
                 report.status = 1

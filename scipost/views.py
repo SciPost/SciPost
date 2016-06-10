@@ -125,6 +125,7 @@ def documentsSearchResults(query):
 
 
 def search(request):
+    """ For the global search form in navbar """
     if request.method == 'POST':
         form = SearchForm(request.POST)
         if form.is_valid():
@@ -141,6 +142,7 @@ def search(request):
 #############
 
 def index(request):
+    """ Main page """
     submission_search_form = SubmissionSearchForm(request.POST)
     commentary_search_form = CommentarySearchForm(request.POST)
     thesislink_search_form = ThesisLinkSearchForm(request.POST)
@@ -155,6 +157,7 @@ def index(request):
 ###############
 
 def base(request):
+    """ Skeleton for pages, used in template inheritance """
     return render(request, 'scipost/base.html')
 
 
@@ -241,6 +244,10 @@ def invitation(request, key):
 
 
 def activation(request, key):
+    """ 
+    After registration, an email verification link is sent.
+    Once clicked, the account is activated.
+    """
     contributor = get_object_or_404(Contributor, activation_key=key)
     if contributor.user.is_active == False:
         if timezone.now() > contributor.key_expires:
@@ -359,6 +366,7 @@ def vet_registration_request_ack(request, contributor_id):
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def registration_invitations(request):
+    """ Overview and tools for administrators """
     # List invitations sent; send new ones
     errormessage = ''
     if request.method == 'POST':
@@ -449,6 +457,9 @@ def logout_view(request):
 
 
 def personal_page(request):
+    """
+    The Personal Page is the main view for accessing user functions.
+    """
     if request.user.is_authenticated():
         contributor = Contributor.objects.get(user=request.user)
         # if an editor, count the number of actions required:
@@ -564,9 +575,6 @@ def personal_page(request):
 
 @login_required
 def change_password(request):
-#    if not request.user.is_authenticated:
-#        form = AuthenticationForm()
-#        return render(request, 'scipost/login.html', {'form': form})
     if request.method == 'POST':
         form = PasswordChangeForm(request.POST)
         if form.is_valid():
@@ -626,6 +634,12 @@ def update_personal_data(request):
 
 @login_required
 def claim_authorships(request):
+    """
+    The system auto-detects potential authorships (of submissions,
+    papers subject to commentaries, theses, ...). 
+    The contributor must confirm/deny authorship from the 
+    Personal Page.
+    """
     contributor = Contributor.objects.get(user=request.user)
     
     submission_authorships_to_claim = (Submission.objects
@@ -747,6 +761,11 @@ def vet_authorship_claim(request, claim_id, claim):
 
 @login_required
 def contributor_info(request, contributor_id):
+    """
+    Logged-in Contributors can see a digest of another
+    Contributor's activities/contributions by clicking
+    on the relevant name (in listing headers of Submissions, ...).
+    """
     contributor = Contributor.objects.get(pk=contributor_id)
     contributor_submissions = Submission.objects.filter(authors__in=[contributor])
     contributor_commentaries = Commentary.objects.filter(authors__in=[contributor])

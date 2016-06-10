@@ -390,7 +390,8 @@ class SubmissionUtils(object):
                       ', \n\nPlease find here a communication (' +
                       ed_comm_choices_dict[cls.communication.comtype] + ') '
                       'concerning Submission\n\n' +
-                      cls.communication.submission.title + ' by ' + cls.communication.submission.author_list + '.'
+                      cls.communication.submission.title + ' by ' 
+                      + cls.communication.submission.author_list + '.'
                       '\n\nText of the communication:\n------------------------------------------\n' +
                       cls.communication.text + '\n------------------------------------------')
         if further_action_page:

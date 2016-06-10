@@ -1,4 +1,4 @@
-from django import *
+from django import forms
 
 from .models import *
 

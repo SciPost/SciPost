@@ -23,23 +23,25 @@ SUBMISSION_STATUS = (
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
     ('EICassigned', 'Editor-in-charge assigned, manuscript under review'),
     ('review_closed', 'Review period closed, editorial recommendation pending'),
-    ('EIC_has_recommended', 'Editor-in-charge has provided recommendation'),
+#    ('EIC_has_recommended', 'Editor-in-charge has provided recommendation'),
+    ('revision_requested', 'Editor-in-charge has requested revision'),
     ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
     ('EC_vote_completed', 'Editorial College voting rounded up'),
-    ('decided', 'Publication decision taken'),
+    ('accepted', 'Publication decision taken: accept'),
+    ('rejected', 'Publication decision taken: reject'),
     )
 submission_status_dict = dict(SUBMISSION_STATUS)
 
-SUBMISSION_ACTION_REQUIRED = (
-    ('assign_EIC', 'Editor-in-charge to be assigned'),
-#    ('Fellow_accepts_or_refuse_assignment', 'Fellow must accept or refuse assignment'),
-    ('EIC_runs_refereeing_round', 'Editor-in-charge to run refereeing round (inviting referees)'),
-    ('EIC_closes_refereeing_round', 'Editor-in-charge to close refereeing round'),
-    ('EIC_invites_author_response', 'Editor-in-charge invites authors to complete their replies'),
-    ('EIC_formulates_editorial_recommendation', 'Editor-in-charge to formulate editorial recommendation'),
-    ('EC_ratification', 'Editorial College ratifies editorial recommendation'),
-    ('Decision_to_authors', 'Editor-in-charge forwards decision to authors'),
-    )
+# SUBMISSION_ACTION_REQUIRED = (
+#     ('assign_EIC', 'Editor-in-charge to be assigned'),
+# #    ('Fellow_accepts_or_refuse_assignment', 'Fellow must accept or refuse assignment'),
+#     ('EIC_runs_refereeing_round', 'Editor-in-charge to run refereeing round (inviting referees)'),
+#     ('EIC_closes_refereeing_round', 'Editor-in-charge to close refereeing round'),
+#     ('EIC_invites_author_response', 'Editor-in-charge invites authors to complete their replies'),
+#     ('EIC_formulates_editorial_recommendation', 'Editor-in-charge to formulate editorial recommendation'),
+#     ('EC_ratification', 'Editorial College ratifies editorial recommendation'),
+#     ('Decision_to_authors', 'Editor-in-charge forwards decision to authors'),
+#     )
 
 
 class Submission(models.Model):
@@ -413,6 +415,8 @@ class Report(models.Model):
     # -4: rejected (not academic in style)
     status = models.SmallIntegerField(default=0)
     submission = models.ForeignKey(Submission)
+    vetted_by = models.ForeignKey(Contributor, related_name="report_vetted_by", 
+                                  blank=True, null=True)
     # `invited' filled from RefereeInvitation objects at moment of report submission
     invited = models.BooleanField(default=False) 
     # `flagged' if author of report has been flagged by submission authors (surname check only)
