@@ -1,0 +1,73 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: A call for openness{% endblock pagetitle %}
+
+{% load staticfiles %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox320">
+      <h1><a href="{% url 'scipost:about' %}">A call for openness</a></h1>
+      </div>
+    <div class="row">
+      <div class="col-1"></div>
+      <div class="col-10">
+      <p>
+	Scientific publishing is currently making the news headlines.
+	With the recent <a href="http://english.eu2016.nl/documents/reports/2016/04/04/amsterdam-call-for-action-on-open-science">Amsterdam call for action on open science</a>
+	(building up on the earlier <a href="http://www.budapestopenaccessinitiative.org/read">Budapest</a>, <a href="http://legacy.earlham.edu/~peters/fos/bethesda.htm">Bethesda</a> and <a href="https://openaccess.mpg.de/Berlin-Declaration">Berlin</a> statements) for all publicly-funded research output to be Open Access by 2020, things are certainly moving in an interesting direction, namely the unquestionably needed transition away from paywall-protected publishing. 
+      </p>
+      <p>
+	As a professional researcher, you might feel that these developments are all that is needed, and that the current proposed publishing system is good enough for you to function and prosper. If this is the case, there is no point in carrying on reading. If, however, you feel that current developments represent only a fraction of the developments one could call for, then it is perhaps worth your time to read on.
+      </p>
+      <p>
+	Tasked with designing a system from scratch, with your main objective being set at serving the interests of science itself and of the scientists who produce it, one might among others wish for a publication landscape in which
+	<ul>
+	  <li>access to publications is unrestricted</li>
+	  <li>as an author, you do not have to pay article processing charges</li>
+	  <li>as an author, you maintain copyright over your work</li>
+	  <li>scientists are in control of the whole publication process</li>
+	  <li>refereeing is not run behind closed doors (though referee anonymity can be protected)</li>
+	  <li>refereeing work is recognized and credited</li>
+	  <li>feedback and extensions on existing publications can easily be provided.</li>
+	</ul>
+      </p>
+      <p>
+	Some of these points are almost too obvious to discuss. The first is self-evident: having a paywall for viewing publications is a business model that seemingly <a href="http://www.scottaaronson.com/writings/journal.html">can only succeed in academia</a>, and is a serious detriment and decelerator to the spread and development of scientific knowledge. All interested parties, from the world-leading specialist to the curious teenager in a developing country (without forgetting the smart data-mining robot) should have unfettered access to publications, this in no way representing a threat to their scientific quality (refereeing and quality control are discussed below). Reader accessibility is the one point which is indeed successfully being addressed in the current Open Access calls and initiatives mentioned above.
+      </p>
+      <p>
+	True openness, however, can mean much more than this. 
+      </p>
+      <p>
+	Publishing should be open both ways: in addition to cost-free reader access, there should be no paywall for authors to publish. Scientists' reactions to the idea of `author pays' range from uncaring, through neutral to downright hostile. There is no question that publishing carries costs, but the currently-developing marketization of Article Processing Charges does not find its justification in the interests of science itself or the researchers who produce it. Funding and processing such APC payments are an additional administrative burden which has been transferred to researchers, who too often overlook the implications of this development. A better system would see costs minimized by publishers and covered directly by funding agencies, either in direct agreements or via generalizations of schemes such as <a href="https://scoap3.org">SCOAP3</a>.
+      </p>
+      <p>
+	Openness can be productively pushed yet further: the refereeing process currently used in most journals cannot call itself `open': a few editorially-selected referees are consulted, their reports are often not peer-verified in any way, and the editorial decision is mostly taken behind closed doors. One side consequence of this lack of openness is that refereeing work, despite representing a substantial investment in time and effort to the scientists who perform it, remains completely uncredited. This forms an interesting contrast to the ubiquitous and career-defining output and citation metrics. The idea of openness here thus calls for at least two improvements. First: giving the possibility to professional academics to provide pre-publication feedback on manuscripts, even if they have not been specifically invited to referee. Second: exposing the reports to the scrutiny of the community (not necessarily by removing anonymity: it is sufficient to make the report publicly accessible, though true openness ideally calls for signed reports). There is a certain, perhaps understandable, reticence to adopt such new habits. Some field have however clearly demonstrated the fact that the quality and the usefulness of the whole refereeing process is measurably enhanced by <a href="http://www.atmospheric-chemistry-and-physics.net/pr_acp_Poschl_FrontiersNeuroscience2012_MultiStageOpenPeerReview.pdf">implementing more openness</a>. It is natural to hope that habits will eventually change and these productive, efficient and quality-enhancing open methods be more generally implemented, because such changes are good for science.
+      </p>
+      <p>
+	The greatest obstacle to change however, is the difficulty of convincing fellow scientists that change is possible and worthwhile. We are all naturally risk-adverse traditionalists, we remain too busy with our research, teaching, administration and grant writing, and cannot conceive keeping all these balls in the air while spending a significant amount of time overhauling the world of publishing. But think about it: we already do <em>all</em> the really crucial work, without which publications could not even being to exist: we perform the research, we write the paper (and typeset it), we review each others' papers, we proofread the papers. Why don't we publish them? There is, however, one extremely positive aspect of doing precisely such a thing. As the <a href="http://arxiv.org">arXiv</a> has taught us, the best developments can naturally only come from within the community itself. And the community, by implementing a publishing system with no other interests than serving science, can focus on its true mission: science itself.
+      </p>
+      <p>
+	This inescapable fact has motivated the recent setting up and launch of SciPost, a nonprofit foundation dedicated to providing publishing services to professional researchers. It is our hope that you will find many tools useful for your work as a professional scientist here on <a href="{% url 'scipost:index' %}">SciPost.org</a>. In particular, we hope that we can count on you for submissions to and reports for our Journals, which cannot grow and thrive without your commitment. We hope we can count on your support to make this initiative a success.
+      </p>
+      <p>
+	On behalf of the SciPost foundation,
+      </p>
+      <p>
+	Prof. dr Jean-Sébastien Caux
+      </p>
+      <p><em>Published 25 June 2016</em></p>
+
+    </div>
+
+    </div>
+
+    
+
+</section>
+
+{% endblock bodysup %}
+
