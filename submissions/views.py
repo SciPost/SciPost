@@ -775,6 +775,9 @@ def submit_report(request, submission_id):
                            and not (request.user.contributor in submission.authors_false_claims.all())
                            and (request.user.last_name in submission.author_list))
     errormessage = None
+    if timezone.now() > submission.reporting_deadline:
+        errormessage = ('The reporting deadline has passed. You cannot submit'
+                        ' a Report anymore.')
     if is_author:
         errormessage = 'You are an author of this Submission and cannot submit a Report.'
     if is_author_unchecked:

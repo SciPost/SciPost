@@ -5,6 +5,24 @@
 {% block bodysup %}
 
 
+<script>
+$(document).ready(function(){
+  $("#id_submission_type").closest('tr').hide()
+
+  $('select#id_submitted_to_journal').on('change', function (){
+  var selection = $(this).val();
+  switch(selection){
+    case "SciPost Physics":
+      $("#id_submission_type").closest('tr').show()
+      break;
+    default:
+      $("#id_submission_type").closest('tr').hide()
+  }
+});
+
+});
+</script>
+
 <section>
   <div class="flex-greybox">
     <h1>Submit a manuscript to SciPost</h1>
@@ -13,6 +31,9 @@
   <p>Before submitting, make sure you agree with the
     <a href="{% url 'journals:journals_terms_and_conditions' %}">
       SciPost Journals Terms and Conditions</a>.</p>
+  <p>You should also make sure you understand the 
+    <a href="{% url 'submissions:sub_and_ref_procedure' %}#pwr">
+      refereeing procedure</a> and its open aspect.</p>
   <p>In particular, make sure you are familiar with the 
     <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">
       license and copyright agreement</a>

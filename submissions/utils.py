@@ -251,7 +251,7 @@ class SubmissionUtils(object):
                       + cls.report.submission.title + ' by ' 
                       + cls.report.submission.author_list + '.'
                       '\n\nPlease vet this Report via your personal page at '
-                      'https://scipost.org/personal_page/ under the Editorial Actions tab.')
+                      'https://scipost.org/personal_page under the Editorial Actions tab.')
         email_text += ('\n\nMany thanks for your collaboration,' +
                        '\n\nThe SciPost Team.')
         

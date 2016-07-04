@@ -29,6 +29,7 @@ SUBMISSION_STATUS = (
     ('EC_vote_completed', 'Editorial College voting rounded up'),
     ('accepted', 'Publication decision taken: accept'),
     ('rejected', 'Publication decision taken: reject'),
+    ('withdrawn', 'Withdrawn by the Authors'),
     )
 submission_status_dict = dict(SUBMISSION_STATUS)
 
@@ -43,11 +44,21 @@ submission_status_dict = dict(SUBMISSION_STATUS)
 #     ('Decision_to_authors', 'Editor-in-charge forwards decision to authors'),
 #     )
 
+SUBMISSION_TYPE = (
+    ('Letter', 'Letter (broad-interest breakthrough results)'),
+    ('Article', 'Article (in-depth reports on specialized research)'),
+    ('Review', 'Review (candid snapshot of current research area)'),
+)
+submission_type_dict = dict(SUBMISSION_TYPE)
+
 
 class Submission(models.Model):
     submitted_by = models.ForeignKey(Contributor)
     editor_in_charge = models.ForeignKey(Contributor, related_name='EIC', blank=True, null=True)
-    submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT, verbose_name="Journal to be submitted to")
+    submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT, 
+                                            verbose_name="Journal to be submitted to")
+    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE, 
+                                       blank=True, null=True, default=None)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
@@ -580,7 +591,7 @@ class EditorialCommunication(models.Model):
 # From the Editor-in-charge of a Submission
 class EICRecommendation(models.Model):
     submission = models.ForeignKey(Submission)
-    date_submitted = models.DateTimeField('date submitted')
+    date_submitted = models.DateTimeField('date submitted', default=timezone.now)
     remarks_for_authors = models.TextField(blank=True, null=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True, null=True)
     remarks_for_editorial_college = models.TextField(

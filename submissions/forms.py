@@ -16,7 +16,8 @@ class SubmissionIdentifierForm(forms.Form):
 class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
-        fields = ['discipline', 'submitted_to_journal', 'domain', 'specialization', 
+        fields = ['discipline', 'submitted_to_journal', 'submission_type', 
+                  'domain', 'specialization', 
                   'title', 'author_list', 'abstract', 'arxiv_link', 'metadata', 
                   'referees_flagged']
 
@@ -29,6 +30,14 @@ class SubmissionForm(forms.ModelForm):
         self.fields['referees_flagged'].widget.attrs.update({
                 'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
                 'rows': 3})
+        # self.helper = FormHelper()
+        # self.helper.layout = Layout(
+        #     Fieldset('discipline', 'submitted_to_journal'),
+        #     Field('submission_type', css_id="subm_type"),
+        #     Fieldset('domain', 'specialization', 
+        #           'title', 'author_list', 'abstract', 'arxiv_link', 'metadata', 
+        #           'referees_flagged'),
+        # )
 
 
 class SubmissionSearchForm(forms.Form):
