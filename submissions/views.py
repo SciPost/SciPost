@@ -663,6 +663,13 @@ def extend_refereeing_deadline(request, submission_id, days):
 @login_required
 @permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
 def close_refereeing_round(request, submission_id):
+    """
+    Called by the Editor-in-charge when a satisfactory number of
+    reports have been gathered. 
+    Automatically emails the authors to ask them if they want to
+    round off any replies to reports or comments before the 
+    editorial recommendation is formulated.
+    """
     submission = get_object_or_404 (Submission, pk=submission_id)
     submission.open_for_reporting = False
     submission.open_for_commenting = False

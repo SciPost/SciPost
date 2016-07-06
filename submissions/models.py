@@ -18,7 +18,7 @@ from journals.models import journals_submit_dict, journals_domains_dict, journal
 ###############
 
 SUBMISSION_STATUS = (
-    ('unassigned', 'Unassigned'),
+    ('unassigned', 'Unassigned, undergoing pre-screening'),
 #    ('EICrequested', 'A request to become EIC has been sent to a specialty editor (response pending)'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
     ('EICassigned', 'Editor-in-charge assigned, manuscript under review'),
@@ -147,7 +147,7 @@ class Submission(models.Model):
 
 
     def header_as_li_for_authors (self):
-        # for search lists
+        # includes status specification
         header = ('<li><div class="flex-container">'
                   '<div class="flex-whitebox0">'
                   '<p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'

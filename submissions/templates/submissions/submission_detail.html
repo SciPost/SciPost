@@ -27,7 +27,7 @@
 
 <section>
   <div class="flex-greybox">
-    <h1>SciPost Submission Page &nbsp; (for papers submitted to SciPost)</h1>
+    <h1>SciPost Submission Page</h1>
     {% if user.contributor == submission.editor_in_charge %}
     <h3>(You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' submission_id=submission.id %}">Editorial Page</a> to take editorial actions)</h3>
     {% endif %}
@@ -44,6 +44,7 @@
   <p>{{ submission.abstract }}</p>
 
 </section>
+
 
 {% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
 <section>
