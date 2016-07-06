@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, Permission
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -51,8 +51,9 @@ def vet_submitted_comment_ack(request, comment_id):
                                    + str(comment.submission.id))
                     comment.submission.latest_activity = timezone.now()
                     comment.submission.save()
-                    SubmissionUtils.load({'submission': comment.submission})
-                    SubmissionUtils.send_author_comment_received_email()
+                    if not comment.is_author_reply:
+                        SubmissionUtils.load({'submission': comment.submission})
+                        SubmissionUtils.send_author_comment_received_email()
                 elif comment.thesislink is not None:
                     email_text += (comment.thesislink.title + ' by ' + comment.thesislink.author +
                                    ' at Thesis Link https://scipost.org/thesis/' 

@@ -138,8 +138,8 @@ class Comment(models.Model):
             context['author_id'] = self.author.id
             context['first_name'] = self.author.user.first_name
             context['last_name'] = self.author.user.last_name
-        output += '{{ date_submitted }}'
-        context['date_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
+        output += '{{ date_comment_submitted }}'
+        context['date_comment_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
         if self.in_reply_to_comment:
             output += (' (in reply to <a href="#comment_id{{ in_reply_to_comment_id }}">' 
                        '{{ in_reply_to_comment_first_name }} '
@@ -164,8 +164,8 @@ class Comment(models.Model):
             else:
                 output += 'Report {{ in_reply_to_report_id }}'
                 context['in_reply_to_report_id'] = self.in_reply_to_report_id
-            output += ' on {{ date_submitted }}</a>)'
-            context['date_submitted'] = self.in_reply_to_report.date_submitted.strftime("%Y-%m-%d")
+            output += ' on {{ date_report_submitted }}</a>)'
+            context['date_report_submitted'] = self.in_reply_to_report.date_submitted.strftime("%Y-%m-%d")
         output += '</h3></div>'
         template = Template(output)
         return template.render(context)
