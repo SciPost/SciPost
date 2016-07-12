@@ -33,3 +33,9 @@ class EditorialCommunicationAdmin(admin.ModelAdmin):
     search_fields = ['submission__title', 'referee__user__last_name', 'text']
 
 admin.site.register(EditorialCommunication, EditorialCommunicationAdmin)
+
+
+class EICRecommendationAdmin(admin.ModelAdmin):
+    search_fields = ['submission__title']
+
+admin.site.register(EICRecommendation, EICRecommendationAdmin)

@@ -47,7 +47,7 @@ submission_status_dict = dict(SUBMISSION_STATUS)
 SUBMISSION_TYPE = (
     ('Letter', 'Letter (broad-interest breakthrough results)'),
     ('Article', 'Article (in-depth reports on specialized research)'),
-    ('Review', 'Review (candid snapshot of current research area)'),
+    ('Review', 'Review (candid snapshot of current research in a given area)'),
 )
 submission_type_dict = dict(SUBMISSION_TYPE)
 
