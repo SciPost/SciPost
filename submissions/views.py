@@ -741,9 +741,15 @@ def eic_recommendation(request, submission_id):
     if request.method == 'POST':
         form = EICRecommendationForm(request.POST)
         if form.is_valid():
-            recommendation = form.save()
-            recommendation.submission = submission
-            recommendation.date_submitted = timezone.now()
+            #recommendation = form.save()
+            recommendation = EICRecommendation(
+                submission = submission,
+                date_submitted = timezone.now(),
+                remarks_for_authors = form.cleaned_data['remarks_for_authors'],
+                requested_changes = form.cleaned_data['requested_changes'],
+                remarks_for_editorial_college = form.cleaned_data['remarks_for_editorial_college'],
+            )
+            recommendation.recommendation = form.cleaned_data['recommendation']
             recommendation.voting_deadline = timezone.now() + datetime.timedelta(days=7)
             recommendation.save()
             # If recommendation is to accept or reject, 
