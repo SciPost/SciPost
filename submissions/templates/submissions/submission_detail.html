@@ -86,8 +86,7 @@
   <div id="invitedreportslist">
     {% for report in invited_reports %}
     <hr class="hr6"/>
-<!--    {% if user|is_in_group:'Editorial College' and not is_author and not is_author_unchecked %} -->
-    {% if user.contributor == submission.editor_in_charge %}
+    {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators'  and not is_author or user|is_in_group:'Editorial Administrators' and not is_author_unchecked %}
     {% if report.flagged %}
     <h4 style="color: red">CAUTION: check if this referee has been flagged by the authors</h4>
     {% endif %}
@@ -162,7 +161,7 @@
   <div id="contributedreportslist">
     {% for report in contributed_reports %}
     <hr class="hr6"/>
-    {% if user|is_in_group:'Editorial College' %}
+    {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators'  and not is_author or user|is_in_group:'Editorial Administrators' and not is_author_unchecked %}
     {% if report.flagged %}
     <h4 style="color: red">CAUTION: check if this referee has been flagged by the authors</h4>
     {% endif %}

@@ -748,9 +748,9 @@ def eic_recommendation(request, submission_id):
                 remarks_for_authors = form.cleaned_data['remarks_for_authors'],
                 requested_changes = form.cleaned_data['requested_changes'],
                 remarks_for_editorial_college = form.cleaned_data['remarks_for_editorial_college'],
+                recommendation = form.cleaned_data['recommendation'],
+                voting_deadline = timezone.now() + datetime.timedelta(days=7),
             )
-            recommendation.recommendation = form.cleaned_data['recommendation']
-            recommendation.voting_deadline = timezone.now() + datetime.timedelta(days=7)
             recommendation.save()
             # If recommendation is to accept or reject, 
             # it is forwarded to the Editorial College for voting
