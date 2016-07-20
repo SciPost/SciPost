@@ -39,6 +39,46 @@ class SubmissionUtils(object):
         for atd in assignments_to_deprecate:
             atd.deprecated = True
             atd.save()
+
+
+    @classmethod
+    def send_authors_submission_ack_email(cls):
+        """ Requires loading 'submission' attribute. """
+        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+                      cls.submission.submitted_by.user.last_name +
+                      ', \n\nWe have received your Submission to SciPost,\n\n' +
+                      cls.submission.title + ' by ' + cls.submission.author_list + '.' +
+                      '\n\nWe will update you on the results of the pre-screening process '
+                      'within the next 5 working days.'
+                      '\n\nYou can track your Submission at any time '
+                      'from your personal page https://scipost.org/personal_page.' +
+                      '\n\nWith many thanks,' +
+                      '\n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost: Submission received', email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            [cls.submission.submitted_by.user.email, 'submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
+
+
+    @classmethod
+    def send_authors_resubmission_ack_email(cls):
+        """ Requires loading 'submission' attribute. """
+        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+                      cls.submission.submitted_by.user.last_name +
+                      ', \n\nWe have received your Resubmission to SciPost,\n\n' +
+                      cls.submission.title + ' by ' + cls.submission.author_list + '.' +
+                      '\n\nYou can track your Submission at any time '
+                      'from your personal page https://scipost.org/personal_page.' +
+                      '\n\nWith many thanks,' +
+                      '\n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost: Resubmission received', email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            [cls.submission.submitted_by.user.email, 'submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
             
         
     @classmethod
@@ -52,7 +92,7 @@ class SubmissionUtils(object):
                       + cls.assignment.submission.author_list + '.'
                       '\n\nYou can take your editorial actions from the editorial page '
                       'https://scipost.org/submission/editorial_page/' 
-                      + str(cls.assignment.submission.id)
+                      + cls.assignment.submission.arxiv_identifier_w_vn_nr
                       + ' (also accessible from your personal page '
                       'https://scipost.org/personal_page under the Editorial Actions tab). '
                       'In particular, you should now invite at least 3 referees; you might want to '
@@ -69,7 +109,39 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
 
-        
+
+    @classmethod
+    def send_EIC_reappointment_email(cls):
+        """ Requires loading 'submission' attribute. """
+        email_text = ('Dear ' + title_dict[cls.submission.editor_in_charge.title] + ' '
+                      + cls.submission.editor_in_charge.user.last_name
+                      + ', \n\nThe authors of the SciPost Submission\n\n' 
+                      + cls.submission.title + ' by ' 
+                      + cls.submission.author_list +
+                      '\n\nhave resubmitted their manuscript. '
+                      '\n\nAs Editor-in-charge, you can take your editorial actions '
+                      'from the editorial page '
+                      'https://scipost.org/submission/editorial_page/' 
+                      + cls.submission.arxiv_identifier_w_vn_nr
+                      + ' (also accessible from your personal page '
+                      'https://scipost.org/personal_page under the Editorial Actions tab). '
+                      '\n\nYou can either take an immediate acceptance/rejection decision, '
+                      'or run a new refereeing round, in which case you '
+                      'should now invite at least 3 referees; you might want to '
+                      'make sure you are aware of the '
+                      'detailed procedure described in the Editorial College by-laws at '
+                      'https://scipost.org/EdCol_by-laws.'
+                      '\n\nMany thanks in advance for your collaboration,'
+                      '\n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost: resubmission received', email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            [cls.submission.editor_in_charge.user.email],
+            ['submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
+
+
     @classmethod
     def send_author_prescreening_passed_email(cls):
         """ Requires loading 'assignment' attribute. """
@@ -79,7 +151,8 @@ class SubmissionUtils(object):
                       + cls.assignment.submission.title + ' by ' + cls.assignment.submission.author_list
                       + '\n\nhas successfully passed the pre-screening stage. '
                       '\n\nA Submission Page has been activated at '
-                      'https://scipost.org/submission/' + str(cls.assignment.submission.id)
+                      'https://scipost.org/submission/' 
+                      + cls.assignment.submission.arxiv_identifier_w_vn_nr
                       + ' and a refereeing round has been started, with deadline '
                       'currently set at ' 
                       + datetime.datetime.strftime(cls.assignment.submission.reporting_deadline, "%Y-%m-%d")
@@ -136,13 +209,15 @@ class SubmissionUtils(object):
                       + cls.invitation.submission.editor_in_charge.user.last_name
                       + ', we would like to invite you to referee:\n\n'
                       + cls.invitation.submission.title + ' by ' + cls.invitation.submission.author_list
-                      + ' (see https://scipost.org/submission/' + str(cls.invitation.submission.id) + ').'
+                      + ' (see https://scipost.org/submission/' 
+                      + cls.invitation.submission.arxiv_identifier_w_vn_nr + ').'
                       '\n\nPlease visit https://scipost.org/submissions/accept_or_decline_ref_invitations '
                       '(login required) as soon as possible (ideally within the next 2 days) '
                       'in order to accept or decline this invitation.'
                       '\n\nIf you accept, your report can be submitted by simply '
                       'clicking on the "Contribute a Report" link at '
-                      'https://scipost.org/submission/' + str(cls.invitation.submission.id) 
+                      'https://scipost.org/submission/' 
+                      + cls.invitation.submission.arxiv_identifier_w_vn_nr
                       + ' before the reporting deadline (currently set at ' 
                       + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
                       + '; your report will be automatically recognized as an invited report). '
@@ -189,7 +264,8 @@ class SubmissionUtils(object):
                            'in order to accept or decline this invitation.')
         email_text += ('\n\nYour report can be submitted by simply clicking on '
                        'the "Contribute a Report" link at '
-                       'https://scipost.org/submission/' + str(cls.invitation.submission.id) 
+                       'https://scipost.org/submission/' 
+                       + cls.invitation.submission.arxiv_identifier_w_vn_nr 
                        + ' before the reporting deadline (currently set at ' 
                        + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
                        + '; your report will be automatically recognized as an invited report). '
@@ -227,7 +303,7 @@ class SubmissionUtils(object):
         if cls.invitation.accepted == False:
             email_text += ('\n\nPlease invite another referee from the Submission\'s editorial page '
                            'at https://scipost.org/submissions/editorial_page/' 
-                           + str(cls.invitation.submission.id) + '.')
+                           + cls.invitation.submission.arxiv_identifier_w_vn_nr + '.')
         email_text += ('\n\nMany thanks for your collaboration,'
                        '\n\nThe SciPost Team.')
         
@@ -273,7 +349,8 @@ class SubmissionUtils(object):
                        cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.')
         if cls.report.status == 1:
             email_text += ('\n\nYour Report has been vetted through and is viewable at '
-                           'https://scipost.org/submissions/' + str(cls.report.submission.id) + '.')
+                           'https://scipost.org/submissions/' 
+                           + cls.report.submission.arxiv_identifier_w_vn_nr + '.')
         else:
             email_text += ('\n\nYour Report has been reviewed by the Editor-in-charge of the Submission, '
                            'who decided not to admit it for online posting, citing the reason: '
@@ -310,7 +387,8 @@ class SubmissionUtils(object):
                       ', \n\nA Report has been posted on your recent Submission to SciPost,\n\n' +
                       cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.'
                       '\n\nYou can view it at the Submission Page '
-                      'https://scipost.org/submission/' + str(cls.report.submission.id) + '.'
+                      'https://scipost.org/submission/' 
+                      + cls.report.submission.arxiv_identifier_w_vn_nr + '.'
                       '\n\nWe thank you very much for your contribution.'
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
@@ -331,7 +409,8 @@ class SubmissionUtils(object):
                       ', \n\nA Comment has been posted on your recent Submission to SciPost,\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + '.'
                       '\n\nYou can view it at the Submission Page '
-                      'https://scipost.org/submission/' + str(cls.submission.id) + '.'
+                      'https://scipost.org/submission/' 
+                      + cls.submission.arxiv_identifier_w_vn_nr + '.'
                       '\n\nWe thank you very much for your contribution.'
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
@@ -359,8 +438,8 @@ class SubmissionUtils(object):
             recipient_greeting = ('Dear ' +
                                   title_dict[cls.communication.submission.editor_in_charge.title] + ' ' +
                                   cls.communication.submission.editor_in_charge.user.last_name)
-            further_action_page = ('https://scipost.org/submission/editorial_page/' +
-                                   str(cls.communication.submission.id))
+            further_action_page = ('https://scipost.org/submission/editorial_page/' 
+                                   + cls.communication.submission.arxiv_identifier_w_vn_nr)
             if cls.communication.comtype == 'AtoE':
                 bcc_emails.append(cls.communication.submission.submitted_by.user.email)
             elif cls.communication.comtype == 'RtoE':

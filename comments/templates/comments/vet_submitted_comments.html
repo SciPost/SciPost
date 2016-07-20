@@ -22,7 +22,7 @@
   {% endif %}
 
   {% if comment_to_vet.submission %}
-  <h3>From Submission (<a href="{% url 'submissions:submission' submission_id=comment_to_vet.submission.id %}">link</a>)</h3>
+  <h3>From Submission (<a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=comment_to_vet.submission.arxiv_identifier_w_vn_nr %}">link</a>)</h3>
   {{ comment_to_vet.submission.header_as_table }}
   <br />
   {% endif %}

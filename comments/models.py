@@ -238,12 +238,12 @@ class Comment(models.Model):
             context['first_name'] = self.author.user.first_name
             context['last_name'] = self.author.user.last_name
         if self.submission is not None:
-            header += ('<a href="/submission/{{ submission_id }}#comment_id{{ id }}">'
+            header += ('<a href="/submission/{{ arxiv_identifier_w_vn_nr }}#comment_id{{ id }}">'
                        ' \"{{ text_cut }}\"</a><p>submitted on {{ date_submitted }}')
-            header += (' in submission on <a href="/submission/{{ submission_id }}"'
+            header += (' in submission on <a href="/submission/{{ arxiv_identifier_w_vn_nr }}"'
                        ' class="pubtitleli">{{ submission_title }}</a> by '
                        '{{ submission_author_list }}</p>')
-            context['submission_id'] = self.submission.id
+            context['arxiv_identifier_w_vn_nr'] = self.submission.arxiv_identifier_w_vn_nr
             context['submission_title'] = self.submission.title
             context['submission_author_list'] = self.submission.author_list
         if self.commentary is not None:
@@ -283,11 +283,11 @@ class Comment(models.Model):
             context['first_name'] = self.author.user.first_name
             context['last_name'] = self.author.user.last_name
         if self.submission is not None:
-            header += ('<a href="/submission/{{ submission_id }}#comment_id{{ id }}"> '
+            header += ('<a href="/submission/{{ arxiv_identifier_w_vn_nr }}#comment_id{{ id }}"> '
                        '\"{{ text_cut }}\"</a>'
-                       ' in submission on <a href="/submission/{{ submission_id }}" class="pubtitleli">'
+                       ' in submission on <a href="/submission/{{ arxiv_identifier_w_vn_nr }}" class="pubtitleli">'
                        '{{ submission_title }}</a> by {{ submission_author_list }}</p>')
-            context['submission_id'] = self.submission.id
+            context['arxiv_identifier_w_vn_nr'] = self.submission.arxiv_identifier_w_vn_nr
             context['submission_title'] = self.submission.title
             context['submission_author_list'] = self.submission.author_list
         if self.commentary is not None:

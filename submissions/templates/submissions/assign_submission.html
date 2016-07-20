@@ -38,7 +38,7 @@
   {% endif %}
 
   <h1>Send a new assignment request:</h1>
-  <form action="{% url 'submissions:assign_submission_ack' submission_id=submission_to_assign.id %}" method="post">
+  <form action="{% url 'submissions:assign_submission_ack' arxiv_identifier_w_vn_nr=submission_to_assign.arxiv_identifier_w_vn_nr %}" method="post">
     {% csrf_token %}
     {{ form.as_ul }}
     <input type="submit" value="Submit" />

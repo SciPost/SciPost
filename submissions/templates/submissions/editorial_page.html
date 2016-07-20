@@ -14,9 +14,22 @@
 <section>
   <div class="flex-greybox">
     <h1>Editorial Page for Submission</h1>
-    <h3>(go to the <a href="{% url 'submissions:submission' submission_id=submission.id %}">
+    {% if not submission.is_current %}
+    <h3 style="color: red;">This is not the editorial page for the current version.</h3>
+    <p>Please go to the current version's page.</p>
+    {% endif %}
+    <h3>(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
 	Submissions Page</a> to view Reports and Comments)</h3>
   </div>
+
+  {% if other_versions %}
+  <h3>Other versions of this Submission exist:</h3>
+  <ul>
+    {% for vn in other_versions %}
+    {{ vn.version_info_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
 
   <hr class="hr12">
   <div class="row">
@@ -53,14 +66,14 @@
 	  {% if not invitation.accepted == False %}
 	  <td>
 	    {% if invitation.referee %}
-	    <a href="{% url 'submissions:communication' submission_id=submission.id comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
+	    <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
 	    {% else %}
 	    (not yet registered)
 	    {% endif %}
 	  </td>
 	  <td>
 	  {% if not invitation.fulfilled %}
-	  <a href="{% url 'submissions:ref_invitation_reminder' submission_id=submission.id invitation_id=invitation.id %}">Send reminder email</a>
+	  <a href="{% url 'submissions:ref_invitation_reminder' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder email</a>
 	  {% else %}
 	  <strong style="color: green">Report has been delivered</strong>
 	  {% endif %}
@@ -84,26 +97,32 @@
 
   <hr class="hr6"/>
   <h3>Actions:</h3>
+  {% if not submission.is_current %}
+  <h3 style="color: red;">BEWARE: This is not the editorial page for the current version.</h3>
+  <p>The tools here are thus available only for exceptional circumstances (e.g. vetting a late report on a deprecated version).</p>
+  <p>Please go to the current version's page using the link at the top.</p>
+  <br/>
+  {% endif %}
   <ul>
-    <li><a href="{% url 'submissions:select_referee' submission_id=submission.id %}">
+    <li><a href="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
 	Select an additional referee</a> (bear in mind flagged referees if any)</li>
     <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline }}) by 
-      <a href="{% url 'submissions:extend_refereeing_deadline' submission_id=submission.id days=2 %}">2 days</a>,
-      <a href="{% url 'submissions:extend_refereeing_deadline' submission_id=submission.id days=7 %}">1 week</a> or
-      <a href="{% url 'submissions:extend_refereeing_deadline' submission_id=submission.id days=14 %}">2 weeks</a>
+      <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=2 %}">2 days</a>,
+      <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=7 %}">1 week</a> or
+      <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=14 %}">2 weeks</a>
       {% if submission.reporting_deadline_has_passed %}
       <b style="color: red">THE REPORTING DEADLINE HAS PASSED</b>
       {% endif %}
       </li>
     <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
     {% if not submission.reporting_deadline_has_passed %}
-    <li><a href="{% url 'submissions:close_refereeing_round' submission_id=submission.id %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
+    <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
     {% endif %}
-    <li><a href="{% url 'submissions:communication' submission_id=submission.id comtype='EtoA' %}">Draft and send a communication with the submitting Author</a></li>
+    <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoA' %}">Draft and send a communication with the submitting Author</a></li>
     <li>Communicate with a Referee: see the table above.
     </li>
-    <li><a href="{% url 'submissions:communication' submission_id=submission.id comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
-    <li><a href="{% url 'submissions:eic_recommendation' submission_id=submission.id %}">Formulate an Editorial Recommendation</a>
+    <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
+    <li><a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
     <p>If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
       <br/>If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.</p>
     </li>

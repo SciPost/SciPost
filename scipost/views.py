@@ -502,7 +502,7 @@ def personal_page(request):
         # Verify if there exist objects authored by this contributor, 
         # whose authorship hasn't been claimed yet
         own_submissions = (Submission.objects
-                           .filter(authors__in=[contributor])
+                           .filter(authors__in=[contributor], is_current=True)
                            .order_by('-submission_date'))
         own_commentaries = (Commentary.objects
                             .filter(authors__in=[contributor])

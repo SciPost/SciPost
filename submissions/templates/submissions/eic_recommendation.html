@@ -39,9 +39,9 @@
 <section>
   <div class="flex-greybox">
     <h1>Formulate Editorial Recommendation for Submission</h1>
-    <h3>(go to the <a href="{% url 'submissions:submission' submission_id=submission.id %}">
+    <h3>(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
 	Submissions Page</a> to view Reports and Comments)</h3>
-    <h3>(go back to the <a href="{% url 'submissions:editorial_page' submission_id=submission.id %}">
+    <h3>(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
 	Editorial Page</a> to take editorial actions)</h3>
   </div>
 
@@ -67,7 +67,7 @@
       <li>request for revision: sent directly to the authors</li>
   </div>
 
-  <form action="{% url 'submissions:eic_recommendation' submission_id=submission.id %}" method="post">
+  <form action="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
     {% csrf_token %}
     <table>
       <ul>

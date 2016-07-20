@@ -7,6 +7,16 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
 
 
+class SubmissionSearchForm(forms.Form):
+    author = forms.CharField(max_length=100, required=False, label="Author(s)")
+    title_keyword = forms.CharField(max_length=100, label="Title", required=False)
+    abstract_keyword = forms.CharField(max_length=1000, required=False, label="Abstract")
+
+
+###############################
+# Submission and resubmission #
+###############################
+
 class SubmissionIdentifierForm(forms.Form):
     identifier = forms.CharField(widget=forms.TextInput(
         {'label': 'arXiv identifier',
@@ -16,17 +26,28 @@ class SubmissionIdentifierForm(forms.Form):
 class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
-        fields = ['discipline', 'submitted_to_journal', 'submission_type', 
+        fields = ['is_resubmission', 
+                  'discipline', 'submitted_to_journal', 'submission_type', 
                   'domain', 'specialization', 
-                  'title', 'author_list', 'abstract', 'arxiv_link', 'metadata', 
-                  'referees_flagged']
+                  'title', 'author_list', 'abstract', 
+                  'arxiv_identifier_w_vn_nr', 'arxiv_identifier_wo_vn_nr', 
+                  'arxiv_vn_nr', 'arxiv_link', 'metadata', 
+                  'author_comments', 'list_of_changes', 'referees_flagged']
 
     def __init__(self, *args, **kwargs):
         super(SubmissionForm, self).__init__(*args, **kwargs)
+        self.fields['is_resubmission'].widget = forms.HiddenInput()
+        self.fields['arxiv_identifier_w_vn_nr'].widget = forms.HiddenInput()
+        self.fields['arxiv_identifier_wo_vn_nr'].widget = forms.HiddenInput()
+        self.fields['arxiv_vn_nr'].widget = forms.HiddenInput()
         self.fields['arxiv_link'].widget.attrs.update(
             {'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
         self.fields['metadata'].widget = forms.HiddenInput()
         self.fields['abstract'].widget.attrs.update({'cols': 100})
+        self.fields['author_comments'].widget.attrs.update({
+            'placeholder': 'Your resubmission letter', })
+        self.fields['list_of_changes'].widget.attrs.update({
+            'placeholder': 'Give a point-by-point list of changes', })
         self.fields['referees_flagged'].widget.attrs.update({
                 'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
                 'rows': 3})
@@ -38,12 +59,6 @@ class SubmissionForm(forms.ModelForm):
         #           'title', 'author_list', 'abstract', 'arxiv_link', 'metadata', 
         #           'referees_flagged'),
         # )
-
-
-class SubmissionSearchForm(forms.Form):
-    author = forms.CharField(max_length=100, required=False, label="Author(s)")
-    title_keyword = forms.CharField(max_length=100, label="Title", required=False)
-    abstract_keyword = forms.CharField(max_length=1000, required=False, label="Abstract")
 
 
 ######################

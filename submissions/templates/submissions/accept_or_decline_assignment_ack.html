@@ -11,7 +11,7 @@
   
   {% elif assignment.accepted %}
   <h1>Thank you for becoming Editor-in-charge of this submission.</h1>
-  <p>Please go to the <a href="{% url 'submissions:editorial_page' submission_id=assignment.submission.id %}">Submission's editorial page</a> and select referees now.</p>
+  <p>Please go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=assignment.submission.arxiv_identifier_w_vn_nr %}">Submission's editorial page</a> and select referees now.</p>
   {% else %}
   <h1>Thank you for considering.</h1>
   <p>Return to the <a href="{% url 'submissions:pool' %}">Submissions Pool</a>.</p>

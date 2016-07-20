@@ -23,7 +23,9 @@ class LatestCommentFeed(Feed):
         if item.commentary:
             return reverse('commentaries:commentary', kwargs={'arxiv_or_DOI_string': item.commentary.arxiv_or_DOI_string})
         elif item.submission:
-            return reverse('submissions:submission', kwargs={'submission_id': item.submission.id})
+            return reverse('submissions:submission', 
+                           kwargs={'arxiv_identifier': item.submission.arxiv_identifier,
+                                   'arxiv_vn_nr': item.submission.arxiv_vn_nr})
         elif item.thesislink:
             return reverse('theses:thesis', kwargs={'thesislink_id': item.thesislink.id})
         else:

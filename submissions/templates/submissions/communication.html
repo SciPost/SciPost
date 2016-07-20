@@ -30,13 +30,13 @@
 
   <br/>
   {% if referee_id %}
-  <form action="{% url 'submissions:communication' submission_id=submission.id comtype=comtype referee_id=referee_id %}" method="post">
+  <form action="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype=comtype referee_id=referee_id %}" method="post">
     {% csrf_token %}
     {{ form }}
     <input type="submit" value="Send communication"/>
   </form>
   {% else %}
-  <form action="{% url 'submissions:communication' submission_id=submission.id comtype=comtype %}" method="post">
+  <form action="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype=comtype %}" method="post">
     {% csrf_token %}
     {{ form }}
     <input type="submit" value="Send communication"/>

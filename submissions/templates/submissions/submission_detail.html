@@ -28,10 +28,22 @@
 <section>
   <div class="flex-greybox">
     <h1>SciPost Submission Page</h1>
+    {% if not submission.is_current %}
+    <h3 style="color: red;">This is not the current version.</h3>
+    {% endif %}
     {% if user.contributor == submission.editor_in_charge %}
-    <h3>(You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' submission_id=submission.id %}">Editorial Page</a> to take editorial actions)</h3>
+    <h3>(You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h3>
     {% endif %}
   </div>
+
+  {% if other_versions %}
+  <h3>Other versions of this Submission exist:</h3>
+  <ul>
+    {% for vn in other_versions %}
+    {{ vn.version_info_as_li }}
+    {% endfor %}
+  </ul>
+  {% endif %}
 
   <hr class="hr12">
   <div class="row">
@@ -43,8 +55,10 @@
   <h3>Abstract:</h3>
   <p>{{ submission.abstract }}</p>
 
-</section>
+  <h1>Status:</h1>
+  {{ submission.status_info_as_table }}
 
+</section>
 
 {% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
 <section>
@@ -54,7 +68,7 @@
   <ul>
     {% if submission.open_for_reporting %}
     {% if perms.scipost.can_referee and not is_author and not is_author_unchecked %}
-    <li><h3><a href="{% url 'submissions:submit_report' submission.id %}">Contribute a Report</a></h3>
+    <li><h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Contribute a Report</a></h3>
       <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline }}</div></li>
     {% elif is_author_unchecked %}
     <li><h3>Contribute a Report [deactivated]: the system flagged you as a potential author of this Submission.
@@ -235,7 +249,7 @@
   <div class="flex-greybox">
     <h1>Contribute a Comment:</h1>
   </div>
-  <form action="{% url 'submissions:submission' submission.id %}" method="post">
+  <form action="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
     {% csrf_token %}
     {% load crispy_forms_tags %}
     {% crispy form %}

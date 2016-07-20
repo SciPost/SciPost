@@ -14,8 +14,8 @@
 <section>
   <div class="flex-greybox">
     <h1>Referee Selection Page for Submission</h1>
-    <h3>(go to the <a href="{% url 'submissions:submission' submission_id=submission.id %}">Submissions Page</a> to view Reports and Comments)</h3>
-    <h3>(go back to the <a href="{% url 'submissions:editorial_page' submission_id=submission.id %}">Editorial Page</a> to take editorial actions)</h3>
+    <h3>(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</h3>
+    <h3>(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h3>
   </div>
 
   <hr class="hr12">
@@ -37,7 +37,7 @@
   <div class="flex-greybox">
     <h1>Select an additional Referee</h1>
   </div>
-  <form action="{% url 'submissions:select_referee' submission_id=submission.id %}" method="post" id="refereeSearch">
+  <form action="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post" id="refereeSearch">
     {% csrf_token %}
     {{ ref_search_form }}
     <input type="submit" value="Find referee">
@@ -68,14 +68,14 @@
   <table>
     {% for contributor in contributors_found %}
     <tr><td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td><td>&nbsp;</td>
-      <td><a href="{% url 'submissions:send_refereeing_invitation' submission_id=submission.id contributor_id=contributor.id %}">Send refereeing invitation</a></td></tr>
+      <td><a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td></tr>
     {% endfor %}
   </table>
   {% elif ref_search_form.has_changed %}
   <p>No Contributor with this last name could be identified.</p>
   <br/>
   <p>You can send a registration and refereeing invitation by filling this form:</p>
-  <form action="{% url 'submissions:recruit_referee' submission_id=submission.id %}" method="post">
+  <form action="{% url 'submissions:recruit_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
     {% csrf_token %}
     {% load crispy_forms_tags %}
     {% crispy ref_recruit_form %}

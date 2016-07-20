@@ -19,16 +19,18 @@ from journals.models import journals_submit_dict, journals_domains_dict, journal
 
 SUBMISSION_STATUS = (
     ('unassigned', 'Unassigned, undergoing pre-screening'),
-#    ('EICrequested', 'A request to become EIC has been sent to a specialty editor (response pending)'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
     ('EICassigned', 'Editor-in-charge assigned, manuscript under review'),
     ('review_closed', 'Review period closed, editorial recommendation pending'),
-#    ('EIC_has_recommended', 'Editor-in-charge has provided recommendation'),
+    # If revisions required: resubmission creates a new Submission object
     ('revision_requested', 'Editor-in-charge has requested revision'),
+    ('resubmitted', 'Has been resubmitted'),
+    # If acceptance/rejection:
     ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
     ('EC_vote_completed', 'Editorial College voting rounded up'),
     ('accepted', 'Publication decision taken: accept'),
     ('rejected', 'Publication decision taken: reject'),
+    # If withdrawn:
     ('withdrawn', 'Withdrawn by the Authors'),
     )
 submission_status_dict = dict(SUBMISSION_STATUS)
@@ -52,7 +54,10 @@ SUBMISSION_TYPE = (
 submission_type_dict = dict(SUBMISSION_TYPE)
 
 
+
 class Submission(models.Model):
+    is_current = models.BooleanField(default=True)
+    is_resubmission = models.BooleanField(default=False)
     submitted_by = models.ForeignKey(Contributor)
     editor_in_charge = models.ForeignKey(Contributor, related_name='EIC', blank=True, null=True)
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT, 
@@ -63,6 +68,8 @@ class Submission(models.Model):
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
+    author_comments = models.TextField(blank=True, null=True)
+    list_of_changes = models.TextField(blank=True, null=True)
     referees_flagged = models.TextField(blank=True, null=True)
     open_for_reporting = models.BooleanField(default=False)
     reporting_deadline = models.DateTimeField(default=timezone.now)
@@ -76,6 +83,9 @@ class Submission(models.Model):
     authors_false_claims = models.ManyToManyField (Contributor, blank=True, 
                                                    related_name='authors_sub_false_claims')
     abstract = models.TextField()
+    arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
+    arxiv_identifier_wo_vn_nr = models.CharField(max_length=10, default='0000.00000')
+    arxiv_vn_nr = models.PositiveSmallIntegerField(default=1)
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
     metadata = JSONField(default={}, blank=True, null=True)
     submission_date = models.DateField(verbose_name='submission date')
@@ -87,7 +97,12 @@ class Submission(models.Model):
             )
     
     def __str__ (self):
-        return self.title[:30] + ' by ' + self.author_list[:30]
+        header = self.title[:30] + ' by ' + self.author_list[:30]
+        if self.is_current:
+            header += ' (current version)'
+        else:
+            header += ' (deprecated version)'
+        return header
 
     @property
     def reporting_deadline_has_passed(self):
@@ -133,12 +148,20 @@ class Submission(models.Model):
         # for search lists
         header = ('<li><div class="flex-container">'
                   '<div class="flex-whitebox0"><p>'
-                  '<a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
+                  '<a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
+                  'class="pubtitleli">{{ title }}</a></p>'
                   '<p>by {{ author_list }}</p>'
-                  '<p> (submitted {{ submission_date }} to {{ to_journal }})'
+                  '<p>(version {{ arxiv_vn_nr }})')
+        if self.is_current:
+            header += ' (current version)'
+        else:
+            header += ' (deprecated version)'
+        header += ('</p><p> (submitted {{ submission_date }} to {{ to_journal }})'
                   ' - latest activity: {{ latest_activity }}</p>'
                   '</div></div></li>')
-        context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list,
+        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
+                           'arxiv_vn_nr': self.arxiv_vn_nr,
+                           'title': self.title, 'author_list': self.author_list,
                            'submission_date': self.submission_date, 
                            'to_journal': journals_submit_dict[self.submitted_to_journal],
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
@@ -150,12 +173,20 @@ class Submission(models.Model):
         # includes status specification
         header = ('<li><div class="flex-container">'
                   '<div class="flex-whitebox0">'
-                  '<p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
+                  '<p><a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
+                  'class="pubtitleli">{{ title }}</a></p>'
                   '<p>by {{ author_list }}</p>'
-                  '<p> (submitted {{ submission_date }} to {{ to_journal }})'
+                  '<p>(version {{ arxiv_vn_nr }})')
+        if self.is_current:
+            header += ' (current version)'
+        else:
+            header += ' (deprecated version)'
+        header += ('</p><p> (submitted {{ submission_date }} to {{ to_journal }})'
                   ' - latest activity: {{ latest_activity }}</p>'
                   '<p>Status: {{ status }}</p></div></div></li>')
-        context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list,
+        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
+                           'arxiv_vn_nr': self.arxiv_vn_nr,
+                           'title': self.title, 'author_list': self.author_list,
                            'submission_date': self.submission_date, 
                            'to_journal': journals_submit_dict[self.submitted_to_journal],
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M'),
@@ -190,19 +221,27 @@ class Submission(models.Model):
         # for submissions pool
         header = ('<li><div class="flex-container">'
                   '<div class="flex-whitebox0">'
-                  '<p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
+                  '<p><a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
+                  'class="pubtitleli">{{ title }}</a></p>'
                   '<p>by {{ author_list }}</p>'
-                  '<p> (submitted {{ submission_date }} to {{ to_journal }})'
+                  '<p>(version {{ arxiv_vn_nr }})')
+        if self.is_current:
+            header += ' (current version)'
+        else:
+            header += ' (deprecated version)'
+        header += ('</p><p> (submitted {{ submission_date }} to {{ to_journal }})'
                   ' - latest activity: {{ latest_activity }}</p>')
         if self.status == 'unassigned':
             header += ('<p style="color: red">Status: {{ status }}.'
                        ' You can volunteer to become Editor-in-charge by '
-                       '<a href="/submissions/volunteer_as_EIC/{{ id }}">clicking here</a>.</p>')
+                       '<a href="/submissions/volunteer_as_EIC/{{ arxiv_identifier_w_vn_nr }}">clicking here</a>.</p>')
         else:
             header += '<p>Editor-in-charge: {{ EIC }}</p><p>Status: {{ status }}</p>'
         header += self.refereeing_status_as_p()
         header += '</div></div></li>'
-        context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list,
+        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
+                           'arxiv_vn_nr': self.arxiv_vn_nr,
+                           'title': self.title, 'author_list': self.author_list,
                            'submission_date': self.submission_date, 
                            'to_journal': journals_submit_dict[self.submitted_to_journal],
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M'),
@@ -216,9 +255,35 @@ class Submission(models.Model):
         # for Lists
         header = ('<li><div class="flex-container">'
                   '<div class="flex-whitebox0"><p>'
-                  '<a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
-                  '<p>by {{ author_list }}</p></div></div></li>')
-        context = Context({'id': self.id, 'title': self.title, 'author_list': self.author_list})
+                  '<a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
+                  'class="pubtitleli">{{ title }}</a></p>'
+                  '<p>by {{ author_list }}</p>'
+                  '<p>(version {{ arxiv_vn_nr }})')
+        if self.is_current:
+            header += ' (current version)'
+        else:
+            header += ' (deprecated version)'
+        header += '</p></div></div></li>'
+        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
+                           'arxiv_vn_nr': self.arxiv_vn_nr,
+                           'title': self.title, 'author_list': self.author_list})
+        template = Template(header)
+        return template.render(context)
+
+
+    def version_info_as_li (self):
+        # for listing all versions of a Submission
+        header = ('<li>'
+                  '<div class="flex-whitebox0"><p>'
+                  '<a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
+                  'class="pubtitleli">version {{ arxiv_vn_nr }}</a>')
+        if self.is_current:
+            header += ' (current version)'
+        else:
+            header += ' (deprecated version)'
+        header += '</p></div></li>'
+        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
+                           'arxiv_vn_nr': self.arxiv_vn_nr,})
         template = Template(header)
         return template.render(context)
 
@@ -229,6 +294,7 @@ class Submission(models.Model):
                   + submission_status_dict[self.status] + '</td></tr>'
                   '</table>')
         return mark_safe(header)
+
 
 
 ######################
@@ -296,14 +362,16 @@ class EditorialAssignment(models.Model):
     def header_as_li(self):
         header = ('<li><div class="flex-container">'
                   '<div class="flex-whitebox0">'
-                  '<p><a href="/submission/{{ id }}" class="pubtitleli">{{ title }}</a></p>'
+                  '<p><a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
+                  'class="pubtitleli">{{ title }}</a></p>'
                   '<p>by {{ author_list }}</p>'
                   '<p> (submitted {{ date }} to {{ to_journal }})</p>'
                   '<p>Status: {{ status }}</p><p>Manage this Submission from its '
-                  '<a href="/submissions/editorial_page/{{ id }}">Editorial Page</a>.'
+                  '<a href="/submissions/editorial_page/{{ arxiv_identifier_w_vn_nr }}">Editorial Page</a>.'
                   '</p></div></div></li>')
         template = Template(header)
-        context = Context({'id': self.submission.id, 'title': self.submission.title,
+        context = Context({'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr, 
+                           'title': self.submission.title,
                            'author_list': self.submission.author_list, 
                            'date': self.submission.submission_date,
                            'to_journal': journals_submit_dict[self.submission.submitted_to_journal],

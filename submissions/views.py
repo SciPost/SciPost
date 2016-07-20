@@ -2,17 +2,19 @@ import datetime
 import feedparser
 import re
 import requests
+import sys
 
-from django.utils import timezone
-from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group, Permission
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
-from django.views.decorators.csrf import csrf_protect
+from django.db import transaction
 from django.db.models import Avg
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render, redirect
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_protect
 
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
@@ -47,19 +49,38 @@ def prefill_using_identifier(request):
                 errormessage = ('The identifier you entered is improperly formatted '
                                 '(did you forget the version number?)')
             elif (Submission.objects
-                  .filter(arxiv_link__contains=identifierform.cleaned_data['identifier'])
+                  #.filter(arxiv_link__contains=identifierform.cleaned_data['identifier'])
+                  .filter(arxiv_identifier_w_vn_nr=identifierform.cleaned_data['identifier'])
                   .exists()):
-                errormessage = 'This preprint has already been submitted to SciPost.'
+                errormessage = 'This preprint version has already been submitted to SciPost.'
             if errormessage != '':
                 form = SubmissionForm()
                 return render(request, 'submissions/submit_manuscript.html',
                               {'identifierform': identifierform, 'form': form,
                                'errormessage': errormessage})
             # Otherwise we query arXiv for the information:
+            identifier_without_vn_nr = identifierform.cleaned_data['identifier'].rpartition('v')[0]
+            arxiv_vn_nr = int(identifierform.cleaned_data['identifier'].rpartition('v')[2])
+            is_resubmission = False
+            resubmessage = ''
+            previous_submissions = Submission.objects.filter(
+                arxiv_identifier_wo_vn_nr=identifier_without_vn_nr).order_by('-arxiv_vn_nr')
+            if previous_submissions.exists():
+                is_resubmission = True
+                resubmessage = ('There already exists a preprint with this arXiv identifier '
+                                'but a different version number. \nYour Submission will be '
+                                'handled as a resubmission.')
             try:
                 queryurl = ('http://export.arxiv.org/api/query?id_list=%s' 
                             % identifierform.cleaned_data['identifier'])
                 arxivquery = feedparser.parse(queryurl)
+                # Flag error if preprint doesn't exist
+                try:
+                    test = arxivquery['entries'][0]['title']
+                except KeyError:
+                    errormessage = 'A preprint associated to this identifier does not exist.'
+                except:
+                    pass
                 # If paper has been published, should comment on published version
                 try:
                     arxiv_journal_ref = arxivquery['entries'][0]['arxiv_journal_ref']
@@ -79,6 +100,21 @@ def prefill_using_identifier(request):
                                'errormessage': errormessage}
                     return render(request, 'submissions/submit_manuscript.html', context)
                 # otherwise prefill the form:
+                # metadata = arxivquery
+                # title = arxivquery['entries'][0]['title']
+                # authorlist = arxivquery['entries'][0]['authors'][0]['name']
+                # for author in arxivquery['entries'][0]['authors'][1:]:
+                #     authorlist += ', ' + author['name']
+                # arxiv_link = arxivquery['entries'][0]['id']
+                # abstract = arxivquery['entries'][0]['summary']
+                # form = SubmissionForm(
+                #     initial={'is_resubmission': is_resubmission, 
+                #              'metadata': metadata,
+                #              'title': title, 'author_list': authorlist,
+                #              'arxiv_identifier_w_vn_nr': identifierform.cleaned_data['identifier'],
+                #              'arxiv_identifier_wo_vn_nr': identifier_without_vn_nr,
+                #              'arxiv_vn_nr': arxiv_vn_nr,
+                #              'arxiv_link': arxiv_link, 'abstract': abstract})
                 metadata = arxivquery
                 title = arxivquery['entries'][0]['title']
                 authorlist = arxivquery['entries'][0]['authors'][0]['name']
@@ -86,15 +122,31 @@ def prefill_using_identifier(request):
                     authorlist += ', ' + author['name']
                 arxiv_link = arxivquery['entries'][0]['id']
                 abstract = arxivquery['entries'][0]['summary']
-                form = SubmissionForm(
-                    initial={'metadata': metadata,
+                initialdata={'is_resubmission': is_resubmission, 
+                             'metadata': metadata,
                              'title': title, 'author_list': authorlist,
-                             'arxiv_identifier': identifierform.cleaned_data['identifier'],
-                             'arxiv_link': arxiv_link, 'abstract': abstract})
-                context = {'identifierform': identifierform, 'form': form}
+                             'arxiv_identifier_w_vn_nr': identifierform.cleaned_data['identifier'],
+                             'arxiv_identifier_wo_vn_nr': identifier_without_vn_nr,
+                             'arxiv_vn_nr': arxiv_vn_nr,
+                             'arxiv_link': arxiv_link, 'abstract': abstract}
+                if is_resubmission:
+                    initialdata['submitted_to_journal'] = previous_submissions[0].submitted_to_journal
+                    initialdata['submission_type'] = previous_submissions[0].submission_type
+                    initialdata['discipline'] = previous_submissions[0].discipline
+                    initialdata['domain'] = previous_submissions[0].domain
+                    initialdata['specialization'] = previous_submissions[0].specialization
+                    initialdata['referees_flagged'] = previous_submissions[0].referees_flagged
+                form = SubmissionForm(initial=initialdata)
+                context = {'identifierform': identifierform, 
+                           'form': form,
+                           'resubmessage': resubmessage}
                 return render(request, 'submissions/submit_manuscript.html', context)
             except:
-                pass
+                print("Unexpected error in prefill_using_identifier:", sys.exc_info()[0])
+                context = {'identifierform': identifierform, 
+                           'form': SubmissionForm(),
+                           'errormessage': errormessage,}
+                return render(request, 'submissions/submit_manuscript.html', context)
         else:
             pass
     return redirect(reverse('submissions:submit_manuscript'))
@@ -102,6 +154,7 @@ def prefill_using_identifier(request):
 
 @login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
+@transaction.atomic
 def submit_manuscript(request):
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
@@ -116,8 +169,11 @@ def submit_manuscript(request):
                               {'identifierform': identifierform, 'form': form,
                                'errormessage': errormessage})
             submission = Submission (
+                is_current = True,
+                is_resubmission = form.cleaned_data['is_resubmission'],
                 submitted_by = submitted_by,
                 submitted_to_journal = form.cleaned_data['submitted_to_journal'],
+                submission_type = form.cleaned_data['submission_type'],
                 discipline = form.cleaned_data['discipline'],
                 domain = form.cleaned_data['domain'],
                 specialization = form.cleaned_data['specialization'],
@@ -125,6 +181,9 @@ def submit_manuscript(request):
                 title = form.cleaned_data['title'],
                 author_list = form.cleaned_data['author_list'],
                 abstract = form.cleaned_data['abstract'],
+                arxiv_identifier_w_vn_nr = form.cleaned_data['arxiv_identifier_w_vn_nr'],
+                arxiv_identifier_wo_vn_nr = form.cleaned_data['arxiv_identifier_wo_vn_nr'],
+                arxiv_vn_nr = form.cleaned_data['arxiv_vn_nr'],
                 arxiv_link = form.cleaned_data['arxiv_link'],
                 metadata = form.cleaned_data['metadata'],
                 submission_date = timezone.now(),
@@ -133,22 +192,44 @@ def submit_manuscript(request):
             submission.save()
             submission.authors.add(submitted_by) # must be author to be able to submit
             submission.save()
-            email_text = ('Dear ' + title_dict[submitted_by.title] + ' ' +
-                          submitted_by.user.last_name +
-                          ', \n\nWe have received your Submission to SciPost,\n\n' +
-                          submission.title + ' by ' + submission.author_list + '.' +
-                          '\n\nWe will update you on the results of the pre-screening process '
-                          'within the next 5 working days.'
-                          '\n\nYou can track your Submission at any time '
-                          'from your personal page https://scipost.org/personal_page.' +
-                          '\n\nWith many thanks,' +
-                          '\n\nThe SciPost Team.')
-            emailmessage = EmailMessage(
-                'SciPost: Submission received', email_text,
-                'SciPost Editorial Admin <submissions@scipost.org>',
-                [submitted_by.user.email, 'submissions@scipost.org'],
-                reply_to=['submissions@scipost.org'])
-            emailmessage.send(fail_silently=False)
+            # If this is a resubmission, mark previous submissions as deprecated:
+            if form.cleaned_data['is_resubmission']:
+                previous_submissions = Submission.objects.filter(
+                    arxiv_identifier_wo_vn_nr=form.cleaned_data['arxiv_identifier_wo_vn_nr']
+                ).exclude(pk=submission.id).order_by('-arxiv_vn_nr')
+                for sub in previous_submissions:
+                    sub.is_current = False
+                    sub.open_for_reporting = False
+                    sub.save()
+                # Handle this submission in same way as if assignment had been accepted
+                submission.open_for_reporting = True
+                deadline = timezone.now() + datetime.timedelta(days=28) # for papers
+                if submission.submitted_to_journal == 'SciPost Physics Lecture Notes':
+                    deadline += datetime.timedelta(days=28)
+                submission.reporting_deadline = deadline
+                submission.open_for_commenting = True
+                submission.latest_activity = timezone.now()
+                # We keep the same (most recent) Editor-in-charge by default
+                submission.editor_in_charge = previous_submissions[0].editor_in_charge
+                submission.status = 'EICassigned'
+                submission.save()
+                assignment = EditorialAssignment(
+                    submission=submission,
+                    to=submission.editor_in_charge,
+                    accepted=True,
+                    date_created=timezone.now(),
+                )
+                assignment.save()
+                SubmissionUtils.load({'submission': submission})
+                SubmissionUtils.send_authors_resubmission_ack_email()
+                assign_perm('can_take_editorial_actions', submission.editor_in_charge.user, submission)
+                ed_admins = Group.objects.get(name='Editorial Administrators')
+                assign_perm('can_take_editorial_actions', ed_admins, submission)
+                SubmissionUtils.send_EIC_reappointment_email()
+            else:
+                SubmissionUtils.load({'submission': submission})
+                SubmissionUtils.send_authors_submission_ack_email()
+                
             return HttpResponseRedirect(reverse('submissions:submit_manuscript_ack'))
         else: # form is invalid
             pass
@@ -160,6 +241,9 @@ def submit_manuscript(request):
 
 
 def submissions(request):
+    """
+    Main method for viewing Submissions.
+    """
     if request.method == 'POST':
         form = SubmissionSearchForm(request.POST)
         if form.is_valid() and form.has_changed():
@@ -178,7 +262,8 @@ def submissions(request):
 
     submission_recent_list = Submission.objects.filter(
         latest_activity__gte=timezone.now() + datetime.timedelta(days=-28)
-    ).exclude(status__in=['unassigned', 'assignment_failed']).order_by('-submission_date')
+    ).exclude(status__in=['unassigned', 'assignment_failed'],
+              is_current=False).order_by('-submission_date')
     context = {'form': form, 'submission_search_list': submission_search_list, 
                'submission_recent_list': submission_recent_list }
     return render(request, 'submissions/submissions.html', context)
@@ -203,14 +288,24 @@ def browse(request, discipline, nrweeksback):
     submission_browse_list = Submission.objects.filter(
         discipline=discipline, 
         latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
-        ).exclude(status__in=['unassigned', 'assignment_failed']).order_by('-submission_date')
+        ).exclude(status__in=['unassigned', 'assignment_failed'],
+                  is_current=False).order_by('-submission_date')
     context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 
                'submission_browse_list': submission_browse_list }
     return render(request, 'submissions/submissions.html', context)
 
 
-def submission_detail(request, submission_id):
-    submission = get_object_or_404(Submission, pk=submission_id)
+def submission_detail_wo_vn_nr(request, arxiv_identifier_wo_vn_nr):
+    submission = get_object_or_404(Submission, arxiv_identifier_wo_vn_nr=arxiv_identifier_wo_vn_nr, 
+                                   is_current=True)
+    return(submission_detail(request, submission.arxiv_identifier_w_vn_nr))
+
+
+def submission_detail(request, arxiv_identifier_w_vn_nr):
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    other_versions = Submission.objects.filter(
+        arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
+    ).exclude(pk=submission.id)
     comments = submission.comment_set.all()
     if request.method == 'POST':
         form = CommentForm(request.POST)
@@ -234,7 +329,7 @@ def submission_detail(request, submission_id):
             newcomment.save()
             author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()
-            request.session['submission_id'] = submission_id
+            request.session['arxiv_identifier_w_vn_nr'] = submission.arxiv_identifier_w_vn_nr
             return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
     else:
         form = CommentForm()
@@ -254,6 +349,7 @@ def submission_detail(request, submission_id):
         is_author = False
         is_author_unchecked = False
     context = {'submission': submission, 
+               'other_versions': other_versions,
                'comments': (comments.filter(status__gte=1, is_author_reply=False)
                             .order_by('-date_submitted')), 
                'invited_reports': reports.filter(status__gte=1, invited=True), 
@@ -287,7 +383,7 @@ def pool(request):
     All members of the Editorial College have access.
     """
     submissions_in_pool=(Submission.objects.all()
-                         .exclude(status__in=['decided'])
+                         .exclude(status__in=['decided'], is_current=False)
                          .order_by('-submission_date'))
     contributor = Contributor.objects.get(user=request.user)
     assignments_to_consider = EditorialAssignment.objects.filter(
@@ -301,8 +397,9 @@ def pool(request):
 
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
-def assign_submission(request, submission_id):
-    submission_to_assign = get_object_or_404 (Submission, pk=submission_id)
+def assign_submission(request, arxiv_identifier_w_vn_nr):
+    submission_to_assign = get_object_or_404(Submission, 
+                                             arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     #form = AssignSubmissionForm(discipline=submission_to_assign.discipline, specialization=submission_to_assign.specialization) # reactivate later on
     form = AssignSubmissionForm(discipline=submission_to_assign.discipline)
     context = {'submission_to_assign': submission_to_assign,
@@ -312,8 +409,9 @@ def assign_submission(request, submission_id):
 
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
-def assign_submission_ack(request, submission_id):
-    submission = Submission.objects.get(pk=submission_id)
+def assign_submission_ack(request, arxiv_identifier_w_vn_nr):
+    submission = get_object_or_404(Submission, 
+                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if request.method == 'POST':
         form = AssignSubmissionForm(request.POST, discipline=submission.discipline)
         if form.is_valid():
@@ -351,6 +449,7 @@ def assign_submission_ack(request, submission_id):
 
 @login_required
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@transaction.atomic
 def accept_or_decline_assignment_ack(request, assignment_id):
     contributor = Contributor.objects.get(user=request.user)
     assignment = get_object_or_404 (EditorialAssignment, pk=assignment_id)
@@ -402,12 +501,13 @@ def accept_or_decline_assignment_ack(request, assignment_id):
 
 @login_required
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
-def volunteer_as_EIC(request, submission_id):
+@transaction.atomic
+def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     """ 
     Called when a Fellow volunteers while perusing the submissions pool.
     This is an adapted version of the accept_or_decline_assignment_ack method.
     """
-    submission = get_object_or_404(Submission, pk=submission_id)
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     errormessage = None
     if submission.status == 'assignment_failed':
         errormessage = 'This Submission has failed pre-screening and has been rejected.'
@@ -440,6 +540,8 @@ def volunteer_as_EIC(request, submission_id):
     SubmissionUtils.load({'assignment': assignment})
     SubmissionUtils.deprecate_other_assignments()
     assign_perm('can_take_editorial_actions', contributor.user, submission)
+    ed_admins = Group.objects.get(name='Editorial Administrators')
+    assign_perm('can_take_editorial_actions', ed_admins, submission)
     SubmissionUtils.send_EIC_appointment_email()
     
     context = {'assignment': assignment}
@@ -448,13 +550,14 @@ def volunteer_as_EIC(request, submission_id):
 
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
-def assignment_failed(request, submission_id):
+@transaction.atomic
+def assignment_failed(request, arxiv_identifier_w_vn_nr):
     """
     No Editorial Fellow has accepted or volunteered to become Editor-in-charge.
     The submission is rejected.
     This method is called from pool.html by an Editorial Administrator.
     """
-    submission = get_object_or_404(Submission, pk=submission_id)
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     submission.status = 'assignment_failed'
     submission.latest_activity = timezone.now()
     submission.save()
@@ -467,25 +570,31 @@ def assignment_failed(request, submission_id):
     
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
-def editorial_page(request, submission_id):
-    submission = get_object_or_404(Submission, pk=submission_id)
+@permission_required_or_403('can_take_editorial_actions', 
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+def editorial_page(request, arxiv_identifier_w_vn_nr):
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    other_versions = Submission.objects.filter(
+        arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
+    ).exclude(pk=submission.id)
     ref_invitations = RefereeInvitation.objects.filter(submission=submission)
     nr_reports_to_vet = (Report.objects
                          .filter(status=0, submission__editor_in_charge=request.user.contributor)
                          .count())
     communications = (EditorialCommunication.objects
                       .filter(submission=submission).order_by('timestamp'))
-    context = {'submission': submission, 'ref_invitations': ref_invitations,
+    context = {'submission': submission, 'other_versions': other_versions,
+               'ref_invitations': ref_invitations,
                'nr_reports_to_vet': nr_reports_to_vet,
                'communications': communications}
     return render(request, 'submissions/editorial_page.html', context)
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
-def select_referee(request, submission_id):
-    submission = get_object_or_404(Submission, pk=submission_id)
+@permission_required_or_403('can_take_editorial_actions', 
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+def select_referee(request, arxiv_identifier_w_vn_nr):
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     queryresults = ''
     if request.method == 'POST':
         ref_search_form = RefereeSelectForm(request.POST)
@@ -518,8 +627,10 @@ def select_referee(request, submission_id):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
-def recruit_referee(request, submission_id):
+@permission_required_or_403('can_take_editorial_actions', 
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+@transaction.atomic
+def recruit_referee(request, arxiv_identifier_w_vn_nr):
     """
     If the Editor-in-charge does not find the desired referee among Contributors
     (otherwise, the method send_refereeing_invitation below is used instead),
@@ -528,7 +639,7 @@ def recruit_referee(request, submission_id):
     The pending refereeing invitation is then recognized upon registration,
     using the invitation token.
     """
-    submission = get_object_or_404(Submission, pk=submission_id)
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if request.method == 'POST':
         ref_recruit_form = RefereeRecruitmentForm(request.POST)
         if ref_recruit_form.is_valid():
@@ -567,19 +678,22 @@ def recruit_referee(request, submission_id):
             ref_invitation.invitation_key = reg_invitation.invitation_key
             ref_invitation.save()
 
-    return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
+    return redirect(reverse('submissions:editorial_page', 
+                            kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
-def send_refereeing_invitation(request, submission_id, contributor_id):
+@permission_required_or_403('can_take_editorial_actions', 
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+@transaction.atomic
+def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id):
     """
     This method is called by the EIC from the submission's editorial_page,
     in the case where the referee is an identified Contributor.
     For a referee who isn't a Contributor yet, the method recruit_referee above
     is called instead.
     """
-    submission = get_object_or_404(Submission, pk=submission_id)
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     contributor = get_object_or_404(Contributor, pk=contributor_id)
     invitation = RefereeInvitation(submission=submission,
                                    referee=contributor,
@@ -594,12 +708,14 @@ def send_refereeing_invitation(request, submission_id, contributor_id):
     invitation.save()                                   
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_refereeing_invitation_email()
-    return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
+    return redirect(reverse('submissions:editorial_page', 
+                            kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
-def ref_invitation_reminder(request, submission_id, invitation_id):
+@permission_required_or_403('can_take_editorial_actions', 
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
     """
     This method is used by the Editor-in-charge from the editorial_page
     when a referee has been invited but hasn't answered yet.
@@ -612,7 +728,7 @@ def ref_invitation_reminder(request, submission_id, invitation_id):
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_ref_reminder_email()
     return redirect(reverse('submissions:editorial_page', 
-                            kwargs={'submission_id': submission_id}))    
+                            kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))    
 
 
 @login_required
@@ -648,21 +764,24 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
-def extend_refereeing_deadline(request, submission_id, days):
-    submission = get_object_or_404 (Submission, pk=submission_id)
-    submission.reporting_deadline = timezone.now() + datetime.timedelta(days=int(days))
+@permission_required_or_403('can_take_editorial_actions', 
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
+    submission = get_object_or_404 (Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission.reporting_deadline += datetime.timedelta(days=int(days))
     submission.open_for_reporting = True
     submission.open_for_commenting = True
     submission.status = 'EICassigned'
     submission.latest_activity = timezone.now()
     submission.save()
-    return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
+    return redirect(reverse('submissions:editorial_page', 
+                            kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
     
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
-def close_refereeing_round(request, submission_id):
+@permission_required_or_403('can_take_editorial_actions', 
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
     """
     Called by the Editor-in-charge when a satisfactory number of
     reports have been gathered. 
@@ -670,23 +789,24 @@ def close_refereeing_round(request, submission_id):
     round off any replies to reports or comments before the 
     editorial recommendation is formulated.
     """
-    submission = get_object_or_404 (Submission, pk=submission_id)
+    submission = get_object_or_404 (Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     submission.open_for_reporting = False
     submission.open_for_commenting = False
     submission.status = 'review_closed'
     submission.reporting_deadline = timezone.now()
     submission.latest_activity = timezone.now()
     submission.save()
-    return redirect(reverse('submissions:editorial_page', kwargs={'submission_id': submission_id}))
+    return redirect(reverse('submissions:editorial_page', 
+                            kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
 
 @login_required
-def communication(request, submission_id, comtype, referee_id=None):
+def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
     """ 
     Communication between editor-in-charge, author or referee
     occurring during the submission refereeing.
     """
-    submission = get_object_or_404 (Submission, pk=submission_id)
+    submission = get_object_or_404 (Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     errormessage = None
     if not comtype in ed_comm_choices_dict.keys():
         errormessage = 'Unknown type of cummunication.'
@@ -723,7 +843,7 @@ def communication(request, submission_id, comtype, referee_id=None):
             SubmissionUtils.send_communication_email()
             if comtype == 'EtoA' or comtype == 'EtoR' or comtype == 'EtoS':
                 return redirect(reverse('submissions:editorial_page', 
-                                        kwargs={'submission_id': submission_id}))
+                                        kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
             elif comtype == 'AtoE' or comtype == 'RtoE':
                 return redirect(reverse('scipost:personal_page'))
             elif comtype == 'StoE':
@@ -735,9 +855,11 @@ def communication(request, submission_id, comtype, referee_id=None):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions', (Submission, 'id', 'submission_id'))
-def eic_recommendation(request, submission_id):
-    submission = get_object_or_404 (Submission, pk=submission_id)
+@permission_required_or_403('can_take_editorial_actions', 
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+@transaction.atomic
+def eic_recommendation(request, arxiv_identifier_w_vn_nr):
+    submission = get_object_or_404 (Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if request.method == 'POST':
         form = EICRecommendationForm(request.POST)
         if form.is_valid():
@@ -764,10 +886,16 @@ def eic_recommendation(request, submission_id):
             elif (recommendation.recommendation == -1
                   or recommendation.recommendation == -2):
                 submission.status = 'revision_requested'
+            submission.open_for_reporting = False
             submission.save()
 
+            # The EIC has fulfilled this editorial assignment.
+            assignment = get_object_or_404(EditorialAssignment,
+                                           submission=submission, to=request.user.contributor)
+            assignment.completed = True
+            assignment.save()
             return redirect(reverse('submissions:editorial_page', 
-                                    kwargs={'submission_id': submission_id}))
+                                    kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
     else:
         form = EICRecommendationForm()
     context = {'submission': submission, 'form': form}
@@ -780,8 +908,9 @@ def eic_recommendation(request, submission_id):
 
 @login_required
 @permission_required('scipost.can_referee', raise_exception=True)
-def submit_report(request, submission_id):
-    submission = get_object_or_404 (Submission, pk=submission_id)
+@transaction.atomic
+def submit_report(request, arxiv_identifier_w_vn_nr):
+    submission = get_object_or_404 (Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     # Check whether the user can submit a report:
     is_author = request.user.contributor in submission.authors.all()
     is_author_unchecked = (not is_author
@@ -841,7 +970,7 @@ def submit_report(request, submission_id):
             author.save()
             SubmissionUtils.load({'report': newreport})
             SubmissionUtils.email_EIC_report_delivered()
-            request.session['submission_id'] = submission_id
+            request.session['arxiv_identifier_w_vn_nr'] = arxiv_identifier_w_vn_nr
             return HttpResponseRedirect(reverse('submissions:submit_report_ack'))
 
     else:
@@ -862,6 +991,7 @@ def vet_submitted_reports(request):
 
 
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@transaction.atomic
 def vet_submitted_report_ack(request, report_id):
     if request.method == 'POST':
         form = VetReportForm(request.POST)
