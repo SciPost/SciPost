@@ -506,6 +506,11 @@ class SubmissionUtils(object):
                        + cls.submission.arxiv_identifier_w_vn_nr + '.'
                        'Note that the recommendation is viewable only by '
                        'the registered authors of the submission.'
+                       'To resubmit your paper, please first update the version '
+                       'on the arXiv; after appearance, go to the submission page '
+                       'https://scipost.org/submissions/submit_manuscript and fill '
+                       'in the forms. Your submission will be automatically recognized '
+                       'as a resubmission.'
                        '\n\nWe thank you very much for your contribution.'
                        '\n\nSincerely,' +
                        '\n\nThe SciPost Team.')
