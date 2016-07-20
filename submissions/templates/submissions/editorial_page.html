@@ -45,6 +45,14 @@
   {% endif %}
 </section>
 
+{% if recommendation %}
+<section>
+  <div class="flex-greybox">
+    <h1>Editorial Recommendation</h1>
+  </div>
+  {{ recommendation.print_for_authors }}
+</section>
+{% endif %}
 
 <section>
   <div class="flex-greybox">

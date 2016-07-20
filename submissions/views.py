@@ -262,8 +262,8 @@ def submissions(request):
 
     submission_recent_list = Submission.objects.filter(
         latest_activity__gte=timezone.now() + datetime.timedelta(days=-28)
-    ).exclude(status__in=['unassigned', 'assignment_failed'],
-              is_current=False).order_by('-submission_date')
+    ).exclude(status__in=['unassigned', 'assignment_failed']
+    ).exclude(is_current=False).order_by('-submission_date')
     context = {'form': form, 'submission_search_list': submission_search_list, 
                'submission_recent_list': submission_recent_list }
     return render(request, 'submissions/submissions.html', context)
@@ -288,8 +288,8 @@ def browse(request, discipline, nrweeksback):
     submission_browse_list = Submission.objects.filter(
         discipline=discipline, 
         latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
-        ).exclude(status__in=['unassigned', 'assignment_failed'],
-                  is_current=False).order_by('-submission_date')
+        ).exclude(status__in=['unassigned', 'assignment_failed']
+        ).exclude(is_current=False).order_by('-submission_date')
     context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 
                'submission_browse_list': submission_browse_list }
     return render(request, 'submissions/submissions.html', context)
@@ -348,8 +348,13 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     except AttributeError:
         is_author = False
         is_author_unchecked = False
+    try:
+        recommendation = EICRecommendation.objects.get(submission=submission)
+    except EICRecommendation.DoesNotExist:
+        recommendation = None
     context = {'submission': submission, 
                'other_versions': other_versions,
+               'recommendation': recommendation,
                'comments': (comments.filter(status__gte=1, is_author_reply=False)
                             .order_by('-date_submitted')), 
                'invited_reports': reports.filter(status__gte=1, invited=True), 
@@ -583,7 +588,12 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
                          .count())
     communications = (EditorialCommunication.objects
                       .filter(submission=submission).order_by('timestamp'))
+    try:
+        recommendation = EICRecommendation.objects.get(submission=submission)
+    except EICRecommendation.DoesNotExist:
+        recommendation = None
     context = {'submission': submission, 'other_versions': other_versions,
+               'recommendation': recommendation,
                'ref_invitations': ref_invitations,
                'nr_reports_to_vet': nr_reports_to_vet,
                'communications': communications}

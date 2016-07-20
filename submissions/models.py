@@ -101,7 +101,7 @@ class Submission(models.Model):
         if self.is_current:
             header += ' (current version)'
         else:
-            header += ' (deprecated version)'
+            header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
         return header
 
     @property
@@ -155,7 +155,7 @@ class Submission(models.Model):
         if self.is_current:
             header += ' (current version)'
         else:
-            header += ' (deprecated version)'
+            header += ' (deprecated version {{ arxiv_vn_nr }})'
         header += ('</p><p> (submitted {{ submission_date }} to {{ to_journal }})'
                   ' - latest activity: {{ latest_activity }}</p>'
                   '</div></div></li>')
@@ -180,7 +180,7 @@ class Submission(models.Model):
         if self.is_current:
             header += ' (current version)'
         else:
-            header += ' (deprecated version)'
+            header += ' (deprecated version {{ arxiv_vn_nr }})'
         header += ('</p><p> (submitted {{ submission_date }} to {{ to_journal }})'
                   ' - latest activity: {{ latest_activity }}</p>'
                   '<p>Status: {{ status }}</p></div></div></li>')
@@ -228,7 +228,7 @@ class Submission(models.Model):
         if self.is_current:
             header += ' (current version)'
         else:
-            header += ' (deprecated version)'
+            header += ' (deprecated version {{ arxiv_vn_nr }})'
         header += ('</p><p> (submitted {{ submission_date }} to {{ to_journal }})'
                   ' - latest activity: {{ latest_activity }}</p>')
         if self.status == 'unassigned':
@@ -262,7 +262,7 @@ class Submission(models.Model):
         if self.is_current:
             header += ' (current version)'
         else:
-            header += ' (deprecated version)'
+            header += ' (deprecated version {{ arxiv_vn_nr }})'
         header += '</p></div></div></li>'
         context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
                            'arxiv_vn_nr': self.arxiv_vn_nr,
@@ -280,7 +280,7 @@ class Submission(models.Model):
         if self.is_current:
             header += ' (current version)'
         else:
-            header += ' (deprecated version)'
+            header += ' (deprecated version {{ arxiv_vn_nr }})'
         header += '</p></div></li>'
         context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
                            'arxiv_vn_nr': self.arxiv_vn_nr,})
@@ -678,3 +678,36 @@ class EICRecommendation(models.Model):
     @property
     def nr_against(self):
         return self.voted_against.count()
+
+    def print_for_authors(self):
+        output = ('<h3>Date: {{ date_submitted }}</h3>'
+                  '<h3>Remarks for authors</h3>'
+                   '<p>{{ remarks_for_authors }}</p>'
+                  '<h3>Requested changes</h3>'
+                  '<p>{{ requested_changes }}</p>'
+                  '<h3>Recommendation</h3>'
+                  '<p>{{ recommendation }}</p>')
+        context = Context({'date_submitted': self.date_submitted.strftime('%Y-%m-%d %H:%M'),
+                           'remarks_for_authors': self.remarks_for_authors,
+                           'requested_changes': self.requested_changes,
+                           'recommendation': report_rec_dict[self.recommendation],})
+        template = Template(output)
+        return template.render(context)
+
+    def print_for_Fellows(self):
+        output = ('<h3>Date: {{ date_submitted }}</h3>'
+                  '<h3>Remarks for authors</h3>'
+                   '<p>{{ remarks_for_authors }}</p>'
+                  '<h3>Requested changes</h3>'
+                  '<p>{{ requested_changes }}</p>'
+                  '<h3>Remarks for Editorial College</h3>'
+                  '<p>{{ remarks_for_editorial_college }}</p>'
+                  '<h3>Recommendation</h3>'
+                  '<p>{{ recommendation }}</p>')
+        context = Context({'date_submitted': self.date_submitted.strftime('%Y-%m-%d %H:%M'),
+                           'remarks_for_authors': self.remarks_for_authors,
+                           'requested_changes': self.requested_changes,
+                           'remarks_for_editorial_college': self.remarks_for_editorial_college,
+                           'recommendation': report_rec_dict[self.recommendation],})
+        template = Template(output)
+        return template.render(context)

@@ -60,6 +60,18 @@
 
 </section>
 
+{% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
+{% if recommendation %}
+<section>
+  <div class="flex-greybox">
+    <h1>Editorial Recommendation</h1>
+  </div>
+  {{ recommendation.print_for_authors }}
+</section>
+{% endif %}
+{% endif %}
+
+
 {% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
 <section>
   <div class="flex-greybox">
