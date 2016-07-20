@@ -486,3 +486,33 @@ class SubmissionUtils(object):
             bcc_emails,
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
+
+
+    @classmethod
+    def send_author_revision_requested_email(cls):
+        """ Requires loading 'submission' and 'recommendation' attributes. """
+        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+                      cls.submission.submitted_by.user.last_name +
+                      ', \n\nThe Editor-in-charge of your recent Submission to SciPost,\n\n' +
+                      cls.submission.title + ' by ' + cls.submission.author_list + ','
+                      '\n\nhas formulated and Editorial Recommendation, asking for a ')
+        if cls.recommendation.recommendation == -1:
+            email_text += 'minor'
+        elif cls.recommendation.recommendation == -2:
+            email_text += 'major'
+        email_text += (' revision.'
+                      '\n\nYou can view it at the Submission Page '
+                      'https://scipost.org/submission/' 
+                       + cls.submission.arxiv_identifier_w_vn_nr + '.'
+                       'Note that the recommendation is viewable only by '
+                       'the registered authors of the submission.'
+                       '\n\nWe thank you very much for your contribution.'
+                       '\n\nSincerely,' +
+                       '\n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost: revision requested', email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            [cls.submission.submitted_by.user.email],
+            ['submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)

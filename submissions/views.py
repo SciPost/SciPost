@@ -896,6 +896,9 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
             elif (recommendation.recommendation == -1
                   or recommendation.recommendation == -2):
                 submission.status = 'revision_requested'
+                SubmissionUtils.load({'submission': submission,
+                                      'recommendation': recommendation})
+                SubmissionUtils.send_author_revision_requested_email()
             submission.open_for_reporting = False
             submission.save()
 
