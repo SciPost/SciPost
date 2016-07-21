@@ -218,6 +218,7 @@ def submit_manuscript(request):
                     to=submission.editor_in_charge,
                     accepted=True,
                     date_created=timezone.now(),
+                    date_answered=timezone.now(),
                 )
                 assignment.save()
                 SubmissionUtils.load({'submission': submission})
