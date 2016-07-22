@@ -615,8 +615,8 @@ select {
 
 #journalsannouncesmall {
 /*  background-color: #880000; */
-  background-color: #002B49;
-  color: #FFA300;
+  background-color: #FFDDDD;
+  color: #FF0000;
   padding: 10px;
   font-size: 90%;
   text-align: center;
@@ -626,8 +626,8 @@ select {
 }
 #journalsannounce {
 /*  background-color: #880000; */
-  background-color: #002B49;
-  color: #FFA300;
+  background-color: #100000;
+  color: #FF0000;
   padding: 20px;
   font-size: 150%;
   text-align: center;
@@ -636,3 +636,11 @@ select {
 /*  animation-iteration-count: infinite; */
 }
 
+.SciPostPhysicsTab {
+  background-color: #002B49;
+  color: #FFA300;
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 150%;
+  text-align: center;
+}
