@@ -236,8 +236,15 @@ def prefill_using_identifier(request):
                 context = {'form': form, 'doiform': doiform, 'identifierform': identifierform}
                 context['title'] = pub_title
                 return render(request, 'commentaries/request_commentary.html', context)
-            except:
-                pass
+            except: # something went wrong with processing the arXiv data
+                errormessage = 'An error occurred while processing the arXiv data. Are you sure this identifier exists?'
+                form = RequestCommentaryForm()
+                doiform = DOIToQueryForm()
+                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform, 
+                           'errormessage': errormessage,
+                           'existing_commentary': existing_commentary}
+                return render(request, 'commentaries/request_commentary.html', context)
+#                pass
         else:
             pass
     return redirect(reverse('commentaries:request_commentary'))
@@ -384,6 +391,9 @@ def browse(request, discipline, nrweeksback):
 
 def commentary_detail(request, arxiv_or_DOI_string):
     commentary = get_object_or_404(Commentary, arxiv_or_DOI_string=arxiv_or_DOI_string)
+#    other_versions = Commentary.objects.filter(
+#        arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
+#    ).exclude(pk=submission.id)
     comments = commentary.comment_set.all()
     if request.method == 'POST':
         form = CommentForm(request.POST)

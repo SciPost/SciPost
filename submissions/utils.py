@@ -503,7 +503,7 @@ class SubmissionUtils(object):
         email_text += (' revision.'
                       '\n\nYou can view it at the Submission Page '
                       'https://scipost.org/submission/' 
-                       + cls.submission.arxiv_identifier_w_vn_nr + '.'
+                       + cls.submission.arxiv_identifier_w_vn_nr + '. '
                        'Note that the recommendation is viewable only by '
                        'the registered authors of the submission.'
                        'To resubmit your paper, please first update the version '
