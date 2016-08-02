@@ -314,6 +314,7 @@ ASSIGNMENT_NULLBOOL = ((None, 'Response pending'), (True, 'Accept'), (False, 'De
 
 ASSIGNMENT_REFUSAL_REASONS = (
     ('BUS', 'Too busy'),
+    ('VAC', 'Away on vacation'),
     ('COI', 'Conflict of interest: coauthor in last 5 years'),
     ('CCC', 'Conflict of interest: close colleague'),
     ('NIR', 'Cannot give an impartial assessment'),

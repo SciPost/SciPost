@@ -75,7 +75,8 @@ class AssignSubmissionForm(forms.Form):
             queryset=Contributor.objects.filter(user__groups__name='Editorial College', 
                                                 user__contributor__discipline=discipline, 
 #                                                user__contributor__specializations__contains=[specialization,] # Reactivate later on, once the Editorial College is large enough
-                                                ), required=True, label='Select an Editor-in-charge')
+                                                ).order_by('user__last_name'), 
+            required=True, label='Select an Editor-in-charge')
 
 
 class ConsiderAssignmentForm(forms.Form):
