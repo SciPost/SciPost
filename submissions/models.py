@@ -30,10 +30,18 @@ SUBMISSION_STATUS = (
     ('EC_vote_completed', 'Editorial College voting rounded up'),
     ('accepted', 'Publication decision taken: accept'),
     ('rejected', 'Publication decision taken: reject'),
+    ('published', 'Published'),
     # If withdrawn:
     ('withdrawn', 'Withdrawn by the Authors'),
     )
 submission_status_dict = dict(SUBMISSION_STATUS)
+
+SUBMISSION_STATUS_OUT_OF_POOL = (
+    ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
+    ('resubmitted', 'Has been resubmitted'),
+    ('published', 'Published'),
+    ('withdrawn', 'Withdrawn by the Authors'),
+    )
 
 # SUBMISSION_ACTION_REQUIRED = (
 #     ('assign_EIC', 'Editor-in-charge to be assigned'),

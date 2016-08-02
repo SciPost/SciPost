@@ -68,7 +68,7 @@ class Contributor(models.Model):
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-    specializations = JSONField(default='{}')
+    specializations = JSONField(default={})
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)
     country_of_employment = CountryField()
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')

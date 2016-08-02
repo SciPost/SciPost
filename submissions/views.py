@@ -389,7 +389,8 @@ def pool(request):
     All members of the Editorial College have access.
     """
     submissions_in_pool=(Submission.objects.all()
-                         .exclude(status__in=['decided'], is_current=False)
+                         .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
+                         .exclude(is_current=False)
                          .order_by('-submission_date'))
     contributor = Contributor.objects.get(user=request.user)
     assignments_to_consider = EditorialAssignment.objects.filter(
