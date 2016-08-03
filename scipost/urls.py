@@ -8,6 +8,9 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^base$', views.base, name='base'),
 
+    # General error page
+    url(r'^error$', TemplateView.as_view(template_name='scipost/error.html'), name='error'),
+
     ## Info
     url(r'^about$', TemplateView.as_view(template_name='scipost/about.html'), name='about'),
     url(r'^call$', TemplateView.as_view(template_name='scipost/call.html'), name='call'),
@@ -49,6 +52,9 @@ urlpatterns = [
     url(r'^reset_password/$', views.reset_password, name='reset_password'),
     url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
     url(r'^update_personal_data_ack$', TemplateView.as_view(template_name='scipost/update_personal_data_ack.html'), name='update_personal_data_ack'),
+
+    # Unavailabilities
+    url(r'^mark_unavailable_period$', views.mark_unavailable_period, name='mark_unavailable_period'),
 
     # Contributor info
     url(r'^(?P<contributor_id>[0-9]+)$', views.contributor_info, name="contributor_info"),

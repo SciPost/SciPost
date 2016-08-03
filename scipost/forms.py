@@ -113,6 +113,18 @@ AUTHORSHIP_CLAIM_CHOICES = (
 class AuthorshipClaimForm(forms.Form):
     claim = forms.ChoiceField(choices=AUTHORSHIP_CLAIM_CHOICES, required=False)
 
+
+class UnavailabilityPeriodForm(forms.ModelForm):
+    class Meta:
+        model = UnavailabilityPeriod
+        fields = ['start', 'end']
+
+    def __init__(self, *args, **kwargs):
+        super(UnavailabilityPeriodForm, self).__init__(*args, **kwargs)
+        self.fields['start'].widget.attrs.update({'placeholder': 'YYYY-MM-DD'})
+        self.fields['end'].widget.attrs.update({'placeholder': 'YYYY-MM-DD'})
+
+
 #class OpinionForm(forms.Form):
 #    opinion = forms.ChoiceField(choices=OPINION_CHOICES, label='Your opinion on this Comment: ')
 

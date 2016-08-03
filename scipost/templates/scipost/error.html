@@ -1,0 +1,12 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: error{% endblock pagetitle %}
+
+{% block bodysup %}
+
+<section>
+  <h3 style="color: red;">Error</h3>
+  <p>{{ errormessage }}</p>
+</section>
+
+{% endblock bodysup %}

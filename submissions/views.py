@@ -423,6 +423,10 @@ def assign_submission_ack(request, arxiv_identifier_w_vn_nr):
         form = AssignSubmissionForm(request.POST, discipline=submission.discipline)
         if form.is_valid():
             suggested_editor_in_charge = form.cleaned_data['editor_in_charge']
+            if not suggested_editor_in_charge.is_currently_available():
+                errormessage = ('This Fellow is marked as currently unavailable. '
+                                'Please go back and select another one.')
+                return render(request, 'scipost/error.html', {'errormessage': errormessage})
             ed_assignment = EditorialAssignment(submission=submission,
                                                 to=suggested_editor_in_charge,
                                                 date_created=timezone.now())
@@ -707,6 +711,10 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
     """
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     contributor = get_object_or_404(Contributor, pk=contributor_id)
+    if not contributor.is_currently_available():
+        errormessage = ('This Contributor is marked as currently unavailable. '
+                        'Please go back and select another referee.')
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
     invitation = RefereeInvitation(submission=submission,
                                    referee=contributor,
                                    title=contributor.title, 

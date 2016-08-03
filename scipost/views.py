@@ -456,18 +456,46 @@ def logout_view(request):
     return render(request, 'scipost/logout.html')
 
 
+def mark_unavailable_period(request):
+    if request.method == 'POST':
+        unav_form = UnavailabilityPeriodForm(request.POST)
+        errormessage = None
+        if unav_form.is_valid():
+            now = timezone.now()
+            if unav_form.cleaned_data['start'] > unav_form.cleaned_data['end']:
+                errormessage = 'The start date you have entered is later than the end date.'
+            elif unav_form.cleaned_data['end'] < now.date():
+                errormessage = 'You have entered an end date in the past.'
+            if errormessage is not None:
+                return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+            else:
+                unav = UnavailabilityPeriod(
+                    contributor=request.user.contributor,
+                    start=unav_form.cleaned_data['start'],
+                    end=unav_form.cleaned_data['end'])
+                unav.save()
+        else:
+            errormessage = 'Please enter valid dates (format: YYYY-MM-DD).'
+            return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+    return redirect('scipost:personal_page')
+
+
 def personal_page(request):
     """
     The Personal Page is the main view for accessing user functions.
     """
     if request.user.is_authenticated():
         contributor = Contributor.objects.get(user=request.user)
+        # Compile the unavailability periods:
+        now = timezone.now()
+        unavailabilities = UnavailabilityPeriod.objects.filter(
+            contributor=contributor).exclude(end__lt=now).order_by('start')
+        unavailability_form = UnavailabilityPeriodForm()
         # if an editor, count the number of actions required:
         nr_reg_to_vet = 0
         nr_reg_awaiting_validation = 0
         nr_submissions_to_assign = 0
         if is_SP_Admin(request.user):
-            now = timezone.now()
             intwodays = now + timezone.timedelta(days=2)
             # count the number of pending registration requests
             nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, status=0).count()
@@ -540,6 +568,8 @@ def personal_page(request):
         graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor) 
                                               | Q(teams_with_access__members__in=[contributor]))
         context = {'contributor': contributor, 
+                   'unavailabilities': unavailabilities,
+                   'unavailability_form': unavailability_form,
                    'nr_reg_to_vet': nr_reg_to_vet, 
                    'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 
                    'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 

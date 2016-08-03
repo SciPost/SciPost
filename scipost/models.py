@@ -1,3 +1,5 @@
+import datetime 
+
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User, Group
@@ -82,6 +84,17 @@ class Contributor(models.Model):
         return self.user.last_name + ', ' + self.user.first_name
 
 
+    def is_currently_available(self):
+        unav_periods = UnavailabilityPeriod.objects.filter(
+            contributor=self)
+        available = True
+        today = datetime.date.today()
+        for unav in unav_periods:
+            if unav.start < today and unav.end > today:
+                available = False
+        return available
+
+
     def private_info_as_table (self):
         template = Template('''
         <table>
@@ -137,6 +150,11 @@ class Contributor(models.Model):
                 })
         return template.render(context)
 
+
+class UnavailabilityPeriod(models.Model):
+    contributor = models.ForeignKey(Contributor)
+    start = models.DateField()
+    end = models.DateField()
 
 
 ##################

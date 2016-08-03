@@ -163,6 +163,43 @@
       </ul>
     </div>
   </div>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Your Availability</h1>
+  </div>
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-4">
+      <p>To help with the editorial workflow, you can inform us of any periods during which you are unavailable. We will do our best to respect these.</p>
+      <h3>Mark a period as unavailable:</h3>
+      <form action="{% url 'scipost:mark_unavailable_period' %}" method="post">
+	{% csrf_token %}
+	<table>
+	  <ul>
+	    {{ unavailability_form.as_table }}
+	  </ul>
+	</table>
+	<input type="submit" value="Submit" />
+      </form>
+    </div>
+    <div class="col-1"></div>
+    <div class="col-6">
+      {% if unavailabilities %}
+      <h3>Your unavailability periods in our records (YYYY-DD-MM):</h3>
+      <table>
+	<tr>
+	  <th>Start</th><th>&nbsp;&nbsp;</th><th>End</th>
+	</tr>
+	{% for unav in unavailabilities %}
+	<tr><td>{{ unav.start }}</td><td></td><td>{{ unav.end }}</td></tr>
+	{% endfor %}
+      </table>
+      {% else %}
+      <p>You don't have any upcoming unavailability periods on record.</p>
+      {% endif %}
+    </div>
+  </div>  
+  
 </section>
 
 
