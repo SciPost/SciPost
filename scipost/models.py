@@ -19,16 +19,16 @@ SCIPOST_DISCIPLINES = (
 disciplines_dict = dict(SCIPOST_DISCIPLINES)
 
 PHYSICS_SPECIALIZATIONS = (
-    ('A', 'Atomic, Molecular and Optical Physics'),
-    ('B', 'Biophysics'),
-    ('C', 'Condensed Matter Physics'),
-    ('F', 'Fluid Dynamics'),
-    ('G', 'Gravitation, Cosmology and Astroparticle Physics'),
-    ('H', 'High-Energy Physics'),
-    ('M', 'Mathematical Physics'),
-    ('N', 'Nuclear Physics'),
-    ('Q', 'Quantum Statistical Mechanics'),
-    ('S', 'Statistical and Soft Matter Physics'),
+    ('Phys:A', 'Atomic, Molecular and Optical Physics'),
+    ('Phys:B', 'Biophysics'),
+    ('Phys:C', 'Condensed Matter Physics'),
+    ('Phys:F', 'Fluid Dynamics'),
+    ('Phys:G', 'Gravitation, Cosmology and Astroparticle Physics'),
+    ('Phys:H', 'High-Energy Physics'),
+    ('Phys:M', 'Mathematical Physics'),
+    ('Phys:N', 'Nuclear Physics'),
+    ('Phys:Q', 'Quantum Statistical Mechanics'),
+    ('Phys:S', 'Statistical and Soft Matter Physics'),
     )
 physics_specializations = dict(PHYSICS_SPECIALIZATIONS)
 

@@ -395,10 +395,15 @@ def pool(request):
     contributor = Contributor.objects.get(user=request.user)
     assignments_to_consider = EditorialAssignment.objects.filter(
         to=contributor, accepted=None, deprecated=False)
-    form = ConsiderAssignmentForm()
-    
+    consider_assignment_form = ConsiderAssignmentForm()
+    recs_to_vote_on = EICRecommendation.objects.all().exclude(
+        recommendation=-1).exclude(recommendation=-2)
+    rec_vote_form = RecommendationVoteForm()
     context = {'submissions_in_pool': submissions_in_pool,
-               'assignments_to_consider': assignments_to_consider, 'form': form}
+               'assignments_to_consider': assignments_to_consider, 
+               'consider_assignment_form': consider_assignment_form,
+               'recs_to_vote_on': recs_to_vote_on,
+               'rec_vote_form': rec_vote_form}
     return render(request, 'submissions/pool.html', context)
 
 
@@ -1040,3 +1045,27 @@ def vet_submitted_report_ack(request, report_id):
     context = {'submission': report.submission}
     return render(request, 'submissions/vet_submitted_report_ack.html', context)
 
+
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@transaction.atomic
+def vote_on_rec(request, rec_id):
+    if request.method == 'POST':
+        recommendation = get_object_or_404(EICRecommendation, id=rec_id)
+        form = RecommendationVoteForm(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['vote'] == 'agree':
+                recommendation.voted_for.add(request.user.contributor)
+                recommendation.voted_against.remove(request.user.contributor)
+                recommendation.voted_abstain.remove(request.user.contributor)
+            elif form.cleaned_data['vote'] == 'disagree':
+                recommendation.voted_for.remove(request.user.contributor)
+                recommendation.voted_against.add(request.user.contributor)
+                recommendation.voted_abstain.remove(request.user.contributor)
+            elif form.cleaned_data['vote'] == 'abstain':
+                recommendation.voted_for.remove(request.user.contributor)
+                recommendation.voted_against.remove(request.user.contributor)
+                recommendation.voted_abstain.add(request.user.contributor)
+            recommendation.save()
+            return redirect(reverse('submissions:pool'))
+
+    return redirect(reverse('submissions:pool'))

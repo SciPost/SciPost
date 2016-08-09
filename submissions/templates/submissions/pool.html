@@ -24,8 +24,9 @@ $(document).ready(function(){
 {% load scipost_extras %}
 {% load submissions_extras %}
 
+
+{% if assignments_to_consider %}
 <section>
-  {% if assignments_to_consider %}
 
   {% for assignment_to_consider in assignments_to_consider %}
 
@@ -48,10 +49,10 @@ $(document).ready(function(){
   <h3>By accepting, you will be required to start a refereeing round on the next screen.</h3>
   <form action="{% url 'submissions:accept_or_decline_assignment_ack' assignment_id=assignment_to_consider.id %}" method="post">
     {% csrf_token %}
-    {{ form.accept }}
+    {{ consider_assignment_form.accept }}
     <div id="ref_reason">
       <p>Please select a reason for declining this assignment:</p>
-      {{ form.refusal_reason }}
+      {{ consider_assignment_form.refusal_reason }}
     </div>
     <input type="submit" value="Submit" />
   </form>
@@ -60,8 +61,66 @@ $(document).ready(function(){
   {% endfor %}
 
   <hr class="hr12"/>
-  {% endif %}
+</section>
+{% endif %}
 
+{% if recs_to_vote_on %}
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox320">
+      <h1>Recommendations to vote on</h1>
+    </div>
+  </div>
+  <ul>
+    {% for rec in recs_to_vote_on %}
+    {{ rec.submission.header_as_li_for_Fellows }}
+    <div class="flex-greybox">
+      <h3>Editorial recommendation:</h3>
+      <ul>
+	<li>{{ rec.print_for_Fellows }}</li>
+      </ul>
+    </div>
+    <form action="{% url 'submissions:vote_on_rec' rec_id=rec.id %}" method="post">
+      {% csrf_token %}
+      {% load crispy_forms_tags %}
+      {% crispy rec_vote_form %}
+    </form>
+
+    {% if request.user|is_in_group:'Editorial Administrators' %}
+    <h3>Voting results up to now:</h3>
+    <ul>
+      <li>
+	<p>Agreed:&nbsp;({{ rec.voted_for.all.count }})
+	{% for agreed in rec.voted_for.all %}
+	{{ agreed.user.last_name }},&nbsp;
+	{% endfor %}
+	</p>
+      </li>
+      <li>
+	<p>Disagreed:&nbsp;({{ rec.voted_against.all.count }})
+	{% for disagreed in rec.voted_against.all %}
+	{{ disagreed.user.last_name }},&nbsp;
+	{% endfor %}
+	</p>
+      </li>
+      <li>
+	<p>Abstained:&nbsp;({{ rec.voted_abstain.all.count }})
+	{% for abstained in rec.voted_abstain.all %}
+	{{ abstained.user.last_name }},&nbsp;
+	{% endfor %}
+	</p>
+      </li>
+    </ul>
+    {% endif %}
+    <hr class="hr6"/>
+    <br/>
+    {% endfor %}
+  </ul>
+</section>
+<hr class="hr12"/>
+{% endif %}
+
+<section>
   <div class="flex-container">
     <div class="flex-greybox320">
       <h1>SciPost Submissions Pool</h1>

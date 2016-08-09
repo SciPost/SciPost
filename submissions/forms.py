@@ -209,3 +209,32 @@ class EICRecommendationForm(forms.ModelForm):
         self.fields['remarks_for_editorial_college'].widget.attrs.update(
             {'placeholder': 'If you recommend to accept or refuse, the Editorial College will vote; write any relevant remarks for the EC here.'})
 
+
+###############
+# Vote form #
+###############
+
+class RecommendationVoteForm(forms.Form):
+    vote = forms.ChoiceField(widget=forms.RadioSelect,
+                             choices=[('agree', 'Agree'), ('disagree', 'Disagree'), ('abstain', 'Abstain')],
+                             label='',
+                         )
+    comment = forms.CharField(widget=forms.Textarea(), label='', required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(RecommendationVoteForm, self).__init__(*args, **kwargs)
+        self.fields['comment'].widget.attrs.update(
+            {'rows': 3, 'cols': 30, 'placeholder': 'Your comments (optional)'})
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    HTML('<h3>Your position on this recommendation:</h3>'),
+                    Field('vote'), 
+                    css_class='flex-Fellowactionbox'),
+                Div(Field('comment'), css_class='flex-Fellowactionbox'),
+                Div(Submit('submit', 'Cast your vote', css_class='submitButton'),
+                    css_class='flex-Fellowactionbox'),
+                css_class='flex-container')
+        )
+

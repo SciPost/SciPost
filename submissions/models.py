@@ -678,8 +678,13 @@ class EICRecommendation(models.Model):
     # Editorial Fellows who have assessed this recommendation:
     voted_for = models.ManyToManyField (Contributor, blank=True, related_name='voted_for')
     voted_against = models.ManyToManyField (Contributor, blank=True, related_name='voted_against')
+    voted_abstain = models.ManyToManyField (Contributor, blank=True, related_name='voted_abstain')
     voting_deadline = models.DateTimeField('date submitted', default=timezone.now)
  
+    def __str__(self):
+        return (self.submission.title[:20] + ' by ' + self.submission.author_list[:30] +
+                ', ' + report_rec_dict[self.recommendation])
+
     @property
     def nr_for(self):
         return self.voted_for.count()

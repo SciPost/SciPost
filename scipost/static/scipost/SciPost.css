@@ -183,6 +183,12 @@ ul.personalTabMenu li a.inactive {
   box-shadow: 1px 1px 3px #888888;
   background: linear-gradient(to right,#f8f8f8, #e0e0e0);
 }
+.flex-Fellowactionbox {
+/*  background-color: #6884C2;*/
+  background-color: #cccccc;
+  margin: 0px;
+  padding: 5px 10px;
+}
 .flex-greybox {
   background-color: #f4f4f4; 
   margin: 10px;
