@@ -132,6 +132,15 @@
     <div class="col-6">
       <h3>Your personal details</h3>
       {{ contributor.private_info_as_table }}
+      <br/>
+      <h3>Your expertises</h3>
+      {% if contributor.expertises %}
+      {{ contributor.expertises_as_ul }}
+      {% else %}
+      <p>You haven't listed your expertise(s).<br/>
+	Do so by <a href="{% url 'scipost:update_personal_data' %}">updating your personal data</a>
+      </p>
+      {% endif %}
     </div>
     <div class="col-6">
       {% if request.user|is_in_group:'SciPost Administrators' %}

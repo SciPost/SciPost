@@ -84,7 +84,7 @@ class UpdateUserDataForm(forms.ModelForm):
 class UpdatePersonalDataForm(forms.ModelForm):
     class Meta:
         model = Contributor
-        fields = ['title', 'discipline', 'orcid_id', 'country_of_employment', 
+        fields = ['title', 'discipline', 'expertises', 'orcid_id', 'country_of_employment', 
                   'affiliation', 'address', 'personalwebpage']
         widgets = {'country_of_employment': CountrySelectWidget()}
 

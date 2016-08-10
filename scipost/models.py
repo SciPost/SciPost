@@ -1,10 +1,12 @@
 import datetime 
 
-from django.utils import timezone
-from django.db import models
+from django import forms
 from django.contrib.auth.models import User, Group
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import ArrayField, JSONField
+from django.db import models
 from django.template import Template, Context
+from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from django_countries.fields import CountryField
 
@@ -13,24 +15,123 @@ from .models import *
 
 SCIPOST_DISCIPLINES = (
     ('physics', 'Physics'),
-#    ('mathematics', 'Mathematics'),
-#    ('computerscience', 'Computer Science'),
+    ('mathematics', 'Mathematics'),
+    ('computerscience', 'Computer Science'),
     )
 disciplines_dict = dict(SCIPOST_DISCIPLINES)
 
-PHYSICS_SPECIALIZATIONS = (
-    ('Phys:A', 'Atomic, Molecular and Optical Physics'),
-    ('Phys:B', 'Biophysics'),
-    ('Phys:C', 'Condensed Matter Physics'),
-    ('Phys:F', 'Fluid Dynamics'),
-    ('Phys:G', 'Gravitation, Cosmology and Astroparticle Physics'),
-    ('Phys:H', 'High-Energy Physics'),
-    ('Phys:M', 'Mathematical Physics'),
-    ('Phys:N', 'Nuclear Physics'),
-    ('Phys:Q', 'Quantum Statistical Mechanics'),
-    ('Phys:S', 'Statistical and Soft Matter Physics'),
-    )
-physics_specializations = dict(PHYSICS_SPECIALIZATIONS)
+SCIPOST_EXPERTISES = (
+    ('Physics', (
+        ('Phys:A', 'Atomic, Molecular and Optical Physics'),
+        ('Phys:B', 'Biophysics'),
+        ('Phys:C', 'Condensed Matter Physics'),
+        ('Phys:F', 'Fluid Dynamics'),
+        ('Phys:G', 'Gravitation, Cosmology and Astroparticle Physics'),
+        ('Phys:H', 'High-Energy Physics'),
+        ('Phys:M', 'Mathematical Physics'),
+        ('Phys:N', 'Nuclear Physics'),
+        ('Phys:Q', 'Quantum Statistical Mechanics'),
+        ('Phys:S', 'Statistical and Soft Matter Physics'),
+        )
+     ),
+    ('Mathematics', (
+        ('Math:AG', 'Algebraic Geometry'),
+        ('Math:AT', 'Algebraic Topology'),
+        ('Math:PDE', 'Analysis of PDEs'),
+        ('Math:CT', 'Category Theory'),
+        ('Math:ODE', 'Classical Analysis and ODEs'),
+        ('Math:COMB', 'Combinatorics'),
+        ('Math:CA', 'Commutative Algebra'),
+        ('Math:CV', 'Complex Variables'),
+        ('Math:DG', 'Differential Geometry'),
+        ('Math:DS', 'Dynamical Systems'),
+        ('Math:FA', 'Functional Analysis'),
+        ('Math:GM', 'General Mathematics'),
+        ('Math:GenT', 'General Topology'), 
+        ('Math:GeoT', 'Geometric Topology'),
+        ('Math:Group', 'Group Theory'),
+        ('Math:HO', 'History and Overview'),
+        ('Math:IT', 'Information Theory'),
+        ('Math:KT', 'K-Theory and Homology'),
+        ('Math:L', 'Logic'),
+        ('Math:MP', 'Mathematical Physics'),
+        ('Math:MG', 'Metric Geometry'),
+        ('Math:NT', 'Number Theory'),
+        ('Math:NA', 'Numerical Analysis'),
+        ('Math:OA', 'Operator Algebras'),
+        ('Math:OC', 'Optimization and Control'),
+        ('Math:Proba', 'Probability'),
+        ('Math:QA', 'Quantum Algebra'),
+        ('Math:RT', 'Representation Theory'),
+        ('Math:RA', 'Rings and Algebras'),
+        ('Math:SpecT', 'Spectral Theory'),
+        ('Math:StatT', 'Statistics Theory'),
+        ('Math:SG', 'Symplectic Geometry'),
+        )
+     ),
+    ('Computer Science', (
+        ('Comp:AI', 'Artificial Intelligence'),
+        ('Comp:CC', 'Computational Complexity'),
+        ('Comp:CE', 'Computational Engineering, Finance, and Science'),
+        ('Comp:CG', 'Computational Geometry'),
+        ('Comp:GT', 'Computer Science and Game Theory'),
+        ('Comp:CV', 'Computer Vision and Pattern Recognition'),
+        ('Comp:CY', 'Computers and Society'),
+        ('Comp:CR', 'Cryptography and Security'),
+        ('Comp:DS', 'Data Structures and Algorithms'),
+        ('Comp:DB', 'Databases'),
+        ('Comp:DL', 'Digital Libraries'),
+        ('Comp:DM', 'Discrete Mathematics'),
+        ('Comp:DC', 'Distributed, Parallel, and Cluster Computing'),
+        ('Comp:ET', 'Emerging Technologies'),
+        ('Comp:FL', 'Formal Languages and Automata Theory'),
+        ('Comp:GL', 'General Literature'),
+        ('Comp:GR', 'Graphics'),
+        ('Comp:AR', 'Hardware Architecture'),
+        ('Comp:HC', 'Human-Computer Interaction'),
+        ('Comp:IR', 'Information Retrieval'),
+        ('Comp:IT', 'Information Theory'),
+        ('Comp:LG', 'Learning'),
+        ('Comp:LO', 'Logic in Computer Science'),
+        ('Comp:MS', 'Mathematical Software'),
+        ('Comp:MA', 'Multiagent Systems'),
+        ('Comp:MM', 'Multimedia'),
+        ('Comp:NI', 'Networking and Internet Architecture'),
+        ('Comp:NE', 'Neural and Evolutionary Computing'),
+        ('Comp:NA', 'Numerical Analysis'),
+        ('Comp:OS', 'Operating Systems'),
+        ('Comp:OH', 'Other Computer Science'),
+        ('Comp:PF', 'Performance'),
+        ('Comp:PL', 'Programming Languages'),
+        ('Comp:RO', 'Robotics'),
+        ('Comp:SI', 'Social and Information Networks'),
+        ('Comp:SE', 'Software Engineering'),
+        ('Comp:SD', 'Sound'),
+        ('Comp:SC', 'Symbolic Computation'),
+        ('Comp:SY', 'Systems and Control'),
+        )
+     ),
+)
+expertises_dict = dict(SCIPOST_EXPERTISES)
+for k in expertises_dict.keys():
+    expertises_dict[k] = dict(expertises_dict[k])
+
+
+class ChoiceArrayField(ArrayField):
+    """
+    A field that allows us to store an array of choices.
+    Uses Django 1.9's postgres ArrayField
+    and a MultipleChoiceField for its formfield.
+    """
+ 
+    def formfield(self, **kwargs):
+        defaults = {
+            'form_class': forms.MultipleChoiceField,
+            'widget': forms.CheckboxSelectMultiple,
+            'choices': self.base_field.choices,
+        }
+        defaults.update(kwargs)
+        return super(ArrayField, self).formfield(**defaults)
 
 
 CONTRIBUTOR_STATUS = (
@@ -70,7 +171,10 @@ class Contributor(models.Model):
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-#    specializations = JSONField(default={})
+#    specializations = 
+#    expertises = models.ManyToManyField(Expertise, blank=True)
+    expertises = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_EXPERTISES), 
+                                  blank=True, null=True)
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)
     country_of_employment = CountryField()
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
@@ -149,6 +253,23 @@ class Contributor(models.Model):
                 'personalwebpage': self.personalwebpage
                 })
         return template.render(context)
+
+
+    # def expertises_as_ul(self):
+    #     output = '<ul>'
+    #     context = Context({})
+    #     for exp in self.expertises:
+    #         output += '<li>{{ exp }}</li>'
+    #         context[exp] = expertises_dict[exp]
+    #     output += '</ul>'
+    #     template = Template(output)
+    #     return template.render(context)
+    def expertises_as_ul(self):
+        output = '<ul>'
+        for exp in self.expertises:
+            output += '<li>' + expertises_dict['Physics'][exp] + '</li>'
+        output += '</ul>'
+        return mark_safe(output)
 
 
 class UnavailabilityPeriod(models.Model):
