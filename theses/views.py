@@ -35,7 +35,7 @@ def request_thesislink(request):
                 type = form.cleaned_data['type'],
                 discipline = form.cleaned_data['discipline'],
                 domain = form.cleaned_data['domain'],
-                specialization = form.cleaned_data['specialization'],
+                subject_area = form.cleaned_data['subject_area'],
                 title = form.cleaned_data['title'],
                 author = form.cleaned_data['author'],
                 supervisor = form.cleaned_data['supervisor'],

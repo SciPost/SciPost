@@ -17,7 +17,7 @@ THESIS_REFUSAL_CHOICES = (
 class RequestThesisLinkForm(forms.ModelForm):
     class Meta:
         model = ThesisLink
-        fields = ['type', 'discipline', 'domain', 'specialization', 'subject_area',
+        fields = ['type', 'discipline', 'domain', 'subject_area',
                   'title', 'author', 'supervisor', 'institution', 
                   'defense_date', 'pub_link', 'abstract']
 

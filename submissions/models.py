@@ -74,7 +74,7 @@ class Submission(models.Model):
                                        blank=True, null=True, default=None)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
-    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
+#    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, 
                                     verbose_name='Primary subject area', default='Phys:QP')
     secondary_areas = ArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), 
@@ -145,8 +145,8 @@ class Submission(models.Model):
                    '<tr><td>Submitted by: </td><td>&nbsp;</td><td>{{ submitted_by }}</td></tr>'
                    '<tr><td>Submitted to: </td><td>&nbsp;</td><td>{{ to_journal }}</td></tr>'
                    '<tr><td>Domain(s): </td><td>&nbsp;</td><td>{{ domain }}</td></tr>'
-                   '<tr><td>Specialization: </td><td>&nbsp;</td><td>{{ spec }}</td></tr>'
-                   '<tr><td>Subject area: </td><td>%nbsp;</td><td>{{ subject_area }}</td></tr>'
+#                   '<tr><td>Specialization: </td><td>&nbsp;</td><td>{{ spec }}</td></tr>'
+                   '<tr><td>Subject area: </td><td>&nbsp;</td><td>{{ subject_area }}</td></tr>'
                    '</table>')
         template = Template(header)
         context = Context({'title': self.title, 'author_list': self.author_list,
@@ -154,7 +154,7 @@ class Submission(models.Model):
                            'submitted_by': self.submitted_by, 
                            'to_journal': journals_submit_dict[self.submitted_to_journal],
                            'domain': journals_domains_dict[self.domain], 
-                           'spec': journals_spec_dict[self.specialization],
+#                           'spec': journals_spec_dict[self.specialization],
                            'subject_area': subject_areas_dict[self.subject_area],
                        })
         return template.render(context)

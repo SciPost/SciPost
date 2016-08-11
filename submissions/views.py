@@ -134,7 +134,7 @@ def prefill_using_identifier(request):
                     initialdata['submission_type'] = previous_submissions[0].submission_type
                     initialdata['discipline'] = previous_submissions[0].discipline
                     initialdata['domain'] = previous_submissions[0].domain
-                    initialdata['specialization'] = previous_submissions[0].specialization
+#                    initialdata['specialization'] = previous_submissions[0].specialization
                     initialdata['subject_area'] = previous_submissions[0].subject_area
                     initialdata['secondary_areas'] = previous_submissions[0].secondary_areas
                     initialdata['referees_suggested'] = previous_submissions[0].referees_suggested
@@ -179,7 +179,7 @@ def submit_manuscript(request):
                 submission_type = form.cleaned_data['submission_type'],
                 discipline = form.cleaned_data['discipline'],
                 domain = form.cleaned_data['domain'],
-                specialization = form.cleaned_data['specialization'],
+#                specialization = form.cleaned_data['specialization'],
                 subject_area = form.cleaned_data['subject_area'],
                 secondary_areas = form.cleaned_data['secondary_areas'],
                 status = 'unassigned', 

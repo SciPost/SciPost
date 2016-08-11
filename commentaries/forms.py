@@ -30,7 +30,7 @@ class IdentifierToQueryForm(forms.Form):
 class RequestCommentaryForm(forms.ModelForm):
     class Meta:
         model = Commentary
-        fields = ['type', 'discipline', 'domain', 'specialization', 'subject_area',
+        fields = ['type', 'discipline', 'domain', 'subject_area',
                   'pub_title', 'author_list', 
                   'metadata',
                   'journal', 'volume', 'pages', 'pub_date', 

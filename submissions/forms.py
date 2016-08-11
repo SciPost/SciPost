@@ -30,7 +30,7 @@ class SubmissionForm(forms.ModelForm):
         model = Submission
         fields = ['is_resubmission', 
                   'discipline', 'submitted_to_journal', 'submission_type', 
-                  'domain', 'specialization', 'subject_area', 'secondary_areas',
+                  'domain', 'subject_area', 'secondary_areas',
                   'title', 'author_list', 'abstract', 
                   'arxiv_identifier_w_vn_nr', 'arxiv_identifier_wo_vn_nr', 
                   'arxiv_vn_nr', 'arxiv_link', 'metadata', 
@@ -58,14 +58,6 @@ class SubmissionForm(forms.ModelForm):
         self.fields['referees_flagged'].widget.attrs.update({
                 'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
                 'rows': 3})
-        # self.helper = FormHelper()
-        # self.helper.layout = Layout(
-        #     Fieldset('discipline', 'submitted_to_journal'),
-        #     Field('submission_type', css_id="subm_type"),
-        #     Fieldset('domain', 'specialization', 
-        #           'title', 'author_list', 'abstract', 'arxiv_link', 'metadata', 
-        #           'referees_flagged'),
-        # )
 
 
 ######################

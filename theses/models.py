@@ -25,8 +25,8 @@ class ThesisLink(models.Model):
     type = models.CharField(max_length=3, choices=THESIS_TYPES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS, blank=True)
-    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS, 
-                                      blank=True)
+#    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS, 
+#                                      blank=True)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, default='Phys:QP')
     open_for_commenting = models.BooleanField(default=True)
     title = models.CharField(max_length=300, verbose_name='title')
@@ -70,8 +70,8 @@ class ThesisLink(models.Model):
                    + '</td></tr>'
                    '<tr><td>Domain: </td><td></td><td>' + journals_domains_dict[self.domain] 
                    + '</td></tr>'
-                   '<tr><td>Specialization: </td><td></td><td>' 
-                   + journals_spec_dict[self.specialization] + '</td></tr>'
+#                   '<tr><td>Specialization: </td><td></td><td>' 
+#                   + journals_spec_dict[self.specialization] + '</td></tr>'
                    '<tr><td>Subject area: </td><td></td><td>' 
                    + subject_areas_dict[self.subject_area] + '</td></tr>'
                    '<tr><td>URL: </td><td>&nbsp;</td><td><a href="{{ pub_link }}" '
@@ -97,7 +97,7 @@ class ThesisLink(models.Model):
                   '(supervisor(s): {{ supervisor }}) in ' 
                   + disciplines_dict[self.discipline] + ', ' 
                   + journals_domains_dict[self.domain] + ' ' 
-                  + journals_spec_dict[self.specialization] + ' '
+#                  + journals_spec_dict[self.specialization] + ' '
                   + subject_areas_dict[self.subject_area]
                   + '</p>'
                   '<p>Defense date: {{ defense_date }} - '
