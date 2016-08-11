@@ -15,6 +15,7 @@ from .models import *
 
 SCIPOST_DISCIPLINES = (
     ('physics', 'Physics'),
+    ('astrophysics', 'Astrophysics'),
     ('mathematics', 'Mathematics'),
     ('computerscience', 'Computer Science'),
     )
@@ -32,6 +33,15 @@ SCIPOST_EXPERTISES = (
         ('Phys:N', 'Nuclear Physics'),
         ('Phys:Q', 'Quantum Statistical Mechanics'),
         ('Phys:S', 'Statistical and Soft Matter Physics'),
+        )
+     ),
+    ('Astrophysics', (
+        ('Astro:GA', 'Astrophysics of Galaxies'),
+        ('Astro:CO', 'Cosmology and Nongalactic Astrophysics'),
+        ('Astro:EP', 'Earth and Planetary Astrophysics'),
+        ('Astro:HE', 'High Energy Astrophysical Phenomena'),
+        ('Astro:IM', 'Instrumentation and Methods for Astrophysics'),
+        ('Astro:SR', 'Solar and Stellar Astrophysics'),
         )
      ),
     ('Mathematics', (
@@ -171,8 +181,6 @@ class Contributor(models.Model):
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-#    specializations = 
-#    expertises = models.ManyToManyField(Expertise, blank=True)
     expertises = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_EXPERTISES), 
                                   blank=True, null=True)
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)

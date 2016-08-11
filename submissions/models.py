@@ -78,6 +78,7 @@ class Submission(models.Model):
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
     author_comments = models.TextField(blank=True, null=True)
     list_of_changes = models.TextField(blank=True, null=True)
+    referees_suggested = models.TextField(blank=True, null=True)
     referees_flagged = models.TextField(blank=True, null=True)
     open_for_reporting = models.BooleanField(default=False)
     reporting_deadline = models.DateTimeField(default=timezone.now)

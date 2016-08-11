@@ -135,6 +135,7 @@ def prefill_using_identifier(request):
                     initialdata['discipline'] = previous_submissions[0].discipline
                     initialdata['domain'] = previous_submissions[0].domain
                     initialdata['specialization'] = previous_submissions[0].specialization
+                    initialdata['referees_suggested'] = previous_submissions[0].referees_suggested
                     initialdata['referees_flagged'] = previous_submissions[0].referees_flagged
                 form = SubmissionForm(initial=initialdata)
                 context = {'identifierform': identifierform, 
@@ -187,6 +188,7 @@ def submit_manuscript(request):
                 arxiv_link = form.cleaned_data['arxiv_link'],
                 metadata = form.cleaned_data['metadata'],
                 submission_date = timezone.now(),
+                referees_suggested = form.cleaned_data['referees_suggested'],
                 referees_flagged = form.cleaned_data['referees_flagged'],
                 )
             submission.save()

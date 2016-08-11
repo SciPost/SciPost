@@ -32,7 +32,8 @@ class SubmissionForm(forms.ModelForm):
                   'title', 'author_list', 'abstract', 
                   'arxiv_identifier_w_vn_nr', 'arxiv_identifier_wo_vn_nr', 
                   'arxiv_vn_nr', 'arxiv_link', 'metadata', 
-                  'author_comments', 'list_of_changes', 'referees_flagged']
+                  'author_comments', 'list_of_changes', 
+                  'referees_suggested', 'referees_flagged']
 
     def __init__(self, *args, **kwargs):
         super(SubmissionForm, self).__init__(*args, **kwargs)
@@ -48,6 +49,9 @@ class SubmissionForm(forms.ModelForm):
             'placeholder': 'Your resubmission letter', })
         self.fields['list_of_changes'].widget.attrs.update({
             'placeholder': 'Give a point-by-point list of changes', })
+        self.fields['referees_suggested'].widget.attrs.update({
+            'placeholder': 'Optional: names of suggested referees',
+            'rows': 3})
         self.fields['referees_flagged'].widget.attrs.update({
                 'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
                 'rows': 3})
