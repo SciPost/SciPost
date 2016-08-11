@@ -21,18 +21,23 @@ SCIPOST_DISCIPLINES = (
     )
 disciplines_dict = dict(SCIPOST_DISCIPLINES)
 
-SCIPOST_EXPERTISES = (
+SCIPOST_SUBJECT_AREAS = (
     ('Physics', (
-        ('Phys:A', 'Atomic, Molecular and Optical Physics'),
-        ('Phys:B', 'Biophysics'),
-        ('Phys:C', 'Condensed Matter Physics'),
-        ('Phys:F', 'Fluid Dynamics'),
-        ('Phys:G', 'Gravitation, Cosmology and Astroparticle Physics'),
-        ('Phys:H', 'High-Energy Physics'),
-        ('Phys:M', 'Mathematical Physics'),
-        ('Phys:N', 'Nuclear Physics'),
-        ('Phys:Q', 'Quantum Statistical Mechanics'),
-        ('Phys:S', 'Statistical and Soft Matter Physics'),
+        ('Phys:AE', 'Atomic, Molecular and Optical Physics - Experiment'),
+        ('Phys:AT', 'Atomic, Molecular and Optical Physics - Theory'),
+        ('Phys:BI', 'Biophysics'),
+        ('Phys:CE', 'Condensed Matter Physics - Experiment'),
+        ('Phys:CT', 'Condensed Matter Physics - Theory'),
+        ('Phys:FD', 'Fluid Dynamics'),
+        ('Phys:GR', 'Gravitation, Cosmology and Astroparticle Physics'),
+        ('Phys:HE', 'High-Energy Physics - Experiment'),
+        ('Phys:HT', 'High-Energy Physics- Theory'),
+        ('Phys:HP', 'High-Energy Physics - Phenomenology'),
+        ('Phys:MP', 'Mathematical Physics'),
+        ('Phys:NE', 'Nuclear Physics - Experiment'),
+        ('Phys:NT', 'Nuclear Physics - Theory'),
+        ('Phys:QP', 'Quantum Physics'),
+        ('Phys:SM', 'Statistical and Soft Matter Physics'),
         )
      ),
     ('Astrophysics', (
@@ -47,35 +52,35 @@ SCIPOST_EXPERTISES = (
     ('Mathematics', (
         ('Math:AG', 'Algebraic Geometry'),
         ('Math:AT', 'Algebraic Topology'),
-        ('Math:PDE', 'Analysis of PDEs'),
+        ('Math:AP', 'Analysis of PDEs'),
         ('Math:CT', 'Category Theory'),
-        ('Math:ODE', 'Classical Analysis and ODEs'),
-        ('Math:COMB', 'Combinatorics'),
-        ('Math:CA', 'Commutative Algebra'),
+        ('Math:CA', 'Classical Analysis and ODEs'),
+        ('Math:CO', 'Combinatorics'),
+        ('Math:AC', 'Commutative Algebra'),
         ('Math:CV', 'Complex Variables'),
         ('Math:DG', 'Differential Geometry'),
         ('Math:DS', 'Dynamical Systems'),
         ('Math:FA', 'Functional Analysis'),
         ('Math:GM', 'General Mathematics'),
-        ('Math:GenT', 'General Topology'), 
-        ('Math:GeoT', 'Geometric Topology'),
-        ('Math:Group', 'Group Theory'),
+        ('Math:GN', 'General Topology'), 
+        ('Math:GT', 'Geometric Topology'),
+        ('Math:GR', 'Group Theory'),
         ('Math:HO', 'History and Overview'),
         ('Math:IT', 'Information Theory'),
         ('Math:KT', 'K-Theory and Homology'),
-        ('Math:L', 'Logic'),
+        ('Math:LO', 'Logic'),
         ('Math:MP', 'Mathematical Physics'),
         ('Math:MG', 'Metric Geometry'),
         ('Math:NT', 'Number Theory'),
         ('Math:NA', 'Numerical Analysis'),
         ('Math:OA', 'Operator Algebras'),
         ('Math:OC', 'Optimization and Control'),
-        ('Math:Proba', 'Probability'),
+        ('Math:PR', 'Probability'),
         ('Math:QA', 'Quantum Algebra'),
         ('Math:RT', 'Representation Theory'),
         ('Math:RA', 'Rings and Algebras'),
-        ('Math:SpecT', 'Spectral Theory'),
-        ('Math:StatT', 'Statistics Theory'),
+        ('Math:SP', 'Spectral Theory'),
+        ('Math:ST', 'Statistics Theory'),
         ('Math:SG', 'Symplectic Geometry'),
         )
      ),
@@ -122,9 +127,11 @@ SCIPOST_EXPERTISES = (
         )
      ),
 )
-expertises_dict = dict(SCIPOST_EXPERTISES)
-for k in expertises_dict.keys():
-    expertises_dict[k] = dict(expertises_dict[k])
+subject_areas_raw_dict = dict(SCIPOST_SUBJECT_AREAS)
+# We want a dict of the form {'Phys:AT': 'Atomic...', ...}
+subject_areas_dict = {}
+for k in subject_areas_raw_dict.keys():
+    subject_areas_dict.update(dict(subject_areas_raw_dict[k]))
 
 
 class ChoiceArrayField(ArrayField):
@@ -180,8 +187,9 @@ class Contributor(models.Model):
     key_expires = models.DateTimeField(default=timezone.now)
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-    expertises = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_EXPERTISES), 
+    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, 
+                                  default='physics', verbose_name='Main discipline')
+    expertises = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), 
                                   blank=True, null=True)
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)
     country_of_employment = CountryField()
@@ -262,20 +270,13 @@ class Contributor(models.Model):
                 })
         return template.render(context)
 
+    def discipline_as_string(self):
+        return disciplines_dict[self.discipline]
 
-    # def expertises_as_ul(self):
-    #     output = '<ul>'
-    #     context = Context({})
-    #     for exp in self.expertises:
-    #         output += '<li>{{ exp }}</li>'
-    #         context[exp] = expertises_dict[exp]
-    #     output += '</ul>'
-    #     template = Template(output)
-    #     return template.render(context)
     def expertises_as_ul(self):
         output = '<ul>'
         for exp in self.expertises:
-            output += '<li>' + expertises_dict['Physics'][exp] + '</li>'
+            output += '<li>' + subject_areas_dict[exp] + '</li>'
         output += '</ul>'
         return mark_safe(output)
 

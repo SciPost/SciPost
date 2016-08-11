@@ -130,10 +130,13 @@
   </div>
   <div class="row">
     <div class="col-6">
-      <h3>Your personal details</h3>
+      <h3>Your personal details:</h3>
       {{ contributor.private_info_as_table }}
       <br/>
-      <h3>Your expertises</h3>
+      <h3>Your main discipline:</h3>
+      <ul><li>{{ contributor.discipline_as_string }}</li></ul>
+      <br/>
+      <h3>Your expertises:</h3>
       {% if contributor.expertises %}
       {{ contributor.expertises_as_ul }}
       {% else %}
