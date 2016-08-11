@@ -135,6 +135,8 @@ def prefill_using_identifier(request):
                     initialdata['discipline'] = previous_submissions[0].discipline
                     initialdata['domain'] = previous_submissions[0].domain
                     initialdata['specialization'] = previous_submissions[0].specialization
+                    initialdata['subject_area'] = previous_submissions[0].subject_area
+                    initialdata['secondary_areas'] = previous_submissions[0].secondary_areas
                     initialdata['referees_suggested'] = previous_submissions[0].referees_suggested
                     initialdata['referees_flagged'] = previous_submissions[0].referees_flagged
                 form = SubmissionForm(initial=initialdata)
@@ -178,6 +180,8 @@ def submit_manuscript(request):
                 discipline = form.cleaned_data['discipline'],
                 domain = form.cleaned_data['domain'],
                 specialization = form.cleaned_data['specialization'],
+                subject_area = form.cleaned_data['subject_area'],
+                secondary_areas = form.cleaned_data['secondary_areas'],
                 status = 'unassigned', 
                 title = form.cleaned_data['title'],
                 author_list = form.cleaned_data['author_list'],
@@ -414,7 +418,7 @@ def pool(request):
 def assign_submission(request, arxiv_identifier_w_vn_nr):
     submission_to_assign = get_object_or_404(Submission, 
                                              arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    #form = AssignSubmissionForm(discipline=submission_to_assign.discipline, specialization=submission_to_assign.specialization) # reactivate later on
+    #form = AssignSubmissionForm(discipline=submission_to_assign.discipline, expertise=submission_to_assign.subject_area) # reactivate later on
     form = AssignSubmissionForm(discipline=submission_to_assign.discipline)
     context = {'submission_to_assign': submission_to_assign,
                'form': form}

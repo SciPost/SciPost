@@ -6,7 +6,7 @@ from django.template import Template, Context
 
 from journals.models import SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
 from scipost.models import Contributor
-from scipost.models import SCIPOST_DISCIPLINES
+from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 
 
 
@@ -26,6 +26,7 @@ class Commentary(models.Model):
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
+    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, default='Phys:QP')
     open_for_commenting = models.BooleanField(default=True)
     pub_title = models.CharField(max_length=300, verbose_name='title')
     arxiv_identifier = models.CharField(max_length=100, 

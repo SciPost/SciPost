@@ -3,6 +3,8 @@ from django import forms
 
 from .models import *
 
+from scipost.models import SCIPOST_SUBJECT_AREAS
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
 
@@ -28,7 +30,7 @@ class SubmissionForm(forms.ModelForm):
         model = Submission
         fields = ['is_resubmission', 
                   'discipline', 'submitted_to_journal', 'submission_type', 
-                  'domain', 'specialization', 
+                  'domain', 'specialization', 'subject_area', 'secondary_areas',
                   'title', 'author_list', 'abstract', 
                   'arxiv_identifier_w_vn_nr', 'arxiv_identifier_wo_vn_nr', 
                   'arxiv_vn_nr', 'arxiv_link', 'metadata', 
@@ -44,6 +46,7 @@ class SubmissionForm(forms.ModelForm):
         self.fields['arxiv_link'].widget.attrs.update(
             {'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
         self.fields['metadata'].widget = forms.HiddenInput()
+        self.fields['secondary_areas'].widget = forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
         self.fields['abstract'].widget.attrs.update({'cols': 100})
         self.fields['author_comments'].widget.attrs.update({
             'placeholder': 'Your resubmission letter', })
@@ -73,12 +76,12 @@ class AssignSubmissionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         discipline = kwargs.pop('discipline')
-#        specialization = kwargs.pop('specialization') # Reactivate later on, once the Editorial College is large enough
+#        subject_area = kwargs.pop('subject_area') # Reactivate later on, once the Editorial College is large enough
         super(AssignSubmissionForm,self).__init__(*args, **kwargs)
         self.fields['editor_in_charge'] = forms.ModelChoiceField(
             queryset=Contributor.objects.filter(user__groups__name='Editorial College', 
                                                 user__contributor__discipline=discipline, 
-#                                                user__contributor__specializations__contains=[specialization,] # Reactivate later on, once the Editorial College is large enough
+#                                                user__contributor__expertises__contains=[subject_area,] # Reactivate later on, once the Editorial College is large enough
                                                 ).order_by('user__last_name'), 
             required=True, label='Select an Editor-in-charge')
 

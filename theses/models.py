@@ -27,6 +27,7 @@ class ThesisLink(models.Model):
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS, blank=True)
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS, 
                                       blank=True)
+    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, default='Phys:QP')
     open_for_commenting = models.BooleanField(default=True)
     title = models.CharField(max_length=300, verbose_name='title')
     pub_link = models.URLField(verbose_name='URL (external repository)')
@@ -71,6 +72,8 @@ class ThesisLink(models.Model):
                    + '</td></tr>'
                    '<tr><td>Specialization: </td><td></td><td>' 
                    + journals_spec_dict[self.specialization] + '</td></tr>'
+                   '<tr><td>Subject area: </td><td></td><td>' 
+                   + subject_areas_dict[self.subject_area] + '</td></tr>'
                    '<tr><td>URL: </td><td>&nbsp;</td><td><a href="{{ pub_link }}" '
                    'target="_blank">{{ pub_link }}</a></td></tr>'
                    '<tr><td>Degree granting institution: </td><td>&nbsp;</td>'
@@ -94,7 +97,9 @@ class ThesisLink(models.Model):
                   '(supervisor(s): {{ supervisor }}) in ' 
                   + disciplines_dict[self.discipline] + ', ' 
                   + journals_domains_dict[self.domain] + ' ' 
-                  + journals_spec_dict[self.specialization] + '</p>'
+                  + journals_spec_dict[self.specialization] + ' '
+                  + subject_areas_dict[self.subject_area]
+                  + '</p>'
                   '<p>Defense date: {{ defense_date }} - '
                   'Latest activity: {{ latest_activity }}</p></div>'
                   '</div></li>')

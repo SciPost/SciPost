@@ -70,6 +70,7 @@ def request_commentary(request):
                 discipline = form.cleaned_data['discipline'],
                 domain = form.cleaned_data['domain'],
                 specialization = form.cleaned_data['specialization'],
+                subject_area = form.cleaned_data['subject_area'],
                 pub_title = form.cleaned_data['pub_title'],
                 arxiv_identifier = form.cleaned_data['arxiv_identifier'],
                 pub_DOI = form.cleaned_data['pub_DOI'],

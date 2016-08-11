@@ -2,13 +2,13 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.template import Template, Context
 
 from .models import *
 
 from scipost.models import Contributor
-from scipost.models import SCIPOST_DISCIPLINES, TITLE_CHOICES
+from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, TITLE_CHOICES
 from journals.models import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
 from journals.models import journals_submit_dict, journals_domains_dict, journals_spec_dict
 
@@ -75,6 +75,10 @@ class Submission(models.Model):
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
+    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, 
+                                    verbose_name='Primary subject area', default='Phys:QP')
+    secondary_areas = ArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), 
+                                 blank=True, null=True)
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
     author_comments = models.TextField(blank=True, null=True)
     list_of_changes = models.TextField(blank=True, null=True)
@@ -142,6 +146,7 @@ class Submission(models.Model):
                    '<tr><td>Submitted to: </td><td>&nbsp;</td><td>{{ to_journal }}</td></tr>'
                    '<tr><td>Domain(s): </td><td>&nbsp;</td><td>{{ domain }}</td></tr>'
                    '<tr><td>Specialization: </td><td>&nbsp;</td><td>{{ spec }}</td></tr>'
+                   '<tr><td>Subject area: </td><td>%nbsp;</td><td>{{ subject_area }}</td></tr>'
                    '</table>')
         template = Template(header)
         context = Context({'title': self.title, 'author_list': self.author_list,
@@ -149,7 +154,9 @@ class Submission(models.Model):
                            'submitted_by': self.submitted_by, 
                            'to_journal': journals_submit_dict[self.submitted_to_journal],
                            'domain': journals_domains_dict[self.domain], 
-                           'spec': journals_spec_dict[self.specialization]})
+                           'spec': journals_spec_dict[self.specialization],
+                           'subject_area': subject_areas_dict[self.subject_area],
+                       })
         return template.render(context)
 
 
