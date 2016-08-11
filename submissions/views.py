@@ -218,6 +218,13 @@ def submit_manuscript(request):
                 # We keep the same (most recent) Editor-in-charge by default
                 submission.editor_in_charge = previous_submissions[0].editor_in_charge
                 submission.status = 'EICassigned'
+                # Keep the info about authors:
+                for author in previous_submissions[0].authors.all():
+                    submission.authors.add(author)
+                for author in previous_submissions[0].authors_claims.all():
+                    submission.authors_claims.add(author)
+                for author in previous_submissions[0].authors_false_claims.all():
+                    submission.authors_false_claims.add(author)
                 submission.save()
                 assignment = EditorialAssignment(
                     submission=submission,
