@@ -405,14 +405,24 @@ def pool(request):
                          .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
                          .exclude(is_current=False)
                          .order_by('-submission_date'))
+    recommendations_undergoing_voting = (EICRecommendation.objects.filter(
+        submission__status__in=['put_to_EC_voting']))
+    recommendations_to_prepare_for_voting = (EICRecommendation.objects.filter(
+        submission__status__in=['voting_in_preparation']))
     contributor = Contributor.objects.get(user=request.user)
     assignments_to_consider = EditorialAssignment.objects.filter(
         to=contributor, accepted=None, deprecated=False)
     consider_assignment_form = ConsiderAssignmentForm()
-    recs_to_vote_on = EICRecommendation.objects.all().exclude(
-        recommendation=-1).exclude(recommendation=-2)
+    recs_to_vote_on = EICRecommendation.objects.filter(
+        eligible_to_vote__in=[contributor]).exclude(
+        recommendation=-1).exclude(recommendation=-2).exclude(
+            voted_for__in=[contributor]).exclude(
+            voted_against__in=[contributor]).exclude(
+            voted_abstain__in=[contributor])
     rec_vote_form = RecommendationVoteForm()
     context = {'submissions_in_pool': submissions_in_pool,
+               'recommendations_undergoing_voting': recommendations_undergoing_voting,
+               'recommendations_to_prepare_for_voting': recommendations_to_prepare_for_voting,
                'assignments_to_consider': assignments_to_consider, 
                'consider_assignment_form': consider_assignment_form,
                'recs_to_vote_on': recs_to_vote_on,
@@ -425,7 +435,7 @@ def pool(request):
 def assign_submission(request, arxiv_identifier_w_vn_nr):
     submission_to_assign = get_object_or_404(Submission, 
                                              arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    #form = AssignSubmissionForm(discipline=submission_to_assign.discipline, expertise=submission_to_assign.subject_area) # reactivate later on
+    #form = AssignSubmissionForm(discipline=submission_to_assign.discipline, subject_area=submission_to_assign.subject_area) # reactivate later on
     form = AssignSubmissionForm(discipline=submission_to_assign.discipline)
     context = {'submission_to_assign': submission_to_assign,
                'form': form}
@@ -920,7 +930,7 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
                 or recommendation.recommendation == 2 
                 or recommendation.recommendation == 3
                 or recommendation.recommendation == -3):
-                submission.status = 'put_to_EC_voting'
+                submission.status = 'voting_in_preparation'
             elif (recommendation.recommendation == -1
                   or recommendation.recommendation == -2):
                 submission.status = 'revision_requested'
@@ -1057,6 +1067,59 @@ def vet_submitted_report_ack(request, report_id):
                 SubmissionUtils.send_author_report_received_email()
     context = {'submission': report.submission}
     return render(request, 'submissions/vet_submitted_report_ack.html', context)
+
+
+@permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
+@transaction.atomic
+def prepare_for_voting(request, rec_id):
+    recommendation = get_object_or_404(EICRecommendation, id=rec_id)
+    Fellows_with_expertise = Contributor.objects.filter(
+        user__groups__name__in=['Editorial College'],
+        expertises__contains=[recommendation.submission.subject_area])
+    coauthorships = {}
+    if request.method == 'POST':
+        eligibility_form = VotingEligibilityForm(
+            request.POST,
+            discipline=recommendation.submission.discipline,
+            subject_area=recommendation.submission.subject_area
+        )
+        if eligibility_form.is_valid():
+            recommendation.eligible_to_vote = eligibility_form.cleaned_data['eligible_Fellows']
+            recommendation.save()
+            recommendation.submission.status='put_to_EC_voting'
+            recommendation.submission.save()
+            return render (request, 'scipost/acknowledgement.html', 
+                           context={'ack_message': 'We have registered your selection.'})
+    else:
+        # Identify possible co-authorships in last 3 years, disqualifying Fellow from voting:
+        if recommendation.submission.metadata is not None:
+            for Fellow in Fellows_with_expertise:
+                sub_auth_boolean_str = '((' + (recommendation.submission
+                                               .metadata['entries'][0]['authors'][0]['name']
+                                               .split()[-1])
+                for author in recommendation.submission.metadata['entries'][0]['authors'][1:]:
+                    sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
+                    sub_auth_boolean_str += ')+AND+'
+                    search_str = sub_auth_boolean_str + Fellow.user.last_name + ')'
+                    queryurl = ('http://export.arxiv.org/api/query?search_query=au:%s' 
+                                % search_str + '&sortBy=submittedDate&sortOrder=descending'
+                                '&max_results=5')
+                    arxivquery = feedparser.parse(queryurl)
+                    queryresults = arxivquery
+                    if queryresults.entries:
+                        coauthorships[Fellow.user.last_name] = queryresults
+    
+        eligibility_form = VotingEligibilityForm(
+            discipline=recommendation.submission.discipline,
+            subject_area=recommendation.submission.subject_area)
+    
+    context = {
+        'recommendation': recommendation,
+        'Fellows_with_expertise': Fellows_with_expertise,
+        'coauthorships': coauthorships,
+        'eligibility_form': eligibility_form,
+    }
+    return render(request, 'submissions/prepare_for_voting.html', context)
 
 
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)

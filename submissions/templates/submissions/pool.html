@@ -25,6 +25,64 @@ $(document).ready(function(){
 {% load submissions_extras %}
 
 
+{% if request.user|is_in_group:'Editorial Administrators' and recommendations_undergoing_voting %}
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox320">
+      <h1>Recommendations undergoing voting</h1>
+    </div>
+  </div>
+  <ul>
+    {% for rec in recommendations_undergoing_voting %}
+    {{ rec.submission.header_as_li_for_Fellows }}
+    <div class="flex-greybox">
+      <h3>Editorial recommendation:</h3>
+      <ul>
+	<li>{{ rec.print_for_Fellows }}</li>
+      </ul>
+    </div>
+
+    <h3>Fellows eligible to vote:</h3>
+    <ul>
+      <li>
+	<p>
+	  {% for eligible in rec.eligible_to_vote.all %}
+	  {{ eligible.user.last_name }},&nbsp;
+	  {% endfor %}
+	</p>
+      </li>
+    </ul>
+    <h3>Voting results up to now:</h3>
+    <ul>
+      <li>
+	<p>Agreed:&nbsp;({{ rec.voted_for.all.count }})
+	{% for agreed in rec.voted_for.all %}
+	{{ agreed.user.last_name }},&nbsp;
+	{% endfor %}
+	</p>
+      </li>
+      <li>
+	<p>Disagreed:&nbsp;({{ rec.voted_against.all.count }})
+	{% for disagreed in rec.voted_against.all %}
+	{{ disagreed.user.last_name }},&nbsp;
+	{% endfor %}
+	</p>
+      </li>
+      <li>
+	<p>Abstained:&nbsp;({{ rec.voted_abstain.all.count }})
+	{% for abstained in rec.voted_abstain.all %}
+	{{ abstained.user.last_name }},&nbsp;
+	{% endfor %}
+	</p>
+      </li>
+    </ul>
+    <br/>
+    <hr class="hr6"/>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+
 {% if assignments_to_consider %}
 <section>
 
@@ -64,6 +122,28 @@ $(document).ready(function(){
 </section>
 {% endif %}
 
+{% if request.user|is_in_group:'Editorial Administrators' and recommendations_to_prepare_for_voting %}
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox320">
+      <h1>Recommendations to prepare for voting</h1>
+    </div>
+  </div>
+  <ul>
+    {% for rec in recommendations_to_prepare_for_voting %}
+    {{ rec.submission.header_as_li_for_Fellows }}
+    <div class="flex-greybox">
+      <h3>Editorial recommendation:</h3>
+      <ul>
+	<li>{{ rec.print_for_Fellows }}</li>
+      </ul>
+    </div>
+    <a href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a>
+
+    {% endfor %}
+  </ul>
+{% endif %}
+
 {% if recs_to_vote_on %}
 <section>
   <div class="flex-container">
@@ -87,6 +167,16 @@ $(document).ready(function(){
     </form>
 
     {% if request.user|is_in_group:'Editorial Administrators' %}
+    <h3>Fellows eligible to vote:</h3>
+    <ul>
+      <li>
+	<p>
+	  {% for eligible in rec.eligible_to_vote.all %}
+	  {{ eligible.user.last_name }}
+	  {% endfor %}
+	</p>
+      </li>
+    </ul>
     <h3>Voting results up to now:</h3>
     <ul>
       <li>

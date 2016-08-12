@@ -103,32 +103,46 @@ class Command(BaseCommand):
             name= 'Can act as a referee and submit reports on Submissions',
             content_type=content_type)
 
+        # Voting
+        can_prepare_recommendations_for_voting, created = Permission.objects.get_or_create(
+            codename='can_prepare_recommendations_for_voting',
+            name = 'Can prepare recommendations for voting',
+            content_type=content_type)
 
         # Assign permissions to groups
-        SciPostAdmin.permissions.add(can_manage_registration_invitations,
-                                     can_vet_registration_requests,
-                                     can_vet_commentary_requests, 
-                                     can_vet_thesislink_requests,
-                                     can_vet_authorship_claims, 
-                                     can_vet_comments,
-                                     can_assign_submissions,
-                                     )
-        EditorialCollege.permissions.add(can_take_charge_of_submissions,
-                                         #can_take_editorial_actions,
-                                         can_vet_submitted_reports,
-                                         view_bylaws,
-                                         )
-        VettingEditors.permissions.add(can_vet_commentary_requests, 
-                                       can_vet_thesislink_requests,
-                                       can_vet_authorship_claims, 
-                                       can_vet_comments,
-                                       )
-        RegisteredContributors.permissions.add(can_submit_manuscript,
-                                               can_submit_comments, 
-                                               can_express_opinion_on_comments,
-                                               can_request_commentary_pages,
-                                               can_request_thesislinks,
-                                               can_referee,
-                                               )
+        SciPostAdmin.permissions.add(
+            can_manage_registration_invitations,
+            can_vet_registration_requests,
+            can_vet_commentary_requests, 
+            can_vet_thesislink_requests,
+            can_vet_authorship_claims, 
+            can_vet_comments,
+            can_assign_submissions,
+            can_prepare_recommendations_for_voting,
+        )
+        EditorialAdmin.permissions.add(
+            can_assign_submissions,
+            can_prepare_recommendations_for_voting,
+            )
+        EditorialCollege.permissions.add(
+            can_take_charge_of_submissions,
+            #can_take_editorial_actions,
+            can_vet_submitted_reports,
+            view_bylaws,
+        )
+        VettingEditors.permissions.add(
+            can_vet_commentary_requests, 
+            can_vet_thesislink_requests,
+            can_vet_authorship_claims, 
+            can_vet_comments,
+        )
+        RegisteredContributors.permissions.add(
+            can_submit_manuscript,
+            can_submit_comments, 
+            can_express_opinion_on_comments,
+            can_request_commentary_pages,
+            can_request_thesislinks,
+            can_referee,
+        )
 
         self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions'))

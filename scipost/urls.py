@@ -8,8 +8,10 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^base$', views.base, name='base'),
 
-    # General error page
+    # General use pages
     url(r'^error$', TemplateView.as_view(template_name='scipost/error.html'), name='error'),
+    url(r'^acknowledgement$', TemplateView.as_view(template_name='scipost/acknowledgement.html'), 
+        name='acknowledgement'),
 
     ## Info
     url(r'^about$', TemplateView.as_view(template_name='scipost/about.html'), name='about'),

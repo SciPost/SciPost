@@ -1,0 +1,99 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: prepare recommendation for voting{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% load scipost_extras %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>Prepare Editorial Recommendation for Voting</h1>
+    <h3>(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=recommendation.submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</h3>
+    <h3>(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=recommendation.submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h3>
+  </div>
+
+  <hr class="hr12">
+  <div class="row">
+    <div class="col-4">
+      <h2>Submission:</h2>
+    </div>
+  </div>
+  {{ recommendation.submission.header_as_table }}
+
+  {% if recommendation.submission.referees_flagged %}
+  <h3>Referees flagged upon submission (treat reports with caution):</h3>
+  <p>{{ recommendation.submission.referees_flagged }}</p>
+  {% endif %}
+
+  <div class="flex-greybox">
+    <h3>Editorial recommendation:</h3>
+    <ul>
+      <li>{{ recommendation.print_for_Fellows }}</li>
+    </ul>
+  </div>
+
+</section>
+
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>Select Fellows eligible to vote</h1>
+  </div>
+  <div class="row">
+    <div class="col-6">
+      <p>Fellows with expertise matching the Submission's subject area:</p>
+      <ul>
+	{% for Fellow in Fellows_with_expertise %}
+	<li>{{ Fellow.user.last_name }}</li>
+	{% endfor %}
+      </ul>
+    </div>
+    <div class="col-6">
+      
+      <form action="{% url 'submissions:prepare_for_voting' rec_id=recommendation.id %}" method="post">
+	{% csrf_token %}
+	{{ eligibility_form.as_table }}
+	<input type="submit" value="Submit" />
+      </form>
+    </div>
+  </div>
+
+  {% if coauthorships %}
+  <div style="background-color: #ffdddd">
+    <h3 style="color: red">The system identified the following potential coauthorships (from arXiv database)</h3>
+    <p style="color: red">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
+    <ul>
+      {% for key, value in coauthorships.items %}
+      <li>For Fellow {{ key }}:
+	<ul>
+	  {% for entry in value.entries %}
+	  <li>
+	    <p><a href="{{ entry.id }}">{{ entry.id }}</a></p>
+	    <p>{{ entry.title }}</p>
+	    <p>
+	      {% for author in entry.authors %}
+	      {{ author.name }}, &nbsp;
+	      {% endfor %}
+	    </p>
+	    <p>{{ entry.published }}</p>
+	  </li>
+	  {% endfor %}
+      </ul>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <h3 style="color: green">The system has not identified any coauthorships (from arXiv database)</h3>
+  {% endif %}
+
+</section>
+
+
+{% endblock bodysup %}

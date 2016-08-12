@@ -35,7 +35,7 @@ from .utils import *
 from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
-from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report
+from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, EICRecommendation
 from submissions.forms import SubmissionSearchForm
 from theses.models import ThesisLink
 from theses.forms import ThesisLinkSearchForm
@@ -503,6 +503,8 @@ def personal_page(request):
                 user__is_active=False, key_expires__gte=now, 
                 key_expires__lte=intwodays, status=0).count()
             nr_submissions_to_assign = Submission.objects.filter(status__in=['unassigned']).count()
+            nr_recommendations_to_prepare_for_voting = EICRecommendation.objects.filter(
+                submission__status__in=['voting_in_preparation']).count()
         nr_assignments_to_consider = 0
         active_assignments = None
         nr_reports_to_vet = 0
@@ -578,6 +580,7 @@ def personal_page(request):
                    'nr_authorship_claims_to_vet': nr_authorship_claims_to_vet,
                    'nr_reports_to_vet': nr_reports_to_vet, 
                    'nr_submissions_to_assign': nr_submissions_to_assign, 
+                   'nr_recommendations_to_prepare_for_voting': nr_recommendations_to_prepare_for_voting,
                    'nr_assignments_to_consider': nr_assignments_to_consider,
                    'active_assignments': active_assignments,
                    'nr_submission_authorships_to_claim': nr_submission_authorships_to_claim,

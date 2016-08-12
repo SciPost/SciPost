@@ -117,6 +117,22 @@ class ConsiderRefereeInvitationForm(forms.Form):
     refusal_reason = forms.ChoiceField(choices=ASSIGNMENT_REFUSAL_REASONS, required=False)
 
 
+class VotingEligibilityForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        discipline = kwargs.pop('discipline')
+        subject_area = kwargs.pop('subject_area')
+        super(VotingEligibilityForm,self).__init__(*args, **kwargs)
+        self.fields['eligible_Fellows'] = forms.ModelMultipleChoiceField(
+            queryset=Contributor.objects.filter(
+                user__groups__name__in=['Editorial College'], 
+                user__contributor__discipline=discipline, 
+                user__contributor__expertises__contains=[subject_area]
+            ).order_by('user__last_name'), 
+            widget = forms.CheckboxSelectMultiple({'checked': 'checked'}),
+            required=True, label='Eligible for voting',
+        )
+
 ############
 # Reports:
 ############

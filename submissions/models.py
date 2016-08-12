@@ -26,6 +26,7 @@ SUBMISSION_STATUS = (
     ('revision_requested', 'Editor-in-charge has requested revision'),
     ('resubmitted', 'Has been resubmitted'),
     # If acceptance/rejection:
+    ('voting_in_preparation', 'Voting in preparation (eligible Fellows being selected)'),
     ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
     ('EC_vote_completed', 'Editorial College voting rounded up'),
     ('accepted', 'Publication decision taken: accept'),
@@ -684,6 +685,7 @@ class EICRecommendation(models.Model):
         verbose_name='optional remarks for the Editorial College')
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     # Editorial Fellows who have assessed this recommendation:
+    eligible_to_vote = models.ManyToManyField (Contributor, blank=True, related_name='eligible_to_vote')
     voted_for = models.ManyToManyField (Contributor, blank=True, related_name='voted_for')
     voted_against = models.ManyToManyField (Contributor, blank=True, related_name='voted_against')
     voted_abstain = models.ManyToManyField (Contributor, blank=True, related_name='voted_abstain')
@@ -700,6 +702,10 @@ class EICRecommendation(models.Model):
     @property
     def nr_against(self):
         return self.voted_against.count()
+
+    @property
+    def nr_abstained(self):
+        return self.voted_abstain.count()
 
     def print_for_authors(self):
         output = ('<h3>Date: {{ date_submitted }}</h3>'

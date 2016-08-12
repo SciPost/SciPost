@@ -66,6 +66,7 @@ urlpatterns = [
     url(r'^vet_submitted_report_ack/(?P<report_id>[0-9]+)$', 
         views.vet_submitted_report_ack, name='vet_submitted_report_ack'),
     # Voting
+    url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting, name='prepare_for_voting'),
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),
     # Editorial Administration
 ]
