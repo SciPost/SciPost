@@ -289,6 +289,7 @@ class UnavailabilityPeriod(models.Model):
 
 class Remark(models.Model):
     contributor = models.ForeignKey(Contributor)
+    recommendation = models.ForeignKey('submissions.EICRecommendation', blank=True, null=True)
     date = models.DateTimeField()
     remark = models.TextField()
 

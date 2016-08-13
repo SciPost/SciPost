@@ -42,10 +42,10 @@ $(document).ready(function(){
 	<li>{{ rec.print_for_Fellows }}</li>
       </ul>
     </div>
-    {% if rec.remarks_during_voting.all %}
+    {% if rec.remark_set.all %}
     <h3>Remarks by Fellows:</h3>
     <ul>
-      {% for remark in rec.remarks_during_voting.all|sort_by:'date' %}
+      {% for remark in rec.remark_set.all|sort_by:'date' %}
       {{ remark.as_li }}
       {% endfor %}
     </ul>
@@ -55,7 +55,7 @@ $(document).ready(function(){
     <ul>
       <li>
 	<p>
-	  {% for eligible in rec.eligible_to_vote.all %}
+	  {% for eligible in rec.eligible_to_vote.all|sort_by:'user__last_name' %}
 	  {{ eligible.user.last_name }},&nbsp;
 	  {% endfor %}
 	</p>
@@ -65,21 +65,21 @@ $(document).ready(function(){
     <ul>
       <li>
 	<p>Agreed:&nbsp;({{ rec.voted_for.all.count }})
-	{% for agreed in rec.voted_for.all %}
+	{% for agreed in rec.voted_for.all|sort_by:'user__last_name' %}
 	{{ agreed.user.last_name }},&nbsp;
 	{% endfor %}
 	</p>
       </li>
       <li>
 	<p>Disagreed:&nbsp;({{ rec.voted_against.all.count }})
-	{% for disagreed in rec.voted_against.all %}
+	{% for disagreed in rec.voted_against.all|sort_by:'user__last_name' %}
 	{{ disagreed.user.last_name }},&nbsp;
 	{% endfor %}
 	</p>
       </li>
       <li>
 	<p>Abstained:&nbsp;({{ rec.voted_abstain.all.count }})
-	{% for abstained in rec.voted_abstain.all %}
+	{% for abstained in rec.voted_abstain.all|sort_by:'user__last_name' %}
 	{{ abstained.user.last_name }},&nbsp;
 	{% endfor %}
 	</p>
@@ -128,8 +128,8 @@ $(document).ready(function(){
   <hr class="hr6"/>
   {% endfor %}
 
-  <hr class="hr12"/>
 </section>
+<hr class="hr12"/>
 {% endif %}
 
 {% if request.user|is_in_group:'Editorial Administrators' and recommendations_to_prepare_for_voting %}
@@ -149,10 +149,15 @@ $(document).ready(function(){
 	<li>{{ rec.print_for_Fellows }}</li>
       </ul>
     </div>
-    <a href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a>
+    <h4>Actions:</h4>
+    <ul>
+      <li><a href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a></li>
+    </ul>
     {% endif %}
     {% endfor %}
   </ul>
+</section>
+<hr class="hr12"/>
 {% endif %}
 
 {% if recs_to_vote_on %}
@@ -184,7 +189,7 @@ $(document).ready(function(){
       <li>
 	<p>
 	  {% for eligible in rec.eligible_to_vote.all %}
-	  {{ eligible.user.last_name }}
+	  {{ eligible.user.last_name }},&nbsp;
 	  {% endfor %}
 	</p>
       </li>

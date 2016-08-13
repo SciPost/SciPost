@@ -84,6 +84,10 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Submission handling
+        can_view_pool, created = Permission.objects.get_or_create(
+            codename='can_view_pool',
+            name= 'Can view Submissions Pool',
+            content_type=content_type)
         can_assign_submissions, created = Permission.objects.get_or_create(
             codename='can_assign_submissions',
             name= 'Can assign incoming Submissions to potential Editor-in-charge',
@@ -117,14 +121,17 @@ class Command(BaseCommand):
             can_vet_thesislink_requests,
             can_vet_authorship_claims, 
             can_vet_comments,
+            can_view_pool,
             can_assign_submissions,
             can_prepare_recommendations_for_voting,
         )
         EditorialAdmin.permissions.add(
+            can_view_pool,
             can_assign_submissions,
             can_prepare_recommendations_for_voting,
             )
         EditorialCollege.permissions.add(
+            can_view_pool,
             can_take_charge_of_submissions,
             #can_take_editorial_actions,
             can_vet_submitted_reports,

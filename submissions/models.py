@@ -689,7 +689,6 @@ class EICRecommendation(models.Model):
     voted_for = models.ManyToManyField (Contributor, blank=True, related_name='voted_for')
     voted_against = models.ManyToManyField (Contributor, blank=True, related_name='voted_against')
     voted_abstain = models.ManyToManyField (Contributor, blank=True, related_name='voted_abstain')
-    remarks_during_voting = models.ManyToManyField (Remark, blank=True)
     voting_deadline = models.DateTimeField('date submitted', default=timezone.now)
  
     def __str__(self):

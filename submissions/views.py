@@ -393,7 +393,7 @@ def editorial_workflow(request):
 
 
 @login_required
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@permission_required('scipost.can_view_pool', raise_exception=True)
 def pool(request):
     """
     The Submissions pool contains all submissions which are undergoing
@@ -1144,10 +1144,10 @@ def vote_on_rec(request, rec_id):
                 recommendation.voted_abstain.add(request.user.contributor)
             if form.cleaned_data['remark']:
                 remark = Remark(contributor=request.user.contributor,
+                                recommendation=recommendation,
                                 date=timezone.now(),
                                 remark=form.cleaned_data['remark'])
                 remark.save()
-                recommendation.remarks_during_voting.add(remark)
             recommendation.save()
             return redirect(reverse('submissions:pool'))
 

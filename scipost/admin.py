@@ -23,6 +23,12 @@ admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
 
+class RemarkAdmin(admin.ModelAdmin):
+    search_fields = ['contributor', 'remark']
+
+admin.site.register(Remark, RemarkAdmin)
+
+
 class RegistrationInvitationAdmin(admin.ModelAdmin):
     search_fields = ['last_name', 'email']
 
