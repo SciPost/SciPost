@@ -292,7 +292,20 @@ class Remark(models.Model):
     date = models.DateTimeField()
     remark = models.TextField()
 
+    def __str__(self):
+        return (title_dict[self.contributor.title] + ' ' 
+                + self.contributor.user.first_name + ' '
+                + self.contributor.user.last_name + ' on ' 
+                + self.date.strftime("%Y-%m-%d"))
 
+    def as_li(self):
+        output = '<li>{{ by }}<p>{{ remark }}</p>'
+        context = Context({'by': str(self),
+                           'remark': self.remark})
+        template = Template(output)
+        return template.render(context)
+
+        
 ##################
 ## Invitations ###
 ##################

@@ -42,6 +42,14 @@ $(document).ready(function(){
 	<li>{{ rec.print_for_Fellows }}</li>
       </ul>
     </div>
+    {% if rec.remarks_during_voting.all %}
+    <h3>Remarks by Fellows:</h3>
+    <ul>
+      {% for remark in rec.remarks_during_voting.all|sort_by:'date' %}
+      {{ remark.as_li }}
+      {% endfor %}
+    </ul>
+    {% endif %}
 
     <h3>Fellows eligible to vote:</h3>
     <ul>
