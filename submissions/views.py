@@ -25,7 +25,7 @@ from .utils import SubmissionUtils
 
 from comments.models import Comment
 from journals.models import journals_submit_dict
-from scipost.models import Contributor, title_dict, RegistrationInvitation
+from scipost.models import Contributor, title_dict, Remark, RegistrationInvitation
 
 from scipost.utils import Utils
 
@@ -1085,6 +1085,7 @@ def prepare_for_voting(request, rec_id):
         )
         if eligibility_form.is_valid():
             recommendation.eligible_to_vote = eligibility_form.cleaned_data['eligible_Fellows']
+            recommendation.voted_for.add(recommendation.submission.editor_in_charge)
             recommendation.save()
             recommendation.submission.status='put_to_EC_voting'
             recommendation.submission.save()
@@ -1141,6 +1142,12 @@ def vote_on_rec(request, rec_id):
                 recommendation.voted_for.remove(request.user.contributor)
                 recommendation.voted_against.remove(request.user.contributor)
                 recommendation.voted_abstain.add(request.user.contributor)
+            if form.cleaned_data['remark']:
+                remark = Remark(contributor=request.user.contributor,
+                                date=timezone.now(),
+                                remark=form.cleaned_data['remark'])
+                remark.save()
+                recommendation.remarks_during_voting.add(remark)
             recommendation.save()
             return redirect(reverse('submissions:pool'))
 

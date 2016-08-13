@@ -495,6 +495,7 @@ def personal_page(request):
         nr_reg_to_vet = 0
         nr_reg_awaiting_validation = 0
         nr_submissions_to_assign = 0
+        nr_recommendations_to_prepare_for_voting = 0
         if is_SP_Admin(request.user):
             intwodays = now + timezone.timedelta(days=2)
             # count the number of pending registration requests

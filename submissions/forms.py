@@ -231,15 +231,17 @@ class EICRecommendationForm(forms.ModelForm):
 
 class RecommendationVoteForm(forms.Form):
     vote = forms.ChoiceField(widget=forms.RadioSelect,
-                             choices=[('agree', 'Agree'), ('disagree', 'Disagree'), ('abstain', 'Abstain')],
+                             choices=[('agree', 'Agree'), 
+                                      ('disagree', 'Disagree'), 
+                                      ('abstain', 'Abstain')],
                              label='',
                          )
-    comment = forms.CharField(widget=forms.Textarea(), label='', required=False)
+    remark = forms.CharField(widget=forms.Textarea(), label='', required=False)
 
     def __init__(self, *args, **kwargs):
         super(RecommendationVoteForm, self).__init__(*args, **kwargs)
-        self.fields['comment'].widget.attrs.update(
-            {'rows': 3, 'cols': 30, 'placeholder': 'Your comments (optional)'})
+        self.fields['remark'].widget.attrs.update(
+            {'rows': 3, 'cols': 30, 'placeholder': 'Your remarks (optional)'})
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -247,7 +249,7 @@ class RecommendationVoteForm(forms.Form):
                     HTML('<h3>Your position on this recommendation:</h3>'),
                     Field('vote'), 
                     css_class='flex-Fellowactionbox'),
-                Div(Field('comment'), css_class='flex-Fellowactionbox'),
+                Div(Field('remark'), css_class='flex-Fellowactionbox'),
                 Div(Submit('submit', 'Cast your vote', css_class='submitButton'),
                     css_class='flex-Fellowactionbox'),
                 css_class='flex-container')

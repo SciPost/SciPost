@@ -287,6 +287,12 @@ class UnavailabilityPeriod(models.Model):
     end = models.DateField()
 
 
+class Remark(models.Model):
+    contributor = models.ForeignKey(Contributor)
+    date = models.DateTimeField()
+    remark = models.TextField()
+
+
 ##################
 ## Invitations ###
 ##################

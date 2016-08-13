@@ -28,12 +28,13 @@ $(document).ready(function(){
 {% if request.user|is_in_group:'Editorial Administrators' and recommendations_undergoing_voting %}
 <section>
   <div class="flex-container">
-    <div class="flex-greybox320">
+    <div class="flex-greybox">
       <h1>Recommendations undergoing voting</h1>
     </div>
   </div>
   <ul>
     {% for rec in recommendations_undergoing_voting %}
+    {% if request.user|is_not_author_of_submission:rec.submission.arxiv_identifier_w_vn_nr %}
     {{ rec.submission.header_as_li_for_Fellows }}
     <div class="flex-greybox">
       <h3>Editorial recommendation:</h3>
@@ -78,6 +79,7 @@ $(document).ready(function(){
     </ul>
     <br/>
     <hr class="hr6"/>
+    {% endif %}
     {% endfor %}
   </ul>
 {% endif %}
@@ -125,12 +127,13 @@ $(document).ready(function(){
 {% if request.user|is_in_group:'Editorial Administrators' and recommendations_to_prepare_for_voting %}
 <section>
   <div class="flex-container">
-    <div class="flex-greybox320">
+    <div class="flex-greybox">
       <h1>Recommendations to prepare for voting</h1>
     </div>
   </div>
   <ul>
     {% for rec in recommendations_to_prepare_for_voting %}
+    {% if request.user|is_not_author_of_submission:rec.submission.arxiv_identifier_w_vn_nr %}
     {{ rec.submission.header_as_li_for_Fellows }}
     <div class="flex-greybox">
       <h3>Editorial recommendation:</h3>
@@ -139,7 +142,7 @@ $(document).ready(function(){
       </ul>
     </div>
     <a href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a>
-
+    {% endif %}
     {% endfor %}
   </ul>
 {% endif %}
@@ -147,12 +150,13 @@ $(document).ready(function(){
 {% if recs_to_vote_on %}
 <section>
   <div class="flex-container">
-    <div class="flex-greybox320">
+    <div class="flex-greybox">
       <h1>Recommendations to vote on</h1>
     </div>
   </div>
   <ul>
     {% for rec in recs_to_vote_on %}
+    {% if request.user|is_not_author_of_submission:rec.submission.arxiv_identifier_w_vn_nr %}
     {{ rec.submission.header_as_li_for_Fellows }}
     <div class="flex-greybox">
       <h3>Editorial recommendation:</h3>
@@ -204,6 +208,7 @@ $(document).ready(function(){
     {% endif %}
     <hr class="hr6"/>
     <br/>
+    {% endif %}
     {% endfor %}
   </ul>
 </section>
@@ -212,7 +217,7 @@ $(document).ready(function(){
 
 <section>
   <div class="flex-container">
-    <div class="flex-greybox320">
+    <div class="flex-greybox">
       <h1>SciPost Submissions Pool</h1>
     </div>
   </div>
