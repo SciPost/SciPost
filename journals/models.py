@@ -9,6 +9,7 @@ SCIPOST_JOURNALS = (
     ('SciPost Physics', 'SciPost Physics (Experimental, Theoretical and Computational)'),
     ('SciPost Physics Lecture Notes', 'SciPost Physics Lecture Notes'),
     )
+journals_dict = dict(SCIPOST_JOURNALS)
 
 SCIPOST_JOURNALS_SUBMIT = ( # Same as SCIPOST_JOURNALS, but SP Select deactivated
     ('SciPost Physics', 'SciPost Physics'),

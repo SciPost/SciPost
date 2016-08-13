@@ -112,6 +112,10 @@ class Command(BaseCommand):
             codename='can_prepare_recommendations_for_voting',
             name = 'Can prepare recommendations for voting',
             content_type=content_type)
+        can_fix_College_decision, created = Permission.objects.get_or_create(
+            codename='can_fix_College_decision',
+            name = 'Can fix the College voting decision',
+            content_type=content_type)
 
         # Assign permissions to groups
         SciPostAdmin.permissions.add(
@@ -124,11 +128,13 @@ class Command(BaseCommand):
             can_view_pool,
             can_assign_submissions,
             can_prepare_recommendations_for_voting,
+            can_fix_College_decision,
         )
         EditorialAdmin.permissions.add(
             can_view_pool,
             can_assign_submissions,
             can_prepare_recommendations_for_voting,
+            can_fix_College_decision,
             )
         EditorialCollege.permissions.add(
             can_view_pool,

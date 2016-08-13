@@ -2,6 +2,7 @@ import datetime
 
 from django.core.mail import EmailMessage
 
+from journals.models import journals_submit_dict
 from scipost.models import title_dict
 
 from submissions.models import EditorialAssignment
@@ -495,7 +496,7 @@ class SubmissionUtils(object):
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nThe Editor-in-charge of your recent Submission to SciPost,\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + ','
-                      '\n\nhas formulated and Editorial Recommendation, asking for a ')
+                      '\n\nhas formulated an Editorial Recommendation, asking for a ')
         if cls.recommendation.recommendation == -1:
             email_text += 'minor'
         elif cls.recommendation.recommendation == -2:
@@ -516,6 +517,49 @@ class SubmissionUtils(object):
                        '\n\nThe SciPost Team.')
         emailmessage = EmailMessage(
             'SciPost: revision requested', email_text,
+            'SciPost Editorial Admin <submissions@scipost.org>',
+            [cls.submission.submitted_by.user.email],
+            ['submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
+
+
+    @classmethod
+    def send_author_College_decision_email(cls):
+        """ Requires loading 'submission' and 'recommendation' attributes. """
+        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+                      cls.submission.submitted_by.user.last_name +
+                      ', \n\nThe Editorial College of SciPost has taken a decision '
+                      'regarding your recent Submission,\n\n' +
+                      cls.submission.title + ' by ' + cls.submission.author_list + '.\n\n')
+        if (cls.recommendation.recommendation == 1
+            or cls.recommendation.recommendation == 2 
+            or cls.recommendation.recommendation == 3):
+            email_text += ('We are pleased to inform you that your Submission '
+                           'has been accepted for publication in ' 
+                           + journals_submit_dict[cls.submission.submitted_to_journal])
+            if cls.recommendation.recommendation == 1:
+                email_text += (', with a promotion to Select. We warmly congratulate you '
+                               'on this achievement, which is reserved to papers deemed in '
+                               'the top ten percent of papers we publish')
+            email_text += ('.\n\nYour manuscript will now be taken charge of by our '
+                           'production team, who will soon send you proofs '
+                           'to check before final publication.')
+
+        elif cls.recommendation.recommendation == -3:
+            email_text += ('We are sorry to inform you that your Submission '
+                           'has not been accepted for publication. '
+                           '\n\nYou can view more details at the Submission Page '
+                           'https://scipost.org/submission/' 
+                           + cls.submission.arxiv_identifier_w_vn_nr + '. '
+                           'Note that these details are viewable only by '
+                           'the registered authors of the submission.')
+            
+        email_text += ('\n\nWe thank you very much for your contribution.'
+                       '\n\nSincerely,' +
+                       '\n\nThe SciPost Team.')
+        emailmessage = EmailMessage(
+            'SciPost: College decision', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.submission.submitted_by.user.email],
             ['submissions@scipost.org'],

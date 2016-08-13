@@ -1152,3 +1152,33 @@ def vote_on_rec(request, rec_id):
             return redirect(reverse('submissions:pool'))
 
     return redirect(reverse('submissions:pool'))
+
+
+@permission_required('scipost.can_fix_College_decision', raise_exception=True)
+@transaction.atomic
+def fix_College_decision(request, rec_id):
+    """
+    Terminates the voting on a Recommendation.
+    Called by an Editorial Administrator.
+    """
+    recommendation = get_object_or_404(EICRecommendation, pk=rec_id)
+    if recommendation.recommendation==1:
+        # Publish as Tier I (top 10%) 
+        recommendation.submission.status='accepted'
+    elif recommendation.recommendation==2:
+        # Publish as Tier II (top 50%) 
+        recommendation.submission.status='accepted'
+    elif recommendation.recommendation==3:
+        # Publish as Tier III (meets criteria)
+        recommendation.submission.status='accepted'
+    elif recommendation.recommendation==-3:
+        # Reject
+        recommendation.submission.status='rejected'
+
+    recommendation.submission.save()
+    SubmissionUtils.load({'submission': recommendation.submission,
+                          'recommendation': recommendation})
+    SubmissionUtils.send_author_College_decision_email()
+    ack_message = 'The Editorial College\'s decision has been fixed.'
+    return render (request, 'scipost/acknowledgement.html', 
+                   context={'ack_message': ack_message})

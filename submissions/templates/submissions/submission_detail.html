@@ -5,6 +5,7 @@
 {% block headsup %}
 
 {% load scipost_extras %}
+{% load submissions_extras %}
 
   <script>
     $(document).ready(function(){
@@ -62,12 +63,14 @@
 
 {% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
 {% if recommendation %}
+{% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' or recommendation|is_viewable_by_authors %}
 <section>
   <div class="flex-greybox">
     <h1>Editorial Recommendation</h1>
   </div>
   {{ recommendation.print_for_authors }}
 </section>
+{% endif %}
 {% endif %}
 {% endif %}
 

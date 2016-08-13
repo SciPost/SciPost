@@ -85,11 +85,18 @@ $(document).ready(function(){
 	</p>
       </li>
     </ul>
+    <h4>Actions:</h4>
+    <ul>
+      <li>To fix the College decision and follow the Editorial Recommendation as is: <a href="{% url 'submissions:fix_College_decision' rec_id=rec.id %}">click here</a></li>
+      <li>To request a modification of the Recommendation to request for revision: click here</li>
+    </ul>
     <br/>
     <hr class="hr6"/>
     {% endif %}
     {% endfor %}
   </ul>
+</section>
+<hr class="hr12"/>
 {% endif %}
 
 
@@ -182,43 +189,6 @@ $(document).ready(function(){
       {% load crispy_forms_tags %}
       {% crispy rec_vote_form %}
     </form>
-
-    {% if request.user|is_in_group:'Editorial Administrators' %}
-    <h3>Fellows eligible to vote:</h3>
-    <ul>
-      <li>
-	<p>
-	  {% for eligible in rec.eligible_to_vote.all %}
-	  {{ eligible.user.last_name }},&nbsp;
-	  {% endfor %}
-	</p>
-      </li>
-    </ul>
-    <h3>Voting results up to now:</h3>
-    <ul>
-      <li>
-	<p>Agreed:&nbsp;({{ rec.voted_for.all.count }})
-	{% for agreed in rec.voted_for.all %}
-	{{ agreed.user.last_name }},&nbsp;
-	{% endfor %}
-	</p>
-      </li>
-      <li>
-	<p>Disagreed:&nbsp;({{ rec.voted_against.all.count }})
-	{% for disagreed in rec.voted_against.all %}
-	{{ disagreed.user.last_name }},&nbsp;
-	{% endfor %}
-	</p>
-      </li>
-      <li>
-	<p>Abstained:&nbsp;({{ rec.voted_abstain.all.count }})
-	{% for abstained in rec.voted_abstain.all %}
-	{{ abstained.user.last_name }},&nbsp;
-	{% endfor %}
-	</p>
-      </li>
-    </ul>
-    {% endif %}
     <hr class="hr6"/>
     <br/>
     {% endif %}
