@@ -451,6 +451,7 @@ def assign_submission_ack(request, arxiv_identifier_w_vn_nr):
         form = AssignSubmissionForm(request.POST, discipline=submission.discipline)
         if form.is_valid():
             suggested_editor_in_charge = form.cleaned_data['editor_in_charge']
+            # TODO: check for possible co-authorships, disqualifying this suggested EIC
             if not suggested_editor_in_charge.is_currently_available():
                 errormessage = ('This Fellow is marked as currently unavailable. '
                                 'Please go back and select another one.')
