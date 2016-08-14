@@ -111,7 +111,8 @@ class Submission(models.Model):
             )
     
     def __str__ (self):
-        header = self.title[:30] + ' by ' + self.author_list[:30]
+        header = (self.arxiv_identifier_w_vn_nr + ', ' 
+                  + self.title[:30] + ' by ' + self.author_list[:30])
         if self.is_current:
             header += ' (current version)'
         else:

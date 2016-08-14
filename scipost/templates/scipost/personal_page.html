@@ -332,7 +332,7 @@
       {% for sub in own_submissions %}
       {{ sub.header_as_li_for_authors }}
       {% if request.user.contributor == sub.submitted_by %}
-      <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr comtype='AtoE' %}">Write to the Editor-in-charge</a>.</li>
+      <p><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr comtype='AtoE' %}">Write to the Editor-in-charge</a>.</p>
       {% endif %}
       {% endfor %}
     </ul>  

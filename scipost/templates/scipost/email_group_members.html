@@ -1,0 +1,30 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: email group members{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% load scipost_extras %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<section>
+  {% if errormessage %}
+  <p>{{ errormessage }}</p>
+  {% else %}
+  <div class="flex-greybox">
+    <h1>Email a Group of Contributors</h1>
+  </div>
+
+  <form action="{% url 'scipost:email_group_members' %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Send email"/>
+  </form>
+  {% endif %}
+
+</section>
+
+{% endblock bodysup %}

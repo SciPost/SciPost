@@ -139,6 +139,19 @@ class SearchForm(forms.Form):
     query = forms.CharField(max_length=100, label='')
 
 
+class EmailGroupMembersForm(forms.Form):
+    group = forms.ModelChoiceField(queryset=Group.objects.all())
+    email_subject = forms.CharField(widget=forms.Textarea(), label='')
+    email_text = forms.CharField(widget=forms.Textarea(), label='')
+
+    def __init__(self, *args, **kwargs):
+        super(EmailGroupMembersForm, self).__init__(*args, **kwargs)
+        self.fields['email_subject'].widget.attrs.update(
+            {'rows': 1, 'cols': 50, 'placeholder': 'Email subject'})
+        self.fields['email_text'].widget.attrs.update(
+            {'rows': 15, 'cols': 50, 'placeholder': 'Write your message in this box.'})
+
+
 class CreateListForm(forms.ModelForm):
     class Meta:
         model = List

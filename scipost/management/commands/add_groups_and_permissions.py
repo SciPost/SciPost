@@ -31,6 +31,12 @@ class Command(BaseCommand):
             name= 'Can manage registration invitations',
             content_type=content_type)
 
+        # Communications
+        can_email_group_members, created = Permission.objects.get_or_create(
+            codename='can_email_group_members',
+            name= 'Can email group members',
+            content_type=content_type)
+
         # Editorial College
         view_bylaws, created = Permission.objects.get_or_create(
             codename='view_bylaws',
@@ -120,6 +126,7 @@ class Command(BaseCommand):
         # Assign permissions to groups
         SciPostAdmin.permissions.add(
             can_manage_registration_invitations,
+            can_email_group_members,
             can_vet_registration_requests,
             can_vet_commentary_requests, 
             can_vet_thesislink_requests,

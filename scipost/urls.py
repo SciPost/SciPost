@@ -69,6 +69,12 @@ urlpatterns = [
     url(r'^vet_authorship_claims$', views.vet_authorship_claims, name="vet_authorship_claims"),
     url(r'^vet_authorship_claim/(?P<claim_id>[0-9]+)/(?P<claim>[0-1])$', views.vet_authorship_claim, name='vet_authorship_claim'),
 
+
+    ####################
+    # Email facilities #
+    ####################
+    url('^email_group_members$', views.email_group_members, name='email_group_members'),
+
     #####################
     # Editorial College #
     #####################

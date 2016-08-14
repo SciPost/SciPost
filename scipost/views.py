@@ -821,6 +821,37 @@ def contributor_info(request, contributor_id):
     return render(request, 'scipost/contributor_info.html', context)
 
 
+####################
+# Email facilities #
+####################
+
+
+@permission_required('scipost.can_email_group_members', return_403=True)
+def email_group_members(request):
+    """
+    Method to send bulk emails to (members of) selected groups 
+    """
+    if request.method == 'POST':
+        form = EmailGroupMembersForm(request.POST)
+        if form.is_valid():
+            recipient_emails = []
+            for member in form.cleaned_data['group'].user_set.all():
+                recipient_emails.append(member.email)
+            emailmessage = EmailMessage(
+                form.cleaned_data['email_subject'],
+                form.cleaned_data['email_text'],
+                'SciPost Admin <admin@scipost.org>',
+                ['admin@scipost.org'],
+                recipient_emails,
+                reply_to=['admin@scipost.org'])
+            emailmessage.send(fail_silently=False)
+            context = {'ack_message': 'The email has been sent.'}
+            return render(request, 'scipost/acknowledgement.html', context)
+    form = EmailGroupMembersForm()
+    context = {'form': form}
+    return render(request, 'scipost/email_group_members.html', context)
+
+
 #####################
 # Editorial College #
 #####################
