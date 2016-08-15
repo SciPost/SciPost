@@ -234,6 +234,9 @@
       {% if perms.scipost.can_manage_registration_invitations %}
       <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
       {% endif %}
+      {% if perms.scipost.can_email_group_members %}
+      <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
+      {% endif %}
     </ul>
   </div>
   {% endif %}

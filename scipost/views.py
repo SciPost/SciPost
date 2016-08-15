@@ -842,10 +842,13 @@ def email_group_members(request):
                 form.cleaned_data['email_text'],
                 'SciPost Admin <admin@scipost.org>',
                 ['admin@scipost.org'],
-                recipient_emails,
+                bcc=recipient_emails,
                 reply_to=['admin@scipost.org'])
             emailmessage.send(fail_silently=False)
-            context = {'ack_message': 'The email has been sent.'}
+            context = {'ack_message': 'The email has been sent.',
+                       'followup_message': 'Return to your ',
+                       'followup_link': reverse('scipost:personal_page'),
+                       'followup_link_label': 'personal page'}
             return render(request, 'scipost/acknowledgement.html', context)
     form = EmailGroupMembersForm()
     context = {'form': form}

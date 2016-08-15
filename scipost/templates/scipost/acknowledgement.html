@@ -5,8 +5,10 @@
 {% block bodysup %}
 
 <section>
-  <h3>Thanks</h3>
-  <p>{{ ack_message }}</p>
+  <h3>{{ ack_message }}</h3>
+  {% if followup_message %}
+  <p>{{ followup_message }} <a href="{{ followup_link }}">{{ followup_link_label }}</a>.</p>
+  {% endif %}
 </section>
 
 {% endblock bodysup %}
