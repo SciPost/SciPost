@@ -120,13 +120,17 @@ def reply_to_comment(request, comment_id):
     elif comment.commentary is not None:
         if comment.commentary.authors.filter(id=request.user.contributor.id).exists():
             is_author = True
+    elif comment.thesislink is not None:
+        if comment.thesislink.author == request.user.contributor:
+            is_author = True
 
     if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
             newcomment = Comment (
-                commentary = comment.commentary, # one of commentary or submission will be not Null
+                commentary = comment.commentary, # one of commentary, submission or thesislink will be not Null
                 submission = comment.submission,
+                thesislink = comment.thesislink,
                 is_author_reply = is_author,
                 in_reply_to_comment = comment,
                 author = Contributor.objects.get(user=request.user),
@@ -156,9 +160,14 @@ def reply_to_comment(request, comment_id):
                 context['followup_link_label'] = ' Submission page you came from'
             elif newcomment.commentary is not None:
                 context['followup_link'] = reverse(
-                    'commentaries:commentary_detail',
-                    kwargs={'arxiv_or_DOI_string': newcomment.commentary.arxiv_or_DOI_string}),
+                    'commentaries:commentary',
+                    kwargs={'arxiv_or_DOI_string': newcomment.commentary.arxiv_or_DOI_string})
                 context['followup_link_label'] = ' Commentary page you came from'
+            elif newcomment.thesislink is not None:
+                context['followup_link'] = reverse(
+                    'theses:thesis',
+                    kwargs={'thesislink_id': newcomment.thesislink.id})
+                context['followup_link_label'] = ' Thesis Link page you came from'
             return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = CommentForm()
