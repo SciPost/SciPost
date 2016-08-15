@@ -48,7 +48,7 @@ $( document ).ready(function() {
 <section>
   {% if not contributors_to_vet %}
   <h1>There are no Registration requests for you to vet.</h1>
-
+  <p>Back to your <a href="{% url 'scipost:personal_page' %}">personal page</a>.
   {% else %}
 
   <h1>SciPost Registration requests to vet:</h1>

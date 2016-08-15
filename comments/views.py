@@ -100,8 +100,13 @@ def vet_submitted_comment_ack(request, comment_id):
                                             reply_to=['comments@scipost.org'])
                 emailmessage.send(fail_silently=False)
 
-    context = {}
-    return render(request, 'comments/vet_submitted_comment_ack.html', context)
+    #context = {}
+    #return render(request, 'comments/vet_submitted_comment_ack.html', context)
+    context = {'ack_header': 'Submitted Comment vetted.',
+               'followup_message': 'Back to ',
+               'followup_link': reverse('comments:vet_submitted_comments'),
+               'followup_link_label': 'submitted Comments page'}
+    return render(request, 'scipost/acknowledgement.html', context)
 
 
 @permission_required('scipost.can_submit_comments', raise_exception=True)
@@ -139,7 +144,22 @@ def reply_to_comment(request, comment_id):
                 date_submitted = timezone.now(),
                 )
             newcomment.save()
-            return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
+            #return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
+            context = {'ack_header': 'Thank you for contributing a Reply.',
+                       'ack_message': 'It will soon be vetted by an Editor.',
+                       'followup_message': 'Back to the ',}
+            if newcomment.submission is not None:
+                context['followup_link'] = reverse(
+                    'submissions:submission',
+                    kwargs={'arxiv_identifier_w_vn_nr': newcomment.submission.arxiv_identifier_w_vn_nr}
+                )
+                context['followup_link_label'] = ' Submission page you came from'
+            elif newcomment.commentary is not None:
+                context['followup_link'] = reverse(
+                    'commentaries:commentary_detail',
+                    kwargs={'arxiv_or_DOI_string': newcomment.commentary.arxiv_or_DOI_string}),
+                context['followup_link_label'] = ' Commentary page you came from'
+            return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = CommentForm()
 
@@ -176,7 +196,17 @@ def reply_to_report(request, report_id):
                 date_submitted = timezone.now(),
                 )
             newcomment.save()
-            return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
+            #return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
+            context = {'ack_header': 'Thank you for contributing a Reply.',
+                       'ack_message': 'It will soon be vetted by an Editor.',
+                       'followup_message': 'Back to the ',
+                       'followup_link': reverse(
+                           'submissions:submission',
+                           kwargs={'arxiv_identifier_w_vn_nr': newcomment.submission.arxiv_identifier_w_vn_nr}
+                       ),
+                       'followup_link_label': ' Submission page you came from'
+                   }
+            return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = CommentForm()
     context = {'report': report, 'is_author': is_author, 'form': form}

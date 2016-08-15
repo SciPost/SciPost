@@ -244,7 +244,13 @@ def submit_manuscript(request):
                 SubmissionUtils.load({'submission': submission})
                 SubmissionUtils.send_authors_submission_ack_email()
                 
-            return HttpResponseRedirect(reverse('submissions:submit_manuscript_ack'))
+            #return HttpResponseRedirect(reverse('submissions:submit_manuscript_ack'))
+            context = {'ack_header': 'Thank you for your Submission to SciPost',
+                       'ack_message': 'Your Submission will soon be handled by an Editor. ',
+                       'followup_message': 'Return to your ',
+                       'followup_link': reverse('scipost:personal_page'),
+                       'followup_link_label': 'personal page'}
+            return render(request, 'scipost/acknowledgement.html', context)
         else: # form is invalid
             pass
     else:
@@ -343,14 +349,26 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
             newcomment.save()
             author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()
-            request.session['arxiv_identifier_w_vn_nr'] = submission.arxiv_identifier_w_vn_nr
-            return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
+            #request.session['arxiv_identifier_w_vn_nr'] = submission.arxiv_identifier_w_vn_nr
+            #return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
+            context = {'ack_header': 'Thank you for contributing a Comment.',
+                       'ack_message': 'It will soon be vetted by an Editor.',
+                       'followup_message': 'Back to the ',
+                       'followup_link': reverse(
+                           'submissions:submission',
+                           kwargs={'arxiv_identifier_w_vn_nr': newcomment.submission.arxiv_identifier_w_vn_nr}
+                       ),
+                       'followup_link_label': ' Submission page you came from'
+                   }
+            return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = CommentForm()
 
     reports = submission.report_set.all()
     try:
-        author_replies = Comment.objects.filter(submission=submission, is_author_reply=True)
+        author_replies = Comment.objects.filter(submission=submission, 
+                                                is_author_reply=True,
+                                                status__gte=1)
     except Comment.DoesNotExist:
         author_replies = ()
     # To check in template whether the user can submit a report:
@@ -483,8 +501,13 @@ def assign_submission_ack(request, arxiv_identifier_w_vn_nr):
                 reply_to=['submissions@scipost.org'])
             emailmessage.send(fail_silently=False)
                         
-    context = {}
-    return render(request, 'submissions/assign_submission_ack.html', context)
+    #context = {}
+    #return render(request, 'submissions/assign_submission_ack.html', context)
+    context = {'ack_header': 'Your assignment request has been sent successfully.',
+               'followup_message': 'Return to the ',
+               'followup_link': reverse('submissions:pool'),
+               'followup_link_label': 'Submissions pool'}
+    return render(request, 'scipost/acknowledgement.html', context)
 
 
 @login_required
@@ -1066,8 +1089,14 @@ def vet_submitted_report_ack(request, report_id):
             SubmissionUtils.acknowledge_report_email() # email report author, bcc EIC
             if report.status == 1:
                 SubmissionUtils.send_author_report_received_email()
-    context = {'submission': report.submission}
-    return render(request, 'submissions/vet_submitted_report_ack.html', context)
+    #context = {'submission': report.submission}
+    #return render(request, 'submissions/vet_submitted_report_ack.html', context)
+    context = {'ack_header': 'Submitted Report vetted.',
+               'followup_message': 'Return to the ',
+               'followup_link': reverse('submissions:editorial_page',
+                                        kwargs={'arxiv_identifier_w_vn_nr': report.submission.arxiv_identifier_w_vn_nr}),
+               'followup_link_label': 'Submission\'s Editorial Page'}
+    return render(request, 'scipost/acknowledgement.html', context)
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)

@@ -5,7 +5,6 @@ from . import views
 
 urlpatterns = [
     # Comments
-    url(r'^comment_submission_ack$', TemplateView.as_view(template_name='comments/comment_submission_ack.html'), name='comment_submission_ack'),
     url(r'^reply_to_comment/(?P<comment_id>[0-9]+)$', views.reply_to_comment, name='reply_to_comment'),
     url(r'^reply_to_report/(?P<report_id>[0-9]+)$', views.reply_to_report, name='reply_to_report'),
     url(r'^vet_submitted_comments$', views.vet_submitted_comments, name='vet_submitted_comments'),

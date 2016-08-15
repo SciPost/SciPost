@@ -85,7 +85,13 @@ def request_commentary(request):
                 )
             commentary.parse_links_into_urls()
             commentary.save()
-            return HttpResponseRedirect('request_commentary_ack')
+#            return HttpResponseRedirect('request_commentary_ack')
+            context = {'ack_header': 'Thank you for your request for a Commentary Page',
+                       'ack_message': 'Your request will soon be handled by an Editor. ',
+                       'followup_message': 'Return to your ',
+                       'followup_link': reverse('scipost:personal_page'),
+                       'followup_link_label': 'personal page'}
+            return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = RequestCommentaryForm()
     doiform = DOIToQueryForm()
@@ -331,8 +337,13 @@ def vet_commentary_request_ack(request, commentary_id):
                 emailmessage.send(fail_silently=False)                
                 commentary.delete()
 
-    context = {'commentary_id': commentary_id }
-    return render(request, 'commentaries/vet_commentary_request_ack.html', context)
+    #context = {'commentary_id': commentary_id }
+    #return render(request, 'commentaries/vet_commentary_request_ack.html', context)
+    context = {'ack_header': 'SciPost Commentary request vetted.',
+               'followup_message': 'Return to the ',
+               'followup_link': reverse('commentaries:vet_commentary_requests'),
+               'followup_link_label': 'Commentary requests page'}
+    return render(request, 'scipost/acknowledgement.html', context)
 
 
 def commentaries(request):
@@ -418,13 +429,25 @@ def commentary_detail(request, arxiv_or_DOI_string):
             newcomment.save()
             author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()
-            request.session['commentary_id'] = commentary.id
-            return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
+            #request.session['commentary_id'] = commentary.id
+            #return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
+            context = {'ack_header': 'Thank you for contributing a Comment.',
+                       'ack_message': 'It will soon be vetted by an Editor.',
+                       'followup_message': 'Back to the ',
+                       'followup_link': reverse(
+                           'commentaries:commentary',
+                           kwargs={'arxiv_or_DOI_string': newcomment.commentary.arxiv_or_DOI_string}
+                       ),
+                       'followup_link_label': ' Commentary page you came from'
+                   }
+            return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = CommentForm()
 
     try:
-        author_replies = Comment.objects.filter(commentary=commentary, is_author_reply=True)
+        author_replies = Comment.objects.filter(commentary=commentary, 
+                                                is_author_reply=True,
+                                                status__gte=1)
     except Comment.DoesNotExist:
         author_replies = ()
     context = {'commentary': commentary, 

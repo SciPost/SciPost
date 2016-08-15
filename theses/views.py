@@ -46,7 +46,13 @@ def request_thesislink(request):
                 latest_activity = timezone.now(),
                 )
             thesislink.save()
-            return HttpResponseRedirect('request_thesislink_ack')
+            #return HttpResponseRedirect('request_thesislink_ack')
+            context = {'ack_header': 'Thank you for your request for a Thesis Link',
+                       'ack_message': 'Your request will soon be handled by an Editor. ',
+                       'followup_message': 'Return to your ',
+                       'followup_link': reverse('scipost:personal_page'),
+                       'followup_link_label': 'personal page'}
+            return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = RequestThesisLinkForm()
     return render(request, 'theses/request_thesislink.html', {'form': form})
@@ -127,8 +133,13 @@ def vet_thesislink_request_ack(request, thesislink_id):
                 emailmessage.send(fail_silently=False)                
                 thesislink.delete()
 
-    context = {'thesislink_id': thesislink_id }
-    return render(request, 'theses/vet_thesislink_request_ack.html', context)
+    #context = {'thesislink_id': thesislink_id }
+    #return render(request, 'theses/vet_thesislink_request_ack.html', context)
+    context = {'ack_header': 'Thesis Link request vetted.',
+               'followup_message': 'Return to the ',
+               'followup_link': reverse('theses:vet_thesislink_requests'),
+               'followup_link_label': 'Thesis Link requests page'}
+    return render(request, 'scipost/acknowledgement.html', context)
 
 
 def theses(request):

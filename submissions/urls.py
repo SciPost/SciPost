@@ -18,7 +18,6 @@ urlpatterns = [
     url(r'^prefill_using_identifier$', 
         views.prefill_using_identifier, name='prefill_using_identifier'),
     url(r'^submit_manuscript$', views.submit_manuscript, name='submit_manuscript'),
-    url(r'^submit_manuscript_ack$', TemplateView.as_view(template_name='submissions/submit_manuscript_ack.html'), name='submit_manuscript_ack'),
     url(r'^pool$', views.pool, name='pool'),
     # Assignment of Editor-in-charge
     url(r'^assign_submission/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$', 

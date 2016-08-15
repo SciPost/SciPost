@@ -33,9 +33,7 @@ urlpatterns = [
     url(r'^register$', views.register, name='register'),
     url(r'^thanks_for_registering$', TemplateView.as_view(template_name='scipost/thanks_for_registering.html'), name='thanks_for_registering'),
     url(r'^activation/(?P<key>.+)$', views.activation, name='activation'),
-    url(r'^activation_ack$', TemplateView.as_view(template_name='scipost/activation_ack.html'), name='activation_ack'),
     url(r'^request_new_activation_link/(?P<oldkey>.+)$', views.request_new_activation_link, name='request_new_activation_link'),
-    url(r'^request_new_activation_link_ack$', TemplateView.as_view(template_name='scipost/request_new_activation_link_ack.html'), name='request_new_activation_link_ack'),
     url(r'^already_activated$', TemplateView.as_view(template_name='scipost/already_activated.html'), name='already_activated'),
     url(r'^vet_registration_requests$', views.vet_registration_requests, name='vet_registration_requests'),
     url(r'^vet_registration_request_ack/(?P<contributor_id>[0-9]+)$', views.vet_registration_request_ack, name='vet_registration_request_ack'),
@@ -53,7 +51,6 @@ urlpatterns = [
     url(r'^reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$', views.reset_password_confirm, name='reset_password_confirm'),
     url(r'^reset_password/$', views.reset_password, name='reset_password'),
     url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
-    url(r'^update_personal_data_ack$', TemplateView.as_view(template_name='scipost/update_personal_data_ack.html'), name='update_personal_data_ack'),
 
     # Unavailabilities
     url(r'^mark_unavailable_period$', views.mark_unavailable_period, name='mark_unavailable_period'),

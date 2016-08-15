@@ -17,6 +17,11 @@
   <br/>
   <hr/>
 
+  {% if submission_to_assign.referees_suggested %}
+  <h3>Referees suggested by the authors upon submission (treat with due care):</h3>
+  <p>{{ submission_to_assign.referees_suggested }}</p>
+  {% endif %}
+
   {% if submission_to_assign.referees_flagged %}
   <h3>Referees flagged upon submission (treat reports with caution):</h3>
   <p>{{ submission_to_assign.referees_flagged }}</p>

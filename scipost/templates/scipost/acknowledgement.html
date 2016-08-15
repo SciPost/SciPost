@@ -5,7 +5,10 @@
 {% block bodysup %}
 
 <section>
-  <h3>{{ ack_message }}</h3>
+  <h3>{{ ack_header }}</h3>
+  {% if ack_message %}
+  <p>{{ ack_message }}</p>
+  {% endif %}
   {% if followup_message %}
   <p>{{ followup_message }} <a href="{{ followup_link }}">{{ followup_link_label }}</a>.</p>
   {% endif %}

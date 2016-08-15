@@ -183,7 +183,15 @@ def register(request):
                               {'form': form, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor('')
             Utils.send_registration_email()
-            return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
+            #return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
+            context = {'ack_header': 'Thanks for registering to SciPost.',
+                       'ack_message': ('You will receive an email with a link to verify '
+                                       'your email address. Please visit this link within 48 hours. '
+                                       'Your credentials will thereafter be verified. '
+                                       'If your registration is vetted through by the administrators, '
+                                       'you will be enabled to contribute.'),
+                       }
+            return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = RegistrationForm()
     invited = False
@@ -218,7 +226,15 @@ def invitation(request, key):
             invitation.save()
             Utils.create_and_save_contributor(key)
             Utils.send_registration_email()
-            return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
+            #return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
+            context = {'ack_header': 'Thanks for registering to SciPost.',
+                       'ack_message': ('You will receive an email with a link to verify '
+                                       'your email address. Please visit this link within 48 hours. '
+                                       'Your credentials will thereafter be verified. '
+                                       'If your registration is vetted through by the administrators, '
+                                       'you will be enabled to contribute.'),
+                       }
+            return render(request, 'scipost/acknowledgement.html', context)
         else:
             errormessage = 'form is invalidly filled'
             return render(request, 'scipost/register.html',
@@ -257,7 +273,12 @@ def activation(request, key):
         else: 
             contributor.user.is_active = True
             contributor.user.save()
-            return render(request, 'scipost/activation_ack.html')
+            #return render(request, 'scipost/activation_ack.html')
+            context = {'ack_header': 'Your email address has been confirmed.',
+                       'ack_message': ('Your SciPost account will soon be vetted. '
+                                       'You will soon receive an email from us.'),
+                       }
+            return render(request, 'scipost/acknowledgement.html', context)
     else:
         return render(request, 'scipost/already_activated.html')
 
@@ -288,7 +309,12 @@ def request_new_activation_link(request, oldkey):
                                 [contributor.user.email, 'registration@scipost.org'], 
                                 reply_to=['registration@scipost.org'])
     emailmessage.send(fail_silently=False)
-    return render (request, 'scipost/request_new_activation_link_ack.html')
+    #return render (request, 'scipost/request_new_activation_link_ack.html')
+    context = {'ack_header': 'We have emailed you a new activation link.',
+               'ack_message': ('Please acknowledge it within its 48 hours validity '
+                               'window if you want us to proceed with vetting your registraion.'),
+           }
+    return render(request, 'scipost/acknowledgement.html', context)
 
 
 @permission_required('scipost.can_vet_registration_requests', return_403=True)
@@ -360,8 +386,13 @@ def vet_registration_request_ack(request, contributor_id):
                 contributor.status = form.cleaned_data['refusal_reason']
                 contributor.save()
 
-    context = {}
-    return render(request, 'scipost/vet_registration_request_ack.html', context)
+    #context = {}
+    #return render(request, 'scipost/vet_registration_request_ack.html', context)
+    context = {'ack_header': 'SciPost Registration request vetted.',
+               'followup_message': 'Back to ',
+               'followup_link': reverse('scipost:vet_registration_requests'),
+               'followup_link_label': 'Registration requests page'}
+    return render(request, 'scipost/acknowledgement.html', context)
 
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
@@ -660,7 +691,12 @@ def update_personal_data(request):
             request.user.contributor.personalwebpage = cont_form.cleaned_data['personalwebpage']
             request.user.save()
             request.user.contributor.save()
-            return render(request, 'scipost/update_personal_data_ack.html')
+            #return render(request, 'scipost/update_personal_data_ack.html')
+            context = {'ack_header': 'Your personal data has been updated.',
+                       'followup_message': 'Return to your ',
+                       'followup_link': reverse('scipost:personal_page'),
+                       'followup_link_label': 'personal page'}
+            return render(request, 'scipost/acknowledgement.html', context)
     else:
         user_form = UpdateUserDataForm(instance=contributor.user)
         cont_form = UpdatePersonalDataForm(instance=contributor)
@@ -845,7 +881,7 @@ def email_group_members(request):
                 bcc=recipient_emails,
                 reply_to=['admin@scipost.org'])
             emailmessage.send(fail_silently=False)
-            context = {'ack_message': 'The email has been sent.',
+            context = {'ack_header': 'The email has been sent.',
                        'followup_message': 'Return to your ',
                        'followup_link': reverse('scipost:personal_page'),
                        'followup_link_label': 'personal page'}
