@@ -181,7 +181,7 @@ def submit_manuscript(request):
                 domain = form.cleaned_data['domain'],
 #                specialization = form.cleaned_data['specialization'],
                 subject_area = form.cleaned_data['subject_area'],
-                secondary_areas = form.cleaned_data['secondary_areas'],
+#                secondary_areas = form.cleaned_data['secondary_areas'],
                 status = 'unassigned', 
                 title = form.cleaned_data['title'],
                 author_list = form.cleaned_data['author_list'],

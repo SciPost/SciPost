@@ -21,11 +21,27 @@
   <br />
   <hr class="hr12">
   <h3>Commentaries:</h3>
+
   <ul>
     {% for commentary in commentary_search_list %}
     {{ commentary.header_as_li }}
     {% endfor %}
   </ul>
+<!--
+  <div class="pagination">
+    <span class="step-links">
+      {% if commentary_search_list.has_previous %}
+      <a href="?commentary_search_list_page={{ commentary_search_list.previous_page_number }}">previous</a>
+      {% endif %}
+      <span class="current">
+	Page {{ commentary_search_list.number }} of {{ commentary_search_list.paginator.num_pages }}.
+      </span>
+      {% if commentary_search_list.has_next %}
+      <a href="?commentary_search_list_page={{ commentary_search_list.next_page_number }}">next</a>
+      {% endif %}
+    </span>
+  </div>
+-->
   {% endif %}
 
   {% if submission_search_list %}

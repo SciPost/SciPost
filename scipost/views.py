@@ -13,6 +13,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
@@ -101,6 +102,7 @@ def documentsSearchResults(query):
     comment_query = get_query(query,
                               ['comment_text'])
 
+    #commentary_search_list_objects = Commentary.objects.filter(
     commentary_search_list = Commentary.objects.filter(
         commentary_query,
         vetted=True,
@@ -117,7 +119,8 @@ def documentsSearchResults(query):
         comment_query,
         status__gte='1',
         ).order_by('-date_submitted')
-    context = {'commentary_search_list': commentary_search_list,
+    context = {#'commentary_search_list_objects': commentary_search_list_objects,
+               'commentary_search_list': commentary_search_list,
                'submission_search_list': submission_search_list,
                'thesislink_search_list': thesislink_search_list,
                'comment_search_list': comment_search_list}
@@ -130,6 +133,15 @@ def search(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             context = documentsSearchResults(form.cleaned_data['query'])
+            # commentary_search_list_paginator = Paginator (context['commentary_search_list_objects'], 2)
+            # commentary_search_list_page = request.GET.get('commentary_search_list_page')
+            # try:
+            #     commentary_search_list = commentary_search_list_paginator.page(commentary_search_list_page)
+            # except PageNotAnInteger:
+            #     commentary_search_list = commentary_search_list_paginator.page(1)
+            # except EmptyPage:
+            #     commentary_search_list = commentary_search_list_paginator.page(commentary_search_list_paginator.num_pages)
+            # context['commentary_search_list'] = commentary_search_list
         else:
             context = {}
     else:
