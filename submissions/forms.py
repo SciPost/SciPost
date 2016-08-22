@@ -31,7 +31,7 @@ class SubmissionForm(forms.ModelForm):
         fields = ['is_resubmission', 
                   'discipline', 'submitted_to_journal', 'submission_type', 
                   'domain', 'subject_area', 
-#                  'secondary_areas',
+                  'secondary_areas',
                   'title', 'author_list', 'abstract', 
                   'arxiv_identifier_w_vn_nr', 'arxiv_identifier_wo_vn_nr', 
                   'arxiv_vn_nr', 'arxiv_link', 'metadata', 
@@ -47,7 +47,7 @@ class SubmissionForm(forms.ModelForm):
         self.fields['arxiv_link'].widget.attrs.update(
             {'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
         self.fields['metadata'].widget = forms.HiddenInput()
-#        self.fields['secondary_areas'].widget = forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
+        self.fields['secondary_areas'].widget = forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
         self.fields['abstract'].widget.attrs.update({'cols': 100})
         self.fields['author_comments'].widget.attrs.update({
             'placeholder': 'Your resubmission letter', })

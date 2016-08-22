@@ -7,7 +7,7 @@ from django.template import Template, Context
 
 from .models import *
 
-from scipost.models import Contributor, title_dict, Remark
+from scipost.models import ChoiceArrayField, Contributor, title_dict, Remark
 from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, TITLE_CHOICES
 from journals.models import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
 from journals.models import journals_submit_dict, journals_domains_dict, journals_spec_dict
@@ -63,7 +63,6 @@ SUBMISSION_TYPE = (
 submission_type_dict = dict(SUBMISSION_TYPE)
 
 
-
 class Submission(models.Model):
     is_current = models.BooleanField(default=True)
     is_resubmission = models.BooleanField(default=False)
@@ -78,8 +77,8 @@ class Submission(models.Model):
 #    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, 
                                     verbose_name='Primary subject area', default='Phys:QP')
-    secondary_areas = ArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), 
-                                 blank=True, null=True)
+    secondary_areas = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), 
+                                       blank=True, null=True)
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
     author_comments = models.TextField(blank=True, null=True)
     list_of_changes = models.TextField(blank=True, null=True)
