@@ -606,6 +606,7 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     ed_admins = Group.objects.get(name='Editorial Administrators')
     assign_perm('can_take_editorial_actions', ed_admins, submission)
     SubmissionUtils.send_EIC_appointment_email()
+    SubmissionUtils.send_author_prescreening_passed_email()
     
     context = {'assignment': assignment}
     return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)

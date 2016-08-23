@@ -102,12 +102,13 @@ def documentsSearchResults(query):
     comment_query = get_query(query,
                               ['comment_text'])
 
-    #commentary_search_list_objects = Commentary.objects.filter(
-    commentary_search_list = Commentary.objects.filter(
+    commentary_search_queryset = Commentary.objects.filter(
+    #commentary_search_list = Commentary.objects.filter(
         commentary_query,
         vetted=True,
         ).order_by('-pub_date')
-    submission_search_list = Submission.objects.filter(
+    submission_search_queryset = Submission.objects.filter(
+    #submission_search_list = Submission.objects.filter(
         submission_query,
         status__gte=1,
         ).order_by('-submission_date')
@@ -119,9 +120,10 @@ def documentsSearchResults(query):
         comment_query,
         status__gte='1',
         ).order_by('-date_submitted')
-    context = {#'commentary_search_list_objects': commentary_search_list_objects,
-               'commentary_search_list': commentary_search_list,
-               'submission_search_list': submission_search_list,
+    context = {'commentary_search_queryset': commentary_search_queryset,
+               #'commentary_search_list': commentary_search_list,
+               'submission_search_queryset': submission_search_queryset,
+               #'submission_search_list': submission_search_list,
                'thesislink_search_list': thesislink_search_list,
                'comment_search_list': comment_search_list}
     return context
@@ -133,19 +135,36 @@ def search(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             context = documentsSearchResults(form.cleaned_data['query'])
-            # commentary_search_list_paginator = Paginator (context['commentary_search_list_objects'], 2)
-            # commentary_search_list_page = request.GET.get('commentary_search_list_page')
-            # try:
-            #     commentary_search_list = commentary_search_list_paginator.page(commentary_search_list_page)
-            # except PageNotAnInteger:
-            #     commentary_search_list = commentary_search_list_paginator.page(1)
-            # except EmptyPage:
-            #     commentary_search_list = commentary_search_list_paginator.page(commentary_search_list_paginator.num_pages)
-            # context['commentary_search_list'] = commentary_search_list
+            request.session['query'] = form.cleaned_data['query']
         else:
             context = {}
+    elif 'query' in request.session:
+            context = documentsSearchResults(request.session['query'])        
     else:
         context = {}
+
+    if 'commentary_search_queryset' in context:
+        commentary_search_list_paginator = Paginator (context['commentary_search_queryset'], 10)
+        commentary_search_list_page = request.GET.get('commentary_search_list_page')
+        try:
+            commentary_search_list = commentary_search_list_paginator.page(commentary_search_list_page)
+        except PageNotAnInteger:
+            commentary_search_list = commentary_search_list_paginator.page(1)
+        except EmptyPage:
+            commentary_search_list = commentary_search_list_paginator.page(commentary_search_list_paginator.num_pages)
+        context['commentary_search_list'] = commentary_search_list
+
+    if 'submission_search_queryset' in context:
+        submission_search_list_paginator = Paginator (context['submission_search_queryset'], 10)
+        submission_search_list_page = request.GET.get('submission_search_list_page')
+        try:
+            submission_search_list = submission_search_list_paginator.page(submission_search_list_page)
+        except PageNotAnInteger:
+            submission_search_list = submission_search_list_paginator.page(1)
+        except EmptyPage:
+            submission_search_list = submission_search_list_paginator.page(submission_search_list_paginator.num_pages)
+        context['submission_search_list'] = submission_search_list
+
     return render(request, 'scipost/search.html', context)
 
 

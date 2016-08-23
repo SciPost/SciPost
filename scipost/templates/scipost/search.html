@@ -27,7 +27,7 @@
     {{ commentary.header_as_li }}
     {% endfor %}
   </ul>
-<!--
+
   <div class="pagination">
     <span class="step-links">
       {% if commentary_search_list.has_previous %}
@@ -41,7 +41,7 @@
       {% endif %}
     </span>
   </div>
--->
+
   {% endif %}
 
   {% if submission_search_list %}
@@ -53,6 +53,21 @@
     {{ submission.header_as_li }}
     {% endfor %}
   </ul>
+
+  <div class="pagination">
+    <span class="step-links">
+      {% if submission_search_list.has_previous %}
+      <a href="?submission_search_list_page={{ submission_search_list.previous_page_number }}">previous</a>
+      {% endif %}
+      <span class="current">
+	Page {{ submission_search_list.number }} of {{ submission_search_list.paginator.num_pages }}
+      </span>
+      {% if submission_search_list.has_next %}
+      <a href="?submission_search_list_page={{ submission_search_list.next_page_number }}">next</a>
+      {% endif %}
+    </span>
+  </div>
+
   {% endif %}
 
   {% if thesislink_search_list %}
