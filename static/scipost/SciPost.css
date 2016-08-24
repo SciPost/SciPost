@@ -183,6 +183,12 @@ ul.personalTabMenu li a.inactive {
   box-shadow: 1px 1px 3px #888888;
   background: linear-gradient(to right,#f8f8f8, #e0e0e0);
 }
+.flex-Fellowactionbox {
+/*  background-color: #6884C2;*/
+  background-color: #cccccc;
+  margin: 0px;
+  padding: 5px 10px;
+}
 .flex-greybox {
   background-color: #f4f4f4; 
   margin: 10px;
@@ -228,6 +234,19 @@ ul.personalTabMenu li a.inactive {
   padding: 3px 5px;
   background-color: #f4f4f4;
   border-radius: 4px;
+}
+
+.ref_listing {
+    border-collapse: collapse;
+    margin: 0px 5px;
+    padding: 0px;
+}
+.ref_listing tr {
+    background-color: #dddddd;
+    border: 1px solid black;
+}
+.ref_listing td {
+    padding: 2px 8px;
 }
 
 .tableofInvitees td {
@@ -602,8 +621,8 @@ select {
 
 #journalsannouncesmall {
 /*  background-color: #880000; */
-  background-color: #002B49;
-  color: #FFA300;
+  background-color: #FFDDDD;
+  color: #FF0000;
   padding: 10px;
   font-size: 90%;
   text-align: center;
@@ -613,8 +632,8 @@ select {
 }
 #journalsannounce {
 /*  background-color: #880000; */
-  background-color: #002B49;
-  color: #FFA300;
+  background-color: #100000;
+  color: #FF0000;
   padding: 20px;
   font-size: 150%;
   text-align: center;
@@ -623,3 +642,11 @@ select {
 /*  animation-iteration-count: infinite; */
 }
 
+.SciPostPhysicsTab {
+  background-color: #002B49;
+  color: #FFA300;
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 150%;
+  text-align: center;
+}
