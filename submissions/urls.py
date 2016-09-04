@@ -6,11 +6,14 @@ from . import views
 urlpatterns = [
     # Submissions
     url(r'^$', views.submissions, name='submissions'),
+    url(r'^(?P<to_journal>[a-zA-Z]+)/$', views.submissions, name='submissions'),
     url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]+)/$', views.browse, name='browse'),
     url(r'^sub_and_ref_procedure$', 
-        TemplateView.as_view(template_name='submissions/sub_and_ref_procedure.html'), name='sub_and_ref_procedure'),
+        TemplateView.as_view(template_name='submissions/sub_and_ref_procedure.html'), 
+        name='sub_and_ref_procedure'),
     url(r'^author_guidelines$', 
-        TemplateView.as_view(template_name='submissions/author_guidelines.html'), name='author_guidelines'),
+        TemplateView.as_view(template_name='submissions/author_guidelines.html'), 
+        name='author_guidelines'),
     url(r'^(?P<arxiv_identifier_wo_vn_nr>[0-9]{4,}.[0-9]{5,})/$', views.submission_detail_wo_vn_nr, 
         name='submission_wo_vn_nr'),
     url(r'^(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/$', 

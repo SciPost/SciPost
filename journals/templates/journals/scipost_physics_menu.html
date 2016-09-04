@@ -1,0 +1,14 @@
+
+  <ul class="SciPostPhysicsTabMenu">
+    <li>
+      <div class="SciPostPhysicsTab">
+	<h3>SciPost Physics</h3>
+      </div>
+    </li>
+    <li><a href="{% url 'journals:scipost_physics_accepted' %}">Accepted</li>
+    <li><a href="{% url 'submissions:submissions' to_journal='SciPostPhysics' %}">Submissions</a></li>
+    <li><a href="{% url 'journals:scipost_physics_info_for_authors' %}">Info for authors</a></li>
+    <li><a href="{% url 'journals:scipost_physics_about' %}">About</a></li>
+  </ul>
+
+

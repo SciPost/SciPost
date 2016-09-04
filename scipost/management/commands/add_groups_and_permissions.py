@@ -123,6 +123,12 @@ class Command(BaseCommand):
             name = 'Can fix the College voting decision',
             content_type=content_type)
 
+        # Production 
+        can_publish_accepted_submission, created = Permission.objects.get_or_create(
+            codename='can_publish_accepted_submission',
+            name = 'Can publish accepted submission',
+            content_type=content_type)
+
         # Assign permissions to groups
         SciPostAdmin.permissions.add(
             can_manage_registration_invitations,
@@ -142,6 +148,7 @@ class Command(BaseCommand):
             can_assign_submissions,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
+            can_publish_accepted_submission,
             )
         EditorialCollege.permissions.add(
             can_view_pool,

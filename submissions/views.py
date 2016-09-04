@@ -260,7 +260,7 @@ def submit_manuscript(request):
                   {'identifierform': identifierform, 'form': form})
 
 
-def submissions(request):
+def submissions(request, to_journal=None):
     """
     Main method for viewing Submissions.
     """
@@ -284,6 +284,9 @@ def submissions(request):
         latest_activity__gte=timezone.now() + datetime.timedelta(days=-28)
     ).exclude(status__in=['unassigned', 'assignment_failed']
     ).exclude(is_current=False).order_by('-submission_date')
+    # If doing a journal-specific listing:
+    if to_journal is not None:
+        submission_recent_list.filter(submitted_to_journal=to_journal)
     context = {'form': form, 'submission_search_list': submission_search_list, 
                'submission_recent_list': submission_recent_list }
     return render(request, 'submissions/submissions.html', context)

@@ -49,6 +49,7 @@ hr.hr12 {
     box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);
 }
 
+
 ul.personalTabMenu {
   background-color: #dddddd;
   display: inline-block;
@@ -642,7 +643,10 @@ select {
 /*  animation-iteration-count: infinite; */
 }
 
-.SciPostPhysicsTab {
+
+/* SciPost Physics Journal style */
+
+div.SciPostPhysicsBanner {
   background-color: #002B49;
   color: #FFA300;
   margin: 10px;
@@ -650,3 +654,50 @@ select {
   font-size: 150%;
   text-align: center;
 }
+div.SciPostPhysicsBanner a {
+  color: #FFA300;
+  padding: 4px;
+}
+div.SciPostPhysicsBanner a.active {
+  background-color: #eeeeee;
+  border: 1px solid black;
+  padding: 4px;
+}
+div.SciPostPhysicsBanner a.inactive {
+  background-color: #dddddd;
+  border: none;
+}
+
+.SciPostPhysicsTab {
+  background-color: #002B49;
+  color: #FFA300;
+  margin: 2px;
+  padding: 5px 10px;
+  font-size: 120%;
+  text-align: center;
+}
+
+ul.SciPostPhysicsTabMenu {
+  background-color: #dddddd;
+  display: inline-block;
+  font-size: 16px;
+  padding: 0px;
+}
+ul.SciPostPhysicsTabMenu li {
+  display: inline-block;
+  margin: 0px;
+  padding: 10px;
+}
+ul.SciPostPhysicsTabMenu li a {
+  padding: 4px;
+}
+ul.SciPostPhysicsTabMenu li a.active {
+  background-color: #eeeeee;
+  border: 1px solid black;
+  padding: 4px;
+}
+ul.SciPostPhysicsTabMenu li a.inactive {
+  background-color: #dddddd;
+  border: none;
+}
+
