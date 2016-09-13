@@ -1,0 +1,25 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Publication detail{% endblock pagetitle %}
+
+{% block bodysup %}
+
+
+<section>
+
+  {% include 'journals/scipost_physics_menu.html' %}
+
+  <br/>
+
+  <div class="flex-container">
+    <div class="flex-whitebox800">
+      {{ publication.details }}
+    </div>
+  </div>
+
+  {% include 'journals/scipost_physics_footer.html' %}
+
+</section>
+
+
+{% endblock bodysup %}

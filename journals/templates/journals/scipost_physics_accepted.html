@@ -1,28 +1,28 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: SciPost Physics: accepted{% endblock pagetitle %}
+{% block pagetitle %}: SciPost Physics{% endblock pagetitle %}
 
 {% block bodysup %}
 
+
 <section>
+  <div class="flex-container">
+    <div class="SciPostPhysicsTab">
+      <h3>SciPost Physics</h3>
+    </div>
+  </div>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <p>Outstanding-quality research articles in all domains and subject areas of Physics.</p>
+    </div>
+  </div>
 
-  {% include 'journals/scipost_physics_menu.html' %}
-
-  {% if accepted_SP_submissions %}
-  <br />
-  <hr class="hr12">
-  <h2>Accepted for publication:</h3>
-  <ul>
-    {% for submission in accepted_SP_submissions %}
-    {{ submission.header_as_li }}
-    {% endfor %}
+  <ul class="SciPostPhysicsTabMenu">
+    <li>Accepted</li>
+    <li><a href="{% url 'submissions:submissions' %}">Submissions</a></li>
   </ul>
-  {% else %}
-  <h2>All recently accepted Submissions to SciPost Physics have been published.</h3>
-  {% endif %}
 
   <br/>
-  <hr class="hr6"/>
   <h2>View and comment on (login required) current <a href="{% url 'submissions:submissions' %}">Submissions</a></h2>
   <br/>
 

@@ -167,3 +167,7 @@ EMAIL_HOST_USER = host_settings["EMAIL_HOST_USER"]
 EMAIL_HOST_PASSWORD = host_settings["EMAIL_HOST_PASSWORD"]
 DEFAULT_FROM_EMAIL = host_settings["DEFAULT_FROM_EMAIL"]
 SERVER_EMAIL = host_settings["SERVER_EMAIL"]
+
+
+# Own settings
+JOURNALS_DIR = host_settings["JOURNALS_DIR"]

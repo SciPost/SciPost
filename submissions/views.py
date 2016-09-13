@@ -271,7 +271,7 @@ def submissions(request, to_journal=None):
                 title__icontains=form.cleaned_data['title_keyword'],
                 author_list__icontains=form.cleaned_data['author'],
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
-                ).exclude(status__in=['unassigned', 'assignment_failed'],
+                ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED,
                 ).order_by('-submission_date')
         else:
             submission_search_list = [] 
@@ -282,7 +282,7 @@ def submissions(request, to_journal=None):
 
     submission_recent_list = Submission.objects.filter(
         latest_activity__gte=timezone.now() + datetime.timedelta(days=-28)
-    ).exclude(status__in=['unassigned', 'assignment_failed']
+    ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
     ).exclude(is_current=False).order_by('-submission_date')
     # If doing a journal-specific listing:
     if to_journal is not None:
@@ -300,7 +300,7 @@ def browse(request, discipline, nrweeksback):
                 title__icontains=form.cleaned_data['title_keyword'],
                 author_list__icontains=form.cleaned_data['author'],
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
-                ).exclude(status__in=['unassigned', 'assignment_failed'],
+                ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED,
                 ).order_by('-submission_date')
         else:
             submission_search_list = []
@@ -311,7 +311,7 @@ def browse(request, discipline, nrweeksback):
     submission_browse_list = Submission.objects.filter(
         discipline=discipline, 
         latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
-        ).exclude(status__in=['unassigned', 'assignment_failed']
+        ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
         ).exclude(is_current=False).order_by('-submission_date')
     context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback, 
                'submission_browse_list': submission_browse_list }

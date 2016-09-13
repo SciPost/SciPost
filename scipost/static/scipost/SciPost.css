@@ -216,6 +216,16 @@ ul.personalTabMenu li a.inactive {
   margin: 10px;
   padding: 10px;
 }
+.flex-whitebox640 {
+  width: 640px;
+  margin: 10px;
+  padding: 10px;
+}
+.flex-whitebox800 {
+  width: 800px;
+  margin: 10px;
+  padding: 10px;
+}
 .flex-whitebox0 {
   margin: 0px;
   padding: 0px;
@@ -701,3 +711,99 @@ ul.SciPostPhysicsTabMenu li a.inactive {
   border: none;
 }
 
+ul.publicationHeaderList {
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+li.publicationHeader {
+  background-color: #fafafa;
+  margin: 10px;
+  padding: 0px;
+}
+
+p.publicationTitle {
+  background-color: #eeeeee;
+  font-size: 16px;
+  margin: 0px;
+  padding: 10px;
+}
+
+p.publicationAuthors {
+  font-weight: bold;  
+}
+
+ul.publicationClickables {
+  background-color: #f8f8f8;
+  display: inline-block;
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+ul.publicationClickables li {
+  display: inline-block;
+  margin: 0px 10px;
+  padding: 5px;
+}
+
+li.publicationPDF {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 2px;
+}
+
+
+/* For modal boxes (e.g. BiBTeX) */
+.modalDialog {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99999;
+  opacity: 0;
+  -webkit-transition: opacity 200ms ease-in;
+  -moz-transition: opacity 200ms ease-in;
+  transition: opacity 200ms ease-in;
+  pointer-events: none;
+}
+
+.modalDialog:target {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modalDialog > div {
+  width: 600px;
+  position: relative;
+  margin: 10% auto;
+  padding: 10px;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.close {
+  background: #606061;
+  color: #ffffff;
+  line-height: 25px;
+  position: absolute;
+  right: -12px;
+  text-align: center;
+  top: -10px;
+  width: 24px;
+  text-decoration: none;
+  font-weight: bold;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  border-radius: 12px;
+  -moz-box-shadow: 1px 1px 3px #000;
+  -webkit-box-shadow: 1px 1px 3px #000;
+  box-shadow: 1px 1px 3px #000;
+}
+
+.close:hover {
+  background: #999999;
+}

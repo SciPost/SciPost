@@ -1,0 +1,26 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Validate publication{% endblock pagetitle %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>Validate publication page</h1>
+  </div>
+
+  {% if errormessage %}
+  <h2 style="color: red;">{{ errormessage }}</h2>
+  {% endif %}
+
+  <form action="{% url 'journals:validate_publication' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ validate_publication_form.as_p }}
+    <input type="submit" value="Submit">
+  </form>
+
+</section>
+
+
+{% endblock bodysup %}

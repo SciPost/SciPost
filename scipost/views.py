@@ -36,6 +36,7 @@ from .utils import *
 from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
+from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, EICRecommendation
 from submissions.forms import SubmissionSearchForm
 from theses.models import ThesisLink
@@ -110,7 +111,7 @@ def documentsSearchResults(query):
     submission_search_queryset = Submission.objects.filter(
     #submission_search_list = Submission.objects.filter(
         submission_query,
-        status__gte=1,
+        ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
         ).order_by('-submission_date')
     thesislink_search_list = ThesisLink.objects.filter(
         thesislink_query,

@@ -4,6 +4,9 @@ from django.views.generic import TemplateView
 from . import views
 from .feeds import LatestCommentFeed
 
+from journals import views as journals_views
+
+
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^base$', views.base, name='base'),
@@ -77,7 +80,22 @@ urlpatterns = [
     #####################
     url(r'^EdCol_by-laws$', views.EdCol_bylaws, name='EdCol_by-laws'),
 
-    # Lists
+    ################
+    # Publications #
+    ################
+
+    url(r'^(?P<doi_string>10.21468/[a-zA-Z_]+[0-9]+_[0-9]+_[0-9]{3,})$', 
+        journals_views.publication_detail,
+        name='publication_detail'),
+    url(r'^(?P<doi_string>10.21468/[a-zA-Z_]+[0-9]+_[0-9]+_[0-9]{3,}).pdf$', 
+        journals_views.publication_pdf,
+        name='publication_pdf'),
+
+
+    #########
+    # Lists #
+    #########
+
     url(r'^create_list$', views.create_list, name='create_list'),
     url(r'^list/(?P<list_id>[0-9]+)$', views.list, name='list'),
     url(r'^list_add_element/(?P<list_id>[0-9]+)/(?P<type>[SCTc])/(?P<element_id>[0-9]+)$', views.list_add_element, name='list_add_element'),

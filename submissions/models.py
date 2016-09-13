@@ -11,6 +11,7 @@ from scipost.models import ChoiceArrayField, Contributor, title_dict, Remark
 from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, TITLE_CHOICES
 from journals.models import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
 from journals.models import journals_submit_dict, journals_domains_dict, journals_spec_dict
+from journals.models import Publication
 
 
 ###############
@@ -31,18 +32,28 @@ SUBMISSION_STATUS = (
     ('EC_vote_completed', 'Editorial College voting rounded up'),
     ('accepted', 'Publication decision taken: accept'),
     ('rejected', 'Publication decision taken: reject'),
+    ('rejected_visible', 'Publication decision taken: reject (still publicly visible)'),
     ('published', 'Published'),
     # If withdrawn:
     ('withdrawn', 'Withdrawn by the Authors'),
     )
 submission_status_dict = dict(SUBMISSION_STATUS)
 
-SUBMISSION_STATUS_OUT_OF_POOL = (
-    ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
-    ('resubmitted', 'Has been resubmitted'),
-    ('published', 'Published'),
-    ('withdrawn', 'Withdrawn by the Authors'),
-    )
+SUBMISSION_STATUS_OUT_OF_POOL = [
+    'assignment_failed', 
+    'resubmitted', 
+    'published', 
+    'withdrawn',
+]
+
+SUBMISSION_STATUS_PUBLICLY_UNLISTED = [
+    'unassigned',
+    'assignment_failed',
+    'resubmitted',
+    'rejected',
+    'published',
+    'withdrawn',
+]
 
 # SUBMISSION_ACTION_REQUIRED = (
 #     ('assign_EIC', 'Editor-in-charge to be assigned'),
@@ -116,6 +127,10 @@ class Submission(models.Model):
             header += ' (current version)'
         else:
             header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
+        try:
+            header += ' (published as ' + self.publication.citation() + ')'
+        except Publication.DoesNotExist:
+            pass
         return header
 
     @property
@@ -306,11 +321,16 @@ class Submission(models.Model):
 
 
     def status_info_as_table (self):
-        header = ('<table>'
-                  '<tr><td>Current status: </td><td>&nbsp;</td><td>' 
-                  + submission_status_dict[self.status] + '</td></tr>'
-                  '</table>')
-        return mark_safe(header)
+        header = '<table><tr><td>Current status: </td><td>&nbsp;</td><td>{{ status }}'
+        context = Context({'status': submission_status_dict[self.status],})
+        try:
+            context['citation'] = self.publication.citation_for_web_linked()
+            header += ' as {{ citation }}'
+        except Publication.DoesNotExist:
+            pass
+        header += '</td></tr></table>'
+        template = Template(header)
+        return template.render(context)
 
 
 
