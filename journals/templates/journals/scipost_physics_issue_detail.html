@@ -1,0 +1,49 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: SciPost Physics: issue detail{% endblock pagetitle %}
+
+{% block headsup %}
+
+<script>
+  $(document).ready(function(){
+
+  $(".publicationAbstract").hide();
+
+  $(".toggleAbstractButton").click(function(){
+  $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
+  });
+  });
+</script>
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<section>
+
+  {% include 'journals/scipost_physics_menu.html' %}
+
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h2>{{ issue }}</h2>
+    </div>
+  </div>
+
+  <div class="flex-container">
+    <div class="flex-whitebox800">
+      <ul class="publicationHeaderList">
+	{% for paper in papers %}
+	{{ paper.header_as_li }}
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+
+<section>
+{% include 'journals/scipost_physics_footer.html' %}
+</section>
+
+{% endblock bodysup %}

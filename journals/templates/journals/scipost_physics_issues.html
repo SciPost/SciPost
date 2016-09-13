@@ -1,6 +1,6 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: About SciPost Physics{% endblock pagetitle %}
+{% block pagetitle %}: SciPost Physics: issues{% endblock pagetitle %}
 
 {% block bodysup %}
 
@@ -11,20 +11,16 @@
 
   <div class="flex-container">
     <div class="flex-greybox">
-      <h2>Accepted for publication</h2>
+      <h2>Issues</h2>
     </div>
   </div>
 
   <div class="flex-whitebox">
-    {% if accepted_SP_submissions %}
     <ul>
-      {% for submission in accepted_SP_submissions %}
-      {{ submission.header_as_li }}
+      {% for issue in issues %}
+      <li><a href="{% url 'journals:scipost_physics_issue_detail' volume_nr=issue.in_volume.number issue_nr=issue.number %}">
+	  {{ issue }}</a></li>
       {% endfor %}
-    </ul>
-    {% else %}
-    <h2>All recently accepted Submissions to SciPost Physics have been published.</h2>
-    {% endif %}
   </div>
 
   {% include 'journals/scipost_physics_footer.html' %}

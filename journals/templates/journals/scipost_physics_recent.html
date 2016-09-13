@@ -1,0 +1,35 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: SciPost Physics: recent{% endblock pagetitle %}
+
+{% block bodysup %}
+
+
+<section>
+
+  {% include 'journals/scipost_physics_menu.html' %}
+
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h2>{{ latest_issue }} (in progress)</h2>
+    </div>
+  </div>
+
+  <div class="flex-container">
+    {% if recent_papers %}
+    <div class="flex-whitebox800">
+      <ul class="publicationHeaderList">
+	{% for paper in recent_papers %}
+	{{ paper.header_as_li }}
+	{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  {% include 'journals/scipost_physics_footer.html' %}
+
+</section>
+
+
+{% endblock bodysup %}

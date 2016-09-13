@@ -52,60 +52,90 @@ def journals(request):
 
 
 def scipost_physics(request):
-    issues = Issue.objects.filter(
-        in_volume__in_journal__name='SciPost Physics').order_by('-until_date')
-    #latest_issue = Issue.objects.filter(
-    #    in_volume__in_journal__name='SciPost Physics').order_by('-until_date').first()
-    latest_issue = issues.first()
+    #issues = Issue.objects.filter(
+    #    in_volume__in_journal__name='SciPost Physics').order_by('-until_date')
+    latest_issue = Issue.objects.filter(
+        in_volume__in_journal__name='SciPost Physics').order_by('-until_date').first()
     recent_papers = Publication.objects.filter(
         in_issue=latest_issue).order_by('-publication_date')
-    accepted_SP_submissions = Submission.objects.filter(
-        submitted_to_journal='SciPost Physics', status='accepted'
-    ).order_by('-latest_activity')
-    current_SP_submissions = Submission.objects.filter(
-        submitted_to_journal='SciPost Physics'
-        ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
-        ).order_by('-submission_date')
-    context = {'issues': issues, 'latest_issue': latest_issue,
+    #accepted_SP_submissions = Submission.objects.filter(
+    #    submitted_to_journal='SciPost Physics', status='accepted'
+    #).order_by('-latest_activity')
+    #current_SP_submissions = Submission.objects.filter(
+    #    submitted_to_journal='SciPost Physics'
+    #    ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
+    #    ).order_by('-submission_date')
+    context = {#'issues': issues, 
+               'latest_issue': latest_issue,
                'recent_papers': recent_papers,
-               'accepted_SP_submissions': accepted_SP_submissions,
-               'current_SP_submissions': current_SP_submissions,
+               #'accepted_SP_submissions': accepted_SP_submissions,
+               #'current_SP_submissions': current_SP_submissions,
     }
     return render(request, 'journals/scipost_physics.html', context)
 
 
-# def scipost_physics_info_for_authors(request):
-#     return render(request, 'journals/scipost_physics_info_for_authors.html')
+def scipost_physics_issues(request):
+    issues = Issue.objects.filter(
+        in_volume__in_journal__name='SciPost Physics').order_by('-until_date')
+    latest_issue = issues.first()
+    context = {'issues': issues,}
+    return render(request, 'journals/scipost_physics_issues.html', context)
 
 
-# def scipost_physics_about(request):
-#     return render(request, 'journals/scipost_physics_about.html')
+def scipost_physics_recent(request):
+    """
+    Display page for publications in SciPost Physics which
+    are part of the current issue.
+    """
+    latest_issue = Issue.objects.filter(
+        in_volume__in_journal__name='SciPost Physics').order_by('-until_date').first()
+    recent_papers = Publication.objects.filter(
+        in_issue=latest_issue).order_by('-publication_date')
+    context = {'latest_issue': latest_issue,
+               'recent_papers': recent_papers}
+    return render(request, 'journals/scipost_physics_recent.html', context)
 
 
-# def scipost_physics_recent(request):
-#     """
-#     Display page for publications in SciPost Physics which
-#     are part of the current issue.
-#     """
-#     latest_issue = Issue.objects.filter(
-#         in_volume__in_journal__name='SciPost Physics').order_by('-until_date').first()
-#     recent_papers = Publication.objects.filter(
-#         in_issue=latest_issue).order_by('-publication_date')
-#     context = {'latest_issue': latest_issue,
-#                'recent_papers': recent_papers}
-#     return render(request, 'journals/scipost_physics_recent.html', context)
+def scipost_physics_accepted(request):
+    """
+    Display page for submissions to SciPost Physics which
+    have been accepted but are not yet published.
+    """
+    accepted_SP_submissions = Submission.objects.filter(
+        submitted_to_journal='SciPost Physics', status='accepted'
+    ).order_by('-latest_activity')
+    context = {'accepted_SP_submissions': accepted_SP_submissions}
+    return render(request, 'journals/scipost_physics_accepted.html', context)
 
 
-# def scipost_physics_accepted(request):
+# def scipost_physics_submissions(request):
 #     """
 #     Display page for submissions to SciPost Physics which
 #     have been accepted but are not yet published.
 #     """
-#     accepted_SP_submissions = Submission.objects.filter(
-#         submitted_to_journal='SciPost Physics', status='accepted'
-#     ).order_by('-latest_activity')
-#     context = {'accepted_SP_submissions': accepted_SP_submissions}
-#     return render(request, 'journals/scipost_physics_accepted.html', context)
+#     current_SP_submissions = Submission.objects.filter(
+#         submitted_to_journal='SciPost Physics'
+#         ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
+#         ).order_by('-submission_date')
+#     context = {'current_SP_submissions': current_SP_submissions}
+#     return render(request, 'journals/scipost_physics_submissions.html', context)
+
+
+def scipost_physics_info_for_authors(request):
+    return render(request, 'journals/scipost_physics_info_for_authors.html')
+
+
+def scipost_physics_about(request):
+    return render(request, 'journals/scipost_physics_about.html')
+
+
+
+def scipost_physics_issue_detail(request, volume_nr, issue_nr):
+    issue = get_object_or_404 (Issue, in_volume__in_journal__name='SciPost Physics',
+                               number=issue_nr)
+    papers = issue.publication_set.order_by('paper_nr')
+    context = {'issue': issue, 'papers': papers}
+    return render(request, 'journals/scipost_physics_issue_detail.html', context)
 
 
 def upload_proofs(request):

@@ -686,6 +686,9 @@ div.SciPostPhysicsBanner a.inactive {
   font-size: 120%;
   text-align: center;
 }
+.SciPostPhysicsTab h3 a {
+  color: #FFA300;
+}
 
 ul.SciPostPhysicsTabMenu {
   background-color: #dddddd;
