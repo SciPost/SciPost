@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.exceptions import PermissionDenied
+from django.core import mail
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
@@ -902,17 +903,25 @@ def email_group_members(request):
     if request.method == 'POST':
         form = EmailGroupMembersForm(request.POST)
         if form.is_valid():
-            recipient_emails = []
-            for member in form.cleaned_data['group'].user_set.all():
-                recipient_emails.append(member.email)
-            emailmessage = EmailMessage(
-                form.cleaned_data['email_subject'],
-                form.cleaned_data['email_text'],
-                'SciPost Admin <admin@scipost.org>',
-                ['admin@scipost.org'],
-                bcc=recipient_emails,
-                reply_to=['admin@scipost.org'])
-            emailmessage.send(fail_silently=False)
+            # recipient_emails = []
+            # for member in form.cleaned_data['group'].user_set.all():
+            #     recipient_emails.append(member.email)
+            # emailmessage = EmailMessage(
+            #     form.cleaned_data['email_subject'],
+            #     form.cleaned_data['email_text'],
+            #     'SciPost Admin <admin@scipost.org>',
+            #     ['admin@scipost.org'],
+            #     bcc=recipient_emails,
+            #     reply_to=['admin@scipost.org'])
+            # emailmessage.send(fail_silently=False)
+            with mail.get_connection() as connection:
+                for member in form.cleaned_data['group'].user_set.all():
+                    email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
+                                  member.last_name + ', \n\n'
+                                  + form.cleaned_data['email_text'])
+                    mail.EmailMessage(form.cleaned_data['email_subject'],
+                                      email_text, 'SciPost Admin <admin@scipost.org>',
+                                      [member.email], connection=connection).send()
             context = {'ack_header': 'The email has been sent.',
                        'followup_message': 'Return to your ',
                        'followup_link': reverse('scipost:personal_page'),
