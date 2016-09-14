@@ -16,7 +16,7 @@ class InitiatePublicationForm(forms.Form):
     original_submission_date = forms.DateField()
     acceptance_date = forms.DateField()
     to_be_issued_in = forms.ModelChoiceField(
-        queryset=Issue.objects.filter(until_date__lt=timezone.now()))
+        queryset=Issue.objects.filter(until_date__gt=timezone.now()))
     
 
 # class InitiatePublicationForm(forms.ModelForm):
