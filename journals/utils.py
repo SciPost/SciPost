@@ -17,13 +17,15 @@ class JournalUtils(object):
                       + title_dict[cls.publication.accepted_submission.submitted_by.title] 
                       + ' ' +
                       cls.publication.accepted_submission.submitted_by.user.last_name +
-                      ', \n\nWe have happy to inform you that your Submission to SciPost,\n\n' +
+                      ', \n\nWe are happy to inform you that your Submission to SciPost,\n\n' +
                       cls.publication.accepted_submission.title + 
                       ' by ' + cls.publication.accepted_submission.author_list +
                       '\n\nhas been published online with reference '
                       + cls.publication.citation() + '.'
                       '\n\nThe publication page is located at the permanent link '
                       'https://scipost.org/' + cls.publication.doi_string + '.'
+                      '\n\nTo facilitate dissemination of your paper, we greatly encourage '
+                      'you to update the arXiv Journal-ref with this information.'
                       '\n\nWe warmly congratulate you on this achievement and thank you '
                       'for entrusting us with the task of publishing your research. '
                       '\n\nSincerely,' +

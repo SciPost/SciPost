@@ -292,3 +292,17 @@ def publication_pdf(request, doi_string):
     response['Content-Disposition'] = ('filename=' 
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response
+
+def publication_detail_form_doi_label(request, doi_label):
+    publication = get_object_or_404 (Publication, doi_label=doi_label)
+    context = {'publication': publication,}
+    return render(request, 'journals/publication_detail.html', context)
+
+
+def publication_pdf_from_doi_label(request, doi_label):
+    publication = get_object_or_404 (Publication, doi_label=doi_label)
+    pdf = File(publication.pdf_file)
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = ('filename=' 
+                                       + publication.doi_label.replace('.', '_') + '.pdf')
+    return response

@@ -90,6 +90,12 @@ urlpatterns = [
     url(r'^(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$', 
         journals_views.publication_pdf,
         name='publication_pdf'),
+    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$', 
+        journals_views.publication_detail_form_doi_label,
+        name='publication_detail_from_doi_label'),
+    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$', 
+        journals_views.publication_pdf_from_doi_label,
+        name='publication_pdf_from_doi_label'),
 
 
     #########
