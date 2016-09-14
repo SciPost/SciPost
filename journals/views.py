@@ -42,7 +42,7 @@ from guardian.shortcuts import assign_perm
 #     """
     
 #     settings.JOURNALS_DIR 
-#     + journal_name_abbrev_underscore(publication.in_issue.in_volume.in_journal.name)
+#     + journal_name_abbrev_doi(publication.in_issue.in_volume.in_journal.name)
 #     + '/' + str(publication.in_issue.in_volume.number)
 #     + '/' + str(publication.in_issue.number)
 
@@ -147,112 +147,6 @@ def upload_proofs(request):
     return render(request, 'journals/upload_proofs.html')
 
 
-# @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-# @transaction.atomic
-# def initiate_publication(request):
-#     """
-#     Called by an Editorial Administrator.
-#     Publish the manuscript after proofs have been accepted.
-#     This method creates a Publication instance.
-#     """
-#     if request.method == 'POST':
-#         initiate_publication_form = InitiatePublicationForm(request.POST, request.FILES)
-#         if initiate_publication_form.is_valid():
-#             submission = get_object_or_404(Submission, 
-#                 pk=initiate_publication_form.cleaned_data['accepted_submission'].id)
-#             publication = Publication(
-#                 accepted_submission=submission,
-#                 #in_journal=initiate_publication_form.cleaned_data['in_journal'],
-#                 #volume=initiate_publication_form.cleaned_data['volume'],
-#                 #issue=initiate_publication_form.cleaned_data['issue'],
-#                 in_issue=initiate_publication_form.cleaned_data['in_issue'],
-#                 paper_nr=initiate_publication_form.cleaned_data['paper_nr'],
-#                 discipline=submission.discipline,
-#                 domain=submission.domain,
-#                 subject_area=submission.subject_area,
-#                 secondary_areas=submission.secondary_areas,
-#                 title=submission.title,
-#                 author_list=submission.author_list,
-#                 abstract=submission.abstract,
-#                 pdf_file=request.FILES['pdf_file'],
-#                 submission_date=initiate_publication_form.cleaned_data['submission_date'],
-#                 acceptance_date=initiate_publication_form.cleaned_data['acceptance_date'],
-#                 publication_date=timezone.now(),
-#                 latest_activity=timezone.now(),
-#             )
-#             publication.save()
-#             publication.doi_label = publication.doi_label_as_str()
-#             publication.doi_string='10.21468/' + publication.doi_label_as_str()
-#             publication.save()
-#             publication.authors_claims.add(*submission.authors_claims.all())
-#             publication.authors_false_claims.add(*submission.authors_false_claims.all())
-#             # ack_header = 'Publication created'
-#             # ack_message = 'The publication was created.'
-#             # return render(request, 'scipost/acknowledgement.html', context)
-#             return redirect('journals:validate_publication', publication_id=publication.id)
-#         else:
-#             errormessage = 'The form was not filled validly.'
-#             context = {'initiate_publication_form': initiate_publication_form,
-#                        'errormessage': errormessage}
-#             return render(request, 'journals/initiate_publication.html', context)
-#     else:
-#         initiate_publication_form = InitiatePublicationForm()
-#     context = {'initiate_publication_form': initiate_publication_form}
-#     return render(request, 'journals/initiate_publication.html', context)
-
-
-# @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-# @transaction.atomic
-# def validate_publication(request, publication_id):
-#     # TODO: move from uploads to Journal folder
-#     # TODO: create metadata
-#     # TODO: set DOI, register with Crossref
-#     # TODO: create BiBTeX entry
-#     # TODO: email authors paper published
-#     # TODO: add funding info
-#     publication = get_object_or_404 (Publication, pk=publication_id)
-#     if request.method == 'POST':
-#         validate_publication_form = ValidatePublicationForm(request.POST, request.FILES)
-#         if validate_publication_form.is_valid():
-#             # Mark the submission as having been published:
-#             publication.accepted_submission.status = 'published'
-#             publication.accepted_submission.save()
-#             JournalUtils.load({'publication': publication})
-#             JournalUtils.send_authors_paper_published_email()
-#         else:
-#             errormessage = 'The form was invalid.'
-#             context = {'publication': publication,
-#                        'validate_publication_form': validate_publication_form,
-#                        'errormessage': errormessage}
-#             return render(request, 'journals/validate_publication.html', context)
-
-#     else:
-#         BiBTeX_data = (
-#             '@Article{' + publication.doi_label_as_str() + ',\n'
-#             '\ttitle={"' + publication.title + '"},\n'
-#             '\tauthors={' + publication.author_list + '},\n'
-#             '\tjournal={' 
-#             + journal_name_abbrev_citation(publication.in_issue.in_volume.in_journal.name)
-#             + '},\n'
-#             '\tvolume={' + str(publication.in_issue.in_volume.number) + '},\n'
-#             '\tissue={' + str(publication.in_issue.number) + '},\n'
-#             '\tpages={' + paper_nr_string(publication.paper_nr) + '},\n'
-#             '\tyear={' + publication.publication_date.strftime('%Y') + '},\n'
-#             '\tpublisher={SciPost},\n'
-#             '\tdoi={' + publication.doi_string + '},\n'
-#             '\turl={https://scipost.org/' + publication.doi_string + '},\n'
-#             '}\n'
-#         )
-#         initial = {'BiBTeX_entry': BiBTeX_data,} 
-#         validate_publication_form = ValidatePublicationForm(
-#             initial=initial, instance=publication)
-
-#     context = {'publication': publication,
-#                'validate_publication_form': validate_publication_form}
-#     return render(request, 'journals/validate_publication.html', context)
-
-
-
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
@@ -277,9 +171,9 @@ def initiate_publication(request):
                 if paper_nr > 999:
                     raise PaperNumberingError(paper_nr)
             doi_label = (
-                journal_name_abbrev_underscore(current_issue.in_volume.in_journal.name)
-                + '_' + str(current_issue.in_volume.number)
-                + '_' + str(current_issue.number) + '_' + paper_nr_string(paper_nr)
+                journal_name_abbrev_doi(current_issue.in_volume.in_journal.name)
+                + '.' + str(current_issue.in_volume.number)
+                + '.' + str(current_issue.number) + '.' + paper_nr_string(paper_nr)
             )
             doi_string='10.21468/' + doi_label
             BiBTeX_entry = (
@@ -355,7 +249,7 @@ def validate_publication(request):
             initial_path = publication.pdf_file.path
             new_dir =  (publication.in_issue.path
                         + paper_nr_string(publication.paper_nr))
-            new_path = new_dir + '/' + publication.doi_label + '.pdf'
+            new_path = new_dir + '/' + publication.doi_label.replace('.', '_') + '.pdf'
             os.makedirs(new_dir)
             os.rename(initial_path, new_path)
             publication.pdf_file.name = new_path
@@ -395,5 +289,6 @@ def publication_pdf(request, doi_string):
     publication = get_object_or_404 (Publication, doi_string=doi_string)
     pdf = File(publication.pdf_file)
     response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'filename=' + publication.doi_label + '.pdf'
+    response['Content-Disposition'] = ('filename=' 
+                                       + publication.doi_label.replace('.', '_') + '.pdf')
     return response

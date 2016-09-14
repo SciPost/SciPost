@@ -25,7 +25,7 @@ class JournalUtils(object):
                       '\n\nThe publication page is located at the permanent link '
                       'https://scipost.org/' + cls.publication.doi_string + '.'
                       '\n\nWe warmly congratulate you on this achievement and thank you '
-                      'for entrusting us with the task of publishing your research.'
+                      'for entrusting us with the task of publishing your research. '
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
         emailmessage = EmailMessage(

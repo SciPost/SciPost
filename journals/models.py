@@ -30,13 +30,13 @@ def journal_name_abbrev_citation(journal_name):
     else:
         raise JournalNameError(journal_name)
 
-def journal_name_abbrev_underscore(journal_name):
+def journal_name_abbrev_doi(journal_name):
     if journal_name == 'SciPost Physics':
-        return 'SciPost_Phys'
+        return 'SciPostPhys'
     elif journal_name == 'SciPost Physics Select':
-        return 'SciPost_Phys_Sel'
+        return 'SciPostPhysSel'
     elif journal_name == 'SciPost Physics Lecture Notes':
-        return 'SciPost_Phys_Lect_Notes'
+        return 'SciPostPhysLectNotes'
     else:
         raise JournalNameError(journal_name)
 
@@ -137,12 +137,6 @@ class Issue(models.Model):
 
 class Publication(models.Model):
     accepted_submission = models.OneToOneField('submissions.Submission')
-    #in_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS,
-    #                              verbose_name="Published in")
-    #journal = models.ForeignKey(Journal)
-    #volume = models.PositiveSmallIntegerField()
-    #volume = models.ForeignKey(Volume)
-    #issue = models.PositiveSmallIntegerField()
     in_issue = models.ForeignKey(Issue)
     paper_nr = models.PositiveSmallIntegerField()
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
@@ -174,9 +168,6 @@ class Publication(models.Model):
     def __str__ (self):
         header = (self.citation() + ', '
                   + self.title[:30] + ' by ' + self.author_list[:30]
-                  # + ', in ' + self.in_issue.in_volume.in_journal.name
-                  # + ' ' + str(self.in_issue.in_volume.number) 
-                  # + '(' + str(self.in_issue.number) + ')'
                   + ', published ' + self.publication_date.strftime('%Y-%m-%d'))
         return header
 
@@ -213,13 +204,14 @@ class Publication(models.Model):
              'year': self.publication_date.strftime('%Y'),})
         return template.render(context)
                                   
-    def doi_label_as_str(self):
-        label = (
-            journal_name_abbrev_underscore(self.in_issue.in_volume.in_journal.name)
-            + '_' + str(self.in_issue.in_volume.number)
-            + '_' + str(self.in_issue.number)
-            + '_' + paper_nr_string(self.paper_nr) )
-        return label
+
+    # def doi_label_as_str(self):
+    #     label = (
+    #         journal_name_abbrev_doi(self.in_issue.in_volume.in_journal.name)
+    #         + '.' + str(self.in_issue.in_volume.number)
+    #         + '.' + str(self.in_issue.number)
+    #         + '.' + paper_nr_string(self.paper_nr) )
+    #     return label
 
 
     def header_as_li (self):

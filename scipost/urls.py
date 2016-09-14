@@ -84,10 +84,10 @@ urlpatterns = [
     # Publications #
     ################
 
-    url(r'^(?P<doi_string>10.21468/[a-zA-Z_]+[0-9]+_[0-9]+_[0-9]{3,})$', 
+    url(r'^(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$', 
         journals_views.publication_detail,
         name='publication_detail'),
-    url(r'^(?P<doi_string>10.21468/[a-zA-Z_]+[0-9]+_[0-9]+_[0-9]{3,}).pdf$', 
+    url(r'^(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$', 
         journals_views.publication_pdf,
         name='publication_pdf'),
 
