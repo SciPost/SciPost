@@ -84,7 +84,7 @@
     {% if submission.open_for_reporting %}
     {% if perms.scipost.can_referee and not is_author and not is_author_unchecked %}
     <li><h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Contribute a Report</a></h3>
-      <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline }}</div></li>
+      <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div></li>
     {% elif is_author_unchecked %}
     <li><h3>Contribute a Report [deactivated]: the system flagged you as a potential author of this Submission.
 	Please go to your <a href="{% url 'scipost:personal_page' %}">personal page</a>

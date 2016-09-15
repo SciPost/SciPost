@@ -76,7 +76,7 @@
 	{% for invitation in ref_invitations %}
 	<tr>
 	  {{ invitation.summary_as_tds }}
-	  {% if not invitation.accepted == False %}
+	  {% if not invitation.accepted == False and not invitation.cancelled %}
 	  <td>
 	    {% if invitation.referee %}
 	    <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
@@ -85,21 +85,24 @@
 	    {% endif %}
 	  </td>
 	  <td>
-	  {% if not invitation.fulfilled %}
-	  <a href="{% url 'submissions:ref_invitation_reminder' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder email</a>
-	  {% else %}
-	  <strong style="color: green">Report has been delivered</strong>
-	  {% endif %}
+	    {% if not invitation.fulfilled %}
+	    <a href="{% url 'submissions:ref_invitation_reminder' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder email</a>
+	    {% else %}
+	    <strong style="color: green">Report has been delivered</strong>
+	    {% endif %}
 	  </td>
-	  {% else %}
-	  <td></td><td></td>
-	  {% endif %}
 	  <td>
-	  {% if invitation.nr_reminders > 0 %}
-	  (nr reminders sent: {{ invitation.nr_reminders }}, <br/>last on {{ invitation.date_last_reminded }})
-	  {% else %}
-	  &nbsp;
+	    {% if invitation.nr_reminders > 0 %}
+	    (nr reminders sent: {{ invitation.nr_reminders }}, <br/>last on {{ invitation.date_last_reminded }})
+	    {% endif %}
 	  </td>
+	  <td>
+	    {% if not invitation.fulfilled %}
+	    <a href="{% url 'submissions:cancel_ref_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr invitation_id=invitation.id %}">Cancel invitation</a>
+	    {% endif %}
+	  </td>
+	  {% else %}
+	  <td></td><td></td><td></td><td></td>
 	  {% endif %}
 	</tr>
 	{% endfor %}

@@ -436,6 +436,7 @@ class RefereeInvitation(models.Model):
     refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, 
                                       blank=True, null=True)
     fulfilled = models.BooleanField(default=False) # True if a Report has been submitted
+    cancelled = models.BooleanField(default=False) # True if EIC has deactivated invitation
 
     def __str__(self):
         return (self.first_name + ' ' + self.last_name + ' to referee ' + 
@@ -464,7 +465,9 @@ class RefereeInvitation(models.Model):
         context = Context({'first_name': self.first_name, 'last_name': self.last_name,
                            'date_invited': self.date_invited.strftime('%Y-%m-%d %H:%M')})
         output = '<td>{{ first_name }} {{ last_name }}</td><td>invited <br/>{{ date_invited }}</td><td>'
-        if self.accepted is not None:
+        if self.cancelled:
+            output += '<strong style="color: red;">cancelled</strong>'
+        elif self.accepted is not None:
             if self.accepted:
                 output += '<strong style="color: green">task accepted</strong> '
             else:

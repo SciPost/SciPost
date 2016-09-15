@@ -839,6 +839,25 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
     return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)
 
 
+
+@login_required
+@permission_required_or_403('can_take_editorial_actions', 
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+def cancel_ref_invitation(request, arxiv_identifier_w_vn_nr, invitation_id):
+    """
+    This method is used by the Editor-in-charge from the editorial_page
+    to remove a referee for the list of invited ones.
+    It can be used for registered as well as unregistered referees.
+    """
+    invitation = get_object_or_404 (RefereeInvitation, pk=invitation_id)
+    invitation.cancelled=True
+    invitation.save()
+    SubmissionUtils.load({'invitation': invitation})
+    SubmissionUtils.send_ref_cancellation_email()
+    return redirect(reverse('submissions:editorial_page', 
+                            kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))    
+
+
 @login_required
 @permission_required_or_403('can_take_editorial_actions', 
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
@@ -996,7 +1015,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
                            and not (request.user.contributor in submission.authors_false_claims.all())
                            and (request.user.last_name in submission.author_list))
     errormessage = None
-    if timezone.now() > submission.reporting_deadline:
+    if timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
         errormessage = ('The reporting deadline has passed. You cannot submit'
                         ' a Report anymore.')
     if is_author:

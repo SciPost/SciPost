@@ -378,7 +378,7 @@ def vet_registration_request_ack(request, contributor_id):
                 pending_ref_inv_exists = True
                 try:
                     pending_ref_inv = RefereeInvitation.objects.get(
-                        invitation_key=contributor.invitation_key)
+                        invitation_key=contributor.invitation_key, cancelled=False)
                     pending_ref_inv.referee = contributor
                     pending_ref_inv.save()
                 except RefereeInvitation.DoesNotExist:
@@ -591,7 +591,7 @@ def personal_page(request):
             nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
             nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
         nr_ref_inv_to_consider = RefereeInvitation.objects.filter(
-            referee=contributor, accepted=None).count()
+            referee=contributor, accepted=None, cancelled=False).count()
         pending_ref_tasks = RefereeInvitation.objects.filter(
             referee=contributor, accepted=True, fulfilled=False)
         # Verify if there exist objects authored by this contributor, 

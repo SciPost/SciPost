@@ -48,6 +48,8 @@ urlpatterns = [
     url(r'^accept_or_decline_ref_invitation/(?P<invitation_id>[0-9]+)$', 
         views.accept_or_decline_ref_invitation_ack, name='accept_or_decline_ref_invitation_ack'),
     url(r'^ref_invitation_reminder/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/(?P<invitation_id>[0-9]+)$', views.ref_invitation_reminder, name='ref_invitation_reminder'),
+    url(r'^cancel_ref_invitation/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/(?P<invitation_id>[0-9]+)$', 
+        views.cancel_ref_invitation, name='cancel_ref_invitation'),
     url(r'^extend_refereeing_deadline/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/(?P<days>[0-9]+)$', 
         views.extend_refereeing_deadline, name='extend_refereeing_deadline'),
     url(r'^close_refereeing_round/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$', 

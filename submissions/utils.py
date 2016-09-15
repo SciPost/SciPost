@@ -282,6 +282,40 @@ class SubmissionUtils(object):
             ['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
+
+
+    @classmethod
+    def send_ref_cancellation_email(cls):
+        """
+        This method is used to inform a referee that his/her services are no longer required.
+        It is called from the cancel_ref_invitation method in submissions/views.py.
+        """
+        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' ' + cls.invitation.last_name + ',\n\n' 
+                      'On behalf of the Editor-in-charge '
+                      + title_dict[cls.invitation.submission.editor_in_charge.title] + ' '
+                      + cls.invitation.submission.editor_in_charge.user.last_name
+                      + ', we would like to inform you that your report on\n\n'
+                      + cls.invitation.submission.title + ' by ' 
+                      + cls.invitation.submission.author_list
+                      + '\n\nis no longer required.')
+        email_text += ('\n\nWe very much hope we can count on your expertise '
+                       'at some other point in the future,'
+                       '\n\nMany thanks for your time,\n\nThe SciPost Team')
+        if cls.invitation.referee is None:
+            email_text += ('\n\nP.S.: We would also like to renew '
+                           'our invitation to become a Contributor on SciPost '
+                           '(our records show that you are not yet registered); '
+                           'your partially pre-filled registration form is still available at\n\n'
+                           'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n'
+                           'after which your registration will be activated, giving you full access to '
+                           'the portal\'s facilities (in particular allowing you to provide referee reports).')
+        emailmessage = EmailMessage(
+            'SciPost: report no longer needed', email_text,
+            'SciPost Submissions <submissions@scipost.org>',
+            [cls.invitation.email_address],
+            ['submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.send(fail_silently=False)
     
 
     @classmethod
