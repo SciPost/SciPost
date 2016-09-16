@@ -2,7 +2,7 @@ from django.conf.urls import include, patterns, url
 from django.views.generic import TemplateView
 
 from . import views
-from .feeds import LatestCommentFeed
+from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS, LatestCommentsFeedAtom
 
 from journals import views as journals_views
 
@@ -25,6 +25,12 @@ urlpatterns = [
     url(r'^FAQ$', TemplateView.as_view(template_name='scipost/FAQ.html'), name='FAQ'),
     url(r'^terms_and_conditions$', TemplateView.as_view(template_name='scipost/terms_and_conditions.html'), name='terms_and_conditions'),
     url(r'^privacy_policy$', TemplateView.as_view(template_name='scipost/privacy_policy.html'), name='privacy_policy'),
+
+    # Feeds
+    url(r'^rss/news/$', LatestNewsFeedRSS()),
+    url(r'^atom/news/$', LatestNewsFeedAtom()),
+    url(r'^rss/comments/$', LatestCommentsFeedRSS()),
+    url(r'^atom/comments/$', LatestCommentsFeedAtom()),
 
     # Search 
     url(r'^search$', views.search, name='search'),
@@ -107,9 +113,6 @@ urlpatterns = [
     url(r'^list/(?P<list_id>[0-9]+)$', views.list, name='list'),
     url(r'^list_add_element/(?P<list_id>[0-9]+)/(?P<type>[SCTc])/(?P<element_id>[0-9]+)$', views.list_add_element, name='list_add_element'),
     url(r'^list_remove_element/(?P<list_id>[0-9]+)/(?P<type>[SCTc])/(?P<element_id>[0-9]+)$', views.list_remove_element, name='list_remove_element'),
-
-    # Feeds
-    url(r'^latest_comment/feed/$', LatestCommentFeed()),
 
     # Teams
     url(r'^create_team$', views.create_team, name='create_team'),
