@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^privacy_policy$', TemplateView.as_view(template_name='scipost/privacy_policy.html'), name='privacy_policy'),
 
     # Feeds
+    url(r'^feeds$', TemplateView.as_view(template_name='scipost/feeds.html'), name='feeds'),
     url(r'^rss/news/$', LatestNewsFeedRSS()),
     url(r'^atom/news/$', LatestNewsFeedAtom()),
     url(r'^rss/comments/$', LatestCommentsFeedRSS()),
