@@ -176,10 +176,12 @@ def search(request):
 
 def index(request):
     """ Main page """
+    latest_newsitems = NewsItem.objects.all().order_by('-date')[:2]
     submission_search_form = SubmissionSearchForm(request.POST)
     commentary_search_form = CommentarySearchForm(request.POST)
     thesislink_search_form = ThesisLinkSearchForm(request.POST)
-    context = {'submission_search_form': submission_search_form, 
+    context = {'latest_newsitems': latest_newsitems,
+               'submission_search_form': submission_search_form, 
                'commentary_search_form': commentary_search_form, 
                'thesislink_search_form': thesislink_search_form,
                }
@@ -193,6 +195,10 @@ def base(request):
     """ Skeleton for pages, used in template inheritance """
     return render(request, 'scipost/base.html')
 
+def news(request):
+    newsitems = NewsItem.objects.all().order_by('-date')
+    context = {'newsitems': newsitems}
+    return render(request, 'scipost/news.html', context)
 
 ################
 # Contributors:

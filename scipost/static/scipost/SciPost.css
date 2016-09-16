@@ -207,6 +207,18 @@ ul.personalTabMenu li a.inactive {
   margin: 10px;
   padding: 10px;
 }
+.flex-greybox640 {
+  background-color: #f4f4f4; 
+  width: 640px;
+  margin: 10px;
+  padding: 10px;
+}
+.flex-greybox800 {
+  background-color: #f4f4f4; 
+  width: 800px;
+  margin: 10px;
+  padding: 10px;
+}
 .flex-whitebox {
   margin: 10px;
   padding: 10px;
@@ -676,6 +688,21 @@ div.SciPostPhysicsBanner a.active {
 div.SciPostPhysicsBanner a.inactive {
   background-color: #dddddd;
   border: none;
+}
+
+
+ul.NewsItemsList {
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+ul.NewsItemsList li {
+  margin: 10px;
+}
+h3.NewsHeadline {
+  background-color: #002B49;
+  color: #C3D7EE;
+  padding: 10px;
 }
 
 .SciPostPhysicsTab {

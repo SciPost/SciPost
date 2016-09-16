@@ -7,6 +7,18 @@
 
 <section>
   <div class="flex-container">
+    {% if latest_newsitems %}
+    <div class="flex-greybox320">
+      <h1><a href="{% url 'scipost:news' %}">News</a></h1>
+      <p>Latest news and announcements.</p>
+      <hr class="hr6"/>
+      <ul class="NewsItemsList">
+	{% for item in latest_newsitems %}
+	<li>{{ item.descriptor_small|linebreaks }}</li>
+	{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
     <div class="flex-greybox320">
       <h1><a href="{% url 'scipost:about' %}">About SciPost</a></h1>
       <p>SciPost is a complete scientific publication portal managed by active professional scientists.</p>

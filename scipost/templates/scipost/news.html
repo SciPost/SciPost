@@ -1,0 +1,28 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: News{% endblock pagetitle %}
+
+{% load staticfiles %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h1>SciPost News</h1>
+    </div>
+  </div>
+
+  <div class="flex-container">
+    <ul class="NewsItemsList">
+      {% for item in newsitems %}
+      <li>{{ item.descriptor_full|linebreaks }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+</section>
+
+
+{% endblock bodysup %}
