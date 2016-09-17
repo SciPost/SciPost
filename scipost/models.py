@@ -198,7 +198,8 @@ class Contributor(models.Model):
     personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
     vetted_by = models.ForeignKey('self', related_name="contrib_vetted_by", 
                                   blank=True, null=True)  
-
+    accepts_SciPost_emails = models.BooleanField(default=True, 
+                                                 verbose_name="I accept to receive SciPost emails")
 
     def __str__ (self):
         return self.user.last_name + ', ' + self.user.first_name
@@ -228,19 +229,21 @@ class Contributor(models.Model):
         <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
         <tr><td>Address: </td><td>&nbsp;</td><td>{{ address }}</td></tr>
         <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
+        <tr><td>Accept SciPost emails: </td><td>&nbsp;</td><td>{{ accepts_SciPost_emails }}</td></tr>
         </table>
         ''')
         context = Context({
-                'title': title_dict[self.title],
-                'first_name': self.user.first_name,
-                'last_name': self.user.last_name,
-                'email': self.user.email,
-                'orcid_id': self.orcid_id,
-                'country_of_employment': str(self.country_of_employment.name),
-                'affiliation': self.affiliation,
-                'address': self.address,
-                'personalwebpage': self.personalwebpage
-                })
+            'title': title_dict[self.title],
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
+            'email': self.user.email,
+            'orcid_id': self.orcid_id,
+            'country_of_employment': str(self.country_of_employment.name),
+            'affiliation': self.affiliation,
+            'address': self.address,
+            'personalwebpage': self.personalwebpage,
+            'accepts_SciPost_emails': self.accepts_SciPost_emails,
+        })
         return template.render(context)
 
 

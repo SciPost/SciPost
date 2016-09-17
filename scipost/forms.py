@@ -85,7 +85,8 @@ class UpdatePersonalDataForm(forms.ModelForm):
     class Meta:
         model = Contributor
         fields = ['title', 'discipline', 'expertises', 'orcid_id', 'country_of_employment', 
-                  'affiliation', 'address', 'personalwebpage']
+                  'affiliation', 'address', 'personalwebpage',
+                  'accepts_SciPost_emails']
         widgets = {'country_of_employment': CountrySelectWidget()}
 
 class VetRegistrationForm(forms.Form):

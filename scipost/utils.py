@@ -13,16 +13,30 @@ from .models import *
 EMAIL_FOOTER = (
     '{% load staticfiles %}'
     '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none;">'
-    '<li style="display: inline; padding: 0px;"><a href="https://scipost.org">'
+    '<li style="display: inline; margin: 0px; padding: 0px;"><a href="https://scipost.org">'
     '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.jpg\' %}"></a></li>'
-    '<li style="display: inline; padding: 5px;"><a href="https://scipost.org/journals/">Journals</a></li>'
-    '<li style="display: inline; padding: 5px;"><a href="https://scipost.org/submissions/">Submissions</a></li>'
-    '<li style="display: inline; padding: 5px;"><a href="https://scipost.org/commentaries/">Commentaries</a></li>'
-    '<li style="display: inline; padding: 5px;"><a href="https://scipost.org/theses/">Theses</a></li>'
-    '<li style="display: inline; padding: 5px;"><a href="https://scipost.org/login/">Login</a></li>'
+    '<li style="display: inline; margin: 5px; padding: 5px;">'
+    '<a href="https://scipost.org/journals/">Journals</a></li>'
+    '<li style="display: inline; margin: 5px; padding: 5px;">'
+    '<a href="https://scipost.org/submissions/">Submissions</a></li>'
+    '<li style="display: inline; margin: 5px; padding: 5px;">'
+    '<a href="https://scipost.org/commentaries/">Commentaries</a></li>'
+    '<li style="display: inline; margin: 5px; padding: 5px;">'
+    '<a href="https://scipost.org/theses/">Theses</a></li>'
+    '<li style="display: inline; margin: 5px; padding: 5px;">'
+    '<a href="https://scipost.org/login/">Login</a></li>'
     '</ul>'
 )
 
+EMAIL_UNSUBSCRIBE_LINK_PLAIN = (
+    '\n\nIf you do not with to receive our emails, you can unsubscribe by '
+    'updating your personal data at https://scipost.org/update_personal_data.'
+)
+
+EMAIL_UNSUBSCRIBE_LINK = (
+    '\n\n<p>If you do not with to receive our emails, you can unsubscribe by '
+    '<a href="https://scipost.org/update_personal_data">updating your personal data</a>.</p>'
+)
 
 class Utils(object):
 

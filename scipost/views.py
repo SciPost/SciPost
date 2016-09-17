@@ -728,6 +728,7 @@ def update_personal_data(request):
             request.user.contributor.address = cont_form.cleaned_data['address']
             request.user.contributor.affiliation = cont_form.cleaned_data['affiliation']
             request.user.contributor.personalwebpage = cont_form.cleaned_data['personalwebpage']
+            request.user.contributor.accepts_SciPost_emails = cont_form.cleaned_data['accepts_SciPost_emails']
             request.user.save()
             request.user.contributor.save()
             #return render(request, 'scipost/update_personal_data_ack.html')
@@ -934,25 +935,28 @@ def email_group_members(request):
                 page = p.page(pagenr)
                 with mail.get_connection() as connection:
                     for member in page.object_list:
-                        email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
-                                      member.last_name + ', \n\n'
-                                      + form.cleaned_data['email_text'])
-                        html_template = Template(
-                            'Dear ' + title_dict[member.contributor.title] + ' ' + 
-                            member.last_name + ', \n\n'
-                            + form.cleaned_data['email_text']
-                            + '\n\n\n' + EMAIL_FOOTER
-                        )
-                        context = Context({})
-                        html_version = html_template.render(context)
-                        # mail.EmailMessage(form.cleaned_data['email_subject'],
-                        #                   email_text, 'SciPost Admin <admin@scipost.org>',
-                        #                   [member.email], connection=connection).send()
-                        message = EmailMultiAlternatives(form.cleaned_data['email_subject'],
-                                          email_text, 'SciPost Admin <admin@scipost.org>',
-                                          [member.email], connection=connection)
-                        message.attach_alternative(html_version, 'text/html')
-                        message.send()
+                        if member.accepts_SciPost_emails:
+                            email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
+                                          member.last_name + ', \n\n'
+                                          + form.cleaned_data['email_text']
+                                          + EMAIL_UNSUBSCRIBE_LINK_PLAIN)
+                            html_template = Template(
+                                'Dear ' + title_dict[member.contributor.title] + ' ' + 
+                                member.last_name + ', \n\n'
+                                + form.cleaned_data['email_text']
+                                + '\n\n\n' + EMAIL_FOOTER + EMAIL_UNSUBSCRIBE_LINK
+                            )
+                            context = Context({})
+                            html_version = html_template.render(context)
+                            # mail.EmailMessage(form.cleaned_data['email_subject'],
+                            #                   email_text, 'SciPost Admin <admin@scipost.org>',
+                            #                   [member.email], connection=connection).send()
+                            message = EmailMultiAlternatives(
+                                form.cleaned_data['email_subject'],
+                                email_text, 'SciPost Admin <admin@scipost.org>',
+                                [member.email], connection=connection)
+                            message.attach_alternative(html_version, 'text/html')
+                            message.send()
             context = {'ack_header': 'The email has been sent.',
                        'followup_message': 'Return to your ',
                        'followup_link': reverse('scipost:personal_page'),
