@@ -13,7 +13,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.exceptions import PermissionDenied
 from django.core import mail
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -920,14 +920,35 @@ def email_group_members(request):
             #     bcc=recipient_emails,
             #     reply_to=['admin@scipost.org'])
             # emailmessage.send(fail_silently=False)
-            with mail.get_connection() as connection:
-                for member in form.cleaned_data['group'].user_set.all():
-                    email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
-                                  member.last_name + ', \n\n'
-                                  + form.cleaned_data['email_text'])
-                    mail.EmailMessage(form.cleaned_data['email_subject'],
-                                      email_text, 'SciPost Admin <admin@scipost.org>',
-                                      [member.email], connection=connection).send()
+            # with mail.get_connection() as connection:
+            #     for member in form.cleaned_data['group'].user_set.all():
+            #         email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
+            #                       member.last_name + ', \n\n'
+            #                       + form.cleaned_data['email_text'])
+            #         mail.EmailMessage(form.cleaned_data['email_subject'],
+            #                           email_text, 'SciPost Admin <admin@scipost.org>',
+            #                           [member.email], connection=connection).send()
+            group_members = form.cleaned_data['group'].user_set.all()
+            p = Paginator(group_members, 32)
+            for pagenr in p.page_range:
+                page = p.page(pagenr)
+                with mail.get_connection() as connection:
+                    for member in page.object_list:
+                        email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
+                                      member.last_name + ', \n\n'
+                                      + form.cleaned_data['email_text'])
+                        html_template = Template(
+                            email_text + '\n\n<p><a href="https://scipost.org">'
+                            '<img src="{% static \'scipost/images/logo_scipost_with_bgd.jpg\' %}"></a></p>')
+                        html_version = html_template.render()
+                        # mail.EmailMessage(form.cleaned_data['email_subject'],
+                        #                   email_text, 'SciPost Admin <admin@scipost.org>',
+                        #                   [member.email], connection=connection).send()
+                        message = EmailMultiAlternatives(form.cleaned_data['email_subject'],
+                                          email_text, 'SciPost Admin <admin@scipost.org>',
+                                          [member.email], connection=connection)
+                        message.attach_alternative(html_version, 'text/html')
+                        message.send()
             context = {'ack_header': 'The email has been sent.',
                        'followup_message': 'Return to your ',
                        'followup_link': reverse('scipost:personal_page'),
