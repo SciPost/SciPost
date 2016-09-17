@@ -12,9 +12,9 @@ from .models import *
 
 EMAIL_FOOTER = (
     '{% load staticfiles %}'
-    '<p><a href="https://scipost.org">'
-    '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.jpg\' %}"></a></p>'
     '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none;">'
+    '<li style="display: inline; padding: 0px;"><a href="https://scipost.org">'
+    '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.jpg\' %}"></a></li>'
     '<li style="display: inline; padding: 5px;"><a href="https://scipost.org/journals/">Journals</a></li>'
     '<li style="display: inline; padding: 5px;"><a href="https://scipost.org/submissions/">Submissions</a></li>'
     '<li style="display: inline; padding: 5px;"><a href="https://scipost.org/commentaries/">Commentaries</a></li>'

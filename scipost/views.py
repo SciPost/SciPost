@@ -938,7 +938,10 @@ def email_group_members(request):
                                       member.last_name + ', \n\n'
                                       + form.cleaned_data['email_text'])
                         html_template = Template(
-                            email_text + '\n\n' + EMAIL_FOOTER
+                            'Dear ' + title_dict[member.contributor.title] + ' ' + 
+                            member.last_name + ', \n\n'
+                            + form.cleaned_data['email_text']
+                            + '\n\n\n' + EMAIL_FOOTER
                         )
                         context = Context({})
                         html_version = html_template.render(context)
