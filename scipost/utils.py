@@ -12,7 +12,7 @@ from .models import *
 
 EMAIL_FOOTER = (
     '{% load staticfiles %}'
-    '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none;">'
+    '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none; padding: 0px 5px;">'
     '<li style="display: inline; margin: 0px; padding: 0px;"><a href="https://scipost.org">'
     '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.jpg\' %}"></a></li>'
     '<li style="display: inline; margin: 5px; padding: 5px;">'
@@ -29,12 +29,12 @@ EMAIL_FOOTER = (
 )
 
 EMAIL_UNSUBSCRIBE_LINK_PLAIN = (
-    '\n\nIf you do not with to receive our emails, you can unsubscribe by '
+    '\n\nUnsubscribe by '
     'updating your personal data at https://scipost.org/update_personal_data.'
 )
 
 EMAIL_UNSUBSCRIBE_LINK = (
-    '\n\n<p>If you do not with to receive our emails, you can unsubscribe by '
+    '\n\n<p style="font-size: 8px;">Unsubscribe by '
     '<a href="https://scipost.org/update_personal_data">updating your personal data</a>.</p>'
 )
 

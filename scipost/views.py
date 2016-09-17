@@ -941,12 +941,14 @@ def email_group_members(request):
                                           + form.cleaned_data['email_text']
                                           + EMAIL_UNSUBSCRIBE_LINK_PLAIN)
                             html_template = Template(
-                                'Dear ' + title_dict[member.contributor.title] + ' ' + 
-                                member.last_name + ', \n\n'
-                                + form.cleaned_data['email_text']
-                                + '\n\n\n' + EMAIL_FOOTER + EMAIL_UNSUBSCRIBE_LINK
+                                'Dear {{ title }} ' + 
+                                member.last_name + ', \n\n{{ email_text|linebreaks }}'
+                                + '\n\n' + EMAIL_FOOTER + EMAIL_UNSUBSCRIBE_LINK
                             )
-                            context = Context({})
+                            context = Context(
+                                {'title': title_dict[member.contributor.title],
+                                 'email_text': form.cleaned_data['email_text'],
+                                })
                             html_version = html_template.render(context)
                             # mail.EmailMessage(form.cleaned_data['email_subject'],
                             #                   email_text, 'SciPost Admin <admin@scipost.org>',
