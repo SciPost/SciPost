@@ -28,8 +28,8 @@ EMAIL_FOOTER = (
     # '<li style="display: inline; margin: 3px; padding: 3px;">'
     # '<a href="https://scipost.org/login/" style="padding: 3px;">Login</a></li>'
     # '</ul>'
-    '<nav>'
-    '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none;">'
+    '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none; '
+    'display: flex; align-items: center;">'
     '<li style="display: inline-block;">'
     '<a href="https://scipost.org">'
     '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.png\' %}" width="64px"></a></li>'
@@ -41,8 +41,6 @@ EMAIL_FOOTER = (
     '<a href="https://scipost.org/commentaries/">Commentaries</a></li>'
     '<li style="display: inline-block;">'
     '<a href="https://scipost.org/theses/">Theses</a></li>'
-    '<li style="display: inline-block;">'
-    '<a href="https://scipost.org/login/">Login</a></li>'
     '</ul>'
 )
 
