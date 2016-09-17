@@ -935,7 +935,7 @@ def email_group_members(request):
                 page = p.page(pagenr)
                 with mail.get_connection() as connection:
                     for member in page.object_list:
-                        if member.accepts_SciPost_emails:
+                        if member.contributor.accepts_SciPost_emails:
                             email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
                                           member.last_name + ', \n\n'
                                           + form.cleaned_data['email_text']
