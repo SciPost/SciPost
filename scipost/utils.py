@@ -46,7 +46,7 @@ EMAIL_FOOTER = (
     # '<a href="https://scipost.org/login/">Login</a></li>'
     # '</ul>'
     '<div style="background-color: #f0f0f0; color: #002B49; align-items: center;">'
-    '<div style="display: inline-block; margin: 0px; padding: 0px;">'
+    '<div style="display: inline-block; margin: 0px; padding-top: 4px;">'
     '<a href="https://scipost.org">'
     '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.png\' %}" width="64px" '
     'style="margin: 0px; padding: 0px;"></a></div>'
