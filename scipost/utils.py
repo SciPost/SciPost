@@ -14,27 +14,27 @@ EMAIL_FOOTER = (
     '{% load staticfiles %}'
     '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none; padding: 0px 5px;">'
     '<li style="display: inline; margin: 0px; padding: 0px;"><a href="https://scipost.org">'
-    '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.jpg\' %}"></a></li>'
+    '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.png\' %}"></a></li>'
     '<li style="display: inline; margin: 5px; padding: 5px;">'
-    '<a href="https://scipost.org/journals/">Journals</a></li>'
+    '<a href="https://scipost.org/journals/" style="padding: 5px;">Journals</a></li>'
     '<li style="display: inline; margin: 5px; padding: 5px;">'
-    '<a href="https://scipost.org/submissions/">Submissions</a></li>'
+    '<a href="https://scipost.org/submissions/" style="padding: 5px;">Submissions</a></li>'
     '<li style="display: inline; margin: 5px; padding: 5px;">'
-    '<a href="https://scipost.org/commentaries/">Commentaries</a></li>'
+    '<a href="https://scipost.org/commentaries/" style="padding: 5px;">Commentaries</a></li>'
     '<li style="display: inline; margin: 5px; padding: 5px;">'
-    '<a href="https://scipost.org/theses/">Theses</a></li>'
+    '<a href="https://scipost.org/theses/" style="padding: 5px;">Theses</a></li>'
     '<li style="display: inline; margin: 5px; padding: 5px;">'
-    '<a href="https://scipost.org/login/">Login</a></li>'
+    '<a href="https://scipost.org/login/" style="padding: 5px;">Login</a></li>'
     '</ul>'
 )
 
 EMAIL_UNSUBSCRIBE_LINK_PLAIN = (
-    '\n\nUnsubscribe by '
+    '\n\nUnsubscribe from our email list by '
     'updating your personal data at https://scipost.org/update_personal_data.'
 )
 
 EMAIL_UNSUBSCRIBE_LINK = (
-    '\n\n<p style="font-size: 8px;">Unsubscribe by '
+    '\n\n<p style="font-size: 10px;">Unsubscribe from our email list by '
     '<a href="https://scipost.org/update_personal_data">updating your personal data</a>.</p>'
 )
 
