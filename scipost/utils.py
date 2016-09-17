@@ -14,12 +14,12 @@ EMAIL_FOOTER = (
     '{% load staticfiles %}'
     '<p><a href="https://scipost.org">'
     '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.jpg\' %}"></a></p>'
-    '<ul class="emailLinks">'
-    '<li><a href="{% url \'journals:journals\' %}">Journals</a></li>'
-    '<li><a href="{% url \'submissions:submissions\' %}">Submissions</a></li>'
-    '<li><a href="{% url \'commentaries:commentaries\' %}">Commentaries</a></li>'
-    '<li><a href="{% url \'theses:theses\' %}">Theses</a></li>'
-    '<li><a href="{% url \'scipost:login\' %}">Login</a></li>'
+    '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none;">'
+    '<li style="display: inline; padding: 5px;"><a href="{% url \'journals:journals\' %}">Journals</a></li>'
+    '<li style="display: inline; padding: 5px;"><a href="{% url \'submissions:submissions\' %}">Submissions</a></li>'
+    '<li style="display: inline; padding: 5px;"><a href="{% url \'commentaries:commentaries\' %}">Commentaries</a></li>'
+    '<li style="display: inline; padding: 5px;"><a href="{% url \'theses:theses\' %}">Theses</a></li>'
+    '<li style="display: inline; padding: 5px;"><a href="{% url \'scipost:login\' %}">Login</a></li>'
     '</ul>'
 )
 

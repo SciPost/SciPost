@@ -838,16 +838,3 @@ li.publicationPDF {
   background: #999999;
 }
 
-ul.emailLinks {
-  background-color: #f0f0f0;
-  color: #002B49;
-  margin:0px; 
-  padding:5px;
-  clear:both;
-  font-size: 10px;
-  font-weight: 200;
-}
-ul.emailLinks li {
-  display: inline;
-  padding: 5px;
-}
