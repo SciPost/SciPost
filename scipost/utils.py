@@ -9,6 +9,21 @@ from django.utils import timezone
 
 from .models import *
 
+
+EMAIL_FOOTER = (
+    '{% load staticfiles %}'
+    '<p><a href="https://scipost.org">'
+    '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.jpg\' %}"></a></p>'
+    '<ul class="emailLinks">'
+    '<li><a href="{% url \'journals:journals\' %}">Journals</a></li>'
+    '<li><a href="{% url \'submissions:submissions\' %}">Submissions</a></li>'
+    '<li><a href="{% url \'commentaries:commentaries\' %}">Commentaries</a></li>'
+    '<li><a href="{% url \'theses:theses\' %}">Theses</a></li>'
+    '<li><a href="{% url \'scipost:login\' %}">Login</a></li>'
+    '</ul>'
+)
+
+
 class Utils(object):
 
     @classmethod

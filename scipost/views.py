@@ -938,10 +938,8 @@ def email_group_members(request):
                                       member.last_name + ', \n\n'
                                       + form.cleaned_data['email_text'])
                         html_template = Template(
-                            email_text + '\n\n'
-                            '{% load staticfiles %}'
-                            '<p><a href="https://scipost.org">'
-                            '<img src="{% static \'scipost/images/logo_scipost_with_bgd.jpg\' %}"></a></p>')
+                            email_text + '\n\n' + EMAIL_FOOTER
+                        )
                         context = Context({})
                         html_version = html_template.render(context)
                         # mail.EmailMessage(form.cleaned_data['email_subject'],
