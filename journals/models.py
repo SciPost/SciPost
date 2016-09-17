@@ -125,7 +125,10 @@ class Issue(models.Model):
     path = models.CharField(max_length=200) 
 
     def __str__(self):
-        return str(self.in_volume) + ' issue ' + str(self.number)
+        text = str(self.in_volume) + ' issue ' + str(self.number)
+        if self.until_date >= timezone.now().date():
+            text += ' (in progress)'
+        return text
 
     def period (self):
         text = 'up to {{ until_month }} {{ year }}'
