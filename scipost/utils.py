@@ -12,7 +12,8 @@ from .models import *
 
 EMAIL_FOOTER = (
     '{% load staticfiles %}'
-    '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none; padding: 5px 5px;">'
+    '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none; padding: 5px 5px; '
+    'display: inline-block; vertical-align: middle;">'
     '<li style="display: inline; margin: 0px; padding: 0px;"><a href="https://scipost.org">'
     '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.png\' %}" width="64px" '
     'style="margin: 0px; padding: 0px;"></a></li>'
