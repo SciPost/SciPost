@@ -66,7 +66,6 @@ class RegistrationInvitationForm(forms.ModelForm):
                 Div(
                     Field('title'), Field('first_name'), Field('last_name'), 
                     Field('email'), Field('invitation_type'),
-                    Field('cited_in_submission'),
                     css_class="col-6"),
                 Div(
                     Field('message_style'),
@@ -74,6 +73,7 @@ class RegistrationInvitationForm(forms.ModelForm):
                     Submit('submit', 'Send invitation'),
                     css_class="col-6"),
                 css_class="row"),
+            Div(Field('cited_in_submission'),),
             )
 
 class UpdateUserDataForm(forms.ModelForm):
