@@ -969,6 +969,40 @@ def email_group_members(request):
     return render(request, 'scipost/email_group_members.html', context)
 
 
+@permission_required('scipost.can_email_particulars', return_403=True)
+def email_particular(request):
+    """
+    Method to send emails to individuals (registered or not)
+    """
+    if request.method == 'POST':
+        form = EmailParticularForm(request.POST)
+        if form.is_valid():
+            email_text = form.cleaned_data['email_text']
+            html_template = Template(
+                '{{ email_text|linebreaks }}'
+                + '\n\n' + EMAIL_FOOTER
+            )
+            context = Context(
+                {'email_text': form.cleaned_data['email_text'],
+             })
+            html_version = html_template.render(context)
+            message = EmailMultiAlternatives(
+                form.cleaned_data['email_subject'],
+                email_text, 'SciPost Admin <admin@scipost.org>',
+                [form.cleaned_data['email_address']], 
+                bcc=['admin@scipost.org'])
+            message.attach_alternative(html_version, 'text/html')
+            message.send()
+            context = {'ack_header': 'The email has been sent.',
+                       'followup_message': 'Return to your ',
+                       'followup_link': reverse('scipost:personal_page'),
+                       'followup_link_label': 'personal page'}
+            return render(request, 'scipost/acknowledgement.html', context)
+    form = EmailParticularForm()
+    context = {'form': form}
+    return render(request, 'scipost/email_particular.html', context)
+
+
 #####################
 # Editorial College #
 #####################

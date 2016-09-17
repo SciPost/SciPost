@@ -152,6 +152,20 @@ class EmailGroupMembersForm(forms.Form):
         self.fields['email_text'].widget.attrs.update(
             {'rows': 15, 'cols': 50, 'placeholder': 'Write your message in this box.'})
 
+class EmailParticularForm(forms.Form):
+    email_address = forms.EmailField(label='')
+    email_subject = forms.CharField(widget=forms.Textarea(), label='')
+    email_text = forms.CharField(widget=forms.Textarea(), label='')
+
+    def __init__(self, *args, **kwargs):
+        super(EmailParticularForm, self).__init__(*args, **kwargs)
+        self.fields['email_address'].widget.attrs.update(
+            {'placeholder': 'Email address'})
+        self.fields['email_subject'].widget.attrs.update(
+            {'rows': 1, 'cols': 50, 'placeholder': 'Email subject'})
+        self.fields['email_text'].widget.attrs.update(
+            {'rows': 15, 'cols': 50, 'placeholder': 'Write your message in this box.'})
+
 
 class CreateListForm(forms.ModelForm):
     class Meta:
