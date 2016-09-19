@@ -12,6 +12,8 @@ from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
 
 from .models import *
 
+from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
+from submissions.models import Submission
 
 
 REGISTRATION_REFUSAL_CHOICES = (
@@ -60,6 +62,9 @@ class RegistrationInvitationForm(forms.ModelForm):
         super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
         self.fields['personal_message'].widget.attrs.update(
             {'placeholder': 'NOTE: a personal phrase or two. The bulk of the text will be auto-generated.'})
+        self.fields['cited_in_submission'] = forms.ModelChoiceField(
+            queryset=Submission.objects.all().exclude(
+                status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED).order_by('-submission_date'))
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(

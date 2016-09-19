@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 #from django.contrib.auth.decorators import permission_required   # Superseded by guardian
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist, PermissionDenied
 from django.core import mail
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -222,7 +222,19 @@ def register(request):
                               {'form': form, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor('')
             Utils.send_registration_email()
-            #return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
+            # If this email was associated to an invitation, mark it as responded to
+            try:
+                invitation = RegistrationInvitation.objects.get(
+                    email=form.cleaned_data['email'])
+                invitation.responded = True
+                invitation.save()
+            except ObjectDoesNotExist:
+                pass
+            except MultipleObjectsReturned:
+                # Delete the first invitation
+                invitation_to_delete = RegistrationInvitation.objects.filter(
+                    email=form.cleaned_data['email']).first()
+                invitation_to_delete.delete()
             context = {'ack_header': 'Thanks for registering to SciPost.',
                        'ack_message': ('You will receive an email with a link to verify '
                                        'your email address. Please visit this link within 48 hours. '
@@ -242,7 +254,8 @@ def invitation(request, key):
     """ Register, by invitation """
     invitation = get_object_or_404(RegistrationInvitation, invitation_key=key)
     if invitation.responded:
-        errormessage = 'This invitation token has already been used.'
+        errormessage = ('This invitation token has already been used, '
+                        'or this email address is already associated to a registration.')
     elif timezone.now() > invitation.key_expires:
         errormessage = 'The invitation key has expired.'
     elif request.method == 'POST':

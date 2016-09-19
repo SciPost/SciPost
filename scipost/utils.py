@@ -12,39 +12,6 @@ from .models import *
 
 EMAIL_FOOTER = (
     '{% load staticfiles %}'
-    # '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none; padding: 5px 5px;">'
-    # '<li style="display: inline; margin: 0px; padding: 0px;">'
-    # '<a href="https://scipost.org">'
-    # '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.png\' %}" width="64px" '
-    # 'style="margin: 0px; padding: 0px;"></a></li>'
-    # '<li style="display: inline; margin: 3px; padding: 3px;">'
-    # '<a href="https://scipost.org/journals/" style="padding: 3px;">Journals</a></li>'
-    # '<li style="display: inline; margin: 3px; padding: 3px;">'
-    # '<a href="https://scipost.org/submissions/" style="padding: 3px;">Submissions</a></li>'
-    # '<li style="display: inline; margin: 3px; padding: 3px;">'
-    # '<a href="https://scipost.org/commentaries/" style="padding: 3px;">Commentaries</a></li>'
-    # '<li style="display: inline; margin: 3px; padding: 3px;">'
-    # '<a href="https://scipost.org/theses/" style="padding: 3px;">Theses</a></li>'
-    # '<li style="display: inline; margin: 3px; padding: 3px;">'
-    # '<a href="https://scipost.org/login/" style="padding: 3px;">Login</a></li>'
-    # '</ul>'
-    # '<ul style="background-color: #f0f0f0; color: #002B49; list-style-type: none; '
-    # 'display: flex; align-items: center;">'
-    # '<li style="display: inline-block; margin: 0px; padding: 0px;">'
-    # '<a href="https://scipost.org">'
-    # '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.png\' %}" width="64px" '
-    # 'style="margin: 0px; padding: 0px;"></a></li>'
-    # '<li style="display: inline-block; padding: 8px;">'
-    # '<a href="https://scipost.org/journals/">Journals</a></li>'
-    # '<li style="display: inline-block; padding: 8px;">'
-    # '<a href="https://scipost.org/submissions/">Submissions</a></li>'
-    # '<li style="display: inline-block; padding: 8px;">'
-    # '<a href="https://scipost.org/commentaries/">Commentaries</a></li>'
-    # '<li style="display: inline-block; padding: 8px;">'
-    # '<a href="https://scipost.org/theses/">Theses</a></li>'
-    # '<li style="display: inline-block; padding: 8px;">'
-    # '<a href="https://scipost.org/login/">Login</a></li>'
-    # '</ul>'
     '<a href="https://scipost.org"><img src="{% static '
     '\'scipost/images/logo_scipost_with_bgd_small.png\' %}" width="64px"></a><br/>'
     '<div style="background-color: #f0f0f0; color: #002B49; align-items: center;">'
@@ -186,7 +153,7 @@ class Utils(object):
         invitationsalt = invitationsalt.encode('utf8')
         cls.invitation.invitation_key = hashlib.sha1(salt+invitationsalt).hexdigest()
         cls.invitation.key_expires = datetime.datetime.strftime(
-            datetime.datetime.now() + datetime.timedelta(days=14), "%Y-%m-%d %H:%M:%S")
+            datetime.datetime.now() + datetime.timedelta(days=365), "%Y-%m-%d %H:%M:%S")
         cls.invitation.save()
         email_text = ''
         if cls.invitation.invitation_type == 'F':
@@ -215,7 +182,7 @@ class Utils(object):
                         'contents, for example by offering submissions, reports and comments.'
                         '\n\nFor your convenience, I have prepared a partly pre-filled registration '
                         'form at https://scipost.org/invitation/' + cls.invitation.invitation_key 
-                        + ' (valid for two weeks; you can thereafter still register at '
+                        + ' (valid for up to a year; you can thereafter still register at '
                         'https://scipost.org/register).\n\n'
                         'If you do develop sympathy for the initiative, besides participating in the '
                         'online platform, I would be very grateful if you considered submitting a '
