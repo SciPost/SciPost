@@ -278,7 +278,6 @@ def invitation(request, key):
             invitation.save()
             Utils.create_and_save_contributor(key)
             Utils.send_registration_email()
-            #return HttpResponseRedirect(reverse('scipost:thanks_for_registering'))
             context = {'ack_header': 'Thanks for registering to SciPost.',
                        'ack_message': ('You will receive an email with a link to verify '
                                        'your email address. Please visit this link within 48 hours. '

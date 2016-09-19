@@ -30,7 +30,7 @@ admin.site.register(Remark, RemarkAdmin)
 
 
 class RegistrationInvitationAdmin(admin.ModelAdmin):
-    search_fields = ['last_name', 'email']
+    search_fields = ['first_name', 'last_name', 'email', 'invitation_key']
 
 admin.site.register(RegistrationInvitation, RegistrationInvitationAdmin)
 
