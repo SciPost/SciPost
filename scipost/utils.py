@@ -171,7 +171,7 @@ class Utils(object):
         if cls.invitation.invitation_type == 'F':
             email_text += 'RE: Invitation to join the Editorial College of SciPost\n\n'
             email_text_html += ('<strong>RE: Invitation to join the Editorial College '
-                                'of SciPost</strong><br/><hr/><br/>'
+                                'of SciPost</strong><br/><hr/><br/>')
         email_text += 'Dear '
         email_text_html += 'Dear '
         if cls.invitation.message_style == 'F':
