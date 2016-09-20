@@ -12,7 +12,7 @@ from .models import *
 
 
 EMAIL_FOOTER = (
-    '{% load staticfiles %}'
+    '\n{% load staticfiles %}'
     '<a href="https://scipost.org"><img src="{% static '
     '\'scipost/images/logo_scipost_with_bgd_small.png\' %}" width="64px"></a><br/>'
     '<div style="background-color: #f0f0f0; color: #002B49; align-items: center;">'
@@ -186,7 +186,7 @@ class Utils(object):
         email_text_html += ',<br/>'
         if len(cls.invitation.personal_message) > 3:
             email_text += cls.invitation.personal_message + '\n\n'
-            email_text_html += '{{ personal_message|linebreaks }}<br/><br/>'
+            email_text_html += '<i>{{ personal_message|linebreaks }}</i><br/>\n'
             email_context['personal_message'] = cls.invitation.personal_message
 
         # This text to be put in C, ci invitations
@@ -205,7 +205,7 @@ class Utils(object):
             'contents, for example by offering submissions, reports and comments.'
             '\n\nFor your convenience, I have prepared a partly pre-filled registration '
             'form at https://scipost.org/invitation/' + cls.invitation.invitation_key 
-            + ' (valid for up to a year; you can thereafter still register at '
+            + ' (you can in any case still register at '
             'https://scipost.org/register).\n\n'
             'If you do develop sympathy for the initiative, besides participating in the '
             'online platform, I would be very grateful if you considered submitting a '
@@ -239,7 +239,7 @@ class Utils(object):
             'contents, for example by offering submissions, reports and comments.\n'
             '<br/><br/>For your convenience, I have prepared a partly pre-filled '
             '<a href="https://scipost.org/invitation/{{ invitation_key }}">registration form</a>'
-            ' (valid for up to a year; you can thereafter still register at the '
+            ' (you can in any case still register at the '
             '<a href="https://scipost.org/register">registration page</a>).<br/><br/>\n'
             'If you do develop sympathy for the initiative, besides participating in the '
             'online platform, I would be very grateful if you considered submitting a '
