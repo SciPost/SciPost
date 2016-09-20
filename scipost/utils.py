@@ -170,7 +170,8 @@ class Utils(object):
                                '<br/><hr/><br/>')
         if cls.invitation.invitation_type == 'F':
             email_text += 'RE: Invitation to join the Editorial College of SciPost\n\n'
-            email_text_html += 'RE: Invitation to join the Editorial College of SciPost<br/><hr/><br/>'
+            email_text_html += ('<strong>RE: Invitation to join the Editorial College '
+                                'of SciPost</strong><br/><hr/><br/>'
         email_text += 'Dear '
         email_text_html += 'Dear '
         if cls.invitation.message_style == 'F':
@@ -501,9 +502,9 @@ class Utils(object):
                 'within our community (as exemplified by the arXiv.org preprint server) by '
                 'offering a complete scientific publication platform, run by and for '
                 'professional scientists, providing:</p>'
-                '\n<ul><li>- a means to comment on all existing literature;</li>'
-                '<li>- a repository of links to theses (Habilitation, PhD, Master\'s);</li>'
-                '<li>- and, most importantly, a collection of community-run two-way open '
+                '\n<ul><li>a means to comment on all existing literature;</li>'
+                '<li>a repository of links to theses (Habilitation, PhD, Master\'s);</li>'
+                '<li>and, most importantly, a collection of community-run two-way open '
                 'access (no subscription fees, no author fees) journals with extremely '
                 'stringent (peer-witnessed) refereeing.</li></ul>'
                 '\n<p>For the Journals, the main innovations are thus a redesigned, more '
