@@ -183,10 +183,12 @@ class Utils(object):
             email_text_html += '{{ first_name }}'
             email_context['first_name'] = cls.invitation.first_name
         email_text +=  ',\n\n'
-        email_text_html += ',<br/><br/>'
+        email_text_html += ',<br/>'
         if len(cls.invitation.personal_message) > 3:
             email_text += cls.invitation.personal_message + '\n\n'
             email_text_html += '{{ personal_message|linebreaks }}<br/><br/>'
+            email_context['personal_message'] = cls.invitation.personal_message
+
         # This text to be put in C, ci invitations
         summary_text = (
             '\n\nIn summary, SciPost.org is a publication portal managed by '
@@ -225,7 +227,7 @@ class Utils(object):
             'Open Access journals with innovative forms of refereeing, and a '
             'means of commenting on all existing literature. SciPost is established as '
             'a not-for-profit foundation devoted to serving the interests of the '
-            'international scientific community.'
+            'international scientific community.\n'
             '<br/><br/>The site is anchored at <a href="https://scipost.org">scipost.org</a>. '
             'Many further details '
             'about SciPost, its principles, ideals and implementation can be found at '
@@ -234,17 +236,17 @@ class Utils(object):
             '<br/><br/>As a professional academic, you can register at the '
             '<a href="https://scipost.org/register">registration page</a>, '
             'enabling you to contribute to the site\'s '
-            'contents, for example by offering submissions, reports and comments.'
+            'contents, for example by offering submissions, reports and comments.\n'
             '<br/><br/>For your convenience, I have prepared a partly pre-filled '
-            '<a href="https://scipost.org/invitation/{{ invitation_key }}>registration form</a>'
+            '<a href="https://scipost.org/invitation/{{ invitation_key }}">registration form</a>'
             ' (valid for up to a year; you can thereafter still register at the '
-            '<a href="https://scipost.org/register">registration page</a>).<br/><br/>'
+            '<a href="https://scipost.org/register">registration page</a>).<br/><br/>\n'
             'If you do develop sympathy for the initiative, besides participating in the '
             'online platform, I would be very grateful if you considered submitting a '
             'publication to one of the journals within the near future, in order to help '
             'establish their reputation. I\'ll also be looking forward to your reaction, '
             'comments and suggestions about the initiative, which I hope you will find '
-            'useful to your work as a professional scientist.'
+            'useful to your work as a professional scientist.\n'
             '<br/><br/>Many thanks in advance for taking a few minutes to look into it,'
             '<br/><br/>On behalf of the SciPost Foundation,<br/><br/>'
             'Prof. dr Jean-Sébastien Caux<br/>'
@@ -278,7 +280,7 @@ class Utils(object):
                 '(this is required in order to deliver reports; '
                 'our records show that you are not yet registered); '
                 'for your convenience, we have prepared a pre-filled '
-                '<a href="https://scipost.org/invitation/{{ invitation_key }}>registration form</a> '
+                '<a href="https://scipost.org/invitation/{{ invitation_key }}">registration form</a> '
                 'for you. After activation of your registration, you will be allowed to contribute, '
                 'in particular by providing referee reports.<br/><br/>'
                 'We very much hope that we can count on your expertise,<br/><br/>'
