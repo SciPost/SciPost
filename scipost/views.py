@@ -465,6 +465,9 @@ def registration_invitations(request):
                 Utils.create_invitation()
                 Utils.send_registration_invitation_email()
                 return HttpResponseRedirect('registration_invitation_sent')
+        else:
+            errormessage = 'The form was not filled validly.'
+            
     else:
         reg_inv_form = RegistrationInvitationForm()
 
