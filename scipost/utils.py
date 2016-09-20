@@ -264,18 +264,19 @@ class Utils(object):
         if cls.invitation.invitation_type == 'R':
             # Refereeing invitation
             # Details of the submission to referee are already in the personal_message field
-            email_text += ('We would hereby like to cordially invite you '
-                           'to become a Contributor on SciPost '
-                           '(this is required in order to deliver reports; '
-                           'our records show that you are not yet registered); '
-                           'for your convenience, we have prepared a pre-filled form for you at\n\n'
-                           'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n'
-                           'after which your registration will be activated, allowing you to contribute, '
-                           'in particular by providing referee reports.\n\n'
-                           'We very much hope that we can count on your expertise,\n\n'
-                           'Many thanks in advance,\n\nThe SciPost Team')
-            email_text_html += (
+            email_text += (
                 'We would hereby like to cordially invite you '
+                'to become a Contributor on SciPost '
+                '(this is required in order to deliver reports; '
+                'our records show that you are not yet registered); '
+                'for your convenience, we have prepared a pre-filled form for you at\n\n'
+                'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n'
+                'after which your registration will be activated, allowing you to contribute, '
+                'in particular by providing referee reports.\n\n'
+                'We very much hope that we can count on your expertise,\n\n'
+                'Many thanks in advance,\n\nThe SciPost Team')
+            email_text_html += (
+                '\nWe would hereby like to cordially invite you '
                 'to become a Contributor on SciPost '
                 '(this is required in order to deliver reports; '
                 'our records show that you are not yet registered); '
@@ -284,20 +285,22 @@ class Utils(object):
                 'for you. After activation of your registration, you will be allowed to contribute, '
                 'in particular by providing referee reports.<br/><br/>'
                 'We very much hope that we can count on your expertise,<br/><br/>'
-                'Many thanks in advance,\n\nThe SciPost Team')
-            email_text += ('\n\n--------------------------------------------------'
-                           '\n\nAbout SciPost:\n\n'
-                           'In summary, SciPost.org is a publication portal managed by '
-                           'professional scientists, offering (among others) high-quality '
-                           'Open Access journals with innovative forms of refereeing, and a '
-                           'means of commenting on all existing literature. SciPost is established as '
-                           'a not-for-profit foundation devoted to serving the interests of the '
-                           'international scientific community.'
-                           '\n\nThe site is anchored at https://scipost.org. Many further details '
-                           'about SciPost, its principles, ideals and implementation can be found at '
-                           'https://scipost.org/about and https://scipost.org/FAQ.')
+                'Many thanks in advance,<br/>The SciPost Team')
+
+            email_text += (
+                '\n\n--------------------------------------------------'
+                '\n\nAbout SciPost:\n\n'
+                'In summary, SciPost.org is a publication portal managed by '
+                'professional scientists, offering (among others) high-quality '
+                'Open Access journals with innovative forms of refereeing, and a '
+                'means of commenting on all existing literature. SciPost is established as '
+                'a not-for-profit foundation devoted to serving the interests of the '
+                'international scientific community.'
+                '\n\nThe site is anchored at https://scipost.org. Many further details '
+                'about SciPost, its principles, ideals and implementation can be found at '
+                'https://scipost.org/about and https://scipost.org/FAQ.')
             email_text_html += (
-                '<br/><br/>--------------------------------------------------'
+                '\n<br/><br/>--------------------------------------------------'
                 '<br/><br/>About SciPost:<br/><br/>'
                 'In summary, SciPost.org is a publication portal managed by '
                 'professional scientists, offering (among others) high-quality '
@@ -309,48 +312,89 @@ class Utils(object):
                 'about SciPost, its principles, ideals and implementation can be found at '
                 'https://scipost.org/about and https://scipost.org/FAQ.')
 
-            emailmessage = EmailMessage(
+            email_text_html += '<br/><br/>' + EMAIL_FOOTER
+            html_template = Template(email_text_html)
+            html_version = html_template.render(email_context)
+            #emailmessage = EmailMessage(
+            emailmessage = EmailMultiAlternatives(
                 'SciPost: refereeing request (and registration invitation)', email_text,
                 'SciPost Registration <registration@scipost.org>',
                 [cls.invitation.email],
                 ['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
+            emailmessage.attach_alternative(html_version, 'text/html')
 
         elif cls.invitation.invitation_type == 'ci':
             # Has been cited in a Submission. Invite!
-            email_text += ('Your work has been cited in a manuscript submitted to SciPost,'
-                           '\n\n' + cls.invitation.cited_in_submission.title 
-                           + ' by ' + cls.invitation.cited_in_submission.author_list + '.\n\n'
-                           'I would hereby like to use this opportunity to quickly introduce '
-                           'you to the SciPost initiative, and to invite you to become an active '
-                           'Contributor to the site. You might for example consider reporting or '
-                           'commenting on the above submission before the refereeing deadline.')
+            email_text += (
+                'Your work has been cited in a manuscript submitted to SciPost,'
+                '\n\n' + cls.invitation.cited_in_submission.title 
+                + ' by ' + cls.invitation.cited_in_submission.author_list + '.\n\n'
+                'I would hereby like to use this opportunity to quickly introduce '
+                'you to the SciPost initiative, and to invite you to become an active '
+                'Contributor to the site. You might for example consider reporting or '
+                'commenting on the above submission before the refereeing deadline.')
+            email_text_html += (
+                '<p>Your work has been cited in a manuscript submitted to SciPost,</p>'
+                '<p>{{ sub_title }} <br>by {{ sub_author_list }}.</p>' 
+                '<p>I would hereby like to use this opportunity to quickly introduce '
+                'you to the SciPost initiative, and to invite you to become an active '
+                'Contributor to the site. You might for example consider reporting or '
+                'commenting on the above submission before the refereeing deadline.</p>\n')
+            email_context['sub_title'] = cls.invitation.cited_in_submission.title 
+            email_context['sub_author_list'] = cls.invitation.cited_in_submission.author_list
+
             email_text += summary_text
-            emailmessage = EmailMessage(
+            email_text_html += summary_text_html
+            email_text_html += '<br/><br/>' + EMAIL_FOOTER
+            html_template = Template(email_text_html)
+            html_version = html_template.render(email_context)
+            #emailmessage = EmailMessage(
+            emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
                 'J.-S. Caux <jscaux@scipost.org>',
                 [cls.invitation.email],
                 ['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
+            emailmessage.attach_alternative(html_version, 'text/html')
 
         elif cls.invitation.invitation_type == 'cp':
             # Has been cited in a Publication. Invite!
-            email_text += ('Your work has been cited in a paper published by SciPost,'
-                           '\n\n' + cls.invitation.cited_in_publication.title 
-                           + ' by ' + cls.invitation.cited_in_publication.author_list + 
-                           '\n\n(published as ' + cls.invitation.cited_in_publication.citation
-                           + ').\n\n'
-                           'I would hereby like to use this opportunity to quickly introduce '
-                           'you to the SciPost initiative, and to invite you to become an active '
-                           'Contributor to the site. You might for example consider reporting or '
-                           'commenting on the above submission before the refereeing deadline.')
+            email_text += (
+                'Your work has been cited in a paper published by SciPost,'
+                '\n\n' + cls.invitation.cited_in_publication.title 
+                + ' by ' + cls.invitation.cited_in_publication.author_list + 
+                '\n\n(published as ' + cls.invitation.cited_in_publication.citation
+                + ').\n\n'
+                'I would hereby like to use this opportunity to quickly introduce '
+                'you to the SciPost initiative, and to invite you to become an active '
+                'Contributor to the site. You might for example consider reporting or '
+                'commenting on the above submission before the refereeing deadline.')
+            email_text_html += (
+                '<p>Your work has been cited in a paper published by SciPost,</p>'
+                '<p>{{ pub_title }}</p> <br/> by {{ pub_author_list }} <br/>'
+                '(published as <a href="https://scipost.org/{{ doi_label }}">{{ citation }}</a>).</p>'
+                '<p>I would hereby like to use this opportunity to quickly introduce '
+                'you to the SciPost initiative, and to invite you to become an active '
+                'Contributor to the site. You might for example consider reporting or '
+                'commenting on the above submission before the refereeing deadline.</p>')
+            email_context['pub_title'] = cls.invitation.cited_in_publication.title 
+            email_context['pub_author_list'] = cls.invitation.cited_in_publication.author_list
+            email_context['doi_label'] = cls.invitation.cited_in_publication.doi_label
+            email_context['citation'] = cls.invitation.cited_in_publication.citation
             email_text += summary_text
-            emailmessage = EmailMessage(
+            email_text_html += summary_text_html
+            email_text_html += '<br/><br/>' + EMAIL_FOOTER
+            html_template = Template(email_text_html)
+            html_version = html_template.render(email_context)
+            #emailmessage = EmailMessage(
+            emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
                 'J.-S. Caux <jscaux@scipost.org>',
                 [cls.invitation.email],
                 ['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
+            emailmessage.attach_alternative(html_version, 'text/html')
 
         elif cls.invitation.invitation_type == 'C':
             email_text += ('I would hereby like to quickly introduce '
@@ -445,13 +489,93 @@ class Utils(object):
                            '\n---------------------------------------------\n'
                            'tel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778'
                            '\n---------------------------------------------')
+            email_text_html += (
+                '\n<p>You will have noticed that scientific publishing is currently '
+                'undergoing many changes, and you will hopefully agree that it is of '
+                'the utmost importance that the best interests of science and scientists '
+                'be served by these developments. After much thinking and discussion '
+                'about this issue, I recently decided to forge ahead and develop a new '
+                'online publication portal by and for scientists, aimed at turning '
+                'these ideas into reality.</p>'
+                '\n<p>The initiative, called SciPost, aims to build on the best traditions '
+                'within our community (as exemplified by the arXiv.org preprint server) by '
+                'offering a complete scientific publication platform, run by and for '
+                'professional scientists, providing:</p>'
+                '\n<ul><li>- a means to comment on all existing literature;</li>'
+                '<li>- a repository of links to theses (Habilitation, PhD, Master\'s);</li>'
+                '<li>- and, most importantly, a collection of community-run two-way open '
+                'access (no subscription fees, no author fees) journals with extremely '
+                'stringent (peer-witnessed) refereeing.</li></ul>'
+                '\n<p>For the Journals, the main innovations are thus a redesigned, more '
+                'accountable refereeing process, together with a new concept for the '
+                'editorial process, based on our Editorial College (exclusively composed '
+                'of established, professionally practising scientists), designed to '
+                'ensure the highest achievable scientific quality while minimizing the '
+                'burden of the editorial workflow.</p>'
+                '\n<p>SciPost.org is legally based on a not-for-profit foundation and will '
+                'operate in perpetuity as a non-commercial entity at the exclusive service '
+                'of the academic sector. '
+                'The online portal is now operational, and we are currently busy '
+                'publicizing it and broadening its user base.</p>'
+                '\n<p>To go straight to the point, on behalf of the foundation '
+                'and in view of your professional expertise, I hereby would '
+                'like to invite you to become an Editorial Fellow and thus join the '
+                'Editorial College of SciPost Physics.</p>'
+                '\n<p>Please note that only well-known and respected senior academics are '
+                'being contacted for this purpose. Academic reputation and involvement '
+                'in the community are the most important criteria guiding our '
+                'considerations of who should belong to the Editorial College. We '
+                'envision each subfield of physics to be represented by around a dozen '
+                'Editorial Fellows.</p>'
+                '\n<p>To help you in considering this, it would be best if you were to take '
+                'the time to look at the website itself, which is anchored at scipost.org. '
+                'Registration is now generally open, but you can also personally register '
+                '(to become a Contributor, without necessarily committing to membership '
+                'of the Editorial College, this to be discussed separately) by visiting '
+                'the following <a href="https://scipost.org/invitation/{{ invitation_key }}">'
+                'single-use link</a>, containing a partly pre-filled form for '
+                'your convenience. I will then activate your account.</p>'
+                '\n<p>Many details about the initiative '
+                'can then be found at scipost.org/about and at scipost.org/FAQ. '
+                'Functioning of the College will proceed according to the by-laws set '
+                'out in scipost.org/EdCol_by-laws.</p>'
+                '\n<p>Since the success of this initiative is dependent on the involvement of '
+                'the very people it is meant to serve, we\'d be very grateful if you were '
+                'to give due consideration to this proposal. We would expect you to '
+                'commit just 2-4 hours per month to help perform Editorial duties; we will '
+                'adjust the number of Editorial Fellows to ensure this is the case. You '
+                'could try it out for 6 months or a year, and of course you could quit '
+                'any time you wished. We\'d be even more grateful if you considered '
+                'submitting a publication to one of the journals, in order to help '
+                'establish their reputation.</p>'
+                '\n<p>I\'d be happy to provide you with more information, should you require '
+                'it. In view of our development plans, I would be grateful if you could '
+                'react (by replying to this email) within the next two or three weeks, '
+                'if possible. I\'ll be looking forward to your reaction, your comments '
+                'and suggestions, be they positive or negative. If you need more time '
+                'to consider, that\'s also fine; just let me know.</p>'
+                '<p>On behalf of the SciPost Foundation,</p>'
+                '<p>Prof. dr Jean-Sébastien Caux<br/>'
+                '---------------------------------------------'
+                '<br/>Institute for Theoretial Physics'
+                '<br/>University of Amsterdam'
+                '<br/>Science Park 904<br/>1098 XH Amsterdam<br/>The Netherlands'
+                '<br/>---------------------------------------------<br/>'
+                'tel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778'
+                '<br/>---------------------------------------------\n')
                 
-            emailmessage = EmailMessage(
+            email_text_html += '<br/><br/>' + EMAIL_FOOTER
+            html_template = Template(email_text_html)
+            html_version = html_template.render(email_context)
+            #emailmessage = EmailMessage(
+            emailmessage = EmailMultiAlternatives(
                 'SciPost registration invitation', email_text,
                 'J-S Caux <jscaux@scipost.org>',
                 [cls.invitation.email],
                 ['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
+            emailmessage.attach_alternative(html_version, 'text/html')
+            
 
         # This function is now for all invitation types:
         emailmessage.send(fail_silently=False)
