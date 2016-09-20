@@ -118,13 +118,33 @@ class Utils(object):
                       ' has been received. You now need to validate your email by visiting ' +
                       'this link within the next 48 hours: \n\n' + 'https://scipost.org/activation/' + 
                       cls.contributor.activation_key + 
-                      '\n\nYour registration will thereafter be vetted. Many thanks for your interest.  \n\nThe SciPost Team.')
-        emailmessage = EmailMessage(
+                      '\n\nYour registration will thereafter be vetted. Many thanks for your interest.'
+                      '\n\nThe SciPost Team.')
+        email_text_html = (
+            'Dear {{ title }} {{ last_name }},<br/>'
+            '\n<p>Your request for registration to the SciPost publication portal'
+            ' has been received. You now need to validate your email by visiting ' +
+            'this link within the next 48 hours:</p>' 
+            '<p><a href="https://scipost.org/activation/{{ actiation_key }}">'
+            'Activate your account</a></p>'
+            '\n<p>Your registration will thereafter be vetted. Many thanks for your interest.</p>'
+            '<p>The SciPost Team.</p>')
+        email_context = Context({
+            'title': title_dict[cls.contributor.title],
+            'last_name': cls.contributor.user.last_name,
+            'activation_key': cls.contributor.activation_key,
+        })
+        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        html_template = Template(email_text_html)
+        html_version = html_template.render(email_context)
+        #emailmessage = EmailMessage(
+        emailmessage = EmailMultiAlternatives(
             'SciPost registration request received', email_text,
             'SciPost registration <registration@scipost.org>', 
             [cls.contributor.user.email],
             ['registration@scipost.org'],
             reply_to=['registration@scipost.org'])
+        emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
         
@@ -223,34 +243,34 @@ class Utils(object):
             '\nfax: +31 (0)20 5255778\n---------------------------------------------')
 
         summary_text_html = (
-            '<br/><br/>In summary, SciPost.org is a publication portal managed by '
+            '\n<br/><p>In summary, SciPost.org is a publication portal managed by '
             'professional scientists, offering (among others) high-quality '
             'Open Access journals with innovative forms of refereeing, and a '
             'means of commenting on all existing literature. SciPost is established as '
             'a not-for-profit foundation devoted to serving the interests of the '
-            'international scientific community.\n'
-            '<br/><br/>The site is anchored at <a href="https://scipost.org">scipost.org</a>. '
+            'international scientific community.</p>'
+            '\n<p>The site is anchored at <a href="https://scipost.org">scipost.org</a>. '
             'Many further details '
             'about SciPost, its principles, ideals and implementation can be found at '
             'the <a href="https://scipost.org/about">about</a> '
-            'and <a href="https://scipost.org/FAQ">FAQ</a> pages.'
-            '<br/><br/>As a professional academic, you can register at the '
+            'and <a href="https://scipost.org/FAQ">FAQ</a> pages.</p>'
+            '<p>As a professional academic, you can register at the '
             '<a href="https://scipost.org/register">registration page</a>, '
             'enabling you to contribute to the site\'s '
-            'contents, for example by offering submissions, reports and comments.\n'
-            '<br/><br/>For your convenience, I have prepared a partly pre-filled '
+            'contents, for example by offering submissions, reports and comments.</p>'
+            '\n<p>For your convenience, I have prepared a partly pre-filled '
             '<a href="https://scipost.org/invitation/{{ invitation_key }}">registration form</a>'
             ' (you can in any case still register at the '
-            '<a href="https://scipost.org/register">registration page</a>).<br/><br/>\n'
-            'If you do develop sympathy for the initiative, besides participating in the '
+            '<a href="https://scipost.org/register">registration page</a>).</p>'
+            '\n<p>If you do develop sympathy for the initiative, besides participating in the '
             'online platform, I would be very grateful if you considered submitting a '
             'publication to one of the journals within the near future, in order to help '
             'establish their reputation. I\'ll also be looking forward to your reaction, '
             'comments and suggestions about the initiative, which I hope you will find '
-            'useful to your work as a professional scientist.\n'
-            '<br/><br/>Many thanks in advance for taking a few minutes to look into it,'
-            '<br/><br/>On behalf of the SciPost Foundation,<br/><br/>'
-            'Prof. dr Jean-Sébastien Caux<br/>'
+            'useful to your work as a professional scientist.</p>'
+            '\n<p>Many thanks in advance for taking a few minutes to look into it,</p>'
+            '<p>On behalf of the SciPost Foundation,</p>'
+            '<p>Prof. dr Jean-Sébastien Caux</p>'
             '---------------------------------------------'
             '<br/>Institute for Theoretical Physics'
             '<br/>University of Amsterdam'

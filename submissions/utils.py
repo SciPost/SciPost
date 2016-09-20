@@ -1,6 +1,7 @@
 import datetime
 
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.template import Context, Template
 
 from journals.models import journals_submit_dict
 from scipost.models import title_dict
@@ -55,13 +56,35 @@ class SubmissionUtils(object):
                       'from your personal page https://scipost.org/personal_page.' +
                       '\n\nWith many thanks,' +
                       '\n\nThe SciPost Team.')
-        emailmessage = EmailMessage(
+        email_text_html = (
+            'Dear {{ title }} {{ last_name }},<br/>'
+            '<p>We have received your Submission to SciPost,</p>'
+            '<p>{{ sub_title }}</p>'
+            '<p>by {{ author_lit }}.</p>'
+            '<p>We will update you on the results of the pre-screening process '
+            'within the next 5 working days.</p>'
+            '<p>You can track your Submission at any time '
+            'from your <a href="https://scipost.org/personal_page">personal page</a>.</p>'
+            '<p>With many thanks,</p>'
+            '<p>The SciPost Team.</p>')
+        email_context = Context({
+            'title': title_dict[cls.submission.submitted_by.title],
+            'last_name': cls.submission.submitted_by.user.last_name,
+            'sub_title': cls.submission.title,
+            'author_list': cls.submission.author_list,
+        })
+        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        html_template = Template(email_text_html)
+        html_version = html_template.render(email_context)
+        #emailmessage = EmailMessage(
+        emailmessage = EmailMultiAlternatives(
             'SciPost: Submission received', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.submission.submitted_by.user.email, 'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
+        emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
+        
 
     @classmethod
     def send_authors_resubmission_ack_email(cls):
@@ -74,11 +97,31 @@ class SubmissionUtils(object):
                       'from your personal page https://scipost.org/personal_page.' +
                       '\n\nWith many thanks,' +
                       '\n\nThe SciPost Team.')
-        emailmessage = EmailMessage(
+        email_text_html = (
+            'Dear {{ title }} {{ last_name}},<br/>'
+            '<p>We have received your Resubmission to SciPost,</p>'
+            '<p>{{ sub_title }}</p>'
+            '<p>by {{ author_list }}.</p>'
+            '<p>You can track your Submission at any time '
+            'from your <a href="https://scipost.org/personal_page">personal page</a>.</p>'
+            '<p>With many thanks,</p>'
+            '<p>The SciPost Team</p>')
+        email_context = Context({
+            'title': title_dict[cls.submission.submitted_by.title],
+            'last_name': cls.submission.submitted_by.user.last_name,
+            'sub_title': cls.submission.title,
+            'author_list': cls.submission.author_list,
+        })
+        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        html_template = Template(email_text_html)
+        html_version = html_template.render(email_context)
+        #emailmessage = EmailMessage(
+        emailmessage = EmailMultiAlternatives(
             'SciPost: Resubmission received', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.submission.submitted_by.user.email, 'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
+        emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
             
         
@@ -102,12 +145,42 @@ class SubmissionUtils(object):
                       'https://scipost.org/EdCol_by-laws.'
                       '\n\nMany thanks in advance for your collaboration,'
                       '\n\nThe SciPost Team.')
-        emailmessage = EmailMessage(
+        email_text_html = (
+            'Dear {{ title }} {{ last_name }},<br/>'
+            '<p>Thank you for accepting to become Editor-in-charge '
+            'of the SciPost Submission</p>' 
+            '<p>{{ sub_title }}</p>'
+            '<p>by {{ author_list }}.</p>'
+            '<p>You can take your editorial actions from the '
+            '<a href="https://scipost.org/submission/editorial_page/'
+            '{{ arxiv_identifier_w_vn_nr }}">editorial page</a> '
+            '(also accessible from your '
+            '<a href="https://scipost.org/personal_page">personal page</a> '
+            'under the Editorial Actions tab).</p>'
+            '<p>In particular, you should now invite at least 3 referees; you might want to '
+            'make sure you are aware of the '
+            'detailed procedure described in the '
+            'a href="https://scipost.org/EdCol_by-laws">Editorial College by-laws</a>.</p>'
+            '<p>Many thanks in advance for your collaboration,</p>'
+            '<p>The SciPost Team.</p>')
+        email_context = Context({
+            'title': title_dict[cls.assignment.to.title],
+            'last_name': cls.assignment.to.user.last_name,
+            'sub_title': cls.assignment.submission.title,
+            'author_list': cls.assignment.submission.author_list,
+            'arxiv_identifier_w_vn_nr': cls.assignment.submission.arxiv_identifier_w_vn_nr,
+        })
+        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        html_template = Template(email_text_html)
+        html_version = html_template.render(email_context)
+        #emailmessage = EmailMessage(
+        emailmessage = EmailMultiAlternatives(
             'SciPost: assignment as EIC', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.assignment.to.user.email],
             ['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
+        emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
 
