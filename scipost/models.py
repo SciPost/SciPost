@@ -318,7 +318,8 @@ INVITATION_TYPE = (
     ('F', 'Editorial Fellow'),
     ('C', 'Contributor'),
     ('R', 'Refereeing'),
-    ('ci', 'cited'),
+    ('ci', 'cited in submission'),
+    ('cp', 'cited in publication'),
     )
 
 INVITATION_STYLE = (
@@ -336,12 +337,15 @@ class RegistrationInvitation(models.Model):
     email = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE, default='C')
     cited_in_submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
+    cited_in_publication = models.ForeignKey('journals.Publication', blank=True, null=True)
     message_style = models.CharField(max_length=1, choices=INVITATION_STYLE, default='F')
     personal_message = models.TextField(blank=True, null=True)
     invitation_key = models.CharField(max_length=40, default='')
     key_expires = models.DateTimeField(default=timezone.now)
     date_sent = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey(Contributor, blank=True, null=True)
+    nr_reminders = models.PositiveSmallIntegerField(default=0)
+    date_last_reminded = models.DateTimeField(blank=True, null=True)
     responded = models.BooleanField(default=False)
 
     def __str__ (self):

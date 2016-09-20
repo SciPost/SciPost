@@ -18,7 +18,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
-from django.template import RequestContext
+from django.template import Context, RequestContext, Template
 from django.utils.http import is_safe_url
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
@@ -37,6 +37,7 @@ from .utils import *
 from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
+from journals.models import Publication
 from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, EICRecommendation
 from submissions.forms import SubmissionSearchForm
@@ -474,8 +475,10 @@ def registration_invitations(request):
     nr_sent_reg_inv_contrib = sent_reg_inv_contrib.count()
     sent_reg_inv_ref = sent_reg_inv.filter(invitation_type='R').order_by('last_name')
     nr_sent_reg_inv_ref = sent_reg_inv_ref.count()
-    sent_reg_inv_cited = sent_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    nr_sent_reg_inv_cited = sent_reg_inv_cited.count()
+    sent_reg_inv_cited_sub = sent_reg_inv.filter(invitation_type='ci').order_by('last_name')
+    nr_sent_reg_inv_cited_sub = sent_reg_inv_cited_sub.count()
+    sent_reg_inv_cited_pub = sent_reg_inv.filter(invitation_type='cp').order_by('last_name')
+    nr_sent_reg_inv_cited_pub = sent_reg_inv_cited_pub.count()
 
     resp_reg_inv = RegistrationInvitation.objects.filter(responded=True)
     resp_reg_inv_fellows = resp_reg_inv.filter(invitation_type='F').order_by('last_name')
@@ -484,8 +487,10 @@ def registration_invitations(request):
     nr_resp_reg_inv_contrib = resp_reg_inv_contrib.count()
     resp_reg_inv_ref = resp_reg_inv.filter(invitation_type='R').order_by('last_name')
     nr_resp_reg_inv_ref = resp_reg_inv_ref.count()
-    resp_reg_inv_cited = resp_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    nr_resp_reg_inv_cited = resp_reg_inv_cited.count()
+    resp_reg_inv_cited_sub = resp_reg_inv.filter(invitation_type='ci').order_by('last_name')
+    nr_resp_reg_inv_cited_sub = resp_reg_inv_cited_sub.count()
+    resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
+    nr_resp_reg_inv_cited_pub = resp_reg_inv_cited_pub.count()
 
     context = {'reg_inv_form': reg_inv_form, 'errormessage': errormessage,
                'sent_reg_inv_fellows': sent_reg_inv_fellows, 
@@ -494,19 +499,33 @@ def registration_invitations(request):
                'nr_sent_reg_inv_contrib': nr_sent_reg_inv_contrib,
                'sent_reg_inv_ref': sent_reg_inv_ref,
                'nr_sent_reg_inv_ref': nr_sent_reg_inv_ref,
-               'sent_reg_inv_cited': sent_reg_inv_cited,
-               'nr_sent_reg_inv_cited': nr_sent_reg_inv_cited,
+               'sent_reg_inv_cited_sub': sent_reg_inv_cited_sub,
+               'nr_sent_reg_inv_cited_sub': nr_sent_reg_inv_cited_sub,
+               'sent_reg_inv_cite_pub': sent_reg_inv_cited_pub,
+               'nr_sent_reg_inv_cited_pub': nr_sent_reg_inv_cited_pub,
                'resp_reg_inv_fellows': resp_reg_inv_fellows, 
                'nr_resp_reg_inv_fellows': nr_resp_reg_inv_fellows,
                'resp_reg_inv_contrib': resp_reg_inv_contrib, 
                'nr_resp_reg_inv_contrib': nr_resp_reg_inv_contrib,
                'resp_reg_inv_ref': resp_reg_inv_ref,
                'nr_resp_reg_inv_ref': nr_resp_reg_inv_ref,
-               'resp_reg_inv_cited': resp_reg_inv_cited,
-               'nr_resp_reg_inv_cited': nr_resp_reg_inv_cited, }
+               'resp_reg_inv_cited_sub': resp_reg_inv_cited_sub,
+               'nr_resp_reg_inv_cited_sub': nr_resp_reg_inv_cited_sub,
+               'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
+               'nr_resp_reg_inv_cited_pub': nr_resp_reg_inv_cited_pub, }
     return render(request, 'scipost/registration_invitations.html', context)
 
 
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+def renew_registration_invitation(request, invitation_id):
+    """ 
+    Renew an invitation (called from registration_invitations)
+    """
+    invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
+    Utils.load({'invitation': invitation})
+    Utils.send_registration_invitation_email(True)
+    return redirect(reverse('scipost:registration_invitations'))
+    
 
 def login_view(request):
     redirect_to = request.POST.get('next', 

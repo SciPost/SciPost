@@ -12,6 +12,7 @@ from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
 
 from .models import *
 
+from journals.models import Publication
 from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
 from submissions.models import Submission
 
@@ -56,7 +57,9 @@ class RegistrationInvitationForm(forms.ModelForm):
     class Meta:
         model = RegistrationInvitation
         fields = ['title', 'first_name', 'last_name', 'email', 
-                  'invitation_type', 'cited_in_submission', 'message_style', 'personal_message']
+                  'invitation_type', 
+                  'cited_in_submission', 'cited_in_publication', 
+                  'message_style', 'personal_message']
 
     def __init__(self, *args, **kwargs):
         super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
@@ -65,6 +68,8 @@ class RegistrationInvitationForm(forms.ModelForm):
         self.fields['cited_in_submission'] = forms.ModelChoiceField(
             queryset=Submission.objects.all().exclude(
                 status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED).order_by('-submission_date'))
+        self.fields['cited_in_publication'] = forms.ModelChoiceField(
+            queryset=Publication.objects.all().order_by('-publication_date'))
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -79,6 +84,7 @@ class RegistrationInvitationForm(forms.ModelForm):
                     css_class="col-6"),
                 css_class="row"),
             Div(Field('cited_in_submission'),),
+            Div(Field('cited_in_publication'),),
             )
 
 class UpdateUserDataForm(forms.ModelForm):
