@@ -125,7 +125,7 @@ class Utils(object):
             '\n<p>Your request for registration to the SciPost publication portal'
             ' has been received. You now need to validate your email by visiting '
             'this link within the next 48 hours:</p>' 
-            '<p><a href="https://scipost.org/activation/{{ actiation_key }}">'
+            '<p><a href="https://scipost.org/activation/{{ activation_key }}">'
             'Activate your account</a></p>'
             '\n<p>Your registration will thereafter be vetted. Many thanks for your interest.</p>'
             '<p>The SciPost Team.</p>')
