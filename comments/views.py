@@ -48,7 +48,7 @@ def vet_submitted_comment_ack(request, comment_id):
                 elif comment.submission is not None:
                     email_text += (comment.submission.title + ' by ' + comment.submission.author_list 
                                    + ' at Submission page https://scipost.org/submission/' 
-                                   + str(comment.submission.id))
+                                   + comment.submission.arxiv_identifier_w_vn_nr)
                     comment.submission.latest_activity = timezone.now()
                     comment.submission.save()
                     if not comment.is_author_reply:
@@ -229,7 +229,7 @@ def express_opinion(request, comment_id, opinion):
     comment = get_object_or_404(Comment, pk=comment_id)
     comment.update_opinions (contributor.id, opinion)
     if comment.submission is not None:
-        return HttpResponseRedirect('/submission/' + str(comment.submission.id) + 
+        return HttpResponseRedirect('/submission/' + comment.submission.arxiv_identifier_w_vn_nr + 
                                     '/#comment_id' + str(comment.id))
     if comment.commentary is not None:
         return HttpResponseRedirect('/commentary/' + str(comment.commentary.arxiv_or_DOI_string) + 
