@@ -481,31 +481,9 @@ def assign_submission_ack(request, arxiv_identifier_w_vn_nr):
                                                 to=suggested_editor_in_charge,
                                                 date_created=timezone.now())
             ed_assignment.save()
-            email_text = ('Dear ' + title_dict[ed_assignment.to.title] + ' ' +
-                          ed_assignment.to.user.last_name +
-                          ', \n\nWe have received a Submission to SciPost ' +
-                          'for which we would like you to consider becoming Editor-in-charge:\n\n' +
-                          submission.title + ' by ' + submission.author_list + '.' +
-                          '\n\nPlease visit https://scipost.org/submissions/pool ' +
-                          'in order to accept or decline (it is important for you to inform us '
-                          'even if you decline, since this affects the result '
-                          'of the pre-screening process). '
-                          'Note that this assignment request is automatically '
-                          'deprecated if another Fellow '
-                          'takes charge of this Submission or if pre-screening '
-                          'fails in the meantime.'
-                          '\n\nMany thanks in advance for your collaboration,' +
-                          '\n\nThe SciPost Team.')
-            emailmessage = EmailMessage(
-                'SciPost: potential Submission assignment', email_text,
-                'SciPost Editorial Admin <submissions@scipost.org>',
-                [ed_assignment.to.user.email], 
-                ['submissions@scipost.org'],
-                reply_to=['submissions@scipost.org'])
-            emailmessage.send(fail_silently=False)
-                        
-    #context = {}
-    #return render(request, 'submissions/assign_submission_ack.html', context)
+            SubmissionUtils.load({'assignment': ed_assignment})
+            SubmissionUtils.send_assignment_request_email()
+
     context = {'ack_header': 'Your assignment request has been sent successfully.',
                'followup_message': 'Return to the ',
                'followup_link': reverse('submissions:pool'),
