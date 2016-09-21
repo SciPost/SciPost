@@ -123,7 +123,7 @@ class Utils(object):
         email_text_html = (
             'Dear {{ title }} {{ last_name }},<br/>'
             '\n<p>Your request for registration to the SciPost publication portal'
-            ' has been received. You now need to validate your email by visiting ' +
+            ' has been received. You now need to validate your email by visiting '
             'this link within the next 48 hours:</p>' 
             '<p><a href="https://scipost.org/activation/{{ actiation_key }}">'
             'Activate your account</a></p>'
@@ -270,13 +270,13 @@ class Utils(object):
             'useful to your work as a professional scientist.</p>'
             '\n<p>Many thanks in advance for taking a few minutes to look into it,</p>'
             '<p>On behalf of the SciPost Foundation,</p>'
-            '<p>Prof. dr Jean-Sébastien Caux</p>'
-            '---------------------------------------------'
+            '<br/>Prof. dr Jean-Sébastien Caux'
+            '<br/>---------------------------------------------'
             '<br/>Institute for Theoretical Physics'
             '<br/>University of Amsterdam'
             '<br/>Science Park 904'
-            '<br/>1098 XH Amsterdam<br/>The Netherlands<br/>'
-            '---------------------------------------------'
+            '<br/>1098 XH Amsterdam<br/>The Netherlands'
+            '<br/>---------------------------------------------'
             '<br/>tel.: +31 (0)20 5255775'
             '<br/>fax: +31 (0)20 5255778'
             '<br/>---------------------------------------------')
@@ -297,16 +297,17 @@ class Utils(object):
                 'We very much hope that we can count on your expertise,\n\n'
                 'Many thanks in advance,\n\nThe SciPost Team')
             email_text_html += (
-                '\nWe would hereby like to cordially invite you '
+                '\n<p>We would hereby like to cordially invite you '
                 'to become a Contributor on SciPost '
                 '(this is required in order to deliver reports; '
                 'our records show that you are not yet registered); '
                 'for your convenience, we have prepared a pre-filled '
                 '<a href="https://scipost.org/invitation/{{ invitation_key }}">registration form</a> '
                 'for you. After activation of your registration, you will be allowed to contribute, '
-                'in particular by providing referee reports.<br/><br/>'
-                'We very much hope that we can count on your expertise,<br/><br/>'
-                'Many thanks in advance,<br/>The SciPost Team')
+                'in particular by providing referee reports.</p>'
+                '<p>We very much hope that we can count on your expertise,</p>'
+                '<p>Many thanks in advance,</p>'
+                '<p>The SciPost Team</p>')
 
             email_text += (
                 '\n\n--------------------------------------------------'
@@ -322,16 +323,16 @@ class Utils(object):
                 'https://scipost.org/about and https://scipost.org/FAQ.')
             email_text_html += (
                 '\n<br/><br/>--------------------------------------------------'
-                '<br/><br/>About SciPost:<br/><br/>'
-                'In summary, SciPost.org is a publication portal managed by '
+                '<br/><p>About SciPost:</p>'
+                '<p>In summary, SciPost.org is a publication portal managed by '
                 'professional scientists, offering (among others) high-quality '
                 'Open Access journals with innovative forms of refereeing, and a '
                 'means of commenting on all existing literature. SciPost is established as '
                 'a not-for-profit foundation devoted to serving the interests of the '
-                'international scientific community.'
-                '<br/><br/>The site is anchored at https://scipost.org. Many further details '
+                'international scientific community.</p>'
+                '<p>The site is anchored at https://scipost.org. Many further details '
                 'about SciPost, its principles, ideals and implementation can be found at '
-                'https://scipost.org/about and https://scipost.org/FAQ.')
+                'https://scipost.org/about and https://scipost.org/FAQ.</p>')
 
             email_text_html += '<br/><br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
@@ -357,13 +358,17 @@ class Utils(object):
                 'commenting on the above submission before the refereeing deadline.')
             email_text_html += (
                 '<p>Your work has been cited in a manuscript submitted to SciPost,</p>'
-                '<p>{{ sub_title }} <br>by {{ sub_author_list }}.</p>' 
-                '<p>I would hereby like to use this opportunity to quickly introduce '
+                '<p>{{ sub_title }} <br>by {{ sub_author_list }},</p>' 
+                '<p>which you can find online at the '
+                '<a href="https://scipost.org/submission/{{ arxiv_nr_w_vn_nr }}">'
+                'submission\'s page</a>.</p>'
+                '\n<p>I would hereby like to use this opportunity to quickly introduce '
                 'you to the SciPost initiative, and to invite you to become an active '
                 'Contributor to the site. You might for example consider reporting or '
-                'commenting on the above submission before the refereeing deadline.</p>\n')
+                'commenting on the above submission before the refereeing deadline.</p>')
             email_context['sub_title'] = cls.invitation.cited_in_submission.title 
             email_context['sub_author_list'] = cls.invitation.cited_in_submission.author_list
+            email_context['arxiv_identifier_w_vn_nr'] = cls.invitation.cited_in_submission.arxiv_identifier_w_vn_nr
 
             email_text += summary_text
             email_text_html += summary_text_html
@@ -395,7 +400,7 @@ class Utils(object):
                 '<p>Your work has been cited in a paper published by SciPost,</p>'
                 '<p>{{ pub_title }}</p> <br/> by {{ pub_author_list }} <br/>'
                 '(published as <a href="https://scipost.org/{{ doi_label }}">{{ citation }}</a>).</p>'
-                '<p>I would hereby like to use this opportunity to quickly introduce '
+                '\n<p>I would hereby like to use this opportunity to quickly introduce '
                 'you to the SciPost initiative, and to invite you to become an active '
                 'Contributor to the site. You might for example consider reporting or '
                 'commenting on the above submission before the refereeing deadline.</p>')
@@ -423,9 +428,9 @@ class Utils(object):
                            'called SciPost, and to invite you to become an active Contributor.')
             email_text += summary_text
             email_text_html += (
-                'I would hereby like to quickly introduce '
+                '<pI would hereby like to quickly introduce '
                 'you to a scientific publishing initiative I recently launched, '
-                'called SciPost, and to invite you to become an active Contributor.')
+                'called SciPost, and to invite you to become an active Contributor.</p>')
             email_text_html += summary_text_html + '<br/><br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
@@ -576,13 +581,13 @@ class Utils(object):
                 'and suggestions, be they positive or negative. If you need more time '
                 'to consider, that\'s also fine; just let me know.</p>'
                 '<p>On behalf of the SciPost Foundation,</p>'
-                '<p>Prof. dr Jean-Sébastien Caux<br/>'
-                '---------------------------------------------'
+                '<br/>Prof. dr Jean-Sébastien Caux'
+                '<br/>---------------------------------------------'
                 '<br/>Institute for Theoretial Physics'
                 '<br/>University of Amsterdam'
                 '<br/>Science Park 904<br/>1098 XH Amsterdam<br/>The Netherlands'
-                '<br/>---------------------------------------------<br/>'
-                'tel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778'
+                '<br/>---------------------------------------------'
+                '<br/>tel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778'
                 '<br/>---------------------------------------------\n')
                 
             email_text_html += '<br/><br/>' + EMAIL_FOOTER

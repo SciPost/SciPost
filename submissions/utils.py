@@ -5,6 +5,7 @@ from django.template import Context, Template
 
 from journals.models import journals_submit_dict
 from scipost.models import title_dict
+from scipost.utils import EMAIL_FOOTER
 
 from submissions.models import EditorialAssignment
 from submissions.models import assignment_refusal_reasons_dict, ed_comm_choices_dict
@@ -63,7 +64,7 @@ class SubmissionUtils(object):
             '<p>by {{ author_lit }}.</p>'
             '<p>We will update you on the results of the pre-screening process '
             'within the next 5 working days.</p>'
-            '<p>You can track your Submission at any time '
+            '\n<p>You can track your Submission at any time '
             'from your <a href="https://scipost.org/personal_page">personal page</a>.</p>'
             '<p>With many thanks,</p>'
             '<p>The SciPost Team.</p>')
@@ -102,7 +103,8 @@ class SubmissionUtils(object):
             '<p>We have received your Resubmission to SciPost,</p>'
             '<p>{{ sub_title }}</p>'
             '<p>by {{ author_list }}.</p>'
-            '<p>You can track your Submission at any time '
+            '<p>Your manuscript will soon be handled by the Editor-in-charge.</p>'
+            '\n<p>You can track your Submission at any time '
             'from your <a href="https://scipost.org/personal_page">personal page</a>.</p>'
             '<p>With many thanks,</p>'
             '<p>The SciPost Team</p>')
@@ -157,7 +159,7 @@ class SubmissionUtils(object):
             '(also accessible from your '
             '<a href="https://scipost.org/personal_page">personal page</a> '
             'under the Editorial Actions tab).</p>'
-            '<p>In particular, you should now invite at least 3 referees; you might want to '
+            '\n<p>In particular, you should now invite at least 3 referees; you might want to '
             'make sure you are aware of the '
             'detailed procedure described in the '
             'a href="https://scipost.org/EdCol_by-laws">Editorial College by-laws</a>.</p>'
