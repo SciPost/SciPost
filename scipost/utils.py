@@ -351,7 +351,8 @@ class Utils(object):
                 'SciPost: refereeing request (and registration invitation)', email_text,
                 'SciPost Registration <registration@scipost.org>',
                 [cls.invitation.email],
-                ['registration@scipost.org'],
+                cc=[cls.invitation.invited_by.user.email],
+                bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
 
@@ -390,6 +391,7 @@ class Utils(object):
                 #'J.-S. Caux <jscaux@scipost.org>',
                 'SciPost registration <registration@scipost.org>',
                 [cls.invitation.email],
+                cc=[cls.invitation.invited_by.user.email],
                 bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
@@ -428,6 +430,7 @@ class Utils(object):
                 #'J.-S. Caux <jscaux@scipost.org>',
                 'SciPost registration <registration@scipost.org>'
                 [cls.invitation.email],
+                cc=[cls.invitation.invited_by.user.email],
                 bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
@@ -450,6 +453,7 @@ class Utils(object):
                 #'J.-S. Caux <jscaux@scipost.org>',
                 'SciPost registration <registration@scipost.org>',
                 [cls.invitation.email],
+                cc=[cls.invitation.invited_by.user.email],
                 bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
@@ -609,6 +613,7 @@ class Utils(object):
                 'SciPost registration invitation', email_text,
                 'J-S Caux <jscaux@scipost.org>',
                 [cls.invitation.email],
+                cc=[cls.invitation.invited_by.user.email],
                 bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
