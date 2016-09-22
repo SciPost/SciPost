@@ -157,6 +157,7 @@ class Utils(object):
             email = cls.form.cleaned_data['email'],
             invitation_type = cls.form.cleaned_data['invitation_type'],
             cited_in_submission = cls.form.cleaned_data['cited_in_submission'],
+            cited_in_publication = cls.form.cleaned_data['cited_in_publication'],
             invited_by = cls.contributor,
             message_style = cls.form.cleaned_data['message_style'],
             personal_message = cls.form.cleaned_data['personal_message'],
