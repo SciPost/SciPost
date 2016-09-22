@@ -167,6 +167,9 @@
       {% if request.user|is_in_group:'Testers' %}
       <h3>You are a SciPost Tester.</h3>
       {% endif %}
+      {% if request.user|is_in_group:'Ambassadors' %}
+      <h3>You are a SciPost Ambassador.</h3>
+      {% endif %}
       <br/>
       <h3>Update your personal data or password</h3>
       <ul>
@@ -215,7 +218,7 @@
 </section>
 
 
-{% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' %}
+{% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' %}
 <section class="TabSection" id="EdActions">
   <hr class="hr12">
   <div class="flex-greybox">
@@ -223,7 +226,7 @@
   </div>
   <br>
   <div class="row">
-  {% if request.user|is_in_group:'SciPost Administrators' %}
+  {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Ambassadors' %}
   <div class="col-4">
     <h3>Registration actions</h3>
     <ul>
