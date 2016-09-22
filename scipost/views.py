@@ -520,9 +520,32 @@ def registration_invitations(request):
 
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
+def registration_invitations_cleanup(request):
+    """
+    Compares the email addresses of invitations with those in the
+    database of registered Contributors. Flags overlaps.
+    """
+    contributor_email_list = Contributor.objects.values_list('user__email', flat=True)
+    invs_to_cleanup = RegistrationInvitation.objects.filter(
+        responded=False, email__in=contributor_email_list)
+    context = {'invs_to_cleanup': invs_to_cleanup}
+    return render(request, 'scipost/registration_invitations_cleanup.html', context)
+
+
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+def remove_registration_invitation(request, invitation_id):
+    """ 
+    Remove an invitation (called from registration_invitations_cleanup).
+    """
+    invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
+    invitation.delete()
+    return redirect(reverse('scipost:registration_invitations_cleanup'))
+
+
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def renew_registration_invitation(request, invitation_id):
     """ 
-    Renew an invitation (called from registration_invitations)
+    Renew an invitation (called from registration_invitations).
     """
     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
     Utils.load({'invitation': invitation})
