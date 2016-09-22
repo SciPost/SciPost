@@ -244,7 +244,7 @@ class Utils(object):
             '\nfax: +31 (0)20 5255778\n---------------------------------------------')
 
         summary_text_html = (
-            '\n<br/><p>In summary, SciPost.org is a publication portal managed by '
+            '\n<p>In summary, SciPost.org is a publication portal managed by '
             'professional scientists, offering (among others) high-quality '
             'Open Access journals with innovative forms of refereeing, and a '
             'means of commenting on all existing literature. SciPost is established as '
@@ -390,16 +390,15 @@ class Utils(object):
             email_text += (
                 'Your work has been cited in a paper published by SciPost,'
                 '\n\n' + cls.invitation.cited_in_publication.title 
-                + ' by ' + cls.invitation.cited_in_publication.author_list + 
+                + '\nby ' + cls.invitation.cited_in_publication.author_list + 
                 '\n\n(published as ' + cls.invitation.cited_in_publication.citation()
                 + ').\n\n'
                 'I would hereby like to use this opportunity to quickly introduce '
                 'you to the SciPost initiative, and to invite you to become an active '
-                'Contributor to the site. You might for example consider reporting or '
-                'commenting on the above submission before the refereeing deadline.')
+                'Contributor to the site.')
             email_text_html += (
                 '<p>Your work has been cited in a paper published by SciPost,</p>'
-                '<p>{{ pub_title }}</p> <br/> by {{ pub_author_list }} <br/>'
+                '<p>{{ pub_title }}</p> <p>by {{ pub_author_list }}<p/>'
                 '(published as <a href="https://scipost.org/{{ doi_label }}">{{ citation }}</a>).</p>'
                 '\n<p>I would hereby like to use this opportunity to quickly introduce '
                 'you to the SciPost initiative, and to invite you to become an active '
