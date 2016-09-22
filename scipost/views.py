@@ -504,6 +504,9 @@ def registration_invitations(request):
     resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
     nr_resp_reg_inv_cited_pub = resp_reg_inv_cited_pub.count()
 
+    names_reg_contributors = Contributor.objects.filter(status=1).values_list(
+        'user__first_name', 'user__last_name')
+
     context = {'reg_inv_form': reg_inv_form, 'errormessage': errormessage,
                'sent_reg_inv_fellows': sent_reg_inv_fellows, 
                'nr_sent_reg_inv_fellows': nr_sent_reg_inv_fellows,
@@ -524,7 +527,9 @@ def registration_invitations(request):
                'resp_reg_inv_cited_sub': resp_reg_inv_cited_sub,
                'nr_resp_reg_inv_cited_sub': nr_resp_reg_inv_cited_sub,
                'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
-               'nr_resp_reg_inv_cited_pub': nr_resp_reg_inv_cited_pub, }
+               'nr_resp_reg_inv_cited_pub': nr_resp_reg_inv_cited_pub, 
+               'names_reg_contributors': names_reg_contributors,
+    }
     return render(request, 'scipost/registration_invitations.html', context)
 
 
@@ -717,7 +722,9 @@ def personal_page(request):
         graphs_owned = Graph.objects.filter(owner=contributor)
         graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor) 
                                               | Q(teams_with_access__members__in=[contributor]))
+        appellation = title_dict[contributor.title] + ' ' + contributor.user.last_name
         context = {'contributor': contributor, 
+                   'appellation': appellation,
                    'unavailabilities': unavailabilities,
                    'unavailability_form': unavailability_form,
                    'nr_reg_to_vet': nr_reg_to_vet, 

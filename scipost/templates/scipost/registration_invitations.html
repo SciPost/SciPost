@@ -220,7 +220,18 @@
     </tr>
     {% endfor %}
   </table>
+</section>
 
+  <hr class="hr12"/>
+<section>
+  <div class="flex-greybox">
+    <h2>List of already-registered contributors:</h3>
+  </div>
+  <p>
+    {% for first_name, last_name in names_reg_contributors %}
+    {{ first_name }} {{ last_name }},&nbsp;
+    {% endfor %}
+  </p>
 </section>
 
 {% endblock bodysup %}
