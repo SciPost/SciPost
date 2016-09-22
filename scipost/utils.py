@@ -428,7 +428,7 @@ class Utils(object):
                            'called SciPost, and to invite you to become an active Contributor.')
             email_text += summary_text
             email_text_html += (
-                '<pI would hereby like to quickly introduce '
+                '<p>I would hereby like to quickly introduce '
                 'you to a scientific publishing initiative I recently launched, '
                 'called SciPost, and to invite you to become an active Contributor.</p>')
             email_text_html += summary_text_html + '<br/>' + EMAIL_FOOTER
