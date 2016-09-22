@@ -166,6 +166,9 @@ class Utils(object):
 
     @classmethod
     def send_registration_invitation_email(cls, renew=False):
+        signature = (title_dict[cls.invitation.invited_by.title] + ' '
+                     + cls.invitation.invited_by.user.first_name + ' '
+                     + cls.invitation.invited_by.user.last_name)
         if not renew:
             # Generate email activation key and link
             salt = ""
@@ -225,23 +228,26 @@ class Utils(object):
             '\n\nAs a professional academic, you can register at '
             'https://scipost.org/register, enabling you to contribute to the site\'s '
             'contents, for example by offering submissions, reports and comments.'
-            '\n\nFor your convenience, I have prepared a partly pre-filled registration '
-            'form at https://scipost.org/invitation/' + cls.invitation.invitation_key 
+            '\n\nFor your convenience, a partly pre-filled registration '
+            'form has been prepared for you at '
+            'https://scipost.org/invitation/' + cls.invitation.invitation_key 
             + ' (you can in any case still register at '
             'https://scipost.org/register).\n\n'
             'If you do develop sympathy for the initiative, besides participating in the '
-            'online platform, I would be very grateful if you considered submitting a '
+            'online platform, we would be very grateful if you considered submitting a '
             'publication to one of the journals within the near future, in order to help '
-            'establish their reputation. I\'ll also be looking forward to your reaction, '
-            'comments and suggestions about the initiative, which I hope you will find '
+            'establish their reputation. We\'ll also be looking forward to your reaction, '
+            'comments and suggestions about the initiative, which we hope you will find '
             'useful to your work as a professional scientist.'
             '\n\nMany thanks in advance for taking a few minutes to look into it,'
             '\n\nOn behalf of the SciPost Foundation,\n\n'
-            'Prof. dr Jean-Sébastien Caux\n---------------------------------------------'
-            '\nInstitute for Theoretical Physics\nUniversity of Amsterdam\nScience Park 904'
-            '\n1098 XH Amsterdam\nThe Netherlands\n'
-            '---------------------------------------------\ntel.: +31 (0)20 5255775'
-            '\nfax: +31 (0)20 5255778\n---------------------------------------------')
+            #'Prof. dr Jean-Sébastien Caux\n---------------------------------------------'
+            #'\nInstitute for Theoretical Physics\nUniversity of Amsterdam\nScience Park 904'
+            #'\n1098 XH Amsterdam\nThe Netherlands\n'
+            #'---------------------------------------------\ntel.: +31 (0)20 5255775'
+            #'\nfax: +31 (0)20 5255778\n---------------------------------------------'
+            + signature + '\n'
+        )
 
         summary_text_html = (
             '\n<p>In summary, SciPost.org is a publication portal managed by '
@@ -259,28 +265,30 @@ class Utils(object):
             '<a href="https://scipost.org/register">registration page</a>, '
             'enabling you to contribute to the site\'s '
             'contents, for example by offering submissions, reports and comments.</p>'
-            '\n<p>For your convenience, I have prepared a partly pre-filled '
+            '\n<p>For your convenience, a partly pre-filled '
             '<a href="https://scipost.org/invitation/{{ invitation_key }}">registration form</a>'
-            ' (you can in any case still register at the '
+            ' has been prepared for you (you can in any case still register at the '
             '<a href="https://scipost.org/register">registration page</a>).</p>'
             '\n<p>If you do develop sympathy for the initiative, besides participating in the '
-            'online platform, I would be very grateful if you considered submitting a '
+            'online platform, we would be very grateful if you considered submitting a '
             'publication to one of the journals within the near future, in order to help '
-            'establish their reputation. I\'ll also be looking forward to your reaction, '
-            'comments and suggestions about the initiative, which I hope you will find '
+            'establish their reputation. We\'ll also be looking forward to your reaction, '
+            'comments and suggestions about the initiative, which we hope you will find '
             'useful to your work as a professional scientist.</p>'
             '\n<p>Many thanks in advance for taking a few minutes to look into it,</p>'
             '<p>On behalf of the SciPost Foundation,</p>'
-            '<br/>Prof. dr Jean-Sébastien Caux'
-            '<br/>---------------------------------------------'
-            '<br/>Institute for Theoretical Physics'
-            '<br/>University of Amsterdam'
-            '<br/>Science Park 904'
-            '<br/>1098 XH Amsterdam<br/>The Netherlands'
-            '<br/>---------------------------------------------'
-            '<br/>tel.: +31 (0)20 5255775'
-            '<br/>fax: +31 (0)20 5255778'
-            '<br/>---------------------------------------------')
+            # '<br/>Prof. dr Jean-Sébastien Caux'
+            # '<br/>---------------------------------------------'
+            # '<br/>Institute for Theoretical Physics'
+            # '<br/>University of Amsterdam'
+            # '<br/>Science Park 904'
+            # '<br/>1098 XH Amsterdam<br/>The Netherlands'
+            # '<br/>---------------------------------------------'
+            # '<br/>tel.: +31 (0)20 5255775'
+            # '<br/>fax: +31 (0)20 5255778'
+            # '<br/>---------------------------------------------'
+            '<p>' + signature + '</p>'
+        )
         email_context['invitation_key'] = cls.invitation.invitation_key
 
         if cls.invitation.invitation_type == 'R':
@@ -379,9 +387,10 @@ class Utils(object):
             #emailmessage = EmailMessage(
             emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
-                'J.-S. Caux <jscaux@scipost.org>',
+                #'J.-S. Caux <jscaux@scipost.org>',
+                'SciPost registration <registration@scipost.org>',
                 [cls.invitation.email],
-                ['registration@scipost.org'],
+                bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
 
@@ -416,20 +425,21 @@ class Utils(object):
             #emailmessage = EmailMessage(
             emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
-                'J.-S. Caux <jscaux@scipost.org>',
+                #'J.-S. Caux <jscaux@scipost.org>',
+                'SciPost registration <registration@scipost.org>'
                 [cls.invitation.email],
-                ['registration@scipost.org'],
+                bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
 
         elif cls.invitation.invitation_type == 'C':
             email_text += ('I would hereby like to quickly introduce '
-                           'you to a scientific publishing initiative I recently launched, '
+                           'you to a scientific publishing initiative '
                            'called SciPost, and to invite you to become an active Contributor.')
             email_text += summary_text
             email_text_html += (
                 '<p>I would hereby like to quickly introduce '
-                'you to a scientific publishing initiative I recently launched, '
+                'you to a scientific publishing initiative '
                 'called SciPost, and to invite you to become an active Contributor.</p>')
             email_text_html += summary_text_html + '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
@@ -437,9 +447,10 @@ class Utils(object):
             #emailmessage = EmailMessage(
             emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
-                'J.-S. Caux <jscaux@scipost.org>',
+                #'J.-S. Caux <jscaux@scipost.org>',
+                'SciPost registration <registration@scipost.org>'
                 [cls.invitation.email],
-                ['registration@scipost.org'],
+                bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
 
@@ -598,7 +609,7 @@ class Utils(object):
                 'SciPost registration invitation', email_text,
                 'J-S Caux <jscaux@scipost.org>',
                 [cls.invitation.email],
-                ['registration@scipost.org'],
+                bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
             

@@ -415,7 +415,8 @@ def vet_registration_request_ack(request, contributor_id):
                 email_text += 'Thank you very much in advance, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost registration accepted', email_text,
                                             'SciPost registration <registration@scipost.org>', 
-                                            [contributor.user.email, 'registration@scipost.org'], 
+                                            [contributor.user.email], 
+                                            bcc=['registration@scipost.org'], 
                                             reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
             else:
@@ -432,7 +433,8 @@ def vet_registration_request_ack(request, contributor_id):
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
                 emailmessage = EmailMessage('SciPost registration: unsuccessful', 
                                             email_text, 'SciPost registration <registration@scipost.org>', 
-                                            [contributor.user.email, 'registration@scipost.org'], 
+                                            [contributor.user.email], 
+                                            bcc=['registration@scipost.org'], 
                                             reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
                 contributor.status = form.cleaned_data['refusal_reason']
@@ -461,6 +463,13 @@ def registration_invitations(request):
                 errormessage = 'DUPLICATE ERROR: This email address has already been used for an invitation'
             elif Utils.email_already_taken():
                 errormessage = 'DUPLICATE ERROR: This email address is already associated to a Contributor'
+            elif (reg_inv_form.cleaned_data['invitation_type'] == 'F' 
+                  and not request.user.has_perm('scipost.can_invite_Fellows')):
+                errormessage = ('You do not have the authorization to send a Fellow-type '
+                                'invitation. Consider Contributor, or cited (sub/pub). ')
+            elif (reg_inv_form.cleaned_data['invitation_type'] == 'R'):
+                errormessage = ('Referee-type invitations must be made by the Editor-in-charge '
+                                'at the relevant Submission\'s Editorial Page. ')
             else:
                 Utils.create_invitation()
                 Utils.send_registration_invitation_email()
@@ -548,6 +557,17 @@ def renew_registration_invitation(request, invitation_id):
     Renew an invitation (called from registration_invitations).
     """
     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
+    errormessage = None
+    if (invitation.invitation_type == 'F' 
+        and not request.user.has_perm('scipost.can_invite_Fellows')):
+        errormessage = ('You do not have the authorization to send a Fellow-type '
+                        'invitation. Consider Contributor, or cited (sub/pub). ')
+    elif invitation.invitation_type == 'R':
+        errormessage = ('Referee-type invitations must be made by the Editor-in-charge '
+                        'at the relevant Submission\'s Editorial Page. ')
+    if errormessage is not None:
+        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+        
     Utils.load({'invitation': invitation})
     Utils.send_registration_invitation_email(True)
     return redirect(reverse('scipost:registration_invitations'))
