@@ -448,7 +448,7 @@ class Utils(object):
             emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
                 #'J.-S. Caux <jscaux@scipost.org>',
-                'SciPost registration <registration@scipost.org>'
+                'SciPost registration <registration@scipost.org>',
                 [cls.invitation.email],
                 bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
