@@ -257,7 +257,7 @@ class Publication(models.Model):
             '</li>'
             '<li><a href="#openModal">BiBTeX</a></li>'
             '<li><a href="{% url \'submissions:submission\' arxiv_identifier_w_vn_nr='
-            'arxiv_identifier_w_vn_nr %}">Submission</a></li>'
+            'arxiv_identifier_w_vn_nr %}">Submissions/Reports</a></li>'
             '</ul><br/><hr class="hr6"/>'
             '<h3>Abstract:</h3>'
             '<p class="publicationAbstract">{{ abstract }}</p>'

@@ -74,7 +74,7 @@ class SubmissionUtils(object):
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -114,7 +114,7 @@ class SubmissionUtils(object):
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -168,7 +168,7 @@ class SubmissionUtils(object):
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -227,7 +227,7 @@ class SubmissionUtils(object):
             'author_list': cls.assignment.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.assignment.submission.arxiv_identifier_w_vn_nr,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -291,7 +291,7 @@ class SubmissionUtils(object):
             'author_list': cls.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
@@ -344,7 +344,7 @@ class SubmissionUtils(object):
             'deadline': datetime.datetime.strftime(cls.assignment.submission.reporting_deadline, 
                                                    "%Y-%m-%d"),
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -390,7 +390,7 @@ class SubmissionUtils(object):
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -476,7 +476,7 @@ class SubmissionUtils(object):
             'deadline': datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, 
                                                    "%Y-%m-%d"),
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -576,7 +576,7 @@ class SubmissionUtils(object):
                                                    "%Y-%m-%d"),
             'invitation_key': cls.invitation.invitation_key,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -644,7 +644,7 @@ class SubmissionUtils(object):
             'author_list': cls.invitation.submission.author_list,
             'invitation_key': cls.invitation.invitation_key,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -706,7 +706,7 @@ class SubmissionUtils(object):
         })
         if cls.invitation.refusal_reason:
             email_context['reason'] = assignment_refusal_reasons_dict[cls.invitation.refusal_reason]
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -752,7 +752,7 @@ class SubmissionUtils(object):
             'sub_title': cls.report.submission.title,
             'author_list': cls.report.submission.author_list,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -835,7 +835,7 @@ class SubmissionUtils(object):
         })
         if cls.report.status < 0:
             email_context['refusal_reason'] = report_refusal_choices_dict[int(cls.report.status)]
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -879,7 +879,7 @@ class SubmissionUtils(object):
             'author_list': cls.report.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.report.submission.arxiv_identifier_w_vn_nr,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -923,7 +923,7 @@ class SubmissionUtils(object):
             'author_list': cls.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -1058,7 +1058,7 @@ class SubmissionUtils(object):
             'author_list': cls.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -1142,7 +1142,7 @@ class SubmissionUtils(object):
             'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
             'journal': journals_submit_dict[cls.submission.submitted_to_journal],
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(

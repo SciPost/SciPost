@@ -134,7 +134,7 @@ class Utils(object):
             'last_name': cls.contributor.user.last_name,
             'activation_key': cls.contributor.activation_key,
         })
-        email_text_html += '<br/><br/>' + EMAIL_FOOTER
+        email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         #emailmessage = EmailMessage(
@@ -334,7 +334,7 @@ class Utils(object):
                 'about SciPost, its principles, ideals and implementation can be found at '
                 'https://scipost.org/about and https://scipost.org/FAQ.</p>')
 
-            email_text_html += '<br/><br/>' + EMAIL_FOOTER
+            email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
             #emailmessage = EmailMessage(
@@ -372,7 +372,7 @@ class Utils(object):
 
             email_text += summary_text
             email_text_html += summary_text_html
-            email_text_html += '<br/><br/>' + EMAIL_FOOTER
+            email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
             #emailmessage = EmailMessage(
@@ -410,7 +410,7 @@ class Utils(object):
             email_context['citation'] = cls.invitation.cited_in_publication.citation
             email_text += summary_text
             email_text_html += summary_text_html
-            email_text_html += '<br/><br/>' + EMAIL_FOOTER
+            email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
             #emailmessage = EmailMessage(
@@ -431,7 +431,7 @@ class Utils(object):
                 '<pI would hereby like to quickly introduce '
                 'you to a scientific publishing initiative I recently launched, '
                 'called SciPost, and to invite you to become an active Contributor.</p>')
-            email_text_html += summary_text_html + '<br/><br/>' + EMAIL_FOOTER
+            email_text_html += summary_text_html + '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
             #emailmessage = EmailMessage(
@@ -590,7 +590,7 @@ class Utils(object):
                 '<br/>tel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778'
                 '<br/>---------------------------------------------\n')
                 
-            email_text_html += '<br/><br/>' + EMAIL_FOOTER
+            email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
             #emailmessage = EmailMessage(
