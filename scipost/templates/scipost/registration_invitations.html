@@ -4,6 +4,7 @@
 
 {% block bodysup %}
 
+{% load scipost_extras %}
 
 <script>
   $(document).ready(function(){
@@ -33,7 +34,9 @@
   <div class="flex-greybox">
     <h1>Registration Invitations</h1>
   </div>
+  {% if request.user|is_in_group:'SciPost Administrators' %}
   <h3>Perform a <a href="{% url 'scipost:registration_invitations_cleanup' %}">cleanup</a> of existing invitations.</h3>
+  {% endif %}
 </section>
 <hr class="hr12"/>
 <section>
