@@ -169,6 +169,7 @@ class EmailParticularForm(forms.Form):
     email_address = forms.EmailField(label='')
     email_subject = forms.CharField(widget=forms.Textarea(), label='')
     email_text = forms.CharField(widget=forms.Textarea(), label='')
+    include_scipost_summary = forms.BooleanField(label='include SciPost summary at end of message')
 
     def __init__(self, *args, **kwargs):
         super(EmailParticularForm, self).__init__(*args, **kwargs)

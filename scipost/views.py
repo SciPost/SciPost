@@ -1062,14 +1062,15 @@ def email_particular(request):
         form = EmailParticularForm(request.POST)
         if form.is_valid():
             email_text = form.cleaned_data['email_text']
-            html_template = Template(
-                '{{ email_text|linebreaks }}'
-                + '\n\n' + EMAIL_FOOTER
-            )
-            context = Context(
-                {'email_text': form.cleaned_data['email_text'],
-             })
-            html_version = html_template.render(context)
+            email_text_html = '{{ email_text|linebreaks }}'
+            email_context = Context({'email_text': form.cleaned_data['email_text']})
+            if form.cleaned_data['include_scipost_summary']:
+                email_text += SCIPOST_SUMMARY_FOOTER
+                email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
+
+            email_text_html += '<br/>' + EMAIL_FOOTER                
+            html_template = Template(email_text_html)
+            html_version = html_template.render(email_context)
             message = EmailMultiAlternatives(
                 form.cleaned_data['email_subject'],
                 email_text, 'SciPost Admin <admin@scipost.org>',

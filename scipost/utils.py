@@ -11,6 +11,39 @@ from django.utils import timezone
 from .models import *
 
 
+SCIPOST_SUMMARY_FOOTER = (
+    '\n\n--------------------------------------------------'
+    '\n\nAbout SciPost:\n\n'
+    'SciPost.org is a publication portal managed by '
+    'professional scientists, offering (among others) high-quality '
+    'two-way open access journals (free to read, free to publish in) '
+    'with an innovative peer-witnessed form of refereeing. '
+    'The site also offers a Commentaries section, providing a '
+    'means of commenting on all existing literature. SciPost is established as '
+    'a not-for-profit foundation devoted to serving the interests of the '
+    'international scientific community.'
+    '\n\nThe site is anchored at https://scipost.org. Many further details '
+    'about SciPost, its principles, ideals and implementation can be found at '
+    'https://scipost.org/about and https://scipost.org/FAQ.'
+)
+
+SCIPOST_SUMMARY_FOOTER_HTML = (
+    '\n<br/><br/>--------------------------------------------------'
+    '<br/><p>About SciPost:</p>'
+    '<p>SciPost.org is a publication portal managed by '
+    'professional scientists, offering (among others) high-quality '
+    'two-way open access journals (free to read, free to publish in) '
+    'with an innovative peer-witnessed form of refereeing. '
+    'The site also offers a Commentaries section, providing a '
+    'means of commenting on all existing literature. SciPost is established as '
+    'a not-for-profit foundation devoted to serving the interests of the '
+    'international scientific community.</p>'
+    '<p>The site is anchored at https://scipost.org. Many further details '
+    'about SciPost, its principles, ideals and implementation can be found at '
+    'https://scipost.org/about and https://scipost.org/FAQ.</p>'
+)
+
+
 EMAIL_FOOTER = (
     '\n{% load staticfiles %}'
     '<a href="https://scipost.org"><img src="{% static '
@@ -318,31 +351,8 @@ class Utils(object):
                 '<p>Many thanks in advance,</p>'
                 '<p>The SciPost Team</p>')
 
-            email_text += (
-                '\n\n--------------------------------------------------'
-                '\n\nAbout SciPost:\n\n'
-                'In summary, SciPost.org is a publication portal managed by '
-                'professional scientists, offering (among others) high-quality '
-                'Open Access journals with innovative forms of refereeing, and a '
-                'means of commenting on all existing literature. SciPost is established as '
-                'a not-for-profit foundation devoted to serving the interests of the '
-                'international scientific community.'
-                '\n\nThe site is anchored at https://scipost.org. Many further details '
-                'about SciPost, its principles, ideals and implementation can be found at '
-                'https://scipost.org/about and https://scipost.org/FAQ.')
-            email_text_html += (
-                '\n<br/><br/>--------------------------------------------------'
-                '<br/><p>About SciPost:</p>'
-                '<p>In summary, SciPost.org is a publication portal managed by '
-                'professional scientists, offering (among others) high-quality '
-                'Open Access journals with innovative forms of refereeing, and a '
-                'means of commenting on all existing literature. SciPost is established as '
-                'a not-for-profit foundation devoted to serving the interests of the '
-                'international scientific community.</p>'
-                '<p>The site is anchored at https://scipost.org. Many further details '
-                'about SciPost, its principles, ideals and implementation can be found at '
-                'https://scipost.org/about and https://scipost.org/FAQ.</p>')
-
+            email_text += SCIPOST_SUMMARY_FOOTER
+            email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)

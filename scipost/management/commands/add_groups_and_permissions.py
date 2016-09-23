@@ -155,6 +155,9 @@ class Command(BaseCommand):
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
         )
+        AdvisoryBoard.permissions.add(
+            can_manage_registration_invitations,
+        )
         EditorialAdmin.permissions.add(
             can_view_pool,
             can_assign_submissions,
