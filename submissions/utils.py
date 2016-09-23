@@ -81,7 +81,8 @@ class SubmissionUtils(object):
         emailmessage = EmailMultiAlternatives(
             'SciPost: Submission received', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.submission.submitted_by.user.email, 'submissions@scipost.org'],
+            [cls.submission.submitted_by.user.email],
+            bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -121,7 +122,8 @@ class SubmissionUtils(object):
         emailmessage = EmailMultiAlternatives(
             'SciPost: Resubmission received', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.submission.submitted_by.user.email, 'submissions@scipost.org'],
+            [cls.submission.submitted_by.user.email],
+            bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -176,7 +178,7 @@ class SubmissionUtils(object):
             'SciPost: potential Submission assignment', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.assignment.to.user.email], 
-            ['submissions@scipost.org'],
+            bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -235,7 +237,7 @@ class SubmissionUtils(object):
             'SciPost: assignment as EIC', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.assignment.to.user.email],
-            ['submissions@scipost.org'],
+            bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -298,7 +300,7 @@ class SubmissionUtils(object):
             'SciPost: resubmission received', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.submission.editor_in_charge.user.email],
-            ['submissions@scipost.org'],
+            bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -352,7 +354,7 @@ class SubmissionUtils(object):
             'SciPost: pre-screening passed', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.assignment.submission.submitted_by.user.email],
-            ['submissions@scipost.org'],
+            bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -398,7 +400,7 @@ class SubmissionUtils(object):
             'SciPost: pre-screening not passed', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.submission.submitted_by.user.email],
-            ['submissions@scipost.org'],
+            bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -484,7 +486,8 @@ class SubmissionUtils(object):
             'SciPost: refereeing request', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.invitation.referee.user.email],
-            ['submissions@scipost.org'],
+            bcc=[cls.invitation.submission.editor_in_charge.user.email,
+                 'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -584,7 +587,8 @@ class SubmissionUtils(object):
             'SciPost: reminder (refereeing request and registration invitation)', email_text,
             'SciPost Submissions <submissions@scipost.org>',
             [cls.invitation.email_address],
-            ['submissions@scipost.org'],
+            bcc=[cls.invitation.submission.editor_in_charge.user.email,
+                 'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -596,7 +600,8 @@ class SubmissionUtils(object):
         This method is used to inform a referee that his/her services are no longer required.
         It is called from the cancel_ref_invitation method in submissions/views.py.
         """
-        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' ' + cls.invitation.last_name + ',\n\n' 
+        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' ' 
+                      + cls.invitation.last_name + ',\n\n' 
                       'On behalf of the Editor-in-charge '
                       + title_dict[cls.invitation.submission.editor_in_charge.title] + ' '
                       + cls.invitation.submission.editor_in_charge.user.last_name
@@ -652,7 +657,8 @@ class SubmissionUtils(object):
             'SciPost: report no longer needed', email_text,
             'SciPost Submissions <submissions@scipost.org>',
             [cls.invitation.email_address],
-            ['submissions@scipost.org'],
+            bcc=[cls.invitation.submission.editor_in_charge.user.email,
+                 'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -714,7 +720,7 @@ class SubmissionUtils(object):
             email_subject, email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.invitation.submission.editor_in_charge.user.email],
-            ['submissions@scipost.org'],
+            bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -760,7 +766,7 @@ class SubmissionUtils(object):
             'SciPost: Report delivered', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.report.submission.editor_in_charge.user.email],
-            ['submissions@scipost.org'],
+            bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -843,7 +849,8 @@ class SubmissionUtils(object):
             'SciPost: Report acknowledgement', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.report.author.user.email],
-            [cls.report.submission.editor_in_charge.user.email, 'submissions@scipost.org'], # bcc EIC
+            bcc=[cls.report.submission.editor_in_charge.user.email, 
+                 'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -887,7 +894,7 @@ class SubmissionUtils(object):
             'SciPost: Report received on your Submission', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.report.submission.submitted_by.user.email],
-            ['submissions@scipost.org'],
+            bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -931,7 +938,8 @@ class SubmissionUtils(object):
             'SciPost: Comment received on your Submission', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.submission.submitted_by.user.email],
-            ['submissions@scipost.org'],
+            bcc=[cls.submission.editor_in_charge.user.email,
+                 'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -1066,7 +1074,8 @@ class SubmissionUtils(object):
             'SciPost: revision requested', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.submission.submitted_by.user.email],
-            ['submissions@scipost.org'],
+            bcc=[cls.submission.editor_in_charge.user.email,
+                 'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
@@ -1150,7 +1159,8 @@ class SubmissionUtils(object):
             'SciPost: College decision', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.submission.submitted_by.user.email],
-            ['submissions@scipost.org'],
+            bcc=[cls.submission.editor_in_charge.user.email,
+                 'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)

@@ -1028,6 +1028,9 @@ def email_group_members(request):
                                 email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
                             email_text += form.cleaned_data['email_text']
                             email_text_html += '{{ email_text|linebreaks }}'
+                            if form.cleaned_data['include_scipost_summary']:
+                                email_text += SCIPOST_SUMMARY_FOOTER
+                                email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
                             email_text_html += EMAIL_FOOTER
                             if form.cleaned_data['personalize']:
                                 email_text += EMAIL_UNSUBSCRIBE_LINK_PLAIN
