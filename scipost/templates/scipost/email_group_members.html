@@ -13,17 +13,16 @@
 <section>
   {% if errormessage %}
   <p>{{ errormessage }}</p>
-  {% else %}
+  {% endif %}
   <div class="flex-greybox">
     <h1>Email a Group of Contributors</h1>
   </div>
 
   <form action="{% url 'scipost:email_group_members' %}" method="post">
     {% csrf_token %}
-    {{ form }}
+    {{ form.as_p }}
     <input type="submit" value="Send email"/>
   </form>
-  {% endif %}
 
 </section>
 

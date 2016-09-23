@@ -1020,20 +1020,25 @@ def email_group_members(request):
                 with mail.get_connection() as connection:
                     for member in page.object_list:
                         if member.contributor.accepts_SciPost_emails:
-                            email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
-                                          member.last_name + ', \n\n'
-                                          + form.cleaned_data['email_text']
-                                          + EMAIL_UNSUBSCRIBE_LINK_PLAIN)
-                            html_template = Template(
-                                'Dear {{ title }} ' + 
-                                member.last_name + ', \n\n{{ email_text|linebreaks }}'
-                                + '\n\n' + EMAIL_FOOTER + EMAIL_UNSUBSCRIBE_LINK
-                            )
-                            context = Context(
-                                {'title': title_dict[member.contributor.title],
-                                 'email_text': form.cleaned_data['email_text'],
-                                })
-                            html_version = html_template.render(context)
+                            email_text = ''
+                            email_text_html = ''
+                            if form.cleaned_data['personalize']:
+                                email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
+                                              member.last_name + ', \n\n')
+                                email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
+                            email_text += form.cleaned_data['email_text']
+                            email_text_html += '{{ email_text|linebreaks }}'
+                            email_text_html += EMAIL_FOOTER
+                            if form.cleaned_data['personalize']:
+                                email_text += EMAIL_UNSUBSCRIBE_LINK_PLAIN
+                                email_text_html += EMAIL_UNSUBSCRIBE_LINK_HTML
+                            email_context = Context({
+                                'title': title_dict[member.contributor.title],
+                                'last_name': member.last_name,
+                                'email_text': form.cleaned_data['email_text'],
+                            })
+                            html_template = Template(email_text_html)
+                            html_version = html_template.render(email_context)
                             # mail.EmailMessage(form.cleaned_data['email_subject'],
                             #                   email_text, 'SciPost Admin <admin@scipost.org>',
                             #                   [member.email], connection=connection).send()
@@ -1048,6 +1053,10 @@ def email_group_members(request):
                        'followup_link': reverse('scipost:personal_page'),
                        'followup_link_label': 'personal page'}
             return render(request, 'scipost/acknowledgement.html', context)
+        else:
+            errormessage = 'The form was invalidly filled.'
+            context = {'errormessage': errormessage, 'form': form}
+            return render(request, 'scipost/email_group_members.html', context)
     form = EmailGroupMembersForm()
     context = {'form': form}
     return render(request, 'scipost/email_group_members.html', context)

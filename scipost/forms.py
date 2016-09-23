@@ -156,7 +156,14 @@ class SearchForm(forms.Form):
 class EmailGroupMembersForm(forms.Form):
     group = forms.ModelChoiceField(queryset=Group.objects.all())
     email_subject = forms.CharField(widget=forms.Textarea(), label='')
+    personalize = forms.BooleanField(
+        required=False, initial=False,
+        label='Personalize (Dear Prof. AAA)?')
     email_text = forms.CharField(widget=forms.Textarea(), label='')
+    include_scipost_summary = forms.BooleanField(
+        required=False, initial=False,
+        label='include SciPost summary at end of message')
+
 
     def __init__(self, *args, **kwargs):
         super(EmailGroupMembersForm, self).__init__(*args, **kwargs)
@@ -165,11 +172,14 @@ class EmailGroupMembersForm(forms.Form):
         self.fields['email_text'].widget.attrs.update(
             {'rows': 15, 'cols': 50, 'placeholder': 'Write your message in this box.'})
 
+
 class EmailParticularForm(forms.Form):
     email_address = forms.EmailField(label='')
     email_subject = forms.CharField(widget=forms.Textarea(), label='')
     email_text = forms.CharField(widget=forms.Textarea(), label='')
-    include_scipost_summary = forms.BooleanField(label='include SciPost summary at end of message')
+    include_scipost_summary = forms.BooleanField(
+        required=False, initial=False,
+        label='Include SciPost summary at end of message')
 
     def __init__(self, *args, **kwargs):
         super(EmailParticularForm, self).__init__(*args, **kwargs)
