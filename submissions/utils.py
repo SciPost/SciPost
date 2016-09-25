@@ -616,7 +616,7 @@ class SubmissionUtils(object):
             'Dear {{ title }} {{ last_name }},'
             '<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_last_name }}, '
             'we would like to inform you that your report on</p>'
-            '<p>{{ title }}</p>'
+            '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}</p>'
             '\n<p>is no longer required.</p>'
             '<p>We very much hope we can count on your expertise '
