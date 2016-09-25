@@ -992,8 +992,10 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
     is_author_unchecked = (not is_author
                            and not (request.user.contributor in submission.authors_false_claims.all())
                            and (request.user.last_name in submission.author_list))
+    invited = RefereeInvitation.objects.filter(submission=submission, 
+                                               referee=request.user.contributor).exists()
     errormessage = None
-    if timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
+    if not invited and timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
         errormessage = ('The reporting deadline has passed. You cannot submit'
                         ' a Report anymore.')
     if is_author:
@@ -1009,8 +1011,6 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         form = ReportForm(request.POST)
         if form.is_valid():
             author = Contributor.objects.get(user=request.user)
-            invited = RefereeInvitation.objects.filter(submission=submission, 
-                                                       referee=request.user.contributor).exists()
             if invited:
                 invitation = RefereeInvitation.objects.get(submission=submission, 
                                                            referee=request.user.contributor)
