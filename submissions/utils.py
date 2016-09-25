@@ -677,6 +677,7 @@ class SubmissionUtils(object):
         email_subject = 'SciPost: referee declines to review'
         if cls.invitation.accepted:
             email_text += 'accepted '
+            email_text_html += 'accepted '
             email_subject = 'SciPost: referee accepts to review'
         elif cls.invitation.accepted == False:
             email_text += ('declined (due to reason: ' 
