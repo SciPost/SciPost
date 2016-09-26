@@ -43,4 +43,7 @@ urlpatterns = [
     url(r'^validate_publication$', 
         journals_views.validate_publication, 
         name='validate_publication'),
+    url(r'^create_citation_list_metadata/(?P<publication_id>[0-9]+)$',
+        journals_views.create_citation_list_metadata,
+        name='create_citation_list_metadata'),
 ]

@@ -745,7 +745,7 @@ class SubmissionUtils(object):
             'Dear {{ EIC_title }} {{ EIC_last_name }},'
             '<p>Referee {{ ref_title }} {{ ref_last_name }} '
             'has delivered a Report for Submission</p>'
-            '<p>{{ sub_title }}</p>\n<p>by {{ sub_title }}.</p>'
+            '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
             '\n<p>Please vet this Report via your '
             '<a href="https://scipost.org/personal_page">personal page</a> '
             'under the Editorial Actions tab.</p>'

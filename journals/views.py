@@ -231,8 +231,6 @@ def validate_publication(request):
     # TODO: move from uploads to Journal folder
     # TODO: create metadata
     # TODO: set DOI, register with Crossref
-    # TODO: create BiBTeX entry
-    # TODO: email authors paper published
     # TODO: add funding info
     if request.method == 'POST':
         validate_publication_form = ValidatePublicationForm(request.POST, request.FILES)
@@ -277,6 +275,32 @@ def validate_publication(request):
     return render(request, 'journals/validate_publication.html', context)
 
 
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
+def create_citation_list_metadata(request, publication_id):
+    """
+    Called by an Editorial Administrator.
+    This populates the citation_list_xml field in a Publication instance.
+    """
+    publication = get_object_or_404(Publication, pk=publication_id)
+    if request.method == 'POST':
+        bibitems_form = CitationListBibitemsForm(request.POST, request.FILES)
+        if bibitems_form.is_valid():
+            publication.metadata['citation_list'] = []
+            entries_list = bibitems_form.cleaned_data['latex_bibitems'].split('\doi{')
+            nentries = 1
+            for entry in entries_list[1:]: # drop first bit before first \doi{ 
+                publication.metadata['citation_list'].append(
+                    {'key': 'ref' + str(nentries),
+                     'doi': entry.partition('}')[0],}
+                )
+                nentries += 1
+            publication.save()
+    bibitems_form = CitationListBibitemsForm()
+    context = {'publication': publication,
+               'bibitems_form': bibitems_form,
+               'citation_list': publication.metadata['citation_list'],}
+    return render(request, 'journals/create_citation_list_metadata.html', context)
 
 
 def publication_detail(request, doi_string):

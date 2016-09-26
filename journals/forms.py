@@ -77,3 +77,11 @@ class ValidatePublicationForm(forms.ModelForm):
         model = Publication
         exclude = ['authors', 'authors_claims', 'authors_false_claims',
                    'latest_activity',]
+
+class CitationListBibitemsForm(forms.Form):
+    latex_bibitems = forms.CharField(widget=forms.Textarea())
+
+    def __init__(self, *args, **kwargs):
+        super(CitationListBibitemsForm, self).__init__(*args, **kwargs)
+        self.fields['latex_bibitems'].widget.attrs.update(
+            {'rows': 30, 'cols': 50, 'placeholder': 'Paste the .tex bibitems here'})

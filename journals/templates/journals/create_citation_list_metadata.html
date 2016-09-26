@@ -1,0 +1,34 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Create citation list xml{% endblock pagetitle %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>Create citation list XML page</h1>
+  </div>
+
+  {% if errormessage %}
+  <h2 style="color: red;">{{ errormessage }}</h2>
+  {% endif %}
+
+  <form action="{% url 'journals:create_citation_list_metadata' publication_id=publication.id %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ bibitems_form.as_p }}
+    <input type="submit" value="Submit">
+  </form>
+
+  <table>
+    {% for citation in citation_list %}
+    <tr>
+      <td>{{ citation.key }}</td><td>{{ citation.doi }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+</section>
+
+
+{% endblock bodysup %}
