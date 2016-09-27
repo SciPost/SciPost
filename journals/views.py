@@ -154,7 +154,8 @@ def initiate_publication(request):
     """
     Called by an Editorial Administrator.
     Publish the manuscript after proofs have been accepted.
-    This method creates a Publication instance.
+    This method prefills a ValidatePublicationForm for further
+    processing (verification in validate_publication method).
     """
     if request.method == 'POST':
         initiate_publication_form = InitiatePublicationForm(request.POST)

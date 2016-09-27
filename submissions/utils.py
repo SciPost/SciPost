@@ -320,7 +320,15 @@ class SubmissionUtils(object):
                       + ' and a refereeing round has been started, with deadline '
                       'currently set at ' 
                       + datetime.datetime.strftime(cls.assignment.submission.reporting_deadline, "%Y-%m-%d")
-                      + '. '
+                      + '.\n\n'
+                      'During the refereeing round, you are welcome to provide replies to any '
+                      'Report or Comment posted on your Submission (you can do so from the '
+                      'Submission Page; you will be informed by email of any such Report or '
+                      'Comment being delivered). In order to facilitate the work of the '
+                      'Editorial College, we recommend limiting these replies to short '
+                      'to-the-point clarifications of any issue raised on your manuscript.\n\n '
+                      'Please wait for the Editor-in-charge\'s Editorial Recommendation '
+                      'before any resubmission of your manuscript.'
                       '\n\nWe thank you very much for your contribution.'
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
@@ -334,6 +342,15 @@ class SubmissionUtils(object):
             'Submission Page</a> has been activated '
             'and a refereeing round has been started, with deadline '
             'currently set at {{ deadline }}.</p>' 
+            '<h3>Further procedure</h3>'
+            '<p>During the refereeing round, you are welcome to provide replies to any '
+            'Report or Comment posted on your Submission (you can do so from the '
+            'Submission Page; you will be informed by email of any such Report or '
+            'Comment being delivered). In order to facilitate the work of the '
+            'Editorial College, we recommend limiting these replies to short '
+            'to-the-point clarifications of any issue raised on your manuscript.</p>'
+            '<p>Please wait for the Editor-in-charge\'s Editorial Recommendation '
+            'before any resubmission of your manuscript.</p>'
             '<p>We thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')

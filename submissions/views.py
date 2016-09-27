@@ -14,6 +14,7 @@ from django.db.models import Avg
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_protect
 
 from guardian.decorators import permission_required_or_403
@@ -66,6 +67,18 @@ def prefill_using_identifier(request):
             previous_submissions = Submission.objects.filter(
                 arxiv_identifier_wo_vn_nr=identifier_without_vn_nr).order_by('-arxiv_vn_nr')
             if previous_submissions.exists():
+                # If the Editorial Recommendation hasn't been formulated, ask to wait
+                if previous_submissions[0].status != 'revision_requested':
+                    errormessage = ('<p>There exists a preprint with this arXiv identifier '
+                                    'but an earlier version number, which is still undergoing '
+                                    'peer refereeing.</p>'
+                                    '<p>A resubmission can only be performed after request '
+                                    'from the Editor-in-charge. Please wait until the '
+                                    'closing of the previous refereeing round and '
+                                    'formulation of the Editorial Recommendation '
+                                    'before proceeding with a resubmission.</p>')
+                    return render(request, 'scipost/error.html', 
+                                  {'errormessage': mark_safe(errormessage)})
                 is_resubmission = True
                 resubmessage = ('There already exists a preprint with this arXiv identifier '
                                 'but a different version number. \nYour Submission will be '
@@ -933,6 +946,11 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
 @transaction.atomic
 def eic_recommendation(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404 (Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    if submission.status != 'EICassigned':
+        errormessage = ('This submission\'s current status is: ' 
+                        + submission_status_dict[submission.status] + '. '
+                        'An Editorial Recommendation is not required.')
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
     if request.method == 'POST':
         form = EICRecommendationForm(request.POST)
         if form.is_valid():
@@ -974,7 +992,8 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
                                     kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
     else:
         form = EICRecommendationForm()
-    context = {'submission': submission, 'form': form}
+    context = {'submission': submission, 
+               'form': form}
     return render(request, 'submissions/eic_recommendation.html', context)
 
         

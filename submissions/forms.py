@@ -86,12 +86,12 @@ class ConsiderAssignmentForm(forms.Form):
 
 
 class RefereeSelectForm(forms.Form):
+    last_name = forms.CharField()
+
     def __init__(self, *args, **kwargs):
         super(RefereeSelectForm, self).__init__(*args, **kwargs)
         self.fields['last_name'].widget.attrs.update(
             {'size': 20, 'placeholder': 'Search in contributors database'})
-
-    last_name = forms.CharField()
 
 
 class RefereeRecruitmentForm(forms.ModelForm):
