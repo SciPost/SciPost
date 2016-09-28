@@ -238,8 +238,8 @@ def submit_manuscript(request):
                     submission.authors_claims.add(author)
                 for author in previous_submissions[0].authors_false_claims.all():
                     submission.authors_false_claims.add(author)
-                submission.author_comments = forms.cleaned_data['author_comments']
-                submission.list_of_changes = forms.cleaned_data['list_of_changes']
+                submission.author_comments = form.cleaned_data['author_comments']
+                submission.list_of_changes = form.cleaned_data['list_of_changes']
                 submission.save()
                 assignment = EditorialAssignment(
                     submission=submission,
