@@ -59,6 +59,16 @@
   <h1>Status:</h1>
   {{ submission.status_info_as_table }}
 
+  {% if submission.author_comments %}
+  <h3>Author comments upon resubmission</h3>
+  <p>{{ submission.author_comments|linebreaks }}</p>
+  {% endif %}
+
+  {% if submission.list_of_changes %}
+  <h3>List of changes</h3>
+  <p>{{ submission.list_of_changes|linebreaks }}</p>
+  {% endif %}
+
 </section>
 
 {% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}

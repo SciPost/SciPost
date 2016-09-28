@@ -647,8 +647,10 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
         recommendation = EICRecommendation.objects.get(submission=submission)
     except EICRecommendation.DoesNotExist:
         recommendation = None
-    context = {'submission': submission, 'other_versions': other_versions,
+    context = {'submission': submission, 
+               'other_versions': other_versions,
                'recommendation': recommendation,
+               'set_deadline_form': SetRefereeingDeadlineForm(),
                'ref_invitations': ref_invitations,
                'nr_reports_to_vet': nr_reports_to_vet,
                'communications': communications}
@@ -865,6 +867,35 @@ def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
     return redirect(reverse('submissions:editorial_page', 
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
     
+
+@login_required
+@permission_required_or_403('can_take_editorial_actions', 
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
+    submission = get_object_or_404 (Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    if request.method == 'POST':
+        form = SetRefereeingDeadlineForm(request.POST)
+        if form.is_valid():
+            submission.reporting_deadline = form.cleaned_data['deadline']
+            if form.cleaned_data['deadline'] > timezone.now().date():
+                submission.open_for_reporting = True
+                submission.open_for_commenting = True
+            submission.status = 'EICassigned'
+            submission.latest_activity = timezone.now()
+            submission.save()
+            context = {'ack_header': 'New reporting deadline set.',
+                       'followup_message': 'Return to the ',
+                       'followup_link': reverse('submissions:editorial_page',
+                                                kwargs={'arxiv_identifier_w_vn_nr': submission.arxiv_identifier_w_vn_nr}),
+                       'followup_link_label': 'Submission\'s Editorial Page'}
+            return render(request, 'scipost/acknowledgement.html', context)
+        else:
+            errormessage = 'The set reporting deadline form was improperly filled'
+            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+    return redirect(reverse('submissions:editorial_page', 
+                            kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
+
 
 @login_required
 @permission_required_or_403('can_take_editorial_actions', 

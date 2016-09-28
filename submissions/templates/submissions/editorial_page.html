@@ -132,7 +132,7 @@
   <ul>
     <li><a href="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
 	Select an additional referee</a> (bear in mind flagged referees if any)</li>
-    <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline }}) by 
+    <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}) by 
       <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=2 %}">2 days</a>,
       <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=7 %}">1 week</a> or
       <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=14 %}">2 weeks</a>
@@ -140,6 +140,13 @@
       <b style="color: red">THE REPORTING DEADLINE HAS PASSED</b>
       {% endif %}
       </li>
+    <li>
+      Set refereeing deadline:
+      <form action="{% url 'submissions:set_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+	{% csrf_token %}{{ set_deadline_form }}
+	<input type="submit" value="Set deadline"/>
+      </form>
+    </li>
     <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
     {% if not submission.reporting_deadline_has_passed %}
     <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>

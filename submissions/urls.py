@@ -52,6 +52,8 @@ urlpatterns = [
         views.cancel_ref_invitation, name='cancel_ref_invitation'),
     url(r'^extend_refereeing_deadline/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/(?P<days>[0-9]+)$', 
         views.extend_refereeing_deadline, name='extend_refereeing_deadline'),
+    url(r'^set_refereeing_deadline/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$', 
+        views.set_refereeing_deadline, name='set_refereeing_deadline'),
     url(r'^close_refereeing_round/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$', 
         views.close_refereeing_round, name='close_refereeing_round'),
     url(r'^communication/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/(?P<comtype>[a-zA-Z]{4,})$', 

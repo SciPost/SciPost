@@ -118,6 +118,10 @@ class ConsiderRefereeInvitationForm(forms.Form):
     refusal_reason = forms.ChoiceField(choices=ASSIGNMENT_REFUSAL_REASONS, required=False)
 
 
+class SetRefereeingDeadlineForm(forms.Form):
+    deadline = forms.DateField(required=False, label='',
+                               widget=forms.SelectDateWidget) 
+
 class VotingEligibilityForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
