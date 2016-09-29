@@ -44,6 +44,10 @@
       <div class="col-1"></div>
       <div class="col-10">
 	<p>{{ comment.comment_text|linebreaks }}</p>
+	{% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
+	<h3>Remarks for editors:</h3>
+	<p>{{ comment.remarks_for_editors|linebreaks }}</p>
+	{% endif %}
       </div>
     </div>
   
@@ -85,6 +89,10 @@
       <div class="col-1"></div>
       <div class="col-10">
 	<p>{{ reply.comment_text|linebreaks }}</p>
+	{% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
+	<h3>Remarks for editors:</h3>
+	<p>{{ reply.remarks_for_editors|linebreaks }}</p>
+	{% endif %}
       </div>
     </div>    
 

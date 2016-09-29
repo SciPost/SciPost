@@ -36,6 +36,7 @@ class SubmissionForm(forms.ModelForm):
                   'arxiv_identifier_w_vn_nr', 'arxiv_identifier_wo_vn_nr', 
                   'arxiv_vn_nr', 'arxiv_link', 'metadata', 
                   'author_comments', 'list_of_changes', 
+                  'remarks_for_editors',
                   'referees_suggested', 'referees_flagged']
 
     def __init__(self, *args, **kwargs):
@@ -50,9 +51,11 @@ class SubmissionForm(forms.ModelForm):
         self.fields['secondary_areas'].widget = forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
         self.fields['abstract'].widget.attrs.update({'cols': 100})
         self.fields['author_comments'].widget.attrs.update({
-            'placeholder': 'Your resubmission letter', })
+            'placeholder': 'Your resubmission letter (will be viewable online)', })
         self.fields['list_of_changes'].widget.attrs.update({
-            'placeholder': 'Give a point-by-point list of changes', })
+            'placeholder': 'Give a point-by-point list of changes (will be viewable online)', })
+        self.fields['remarks_for_editors'].widget.attrs.update({
+            'placeholder': 'Any private remarks (for the editors only)', })
         self.fields['referees_suggested'].widget.attrs.update({
             'placeholder': 'Optional: names of suggested referees',
             'rows': 3})

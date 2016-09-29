@@ -49,6 +49,11 @@
   <p>{{ submission.list_of_changes|linebreaks }}</p>
   {% endif %}
 
+  {% if submission.remarks_for_editors %}
+  <h3>Comments for the Editor-in-charge</h3>
+  <p>{{ submission.remarks_for_editors|linebreaks }}</p>
+  {% endif %}
+
   {% if submission.referees_suggested %}
   <h3>Referees suggested by authors upon submission:</h3>
   <p>{{ submission.referees_suggested }}</p>

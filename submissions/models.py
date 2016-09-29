@@ -93,6 +93,7 @@ class Submission(models.Model):
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
     author_comments = models.TextField(blank=True, null=True)
     list_of_changes = models.TextField(blank=True, null=True)
+    remarks_for_editors = models.TextField(blank=True, null=True)
     referees_suggested = models.TextField(blank=True, null=True)
     referees_flagged = models.TextField(blank=True, null=True)
     open_for_reporting = models.BooleanField(default=False)
@@ -612,7 +613,9 @@ class Report(models.Model):
         context = Context({'id': self.id, 'author_id': self.author.id,
                            'author_first_name': self.author.user.first_name,
                            'author_last_name': self.author.user.last_name,
-                           'date_submitted': self.date_submitted.strftime("%Y-%m-%d")})
+                           'date_submitted': self.date_submitted.strftime("%Y-%m-%d"),
+                           'remarks_for_editors': self.remarks_for_editors,
+                       })
         output = '<div class="reportid">\n'
         output += '<h3><a id="report_id{{ id }}"></a>'
         if self.anonymous:
@@ -624,6 +627,7 @@ class Report(models.Model):
                    '<div class="col-10"><p>' 
                    + ref_qualif_dict[self.qualification] + '</p></div></div>')
         output += self.print_contents()
+        output += '<h3>Remarks for editors</h3><p>{{ remarks_for_editors }}</p>'
         output += '<h3>Recommendation: ' + report_rec_dict[self.recommendation] + '</h3>'
         template = Template(output)
         return template.render(context)
