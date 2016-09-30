@@ -237,6 +237,9 @@
       {% if perms.scipost.can_manage_registration_invitations %}
       <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
       {% endif %}
+    </ul>
+    <h3>Email communications</h3>
+    <ul>
       {% if perms.scipost.can_email_group_members %}
       <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
       {% endif %}
@@ -272,6 +275,9 @@
   <div class="col-4">
     <h3>Submissions assignments</h3>
     <ul>
+      {% if perms.scipost.can_view_pool %}
+      <li><a href="{% url 'scipost:Fellow_activity_overview' %}">View assignments overview</a></li>
+      {% endif %}
       {% if perms.scipost.can_assign_submissions %}
       <li>Assign Submissions via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_submissions_to_assign }})</li>
       {% endif %}
@@ -291,7 +297,7 @@
   <h3>Submissions for which you are Editor-in-charge</h3>
   <ul>
     {% for assignment in active_assignments %}
-    {{ assignment.header_as_li }}
+    {{ assignment.header_as_li_for_eic }}
     {% endfor %}
   </ul>
   {% endif %}

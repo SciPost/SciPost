@@ -286,6 +286,51 @@ class Contributor(models.Model):
         output += '</ul>'
         return mark_safe(output)
 
+    def assignments_summary_as_td(self):
+        assignments = self.editorialassignment_set.all()
+        nr_ongoing = assignments.filter(accepted=True, completed=False).count()
+        nr_last_12mo = assignments.filter(
+            date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
+        nr_accepted = assignments.filter(accepted=True).count()
+        nr_accepted_last_12mo = assignments.filter(
+            accepted=True, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
+        nr_refused = assignments.filter(accepted=False).count()
+        nr_refused_last_12mo = assignments.filter(
+            accepted=False, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
+        nr_ignored = assignments.filter(accepted=None).count()
+        nr_ignored_last_12mo = assignments.filter(
+            accepted=None, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
+        nr_completed = assignments.filter(completed=True).count()
+        nr_completed_last_12mo = assignments.filter(
+            completed=True, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
+        
+        context = Context({
+            'nr_ongoing': nr_ongoing,
+            'nr_total': assignments.count(),
+            'nr_last_12mo': nr_last_12mo,
+            'nr_accepted': nr_accepted, 
+            'nr_accepted_last_12mo': nr_accepted_last_12mo,
+            'nr_refused': nr_refused,
+            'nr_refused_last_12mo': nr_refused_last_12mo,
+            'nr_ignored': nr_ignored,
+            'nr_ignored_last_12mo': nr_ignored_last_12mo,
+            'nr_completed': nr_completed,
+            'nr_completed_last_12mo': nr_completed_last_12mo,
+        })
+        output = '<td>'
+        if self.expertises:
+            for expertise in self.expertises:
+                output += subject_areas_dict[expertise] + '<br/>'
+        output += ('</td>'
+                   '<td>{{ nr_ongoing }}</td>'
+                   '<td>{{ nr_last_12mo }} / {{ nr_total }}</td>'
+                   '<td>{{ nr_accepted_last_12mo }} / {{ nr_accepted }}</td>'
+                   '<td>{{ nr_refused_last_12mo }} / {{ nr_refused }}</td>'
+                   '<td>{{ nr_ignored_last_12mo }} / {{ nr_ignored }}</td>'
+                   '<td>{{ nr_completed_last_12mo }} / {{ nr_completed }}</td>\n')
+        template = Template(output)
+        return template.render(context)
+
 
 class UnavailabilityPeriod(models.Model):
     contributor = models.ForeignKey(Contributor)

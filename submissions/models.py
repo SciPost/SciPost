@@ -398,7 +398,7 @@ class EditorialAssignment(models.Model):
         template = Template(info)
         return template.render(context)
         
-    def header_as_li(self):
+    def header_as_li_for_eic(self):
         header = ('<li><div class="flex-container">'
                   '<div class="flex-whitebox0">'
                   '<p><a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
@@ -407,6 +407,25 @@ class EditorialAssignment(models.Model):
                   '<p> (submitted {{ date }} to {{ to_journal }})</p>'
                   '<p>Status: {{ status }}</p><p>Manage this Submission from its '
                   '<a href="/submissions/editorial_page/{{ arxiv_identifier_w_vn_nr }}">Editorial Page</a>.'
+                  '</p></div></div></li>')
+        template = Template(header)
+        context = Context({'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr, 
+                           'title': self.submission.title,
+                           'author_list': self.submission.author_list, 
+                           'date': self.submission.submission_date,
+                           'to_journal': journals_submit_dict[self.submission.submitted_to_journal],
+                           'status': submission_status_dict[self.submission.status]})
+        return template.render(context)
+
+    def header_as_li(self):
+        """ Same as above, but without link to Editorial Page. """
+        header = ('<li><div class="flex-container">'
+                  '<div class="flex-whitebox0">'
+                  '<p><a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
+                  'class="pubtitleli">{{ title }}</a></p>'
+                  '<p>by {{ author_list }}</p>'
+                  '<p> (submitted {{ date }} to {{ to_journal }})</p>'
+                  '<p>Status: {{ status }}</p>'
                   '</p></div></div></li>')
         template = Template(header)
         context = Context({'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr, 

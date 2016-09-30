@@ -74,6 +74,24 @@ ul.personalTabMenu li a.inactive {
   border: none;
 }
 
+.assignments_listing {
+    border-collapse: collapse;
+    margin: 0px 5px;
+    padding: 0px;
+}
+.assignments_listing tr {
+    background-color: #dddddd;
+    border: 1px solid black;
+}
+.assignments_listing td {
+    border: 1px solid black;
+    padding: 4px 8px;
+}
+.assignments_listing th {
+  border: 1px solid black;
+  padding: 4px 8px;
+}
+
 .commentcategorychoices {
   list-style-type: none; 
 }

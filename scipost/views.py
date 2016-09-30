@@ -375,7 +375,7 @@ def vet_registration_requests(request):
     contributors_to_vet = (Contributor.objects
                            .filter(user__is_active=True, status=0)
                            .order_by('key_expires'))
-    reg_cont_group = Group.objects.get(name='Registered Contributors')
+    reg_cont_group = Group.objects.get(name='Registered Contributors') # TODO: remove this line?
     form = VetRegistrationForm()
     context = {'contributors_to_vet': contributors_to_vet, 'form': form }
     return render(request, 'scipost/vet_registration_requests.html', context)
@@ -1107,6 +1107,20 @@ def email_particular(request):
 
 def EdCol_bylaws(request):
     return render(request, 'scipost/EdCol_by-laws.html')
+
+
+@permission_required('scipost.can_view_pool', return_403=True)
+def Fellow_activity_overview(request, Fellow_id=None):
+    Fellows = Contributor.objects.filter(
+        user__groups__name='Editorial College').order_by('user__last_name')
+    context = {'Fellows': Fellows,}
+    if Fellow_id:
+        Fellow = get_object_or_404(Contributor, pk=Fellow_id)
+        context['Fellow'] = Fellow
+        assignments_of_Fellow = EditorialAssignment.objects.filter(
+            to=Fellow).order_by('-date_created')
+        context['assignments_of_Fellow'] = assignments_of_Fellow
+    return render(request, 'scipost/Fellow_activity_overview.html', context)
 
 
 #########

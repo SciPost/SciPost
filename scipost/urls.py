@@ -117,6 +117,12 @@ urlpatterns = [
     # Editorial College #
     #####################
     url(r'^EdCol_by-laws$', views.EdCol_bylaws, name='EdCol_by-laws'),
+    url(r'^Fellow_activity_overview/(?P<Fellow_id>[0-9]+)$', 
+        views.Fellow_activity_overview, 
+        name='Fellow_activity_overview'),
+    url(r'^Fellow_activity_overview$', 
+        views.Fellow_activity_overview, 
+        name='Fellow_activity_overview'),
 
     ################
     # Publications #

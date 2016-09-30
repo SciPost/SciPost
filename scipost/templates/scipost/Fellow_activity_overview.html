@@ -1,0 +1,59 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Overview{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+{% load scipost_extras %}
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h1>Overview of Fellows's activities</h1>
+    </div>
+  </div>
+  <p>Click on a Fellow's name to view full assignment details.</p>
+  <table class="assignments_listing">
+    <thead>
+      <th>Name</th>
+      <th>Expertises</th>
+      <th>Ongoing</th>
+      <th>Assignments<br/>last yr / tot</th>
+      <th>Accepted<br/>last yr / tot</th>
+      <th>Refused<br/>last yr / tot</th>
+      <th>Ignored<br/>last yr / tot</th>
+      <th>Fulfilled<br/>last yr / tot</th>
+    </thead>
+    <tbody>
+      {% for Fellow in Fellows %}
+      <tr>
+	<td><a href="{% url 'scipost:Fellow_activity_overview' Fellow_id=Fellow.id %}">{{ Fellow.user.last_name }}, {{ Fellow.user.first_name }}</a></td>
+	{{ Fellow.assignments_summary_as_td }}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</section>
+
+{% if Fellow %}
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h1>Overview of Fellows's activities</h1>
+    </div>
+  </div>
+  <h3>Assignments for {{ Fellow.user.first_name }} {{ Fellow.user.last_name }}</h3>
+  <ul>
+    {% for assignment in assignments_of_Fellow %}
+    {{ assignment.header_as_li }}
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% endblock bodysup %}
