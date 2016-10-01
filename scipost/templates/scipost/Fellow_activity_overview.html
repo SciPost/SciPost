@@ -48,11 +48,26 @@
     </div>
   </div>
   <h3>Assignments for {{ Fellow.user.first_name }} {{ Fellow.user.last_name }}</h3>
+
+  <h4>Ongoing:</h4>
   <ul>
     {% for assignment in assignments_of_Fellow %}
+    {% if assignment.accepted and not assignment.completed %}
     {{ assignment.header_as_li }}
+    {% endif %}
     {% endfor %}
   </ul>
+
+  <h4>Completed:</h4>
+  <ul>
+    {% for assignment in assignments_of_Fellow %}
+    {% if assignment.completed %}
+    {{ assignment.header_as_li }}
+    {% endif %}
+    {% endfor %}
+  </ul>
+
+
 </section>
 {% endif %}
 

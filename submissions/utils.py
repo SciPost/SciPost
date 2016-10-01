@@ -36,9 +36,10 @@ class SubmissionUtils(object):
     def deprecate_all_assignments(cls):
         """ 
         Called when the pre-screening has failed.
+        Requires loading 'submission' attribute.
         """
         assignments_to_deprecate = (EditorialAssignment.objects
-                                    .filter(submission=cls.assignment.submission, accepted=None))
+                                    .filter(submission=cls.submission, accepted=None))
         for atd in assignments_to_deprecate:
             atd.deprecated = True
             atd.save()

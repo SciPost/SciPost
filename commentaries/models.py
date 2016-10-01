@@ -110,8 +110,10 @@ class Commentary(models.Model):
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
                            'author_list': self.author_list, 
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
-        header = ('<li><div class="flex-container">'
-                  '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" '
+        header = ('<li>'
+                  #'<div class="flex-container">'
+                  #'<div class="flex-whitebox0">'
+                  '<p><a href="{{ scipost_url }}" '
                   'class="pubtitleli">{{ pub_title }}</a></p>'
                   '<p>by {{ author_list }}')
         if self.type == 'published':
@@ -126,7 +128,9 @@ class Commentary(models.Model):
         if self.pub_date:
             header += '<p> (published {{ pub_date }}) - '
             context['pub_date'] = str(self.pub_date)
-        header += 'latest activity: {{ latest_activity }}</p></div></div></li>'
+        header += ('latest activity: {{ latest_activity }}</p>'
+                   #'</div></div>'
+                   '</li>')
         template = Template(header)
 
         return template.render(context)
@@ -136,8 +140,10 @@ class Commentary(models.Model):
         # for display in Lists
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
                            'author_list': self.author_list})
-        header = ('<li><div class="flex-container">'
-                  '<div class="flex-whitebox0"><p><a href="{{ scipost_url }}" '
+        header = ('<li>'
+                  #'<div class="flex-container">'
+                  #'<div class="flex-whitebox0">'
+                  '<p><a href="{{ scipost_url }}" '
                   'class="pubtitleli">{{ pub_title }}</a></p>'
                   '<p>by {{ author_list }}')
         if self.type == 'published':
@@ -149,7 +155,8 @@ class Commentary(models.Model):
             header += ', <a href="{{ arxiv_link }}">{{ arxiv_link }}</a>'
             context['arxiv_link'] = self.arxiv_link
         header += '</p>'
-        header += '</div></div></li>'
+        header += (#'</div></div>'
+                   '</li>')
         template = Template(header)
         return template.render(context)
 

@@ -216,8 +216,8 @@ class Comment(models.Model):
 
     def header_as_li (self):
         # for search lists
-        header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0">'
+        header = '<li>'
+        #header += '<div class="flex-container"><div class="flex-whitebox0">'
         header += 'Nr {{ id }}'
         context = Context({'id': self.id})
         header += ', <div class="opinionsDisplay">' + self.opinions_as_ul_tiny() + '</div>'
@@ -263,15 +263,16 @@ class Comment(models.Model):
             context['thesislink_id'] = self.thesislink.id
             context['thesislink_title'] = self.thesislink.title
             context['thesislink_author'] = self.thesislink.author
-        header += '</div></div></li>'
+        #header += '</div></div>'
+        header += '</li>'
         template = Template(header)
         return template.render(context)
 
 
     def simple_header_as_li (self):
         # for Lists
-        header = '<li><div class="flex-container">'
-        header += '<div class="flex-whitebox0">'
+        header = '<li>'
+        #header += '<div class="flex-container"><div class="flex-whitebox0">'
         context = Context({})
         text_cut = self.comment_text[:30]
         if len(self.comment_text) > 30:
@@ -305,7 +306,8 @@ class Comment(models.Model):
             context['thesislink_id'] = self.thesislink.id
             context['thesislink_title'] = self.thesislink.title
             context['thesislink_author'] = self.thesislink.author
-        header += '</div></div></li>'
+        #header += '</div></div>'
+        header += '</li>'
         template = Template(header)
         return template.render(context)
 
