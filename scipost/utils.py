@@ -41,7 +41,7 @@ SCIPOST_SUMMARY_FOOTER_HTML = (
     'international scientific community.</p>'
     '<p>The site is anchored at https://scipost.org. Many further details '
     'about SciPost, its principles, ideals and implementation can be found at '
-    'https://scipost.org/about and https://scipost.org/FAQ.'
+    'https://scipost.org/about and https://scipost.org/FAQ.\n'
     'Professional scientists can register at https://scipost.org/register.</p>'
 )
 
