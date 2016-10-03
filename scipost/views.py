@@ -1130,7 +1130,7 @@ def send_precooked_email(request):
                 precookedEmail.email_subject,
                 #email_text, 'SciPost Admin <admin@scipost.org>',
                 email_text, 
-                SciPost_from_addressed_dict[form.cleaned_data['from_address']],
+                SciPost_from_addresses_dict[form.cleaned_data['from_address']],
                 [form.cleaned_data['email_address']], 
                 bcc=['admin@scipost.org'])
             message.attach_alternative(html_version, 'text/html')
