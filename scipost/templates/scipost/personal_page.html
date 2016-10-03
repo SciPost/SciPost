@@ -244,6 +244,7 @@
       <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
       {% endif %}
       {% if perms.scipost.can_email_particulars %}
+      <li><a href="{% url 'scipost:send_precooked_email' %}">Send a precooked email</a></li>
       <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
       {% endif %}
     </ul>

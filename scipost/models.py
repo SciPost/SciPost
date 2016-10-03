@@ -485,6 +485,39 @@ class AuthorshipClaim(models.Model):
 #    significance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
 
 
+##########
+# Emails #
+##########
+
+# class EmailedTo(models.Model):
+#     """
+#     An email address used for emailing.
+#     An instance is created by a method as send_precooked_email
+#     if the chosen message hasn't been sent to this address before.
+#     Helps prevent multiple emailing with same message.
+#     """
+#     email = models.EmailField()
+
+
+class PrecookedEmail(models.Model):
+    """
+    Each instance contains an email template in both plain and html formats.
+    Can only be created by Admins.
+    For further use in scipost:send_precooked_email method.
+    """
+    email_subject = models.CharField(max_length=300)
+    email_text = models.TextField()
+    email_text_html = models.TextField()
+    date_created = models.DateField(default=timezone.now)
+    #emailed_to = models.ManyToManyField(EmailedTo, blank=True)
+    emailed_to = ArrayField(models.EmailField(blank=True), blank=True)
+    date_last_used = models.DateField(default=timezone.now)
+    deprecated = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.email_subject
+
+
 #############
 # NewsItems #
 #############

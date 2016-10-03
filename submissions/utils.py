@@ -802,7 +802,7 @@ class SubmissionUtils(object):
         email_text_html = (
             'Dear {{ ref_title }} {{ ref_last_name }},'
             '<p>Many thanks for your Report on Submission</p>'
-            '<p>{{ sub_title }}</p>\n<p>by{{ author_list }}.</p>')
+            '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')
         if cls.report.status == 1:
             email_text += ('\n\nYour Report has been vetted through and is viewable at '
                            'https://scipost.org/submissions/' 

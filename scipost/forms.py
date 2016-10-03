@@ -191,6 +191,15 @@ class EmailParticularForm(forms.Form):
             {'rows': 15, 'cols': 50, 'placeholder': 'Write your message in this box.'})
 
 
+class SendPrecookedEmailForm(forms.Form):
+    email_address = forms.EmailField()
+    email_option = forms.ModelChoiceField(
+        queryset=PrecookedEmail.objects.filter(deprecated=False))
+    include_scipost_summary = forms.BooleanField(
+        required=False, initial=False,
+        label='Include SciPost summary at end of message')
+
+
 class CreateListForm(forms.ModelForm):
     class Meta:
         model = List

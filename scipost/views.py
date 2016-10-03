@@ -1100,6 +1100,49 @@ def email_particular(request):
     return render(request, 'scipost/email_particular.html', context)
 
 
+@permission_required('scipost.can_email_particulars', return_403=True)
+def send_precooked_email(request):
+    """
+    Method to send precooked emails to individuals (registered or not)
+    """
+    if request.method == 'POST':
+        form = SendPrecookedEmailForm(request.POST)
+        if form.is_valid():
+            precookedEmail = form.cleaned_data['email_option']
+            if form.cleaned_data['email_address'] in precookedEmail.emailed_to:
+                errormessage = 'This message has already been sent to this address'
+                return render(request, 'scipost/error.html', 
+                              context={'errormessage': errormessage})
+            precookedEmail.emailed_to.append(form.cleaned_data['email_address'])
+            precookedEmail.date_last_used = timezone.now().date()
+            precookedEmail.save()
+            email_text = precookedEmail.email_text
+            email_text_html = '{{ email_text|linebreaks }}'
+            email_context = Context({'email_text': precookedEmail.email_text_html})
+            if form.cleaned_data['include_scipost_summary']:
+                email_text += SCIPOST_SUMMARY_FOOTER
+                email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
+
+            email_text_html += '<br/>' + EMAIL_FOOTER                
+            html_template = Template(email_text_html)
+            html_version = html_template.render(email_context)
+            message = EmailMultiAlternatives(
+                precookedEmail.email_subject,
+                email_text, 'SciPost Admin <admin@scipost.org>',
+                [form.cleaned_data['email_address']], 
+                bcc=['admin@scipost.org'])
+            message.attach_alternative(html_version, 'text/html')
+            message.send()
+            context = {'ack_header': 'The email has been sent.',
+                       'followup_message': 'Return to your ',
+                       'followup_link': reverse('scipost:personal_page'),
+                       'followup_link_label': 'personal page'}
+            return render(request, 'scipost/acknowledgement.html', context)
+    form = SendPrecookedEmailForm()
+    context = {'form': form}
+    return render(request, 'scipost/send_precooked_email.html', context)
+
+
 #####################
 # Editorial College #
 #####################

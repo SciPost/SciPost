@@ -112,6 +112,7 @@ urlpatterns = [
     ####################
     url('^email_group_members$', views.email_group_members, name='email_group_members'),
     url('^email_particular$', views.email_particular, name='email_particular'),
+    url('^send_precooked_email$', views.send_precooked_email, name='send_precooked_email'),
 
     #####################
     # Editorial College #

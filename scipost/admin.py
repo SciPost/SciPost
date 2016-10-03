@@ -41,6 +41,12 @@ admin.site.register(AuthorshipClaim)
 admin.site.register(Permission)
 
 
+class PrecookedEmailAdmin(admin.ModelAdmin):
+    search_fields = ['email_subject', 'email_text', 'emailed_to']
+
+admin.site.register(PrecookedEmail, PrecookedEmailAdmin)
+
+
 class NewsItemAdmin(admin.ModelAdmin):
     search_fields = ['blurb', 'followup_link_text']
 
