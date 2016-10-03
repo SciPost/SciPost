@@ -503,6 +503,8 @@ SCIPOST_FROM_ADDRESSES = (
     ('J.-S. Caux', 'J.-S. Caux <jscaux@scipost.org>'),
     ('Admin', 'SciPost Admin <admin@scipost.org>'),
 )
+SciPost_from_addresses_dict = dict(SCIPOST_FROM_ADDRESSES)
+
 
 class PrecookedEmail(models.Model):
     """
