@@ -198,6 +198,11 @@ class SendPrecookedEmailForm(forms.Form):
     include_scipost_summary = forms.BooleanField(
         required=False, initial=False,
         label='Include SciPost summary at end of message')
+    from_address = forms.ChoiceField(choices=SCIPOST_FROM_ADDRESSES)
+
+    # def __init__(self, *args, **kwards):
+    #     super(SendPrecookedEmailForm, self).__init__(*args, **kwargs)
+    #     self.fields['from_address'].widget.attrs.update(
 
 
 class CreateListForm(forms.ModelForm):

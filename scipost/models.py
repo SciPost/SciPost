@@ -499,6 +499,11 @@ class AuthorshipClaim(models.Model):
 #     email = models.EmailField()
 
 
+SCIPOST_FROM_ADDRESSES = (
+    ('J.-S. Caux', 'J.-S. Caux <jscaux@scipost.org>'),
+    ('Admin', 'SciPost Admin <admin@scipost.org>'),
+)
+
 class PrecookedEmail(models.Model):
     """
     Each instance contains an email template in both plain and html formats.

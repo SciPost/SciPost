@@ -1128,7 +1128,8 @@ def send_precooked_email(request):
             html_version = html_template.render(email_context)
             message = EmailMultiAlternatives(
                 precookedEmail.email_subject,
-                email_text, 'SciPost Admin <admin@scipost.org>',
+                #email_text, 'SciPost Admin <admin@scipost.org>',
+                email_text, form.cleaned_data['from_address'],
                 [form.cleaned_data['email_address']], 
                 bcc=['admin@scipost.org'])
             message.attach_alternative(html_version, 'text/html')
