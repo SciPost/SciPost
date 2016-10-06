@@ -500,8 +500,9 @@ class AuthorshipClaim(models.Model):
 
 
 SCIPOST_FROM_ADDRESSES = (
-    ('J.-S. Caux', 'J.-S. Caux <jscaux@scipost.org>'),
     ('Admin', 'SciPost Admin <admin@scipost.org>'),
+    ('J.-S. Caux', 'J.-S. Caux <jscaux@scipost.org>'),
+    ('J. van Wezel', 'J. van Wezel <vanwezel@scipost.org'),
 )
 SciPost_from_addresses_dict = dict(SCIPOST_FROM_ADDRESSES)
 
