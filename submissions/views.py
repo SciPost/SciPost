@@ -205,7 +205,7 @@ def submit_manuscript(request):
                 arxiv_link = form.cleaned_data['arxiv_link'],
                 metadata = form.cleaned_data['metadata'],
                 submission_date = timezone.now(),
-                comments_for_editor = form.cleaned_data['comments_for_editor'],
+                remarks_for_editors = form.cleaned_data['remarks_for_editors'],
                 referees_suggested = form.cleaned_data['referees_suggested'],
                 referees_flagged = form.cleaned_data['referees_flagged'],
                 )
