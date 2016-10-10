@@ -586,8 +586,8 @@ class SubmissionUtils(object):
             '<p>Many thanks in advance,</p>'
             '<p>The SciPost Team</p>')
         email_context = Context({
-            'title': title_dict[cls.invitation.referee.title],
-            'last_name': cls.invitation.referee.user.last_name,
+            'title': title_dict[cls.invitation.title],
+            'last_name': cls.invitation.last_name,
             'EIC_title': title_dict[cls.invitation.submission.editor_in_charge.title],
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
             'sub_title': cls.invitation.submission.title,
