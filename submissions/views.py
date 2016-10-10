@@ -980,7 +980,7 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
 @transaction.atomic
 def eic_recommendation(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404 (Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if submission.status != 'EICassigned':
+    if submission.status not in ['EICassigned', 'review_closed']:
         errormessage = ('This submission\'s current status is: ' 
                         + submission_status_dict[submission.status] + '. '
                         'An Editorial Recommendation is not required.')
