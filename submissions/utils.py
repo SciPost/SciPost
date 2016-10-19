@@ -1122,7 +1122,7 @@ class SubmissionUtils(object):
             email_text_html += (
                 '<p>We are pleased to inform you that your Submission '
                 'has been accepted for publication in <strong>{{ journal }}</strong>') 
-            if cls.recommendation.recommendation == 1:
+            if cls.recommendation.recommendation == 1 and False: # Temporary deactivation of Select
                 email_text += (', with a promotion to Select. We warmly congratulate you '
                                'on this achievement, which is reserved to papers deemed in '
                                'the top ten percent of papers we publish.')

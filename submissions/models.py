@@ -556,7 +556,7 @@ RANKING_CHOICES = (
 ranking_choices_dict = dict(RANKING_CHOICES)
 
 REPORT_REC = (
-    (1, 'Publish as Tier I (top 10% of papers in this journal) NOTE: NOT YET OPEN, WAIT FOR EARLY 2017'),
+    (1, 'Publish as Tier I (top 10% of papers in this journal, qualifies as Select) NOTE: SELECT NOT YET OPEN, STARTS EARLY 2017'),
     (2, 'Publish as Tier II (top 50% of papers in this journal)'),
     (3, 'Publish as Tier III (meets the criteria of this journal)'),
     (-1, 'Ask for minor revision'),
