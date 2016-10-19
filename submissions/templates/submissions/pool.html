@@ -234,6 +234,10 @@ $(document).ready(function(){
     {% endif %}
     {% if request.user|is_in_group:'Editorial Administrators' %}
     <h4><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a></h4>
+    {% if sub.status == 'accepted' %}
+    <h4>After proofs have been accepted, you can
+      <a href="{% url 'journals:initiate_publication' %}">initiate the publication process</a> (leads to the validation page)</h4>
+    {% endif %}
     {% endif %}
     {% endif %}
     {% endfor %}

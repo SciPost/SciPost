@@ -152,6 +152,7 @@ class Publication(models.Model):
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_pub')
+    first_author = models.ForeignKey (Contributor, blank=True, null=True)
     authors_claims = models.ManyToManyField (Contributor, blank=True, 
                                              related_name='authors_pub_claims')
     authors_false_claims = models.ManyToManyField (Contributor, blank=True, 
@@ -222,7 +223,7 @@ class Publication(models.Model):
                   '<p class="publicationTitle"><a href="{% url \'scipost:publication_detail\' doi_string=doi_string %}">{{ title }}</a></p>'
                   '<p class="publicationAuthors">{{ author_list }}</p>'
                   '<p class="publicationReference">{{ citation }} &nbsp;&nbsp;'
-                  '|&nbsp;published {{ pub_date}}</p>'
+                  '|&nbsp;published {{ pub_date }}</p>'
                   '<p class="publicationAbstract">{{ abstract }}</p>'
                   '<ul class="publicationClickables">'
                   '<li><button class="toggleAbstractButton">Toggle abstract</button></li>'
@@ -276,3 +277,20 @@ class Publication(models.Model):
                            'arxiv_identifier_w_vn_nr': self.accepted_submission.arxiv_identifier_w_vn_nr
                        })
         return template.render(context)
+
+
+class Deposit(models.Model):
+    """
+    Each time a Crossref deposit is made for a Publication,
+    a Deposit object instance is created containing the Publication's 
+    current version of the metadata_xml field.
+    All deposit history is thus contained here.
+    """
+    publication = models.ForeignKey(Publication)
+    doi_batch_id = models.CharField(max_length=40, default='')
+    metadata_xml = models.TextField(blank=True, null=True)
+    deposition_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return (deposition_date.strftime('%Y-%m-%D') + 
+                ' for ' + publication.doi_string)

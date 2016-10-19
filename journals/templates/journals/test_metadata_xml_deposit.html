@@ -1,0 +1,25 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Test metadata XML deposit{% endblock pagetitle %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>Test metadata deposit</h1>
+  </div>
+
+  {% if errormessage %}
+  <h2 style="color: red;">{{ errormessage }}</h2>
+  {% endif %}
+
+  <h3>Response headers:</h3>
+  <p>{{ response_headers }}</p>
+
+  <h3>Once you're happy, you can <a href="{% url 'scipost:publication_detail' doi_string=publication.doi_string %}">return to the publication's page</a></h3>
+
+</section>
+
+
+{% endblock bodysup %}

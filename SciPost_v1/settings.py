@@ -172,3 +172,6 @@ SERVER_EMAIL = host_settings["SERVER_EMAIL"]
 
 # Own settings
 JOURNALS_DIR = host_settings["JOURNALS_DIR"]
+
+CROSSREF_LOGIN_ID = host_settings["CROSSREF_LOGIN_ID"]
+CROSSREF_LOGIN_PASSWORD = host_settings["CROSSREF_LOGIN_PASSWORD"]

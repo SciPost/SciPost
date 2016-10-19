@@ -700,7 +700,7 @@ class SubmissionUtils(object):
         elif cls.invitation.accepted == False:
             email_text += ('declined (due to reason: ' 
                            + assignment_refusal_reasons_dict[cls.invitation.refusal_reason] + ') ')
-            email_text_html += 'declined (due to reason: {{ reason }})' 
+            email_text_html += 'declined (due to reason: {{ reason }}) ' 
             
         email_text += ('to referee Submission\n\n'
                        + cls.invitation.submission.title + ' by ' 
@@ -1130,6 +1130,9 @@ class SubmissionUtils(object):
                     ', with a promotion to <strong>Select</strong>. We warmly congratulate you '
                     'on this achievement, which is reserved to papers deemed in '
                     'the top ten percent of papers we publish.</p>')
+            else:
+                email_text += '.'
+                email_text_html += '.'
             email_text += ('\n\nYour manuscript will now be taken charge of by our '
                            'production team, who will soon send you proofs '
                            'to check before final publication.')

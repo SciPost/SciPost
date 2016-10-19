@@ -76,7 +76,9 @@ class ValidatePublicationForm(forms.ModelForm):
     class Meta:
         model = Publication
         exclude = ['authors', 'authors_claims', 'authors_false_claims',
+                   'metadata', 'metadata_xml',
                    'latest_activity',]
+
 
 class CitationListBibitemsForm(forms.Form):
     latex_bibitems = forms.CharField(widget=forms.Textarea())
@@ -85,3 +87,22 @@ class CitationListBibitemsForm(forms.Form):
         super(CitationListBibitemsForm, self).__init__(*args, **kwargs)
         self.fields['latex_bibitems'].widget.attrs.update(
             {'rows': 30, 'cols': 50, 'placeholder': 'Paste the .tex bibitems here'})
+
+
+class FundingInfoForm(forms.Form):
+    funding_statement = forms.CharField(widget=forms.Textarea())
+
+    def __init__(self, *args, **kwargs):
+        super(FundingInfoForm, self).__init__(*args, **kwargs)
+        self.fields['funding_statement'].widget.attrs.update(
+            {'rows': 10, 'cols': 50, 
+             'placeholder': 'Paste the funding info statement here'})
+
+
+class CreateMetadataXMLForm(forms.Form):
+    metadata_xml = forms.CharField(widget=forms.Textarea())
+
+    def __init__(self, *args, **kwargs):
+        super(CreateMetadataXMLForm, self).__init__(*args, **kwargs)
+        self.fields['metadata_xml'].widget.attrs.update(
+            {'rows': 50, 'cols': 50, })

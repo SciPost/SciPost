@@ -1,35 +1,29 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: Create citation list metadata{% endblock pagetitle %}
+{% block pagetitle %}: Create funding info metadata{% endblock pagetitle %}
 
 {% block bodysup %}
 
 
 <section>
   <div class="flex-greybox">
-    <h1>Create citation list metadata page</h1>
+    <h1>Create funding info metadata page</h1>
   </div>
 
   {% if errormessage %}
   <h2 style="color: red;">{{ errormessage }}</h2>
   {% endif %}
 
-  <form action="{% url 'journals:create_citation_list_metadata' doi_string=publication.doi_string %}" method="post">
+  <form action="{% url 'journals:create_funding_info_metadata' doi_string=publication.doi_string %}" method="post">
     {% csrf_token %}
-    {{ bibitems_form.as_p }}
+    {{ funding_info_form.as_p }}
     <input type="submit" value="Submit">
   </form>
 
   <hr class="hr6"/>
 
-  <h3>Current citation list metadata:</h3>
-  <table>
-    {% for citation in citation_list %}
-    <tr>
-      <td>{{ citation.key }}</td><td>{{ citation.doi }}</td>
-    </tr>
-    {% endfor %}
-  </table>
+  <h3>Current funding info metadata:</h3>
+  <p>{{ funding_statement }}</p>
 
   <hr class="hr6"/>
 
