@@ -18,6 +18,12 @@ class InitiatePublicationForm(forms.Form):
     to_be_issued_in = forms.ModelChoiceField(
         queryset=Issue.objects.filter(until_date__gt=timezone.now()))
     
+    def __init__(self, *args, **kwargs):
+        super(InitiatePublicationForm, self).__init__(*args, **kwargs)
+        self.fields['original_submission_date'].widget.attrs.update(
+            {'placeholder': 'YYYY-MM-DD'})
+        self.fields['acceptance_date'].widget.attrs.update(
+            {'placeholder': 'YYYY-MM-DD'})
 
 # class InitiatePublicationForm(forms.ModelForm):
 #     class Meta:

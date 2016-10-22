@@ -345,12 +345,15 @@ def create_funding_info_metadata(request, doi_string):
             publication.save()
 
     initial = {'funding_statement': '',}
+    funding_statement = ''
     try:
         initial['funding_statement'] = publication.metadata['funding_statement']
+        funding_statement = initial['funding_statement']
     except KeyError:
         pass
     context = {'publication': publication,
-               'funding_info_form': FundingInfoForm(initial=initial),}
+               'funding_info_form': FundingInfoForm(initial=initial),
+               'funding_statement': funding_statement,}
 
     return render(request, 'journals/create_funding_info_metadata.html', context)
 
