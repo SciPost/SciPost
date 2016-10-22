@@ -85,6 +85,14 @@ $(document).ready(function(){
 	</p>
       </li>
     </ul>
+    {% if rec.remark_set %}
+    <h4>Remarks:</h4>
+    <ul>
+      {% for rem in rec.remark_set.all %}
+      <li>{{ rem }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
     <h4>Actions:</h4>
     <ul>
       <li>To fix the College decision and follow the Editorial Recommendation as is: <a href="{% url 'submissions:fix_College_decision' rec_id=rec.id %}">click here</a></li>

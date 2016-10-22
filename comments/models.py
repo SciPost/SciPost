@@ -178,7 +178,7 @@ class Comment(models.Model):
         context = Context()
         if self.is_author_reply:
             output += 'Author '
-        output += ' <a href="/contributor/{{ author_id }}">{{ first_name }}{{ last_name }}</a> on '
+        output += ' <a href="/contributor/{{ author_id }}">{{ first_name }} {{ last_name }}</a> on '
         context['author_id'] = self.author.id
         context['first_name'] = self.author.user.first_name
         context['last_name'] = self.author.user.last_name
