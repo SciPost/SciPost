@@ -488,7 +488,7 @@ def create_metadata_xml(request, doi_string):
         '</journal_article>\n'
         '</journal>\n'
     )
-    publication.metadata_xml += '</body>\n</doi_batch>'
+    #publication.metadata_xml += '</body>\n</doi_batch>'
     initial['metadata_xml'] += '</body>\n</doi_batch>'
     publication.save()
     #else:
