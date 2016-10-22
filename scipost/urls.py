@@ -129,6 +129,10 @@ urlpatterns = [
     # Publications #
     ################
 
+    url(r'^10.21468/SciPostPhys$',
+        journals_views.scipost_physics,
+        name='SciPostPhys'),
+
     url(r'^(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$', 
         journals_views.publication_detail,
         name='publication_detail'),
