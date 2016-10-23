@@ -61,7 +61,7 @@ def scipost_physics(request):
     latest_issue = Issue.objects.filter(
         in_volume__in_journal__name='SciPost Physics').order_by('-until_date').first()
     recent_papers = Publication.objects.filter(
-        in_issue=latest_issue).order_by('-publication_date')
+        in_issue=latest_issue).order_by('paper_nr')
     #accepted_SP_submissions = Submission.objects.filter(
     #    submitted_to_journal='SciPost Physics', status='accepted'
     #).order_by('-latest_activity')
