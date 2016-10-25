@@ -69,7 +69,9 @@
       <td>{{ fellow.date_sent }} </td>
       <td>{{ fellow.invitation_type }}</td>
       <td>{{ fellow.invited_by.user.last_name }}</td>
+      <td><a href="{% url 'scipost:edit_invitation_personal_message' invitation_id=fellow.id %}">Edit message</a></td>
       <td><a href="{% url 'scipost:renew_registration_invitation' invitation_id=fellow.id %}">Renew</a> ({{ fellow.nr_reminders }}) {% if fellow.date_last_reminded %}(last: {{ fellow.date_last_reminded|date:"Y-m-d" }}){% endif %}</td>
+      <td><a href="{% url 'scipost:mark_reg_inv_as_declined' invitation_id=fellow.id %}">Declined</a></td>
     </tr>
     {% endfor %}
   </table>
@@ -85,7 +87,9 @@
       <td>{{ fellow.date_sent }} </td>
       <td>{{ fellow.invitation_type }}</td>
       <td>{{ fellow.invited_by.user.last_name }}</td>
+      <td><a href="{% url 'scipost:edit_invitation_personal_message' invitation_id=fellow.id %}">Edit msg</a></td>
       <td><a href="{% url 'scipost:renew_registration_invitation' invitation_id=fellow.id %}">Renew</a> ({{ fellow.nr_reminders }}) {% if fellow.date_last_reminded %}(last: {{ fellow.date_last_reminded|date:"Y-m-d" }}){% endif %}</td>
+      <td><a href="{% url 'scipost:mark_reg_inv_as_declined' invitation_id=fellow.id %}">Declined</a></td>
     </tr>
     {% endfor %}
   </table>
@@ -220,9 +224,28 @@
     </tr>
     {% endfor %}
   </table>
+
+  <hr class="hr6"/>
+  <h3>Declined</h3>
+  <table class="tableofInviteesDeclined">
+    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
+    {% for fellow in decl_reg_inv %}
+    <tr>
+      <td>{{ fellow.last_name }}</td>
+      <td>{{ fellow.first_name }}</td>
+      <td>{{ fellow.email }}</td>
+      <td>{{ fellow.date_sent }} </td>
+      <td>{{ fellow.invitation_type }}</td>
+      <td>{{ fellow.invited_by.user.last_name }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
 </section>
 
-  <hr class="hr12"/>
+
+<hr class="hr12"/>
+
 <section>
   <div class="flex-greybox">
     <h2>List of already-registered contributors:</h3>

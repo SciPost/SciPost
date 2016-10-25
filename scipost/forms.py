@@ -89,6 +89,10 @@ class RegistrationInvitationForm(forms.ModelForm):
             Div(Field('cited_in_publication'),),
             )
 
+class ModifyPersonalMessageForm(forms.Form):
+    personal_message = forms.CharField(widget=forms.Textarea())
+
+
 class UpdateUserDataForm(forms.ModelForm):
     class Meta:
         model = User

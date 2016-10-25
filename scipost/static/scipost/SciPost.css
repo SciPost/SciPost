@@ -297,6 +297,10 @@ ul.personalTabMenu li a.inactive {
   background-color: #f0f0f0;
   padding: 0px 4px;
 }
+.tableofInviteesDeclined td {
+  background-color: #e09090;
+  padding: 0px 4px;
+}
 
 body {
 /*  font-family: Merriweather, sans-serif; */

@@ -480,7 +480,7 @@ def registration_invitations(request):
     else:
         reg_inv_form = RegistrationInvitationForm()
 
-    sent_reg_inv = RegistrationInvitation.objects.filter(responded=False)
+    sent_reg_inv = RegistrationInvitation.objects.filter(responded=False, declined=False)
     sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
     nr_sent_reg_inv_fellows = sent_reg_inv_fellows.count()
     sent_reg_inv_contrib = sent_reg_inv.filter(invitation_type='C').order_by('last_name')
@@ -492,7 +492,7 @@ def registration_invitations(request):
     sent_reg_inv_cited_pub = sent_reg_inv.filter(invitation_type='cp').order_by('last_name')
     nr_sent_reg_inv_cited_pub = sent_reg_inv_cited_pub.count()
 
-    resp_reg_inv = RegistrationInvitation.objects.filter(responded=True)
+    resp_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=False)
     resp_reg_inv_fellows = resp_reg_inv.filter(invitation_type='F').order_by('last_name')
     nr_resp_reg_inv_fellows = resp_reg_inv_fellows.count()
     resp_reg_inv_contrib = resp_reg_inv.filter(invitation_type='C').order_by('last_name')
@@ -503,6 +503,8 @@ def registration_invitations(request):
     nr_resp_reg_inv_cited_sub = resp_reg_inv_cited_sub.count()
     resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
     nr_resp_reg_inv_cited_pub = resp_reg_inv_cited_pub.count()
+
+    decl_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=True)
 
     names_reg_contributors = Contributor.objects.filter(status=1).values_list(
         'user__first_name', 'user__last_name')
@@ -528,6 +530,7 @@ def registration_invitations(request):
                'nr_resp_reg_inv_cited_sub': nr_resp_reg_inv_cited_sub,
                'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
                'nr_resp_reg_inv_cited_pub': nr_resp_reg_inv_cited_pub, 
+               'decl_reg_inv': decl_reg_inv,
                'names_reg_contributors': names_reg_contributors,
     }
     return render(request, 'scipost/registration_invitations.html', context)
@@ -557,6 +560,26 @@ def remove_registration_invitation(request, invitation_id):
 
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
+def edit_invitation_personal_message(request, invitation_id):
+    invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
+    errormessage = None
+    if request.method == 'POST':
+        form = ModifyPersonalMessageForm(request.POST)
+        if form.is_valid():
+            invitation.personal_message = form.cleaned_data['personal_message']
+            invitation.save()
+            return redirect(reverse('scipost:registration_invitations'))
+        else:
+            errormessage = 'The form was invalid.'
+    else:
+        form = ModifyPersonalMessageForm(
+            initial={'personal_message': invitation.personal_message,})
+    context = {'invitation': invitation,
+               'form': form, 'errormessage': errormessage,}
+    return render(request, 'scipost/edit_invitation_personal_message.html', context)
+
+
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def renew_registration_invitation(request, invitation_id):
     """ 
     Renew an invitation (called from registration_invitations).
@@ -577,6 +600,18 @@ def renew_registration_invitation(request, invitation_id):
     Utils.send_registration_invitation_email(True)
     return redirect(reverse('scipost:registration_invitations'))
     
+
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+def mark_reg_inv_as_declined(request, invitation_id):
+    """ 
+    Mark an invitation as declined (called from registration_invitations.html).
+    """
+    invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
+    invitation.responded = True
+    invitation.declined = True
+    invitation.save()
+    return redirect(reverse('scipost:registration_invitations'))
+
 
 def login_view(request):
     redirect_to = request.POST.get('next', 

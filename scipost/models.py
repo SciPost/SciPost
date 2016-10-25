@@ -395,6 +395,7 @@ class RegistrationInvitation(models.Model):
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     responded = models.BooleanField(default=False)
+    declined = models.BooleanField(default=False)
 
     def __str__ (self):
         return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name 
