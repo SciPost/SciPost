@@ -196,7 +196,8 @@ class Contributor(models.Model):
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
     address = models.CharField(max_length=1000, verbose_name="address", default='', blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
-    vetted_by = models.ForeignKey('self', related_name="contrib_vetted_by", 
+    vetted_by = models.ForeignKey('self', on_delete=models.CASCADE,
+                                  related_name="contrib_vetted_by", 
                                   blank=True, null=True)  
     accepts_SciPost_emails = models.BooleanField(default=True, 
                                                  verbose_name="I accept to receive SciPost emails")
@@ -333,14 +334,16 @@ class Contributor(models.Model):
 
 
 class UnavailabilityPeriod(models.Model):
-    contributor = models.ForeignKey(Contributor)
+    contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     start = models.DateField()
     end = models.DateField()
 
 
 class Remark(models.Model):
-    contributor = models.ForeignKey(Contributor)
-    recommendation = models.ForeignKey('submissions.EICRecommendation', blank=True, null=True)
+    contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    recommendation = models.ForeignKey('submissions.EICRecommendation', 
+                                       on_delete=models.CASCADE, 
+                                       blank=True, null=True)
     date = models.DateTimeField()
     remark = models.TextField()
 
@@ -384,14 +387,20 @@ class RegistrationInvitation(models.Model):
     last_name = models.CharField(max_length=30, default='')
     email = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE, default='C')
-    cited_in_submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
-    cited_in_publication = models.ForeignKey('journals.Publication', blank=True, null=True)
+    cited_in_submission = models.ForeignKey('submissions.Submission', 
+                                            on_delete=models.CASCADE, 
+                                            blank=True, null=True)
+    cited_in_publication = models.ForeignKey('journals.Publication', 
+                                             on_delete=models.CASCADE,
+                                             blank=True, null=True)
     message_style = models.CharField(max_length=1, choices=INVITATION_STYLE, default='F')
     personal_message = models.TextField(blank=True, null=True)
     invitation_key = models.CharField(max_length=40, default='')
     key_expires = models.DateTimeField(default=timezone.now)
     date_sent = models.DateTimeField(default=timezone.now)
-    invited_by = models.ForeignKey(Contributor, blank=True, null=True)
+    invited_by = models.ForeignKey(Contributor,
+                                   on_delete=models.CASCADE, 
+                                   blank=True, null=True)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     responded = models.BooleanField(default=False)
@@ -410,11 +419,21 @@ AUTHORSHIP_CLAIM_STATUS = (
 )
 
 class AuthorshipClaim(models.Model):
-    claimant = models.ForeignKey(Contributor, related_name='claimant')
-    submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
-    commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True)
-    thesislink = models.ForeignKey('theses.ThesisLink', blank=True, null=True)
-    vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
+    claimant = models.ForeignKey(Contributor, 
+                                 on_delete=models.CASCADE, 
+                                 related_name='claimant')
+    submission = models.ForeignKey('submissions.Submission', 
+                                   on_delete=models.CASCADE, 
+                                   blank=True, null=True)
+    commentary = models.ForeignKey('commentaries.Commentary', 
+                                   on_delete=models.CASCADE, 
+                                   blank=True, null=True)
+    thesislink = models.ForeignKey('theses.ThesisLink', 
+                                   on_delete=models.CASCADE, 
+                                   blank=True, null=True)
+    vetted_by = models.ForeignKey (Contributor, 
+                                   on_delete=models.CASCADE,
+                                   blank=True, null=True)
     status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS, default=0)
     
 
@@ -435,9 +454,9 @@ class AuthorshipClaim(models.Model):
 #    """ 
 #    Base class for all assessments.
 #    """
-#    rater = models.ForeignKey(Contributor)
-#    submission = models.ForeignKey('submissions.Submission', blank=True, null=True)
-#    comment = models.ForeignKey('comments.Comment', blank=True, null=True)
+#    rater = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+#    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE, blank=True, null=True)
+#    comment = models.ForeignKey('comments.Comment', on_delete=models.CASCADE, blank=True, null=True)
 #    relevance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
 #    importance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
 #    clarity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
@@ -458,8 +477,8 @@ class AuthorshipClaim(models.Model):
 #opinion_choices_dict = dict(OPINION_CHOICES)
 
 #class Opinion(models.Model):
-#    rater = models.ForeignKey(Contributor)
-#    comment = models.ForeignKey('comments.Comment')
+#    rater = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+#    comment = models.ForeignKey('comments.Comment', on_delete=models.CASCADE)
 #    opinion = models.CharField(max_length=3, choices=OPINION_CHOICES, default='ABS')
 
 
@@ -587,7 +606,7 @@ class List(models.Model):
     A collection of commentaries, submissions, thesislinks, comments, etc
     defined by a Contributor, for use in Graphs, etc
     """
-    owner = models.ForeignKey(Contributor)
+    owner = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     private = models.BooleanField(default=True)
     teams_with_access = models.ManyToManyField('scipost.Team', blank=True)
     title = models.CharField(max_length=100)
@@ -676,7 +695,7 @@ class Team(models.Model):
     """
     Team of Contributors, to enable private collaborations.
     """
-    leader = models.ForeignKey(Contributor)
+    leader = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     members = models.ManyToManyField (Contributor, blank=True, related_name='team_members')
     name = models.CharField(max_length=100)
     established = models.DateField(default=timezone.now)
@@ -714,7 +733,7 @@ class Graph(models.Model):
     representing e.g. a reading list, exploration path, etc.
     If private, only the teams in teams_with_access can see/edit it.
     """
-    owner = models.ForeignKey(Contributor)
+    owner = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     private = models.BooleanField(default=True)
     teams_with_access = models.ManyToManyField(Team, blank=True)
     title = models.CharField(max_length=100)
@@ -752,8 +771,8 @@ class Node(models.Model):
     Each node is composed of a set of submissions, commentaries, thesislinks. 
     Accessibility rights are set in the Graph ForeignKey.
     """
-    graph = models.ForeignKey(Graph, default=None)
-    added_by = models.ForeignKey(Contributor, default=None)
+    graph = models.ForeignKey(Graph, on_delete=models.CASCADE, default=None)
+    added_by = models.ForeignKey(Contributor, on_delete=models.CASCADE, default=None)
     created = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
@@ -803,10 +822,10 @@ class Arc(models.Model):
     Arc of a graph, linking two nodes.
     The length is user-adjustable.
     """
-    graph = models.ForeignKey(Graph, default=None)
-    added_by = models.ForeignKey(Contributor, default=None)
+    graph = models.ForeignKey(Graph, on_delete=models.CASCADE, default=None)
+    added_by = models.ForeignKey(Contributor, on_delete=models.CASCADE, default=None)
     created = models.DateTimeField(default=timezone.now)
-    source = models.ForeignKey(Node, related_name='source')
-    target = models.ForeignKey(Node, related_name='target')
+    source = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='source')
+    target = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='target')
     length = models.PositiveSmallIntegerField(choices=ARC_LENGTHS, default=32)
 

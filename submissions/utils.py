@@ -981,9 +981,9 @@ class SubmissionUtils(object):
                                   cls.communication.submission.editor_in_charge.user.last_name)
             further_action_page = ('https://scipost.org/submission/editorial_page/' 
                                    + cls.communication.submission.arxiv_identifier_w_vn_nr)
-            if cls.communication.comtype == 'AtoE':
-                bcc_emails.append(cls.communication.submission.submitted_by.user.email)
-            elif cls.communication.comtype == 'RtoE':
+            #if cls.communication.comtype == 'AtoE':
+            #    bcc_emails.append(cls.communication.submission.submitted_by.user.email) # BUG: must not happen!
+            if cls.communication.comtype == 'RtoE':
                 bcc_emails.append(cls.communication.referee.user.email)
             bcc_emails.append('submissions@scipost.org')
         elif cls.communication.comtype in ['EtoA']:

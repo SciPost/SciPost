@@ -69,7 +69,7 @@
       <td>{{ fellow.date_sent }} </td>
       <td>{{ fellow.invitation_type }}</td>
       <td>{{ fellow.invited_by.user.last_name }}</td>
-      <td><a href="{% url 'scipost:edit_invitation_personal_message' invitation_id=fellow.id %}">Edit message</a></td>
+      <td><a href="{% url 'scipost:edit_invitation_personal_message' invitation_id=fellow.id %}">Edit msg</a></td>
       <td><a href="{% url 'scipost:renew_registration_invitation' invitation_id=fellow.id %}">Renew</a> ({{ fellow.nr_reminders }}) {% if fellow.date_last_reminded %}(last: {{ fellow.date_last_reminded|date:"Y-m-d" }}){% endif %}</td>
       <td><a href="{% url 'scipost:mark_reg_inv_as_declined' invitation_id=fellow.id %}">Declined</a></td>
     </tr>
