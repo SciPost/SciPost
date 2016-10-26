@@ -2,6 +2,19 @@
 
 {% block pagetitle %}: SciPost Physics: recent{% endblock pagetitle %}
 
+{% block headsup %}
+<script>
+  $(document).ready(function(){
+
+  $(".publicationAbstract").hide();
+
+  $(".toggleAbstractButton").click(function(){
+  $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
+  });
+  });
+</script>
+{% endblock headsup %}
+
 {% block bodysup %}
 
 
