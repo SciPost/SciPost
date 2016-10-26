@@ -912,7 +912,8 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404 (Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     submission.open_for_reporting = False
     submission.open_for_commenting = False
-    submission.status = 'review_closed'
+    if submission.status == 'EICassigned': # only close if currently undergoing refereeing
+        submission.status = 'review_closed'
     submission.reporting_deadline = timezone.now()
     submission.latest_activity = timezone.now()
     submission.save()
