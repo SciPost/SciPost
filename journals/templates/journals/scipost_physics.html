@@ -70,23 +70,45 @@
 
   {% include 'journals/scipost_physics_menu.html' %}
 
+  {% if current_issue %}
   <div class="flex-container">
     <div class="flex-greybox">
-      <h2>Current issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }} (in progress)</h2>
+      <h2>Current issue: Vol. {{ current_issue.in_volume.number }} issue {{ current_issue.number }} (in progress)</h2>
     </div>
   </div>
 
   <div class="flex-container">
-    {% if recent_papers %}
     <div class="flex-whitebox800">
       <ul class="publicationHeaderList">
-	{% for paper in recent_papers %}
+	{% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
+	{{ paper.header_as_li }}
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
+  <hr class="hr12"/>
+  {% endif %}
+
+  {% if latest_issue %}
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h2>Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
+    </div>
+  </div>
+
+  <div class="flex-container">
+    {% if latest_issue %}
+    <div class="flex-whitebox800">
+      <ul class="publicationHeaderList">
+	{% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
 	{{ paper.header_as_li }}
 	{% endfor %}
       </ul>
       {% endif %}
     </div>
   </div>
+  {% endif %}
+
 </section>
 
 

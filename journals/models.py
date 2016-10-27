@@ -126,8 +126,13 @@ class Issue(models.Model):
 
     def __str__(self):
         text = str(self.in_volume) + ' issue ' + str(self.number)
-        if self.until_date >= timezone.now().date():
-            text += ' (in progress)'
+        #if self.until_date >= timezone.now().date():
+        #    text += ' (in progress)'
+        if self.start_date.month == self.until_date.month:
+            text += ' (' + self.until_date.strftime('%B') + ' ' + self.until_date.strftime('%Y') + ')'
+        else:
+            text += (' (' + self.start_date.strftime('%B') + '-' + self.until_date.strftime('%B') + 
+                     ' ' + self.until_date.strftime('%Y') + ')')
         return text
 
     def period (self):

@@ -58,10 +58,16 @@ def journals(request):
 def scipost_physics(request):
     #issues = Issue.objects.filter(
     #    in_volume__in_journal__name='SciPost Physics').order_by('-until_date')
+    current_issue = Issue.objects.filter(
+        in_volume__in_journal__name='SciPost Physics',
+        start_date__lte=timezone.now(),
+        until_date__gte=timezone.now()).order_by('-until_date').first()
     latest_issue = Issue.objects.filter(
-        in_volume__in_journal__name='SciPost Physics').order_by('-until_date').first()
-    recent_papers = Publication.objects.filter(
-        in_issue=latest_issue).order_by('paper_nr')
+        in_volume__in_journal__name='SciPost Physics',
+        until_date__lte=timezone.now()).order_by('-until_date').first()
+    #recent_papers = Publication.objects.filter(
+    #    #in_issue=latest_issue).order_by('paper_nr')
+    #    in_issue__in_volume__in_journal__name='SciPost Physics').order_by('-publication_date')[:20]
     #accepted_SP_submissions = Submission.objects.filter(
     #    submitted_to_journal='SciPost Physics', status='accepted'
     #).order_by('-latest_activity')
@@ -69,11 +75,13 @@ def scipost_physics(request):
     #    submitted_to_journal='SciPost Physics'
     #    ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
     #    ).order_by('-submission_date')
-    context = {#'issues': issues, 
-               'latest_issue': latest_issue,
-               'recent_papers': recent_papers,
-               #'accepted_SP_submissions': accepted_SP_submissions,
-               #'current_SP_submissions': current_SP_submissions,
+    context = {
+        #'issues': issues, 
+        'current_issue': current_issue,
+        'latest_issue': latest_issue,
+        #'recent_papers': recent_papers,
+        #'accepted_SP_submissions': accepted_SP_submissions,
+        #'current_SP_submissions': current_SP_submissions,
     }
     return render(request, 'journals/scipost_physics.html', context)
 
@@ -81,21 +89,20 @@ def scipost_physics(request):
 def scipost_physics_issues(request):
     issues = Issue.objects.filter(
         in_volume__in_journal__name='SciPost Physics').order_by('-until_date')
-    latest_issue = issues.first()
     context = {'issues': issues,}
     return render(request, 'journals/scipost_physics_issues.html', context)
 
 
 def scipost_physics_recent(request):
     """
-    Display page for publications in SciPost Physics which
-    are part of the current issue.
+    Display page for the most recent 20 publications in SciPost Physics.
     """
-    latest_issue = Issue.objects.filter(
-        in_volume__in_journal__name='SciPost Physics').order_by('-until_date').first()
+    #latest_issue = Issue.objects.filter(
+    #    in_volume__in_journal__name='SciPost Physics').order_by('-until_date').first()
     recent_papers = Publication.objects.filter(
-        in_issue=latest_issue).order_by('-publication_date')
-    context = {'latest_issue': latest_issue,
+        #in_issue=latest_issue).order_by('-publication_date')
+        in_issue__in_volume__in_journal__name='SciPost Physics').order_by('-publication_date')[:20]
+    context = {#'latest_issue': latest_issue,
                'recent_papers': recent_papers}
     return render(request, 'journals/scipost_physics_recent.html', context)
 
