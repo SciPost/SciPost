@@ -198,7 +198,7 @@ def initiate_publication(request):
             BiBTeX_entry = (
                 '@Article{' + doi_label + ',\n'
                 '\ttitle={{' + submission.title + '}},\n'
-                '\tauthors={' + submission.author_list.replace(',', ' and') + '},\n'
+                '\tauthor={' + submission.author_list.replace(',', ' and') + '},\n'
                 '\tjournal={' 
                 + journal_name_abbrev_citation(current_issue.in_volume.in_journal.name)
                 + '},\n'
