@@ -73,6 +73,7 @@
   </table>
   {% elif ref_search_form.has_changed %}
   <p>No Contributor with this last name could be identified.</p>
+  {% endif %}
   <br/>
   <p>You can send a registration and refereeing invitation by filling this form:</p>
   <form action="{% url 'submissions:recruit_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
@@ -80,7 +81,6 @@
     {% load crispy_forms_tags %}
     {% crispy ref_recruit_form %}
   </form>
-  {% endif %}
 </section>
 
 
