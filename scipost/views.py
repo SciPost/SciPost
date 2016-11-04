@@ -506,7 +506,8 @@ def registration_invitations(request):
 
     decl_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=True)
 
-    names_reg_contributors = Contributor.objects.filter(status=1).values_list(
+    names_reg_contributors = Contributor.objects.filter(
+        status=1).order_by('user__last_name').values_list(
         'user__first_name', 'user__last_name')
 
     context = {'reg_inv_form': reg_inv_form, 'errormessage': errormessage,
