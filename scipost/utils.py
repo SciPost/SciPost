@@ -425,8 +425,7 @@ class Utils(object):
                 '(published as <a href="https://scipost.org/{{ doi_label }}">{{ citation }}</a>).</p>'
                 '\n<p>I would hereby like to use this opportunity to quickly introduce '
                 'you to the SciPost initiative, and to invite you to become an active '
-                'Contributor to the site. You might for example consider reporting or '
-                'commenting on the above submission before the refereeing deadline.</p>')
+                'Contributor to the site.</p>')
             email_context['pub_title'] = cls.invitation.cited_in_publication.title 
             email_context['pub_author_list'] = cls.invitation.cited_in_publication.author_list
             email_context['doi_label'] = cls.invitation.cited_in_publication.doi_label
