@@ -519,7 +519,7 @@ def registration_invitations(request):
                'nr_sent_reg_inv_ref': nr_sent_reg_inv_ref,
                'sent_reg_inv_cited_sub': sent_reg_inv_cited_sub,
                'nr_sent_reg_inv_cited_sub': nr_sent_reg_inv_cited_sub,
-               'sent_reg_inv_cite_pub': sent_reg_inv_cited_pub,
+               'sent_reg_inv_cited_pub': sent_reg_inv_cited_pub,
                'nr_sent_reg_inv_cited_pub': nr_sent_reg_inv_cited_pub,
                'resp_reg_inv_fellows': resp_reg_inv_fellows, 
                'nr_resp_reg_inv_fellows': nr_resp_reg_inv_fellows,
