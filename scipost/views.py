@@ -96,6 +96,8 @@ def documentsSearchResults(query):
     Naive implementation based on exact match of query.
     NEEDS UPDATING with e.g. Haystack.
     """
+    publication_query = get_query(query,
+                                  ['title', 'author_list', 'abstract', 'doi_string'])
     commentary_query = get_query(query, 
                                  ['pub_title', 'author_list', 'pub_abstract'])
     submission_query = get_query(query, 
@@ -105,6 +107,9 @@ def documentsSearchResults(query):
     comment_query = get_query(query,
                               ['comment_text'])
 
+    publication_search_queryset = Publication.objects.filter(
+        publication_query,
+        ).order_by('-publication_date')
     commentary_search_queryset = Commentary.objects.filter(
     #commentary_search_list = Commentary.objects.filter(
         commentary_query,
@@ -123,7 +128,8 @@ def documentsSearchResults(query):
         comment_query,
         status__gte='1',
         ).order_by('-date_submitted')
-    context = {'commentary_search_queryset': commentary_search_queryset,
+    context = {'publication_search_queryset': publication_search_queryset,
+               'commentary_search_queryset': commentary_search_queryset,
                #'commentary_search_list': commentary_search_list,
                'submission_search_queryset': submission_search_queryset,
                #'submission_search_list': submission_search_list,
@@ -145,6 +151,17 @@ def search(request):
             context = documentsSearchResults(request.session['query'])        
     else:
         context = {}
+
+    if 'publication_search_queryset' in context:
+        publication_search_list_paginator = Paginator (context['publication_search_queryset'], 10)
+        publication_search_list_page = request.GET.get('publication_search_list_page')
+        try:
+            publication_search_list = publication_search_list_paginator.page(publication_search_list_page)
+        except PageNotAnInteger:
+            publication_search_list = publication_search_list_paginator.page(1)
+        except EmptyPage:
+            publication_search_list = publication_search_list_paginator.page(publication_search_list_paginator.num_pages)
+        context['publication_search_list'] = publication_search_list
 
     if 'commentary_search_queryset' in context:
         commentary_search_list_paginator = Paginator (context['commentary_search_queryset'], 10)
