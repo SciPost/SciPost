@@ -297,7 +297,7 @@ def submissions(request, to_journal=None):
         submission_search_list = []
 
     submission_recent_list = Submission.objects.filter(
-        latest_activity__gte=timezone.now() + datetime.timedelta(days=-28)
+        latest_activity__gte=timezone.now() + datetime.timedelta(days=-60)
     ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
     ).exclude(is_current=False).order_by('-submission_date')
     # If doing a journal-specific listing:
