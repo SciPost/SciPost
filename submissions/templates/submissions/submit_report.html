@@ -4,6 +4,57 @@
 
 {% block bodysup %}
 
+<script>
+  $(document).ready(function(){
+
+    var strengths_input = $("#id_strengths");
+    function set_strengths(value) {
+      $("#preview-strengths").text(value)
+    }
+    set_strengths(strengths_input.val())
+    strengths_input.keyup(function(){
+      var new_text = $(this).val()
+      set_strengths(new_text)
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    })
+
+    var weaknesses_input = $("#id_weaknesses");
+    function set_weaknesses(value) {
+      $("#preview-weaknesses").text(value)
+    }
+    set_weaknesses(weaknesses_input.val())
+    weaknesses_input.keyup(function(){
+      var new_text = $(this).val()
+      set_weaknesses(new_text)
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    })
+
+    var report_input = $("#id_report");
+    function set_report(value) {
+      $("#preview-report").text(value)
+    }
+    set_report(report_input.val())
+    report_input.keyup(function(){
+      var new_text = $(this).val()
+      set_report(new_text)
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    })
+
+    var requested_changes_input = $("#id_requested_changes");
+    function set_requested_changes(value) {
+      $("#preview-requested_changes").text(value)
+    }
+    set_requested_changes(requested_changes_input.val())
+    requested_changes_input.keyup(function(){
+      var new_text = $(this).val()
+      set_requested_changes(new_text)
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    })
+
+  });
+</script>
+
+
 {% if user.is_authenticated %}
 <section>
   <div class="flex-greybox">
@@ -25,6 +76,7 @@
   <hr class="hr12">
   <div class="flex-greybox">
     <h1>Your report:</h1>
+    <p>A preview of text areas will appear below as you type (you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
   </div>
   <form action="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
     {% csrf_token %}
@@ -36,6 +88,24 @@
     <em>By clicking on Submit, you state that you abide by the <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.</em>
     <input type="submit" value="Submit"/>
   </form>
+
+  <hr class="hr6"/>
+  <div class="row">
+    <div class="col-10">
+      <h3>Preview of your report (text areas only):</h3>
+
+      <h4>Strengths:</h4>
+      <p id="preview-strengths"></p>
+      <h4>Weaknesses:</h4>
+      <p id="preview-weaknesses"></p>
+      <h4>Report:</h4>
+      <p id="preview-report"></p>
+      <h4>Requested changes:</h4>
+      <p id="preview-requested_changes"></p>
+
+    </div>
+  </div>
+
 </section>
 {% endif %}
 

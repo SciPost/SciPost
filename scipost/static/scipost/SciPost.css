@@ -860,3 +860,7 @@ li.publicationPDF {
   background: #999999;
 }
 
+#preview-comment_text {
+  border: 1px solid black;
+  white-space: pre-wrap;
+}
