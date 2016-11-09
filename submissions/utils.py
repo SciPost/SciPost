@@ -885,6 +885,11 @@ class SubmissionUtils(object):
                       '\n\nYou can view it at the Submission Page '
                       'https://scipost.org/submission/' 
                       + cls.report.submission.arxiv_identifier_w_vn_nr + '.'
+                      '\n\nWe remind you that you can provide an author reply '
+                      '(only if you wish, to clarify points eventually raised '
+                      'by the report) directly from this Submission Page. '
+                      'Any eventual modification to your manuscript '
+                      'should await the Recommendation from the Editor-in-charge.'
                       '\n\nWe thank you very much for your contribution.'
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
@@ -895,6 +900,11 @@ class SubmissionUtils(object):
             '\n<p>You can view it at the '
             '<a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
             'Submission\'s page</a>.</p>'
+            '<p>We remind you that you can provide an author reply '
+            '(only if you wish, to clarify points eventually raised '
+            'by the report) directly from this Submission Page. '
+            'Any eventual modification to your manuscript '
+            'should await the Recommendation from the Editor-in-charge.</p>'
             '\n<p>We thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
