@@ -864,3 +864,19 @@ li.publicationPDF {
   border: 1px solid black;
   white-space: pre-wrap;
 }
+#preview-strengths {
+  border: 1px solid black;
+  white-space: pre-wrap;
+}
+#preview-weaknesses {
+  border: 1px solid black;
+  white-space: pre-wrap;
+}
+#preview-report {
+  border: 1px solid black;
+  white-space: pre-wrap;
+}
+#preview-requested_changes {
+  border: 1px solid black;
+  white-space: pre-wrap;
+}
