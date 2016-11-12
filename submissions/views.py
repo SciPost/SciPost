@@ -220,6 +220,7 @@ def submit_manuscript(request):
                 for sub in previous_submissions:
                     sub.is_current = False
                     sub.open_for_reporting = False
+                    sub.status = 'resubmitted'
                     sub.save()
                 # Handle this submission in same way as if assignment had been accepted
                 submission.open_for_reporting = True
