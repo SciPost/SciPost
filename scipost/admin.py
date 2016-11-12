@@ -80,3 +80,16 @@ class GraphAdmin(GuardedModelAdmin):
     search_fields = ['owner___user__last_name', 'title']
 
 admin.site.register(Graph, GraphAdmin)
+
+
+class SPBMembershipAgreementInline(admin.StackedInline):
+    model = SPBMembershipAgreement
+
+class SupportingPartnerAdmin(admin.ModelAdmin):
+    search_fields = ['institution', 'institution_acronym', 
+                     'institution_address', 'contact_person']
+    inlines = [
+        SPBMembershipAgreementInline,
+    ]
+
+admin.site.register(SupportingPartner, SupportingPartnerAdmin)

@@ -281,4 +281,20 @@ class CreateArcForm(forms.Form):
         super(CreateArcForm, self).__init__(*args, **kwargs)
         self.fields['source'].queryset = Node.objects.filter(graph=graph)
         self.fields['target'].queryset = Node.objects.filter(graph=graph)
+
+
+
+#############################
+# Supporting Partners Board #
+#############################
     
+class SupportingPartnerForm(forms.ModelForm):
+    class Meta:
+        model = SupportingPartner
+        fields = ['partner_type', 'institution', 
+                  'institution_acronym', 'institution_address',]
+
+class SPBMembershipForm(forms.ModelForm):
+    class Meta:
+        model = SPBMembershipAgreement
+        fields = ['start_date', 'duration',]

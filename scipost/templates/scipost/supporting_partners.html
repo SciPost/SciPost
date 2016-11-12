@@ -1,0 +1,21 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Supporting Partners{% endblock pagetitle %}
+
+{% load staticfiles %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h1>Supporting Partners Board</h1>
+    </div>
+  </div>
+
+  Interested parties can request Membership of the SciPost Supporting Partners Board by filling the <a href="{% url 'scipost:SPB_membership_request' %}">online request form</a>.
+
+</section>
+
+{% endblock bodysup %}

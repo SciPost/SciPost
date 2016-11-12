@@ -829,3 +829,72 @@ class Arc(models.Model):
     target = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='target')
     length = models.PositiveSmallIntegerField(choices=ARC_LENGTHS, default=32)
 
+
+
+
+#############################
+# Supporting Partners Board #
+#############################
+
+PARTNER_TYPES = (
+    ('Int. Fund. Agency', 'International Funding Agency'),
+    ('Nat. Fund. Agency', 'National Funding Agency'),
+    ('Univ. Library', 'University Library'),
+    ('Univ. Library. Consortium', 'University Library Consortium'),
+    ('Foundation', 'Foundation'),
+    ('Individual', 'Individual'),
+)
+partner_types_dict = dict(PARTNER_TYPES)
+
+PARTNER_STATUS = (
+    ('Prospective', 'Prospective'),
+    ('Active', 'Active'),
+    ('Inactive', 'Inactive'),
+)
+partner_status_dict = dict(PARTNER_STATUS)
+
+
+class SupportingPartner(models.Model):
+    """
+    Supporting Partners.
+    """
+    partner_type = models.CharField(max_length=32, choices=PARTNER_TYPES)
+    status = models.CharField(max_length=16, choices=PARTNER_STATUS)
+    institution = models.CharField(max_length=256)
+    institution_acronym = models.CharField(max_length=10)
+    institution_address = models.CharField(max_length=1000)
+    contact_person = models.ForeignKey(Contributor)
+
+    def __str__(self):
+        return self.institution_acronym + ' (' + partner_status_dict[self.status] + ')'
+
+SPB_MEMBERSHIP_AGREEMENT_STATUS = (
+    ('Submitted', 'Request submitted by Partner'),
+    ('Pending', 'Sent to Partner, response pending'),
+    ('Signed', 'Signed by Partner'),
+    ('Honoured', 'Honoured: payment of Partner received'),
+)
+SPB_membership_agreement_status_dict = dict(SPB_MEMBERSHIP_AGREEMENT_STATUS)
+
+SPB_MEMBERSHIP_DURATION = (
+    (datetime.timedelta(days=365), '1 year'),
+    (datetime.timedelta(days=1095), '3 years'),
+    (datetime.timedelta(days=1825), '5 years'),
+)
+spb_membership_duration_dict = dict(SPB_MEMBERSHIP_DURATION)
+
+class SPBMembershipAgreement(models.Model):
+    """
+    Agreement for membership of the Supporting Partners Board.
+    A new instance is created each time an Agreement is made or renewed.
+    """
+    partner = models.ForeignKey(SupportingPartner)
+    status = models.CharField(max_length=16, choices=SPB_MEMBERSHIP_AGREEMENT_STATUS)
+    date_requested = models.DateField()
+    start_date = models.DateField()
+    duration = models.DurationField(choices=SPB_MEMBERSHIP_DURATION)
+
+    def __str__(self):
+        return (str(self.partner) + 
+                ' [' + spb_membership_duration_dict[self.duration] +
+                ' from ' + self.start_date.strftime('%Y-%m-%d') + ']')

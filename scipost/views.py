@@ -1478,3 +1478,52 @@ def api_graph(request, graph_id):
                          'target': arc.target.name, 'target_id': arc.target.id,
                          'length': arc.length})
     return JsonResponse({'nodes': nodesjson, 'arcs': arcsjson}, safe=False)
+
+
+
+#############################
+# Supporting Partners Board #
+#############################
+
+def supporting_partners(request):
+    return render(request, 'scipost/supporting_partners.html')
+
+@login_required
+def SPB_membership_request(request):
+    errormessage = ''
+    if request.method == 'POST':
+        SP_form = SupportingPartnerForm(request.POST)
+        membership_form = SPBMembershipForm(request.POST)
+        if SP_form.is_valid() and membership_form.is_valid():
+            partner = SupportingPartner(
+                partner_type=SP_form.cleaned_data['partner_type'],
+                status='Prospective',
+                institution=SP_form.cleaned_data['institution'],
+                institution_acronym=SP_form.cleaned_data['institution_acronym'],
+                institution_address=SP_form.cleaned_data['institution_address'],
+                contact_person=request.user.contributor,
+            )
+            partner.save()
+            agreement = SPBMembershipAgreement(
+                partner=partner,
+                status='Submitted',
+                date_requested=timezone.now().date(),
+                start_date=membership_form.cleaned_data['start_date'],
+                duration=membership_form.cleaned_data['duration'],
+            )
+            agreement.save()
+            ack_message = ('Thank you for your SPB Membership request. '
+                           'We will get back to you in the very near future '
+                           'with details of the proposed agreement.')
+            context = {'ack_message': ack_message,}
+            return render(request, 'scipost/acknowledgement.html', context)
+        else:
+            errormessage = 'The form was not filled properly.'
+
+    else:
+        SP_form = SupportingPartnerForm()
+        membership_form = SPBMembershipForm()
+    context = {'errormessage': errormessage,
+               'SP_form': SP_form,
+               'membership_form': membership_form,}
+    return render(request, 'scipost/SPB_membership_request.html', context)

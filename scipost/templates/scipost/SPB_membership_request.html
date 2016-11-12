@@ -1,0 +1,30 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Supporting Partners Board: Membership request{% endblock pagetitle %}
+
+{% load staticfiles %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h1>Supporting Partners Board: Membership Request</h1>
+    </div>
+  </div>
+
+  {% if errormessage %}
+  <p style="color: red;">{{ errormessage }}</p>
+  {% endif %}
+
+  <form action="{% url 'scipost:SPB_membership_request' %}" method="post">
+    {% csrf_token %}
+    {{ SP_form.as_p }}
+    {{ membership_form.as_p }}
+    <input type="submit" value="Submit"/>
+  </form>
+
+</section>
+
+{% endblock bodysup %}

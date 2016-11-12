@@ -183,4 +183,15 @@ urlpatterns = [
     url(r'^delete_graph_node/(?P<node_id>[0-9]+)$', 
         views.delete_graph_node, name='delete_graph_node'),
     url(r'^api/graph/(?P<graph_id>[0-9]+)$', views.api_graph, name='api_graph'),
+
+
+    #############################
+    # Supporting Partners Board #
+    #############################
+
+    url(r'^supporting_partners$', views.supporting_partners, 
+        name='supporting_partners'),
+    url(r'^SPB_membership_request$', views.SPB_membership_request,
+        name='SPB_membership_request'),
+
 ]
