@@ -274,8 +274,8 @@ def invitation(request, key):
     if invitation.responded:
         errormessage = ('This invitation token has already been used, '
                         'or this email address is already associated to a registration.')
-#    elif timezone.now() > invitation.key_expires:
-#        errormessage = 'The invitation key has expired.'
+    elif timezone.now() > invitation.key_expires:
+        errormessage = 'The invitation key has expired.'
     elif request.method == 'POST':
         form = RegistrationForm(request.POST)
         Utils.load({'form': form})
