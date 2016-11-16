@@ -9,7 +9,7 @@
   <div class="flex-container">
     {% if latest_newsitems %}
     <div class="flex-greybox320">
-      <h1><a href="{% url 'scipost:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14px"></a></h1>
+      <h1><a href="{% url 'scipost:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14"></a></h1>
       <p>Latest news and announcements.</p>
       <hr class="hr6"/>
       <ul class="NewsItemsList">
@@ -28,12 +28,11 @@
       <h3><a href="{% url 'scipost:quick_tour' %}">Quick Tour</a></h3>
       <h3><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h3>
       <h3><a href="{% url 'scipost:about' %}">Read more</a></h3>
-      <h4><em>In the press:</em>
-	<ul>
-	  <li><a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016.pdf' %}">FOM expres 5/2016</a> (<a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016_eng.pdf' %}">English vn</a>)</li>
-	  <li><a href="http://www.uva.nl/en/news-events/news/uva-news/content/news/2016/10/open-access-platform-scipost-launches-inaugural-edition-of-first-journal.html">Inaugural issue 10/2016</a></li>
-	</ul>
-      </h4>
+      <h4><em>In the press:</em></h4>
+      <ul>
+	<li><a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016.pdf' %}">FOM expres 5/2016</a> (<a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016_eng.pdf' %}">English vn</a>)</li>
+	<li><a href="http://www.uva.nl/en/news-events/news/uva-news/content/news/2016/10/open-access-platform-scipost-launches-inaugural-edition-of-first-journal.html">Inaugural issue 10/2016</a></li>
+      </ul>
     </div>
 
     {% if not user.is_authenticated %}
@@ -116,14 +115,14 @@
       <h1>SciPost is endorsed by</h1>
       <div class="row">
 	<div class="col-6">
-	  <a href="https://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width='300px' /></a>
+	  <a href="https://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width="300" /></a>
 	  <p id="NWOOpenAccess">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as 
 	    stipulated on the NWO’s <a href="https://www.nwo.nl/en/policies/open+science">Open Science page</a>.</p>
 	</div>
 	<div class="col-1">
 	</div>
 	<div class="col-4">
-	  <a href="https://www.fom.nl"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width='100px' /></a>
+	  <a href="https://www.fom.nl"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width="100" /></a>
 	  <p style="font-size: 50%">FOM is part of NWO</p>
 	</div>
       </div>
@@ -131,7 +130,7 @@
     <div class="col-6">
       <h1>SciPost is a member of</h1>
       <br/>
-      <a href="http://www.crossref.org"><img src="https://assets.crossref.org/logo/crossref-logo-200.svg" width="100px" alt="Crossref logo"></a>
+      <a href="http://www.crossref.org"><img src="https://assets.crossref.org/logo/crossref-logo-200.svg" width="100" alt="Crossref logo"></a>
     </div>
   </div>
 </section>
