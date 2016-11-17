@@ -74,6 +74,24 @@ ul.personalTabMenu li a.inactive {
   border: none;
 }
 
+.assignments_listing {
+    border-collapse: collapse;
+    margin: 0px 5px;
+    padding: 0px;
+}
+.assignments_listing tr {
+    background-color: #dddddd;
+    border: 1px solid black;
+}
+.assignments_listing td {
+    border: 1px solid black;
+    padding: 4px 8px;
+}
+.assignments_listing th {
+  border: 1px solid black;
+  padding: 4px 8px;
+}
+
 .commentcategorychoices {
   list-style-type: none; 
 }
@@ -277,6 +295,10 @@ ul.personalTabMenu li a.inactive {
 }
 .tableofInviteesResponded td {
   background-color: #f0f0f0;
+  padding: 0px 4px;
+}
+.tableofInviteesDeclined td {
+  background-color: #e09090;
   padding: 0px 4px;
 }
 
@@ -838,3 +860,23 @@ li.publicationPDF {
   background: #999999;
 }
 
+#preview-comment_text {
+  border: 1px solid black;
+  white-space: pre-wrap;
+}
+#preview-strengths {
+  border: 1px solid black;
+  white-space: pre-wrap;
+}
+#preview-weaknesses {
+  border: 1px solid black;
+  white-space: pre-wrap;
+}
+#preview-report {
+  border: 1px solid black;
+  white-space: pre-wrap;
+}
+#preview-requested_changes {
+  border: 1px solid black;
+  white-space: pre-wrap;
+}

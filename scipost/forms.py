@@ -292,9 +292,45 @@ class SupportingPartnerForm(forms.ModelForm):
     class Meta:
         model = SupportingPartner
         fields = ['partner_type', 'institution', 
-                  'institution_acronym', 'institution_address',]
+                  'institution_acronym', 'institution_address',
+                  'consortium_members',]
+
+    def __init__(self, *args, **kwargs):
+        super(SupportingPartnerForm, self).__init__(*args, **kwargs)
+        self.fields['institution_address'].widget = forms.Textarea({'rows': 8,})
+        self.fields['consortium_members'].widget.attrs.update(
+            {'placeholder': 'Please list the names of the institutions within the consortium',})
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('institution'),
+                    Field('institution_acronym'),
+                    Field('institution_address'),
+                    css_class='col-6'),
+                Div(
+                    Field('partner_type'),
+                    Field('consortium_members'),
+                    css_class='col-6'),
+                css_class='row')
+        )
 
 class SPBMembershipForm(forms.ModelForm):
     class Meta:
         model = SPBMembershipAgreement
         fields = ['start_date', 'duration',]
+
+    def __init__(self, *args, **kwargs):
+        super(SPBMembershipForm, self).__init__(*args, **kwargs)
+        self.fields['start_date'].widget.attrs.update({'placeholder': 'YYYY-MM-DD'})
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('start_date'),
+                    css_class="col-6"),
+                Div(
+                    Field('duration'),
+                    css_class="col-6"),
+                css_class="row"),
+        )

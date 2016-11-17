@@ -6,6 +6,24 @@
 
 {% block bodysup %}
 
+<script>
+$(document).ready(function(){
+  $("#div_id_consortium_members").hide()
+
+  $('select#id_partner_type').on('change', function (){
+  var selection = $(this).val();
+  switch(selection){
+    case "Consortium":
+      $("#div_id_consortium_members").show()
+      break;
+    default:
+      $("#div_id_consortium_members").hide()
+  }
+});
+});
+
+</script>
+
 
 <section>
   <div class="flex-container">
@@ -14,14 +32,22 @@
     </div>
   </div>
 
+  <p>You can hereby initiate the process to become one of our Supporting Partners.</p>
+  <p>After filling this form, SciPost Administration will contact you with a Partnership
+    Agreement offer.</p>
+  <p><em>Note: you will automatically be considered as the contact person for this Partner.</em></p>
+
   {% if errormessage %}
   <p style="color: red;">{{ errormessage }}</p>
   {% endif %}
 
   <form action="{% url 'scipost:SPB_membership_request' %}" method="post">
     {% csrf_token %}
-    {{ SP_form.as_p }}
-    {{ membership_form.as_p }}
+    <h3>Partner details:</h3>
+    {% load crispy_forms_tags %}
+    {% crispy SP_form %}
+    <h3>Agreement terms:</h3>
+    {% crispy membership_form %}
     <input type="submit" value="Submit"/>
   </form>
 

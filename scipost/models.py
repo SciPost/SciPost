@@ -839,8 +839,10 @@ class Arc(models.Model):
 PARTNER_TYPES = (
     ('Int. Fund. Agency', 'International Funding Agency'),
     ('Nat. Fund. Agency', 'National Funding Agency'),
+    ('Nat. Library', 'National Library'),
     ('Univ. Library', 'University Library'),
-    ('Univ. Library. Consortium', 'University Library Consortium'),
+    ('Res. Library', 'Research Library'),
+    ('Consortium', 'Consortium'),
     ('Foundation', 'Foundation'),
     ('Individual', 'Individual'),
 )
@@ -863,6 +865,7 @@ class SupportingPartner(models.Model):
     institution = models.CharField(max_length=256)
     institution_acronym = models.CharField(max_length=10)
     institution_address = models.CharField(max_length=1000)
+    consortium_members = models.TextField(blank=True, null=True)
     contact_person = models.ForeignKey(Contributor)
 
     def __str__(self):
@@ -878,7 +881,9 @@ SPB_membership_agreement_status_dict = dict(SPB_MEMBERSHIP_AGREEMENT_STATUS)
 
 SPB_MEMBERSHIP_DURATION = (
     (datetime.timedelta(days=365), '1 year'),
+    (datetime.timedelta(days=730), '2 years'),
     (datetime.timedelta(days=1095), '3 years'),
+    (datetime.timedelta(days=1460), '4 years'),
     (datetime.timedelta(days=1825), '5 years'),
 )
 spb_membership_duration_dict = dict(SPB_MEMBERSHIP_DURATION)
