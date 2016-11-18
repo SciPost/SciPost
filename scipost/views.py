@@ -1510,6 +1510,7 @@ def SPB_membership_request(request):
                 date_requested=timezone.now().date(),
                 start_date=membership_form.cleaned_data['start_date'],
                 duration=membership_form.cleaned_data['duration'],
+                offered_yearly_contribution=membership_form.cleaned_data['offered_yearly_contribution'],
             )
             agreement.save()
             ack_message = ('Thank you for your SPB Membership request. '

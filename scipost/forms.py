@@ -318,19 +318,24 @@ class SupportingPartnerForm(forms.ModelForm):
 class SPBMembershipForm(forms.ModelForm):
     class Meta:
         model = SPBMembershipAgreement
-        fields = ['start_date', 'duration',]
+        fields = ['start_date', 'duration', 'offered_yearly_contribution']
 
     def __init__(self, *args, **kwargs):
         super(SPBMembershipForm, self).__init__(*args, **kwargs)
         self.fields['start_date'].widget.attrs.update({'placeholder': 'YYYY-MM-DD'})
+        self.fields['offered_yearly_contribution'].initial = 1000
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
                 Div(
                     Field('start_date'),
-                    css_class="col-6"),
+                    css_class="col-4"),
                 Div(
                     Field('duration'),
-                    css_class="col-6"),
+                    css_class="col-2"),
+                Div(
+                    Field('offered_yearly_contribution'),
+                    HTML('(euros)'),
+                    css_class="col-4"),
                 css_class="row"),
         )

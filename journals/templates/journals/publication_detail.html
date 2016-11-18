@@ -25,7 +25,7 @@
     <li><a href="{% url 'journals:create_citation_list_metadata' doi_string=publication.doi_string%}">Create/update citation list metadata</a></li>
     <li><a href="{% url 'journals:create_funding_info_metadata' doi_string=publication.doi_string%}">Create/update funding info metadata</a></li>
     <li><a href="{% url 'journals:create_metadata_xml' doi_string=publication.doi_string %}">Create/update the XML metadata</a></li>
-    <li><a href="{% url 'journals:test_metadata_xml_deposit' doi_string=publication.doi_string %}">Test metadata deposit (via Crossref test server)</li>
+    <li><a href="{% url 'journals:test_metadata_xml_deposit' doi_string=publication.doi_string %}">Test metadata deposit (via Crossref test server)</a></li>
   </ul>
   {% endif %}
 

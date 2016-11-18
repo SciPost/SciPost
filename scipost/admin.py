@@ -82,6 +82,12 @@ class GraphAdmin(GuardedModelAdmin):
 admin.site.register(Graph, GraphAdmin)
 
 
+class AffiliationObjectAdmin(admin.ModelAdmin):
+    search_fields = ['country', 'institution', 'subunit']
+
+admin.site.register(AffiliationObject, AffiliationObjectAdmin)
+
+
 class SPBMembershipAgreementInline(admin.StackedInline):
     model = SPBMembershipAgreement
 

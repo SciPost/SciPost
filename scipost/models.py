@@ -831,6 +831,15 @@ class Arc(models.Model):
 
 
 
+#######################
+# Affiliation Objects #
+#######################
+
+class AffiliationObject(models.Model):
+    country = CountryField()
+    institution = models.CharField(max_length=128)
+    subunit = models.CharField(max_length=128)
+
 
 #############################
 # Supporting Partners Board #
@@ -898,6 +907,7 @@ class SPBMembershipAgreement(models.Model):
     date_requested = models.DateField()
     start_date = models.DateField()
     duration = models.DurationField(choices=SPB_MEMBERSHIP_DURATION)
+    offered_yearly_contribution = models.SmallIntegerField(default=0)
 
     def __str__(self):
         return (str(self.partner) + 
