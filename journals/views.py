@@ -421,11 +421,6 @@ def create_metadata_xml(request, doi_string):
         '<doi>' + publication.in_issue.in_volume.in_journal.doi_string + '</doi>\n'
         '<resource>https://scipost.org/' 
         + publication.in_issue.in_volume.in_journal.doi_string + '</resource>\n'
-        '<collection property="crawler-based">\n'
-        '<item crawler="iParadigms">\n'
-        '<resource>https://scipost.org/' 
-        + publication.in_issue.in_volume.in_journal.doi_string + '/pdf</resource>\n'
-        '</item></collection>\n'
         '</doi_data>\n'
         '</journal_metadata>\n'
         '<journal_issue>\n'
@@ -480,21 +475,28 @@ def create_metadata_xml(request, doi_string):
         '<doi_data>\n'
         '<doi>' + publication.doi_string + '</doi>'
         '<resource>https://scipost.org/' + publication.doi_string + '</resource>'
+        '<collection property="crawler-based">\n'
+        '<item crawler="iParadigms">\n'
+        '<resource>https://scipost.org/' 
+        + publication.doi_string + '/pdf</resource>\n'
+        '</item></collection>\n'
         '</doi_data>\n'
     )
-    if publication.metadata['citation_list']:
-        #publication.metadata_xml += '<citation_list>\n'
-        initial['metadata_xml'] += '<citation_list>\n'
-        for ref in publication.metadata['citation_list']:
-            #publication.metadata_xml += (
-            initial['metadata_xml'] += (
-                '<citation key="' + ref['key'] + '">'
-                '<doi>' + ref['doi'] + '</doi>'
-                '</citation>\n'
-            )
+    try:
+        if publication.metadata['citation_list']:
+            #publication.metadata_xml += '<citation_list>\n'
+            initial['metadata_xml'] += '<citation_list>\n'
+            for ref in publication.metadata['citation_list']:
+                #publication.metadata_xml += (
+                initial['metadata_xml'] += (
+                    '<citation key="' + ref['key'] + '">'
+                    '<doi>' + ref['doi'] + '</doi>'
+                    '</citation>\n'
+                )
         #publication.metadata_xml += '</citation_list>\n'
         initial['metadata_xml'] += '</citation_list>\n'
-
+    except KeyError:
+        pass
     #publication.metadata_xml += (
     initial['metadata_xml'] += (
         '</journal_article>\n'
