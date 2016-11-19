@@ -26,6 +26,8 @@ host_settings = json.load(open(host_settings_path))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = host_settings["SECRET_KEY"]
 
+CERTFILE = host_settings["CERTFILE"]
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = host_settings["DEBUG"]
 
