@@ -30,6 +30,19 @@ from guardian.decorators import permission_required
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
 
+
+
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.poolmanager import PoolManager
+import ssl
+
+class MyAdapter(HTTPAdapter):
+    def init_poolmanager(self, connections, maxsize, block=False):
+        self.poolmanager = PoolManager(num_pools=connections,
+                                       maxsize=maxsize, 
+                                       block=block,
+                                       ssl_version=ssl.PROTOCOL_TLSv1)
+
 ############
 # Journals 
 ############
@@ -417,6 +430,7 @@ def create_metadata_xml(request, doi_string):
         '<abbrev_title>' 
         + journal_name_abbrev_citation(publication.in_issue.in_volume.in_journal.name) +
         '</abbrev_title>\n'
+        '<issn>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
         '<doi_data>\n'
         '<doi>' + publication.in_issue.in_volume.in_journal.doi_string + '</doi>\n'
         '<resource>https://scipost.org/' 
@@ -471,10 +485,10 @@ def create_metadata_xml(request, doi_string):
         '</publication_date>\n'
         '<publisher_item><item_number item_number_type="article_number">'
         + paper_nr_string(publication.paper_nr) + 
-        '</item_number></publisher_item>/n'
+        '</item_number></publisher_item>\n'
         '<doi_data>\n'
-        '<doi>' + publication.doi_string + '</doi>'
-        '<resource>https://scipost.org/' + publication.doi_string + '</resource>'
+        '<doi>' + publication.doi_string + '</doi>\n'
+        '<resource>https://scipost.org/' + publication.doi_string + '</resource>\n'
         '<collection property="crawler-based">\n'
         '<item crawler="iParadigms">\n'
         '<resource>https://scipost.org/' 
@@ -530,16 +544,20 @@ def test_metadata_xml_deposit(request, doi_string):
               'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
           }
     #auth = (settings.CROSSREF_LOGIN_ID, settings.CROSSREF_LOGIN_PASSWORD)
-    files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data', {}),}
+    #files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data', {'Expires': '0'})}
+    files = {'fname': ('metadata.xml', publication.metadata_xml)}
     #files = {'file': (publication.metadata_xml),}
-    r = requests.post(url, 
-                      #auth=auth, 
-                      #headers=headers, 
-                      params=params, 
-                      files=files)
+    # r = requests.post(url, 
+    #                   #auth=auth, 
+    #                   #headers=headers, 
+    #                   params=params, 
+    #                   files=files)
+    s = requests.Session()
+    s.mount('https://', MyAdapter())
+    r = s.post(url, params=params, files=files)
     response_headers = r.headers
     context = {'response_headers': response_headers,}
-    return render(requests, 'journals/text_metadata_xml_deposit.html', context)
+    return render(requests, 'journals/test_metadata_xml_deposit.html', context)
 
 
 

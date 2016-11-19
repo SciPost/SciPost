@@ -99,6 +99,7 @@ class Journal(models.Model):
     name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS,
                             unique=True)
     doi_string = models.CharField(max_length=200, blank=True, null=True)
+    issn = models.CharField(max_length=16, default='2542-4653')
     
     def __str__(self):
         return self.name
