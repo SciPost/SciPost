@@ -544,11 +544,12 @@ def test_metadata_xml_deposit(request, doi_string):
               'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
           }
     #files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data', {'Expires': '0'})}
-    files = {'fname': ('metadata.xml', publication.metadata_xml)}
+    files = {'file': ('metadata.xml', publication.metadata_xml)}
     r = requests.post(url, 
                       params=params, 
                       files=files,
-                      verify=settings.CERTFILE)
+                      #verify=settings.CERTFILE
+    )
     #s = requests.Session()
     #s.mount('https://', MyAdapter())
     #r = s.post(url, params=params, files=files)
