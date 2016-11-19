@@ -543,20 +543,19 @@ def test_metadata_xml_deposit(request, doi_string):
               'login_id': settings.CROSSREF_LOGIN_ID,
               'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
           }
-    #auth = (settings.CROSSREF_LOGIN_ID, settings.CROSSREF_LOGIN_PASSWORD)
     #files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data', {'Expires': '0'})}
     files = {'fname': ('metadata.xml', publication.metadata_xml)}
-    #files = {'file': (publication.metadata_xml),}
-    # r = requests.post(url, 
-    #                   #auth=auth, 
-    #                   #headers=headers, 
-    #                   params=params, 
-    #                   files=files)
-    s = requests.Session()
-    s.mount('https://', MyAdapter())
-    r = s.post(url, params=params, files=files)
+    r = requests.post(url, 
+                      params=params, 
+                      files=files,
+                      verify=settings.CERTFILE)
+    #s = requests.Session()
+    #s.mount('https://', MyAdapter())
+    #r = s.post(url, params=params, files=files)
     response_headers = r.headers
-    context = {'response_headers': response_headers,}
+    response_text = r.text
+    context = {'response_headers': response_headers,
+               'response_text': response_text,}
     return render(requests, 'journals/test_metadata_xml_deposit.html', context)
 
 
