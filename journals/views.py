@@ -162,14 +162,6 @@ def scipost_physics_issue_detail(request, volume_nr, issue_nr):
     return render(request, 'journals/scipost_physics_issue_detail.html', context)
 
 
-def upload_proofs(request):
-    """ 
-    TODO
-    Called by a member of the Production Team.
-    Upload the production version .pdf of a submission.
-    """
-    return render(request, 'journals/upload_proofs.html')
-
 
 #######################
 # Publication process #
@@ -185,6 +177,13 @@ def upload_proofs(request):
 #     context = {'accepted_submissions': accepted_submissions,}
 #     return render(request, 'journals/publishing_workspace.html', context)
 
+def upload_proofs(request):
+    """ 
+    TODO
+    Called by a member of the Production Team.
+    Upload the production version .pdf of a submission.
+    """
+    return render(request, 'journals/upload_proofs.html')
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
@@ -548,16 +547,18 @@ def test_metadata_xml_deposit(request, doi_string):
     r = requests.post(url, 
                       params=params, 
                       files=files,
-                      #verify=settings.CERTFILE
+                      verify=settings.CERTFILE,
     )
     #s = requests.Session()
     #s.mount('https://', MyAdapter())
     #r = s.post(url, params=params, files=files)
     response_headers = r.headers
     response_text = r.text
-    context = {'response_headers': response_headers,
-               'response_text': response_text,}
-    return render(requests, 'journals/test_metadata_xml_deposit.html', context)
+    context = {'publication': publication,
+               'response_headers': response_headers,
+               'response_text': response_text,
+    }
+    return render(request, 'journals/test_metadata_xml_deposit.html', context)
 
 
 
@@ -579,7 +580,8 @@ def publication_pdf(request, doi_string):
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response
 
-def publication_detail_form_doi_label(request, doi_label):
+
+def publication_detail_from_doi_label(request, doi_label):
     publication = get_object_or_404 (Publication, doi_label=doi_label)
     context = {'publication': publication,}
     return render(request, 'journals/publication_detail.html', context)
@@ -592,3 +594,5 @@ def publication_pdf_from_doi_label(request, doi_label):
     response['Content-Disposition'] = ('filename=' 
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response
+
+
