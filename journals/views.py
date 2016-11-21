@@ -458,7 +458,6 @@ def create_metadata_xml(request, doi_string):
                 '<person_name sequence=\'first\' contributor_role=\'author\'> '
                 '<given_name>' + author.user.first_name + '</given_name> '
                 '<surname>' + author.user.last_name + '</surname> '
-                '</person_name>\n'
             )
         else:
             #publication.metadata_xml += (
@@ -466,11 +465,11 @@ def create_metadata_xml(request, doi_string):
                 '<person_name sequence=\'additional\' contributor_role=\'author\'> '
                 '<given_name>' + author.user.first_name + '</given_name> '
                 '<surname>' + author.user.last_name + '</surname> '
-                '</person_name>\n'
             )
         if author.orcid_id:
             #publication.metadata_xml += '<ORCID>http://orcid.org' + author.orcid_id + '</ORCID>\n'
             initial['metadata_xml'] += '<ORCID>http://orcid.org/' + author.orcid_id + '</ORCID>\n'
+        initial['metadata_xml'] += '</person_name>\n'
 
     #publication.metadata_xml += '</contributors>\n'
     initial['metadata_xml'] += '</contributors>\n'
