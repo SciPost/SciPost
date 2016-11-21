@@ -32,16 +32,16 @@ from guardian.shortcuts import assign_perm
 
 
 
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.poolmanager import PoolManager
-import ssl
+# from requests.adapters import HTTPAdapter
+# from requests.packages.urllib3.poolmanager import PoolManager
+# import ssl
 
-class MyAdapter(HTTPAdapter):
-    def init_poolmanager(self, connections, maxsize, block=False):
-        self.poolmanager = PoolManager(num_pools=connections,
-                                       maxsize=maxsize, 
-                                       block=block,
-                                       ssl_version=ssl.PROTOCOL_TLSv1)
+# class MyAdapter(HTTPAdapter):
+#     def init_poolmanager(self, connections, maxsize, block=False):
+#         self.poolmanager = PoolManager(num_pools=connections,
+#                                        maxsize=maxsize, 
+#                                        block=block,
+#                                        ssl_version=ssl.PROTOCOL_TLSv1)
 
 ############
 # Journals 
@@ -536,18 +536,19 @@ def test_metadata_xml_deposit(request, doi_string):
     Makes use of the python requests module.
     """
     publication = get_object_or_404 (Publication, doi_string=doi_string)
-    url = 'https://test.crossref.org/servlet/deposit'
+    url = 'http://test.crossref.org/servlet/deposit'
     #headers = {'Content-type': 'multipart/form-data'}
     params = {'operation': 'doMDUpload',
               'login_id': settings.CROSSREF_LOGIN_ID,
               'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
           }
     #files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data', {'Expires': '0'})}
-    files = {'file': ('metadata.xml', publication.metadata_xml)}
+    files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data')}
     r = requests.post(url, 
                       params=params, 
                       files=files,
-                      verify=settings.CERTFILE,
+                      #verify=settings.CERTFILE,
+                      #verify=False,
     )
     #s = requests.Session()
     #s.mount('https://', MyAdapter())
