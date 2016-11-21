@@ -10,11 +10,7 @@
     <h1>Metadata deposit</h1>
   </div>
 
-  {% if option=="test" %}
-  <h2>(using the test server)</h2>
-  {% elif option=="deposit" %}
-  <h2>(real deposit to Crossref)</h2>
-  {% endif %}
+  <h2>(using the {{ option }} server)</h2>
 
   {% if errormessage %}
   <h2 style="color: red;">{{ errormessage }}</h2>
