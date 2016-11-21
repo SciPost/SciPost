@@ -19,7 +19,16 @@
     </div>
   </div>
 
+  <hr class="hr6"/>
+  <h3>View more material from these authors:</h3>
+  <p>
+    {% for author in publication.authors.all %}
+    <a href="/contributor/{{ author.id }}">{{ author.user.first_name }} {{ author.user.last_name }}</a>&nbsp;
+    {% endfor %}
+  </p>
+
   {% if request.user|is_in_group:'Editorial Administrators' %}
+  <hr class="hr12"/>
   <h3>Editorial Administration: Metadata creation and registration</h3>
   <ul>
     <li><a href="{% url 'journals:create_citation_list_metadata' doi_string=publication.doi_string%}">Create/update citation list metadata</a></li>

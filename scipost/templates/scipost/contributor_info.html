@@ -6,6 +6,9 @@
 
 <script>
   $(document).ready(function(){
+  $("#mypublicationsbutton").click(function(){
+  $("#mypublicationslist").toggle();
+  });
   $("#mysubmissionsbutton").click(function(){
   $("#mysubmissionslist").toggle();
   });
@@ -34,6 +37,24 @@
   </div>
   {{ contributor.public_info_as_table }}
 </section>
+
+{% if contributor_publications %}
+<section>
+  <hr class="hr12">
+  <div class="flex-greybox">
+    <h1>Publications</h1>
+    <button id="mypublicationsbutton">View/hide publications</button>
+  </div>
+  <div id="mypublicationslist">
+    <h3>Publications for which this Contributor is identified as an author:</h3>
+    <ul>
+      {% for pub in contributor_publications %}
+      {{ pub.header_as_li }}
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
 
 {% if contributor_submissions %}
 <section>

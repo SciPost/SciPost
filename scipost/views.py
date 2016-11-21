@@ -1016,6 +1016,7 @@ def contributor_info(request, contributor_id):
     on the relevant name (in listing headers of Submissions, ...).
     """
     contributor = Contributor.objects.get(pk=contributor_id)
+    contributor_publications = Publication.objects.filter(authors__in=[contributor])
     contributor_submissions = Submission.objects.filter(authors__in=[contributor])
     contributor_commentaries = Commentary.objects.filter(authors__in=[contributor])
     contributor_theses = ThesisLink.objects.filter(author_as_cont__in=[contributor])
@@ -1026,6 +1027,7 @@ def contributor_info(request, contributor_id):
                                  .filter(author=contributor, is_author_reply=True, status__gte=1)
                                  .order_by('-date_submitted'))
     context = {'contributor': contributor, 
+               'contributor_publications': contributor_publications,
                'contributor_submissions': contributor_submissions,
                'contributor_commentaries': contributor_commentaries,
                'contributor_theses': contributor_theses,
