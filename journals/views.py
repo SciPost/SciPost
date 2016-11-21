@@ -467,8 +467,8 @@ def create_metadata_xml(request, doi_string):
                 '<surname>' + author.user.last_name + '</surname> '
             )
         if author.orcid_id:
-            #publication.metadata_xml += '<ORCID>http://orcid.org' + author.orcid_id + '</ORCID>\n'
-            initial['metadata_xml'] += '<ORCID>http://orcid.org/' + author.orcid_id + '</ORCID>\n'
+            #publication.metadata_xml += '<ORCID>http://orcid.org' + author.orcid_id + '</ORCID>'
+            initial['metadata_xml'] += '<ORCID>http://orcid.org/' + author.orcid_id + '</ORCID>'
         initial['metadata_xml'] += '</person_name>\n'
 
     #publication.metadata_xml += '</contributors>\n'
@@ -526,39 +526,75 @@ def create_metadata_xml(request, doi_string):
     return render(request, 'journals/create_metadata_xml.html', context)
 
 
+# @permission_required('scipost.can_publish_accepted_submission', return_403=True)
+# @transaction.atomic
+# def test_metadata_xml_deposit(request, doi_string):
+#     """
+#     Prior to the actual Crossref metadata deposit,
+#     test the metadata_xml using the Crossref test server.
+#     Makes use of the python requests module.
+#     """
+#     publication = get_object_or_404 (Publication, doi_string=doi_string)
+#     url = 'http://test.crossref.org/servlet/deposit'
+#     #headers = {'Content-type': 'multipart/form-data'}
+#     params = {'operation': 'doMDUpload',
+#               'login_id': settings.CROSSREF_LOGIN_ID,
+#               'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
+#           }
+#     #files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data', {'Expires': '0'})}
+#     files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data')}
+#     r = requests.post(url, 
+#                       params=params, 
+#                       files=files,
+#                       #verify=settings.CERTFILE,
+#                       #verify=False,
+#     )
+#     #s = requests.Session()
+#     #s.mount('https://', MyAdapter())
+#     #r = s.post(url, params=params, files=files)
+#     response_headers = r.headers
+#     response_text = r.text
+#     context = {'publication': publication,
+#                'response_headers': response_headers,
+#                'response_text': response_text,
+#     }
+#     return render(request, 'journals/test_metadata_xml_deposit.html', context)
+
+
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
-def test_metadata_xml_deposit(request, doi_string):
+def metadata_xml_deposit(request, doi_string, option='test'):
     """
-    Prior to the actual Crossref metadata deposit,
-    test the metadata_xml using the Crossref test server.
+    Crossref metadata deposit.
+    If test==True, test the metadata_xml using the Crossref test server.
     Makes use of the python requests module.
     """
     publication = get_object_or_404 (Publication, doi_string=doi_string)
-    url = 'http://test.crossref.org/servlet/deposit'
-    #headers = {'Content-type': 'multipart/form-data'}
+    if option=='deposit':
+        url = 'http://doi.crossref.org/servlet/deposit'
+    elif option=='test':
+        url = 'http://test.crossref.org/servlet/deposit'
+    else:
+        {'errormessage': 'metadata_xml_deposit can only be called with options test or deposit',}
+        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+
     params = {'operation': 'doMDUpload',
               'login_id': settings.CROSSREF_LOGIN_ID,
               'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
           }
-    #files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data', {'Expires': '0'})}
     files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data')}
     r = requests.post(url, 
                       params=params, 
                       files=files,
-                      #verify=settings.CERTFILE,
-                      #verify=False,
     )
-    #s = requests.Session()
-    #s.mount('https://', MyAdapter())
-    #r = s.post(url, params=params, files=files)
     response_headers = r.headers
     response_text = r.text
-    context = {'publication': publication,
+    context = {'option': option,
+               'publication': publication,
                'response_headers': response_headers,
                'response_text': response_text,
     }
-    return render(request, 'journals/test_metadata_xml_deposit.html', context)
+    return render(request, 'journals/metadata_xml_deposit.html', context)
 
 
 

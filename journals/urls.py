@@ -54,7 +54,10 @@ urlpatterns = [
     url(r'^create_metadata_xml/(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.create_metadata_xml,
         name='create_metadata_xml'),
-    url(r'^test_metadata_xml_deposit/(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
-        journals_views.test_metadata_xml_deposit,
-        name='test_metadata_xml_deposit'),
+    # url(r'^test_metadata_xml_deposit/(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+    #     journals_views.test_metadata_xml_deposit,
+    #     name='test_metadata_xml_deposit'),
+    url(r'^metadata_xml_deposit/(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/(?P<option>[a-z]+)$',
+        journals_views.metadata_xml_deposit,
+        name='metadata_xml_deposit'),
 ]
