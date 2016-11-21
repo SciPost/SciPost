@@ -20,6 +20,15 @@
     <input type="submit" value="Accept the metadata">
   </form>
 
+  <hr class="hr6"/>
+
+  <h3>Current metadata xml:</h3>
+  <p>{{ publication.metadata_xml|linebreaks }}</p>
+
+  <hr class="hr6"/>
+
+  <h3>Once you're happy with this metadata, you can <a href="{% url 'scipost:publication_detail' doi_string=publication.doi_string %}">return to the publication's page</a></h3>
+
 </section>
 
 

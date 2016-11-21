@@ -15,10 +15,10 @@
   {% endif %}
 
   <h3>Response headers:</h3>
-  <p>{{ response_headers }}</p>
+  <p>{{ response_headers|linebreaks }}</p>
 
   <h3>Response text:</h3>
-  <p>{{ response_text }}</p>
+  <p>{{ response_text|linebreaks }}</p>
 
   <h3>Once you're happy, you can <a href="{% url 'scipost:publication_detail' doi_string=publication.doi_string %}">return to the publication's page</a></h3>
 

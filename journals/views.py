@@ -469,11 +469,11 @@ def create_metadata_xml(request, doi_string):
                 '</person_name>\n'
             )
         if author.orcid_id:
-            #publication.metadata_xml += '<ORCID>' + author.orcid_id + '</ORCID>\n'
-            initial['metadata_xml'] += '<ORCID>' + author.orcid_id + '</ORCID>\n'
+            #publication.metadata_xml += '<ORCID>http://orcid.org' + author.orcid_id + '</ORCID>\n'
+            initial['metadata_xml'] += '<ORCID>http://orcid.org/' + author.orcid_id + '</ORCID>\n'
 
-            #publication.metadata_xml += '</contributors>\n'
-            initial['metadata_xml'] += '</contributors>\n'
+    #publication.metadata_xml += '</contributors>\n'
+    initial['metadata_xml'] += '</contributors>\n'
 
     #publication.metadata_xml += (
     initial['metadata_xml'] += (
