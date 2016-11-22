@@ -323,6 +323,19 @@ def mark_first_author(request, publication_id, contributor_id):
     publication = get_object_or_404(Publication, id=publication_id)
     contributor = get_object_or_404(Contributor, id=contributor_id)
     publication.first_author = contributor
+    publication.first_author_unregistered = None
+    publication.save()
+    return redirect(reverse('scipost:publication_detail', 
+                            kwargs={'doi_string': publication.doi_string,}))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
+def mark_first_author_unregistered(request, publication_id, unregistered_author_id):
+    publication = get_object_or_404(Publication, id=publication_id)
+    unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
+    publication.first_author = None
+    publication.first_author_unregistered = unregistered_author
     publication.save()
     return redirect(reverse('scipost:publication_detail', 
                             kwargs={'doi_string': publication.doi_string,}))
@@ -554,14 +567,21 @@ def create_metadata_xml(request, doi_string):
         initial['metadata_xml'] += '</person_name>\n'
 
     for author_unreg in publication.authors_unregistered.all():
-        #publication.metadata_xml += (
-        initial['metadata_xml'] += (
-            '<person_name sequence=\'additional\' contributor_role=\'author\'> '
-            '<given_name>' + author_unreg.first_name + '</given_name> '
-            '<surname>' + author_unreg.last_name + '</surname> '
-            '</person_name>'
-        )
-
+        if author_unreg == publication.first_author_unregistered:
+            #publication.metadata_xml += (
+            initial['metadata_xml'] += (
+                '<person_name sequence=\'first\' contributor_role=\'author\'> '
+                '<given_name>' + author_unreg.first_name + '</given_name> '
+                '<surname>' + author_unreg.last_name + '</surname> '
+            )
+        else:
+            #publication.metadata_xml += (
+            initial['metadata_xml'] += (
+                '<person_name sequence=\'additional\' contributor_role=\'author\'> '
+                '<given_name>' + author_unreg.first_name + '</given_name> '
+                '<surname>' + author_unreg.last_name + '</surname> '
+            )
+        initial['metadata_xml'] += '</person_name>\n'
     #publication.metadata_xml += '</contributors>\n'
     initial['metadata_xml'] += '</contributors>\n'
 

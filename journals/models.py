@@ -12,7 +12,7 @@ class UnregisteredAuthor(models.Model):
     last_name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.first_name + ' ' + self.last_name
+        return self.last_name + ', ' + self.first_name
 
 
 SCIPOST_JOURNALS = (
@@ -166,8 +166,11 @@ class Publication(models.Model):
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_pub')
-    authors_unregistered = models.ManyToManyField (UnregisteredAuthor, blank=True)
+    authors_unregistered = models.ManyToManyField (UnregisteredAuthor, blank=True,
+                                                   related_name='authors_unregistered')
     first_author = models.ForeignKey (Contributor, blank=True, null=True)
+    first_author_unregistered = models.ForeignKey (UnregisteredAuthor, blank=True, null=True,
+                                                   related_name='first_author_unregistered')
     authors_claims = models.ManyToManyField (Contributor, blank=True, 
                                              related_name='authors_pub_claims')
     authors_false_claims = models.ManyToManyField (Contributor, blank=True, 

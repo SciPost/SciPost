@@ -34,12 +34,25 @@
   <hr class="hr12"/>
   <h3>Editorial Administration tools: </h3>
   <ul>
-    <li>Mark the first author (currently: {{ publication.first_author }})
-      <ul>
-	{% for author in publication.authors.all %}
-	<li><a href="{% url 'journals:mark_first_author' publication_id=publication.id contributor_id=author.id %}">{{ author }}</a></li>
-	{% endfor %}
-      </ul>
+    <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }} {% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
+      <div class="row">
+	<div class="col-5">
+	  <p>registered authors:</p>
+	  <ul>
+	    {% for author in publication.authors.all %}
+	    <li><a href="{% url 'journals:mark_first_author' publication_id=publication.id contributor_id=author.id %}">{{ author }}</a></li>
+	    {% endfor %}
+	  </ul>
+	</div>
+	<div class="col-5">
+	  <p>unregistered authors:</p>
+	  <ul>
+	    {% for author_unreg in publication.authors_unregistered.all %}
+	    <li><a href="{% url 'journals:mark_first_author_unregistered' publication_id=publication.id unregistered_author_id=author_unreg.id %}">{{ author_unreg }}</a></li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
     </li> 
     <li><a href="{% url 'journals:add_author' publication_id=publication.id %}">Add a missing author</a></li>
     <li><a href="{% url 'journals:create_citation_list_metadata' doi_string=publication.doi_string %}">Create/update citation list metadata</a></li>
