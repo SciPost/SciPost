@@ -319,6 +319,80 @@ def validate_publication(request):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
+def mark_first_author(request, publication_id, contributor_id):
+    publication = get_object_or_404(Publication, id=publication_id)
+    contributor = get_object_or_404(Contributor, id=contributor_id)
+    publication.first_author = contributor
+    publication.save()
+    return redirect(reverse('scipost:publication_detail', 
+                            kwargs={'doi_string': publication.doi_string,}))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
+def add_author(request, publication_id, contributor_id=None, unregistered_author_id=None):
+    """
+    If not all authors are registered Contributors or if they have not 
+    all claimed authorship, this method allows editorial administrators 
+    to associated them to the publication.
+    This is important for the Crossref metadata, in which all authors must appear.
+    """
+    publication = get_object_or_404(Publication, id=publication_id)
+    if contributor_id:
+        contributor = get_object_or_404(Contributor, id=contributor_id)
+        publication.authors.add(contributor)
+        publication.save()
+        return redirect(reverse('scipost:publication_detail', 
+                                kwargs={'doi_string': publication.doi_string,}))
+    elif unregistered_author_id:
+        unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
+        publication.unregistered_authors.add(unregistered_author)
+        publication.save()
+        return redirect(reverse('scipost:publication_detail', 
+                                kwargs={'doi_string': publication.doi_string,}))
+    if request.method == 'POST':
+        form = UnregisteredAuthorForm(request.POST)
+        if form.is_valid():
+            contributors_found = Contributor.objects.filter(
+                user__last_name__icontains=form.cleaned_data['last_name'])
+            unregistered_authors_found = UnregisteredAuthor.objects.filter(
+                last_name__icontains=form.cleaned_data['last_name'])
+            new_unreg_author_form = UnregisteredAuthorForm(
+                initial={'first_name': form.cleaned_data['first_name'],
+                         'last_name': form.cleaned_data['last_name'],})
+    else:
+        form = UnregisteredAuthorForm()
+        contributors_found = None
+        unregistered_authors_found = None
+        new_unreg_author_form = UnregisteredAuthorForm()
+    context = {'publication': publication,
+               'contributors_found': contributors_found,
+               'unregistered_authors_found': unregistered_authors_found,
+               'form': form,
+               'new_unreg_author_form': new_unreg_author_form,}
+    return render(request, 'journals/add_author.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
+def add_new_unreg_author(request, publication_id):
+    publication = get_object_or_404(Publication, id=publication_id)
+    if request.method == 'POST':
+        new_unreg_author_form = UnregisteredAuthorForm(request.POST)
+        if new_unreg_author_form.is_valid():
+            new_unreg_author = UnregisteredAuthor(
+                first_name = new_unreg_author_form.cleaned_data['first_name'],
+                last_name = new_unreg_author_form.cleaned_data['last_name'],)
+            new_unreg_author.save()
+            publication.authors_unregistered.add(new_unreg_author)
+            return redirect(reverse('scipost:publication_detail', 
+                                    kwargs={'doi_string': publication.doi_string,}))
+    errormessage = 'Method add_new_unreg_author can only be called with POST.'
+    return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
 def create_citation_list_metadata(request, doi_string):
     """
     Called by an Editorial Administrator.
@@ -470,6 +544,15 @@ def create_metadata_xml(request, doi_string):
             #publication.metadata_xml += '<ORCID>http://orcid.org' + author.orcid_id + '</ORCID>'
             initial['metadata_xml'] += '<ORCID>http://orcid.org/' + author.orcid_id + '</ORCID>'
         initial['metadata_xml'] += '</person_name>\n'
+
+    for author_unreg in publication.authors_unregistered.all():
+        #publication.metadata_xml += (
+        initial['metadata_xml'] += (
+            '<person_name sequence=\'additional\' contributor_role=\'author\'> '
+            '<given_name>' + author_unreg.first_name + '</given_name> '
+            '<surname>' + author_unreg.last_name + '</surname> '
+            '</person_name>'
+        )
 
     #publication.metadata_xml += '</contributors>\n'
     initial['metadata_xml'] += '</contributors>\n'

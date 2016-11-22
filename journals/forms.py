@@ -2,7 +2,7 @@ from django import forms
 from django.utils import timezone
 
 from .models import SCIPOST_JOURNALS
-from .models import Issue, Publication
+from .models import UnregisteredAuthor, Issue, Publication
 
 from submissions.models import Submission
 
@@ -84,6 +84,12 @@ class ValidatePublicationForm(forms.ModelForm):
         exclude = ['authors', 'authors_claims', 'authors_false_claims',
                    'metadata', 'metadata_xml',
                    'latest_activity',]
+
+
+class UnregisteredAuthorForm(forms.ModelForm):
+    class Meta:
+        model = UnregisteredAuthor
+        fields = ['first_name', 'last_name']
 
 
 class CitationListBibitemsForm(forms.Form):

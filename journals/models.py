@@ -7,6 +7,14 @@ from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_a
 from scipost.models import ChoiceArrayField, Contributor
 
 
+class UnregisteredAuthor(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.first_name + ' ' + self.last_name
+
+
 SCIPOST_JOURNALS = (
     ('SciPost Physics Select', 'SciPost Physics Select'),
     ('SciPost Physics', 'SciPost Physics'),
@@ -158,6 +166,7 @@ class Publication(models.Model):
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_pub')
+    authors_unregistered = models.ManyToManyField (UnregisteredAuthor, blank=True)
     first_author = models.ForeignKey (Contributor, blank=True, null=True)
     authors_claims = models.ManyToManyField (Contributor, blank=True, 
                                              related_name='authors_pub_claims')

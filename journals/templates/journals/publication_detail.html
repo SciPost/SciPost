@@ -23,16 +23,27 @@
   <h3>View more material from these authors:</h3>
   <p>
     {% for author in publication.authors.all %}
-    <a href="/contributor/{{ author.id }}">{{ author.user.first_name }} {{ author.user.last_name }}</a>&nbsp;
+    <a href="/contributor/{{ author.id }}">{{ author }}</a>&nbsp;&nbsp;
+    {% endfor %}
+    {% for author in publication.authors_unregistered.all %}
+    {{ author }}&nbsp;&nbsp;
     {% endfor %}
   </p>
 
   {% if request.user|is_in_group:'Editorial Administrators' %}
   <hr class="hr12"/>
-  <h3>Editorial Administration: Metadata creation and registration</h3>
+  <h3>Editorial Administration tools: </h3>
   <ul>
-    <li><a href="{% url 'journals:create_citation_list_metadata' doi_string=publication.doi_string%}">Create/update citation list metadata</a></li>
-    <li><a href="{% url 'journals:create_funding_info_metadata' doi_string=publication.doi_string%}">Create/update funding info metadata</a></li>
+    <li>Mark the first author (currently: {{ publication.first_author }})
+      <ul>
+	{% for author in publication.authors.all %}
+	<li><a href="{% url 'journals:mark_first_author' publication_id=publication.id contributor_id=author.id %}">{{ author }}</a></li>
+	{% endfor %}
+      </ul>
+    </li> 
+    <li><a href="{% url 'journals:add_author' publication_id=publication.id %}">Add a missing author</a></li>
+    <li><a href="{% url 'journals:create_citation_list_metadata' doi_string=publication.doi_string %}">Create/update citation list metadata</a></li>
+    <li><a href="{% url 'journals:create_funding_info_metadata' doi_string=publication.doi_string %}">Create/update funding info metadata</a></li>
     <li><a href="{% url 'journals:create_metadata_xml' doi_string=publication.doi_string %}">Create/update the XML metadata</a></li>
     <li><a href="{% url 'journals:metadata_xml_deposit' doi_string=publication.doi_string option='test' %}">Test metadata deposit (via Crossref test server)</a></li>
     <li><a href="{% url 'journals:metadata_xml_deposit' doi_string=publication.doi_string option='deposit' %}">Deposit the metadata to Crossref</a></li>
