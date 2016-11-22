@@ -62,7 +62,7 @@
   <table>
     {% for unreg_auth in unregistered_authors_found %}
     <tr><td>{{ unreg_auth }}</td><td>&nbsp;</td>
-      <td><a href="{% url 'journals:add_author' publication_id=publication.id unregistered_author_id=unreg_auth.id %}">Add this unregistered author as author of this Publication</a></td></tr>
+      <td><a href="{% url 'journals:add_unregistered_author' publication_id=publication.id unregistered_author_id=unreg_auth.id %}">Add this unregistered author as author of this Publication</a></td></tr>
     {% endfor %}
   </table>
   {% elif form.has_changed %}

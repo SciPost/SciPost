@@ -344,12 +344,6 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
         publication.save()
         return redirect(reverse('scipost:publication_detail', 
                                 kwargs={'doi_string': publication.doi_string,}))
-    elif unregistered_author_id:
-        unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
-        publication.unregistered_authors.add(unregistered_author)
-        publication.save()
-        return redirect(reverse('scipost:publication_detail', 
-                                kwargs={'doi_string': publication.doi_string,}))
     if request.method == 'POST':
         form = UnregisteredAuthorForm(request.POST)
         if form.is_valid():
@@ -360,6 +354,9 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
             new_unreg_author_form = UnregisteredAuthorForm(
                 initial={'first_name': form.cleaned_data['first_name'],
                          'last_name': form.cleaned_data['last_name'],})
+        else:
+            errormessage = 'Please fill in the form properly'
+            return render(request, 'scipost/error.html', context={'errormessage': errormessage})
     else:
         form = UnregisteredAuthorForm()
         contributors_found = None
@@ -371,6 +368,17 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
                'form': form,
                'new_unreg_author_form': new_unreg_author_form,}
     return render(request, 'journals/add_author.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
+def add_unregistered_author(request, publication_id, unregistered_author_id):
+    publication = get_object_or_404(Publication, id=publication_id)
+    unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
+    publication.unregistered_authors.add(unregistered_author)
+    publication.save()
+    return redirect(reverse('scipost:publication_detail', 
+                            kwargs={'doi_string': publication.doi_string,}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
