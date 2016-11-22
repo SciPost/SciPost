@@ -246,6 +246,11 @@ ul.personalTabMenu li a.inactive {
   margin: 10px;
   padding: 10px;
 }
+.flex-whitebox480 {
+  width: 480px;
+  margin: 10px;
+  padding: 10px;
+}
 .flex-whitebox640 {
   width: 640px;
   margin: 10px;
