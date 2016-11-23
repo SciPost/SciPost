@@ -1,0 +1,61 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: harvest cited-by links{% endblock pagetitle %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>Cited-by links</h1>
+  </div>
+
+  {% if errormessage %}
+  <h2 style="color: red;">{{ errormessage }}</h2>
+  {% endif %}
+
+  <h3>Response headers:</h3>
+  <p>{{ response_headers|linebreaks }}</p>
+
+  <h3>Response text:</h3>
+  <p>{{ response_text|linebreaks }}</p>
+
+  <h3>Response (deserialized):</h3>
+  <p>{{ response_deserialized }}</p>
+  <ul>
+    {% for obj in response_deserialized %}
+    <li>{{ obj }}
+      <ul>
+	{% for obj2 in obj %}
+	<li>{{ obj2 }}
+	  <ul>
+	    {% for obj3 in obj2 %}
+	    <li>{{ obj3 }}
+	      <ul>
+		{% for obj4 in obj3 %}
+		<li>{{ obj4 }}
+		</li>
+		{% endfor %}
+	      </ul>
+	    </li>
+	    {% endfor %}
+	  </ul>
+	</li>
+	{% endfor %}
+      </ul>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <h3>Citations</h3>
+  {% for cit in citations %}
+  {{ cit }}
+  {% endfor %}
+  {{ nr }}
+
+  <h3><a href="{% url 'scipost:publication_detail' doi_string=publication.doi_string %}">return to the publication's page</a></h3>
+
+</section>
+
+
+{% endblock bodysup %}

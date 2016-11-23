@@ -78,4 +78,7 @@ urlpatterns = [
     url(r'^metadata_xml_deposit/(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/(?P<option>[a-z]+)$',
         journals_views.metadata_xml_deposit,
         name='metadata_xml_deposit'),
+    url(r'^harvest_citedby_links/(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+        journals_views.harvest_citedby_links,
+        name='harvest_citedby_links'),
 ]

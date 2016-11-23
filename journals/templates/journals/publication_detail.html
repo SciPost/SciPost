@@ -2,10 +2,23 @@
 
 {% block pagetitle %}: Publication detail{% endblock pagetitle %}
 
+{% block headsup %}
+<script>
+  $(document).ready(function(){
+  $("#citationslist").hide();
+
+  $("#citationslistbutton").click(function(){
+  $("#citationslist").toggle();
+  });
+  });
+</script>
+{% endblock headsup %}
+
+{% load staticfiles %}
+
 {% load scipost_extras %}
 
 {% block bodysup %}
-
 
 <section>
 
@@ -18,6 +31,25 @@
       {{ publication.details }}
     </div>
   </div>
+
+  {% if publication.citedby|length >= 1 %}
+  <hr class="hr6"/>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h3>Cited by {{ publication.citedby|length }}</h3>
+      <br/>
+      <button id="citationslistbutton">Toggle view</button>
+    </div>
+    <div class="flex-whitebox">
+      <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
+    </div>
+  </div>
+  <div class="flex-container" id="citationslist">
+    <div class="flex-whitebox800">
+      {{ publication.citations_as_ul }}
+    </div>
+  </div>
+  {% endif %}
 
   <hr class="hr6"/>
   <h3>View more material from these authors:</h3>
@@ -60,6 +92,7 @@
     <li><a href="{% url 'journals:create_metadata_xml' doi_string=publication.doi_string %}">Create/update the XML metadata</a></li>
     <li><a href="{% url 'journals:metadata_xml_deposit' doi_string=publication.doi_string option='test' %}">Test metadata deposit (via Crossref test server)</a></li>
     <li><a href="{% url 'journals:metadata_xml_deposit' doi_string=publication.doi_string option='deposit' %}">Deposit the metadata to Crossref</a></li>
+    <li><a href="{% url 'journals:harvest_citedby_links' doi_string=publication.doi_string %}">Update Crossref cited-by links</a></li>
   </ul>
   {% endif %}
 
