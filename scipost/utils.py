@@ -133,7 +133,7 @@ class Utils(object):
             )
         contributor.save()
         Utils.load({'contributor': contributor})
-        
+
     @classmethod
     def send_registration_email(cls):
         # Generate email activation key and link
@@ -147,19 +147,19 @@ class Utils(object):
         cls.contributor.key_expires = datetime.datetime.strftime(
             datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
         cls.contributor.save()
-        email_text = ('Dear ' + title_dict[cls.contributor.title] + ' ' + 
-                      cls.contributor.user.last_name + 
+        email_text = ('Dear ' + title_dict[cls.contributor.title] + ' ' +
+                      cls.contributor.user.last_name +
                       ', \n\nYour request for registration to the SciPost publication portal' +
                       ' has been received. You now need to validate your email by visiting ' +
-                      'this link within the next 48 hours: \n\n' + 'https://scipost.org/activation/' + 
-                      cls.contributor.activation_key + 
+                      'this link within the next 48 hours: \n\n' + 'https://scipost.org/activation/' +
+                      cls.contributor.activation_key +
                       '\n\nYour registration will thereafter be vetted. Many thanks for your interest.'
                       '\n\nThe SciPost Team.')
         email_text_html = (
             'Dear {{ title }} {{ last_name }},<br/>'
             '\n<p>Your request for registration to the SciPost publication portal'
             ' has been received. You now need to validate your email by visiting '
-            'this link within the next 48 hours:</p>' 
+            'this link within the next 48 hours:</p>'
             '<p><a href="https://scipost.org/activation/{{ activation_key }}">'
             'Activate your account</a></p>'
             '\n<p>Your registration will thereafter be vetted. Many thanks for your interest.</p>'
@@ -175,14 +175,14 @@ class Utils(object):
         #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost registration request received', email_text,
-            'SciPost registration <registration@scipost.org>', 
+            'SciPost registration <registration@scipost.org>',
             [cls.contributor.user.email],
             ['registration@scipost.org'],
             reply_to=['registration@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
-        
+
     @classmethod
     def create_invitation(cls):
         invitation = RegistrationInvitation (
@@ -265,7 +265,7 @@ class Utils(object):
             'contents, for example by offering submissions, reports and comments.'
             '\n\nFor your convenience, a partly pre-filled registration '
             'form has been prepared for you at '
-            'https://scipost.org/invitation/' + cls.invitation.invitation_key 
+            'https://scipost.org/invitation/' + cls.invitation.invitation_key
             + ' (you can in any case still register at '
             'https://scipost.org/register).\n\n'
             'If you do develop sympathy for the initiative, besides participating in the '
@@ -372,7 +372,7 @@ class Utils(object):
             # Has been cited in a Submission. Invite!
             email_text += (
                 'Your work has been cited in a manuscript submitted to SciPost,'
-                '\n\n' + cls.invitation.cited_in_submission.title 
+                '\n\n' + cls.invitation.cited_in_submission.title
                 + ' by ' + cls.invitation.cited_in_submission.author_list + '.\n\n'
                 'I would hereby like to use this opportunity to quickly introduce '
                 'you to the SciPost initiative, and to invite you to become an active '
@@ -380,7 +380,7 @@ class Utils(object):
                 'commenting on the above submission before the refereeing deadline.')
             email_text_html += (
                 '<p>Your work has been cited in a manuscript submitted to SciPost,</p>'
-                '<p>{{ sub_title }} <br>by {{ sub_author_list }},</p>' 
+                '<p>{{ sub_title }} <br>by {{ sub_author_list }},</p>'
                 '<p>which you can find online at the '
                 '<a href="https://scipost.org/submission/{{ arxiv_nr_w_vn_nr }}">'
                 'submission\'s page</a>.</p>'
@@ -388,7 +388,7 @@ class Utils(object):
                 'you to the SciPost initiative, and to invite you to become an active '
                 'Contributor to the site. You might for example consider reporting or '
                 'commenting on the above submission before the refereeing deadline.</p>')
-            email_context['sub_title'] = cls.invitation.cited_in_submission.title 
+            email_context['sub_title'] = cls.invitation.cited_in_submission.title
             email_context['sub_author_list'] = cls.invitation.cited_in_submission.author_list
             email_context['arxiv_identifier_w_vn_nr'] = cls.invitation.cited_in_submission.arxiv_identifier_w_vn_nr
 
@@ -412,8 +412,8 @@ class Utils(object):
             # Has been cited in a Publication. Invite!
             email_text += (
                 'Your work has been cited in a paper published by SciPost,'
-                '\n\n' + cls.invitation.cited_in_publication.title 
-                + '\nby ' + cls.invitation.cited_in_publication.author_list + 
+                '\n\n' + cls.invitation.cited_in_publication.title
+                + '\nby ' + cls.invitation.cited_in_publication.author_list +
                 '\n\n(published as ' + cls.invitation.cited_in_publication.citation()
                 + ').\n\n'
                 'I would hereby like to use this opportunity to quickly introduce '
@@ -426,7 +426,7 @@ class Utils(object):
                 '\n<p>I would hereby like to use this opportunity to quickly introduce '
                 'you to the SciPost initiative, and to invite you to become an active '
                 'Contributor to the site.</p>')
-            email_context['pub_title'] = cls.invitation.cited_in_publication.title 
+            email_context['pub_title'] = cls.invitation.cited_in_publication.title
             email_context['pub_author_list'] = cls.invitation.cited_in_publication.author_list
             email_context['doi_label'] = cls.invitation.cited_in_publication.doi_label
             email_context['citation'] = cls.invitation.cited_in_publication.citation()
@@ -615,7 +615,7 @@ class Utils(object):
                 '<br/>---------------------------------------------'
                 '<br/>tel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778'
                 '<br/>---------------------------------------------\n')
-                
+
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
@@ -628,8 +628,7 @@ class Utils(object):
                 bcc=['registration@scipost.org'],
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
-            
+
 
         # This function is now for all invitation types:
         emailmessage.send(fail_silently=False)
-    

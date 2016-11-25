@@ -15,7 +15,7 @@ class ContributorInline(admin.StackedInline):
 
 class UserAdmin(UserAdmin):
     inlines = [
-        ContributorInline, 
+        ContributorInline,
         ]
     search_fields = ['last_name', 'email']
 
@@ -71,7 +71,7 @@ class NodeInline(admin.StackedInline):
 
 class ArcInline(admin.StackedInline):
     model = Arc
-    
+
 class GraphAdmin(GuardedModelAdmin):
     inlines = [
         NodeInline,
@@ -92,7 +92,7 @@ class SPBMembershipAgreementInline(admin.StackedInline):
     model = SPBMembershipAgreement
 
 class SupportingPartnerAdmin(admin.ModelAdmin):
-    search_fields = ['institution', 'institution_acronym', 
+    search_fields = ['institution', 'institution_acronym',
                      'institution_address', 'contact_person']
     inlines = [
         SPBMembershipAgreementInline,

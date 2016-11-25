@@ -18,29 +18,29 @@ thesis_type_dict = dict(THESIS_TYPES)
 
 class ThesisLink(models.Model):
     """ An URL pointing to a thesis """
-    requested_by = models.ForeignKey (Contributor, blank=True, null=True, 
+    requested_by = models.ForeignKey (Contributor, blank=True, null=True,
                                       related_name='thesislink_requested_by')
     vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
     type = models.CharField(max_length=3, choices=THESIS_TYPES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS, blank=True)
-#    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS, 
+#    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS,
 #                                      blank=True)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, default='Phys:QP')
     open_for_commenting = models.BooleanField(default=True)
     title = models.CharField(max_length=300, verbose_name='title')
     pub_link = models.URLField(verbose_name='URL (external repository)')
     author = models.CharField(max_length=1000)
-    author_as_cont = models.ManyToManyField (Contributor, blank=True, 
+    author_as_cont = models.ManyToManyField (Contributor, blank=True,
                                              related_name='author_cont')
-    author_claims = models.ManyToManyField (Contributor, blank=True, 
+    author_claims = models.ManyToManyField (Contributor, blank=True,
                                             related_name='authors_thesis_claims')
-    author_false_claims = models.ManyToManyField (Contributor, blank=True, 
+    author_false_claims = models.ManyToManyField (Contributor, blank=True,
                                                   related_name='authors_thesis_false_claims')
     supervisor = models.CharField(max_length=1000, default='')
-    supervisor_as_cont = models.ManyToManyField (Contributor, blank=True, 
-                                                 verbose_name='supervisor(s)', 
+    supervisor_as_cont = models.ManyToManyField (Contributor, blank=True,
+                                                 verbose_name='supervisor(s)',
                                                  related_name='supervisor_cont')
     institution = models.CharField(max_length=300, verbose_name='degree granting institution')
     defense_date = models.DateField(verbose_name='date of thesis defense')
@@ -60,19 +60,19 @@ class ThesisLink(models.Model):
                   '<tr><td>As Contributor: </td><td>&nbsp;</td>')
         if self.author_as_cont.all():
             for auth in self.author_as_cont.all():
-                header += ('<td><a href="/contributor/' + str(auth.id) + '">' 
+                header += ('<td><a href="/contributor/' + str(auth.id) + '">'
                            + auth.user.first_name + ' ' + auth.user.last_name + '</a></td>')
         else:
             header += '<td>(not claimed)</td>'
         header += ('</tr>'
                    '<tr><td>Type: </td><td></td><td>' + thesis_type_dict[self.type] + '</td></tr>'
-                   '<tr><td>Discipline: </td><td></td><td>' + disciplines_dict[self.discipline] 
+                   '<tr><td>Discipline: </td><td></td><td>' + disciplines_dict[self.discipline]
                    + '</td></tr>'
-                   '<tr><td>Domain: </td><td></td><td>' + journals_domains_dict[self.domain] 
+                   '<tr><td>Domain: </td><td></td><td>' + journals_domains_dict[self.domain]
                    + '</td></tr>'
-#                   '<tr><td>Specialization: </td><td></td><td>' 
+#                   '<tr><td>Specialization: </td><td></td><td>'
 #                   + journals_spec_dict[self.specialization] + '</td></tr>'
-                   '<tr><td>Subject area: </td><td></td><td>' 
+                   '<tr><td>Subject area: </td><td></td><td>'
                    + subject_areas_dict[self.subject_area] + '</td></tr>'
                    '<tr><td>URL: </td><td>&nbsp;</td><td><a href="{{ pub_link }}" '
                    'target="_blank">{{ pub_link }}</a></td></tr>'
@@ -94,9 +94,9 @@ class ThesisLink(models.Model):
                   '<div class="flex-whitebox0"><p><a href="/thesis/{{ id }}" '
                   'class="pubtitleli">{{ title }}</a></p>'
                   '<p>' + thesis_type_dict[self.type] + ' thesis by {{ author }} '
-                  '(supervisor(s): {{ supervisor }}) in ' 
-                  + disciplines_dict[self.discipline] + ', ' 
-                  + journals_domains_dict[self.domain] + ' ' 
+                  '(supervisor(s): {{ supervisor }}) in '
+                  + disciplines_dict[self.discipline] + ', '
+                  + journals_domains_dict[self.domain] + ' '
 #                  + journals_spec_dict[self.specialization] + ' '
                   + subject_areas_dict[self.subject_area]
                   + '</p>'
@@ -113,7 +113,7 @@ class ThesisLink(models.Model):
         header = ('<li><div class="flex-container">'
                   '<div class="flex-whitebox0"><p><a href="/thesis/{{ id }}" '
                   'class="pubtitleli">{{ title }}</a></p>'
-                  '<p>' + thesis_type_dict[self.type] 
+                  '<p>' + thesis_type_dict[self.type]
                   + ' thesis by {{ author }} </div></div></li>')
         template = Template(header)
         return template.render(context)

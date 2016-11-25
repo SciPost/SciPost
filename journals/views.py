@@ -41,12 +41,12 @@ from guardian.shortcuts import assign_perm
 # class MyAdapter(HTTPAdapter):
 #     def init_poolmanager(self, connections, maxsize, block=False):
 #         self.poolmanager = PoolManager(num_pools=connections,
-#                                        maxsize=maxsize, 
+#                                        maxsize=maxsize,
 #                                        block=block,
 #                                        ssl_version=ssl.PROTOCOL_TLSv1)
 
 ############
-# Journals 
+# Journals
 ############
 
 
@@ -59,8 +59,8 @@ from guardian.shortcuts import assign_perm
 #     """
 #     For a Journal/Volume, creates a new issue.
 #     """
-    
-#     settings.JOURNALS_DIR 
+
+#     settings.JOURNALS_DIR
 #     + journal_name_abbrev_doi(publication.in_issue.in_volume.in_journal.name)
 #     + '/' + str(publication.in_issue.in_volume.number)
 #     + '/' + str(publication.in_issue.number)
@@ -91,7 +91,7 @@ def scipost_physics(request):
     #    ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
     #    ).order_by('-submission_date')
     context = {
-        #'issues': issues, 
+        #'issues': issues,
         'current_issue': current_issue,
         'latest_issue': latest_issue,
         #'recent_papers': recent_papers,
@@ -180,7 +180,7 @@ def scipost_physics_issue_detail(request, volume_nr, issue_nr):
 #     return render(request, 'journals/publishing_workspace.html', context)
 
 def upload_proofs(request):
-    """ 
+    """
     TODO
     Called by a member of the Production Team.
     Upload the production version .pdf of a submission.
@@ -199,9 +199,9 @@ def initiate_publication(request):
     if request.method == 'POST':
         initiate_publication_form = InitiatePublicationForm(request.POST)
         if initiate_publication_form.is_valid():
-            submission = get_object_or_404(Submission, 
+            submission = get_object_or_404(Submission,
                 pk=initiate_publication_form.cleaned_data['accepted_submission'].id)
-            current_issue = get_object_or_404(Issue, 
+            current_issue = get_object_or_404(Issue,
                             pk=initiate_publication_form.cleaned_data['to_be_issued_in'].id)
             # Determine next available paper number:
             papers_in_current_issue = Publication.objects.filter(in_issue=current_issue)
@@ -220,7 +220,7 @@ def initiate_publication(request):
                 '@Article{' + doi_label + ',\n'
                 '\ttitle={{' + submission.title + '}},\n'
                 '\tauthor={' + submission.author_list.replace(',', ' and') + '},\n'
-                '\tjournal={' 
+                '\tjournal={'
                 + journal_name_abbrev_citation(current_issue.in_volume.in_journal.name)
                 + '},\n'
                 '\tvolume={' + str(current_issue.in_volume.number) + '},\n'
@@ -327,7 +327,7 @@ def mark_first_author(request, publication_id, contributor_id):
     publication.first_author = contributor
     publication.first_author_unregistered = None
     publication.save()
-    return redirect(reverse('scipost:publication_detail', 
+    return redirect(reverse('scipost:publication_detail',
                             kwargs={'doi_string': publication.doi_string,}))
 
 
@@ -339,7 +339,7 @@ def mark_first_author_unregistered(request, publication_id, unregistered_author_
     publication.first_author = None
     publication.first_author_unregistered = unregistered_author
     publication.save()
-    return redirect(reverse('scipost:publication_detail', 
+    return redirect(reverse('scipost:publication_detail',
                             kwargs={'doi_string': publication.doi_string,}))
 
 
@@ -347,8 +347,8 @@ def mark_first_author_unregistered(request, publication_id, unregistered_author_
 @transaction.atomic
 def add_author(request, publication_id, contributor_id=None, unregistered_author_id=None):
     """
-    If not all authors are registered Contributors or if they have not 
-    all claimed authorship, this method allows editorial administrators 
+    If not all authors are registered Contributors or if they have not
+    all claimed authorship, this method allows editorial administrators
     to associated them to the publication.
     This is important for the Crossref metadata, in which all authors must appear.
     """
@@ -357,7 +357,7 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
         contributor = get_object_or_404(Contributor, id=contributor_id)
         publication.authors.add(contributor)
         publication.save()
-        return redirect(reverse('scipost:publication_detail', 
+        return redirect(reverse('scipost:publication_detail',
                                 kwargs={'doi_string': publication.doi_string,}))
     if request.method == 'POST':
         form = UnregisteredAuthorForm(request.POST)
@@ -392,7 +392,7 @@ def add_unregistered_author(request, publication_id, unregistered_author_id):
     unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
     publication.unregistered_authors.add(unregistered_author)
     publication.save()
-    return redirect(reverse('scipost:publication_detail', 
+    return redirect(reverse('scipost:publication_detail',
                             kwargs={'doi_string': publication.doi_string,}))
 
 
@@ -408,7 +408,7 @@ def add_new_unreg_author(request, publication_id):
                 last_name = new_unreg_author_form.cleaned_data['last_name'],)
             new_unreg_author.save()
             publication.authors_unregistered.add(new_unreg_author)
-            return redirect(reverse('scipost:publication_detail', 
+            return redirect(reverse('scipost:publication_detail',
                                     kwargs={'doi_string': publication.doi_string,}))
     errormessage = 'Method add_new_unreg_author can only be called with POST.'
     return render(request, 'scipost/error.html', context={'errormessage': errormessage})
@@ -419,7 +419,7 @@ def add_new_unreg_author(request, publication_id):
 def create_citation_list_metadata(request, doi_string):
     """
     Called by an Editorial Administrator.
-    This populates the citation_list dictionary entry 
+    This populates the citation_list dictionary entry
     in the metadata field in a Publication instance.
     """
     publication = get_object_or_404(Publication, doi_string=doi_string)
@@ -429,7 +429,7 @@ def create_citation_list_metadata(request, doi_string):
             publication.metadata['citation_list'] = []
             entries_list = bibitems_form.cleaned_data['latex_bibitems'].split('\doi{')
             nentries = 1
-            for entry in entries_list[1:]: # drop first bit before first \doi{ 
+            for entry in entries_list[1:]: # drop first bit before first \doi{
                 publication.metadata['citation_list'].append(
                     {'key': 'ref' + str(nentries),
                      'doi': entry.partition('}')[0],}
@@ -450,7 +450,7 @@ def create_citation_list_metadata(request, doi_string):
 def create_funding_info_metadata(request, doi_string):
     """
     Called by an Editorial Administrator.
-    This populates the funding_info dictionary entry 
+    This populates the funding_info dictionary entry
     in the metadata field in a Publication instance.
     """
     publication = get_object_or_404(Publication, doi_string=doi_string)
@@ -477,7 +477,7 @@ def create_funding_info_metadata(request, doi_string):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
 def create_metadata_xml(request, doi_string):
-    """ 
+    """
     To be called by an EdAdmin after the citation_list,
     funding_info entries have been filled.
     Populates the metadata_xml field of a Publication instance.
@@ -490,7 +490,7 @@ def create_metadata_xml(request, doi_string):
         if create_metadata_xml_form.is_valid():
             publication.metadata_xml = create_metadata_xml_form.cleaned_data['metadata_xml']
             publication.save()
-            return redirect(reverse('scipost:publication_detail', 
+            return redirect(reverse('scipost:publication_detail',
                                     kwargs={'doi_string': publication.doi_string,}))
 
     # create a doi_batch_id
@@ -523,13 +523,13 @@ def create_metadata_xml(request, doi_string):
         '<journal>\n'
         '<journal_metadata>\n'
         '<full_title>' + publication.in_issue.in_volume.in_journal.name + '</full_title>\n'
-        '<abbrev_title>' 
+        '<abbrev_title>'
         + journal_name_abbrev_citation(publication.in_issue.in_volume.in_journal.name) +
         '</abbrev_title>\n'
         '<issn>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
         '<doi_data>\n'
         '<doi>' + publication.in_issue.in_volume.in_journal.doi_string + '</doi>\n'
-        '<resource>https://scipost.org/' 
+        '<resource>https://scipost.org/'
         + publication.in_issue.in_volume.in_journal.doi_string + '</resource>\n'
         '</doi_data>\n'
         '</journal_metadata>\n'
@@ -545,7 +545,7 @@ def create_metadata_xml(request, doi_string):
         '<journal_article publication_type=\'full_text\'>\n'
         '<titles><title>' + publication.title + '</title></titles>\n'
         '<contributors>\n'
-    )        
+    )
     # Precondition: all authors MUST be listed in authors field of publication instance,
     # this to be checked by EdAdmin before publishing.
     for author in publication.authors.all():
@@ -595,14 +595,14 @@ def create_metadata_xml(request, doi_string):
         '<year>' + publication.publication_date.strftime('%Y') + '</year>'
         '</publication_date>\n'
         '<publisher_item><item_number item_number_type="article_number">'
-        + paper_nr_string(publication.paper_nr) + 
+        + paper_nr_string(publication.paper_nr) +
         '</item_number></publisher_item>\n'
         '<doi_data>\n'
         '<doi>' + publication.doi_string + '</doi>\n'
         '<resource>https://scipost.org/' + publication.doi_string + '</resource>\n'
         '<collection property="crawler-based">\n'
         '<item crawler="iParadigms">\n'
-        '<resource>https://scipost.org/' 
+        '<resource>https://scipost.org/'
         + publication.doi_string + '/pdf</resource>\n'
         '</item></collection>\n'
         '</doi_data>\n'
@@ -656,8 +656,8 @@ def create_metadata_xml(request, doi_string):
 #           }
 #     #files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data', {'Expires': '0'})}
 #     files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data')}
-#     r = requests.post(url, 
-#                       params=params, 
+#     r = requests.post(url,
+#                       params=params,
 #                       files=files,
 #                       #verify=settings.CERTFILE,
 #                       #verify=False,
@@ -696,8 +696,8 @@ def metadata_xml_deposit(request, doi_string, option='test'):
               'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
           }
     files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data')}
-    r = requests.post(url, 
-                      params=params, 
+    r = requests.post(url,
+                      params=params,
                       files=files,
     )
     response_headers = r.headers
@@ -744,7 +744,7 @@ def harvest_citedby_links(request, doi_string):
               'doi': publication.doi_string,}
     r = requests.post(url, params=params,)
     response_headers = r.headers
-    #response_text = bytes(r.text, 'latin1').decode('unicode_escape')
+    #response_text = bytes(r.text, 'utf-8').decode('unicode_escape')
     response_text = r.text
     response_deserialized = ET.fromstring(r.text)
     prefix = '{http://www.crossref.org/qrschema/2.0}'
@@ -807,7 +807,7 @@ def publication_pdf(request, doi_string):
     publication = get_object_or_404 (Publication, doi_string=doi_string)
     pdf = File(publication.pdf_file)
     response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = ('filename=' 
+    response['Content-Disposition'] = ('filename='
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response
 
@@ -822,8 +822,6 @@ def publication_pdf_from_doi_label(request, doi_label):
     publication = get_object_or_404 (Publication, doi_label=doi_label)
     pdf = File(publication.pdf_file)
     response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = ('filename=' 
+    response['Content-Disposition'] = ('filename='
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response
-
-

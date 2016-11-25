@@ -16,8 +16,8 @@ COMMENTARY_TYPES = (
     )
 
 class Commentary(models.Model):
-    """ 
-    A Commentary contains all the contents of a SciPost Commentary page for a given publication. 
+    """
+    A Commentary contains all the contents of a SciPost Commentary page for a given publication.
     """
     requested_by = models.ForeignKey (Contributor, blank=True, null=True, related_name='requested_by')
     vetted = models.BooleanField(default=False)
@@ -29,25 +29,25 @@ class Commentary(models.Model):
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, default='Phys:QP')
     open_for_commenting = models.BooleanField(default=True)
     pub_title = models.CharField(max_length=300, verbose_name='title')
-    arxiv_identifier = models.CharField(max_length=100, 
-                                        verbose_name="arXiv identifier (including version nr)", 
+    arxiv_identifier = models.CharField(max_length=100,
+                                        verbose_name="arXiv identifier (including version nr)",
                                         blank=True, null=True)
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)
-    pub_DOI = models.CharField(max_length=200, verbose_name='DOI of the original publication', 
+    pub_DOI = models.CharField(max_length=200, verbose_name='DOI of the original publication',
                                blank=True, null=True)
     pub_DOI_link = models.URLField(verbose_name='DOI link to the original publication', blank=True)
     metadata = JSONField(default={}, blank=True, null=True)
     arxiv_or_DOI_string = models.CharField(
-        max_length=100, 
-        verbose_name='string form of arxiv nr or DOI for commentary url', 
+        max_length=100,
+        verbose_name='string form of arxiv nr or DOI for commentary url',
         default='')
     author_list = models.CharField(max_length=1000)
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField (Contributor, blank=True, 
+    authors = models.ManyToManyField (Contributor, blank=True,
                                       related_name='authors_com')
-    authors_claims = models.ManyToManyField (Contributor, blank=True, 
+    authors_claims = models.ManyToManyField (Contributor, blank=True,
                                              related_name='authors_com_claims')
-    authors_false_claims = models.ManyToManyField (Contributor, blank=True, 
+    authors_false_claims = models.ManyToManyField (Contributor, blank=True,
                                                    related_name='authors_com_false_claims')
     journal = models.CharField(max_length=300, blank=True, null=True)
     volume = models.CharField(max_length=50, blank=True, null=True)
@@ -73,7 +73,7 @@ class Commentary(models.Model):
         if self.authors.all():
             header += '<td>'
             for auth in self.authors.all():
-                header += ('<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name 
+                header += ('<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name
                            + ' ' + auth.user.last_name + '</a>,&nbsp;')
             header += '</td>'
         else:
@@ -92,7 +92,7 @@ class Commentary(models.Model):
         header += '</table>'
         template = Template(header)
         context = Context({
-                'pub_title': self.pub_title, 'author_list': self.author_list, 
+                'pub_title': self.pub_title, 'author_list': self.author_list,
                 })
         if self.type == 'published':
             context['journal'] = self.journal
@@ -108,7 +108,7 @@ class Commentary(models.Model):
     def header_as_li (self):
         # for display in search lists
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
-                           'author_list': self.author_list, 
+                           'author_list': self.author_list,
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
         header = ('<li>'
                   #'<div class="flex-container">'
@@ -170,7 +170,7 @@ class Commentary(models.Model):
         elif self.arxiv_identifier:
 #            self.arxiv_or_DOI_string = str(self.arxiv_link)
 #            # Format required: either identifier arXiv:1234.56789v10 or old-style arXiv:cond-mat/9712001v1
-#            # strip: 
+#            # strip:
 #            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('http://', '')
 #            # Old style: from arxiv.org/abs/1234.5678 into arXiv:1234.5678 (new identifier style)
 #            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('arxiv.org/', '')
@@ -179,15 +179,15 @@ class Commentary(models.Model):
 #            # make sure arXiv prefix is there:
 #            self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_or_DOI_string
             self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_identifier
-            self.arxiv_link = 'http://arxiv.org/abs/' + self.arxiv_identifier 
-        else: # should never come here 
+            self.arxiv_link = 'http://arxiv.org/abs/' + self.arxiv_identifier
+        else: # should never come here
             pass
         self.save()
 
     def scipost_url (self):
         """ Returns the url of the SciPost Commentary Page """
-        return '/commentary/' + self.arxiv_or_DOI_string 
+        return '/commentary/' + self.arxiv_or_DOI_string
 
     def scipost_url_full (self):
         """ Returns the url of the SciPost Commentary Page """
-        return 'https://scipost.org/commentary/' + self.arxiv_or_DOI_string 
+        return 'https://scipost.org/commentary/' + self.arxiv_or_DOI_string

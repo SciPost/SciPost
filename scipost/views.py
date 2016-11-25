@@ -7,7 +7,7 @@ import string
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required 
+from django.contrib.auth.decorators import login_required
 #from django.contrib.auth.decorators import permission_required   # Superseded by guardian
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
@@ -98,11 +98,11 @@ def documentsSearchResults(query):
     """
     publication_query = get_query(query,
                                   ['title', 'author_list', 'abstract', 'doi_string'])
-    commentary_query = get_query(query, 
+    commentary_query = get_query(query,
                                  ['pub_title', 'author_list', 'pub_abstract'])
-    submission_query = get_query(query, 
+    submission_query = get_query(query,
                                  ['title', 'author_list', 'abstract'])
-    thesislink_query = get_query(query, 
+    thesislink_query = get_query(query,
                                  ['title', 'author', 'abstract', 'supervisor'])
     comment_query = get_query(query,
                               ['comment_text'])
@@ -148,7 +148,7 @@ def search(request):
         else:
             context = {}
     elif 'query' in request.session:
-            context = documentsSearchResults(request.session['query'])        
+            context = documentsSearchResults(request.session['query'])
     else:
         context = {}
 
@@ -199,8 +199,8 @@ def index(request):
     commentary_search_form = CommentarySearchForm(request.POST)
     thesislink_search_form = ThesisLinkSearchForm(request.POST)
     context = {'latest_newsitems': latest_newsitems,
-               'submission_search_form': submission_search_form, 
-               'commentary_search_form': commentary_search_form, 
+               'submission_search_form': submission_search_form,
+               'commentary_search_form': commentary_search_form,
                'thesislink_search_form': thesislink_search_form,
                }
     return render(request, 'scipost/index.html', context)
@@ -230,13 +230,13 @@ def register(request):
         Utils.load({'form': form})
         if form.is_valid():
             if Utils.password_mismatch():
-                return render(request, 'scipost/register.html', 
+                return render(request, 'scipost/register.html',
                               {'form': form, 'errormessage': 'Your passwords must match'})
             if Utils.username_already_taken():
-                return render(request, 'scipost/register.html', 
+                return render(request, 'scipost/register.html',
                               {'form': form, 'errormessage': 'This username is already in use'})
             if Utils.email_already_taken():
-                return render(request, 'scipost/register.html', 
+                return render(request, 'scipost/register.html',
                               {'form': form, 'errormessage': 'This email address is already in use'})
             Utils.create_and_save_contributor('')
             Utils.send_registration_email()
@@ -282,15 +282,15 @@ def invitation(request, key):
         if form.is_valid():
             if Utils.password_mismatch():
                 return render(request, 'scipost/register.html',
-                                {'form': form, 'invited': True, 'key': key, 
+                                {'form': form, 'invited': True, 'key': key,
                                  'errormessage': 'Your passwords must match'})
             if Utils.username_already_taken():
                 return render(request, 'scipost/register.html',
-                              {'form': form, 'invited': True, 'key': key, 
+                              {'form': form, 'invited': True, 'key': key,
                                'errormessage': 'This username is already in use'})
             if Utils.email_already_taken():
                 return render(request, 'scipost/register.html',
-                              {'form': form, 'invited': True, 'key': key, 
+                              {'form': form, 'invited': True, 'key': key,
                                'errormessage': 'This email address is already in use'})
             invitation.responded = True
             invitation.save()
@@ -307,7 +307,7 @@ def invitation(request, key):
         else:
             errormessage = 'form is invalidly filled'
             return render(request, 'scipost/register.html',
-                          {'form': form, 'invited': True, 'key': key, 
+                          {'form': form, 'invited': True, 'key': key,
                            'errormessage': errormessage})
     else:
         form = RegistrationForm()
@@ -316,11 +316,11 @@ def invitation(request, key):
         form.fields['first_name'].initial = invitation.first_name
         form.fields['email'].initial = invitation.email
         errormessage = ''
-        welcome_message = ('Welcome, ' + title_dict[invitation.title] + ' ' 
+        welcome_message = ('Welcome, ' + title_dict[invitation.title] + ' '
                            + invitation.last_name + ', and thanks in advance for '
                            'registering (by completing this form)')
         return render(request, 'scipost/register.html',
-                        {'form': form, 'invited': True, 'key': key, 
+                        {'form': form, 'invited': True, 'key': key,
                          'errormessage': errormessage, 'welcome_message': welcome_message})
 
     context = {'errormessage': errormessage}
@@ -329,7 +329,7 @@ def invitation(request, key):
 
 
 def activation(request, key):
-    """ 
+    """
     After registration, an email verification link is sent.
     Once clicked, the account is activated.
     """
@@ -339,7 +339,7 @@ def activation(request, key):
             id_user = contributor.user.id
             context = {'oldkey': key}
             return render(request, 'scipost/request_new_activation_link.html', context)
-        else: 
+        else:
             contributor.user.is_active = True
             contributor.user.save()
             #return render(request, 'scipost/activation_ack.html')
@@ -366,16 +366,16 @@ def request_new_activation_link(request, oldkey):
     contributor.key_expires = datetime.datetime.strftime(
         datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
     contributor.save()
-    email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name + 
+    email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name +
                   ', \n\nYour request for a new email activation link for registration to the SciPost '
                   'publication portal has been received. You now need to visit this link within '
                   'the next 48 hours: \n\n'
-                  'https://scipost.org/activation/' + contributor.activation_key + 
+                  'https://scipost.org/activation/' + contributor.activation_key +
                   '\n\nYour registration will thereafter be vetted. Many thanks for your interest.'
                   '\n\nThe SciPost Team.')
-    emailmessage = EmailMessage('SciPost registration: new email activation link', 
-                                email_text, 'SciPost registration <registration@scipost.org>', 
-                                [contributor.user.email, 'registration@scipost.org'], 
+    emailmessage = EmailMessage('SciPost registration: new email activation link',
+                                email_text, 'SciPost registration <registration@scipost.org>',
+                                [contributor.user.email, 'registration@scipost.org'],
                                 reply_to=['registration@scipost.org'])
     emailmessage.send(fail_silently=False)
     #return render (request, 'scipost/request_new_activation_link_ack.html')
@@ -420,8 +420,8 @@ def vet_registration_request_ack(request, contributor_id):
                 except RefereeInvitation.DoesNotExist:
                     pending_ref_inv_exists = False
 
-                email_text = ('Dear ' + title_dict[contributor.title] + ' ' 
-                              + contributor.user.last_name + 
+                email_text = ('Dear ' + title_dict[contributor.title] + ' '
+                              + contributor.user.last_name +
                               ', \n\nYour registration to the SciPost publication portal '
                               'has been accepted. '
                               'You can now login at https://scipost.org and contribute. \n\n')
@@ -431,27 +431,27 @@ def vet_registration_request_ack(request, contributor_id):
                                    '(login required) to accept or decline them.\n\n')
                 email_text += 'Thank you very much in advance, \nThe SciPost Team.'
                 emailmessage = EmailMessage('SciPost registration accepted', email_text,
-                                            'SciPost registration <registration@scipost.org>', 
-                                            [contributor.user.email], 
-                                            bcc=['registration@scipost.org'], 
+                                            'SciPost registration <registration@scipost.org>',
+                                            [contributor.user.email],
+                                            bcc=['registration@scipost.org'],
                                             reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
             else:
                 ref_reason = int(form.cleaned_data['refusal_reason'])
-                email_text = ('Dear ' + title_dict[contributor.title] + ' ' 
-                              + contributor.user.last_name + 
+                email_text = ('Dear ' + title_dict[contributor.title] + ' '
+                              + contributor.user.last_name +
                               ', \n\nYour registration to the SciPost publication portal '
-                              'has been turned down, the reason being: ' 
+                              'has been turned down, the reason being: '
                               + reg_ref_dict[ref_reason] + '. You can however still view '
                               'all SciPost contents, just not submit papers, '
                               'comments or votes. We nonetheless thank you for your interest.'
                               '\n\nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
-                emailmessage = EmailMessage('SciPost registration: unsuccessful', 
-                                            email_text, 'SciPost registration <registration@scipost.org>', 
-                                            [contributor.user.email], 
-                                            bcc=['registration@scipost.org'], 
+                emailmessage = EmailMessage('SciPost registration: unsuccessful',
+                                            email_text, 'SciPost registration <registration@scipost.org>',
+                                            [contributor.user.email],
+                                            bcc=['registration@scipost.org'],
                                             reply_to=['registration@scipost.org'])
                 emailmessage.send(fail_silently=False)
                 contributor.status = form.cleaned_data['refusal_reason']
@@ -480,7 +480,7 @@ def registration_invitations(request):
                 errormessage = 'DUPLICATE ERROR: This email address has already been used for an invitation'
             elif Utils.email_already_taken():
                 errormessage = 'DUPLICATE ERROR: This email address is already associated to a Contributor'
-            elif (reg_inv_form.cleaned_data['invitation_type'] == 'F' 
+            elif (reg_inv_form.cleaned_data['invitation_type'] == 'F'
                   and not request.user.has_perm('scipost.can_invite_Fellows')):
                 errormessage = ('You do not have the authorization to send a Fellow-type '
                                 'invitation. Consider Contributor, or cited (sub/pub). ')
@@ -493,7 +493,7 @@ def registration_invitations(request):
                 return HttpResponseRedirect('registration_invitation_sent')
         else:
             errormessage = 'The form was not filled validly.'
-            
+
     else:
         reg_inv_form = RegistrationInvitationForm()
 
@@ -528,9 +528,9 @@ def registration_invitations(request):
         'user__first_name', 'user__last_name')
 
     context = {'reg_inv_form': reg_inv_form, 'errormessage': errormessage,
-               'sent_reg_inv_fellows': sent_reg_inv_fellows, 
+               'sent_reg_inv_fellows': sent_reg_inv_fellows,
                'nr_sent_reg_inv_fellows': nr_sent_reg_inv_fellows,
-               'sent_reg_inv_contrib': sent_reg_inv_contrib, 
+               'sent_reg_inv_contrib': sent_reg_inv_contrib,
                'nr_sent_reg_inv_contrib': nr_sent_reg_inv_contrib,
                'sent_reg_inv_ref': sent_reg_inv_ref,
                'nr_sent_reg_inv_ref': nr_sent_reg_inv_ref,
@@ -538,16 +538,16 @@ def registration_invitations(request):
                'nr_sent_reg_inv_cited_sub': nr_sent_reg_inv_cited_sub,
                'sent_reg_inv_cited_pub': sent_reg_inv_cited_pub,
                'nr_sent_reg_inv_cited_pub': nr_sent_reg_inv_cited_pub,
-               'resp_reg_inv_fellows': resp_reg_inv_fellows, 
+               'resp_reg_inv_fellows': resp_reg_inv_fellows,
                'nr_resp_reg_inv_fellows': nr_resp_reg_inv_fellows,
-               'resp_reg_inv_contrib': resp_reg_inv_contrib, 
+               'resp_reg_inv_contrib': resp_reg_inv_contrib,
                'nr_resp_reg_inv_contrib': nr_resp_reg_inv_contrib,
                'resp_reg_inv_ref': resp_reg_inv_ref,
                'nr_resp_reg_inv_ref': nr_resp_reg_inv_ref,
                'resp_reg_inv_cited_sub': resp_reg_inv_cited_sub,
                'nr_resp_reg_inv_cited_sub': nr_resp_reg_inv_cited_sub,
                'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
-               'nr_resp_reg_inv_cited_pub': nr_resp_reg_inv_cited_pub, 
+               'nr_resp_reg_inv_cited_pub': nr_resp_reg_inv_cited_pub,
                'decl_reg_inv': decl_reg_inv,
                'names_reg_contributors': names_reg_contributors,
     }
@@ -569,7 +569,7 @@ def registration_invitations_cleanup(request):
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def remove_registration_invitation(request, invitation_id):
-    """ 
+    """
     Remove an invitation (called from registration_invitations_cleanup).
     """
     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
@@ -599,12 +599,12 @@ def edit_invitation_personal_message(request, invitation_id):
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def renew_registration_invitation(request, invitation_id):
-    """ 
+    """
     Renew an invitation (called from registration_invitations).
     """
     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
     errormessage = None
-    if (invitation.invitation_type == 'F' 
+    if (invitation.invitation_type == 'F'
         and not request.user.has_perm('scipost.can_invite_Fellows')):
         errormessage = ('You do not have the authorization to send a Fellow-type '
                         'invitation. Consider Contributor, or cited (sub/pub). ')
@@ -613,15 +613,15 @@ def renew_registration_invitation(request, invitation_id):
                         'at the relevant Submission\'s Editorial Page. ')
     if errormessage is not None:
         return render(request, 'scipost/error.html', context={'errormessage': errormessage})
-        
+
     Utils.load({'invitation': invitation})
     Utils.send_registration_invitation_email(True)
     return redirect(reverse('scipost:registration_invitations'))
-    
+
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def mark_reg_inv_as_declined(request, invitation_id):
-    """ 
+    """
     Mark an invitation as declined (called from registration_invitations.html).
     """
     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
@@ -632,10 +632,10 @@ def mark_reg_inv_as_declined(request, invitation_id):
 
 
 def login_view(request):
-    redirect_to = request.POST.get('next', 
+    redirect_to = request.POST.get('next',
                                    request.GET.get('next', reverse('scipost:personal_page')))
-    redirect_to = (redirect_to 
-                   if is_safe_url(redirect_to, request.get_host()) 
+    redirect_to = (redirect_to
+                   if is_safe_url(redirect_to, request.get_host())
                    else reverse('scipost:personal_page'))
     if request.method == 'POST':
         username = request.POST['username']
@@ -706,7 +706,7 @@ def personal_page(request):
             # count the number of pending registration requests
             nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, status=0).count()
             nr_reg_awaiting_validation = Contributor.objects.filter(
-                user__is_active=False, key_expires__gte=now, 
+                user__is_active=False, key_expires__gte=now,
                 key_expires__lte=intwodays, status=0).count()
             nr_submissions_to_assign = Submission.objects.filter(status__in=['unassigned']).count()
             nr_recommendations_to_prepare_for_voting = EICRecommendation.objects.filter(
@@ -735,7 +735,7 @@ def personal_page(request):
             referee=contributor, accepted=None, cancelled=False).count()
         pending_ref_tasks = RefereeInvitation.objects.filter(
             referee=contributor, accepted=True, fulfilled=False)
-        # Verify if there exist objects authored by this contributor, 
+        # Verify if there exist objects authored by this contributor,
         # whose authorship hasn't been claimed yet
         own_submissions = (Submission.objects
                            .filter(authors__in=[contributor], is_current=True)
@@ -773,21 +773,21 @@ def personal_page(request):
         teams_led = Team.objects.filter(leader=contributor)
         teams = Team.objects.filter(members__in=[contributor])
         graphs_owned = Graph.objects.filter(owner=contributor)
-        graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor) 
+        graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor)
                                               | Q(teams_with_access__members__in=[contributor]))
         appellation = title_dict[contributor.title] + ' ' + contributor.user.last_name
-        context = {'contributor': contributor, 
+        context = {'contributor': contributor,
                    'appellation': appellation,
                    'unavailabilities': unavailabilities,
                    'unavailability_form': unavailability_form,
-                   'nr_reg_to_vet': nr_reg_to_vet, 
-                   'nr_reg_awaiting_validation': nr_reg_awaiting_validation, 
-                   'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet, 
-                   'nr_comments_to_vet': nr_comments_to_vet, 
-                   'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet, 
+                   'nr_reg_to_vet': nr_reg_to_vet,
+                   'nr_reg_awaiting_validation': nr_reg_awaiting_validation,
+                   'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet,
+                   'nr_comments_to_vet': nr_comments_to_vet,
+                   'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet,
                    'nr_authorship_claims_to_vet': nr_authorship_claims_to_vet,
-                   'nr_reports_to_vet': nr_reports_to_vet, 
-                   'nr_submissions_to_assign': nr_submissions_to_assign, 
+                   'nr_reports_to_vet': nr_reports_to_vet,
+                   'nr_submissions_to_assign': nr_submissions_to_assign,
                    'nr_recommendations_to_prepare_for_voting': nr_recommendations_to_prepare_for_voting,
                    'nr_assignments_to_consider': nr_assignments_to_consider,
                    'active_assignments': active_assignments,
@@ -796,7 +796,7 @@ def personal_page(request):
                    'nr_thesis_authorships_to_claim': nr_thesis_authorships_to_claim,
                    'nr_ref_inv_to_consider': nr_ref_inv_to_consider,
                    'pending_ref_tasks': pending_ref_tasks,
-                   'own_submissions': own_submissions, 
+                   'own_submissions': own_submissions,
                    'own_commentaries': own_commentaries,
                    'own_thesislinks': own_thesislinks,
                    'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
@@ -820,11 +820,11 @@ def change_password(request):
         form = PasswordChangeForm(request.POST)
         if form.is_valid():
             if not request.user.check_password(form.cleaned_data['password_prev']):
-                return render(request, 'scipost/change_password.html', 
-                              {'form': form, 
+                return render(request, 'scipost/change_password.html',
+                              {'form': form,
                                'errormessage': 'The currently existing password you entered is incorrect'})
             if form.cleaned_data['password_new'] != form.cleaned_data['password_verif']:
-                return render(request, 'scipost/change_password.html', 
+                return render(request, 'scipost/change_password.html',
                               {'form': form, 'errormessage': 'Your new password entries must match'})
             request.user.set_password(form.cleaned_data['password_new'])
             request.user.save()
@@ -877,7 +877,7 @@ def update_personal_data(request):
     else:
         user_form = UpdateUserDataForm(instance=contributor.user)
         cont_form = UpdatePersonalDataForm(instance=contributor)
-    return render(request, 'scipost/update_personal_data.html', 
+    return render(request, 'scipost/update_personal_data.html',
                   {'user_form': user_form, 'cont_form': cont_form})
 
 
@@ -885,12 +885,12 @@ def update_personal_data(request):
 def claim_authorships(request):
     """
     The system auto-detects potential authorships (of submissions,
-    papers subject to commentaries, theses, ...). 
-    The contributor must confirm/deny authorship from the 
+    papers subject to commentaries, theses, ...).
+    The contributor must confirm/deny authorship from the
     Personal Page.
     """
     contributor = Contributor.objects.get(user=request.user)
-    
+
     submission_authorships_to_claim = (Submission.objects
                                        .filter(author_list__contains=contributor.user.last_name)
                                        .exclude(authors__in=[contributor])
@@ -909,7 +909,7 @@ def claim_authorships(request):
                                    .exclude(author_claims__in=[contributor])
                                    .exclude(author_false_claims__in=[contributor]))
     thesis_auth_claim_form = AuthorshipClaimForm()
-    
+
     context = {'submission_authorships_to_claim': submission_authorships_to_claim,
                'sub_auth_claim_form': sub_auth_claim_form,
                'commentary_authorships_to_claim': commentary_authorships_to_claim,
@@ -1026,12 +1026,12 @@ def contributor_info(request, contributor_id):
     contributor_authorreplies = (Comment.objects
                                  .filter(author=contributor, is_author_reply=True, status__gte=1)
                                  .order_by('-date_submitted'))
-    context = {'contributor': contributor, 
+    context = {'contributor': contributor,
                'contributor_publications': contributor_publications,
                'contributor_submissions': contributor_submissions,
                'contributor_commentaries': contributor_commentaries,
                'contributor_theses': contributor_theses,
-               'contributor_comments': contributor_comments, 
+               'contributor_comments': contributor_comments,
                'contributor_authorreplies': contributor_authorreplies}
     return render(request, 'scipost/contributor_info.html', context)
 
@@ -1044,7 +1044,7 @@ def contributor_info(request, contributor_id):
 @permission_required('scipost.can_email_group_members', return_403=True)
 def email_group_members(request):
     """
-    Method to send bulk emails to (members of) selected groups 
+    Method to send bulk emails to (members of) selected groups
     """
     if request.method == 'POST':
         form = EmailGroupMembersForm(request.POST)
@@ -1062,7 +1062,7 @@ def email_group_members(request):
             # emailmessage.send(fail_silently=False)
             # with mail.get_connection() as connection:
             #     for member in form.cleaned_data['group'].user_set.all():
-            #         email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
+            #         email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' +
             #                       member.last_name + ', \n\n'
             #                       + form.cleaned_data['email_text'])
             #         mail.EmailMessage(form.cleaned_data['email_subject'],
@@ -1078,7 +1078,7 @@ def email_group_members(request):
                             email_text = ''
                             email_text_html = ''
                             if form.cleaned_data['personalize']:
-                                email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' + 
+                                email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' +
                                               member.last_name + ', \n\n')
                                 email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
                             email_text += form.cleaned_data['email_text']
@@ -1135,13 +1135,13 @@ def email_particular(request):
                 email_text += SCIPOST_SUMMARY_FOOTER
                 email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
 
-            email_text_html += '<br/>' + EMAIL_FOOTER                
+            email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
             message = EmailMultiAlternatives(
                 form.cleaned_data['email_subject'],
                 email_text, 'SciPost Admin <admin@scipost.org>',
-                [form.cleaned_data['email_address']], 
+                [form.cleaned_data['email_address']],
                 bcc=['admin@scipost.org'])
             message.attach_alternative(html_version, 'text/html')
             message.send()
@@ -1166,7 +1166,7 @@ def send_precooked_email(request):
             precookedEmail = form.cleaned_data['email_option']
             if form.cleaned_data['email_address'] in precookedEmail.emailed_to:
                 errormessage = 'This message has already been sent to this address'
-                return render(request, 'scipost/error.html', 
+                return render(request, 'scipost/error.html',
                               context={'errormessage': errormessage})
             precookedEmail.emailed_to.append(form.cleaned_data['email_address'])
             precookedEmail.date_last_used = timezone.now().date()
@@ -1178,15 +1178,15 @@ def send_precooked_email(request):
                 email_text += SCIPOST_SUMMARY_FOOTER
                 email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
 
-            email_text_html += '<br/>' + EMAIL_FOOTER                
+            email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
             message = EmailMultiAlternatives(
                 precookedEmail.email_subject,
                 #email_text, 'SciPost Admin <admin@scipost.org>',
-                email_text, 
+                email_text,
                 SciPost_from_addresses_dict[form.cleaned_data['from_address']],
-                [form.cleaned_data['email_address']], 
+                [form.cleaned_data['email_address']],
                 bcc=['admin@scipost.org'])
             message.attach_alternative(html_version, 'text/html')
             message.send()
@@ -1247,7 +1247,7 @@ def create_list(request):
             message = 'List ' + create_list_form.cleaned_data['title'] + ' was successfully created.'
     else:
         create_list_form = CreateListForm()
-    context = {'create_list_form': create_list_form, 'listcreated': listcreated, 
+    context = {'create_list_form': create_list_form, 'listcreated': listcreated,
                'message': message}
     return render(request, 'scipost/create_list.html', context)
 
@@ -1322,7 +1322,7 @@ def create_team(request):
     else:
         create_team_form = CreateTeamForm()
     add_team_member_form = AddTeamMemberForm()
-    context = {'create_team_form': create_team_form, 
+    context = {'create_team_form': create_team_form,
                'add_team_member_form': add_team_member_form}
     return render(request, 'scipost/create_team.html', context)
 
@@ -1383,8 +1383,8 @@ def graph(request, graph_id):
     nodes = Node.objects.filter(graph=graph)
     arcs = Arc.objects.filter(graph=graph)
     if request.method == "POST":
-        attach_teams_form = ManageTeamsForm(request.POST, 
-                                            contributor=request.user.contributor, 
+        attach_teams_form = ManageTeamsForm(request.POST,
+                                            contributor=request.user.contributor,
                                             initial={'teams_with_access': graph.teams_with_access.all()}
                                             )
         create_node_form = CreateNodeForm(request.POST)
@@ -1393,7 +1393,7 @@ def graph(request, graph_id):
             graph.teams_with_access = attach_teams_form.cleaned_data['teams_with_access']
             graph.save()
         elif create_node_form.has_changed() and create_node_form.is_valid():
-            newnode = Node(graph=graph, 
+            newnode = Node(graph=graph,
                            added_by=request.user.contributor,
                            created=timezone.now(),
                            name=create_node_form.cleaned_data['name'],
@@ -1410,14 +1410,14 @@ def graph(request, graph_id):
                              target=targetnode,
                              length=create_arc_form.cleaned_data['length']
                              )
-                newarc.save()            
+                newarc.save()
     else:
-        attach_teams_form = ManageTeamsForm(contributor=request.user.contributor, 
+        attach_teams_form = ManageTeamsForm(contributor=request.user.contributor,
                                             initial={'teams_with_access': graph.teams_with_access.all()}
                                             )
         create_node_form = CreateNodeForm()
         create_arc_form = CreateArcForm(graph=graph)
-    context = {'graph': graph, 'nodes': nodes, 
+    context = {'graph': graph, 'nodes': nodes,
                'attach_teams_form': attach_teams_form,
                'create_node_form': create_node_form,
                'create_arc_form': create_arc_form}
@@ -1453,7 +1453,7 @@ def delete_graph_node(request, node_id):
     if not request.user.has_perm('scipost.change_graph', node.graph):
         raise PermissionDenied
     else:
-        # Remove all the graph arcs 
+        # Remove all the graph arcs
         Arc.objects.filter(source=node).delete()
         Arc.objects.filter(target=node).delete()
         # Delete node itself
@@ -1472,7 +1472,7 @@ def api_graph(request, graph_id):
     for node in nodes:
         nodesjson.append({'name': node.name, 'id': node.id})
 #        for origin in node.arcs_in.all():
-#            links.append({'source': origin.name, 'source_id': origin.id, 
+#            links.append({'source': origin.name, 'source_id': origin.id,
 #                          'target': node.name, 'target_id': node.id})
     for arc in arcs:
         arcsjson.append({'id': arc.id,

@@ -31,10 +31,10 @@ class SubmissionUtils(object):
         for atd in assignments_to_deprecate:
             atd.deprecated = True
             atd.save()
-            
+
     @classmethod
     def deprecate_all_assignments(cls):
-        """ 
+        """
         Called when the pre-screening has failed.
         Requires loading 'submission' attribute.
         """
@@ -87,7 +87,7 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-        
+
 
     @classmethod
     def send_authors_resubmission_ack_email(cls):
@@ -137,7 +137,7 @@ class SubmissionUtils(object):
                       cls.assignment.to.user.last_name +
                       ', \n\nWe have received a Submission to SciPost ' +
                       'for which we would like you to consider becoming Editor-in-charge:\n\n' +
-                      cls.assignment.submission.title + ' by ' 
+                      cls.assignment.submission.title + ' by '
                       + cls.assignment.submission.author_list + '.' +
                       '\n\nPlease visit https://scipost.org/submissions/pool ' +
                       'in order to accept or decline (it is important for you to inform us '
@@ -178,24 +178,24 @@ class SubmissionUtils(object):
         emailmessage = EmailMultiAlternatives(
             'SciPost: potential Submission assignment', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.assignment.to.user.email], 
+            [cls.assignment.to.user.email],
             bcc=['submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-        
-        
+
+
     @classmethod
     def send_EIC_appointment_email(cls):
         """ Requires loading 'assignment' attribute. """
         email_text = ('Dear ' + title_dict[cls.assignment.to.title] + ' '
                       + cls.assignment.to.user.last_name
                       + ', \n\nThank you for accepting to become Editor-in-charge '
-                      'of the SciPost Submission\n\n' 
-                      + cls.assignment.submission.title + ' by ' 
+                      'of the SciPost Submission\n\n'
+                      + cls.assignment.submission.title + ' by '
                       + cls.assignment.submission.author_list + '.'
                       '\n\nYou can take your editorial actions from the editorial page '
-                      'https://scipost.org/submission/editorial_page/' 
+                      'https://scipost.org/submission/editorial_page/'
                       + cls.assignment.submission.arxiv_identifier_w_vn_nr
                       + ' (also accessible from your personal page '
                       'https://scipost.org/personal_page under the Editorial Actions tab). '
@@ -208,7 +208,7 @@ class SubmissionUtils(object):
         email_text_html = (
             'Dear {{ title }} {{ last_name }},<br/>'
             '<p>Thank you for accepting to become Editor-in-charge '
-            'of the SciPost Submission</p>' 
+            'of the SciPost Submission</p>'
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}.</p>'
             '\n<p>You can take your editorial actions from the '
@@ -249,13 +249,13 @@ class SubmissionUtils(object):
         """ Requires loading 'submission' attribute. """
         email_text = ('Dear ' + title_dict[cls.submission.editor_in_charge.title] + ' '
                       + cls.submission.editor_in_charge.user.last_name
-                      + ', \n\nThe authors of the SciPost Submission\n\n' 
-                      + cls.submission.title + ' by ' 
+                      + ', \n\nThe authors of the SciPost Submission\n\n'
+                      + cls.submission.title + ' by '
                       + cls.submission.author_list +
                       '\n\nhave resubmitted their manuscript. '
                       '\n\nAs Editor-in-charge, you can take your editorial actions '
                       'from the editorial page '
-                      'https://scipost.org/submission/editorial_page/' 
+                      'https://scipost.org/submission/editorial_page/'
                       + cls.submission.arxiv_identifier_w_vn_nr
                       + ' (also accessible from your personal page '
                       'https://scipost.org/personal_page under the Editorial Actions tab). '
@@ -269,12 +269,12 @@ class SubmissionUtils(object):
                       '\n\nThe SciPost Team.')
         email_text_html = (
             'Dear {{ title }} {{ last_name }},'
-            '<p>The authors of the SciPost Submission</p>' 
+            '<p>The authors of the SciPost Submission</p>'
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}</p>'
             '\n<p>have resubmitted their manuscript.</p>'
             '\n<p>As Editor-in-charge, you can take your editorial actions '
-            'from the submission\'s <a href="https://scipost.org/submission/editorial_page/' 
+            'from the submission\'s <a href="https://scipost.org/submission/editorial_page/'
             '{{ arxiv_identifier_w_vn_nr }}">editorial page</a>'
             ' (also accessible from your '
             '<a href="https://scipost.org/personal_page">personal page</a> '
@@ -316,10 +316,10 @@ class SubmissionUtils(object):
                       + cls.assignment.submission.title + ' by ' + cls.assignment.submission.author_list
                       + '\n\nhas successfully passed the pre-screening stage. '
                       '\n\nA Submission Page has been activated at '
-                      'https://scipost.org/submission/' 
+                      'https://scipost.org/submission/'
                       + cls.assignment.submission.arxiv_identifier_w_vn_nr
                       + ' and a refereeing round has been started, with deadline '
-                      'currently set at ' 
+                      'currently set at '
                       + datetime.datetime.strftime(cls.assignment.submission.reporting_deadline, "%Y-%m-%d")
                       + '.\n\n'
                       'During the refereeing round, you are welcome to provide replies to any '
@@ -342,7 +342,7 @@ class SubmissionUtils(object):
             '\n<p>A <a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
             'Submission Page</a> has been activated '
             'and a refereeing round has been started, with deadline '
-            'currently set at {{ deadline }}.</p>' 
+            'currently set at {{ deadline }}.</p>'
             '<h3>Further procedure</h3>'
             '<p>During the refereeing round, you are welcome to provide replies to any '
             'Report or Comment posted on your Submission (you can do so from the '
@@ -361,7 +361,7 @@ class SubmissionUtils(object):
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.assignment.submission.arxiv_identifier_w_vn_nr,
-            'deadline': datetime.datetime.strftime(cls.assignment.submission.reporting_deadline, 
+            'deadline': datetime.datetime.strftime(cls.assignment.submission.reporting_deadline,
                                                    "%Y-%m-%d"),
         })
         email_text_html += '<br/>' + EMAIL_FOOTER
@@ -377,7 +377,7 @@ class SubmissionUtils(object):
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
-        
+
     @classmethod
     def assignment_failed_email_authors(cls):
         """ Requires loading 'submission' attribute. """
@@ -422,40 +422,40 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-        
+
 
     @classmethod
     def send_refereeing_invitation_email(cls):
-        """ 
+        """
         This method is called by send_refereeing_invitation in submissions/views.
         It is used when the referee is already a registered contributor.
-        If a referee is not yet registered, the method recruit_referee is used 
+        If a referee is not yet registered, the method recruit_referee is used
         instead, which calls the send_registration_email method in scipost/utils.
-        Requires loading 'invitation' attribute. 
+        Requires loading 'invitation' attribute.
         """
         email_text = ('Dear ' + title_dict[cls.invitation.referee.title] + ' ' +
                       cls.invitation.referee.user.last_name +
                       ', \n\nWe have received a Submission to SciPost '
                       'which, in view of your expertise and on behalf of the Editor-in-charge '
-                      + title_dict[cls.invitation.submission.editor_in_charge.title] + ' ' 
+                      + title_dict[cls.invitation.submission.editor_in_charge.title] + ' '
                       + cls.invitation.submission.editor_in_charge.user.last_name
                       + ', we would like to invite you to referee:\n\n'
                       + cls.invitation.submission.title + ' by ' + cls.invitation.submission.author_list
-                      + ' (see https://scipost.org/submission/' 
+                      + ' (see https://scipost.org/submission/'
                       + cls.invitation.submission.arxiv_identifier_w_vn_nr + ').'
                       '\n\nPlease visit https://scipost.org/submissions/accept_or_decline_ref_invitations '
                       '(login required) as soon as possible (ideally within the next 2 days) '
                       'in order to accept or decline this invitation.'
                       '\n\nIf you accept, your report can be submitted by simply '
                       'clicking on the "Contribute a Report" link at '
-                      'https://scipost.org/submission/' 
+                      'https://scipost.org/submission/'
                       + cls.invitation.submission.arxiv_identifier_w_vn_nr
-                      + ' before the reporting deadline (currently set at ' 
+                      + ' before the reporting deadline (currently set at '
                       + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
                       + '; your report will be automatically recognized as an invited report). '
                       'You might want to make sure you are familiar with our refereeing code of conduct '
                       'https://scipost.org/journals/journals_terms_and_conditions and with the '
-                      'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.' 
+                      'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.'
                       '\n\nWe would be extremely grateful for your contribution, '
                       'and thank you in advance for your consideration.'
                       '\n\nThe SciPost Team.')
@@ -467,7 +467,7 @@ class SubmissionUtils(object):
             'we would like to invite you to referee:</p>'
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}</p>'
-            '\n<p>(see <a href="https://scipost.org/submission/' 
+            '\n<p>(see <a href="https://scipost.org/submission/'
             '{{ arxiv_identifier_w_vn_nr }}">this link</a>).</p>'
             '\n<p>Please <a href="https://scipost.org/submissions/accept_or_decline_ref_invitations">'
             'accept or decline the invitation</a> '
@@ -476,12 +476,12 @@ class SubmissionUtils(object):
             'clicking on the "Contribute a Report" link on the '
             '<a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
             'Submission\'s Page</a> '
-            'before the reporting deadline (currently set at {{ deadline }}' 
+            'before the reporting deadline (currently set at {{ deadline }}'
             '; your report will be automatically recognized as an invited report).</p>'
             '<p>You might want to make sure you are familiar with our '
             '<a href="https://scipost.org/journals/journals_terms_and_conditions">'
             'refereeing code of conduct</a> and with the '
-            '<a href="https://scipost.org/submissions/sub_and_ref_procedure">refereeing procedure</a>.</p>' 
+            '<a href="https://scipost.org/submissions/sub_and_ref_procedure">refereeing procedure</a>.</p>'
             '\n<p>We would be extremely grateful for your contribution, '
             'and thank you in advance for your consideration.</p>'
             '<p>The SciPost Team.</p>')
@@ -493,7 +493,7 @@ class SubmissionUtils(object):
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.invitation.submission.arxiv_identifier_w_vn_nr,
-            'deadline': datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, 
+            'deadline': datetime.datetime.strftime(cls.invitation.submission.reporting_deadline,
                                                    "%Y-%m-%d"),
         })
         email_text_html += '<br/>' + EMAIL_FOOTER
@@ -509,7 +509,7 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-    
+
 
     @classmethod
     def send_ref_reminder_email(cls):
@@ -517,13 +517,13 @@ class SubmissionUtils(object):
         This method is used to remind a referee who is not registered as a Contributor.
         It is called from the ref_invitation_reminder method in submissions/views.py.
         """
-        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' ' 
-                      + cls.invitation.last_name + ',\n\n' 
+        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' '
+                      + cls.invitation.last_name + ',\n\n'
                       'On behalf of the Editor-in-charge '
                       + title_dict[cls.invitation.submission.editor_in_charge.title] + ' '
                       + cls.invitation.submission.editor_in_charge.user.last_name
                       + ', we would like to cordially remind you of our recent request to referee\n\n'
-                      + cls.invitation.submission.title + ' by ' 
+                      + cls.invitation.submission.title + ' by '
                       + cls.invitation.submission.author_list + '.')
         email_text_html = (
             'Dear {{ title }} {{ last_name }},'
@@ -561,9 +561,9 @@ class SubmissionUtils(object):
                 'in order to ensure rapid processing of the submission.')
         email_text += ('\n\nYour report can be submitted by simply clicking on '
                        'the "Contribute a Report" link at '
-                       'https://scipost.org/submission/' 
-                       + cls.invitation.submission.arxiv_identifier_w_vn_nr 
-                       + ' before the reporting deadline (currently set at ' 
+                       'https://scipost.org/submission/'
+                       + cls.invitation.submission.arxiv_identifier_w_vn_nr
+                       + ' before the reporting deadline (currently set at '
                        + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
                        + '; your report will be automatically recognized as an invited report). '
                        'You might want to make sure you are familiar with our refereeing code of conduct '
@@ -575,7 +575,7 @@ class SubmissionUtils(object):
             '\n<p>Your report can be submitted by simply clicking on '
             'the "Contribute a Report" link at '
             'the <a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
-            'Submission\'s page</a> before the reporting deadline (currently set at ' 
+            'Submission\'s page</a> before the reporting deadline (currently set at '
             '{{ deadline }}; your report will be automatically recognized as an invited report).</p>'
             '\n<p>You might want to make sure you are familiar with our '
             '<a href="https://scipost.org/journals/journals_terms_and_conditions">'
@@ -593,7 +593,7 @@ class SubmissionUtils(object):
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.invitation.submission.arxiv_identifier_w_vn_nr,
-            'deadline': datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, 
+            'deadline': datetime.datetime.strftime(cls.invitation.submission.reporting_deadline,
                                                    "%Y-%m-%d"),
             'invitation_key': cls.invitation.invitation_key,
         })
@@ -618,13 +618,13 @@ class SubmissionUtils(object):
         This method is used to inform a referee that his/her services are no longer required.
         It is called from the cancel_ref_invitation method in submissions/views.py.
         """
-        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' ' 
-                      + cls.invitation.last_name + ',\n\n' 
+        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' '
+                      + cls.invitation.last_name + ',\n\n'
                       'On behalf of the Editor-in-charge '
                       + title_dict[cls.invitation.submission.editor_in_charge.title] + ' '
                       + cls.invitation.submission.editor_in_charge.user.last_name
                       + ', we would like to inform you that your report on\n\n'
-                      + cls.invitation.submission.title + ' by ' 
+                      + cls.invitation.submission.title + ' by '
                       + cls.invitation.submission.author_list
                       + '\n\nis no longer required.'
                       '\n\nWe very much hope we can count on your expertise '
@@ -680,7 +680,7 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-    
+
 
     @classmethod
     def email_referee_response_to_EIC(cls):
@@ -698,24 +698,24 @@ class SubmissionUtils(object):
             email_text_html += 'accepted '
             email_subject = 'SciPost: referee accepts to review'
         elif cls.invitation.accepted == False:
-            email_text += ('declined (due to reason: ' 
+            email_text += ('declined (due to reason: '
                            + assignment_refusal_reasons_dict[cls.invitation.refusal_reason] + ') ')
-            email_text_html += 'declined (due to reason: {{ reason }}) ' 
-            
+            email_text_html += 'declined (due to reason: {{ reason }}) '
+
         email_text += ('to referee Submission\n\n'
-                       + cls.invitation.submission.title + ' by ' 
+                       + cls.invitation.submission.title + ' by '
                        + cls.invitation.submission.author_list + '.')
         email_text_html += (
             'to referee Submission</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')
         if cls.invitation.accepted == False:
             email_text += ('\n\nPlease invite another referee from the Submission\'s editorial page '
-                           'at https://scipost.org/submissions/editorial_page/' 
+                           'at https://scipost.org/submissions/editorial_page/'
                            + cls.invitation.submission.arxiv_identifier_w_vn_nr + '.')
             email_text_html += (
                 '\n<p>Please invite another referee from the Submission\'s '
                 '<a href="https://scipost.org/submissions/editorial_page/'
-                '{{ arxiv_identifier_w_vn_nr }}">editorial page</a>.</p>') 
+                '{{ arxiv_identifier_w_vn_nr }}">editorial page</a>.</p>')
         email_text += ('\n\nMany thanks for your collaboration,'
                        '\n\nThe SciPost Team.')
         email_text_html += ('<p>Many thanks for your collaboration,</p>'
@@ -753,7 +753,7 @@ class SubmissionUtils(object):
                       '\n\nReferee ' + title_dict[cls.report.author.title] + ' '
                       + cls.report.author.user.last_name +
                       ' has delivered a Report for Submission\n\n'
-                      + cls.report.submission.title + ' by ' 
+                      + cls.report.submission.title + ' by '
                       + cls.report.submission.author_list + '.'
                       '\n\nPlease vet this Report via your personal page at '
                       'https://scipost.org/personal_page under the Editorial Actions tab.'
@@ -797,7 +797,7 @@ class SubmissionUtils(object):
         email_text = ('Dear ' + title_dict[cls.report.author.title] + ' ' +
                       cls.report.author.user.last_name + ','
                       '\n\nMany thanks for your Report on Submission\n\n' +
-                       cls.report.submission.title + ' by ' 
+                       cls.report.submission.title + ' by '
                       + cls.report.submission.author_list + '.')
         email_text_html = (
             'Dear {{ ref_title }} {{ ref_last_name }},'
@@ -805,11 +805,11 @@ class SubmissionUtils(object):
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')
         if cls.report.status == 1:
             email_text += ('\n\nYour Report has been vetted through and is viewable at '
-                           'https://scipost.org/submissions/' 
+                           'https://scipost.org/submissions/'
                            + cls.report.submission.arxiv_identifier_w_vn_nr + '.')
             email_text_html += (
                 '\n<p>Your Report has been vetted through and is viewable at '
-                'the <a href="https://scipost.org/submissions/' 
+                'the <a href="https://scipost.org/submissions/'
                 '{{ arxiv_identifier_w_vn_nr }}">Submission\'s page</a>.</p>')
         else:
             email_text += ('\n\nYour Report has been reviewed by the Editor-in-charge of the Submission, '
@@ -820,7 +820,7 @@ class SubmissionUtils(object):
             email_text_html += (
                 '\n<p>Your Report has been reviewed by the Editor-in-charge of the Submission, '
                 'who decided not to admit it for online posting, citing the reason: '
-                '{{ refusal_reason }}.</p>' 
+                '{{ refusal_reason }}.</p>'
                 '\n<p>We copy the text entries of your report below for your convenience, '
                 'if ever you wish to reformulate it and resubmit it.</p>')
         email_text += ('\n\nMany thanks for your collaboration,'
@@ -868,12 +868,12 @@ class SubmissionUtils(object):
             'SciPost: Report acknowledgement', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             [cls.report.author.user.email],
-            bcc=[cls.report.submission.editor_in_charge.user.email, 
+            bcc=[cls.report.submission.editor_in_charge.user.email,
                  'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-        
+
 
     @classmethod
     def send_author_report_received_email(cls):
@@ -883,7 +883,7 @@ class SubmissionUtils(object):
                       ', \n\nA Report has been posted on your recent Submission to SciPost,\n\n' +
                       cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.'
                       '\n\nYou can view it at the Submission Page '
-                      'https://scipost.org/submission/' 
+                      'https://scipost.org/submission/'
                       + cls.report.submission.arxiv_identifier_w_vn_nr + '.'
                       '\n\nWe remind you that you can provide an author reply '
                       '(only if you wish, to clarify points eventually raised '
@@ -894,7 +894,7 @@ class SubmissionUtils(object):
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ auth_title }} {{ auth_last_name }},' 
+            'Dear {{ auth_title }} {{ auth_last_name }},'
             '<p>A Report has been posted on your recent Submission to SciPost,</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
             '\n<p>You can view it at the '
@@ -928,7 +928,7 @@ class SubmissionUtils(object):
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
-        
+
     @classmethod
     def send_author_comment_received_email(cls):
         """ Requires loading 'submission' attribute. """
@@ -937,17 +937,17 @@ class SubmissionUtils(object):
                       ', \n\nA Comment has been posted on your recent Submission to SciPost,\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + '.'
                       '\n\nYou can view it at the Submission Page '
-                      'https://scipost.org/submission/' 
+                      'https://scipost.org/submission/'
                       + cls.submission.arxiv_identifier_w_vn_nr + '.'
                       '\n\nWe thank you very much for your contribution.'
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ auth_title }} {{ auth_last_name }},' 
+            'Dear {{ auth_title }} {{ auth_last_name }},'
             '<p>A Comment has been posted on your recent Submission to SciPost,</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
             '\n<p>You can view it at the '
-            '<a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">' 
+            '<a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
             'Submission\'s Page</a>.</p>'
             '\n<p>We thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
@@ -976,10 +976,10 @@ class SubmissionUtils(object):
 
     @classmethod
     def send_communication_email(cls):
-        """ 
+        """
         After an EditorialCommunication has been created and saved,
         this method sends emails to the relevant people.
-        Requires loading 'communication' attribute. 
+        Requires loading 'communication' attribute.
         """
         recipient_email = []
         bcc_emails = []
@@ -989,7 +989,7 @@ class SubmissionUtils(object):
             recipient_greeting = ('Dear ' +
                                   title_dict[cls.communication.submission.editor_in_charge.title] + ' ' +
                                   cls.communication.submission.editor_in_charge.user.last_name)
-            further_action_page = ('https://scipost.org/submission/editorial_page/' 
+            further_action_page = ('https://scipost.org/submission/editorial_page/'
                                    + cls.communication.submission.arxiv_identifier_w_vn_nr)
             #if cls.communication.comtype == 'AtoE':
             #    bcc_emails.append(cls.communication.submission.submitted_by.user.email) # BUG: must not happen!
@@ -1015,12 +1015,12 @@ class SubmissionUtils(object):
             recipient_greeting = 'Dear Editorial Administrators'
             bcc_emails.append(cls.communication.submission.editor_in_charge)
             further_action_page = 'https://scipost.org/submissions/pool'
-                   
-        email_text = (recipient_greeting + 
+
+        email_text = (recipient_greeting +
                       ', \n\nPlease find here a communication (' +
                       ed_comm_choices_dict[cls.communication.comtype] + ') '
                       'concerning Submission\n\n' +
-                      cls.communication.submission.title + ' by ' 
+                      cls.communication.submission.title + ' by '
                       + cls.communication.submission.author_list + '.'
                       '\n\nText of the communication:\n------------------------------------------\n' +
                       cls.communication.text + '\n------------------------------------------')
@@ -1060,7 +1060,7 @@ class SubmissionUtils(object):
             email_text_html += 'major'
         email_text += (' revision.'
                       '\n\nYou can view it at the Submission Page '
-                      'https://scipost.org/submission/' 
+                      'https://scipost.org/submission/'
                        + cls.submission.arxiv_identifier_w_vn_nr + '. '
                        'Note that the recommendation is viewable only by '
                        'the registered authors of the submission.'
@@ -1075,7 +1075,7 @@ class SubmissionUtils(object):
         email_text_html += (
             ' revision.</p>'
             '\n<p>You can view it at the '
-            '<a href="https://scipost.org/submission/' 
+            '<a href="https://scipost.org/submission/'
             '{{ arxiv_identifier_w_vn_nr }}">Submission\'s Page</a>.</p>'
             '<p>Note that the recommendation is viewable only by '
             'the registered authors of the submission.</p>'
@@ -1124,14 +1124,14 @@ class SubmissionUtils(object):
             'regarding your recent Submission,</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')
         if (cls.recommendation.recommendation == 1
-            or cls.recommendation.recommendation == 2 
+            or cls.recommendation.recommendation == 2
             or cls.recommendation.recommendation == 3):
             email_text += ('We are pleased to inform you that your Submission '
-                           'has been accepted for publication in ' 
+                           'has been accepted for publication in '
                            + journals_submit_dict[cls.submission.submitted_to_journal])
             email_text_html += (
                 '<p>We are pleased to inform you that your Submission '
-                'has been accepted for publication in <strong>{{ journal }}</strong>') 
+                'has been accepted for publication in <strong>{{ journal }}</strong>')
             if cls.recommendation.recommendation == 1 and False: # Temporary deactivation of Select
                 email_text += (', with a promotion to Select. We warmly congratulate you '
                                'on this achievement, which is reserved to papers deemed in '
@@ -1154,7 +1154,7 @@ class SubmissionUtils(object):
             email_text += ('We are sorry to inform you that your Submission '
                            'has not been accepted for publication. '
                            '\n\nYou can view more details at the Submission Page '
-                           'https://scipost.org/submission/' 
+                           'https://scipost.org/submission/'
                            + cls.submission.arxiv_identifier_w_vn_nr + '. '
                            'Note that these details are viewable only by '
                            'the registered authors of the submission.')
@@ -1162,7 +1162,7 @@ class SubmissionUtils(object):
                 '<p>We are sorry to inform you that your Submission '
                 'has not been accepted for publication.</p>'
                 '\n<p>You can view more details at the '
-                '<a href="https://scipost.org/submission/' 
+                '<a href="https://scipost.org/submission/'
                 '{{ arxiv_identifier_w_vn_nr }}">Submission\'s Page</a>. '
                 'Note that these details are viewable only by '
                 'the registered authors of the submission.</p>'

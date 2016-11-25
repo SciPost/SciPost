@@ -9,7 +9,7 @@
 
   <div id="commentslist">
     {% for comment in comments %}
-    
+
     <hr class="hr6">
 
     <div class="flex-container">
@@ -50,10 +50,10 @@
 	{% endif %}
       </div>
     </div>
-  
+
     {% for reply in author_replies %}
     {% if reply.in_reply_to_comment %}
-    {% if reply.in_reply_to_comment.id = comment.id %}    
+    {% if reply.in_reply_to_comment.id = comment.id %}
     <div class="row">
       <div class="col-1"></div>
       <hr style="border-style: dotted;" />
@@ -94,12 +94,12 @@
 	<p>{{ reply.remarks_for_editors|linebreaks }}</p>
 	{% endif %}
       </div>
-    </div>    
+    </div>
 
     {% endif %}
     {% endif %}
     {% endfor %}
-    
+
     {% if user.is_authenticated and perms.scipost.can_submit_comments %}
     <div class="row">
       <div class="col-1"></div>

@@ -3,8 +3,8 @@ from django import forms
 from .models import *
 
 THESIS_ACTION_CHOICES = (
-    (0, 'modify'), 
-    (1, 'accept'), 
+    (0, 'modify'),
+    (1, 'accept'),
     (2, 'refuse (give reason below)'),
     )
 
@@ -18,7 +18,7 @@ class RequestThesisLinkForm(forms.ModelForm):
     class Meta:
         model = ThesisLink
         fields = ['type', 'discipline', 'domain', 'subject_area',
-                  'title', 'author', 'supervisor', 'institution', 
+                  'title', 'author', 'supervisor', 'institution',
                   'defense_date', 'pub_link', 'abstract']
 
     def __init__(self, *args, **kwargs):
@@ -26,10 +26,10 @@ class RequestThesisLinkForm(forms.ModelForm):
         self.fields['defense_date'].widget.attrs.update({'placeholder': 'Format: YYYY-MM-DD'})
         self.fields['pub_link'].widget.attrs.update({'placeholder': 'Full URL'})
         self.fields['abstract'].widget.attrs.update({'cols': 100})
-    
+
 class VetThesisLinkForm(forms.Form):
-    action_option = forms.ChoiceField(widget=forms.RadioSelect, 
-                                      choices=THESIS_ACTION_CHOICES, 
+    action_option = forms.ChoiceField(widget=forms.RadioSelect,
+                                      choices=THESIS_ACTION_CHOICES,
                                       required=True, label='Action')
     refusal_reason = forms.ChoiceField(choices=THESIS_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(

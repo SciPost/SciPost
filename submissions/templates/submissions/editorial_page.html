@@ -84,7 +84,7 @@
   <hr/>
   <h3>Refereeing status summary:</h3>
   {{ submission.refereeing_status_as_p }}
-  
+
   <h4>Detail of refereeing invitations:</h4>
   {% if ref_invitations %}
       <table class="ref_listing">
@@ -137,7 +137,7 @@
   <ul>
     <li><a href="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
 	Select an additional referee</a> (bear in mind flagged referees if any)</li>
-    <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}) by 
+    <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}) by
       <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=2 %}">2 days</a>,
       <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=7 %}">1 week</a> or
       <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=14 %}">2 weeks</a>

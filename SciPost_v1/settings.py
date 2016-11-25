@@ -36,13 +36,13 @@ ADMINS = host_settings["ADMINS"]
 
 ALLOWED_HOSTS = host_settings["ALLOWED_HOSTS"]
 
-# Secure proxy SSL header and secure cookies                                                       
+# Secure proxy SSL header and secure cookies
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = host_settings["SESSION_COOKIE_SECURE"]
 CSRF_COOKIE_SECURE = host_settings["CSRF_COOKIE_SECURE"]
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend', 
+    'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend'
     )
 
@@ -50,10 +50,10 @@ LOGIN_URL = '/login/'
 
 GUARDIAN_RENDER_403 = True
 
-# Session expire at browser close                                                                  
+# Session expire at browser close
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-# Wsgi scheme                                                                                      
+# Wsgi scheme
 os.environ['wsgi.url_scheme'] = 'https'
 
 # Application definition

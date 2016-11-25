@@ -34,7 +34,7 @@ COMMENT_STATUS = (
 comment_status_dict = dict(COMMENT_STATUS)
 
 class Comment(models.Model):
-    """ A Comment is an unsollicited note, submitted by a Contributor, 
+    """ A Comment is an unsollicited note, submitted by a Contributor,
     on a particular publication or in reply to an earlier Comment. """
     # status:
     # 1: vetted
@@ -43,10 +43,10 @@ class Comment(models.Model):
     # -2: rejected (incorrect)
     # -3: rejected (not useful)
     status = models.SmallIntegerField(default=0)
-    vetted_by = models.ForeignKey(Contributor, blank=True, null=True, 
+    vetted_by = models.ForeignKey(Contributor, blank=True, null=True,
                                   related_name='comment_vetted_by')
     # a Comment is either for a Commentary or Submission
-    commentary = models.ForeignKey(Commentary, blank=True, null=True) 
+    commentary = models.ForeignKey(Commentary, blank=True, null=True)
     submission = models.ForeignKey(Submission, blank=True, null=True)
     thesislink = models.ForeignKey(ThesisLink, blank=True, null=True)
     is_author_reply = models.BooleanField(default=False)
@@ -65,22 +65,22 @@ class Comment(models.Model):
     is_lit = models.BooleanField(default=False, verbose_name='pointer to related literature')
     is_sug = models.BooleanField(default=False, verbose_name='suggestion for further work')
     comment_text = models.TextField()
-    remarks_for_editors = models.TextField(default='', blank=True, 
+    remarks_for_editors = models.TextField(default='', blank=True,
                                            verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted')
-    # Opinions 
+    # Opinions
     nr_A = models.PositiveIntegerField(default=0)
-    in_agreement = models.ManyToManyField(Contributor, 
+    in_agreement = models.ManyToManyField(Contributor,
                                           related_name='in_agreement', blank=True)
     nr_N = models.PositiveIntegerField(default=0)
-    in_notsure = models.ManyToManyField(Contributor, 
+    in_notsure = models.ManyToManyField(Contributor,
                                         related_name='in_notsure', blank=True)
     nr_D = models.PositiveIntegerField(default=0)
-    in_disagreement = models.ManyToManyField(Contributor, 
+    in_disagreement = models.ManyToManyField(Contributor,
                                              related_name='in_disagreement', blank=True)
 
     def __str__ (self):
-        return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name + 
+        return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name +
                 ' on ' + self.date_submitted.strftime('%Y-%m-%d') + ', '   + self.comment_text[:30])
 
 
@@ -112,7 +112,7 @@ class Comment(models.Model):
         context = Context ({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
         return template.render(context)
 
-    
+
     def opinions_as_ul_tiny(self):
         template = Template('''
         <ul class="opinionsDisplay">
@@ -126,14 +126,14 @@ class Comment(models.Model):
 
 
     def print_identifier (self):
-        # for display 
+        # for display
         output = '<div class="commentid">\n'
         output += '<h3><a id="comment_id{{ id }}"></a>'
         context = Context({'id': self.id})
         if self.is_author_reply:
             output += 'Author '
         if not self.anonymous:
-            output += (' <a href="/contributor/{{ author_id }}">' 
+            output += (' <a href="/contributor/{{ author_id }}">'
                        + '{{ first_name }} {{ last_name }}</a> on ')
             context['author_id'] = self.author.id
             context['first_name'] = self.author.user.first_name
@@ -141,7 +141,7 @@ class Comment(models.Model):
         output += '{{ date_comment_submitted }}'
         context['date_comment_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
         if self.in_reply_to_comment:
-            output += (' (in reply to <a href="#comment_id{{ in_reply_to_comment_id }}">' 
+            output += (' (in reply to <a href="#comment_id{{ in_reply_to_comment_id }}">'
                        '{{ in_reply_to_comment_first_name }} '
                        '{{ in_reply_to_comment_last_name }} on '
                        '{{ in_reply_to_comment_date }}</a>)')
@@ -172,7 +172,7 @@ class Comment(models.Model):
 
 
     def print_identifier_for_vetting (self):
-        # for display, same as print_identifier but named even if anonymous, not linked 
+        # for display, same as print_identifier but named even if anonymous, not linked
         output = '<div class="commentid">\n'
         output += '<h3>'
         context = Context()
@@ -222,7 +222,7 @@ class Comment(models.Model):
         context = Context({'id': self.id})
         header += ', <div class="opinionsDisplay">' + self.opinions_as_ul_tiny() + '</div>'
         if self.status <= 0:
-            header += (', status: <span style="color:red">' 
+            header += (', status: <span style="color:red">'
                        + comment_status_dict[self.status] + '</span>')
         text_cut = self.comment_text[:50]
         if len(self.comment_text) > 50:
@@ -250,7 +250,7 @@ class Comment(models.Model):
             header += ('<a href="/commentary/{{ commentary_url }}#comment_id{{ id }}">'
                        ' \"{{ text_cut }}\"</a><p>submitted on {{ date_submitted }}')
             header += (' in commentary on <a href="/commentary/{{ commentary_url }}"'
-                       ' class="pubtitleli">'  
+                       ' class="pubtitleli">'
                        '{{ commentary_pub_title }}</a> by {{ commentary_author_list }}</p>')
             context['commentary_url'] = self.commentary.arxiv_or_DOI_string
             context['commentary_pub_title'] = self.commentary.pub_title
@@ -301,7 +301,7 @@ class Comment(models.Model):
             context['commentary_author_list'] = self.commentary.author_list
         if self.thesislink is not None:
             header += '<a href="/thesis/{{ thesislink_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>'
-            header += (' in thesislink on <a href="/thesis/{{ thesislink_id }}" class="pubtitleli">' + 
+            header += (' in thesislink on <a href="/thesis/{{ thesislink_id }}" class="pubtitleli">' +
                        '{{ thesislink_title }}</a> by {{ thesislink_author }}</p>')
             context['thesislink_id'] = self.thesislink.id
             context['thesislink_title'] = self.thesislink.title
@@ -334,5 +334,3 @@ class Comment(models.Model):
             output += '<li>suggestion for further work</li>'
         output += '</ul></div>'
         return mark_safe(output)
-
-

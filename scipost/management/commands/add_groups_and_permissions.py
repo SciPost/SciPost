@@ -12,7 +12,7 @@ class Command(BaseCommand):
         # Create Groups
         SciPostAdmin, created = Group.objects.get_or_create(name='SciPost Administrators')
         AdvisoryBoard, created = Group.objects.get_or_create(name='Advisory Board')
-        EditorialAdmin, created = Group.objects.get_or_create(name='Editorial Administrators') 
+        EditorialAdmin, created = Group.objects.get_or_create(name='Editorial Administrators')
         EditorialCollege, created = Group.objects.get_or_create(name='Editorial College')
         VettingEditors, created = Group.objects.get_or_create(name='Vetting Editors')
         RegisteredContributors, created = Group.objects.get_or_create(name='Registered Contributors')
@@ -57,7 +57,7 @@ class Command(BaseCommand):
         #    codename='can_take_editorial_actions',
         #    name= 'Can take editorial actions',
         #    content_type=content_type)
-        
+
         # Contributions (not related to submissions)
         can_submit_comments, created = Permission.objects.get_or_create(
             codename='can_submit_comments',
@@ -114,8 +114,8 @@ class Command(BaseCommand):
             name= 'Can take charge (become Editor-in-charge) of submissions',
             content_type=content_type)
         can_vet_submitted_reports, created = Permission.objects.get_or_create(
-            codename='can_vet_submitted_reports', 
-            name='Can vet submitted Reports', 
+            codename='can_vet_submitted_reports',
+            name='Can vet submitted Reports',
             content_type=content_type)
 
         # Refereeing
@@ -134,7 +134,7 @@ class Command(BaseCommand):
             name = 'Can fix the College voting decision',
             content_type=content_type)
 
-        # Production 
+        # Production
         can_publish_accepted_submission, created = Permission.objects.get_or_create(
             codename='can_publish_accepted_submission',
             name = 'Can publish accepted submission',
@@ -146,9 +146,9 @@ class Command(BaseCommand):
             can_email_group_members,
             can_email_particulars,
             can_vet_registration_requests,
-            can_vet_commentary_requests, 
+            can_vet_commentary_requests,
             can_vet_thesislink_requests,
-            can_vet_authorship_claims, 
+            can_vet_authorship_claims,
             can_vet_comments,
             can_view_pool,
             can_assign_submissions,
@@ -173,14 +173,14 @@ class Command(BaseCommand):
             view_bylaws,
         )
         VettingEditors.permissions.add(
-            can_vet_commentary_requests, 
+            can_vet_commentary_requests,
             can_vet_thesislink_requests,
-            can_vet_authorship_claims, 
+            can_vet_authorship_claims,
             can_vet_comments,
         )
         RegisteredContributors.permissions.add(
             can_submit_manuscript,
-            can_submit_comments, 
+            can_submit_comments,
             can_express_opinion_on_comments,
             can_request_commentary_pages,
             can_request_thesislinks,

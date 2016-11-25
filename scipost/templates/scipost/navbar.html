@@ -14,7 +14,7 @@
       <a href="{% url 'scipost:personal_page' %}" {% if "/personal_page" in request.path %}class="highlighted"{% endif %}>Personal Page</a>
       {% else %}
       <a href="{% url 'scipost:login' %}">Login</a>
-      {% endif %}      
+      {% endif %}
     </div>
     <div class="col-3">
       <form action="{% url 'scipost:search' %}" method="post">

@@ -28,14 +28,14 @@ class SubmissionIdentifierForm(forms.Form):
 class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
-        fields = ['is_resubmission', 
-                  'discipline', 'submitted_to_journal', 'submission_type', 
-                  'domain', 'subject_area', 
+        fields = ['is_resubmission',
+                  'discipline', 'submitted_to_journal', 'submission_type',
+                  'domain', 'subject_area',
                   'secondary_areas',
-                  'title', 'author_list', 'abstract', 
-                  'arxiv_identifier_w_vn_nr', 'arxiv_identifier_wo_vn_nr', 
-                  'arxiv_vn_nr', 'arxiv_link', 'metadata', 
-                  'author_comments', 'list_of_changes', 
+                  'title', 'author_list', 'abstract',
+                  'arxiv_identifier_w_vn_nr', 'arxiv_identifier_wo_vn_nr',
+                  'arxiv_vn_nr', 'arxiv_link', 'metadata',
+                  'author_comments', 'list_of_changes',
                   'remarks_for_editors',
                   'referees_suggested', 'referees_flagged']
 
@@ -75,15 +75,15 @@ class AssignSubmissionForm(forms.Form):
 #        subject_area = kwargs.pop('subject_area') # Reactivate later on, once the Editorial College is large enough
         super(AssignSubmissionForm,self).__init__(*args, **kwargs)
         self.fields['editor_in_charge'] = forms.ModelChoiceField(
-            queryset=Contributor.objects.filter(user__groups__name='Editorial College', 
-                                                user__contributor__discipline=discipline, 
+            queryset=Contributor.objects.filter(user__groups__name='Editorial College',
+                                                user__contributor__discipline=discipline,
 #                                                user__contributor__expertises__contains=[subject_area,] # Reactivate later on, once the Editorial College is large enough
-                                                ).order_by('user__last_name'), 
+                                                ).order_by('user__last_name'),
             required=True, label='Select an Editor-in-charge')
 
 
 class ConsiderAssignmentForm(forms.Form):
-    accept = forms.ChoiceField(widget=forms.RadioSelect, choices=ASSIGNMENT_BOOL, 
+    accept = forms.ChoiceField(widget=forms.RadioSelect, choices=ASSIGNMENT_BOOL,
                                label="Are you willing to take charge of this Submission?")
     refusal_reason = forms.ChoiceField(choices=ASSIGNMENT_REFUSAL_REASONS, required=False)
 
@@ -108,22 +108,22 @@ class RefereeRecruitmentForm(forms.ModelForm):
         self.fields['last_name'].widget.attrs.update({'size': 20})
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Div(Field('title'), Field('first_name'), Field('last_name'), 
-                Field('email_address'), 
+            Div(Field('title'), Field('first_name'), Field('last_name'),
+                Field('email_address'),
                 Submit('submit', 'Send invitation', css_class="submitButton"),
                 css_class="flex-whitebox320")
             )
 
 
 class ConsiderRefereeInvitationForm(forms.Form):
-    accept = forms.ChoiceField(widget=forms.RadioSelect, choices=ASSIGNMENT_BOOL, 
+    accept = forms.ChoiceField(widget=forms.RadioSelect, choices=ASSIGNMENT_BOOL,
                                label="Are you willing to referee this Submission?")
     refusal_reason = forms.ChoiceField(choices=ASSIGNMENT_REFUSAL_REASONS, required=False)
 
 
 class SetRefereeingDeadlineForm(forms.Form):
     deadline = forms.DateField(required=False, label='',
-                               widget=forms.SelectDateWidget) 
+                               widget=forms.SelectDateWidget)
 
 class VotingEligibilityForm(forms.Form):
 
@@ -133,10 +133,10 @@ class VotingEligibilityForm(forms.Form):
         super(VotingEligibilityForm,self).__init__(*args, **kwargs)
         self.fields['eligible_Fellows'] = forms.ModelMultipleChoiceField(
             queryset=Contributor.objects.filter(
-                user__groups__name__in=['Editorial College'], 
-                user__contributor__discipline=discipline, 
+                user__groups__name__in=['Editorial College'],
+                user__contributor__discipline=discipline,
                 user__contributor__expertises__contains=[subject_area]
-            ).order_by('user__last_name'), 
+            ).order_by('user__last_name'),
             widget = forms.CheckboxSelectMultiple({'checked': 'checked'}),
             required=True, label='Eligible for voting',
         )
@@ -146,8 +146,8 @@ class VotingEligibilityForm(forms.Form):
 ############
 
 REPORT_ACTION_CHOICES = (
-#    (0, 'modify'), 
-    (1, 'accept'), 
+#    (0, 'modify'),
+    (1, 'accept'),
     (2, 'refuse'),
     )
 
@@ -164,36 +164,36 @@ report_refusal_choices_dict=dict(REPORT_REFUSAL_CHOICES)
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
-        fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes', 
-                  'validity', 'significance', 'originality', 'clarity', 'formatting', 'grammar', 
+        fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes',
+                  'validity', 'significance', 'originality', 'clarity', 'formatting', 'grammar',
                   'recommendation', 'remarks_for_editors', 'anonymous']
     def __init__(self, *args, **kwargs):
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields['strengths'].widget.attrs.update(
-            {'placeholder': 'Give a point-by-point (numbered 1-, 2-, ...) list of the paper\'s strengths', 
+            {'placeholder': 'Give a point-by-point (numbered 1-, 2-, ...) list of the paper\'s strengths',
              'rows': 10, 'cols': 100})
         self.fields['weaknesses'].widget.attrs.update(
-            {'placeholder': 'Give a point-by-point (numbered 1-, 2-, ...) list of the paper\'s weaknesses', 
+            {'placeholder': 'Give a point-by-point (numbered 1-, 2-, ...) list of the paper\'s weaknesses',
              'rows': 10, 'cols': 100})
-        self.fields['report'].widget.attrs.update({'placeholder': 'Your general remarks', 
+        self.fields['report'].widget.attrs.update({'placeholder': 'Your general remarks',
                                                    'rows': 10, 'cols': 100})
         self.fields['requested_changes'].widget.attrs.update(
-            {'placeholder': 'Give a numbered (1-, 2-, ...) list of specifically requested changes', 
+            {'placeholder': 'Give a numbered (1-, 2-, ...) list of specifically requested changes',
              'cols': 100})
 
 
 class VetReportForm(forms.Form):
-    action_option = forms.ChoiceField(widget=forms.RadioSelect, 
-                                      choices=REPORT_ACTION_CHOICES, 
+    action_option = forms.ChoiceField(widget=forms.RadioSelect,
+                                      choices=REPORT_ACTION_CHOICES,
                                       required=True, label='Action')
     refusal_reason = forms.ChoiceField(choices=REPORT_REFUSAL_CHOICES, required=False)
-    email_response_field = forms.CharField(widget=forms.Textarea(), 
+    email_response_field = forms.CharField(widget=forms.Textarea(),
                                            label='Justification (optional)', required=False)
 
     def __init__(self, *args, **kwargs):
         super(VetReportForm, self).__init__(*args, **kwargs)
         self.fields['email_response_field'].widget.attrs.update(
-            {'placeholder': 'Optional: give a textual justification (will be included in the email to the Report\'s author)', 
+            {'placeholder': 'Optional: give a textual justification (will be included in the email to the Report\'s author)',
              'rows': 5})
 
 
@@ -218,16 +218,16 @@ class EditorialCommunicationForm(forms.Form):
 class EICRecommendationForm(forms.ModelForm):
     class Meta:
         model = EICRecommendation
-        fields = ['recommendation', 
-                  'remarks_for_authors', 'requested_changes', 
+        fields = ['recommendation',
+                  'remarks_for_authors', 'requested_changes',
                   'remarks_for_editorial_college']
     def __init__(self, *args, **kwargs):
         super(EICRecommendationForm, self).__init__(*args, **kwargs)
         self.fields['remarks_for_authors'].widget.attrs.update(
-            {'placeholder': 'Your general remarks for the authors', 
+            {'placeholder': 'Your general remarks for the authors',
              'rows': 10, 'cols': 100})
         self.fields['requested_changes'].widget.attrs.update(
-            {'placeholder': 'If you request revisions, give a numbered (1-, 2-, ...) list of specifically requested changes', 
+            {'placeholder': 'If you request revisions, give a numbered (1-, 2-, ...) list of specifically requested changes',
              'cols': 100})
         self.fields['remarks_for_editorial_college'].widget.attrs.update(
             {'placeholder': 'If you recommend to accept or refuse, the Editorial College will vote; write any relevant remarks for the EC here.'})
@@ -239,8 +239,8 @@ class EICRecommendationForm(forms.ModelForm):
 
 class RecommendationVoteForm(forms.Form):
     vote = forms.ChoiceField(widget=forms.RadioSelect,
-                             choices=[('agree', 'Agree'), 
-                                      ('disagree', 'Disagree'), 
+                             choices=[('agree', 'Agree'),
+                                      ('disagree', 'Disagree'),
                                       ('abstain', 'Abstain')],
                              label='',
                          )
@@ -255,11 +255,10 @@ class RecommendationVoteForm(forms.Form):
             Div(
                 Div(
                     HTML('<h3>Your position on this recommendation:</h3>'),
-                    Field('vote'), 
+                    Field('vote'),
                     css_class='flex-Fellowactionbox'),
                 Div(Field('remark'), css_class='flex-Fellowactionbox'),
                 Div(Submit('submit', 'Cast your vote', css_class='submitButton'),
                     css_class='flex-Fellowactionbox'),
                 css_class='flex-container')
         )
-

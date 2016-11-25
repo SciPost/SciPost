@@ -21,14 +21,14 @@ class LatestCommentsFeedRSS(Feed):
 
     def item_link(self, item):
         if item.commentary:
-            return reverse('commentaries:commentary', 
+            return reverse('commentaries:commentary',
                            kwargs={'arxiv_or_DOI_string': item.commentary.arxiv_or_DOI_string})
         elif item.submission:
-            return reverse('submissions:submission', 
-                           kwargs={'arxiv_identifier_w_vn_nr': 
+            return reverse('submissions:submission',
+                           kwargs={'arxiv_identifier_w_vn_nr':
                                    item.submission.arxiv_identifier_w_vn_nr,})
         elif item.thesislink:
-            return reverse('theses:thesis', 
+            return reverse('theses:thesis',
                            kwargs={'thesislink_id': item.thesislink.id})
         else:
             return reverse('scipost:index')
@@ -60,6 +60,3 @@ class LatestNewsFeedRSS(Feed):
 class LatestNewsFeedAtom(LatestNewsFeedRSS):
     feed_type = Atom1Feed
     description = LatestNewsFeedRSS.description
-
-
-

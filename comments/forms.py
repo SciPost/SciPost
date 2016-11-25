@@ -7,8 +7,8 @@ from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
 
 
 COMMENT_ACTION_CHOICES = (
-#    (0, 'modify'), 
-    (1, 'accept'), 
+#    (0, 'modify'),
+    (1, 'accept'),
     (2, 'refuse (give reason below)'),
     )
 
@@ -37,7 +37,7 @@ class CommentForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field('comment_text'), 
+                    Field('comment_text'),
                     HTML('<p>In your comment, you can use LaTeX \$...\$ for in-text '
                          'equations or \ [ ... \ ] for on-line equations.</p>'),
                     HTML('<p id="goodCommenter"><i>Be professional. Only serious and '
@@ -60,8 +60,8 @@ class CommentForm(forms.ModelForm):
                     css_class="col-3"),
                 css_class="row"),
             )
-        
-    
+
+
 
 class VetCommentForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect, choices=COMMENT_ACTION_CHOICES,
@@ -69,5 +69,3 @@ class VetCommentForm(forms.Form):
     refusal_reason = forms.ChoiceField(choices=COMMENT_REFUSAL_CHOICES)
     email_response_field = forms.CharField(widget=forms.Textarea(),
                                            label='Justification (optional)', required=False)
-
-

@@ -21,5 +21,3 @@ def sort_by(queryset, order):
 def is_in_group(user, group_name):
     group = Group.objects.get(name=group_name)
     return True if group in user.groups.all() else False
-
-

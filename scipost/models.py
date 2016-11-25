@@ -1,4 +1,4 @@
-import datetime 
+import datetime
 
 from django import forms
 from django.contrib.auth.models import User, Group
@@ -62,7 +62,7 @@ SCIPOST_SUBJECT_AREAS = (
         ('Math:DS', 'Dynamical Systems'),
         ('Math:FA', 'Functional Analysis'),
         ('Math:GM', 'General Mathematics'),
-        ('Math:GN', 'General Topology'), 
+        ('Math:GN', 'General Topology'),
         ('Math:GT', 'Geometric Topology'),
         ('Math:GR', 'Group Theory'),
         ('Math:HO', 'History and Overview'),
@@ -140,7 +140,7 @@ class ChoiceArrayField(ArrayField):
     Uses Django 1.9's postgres ArrayField
     and a MultipleChoiceField for its formfield.
     """
- 
+
     def formfield(self, **kwargs):
         defaults = {
             'form_class': forms.MultipleChoiceField,
@@ -157,7 +157,7 @@ CONTRIBUTOR_STATUS = (
     # 1: contributor has been vetted through
     #
     # Negative status denotes rejected requests or:
-    # -1: not a professional scientist (defined as at least PhD student in known university)
+    # -1: not a professional scientist (>= PhD student in known university)
     # -2: other account already exists for this person
     # -3: barred from SciPost (abusive behaviour)
     # -4: disabled account (deceased)
@@ -179,28 +179,38 @@ title_dict = dict(TITLE_CHOICES)
 
 
 class Contributor(models.Model):
-    """ All users of SciPost are Contributors. Permissions determine the sub-types. """
+    """
+    All users of SciPost are Contributors.
+    Permissions determine the sub-types.
+    username, password, email, first_name and last_name are inherited from User.
+    """
     user = models.OneToOneField(User)
-    # username, password, email, first_name and last_name are inherited from User
-    invitation_key = models.CharField(max_length=40, default='', blank=True, null=True)
+    invitation_key = models.CharField(max_length=40, default='',
+                                      blank=True, null=True)
     activation_key = models.CharField(max_length=40, default='')
     key_expires = models.DateTimeField(default=timezone.now)
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, 
-                                  default='physics', verbose_name='Main discipline')
-    expertises = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), 
-                                  blank=True, null=True)
-    orcid_id = models.CharField(max_length=20, verbose_name="ORCID id", blank=True)
+    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
+                                  default='physics',
+                                  verbose_name='Main discipline')
+    expertises = ChoiceArrayField(
+        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
+        blank=True, null=True)
+    orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
+                                blank=True)
     country_of_employment = CountryField()
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
-    address = models.CharField(max_length=1000, verbose_name="address", default='', blank=True)
-    personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
+    address = models.CharField(max_length=1000, verbose_name="address",
+                               default='', blank=True)
+    personalwebpage = models.URLField(verbose_name='personal web page',
+                                      blank=True)
     vetted_by = models.ForeignKey('self', on_delete=models.CASCADE,
-                                  related_name="contrib_vetted_by", 
-                                  blank=True, null=True)  
-    accepts_SciPost_emails = models.BooleanField(default=True, 
-                                                 verbose_name="I accept to receive SciPost emails")
+                                  related_name="contrib_vetted_by",
+                                  blank=True, null=True)
+    accepts_SciPost_emails = models.BooleanField(
+        default=True,
+        verbose_name="I accept to receive SciPost emails")
 
     def __str__ (self):
         return self.user.last_name + ', ' + self.user.first_name
@@ -304,12 +314,12 @@ class Contributor(models.Model):
         nr_completed = assignments.filter(completed=True).count()
         nr_completed_last_12mo = assignments.filter(
             completed=True, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-        
+
         context = Context({
             'nr_ongoing': nr_ongoing,
             'nr_total': assignments.count(),
             'nr_last_12mo': nr_last_12mo,
-            'nr_accepted': nr_accepted, 
+            'nr_accepted': nr_accepted,
             'nr_accepted_last_12mo': nr_accepted_last_12mo,
             'nr_refused': nr_refused,
             'nr_refused_last_12mo': nr_refused_last_12mo,
@@ -341,16 +351,16 @@ class UnavailabilityPeriod(models.Model):
 
 class Remark(models.Model):
     contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-    recommendation = models.ForeignKey('submissions.EICRecommendation', 
-                                       on_delete=models.CASCADE, 
+    recommendation = models.ForeignKey('submissions.EICRecommendation',
+                                       on_delete=models.CASCADE,
                                        blank=True, null=True)
     date = models.DateTimeField()
     remark = models.TextField()
 
     def __str__(self):
-        return (title_dict[self.contributor.title] + ' ' 
+        return (title_dict[self.contributor.title] + ' '
                 + self.contributor.user.first_name + ' '
-                + self.contributor.user.last_name + ' on ' 
+                + self.contributor.user.last_name + ' on '
                 + self.date.strftime("%Y-%m-%d"))
 
     def as_li(self):
@@ -360,7 +370,7 @@ class Remark(models.Model):
         template = Template(output)
         return template.render(context)
 
-        
+
 ##################
 ## Invitations ###
 ##################
@@ -379,7 +389,7 @@ INVITATION_STYLE = (
     )
 
 class RegistrationInvitation(models.Model):
-    """ 
+    """
     Invitation to particular persons for registration
     """
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
@@ -387,10 +397,10 @@ class RegistrationInvitation(models.Model):
     last_name = models.CharField(max_length=30, default='')
     email = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE, default='C')
-    cited_in_submission = models.ForeignKey('submissions.Submission', 
-                                            on_delete=models.CASCADE, 
+    cited_in_submission = models.ForeignKey('submissions.Submission',
+                                            on_delete=models.CASCADE,
                                             blank=True, null=True)
-    cited_in_publication = models.ForeignKey('journals.Publication', 
+    cited_in_publication = models.ForeignKey('journals.Publication',
                                              on_delete=models.CASCADE,
                                              blank=True, null=True)
     message_style = models.CharField(max_length=1, choices=INVITATION_STYLE, default='F')
@@ -399,7 +409,7 @@ class RegistrationInvitation(models.Model):
     key_expires = models.DateTimeField(default=timezone.now)
     date_sent = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey(Contributor,
-                                   on_delete=models.CASCADE, 
+                                   on_delete=models.CASCADE,
                                    blank=True, null=True)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
@@ -407,7 +417,7 @@ class RegistrationInvitation(models.Model):
     declined = models.BooleanField(default=False)
 
     def __str__ (self):
-        return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name 
+        return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name
                 + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
 
 
@@ -419,23 +429,23 @@ AUTHORSHIP_CLAIM_STATUS = (
 )
 
 class AuthorshipClaim(models.Model):
-    claimant = models.ForeignKey(Contributor, 
-                                 on_delete=models.CASCADE, 
+    claimant = models.ForeignKey(Contributor,
+                                 on_delete=models.CASCADE,
                                  related_name='claimant')
-    submission = models.ForeignKey('submissions.Submission', 
-                                   on_delete=models.CASCADE, 
+    submission = models.ForeignKey('submissions.Submission',
+                                   on_delete=models.CASCADE,
                                    blank=True, null=True)
-    commentary = models.ForeignKey('commentaries.Commentary', 
-                                   on_delete=models.CASCADE, 
+    commentary = models.ForeignKey('commentaries.Commentary',
+                                   on_delete=models.CASCADE,
                                    blank=True, null=True)
-    thesislink = models.ForeignKey('theses.ThesisLink', 
-                                   on_delete=models.CASCADE, 
+    thesislink = models.ForeignKey('theses.ThesisLink',
+                                   on_delete=models.CASCADE,
                                    blank=True, null=True)
-    vetted_by = models.ForeignKey (Contributor, 
+    vetted_by = models.ForeignKey (Contributor,
                                    on_delete=models.CASCADE,
                                    blank=True, null=True)
     status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS, default=0)
-    
+
 
 
 #######################
@@ -451,7 +461,7 @@ class AuthorshipClaim(models.Model):
 #    )
 
 #class Assessment(models.Model):
-#    """ 
+#    """
 #    Base class for all assessments.
 #    """
 #    rater = models.ForeignKey(Contributor, on_delete=models.CASCADE)
@@ -567,7 +577,7 @@ class NewsItem(models.Model):
                       '<p>{{ date }}</p>'
                       '<p>{{ blurb }}</p>'
                   )
-        context = Context({'headline': self.headline, 
+        context = Context({'headline': self.headline,
                            'date': self.date.strftime('%Y-%m-%d'),
                            'blurb': self.blurb,})
         if self.followup_link:
@@ -585,7 +595,7 @@ class NewsItem(models.Model):
                       '<p>{{ date }}</p>'
                       '<p>{{ blurb }}</p>'
                   )
-        context = Context({'headline': self.headline, 
+        context = Context({'headline': self.headline,
                            'date': self.date.strftime('%Y-%m-%d'),
                            'blurb': self.blurb,})
         if self.followup_link:
@@ -596,7 +606,7 @@ class NewsItem(models.Model):
         return template.render(context)
 
 
-        
+
 #########
 # Lists #
 #########
@@ -612,13 +622,13 @@ class List(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     created = models.DateTimeField(default=timezone.now)
-    submissions = models.ManyToManyField('submissions.Submission', blank=True, 
+    submissions = models.ManyToManyField('submissions.Submission', blank=True,
                                          related_name='list_submissions')
-    commentaries = models.ManyToManyField('commentaries.Commentary', blank=True, 
+    commentaries = models.ManyToManyField('commentaries.Commentary', blank=True,
                                           related_name='list_commentaries')
-    thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True, 
+    thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True,
                                          related_name='list_thesislinks')
-    comments = models.ManyToManyField('comments.Comment', blank=True, 
+    comments = models.ManyToManyField('comments.Comment', blank=True,
                                       related_name='list_comments')
 
     class Meta:
@@ -626,7 +636,7 @@ class List(models.Model):
 
 
     def __str__(self):
-        return (self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' ' 
+        return (self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' '
                 + self.owner.user.last_name + ')')
 
 
@@ -705,12 +715,12 @@ class Team(models.Model):
 
 
     def __str__(self):
-        return (self.name + ' (led by ' + self.leader.user.first_name + ' ' 
+        return (self.name + ' (led by ' + self.leader.user.first_name + ' '
                 + self.leader.user.last_name + ')')
 
     def header_as_li(self):
         context = Context({'name': self.name,})
-        output = ('<li><p>Team {{ name }}, led by ' + self.leader.user.first_name + ' ' 
+        output = ('<li><p>Team {{ name }}, led by ' + self.leader.user.first_name + ' '
                   + self.leader.user.last_name + '</p>')
         output += '<p>Members: '
         if not self.members.all():
@@ -728,7 +738,7 @@ class Team(models.Model):
 ##########
 
 class Graph(models.Model):
-    """ 
+    """
     A Graph is a collection of Nodes with directed arrows,
     representing e.g. a reading list, exploration path, etc.
     If private, only the teams in teams_with_access can see/edit it.
@@ -745,12 +755,12 @@ class Graph(models.Model):
 
 
     def __str__(self):
-        return (self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' ' 
+        return (self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' '
                 + self.owner.user.last_name + ')')
 
     def header_as_li(self):
-        context = Context({'id': self.id, 'title': self.title, 
-                           'first_name': self.owner.user.first_name, 
+        context = Context({'id': self.id, 'title': self.title,
+                           'first_name': self.owner.user.first_name,
                            'last_name': self.owner.user.last_name})
         template = Template('''
         <li><p>Graph <a href="{% url 'scipost:graph' graph_id=id %}">
@@ -768,7 +778,7 @@ class Graph(models.Model):
 class Node(models.Model):
     """
     Node of a graph (directed).
-    Each node is composed of a set of submissions, commentaries, thesislinks. 
+    Each node is composed of a set of submissions, commentaries, thesislinks.
     Accessibility rights are set in the Graph ForeignKey.
     """
     graph = models.ForeignKey(Graph, on_delete=models.CASCADE, default=None)
@@ -776,11 +786,11 @@ class Node(models.Model):
     created = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
-    submissions = models.ManyToManyField('submissions.Submission', blank=True, 
+    submissions = models.ManyToManyField('submissions.Submission', blank=True,
                                          related_name='node_submissions')
-    commentaries = models.ManyToManyField('commentaries.Commentary', blank=True, 
+    commentaries = models.ManyToManyField('commentaries.Commentary', blank=True,
                                           related_name='node_commentaries')
-    thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True, 
+    thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True,
                                          related_name='node_thesislinks')
 
     class Meta:
@@ -788,7 +798,7 @@ class Node(models.Model):
 
 
     def __str__(self):
-        return self.graph.title[:20] + ': ' + self.name[:20] 
+        return self.graph.title[:20] + ': ' + self.name[:20]
 
     def header_as_p(self):
         context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name})
@@ -798,8 +808,8 @@ class Node(models.Model):
         return template.render(context)
 
     def contents(self):
-        context = Context({'graph_id': self.graph.id, 
-                           'id': self.id, 'name': self.name, 
+        context = Context({'graph_id': self.graph.id,
+                           'id': self.id, 'name': self.name,
                            'description': self.description})
         output = ('<div class="node_contents node_id{{ id }}">'
                   + '<h3>{{ name }}</h3><p>{{ description }}</p></div>')
@@ -910,6 +920,6 @@ class SPBMembershipAgreement(models.Model):
     offered_yearly_contribution = models.SmallIntegerField(default=0)
 
     def __str__(self):
-        return (str(self.partner) + 
+        return (str(self.partner) +
                 ' [' + spb_membership_duration_dict[self.duration] +
                 ' from ' + self.start_date.strftime('%Y-%m-%d') + ']')

@@ -40,9 +40,9 @@ SUBMISSION_STATUS = (
 submission_status_dict = dict(SUBMISSION_STATUS)
 
 SUBMISSION_STATUS_OUT_OF_POOL = [
-    'assignment_failed', 
-    'resubmitted', 
-    'published', 
+    'assignment_failed',
+    'resubmitted',
+    'published',
     'withdrawn',
 ]
 
@@ -79,16 +79,16 @@ class Submission(models.Model):
     is_resubmission = models.BooleanField(default=False)
     submitted_by = models.ForeignKey(Contributor)
     editor_in_charge = models.ForeignKey(Contributor, related_name='EIC', blank=True, null=True)
-    submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT, 
+    submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
                                             verbose_name="Journal to be submitted to")
-    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE, 
+    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
                                        blank=True, null=True, default=None)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
 #    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
-    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, 
+    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    secondary_areas = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), 
+    secondary_areas = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
                                        blank=True, null=True)
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
     author_comments = models.TextField(blank=True, null=True)
@@ -103,9 +103,9 @@ class Submission(models.Model):
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_sub')
-    authors_claims = models.ManyToManyField (Contributor, blank=True, 
+    authors_claims = models.ManyToManyField (Contributor, blank=True,
                                              related_name='authors_sub_claims')
-    authors_false_claims = models.ManyToManyField (Contributor, blank=True, 
+    authors_false_claims = models.ManyToManyField (Contributor, blank=True,
                                                    related_name='authors_sub_false_claims')
     abstract = models.TextField()
     arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
@@ -120,9 +120,9 @@ class Submission(models.Model):
         permissions = (
             ('can_take_editorial_actions', 'Can take editorial actions'),
             )
-    
+
     def __str__ (self):
-        header = (self.arxiv_identifier_w_vn_nr + ', ' 
+        header = (self.arxiv_identifier_w_vn_nr + ', '
                   + self.title[:30] + ' by ' + self.author_list[:30])
         if self.is_current:
             header += ' (current version)'
@@ -150,7 +150,7 @@ class Submission(models.Model):
         if self.authors.all():
             header += '<td>'
             for auth in self.authors.all():
-                header += ('<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name 
+                header += ('<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name
                            + ' ' + auth.user.last_name + '</a>&nbsp;&nbsp;')
             header += '</td>'
         else:
@@ -168,9 +168,9 @@ class Submission(models.Model):
         template = Template(header)
         context = Context({'title': self.title, 'author_list': self.author_list,
                            'arxiv_link': self.arxiv_link, 'submission_date': self.submission_date,
-                           'submitted_by': self.submitted_by, 
+                           'submitted_by': self.submitted_by,
                            'to_journal': journals_submit_dict[self.submitted_to_journal],
-                           'domain': journals_domains_dict[self.domain], 
+                           'domain': journals_domains_dict[self.domain],
 #                           'spec': journals_spec_dict[self.specialization],
                            'subject_area': subject_areas_dict[self.subject_area],
                        })
@@ -195,10 +195,10 @@ class Submission(models.Model):
                    ' - latest activity: {{ latest_activity }}</p>'
                    #'</div></div>'
                    '</li>')
-        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
+        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr,
                            'arxiv_vn_nr': self.arxiv_vn_nr,
                            'title': self.title, 'author_list': self.author_list,
-                           'submission_date': self.submission_date, 
+                           'submission_date': self.submission_date,
                            'to_journal': journals_submit_dict[self.submitted_to_journal],
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
         template = Template(header)
@@ -223,10 +223,10 @@ class Submission(models.Model):
                    '<p>Status: {{ status }}</p>'
                    #'</div></div>'
                    '</li>')
-        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
+        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr,
                            'arxiv_vn_nr': self.arxiv_vn_nr,
                            'title': self.title, 'author_list': self.author_list,
-                           'submission_date': self.submission_date, 
+                           'submission_date': self.submission_date,
                            'to_journal': journals_submit_dict[self.submitted_to_journal],
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M'),
                            'status': submission_status_dict[self.status]})
@@ -254,7 +254,7 @@ class Submission(models.Model):
         template = Template(header)
         context = Context({})
         return template.render(context)
-    
+
 
     def header_as_li_for_Fellows (self):
         # for submissions pool
@@ -280,17 +280,17 @@ class Submission(models.Model):
         header += self.refereeing_status_as_p()
         header += (#'</div></div>'
                    '</li>')
-        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
+        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr,
                            'arxiv_vn_nr': self.arxiv_vn_nr,
                            'title': self.title, 'author_list': self.author_list,
-                           'submission_date': self.submission_date, 
+                           'submission_date': self.submission_date,
                            'to_journal': journals_submit_dict[self.submitted_to_journal],
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M'),
                            'EIC': str(self.editor_in_charge),
                            'status': submission_status_dict[self.status]})
         template = Template(header)
         return template.render(context)
-    
+
 
     def simple_header_as_li (self):
         # for Lists
@@ -309,7 +309,7 @@ class Submission(models.Model):
         header += ('</p>'
                    #'</div></div>'
                    '</li>')
-        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
+        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr,
                            'arxiv_vn_nr': self.arxiv_vn_nr,
                            'title': self.title, 'author_list': self.author_list})
         template = Template(header)
@@ -330,7 +330,7 @@ class Submission(models.Model):
         header += ('</p>'
                    #'</div>'
                    '</li>')
-        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr, 
+        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr,
                            'arxiv_vn_nr': self.arxiv_vn_nr,})
         template = Template(header)
         return template.render(context)
@@ -373,15 +373,15 @@ class EditorialAssignment(models.Model):
     to = models.ForeignKey(Contributor)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
     # attribute `deprecated' becomes True if another Fellow becomes Editor-in-charge
-    deprecated = models.BooleanField(default=False) 
+    deprecated = models.BooleanField(default=False)
     completed = models.BooleanField(default=False)
-    refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, 
+    refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS,
                                       blank=True, null=True)
     date_created = models.DateTimeField(default=timezone.now)
     date_answered = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return (self.to.user.first_name + ' ' + self.to.user.last_name + ' to become EIC of ' + 
+        return (self.to.user.first_name + ' ' + self.to.user.last_name + ' to become EIC of ' +
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', requested on ' + self.date_created.strftime('%Y-%m-%d'))
 
@@ -412,7 +412,7 @@ class EditorialAssignment(models.Model):
         info += '</li>'
         template = Template(info)
         return template.render(context)
-        
+
     def header_as_li_for_eic(self):
         header = ('<li>'
                   #'<div class="flex-container">'
@@ -427,9 +427,9 @@ class EditorialAssignment(models.Model):
                   #'</div></div>'
                   '</li>')
         template = Template(header)
-        context = Context({'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr, 
+        context = Context({'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr,
                            'title': self.submission.title,
-                           'author_list': self.submission.author_list, 
+                           'author_list': self.submission.author_list,
                            'date': self.submission.submission_date,
                            'to_journal': journals_submit_dict[self.submission.submitted_to_journal],
                            'status': submission_status_dict[self.submission.status]})
@@ -449,9 +449,9 @@ class EditorialAssignment(models.Model):
                   '</li>'
               )
         template = Template(header)
-        context = Context({'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr, 
+        context = Context({'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr,
                            'title': self.submission.title,
-                           'author_list': self.submission.author_list, 
+                           'author_list': self.submission.author_list,
                            'date': self.submission.submission_date,
                            'to_journal': journals_submit_dict[self.submission.submitted_to_journal],
                            'status': submission_status_dict[self.submission.status]})
@@ -466,24 +466,24 @@ class RefereeInvitation(models.Model):
     last_name = models.CharField(max_length=30, default='')
     email_address = models.EmailField()
     # if Contributor not found, person is invited to register
-    invitation_key = models.CharField(max_length=40, default='') 
+    invitation_key = models.CharField(max_length=40, default='')
     date_invited = models.DateTimeField(default=timezone.now)
-    invited_by = models.ForeignKey(Contributor, related_name='referee_invited_by', 
+    invited_by = models.ForeignKey(Contributor, related_name='referee_invited_by',
                                    blank=True, null=True)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
     date_responded = models.DateTimeField(blank=True, null=True)
-    refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, 
+    refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS,
                                       blank=True, null=True)
     fulfilled = models.BooleanField(default=False) # True if a Report has been submitted
     cancelled = models.BooleanField(default=False) # True if EIC has deactivated invitation
 
     def __str__(self):
-        return (self.first_name + ' ' + self.last_name + ' to referee ' + 
+        return (self.first_name + ' ' + self.last_name + ' to referee ' +
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))
-    
+
     # def summary_as_li(self):
     #     context = Context({'first_name': self.first_name, 'last_name': self.last_name,
     #                        'date_invited': self.date_invited.strftime('%Y-%m-%d %H:%M')})
@@ -492,7 +492,7 @@ class RefereeInvitation(models.Model):
     #         if self.accepted:
     #             output += '<strong style="color: green">task accepted</strong> '
     #         else:
-    #             output += '<strong style="color: red">task declined</strong> ' 
+    #             output += '<strong style="color: red">task declined</strong> '
     #         output += '{{ date_responded }}'
     #         context['date_responded'] = self.date_responded.strftime('%Y-%m-%d %H:%M')
     #     else:
@@ -512,7 +512,7 @@ class RefereeInvitation(models.Model):
             if self.accepted:
                 output += '<strong style="color: green">task accepted</strong> '
             else:
-                output += '<strong style="color: red">task declined</strong> ' 
+                output += '<strong style="color: red">task declined</strong> '
             output += '<br/>{{ date_responded }}'
             context['date_responded'] = self.date_responded.strftime('%Y-%m-%d %H:%M')
         else:
@@ -522,7 +522,7 @@ class RefereeInvitation(models.Model):
         output += '</td>'
         template = Template(output)
         return template.render(context)
-    
+
 
 ###########
 # Reports:
@@ -565,7 +565,7 @@ REPORT_REC = (
     )
 report_rec_dict = dict(REPORT_REC)
 
-class Report(models.Model):    
+class Report(models.Model):
     """ Both types of reports, invited or contributed. """
     # status: see forms.py:REPORT_REFUSAL_CHOICES
     # 1: vetted
@@ -576,15 +576,15 @@ class Report(models.Model):
     # -4: rejected (not academic in style)
     status = models.SmallIntegerField(default=0)
     submission = models.ForeignKey(Submission)
-    vetted_by = models.ForeignKey(Contributor, related_name="report_vetted_by", 
+    vetted_by = models.ForeignKey(Contributor, related_name="report_vetted_by",
                                   blank=True, null=True)
     # `invited' filled from RefereeInvitation objects at moment of report submission
-    invited = models.BooleanField(default=False) 
+    invited = models.BooleanField(default=False)
     # `flagged' if author of report has been flagged by submission authors (surname check only)
-    flagged = models.BooleanField(default=False) 
+    flagged = models.BooleanField(default=False)
     date_submitted = models.DateTimeField('date submitted')
     author = models.ForeignKey(Contributor)
-    qualification = models.PositiveSmallIntegerField(choices=REFEREE_QUALIFICATION, 
+    qualification = models.PositiveSmallIntegerField(choices=REFEREE_QUALIFICATION,
                                                      verbose_name="Qualification to referee this: I am ")
     # Text-based reporting
     strengths = models.TextField()
@@ -598,9 +598,9 @@ class Report(models.Model):
     clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
     formatting = models.SmallIntegerField(choices=QUALITY_SPEC, verbose_name="Quality of paper formatting")
     grammar = models.SmallIntegerField(choices=QUALITY_SPEC, verbose_name="Quality of English grammar")
-    # 
+    #
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
-    remarks_for_editors = models.TextField(default='', blank=True, 
+    remarks_for_editors = models.TextField(default='', blank=True,
                                            verbose_name='optional remarks for the Editors only')
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
 
@@ -624,7 +624,7 @@ class Report(models.Model):
         template = Template(output)
         return template.render(context)
 
-    
+
     def print_contents(self):
         context = Context({'strengths': self.strengths, 'weaknesses': self.weaknesses,
                            'report': self.report, 'requested_changes': self.requested_changes})
@@ -647,8 +647,8 @@ class Report(models.Model):
                   '</ul></div>')
         template = Template(output)
         return template.render(context)
-    
-                  
+
+
     def print_contents_for_editors(self):
         context = Context({'id': self.id, 'author_id': self.author.id,
                            'author_first_name': self.author.user.first_name,
@@ -664,7 +664,7 @@ class Report(models.Model):
                    '{{ author_first_name }} {{ author_last_name }}</a>'
                    ' on {{ date_submitted }}</h3></div>'
                    '<div class="row"><div class="col-2">Qualification:</p></div>'
-                   '<div class="col-10"><p>' 
+                   '<div class="col-10"><p>'
                    + ref_qualif_dict[self.qualification] + '</p></div></div>')
         output += self.print_contents()
         output += '<h3>Remarks for editors</h3><p>{{ remarks_for_editors }}</p>'
@@ -688,27 +688,27 @@ ED_COMM_CHOICES = (
 ed_comm_choices_dict = dict(ED_COMM_CHOICES)
 
 class EditorialCommunication(models.Model):
-    """ 
-    Each individual communication between Editor-in-charge 
+    """
+    Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
     """
     submission = models.ForeignKey(Submission)
-    referee = models.ForeignKey(Contributor, related_name='referee_in_correspondence', 
+    referee = models.ForeignKey(Contributor, related_name='referee_in_correspondence',
                                 blank=True, null=True)
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
 
     def __str__ (self):
-        output = self.comtype 
+        output = self.comtype
         if self.referee is not None:
             output += ' ' + self.referee.user.first_name + ' ' + self.referee.user.last_name
-        output += (' for submission ' + self.submission.title[:30] + ' by ' 
+        output += (' for submission ' + self.submission.title[:30] + ' by '
                    + self.submission.author_list[:30])
         return output
 
     def print_contents_as_li(self):
-        context = Context({'timestamp': self.timestamp.strftime("%Y-%m-%d %H:%M"), 
+        context = Context({'timestamp': self.timestamp.strftime("%Y-%m-%d %H:%M"),
                            'text': self.text})
         output = '<li><p>'
         if self.comtype == 'EtoA':
@@ -748,7 +748,7 @@ class EICRecommendation(models.Model):
     remarks_for_authors = models.TextField(blank=True, null=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True, null=True)
     remarks_for_editorial_college = models.TextField(
-        default='', blank=True, null=True, 
+        default='', blank=True, null=True,
         verbose_name='optional remarks for the Editorial College')
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     # Editorial Fellows who have assessed this recommendation:
@@ -757,7 +757,7 @@ class EICRecommendation(models.Model):
     voted_against = models.ManyToManyField (Contributor, blank=True, related_name='voted_against')
     voted_abstain = models.ManyToManyField (Contributor, blank=True, related_name='voted_abstain')
     voting_deadline = models.DateTimeField('date submitted', default=timezone.now)
- 
+
     def __str__(self):
         return (self.submission.title[:20] + ' by ' + self.submission.author_list[:30] +
                 ', ' + report_rec_dict[self.recommendation])
@@ -765,7 +765,7 @@ class EICRecommendation(models.Model):
     @property
     def nr_for(self):
         return self.voted_for.count()
-        
+
     @property
     def nr_against(self):
         return self.voted_against.count()
@@ -800,7 +800,7 @@ class EICRecommendation(models.Model):
                   '<h3>Recommendation</h3>'
                   '<p>{{ recommendation }}</p>')
         context = Context({
-            'Fellow': (title_dict[self.submission.editor_in_charge.title] + 
+            'Fellow': (title_dict[self.submission.editor_in_charge.title] +
                        ' ' + self.submission.editor_in_charge.user.first_name +
                        ' ' + self.submission.editor_in_charge.user.last_name),
             'date_submitted': self.date_submitted.strftime('%Y-%m-%d %H:%M'),

@@ -13,12 +13,12 @@ class JournalUtils(object):
     @classmethod
     def send_authors_paper_published_email(cls):
         """ Requires loading 'publication' attribute. """
-        email_text = ('Dear ' 
-                      + title_dict[cls.publication.accepted_submission.submitted_by.title] 
+        email_text = ('Dear '
+                      + title_dict[cls.publication.accepted_submission.submitted_by.title]
                       + ' ' +
                       cls.publication.accepted_submission.submitted_by.user.last_name +
                       ', \n\nWe are happy to inform you that your Submission to SciPost,\n\n' +
-                      cls.publication.accepted_submission.title + 
+                      cls.publication.accepted_submission.title +
                       ' by ' + cls.publication.accepted_submission.author_list +
                       '\n\nhas been published online with reference '
                       + cls.publication.citation() + '.'
@@ -33,7 +33,7 @@ class JournalUtils(object):
         emailmessage = EmailMessage(
             'SciPost: paper published', email_text,
             'SciPost Editorial Admin <admin@scipost.org>',
-            [cls.publication.accepted_submission.submitted_by.user.email, 
+            [cls.publication.accepted_submission.submitted_by.user.email,
              'admin@scipost.org'],
             reply_to=['admin@scipost.org'])
         emailmessage.send(fail_silently=False)
@@ -42,4 +42,3 @@ class JournalUtils(object):
     @classmethod
     def generate_metadata_xml_file(cls):
         """ Requires loading 'publication' attribute. """
-        

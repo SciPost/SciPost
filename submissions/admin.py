@@ -21,7 +21,7 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
     search_fields = ['submission__title', 'submission__author_list',
                      'referee__user__last_name',
                      'first_name', 'last_name', 'email_address', ]
-                     
+
 
 admin.site.register(RefereeInvitation, RefereeInvitationAdmin)
 

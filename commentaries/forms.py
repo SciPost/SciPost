@@ -4,8 +4,8 @@ from .models import Commentary
 
 
 COMMENTARY_ACTION_CHOICES = (
-    (0, 'modify'), 
-    (1, 'accept'), 
+    (0, 'modify'),
+    (1, 'accept'),
     (2, 'refuse (give reason below)'),
     )
 
@@ -23,7 +23,7 @@ class DOIToQueryForm(forms.Form):
 
 class IdentifierToQueryForm(forms.Form):
     identifier = forms.CharField(widget=forms.TextInput(
-        {'label': 'arXiv identifier', 
+        {'label': 'arXiv identifier',
          'placeholder': 'new style ####.####(#)v# or old-style e.g. cond-mat/#######'}))
 
 
@@ -31,10 +31,10 @@ class RequestCommentaryForm(forms.ModelForm):
     class Meta:
         model = Commentary
         fields = ['type', 'discipline', 'domain', 'subject_area',
-                  'pub_title', 'author_list', 
+                  'pub_title', 'author_list',
                   'metadata',
-                  'journal', 'volume', 'pages', 'pub_date', 
-                  'arxiv_identifier', 
+                  'journal', 'volume', 'pages', 'pub_date',
+                  'arxiv_identifier',
                   'pub_DOI', 'pub_abstract']
 
     def __init__(self, *args, **kwargs):
@@ -47,8 +47,8 @@ class RequestCommentaryForm(forms.ModelForm):
         self.fields['pub_abstract'].widget.attrs.update({'cols': 100})
 
 class VetCommentaryForm(forms.Form):
-    action_option = forms.ChoiceField(widget=forms.RadioSelect, 
-                                      choices=COMMENTARY_ACTION_CHOICES, 
+    action_option = forms.ChoiceField(widget=forms.RadioSelect,
+                                      choices=COMMENTARY_ACTION_CHOICES,
                                       required=True, label='Action')
     refusal_reason = forms.ChoiceField(choices=COMMENTARY_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(
@@ -58,4 +58,3 @@ class CommentarySearchForm(forms.Form):
     pub_author = forms.CharField(max_length=100, required=False, label="Author(s)")
     pub_title_keyword = forms.CharField(max_length=100, label="Title", required=False)
     pub_abstract_keyword = forms.CharField(max_length=1000, required=False, label="Abstract")
-

@@ -143,10 +143,10 @@
     {% if report.flagged %}
     <h4 style="color: red">CAUTION: check if this referee has been flagged by the authors</h4>
     {% endif %}
-    {{ report.print_contents_for_editors|linebreaks }} 
+    {{ report.print_contents_for_editors|linebreaks }}
     {% else %}
-    {{ report.print_identifier }} 
-    {{ report.print_contents|linebreaks }} 
+    {{ report.print_identifier }}
+    {{ report.print_contents|linebreaks }}
     {% endif %}
 
     <hr style="border-style: dotted;" />

@@ -17,7 +17,7 @@ class InitiatePublicationForm(forms.Form):
     acceptance_date = forms.DateField()
     to_be_issued_in = forms.ModelChoiceField(
         queryset=Issue.objects.filter(until_date__gt=timezone.now()))
-    
+
     def __init__(self, *args, **kwargs):
         super(InitiatePublicationForm, self).__init__(*args, **kwargs)
         self.fields['original_submission_date'].widget.attrs.update(
@@ -28,10 +28,10 @@ class InitiatePublicationForm(forms.Form):
 # class InitiatePublicationForm(forms.ModelForm):
 #     class Meta:
 #         model = Publication
-#         fields = ['accepted_submission', 
-#                   #'in_journal', 'volume', 'issue', 
+#         fields = ['accepted_submission',
+#                   #'in_journal', 'volume', 'issue',
 #                   'in_issue', 'paper_nr',
-#                   'pdf_file', 
+#                   'pdf_file',
 #                   'submission_date', 'acceptance_date',
 #         ]
 #     # accepted_submission = forms.ModelChoiceField(
@@ -107,7 +107,7 @@ class FundingInfoForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(FundingInfoForm, self).__init__(*args, **kwargs)
         self.fields['funding_statement'].widget.attrs.update(
-            {'rows': 10, 'cols': 50, 
+            {'rows': 10, 'cols': 50,
              'placeholder': 'Paste the funding info statement here'})
 
 

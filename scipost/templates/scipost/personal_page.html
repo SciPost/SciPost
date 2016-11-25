@@ -88,7 +88,7 @@
 {% if not request.user|is_in_group:'Registered Contributors' %}
 <section>
   <hr class="hr12">
-  <h3>Your credentials will soon be verified by an Editor.</h3> 
+  <h3>Your credentials will soon be verified by an Editor.</h3>
   <p>If accepted, you will become a registered Contributor, enabling you to submit, comment and vote.</p>
 </section>
 
@@ -213,8 +213,8 @@
       <p>You don't have any upcoming unavailability periods on record.</p>
       {% endif %}
     </div>
-  </div>  
-  
+  </div>
+
 </section>
 
 
@@ -351,7 +351,7 @@
       <p><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr comtype='AtoE' %}">Write to the Editor-in-charge</a>.</p>
       {% endif %}
       {% endfor %}
-    </ul>  
+    </ul>
     {% endif %}
   </div>
 </section>
@@ -375,7 +375,7 @@
       {% for com in own_commentaries %}
       {{ com.header_as_li }}
       {% endfor %}
-    </ul>  
+    </ul>
     {% endif %}
   </div>
 </section>

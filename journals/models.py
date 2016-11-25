@@ -83,7 +83,7 @@ SCIPOST_JOURNALS_DOMAINS = (
     ('ET', 'Exp. & Theor.'),
     ('EC', 'Exp. & Comp.'),
     ('TC', 'Theor. & Comp.'),
-    ('ETC', 'Exp., Theor. & Comp.'), 
+    ('ETC', 'Exp., Theor. & Comp.'),
 )
 journals_domains_dict = dict(SCIPOST_JOURNALS_DOMAINS)
 
@@ -108,7 +108,7 @@ class Journal(models.Model):
                             unique=True)
     doi_string = models.CharField(max_length=200, blank=True, null=True)
     issn = models.CharField(max_length=16, default='2542-4653')
-    
+
     def __str__(self):
         return self.name
 
@@ -131,7 +131,7 @@ class Issue(models.Model):
     until_date = models.DateField(default=timezone.now)
     doi_string = models.CharField(max_length=200, blank=True, null=True)
     # absolute path on filesystem: (JOURNALS_DIR)/journal/vol/issue/
-    path = models.CharField(max_length=200) 
+    path = models.CharField(max_length=200)
 
     def __str__(self):
         text = str(self.in_volume) + ' issue ' + str(self.number)
@@ -140,7 +140,7 @@ class Issue(models.Model):
         if self.start_date.month == self.until_date.month:
             text += ' (' + self.until_date.strftime('%B') + ' ' + self.until_date.strftime('%Y') + ')'
         else:
-            text += (' (' + self.start_date.strftime('%B') + '-' + self.until_date.strftime('%B') + 
+            text += (' (' + self.start_date.strftime('%B') + '-' + self.until_date.strftime('%B') +
                      ' ' + self.until_date.strftime('%Y') + ')')
         return text
 
@@ -158,9 +158,9 @@ class Publication(models.Model):
     paper_nr = models.PositiveSmallIntegerField()
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
-    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, 
+    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    secondary_areas = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), 
+    secondary_areas = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
                                        blank=True, null=True)
     title = models.CharField(max_length=300)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
@@ -171,9 +171,9 @@ class Publication(models.Model):
     first_author = models.ForeignKey (Contributor, blank=True, null=True)
     first_author_unregistered = models.ForeignKey (UnregisteredAuthor, blank=True, null=True,
                                                    related_name='first_author_unregistered')
-    authors_claims = models.ManyToManyField (Contributor, blank=True, 
+    authors_claims = models.ManyToManyField (Contributor, blank=True,
                                              related_name='authors_pub_claims')
-    authors_false_claims = models.ManyToManyField (Contributor, blank=True, 
+    authors_false_claims = models.ManyToManyField (Contributor, blank=True,
                                                    related_name='authors_pub_false_claims')
     abstract = models.TextField()
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
@@ -187,7 +187,7 @@ class Publication(models.Model):
     publication_date = models.DateField(verbose_name='publication date')
     latest_activity = models.DateTimeField(default=timezone.now)
     citedby = JSONField(default={}, blank=True, null=True)
-    
+
     def __str__ (self):
         header = (self.citation() + ', '
                   + self.title[:30] + ' by ' + self.author_list[:30]
@@ -198,9 +198,9 @@ class Publication(models.Model):
         return (journal_name_abbrev_citation(self.in_issue.in_volume.in_journal.name)
                 + ' ' + str(self.in_issue.in_volume.number)
                 + '(' + str(self.in_issue.number) + '), '
-                + paper_nr_string(self.paper_nr) 
+                + paper_nr_string(self.paper_nr)
                 + ' (' + self.publication_date.strftime('%Y') + ')' )
-                                  
+
     def citation_for_web (self):
         citation = ('{{ abbrev }} <strong>{{ volume_nr }}</strong>({{ issue_nr }}), '
                     '{{ paper_nr }} ({{ year }})')
@@ -226,7 +226,7 @@ class Publication(models.Model):
              'paper_nr': paper_nr_string(self.paper_nr),
              'year': self.publication_date.strftime('%Y'),})
         return template.render(context)
-                                  
+
 
     # def doi_label_as_str(self):
     #     label = (
@@ -261,7 +261,7 @@ class Publication(models.Model):
 
 
     def details (self):
-        """ 
+        """
         This method is called from the publication_detail template.
         It provides all the details for a publication.
         """
@@ -303,7 +303,7 @@ class Publication(models.Model):
         nr = 0
         for cit in self.citedby:
             output += '<li>{{ auth_' + str(nr) + ' }}'
-            context['auth_' + str(nr)] = (cit['first_author_given_name'] 
+            context['auth_' + str(nr)] = (cit['first_author_given_name']
                                           + ' ' + cit['first_author_surname'])
             if cit['multiauthors']:
                 output += ' <em>et al.</em>'
@@ -334,7 +334,7 @@ class Publication(models.Model):
 class Deposit(models.Model):
     """
     Each time a Crossref deposit is made for a Publication,
-    a Deposit object instance is created containing the Publication's 
+    a Deposit object instance is created containing the Publication's
     current version of the metadata_xml field.
     All deposit history is thus contained here.
     """
@@ -344,5 +344,5 @@ class Deposit(models.Model):
     deposition_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return (deposition_date.strftime('%Y-%m-%D') + 
+        return (deposition_date.strftime('%Y-%m-%D') +
                 ' for ' + publication.doi_string)

@@ -93,7 +93,7 @@ ul.personalTabMenu li a.inactive {
 }
 
 .commentcategorychoices {
-  list-style-type: none; 
+  list-style-type: none;
 }
 .commentcategorydisplay {
   display: inline-block;
@@ -209,30 +209,30 @@ ul.personalTabMenu li a.inactive {
   padding: 5px 10px;
 }
 .flex-greybox {
-  background-color: #f4f4f4; 
+  background-color: #f4f4f4;
   margin: 10px;
   padding: 10px;
 }
 .flex-greybox320 {
-  background-color: #f4f4f4; 
+  background-color: #f4f4f4;
   width: 320px;
   margin: 10px;
   padding: 10px;
 }
 .flex-greybox480 {
-  background-color: #f4f4f4; 
+  background-color: #f4f4f4;
   width: 480px;
   margin: 10px;
   padding: 10px;
 }
 .flex-greybox640 {
-  background-color: #f4f4f4; 
+  background-color: #f4f4f4;
   width: 640px;
   margin: 10px;
   padding: 10px;
 }
 .flex-greybox800 {
-  background-color: #f4f4f4; 
+  background-color: #f4f4f4;
   width: 800px;
   margin: 10px;
   padding: 10px;
@@ -375,7 +375,7 @@ header p {
 nav {
   background-color: #f0f0f0;
   color: #002B49;
-  margin:0px; 
+  margin:0px;
   padding:0px;
   float:center;
   clear:both;
@@ -450,7 +450,7 @@ ol > li {
 ol > li:before {
   content: counters(item, ".") ". ";
   display: table-cell;
-  padding-right: 0.6em;    
+  padding-right: 0.6em;
 }
 li ol > li {
   margin: 0;
@@ -467,13 +467,13 @@ p#goodCommenter {
 section {
   color: #111111;
   background-color: white;
-  margin: 0px 15px; 
-  padding: 10px; 
+  margin: 0px 15px;
+  padding: 10px;
   text-align: justify;
 }
 section a {
   color: #103050;
-  color: #6884C2; 
+  color: #6884C2;
   text-decoration: none;
   target: _parent;
 }
@@ -788,7 +788,7 @@ p.publicationTitle {
 }
 
 p.publicationAuthors {
-  font-weight: bold;  
+  font-weight: bold;
 }
 
 ul.publicationClickables {

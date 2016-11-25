@@ -1,4 +1,4 @@
-from django import forms 
+from django import forms
 
 from django.db.models import Q
 
@@ -31,21 +31,21 @@ class RegistrationForm(forms.Form):
     last_name = forms.CharField(label='* Last name', max_length=100)
     email = forms.EmailField(label='* Email address')
     orcid_id = forms.CharField(
-        label="  ORCID id", max_length=20, 
-        widget=forms.TextInput({'placeholder': 'Recommended. Get one at orcid.org'}), 
+        label="  ORCID id", max_length=20,
+        widget=forms.TextInput({'placeholder': 'Recommended. Get one at orcid.org'}),
         required=False)
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
     country_of_employment = LazyTypedChoiceField(
-        choices=countries, label='* Country of employment', initial='NL', 
+        choices=countries, label='* Country of employment', initial='NL',
         widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
     affiliation = forms.CharField(label='* Affiliation', max_length=300)
     address = forms.CharField(
-        label='Address', max_length=1000, 
-        widget=forms.TextInput({'placeholder': 'For postal correspondence'}), 
+        label='Address', max_length=1000,
+        widget=forms.TextInput({'placeholder': 'For postal correspondence'}),
         required=False)
     personalwebpage = forms.URLField(
-        label='Personal web page', 
-        widget=forms.TextInput({'placeholder': 'full URL, e.g. http://www.[yourpage].com'}), 
+        label='Personal web page',
+        widget=forms.TextInput({'placeholder': 'full URL, e.g. http://www.[yourpage].com'}),
         required=False)
     username = forms.CharField(label='* Username', max_length=100)
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
@@ -56,9 +56,9 @@ class RegistrationForm(forms.Form):
 class RegistrationInvitationForm(forms.ModelForm):
     class Meta:
         model = RegistrationInvitation
-        fields = ['title', 'first_name', 'last_name', 'email', 
-                  'invitation_type', 
-                  'cited_in_submission', 'cited_in_publication', 
+        fields = ['title', 'first_name', 'last_name', 'email',
+                  'invitation_type',
+                  'cited_in_submission', 'cited_in_publication',
                   'message_style', 'personal_message']
 
     def __init__(self, *args, **kwargs):
@@ -76,12 +76,12 @@ class RegistrationInvitationForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field('title'), Field('first_name'), Field('last_name'), 
+                    Field('title'), Field('first_name'), Field('last_name'),
                     Field('email'), Field('invitation_type'),
                     css_class="col-6"),
                 Div(
                     Field('message_style'),
-                    Field('personal_message'), 
+                    Field('personal_message'),
                     Submit('submit', 'Send invitation'),
                     css_class="col-6"),
                 css_class="row"),
@@ -101,7 +101,7 @@ class UpdateUserDataForm(forms.ModelForm):
 class UpdatePersonalDataForm(forms.ModelForm):
     class Meta:
         model = Contributor
-        fields = ['title', 'discipline', 'expertises', 'orcid_id', 'country_of_employment', 
+        fields = ['title', 'discipline', 'expertises', 'orcid_id', 'country_of_employment',
                   'affiliation', 'address', 'personalwebpage',
                   'accepts_SciPost_emails']
         widgets = {'country_of_employment': CountrySelectWidget()}
@@ -110,7 +110,7 @@ class VetRegistrationForm(forms.Form):
     promote_to_registered_contributor = forms.BooleanField(required=False, label='Accept registration')
     refuse = forms.BooleanField(required=False)
     refusal_reason = forms.ChoiceField(choices=REGISTRATION_REFUSAL_CHOICES, required=False)
-    email_response_field = forms.CharField(widget=forms.Textarea(), 
+    email_response_field = forms.CharField(widget=forms.Textarea(),
                                            label='Justification (optional)', required=False)
 
 class AuthenticationForm(forms.Form):
@@ -287,11 +287,11 @@ class CreateArcForm(forms.Form):
 #############################
 # Supporting Partners Board #
 #############################
-    
+
 class SupportingPartnerForm(forms.ModelForm):
     class Meta:
         model = SupportingPartner
-        fields = ['partner_type', 'institution', 
+        fields = ['partner_type', 'institution',
                   'institution_acronym', 'institution_address',
                   'consortium_members',]
 
