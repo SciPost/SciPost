@@ -6,15 +6,17 @@ SciPost is written in Python 3.5 using Django and requires a PostgreSQL database
 Python dependencies are listed in `requirements.txt`.
 
 ## Getting started
+
 ### Python version
 Make sure you're using Python 3.5. If you need to use multiple versions of Python, use [pyenv](https://github.com/yyuu/pyenv).
+
 ### Python dependencies
 Setup a virtual environment using[(py)venv](https://docs.python.org/3/library/venv.html), and activate it:
 
 ```shell
 $ pyvenv scipostenv
 $ source scipostenv/bin/activate
- ```
+```
 
 Now install dependencies:
 
