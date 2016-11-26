@@ -154,7 +154,7 @@
 
     {% for reply in author_replies %}
     {% if reply.in_reply_to_report %}
-    {% if reply.in_reply_to_report.id = report.id %}
+    {% if reply.in_reply_to_report.id == report.id %}
     <div class="row">
       <div class="col-1"></div>
       <hr style="border-style: dotted;" />
@@ -229,7 +229,7 @@
 
     {% for reply in author_replies %}
     {% if reply.in_reply_to_report %}
-    {% if reply.in_reply_to_report.id = report.id %}
+    {% if reply.in_reply_to_report.id == report.id %}
     <div class="row">
       <div class="col-1"></div>
       <hr style="border-style: dotted;" />

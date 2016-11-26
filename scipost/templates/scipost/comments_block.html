@@ -53,7 +53,7 @@
 
     {% for reply in author_replies %}
     {% if reply.in_reply_to_comment %}
-    {% if reply.in_reply_to_comment.id = comment.id %}
+    {% if reply.in_reply_to_comment.id == comment.id %}
     <div class="row">
       <div class="col-1"></div>
       <hr style="border-style: dotted;" />
