@@ -19,9 +19,10 @@ thesis_type_dict = dict(THESIS_TYPES)
 class ThesisLink(models.Model):
     """ An URL pointing to a thesis """
     requested_by = models.ForeignKey (Contributor, blank=True, null=True,
-                                      related_name='thesislink_requested_by')
+                                      related_name='thesislink_requested_by',
+                                      on_delete=models.CASCADE)
     vetted = models.BooleanField(default=False)
-    vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
+    vetted_by = models.ForeignKey (Contributor, blank=True, null=True, on_delete=models.CASCADE)
     type = models.CharField(max_length=3, choices=THESIS_TYPES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS, blank=True)

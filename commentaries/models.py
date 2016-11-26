@@ -19,9 +19,10 @@ class Commentary(models.Model):
     """
     A Commentary contains all the contents of a SciPost Commentary page for a given publication.
     """
-    requested_by = models.ForeignKey (Contributor, blank=True, null=True, related_name='requested_by')
+    requested_by = models.ForeignKey (Contributor, blank=True, null=True,
+                                      on_delete=models.CASCADE, related_name='requested_by')
     vetted = models.BooleanField(default=False)
-    vetted_by = models.ForeignKey (Contributor, blank=True, null=True)
+    vetted_by = models.ForeignKey (Contributor, blank=True, null=True, on_delete=models.CASCADE)
     type = models.CharField(max_length=9, choices=COMMENTARY_TYPES) # published paper or arxiv preprint
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)

@@ -184,7 +184,7 @@ class Contributor(models.Model):
     Permissions determine the sub-types.
     username, password, email, first_name and last_name are inherited from User.
     """
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     invitation_key = models.CharField(max_length=40, default='',
                                       blank=True, null=True)
     activation_key = models.CharField(max_length=40, default='')
@@ -885,7 +885,7 @@ class SupportingPartner(models.Model):
     institution_acronym = models.CharField(max_length=10)
     institution_address = models.CharField(max_length=1000)
     consortium_members = models.TextField(blank=True, null=True)
-    contact_person = models.ForeignKey(Contributor)
+    contact_person = models.ForeignKey(Contributor, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.institution_acronym + ' (' + partner_status_dict[self.status] + ')'
@@ -912,7 +912,7 @@ class SPBMembershipAgreement(models.Model):
     Agreement for membership of the Supporting Partners Board.
     A new instance is created each time an Agreement is made or renewed.
     """
-    partner = models.ForeignKey(SupportingPartner)
+    partner = models.ForeignKey(SupportingPartner, on_delete=models.CASCADE)
     status = models.CharField(max_length=16, choices=SPB_MEMBERSHIP_AGREEMENT_STATUS)
     date_requested = models.DateField()
     start_date = models.DateField()

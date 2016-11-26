@@ -77,8 +77,9 @@ submission_type_dict = dict(SUBMISSION_TYPE)
 class Submission(models.Model):
     is_current = models.BooleanField(default=True)
     is_resubmission = models.BooleanField(default=False)
-    submitted_by = models.ForeignKey(Contributor)
-    editor_in_charge = models.ForeignKey(Contributor, related_name='EIC', blank=True, null=True)
+    submitted_by = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    editor_in_charge = models.ForeignKey(Contributor, related_name='EIC', blank=True, null=True,
+                                         on_delete=models.CASCADE)
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
                                             verbose_name="Journal to be submitted to")
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
@@ -369,8 +370,8 @@ ASSIGNMENT_REFUSAL_REASONS = (
 assignment_refusal_reasons_dict = dict(ASSIGNMENT_REFUSAL_REASONS)
 
 class EditorialAssignment(models.Model):
-    submission = models.ForeignKey(Submission)
-    to = models.ForeignKey(Contributor)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
+    to = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
     # attribute `deprecated' becomes True if another Fellow becomes Editor-in-charge
     deprecated = models.BooleanField(default=False)
@@ -459,8 +460,9 @@ class EditorialAssignment(models.Model):
 
 
 class RefereeInvitation(models.Model):
-    submission = models.ForeignKey(Submission)
-    referee = models.ForeignKey(Contributor, related_name='referee', blank=True, null=True)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
+    referee = models.ForeignKey(Contributor, related_name='referee', blank=True, null=True,
+                                on_delete=models.CASCADE)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30, default='')
     last_name = models.CharField(max_length=30, default='')
@@ -469,7 +471,7 @@ class RefereeInvitation(models.Model):
     invitation_key = models.CharField(max_length=40, default='')
     date_invited = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey(Contributor, related_name='referee_invited_by',
-                                   blank=True, null=True)
+                                   blank=True, null=True, on_delete=models.CASCADE)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
@@ -575,15 +577,15 @@ class Report(models.Model):
     # -3: rejected (not useful)
     # -4: rejected (not academic in style)
     status = models.SmallIntegerField(default=0)
-    submission = models.ForeignKey(Submission)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
     vetted_by = models.ForeignKey(Contributor, related_name="report_vetted_by",
-                                  blank=True, null=True)
+                                  blank=True, null=True, on_delete=models.CASCADE)
     # `invited' filled from RefereeInvitation objects at moment of report submission
     invited = models.BooleanField(default=False)
     # `flagged' if author of report has been flagged by submission authors (surname check only)
     flagged = models.BooleanField(default=False)
     date_submitted = models.DateTimeField('date submitted')
-    author = models.ForeignKey(Contributor)
+    author = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     qualification = models.PositiveSmallIntegerField(choices=REFEREE_QUALIFICATION,
                                                      verbose_name="Qualification to referee this: I am ")
     # Text-based reporting
@@ -692,9 +694,9 @@ class EditorialCommunication(models.Model):
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
     """
-    submission = models.ForeignKey(Submission)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
     referee = models.ForeignKey(Contributor, related_name='referee_in_correspondence',
-                                blank=True, null=True)
+                                blank=True, null=True, on_delete=models.CASCADE)
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
@@ -743,7 +745,7 @@ class EditorialCommunication(models.Model):
 
 # From the Editor-in-charge of a Submission
 class EICRecommendation(models.Model):
-    submission = models.ForeignKey(Submission)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
     remarks_for_authors = models.TextField(blank=True, null=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True, null=True)

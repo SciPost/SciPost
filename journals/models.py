@@ -114,7 +114,7 @@ class Journal(models.Model):
 
 
 class Volume(models.Model):
-    in_journal = models.ForeignKey(Journal)
+    in_journal = models.ForeignKey(Journal, on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField(unique=True)
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
@@ -125,7 +125,7 @@ class Volume(models.Model):
 
 
 class Issue(models.Model):
-    in_volume = models.ForeignKey(Volume)
+    in_volume = models.ForeignKey(Volume, on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField(unique=True)
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
@@ -153,14 +153,15 @@ class Issue(models.Model):
 
 
 class Publication(models.Model):
-    accepted_submission = models.OneToOneField('submissions.Submission')
-    in_issue = models.ForeignKey(Issue)
+    accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE)
+    in_issue = models.ForeignKey(Issue, on_delete=models.CASCADE)
     paper_nr = models.PositiveSmallIntegerField()
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    secondary_areas = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
+    secondary_areas = ChoiceArrayField(models.CharField(max_length=10,
+                                                        choices=SCIPOST_SUBJECT_AREAS),
                                        blank=True, null=True)
     title = models.CharField(max_length=300)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
@@ -168,8 +169,9 @@ class Publication(models.Model):
     authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_pub')
     authors_unregistered = models.ManyToManyField (UnregisteredAuthor, blank=True,
                                                    related_name='authors_unregistered')
-    first_author = models.ForeignKey (Contributor, blank=True, null=True)
+    first_author = models.ForeignKey (Contributor, blank=True, null=True, on_delete=models.CASCADE)
     first_author_unregistered = models.ForeignKey (UnregisteredAuthor, blank=True, null=True,
+                                                   on_delete=models.CASCADE,
                                                    related_name='first_author_unregistered')
     authors_claims = models.ManyToManyField (Contributor, blank=True,
                                              related_name='authors_pub_claims')
@@ -338,7 +340,7 @@ class Deposit(models.Model):
     current version of the metadata_xml field.
     All deposit history is thus contained here.
     """
-    publication = models.ForeignKey(Publication)
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
     doi_batch_id = models.CharField(max_length=40, default='')
     metadata_xml = models.TextField(blank=True, null=True)
     deposition_date = models.DateTimeField(default=timezone.now)
