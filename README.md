@@ -74,11 +74,12 @@ Groups and their respective permissions are created using the management command
 (scipostenv) $ ./manage.py create_groups_and_permissions
 ```
 
-### Run migrations
+### Create and run migrations
 Now that everything is setup, we can setup the datastructures. This is a step you need to repeat
 everytime the data structures change (Django should notify you of this):
 
 ```shell
+(scipostenv) $ ./manage.py makemigrations
 (scipostenv) $ ./manage.py migrate
 ```
 
