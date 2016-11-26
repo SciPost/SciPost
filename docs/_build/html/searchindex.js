@@ -1,1 +1,0 @@
-Search.setIndex({envversion:47,filenames:["index","modules/models","modules/views"],objects:{},objnames:{},objtypes:{},terms:{content:0,index:0,model:[],modul:0,page:0,search:0,view:[]},titles:["Welcome to SciPost&#8217;s documentation!","Models","Views"],titleterms:{document:0,indic:0,model:1,scipost:0,tabl:0,view:2,welcom:0}})
