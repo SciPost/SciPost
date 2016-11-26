@@ -7,6 +7,9 @@
 
 *~
 
+venv*
+.python-version
+
 media/temp
 
 SCIPOST_JOURNALS

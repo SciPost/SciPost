@@ -11,29 +11,13 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-.. automodule:: scipost
-   :members:
+   modules/models
+   modules/views
 
-.. automodule:: comments
-   :members:
 
-.. automodule:: commentaries
-   :members:
-
-.. automodule:: submissions
-   :members:
-
-.. automodule:: journals
-   :members:
-
-.. automodule:: theses
-   :members:
-
-      
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
