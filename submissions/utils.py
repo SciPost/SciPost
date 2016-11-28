@@ -1157,7 +1157,10 @@ class SubmissionUtils(object):
                            'https://scipost.org/submission/'
                            + cls.submission.arxiv_identifier_w_vn_nr + '. '
                            'Note that these details are viewable only by '
-                           'the registered authors of the submission.')
+                           'the registered authors of the submission.'
+                           '\n\nUnless you explicitly request otherwise, we will deactivate your '
+                           'Submission\'s Page within one week and remove it from public view.'
+            )
             email_text_html += (
                 '<p>We are sorry to inform you that your Submission '
                 'has not been accepted for publication.</p>'
@@ -1166,8 +1169,8 @@ class SubmissionUtils(object):
                 '{{ arxiv_identifier_w_vn_nr }}">Submission\'s Page</a>. '
                 'Note that these details are viewable only by '
                 'the registered authors of the submission.</p>'
-                '<p>Unless you request otherwise, we will deactivate your '
-                'Submission\'s Page and remove it from public view.</p>'
+                '<p>Unless you explicitly request otherwise, we will deactivate your '
+                'Submission\'s Page within one week and remove it from public view.</p>'
             )
         email_text += ('\n\nWe thank you very much for your contribution.'
                        '\n\nSincerely,'
