@@ -204,9 +204,12 @@ def initiate_publication(request):
             current_issue = get_object_or_404(Issue,
                             pk=initiate_publication_form.cleaned_data['to_be_issued_in'].id)
             # Determine next available paper number:
-            papers_in_current_issue = Publication.objects.filter(in_issue=current_issue)
+            #papers_in_current_issue = Publication.objects.filter(in_issue=current_issue)
+            papers_in_current_volume = Publication.objects.filter(
+                in_issue__in_volume=current_issue.in_volume)
             paper_nr = 1
-            while papers_in_current_issue.filter(paper_nr=paper_nr).exists():
+            #while papers_in_current_issue.filter(paper_nr=paper_nr).exists():
+            while papers_in_current_volume.filter(paper_nr=paper_nr).exists():
                 paper_nr += 1
                 if paper_nr > 999:
                     raise PaperNumberingError(paper_nr)
