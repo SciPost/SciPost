@@ -110,6 +110,13 @@ class Utils(object):
             return False
 
     @classmethod
+    def email_already_drafted(cls):
+        if DraftInvitation.objects.filter(email=cls.form.cleaned_data['email']).exists():
+            return True
+        else:
+            return False
+
+    @classmethod
     def create_and_save_contributor(cls, invitation_key):
         user = User.objects.create_user (
             first_name = cls.form.cleaned_data['first_name'],
@@ -182,6 +189,19 @@ class Utils(object):
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
+    @classmethod
+    def create_draft_invitation(cls):
+        invitation = DraftInvitation (
+            title = cls.form.cleaned_data['title'],
+            first_name = cls.form.cleaned_data['first_name'],
+            last_name = cls.form.cleaned_data['last_name'],
+            email = cls.form.cleaned_data['email'],
+            invitation_type = cls.form.cleaned_data['invitation_type'],
+            cited_in_submission = cls.form.cleaned_data['cited_in_submission'],
+            cited_in_publication = cls.form.cleaned_data['cited_in_publication'],
+            drafted_by = cls.contributor,
+            )
+        invitation.save()
 
     @classmethod
     def create_invitation(cls):

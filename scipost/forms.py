@@ -53,6 +53,38 @@ class RegistrationForm(forms.Form):
     captcha = CaptchaField(label='* Answer this simple maths question:')
 
 
+class DraftInvitationForm(forms.ModelForm):
+    class Meta:
+        model = DraftInvitation
+        fields = ['title', 'first_name', 'last_name', 'email',
+                  'invitation_type',
+                  'cited_in_submission', 'cited_in_publication',]
+
+    def __init__(self, *args, **kwargs):
+        super(DraftInvitationForm, self).__init__(*args, **kwargs)
+        self.fields['cited_in_submission'] = forms.ModelChoiceField(
+            queryset=Submission.objects.all().exclude(
+                status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED).order_by('-submission_date'),
+            required=False)
+        self.fields['cited_in_publication'] = forms.ModelChoiceField(
+            queryset=Publication.objects.all().order_by('-publication_date'),
+            required=False)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('title'), Field('first_name'), Field('last_name'),
+                    Field('email'), Field('invitation_type'),
+                    css_class="col-6"),
+                Div(
+                    Submit('submit', 'Save draft'),
+                    css_class="col-6"),
+                css_class="row"),
+            Div(Field('cited_in_submission'),),
+            Div(Field('cited_in_publication'),),
+            )
+
+
 class RegistrationInvitationForm(forms.ModelForm):
     class Meta:
         model = RegistrationInvitation

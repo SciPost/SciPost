@@ -29,6 +29,11 @@ class RemarkAdmin(admin.ModelAdmin):
 admin.site.register(Remark, RemarkAdmin)
 
 
+class DraftInvitationAdmin(admin.ModelAdmin):
+    search_fields = ['first_name', 'last_name', 'email', 'processed']
+
+admin.site.register(DraftInvitation, DraftInvitationAdmin)
+
 class RegistrationInvitationAdmin(admin.ModelAdmin):
     search_fields = ['first_name', 'last_name', 'email', 'invitation_key']
 

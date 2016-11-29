@@ -388,6 +388,31 @@ INVITATION_STYLE = (
     ('P', 'personal'),
     )
 
+class DraftInvitation(models.Model):
+    """
+    Draft of an invitation, filled in by an officer.
+    """
+    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    first_name = models.CharField(max_length=30, default='')
+    last_name = models.CharField(max_length=30, default='')
+    email = models.EmailField()
+    invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE, default='C')
+    cited_in_submission = models.ForeignKey('submissions.Submission',
+                                            on_delete=models.CASCADE,
+                                            blank=True, null=True)
+    cited_in_publication = models.ForeignKey('journals.Publication',
+                                             on_delete=models.CASCADE,
+                                             blank=True, null=True)
+    drafted_by = models.ForeignKey(Contributor,
+                                   on_delete=models.CASCADE,
+                                   blank=True, null=True)
+    date_drafted = models.DateTimeField(default=timezone.now)
+    processed = models.BooleanField(default=False)
+
+    def __str__ (self):
+        return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name)
+
+
 class RegistrationInvitation(models.Model):
     """
     Invitation to particular persons for registration

@@ -18,21 +18,24 @@ class Command(BaseCommand):
         RegisteredContributors, created = Group.objects.get_or_create(name='Registered Contributors')
         Testers, created = Group.objects.get_or_create(name='Testers')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
+        JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
 
-        # Registration
+        # Registration and invitations
         can_vet_registration_requests, created = Permission.objects.get_or_create(
             codename='can_vet_registration_requests',
             name= 'Can vet registration requests',
+            content_type=content_type)
+        can_draft_registration_invitations, created = Permission.objects.get_or_create(
+            codename='can_draft_registration_invitations',
+            name= 'Can draft registration invitations',
             content_type=content_type)
         can_manage_registration_invitations, created = Permission.objects.get_or_create(
             codename='can_manage_registration_invitations',
             name= 'Can manage registration invitations',
             content_type=content_type)
-
-        # Invitations
         can_invite_Fellows, created = Permission.objects.get_or_create(
             codename='can_invite_Fellows',
             name= 'Can invite Fellows',
@@ -188,6 +191,9 @@ class Command(BaseCommand):
         )
         Ambassadors.permissions.add(
             can_manage_registration_invitations,
+        )
+        JuniorAmbassadors.permissions.add(
+            can_draft_registration_invitations,
         )
 
         self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions'))

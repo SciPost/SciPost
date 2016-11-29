@@ -32,24 +32,21 @@
 
 <section>
   <div class="flex-greybox">
-    <h1>Registration Invitations</h1>
+    <h1>Draft a registration invitation</h1>
   </div>
-  {% if request.user|is_in_group:'SciPost Administrators' %}
-  <h3>Perform a <a href="{% url 'scipost:registration_invitations_cleanup' %}">cleanup</a> of existing invitations.</h3>
-  {% endif %}
 </section>
 <hr class="hr12"/>
 <section>
   <div class="flex-greybox">
-    <h2>Send a new invitation:</h2>
+    <h2>Draft a new invitation:</h2>
   </div>
   {% if errormessage %}
   <h3 style="color: red;">{{ errormessage }}</h3>
   {% endif %}
-  <form action="{% url 'scipost:registration_invitations' %}" method="post">
+  <form action="{% url 'scipost:draft_registration_invitation' %}" method="post">
     {% csrf_token %}
     {% load crispy_forms_tags %}
-    {% crispy reg_inv_form %}
+    {% crispy draft_inv_form %}
   </form>
 </section>
 <hr class="hr12"/>
@@ -67,7 +64,6 @@
       <td>{{ draft.date_drafted }} </td>
       <td>{{ draft.invitation_type }}</td>
       <td>{{ draft.drafted_by.user.last_name }}</td>
-      <td><a href="{% url 'scipost:registration_invitations_from_draft' draft_id=draft.id %}">Process</a></td>
     </tr>
     {% endfor %}
   </table>
@@ -89,9 +85,6 @@
       <td>{{ fellow.date_sent }} </td>
       <td>{{ fellow.invitation_type }}</td>
       <td>{{ fellow.invited_by.user.last_name }}</td>
-      <td><a href="{% url 'scipost:edit_invitation_personal_message' invitation_id=fellow.id %}">Edit msg</a></td>
-      <td><a href="{% url 'scipost:renew_registration_invitation' invitation_id=fellow.id %}">Renew</a> ({{ fellow.nr_reminders }}) {% if fellow.date_last_reminded %}(last: {{ fellow.date_last_reminded|date:"Y-m-d" }}){% endif %}</td>
-      <td><a href="{% url 'scipost:mark_reg_inv_as_declined' invitation_id=fellow.id %}">Declined</a></td>
     </tr>
     {% endfor %}
   </table>
@@ -107,9 +100,6 @@
       <td>{{ fellow.date_sent }} </td>
       <td>{{ fellow.invitation_type }}</td>
       <td>{{ fellow.invited_by.user.last_name }}</td>
-      <td><a href="{% url 'scipost:edit_invitation_personal_message' invitation_id=fellow.id %}">Edit msg</a></td>
-      <td><a href="{% url 'scipost:renew_registration_invitation' invitation_id=fellow.id %}">Renew</a> ({{ fellow.nr_reminders }}) {% if fellow.date_last_reminded %}(last: {{ fellow.date_last_reminded|date:"Y-m-d" }}){% endif %}</td>
-      <td><a href="{% url 'scipost:mark_reg_inv_as_declined' invitation_id=fellow.id %}">Declined</a></td>
     </tr>
     {% endfor %}
   </table>
@@ -140,7 +130,6 @@
       <td>{{ fellow.date_sent }} </td>
       <td>{{ fellow.invitation_type }}</td>
       <td>{{ fellow.invited_by.user.last_name }}</td>
-      <td><a href="{% url 'scipost:renew_registration_invitation' invitation_id=fellow.id %}">Renew</a> ({{ fellow.nr_reminders }}) {% if fellow.date_last_reminded %}(last: {{ fellow.date_last_reminded|date:"Y-m-d" }}){% endif %}</td>
     </tr>
     {% endfor %}
   </table>
@@ -156,7 +145,6 @@
       <td>{{ fellow.date_sent }} </td>
       <td>{{ fellow.invitation_type }}</td>
       <td>{{ fellow.invited_by.user.last_name }}</td>
-      <td><a href="{% url 'scipost:renew_registration_invitation' invitation_id=fellow.id %}">Renew</a> ({{ fellow.nr_reminders }}) {% if fellow.date_last_reminded %}(last: {{ fellow.date_last_reminded|date:"Y-m-d" }}){% endif %}</td>
     </tr>
     {% endfor %}
   </table>
