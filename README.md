@@ -2,8 +2,8 @@
 The complete scientific publication portal
 
 ## Dependencies
-SciPost is written in Python 3.5 using Django and requires a PostgreSQL database.
-Python dependencies are listed in `requirements.txt`.
+SciPost is written in Python 3.5 using Django and requires PostgreSQL 9.3 or
+higher. Python dependencies are listed in `requirements.txt`.
 
 ## Getting started
 
