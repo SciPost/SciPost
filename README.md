@@ -75,11 +75,8 @@ Groups and their respective permissions are created using the management command
 ```
 
 ### Create and run migrations
-Now that everything is setup, we can setup the datastructures. This is a step you need to repeat
-everytime the data structures change (Django should notify you of this):
-
+Now that everything is setup, we can setup the datastructures.
 ```shell
-(scipostenv) $ ./manage.py makemigrations
 (scipostenv) $ ./manage.py migrate
 ```
 
@@ -88,4 +85,17 @@ You are now ready to run the development server:
 
 ```shell
 (scipostenv) $ ./manage.py runserver
+```
+
+## Maintaining database migratons
+Every time fields in any of the models change, a [database migration](https://docs.djangoproject.com/en/1.10/topics/migrations/)
+needs to be created and applied. The first documents a database change and its
+inverse, the second actually changes the database.
+
+Make sure to commit the migration to GIT after applying it, so other developers
+can use them.
+
+```shell
+(scipostenv) $ ./manage.py makemigration
+(scipostenv) $ ./manage.py migrate
 ```
