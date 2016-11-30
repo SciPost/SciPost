@@ -71,7 +71,7 @@ To make sure everything is setup and configured well, run:
 Groups and their respective permissions are created using the management command
 
 ```shell
-(scipostenv) $ ./manage.py create_groups_and_permissions
+(scipostenv) $ ./manage.py add_groups_and_permissions
 ```
 
 ### Create and run migrations
