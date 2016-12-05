@@ -226,13 +226,16 @@
   </div>
   <br>
   <div class="row">
-  {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Advisory Board' or request.user|is_in_group:'Ambassadors' %}
+  {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Advisory Board' or request.user|is_in_group:'Ambassadors' or request.user|is_in_group:'Junior Ambassadors' %}
   <div class="col-4">
     <h3>Registration actions</h3>
     <ul>
       {% if perms.scipost.can_vet_registration_requests %}
       <li><a href="{% url 'scipost:vet_registration_requests' %}">Vet Registration requests</a> ({{ nr_reg_to_vet }})</li>
       <li>Awaiting validation ({{ nr_reg_awaiting_validation }}) (no action necessary)</li>
+      {% endif %}
+      {% if perms.scipost.can_draft_registration_invitations %}
+      <li><a href="{% url 'scipost:draft_registration_invitation' %}">Draft a Registration Invitation</a></li>
       {% endif %}
       {% if perms.scipost.can_manage_registration_invitations %}
       <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
@@ -274,6 +277,10 @@
 
   {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' %}
   <div class="col-4">
+    <h3>Info</h3>
+    <ul>
+      <li><a href="{% url 'submissions:editorial_workflow' %}">How-to guide: summary of the editorial workflow</a></li>
+    </ul>
     <h3>Submissions assignments</h3>
     <ul>
       {% if perms.scipost.can_view_pool %}
