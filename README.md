@@ -2,8 +2,8 @@
 The complete scientific publication portal
 
 ## Dependencies
-SciPost is written in Python 3.5 using Django and requires a PostgreSQL database.
-Python dependencies are listed in `requirements.txt`.
+SciPost is written in Python 3.5 using Django and requires PostgreSQL 9.3 or
+higher. Python dependencies are listed in `requirements.txt`.
 
 ## Getting started
 
@@ -37,7 +37,7 @@ In this project, host-specific settings are defined in the `scipost-host-setting
     "CERTFILE": "none",
     "DEBUG": true,
     "ADMINS": "",
-    "ALLOWED_HOSTS": "['localhost:8000', '127.0.0.1:8000',]",
+    "ALLOWED_HOSTS": ["localhost", "127.0.0.1"],
     "SESSION_COOKIE_SECURE": false,
     "CSRF_COOKIE_SECURE": false,
     "DB_NAME": "scipost",
@@ -71,15 +71,12 @@ To make sure everything is setup and configured well, run:
 Groups and their respective permissions are created using the management command
 
 ```shell
-(scipostenv) $ ./manage.py create_groups_and_permissions
+(scipostenv) $ ./manage.py add_groups_and_permissions
 ```
 
 ### Create and run migrations
-Now that everything is setup, we can setup the datastructures. This is a step you need to repeat
-everytime the data structures change (Django should notify you of this):
-
+Now that everything is setup, we can setup the datastructures.
 ```shell
-(scipostenv) $ ./manage.py makemigrations
 (scipostenv) $ ./manage.py migrate
 ```
 
@@ -88,4 +85,17 @@ You are now ready to run the development server:
 
 ```shell
 (scipostenv) $ ./manage.py runserver
+```
+
+## Maintaining database migratons
+Every time fields in any of the models change, a [database migration](https://docs.djangoproject.com/en/1.10/topics/migrations/)
+needs to be created and applied. The first documents a database change and its
+inverse, the second actually changes the database.
+
+Make sure to commit the migration to GIT after applying it, so other developers
+can use them.
+
+```shell
+(scipostenv) $ ./manage.py makemigration
+(scipostenv) $ ./manage.py migrate
 ```
