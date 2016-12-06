@@ -1158,8 +1158,11 @@ class SubmissionUtils(object):
                            + cls.submission.arxiv_identifier_w_vn_nr + '. '
                            'Note that these details are viewable only by '
                            'the registered authors of the submission.'
-                           '\n\nUnless you explicitly request otherwise, we will deactivate your '
-                           'Submission\'s Page within one week and remove it from public view.'
+                           #'\n\nUnless you explicitly request otherwise, we will deactivate your '
+                           #'Submission\'s Page within one week and remove it from public view.'
+                           '\n\nThis Submission Page has now been removed '
+                           'from general public view; if you wish, you can email us and '
+                           'request to make it publicly visible again.'
             )
             email_text_html += (
                 '<p>We are sorry to inform you that your Submission '
@@ -1169,15 +1172,18 @@ class SubmissionUtils(object):
                 '{{ arxiv_identifier_w_vn_nr }}">Submission\'s Page</a>. '
                 'Note that these details are viewable only by '
                 'the registered authors of the submission.</p>'
-                '<p>Unless you explicitly request otherwise, we will deactivate your '
-                'Submission\'s Page within one week and remove it from public view.</p>'
+                #'<p>Unless you explicitly request otherwise, we will deactivate your '
+                #'Submission\'s Page within one week and remove it from public view.</p>'
+                '<p>This Submission Page has now been removed '
+                'from general public view; if you wish, you can email us and '
+                'request to make it publicly visible again.</p>'
             )
         email_text += ('\n\nWe thank you very much for your contribution.'
                        '\n\nSincerely,'
                        '\n\nThe SciPost Team.')
-        email_text += ('\n<p>We thank you very much for your contribution.</p>'
-                       '<p>Sincerely,</p>'
-                       '<p>The SciPost Team.</p>')
+        email_text_html += ('\n<p>We thank you very much for your contribution.</p>'
+                            '<p>Sincerely,</p>'
+                            '<p>The SciPost Team.</p>')
         email_context = Context({
             'auth_title': title_dict[cls.submission.submitted_by.title],
             'auth_last_name': cls.submission.submitted_by.user.last_name,

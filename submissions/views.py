@@ -7,6 +7,7 @@ import sys
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group, Permission
+from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -343,6 +344,12 @@ def submission_detail_wo_vn_nr(request, arxiv_identifier_wo_vn_nr):
 
 def submission_detail(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    if (submission.status in SUBMISSION_STATUS_PUBLICLY_UNLISTED
+        and not request.user.groups.filter(name='SciPost Administrators').exists()
+        and not request.user.groups.filter(name='Editorial Administrators').exists()
+        and not request.user.groups.filter(name='Editorial College').exists()
+    ):
+        raise PermissionDenied
     other_versions = Submission.objects.filter(
         arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
     ).exclude(pk=submission.id)
