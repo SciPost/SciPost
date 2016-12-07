@@ -8,8 +8,10 @@ from django.template import Template, Context
 from .models import *
 
 from scipost.models import ChoiceArrayField, Contributor, title_dict, Remark
-from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, TITLE_CHOICES
-from journals.models import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
+from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
+from scipost.models import subject_areas_dict, TITLE_CHOICES
+from journals.models import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
+from journals.models import SCIPOST_JOURNALS_SPECIALIZATIONS
 from journals.models import journals_submit_dict, journals_domains_dict, journals_spec_dict
 from journals.models import Publication
 
@@ -61,7 +63,8 @@ SUBMISSION_STATUS_PUBLICLY_UNLISTED = [
 #     ('EIC_runs_refereeing_round', 'Editor-in-charge to run refereeing round (inviting referees)'),
 #     ('EIC_closes_refereeing_round', 'Editor-in-charge to close refereeing round'),
 #     ('EIC_invites_author_response', 'Editor-in-charge invites authors to complete their replies'),
-#     ('EIC_formulates_editorial_recommendation', 'Editor-in-charge to formulate editorial recommendation'),
+#     ('EIC_formulates_editorial_recommendation',
+#      'Editor-in-charge to formulate editorial recommendation'),
 #     ('EC_ratification', 'Editorial College ratifies editorial recommendation'),
 #     ('Decision_to_authors', 'Editor-in-charge forwards decision to authors'),
 #     )
@@ -89,8 +92,9 @@ class Submission(models.Model):
 #    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    secondary_areas = ChoiceArrayField(models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
-                                       blank=True, null=True)
+    secondary_areas = ChoiceArrayField(
+        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
+        blank=True, null=True)
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
     author_comments = models.TextField(blank=True, null=True)
     list_of_changes = models.TextField(blank=True, null=True)
@@ -239,14 +243,17 @@ class Submission(models.Model):
         nr_ref_invited = RefereeInvitation.objects.filter(submission=self).count()
         nr_ref_accepted = RefereeInvitation.objects.filter(submission=self, accepted=True).count()
         nr_ref_declined = RefereeInvitation.objects.filter(submission=self, accepted=False).count()
-        nr_invited_reports_in = Report.objects.filter(submission=self, status=1, invited=True).count()
-        nr_contrib_reports_in = Report.objects.filter(submission=self, status=1, invited=False).count()
+        nr_invited_reports_in = Report.objects.filter(submission=self,
+                                                      status=1, invited=True).count()
+        nr_contrib_reports_in = Report.objects.filter(submission=self,
+                                                      status=1, invited=False).count()
         nr_reports_awaiting_vetting = Report.objects.filter(submission=self, status=0).count()
         nr_reports_refused = Report.objects.filter(submission=self, status__lte=-1).count()
         header = ('<p>Nr referees invited: ' + str(nr_ref_invited) +
                   ' [' + str(nr_ref_accepted) + ' accepted/ ' +
                   str(nr_ref_declined) + ' declined/ ' +
-                  str(nr_ref_invited - nr_ref_accepted - nr_ref_declined) + ' response pending]</p>' +
+                  str(nr_ref_invited - nr_ref_accepted - nr_ref_declined) +
+                  ' response pending]</p>' +
                   '<p>Nr reports obtained: ' +
                   str(nr_invited_reports_in + nr_contrib_reports_in) + ' [' +
                   str(nr_invited_reports_in) + ' invited/ ' + str(nr_contrib_reports_in) +
@@ -275,7 +282,8 @@ class Submission(models.Model):
         if self.status == 'unassigned':
             header += ('<p style="color: red">Status: {{ status }}.'
                        ' You can volunteer to become Editor-in-charge by '
-                       '<a href="/submissions/volunteer_as_EIC/{{ arxiv_identifier_w_vn_nr }}">clicking here</a>.</p>')
+                       '<a href="/submissions/volunteer_as_EIC/{{ arxiv_identifier_w_vn_nr }}">'
+                       'clicking here</a>.</p>')
         else:
             header += '<p>Editor-in-charge: {{ EIC }}</p><p>Status: {{ status }}</p>'
         header += self.refereeing_status_as_p()
@@ -423,7 +431,8 @@ class EditorialAssignment(models.Model):
                   '<p>by {{ author_list }}</p>'
                   '<p> (submitted {{ date }} to {{ to_journal }})</p>'
                   '<p>Status: {{ status }}</p><p>Manage this Submission from its '
-                  '<a href="/submissions/editorial_page/{{ arxiv_identifier_w_vn_nr }}">Editorial Page</a>.'
+                  '<a href="/submissions/editorial_page/{{ arxiv_identifier_w_vn_nr }}">'
+                  'Editorial Page</a>.'
                   '</p>'
                   #'</div></div>'
                   '</li>')
@@ -507,7 +516,8 @@ class RefereeInvitation(models.Model):
     def summary_as_tds(self):
         context = Context({'first_name': self.first_name, 'last_name': self.last_name,
                            'date_invited': self.date_invited.strftime('%Y-%m-%d %H:%M')})
-        output = '<td>{{ first_name }} {{ last_name }}</td><td>invited <br/>{{ date_invited }}</td><td>'
+        output = ('<td>{{ first_name }} {{ last_name }}</td><td>invited <br/>'
+                  '{{ date_invited }}</td><td>')
         if self.cancelled:
             output += '<strong style="color: red;">cancelled</strong>'
         elif self.accepted is not None:
@@ -586,8 +596,9 @@ class Report(models.Model):
     flagged = models.BooleanField(default=False)
     date_submitted = models.DateTimeField('date submitted')
     author = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-    qualification = models.PositiveSmallIntegerField(choices=REFEREE_QUALIFICATION,
-                                                     verbose_name="Qualification to referee this: I am ")
+    qualification = models.PositiveSmallIntegerField(
+        choices=REFEREE_QUALIFICATION,
+        verbose_name="Qualification to referee this: I am ")
     # Text-based reporting
     strengths = models.TextField()
     weaknesses = models.TextField()
@@ -598,8 +609,10 @@ class Report(models.Model):
     significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
     originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
     clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
-    formatting = models.SmallIntegerField(choices=QUALITY_SPEC, verbose_name="Quality of paper formatting")
-    grammar = models.SmallIntegerField(choices=QUALITY_SPEC, verbose_name="Quality of English grammar")
+    formatting = models.SmallIntegerField(choices=QUALITY_SPEC,
+                                          verbose_name="Quality of paper formatting")
+    grammar = models.SmallIntegerField(choices=QUALITY_SPEC,
+                                       verbose_name="Quality of English grammar")
     #
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     remarks_for_editors = models.TextField(default='', blank=True,
@@ -728,7 +741,8 @@ class EditorialCommunication(models.Model):
         elif self.comtype == 'RtoE':
             output += 'From Referee '
             try:
-                output += self.referee.user.first_name + ' ' + self.referee.user.last_name + ' to you'
+                output += (self.referee.user.first_name + ' ' +
+                           self.referee.user.last_name + ' to you')
             except AttributeError:
                 pass
         elif self.comtype == 'StoE':
@@ -754,7 +768,8 @@ class EICRecommendation(models.Model):
         verbose_name='optional remarks for the Editorial College')
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     # Editorial Fellows who have assessed this recommendation:
-    eligible_to_vote = models.ManyToManyField (Contributor, blank=True, related_name='eligible_to_vote')
+    eligible_to_vote = models.ManyToManyField (Contributor, blank=True,
+                                               related_name='eligible_to_vote')
     voted_for = models.ManyToManyField (Contributor, blank=True, related_name='voted_for')
     voted_against = models.ManyToManyField (Contributor, blank=True, related_name='voted_against')
     voted_abstain = models.ManyToManyField (Contributor, blank=True, related_name='voted_abstain')

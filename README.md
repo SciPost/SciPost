@@ -67,6 +67,12 @@ To make sure everything is setup and configured well, run:
 (scipostenv) $ ./manage.py check
 ```
 
+### Create a superuser
+In order to use the admin site, you'll need a superuser.
+```shell
+(scipostenv) $ ./manage.py createsuperuser
+```
+
 ### Create groups and permissions
 Groups and their respective permissions are created using the management command
 
@@ -86,6 +92,11 @@ You are now ready to run the development server:
 ```shell
 (scipostenv) $ ./manage.py runserver
 ```
+
+### Contributors
+Users of the portal are known as Contributors and are created through the registration form accessible from the home page.
+
+You can create a number of users, and use the admin site to give them various permissions through memberships of certain groups. For example, you'll want members of the SciPost Administrators and Editorial Administrators groups in order to access the internal management and editorial tools.
 
 ## Maintaining database migratons
 Every time fields in any of the models change, a [database migration](https://docs.djangoproject.com/en/1.10/topics/migrations/)
