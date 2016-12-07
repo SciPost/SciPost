@@ -220,7 +220,7 @@ class SubmissionUtils(object):
             '\n<p>In particular, you should now invite at least 3 referees; you might want to '
             'make sure you are aware of the '
             'detailed procedure described in the '
-            'a href="https://scipost.org/EdCol_by-laws">Editorial College by-laws</a>.</p>'
+            '<a href="https://scipost.org/EdCol_by-laws">Editorial College by-laws</a>.</p>'
             '<p>Many thanks in advance for your collaboration,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
