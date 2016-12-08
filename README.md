@@ -67,6 +67,12 @@ To make sure everything is setup and configured well, run:
 (scipostenv) $ ./manage.py check
 ```
 
+### Create and run migrations
+Now that everything is setup, we can setup the datastructures.
+```shell
+(scipostenv) $ ./manage.py migrate
+```
+
 ### Create a superuser
 In order to use the admin site, you'll need a superuser.
 ```shell
@@ -78,12 +84,6 @@ Groups and their respective permissions are created using the management command
 
 ```shell
 (scipostenv) $ ./manage.py add_groups_and_permissions
-```
-
-### Create and run migrations
-Now that everything is setup, we can setup the datastructures.
-```shell
-(scipostenv) $ ./manage.py migrate
 ```
 
 ### Run development server
