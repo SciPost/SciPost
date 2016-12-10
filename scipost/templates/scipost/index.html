@@ -75,7 +75,7 @@
       <h1><a href="{% url 'commentaries:commentaries' %}">Commentaries</a></h1>
       <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
       <br/>
-      {#
+      {% comment %}
           <h3>Search SciPost Commentaries:</h3>
           <form action="{% url 'commentaries:commentaries' %}" method="post">
         {% csrf_token %}
@@ -84,7 +84,7 @@
         </table>
         <input type="submit" name="Submit" />
           </form>
-      #}
+      {% endcomment %}
       <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
       <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
     </div>
@@ -92,7 +92,7 @@
       <h1><a href="{% url 'theses:theses' %}">Theses</a></h1>
       <p>SciPost Theses allow Contributors to find Master's, Ph.D. and Habilitation theses relevant to their work.</p>
       <br/>
-      {#
+      {% comment %}
           <h3>Search SciPost Theses:</h3>
           <form action="{% url 'theses:theses' %}" method="post">
         {% csrf_token %}
@@ -101,7 +101,7 @@
         </table>
         <input type="submit" name="Submit" />
           </form>
-      #}
+      {% endcomment %}
       <h3><a href="{% url 'theses:request_thesislink' %}">Request a new Thesis Link</a></h3>
     </div>
   </div>
