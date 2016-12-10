@@ -170,6 +170,9 @@
       {% if request.user|is_in_group:'Ambassadors' %}
       <h3>You are a SciPost Ambassador.</h3>
       {% endif %}
+      {% if request.user|is_in_group:'Junior Ambassadors' %}
+      <h3>You are a SciPost Junior Ambassador.</h3>
+      {% endif %}
       <br/>
       <h3>Update your personal data or password</h3>
       <ul>
