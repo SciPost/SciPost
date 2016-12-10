@@ -6,11 +6,11 @@
 <script>
   $(document).ready(function(){
 
-  $(".publicationAbstract").hide();
+    $(".publicationAbstract").hide();
 
-  $(".toggleAbstractButton").click(function(){
-  $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
-  });
+    $(".toggleAbstractButton").click(function(){
+      $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
+    });
   });
 </script>
 {% endblock headsup %}
@@ -30,14 +30,14 @@
 
   <div class="flex-container">
     {% if recent_papers %}
-    <div class="flex-whitebox800">
-      <ul class="publicationHeaderList">
-	{% for paper in recent_papers %}
-	{{ paper.header_as_li }}
-	{% endfor %}
-      </ul>
+      <div class="flex-whitebox800">
+        <ul class="publicationHeaderList">
+          {% for paper in recent_papers %}
+            {{ paper.header_as_li }}
+          {% endfor %}
+        </ul>
+      </div>
       {% endif %}
-    </div>
   </div>
 
   {% include 'journals/scipost_physics_footer.html' %}

@@ -41,7 +41,7 @@
     <h2>Draft a new invitation:</h2>
   </div>
   {% if errormessage %}
-  <h3 style="color: red;">{{ errormessage }}</h3>
+    <h3 style="color: red;">{{ errormessage }}</h3>
   {% endif %}
   <form action="{% url 'scipost:draft_registration_invitation' %}" method="post">
     {% csrf_token %}
@@ -57,14 +57,14 @@
   <table class="tableofInvitees">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date drafted</td><td>Type</td><td>Drafted by</td></tr>
     {% for draft in existing_drafts %}
-    <tr>
-      <td>{{ draft.last_name }}</td>
-      <td>{{ draft.first_name }}</td>
-      <td>{{ draft.email }}</td>
-      <td>{{ draft.date_drafted }} </td>
-      <td>{{ draft.invitation_type }}</td>
-      <td>{{ draft.drafted_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ draft.last_name }}</td>
+        <td>{{ draft.first_name }}</td>
+        <td>{{ draft.email }}</td>
+        <td>{{ draft.date_drafted }} </td>
+        <td>{{ draft.invitation_type }}</td>
+        <td>{{ draft.drafted_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
 </section>
@@ -78,14 +78,14 @@
   <table class="tableofInvitees">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in sent_reg_inv_fellows %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
   <hr class="hr6"/>
@@ -93,14 +93,14 @@
   <table class="tableofInvitees">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in sent_reg_inv_contrib %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
   <hr class="hr6"/>
@@ -108,14 +108,14 @@
   <table class="tableofInvitees">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in sent_reg_inv_ref %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
   <hr class="hr6"/>
@@ -123,14 +123,14 @@
   <table class="tableofInvitees">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in sent_reg_inv_cited_sub %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
   <hr class="hr6"/>
@@ -138,14 +138,14 @@
   <table class="tableofInvitees">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in sent_reg_inv_cited_pub %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
 </section>
@@ -159,14 +159,14 @@
   <table class="tableofInviteesResponded">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in resp_reg_inv_fellows %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
   <hr class="hr6"/>
@@ -174,14 +174,14 @@
   <table class="tableofInviteesResponded">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in resp_reg_inv_contrib %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
 
@@ -190,14 +190,14 @@
   <table class="tableofInviteesResponded">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in resp_reg_inv_ref %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
 
@@ -206,14 +206,14 @@
   <table class="tableofInviteesResponded">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in resp_reg_inv_cited_sub %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
 
@@ -222,14 +222,14 @@
   <table class="tableofInviteesResponded">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in resp_reg_inv_cited_pub %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
 
@@ -238,14 +238,14 @@
   <table class="tableofInviteesDeclined">
     <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
     {% for fellow in decl_reg_inv %}
-    <tr>
-      <td>{{ fellow.last_name }}</td>
-      <td>{{ fellow.first_name }}</td>
-      <td>{{ fellow.email }}</td>
-      <td>{{ fellow.date_sent }} </td>
-      <td>{{ fellow.invitation_type }}</td>
-      <td>{{ fellow.invited_by.user.last_name }}</td>
-    </tr>
+      <tr>
+        <td>{{ fellow.last_name }}</td>
+        <td>{{ fellow.first_name }}</td>
+        <td>{{ fellow.email }}</td>
+        <td>{{ fellow.date_sent }} </td>
+        <td>{{ fellow.invitation_type }}</td>
+        <td>{{ fellow.invited_by.user.last_name }}</td>
+      </tr>
     {% endfor %}
   </table>
 
@@ -260,7 +260,7 @@
   </div>
   <p>
     {% for first_name, last_name in names_reg_contributors %}
-    {{ first_name }} {{ last_name }},&nbsp;
+      {{ first_name }} {{ last_name }},&nbsp;
     {% endfor %}
   </p>
 </section>

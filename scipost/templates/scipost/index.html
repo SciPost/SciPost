@@ -8,16 +8,16 @@
 <section>
   <div class="flex-container">
     {% if latest_newsitems %}
-    <div class="flex-greybox320">
-      <h1><a href="{% url 'scipost:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14"></a></h1>
-      <p>Latest news and announcements.</p>
-      <hr class="hr6"/>
-      <ul class="NewsItemsList">
-	{% for item in latest_newsitems %}
-	<li>{{ item.descriptor_small|linebreaks }}</li>
-	{% endfor %}
-      </ul>
-    </div>
+      <div class="flex-greybox320">
+        <h1><a href="{% url 'scipost:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14"></a></h1>
+        <p>Latest news and announcements.</p>
+        <hr class="hr6"/>
+        <ul class="NewsItemsList">
+      {% for item in latest_newsitems %}
+        <li>{{ item.descriptor_small|linebreaks }}</li>
+      {% endfor %}
+        </ul>
+      </div>
     {% endif %}
     <div class="flex-greybox320">
       <h1><a href="{% url 'scipost:about' %}">About SciPost</a></h1>
@@ -36,19 +36,19 @@
     </div>
 
     {% if not user.is_authenticated %}
-    <div class="flex-greybox320">
-      <h1><a href="{% url 'scipost:register' %}">Register</a></h1>
-      <p>Professional scientists (PhD students and above) can become Contributors to SciPost by filling the
-	<a href="{% url 'scipost:register' %}">registration form</a>.</p>
-      <h4>Registered contributors can among others:</h4>
-      <ul>
-	<li>Submit manuscripts to SciPost Journals</li>
-	<li>Post reports and comments</li>
-	<li>Express opinions on contributions</li>
-	<li>Subscribe to feeds</li>
-	<li>Use productivity tools</li>
-      </ul>
-    </div>
+      <div class="flex-greybox320">
+        <h1><a href="{% url 'scipost:register' %}">Register</a></h1>
+        <p>Professional scientists (PhD students and above) can become Contributors to SciPost by filling the
+      <a href="{% url 'scipost:register' %}">registration form</a>.</p>
+        <h4>Registered contributors can among others:</h4>
+        <ul>
+      <li>Submit manuscripts to SciPost Journals</li>
+      <li>Post reports and comments</li>
+      <li>Express opinions on contributions</li>
+      <li>Subscribe to feeds</li>
+      <li>Use productivity tools</li>
+        </ul>
+      </div>
     {% endif %}
 
     <div class="flex-greybox320">
@@ -75,16 +75,16 @@
       <h1><a href="{% url 'commentaries:commentaries' %}">Commentaries</a></h1>
       <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
       <br/>
-      <!--
-      <h3>Search SciPost Commentaries:</h3>
-      <form action="{% url 'commentaries:commentaries' %}" method="post">
-	{% csrf_token %}
-	<table>
-	  {{ commentary_search_form.as_table }}
-	</table>
-	<input type="submit" name="Submit" />
-      </form>
-      -->
+      {#
+          <h3>Search SciPost Commentaries:</h3>
+          <form action="{% url 'commentaries:commentaries' %}" method="post">
+        {% csrf_token %}
+        <table>
+          {{ commentary_search_form.as_table }}
+        </table>
+        <input type="submit" name="Submit" />
+          </form>
+      #}
       <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
       <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
     </div>
@@ -92,16 +92,16 @@
       <h1><a href="{% url 'theses:theses' %}">Theses</a></h1>
       <p>SciPost Theses allow Contributors to find Master's, Ph.D. and Habilitation theses relevant to their work.</p>
       <br/>
-      <!--
-      <h3>Search SciPost Theses:</h3>
-      <form action="{% url 'theses:theses' %}" method="post">
-	{% csrf_token %}
-	<table>
-	  {{ thesislink_search_form.as_table }}
-	</table>
-	<input type="submit" name="Submit" />
-      </form>
-      -->
+      {#
+          <h3>Search SciPost Theses:</h3>
+          <form action="{% url 'theses:theses' %}" method="post">
+        {% csrf_token %}
+        <table>
+          {{ thesislink_search_form.as_table }}
+        </table>
+        <input type="submit" name="Submit" />
+          </form>
+      #}
       <h3><a href="{% url 'theses:request_thesislink' %}">Request a new Thesis Link</a></h3>
     </div>
   </div>

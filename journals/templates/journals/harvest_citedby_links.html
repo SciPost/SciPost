@@ -24,32 +24,31 @@
   <p>{{ response_deserialized }}</p>
   <ul>
     {% for obj in response_deserialized %}
-    <li>{{ obj }}
-      <ul>
-	{% for obj2 in obj %}
-	<li>{{ obj2 }}
-	  <ul>
-	    {% for obj3 in obj2 %}
-	    <li>{{ obj3 }}
-	      <ul>
-		{% for obj4 in obj3 %}
-		<li>{{ obj4 }}
-		</li>
-		{% endfor %}
-	      </ul>
-	    </li>
-	    {% endfor %}
-	  </ul>
-	</li>
-	{% endfor %}
-      </ul>
-    </li>
+      <li>{{ obj }}
+        <ul>
+        {% for obj2 in obj %}
+          <li>{{ obj2 }}
+            <ul>
+            {% for obj3 in obj2 %}
+              <li>{{ obj3 }}
+                <ul>
+                {% for obj4 in obj3 %}
+                  <li>{{ obj4 }}</li>
+                {% endfor %}
+                </ul>
+              </li>
+            {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+        </ul>
+      </li>
     {% endfor %}
   </ul>
 
   <h3>Citations</h3>
   {% for cit in citations %}
-  {{ cit }}
+    {{ cit }}
   {% endfor %}
   {{ nr }}
 

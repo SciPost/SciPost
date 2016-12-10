@@ -5,11 +5,11 @@
 {% block headsup %}
 <script>
   $(document).ready(function(){
-  $("#citationslist").hide();
+    $("#citationslist").hide();
 
-  $("#citationslistbutton").click(function(){
-  $("#citationslist").toggle();
-  });
+    $("#citationslistbutton").click(function(){
+      $("#citationslist").toggle();
+    });
   });
 </script>
 {% endblock headsup %}
@@ -33,67 +33,71 @@
   </div>
 
   {% if publication.citedby|length >= 1 %}
-  <hr class="hr6"/>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h3>Cited by {{ publication.citedby|length }}</h3>
-      <br/>
-      <button id="citationslistbutton">Toggle view</button>
+    <hr class="hr6"/>
+    <div class="flex-container">
+      <div class="flex-greybox">
+        <h3>Cited by {{ publication.citedby|length }}</h3>
+        <br/>
+        <button id="citationslistbutton">Toggle view</button>
+      </div>
+      <div class="flex-whitebox">
+        <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
+      </div>
     </div>
-    <div class="flex-whitebox">
-      <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
+    <div class="flex-container" id="citationslist">
+      <div class="flex-whitebox800">
+        {{ publication.citations_as_ul }}
+      </div>
     </div>
-  </div>
-  <div class="flex-container" id="citationslist">
-    <div class="flex-whitebox800">
-      {{ publication.citations_as_ul }}
-    </div>
-  </div>
   {% endif %}
 
   <hr class="hr6"/>
   <h3>View more material from these authors:</h3>
   <p>
     {% for author in publication.authors.all %}
-    <a href="/contributor/{{ author.id }}">{{ author }}</a>&nbsp;&nbsp;
+      <a href="/contributor/{{ author.id }}">{{ author }}</a>&nbsp;&nbsp;
     {% endfor %}
     {% for author in publication.authors_unregistered.all %}
-    {{ author }}&nbsp;&nbsp;
+      {{ author }}&nbsp;&nbsp;
     {% endfor %}
   </p>
 
   {% if request.user|is_in_group:'Editorial Administrators' %}
-  <hr class="hr12"/>
-  <h3>Editorial Administration tools: </h3>
-  <ul>
-    <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }} {% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
-      <div class="row">
-	<div class="col-5">
-	  <p>registered authors:</p>
-	  <ul>
-	    {% for author in publication.authors.all %}
-	    <li><a href="{% url 'journals:mark_first_author' publication_id=publication.id contributor_id=author.id %}">{{ author }}</a></li>
-	    {% endfor %}
-	  </ul>
-	</div>
-	<div class="col-5">
-	  <p>unregistered authors:</p>
-	  <ul>
-	    {% for author_unreg in publication.authors_unregistered.all %}
-	    <li><a href="{% url 'journals:mark_first_author_unregistered' publication_id=publication.id unregistered_author_id=author_unreg.id %}">{{ author_unreg }}</a></li>
-	    {% endfor %}
-	  </ul>
-	</div>
-      </div>
-    </li>
-    <li><a href="{% url 'journals:add_author' publication_id=publication.id %}">Add a missing author</a></li>
-    <li><a href="{% url 'journals:create_citation_list_metadata' doi_string=publication.doi_string %}">Create/update citation list metadata</a></li>
-    <li><a href="{% url 'journals:create_funding_info_metadata' doi_string=publication.doi_string %}">Create/update funding info metadata</a></li>
-    <li><a href="{% url 'journals:create_metadata_xml' doi_string=publication.doi_string %}">Create/update the XML metadata</a></li>
-    <li><a href="{% url 'journals:metadata_xml_deposit' doi_string=publication.doi_string option='test' %}">Test metadata deposit (via Crossref test server)</a></li>
-    <li><a href="{% url 'journals:metadata_xml_deposit' doi_string=publication.doi_string option='deposit' %}">Deposit the metadata to Crossref</a></li>
-    <li><a href="{% url 'journals:harvest_citedby_links' doi_string=publication.doi_string %}">Update Crossref cited-by links</a></li>
-  </ul>
+    <hr class="hr12"/>
+    <h3>Editorial Administration tools: </h3>
+    <ul>
+      <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }} {% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
+        <div class="row">
+        <div class="col-5">
+          <p>registered authors:</p>
+          <ul>
+            {% for author in publication.authors.all %}
+              <li>
+                <a href="{% url 'journals:mark_first_author' publication_id=publication.id contributor_id=author.id %}">{{ author }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-5">
+          <p>unregistered authors:</p>
+          <ul>
+            {% for author_unreg in publication.authors_unregistered.all %}
+              <li>
+                <a href="{% url 'journals:mark_first_author_unregistered' publication_id=publication.id unregistered_author_id=author_unreg.id %}">{{ author_unreg }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        </div>
+      </li>
+      <li><a href="{% url 'journals:add_author' publication_id=publication.id %}">Add a missing author</a></li>
+      <li><a href="{% url 'journals:create_citation_list_metadata' doi_string=publication.doi_string %}">Create/update citation list metadata</a></li>
+      <li><a href="{% url 'journals:create_funding_info_metadata' doi_string=publication.doi_string %}">Create/update funding info metadata</a></li>
+      <li><a href="{% url 'journals:create_metadata_xml' doi_string=publication.doi_string %}">Create/update the XML metadata</a></li>
+      <li><a href="{% url 'journals:metadata_xml_deposit' doi_string=publication.doi_string option='test' %}">Test metadata deposit (via Crossref test server)</a></li>
+      <li><a href="{% url 'journals:metadata_xml_deposit' doi_string=publication.doi_string option='deposit' %}">Deposit the metadata to Crossref</a></li>
+      <li><a href="{% url 'journals:harvest_citedby_links' doi_string=publication.doi_string %}">Update Crossref cited-by links</a></li>
+    </ul>
   {% endif %}
 
 

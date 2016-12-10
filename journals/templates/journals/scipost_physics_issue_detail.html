@@ -7,11 +7,11 @@
 <script>
   $(document).ready(function(){
 
-  $(".publicationAbstract").hide();
+    $(".publicationAbstract").hide();
 
-  $(".toggleAbstractButton").click(function(){
-  $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
-  });
+    $(".toggleAbstractButton").click(function(){
+      $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
+    });
   });
 </script>
 
@@ -32,9 +32,9 @@
   <div class="flex-container">
     <div class="flex-whitebox800">
       <ul class="publicationHeaderList">
-	{% for paper in papers %}
-	{{ paper.header_as_li }}
-	{% endfor %}
+        {% for paper in papers %}
+          {{ paper.header_as_li }}
+        {% endfor %}
       </ul>
     </div>
   </div>

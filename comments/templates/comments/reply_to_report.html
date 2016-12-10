@@ -30,12 +30,13 @@
   <h1>SciPost Reply to Report Page</h1>
 
   {% if not is_author %}
-  <h3>(you are not identified as an author of this Submission; if you are, you can claim authorship on your Personal Page)</h3>
+    <h3>(you are not identified as an author of this Submission; if you are, you can claim authorship on your Personal Page)</h3>
   {% else %}
 
   <hr class="hr12">
   <h1>The Submission concerned:</h1>
   {{ report.submission.header_as_table }}
+  
   <h3>Abstract:</h3>
   <p>{{ report.submission.abstract }}</p>
   <br>
