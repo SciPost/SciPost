@@ -7,6 +7,10 @@ higher. Python dependencies are listed in `requirements.txt`.
 
 ## Getting started
 
+### Database
+Make sure that Postgres is installed and running, and that a database and user are set up for it. A
+good guide how to do this can be found [here](https://djangogirls.gitbooks.io/django-girls-tutorial-extensions/content/optional_postgresql_installation/) (NOTE: stop before the 'Update settings' part).
+
 ### Python version
 Make sure you're using Python 3.5. If you need to use multiple versions of Python, use [pyenv](https://github.com/yyuu/pyenv).
 
@@ -23,10 +27,6 @@ Now install dependencies:
 ```shell
 (scipostenv) $ pip install -r requirements.txt
 ```
-
-### Database
-Make sure that Postgres is installed and running, and that a database and user are set up for it. A
-good guide how to do this can be found [here](https://djangogirls.gitbooks.io/django-girls-tutorial-extensions/content/optional_postgresql_installation/) (NOTE: stop before the 'Update settings' part).
 
 ### Host-specific settings
 In this project, host-specific settings are defined in the `scipost-host-settings.json` file in the directory *above* the project root. The structure is as follows:
@@ -80,10 +80,10 @@ In order to use the admin site, you'll need a superuser.
 ```
 
 ### Create groups and permissions
-Groups and their respective permissions are created using the management command
+Groups and their respective permissions are created using the management command. Since users depend on the *Contributor* object to work properly, setup the first (admin) user using the `-u` and `-a` arguments.
 
 ```shell
-(scipostenv) $ ./manage.py add_groups_and_permissions
+(scipostenv) $ ./manage.py add_groups_and_permissions -u=<username> -a
 ```
 
 ### Run development server
