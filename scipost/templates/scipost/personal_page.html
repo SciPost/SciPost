@@ -102,7 +102,7 @@
   <ul class="personalTabMenu">
 
     <li><a class="TabItem" id="AccountTab">Account</a></li>
-    {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Advisory Board' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' %}
+    {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Advisory Board' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' or request.user|is_in_group:'Junior Ambassadors' %}
     <li><a class="TabItem" id="EdActionTab">Editorial Actions</a></li>
     {% endif %}
     <li><a class="TabItem" id="RefereeingTab">Refereeing</a></li>
