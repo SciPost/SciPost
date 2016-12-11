@@ -221,7 +221,7 @@
 </section>
 
 
-{% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' %}
+{% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' or request.user|is_in_group:'Junior Ambassadors' %}
 <section class="TabSection" id="EdActions">
   <hr class="hr12">
   <div class="flex-greybox">
