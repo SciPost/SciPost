@@ -28,6 +28,9 @@ SUBMISSION_STATUS = (
     # If revisions required: resubmission creates a new Submission object
     ('revision_requested', 'Editor-in-charge has requested revision'),
     ('resubmitted', 'Has been resubmitted'),
+    ('resubmitted_and_rejected', 'Has been resubmitted and subsequently rejected'),
+    ('resubmitted_and_rejected_visible',
+     'Has been resubmitted and subsequently rejected (still publicly visible)'),
     # If acceptance/rejection:
     ('voting_in_preparation', 'Voting in preparation (eligible Fellows being selected)'),
     ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
@@ -48,14 +51,28 @@ SUBMISSION_STATUS_OUT_OF_POOL = [
     'withdrawn',
 ]
 
+# Submissions which should not appear in search lists
 SUBMISSION_STATUS_PUBLICLY_UNLISTED = [
     'unassigned',
     'assignment_failed',
     'resubmitted',
+    'resubmitted_rejected',
+    'resubmitted_rejected_visible',
     'rejected',
     'published',
     'withdrawn',
 ]
+
+# Submissions which should not be viewable (except by admins, Fellows and authors)
+SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
+    'unassigned',
+    'assignment_failed',
+    'resubmitted_rejected',
+    'rejected',
+    'published',
+    'withdrawn',
+]
+
 
 # SUBMISSION_ACTION_REQUIRED = (
 #     ('assign_EIC', 'Editor-in-charge to be assigned'),

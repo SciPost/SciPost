@@ -352,14 +352,15 @@ def submission_detail_wo_vn_nr(request, arxiv_identifier_wo_vn_nr):
 def submission_detail(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     try:
-        if (submission.status in SUBMISSION_STATUS_PUBLICLY_UNLISTED
-            and not request.user.groups.filter(name='SciPost Administrators').exists()
-            and not request.user.groups.filter(name='Editorial Administrators').exists()
-            and not request.user.groups.filter(name='Editorial College').exists()
-            and request.user.contributor not in submission.authors.all()
-        ):
-            raise PermissionDenied
+        is_author = request.user.contributor in submission.authors.all()
     except AttributeError:
+        is_author = False
+    if (submission.status in SUBMISSION_STATUS_PUBLICLY_INVISIBLE
+        and not request.user.groups.filter(name='SciPost Administrators').exists()
+        and not request.user.groups.filter(name='Editorial Administrators').exists()
+        and not request.user.groups.filter(name='Editorial College').exists()
+        and not is_author
+    ):
         raise PermissionDenied
     other_versions = Submission.objects.filter(
         arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
@@ -1278,6 +1279,12 @@ def fix_College_decision(request, rec_id):
     elif recommendation.recommendation==-3:
         # Reject
         recommendation.submission.status='rejected'
+        previous_submissions = Submission.objects.filter(
+            arxiv_identifier_wo_vn_nr=recommendation.submission.arxiv_identifier_wo_vn_nr
+        ).exclude(pk=recommendation.submission.id)
+        for sub in previous_submissions:
+            sub.status = 'resubmitted_rejected'
+            sub.save()
 
     recommendation.submission.save()
     SubmissionUtils.load({'submission': recommendation.submission,
