@@ -351,12 +351,15 @@ def submission_detail_wo_vn_nr(request, arxiv_identifier_wo_vn_nr):
 
 def submission_detail(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if (submission.status in SUBMISSION_STATUS_PUBLICLY_UNLISTED
-        and not request.user.groups.filter(name='SciPost Administrators').exists()
-        and not request.user.groups.filter(name='Editorial Administrators').exists()
-        and not request.user.groups.filter(name='Editorial College').exists()
-        and request.user.contributor not in submission.authors.all()
-    ):
+    try:
+        if (submission.status in SUBMISSION_STATUS_PUBLICLY_UNLISTED
+            and not request.user.groups.filter(name='SciPost Administrators').exists()
+            and not request.user.groups.filter(name='Editorial Administrators').exists()
+            and not request.user.groups.filter(name='Editorial College').exists()
+            and request.user.contributor not in submission.authors.all()
+        ):
+            raise PermissionDenied
+    except AttributeError:
         raise PermissionDenied
     other_versions = Submission.objects.filter(
         arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
