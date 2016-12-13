@@ -17,13 +17,13 @@
 
   <div class="flex-whitebox">
     {% if accepted_SP_submissions %}
-    <ul>
-      {% for submission in accepted_SP_submissions %}
-      {{ submission.header_as_li }}
-      {% endfor %}
-    </ul>
+      <ul>
+        {% for submission in accepted_SP_submissions %}
+          {{ submission.header_as_li }}
+        {% endfor %}
+      </ul>
     {% else %}
-    <h2>All recently accepted Submissions to SciPost Physics have been published.</h2>
+      <h2>All recently accepted Submissions to SciPost Physics have been published.</h2>
     {% endif %}
   </div>
 

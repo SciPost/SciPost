@@ -7,10 +7,7 @@ from guardian.admin import GuardedModelAdmin
 
 from scipost.models import *
 
-#admin.site.register(Contributor)
-
 class ContributorInline(admin.StackedInline):
-#class ContributorInline(admin.TabularInline):
     model = Contributor
 
 class UserAdmin(UserAdmin):
@@ -34,6 +31,7 @@ class DraftInvitationAdmin(admin.ModelAdmin):
 
 admin.site.register(DraftInvitation, DraftInvitationAdmin)
 
+
 class RegistrationInvitationAdmin(admin.ModelAdmin):
     search_fields = ['first_name', 'last_name', 'email', 'invitation_key']
 
@@ -41,8 +39,6 @@ admin.site.register(RegistrationInvitation, RegistrationInvitationAdmin)
 
 
 admin.site.register(AuthorshipClaim)
-#admin.site.register(Opinion)
-
 admin.site.register(Permission)
 
 

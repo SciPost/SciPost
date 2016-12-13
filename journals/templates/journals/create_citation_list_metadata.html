@@ -11,7 +11,7 @@
   </div>
 
   {% if errormessage %}
-  <h2 style="color: red;">{{ errormessage }}</h2>
+    <h2 style="color: red;">{{ errormessage }}</h2>
   {% endif %}
 
   <form action="{% url 'journals:create_citation_list_metadata' doi_string=publication.doi_string %}" method="post">
@@ -25,9 +25,9 @@
   <h3>Current citation list metadata:</h3>
   <table>
     {% for citation in citation_list %}
-    <tr>
-      <td>{{ citation.key }}</td><td>{{ citation.doi }}</td>
-    </tr>
+      <tr>
+        <td>{{ citation.key }}</td><td>{{ citation.doi }}</td>
+      </tr>
     {% endfor %}
   </table>
 

@@ -6,7 +6,7 @@
 
 <section>
   {% if graphcreated %}
-  <p>{{ message }}</p>
+    <p>{{ message }}</p>
   {% else %}
   <h1>Create a new Graph</h1>
   <form action="{% url 'scipost:create_graph' %}" method="post">

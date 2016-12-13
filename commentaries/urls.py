@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^$', views.commentaries, name='commentaries'),
     url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]+)/$', views.browse, name='browse'),
     url(r'^howto$', TemplateView.as_view(template_name='commentaries/howto.html'), name='howto'),
-    #url(r'^(?P<commentary_id>[0-9]+)/$', views.commentary_detail, name='commentary'),
+
     # Match a DOI-based link:
     url(r'^(?P<arxiv_or_DOI_string>10.[0-9]{4,9}/[-._;()/:a-zA-Z0-9]+)/$', views.commentary_detail, name='commentary'),
     # Match an arxiv-based link:

@@ -30,22 +30,25 @@
   <h1>SciPost Reply to Comment Page</h1>
   <hr class="hr12">
   {% if comment.commentary %}
-  <h1>The Commentary concerned:</h1>
-  {{ commentary.header_as_table }}
-  <h3>Abstract:</h3>
-  <p>{{ commentary.pub_abstract }}</p>
+    <h1>The Commentary concerned:</h1>
+    {{ commentary.header_as_table }}
+    
+    <h3>Abstract:</h3>
+    <p>{{ commentary.pub_abstract }}</p>
   {% endif %}
   {% if comment.submission %}
-  <h1>The Submission concerned:</h1>
-  {{ submission.header_as_table }}
-  <h3>Abstract:</h3>
-  <p>{{ submission.abstract }}</p>
+    <h1>The Submission concerned:</h1>
+    {{ submission.header_as_table }}
+    
+    <h3>Abstract:</h3>
+    <p>{{ submission.abstract }}</p>
   {% endif %}
   {% if comment.thesislink %}
-  <h1>The Thesis concerned:</h1>
-  {{ thesislink.header_as_table }}
-  <h3>Abstract:</h3>
-  <p>{{ thesislink.abstract }}</p>
+    <h1>The Thesis concerned:</h1>
+    {{ thesislink.header_as_table }}
+    
+    <h3>Abstract:</h3>
+    <p>{{ thesislink.abstract }}</p>
   {% endif %}
   <br>
 
@@ -54,11 +57,11 @@
 
    <div class="flex-container">
       <div class="flex-commentbox">
-	{{ comment.print_identifier }}
-	{{ comment.categories_as_ul }}
+        {{ comment.print_identifier }}
+        {{ comment.categories_as_ul }}
         <div class="opinionsDisplay">
-	  {{ comment.opinions_as_ul }}
-	</div>
+          {{ comment.opinions_as_ul }}
+        </div>
       </div>
    </div>
    <div class="row">
@@ -71,9 +74,9 @@
   <hr class="hr6">
   <h1>Your Reply to this Comment:</h1>
   {% if is_author %}
-  <h3>(you are identified as an author, your reply will appear as an author reply)</h3>
+    <h3>(you are identified as an author, your reply will appear as an author reply)</h3>
   {% else %}
-  <h3>(you are not identified as an author of this publication; if you are, you can claim authorship on your Personal Page)</h3>
+    <h3>(you are not identified as an author of this publication; if you are, you can claim authorship on your Personal Page)</h3>
   {% endif %}
   <form action="{% url 'comments:reply_to_comment' comment.id %}" method="post">
     {% csrf_token %}
