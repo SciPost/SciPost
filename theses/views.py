@@ -17,7 +17,8 @@ from comments.models import Comment
 from comments.forms import CommentForm
 from scipost.forms import TITLE_CHOICES, AuthenticationForm
 
-title_dict = dict(TITLE_CHOICES) # Convert titles for use in emails
+
+title_dict = dict(TITLE_CHOICES)  # Convert titles for use in emails
 
 ################
 # Theses
@@ -30,23 +31,23 @@ def request_thesislink(request):
         form = RequestThesisLinkForm(request.POST)
         if form.is_valid():
             contributor = Contributor.objects.get(user=request.user)
-            thesislink = ThesisLink (
-                requested_by = contributor,
-                type = form.cleaned_data['type'],
-                discipline = form.cleaned_data['discipline'],
-                domain = form.cleaned_data['domain'],
-                subject_area = form.cleaned_data['subject_area'],
-                title = form.cleaned_data['title'],
-                author = form.cleaned_data['author'],
-                supervisor = form.cleaned_data['supervisor'],
-                institution = form.cleaned_data['institution'],
-                defense_date = form.cleaned_data['defense_date'],
-                pub_link = form.cleaned_data['pub_link'],
-                abstract = form.cleaned_data['abstract'],
-                latest_activity = timezone.now(),
+            thesislink = ThesisLink(
+                requested_by=contributor,
+                type=form.cleaned_data['type'],
+                discipline=form.cleaned_data['discipline'],
+                domain=form.cleaned_data['domain'],
+                subject_area=form.cleaned_data['subject_area'],
+                title=form.cleaned_data['title'],
+                author=form.cleaned_data['author'],
+                supervisor=form.cleaned_data['supervisor'],
+                institution=form.cleaned_data['institution'],
+                defense_date=form.cleaned_data['defense_date'],
+                pub_link=form.cleaned_data['pub_link'],
+                abstract=form.cleaned_data['abstract'],
+                latest_activity=timezone.now(),
                 )
             thesislink.save()
-            #return HttpResponseRedirect('request_thesislink_ack')
+            # return HttpResponseRedirect('request_thesislink_ack')
             context = {'ack_header': 'Thank you for your request for a Thesis Link',
                        'ack_message': 'Your request will soon be handled by an Editor. ',
                        'followup_message': 'Return to your ',
@@ -61,10 +62,11 @@ def request_thesislink(request):
 @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
 def vet_thesislink_requests(request):
     contributor = Contributor.objects.get(user=request.user)
-    thesislink_to_vet = ThesisLink.objects.filter(vetted=False).first() # only handle one at a time
+    thesislink_to_vet = ThesisLink.objects.filter(vetted=False).first()  # only handle one at a time
     form = VetThesisLinkForm()
-    context = {'contributor': contributor, 'thesislink_to_vet': thesislink_to_vet, 'form': form }
+    context = {'contributor': contributor, 'thesislink_to_vet': thesislink_to_vet, 'form': form}
     return render(request, 'theses/vet_thesislink_requests.html', context)
+
 
 @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
 def vet_thesislink_request_ack(request, thesislink_id):
