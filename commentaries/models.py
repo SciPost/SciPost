@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
 
 from journals.models import SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
-from scipost.models import Contributor
+from scipost.models import TimeStampedModel, Contributor
 from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 
 
@@ -15,7 +15,7 @@ COMMENTARY_TYPES = (
     ('preprint', 'arXiv preprint'),
     )
 
-class Commentary(models.Model):
+class Commentary(TimeStampedModel):
     """
     A Commentary contains all the contents of a SciPost Commentary page for a given publication.
     """
@@ -55,7 +55,6 @@ class Commentary(models.Model):
     pages = models.CharField(max_length=50, blank=True, null=True)
     pub_date = models.DateField(verbose_name='date of original publication', blank=True, null=True)
     pub_abstract = models.TextField(verbose_name='abstract')
-    latest_activity = models.DateTimeField(default=timezone.now)
 
     class Meta:
         verbose_name_plural = 'Commentaries'
