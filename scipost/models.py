@@ -258,7 +258,7 @@ class Contributor(models.Model):
 
     def public_info_as_table(self):
         """Prints out all publicly-accessible info as a table."""
-        
+
         template = Template('''
             <table>
             <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
