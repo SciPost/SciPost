@@ -179,6 +179,19 @@ TITLE_CHOICES = (
 title_dict = dict(TITLE_CHOICES)
 
 
+class TimeStampedModel(models.Model):
+    """
+    All objects should inherit from this abstract model.
+    This will ensure the creation of created and modified
+    timestamps in the objects.
+    """
+    created = models.DateTimeField(auto_now_add=True)
+    latest_activity = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
 class Contributor(models.Model):
     """
     All users of SciPost are Contributors.
@@ -258,7 +271,7 @@ class Contributor(models.Model):
 
     def public_info_as_table(self):
         """Prints out all publicly-accessible info as a table."""
-        
+
         template = Template('''
             <table>
             <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
