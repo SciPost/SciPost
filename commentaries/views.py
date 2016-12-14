@@ -348,54 +348,32 @@ def vet_commentary_request_ack(request, commentary_id):
                'followup_link_label': 'Commentary requests page'}
     return render(request, 'scipost/acknowledgement.html', context)
 
-
 def commentaries(request):
-    if request.method == 'POST':
-        form = CommentarySearchForm(request.POST)
-        if form.is_valid() and form.has_changed():
-            commentary_search_list = Commentary.objects.vetted(
-                pub_title__icontains=form.cleaned_data['pub_title_keyword'],
-                author_list__icontains=form.cleaned_data['pub_author'],
-                pub_abstract__icontains=form.cleaned_data['pub_abstract_keyword'])
-            commentary_search_list.order_by('-pub_date')
-        else:
-            commentary_search_list = []
-
+    """List and search all commentaries"""
+    form = CommentarySearchForm(request.POST or None)
+    if form.is_valid() and form.has_changed():
+        commentary_search_list = form.search_results()
     else:
-        form = CommentarySearchForm()
         commentary_search_list = []
 
     comment_recent_list = Comment.objects.filter(status='1').order_by('-date_submitted')[:10]
-
     commentary_recent_list = Commentary.objects.vetted().order_by('-latest_activity')[:10]
-    context = {'form': form, 'commentary_search_list': commentary_search_list,
-               'comment_recent_list': comment_recent_list,
-               'commentary_recent_list': commentary_recent_list }
+    context = {
+        'form': form, 'commentary_search_list': commentary_search_list,
+        'comment_recent_list': comment_recent_list,
+        'commentary_recent_list': commentary_recent_list}
     return render(request, 'commentaries/commentaries.html', context)
 
-
 def browse(request, discipline, nrweeksback):
-    if request.method == 'POST':
-        form = CommentarySearchForm(request.POST)
-        if form.is_valid() and form.has_changed():
-            commentary_search_list = Commentary.objects.vetted(
-                pub_title__icontains=form.cleaned_data['pub_title_keyword'],
-                author_list__icontains=form.cleaned_data['pub_author'],
-                pub_abstract__icontains=form.cleaned_data['pub_abstract_keyword'])
-            commentary_search_list.order_by('-pub_date')
-        else:
-            commentary_search_list = []
-        context = {'form': form, 'commentary_search_list': commentary_search_list}
-        return HttpResponseRedirect(request, 'commentaries/commentaries.html', context)
-    else:
-        form = CommentarySearchForm()
+    """List all commentaries for discipline and period"""
     commentary_browse_list = Commentary.objects.vetted(
         discipline=discipline,
         latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
-    context = {'form': form, 'discipline': discipline, 'nrweeksback': nrweeksback,
-               'commentary_browse_list': commentary_browse_list }
+    context = {
+        'form': CommentarySearchForm(),
+        'discipline': discipline, 'nrweeksback': nrweeksback,
+        'commentary_browse_list': commentary_browse_list}
     return render(request, 'commentaries/commentaries.html', context)
-
 
 def commentary_detail(request, arxiv_or_DOI_string):
     commentary = get_object_or_404(Commentary, arxiv_or_DOI_string=arxiv_or_DOI_string)
