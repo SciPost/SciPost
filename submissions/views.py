@@ -51,7 +51,6 @@ def prefill_using_identifier(request):
                 errormessage = ('The identifier you entered is improperly formatted '
                                 '(did you forget the version number?)')
             elif (Submission.objects
-                  #.filter(arxiv_link__contains=identifierform.cleaned_data['identifier'])
                   .filter(arxiv_identifier_w_vn_nr=identifierform.cleaned_data['identifier'])
                   .exists()):
                 errormessage = 'This preprint version has already been submitted to SciPost.'
@@ -60,9 +59,11 @@ def prefill_using_identifier(request):
                 return render(request, 'submissions/submit_manuscript.html',
                               {'identifierform': identifierform, 'form': form,
                                'errormessage': errormessage})
+
             # Otherwise we query arXiv for the information:
             identifier_without_vn_nr = identifierform.cleaned_data['identifier'].rpartition('v')[0]
             arxiv_vn_nr = int(identifierform.cleaned_data['identifier'].rpartition('v')[2])
+
             is_resubmission = False
             resubmessage = ''
             previous_submissions = Submission.objects.filter(
@@ -95,6 +96,7 @@ def prefill_using_identifier(request):
                     errormessage = 'A preprint associated to this identifier does not exist.'
                 except:
                     pass
+
                 # If paper has been published, should comment on published version
                 try:
                     arxiv_journal_ref = arxivquery['entries'][0]['arxiv_journal_ref']
@@ -113,22 +115,7 @@ def prefill_using_identifier(request):
                     context = {'identifierform': identifierform, 'form': form,
                                'errormessage': errormessage}
                     return render(request, 'submissions/submit_manuscript.html', context)
-                # otherwise prefill the form:
-                # metadata = arxivquery
-                # title = arxivquery['entries'][0]['title']
-                # authorlist = arxivquery['entries'][0]['authors'][0]['name']
-                # for author in arxivquery['entries'][0]['authors'][1:]:
-                #     authorlist += ', ' + author['name']
-                # arxiv_link = arxivquery['entries'][0]['id']
-                # abstract = arxivquery['entries'][0]['summary']
-                # form = SubmissionForm(
-                #     initial={'is_resubmission': is_resubmission,
-                #              'metadata': metadata,
-                #              'title': title, 'author_list': authorlist,
-                #              'arxiv_identifier_w_vn_nr': identifierform.cleaned_data['identifier'],
-                #              'arxiv_identifier_wo_vn_nr': identifier_without_vn_nr,
-                #              'arxiv_vn_nr': arxiv_vn_nr,
-                #              'arxiv_link': arxiv_link, 'abstract': abstract})
+
                 metadata = arxivquery
                 title = arxivquery['entries'][0]['title']
                 authorlist = arxivquery['entries'][0]['authors'][0]['name']
@@ -148,7 +135,6 @@ def prefill_using_identifier(request):
                     initialdata['submission_type'] = previous_submissions[0].submission_type
                     initialdata['discipline'] = previous_submissions[0].discipline
                     initialdata['domain'] = previous_submissions[0].domain
-#                    initialdata['specialization'] = previous_submissions[0].specialization
                     initialdata['subject_area'] = previous_submissions[0].subject_area
                     initialdata['secondary_areas'] = previous_submissions[0].secondary_areas
                     initialdata['referees_suggested'] = previous_submissions[0].referees_suggested
@@ -185,7 +171,7 @@ def submit_manuscript(request):
                 return render(request, 'submissions/submit_manuscript.html',
                               {'identifierform': identifierform, 'form': form,
                                'errormessage': errormessage})
-            submission = Submission (
+            submission = Submission(
                 is_current = True,
                 is_resubmission = form.cleaned_data['is_resubmission'],
                 submitted_by = submitted_by,

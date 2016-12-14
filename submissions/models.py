@@ -57,18 +57,6 @@ SUBMISSION_STATUS_PUBLICLY_UNLISTED = [
     'withdrawn',
 ]
 
-# SUBMISSION_ACTION_REQUIRED = (
-#     ('assign_EIC', 'Editor-in-charge to be assigned'),
-# #    ('Fellow_accepts_or_refuse_assignment', 'Fellow must accept or refuse assignment'),
-#     ('EIC_runs_refereeing_round', 'Editor-in-charge to run refereeing round (inviting referees)'),
-#     ('EIC_closes_refereeing_round', 'Editor-in-charge to close refereeing round'),
-#     ('EIC_invites_author_response', 'Editor-in-charge invites authors to complete their replies'),
-#     ('EIC_formulates_editorial_recommendation',
-#      'Editor-in-charge to formulate editorial recommendation'),
-#     ('EC_ratification', 'Editorial College ratifies editorial recommendation'),
-#     ('Decision_to_authors', 'Editor-in-charge forwards decision to authors'),
-#     )
-
 SUBMISSION_TYPE = (
     ('Letter', 'Letter (broad-interest breakthrough results)'),
     ('Article', 'Article (in-depth reports on specialized research)'),
@@ -78,6 +66,7 @@ submission_type_dict = dict(SUBMISSION_TYPE)
 
 
 class Submission(models.Model):
+    # Main submission fields
     is_current = models.BooleanField(default=True)
     is_resubmission = models.BooleanField(default=False)
     submitted_by = models.ForeignKey(Contributor, on_delete=models.CASCADE)
@@ -89,13 +78,12 @@ class Submission(models.Model):
                                        blank=True, null=True, default=None)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
-#    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
     secondary_areas = ChoiceArrayField(
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
-    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS) # set by Editors
+    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS)  # set by Editors
     author_comments = models.TextField(blank=True, null=True)
     list_of_changes = models.TextField(blank=True, null=True)
     remarks_for_editors = models.TextField(blank=True, null=True)
@@ -106,17 +94,22 @@ class Submission(models.Model):
     open_for_commenting = models.BooleanField(default=False)
     title = models.CharField(max_length=300)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
+
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField (Contributor, blank=True, related_name='authors_sub')
-    authors_claims = models.ManyToManyField (Contributor, blank=True,
-                                             related_name='authors_sub_claims')
-    authors_false_claims = models.ManyToManyField (Contributor, blank=True,
-                                                   related_name='authors_sub_false_claims')
+    authors = models.ManyToManyField(Contributor, blank=True, related_name='authors_sub')
+    authors_claims = models.ManyToManyField(Contributor, blank=True,
+                                            related_name='authors_sub_claims')
+    authors_false_claims = models.ManyToManyField(Contributor, blank=True,
+                                                  related_name='authors_sub_false_claims')
     abstract = models.TextField()
+
+    # Arxiv identifiers with/without version number
     arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
     arxiv_identifier_wo_vn_nr = models.CharField(max_length=10, default='0000.00000')
     arxiv_vn_nr = models.PositiveSmallIntegerField(default=1)
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
+
+    # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
     submission_date = models.DateField(verbose_name='submission date')
     latest_activity = models.DateTimeField(default=timezone.now)
@@ -126,7 +119,7 @@ class Submission(models.Model):
             ('can_take_editorial_actions', 'Can take editorial actions'),
             )
 
-    def __str__ (self):
+    def __str__(self):
         header = (self.arxiv_identifier_w_vn_nr + ', '
                   + self.title[:30] + ' by ' + self.author_list[:30])
         if self.is_current:
