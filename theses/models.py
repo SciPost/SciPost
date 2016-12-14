@@ -8,15 +8,18 @@ from .models import *
 from journals.models import *
 from scipost.models import *
 
-THESIS_TYPES = (
-    ('MA', 'Master\'s'),
-    ('PhD', 'Ph.D.'),
-    ('Hab', 'Habilitation'),
-    )
-thesis_type_dict = dict(THESIS_TYPES)
-
 
 class ThesisLink(models.Model):
+    MASTER_THESIS = 'MA'
+    PHD_THESIS = 'PhD'
+    HABILITATION_THESIS = 'Hab'
+    THESIS_TYPES = (
+        (MASTER_THESIS, 'Master\'s'),
+        (PHD_THESIS, 'Ph.D.'),
+        (HABILITATION_THESIS, 'Habilitation'),
+    )
+    thesis_type_dict = dict(THESIS_TYPES)
+
     """ An URL pointing to a thesis """
     requested_by = models.ForeignKey(
         Contributor, blank=True, null=True,
@@ -26,7 +29,7 @@ class ThesisLink(models.Model):
     vetted_by = models.ForeignKey(
         Contributor, blank=True, null=True,
         on_delete=models.CASCADE)
-    type = models.CharField(max_length=3, choices=THESIS_TYPES)
+    type = models.CharField(choices=THESIS_TYPES)
     discipline = models.CharField(
         max_length=20, choices=SCIPOST_DISCIPLINES,
         default='physics')
