@@ -3,17 +3,14 @@ from django.test import Client
 
 from submissions.views import *
 
-print('Hi')
 
 
 class PrefillUsingIdentifierTest(TestCase):
-    def test_retrieving_arxiv_paper(self):
-        # Create an instance of a GET request.
-        # request = self.factory.post('/submissions/prefill_using_identifier',
-        #                             {'identifier': '1512.00030v1'})
+    fixtures = ['permissions', 'groups', 'contributors']
 
+    def test_retrieving_arxiv_paper(self):
         client = Client()
-        client.login()
+        client.login(username="Test", password="testpw")
 
         response = client.post('/submissions/prefill_using_identifier',
                                {'identifier': '1512.00030v1'})
