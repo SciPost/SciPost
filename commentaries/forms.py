@@ -66,4 +66,4 @@ class CommentarySearchForm(forms.Form):
         return Commentary.objects.vetted(
             pub_title__icontains=self.cleaned_data['pub_title_keyword'],
             pub_abstract__icontains=self.cleaned_data['pub_abstract_keyword'],
-            author_list__icontains=self.cleaned_data['pub_author'])
+            author_list__icontains=self.cleaned_data['pub_author']).order_by('-pub_date')
