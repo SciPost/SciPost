@@ -1,10 +1,17 @@
 import factory
-from . import models
+from .models import ThesisLink
 
 
 class ThesisLinkFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.ThesisLink
+        model = ThesisLink
 
-    vetted = True
-    type = models
+    # requested_by = factory.SubFactory(ContributorFactory)
+    type = ThesisLink.MASTER_THESIS
+    title = factory.Sequence(lambda n: "thesis {0}".format(n))
+    pub_link = factory.Faker('uri')
+    author = factory.Faker('name')
+    supervisor = factory.Faker('name')
+    institution = factory.Faker('company')
+    defense_date = factory.Faker('date_time_this_century')
+    abstract = factory.Faker('text')

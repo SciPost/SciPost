@@ -18,7 +18,7 @@ class ThesisLink(models.Model):
         (PHD_THESIS, 'Ph.D.'),
         (HABILITATION_THESIS, 'Habilitation'),
     )
-    thesis_type_dict = dict(THESIS_TYPES)
+    THESIS_TYPES_DICT = dict(THESIS_TYPES)
 
     """ An URL pointing to a thesis """
     requested_by = models.ForeignKey(
@@ -29,13 +29,13 @@ class ThesisLink(models.Model):
     vetted_by = models.ForeignKey(
         Contributor, blank=True, null=True,
         on_delete=models.CASCADE)
-    type = models.CharField(choices=THESIS_TYPES)
+    type = models.CharField(choices=THESIS_TYPES, max_length=3)
     discipline = models.CharField(
         max_length=20, choices=SCIPOST_DISCIPLINES,
         default='physics')
     domain = models.CharField(
         max_length=3, choices=SCIPOST_JOURNALS_DOMAINS,
-        blank=True)
+        blank=False)
     subject_area = models.CharField(
         max_length=10,
         choices=SCIPOST_SUBJECT_AREAS,
@@ -88,7 +88,7 @@ class ThesisLink(models.Model):
             header += '<td>(not claimed)</td>'
         header += (
             '</tr>'
-            '<tr><td>Type: </td><td></td><td>' + thesis_type_dict[self.type] +
+            '<tr><td>Type: </td><td></td><td>' + self.THESIS_TYPES_DICT[self.type] +
             '</td></tr>'
             '<tr><td>Discipline: </td><td></td><td>' +
             disciplines_dict[self.discipline] + '</td></tr>'
@@ -119,7 +119,7 @@ class ThesisLink(models.Model):
             '<li><div class="flex-container">'
             '<div class="flex-whitebox0"><p><a href="/thesis/{{ id }}" '
             'class="pubtitleli">{{ title }}</a></p>'
-            '<p>' + thesis_type_dict[self.type] + ' thesis by {{ author }} '
+            '<p>' + self.THESIS_TYPES_DICT[self.type] + ' thesis by {{ author }} '
             '(supervisor(s): {{ supervisor }}) in ' +
             disciplines_dict[self.discipline] + ', ' +
             journals_domains_dict[self.domain] + ' ' +
@@ -138,7 +138,7 @@ class ThesisLink(models.Model):
             '<li><div class="flex-container">'
             '<div class="flex-whitebox0"><p><a href="/thesis/{{ id }}" '
             'class="pubtitleli">{{ title }}</a></p>'
-            '<p>' + thesis_type_dict[self.type] +
+            '<p>' + self.THESIS_TYPES_DICT[self.type] +
             ' thesis by {{ author }} </div></div></li>')
         template = Template(header)
         return template.render(context)
