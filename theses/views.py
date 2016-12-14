@@ -45,7 +45,7 @@ def request_thesislink(request):
                 pub_link=form.cleaned_data['pub_link'],
                 abstract=form.cleaned_data['abstract'],
                 latest_activity=timezone.now(),
-                )
+            )
             thesislink.save()
             # return HttpResponseRedirect('request_thesislink_ack')
             context = {'ack_header': 'Thank you for your request for a Thesis Link',
@@ -62,7 +62,8 @@ def request_thesislink(request):
 @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
 def vet_thesislink_requests(request):
     contributor = Contributor.objects.get(user=request.user)
-    thesislink_to_vet = ThesisLink.objects.filter(vetted=False).first()  # only handle one at a time
+    thesislink_to_vet = ThesisLink.objects.filter(
+        vetted=False).first()  # only handle one at a time
     form = VetThesisLinkForm()
     context = {'contributor': contributor, 'thesislink_to_vet': thesislink_to_vet, 'form': form}
     return render(request, 'theses/vet_thesislink_requests.html', context)
@@ -114,8 +115,8 @@ def vet_thesislink_request_ack(request, thesislink_id):
                                             ['theses@scipost.org'],
                                             reply_to=['theses@scipost.org'])
                 # Don't send email yet... only when option 1 has succeeded!
-                #emailmessage.send(fail_silently=False)
-                context = {'form': form2 }
+                # emailmessage.send(fail_silently=False)
+                context = {'form': form2}
                 return render(request, 'theses/request_thesislink.html', context)
             elif form.cleaned_data['action_option'] == '2':
                 email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
@@ -126,7 +127,8 @@ def vet_thesislink_request_ack(request, thesislink_id):
                               + form.cleaned_data['refusal_reason']
                               + '.\n\nThank you for your interest, \nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
-                    email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
+                    email_text += '\n\nFurther explanations: ' + \
+                        form.cleaned_data['email_response_field']
                 emailmessage = EmailMessage('SciPost Thesis Link', email_text,
                                             'SciPost Theses <theses@scipost.org>',
                                             [thesislink.requested_by.user.email],
@@ -136,7 +138,7 @@ def vet_thesislink_request_ack(request, thesislink_id):
                 thesislink.delete()
 
     #context = {'thesislink_id': thesislink_id }
-    #return render(request, 'theses/vet_thesislink_request_ack.html', context)
+    # return render(request, 'theses/vet_thesislink_request_ack.html', context)
     context = {'ack_header': 'Thesis Link request vetted.',
                'followup_message': 'Return to the ',
                'followup_link': reverse('theses:vet_thesislink_requests'),
@@ -154,7 +156,7 @@ def theses(request):
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
                 supervisor__icontains=form.cleaned_data['supervisor'],
                 vetted=True,
-                )
+            )
             thesislink_search_list.order_by('-pub_date')
         else:
             thesislink_search_list = []
@@ -167,7 +169,7 @@ def theses(request):
                               .filter(vetted=True,
                                       latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)))
     context = {'form': form, 'thesislink_search_list': thesislink_search_list,
-               'thesislink_recent_list': thesislink_recent_list }
+               'thesislink_recent_list': thesislink_recent_list}
     return render(request, 'theses/theses.html', context)
 
 
@@ -181,11 +183,11 @@ def browse(request, discipline, nrweeksback):
                 abstract__icontains=form.cleaned_data['abstract_keyword'],
                 supervisor__icontains=form.cleaned_data['supervisor'],
                 vetted=True,
-                )
+            )
             thesislink_search_list.order_by('-pub_date')
         else:
             thesislink_search_list = []
-        context = {'form': form, 'thesislink_search_list': thesislink_search_list }
+        context = {'form': form, 'thesislink_search_list': thesislink_search_list}
         return HttpResponseRedirect(request, 'theses/theses.html', context)
     else:
         form = ThesisLinkSearchForm()
@@ -194,7 +196,7 @@ def browse(request, discipline, nrweeksback):
         latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))))
     context = {'form': form, 'discipline': discipline,
                'nrweeksback': nrweeksback,
-               'thesislink_browse_list': thesislink_browse_list }
+               'thesislink_browse_list': thesislink_browse_list}
     return render(request, 'theses/theses.html', context)
 
 
@@ -205,21 +207,21 @@ def thesis_detail(request, thesislink_id):
         form = CommentForm(request.POST)
         if form.is_valid():
             author = Contributor.objects.get(user=request.user)
-            newcomment = Comment (
-                thesislink = thesislink,
-                author = author,
-                is_rem = form.cleaned_data['is_rem'],
-                is_que = form.cleaned_data['is_que'],
-                is_ans = form.cleaned_data['is_ans'],
-                is_obj = form.cleaned_data['is_obj'],
-                is_rep = form.cleaned_data['is_rep'],
-                is_val = form.cleaned_data['is_val'],
-                is_lit = form.cleaned_data['is_lit'],
-                is_sug = form.cleaned_data['is_sug'],
-                comment_text = form.cleaned_data['comment_text'],
-                remarks_for_editors = form.cleaned_data['remarks_for_editors'],
-                date_submitted = timezone.now(),
-                )
+            newcomment = Comment(
+                thesislink=thesislink,
+                author=author,
+                is_rem=form.cleaned_data['is_rem'],
+                is_que=form.cleaned_data['is_que'],
+                is_ans=form.cleaned_data['is_ans'],
+                is_obj=form.cleaned_data['is_obj'],
+                is_rep=form.cleaned_data['is_rep'],
+                is_val=form.cleaned_data['is_val'],
+                is_lit=form.cleaned_data['is_lit'],
+                is_sug=form.cleaned_data['is_sug'],
+                comment_text=form.cleaned_data['comment_text'],
+                remarks_for_editors=form.cleaned_data['remarks_for_editors'],
+                date_submitted=timezone.now(),
+            )
             newcomment.save()
             author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()

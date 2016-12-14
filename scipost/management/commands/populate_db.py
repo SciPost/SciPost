@@ -16,5 +16,7 @@ class Command(BaseCommand):
         contributor.vetted_by = contributor
         contributor.save()
 
+    def create_theses(self):
+
     def handle(self, *args, **options):
         self.create_contributor(options['username'])
