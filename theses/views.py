@@ -1,4 +1,5 @@
 import datetime
+
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
@@ -9,6 +10,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
+from django.views.generic.edit import CreateView
+from django.utils.decorators import method_decorator
 
 from .models import *
 from .forms import *
@@ -23,6 +26,13 @@ title_dict = dict(TITLE_CHOICES)  # Convert titles for use in emails
 ################
 # Theses
 ################
+
+
+@method_decorator(permission_required(
+    'scipost.can_request_thesislinks', raise_exception=True), name='dispatch')
+class RequestThesisLink(CreateView):
+    model = ThesisLink
+    template_name = 'theses/request_thesislink.html'
 
 
 @permission_required('scipost.can_request_thesislinks', raise_exception=True)
