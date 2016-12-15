@@ -1,12 +1,13 @@
 import factory
 from .models import ThesisLink
+from scipost.factories import UserFactory, ContributorFactory
 
 
 class ThesisLinkFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ThesisLink
 
-    # requested_by = factory.SubFactory(ContributorFactory)
+    requested_by = factory.SubFactory(ContributorFactory)
     type = ThesisLink.MASTER_THESIS
     title = factory.Sequence(lambda n: "thesis {0}".format(n))
     pub_link = factory.Faker('uri')

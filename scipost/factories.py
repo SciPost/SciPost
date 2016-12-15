@@ -12,6 +12,8 @@ class ContributorFactory(factory.django.DjangoModelFactory):
 
     title = "MR"
     user = factory.SubFactory(UserFactory, contributor=None)
+    status = 1
+    vetted_by = factory.SubFactory(ContributorFactory)
 
 
 class UserFactory(factory.django.DjangoModelFactory):
