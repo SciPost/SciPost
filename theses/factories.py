@@ -1,6 +1,6 @@
 import factory
 from .models import ThesisLink
-from scipost.factories import UserFactory, ContributorFactory
+from scipost.factories import ContributorFactory
 
 
 class ThesisLinkFactory(factory.django.DjangoModelFactory):

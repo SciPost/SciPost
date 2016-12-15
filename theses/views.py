@@ -137,8 +137,6 @@ def vet_thesislink_request_ack(request, thesislink_id):
                 emailmessage.send(fail_silently=False)
                 thesislink.delete()
 
-    #context = {'thesislink_id': thesislink_id }
-    # return render(request, 'theses/vet_thesislink_request_ack.html', context)
     context = {'ack_header': 'Thesis Link request vetted.',
                'followup_message': 'Return to the ',
                'followup_link': reverse('theses:vet_thesislink_requests'),
@@ -207,7 +205,7 @@ def thesis_detail(request, thesislink_id):
         form = CommentForm(request.POST)
         if form.is_valid():
             author = Contributor.objects.get(user=request.user)
-            newcomment = Comment(
+            new_comment = Comment(
                 thesislink=thesislink,
                 author=author,
                 is_rem=form.cleaned_data['is_rem'],
@@ -222,11 +220,12 @@ def thesis_detail(request, thesislink_id):
                 remarks_for_editors=form.cleaned_data['remarks_for_editors'],
                 date_submitted=timezone.now(),
             )
-            newcomment.save()
+            new_comment.save()
             author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()
             request.session['thesislink_id'] = thesislink_id
-            return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
+            context = {}
+            return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = CommentForm()
 

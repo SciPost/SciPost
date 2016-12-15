@@ -28,6 +28,7 @@ class RequestThesisLinkForm(forms.ModelForm):
         self.fields['pub_link'].widget.attrs.update({'placeholder': 'Full URL'})
         self.fields['abstract'].widget.attrs.update({'cols': 100})
 
+
 class VetThesisLinkForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect,
                                       choices=THESIS_ACTION_CHOICES,
