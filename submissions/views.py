@@ -44,25 +44,14 @@ def prefill_using_identifier(request):
     if request.method == "POST":
         identifierform = SubmissionIdentifierForm(request.POST)
         if identifierform.is_valid():
-            # we allow 1 or 2 digits for version
-            identifierpattern = re.compile("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$")
-            errormessage = ''
-            if not identifierpattern.match(identifierform.cleaned_data['identifier']):
-                errormessage = ('The identifier you entered is improperly formatted '
-                                '(did you forget the version number?)')
-            elif (Submission.objects
-                  .filter(arxiv_identifier_w_vn_nr=identifierform.cleaned_data['identifier'])
-                  .exists()):
-                errormessage = 'This preprint version has already been submitted to SciPost.'
-            if errormessage != '':
+            # Perform Arxiv query and check if results are OK for submission
+            metadata, errormessage = lookup_article(identifierform.cleaned_data['identifier'])
+
+            if not metadata:
                 form = SubmissionForm()
                 return render(request, 'submissions/submit_manuscript.html',
                               {'identifierform': identifierform, 'form': form,
                                'errormessage': errormessage})
-
-            # Otherwise we query arXiv for the information:
-            identifier_without_vn_nr = identifierform.cleaned_data['identifier'].rpartition('v')[0]
-            arxiv_vn_nr = int(identifierform.cleaned_data['identifier'].rpartition('v')[2])
 
             is_resubmission = False
             resubmessage = ''
@@ -151,7 +140,9 @@ def prefill_using_identifier(request):
                            'errormessage': errormessage,}
                 return render(request, 'submissions/submit_manuscript.html', context)
         else:
-            pass
+            form = SubmissionForm()
+            return render(request, 'submissions/submit_manuscript.html',
+                          {'identifierform': identifierform, 'form': form})
     return redirect(reverse('submissions:submit_manuscript'))
 
 

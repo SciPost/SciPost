@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import RegexValidator
 #from django.contrib.auth.models import User, Group
 
 from .models import *
@@ -20,10 +21,22 @@ class SubmissionSearchForm(forms.Form):
 ###############################
 
 class SubmissionIdentifierForm(forms.Form):
-    identifier = forms.CharField(widget=forms.TextInput(
-        {'label': 'arXiv identifier',
-         'placeholder': 'new style (with version nr) ####.####(#)v#(#)',
-         'cols': 20}))
+    identifier = forms.CharField(
+        widget=forms.TextInput(
+            {'label': 'arXiv identifier',
+             'placeholder': 'new style (with version nr) ####.####(#)v#(#)',
+             'cols': 20}
+        ),
+        validators=[
+            RegexValidator(
+                regex="^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$",
+                message='The identifier you entered is improperly formatted '
+                        '(did you forget the version number?)',
+                code='invalid_identifier'
+            ),
+        ])
+
+
 
 class SubmissionForm(forms.ModelForm):
     class Meta:
