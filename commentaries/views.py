@@ -35,44 +35,6 @@ def request_commentary(request):
     form = RequestCommentaryForm(request.POST or None, user=request.user)
     if request.method == 'POST':
         if form.is_valid():
-            # errormessage = ''
-            # existing_commentary = None
-            # if not form.cleaned_data['arxiv_identifier'] and not form.cleaned_data['pub_DOI']:
-            #     errormessage = ('You must provide either a DOI (for a published paper) '
-            #                     'or an arXiv identifier (for a preprint).')
-            # elif (form.cleaned_data['arxiv_identifier'] and
-            #       (Commentary.objects
-            #        .filter(arxiv_identifier=form.cleaned_data['arxiv_identifier']).exists())):
-            #     errormessage = 'There already exists a Commentary Page on this preprint, see'
-            #     existing_commentary = get_object_or_404(
-            #         Commentary,
-            #         arxiv_identifier=form.cleaned_data['arxiv_identifier'])
-            # elif (form.cleaned_data['pub_DOI'] and
-            #       Commentary.objects.filter(pub_DOI=form.cleaned_data['pub_DOI']).exists()):
-            #     errormessage = 'There already exists a Commentary Page on this publication, see'
-            #     existing_commentary = get_object_or_404(Commentary, pub_DOI=form.cleaned_data['pub_DOI'])
-
-            # Otherwise we can create the Commentary
-            # contributor = Contributor.objects.get(user=request.user)
-            # commentary = Commentary(
-            #     requested_by = contributor,
-            #     type = form.cleaned_data['type'],
-            #     discipline = form.cleaned_data['discipline'],
-            #     domain = form.cleaned_data['domain'],
-            #     subject_area = form.cleaned_data['subject_area'],
-            #     pub_title = form.cleaned_data['pub_title'],
-            #     arxiv_identifier = form.cleaned_data['arxiv_identifier'],
-            #     pub_DOI = form.cleaned_data['pub_DOI'],
-            #     metadata = form.cleaned_data['metadata'],
-            #     author_list = form.cleaned_data['author_list'],
-            #     journal = form.cleaned_data['journal'],
-            #     volume = form.cleaned_data['volume'],
-            #     pages = form.cleaned_data['pages'],
-            #     pub_date = form.cleaned_data['pub_date'],
-            #     pub_abstract = form.cleaned_data['pub_abstract'],
-            #     latest_activity = timezone.now(),
-            #     )
-
             commentary = form.save(commit=False)
             commentary.parse_links_into_urls()
             commentary.save()

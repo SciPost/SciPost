@@ -1,12 +1,9 @@
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
-from django.core.management import call_command
-from django.test import Client, TestCase
-
-# from .views import request_commentary
+from django.test import TestCase
 
 class RequestCommentaryTest(TestCase):
-    """Test cases for request_commentary view method"""
+    """Test cases for `request_commentary` view method"""
     fixtures = ['permissions', 'groups', 'contributors']
 
     def setUp(self):
@@ -23,7 +20,10 @@ class RequestCommentaryTest(TestCase):
         # Registered Contributor should get 200
         self.client.login(username="Test", password="testpw")
         request = self.client.get(self.view_url)
-        self.assertEquals(
-            request.status_code, 200,
-            'Get request on request_commentary has failed'
-        )
+        self.assertEquals(request.status_code, 200)
+
+    def test_post_invalid_forms(self):
+        """Test different kind of invalid RequestCommentaryForm submits"""
+        self.client.login(username="Test", password="testpw")
+        request = self.client.post(self.view_url)
+        self.assertEquals(request.status_code, 200)
