@@ -1,13 +1,39 @@
 import factory
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, User
 
 from .models import Contributor
+
+
+class ContributorFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Contributor
+
+    title = "MR"
+    user = factory.SubFactory(UserFactory, contributor=None)
 
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = get_user_model()
 
+    username = factory.Faker('user_name')
+    password = factory.Faker('password')
+    email = factory.Faker('safe_email')
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
+    # When user object is created, associate new Contributor object to it.
+    contributor = factory.RelatedFactory(ContributorFactory, 'user')
+
+    @factory.post_generation
+    def groups(self, create, extracted, **kwargs):
+        # If the object is not saved, we cannot use many-to-many relationship.
+        if not create:
+            return
+        # If group objects were passed in, use those.
+        if extracted:
+            for group in extracted:
+                self.groups.add(group)
+        else:
+            self.groups.add(Group.objects.get(name="Registered Contributors"))
