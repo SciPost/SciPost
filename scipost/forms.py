@@ -58,7 +58,8 @@ class DraftInvitationForm(forms.ModelForm):
         model = DraftInvitation
         fields = ['title', 'first_name', 'last_name', 'email',
                   'invitation_type',
-                  'cited_in_submission', 'cited_in_publication',]
+                  'cited_in_submission', 'cited_in_publication'
+                 ]
 
     def __init__(self, *args, **kwargs):
         super(DraftInvitationForm, self).__init__(*args, **kwargs)
@@ -91,7 +92,8 @@ class RegistrationInvitationForm(forms.ModelForm):
         fields = ['title', 'first_name', 'last_name', 'email',
                   'invitation_type',
                   'cited_in_submission', 'cited_in_publication',
-                  'message_style', 'personal_message']
+                  'message_style', 'personal_message'
+                 ]
 
     def __init__(self, *args, **kwargs):
         super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
@@ -135,7 +137,8 @@ class UpdatePersonalDataForm(forms.ModelForm):
         model = Contributor
         fields = ['title', 'discipline', 'expertises', 'orcid_id', 'country_of_employment',
                   'affiliation', 'address', 'personalwebpage',
-                  'accepts_SciPost_emails']
+                  'accepts_SciPost_emails'
+                 ]
         widgets = {'country_of_employment': CountrySelectWidget()}
 
 class VetRegistrationForm(forms.Form):
@@ -175,16 +178,6 @@ class UnavailabilityPeriodForm(forms.ModelForm):
         self.fields['end'].widget.attrs.update({'placeholder': 'YYYY-MM-DD'})
 
 
-#class OpinionForm(forms.Form):
-#    opinion = forms.ChoiceField(choices=OPINION_CHOICES, label='Your opinion on this Comment: ')
-
-
-#class AssessmentForm(forms.ModelForm):
-#    class Meta:
-#        model = Assessment
-#        fields = ['relevance', 'importance', 'clarity', 'validity', 'rigour', 'originality', 'significance']
-
-
 class SearchForm(forms.Form):
     query = forms.CharField(max_length=100, label='')
 
@@ -199,7 +192,6 @@ class EmailGroupMembersForm(forms.Form):
     include_scipost_summary = forms.BooleanField(
         required=False, initial=False,
         label='include SciPost summary at end of message')
-
 
     def __init__(self, *args, **kwargs):
         super(EmailGroupMembersForm, self).__init__(*args, **kwargs)
@@ -236,10 +228,6 @@ class SendPrecookedEmailForm(forms.Form):
         label='Include SciPost summary at end of message')
     from_address = forms.ChoiceField(choices=SCIPOST_FROM_ADDRESSES)
 
-    # def __init__(self, *args, **kwards):
-    #     super(SendPrecookedEmailForm, self).__init__(*args, **kwargs)
-    #     self.fields['from_address'].widget.attrs.update(
-
 
 class CreateListForm(forms.ModelForm):
     class Meta:
@@ -256,7 +244,7 @@ class CreateListForm(forms.ModelForm):
 class CreateTeamForm(forms.ModelForm):
     class Meta:
         model = Team
-        fields = ['name', ]
+        fields = ['name']
 
     def __init__(self, *args, **kwargs):
         super(CreateTeamForm, self).__init__(*args, **kwargs)
@@ -325,7 +313,8 @@ class SupportingPartnerForm(forms.ModelForm):
         model = SupportingPartner
         fields = ['partner_type', 'institution',
                   'institution_acronym', 'institution_address',
-                  'consortium_members',]
+                  'consortium_members'
+                 ]
 
     def __init__(self, *args, **kwargs):
         super(SupportingPartnerForm, self).__init__(*args, **kwargs)

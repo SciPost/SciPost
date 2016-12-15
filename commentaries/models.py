@@ -61,7 +61,7 @@ class Commentary(models.Model):
         verbose_name_plural = 'Commentaries'
 
 
-    def __str__ (self):
+    def __str__(self):
         return self.pub_title
 
 
@@ -106,7 +106,7 @@ class Commentary(models.Model):
         return template.render(context)
 
 
-    def header_as_li (self):
+    def header_as_li(self):
         # for display in search lists
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
                            'author_list': self.author_list,
@@ -137,13 +137,11 @@ class Commentary(models.Model):
         return template.render(context)
 
 
-    def simple_header_as_li (self):
+    def simple_header_as_li(self):
         # for display in Lists
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
                            'author_list': self.author_list})
         header = ('<li>'
-                  #'<div class="flex-container">'
-                  #'<div class="flex-whitebox0">'
                   '<p><a href="{{ scipost_url }}" '
                   'class="pubtitleli">{{ pub_title }}</a></p>'
                   '<p>by {{ author_list }}')
@@ -156,39 +154,27 @@ class Commentary(models.Model):
             header += ', <a href="{{ arxiv_link }}">{{ arxiv_link }}</a>'
             context['arxiv_link'] = self.arxiv_link
         header += '</p>'
-        header += (#'</div></div>'
-                   '</li>')
+        header += '</li>'
         template = Template(header)
         return template.render(context)
 
 
-    def parse_links_into_urls (self):
+    def parse_links_into_urls(self):
         """ Takes the arXiv nr or DOI and turns it into the urls """
         if self.pub_DOI:
             self.arxiv_or_DOI_string = self.pub_DOI
-#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('http://dx.doi.org/', '')
             self.pub_DOI_link = 'http://dx.doi.org/' + self.pub_DOI
         elif self.arxiv_identifier:
-#            self.arxiv_or_DOI_string = str(self.arxiv_link)
-#            # Format required: either identifier arXiv:1234.56789v10 or old-style arXiv:cond-mat/9712001v1
-#            # strip:
-#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('http://', '')
-#            # Old style: from arxiv.org/abs/1234.5678 into arXiv:1234.5678 (new identifier style)
-#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('arxiv.org/', '')
-#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('abs/', '')
-#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace('pdf/', '')
-#            # make sure arXiv prefix is there:
-#            self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_or_DOI_string
             self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_identifier
             self.arxiv_link = 'http://arxiv.org/abs/' + self.arxiv_identifier
         else: # should never come here
             pass
         self.save()
 
-    def scipost_url (self):
+    def scipost_url(self):
         """ Returns the url of the SciPost Commentary Page """
         return '/commentary/' + self.arxiv_or_DOI_string
 
-    def scipost_url_full (self):
+    def scipost_url_full(self):
         """ Returns the url of the SciPost Commentary Page """
         return 'https://scipost.org/commentary/' + self.arxiv_or_DOI_string

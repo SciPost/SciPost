@@ -8,7 +8,6 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-#from django.contrib.auth.decorators import permission_required   # Superseded by guardian
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist, PermissionDenied

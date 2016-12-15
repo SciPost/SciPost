@@ -4,61 +4,14 @@
 
 {% block headsup %}
 
-<!--
-<script>
-  $(document).ready(function(){
-  $(".TabItem").attr("class", "TabItem inactive");
-  $("#RecentTab").attr("class", "TabItem active");
-  $(".TabSection").hide();
-  $("#Recent").show();
-  $("#IssuesTab").click(function(){
-   $(".TabItem").attr("class", "TabItem inactive");
-   $("#IssuesTab").attr("class", "TabItem active");
-   $(".TabSection").hide();
-   $("#Issues").show();
-  });
-  $("#RecentTab").click(function(){
-   $(".TabItem").attr("class", "TabItem inactive");
-   $("#RecentTab").attr("class", "TabItem active");
-   $(".TabSection").hide();
-   $("#Recent").show();
-  });
-  $("#AcceptedTab").click(function(){
-   $(".TabItem").attr("class", "TabItem inactive");
-   $("#AcceptedTab").attr("class", "TabItem active");
-   $(".TabSection").hide();
-   $("#Accepted").show();
-  });
-  $("#SubmissionsTab").click(function(){
-   $(".TabItem").attr("class", "TabItem inactive");
-   $("#SubmissionsTab").attr("class", "TabItem active");
-   $(".TabSection").hide();
-   $("#Submissions").show();
-  });
-  $("#InfoTab").click(function(){
-   $(".TabItem").attr("class", "TabItem inactive");
-   $("#InfoTab").attr("class", "TabItem active");
-   $(".TabSection").hide();
-   $("#Info").show();
-  });
-  $("#AboutTab").click(function(){
-   $(".TabItem").attr("class", "TabItem inactive");
-   $("#AboutTab").attr("class", "TabItem active");
-   $(".TabSection").hide();
-   $("#About").show();
-  });
-  });
-
-</script>
--->
 <script>
   $(document).ready(function(){
 
-  $(".publicationAbstract").hide();
+    $(".publicationAbstract").hide();
 
-  $(".toggleAbstractButton").click(function(){
-  $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
-  });
+    $(".toggleAbstractButton").click(function(){
+      $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
+    });
   });
 </script>
 
@@ -80,9 +33,9 @@
   <div class="flex-container">
     <div class="flex-whitebox800">
       <ul class="publicationHeaderList">
-	{% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
-	{{ paper.header_as_li }}
-	{% endfor %}
+        {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
+          {{ paper.header_as_li }}
+        {% endfor %}
       </ul>
     </div>
   </div>
@@ -90,23 +43,23 @@
   {% endif %}
 
   {% if latest_issue %}
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
+    <div class="flex-container">
+      <div class="flex-greybox">
+        <h2>Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
+      </div>
     </div>
-  </div>
 
-  <div class="flex-container">
-    {% if latest_issue %}
-    <div class="flex-whitebox800">
-      <ul class="publicationHeaderList">
-	{% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
-	{{ paper.header_as_li }}
-	{% endfor %}
-      </ul>
+    <div class="flex-container">
+      {% if latest_issue %}
+        <div class="flex-whitebox800">
+            <ul class="publicationHeaderList">
+              {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
+                {{ paper.header_as_li }}
+              {% endfor %}
+            </ul>
+        </div>
       {% endif %}
     </div>
-  </div>
   {% endif %}
 
 </section>

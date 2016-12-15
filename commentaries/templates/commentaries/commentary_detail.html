@@ -8,22 +8,22 @@
 
 <script>
   $(document).ready(function(){
-  $("#commentsbutton").click(function(){
-  $("#commentslist").toggle();
-  });
+    $("#commentsbutton").click(function(){
+      $("#commentslist").toggle();
+    });
 
     var comment_text_input = $("#id_comment_text");
 
     function set_comment_text(value) {
       $("#preview-comment_text").text(value)
     }
-    set_comment_text(comment_text_input.val())
+    set_comment_text(comment_text_input.val());
 
     comment_text_input.keyup(function(){
       var new_text = $(this).val()
       set_comment_text(new_text)
       MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
+    });
 
   });
 </script>
@@ -44,7 +44,9 @@
       <h2>Original publication: </h2>
     </div>
   </div>
+  
   {{ commentary.header_as_table }}
+  
   <h3>Abstract:</h3>
   <p>{{ commentary.pub_abstract }}</p>
 
@@ -55,25 +57,25 @@
 
 
 {% if user.is_authenticated and commentary.open_for_commenting and perms.scipost.can_submit_comments %}
-<section>
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h1>Contribute a Comment:</h1>
-  </div>
-  <form action="{% url 'commentaries:commentary' arxiv_or_DOI_string=commentary.arxiv_or_DOI_string %}" method="post">
-    {% csrf_token %}
-    {% load crispy_forms_tags %}
-    {% crispy form %}
-  </form>
-
-  <div class="row">
-    <div class="col-10">
-      <h3>Preview of your comment:</h3>
-      <p id="preview-comment_text"></p>
+  <section>
+    <hr class="hr12">
+    <div class="flex-greybox">
+      <h1>Contribute a Comment:</h1>
     </div>
-  </div>
+    <form action="{% url 'commentaries:commentary' arxiv_or_DOI_string=commentary.arxiv_or_DOI_string %}" method="post">
+      {% csrf_token %}
+      {% load crispy_forms_tags %}
+      {% crispy form %}
+    </form>
 
-</section>
+    <div class="row">
+      <div class="col-10">
+        <h3>Preview of your comment:</h3>
+        <p id="preview-comment_text"></p>
+      </div>
+    </div>
+
+  </section>
 {% endif %}
 
 

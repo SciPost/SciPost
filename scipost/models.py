@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 
 from django_countries.fields import CountryField
 
-from .models import *
+from scipost.models import *
 
 
 SCIPOST_DISCIPLINES = (
@@ -128,7 +128,8 @@ SCIPOST_SUBJECT_AREAS = (
      ),
 )
 subject_areas_raw_dict = dict(SCIPOST_SUBJECT_AREAS)
-# We want a dict of the form {'Phys:AT': 'Atomic...', ...}
+
+# Make dict of the form {'Phys:AT': 'Atomic...', ...}
 subject_areas_dict = {}
 for k in subject_areas_raw_dict.keys():
     subject_areas_dict.update(dict(subject_areas_raw_dict[k]))
@@ -192,8 +193,7 @@ class Contributor(models.Model):
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
-                                  default='physics',
-                                  verbose_name='Main discipline')
+                                  default='physics', verbose_name='Main discipline')
     expertises = ChoiceArrayField(
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
@@ -212,36 +212,34 @@ class Contributor(models.Model):
         default=True,
         verbose_name="I accept to receive SciPost emails")
 
-    def __str__ (self):
-        return self.user.last_name + ', ' + self.user.first_name
 
+    def __str__(self):
+        return '%s, %s' % (self.user.last_name, self.user.first_name)
 
     def is_currently_available(self):
-        unav_periods = UnavailabilityPeriod.objects.filter(
-            contributor=self)
-        available = True
+        unav_periods = UnavailabilityPeriod.objects.filter(contributor=self)
+
         today = datetime.date.today()
         for unav in unav_periods:
             if unav.start < today and unav.end > today:
-                available = False
-        return available
+                return False
+        return True
 
-
-    def private_info_as_table (self):
+    def private_info_as_table(self):
         template = Template('''
-        <table>
-        <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
-        <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
-        <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
-        <tr><td>Email: </td><td>&nbsp;</td><td>{{ email }}</td></tr>
-        <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
-        <tr><td>Country of employment: </td><td>&nbsp;</td>
-        <td>{{ country_of_employment }}</td></tr>
-        <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
-        <tr><td>Address: </td><td>&nbsp;</td><td>{{ address }}</td></tr>
-        <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
-        <tr><td>Accept SciPost emails: </td><td>&nbsp;</td><td>{{ accepts_SciPost_emails }}</td></tr>
-        </table>
+            <table>
+            <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
+            <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
+            <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
+            <tr><td>Email: </td><td>&nbsp;</td><td>{{ email }}</td></tr>
+            <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
+            <tr><td>Country of employment: </td><td>&nbsp;</td>
+            <td>{{ country_of_employment }}</td></tr>
+            <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
+            <tr><td>Address: </td><td>&nbsp;</td><td>{{ address }}</td></tr>
+            <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
+            <tr><td>Accept SciPost emails: </td><td>&nbsp;</td><td>{{ accepts_SciPost_emails }}</td></tr>
+            </table>
         ''')
         context = Context({
             'title': title_dict[self.title],
@@ -258,21 +256,20 @@ class Contributor(models.Model):
         return template.render(context)
 
 
-    def public_info_as_table (self):
-        """
-        Prints out all publicly-accessible info as a table.
-        """
+    def public_info_as_table(self):
+        """Prints out all publicly-accessible info as a table."""
+        
         template = Template('''
-        <table>
-        <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
-        <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
-        <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
-        <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
-        <tr><td>Country of employment: </td><td>&nbsp;</td>
-        <td>{{ country_of_employment }}</td></tr>
-        <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
-        <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
-        </table>
+            <table>
+            <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
+            <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
+            <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
+            <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
+            <tr><td>Country of employment: </td><td>&nbsp;</td>
+            <td>{{ country_of_employment }}</td></tr>
+            <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
+            <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
+            </table>
         ''')
         context = Context({
                 'title': title_dict[self.title],
@@ -293,7 +290,7 @@ class Contributor(models.Model):
     def expertises_as_ul(self):
         output = '<ul>'
         for exp in self.expertises:
-            output += '<li>' + subject_areas_dict[exp] + '</li>'
+            output += '<li>%s</li>' % subject_areas_dict[exp]
         output += '</ul>'
         return mark_safe(output)
 
@@ -472,88 +469,6 @@ class AuthorshipClaim(models.Model):
     status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS, default=0)
 
 
-
-#######################
-### Assessments objects
-#######################
-
-
-### Assessments
-
-#ASSESSMENT_CHOICES = (
-#    (101, '-'), # Only values between 0 and 100 are kept, anything outside limits is discarded.
-#    (100, 'top'), (80, 'high'), (60, 'good'), (40, 'ok'), (20, 'low'), (0, 'poor')
-#    )
-
-#class Assessment(models.Model):
-#    """
-#    Base class for all assessments.
-#    """
-#    rater = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-#    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE, blank=True, null=True)
-#    comment = models.ForeignKey('comments.Comment', on_delete=models.CASCADE, blank=True, null=True)
-#    relevance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-#    importance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-#    clarity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-#    validity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-#    rigour = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-#    originality = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-#    significance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)
-
-
-### Opinions
-
-#OPINION_CHOICES = (
-#    ('ABS', '-'),
-#    ('A', 'agree'),
-#    ('N', 'not sure'),
-#    ('D', 'disagree'),
-#)
-#opinion_choices_dict = dict(OPINION_CHOICES)
-
-#class Opinion(models.Model):
-#    rater = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-#    comment = models.ForeignKey('comments.Comment', on_delete=models.CASCADE)
-#    opinion = models.CharField(max_length=3, choices=OPINION_CHOICES, default='ABS')
-
-
-### AssessmentAggregates
-
-#class AssessmentAggregate(models.Model):
-#    """
-#    Aggregated assessments for an object.
-#    """
-#    nr = models.PositiveSmallIntegerField(default=0)
-#    nr_relevance_ratings = models.IntegerField(default=0)
-#    relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-#    nr_importance_ratings = models.IntegerField(default=0)
-#    importance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-#    nr_clarity_ratings = models.IntegerField(default=0)
-#    clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-#    nr_validity_ratings = models.IntegerField(default=0)
-#    validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-#    nr_rigour_ratings = models.IntegerField(default=0)
-#    rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-#    nr_originality_ratings = models.IntegerField(default=0)
-#    originality_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-#    nr_significance_ratings = models.IntegerField(default=0)
-#    significance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)
-
-
-##########
-# Emails #
-##########
-
-# class EmailedTo(models.Model):
-#     """
-#     An email address used for emailing.
-#     An instance is created by a method as send_precooked_email
-#     if the chosen message hasn't been sent to this address before.
-#     Helps prevent multiple emailing with same message.
-#     """
-#     email = models.EmailField()
-
-
 SCIPOST_FROM_ADDRESSES = (
     ('Admin', 'SciPost Admin <admin@scipost.org>'),
     ('J.-S. Caux', 'J.-S. Caux <jscaux@scipost.org>'),
@@ -572,7 +487,6 @@ class PrecookedEmail(models.Model):
     email_text = models.TextField()
     email_text_html = models.TextField()
     date_created = models.DateField(default=timezone.now)
-    #emailed_to = models.ManyToManyField(EmailedTo, blank=True)
     emailed_to = ArrayField(models.EmailField(blank=True), blank=True)
     date_last_used = models.DateField(default=timezone.now)
     deprecated = models.BooleanField(default=False)
@@ -661,8 +575,7 @@ class List(models.Model):
 
 
     def __str__(self):
-        return (self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' '
-                + self.owner.user.last_name + ')')
+        return '%s (owner: %s %s)' % (self.title[:30], self.owner.user.first_name, self.owner.user.last_name)
 
 
     def header(self):
@@ -731,7 +644,7 @@ class Team(models.Model):
     Team of Contributors, to enable private collaborations.
     """
     leader = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-    members = models.ManyToManyField (Contributor, blank=True, related_name='team_members')
+    members = models.ManyToManyField(Contributor, blank=True, related_name='team_members')
     name = models.CharField(max_length=100)
     established = models.DateField(default=timezone.now)
 
@@ -780,8 +693,7 @@ class Graph(models.Model):
 
 
     def __str__(self):
-        return (self.title[:30] + ' (owner: ' + self.owner.user.first_name + ' '
-                + self.owner.user.last_name + ')')
+        return '%s (owner: %s %s)' % (self.title[:30], self.owner.user.first_name, self.owner.user.last_name)
 
     def header_as_li(self):
         context = Context({'id': self.id, 'title': self.title,

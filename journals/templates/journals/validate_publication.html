@@ -11,7 +11,7 @@
   </div>
 
   {% if errormessage %}
-  <h2 style="color: red;">{{ errormessage }}</h2>
+    <h2 style="color: red;">{{ errormessage }}</h2>
   {% endif %}
 
   <form action="{% url 'journals:validate_publication' %}" method="post" enctype="multipart/form-data">

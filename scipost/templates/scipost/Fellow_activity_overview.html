@@ -53,22 +53,22 @@
   <h4>Ongoing:</h4>
   <ul>
     {% for assignment in assignments_of_Fellow %}
-    {% if assignment.accepted and not assignment.completed %}
-    {% if request.user|is_not_author_of_submission:assignment.submission.arxiv_identifier_w_vn_nr %}
-    {{ assignment.header_as_li }}
-    {% endif %}
-    {% endif %}
+      {% if assignment.accepted and not assignment.completed %}
+        {% if request.user|is_not_author_of_submission:assignment.submission.arxiv_identifier_w_vn_nr %}
+          {{ assignment.header_as_li }}
+        {% endif %}
+      {% endif %}
     {% endfor %}
   </ul>
 
   <h4>Completed:</h4>
   <ul>
     {% for assignment in assignments_of_Fellow %}
-    {% if assignment.completed %}
-    {% if request.user|is_not_author_of_submission:assignment.submission.arxiv_identifier_w_vn_nr %}
-    {{ assignment.header_as_li }}
-    {% endif %}
-    {% endif %}
+      {% if assignment.completed %}
+        {% if request.user|is_not_author_of_submission:assignment.submission.arxiv_identifier_w_vn_nr %}
+          {{ assignment.header_as_li }}
+        {% endif %}
+      {% endif %}
     {% endfor %}
   </ul>
 

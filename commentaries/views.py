@@ -38,38 +38,37 @@ def request_commentary(request):
     if request.method == 'POST':
         form = RequestCommentaryForm(request.POST)
         if form.is_valid():
-#            if form.cleaned_data['arxiv_identifier'] is None and form.cleaned_data['pub_DOI'] is None:
             errormessage = ''
             existing_commentary = None
-            if form.cleaned_data['arxiv_identifier'] =='' and form.cleaned_data['pub_DOI'] == '':
+            if not form.cleaned_data['arxiv_identifier'] and not form.cleaned_data['pub_DOI']:
                 errormessage = ('You must provide either a DOI (for a published paper) '
                                 'or an arXiv identifier (for a preprint).')
-            elif (form.cleaned_data['arxiv_identifier'] !='' and
+            elif (form.cleaned_data['arxiv_identifier'] and
                   (Commentary.objects
                    .filter(arxiv_identifier=form.cleaned_data['arxiv_identifier']).exists())):
                 errormessage = 'There already exists a Commentary Page on this preprint, see'
                 existing_commentary = get_object_or_404(
                     Commentary,
                     arxiv_identifier=form.cleaned_data['arxiv_identifier'])
-            elif (form.cleaned_data['pub_DOI'] !='' and
+            elif (form.cleaned_data['pub_DOI'] and
                   Commentary.objects.filter(pub_DOI=form.cleaned_data['pub_DOI']).exists()):
                 errormessage = 'There already exists a Commentary Page on this publication, see'
                 existing_commentary = get_object_or_404(Commentary, pub_DOI=form.cleaned_data['pub_DOI'])
-            if errormessage != '':
+            if errormessage:
                 doiform = DOIToQueryForm()
                 identifierform = IdentifierToQueryForm()
                 context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
                            'errormessage': errormessage,
                            'existing_commentary': existing_commentary}
                 return render(request, 'commentaries/request_commentary.html', context)
-            # otherwise we can create the Commentary
+            
+            # Otherwise we can create the Commentary
             contributor = Contributor.objects.get(user=request.user)
             commentary = Commentary (
                 requested_by = contributor,
                 type = form.cleaned_data['type'],
                 discipline = form.cleaned_data['discipline'],
                 domain = form.cleaned_data['domain'],
-#                specialization = form.cleaned_data['specialization'],
                 subject_area = form.cleaned_data['subject_area'],
                 pub_title = form.cleaned_data['pub_title'],
                 arxiv_identifier = form.cleaned_data['arxiv_identifier'],
@@ -85,7 +84,7 @@ def request_commentary(request):
                 )
             commentary.parse_links_into_urls()
             commentary.save()
-#            return HttpResponseRedirect('request_commentary_ack')
+            
             context = {'ack_header': 'Thank you for your request for a Commentary Page',
                        'ack_message': 'Your request will soon be handled by an Editor. ',
                        'followup_message': 'Return to your ',
@@ -114,13 +113,14 @@ def prefill_using_DOI(request):
             elif Commentary.objects.filter(pub_DOI=doiform.cleaned_data['doi']).exists():
                 errormessage = 'There already exists a Commentary Page on this publication, see'
                 existing_commentary = get_object_or_404(Commentary, pub_DOI=doiform.cleaned_data['doi'])
-            if errormessage != '':
+            if errormessage:
                 form = RequestCommentaryForm()
                 identifierform = IdentifierToQueryForm()
                 context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
                            'errormessage': errormessage,
                            'existing_commentary': existing_commentary}
                 return render(request, 'commentaries/request_commentary.html', context)
+            
             # Otherwise we query Crossref for the information:
             try:
                 queryurl = 'http://api.crossref.org/works/%s' % doiform.cleaned_data['doi']
@@ -133,28 +133,31 @@ def prefill_using_DOI(request):
                 for author in doiqueryJSON['message']['author'][1:]:
                     authorlist += ', ' + author['given'] + ' ' + author['family']
                 journal = doiqueryJSON['message']['container-title'][0]
+                
                 try:
                     volume = doiqueryJSON['message']['volume']
-                except:
+                except KeyError:
                     volume = ''
+                
                 pages = ''
                 try:
                     pages = doiqueryJSON['message']['article-number'] # for Phys Rev
-                except:
+                except KeyError:
                     pass
                 try:
                     pages = doiqueryJSON['message']['page']
-                except:
+                except KeyError:
                     pass
+                
                 pub_date = ''
                 try:
                     pub_date = (str(doiqueryJSON['message']['issued']['date-parts'][0][0]) + '-' +
                                 str(doiqueryJSON['message']['issued']['date-parts'][0][1]))
                     try:
                         pub_date += '-' + str(doiqueryJSON['message']['issued']['date-parts'][0][2])
-                    except:
+                    except (IndexError, KeyError):
                         pass
-                except:
+                except (IndexError, KeyError):
                     pass
                 pub_DOI = doiform.cleaned_data['doi']
                 form = RequestCommentaryForm(
@@ -167,7 +170,7 @@ def prefill_using_DOI(request):
                 context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,}
                 context['title'] = pub_title
                 return render(request, 'commentaries/request_commentary.html', context)
-            except:
+            except (IndexError, KeyError, ValueError):
                 pass
         else:
             pass
@@ -194,7 +197,7 @@ def prefill_using_identifier(request):
                 errormessage = 'There already exists a Commentary Page on this preprint, see'
                 existing_commentary = get_object_or_404(
                     Commentary, arxiv_identifier=identifierform.cleaned_data['identifier'])
-            if errormessage != '':
+            if errormessage:
                 form = RequestCommentaryForm()
                 doiform = DOIToQueryForm()
                 context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
@@ -206,26 +209,29 @@ def prefill_using_identifier(request):
                 queryurl = ('http://export.arxiv.org/api/query?id_list=%s'
                             % identifierform.cleaned_data['identifier'])
                 arxivquery = feedparser.parse(queryurl)
+                
                 # If paper has been published, should comment on published version
                 try:
                     arxiv_journal_ref = arxivquery['entries'][0]['arxiv_journal_ref']
                     errormessage = ('This paper has been published as ' + arxiv_journal_ref
                                     + '. Please comment on the published version.')
-                except:
+                except (IndexError, KeyError):
                     pass
                 try:
                     arxiv_doi = arxivquery['entries'][0]['arxiv_doi']
                     errormessage = ('This paper has been published under DOI ' + arxiv_DOI
                                     + '. Please comment on the published version.')
-                except:
+                except (IndexError, KeyError):
                     pass
-                if errormessage != '':
+                
+                if errormessage:
                     form = RequestCommentaryForm()
                     doiform = DOIToQueryForm()
                     context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
                                'errormessage': errormessage,
                                'existing_commentary': existing_commentary}
                     return render(request, 'commentaries/request_commentary.html', context)
+                
                 # otherwise prefill the form:
                 metadata = arxivquery
                 pub_title = arxivquery['entries'][0]['title']
@@ -243,7 +249,7 @@ def prefill_using_identifier(request):
                 context = {'form': form, 'doiform': doiform, 'identifierform': identifierform}
                 context['title'] = pub_title
                 return render(request, 'commentaries/request_commentary.html', context)
-            except: # something went wrong with processing the arXiv data
+            except (IndexError, KeyError, ValueError): # something went wrong with processing the arXiv data
                 errormessage = 'An error occurred while processing the arXiv data. Are you sure this identifier exists?'
                 form = RequestCommentaryForm()
                 doiform = DOIToQueryForm()
@@ -251,7 +257,6 @@ def prefill_using_identifier(request):
                            'errormessage': errormessage,
                            'existing_commentary': existing_commentary}
                 return render(request, 'commentaries/request_commentary.html', context)
-#                pass
         else:
             pass
     return redirect(reverse('commentaries:request_commentary'))
@@ -337,8 +342,6 @@ def vet_commentary_request_ack(request, commentary_id):
                 emailmessage.send(fail_silently=False)
                 commentary.delete()
 
-    #context = {'commentary_id': commentary_id }
-    #return render(request, 'commentaries/vet_commentary_request_ack.html', context)
     context = {'ack_header': 'SciPost Commentary request vetted.',
                'followup_message': 'Return to the ',
                'followup_link': reverse('commentaries:vet_commentary_requests'),
@@ -388,7 +391,7 @@ def browse(request, discipline, nrweeksback):
             commentary_search_list.order_by('-pub_date')
         else:
             commentary_search_list = []
-        context = {'form': form, 'commentary_search_list': commentary_search_list }
+        context = {'form': form, 'commentary_search_list': commentary_search_list}
         return HttpResponseRedirect(request, 'commentaries/commentaries.html', context)
     else:
         form = CommentarySearchForm()
@@ -403,34 +406,27 @@ def browse(request, discipline, nrweeksback):
 
 def commentary_detail(request, arxiv_or_DOI_string):
     commentary = get_object_or_404(Commentary, arxiv_or_DOI_string=arxiv_or_DOI_string)
-#    other_versions = Commentary.objects.filter(
-#        arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
-#    ).exclude(pk=submission.id)
     comments = commentary.comment_set.all()
     if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
             author = Contributor.objects.get(user=request.user)
-            newcomment = Comment (
-                commentary = commentary,
-                author = author,
-                is_rem = form.cleaned_data['is_rem'],
-                is_que = form.cleaned_data['is_que'],
-                is_ans = form.cleaned_data['is_ans'],
-                is_obj = form.cleaned_data['is_obj'],
-                is_rep = form.cleaned_data['is_rep'],
-                is_val = form.cleaned_data['is_val'],
-                is_lit = form.cleaned_data['is_lit'],
-                is_sug = form.cleaned_data['is_sug'],
-                comment_text = form.cleaned_data['comment_text'],
-                remarks_for_editors = form.cleaned_data['remarks_for_editors'],
-                date_submitted = timezone.now(),
+            newcomment = Comment(commentary=commentary, author=author,
+                is_rem=form.cleaned_data['is_rem'],
+                is_que=form.cleaned_data['is_que'],
+                is_ans=form.cleaned_data['is_ans'],
+                is_obj=form.cleaned_data['is_obj'],
+                is_rep=form.cleaned_data['is_rep'],
+                is_val=form.cleaned_data['is_val'],
+                is_lit=form.cleaned_data['is_lit'],
+                is_sug=form.cleaned_data['is_sug'],
+                comment_text=form.cleaned_data['comment_text'],
+                remarks_for_editors=form.cleaned_data['remarks_for_editors'],
+                date_submitted=timezone.now(),
                 )
             newcomment.save()
             author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()
-            #request.session['commentary_id'] = commentary.id
-            #return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
             context = {'ack_header': 'Thank you for contributing a Comment.',
                        'ack_message': 'It will soon be vetted by an Editor.',
                        'followup_message': 'Back to the ',
@@ -443,7 +439,6 @@ def commentary_detail(request, arxiv_or_DOI_string):
             return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = CommentForm()
-
     try:
         author_replies = Comment.objects.filter(commentary=commentary,
                                                 is_author_reply=True,

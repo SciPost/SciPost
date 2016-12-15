@@ -3,7 +3,7 @@
 {% block pagetitle %}: Commentaries{% endblock pagetitle %}
 
 {% block headsup %}
-<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/javascript" async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 {% endblock headsup %}
 
 {% block bodysup %}
@@ -35,31 +35,31 @@
   </div>
 
   {% if commentary_search_list %}
-  <br />
-  <hr class="hr12">
-  <h3>Search results:</h3>
-  <ul>
-    {% for commentary in commentary_search_list %}
-    {{ commentary.header_as_li }}
-    {% endfor %}
-  </ul>
+    <br />
+    <hr class="hr12">
+    <h3>Search results:</h3>
+    <ul>
+      {% for commentary in commentary_search_list %}
+        {{ commentary.header_as_li }}
+      {% endfor %}
+    </ul>
   {% elif form.has_changed %}
-  <h3>No match found for your search query.</h3>
+    <h3>No match found for your search query.</h3>
   {% endif %}
 
 </section>
 
 
 {% if comment_recent_list %}
-<section>
- <hr class="hr12">
- <h2>Recent Comments</h2>
- <ul>
-   {% for comment in comment_recent_list %}
-   {{ comment.simple_header_as_li }}
-   {% endfor %}
- </ul>
-</section>
+  <section>
+   <hr class="hr12">
+   <h2>Recent Comments</h2>
+   <ul>
+     {% for comment in comment_recent_list %}
+     {{ comment.simple_header_as_li }}
+     {% endfor %}
+   </ul>
+  </section>
 {% endif %}
 
 {% if commentary_recent_list %}

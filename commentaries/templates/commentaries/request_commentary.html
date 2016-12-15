@@ -16,7 +16,7 @@
 
     function show(indices){
       allToggableRows.each(function(index){
-        if ($.inArray( index, indices) != -1){
+        if($.inArray( index, indices) != -1){
           $(this).hide()
         }else{
           $(this).show()
@@ -24,12 +24,6 @@
 
       })
     }
-
-//    if ($('select#id_type').val() == "") {
-//      allToggableRows.each(function(index){
-//      $(this).hide()
-//      })
-//    }
 
     switch ($('select#id_type').val()) {
      case "":
