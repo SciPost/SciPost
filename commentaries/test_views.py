@@ -7,21 +7,23 @@ from django.test import Client, TestCase
 
 class RequestCommentaryTest(TestCase):
     """Test cases for request_commentary view method"""
-    # fixtures = ['permissions', 'groups', 'contributors']
+    fixtures = ['permissions', 'groups', 'contributors']
 
     def setUp(self):
-        self.client = Client()
-        self.client.login(username="feynman", password="richard")
-        self.url = reverse('commentaries:request_commentary')
+        self.view_url = reverse('commentaries:request_commentary')
+        self.login_url = reverse('scipost:login')
+        self.redirected_login_url = '%s?next=%s' % (self.login_url, self.view_url)
 
-    def test_get_request(self):
-        # contributor_group = Group.objects.get_or_create(name='Registered Contributors')
-        # self.contributor_group
-        request = self.client.get(self.url)
+    def test_get_requests(self):
+        """Test different GET requests on view"""
+        # Anoymous user should redirect to login page
+        request = self.client.get(self.view_url)
+        self.assertRedirects(request, self.redirected_login_url)
 
-        self.user.user_permissions.add('scipost.can_request_commentary_pages')
-
-        # Request succesfull
+        # Registered Contributor should get 200
+        self.client.login(username="Test", password="testpw")
+        request = self.client.get(self.view_url)
         self.assertEquals(
             request.status_code, 200,
-            'Get request on request_commentary has failed')
+            'Get request on request_commentary has failed'
+        )
