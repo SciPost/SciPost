@@ -2,6 +2,8 @@ from django import forms
 
 from .models import Commentary
 
+from scipost.models import Contributor
+
 COMMENTARY_ACTION_CHOICES = (
     (0, 'modify'),
     (1, 'accept'),
@@ -29,6 +31,8 @@ class IdentifierToQueryForm(forms.Form):
 
 
 class RequestCommentaryForm(forms.ModelForm):
+    existing_commentary = None
+
     class Meta:
         model = Commentary
         fields = ['type', 'discipline', 'domain', 'subject_area',
@@ -39,6 +43,7 @@ class RequestCommentaryForm(forms.ModelForm):
                   'pub_DOI', 'pub_abstract']
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(RequestCommentaryForm, self).__init__(*args, **kwargs)
         self.fields['metadata'].widget = forms.HiddenInput()
         self.fields['pub_date'].widget.attrs.update({'placeholder': 'Format: YYYY-MM-DD'})
@@ -47,6 +52,37 @@ class RequestCommentaryForm(forms.ModelForm):
         self.fields['pub_DOI'].widget.attrs.update({'placeholder': 'ex.: 10.21468/00.000.000000'})
         self.fields['pub_abstract'].widget.attrs.update({'cols': 100})
 
+    def clean(self, *args, **kwargs):
+        cleaned_data = super(RequestCommentaryForm, self).clean(*args, **kwargs)
+        if not cleaned_data['arxiv_identifier'] and not cleaned_data['pub_DOI']:
+            msg = ('You must provide either a DOI (for a published paper) '
+                'or an arXiv identifier (for a preprint).')
+            self.add_error('arxiv_identifier', msg)
+            self.add_error('pub_DOI', msg)
+        elif (cleaned_data['arxiv_identifier'] and
+              (Commentary.objects
+               .filter(arxiv_identifier=cleaned_data['arxiv_identifier']).exists())):
+            msg = 'There already exists a Commentary Page on this preprint, see'
+            self.existing_commentary = get_object_or_404(
+                Commentary,
+                arxiv_identifier=cleaned_data['arxiv_identifier'])
+            self.add_error('arxiv_identifier', msg)
+        elif (cleaned_data['pub_DOI'] and
+              Commentary.objects.filter(pub_DOI=cleaned_data['pub_DOI']).exists()):
+            msg = 'There already exists a Commentary Page on this publication, see'
+            self.existing_commentary = get_object_or_404(Commentary, pub_DOI=cleaned_data['pub_DOI'])
+            self.add_error('pub_DOI', msg)
+
+    def save(self, *args, **kwargs):
+        """Prefill instance before save"""
+        self.requested_by = Contributor.objects.get(user=self.user)
+        return super(RequestCommentaryForm, self).save(*args, **kwargs)
+
+    def get_existing_commentary(self):
+        """Get Commentary if found after validation"""
+        return self.existing_commentary
+
+
 class VetCommentaryForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect,
                                       choices=COMMENTARY_ACTION_CHOICES,
@@ -54,6 +90,7 @@ class VetCommentaryForm(forms.Form):
     refusal_reason = forms.ChoiceField(choices=COMMENTARY_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(
         attrs={'rows': 5, 'cols': 40}), label='Justification (optional)', required=False)
+
 
 class CommentarySearchForm(forms.Form):
     """Search for Commentary specified by user"""
