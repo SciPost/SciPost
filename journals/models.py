@@ -22,9 +22,11 @@ SCIPOST_JOURNALS = (
     )
 journals_dict = dict(SCIPOST_JOURNALS)
 
+
 class JournalNameError(Exception):
     def __init__(self, name):
         self.name = name
+
     def __str__(self):
         return self.name
 

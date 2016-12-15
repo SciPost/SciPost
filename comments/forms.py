@@ -62,7 +62,6 @@ class CommentForm(forms.ModelForm):
             )
 
 
-
 class VetCommentForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect, choices=COMMENT_ACTION_CHOICES,
                                       required=True, label='Action')

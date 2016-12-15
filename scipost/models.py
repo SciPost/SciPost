@@ -225,7 +225,6 @@ class Contributor(models.Model):
         default=True,
         verbose_name="I accept to receive SciPost emails")
 
-
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
 

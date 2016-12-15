@@ -14,6 +14,7 @@ THESIS_REFUSAL_CHOICES = (
     (-2, 'the external link to this thesis does not work'),
     )
 
+
 class RequestThesisLinkForm(forms.ModelForm):
     class Meta:
         model = ThesisLink
@@ -27,6 +28,7 @@ class RequestThesisLinkForm(forms.ModelForm):
         self.fields['pub_link'].widget.attrs.update({'placeholder': 'Full URL'})
         self.fields['abstract'].widget.attrs.update({'cols': 100})
 
+
 class VetThesisLinkForm(forms.Form):
     action_option = forms.ChoiceField(widget=forms.RadioSelect,
                                       choices=THESIS_ACTION_CHOICES,
@@ -34,6 +36,7 @@ class VetThesisLinkForm(forms.Form):
     refusal_reason = forms.ChoiceField(choices=THESIS_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(
         attrs={'rows': 5, 'cols': 40}), label='Justification (optional)', required=False)
+
 
 class ThesisLinkSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author")
