@@ -33,6 +33,7 @@ from scipost.utils import Utils
 
 from comments.forms import CommentForm
 
+from .services import ArxivCaller
 
 
 ###############
@@ -44,82 +45,32 @@ def prefill_using_identifier(request):
     if request.method == "POST":
         identifierform = SubmissionIdentifierForm(request.POST)
         if identifierform.is_valid():
-            # Perform Arxiv query and check if results are OK for submission
-            metadata, errormessage = lookup_article(identifierform.cleaned_data['identifier'])
+            # Use the ArxivCaller class to make the API calls
+            caller = ArxivCaller()
+            caller.process(identifierform.cleaned_data['identifier'])
 
-            if not metadata:
-                form = SubmissionForm()
-                return render(request, 'submissions/submit_manuscript.html',
-                              {'identifierform': identifierform, 'form': form,
-                               'errormessage': errormessage})
+            if caller.is_valid():
+                # Arxiv response is valid and can be shown
 
-            is_resubmission = False
-            resubmessage = ''
-            previous_submissions = Submission.objects.filter(
-                arxiv_identifier_wo_vn_nr=identifier_without_vn_nr).order_by('-arxiv_vn_nr')
-            if previous_submissions.exists():
-                # If the Editorial Recommendation hasn't been formulated, ask to wait
-                if previous_submissions[0].status != 'revision_requested':
-                    errormessage = ('<p>There exists a preprint with this arXiv identifier '
-                                    'but an earlier version number, which is still undergoing '
-                                    'peer refereeing.</p>'
-                                    '<p>A resubmission can only be performed after request '
-                                    'from the Editor-in-charge. Please wait until the '
-                                    'closing of the previous refereeing round and '
-                                    'formulation of the Editorial Recommendation '
-                                    'before proceeding with a resubmission.</p>')
-                    return render(request, 'scipost/error.html',
-                                  {'errormessage': mark_safe(errormessage)})
-                is_resubmission = True
-                resubmessage = ('There already exists a preprint with this arXiv identifier '
-                                'but a different version number. \nYour Submission will be '
-                                'handled as a resubmission.')
-            try:
-                queryurl = ('http://export.arxiv.org/api/query?id_list=%s'
-                            % identifierform.cleaned_data['identifier'])
-                arxivquery = feedparser.parse(queryurl)
-                # Flag error if preprint doesn't exist
-                try:
-                    test = arxivquery['entries'][0]['title']
-                except KeyError:
-                    errormessage = 'A preprint associated to this identifier does not exist.'
-                except:
-                    pass
-
-                # If paper has been published, should comment on published version
-                try:
-                    arxiv_journal_ref = arxivquery['entries'][0]['arxiv_journal_ref']
-                    errormessage = ('This paper has been published as ' + arxiv_journal_ref +
-                                    '. You cannot submit it to SciPost anymore.')
-                except:
-                    pass
-                try:
-                    arxiv_doi = arxivquery['entries'][0]['arxiv_doi']
-                    errormessage = ('This paper has been published under DOI ' + arxiv_DOI
-                                    + '. You cannot submit it to SciPost anymore.')
-                except:
-                    pass
-                if errormessage != '':
-                    form = SubmissionForm()
-                    context = {'identifierform': identifierform, 'form': form,
-                               'errormessage': errormessage}
-                    return render(request, 'submissions/submit_manuscript.html', context)
-
-                metadata = arxivquery
-                title = arxivquery['entries'][0]['title']
-                authorlist = arxivquery['entries'][0]['authors'][0]['name']
-                for author in arxivquery['entries'][0]['authors'][1:]:
+                metadata = caller.metadata
+                is_resubmission = caller.resubmission
+                title = metadata['entries'][0]['title']
+                authorlist = metadata['entries'][0]['authors'][0]['name']
+                for author in metadata['entries'][0]['authors'][1:]:
                     authorlist += ', ' + author['name']
-                arxiv_link = arxivquery['entries'][0]['id']
-                abstract = arxivquery['entries'][0]['summary']
-                initialdata={'is_resubmission': is_resubmission,
-                             'metadata': metadata,
-                             'title': title, 'author_list': authorlist,
-                             'arxiv_identifier_w_vn_nr': identifierform.cleaned_data['identifier'],
-                             'arxiv_identifier_wo_vn_nr': identifier_without_vn_nr,
-                             'arxiv_vn_nr': arxiv_vn_nr,
-                             'arxiv_link': arxiv_link, 'abstract': abstract}
+                arxiv_link = metadata['entries'][0]['id']
+                abstract = metadata['entries'][0]['summary']
+                initialdata = {'is_resubmission': is_resubmission,
+                               'metadata': metadata,
+                               'title': title, 'author_list': authorlist,
+                               'arxiv_identifier_w_vn_nr': caller.identifier_with_vn_nr,
+                               'arxiv_identifier_wo_vn_nr': caller.identifier_without_vn_nr,
+                               'arxiv_vn_nr': caller.version_nr,
+                               'arxiv_link': arxiv_link, 'abstract': abstract}
                 if is_resubmission:
+                    resubmessage = ('There already exists a preprint with this arXiv identifier '
+                                    'but a different version number. \nYour Submission will be '
+                                    'handled as a resubmission.')
                     initialdata['submitted_to_journal'] = previous_submissions[0].submitted_to_journal
                     initialdata['submission_type'] = previous_submissions[0].submission_type
                     initialdata['discipline'] = previous_submissions[0].discipline
@@ -128,17 +79,46 @@ def prefill_using_identifier(request):
                     initialdata['secondary_areas'] = previous_submissions[0].secondary_areas
                     initialdata['referees_suggested'] = previous_submissions[0].referees_suggested
                     initialdata['referees_flagged'] = previous_submissions[0].referees_flagged
+                else:
+                    resubmessage = ''
+
                 form = SubmissionForm(initial=initialdata)
                 context = {'identifierform': identifierform,
                            'form': form,
                            'resubmessage': resubmessage}
                 return render(request, 'submissions/submit_manuscript.html', context)
-            except:
-                print("Unexpected error in prefill_using_identifier:", sys.exc_info()[0])
-                context = {'identifierform': identifierform,
-                           'form': SubmissionForm(),
-                           'errormessage': errormessage,}
-                return render(request, 'submissions/submit_manuscript.html', context)
+
+            else:
+                # Arxiv response is not valid
+                errormessages = {
+                    'preprint_does_not_exist':
+                        'A preprint associated to this identifier does not exist.',
+                    'paper_published_journal_ref':
+                        ('This paper has been published as ' + caller.arxiv_journal_ref +
+                         '. You cannot submit it to SciPost anymore.'),
+                    'paper_published_doi':
+                        ('This paper has been published under DOI ' + caller.arxiv_doi +
+                         '. You cannot submit it to SciPost anymore.'),
+                    'arxiv_timeout': 'Arxiv did not respond in time. Please try again later',
+                    'arxiv_bad_request':
+                        ('There was an error with requesting identifier ' +
+                         caller.identifier_with_vn_nr +
+                         ' from Arxiv. Please check the identifier and try again.'),
+                    'previous_submission_undergoing_refereeing':
+                        ('There exists a preprint with this arXiv identifier '
+                         'but an earlier version number, which is still undergoing '
+                         'peer refereeing.'
+                         'A resubmission can only be performed after request '
+                         'from the Editor-in-charge. Please wait until the '
+                         'closing of the previous refereeing round and '
+                         'formulation of the Editorial Recommendation '
+                         'before proceeding with a resubmission.')
+                }
+
+                identifierform.add_error(None, errormessages[caller.errorcode])
+                form = SubmissionForm()
+                return render(request, 'submissions/submit_manuscript.html',
+                              {'identifierform': identifierform, 'form': form})
         else:
             form = SubmissionForm()
             return render(request, 'submissions/submit_manuscript.html',
