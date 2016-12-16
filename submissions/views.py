@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_protect
 
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
+from django.utils.decorators import method_decorator
 
 from .models import *
 from .forms import *
@@ -34,6 +35,8 @@ from scipost.utils import Utils
 from comments.forms import CommentForm
 
 from .services import ArxivCaller
+
+from django.views.generic.edit import UpdateView, CreateView, FormView
 
 
 ###############
@@ -112,7 +115,8 @@ def prefill_using_identifier(request):
                          'from the Editor-in-charge. Please wait until the '
                          'closing of the previous refereeing round and '
                          'formulation of the Editorial Recommendation '
-                         'before proceeding with a resubmission.')
+                         'before proceeding with a resubmission.'),
+                    'preprint_already_submitted': 'This preprint version has already been submitted to SciPost.'
                 }
 
                 identifierform.add_error(None, errormessages[caller.errorcode])
@@ -150,7 +154,6 @@ def submit_manuscript(request):
                 submission_type = form.cleaned_data['submission_type'],
                 discipline = form.cleaned_data['discipline'],
                 domain = form.cleaned_data['domain'],
-#                specialization = form.cleaned_data['specialization'],
                 subject_area = form.cleaned_data['subject_area'],
                 secondary_areas = form.cleaned_data['secondary_areas'],
                 status = 'unassigned',

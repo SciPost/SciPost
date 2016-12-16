@@ -35,7 +35,7 @@ class ArxivCallerTest(TestCase):
         self.assertEqual(caller.errorcode, 'paper_published_journal_ref')
         self.assertNotEqual(caller.arxiv_journal_ref, '')
 
-    def test_errorcode_no_version(self):
+    def test_errorcode_no_version_nr(self):
         # Should be already caught in form validation
         caller = ArxivCaller()
 
