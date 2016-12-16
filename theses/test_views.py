@@ -3,7 +3,7 @@ from django.test.client import Client
 from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 
-from .views import request_thesislink, RequestThesisLink
+from .views import RequestThesisLink
 from scipost.factories import UserFactory
 from .factories import ThesisLinkFactory
 from .models import ThesisLink
@@ -26,11 +26,11 @@ class TestRequestThesisLink(TestCase):
     def test_response_when_not_logged_in(self):
         '''A visitor that is not logged in cannot view this page.'''
         client = Client()
-        response = client.get('/theses/request_thesislink')
+        response = client.get(reverse('theses:request_thesislink'))
         self.assertEqual(response.status_code, 403)
 
     def test_response_when_logged_in(self):
-        request = RequestFactory().get('/theses/request_thesislink')
+        request = RequestFactory().get(reverse('theses:request_thesislink'))
         request.user = UserFactory()
-        response = request_thesislink(request)
+        response = RequestThesisLink.as_view()(request)
         self.assertEqual(response.status_code, 200)
