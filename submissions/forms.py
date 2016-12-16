@@ -1,6 +1,6 @@
 from django import forms
 from django.core.validators import RegexValidator
-#from django.contrib.auth.models import User, Group
+# from django.contrib.auth.models import User, Group
 
 from .models import *
 
@@ -35,7 +35,6 @@ class SubmissionIdentifierForm(forms.Form):
                 code='invalid_identifier'
             ),
         ])
-
 
 
 class SubmissionForm(forms.ModelForm):
@@ -73,8 +72,8 @@ class SubmissionForm(forms.ModelForm):
             'placeholder': 'Optional: names of suggested referees',
             'rows': 3})
         self.fields['referees_flagged'].widget.attrs.update({
-                'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
-                'rows': 3})
+            'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
+            'rows': 3})
 
 
 ######################
@@ -85,12 +84,10 @@ class AssignSubmissionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         discipline = kwargs.pop('discipline')
-#        subject_area = kwargs.pop('subject_area') # Reactivate later on, once the Editorial College is large enough
-        super(AssignSubmissionForm,self).__init__(*args, **kwargs)
+        super(AssignSubmissionForm, self).__init__(*args, **kwargs)
         self.fields['editor_in_charge'] = forms.ModelChoiceField(
             queryset=Contributor.objects.filter(user__groups__name='Editorial College',
                                                 user__contributor__discipline=discipline,
-#                                                user__contributor__expertises__contains=[subject_area,] # Reactivate later on, once the Editorial College is large enough
                                                 ).order_by('user__last_name'),
             required=True, label='Select an Editor-in-charge')
 
@@ -125,7 +122,7 @@ class RefereeRecruitmentForm(forms.ModelForm):
                 Field('email_address'),
                 Submit('submit', 'Send invitation', css_class="submitButton"),
                 css_class="flex-whitebox320")
-            )
+        )
 
 
 class ConsiderRefereeInvitationForm(forms.Form):
@@ -138,19 +135,20 @@ class SetRefereeingDeadlineForm(forms.Form):
     deadline = forms.DateField(required=False, label='',
                                widget=forms.SelectDateWidget)
 
+
 class VotingEligibilityForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         discipline = kwargs.pop('discipline')
         subject_area = kwargs.pop('subject_area')
-        super(VotingEligibilityForm,self).__init__(*args, **kwargs)
+        super(VotingEligibilityForm, self).__init__(*args, **kwargs)
         self.fields['eligible_Fellows'] = forms.ModelMultipleChoiceField(
             queryset=Contributor.objects.filter(
                 user__groups__name__in=['Editorial College'],
                 user__contributor__discipline=discipline,
                 user__contributor__expertises__contains=[subject_area]
             ).order_by('user__last_name'),
-            widget = forms.CheckboxSelectMultiple({'checked': 'checked'}),
+            widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
             required=True, label='Eligible for voting',
         )
 
@@ -159,10 +157,10 @@ class VotingEligibilityForm(forms.Form):
 ############
 
 REPORT_ACTION_CHOICES = (
-#    (0, 'modify'),
+    #    (0, 'modify'),
     (1, 'accept'),
     (2, 'refuse'),
-    )
+)
 
 REPORT_REFUSAL_CHOICES = (
     (0, '-'),
@@ -170,8 +168,9 @@ REPORT_REFUSAL_CHOICES = (
     (-2, 'not fully factually correct'),
     (-3, 'not useful for the authors'),
     (-4, 'not sufficiently academic in style'),
-    )
-report_refusal_choices_dict=dict(REPORT_REFUSAL_CHOICES)
+)
+
+report_refusal_choices_dict = dict(REPORT_REFUSAL_CHOICES)
 
 
 class ReportForm(forms.ModelForm):
@@ -180,6 +179,7 @@ class ReportForm(forms.ModelForm):
         fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes',
                   'validity', 'significance', 'originality', 'clarity', 'formatting', 'grammar',
                   'recommendation', 'remarks_for_editors', 'anonymous']
+
     def __init__(self, *args, **kwargs):
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields['strengths'].widget.attrs.update(
@@ -223,7 +223,6 @@ class EditorialCommunicationForm(forms.Form):
             {'rows': 5, 'cols': 50, 'placeholder': 'Write your message in this box.'})
 
 
-
 ######################
 # EIC Recommendation #
 ######################
@@ -234,6 +233,7 @@ class EICRecommendationForm(forms.ModelForm):
         fields = ['recommendation',
                   'remarks_for_authors', 'requested_changes',
                   'remarks_for_editorial_college']
+
     def __init__(self, *args, **kwargs):
         super(EICRecommendationForm, self).__init__(*args, **kwargs)
         self.fields['remarks_for_authors'].widget.attrs.update(
@@ -256,7 +256,7 @@ class RecommendationVoteForm(forms.Form):
                                       ('disagree', 'Disagree'),
                                       ('abstain', 'Abstain')],
                              label='',
-                         )
+                             )
     remark = forms.CharField(widget=forms.Textarea(), label='', required=False)
 
     def __init__(self, *args, **kwargs):
