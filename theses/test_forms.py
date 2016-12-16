@@ -4,7 +4,6 @@ from django.test import TestCase
 
 from .factories import ThesisLinkFactory
 from .forms import RequestThesisLinkForm
-
 from common.helpers import model_form_data
 
 

@@ -23,10 +23,12 @@ class TestThesisDetail(TestCase):
 class TestRequestThesisLink(TestCase):
     fixtures = ['groups', 'permissions']
 
+    def setUp(self):
+        self.client = Client()
+
     def test_response_when_not_logged_in(self):
         '''A visitor that is not logged in cannot view this page.'''
-        client = Client()
-        response = client.get(reverse('theses:request_thesislink'))
+        response = self.client.get(reverse('theses:request_thesislink'))
         self.assertEqual(response.status_code, 403)
 
     def test_response_when_logged_in(self):
@@ -34,3 +36,7 @@ class TestRequestThesisLink(TestCase):
         request.user = UserFactory()
         response = RequestThesisLink.as_view()(request)
         self.assertEqual(response.status_code, 200)
+
+    def test_redirects_to_acknowledgement_page(self):
+        response = self.client.post(reverse('theses:request_thesislink'), {}, follow=True)
+        self.assertRedirects(response, reverse('scipost:acknowledgement'))
