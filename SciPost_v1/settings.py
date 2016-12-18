@@ -90,6 +90,9 @@ HAYSTACK_CONNECTIONS = {
 }
 
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
+SPHINXDOC_PROTECTED_PROJECTS = {
+    'scipost': ['scipost.can_view_docs_scipost'],
+}
 
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
 CAPTCHA_LETTER_ROTATION = (-15, 15)

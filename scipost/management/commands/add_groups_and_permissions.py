@@ -7,19 +7,19 @@ from scipost.models import Contributor
 
 class Command(BaseCommand):
     help = 'Defines groups and permissions'
-    
+
     def add_arguments(self, parser):
         """Append arguments optionally for setup of Contributor roles."""
-        parser.add_argument('-u', '--setup-user', metavar='<username>', type=str, required=False, 
+        parser.add_argument('-u', '--setup-user', metavar='<username>', type=str, required=False,
                             help='Username to make registered contributor')
-        parser.add_argument('-a', '--make-admin', required=False, action='store_true', 
+        parser.add_argument('-a', '--make-admin', required=False, action='store_true',
                             help='Grant admin permissions to user (superuser only)')
-        parser.add_argument('-t', '--make-tester',  required=False, action='store_true', 
+        parser.add_argument('-t', '--make-tester',  required=False, action='store_true',
                             help='Grant test permissions to user')
 
     def handle(self, *args, **options):
         """Append all user Groups and setup a Contributor roles to user."""
-        
+
         # Create Groups
         SciPostAdmin, created = Group.objects.get_or_create(name='SciPost Administrators')
         AdvisoryBoard, created = Group.objects.get_or_create(name='Advisory Board')
@@ -27,6 +27,7 @@ class Command(BaseCommand):
         EditorialCollege, created = Group.objects.get_or_create(name='Editorial College')
         VettingEditors, created = Group.objects.get_or_create(name='Vetting Editors')
         RegisteredContributors, created = Group.objects.get_or_create(name='Registered Contributors')
+        Developers, created = Group.objects.get_or_create(name='Developers')
         Testers, created = Group.objects.get_or_create(name='Testers')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
@@ -150,6 +151,13 @@ class Command(BaseCommand):
             name='Can publish accepted submission',
             content_type=content_type)
 
+        # Documentation
+        can_view_docs_scipost, created = Permission.objects.get_or_create(
+            codename='can_view_docs_scipost',
+            name='Can view docs: scipost',
+            content_type=content_type)
+
+
         # Assign permissions to groups
         SciPostAdmin.permissions.add(
             can_manage_registration_invitations,
@@ -195,6 +203,9 @@ class Command(BaseCommand):
             can_request_thesislinks,
             can_referee,
         )
+        Developers.permissions.add(
+            can_view_docs_scipost,
+        )
         Ambassadors.permissions.add(
             can_manage_registration_invitations,
         )
@@ -203,7 +214,7 @@ class Command(BaseCommand):
         )
 
         self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions.'))
-        
+
         if options['setup_user']:
             # Username is given, check options
             try:
@@ -222,7 +233,7 @@ class Command(BaseCommand):
             elif options['make_admin']:
                 # Make admin failed, user not a superuser
                 self.stdout.write(self.style.WARNING('User %s is not a superuser.' % user))
-                
+
             if options['make_tester']:
                 # Setup test contributor
                 user.groups.add(Testers)
