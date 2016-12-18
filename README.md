@@ -110,3 +110,18 @@ can use them.
 (scipostenv) $ ./manage.py makemigration
 (scipostenv) $ ./manage.py migrate
 ```
+
+## Documentation
+Project documentation can be found in `docs` and can be rendered using
+[Sphinx](http://www.sphinx-doc.org/). Note that rendering documentation is only
+available from the virtual environment - and only when the host settings have
+been configured.
+
+To build the documentation, run:
+
+```shell
+(scipostenv) $ cd docs
+(scipostenv) $ make html
+```
+
+After this, generated documentation should be available in `docs/_build/html`.
