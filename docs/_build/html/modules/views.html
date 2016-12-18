@@ -34,6 +34,7 @@
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="SciPost 1.0 documentation" href="../index.html"/>
+        <link rel="next" title="Maintenance of SciPost documentation" href="../dev/maintenance/docs.html"/>
         <link rel="prev" title="Models" href="models.html"/> 
 
   
@@ -84,8 +85,10 @@
             
             
                 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../howto/production.html">Production of SciPost Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">Models</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
 </ul>
 
             
@@ -178,6 +181,14 @@ NEEDS UPDATING with e.g. Haystack.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="scipost.views.draft_registration_invitation">
+<code class="descclassname">scipost.views.</code><code class="descname">draft_registration_invitation</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scipost/views.html#draft_registration_invitation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scipost.views.draft_registration_invitation" title="Permalink to this definition">¶</a></dt>
+<dd><p>For officers to prefill registration invitations.
+This is similar to the registration_invitations method,
+which is used to complete the invitation process.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="scipost.views.email_group_members">
 <code class="descclassname">scipost.views.</code><code class="descname">email_group_members</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scipost/views.html#email_group_members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scipost.views.email_group_members" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to send bulk emails to (members of) selected groups</p>
@@ -227,7 +238,7 @@ NEEDS UPDATING with e.g. Haystack.</p>
 
 <dl class="function">
 <dt id="scipost.views.registration_invitations">
-<code class="descclassname">scipost.views.</code><code class="descname">registration_invitations</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scipost/views.html#registration_invitations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scipost.views.registration_invitations" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scipost.views.</code><code class="descname">registration_invitations</code><span class="sig-paren">(</span><em>request</em>, <em>draft_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scipost/views.html#registration_invitations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scipost.views.registration_invitations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overview and tools for administrators</p>
 </dd></dl>
 
@@ -458,6 +469,8 @@ This is an adapted version of the accept_or_decline_assignment_ack method.</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../dev/maintenance/docs.html" class="btn btn-neutral float-right" title="Maintenance of SciPost documentation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="models.html" class="btn btn-neutral" title="Models" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>

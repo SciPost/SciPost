@@ -84,8 +84,10 @@
             
             
                 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
 </ul>
 
             
@@ -140,6 +142,7 @@
 <span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="k">import</span> <span class="n">authenticate</span><span class="p">,</span> <span class="n">login</span><span class="p">,</span> <span class="n">logout</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="k">import</span> <span class="n">login_required</span><span class="p">,</span> <span class="n">permission_required</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="k">import</span> <span class="n">User</span><span class="p">,</span> <span class="n">Group</span><span class="p">,</span> <span class="n">Permission</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">PermissionDenied</span>
 <span class="kn">from</span> <span class="nn">django.core.mail</span> <span class="k">import</span> <span class="n">EmailMessage</span>
 <span class="kn">from</span> <span class="nn">django.core.urlresolvers</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">transaction</span>
@@ -200,6 +203,13 @@
             <span class="n">previous_submissions</span> <span class="o">=</span> <span class="n">Submission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
                 <span class="n">arxiv_identifier_wo_vn_nr</span><span class="o">=</span><span class="n">identifier_without_vn_nr</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-arxiv_vn_nr&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">previous_submissions</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">previous_submissions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;rejected&#39;</span><span class="p">,</span> <span class="s1">&#39;rejected_visible&#39;</span><span class="p">,]:</span>
+                    <span class="n">errormessage</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&lt;p&gt;This arXiv preprint has previously undergone refereeing &#39;</span>
+                                    <span class="s1">&#39;and has been rejected. Resubmission is only possible &#39;</span>
+                                    <span class="s1">&#39;if the manuscript has been substantially reworked into &#39;</span>
+                                    <span class="s1">&#39;a new arXiv submission with distinct identifier.&lt;/p&gt;&#39;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;scipost/error.html&#39;</span><span class="p">,</span>
+                                  <span class="p">{</span><span class="s1">&#39;errormessage&#39;</span><span class="p">:</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">errormessage</span><span class="p">)})</span>
                 <span class="c1"># If the Editorial Recommendation hasn&#39;t been formulated, ask to wait</span>
                 <span class="k">if</span> <span class="n">previous_submissions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="s1">&#39;revision_requested&#39;</span><span class="p">:</span>
                     <span class="n">errormessage</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&lt;p&gt;There exists a preprint with this arXiv identifier &#39;</span>
@@ -476,6 +486,17 @@
 
 <span class="k">def</span> <span class="nf">submission_detail</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">):</span>
     <span class="n">submission</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Submission</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="o">=</span><span class="n">arxiv_identifier_w_vn_nr</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">is_author</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">contributor</span> <span class="ow">in</span> <span class="n">submission</span><span class="o">.</span><span class="n">authors</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">is_author</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="n">SUBMISSION_STATUS_PUBLICLY_INVISIBLE</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;SciPost Administrators&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Editorial Administrators&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Editorial College&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_author</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="n">PermissionDenied</span>
     <span class="n">other_versions</span> <span class="o">=</span> <span class="n">Submission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
         <span class="n">arxiv_identifier_wo_vn_nr</span><span class="o">=</span><span class="n">submission</span><span class="o">.</span><span class="n">arxiv_identifier_wo_vn_nr</span>
     <span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">submission</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
@@ -1393,6 +1414,12 @@
     <span class="k">elif</span> <span class="n">recommendation</span><span class="o">.</span><span class="n">recommendation</span><span class="o">==-</span><span class="mi">3</span><span class="p">:</span>
         <span class="c1"># Reject</span>
         <span class="n">recommendation</span><span class="o">.</span><span class="n">submission</span><span class="o">.</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;rejected&#39;</span>
+        <span class="n">previous_submissions</span> <span class="o">=</span> <span class="n">Submission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">arxiv_identifier_wo_vn_nr</span><span class="o">=</span><span class="n">recommendation</span><span class="o">.</span><span class="n">submission</span><span class="o">.</span><span class="n">arxiv_identifier_wo_vn_nr</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">recommendation</span><span class="o">.</span><span class="n">submission</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">previous_submissions</span><span class="p">:</span>
+            <span class="n">sub</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;resubmitted_rejected&#39;</span>
+            <span class="n">sub</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
     <span class="n">recommendation</span><span class="o">.</span><span class="n">submission</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
     <span class="n">SubmissionUtils</span><span class="o">.</span><span class="n">load</span><span class="p">({</span><span class="s1">&#39;submission&#39;</span><span class="p">:</span> <span class="n">recommendation</span><span class="o">.</span><span class="n">submission</span><span class="p">,</span>

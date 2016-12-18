@@ -1,0 +1,135 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Howto: Production{% endblock pagetitle %}
+
+{% block bodysup %}
+
+{% load scipost_extras %}
+
+
+<section>
+  <h1>SciPost Publications: Production</h1>
+  <ul><li>Go back to the <a href="{% url 'scipost:howto' %}">Howto Guides</a> Page</li></ul>
+
+  <p>This guide is meant for <strong>Editorial Administrators</strong> and <strong>Production Officers</strong>. It describes the post-acceptance workflow from paper acceptance to publication.</p>
+
+  <p>Version: 2016-12-16</p>
+
+  <hr class="hr12"/>
+
+  <ol>
+    <li>
+      <h3>Preparation</h3>
+      <ol>
+	<li>
+	  <p>Check the Submission's list of references: if the syle isn’t right (most importantly: DOI missing), ask authors to provide an updated <code>bibliography</code> or <code>.bbl</code> file by email.</p>
+	</li>
+      </ol>
+    </li><!-- Preparation -->
+
+    <li>
+      <h3>Source retrieval and folder preparation</h3>
+
+      <ol>
+	<li>
+	  <p>On the SciPost server, navigate to folder <code>[Journal full name]/IN PRODUCTION</code>.</p>
+	</li>
+	<li>
+	  <p>Create a folder <code>[journal abbrev. name]_[arxiv identifier]_[first author last name]</code>, e.g. <code>SciPost_Phys_1604.98141v3_Smart</code>.</p>
+	</li>
+	<li>
+	  <p>Save the source from arXiv into this folder.</p>
+	</li>
+	<li>
+	  <p>NOTE: the file will be named <code>####.#####v#</code>, which is not recognized as a <code>.tar.gz</code> file on a UNIX system.</p>
+	  <p>Rename the file <code>####.####v#.tar.gz</code>. Unzipping it produces the folder <code>####.#####v#</code>.</p>
+	</li>
+	<li>
+	  <p>Copy the files in <code>[Journal full name]/v##_production/FILES_TO_COPY_IN_PAPER_DIR</code> to the paper-in-production’s folder. There are 4 files: <code>by.eps, logo_scipost_with_bgd.pdf, SciPost_bibstyle.bst, SciPost.cls</code>.</p>
+	  </p>
+	</li>
+	<li>
+	  <p>Copy all the paper’s sources one level down (so from <code>####.#####v#</code> to the current directory).</p>
+	</li>
+	<li>
+	  <p>Copy the <code>.tex</code> source to a new file using the name convention <code>[Journal abbrev. name]_####_#####v#_[first author last name].tex</code> (careful: use underscore instead of . between numbers).</p>
+	</li>
+      </ol>
+
+    </li><!-- Source retrieval -->
+
+    <li>
+      <h3>LaTeX file preparation</h3>
+
+
+      <ol>
+	<li>
+	  <h4>Handling references</h4>
+	</li>
+
+	<li>
+	  <h4>Implementing the SciPost style</h4>
+	  <ol>
+	    <li>
+	      <pre><code>
+%%%%%%%% Begin SciPost Production addition
+
+\usepackage[bitstream-charter]{mathdesign}
+
+\hypersetup{
+colorlinks,
+linkcolor={red!50!black},
+citecolor={blue!50!black},
+urlcolor={blue!80!black}
+}
+
+\urlstyle{sf}
+
+\fancypagestyle{SPtitlepage}{%
+\fancyhf{}
+\fancyfoot[C]{\textbf{\thepage}}
+\lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
+\chead{}
+\rhead{\small \href{https://scipost.org/SciPostPhys.1.1.???}{SciPost Phys. 1, ??? (2016)}}
+\renewcommand{\headrulewidth}{1pt}
+}
+
+\fancypagestyle{SPbulk}{
+\fancyhf{}
+\lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
+\rhead{\small \href{https://scipost.org/SciPostPhys.1.1.???}{SciPost Phys. 1, ??? (2016)}}
+\fancyfoot[C]{\textbf{\thepage}}
+\renewcommand{\headrulewidth}{1pt}
+}
+
+%%%%%%%% End SciPost Production addition
+	      </code></pre>
+	    </li>
+	  </ol>
+	</li>
+      </ol>
+    </li><!-- Implementing the SciPost style -->
+
+    <li>
+      <h3>References validation</h3>
+    </li><!-- References validation -->
+
+    <li>
+      <h3>Proofs</h3>
+    </li><!-- Proofs -->
+
+    <li>
+      <h3>Online publication</h3>
+    </li><!-- Online publication -->
+
+    <li>
+      <h3>Metadata preparation and DOI registration with Crossref</h3>
+    </li><!-- Metadata, DOI -->
+
+  </ol>
+
+
+</section>
+
+
+{% endblock bodysup %}

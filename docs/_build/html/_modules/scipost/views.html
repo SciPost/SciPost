@@ -84,8 +84,10 @@
             
             
                 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
 </ul>
 
             
@@ -141,7 +143,6 @@
 <span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">get_object_or_404</span><span class="p">,</span> <span class="n">render</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="k">import</span> <span class="n">authenticate</span><span class="p">,</span> <span class="n">login</span><span class="p">,</span> <span class="n">logout</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="k">import</span> <span class="n">login_required</span>
-<span class="c1">#from django.contrib.auth.decorators import permission_required   # Superseded by guardian</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="k">import</span> <span class="n">User</span><span class="p">,</span> <span class="n">Group</span><span class="p">,</span> <span class="n">Permission</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.views</span> <span class="k">import</span> <span class="n">password_reset</span><span class="p">,</span> <span class="n">password_reset_confirm</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">MultipleObjectsReturned</span><span class="p">,</span> <span class="n">ObjectDoesNotExist</span><span class="p">,</span> <span class="n">PermissionDenied</span>
@@ -609,8 +610,109 @@
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;scipost/acknowledgement.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
 
 
+<span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_draft_registration_invitations&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="draft_registration_invitation"><a class="viewcode-back" href="../../modules/views.html#scipost.views.draft_registration_invitation">[docs]</a><span class="k">def</span> <span class="nf">draft_registration_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For officers to prefill registration invitations.</span>
+<span class="sd">    This is similar to the registration_invitations method,</span>
+<span class="sd">    which is used to complete the invitation process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">errormessage</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">draft_inv_form</span> <span class="o">=</span> <span class="n">DraftInvitationForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="n">Utils</span><span class="o">.</span><span class="n">load</span><span class="p">({</span><span class="s1">&#39;contributor&#39;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">contributor</span><span class="p">,</span> <span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">draft_inv_form</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">draft_inv_form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">Utils</span><span class="o">.</span><span class="n">email_already_invited</span><span class="p">():</span>
+                <span class="n">errormessage</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;DUPLICATE ERROR: &#39;</span>
+                                <span class="s1">&#39;This email address has already been used for an invitation&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">Utils</span><span class="o">.</span><span class="n">email_already_drafted</span><span class="p">():</span>
+                <span class="n">errormessage</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;DUPLICATE ERROR: &#39;</span>
+                                <span class="s1">&#39;This email address has already been used for a draft invitation&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">Utils</span><span class="o">.</span><span class="n">email_already_taken</span><span class="p">():</span>
+                <span class="n">errormessage</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;DUPLICATE ERROR: &#39;</span>
+                                <span class="s1">&#39;This email address is already associated to a Contributor&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">draft_inv_form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;invitation_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;F&#39;</span>
+                  <span class="ow">and</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">has_perm</span><span class="p">(</span><span class="s1">&#39;scipost.can_invite_Fellows&#39;</span><span class="p">)):</span>
+                <span class="n">errormessage</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;You do not have the authorization to send a Fellow-type &#39;</span>
+                                <span class="s1">&#39;invitation. Consider Contributor, or cited (sub/pub). &#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">draft_inv_form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;invitation_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;R&#39;</span><span class="p">):</span>
+                <span class="n">errormessage</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Referee-type invitations must be made by the Editor-in-charge &#39;</span>
+                                <span class="s1">&#39;at the relevant Submission</span><span class="se">\&#39;</span><span class="s1">s Editorial Page. &#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Utils</span><span class="o">.</span><span class="n">create_draft_invitation</span><span class="p">()</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ack_header&#39;</span><span class="p">:</span> <span class="s1">&#39;Draft invitation saved.&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;followup_message&#39;</span><span class="p">:</span> <span class="s1">&#39;Return to the &#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;followup_link&#39;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;scipost:draft_registration_invitation&#39;</span><span class="p">),</span>
+                           <span class="s1">&#39;followup_link_label&#39;</span><span class="p">:</span> <span class="s1">&#39;drafting page&#39;</span><span class="p">}</span>
+                <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;scipost/acknowledgement.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">errormessage</span> <span class="o">=</span> <span class="s1">&#39;The form was not filled validly.&#39;</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">draft_inv_form</span> <span class="o">=</span> <span class="n">DraftInvitationForm</span><span class="p">()</span>
+
+    <span class="n">sent_reg_inv</span> <span class="o">=</span> <span class="n">RegistrationInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">responded</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declined</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">sent_reg_inv_fellows</span> <span class="o">=</span> <span class="n">sent_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">nr_sent_reg_inv_fellows</span> <span class="o">=</span> <span class="n">sent_reg_inv_fellows</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">sent_reg_inv_contrib</span> <span class="o">=</span> <span class="n">sent_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">nr_sent_reg_inv_contrib</span> <span class="o">=</span> <span class="n">sent_reg_inv_contrib</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">sent_reg_inv_ref</span> <span class="o">=</span> <span class="n">sent_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">nr_sent_reg_inv_ref</span> <span class="o">=</span> <span class="n">sent_reg_inv_ref</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">sent_reg_inv_cited_sub</span> <span class="o">=</span> <span class="n">sent_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;ci&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">nr_sent_reg_inv_cited_sub</span> <span class="o">=</span> <span class="n">sent_reg_inv_cited_sub</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">sent_reg_inv_cited_pub</span> <span class="o">=</span> <span class="n">sent_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;cp&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">nr_sent_reg_inv_cited_pub</span> <span class="o">=</span> <span class="n">sent_reg_inv_cited_pub</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+    <span class="n">resp_reg_inv</span> <span class="o">=</span> <span class="n">RegistrationInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">responded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">declined</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">resp_reg_inv_fellows</span> <span class="o">=</span> <span class="n">resp_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">nr_resp_reg_inv_fellows</span> <span class="o">=</span> <span class="n">resp_reg_inv_fellows</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">resp_reg_inv_contrib</span> <span class="o">=</span> <span class="n">resp_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">nr_resp_reg_inv_contrib</span> <span class="o">=</span> <span class="n">resp_reg_inv_contrib</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">resp_reg_inv_ref</span> <span class="o">=</span> <span class="n">resp_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">nr_resp_reg_inv_ref</span> <span class="o">=</span> <span class="n">resp_reg_inv_ref</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">resp_reg_inv_cited_sub</span> <span class="o">=</span> <span class="n">resp_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;ci&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">nr_resp_reg_inv_cited_sub</span> <span class="o">=</span> <span class="n">resp_reg_inv_cited_sub</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">resp_reg_inv_cited_pub</span> <span class="o">=</span> <span class="n">resp_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;cp&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+    <span class="n">nr_resp_reg_inv_cited_pub</span> <span class="o">=</span> <span class="n">resp_reg_inv_cited_pub</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+    <span class="n">decl_reg_inv</span> <span class="o">=</span> <span class="n">RegistrationInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">responded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">declined</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+
+    <span class="n">names_reg_contributors</span> <span class="o">=</span> <span class="n">Contributor</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;user__last_name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+        <span class="s1">&#39;user__first_name&#39;</span><span class="p">,</span> <span class="s1">&#39;user__last_name&#39;</span><span class="p">)</span>
+    <span class="n">existing_drafts</span> <span class="o">=</span> <span class="n">DraftInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">processed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;draft_inv_form&#39;</span><span class="p">:</span> <span class="n">draft_inv_form</span><span class="p">,</span> <span class="s1">&#39;errormessage&#39;</span><span class="p">:</span> <span class="n">errormessage</span><span class="p">,</span>
+               <span class="s1">&#39;sent_reg_inv_fellows&#39;</span><span class="p">:</span> <span class="n">sent_reg_inv_fellows</span><span class="p">,</span>
+               <span class="s1">&#39;nr_sent_reg_inv_fellows&#39;</span><span class="p">:</span> <span class="n">nr_sent_reg_inv_fellows</span><span class="p">,</span>
+               <span class="s1">&#39;sent_reg_inv_contrib&#39;</span><span class="p">:</span> <span class="n">sent_reg_inv_contrib</span><span class="p">,</span>
+               <span class="s1">&#39;nr_sent_reg_inv_contrib&#39;</span><span class="p">:</span> <span class="n">nr_sent_reg_inv_contrib</span><span class="p">,</span>
+               <span class="s1">&#39;sent_reg_inv_ref&#39;</span><span class="p">:</span> <span class="n">sent_reg_inv_ref</span><span class="p">,</span>
+               <span class="s1">&#39;nr_sent_reg_inv_ref&#39;</span><span class="p">:</span> <span class="n">nr_sent_reg_inv_ref</span><span class="p">,</span>
+               <span class="s1">&#39;sent_reg_inv_cited_sub&#39;</span><span class="p">:</span> <span class="n">sent_reg_inv_cited_sub</span><span class="p">,</span>
+               <span class="s1">&#39;nr_sent_reg_inv_cited_sub&#39;</span><span class="p">:</span> <span class="n">nr_sent_reg_inv_cited_sub</span><span class="p">,</span>
+               <span class="s1">&#39;sent_reg_inv_cited_pub&#39;</span><span class="p">:</span> <span class="n">sent_reg_inv_cited_pub</span><span class="p">,</span>
+               <span class="s1">&#39;nr_sent_reg_inv_cited_pub&#39;</span><span class="p">:</span> <span class="n">nr_sent_reg_inv_cited_pub</span><span class="p">,</span>
+               <span class="s1">&#39;resp_reg_inv_fellows&#39;</span><span class="p">:</span> <span class="n">resp_reg_inv_fellows</span><span class="p">,</span>
+               <span class="s1">&#39;nr_resp_reg_inv_fellows&#39;</span><span class="p">:</span> <span class="n">nr_resp_reg_inv_fellows</span><span class="p">,</span>
+               <span class="s1">&#39;resp_reg_inv_contrib&#39;</span><span class="p">:</span> <span class="n">resp_reg_inv_contrib</span><span class="p">,</span>
+               <span class="s1">&#39;nr_resp_reg_inv_contrib&#39;</span><span class="p">:</span> <span class="n">nr_resp_reg_inv_contrib</span><span class="p">,</span>
+               <span class="s1">&#39;resp_reg_inv_ref&#39;</span><span class="p">:</span> <span class="n">resp_reg_inv_ref</span><span class="p">,</span>
+               <span class="s1">&#39;nr_resp_reg_inv_ref&#39;</span><span class="p">:</span> <span class="n">nr_resp_reg_inv_ref</span><span class="p">,</span>
+               <span class="s1">&#39;resp_reg_inv_cited_sub&#39;</span><span class="p">:</span> <span class="n">resp_reg_inv_cited_sub</span><span class="p">,</span>
+               <span class="s1">&#39;nr_resp_reg_inv_cited_sub&#39;</span><span class="p">:</span> <span class="n">nr_resp_reg_inv_cited_sub</span><span class="p">,</span>
+               <span class="s1">&#39;resp_reg_inv_cited_pub&#39;</span><span class="p">:</span> <span class="n">resp_reg_inv_cited_pub</span><span class="p">,</span>
+               <span class="s1">&#39;nr_resp_reg_inv_cited_pub&#39;</span><span class="p">:</span> <span class="n">nr_resp_reg_inv_cited_pub</span><span class="p">,</span>
+               <span class="s1">&#39;decl_reg_inv&#39;</span><span class="p">:</span> <span class="n">decl_reg_inv</span><span class="p">,</span>
+               <span class="s1">&#39;names_reg_contributors&#39;</span><span class="p">:</span> <span class="n">names_reg_contributors</span><span class="p">,</span>
+               <span class="s1">&#39;existing_drafts&#39;</span><span class="p">:</span> <span class="n">existing_drafts</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;scipost/draft_registration_invitation.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_manage_registration_invitations&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="registration_invitations"><a class="viewcode-back" href="../../modules/views.html#scipost.views.registration_invitations">[docs]</a><span class="k">def</span> <span class="nf">registration_invitations</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="registration_invitations"><a class="viewcode-back" href="../../modules/views.html#scipost.views.registration_invitations">[docs]</a><span class="k">def</span> <span class="nf">registration_invitations</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">draft_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Overview and tools for administrators &quot;&quot;&quot;</span>
     <span class="c1"># List invitations sent; send new ones</span>
     <span class="n">errormessage</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -635,12 +737,35 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">Utils</span><span class="o">.</span><span class="n">create_invitation</span><span class="p">()</span>
                 <span class="n">Utils</span><span class="o">.</span><span class="n">send_registration_invitation_email</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">draft</span> <span class="o">=</span> <span class="n">DraftInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="n">email</span><span class="o">=</span><span class="n">reg_inv_form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">])</span>
+                    <span class="n">draft</span><span class="o">.</span><span class="n">processed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">draft</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="k">except</span> <span class="n">ObjectDoesNotExist</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">except</span> <span class="n">MultipleObjectsReturned</span><span class="p">:</span>
+                    <span class="c1"># Delete the first invitation</span>
+                    <span class="n">draft_to_delete</span> <span class="o">=</span> <span class="n">RegistrationInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                        <span class="n">email</span><span class="o">=</span><span class="n">reg_inv_form</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                    <span class="n">draft_to_delete</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
                 <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s1">&#39;registration_invitation_sent&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">errormessage</span> <span class="o">=</span> <span class="s1">&#39;The form was not filled validly.&#39;</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">reg_inv_form</span> <span class="o">=</span> <span class="n">RegistrationInvitationForm</span><span class="p">()</span>
+        <span class="n">initial</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">draft_id</span><span class="p">:</span>
+            <span class="n">draft</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">DraftInvitation</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">draft_id</span><span class="p">)</span>
+            <span class="n">initial</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">draft</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+                       <span class="s1">&#39;first_name&#39;</span><span class="p">:</span> <span class="n">draft</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span>
+                       <span class="s1">&#39;last_name&#39;</span><span class="p">:</span> <span class="n">draft</span><span class="o">.</span><span class="n">last_name</span><span class="p">,</span>
+                       <span class="s1">&#39;email&#39;</span><span class="p">:</span> <span class="n">draft</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+                       <span class="s1">&#39;invitation_type&#39;</span><span class="p">:</span> <span class="n">draft</span><span class="o">.</span><span class="n">invitation_type</span><span class="p">,</span>
+                       <span class="s1">&#39;cited_in_submission&#39;</span><span class="p">:</span> <span class="n">draft</span><span class="o">.</span><span class="n">cited_in_submission</span><span class="p">,</span>
+                       <span class="s1">&#39;cited_in_publication&#39;</span><span class="p">:</span> <span class="n">draft</span><span class="o">.</span><span class="n">cited_in_publication</span><span class="p">,</span>
+                   <span class="p">}</span>
+        <span class="n">reg_inv_form</span> <span class="o">=</span> <span class="n">RegistrationInvitationForm</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="n">initial</span><span class="p">)</span>
 
     <span class="n">sent_reg_inv</span> <span class="o">=</span> <span class="n">RegistrationInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">responded</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declined</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">sent_reg_inv_fellows</span> <span class="o">=</span> <span class="n">sent_reg_inv</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">invitation_type</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
@@ -671,6 +796,7 @@
     <span class="n">names_reg_contributors</span> <span class="o">=</span> <span class="n">Contributor</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
         <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;user__last_name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
         <span class="s1">&#39;user__first_name&#39;</span><span class="p">,</span> <span class="s1">&#39;user__last_name&#39;</span><span class="p">)</span>
+    <span class="n">existing_drafts</span> <span class="o">=</span> <span class="n">DraftInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">processed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
 
     <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;reg_inv_form&#39;</span><span class="p">:</span> <span class="n">reg_inv_form</span><span class="p">,</span> <span class="s1">&#39;errormessage&#39;</span><span class="p">:</span> <span class="n">errormessage</span><span class="p">,</span>
                <span class="s1">&#39;sent_reg_inv_fellows&#39;</span><span class="p">:</span> <span class="n">sent_reg_inv_fellows</span><span class="p">,</span>
@@ -695,6 +821,7 @@
                <span class="s1">&#39;nr_resp_reg_inv_cited_pub&#39;</span><span class="p">:</span> <span class="n">nr_resp_reg_inv_cited_pub</span><span class="p">,</span>
                <span class="s1">&#39;decl_reg_inv&#39;</span><span class="p">:</span> <span class="n">decl_reg_inv</span><span class="p">,</span>
                <span class="s1">&#39;names_reg_contributors&#39;</span><span class="p">:</span> <span class="n">names_reg_contributors</span><span class="p">,</span>
+               <span class="s1">&#39;existing_drafts&#39;</span><span class="p">:</span> <span class="n">existing_drafts</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;scipost/registration_invitations.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
 
