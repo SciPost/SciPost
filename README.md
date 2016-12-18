@@ -56,7 +56,8 @@ In this project, host-specific settings are defined in the `scipost-host-setting
     "SERVER_EMAIL": "",
     "JOURNALS_DIR": "<journals_dir>",
     "CROSSREF_LOGIN_ID": "",
-    "CROSSREF_LOGIN_PASSWORD": ""
+    "CROSSREF_LOGIN_PASSWORD": "",
+    "HAYSTACK_PATH": "<haystack_dir>"
 }
 ```
 
