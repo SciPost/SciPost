@@ -885,3 +885,55 @@ li.publicationPDF {
   border: 1px solid black;
   white-space: pre-wrap;
 }
+
+/* Styling of sphinxdoc-generated docs */
+.pagination-top {
+  background-color: #dddddd;
+  color: black;
+  margin: 10px;
+  padding: 10px;
+}
+.pagination-top a {
+  color: #666666;
+  target: _parent;
+}
+.pagination-top a:hover {
+  color: #aaaaaa;
+  text-decoration: underline;
+}
+
+.sphinx {
+  color: black;
+  margin: 10px;
+  padding: 10px;
+}
+.sphinx a {
+  color: #666666;
+  target: _parent;
+}
+.sphinx a:hover {
+  color: #aaaaaa;
+  text-decoration: underline;
+}
+.sphinx a.headerlink {
+    font-size: 0.8em;
+    padding: 0 4px 0 4px;
+    text-decoration: none;
+    visibility: hidden;
+}
+.sphinx *:hover > a.headerlink { visibility: visible; }
+
+.pagination-bottom {
+  background-color: #dddddd;
+  color: black;
+  margin: 10px;
+  padding: 10px;
+}
+.pagination-bottom a {
+  color: #666666;
+  target: _parent;
+}
+.pagination-bottom a:hover {
+  color: #aaaaaa;
+  text-decoration: underline;
+}

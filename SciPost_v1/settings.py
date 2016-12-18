@@ -70,8 +70,10 @@ INSTALLED_APPS = (
     'django_mathjax',
     'captcha',
     'crispy_forms',
-    'rest_framework',
     'guardian',
+    'haystack',
+    'rest_framework',
+    'sphinxdoc',
     'commentaries',
     'comments',
     'journals',
@@ -79,6 +81,15 @@ INSTALLED_APPS = (
     'submissions',
     'theses',
 )
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': host_settings['HAYSTACK_PATH'],
+    },
+}
+
+SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
 
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
 CAPTCHA_LETTER_ROTATION = (-15, 15)

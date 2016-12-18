@@ -5,9 +5,11 @@ django-countries==4.0
 django-crispy-forms==1.6.1
 django-filter==1.0.0
 django-guardian==1.4.6
+django-haystack==2.5.1
 django-mathjax==0.0.5
 django-mptt==0.8.6
 django-simple-captcha==0.5.3
+django-sphinxdoc==1.5.1
 djangorestframework==3.5.3
 docutils==0.12
 feedparser==5.2.1
@@ -24,3 +26,4 @@ six==1.10.0
 snowballstemmer==1.2.1
 Sphinx==1.4.9
 sphinx-rtd-theme==0.1.9
+Whoosh==2.7.4
