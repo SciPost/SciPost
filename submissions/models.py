@@ -8,8 +8,8 @@ from django.template import Template, Context
 from .models import *
 
 from scipost.models import ChoiceArrayField, Contributor, title_dict, Remark
-from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
-from scipost.models import subject_areas_dict, TITLE_CHOICES
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict
+from scipost.models import TITLE_CHOICES
 from journals.models import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import SCIPOST_JOURNALS_SPECIALIZATIONS
 from journals.models import journals_submit_dict, journals_domains_dict, journals_spec_dict

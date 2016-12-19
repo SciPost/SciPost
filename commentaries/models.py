@@ -5,7 +5,7 @@ from django.template import Template, Context
 
 from journals.models import SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
 from scipost.models import TimeStampedModel, Contributor
-from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 
 COMMENTARY_TYPES = (
     ('published', 'published paper'),

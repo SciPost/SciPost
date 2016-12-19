@@ -3,8 +3,8 @@ from django.db import models
 from django.template import Template, Context
 from django.utils import timezone
 
-from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, TITLE_CHOICES
-from scipost.models import ChoiceArrayField, Contributor
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict
+from scipost.models import ChoiceArrayField, Contributor, TITLE_CHOICES
 
 
 class UnregisteredAuthor(models.Model):

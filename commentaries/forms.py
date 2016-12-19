@@ -1,4 +1,5 @@
 from django import forms
+from django.shortcuts import get_object_or_404
 
 from .models import Commentary
 
@@ -54,6 +55,8 @@ class RequestCommentaryForm(forms.ModelForm):
 
     def clean(self, *args, **kwargs):
         cleaned_data = super(RequestCommentaryForm, self).clean(*args, **kwargs)
+
+        # Either Arxiv-ID or DOI is given
         if not cleaned_data['arxiv_identifier'] and not cleaned_data['pub_DOI']:
             msg = ('You must provide either a DOI (for a published paper) '
                 'or an arXiv identifier (for a preprint).')
@@ -72,6 +75,11 @@ class RequestCommentaryForm(forms.ModelForm):
             msg = 'There already exists a Commentary Page on this publication, see'
             self.existing_commentary = get_object_or_404(Commentary, pub_DOI=cleaned_data['pub_DOI'])
             self.add_error('pub_DOI', msg)
+
+        # Current user is not known
+        if not self.user or not Contributor.objects.filter(user=self.user).exists():
+            self.add_error(None, 'Sorry, current user is not known to SciPost.')
+
 
     def save(self, *args, **kwargs):
         """Prefill instance before save"""
