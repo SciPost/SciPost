@@ -9,7 +9,7 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
 
     requested_by = factory.SubFactory(ContributorFactory)
     type = ThesisLink.MASTER_THESIS
-    title = factory.Sequence(lambda n: "thesis {0}".format(n))
+    title = factory.Faker('bs')
     pub_link = factory.Faker('uri')
     author = factory.Faker('name')
     supervisor = factory.Faker('name')

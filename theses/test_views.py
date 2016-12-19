@@ -1,9 +1,9 @@
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import Group
 from django.urls import reverse
 
-from .views import RequestThesisLink
+from .views import RequestThesisLink, vet_thesislink_requests
 from scipost.factories import UserFactory
 from .factories import ThesisLinkFactory
 from .models import ThesisLink
@@ -35,4 +35,25 @@ class TestRequestThesisLink(TestCase):
         request = RequestFactory().get(reverse('theses:request_thesislink'))
         request.user = UserFactory()
         response = RequestThesisLink.as_view()(request)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestVetThesisLinkRequests(TestCase):
+    fixtures = ['groups', 'permissions']
+
+    def setUp(self):
+        self.client = Client()
+        self.target = reverse('theses:vet_thesislink_requests')
+
+    def test_response_when_not_logged_in(self):
+        response = self.client.get(self.target)
+        self.assertEqual(response.status_code, 403)
+
+    def test_response_when_logged_in(self):
+        ThesisLinkFactory()
+        request = RequestFactory().get(self.target)
+        user = UserFactory()
+        user.groups.add(Group.objects.get(name="Vetting Editors"))
+        request.user = user
+        response = vet_thesislink_requests(request)
         self.assertEqual(response.status_code, 200)
