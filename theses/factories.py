@@ -16,3 +16,4 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
     institution = factory.Faker('company')
     defense_date = factory.Faker('date_time_this_century')
     abstract = factory.Faker('text')
+    domain = 'ET'

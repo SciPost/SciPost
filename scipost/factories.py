@@ -11,9 +11,9 @@ class ContributorFactory(factory.django.DjangoModelFactory):
         model = Contributor
 
     title = "MR"
-    user = factory.SubFactory(UserFactory, contributor=None)
+    user = factory.SubFactory('scipost.factories.UserFactory', contributor=None)
     status = 1
-    vetted_by = factory.SubFactory(ContributorFactory)
+    vetted_by = factory.SubFactory('scipost.factories.ContributorFactory', vetted_by=None)
 
 
 class UserFactory(factory.django.DjangoModelFactory):

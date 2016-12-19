@@ -1,4 +1,5 @@
 import datetime
+
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
@@ -9,6 +10,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
+from django.views.generic.edit import CreateView
+from django.utils.decorators import method_decorator
 
 from .models import *
 from .forms import *
@@ -25,38 +28,20 @@ title_dict = dict(TITLE_CHOICES)  # Convert titles for use in emails
 ################
 
 
-@permission_required('scipost.can_request_thesislinks', raise_exception=True)
-def request_thesislink(request):
-    if request.method == 'POST':
-        form = RequestThesisLinkForm(request.POST)
-        if form.is_valid():
-            contributor = Contributor.objects.get(user=request.user)
-            thesislink = ThesisLink(
-                requested_by=contributor,
-                type=form.cleaned_data['type'],
-                discipline=form.cleaned_data['discipline'],
-                domain=form.cleaned_data['domain'],
-                subject_area=form.cleaned_data['subject_area'],
-                title=form.cleaned_data['title'],
-                author=form.cleaned_data['author'],
-                supervisor=form.cleaned_data['supervisor'],
-                institution=form.cleaned_data['institution'],
-                defense_date=form.cleaned_data['defense_date'],
-                pub_link=form.cleaned_data['pub_link'],
-                abstract=form.cleaned_data['abstract'],
-                latest_activity=timezone.now(),
-            )
-            thesislink.save()
-            # return HttpResponseRedirect('request_thesislink_ack')
-            context = {'ack_header': 'Thank you for your request for a Thesis Link',
-                       'ack_message': 'Your request will soon be handled by an Editor. ',
-                       'followup_message': 'Return to your ',
-                       'followup_link': reverse('scipost:personal_page'),
-                       'followup_link_label': 'personal page'}
-            return render(request, 'scipost/acknowledgement.html', context)
-    else:
-        form = RequestThesisLinkForm()
-    return render(request, 'theses/request_thesislink.html', {'form': form})
+@method_decorator(permission_required(
+    'scipost.can_request_thesislinks', raise_exception=True), name='dispatch')
+class RequestThesisLink(CreateView):
+    form_class = RequestThesisLinkForm
+    template_name = 'theses/request_thesislink.html'
+    success_url = ''
+
+    def form_valid(self, form):
+        context = {'ack_header': 'Thank you for your request for a Thesis Link',
+                   'ack_message': 'Your request will soon be handled by an Editor. ',
+                   'followup_message': 'Return to your ',
+                   'followup_link': reverse('scipost:personal_page'),
+                   'followup_link_label': 'personal page'}
+        return render(self.request, 'scipost/acknowledgement.html', context)
 
 
 @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)

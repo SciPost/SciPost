@@ -1,6 +1,7 @@
 from django import forms
 
 from .models import *
+from .helpers import past_years
 
 THESIS_ACTION_CHOICES = (
     (0, 'modify'),
@@ -21,12 +22,10 @@ class RequestThesisLinkForm(forms.ModelForm):
         fields = ['type', 'discipline', 'domain', 'subject_area',
                   'title', 'author', 'supervisor', 'institution',
                   'defense_date', 'pub_link', 'abstract']
-
-    def __init__(self, *args, **kwargs):
-        super(RequestThesisLinkForm, self).__init__(*args, **kwargs)
-        self.fields['defense_date'].widget.attrs.update({'placeholder': 'Format: YYYY-MM-DD'})
-        self.fields['pub_link'].widget.attrs.update({'placeholder': 'Full URL'})
-        self.fields['abstract'].widget.attrs.update({'cols': 100})
+        widgets = {
+            'defense_date': forms.SelectDateWidget(years=past_years(50)),
+            'pub_link': forms.TextInput(attrs={'placeholder': 'Full URL'})
+        }
 
 
 class VetThesisLinkForm(forms.Form):
