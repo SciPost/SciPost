@@ -63,8 +63,6 @@ SUBMISSION_STATUS_PUBLICLY_UNLISTED = [
     'withdrawn',
 ]
 
-<<<<<<< HEAD
-=======
 # Submissions which should not be viewable (except by admins, Fellows and authors)
 SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     'unassigned',
@@ -88,7 +86,6 @@ SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
 #     ('Decision_to_authors', 'Editor-in-charge forwards decision to authors'),
 #     )
 
->>>>>>> bd85dfe03971d0905f0879386499e8fa0371b6a9
 SUBMISSION_TYPE = (
     ('Letter', 'Letter (broad-interest breakthrough results)'),
     ('Article', 'Article (in-depth reports on specialized research)'),

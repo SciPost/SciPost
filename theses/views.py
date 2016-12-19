@@ -206,12 +206,7 @@ def thesis_detail(request, thesislink_id):
             new_comment.save()
             author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()
-<<<<<<< HEAD
             request.session['thesislink_id'] = thesislink_id
-            context = {}
-=======
-            #request.session['thesislink_id'] = thesislink_id
-            #return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
             context = {'ack_header': 'Thank you for contributing a Comment.',
                        'ack_message': 'It will soon be vetted by an Editor.',
                        'followup_message': 'Back to the ',
@@ -220,8 +215,7 @@ def thesis_detail(request, thesislink_id):
                            kwargs={'thesislink_id': newcomment.thesislink.id}
                        ),
                        'followup_link_label': ' Thesis Link page you came from'
-                   }
->>>>>>> bd85dfe03971d0905f0879386499e8fa0371b6a9
+            }
             return render(request, 'scipost/acknowledgement.html', context)
     else:
         form = CommentForm()
