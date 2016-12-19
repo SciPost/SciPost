@@ -28,6 +28,7 @@ class Command(BaseCommand):
         EditorialCollege, created = Group.objects.get_or_create(name='Editorial College')
         VettingEditors, created = Group.objects.get_or_create(name='Vetting Editors')
         RegisteredContributors, created = Group.objects.get_or_create(name='Registered Contributors')
+        Developers, created = Group.objects.get_or_create(name='Developers')
         Testers, created = Group.objects.get_or_create(name='Testers')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
@@ -151,6 +152,13 @@ class Command(BaseCommand):
             name='Can publish accepted submission',
             content_type=content_type)
 
+        # Documentation
+        can_view_docs_scipost, created = Permission.objects.get_or_create(
+            codename='can_view_docs_scipost',
+            name='Can view docs: scipost',
+            content_type=content_type)
+
+
         # Assign permissions to groups
         SciPostAdmin.permissions.add(
             can_manage_registration_invitations,
@@ -195,6 +203,9 @@ class Command(BaseCommand):
             can_request_commentary_pages,
             can_request_thesislinks,
             can_referee,
+        )
+        Developers.permissions.add(
+            can_view_docs_scipost,
         )
         Ambassadors.permissions.add(
             can_manage_registration_invitations,

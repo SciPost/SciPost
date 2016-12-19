@@ -16,3 +16,5 @@ UPLOADS
 
 docs/_build
 local_files
+
+whoosh_index

@@ -84,8 +84,10 @@
             
             
                 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
 </ul>
 
             
@@ -143,7 +145,7 @@
 
 <span class="kn">from</span> <span class="nn">django_countries.fields</span> <span class="k">import</span> <span class="n">CountryField</span>
 
-<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">scipost.models</span> <span class="k">import</span> <span class="o">*</span>
 
 
 <span class="n">SCIPOST_DISCIPLINES</span> <span class="o">=</span> <span class="p">(</span>
@@ -261,7 +263,8 @@
      <span class="p">),</span>
 <span class="p">)</span>
 <span class="n">subject_areas_raw_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">SCIPOST_SUBJECT_AREAS</span><span class="p">)</span>
-<span class="c1"># We want a dict of the form {&#39;Phys:AT&#39;: &#39;Atomic...&#39;, ...}</span>
+
+<span class="c1"># Make dict of the form {&#39;Phys:AT&#39;: &#39;Atomic...&#39;, ...}</span>
 <span class="n">subject_areas_dict</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">subject_areas_raw_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
     <span class="n">subject_areas_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">subject_areas_raw_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
@@ -325,8 +328,7 @@
     <span class="n">status</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">CONTRIBUTOR_STATUS</span><span class="p">)</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">TITLE_CHOICES</span><span class="p">)</span>
     <span class="n">discipline</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">SCIPOST_DISCIPLINES</span><span class="p">,</span>
-                                  <span class="n">default</span><span class="o">=</span><span class="s1">&#39;physics&#39;</span><span class="p">,</span>
-                                  <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;Main discipline&#39;</span><span class="p">)</span>
+                                  <span class="n">default</span><span class="o">=</span><span class="s1">&#39;physics&#39;</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;Main discipline&#39;</span><span class="p">)</span>
     <span class="n">expertises</span> <span class="o">=</span> <span class="n">ChoiceArrayField</span><span class="p">(</span>
         <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">SCIPOST_SUBJECT_AREAS</span><span class="p">),</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -345,36 +347,34 @@
         <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">verbose_name</span><span class="o">=</span><span class="s2">&quot;I accept to receive SciPost emails&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span>
 
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">is_currently_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">unav_periods</span> <span class="o">=</span> <span class="n">UnavailabilityPeriod</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-            <span class="n">contributor</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">available</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">unav_periods</span> <span class="o">=</span> <span class="n">UnavailabilityPeriod</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">contributor</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
         <span class="n">today</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">unav</span> <span class="ow">in</span> <span class="n">unav_periods</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">unav</span><span class="o">.</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">today</span> <span class="ow">and</span> <span class="n">unav</span><span class="o">.</span><span class="n">end</span> <span class="o">&gt;</span> <span class="n">today</span><span class="p">:</span>
-                <span class="n">available</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="n">available</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
-
-    <span class="k">def</span> <span class="nf">private_info_as_table</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">private_info_as_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">        &lt;table&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Title: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ title }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;First name: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ first_name }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Last name: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ last_name }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Email: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ email }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;ORCID id: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ orcid_id }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Country of employment: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;</span>
-<span class="s1">        &lt;td&gt;{{ country_of_employment }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Affiliation: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ affiliation }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Address: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ address }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Personal web page: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ personalwebpage }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Accept SciPost emails: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ accepts_SciPost_emails }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;/table&gt;</span>
+<span class="s1">            &lt;table&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Title: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ title }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;First name: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ first_name }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Last name: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ last_name }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Email: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ email }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;ORCID id: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ orcid_id }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Country of employment: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;</span>
+<span class="s1">            &lt;td&gt;{{ country_of_employment }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Affiliation: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ affiliation }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Address: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ address }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Personal web page: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ personalwebpage }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Accept SciPost emails: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ accepts_SciPost_emails }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;/table&gt;</span>
 <span class="s1">        &#39;&#39;&#39;</span><span class="p">)</span>
         <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">({</span>
             <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">title_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">],</span>
@@ -391,21 +391,20 @@
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Contributor.public_info_as_table"><a class="viewcode-back" href="../../modules/models.html#scipost.models.Contributor.public_info_as_table">[docs]</a>    <span class="k">def</span> <span class="nf">public_info_as_table</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Prints out all publicly-accessible info as a table.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Contributor.public_info_as_table"><a class="viewcode-back" href="../../modules/models.html#scipost.models.Contributor.public_info_as_table">[docs]</a>    <span class="k">def</span> <span class="nf">public_info_as_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prints out all publicly-accessible info as a table.&quot;&quot;&quot;</span>
+        
         <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">        &lt;table&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Title: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ title }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;First name: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ first_name }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Last name: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ last_name }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;ORCID id: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ orcid_id }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Country of employment: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;</span>
-<span class="s1">        &lt;td&gt;{{ country_of_employment }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Affiliation: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ affiliation }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;tr&gt;&lt;td&gt;Personal web page: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ personalwebpage }}&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="s1">        &lt;/table&gt;</span>
+<span class="s1">            &lt;table&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Title: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ title }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;First name: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ first_name }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Last name: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ last_name }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;ORCID id: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ orcid_id }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Country of employment: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;</span>
+<span class="s1">            &lt;td&gt;{{ country_of_employment }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Affiliation: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ affiliation }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;tr&gt;&lt;td&gt;Personal web page: &lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;td&gt;{{ personalwebpage }}&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s1">            &lt;/table&gt;</span>
 <span class="s1">        &#39;&#39;&#39;</span><span class="p">)</span>
         <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">({</span>
                 <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">title_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">],</span>
@@ -426,7 +425,7 @@
     <span class="k">def</span> <span class="nf">expertises_as_ul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">output</span> <span class="o">=</span> <span class="s1">&#39;&lt;ul&gt;&#39;</span>
         <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expertises</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">+=</span> <span class="s1">&#39;&lt;li&gt;&#39;</span> <span class="o">+</span> <span class="n">subject_areas_dict</span><span class="p">[</span><span class="n">exp</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;&lt;/li&gt;&#39;</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="s1">&#39;&lt;li&gt;</span><span class="si">%s</span><span class="s1">&lt;/li&gt;&#39;</span> <span class="o">%</span> <span class="n">subject_areas_dict</span><span class="p">[</span><span class="n">exp</span><span class="p">]</span>
         <span class="n">output</span> <span class="o">+=</span> <span class="s1">&#39;&lt;/ul&gt;&#39;</span>
         <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
@@ -521,6 +520,31 @@
     <span class="p">(</span><span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;personal&#39;</span><span class="p">),</span>
     <span class="p">)</span>
 
+<div class="viewcode-block" id="DraftInvitation"><a class="viewcode-back" href="../../modules/models.html#scipost.models.DraftInvitation">[docs]</a><span class="k">class</span> <span class="nc">DraftInvitation</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draft of an invitation, filled in by an officer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">TITLE_CHOICES</span><span class="p">)</span>
+    <span class="n">first_name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">last_name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">email</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">EmailField</span><span class="p">()</span>
+    <span class="n">invitation_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">INVITATION_TYPE</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+    <span class="n">cited_in_submission</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;submissions.Submission&#39;</span><span class="p">,</span>
+                                            <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+                                            <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cited_in_publication</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;journals.Publication&#39;</span><span class="p">,</span>
+                                             <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+                                             <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">drafted_by</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Contributor</span><span class="p">,</span>
+                                   <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+                                   <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">date_drafted</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+    <span class="n">processed</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invitation_type</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_name</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="RegistrationInvitation"><a class="viewcode-back" href="../../modules/models.html#scipost.models.RegistrationInvitation">[docs]</a><span class="k">class</span> <span class="nc">RegistrationInvitation</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Invitation to particular persons for registration</span>
@@ -580,88 +604,6 @@
     <span class="n">status</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">AUTHORSHIP_CLAIM_STATUS</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-
-<span class="c1">#######################</span>
-<span class="c1">### Assessments objects</span>
-<span class="c1">#######################</span>
-
-
-<span class="c1">### Assessments</span>
-
-<span class="c1">#ASSESSMENT_CHOICES = (</span>
-<span class="c1">#    (101, &#39;-&#39;), # Only values between 0 and 100 are kept, anything outside limits is discarded.</span>
-<span class="c1">#    (100, &#39;top&#39;), (80, &#39;high&#39;), (60, &#39;good&#39;), (40, &#39;ok&#39;), (20, &#39;low&#39;), (0, &#39;poor&#39;)</span>
-<span class="c1">#    )</span>
-
-<span class="c1">#class Assessment(models.Model):</span>
-<span class="c1">#    &quot;&quot;&quot;</span>
-<span class="c1">#    Base class for all assessments.</span>
-<span class="c1">#    &quot;&quot;&quot;</span>
-<span class="c1">#    rater = models.ForeignKey(Contributor, on_delete=models.CASCADE)</span>
-<span class="c1">#    submission = models.ForeignKey(&#39;submissions.Submission&#39;, on_delete=models.CASCADE, blank=True, null=True)</span>
-<span class="c1">#    comment = models.ForeignKey(&#39;comments.Comment&#39;, on_delete=models.CASCADE, blank=True, null=True)</span>
-<span class="c1">#    relevance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)</span>
-<span class="c1">#    importance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)</span>
-<span class="c1">#    clarity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)</span>
-<span class="c1">#    validity = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)</span>
-<span class="c1">#    rigour = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)</span>
-<span class="c1">#    originality = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)</span>
-<span class="c1">#    significance = models.PositiveSmallIntegerField(choices=ASSESSMENT_CHOICES, default=101)</span>
-
-
-<span class="c1">### Opinions</span>
-
-<span class="c1">#OPINION_CHOICES = (</span>
-<span class="c1">#    (&#39;ABS&#39;, &#39;-&#39;),</span>
-<span class="c1">#    (&#39;A&#39;, &#39;agree&#39;),</span>
-<span class="c1">#    (&#39;N&#39;, &#39;not sure&#39;),</span>
-<span class="c1">#    (&#39;D&#39;, &#39;disagree&#39;),</span>
-<span class="c1">#)</span>
-<span class="c1">#opinion_choices_dict = dict(OPINION_CHOICES)</span>
-
-<span class="c1">#class Opinion(models.Model):</span>
-<span class="c1">#    rater = models.ForeignKey(Contributor, on_delete=models.CASCADE)</span>
-<span class="c1">#    comment = models.ForeignKey(&#39;comments.Comment&#39;, on_delete=models.CASCADE)</span>
-<span class="c1">#    opinion = models.CharField(max_length=3, choices=OPINION_CHOICES, default=&#39;ABS&#39;)</span>
-
-
-<span class="c1">### AssessmentAggregates</span>
-
-<span class="c1">#class AssessmentAggregate(models.Model):</span>
-<span class="c1">#    &quot;&quot;&quot;</span>
-<span class="c1">#    Aggregated assessments for an object.</span>
-<span class="c1">#    &quot;&quot;&quot;</span>
-<span class="c1">#    nr = models.PositiveSmallIntegerField(default=0)</span>
-<span class="c1">#    nr_relevance_ratings = models.IntegerField(default=0)</span>
-<span class="c1">#    relevance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)</span>
-<span class="c1">#    nr_importance_ratings = models.IntegerField(default=0)</span>
-<span class="c1">#    importance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)</span>
-<span class="c1">#    nr_clarity_ratings = models.IntegerField(default=0)</span>
-<span class="c1">#    clarity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)</span>
-<span class="c1">#    nr_validity_ratings = models.IntegerField(default=0)</span>
-<span class="c1">#    validity_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)</span>
-<span class="c1">#    nr_rigour_ratings = models.IntegerField(default=0)</span>
-<span class="c1">#    rigour_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)</span>
-<span class="c1">#    nr_originality_ratings = models.IntegerField(default=0)</span>
-<span class="c1">#    originality_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)</span>
-<span class="c1">#    nr_significance_ratings = models.IntegerField(default=0)</span>
-<span class="c1">#    significance_rating = models.DecimalField(default=0, max_digits=3, decimal_places=0)</span>
-
-
-<span class="c1">##########</span>
-<span class="c1"># Emails #</span>
-<span class="c1">##########</span>
-
-<span class="c1"># class EmailedTo(models.Model):</span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#     An email address used for emailing.</span>
-<span class="c1">#     An instance is created by a method as send_precooked_email</span>
-<span class="c1">#     if the chosen message hasn&#39;t been sent to this address before.</span>
-<span class="c1">#     Helps prevent multiple emailing with same message.</span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#     email = models.EmailField()</span>
-
-
 <span class="n">SCIPOST_FROM_ADDRESSES</span> <span class="o">=</span> <span class="p">(</span>
     <span class="p">(</span><span class="s1">&#39;Admin&#39;</span><span class="p">,</span> <span class="s1">&#39;SciPost Admin &lt;admin@scipost.org&gt;&#39;</span><span class="p">),</span>
     <span class="p">(</span><span class="s1">&#39;J.-S. Caux&#39;</span><span class="p">,</span> <span class="s1">&#39;J.-S. Caux &lt;jscaux@scipost.org&gt;&#39;</span><span class="p">),</span>
@@ -680,7 +622,6 @@
     <span class="n">email_text</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
     <span class="n">email_text_html</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
     <span class="n">date_created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-    <span class="c1">#emailed_to = models.ManyToManyField(EmailedTo, blank=True)</span>
     <span class="n">emailed_to</span> <span class="o">=</span> <span class="n">ArrayField</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">EmailField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">date_last_used</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
     <span class="n">deprecated</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -769,8 +710,7 @@
 
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">[:</span><span class="mi">30</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (owner: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span>
-                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> (owner: </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">[:</span><span class="mi">30</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span><span class="p">)</span>
 
 
     <span class="k">def</span> <span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -839,7 +779,7 @@
 <span class="sd">    Team of Contributors, to enable private collaborations.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">leader</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
-    <span class="n">members</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span> <span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;team_members&#39;</span><span class="p">)</span>
+    <span class="n">members</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;team_members&#39;</span><span class="p">)</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
     <span class="n">established</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
 
@@ -888,8 +828,7 @@
 
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">[:</span><span class="mi">30</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; (owner: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span>
-                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> (owner: </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">[:</span><span class="mi">30</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">header_as_li</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>

@@ -84,8 +84,10 @@
             
             
                 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
 </ul>
 
             
@@ -332,13 +334,14 @@
     <span class="k">def</span> <span class="nf">citation</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">journal_name_abbrev_citation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_issue</span><span class="o">.</span><span class="n">in_volume</span><span class="o">.</span><span class="n">in_journal</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_issue</span><span class="o">.</span><span class="n">in_volume</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_issue</span><span class="o">.</span><span class="n">number</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;), &#39;</span>
-                <span class="o">+</span> <span class="n">paper_nr_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paper_nr</span><span class="p">)</span>
+                <span class="c1">#+ &#39;(&#39; + str(self.in_issue.number) + &#39;)&#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;, &#39;</span> <span class="o">+</span> <span class="n">paper_nr_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paper_nr</span><span class="p">)</span>
                 <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">publication_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span> <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">citation_for_web</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">citation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;{{ abbrev }} &lt;strong&gt;{{ volume_nr }}&lt;/strong&gt;({{ issue_nr }}), &#39;</span>
-                    <span class="s1">&#39;{{ paper_nr }} ({{ year }})&#39;</span><span class="p">)</span>
+        <span class="n">citation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;{{ abbrev }} &lt;strong&gt;{{ volume_nr }}&lt;/strong&gt;&#39;</span>
+                    <span class="c1">#&#39;({{ issue_nr }})&#39;</span>
+                    <span class="s1">&#39;, {{ paper_nr }} ({{ year }})&#39;</span><span class="p">)</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">citation</span><span class="p">)</span>
         <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span>
             <span class="p">{</span><span class="s1">&#39;abbrev&#39;</span><span class="p">:</span> <span class="n">journal_name_abbrev_citation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_issue</span><span class="o">.</span><span class="n">in_volume</span><span class="o">.</span><span class="n">in_journal</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
@@ -350,8 +353,9 @@
 
     <span class="k">def</span> <span class="nf">citation_for_web_linked</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">citation</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&lt;a href=&quot;{</span><span class="si">% u</span><span class="s1">rl </span><span class="se">\&#39;</span><span class="s1">scipost:publication_detail</span><span class="se">\&#39;</span><span class="s1"> doi_string=doi_string %}&quot;&gt;&#39;</span>
-                    <span class="s1">&#39;{{ abbrev }} &lt;strong&gt;{{ volume_nr }}&lt;/strong&gt;({{ issue_nr }}), &#39;</span>
-                    <span class="s1">&#39;{{ paper_nr }} ({{ year }})&#39;</span><span class="p">)</span>
+                    <span class="s1">&#39;{{ abbrev }} &lt;strong&gt;{{ volume_nr }}&lt;/strong&gt;&#39;</span>
+                    <span class="c1">#&#39;({{ issue_nr }})&#39;</span>
+                    <span class="s1">&#39;, {{ paper_nr }} ({{ year }})&#39;</span><span class="p">)</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">citation</span><span class="p">)</span>
         <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span>
             <span class="p">{</span><span class="s1">&#39;doi_string&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi_string</span><span class="p">,</span>

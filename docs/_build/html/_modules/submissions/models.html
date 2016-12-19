@@ -84,8 +84,10 @@
             
             
                 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
 </ul>
 
             
@@ -141,8 +143,10 @@
 <span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="o">*</span>
 
 <span class="kn">from</span> <span class="nn">scipost.models</span> <span class="k">import</span> <span class="n">ChoiceArrayField</span><span class="p">,</span> <span class="n">Contributor</span><span class="p">,</span> <span class="n">title_dict</span><span class="p">,</span> <span class="n">Remark</span>
-<span class="kn">from</span> <span class="nn">scipost.models</span> <span class="k">import</span> <span class="n">SCIPOST_DISCIPLINES</span><span class="p">,</span> <span class="n">SCIPOST_SUBJECT_AREAS</span><span class="p">,</span> <span class="n">subject_areas_dict</span><span class="p">,</span> <span class="n">TITLE_CHOICES</span>
-<span class="kn">from</span> <span class="nn">journals.models</span> <span class="k">import</span> <span class="n">SCIPOST_JOURNALS_SUBMIT</span><span class="p">,</span> <span class="n">SCIPOST_JOURNALS_DOMAINS</span><span class="p">,</span> <span class="n">SCIPOST_JOURNALS_SPECIALIZATIONS</span>
+<span class="kn">from</span> <span class="nn">scipost.models</span> <span class="k">import</span> <span class="n">SCIPOST_DISCIPLINES</span><span class="p">,</span> <span class="n">SCIPOST_SUBJECT_AREAS</span>
+<span class="kn">from</span> <span class="nn">scipost.models</span> <span class="k">import</span> <span class="n">subject_areas_dict</span><span class="p">,</span> <span class="n">TITLE_CHOICES</span>
+<span class="kn">from</span> <span class="nn">journals.models</span> <span class="k">import</span> <span class="n">SCIPOST_JOURNALS_SUBMIT</span><span class="p">,</span> <span class="n">SCIPOST_JOURNALS_DOMAINS</span>
+<span class="kn">from</span> <span class="nn">journals.models</span> <span class="k">import</span> <span class="n">SCIPOST_JOURNALS_SPECIALIZATIONS</span>
 <span class="kn">from</span> <span class="nn">journals.models</span> <span class="k">import</span> <span class="n">journals_submit_dict</span><span class="p">,</span> <span class="n">journals_domains_dict</span><span class="p">,</span> <span class="n">journals_spec_dict</span>
 <span class="kn">from</span> <span class="nn">journals.models</span> <span class="k">import</span> <span class="n">Publication</span>
 
@@ -159,6 +163,9 @@
     <span class="c1"># If revisions required: resubmission creates a new Submission object</span>
     <span class="p">(</span><span class="s1">&#39;revision_requested&#39;</span><span class="p">,</span> <span class="s1">&#39;Editor-in-charge has requested revision&#39;</span><span class="p">),</span>
     <span class="p">(</span><span class="s1">&#39;resubmitted&#39;</span><span class="p">,</span> <span class="s1">&#39;Has been resubmitted&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;resubmitted_and_rejected&#39;</span><span class="p">,</span> <span class="s1">&#39;Has been resubmitted and subsequently rejected&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;resubmitted_and_rejected_visible&#39;</span><span class="p">,</span>
+     <span class="s1">&#39;Has been resubmitted and subsequently rejected (still publicly visible)&#39;</span><span class="p">),</span>
     <span class="c1"># If acceptance/rejection:</span>
     <span class="p">(</span><span class="s1">&#39;voting_in_preparation&#39;</span><span class="p">,</span> <span class="s1">&#39;Voting in preparation (eligible Fellows being selected)&#39;</span><span class="p">),</span>
     <span class="p">(</span><span class="s1">&#39;put_to_EC_voting&#39;</span><span class="p">,</span> <span class="s1">&#39;Undergoing voting at the Editorial College&#39;</span><span class="p">),</span>
@@ -179,14 +186,28 @@
     <span class="s1">&#39;withdrawn&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
+<span class="c1"># Submissions which should not appear in search lists</span>
 <span class="n">SUBMISSION_STATUS_PUBLICLY_UNLISTED</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;unassigned&#39;</span><span class="p">,</span>
     <span class="s1">&#39;assignment_failed&#39;</span><span class="p">,</span>
     <span class="s1">&#39;resubmitted&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;resubmitted_rejected&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;resubmitted_rejected_visible&#39;</span><span class="p">,</span>
     <span class="s1">&#39;rejected&#39;</span><span class="p">,</span>
     <span class="s1">&#39;published&#39;</span><span class="p">,</span>
     <span class="s1">&#39;withdrawn&#39;</span><span class="p">,</span>
 <span class="p">]</span>
+
+<span class="c1"># Submissions which should not be viewable (except by admins, Fellows and authors)</span>
+<span class="n">SUBMISSION_STATUS_PUBLICLY_INVISIBLE</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;unassigned&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;assignment_failed&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;resubmitted_rejected&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;rejected&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;published&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;withdrawn&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
 
 <span class="c1"># SUBMISSION_ACTION_REQUIRED = (</span>
 <span class="c1">#     (&#39;assign_EIC&#39;, &#39;Editor-in-charge to be assigned&#39;),</span>
@@ -194,7 +215,8 @@
 <span class="c1">#     (&#39;EIC_runs_refereeing_round&#39;, &#39;Editor-in-charge to run refereeing round (inviting referees)&#39;),</span>
 <span class="c1">#     (&#39;EIC_closes_refereeing_round&#39;, &#39;Editor-in-charge to close refereeing round&#39;),</span>
 <span class="c1">#     (&#39;EIC_invites_author_response&#39;, &#39;Editor-in-charge invites authors to complete their replies&#39;),</span>
-<span class="c1">#     (&#39;EIC_formulates_editorial_recommendation&#39;, &#39;Editor-in-charge to formulate editorial recommendation&#39;),</span>
+<span class="c1">#     (&#39;EIC_formulates_editorial_recommendation&#39;,</span>
+<span class="c1">#      &#39;Editor-in-charge to formulate editorial recommendation&#39;),</span>
 <span class="c1">#     (&#39;EC_ratification&#39;, &#39;Editorial College ratifies editorial recommendation&#39;),</span>
 <span class="c1">#     (&#39;Decision_to_authors&#39;, &#39;Editor-in-charge forwards decision to authors&#39;),</span>
 <span class="c1">#     )</span>
@@ -222,8 +244,9 @@
 <span class="c1">#    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)</span>
     <span class="n">subject_area</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">SCIPOST_SUBJECT_AREAS</span><span class="p">,</span>
                                     <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;Primary subject area&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;Phys:QP&#39;</span><span class="p">)</span>
-    <span class="n">secondary_areas</span> <span class="o">=</span> <span class="n">ChoiceArrayField</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">SCIPOST_SUBJECT_AREAS</span><span class="p">),</span>
-                                       <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">secondary_areas</span> <span class="o">=</span> <span class="n">ChoiceArrayField</span><span class="p">(</span>
+        <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">SCIPOST_SUBJECT_AREAS</span><span class="p">),</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">status</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">SUBMISSION_STATUS</span><span class="p">)</span> <span class="c1"># set by Editors</span>
     <span class="n">author_comments</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">list_of_changes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -372,14 +395,17 @@
         <span class="n">nr_ref_invited</span> <span class="o">=</span> <span class="n">RefereeInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">submission</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
         <span class="n">nr_ref_accepted</span> <span class="o">=</span> <span class="n">RefereeInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">submission</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">accepted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
         <span class="n">nr_ref_declined</span> <span class="o">=</span> <span class="n">RefereeInvitation</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">submission</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">accepted</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
-        <span class="n">nr_invited_reports_in</span> <span class="o">=</span> <span class="n">Report</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">submission</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">invited</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
-        <span class="n">nr_contrib_reports_in</span> <span class="o">=</span> <span class="n">Report</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">submission</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">invited</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">nr_invited_reports_in</span> <span class="o">=</span> <span class="n">Report</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">submission</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                                      <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">invited</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">nr_contrib_reports_in</span> <span class="o">=</span> <span class="n">Report</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">submission</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                                      <span class="n">status</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">invited</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
         <span class="n">nr_reports_awaiting_vetting</span> <span class="o">=</span> <span class="n">Report</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">submission</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
         <span class="n">nr_reports_refused</span> <span class="o">=</span> <span class="n">Report</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">submission</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">status__lte</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
         <span class="n">header</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&lt;p&gt;Nr referees invited: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">nr_ref_invited</span><span class="p">)</span> <span class="o">+</span>
                   <span class="s1">&#39; [&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">nr_ref_accepted</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; accepted/ &#39;</span> <span class="o">+</span>
                   <span class="nb">str</span><span class="p">(</span><span class="n">nr_ref_declined</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; declined/ &#39;</span> <span class="o">+</span>
-                  <span class="nb">str</span><span class="p">(</span><span class="n">nr_ref_invited</span> <span class="o">-</span> <span class="n">nr_ref_accepted</span> <span class="o">-</span> <span class="n">nr_ref_declined</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; response pending]&lt;/p&gt;&#39;</span> <span class="o">+</span>
+                  <span class="nb">str</span><span class="p">(</span><span class="n">nr_ref_invited</span> <span class="o">-</span> <span class="n">nr_ref_accepted</span> <span class="o">-</span> <span class="n">nr_ref_declined</span><span class="p">)</span> <span class="o">+</span>
+                  <span class="s1">&#39; response pending]&lt;/p&gt;&#39;</span> <span class="o">+</span>
                   <span class="s1">&#39;&lt;p&gt;Nr reports obtained: &#39;</span> <span class="o">+</span>
                   <span class="nb">str</span><span class="p">(</span><span class="n">nr_invited_reports_in</span> <span class="o">+</span> <span class="n">nr_contrib_reports_in</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; [&#39;</span> <span class="o">+</span>
                   <span class="nb">str</span><span class="p">(</span><span class="n">nr_invited_reports_in</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; invited/ &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">nr_contrib_reports_in</span><span class="p">)</span> <span class="o">+</span>
@@ -408,7 +434,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;unassigned&#39;</span><span class="p">:</span>
             <span class="n">header</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;&lt;p style=&quot;color: red&quot;&gt;Status: {{ status }}.&#39;</span>
                        <span class="s1">&#39; You can volunteer to become Editor-in-charge by &#39;</span>
-                       <span class="s1">&#39;&lt;a href=&quot;/submissions/volunteer_as_EIC/{{ arxiv_identifier_w_vn_nr }}&quot;&gt;clicking here&lt;/a&gt;.&lt;/p&gt;&#39;</span><span class="p">)</span>
+                       <span class="s1">&#39;&lt;a href=&quot;/submissions/volunteer_as_EIC/{{ arxiv_identifier_w_vn_nr }}&quot;&gt;&#39;</span>
+                       <span class="s1">&#39;clicking here&lt;/a&gt;.&lt;/p&gt;&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">header</span> <span class="o">+=</span> <span class="s1">&#39;&lt;p&gt;Editor-in-charge: {{ EIC }}&lt;/p&gt;&lt;p&gt;Status: {{ status }}&lt;/p&gt;&#39;</span>
         <span class="n">header</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refereeing_status_as_p</span><span class="p">()</span>
@@ -556,7 +583,8 @@
                   <span class="s1">&#39;&lt;p&gt;by {{ author_list }}&lt;/p&gt;&#39;</span>
                   <span class="s1">&#39;&lt;p&gt; (submitted {{ date }} to {{ to_journal }})&lt;/p&gt;&#39;</span>
                   <span class="s1">&#39;&lt;p&gt;Status: {{ status }}&lt;/p&gt;&lt;p&gt;Manage this Submission from its &#39;</span>
-                  <span class="s1">&#39;&lt;a href=&quot;/submissions/editorial_page/{{ arxiv_identifier_w_vn_nr }}&quot;&gt;Editorial Page&lt;/a&gt;.&#39;</span>
+                  <span class="s1">&#39;&lt;a href=&quot;/submissions/editorial_page/{{ arxiv_identifier_w_vn_nr }}&quot;&gt;&#39;</span>
+                  <span class="s1">&#39;Editorial Page&lt;/a&gt;.&#39;</span>
                   <span class="s1">&#39;&lt;/p&gt;&#39;</span>
                   <span class="c1">#&#39;&lt;/div&gt;&lt;/div&gt;&#39;</span>
                   <span class="s1">&#39;&lt;/li&gt;&#39;</span><span class="p">)</span>
@@ -640,7 +668,8 @@
     <span class="k">def</span> <span class="nf">summary_as_tds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">({</span><span class="s1">&#39;first_name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="s1">&#39;last_name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_name</span><span class="p">,</span>
                            <span class="s1">&#39;date_invited&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_invited</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M&#39;</span><span class="p">)})</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="s1">&#39;&lt;td&gt;{{ first_name }} {{ last_name }}&lt;/td&gt;&lt;td&gt;invited &lt;br/&gt;{{ date_invited }}&lt;/td&gt;&lt;td&gt;&#39;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&lt;td&gt;{{ first_name }} {{ last_name }}&lt;/td&gt;&lt;td&gt;invited &lt;br/&gt;&#39;</span>
+                  <span class="s1">&#39;{{ date_invited }}&lt;/td&gt;&lt;td&gt;&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cancelled</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">+=</span> <span class="s1">&#39;&lt;strong style=&quot;color: red;&quot;&gt;cancelled&lt;/strong&gt;&#39;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">accepted</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -719,8 +748,9 @@
     <span class="n">flagged</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">date_submitted</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="s1">&#39;date submitted&#39;</span><span class="p">)</span>
     <span class="n">author</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
-    <span class="n">qualification</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">REFEREE_QUALIFICATION</span><span class="p">,</span>
-                                                     <span class="n">verbose_name</span><span class="o">=</span><span class="s2">&quot;Qualification to referee this: I am &quot;</span><span class="p">)</span>
+    <span class="n">qualification</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">REFEREE_QUALIFICATION</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">&quot;Qualification to referee this: I am &quot;</span><span class="p">)</span>
     <span class="c1"># Text-based reporting</span>
     <span class="n">strengths</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
     <span class="n">weaknesses</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
@@ -731,8 +761,10 @@
     <span class="n">significance</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">RANKING_CHOICES</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
     <span class="n">originality</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">RANKING_CHOICES</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
     <span class="n">clarity</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">RANKING_CHOICES</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
-    <span class="n">formatting</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">QUALITY_SPEC</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s2">&quot;Quality of paper formatting&quot;</span><span class="p">)</span>
-    <span class="n">grammar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">QUALITY_SPEC</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s2">&quot;Quality of English grammar&quot;</span><span class="p">)</span>
+    <span class="n">formatting</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">QUALITY_SPEC</span><span class="p">,</span>
+                                          <span class="n">verbose_name</span><span class="o">=</span><span class="s2">&quot;Quality of paper formatting&quot;</span><span class="p">)</span>
+    <span class="n">grammar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">QUALITY_SPEC</span><span class="p">,</span>
+                                       <span class="n">verbose_name</span><span class="o">=</span><span class="s2">&quot;Quality of English grammar&quot;</span><span class="p">)</span>
     <span class="c1">#</span>
     <span class="n">recommendation</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">REPORT_REC</span><span class="p">)</span>
     <span class="n">remarks_for_editors</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -861,7 +893,8 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">comtype</span> <span class="o">==</span> <span class="s1">&#39;RtoE&#39;</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">+=</span> <span class="s1">&#39;From Referee &#39;</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">output</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">referee</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">referee</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span> <span class="o">+</span> <span class="s1">&#39; to you&#39;</span>
+                <span class="n">output</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">referee</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">referee</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span> <span class="o">+</span> <span class="s1">&#39; to you&#39;</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
                 <span class="k">pass</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">comtype</span> <span class="o">==</span> <span class="s1">&#39;StoE&#39;</span><span class="p">:</span>
@@ -887,7 +920,8 @@
         <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;optional remarks for the Editorial College&#39;</span><span class="p">)</span>
     <span class="n">recommendation</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">REPORT_REC</span><span class="p">)</span>
     <span class="c1"># Editorial Fellows who have assessed this recommendation:</span>
-    <span class="n">eligible_to_vote</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span> <span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;eligible_to_vote&#39;</span><span class="p">)</span>
+    <span class="n">eligible_to_vote</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span> <span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                               <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;eligible_to_vote&#39;</span><span class="p">)</span>
     <span class="n">voted_for</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span> <span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;voted_for&#39;</span><span class="p">)</span>
     <span class="n">voted_against</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span> <span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;voted_against&#39;</span><span class="p">)</span>
     <span class="n">voted_abstain</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span> <span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;voted_abstain&#39;</span><span class="p">)</span>

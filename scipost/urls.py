@@ -39,6 +39,7 @@ urlpatterns = [
 
     # Search
     url(r'^search$', views.search, name='search'),
+    url(r'^search/', include('haystack.urls')),
 
     ################
     # Contributors:
@@ -166,6 +167,18 @@ urlpatterns = [
     url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
         journals_views.publication_pdf_from_doi_label,
         name='publication_pdf_from_doi_label'),
+
+
+    ################
+    # Howto guides #
+    ################
+
+    url(r'^howto$',
+        TemplateView.as_view(template_name='scipost/howto.html'),
+        name='howto'),
+    url(r'^howto/production$',
+        TemplateView.as_view(template_name='scipost/howto_production.html'),
+        name='howto_production'),
 
 
     #########

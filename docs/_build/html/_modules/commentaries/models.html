@@ -84,8 +84,10 @@
             
             
                 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
 </ul>
 
             
@@ -194,7 +196,7 @@
         <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s1">&#39;Commentaries&#39;</span>
 
 
-    <span class="k">def</span> <span class="nf">__str__</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pub_title</span>
 
 
@@ -239,7 +241,7 @@
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">header_as_li</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">header_as_li</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># for display in search lists</span>
         <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">({</span><span class="s1">&#39;scipost_url&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">scipost_url</span><span class="p">(),</span> <span class="s1">&#39;pub_title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pub_title</span><span class="p">,</span>
                            <span class="s1">&#39;author_list&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">author_list</span><span class="p">,</span>
@@ -270,13 +272,11 @@
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">simple_header_as_li</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">simple_header_as_li</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># for display in Lists</span>
         <span class="n">context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">({</span><span class="s1">&#39;scipost_url&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">scipost_url</span><span class="p">(),</span> <span class="s1">&#39;pub_title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pub_title</span><span class="p">,</span>
                            <span class="s1">&#39;author_list&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">author_list</span><span class="p">})</span>
         <span class="n">header</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&lt;li&gt;&#39;</span>
-                  <span class="c1">#&#39;&lt;div class=&quot;flex-container&quot;&gt;&#39;</span>
-                  <span class="c1">#&#39;&lt;div class=&quot;flex-whitebox0&quot;&gt;&#39;</span>
                   <span class="s1">&#39;&lt;p&gt;&lt;a href=&quot;{{ scipost_url }}&quot; &#39;</span>
                   <span class="s1">&#39;class=&quot;pubtitleli&quot;&gt;{{ pub_title }}&lt;/a&gt;&lt;/p&gt;&#39;</span>
                   <span class="s1">&#39;&lt;p&gt;by {{ author_list }}&#39;</span><span class="p">)</span>
@@ -289,40 +289,28 @@
             <span class="n">header</span> <span class="o">+=</span> <span class="s1">&#39;, &lt;a href=&quot;{{ arxiv_link }}&quot;&gt;{{ arxiv_link }}&lt;/a&gt;&#39;</span>
             <span class="n">context</span><span class="p">[</span><span class="s1">&#39;arxiv_link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_link</span>
         <span class="n">header</span> <span class="o">+=</span> <span class="s1">&#39;&lt;/p&gt;&#39;</span>
-        <span class="n">header</span> <span class="o">+=</span> <span class="p">(</span><span class="c1">#&#39;&lt;/div&gt;&lt;/div&gt;&#39;</span>
-                   <span class="s1">&#39;&lt;/li&gt;&#39;</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">+=</span> <span class="s1">&#39;&lt;/li&gt;&#39;</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Commentary.parse_links_into_urls"><a class="viewcode-back" href="../../modules/models.html#commentaries.models.Commentary.parse_links_into_urls">[docs]</a>    <span class="k">def</span> <span class="nf">parse_links_into_urls</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Commentary.parse_links_into_urls"><a class="viewcode-back" href="../../modules/models.html#commentaries.models.Commentary.parse_links_into_urls">[docs]</a>    <span class="k">def</span> <span class="nf">parse_links_into_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Takes the arXiv nr or DOI and turns it into the urls &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pub_DOI</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_or_DOI_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pub_DOI</span>
-<span class="c1">#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace(&#39;http://dx.doi.org/&#39;, &#39;&#39;)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pub_DOI_link</span> <span class="o">=</span> <span class="s1">&#39;http://dx.doi.org/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pub_DOI</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_identifier</span><span class="p">:</span>
-<span class="c1">#            self.arxiv_or_DOI_string = str(self.arxiv_link)</span>
-<span class="c1">#            # Format required: either identifier arXiv:1234.56789v10 or old-style arXiv:cond-mat/9712001v1</span>
-<span class="c1">#            # strip:</span>
-<span class="c1">#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace(&#39;http://&#39;, &#39;&#39;)</span>
-<span class="c1">#            # Old style: from arxiv.org/abs/1234.5678 into arXiv:1234.5678 (new identifier style)</span>
-<span class="c1">#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace(&#39;arxiv.org/&#39;, &#39;&#39;)</span>
-<span class="c1">#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace(&#39;abs/&#39;, &#39;&#39;)</span>
-<span class="c1">#            self.arxiv_or_DOI_string = self.arxiv_or_DOI_string.replace(&#39;pdf/&#39;, &#39;&#39;)</span>
-<span class="c1">#            # make sure arXiv prefix is there:</span>
-<span class="c1">#            self.arxiv_or_DOI_string = &#39;arXiv:&#39; + self.arxiv_or_DOI_string</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_or_DOI_string</span> <span class="o">=</span> <span class="s1">&#39;arXiv:&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_identifier</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_link</span> <span class="o">=</span> <span class="s1">&#39;http://arxiv.org/abs/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_identifier</span>
         <span class="k">else</span><span class="p">:</span> <span class="c1"># should never come here</span>
             <span class="k">pass</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Commentary.scipost_url"><a class="viewcode-back" href="../../modules/models.html#commentaries.models.Commentary.scipost_url">[docs]</a>    <span class="k">def</span> <span class="nf">scipost_url</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Commentary.scipost_url"><a class="viewcode-back" href="../../modules/models.html#commentaries.models.Commentary.scipost_url">[docs]</a>    <span class="k">def</span> <span class="nf">scipost_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns the url of the SciPost Commentary Page &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s1">&#39;/commentary/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_or_DOI_string</span></div>
 
-<div class="viewcode-block" id="Commentary.scipost_url_full"><a class="viewcode-back" href="../../modules/models.html#commentaries.models.Commentary.scipost_url_full">[docs]</a>    <span class="k">def</span> <span class="nf">scipost_url_full</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Commentary.scipost_url_full"><a class="viewcode-back" href="../../modules/models.html#commentaries.models.Commentary.scipost_url_full">[docs]</a>    <span class="k">def</span> <span class="nf">scipost_url_full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns the url of the SciPost Commentary Page &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s1">&#39;https://scipost.org/commentary/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_or_DOI_string</span></div></div>
 </pre></div>
