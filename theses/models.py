@@ -6,6 +6,7 @@ from django.template import Template, Context
 from .models import *
 
 from journals.models import *
+from scipost.constants import SCIPOST_DISCIPLINES, subject_areas_dict, disciplines_dict
 from scipost.models import *
 
 
