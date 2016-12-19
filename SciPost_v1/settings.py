@@ -12,12 +12,14 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
 import json
+
+from django.utils.translation import ugettext_lazy as _
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-host_settings_path = os.path.join(os.path.dirname(BASE_DIR),"scipost-host-settings.json")
+host_settings_path = os.path.join(os.path.dirname(BASE_DIR), "scipost-host-settings.json")
 host_settings = json.load(open(host_settings_path))
 
 # Quick-start development settings - unsuitable for production
@@ -108,6 +110,7 @@ MATHJAX_CONFIG_DATA = {
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -128,6 +131,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'scipost.context_processors.searchform',
@@ -158,7 +162,12 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
+LANGUAGES = (
+    ('en', _('English')),
+)
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 TIME_ZONE = 'CET'
 
 USE_I18N = True
