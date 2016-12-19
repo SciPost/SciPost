@@ -84,10 +84,8 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributors/contributors.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers/developers.html">For Developers</a></li>
 </ul>
 
             
@@ -198,13 +196,13 @@
 
 <span class="c1"># Global search</span>
 
-<div class="viewcode-block" id="normalize_query"><a class="viewcode-back" href="../../modules/views.html#scipost.views.normalize_query">[docs]</a><span class="k">def</span> <span class="nf">normalize_query</span><span class="p">(</span><span class="n">query_string</span><span class="p">,</span>
+<div class="viewcode-block" id="normalize_query"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.normalize_query">[docs]</a><span class="k">def</span> <span class="nf">normalize_query</span><span class="p">(</span><span class="n">query_string</span><span class="p">,</span>
                     <span class="n">findterms</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;&quot;([^&quot;]+)&quot;|(\S+)&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">,</span>
                     <span class="n">normspace</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;\s{2,}&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sub</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Splits a query string in individual keywords, keeping quoted words together. &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">normspace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">findterms</span><span class="p">(</span><span class="n">query_string</span><span class="p">)]</span></div>
 
-<div class="viewcode-block" id="get_query"><a class="viewcode-back" href="../../modules/views.html#scipost.views.get_query">[docs]</a><span class="k">def</span> <span class="nf">get_query</span><span class="p">(</span><span class="n">query_string</span><span class="p">,</span> <span class="n">search_fields</span><span class="p">):</span>
+<div class="viewcode-block" id="get_query"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.get_query">[docs]</a><span class="k">def</span> <span class="nf">get_query</span><span class="p">(</span><span class="n">query_string</span><span class="p">,</span> <span class="n">search_fields</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Returns a query, namely a combination of Q objects. &quot;&quot;&quot;</span>
     <span class="n">query</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">terms</span> <span class="o">=</span> <span class="n">normalize_query</span><span class="p">(</span><span class="n">query_string</span><span class="p">)</span>
@@ -223,7 +221,7 @@
     <span class="k">return</span> <span class="n">query</span></div>
 
 
-<div class="viewcode-block" id="documentsSearchResults"><a class="viewcode-back" href="../../modules/views.html#scipost.views.documentsSearchResults">[docs]</a><span class="k">def</span> <span class="nf">documentsSearchResults</span><span class="p">(</span><span class="n">query</span><span class="p">):</span>
+<div class="viewcode-block" id="documentsSearchResults"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.documentsSearchResults">[docs]</a><span class="k">def</span> <span class="nf">documentsSearchResults</span><span class="p">(</span><span class="n">query</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Searches through commentaries, submissions and thesislinks.</span>
 <span class="sd">    Returns a Context object which can be further used in templates.</span>
@@ -272,7 +270,7 @@
     <span class="k">return</span> <span class="n">context</span></div>
 
 
-<div class="viewcode-block" id="search"><a class="viewcode-back" href="../../modules/views.html#scipost.views.search">[docs]</a><span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="search"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.search">[docs]</a><span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; For the global search form in navbar &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
         <span class="n">form</span> <span class="o">=</span> <span class="n">SearchForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
@@ -332,7 +330,7 @@
 <span class="c1"># Main view</span>
 <span class="c1">#############</span>
 
-<div class="viewcode-block" id="index"><a class="viewcode-back" href="../../modules/views.html#scipost.views.index">[docs]</a><span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="index"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.index">[docs]</a><span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Main page &quot;&quot;&quot;</span>
     <span class="n">latest_newsitems</span> <span class="o">=</span> <span class="n">NewsItem</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-date&#39;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">submission_search_form</span> <span class="o">=</span> <span class="n">SubmissionSearchForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
@@ -349,7 +347,7 @@
 <span class="c1"># Information</span>
 <span class="c1">###############</span>
 
-<div class="viewcode-block" id="base"><a class="viewcode-back" href="../../modules/views.html#scipost.views.base">[docs]</a><span class="k">def</span> <span class="nf">base</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="base"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.base">[docs]</a><span class="k">def</span> <span class="nf">base</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Skeleton for pages, used in template inheritance &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;scipost/base.html&#39;</span><span class="p">)</span></div>
 
@@ -408,7 +406,7 @@
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;scipost/register.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="invitation"><a class="viewcode-back" href="../../modules/views.html#scipost.views.invitation">[docs]</a><span class="k">def</span> <span class="nf">invitation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<div class="viewcode-block" id="invitation"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.invitation">[docs]</a><span class="k">def</span> <span class="nf">invitation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Register, by invitation &quot;&quot;&quot;</span>
     <span class="n">invitation</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">RegistrationInvitation</span><span class="p">,</span> <span class="n">invitation_key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">invitation</span><span class="o">.</span><span class="n">responded</span><span class="p">:</span>
@@ -468,7 +466,7 @@
 
 
 
-<div class="viewcode-block" id="activation"><a class="viewcode-back" href="../../modules/views.html#scipost.views.activation">[docs]</a><span class="k">def</span> <span class="nf">activation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<div class="viewcode-block" id="activation"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.activation">[docs]</a><span class="k">def</span> <span class="nf">activation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    After registration, an email verification link is sent.</span>
 <span class="sd">    Once clicked, the account is activated.</span>
@@ -611,7 +609,7 @@
 
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_draft_registration_invitations&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="draft_registration_invitation"><a class="viewcode-back" href="../../modules/views.html#scipost.views.draft_registration_invitation">[docs]</a><span class="k">def</span> <span class="nf">draft_registration_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="draft_registration_invitation"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.draft_registration_invitation">[docs]</a><span class="k">def</span> <span class="nf">draft_registration_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For officers to prefill registration invitations.</span>
 <span class="sd">    This is similar to the registration_invitations method,</span>
@@ -712,7 +710,7 @@
 
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_manage_registration_invitations&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="registration_invitations"><a class="viewcode-back" href="../../modules/views.html#scipost.views.registration_invitations">[docs]</a><span class="k">def</span> <span class="nf">registration_invitations</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">draft_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="registration_invitations"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.registration_invitations">[docs]</a><span class="k">def</span> <span class="nf">registration_invitations</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">draft_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Overview and tools for administrators &quot;&quot;&quot;</span>
     <span class="c1"># List invitations sent; send new ones</span>
     <span class="n">errormessage</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -827,7 +825,7 @@
 
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_manage_registration_invitations&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="registration_invitations_cleanup"><a class="viewcode-back" href="../../modules/views.html#scipost.views.registration_invitations_cleanup">[docs]</a><span class="k">def</span> <span class="nf">registration_invitations_cleanup</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="registration_invitations_cleanup"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.registration_invitations_cleanup">[docs]</a><span class="k">def</span> <span class="nf">registration_invitations_cleanup</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compares the email addresses of invitations with those in the</span>
 <span class="sd">    database of registered Contributors. Flags overlaps.</span>
@@ -840,7 +838,7 @@
 
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_manage_registration_invitations&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="remove_registration_invitation"><a class="viewcode-back" href="../../modules/views.html#scipost.views.remove_registration_invitation">[docs]</a><span class="k">def</span> <span class="nf">remove_registration_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">invitation_id</span><span class="p">):</span>
+<div class="viewcode-block" id="remove_registration_invitation"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.remove_registration_invitation">[docs]</a><span class="k">def</span> <span class="nf">remove_registration_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">invitation_id</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove an invitation (called from registration_invitations_cleanup).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -870,7 +868,7 @@
 
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_manage_registration_invitations&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="renew_registration_invitation"><a class="viewcode-back" href="../../modules/views.html#scipost.views.renew_registration_invitation">[docs]</a><span class="k">def</span> <span class="nf">renew_registration_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">invitation_id</span><span class="p">):</span>
+<div class="viewcode-block" id="renew_registration_invitation"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.renew_registration_invitation">[docs]</a><span class="k">def</span> <span class="nf">renew_registration_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">invitation_id</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Renew an invitation (called from registration_invitations).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -892,7 +890,7 @@
 
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_manage_registration_invitations&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="mark_reg_inv_as_declined"><a class="viewcode-back" href="../../modules/views.html#scipost.views.mark_reg_inv_as_declined">[docs]</a><span class="k">def</span> <span class="nf">mark_reg_inv_as_declined</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">invitation_id</span><span class="p">):</span>
+<div class="viewcode-block" id="mark_reg_inv_as_declined"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.mark_reg_inv_as_declined">[docs]</a><span class="k">def</span> <span class="nf">mark_reg_inv_as_declined</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">invitation_id</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Mark an invitation as declined (called from registration_invitations.html).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -957,7 +955,7 @@
     <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;scipost:personal_page&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="personal_page"><a class="viewcode-back" href="../../modules/views.html#scipost.views.personal_page">[docs]</a><span class="k">def</span> <span class="nf">personal_page</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="personal_page"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.personal_page">[docs]</a><span class="k">def</span> <span class="nf">personal_page</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The Personal Page is the main view for accessing user functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1156,7 +1154,7 @@
 
 
 <span class="nd">@login_required</span>
-<div class="viewcode-block" id="claim_authorships"><a class="viewcode-back" href="../../modules/views.html#scipost.views.claim_authorships">[docs]</a><span class="k">def</span> <span class="nf">claim_authorships</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="claim_authorships"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.claim_authorships">[docs]</a><span class="k">def</span> <span class="nf">claim_authorships</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The system auto-detects potential authorships (of submissions,</span>
 <span class="sd">    papers subject to commentaries, theses, ...).</span>
@@ -1283,7 +1281,7 @@
 
 
 <span class="nd">@login_required</span>
-<div class="viewcode-block" id="contributor_info"><a class="viewcode-back" href="../../modules/views.html#scipost.views.contributor_info">[docs]</a><span class="k">def</span> <span class="nf">contributor_info</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">contributor_id</span><span class="p">):</span>
+<div class="viewcode-block" id="contributor_info"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.contributor_info">[docs]</a><span class="k">def</span> <span class="nf">contributor_info</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">contributor_id</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Logged-in Contributors can see a digest of another</span>
 <span class="sd">    Contributor&#39;s activities/contributions by clicking</span>
@@ -1316,7 +1314,7 @@
 
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_email_group_members&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="email_group_members"><a class="viewcode-back" href="../../modules/views.html#scipost.views.email_group_members">[docs]</a><span class="k">def</span> <span class="nf">email_group_members</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="email_group_members"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.email_group_members">[docs]</a><span class="k">def</span> <span class="nf">email_group_members</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Method to send bulk emails to (members of) selected groups</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1395,7 +1393,7 @@
 
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_email_particulars&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="email_particular"><a class="viewcode-back" href="../../modules/views.html#scipost.views.email_particular">[docs]</a><span class="k">def</span> <span class="nf">email_particular</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="email_particular"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.email_particular">[docs]</a><span class="k">def</span> <span class="nf">email_particular</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Method to send emails to individuals (registered or not)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1430,7 +1428,7 @@
 
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_email_particulars&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="send_precooked_email"><a class="viewcode-back" href="../../modules/views.html#scipost.views.send_precooked_email">[docs]</a><span class="k">def</span> <span class="nf">send_precooked_email</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="send_precooked_email"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.send_precooked_email">[docs]</a><span class="k">def</span> <span class="nf">send_precooked_email</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Method to send precooked emails to individuals (registered or not)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1739,7 +1737,7 @@
 
 
 <span class="nd">@permission_required_or_403</span><span class="p">(</span><span class="s1">&#39;scipost.view_graph&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">Graph</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;graph_id&#39;</span><span class="p">))</span>
-<div class="viewcode-block" id="api_graph"><a class="viewcode-back" href="../../modules/views.html#scipost.views.api_graph">[docs]</a><span class="k">def</span> <span class="nf">api_graph</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">graph_id</span><span class="p">):</span>
+<div class="viewcode-block" id="api_graph"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#scipost.views.api_graph">[docs]</a><span class="k">def</span> <span class="nf">api_graph</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">graph_id</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Produce JSON data to plot graph &quot;&quot;&quot;</span>
     <span class="n">graph</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Graph</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">graph_id</span><span class="p">)</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="n">Node</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">graph</span><span class="o">=</span><span class="n">graph</span><span class="p">)</span>

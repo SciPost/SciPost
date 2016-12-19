@@ -84,10 +84,8 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributors/contributors.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers/developers.html">For Developers</a></li>
 </ul>
 
             
@@ -420,7 +418,7 @@
                   <span class="p">{</span><span class="s1">&#39;identifierform&#39;</span><span class="p">:</span> <span class="n">identifierform</span><span class="p">,</span> <span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
 
 
-<div class="viewcode-block" id="submissions"><a class="viewcode-back" href="../../modules/views.html#submissions.views.submissions">[docs]</a><span class="k">def</span> <span class="nf">submissions</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">to_journal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="submissions"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.submissions">[docs]</a><span class="k">def</span> <span class="nf">submissions</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">to_journal</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main method for viewing Submissions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -576,7 +574,7 @@
 
 <span class="nd">@login_required</span>
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_take_charge_of_submissions&#39;</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="editorial_workflow"><a class="viewcode-back" href="../../modules/views.html#submissions.views.editorial_workflow">[docs]</a><span class="k">def</span> <span class="nf">editorial_workflow</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="editorial_workflow"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.editorial_workflow">[docs]</a><span class="k">def</span> <span class="nf">editorial_workflow</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Summary page for Editorial Fellows, containing a digest</span>
 <span class="sd">    of the actions to take to handle Submissions.</span>
@@ -586,7 +584,7 @@
 
 <span class="nd">@login_required</span>
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_view_pool&#39;</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="pool"><a class="viewcode-back" href="../../modules/views.html#submissions.views.pool">[docs]</a><span class="k">def</span> <span class="nf">pool</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="pool"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.pool">[docs]</a><span class="k">def</span> <span class="nf">pool</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The Submissions pool contains all submissions which are undergoing</span>
 <span class="sd">    the editorial process, from submission</span>
@@ -717,7 +715,7 @@
 <span class="nd">@login_required</span>
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_take_charge_of_submissions&#39;</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="volunteer_as_EIC"><a class="viewcode-back" href="../../modules/views.html#submissions.views.volunteer_as_EIC">[docs]</a><span class="k">def</span> <span class="nf">volunteer_as_EIC</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">):</span>
+<div class="viewcode-block" id="volunteer_as_EIC"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.volunteer_as_EIC">[docs]</a><span class="k">def</span> <span class="nf">volunteer_as_EIC</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Called when a Fellow volunteers while perusing the submissions pool.</span>
 <span class="sd">    This is an adapted version of the accept_or_decline_assignment_ack method.</span>
@@ -767,7 +765,7 @@
 <span class="nd">@login_required</span>
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_assign_submissions&#39;</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="assignment_failed"><a class="viewcode-back" href="../../modules/views.html#submissions.views.assignment_failed">[docs]</a><span class="k">def</span> <span class="nf">assignment_failed</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">):</span>
+<div class="viewcode-block" id="assignment_failed"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.assignment_failed">[docs]</a><span class="k">def</span> <span class="nf">assignment_failed</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    No Editorial Fellow has accepted or volunteered to become Editor-in-charge.</span>
 <span class="sd">    The submission is rejected.</span>
@@ -853,7 +851,7 @@
 <span class="nd">@permission_required_or_403</span><span class="p">(</span><span class="s1">&#39;can_take_editorial_actions&#39;</span><span class="p">,</span>
                             <span class="p">(</span><span class="n">Submission</span><span class="p">,</span> <span class="s1">&#39;arxiv_identifier_w_vn_nr&#39;</span><span class="p">,</span> <span class="s1">&#39;arxiv_identifier_w_vn_nr&#39;</span><span class="p">))</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="recruit_referee"><a class="viewcode-back" href="../../modules/views.html#submissions.views.recruit_referee">[docs]</a><span class="k">def</span> <span class="nf">recruit_referee</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">):</span>
+<div class="viewcode-block" id="recruit_referee"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.recruit_referee">[docs]</a><span class="k">def</span> <span class="nf">recruit_referee</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    If the Editor-in-charge does not find the desired referee among Contributors</span>
 <span class="sd">    (otherwise, the method send_refereeing_invitation below is used instead),</span>
@@ -909,7 +907,7 @@
 <span class="nd">@permission_required_or_403</span><span class="p">(</span><span class="s1">&#39;can_take_editorial_actions&#39;</span><span class="p">,</span>
                             <span class="p">(</span><span class="n">Submission</span><span class="p">,</span> <span class="s1">&#39;arxiv_identifier_w_vn_nr&#39;</span><span class="p">,</span> <span class="s1">&#39;arxiv_identifier_w_vn_nr&#39;</span><span class="p">))</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="send_refereeing_invitation"><a class="viewcode-back" href="../../modules/views.html#submissions.views.send_refereeing_invitation">[docs]</a><span class="k">def</span> <span class="nf">send_refereeing_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">,</span> <span class="n">contributor_id</span><span class="p">):</span>
+<div class="viewcode-block" id="send_refereeing_invitation"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.send_refereeing_invitation">[docs]</a><span class="k">def</span> <span class="nf">send_refereeing_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">,</span> <span class="n">contributor_id</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This method is called by the EIC from the submission&#39;s editorial_page,</span>
 <span class="sd">    in the case where the referee is an identified Contributor.</span>
@@ -942,7 +940,7 @@
 <span class="nd">@login_required</span>
 <span class="nd">@permission_required_or_403</span><span class="p">(</span><span class="s1">&#39;can_take_editorial_actions&#39;</span><span class="p">,</span>
                             <span class="p">(</span><span class="n">Submission</span><span class="p">,</span> <span class="s1">&#39;arxiv_identifier_w_vn_nr&#39;</span><span class="p">,</span> <span class="s1">&#39;arxiv_identifier_w_vn_nr&#39;</span><span class="p">))</span>
-<div class="viewcode-block" id="ref_invitation_reminder"><a class="viewcode-back" href="../../modules/views.html#submissions.views.ref_invitation_reminder">[docs]</a><span class="k">def</span> <span class="nf">ref_invitation_reminder</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">,</span> <span class="n">invitation_id</span><span class="p">):</span>
+<div class="viewcode-block" id="ref_invitation_reminder"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.ref_invitation_reminder">[docs]</a><span class="k">def</span> <span class="nf">ref_invitation_reminder</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">,</span> <span class="n">invitation_id</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This method is used by the Editor-in-charge from the editorial_page</span>
 <span class="sd">    when a referee has been invited but hasn&#39;t answered yet.</span>
@@ -994,7 +992,7 @@
 <span class="nd">@login_required</span>
 <span class="nd">@permission_required_or_403</span><span class="p">(</span><span class="s1">&#39;can_take_editorial_actions&#39;</span><span class="p">,</span>
                             <span class="p">(</span><span class="n">Submission</span><span class="p">,</span> <span class="s1">&#39;arxiv_identifier_w_vn_nr&#39;</span><span class="p">,</span> <span class="s1">&#39;arxiv_identifier_w_vn_nr&#39;</span><span class="p">))</span>
-<div class="viewcode-block" id="cancel_ref_invitation"><a class="viewcode-back" href="../../modules/views.html#submissions.views.cancel_ref_invitation">[docs]</a><span class="k">def</span> <span class="nf">cancel_ref_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">,</span> <span class="n">invitation_id</span><span class="p">):</span>
+<div class="viewcode-block" id="cancel_ref_invitation"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.cancel_ref_invitation">[docs]</a><span class="k">def</span> <span class="nf">cancel_ref_invitation</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">,</span> <span class="n">invitation_id</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This method is used by the Editor-in-charge from the editorial_page</span>
 <span class="sd">    to remove a referee for the list of invited ones.</span>
@@ -1056,7 +1054,7 @@
 <span class="nd">@login_required</span>
 <span class="nd">@permission_required_or_403</span><span class="p">(</span><span class="s1">&#39;can_take_editorial_actions&#39;</span><span class="p">,</span>
                             <span class="p">(</span><span class="n">Submission</span><span class="p">,</span> <span class="s1">&#39;arxiv_identifier_w_vn_nr&#39;</span><span class="p">,</span> <span class="s1">&#39;arxiv_identifier_w_vn_nr&#39;</span><span class="p">))</span>
-<div class="viewcode-block" id="close_refereeing_round"><a class="viewcode-back" href="../../modules/views.html#submissions.views.close_refereeing_round">[docs]</a><span class="k">def</span> <span class="nf">close_refereeing_round</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">):</span>
+<div class="viewcode-block" id="close_refereeing_round"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.close_refereeing_round">[docs]</a><span class="k">def</span> <span class="nf">close_refereeing_round</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Called by the Editor-in-charge when a satisfactory number of</span>
 <span class="sd">    reports have been gathered.</span>
@@ -1077,7 +1075,7 @@
 
 
 <span class="nd">@login_required</span>
-<div class="viewcode-block" id="communication"><a class="viewcode-back" href="../../modules/views.html#submissions.views.communication">[docs]</a><span class="k">def</span> <span class="nf">communication</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">,</span> <span class="n">comtype</span><span class="p">,</span> <span class="n">referee_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="communication"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.communication">[docs]</a><span class="k">def</span> <span class="nf">communication</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">arxiv_identifier_w_vn_nr</span><span class="p">,</span> <span class="n">comtype</span><span class="p">,</span> <span class="n">referee_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Communication between editor-in-charge, author or referee</span>
 <span class="sd">    occurring during the submission refereeing.</span>
@@ -1396,7 +1394,7 @@
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_fix_College_decision&#39;</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="fix_College_decision"><a class="viewcode-back" href="../../modules/views.html#submissions.views.fix_College_decision">[docs]</a><span class="k">def</span> <span class="nf">fix_College_decision</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">rec_id</span><span class="p">):</span>
+<div class="viewcode-block" id="fix_College_decision"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#submissions.views.fix_College_decision">[docs]</a><span class="k">def</span> <span class="nf">fix_College_decision</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">rec_id</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Terminates the voting on a Recommendation.</span>
 <span class="sd">    Called by an Editorial Administrator.</span>

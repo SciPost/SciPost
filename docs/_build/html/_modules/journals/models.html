@@ -84,10 +84,8 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributors/contributors.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers/developers.html">For Developers</a></li>
 </ul>
 
             
@@ -142,7 +140,7 @@
 <span class="kn">from</span> <span class="nn">scipost.models</span> <span class="k">import</span> <span class="n">ChoiceArrayField</span><span class="p">,</span> <span class="n">Contributor</span>
 
 
-<div class="viewcode-block" id="UnregisteredAuthor"><a class="viewcode-back" href="../../modules/models.html#journals.models.UnregisteredAuthor">[docs]</a><span class="k">class</span> <span class="nc">UnregisteredAuthor</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="UnregisteredAuthor"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#journals.models.UnregisteredAuthor">[docs]</a><span class="k">class</span> <span class="nc">UnregisteredAuthor</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="n">first_name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
     <span class="n">last_name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
@@ -238,7 +236,7 @@
 
 
 
-<div class="viewcode-block" id="Journal"><a class="viewcode-back" href="../../modules/models.html#journals.models.Journal">[docs]</a><span class="k">class</span> <span class="nc">Journal</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="Journal"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#journals.models.Journal">[docs]</a><span class="k">class</span> <span class="nc">Journal</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">SCIPOST_JOURNALS</span><span class="p">,</span>
                             <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">doi_string</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -248,7 +246,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 
-<div class="viewcode-block" id="Volume"><a class="viewcode-back" href="../../modules/models.html#journals.models.Volume">[docs]</a><span class="k">class</span> <span class="nc">Volume</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="Volume"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#journals.models.Volume">[docs]</a><span class="k">class</span> <span class="nc">Volume</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="n">in_journal</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Journal</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">number</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">start_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
@@ -259,7 +257,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_journal</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; Vol. &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Issue"><a class="viewcode-back" href="../../modules/models.html#journals.models.Issue">[docs]</a><span class="k">class</span> <span class="nc">Issue</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="Issue"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#journals.models.Issue">[docs]</a><span class="k">class</span> <span class="nc">Issue</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="n">in_volume</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Volume</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">number</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">start_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
@@ -287,7 +285,7 @@
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Publication"><a class="viewcode-back" href="../../modules/models.html#journals.models.Publication">[docs]</a><span class="k">class</span> <span class="nc">Publication</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="Publication"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#journals.models.Publication">[docs]</a><span class="k">class</span> <span class="nc">Publication</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="n">accepted_submission</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">OneToOneField</span><span class="p">(</span><span class="s1">&#39;submissions.Submission&#39;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">in_issue</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Issue</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">paper_nr</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">()</span>
@@ -399,7 +397,7 @@
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Publication.details"><a class="viewcode-back" href="../../modules/models.html#journals.models.Publication.details">[docs]</a>    <span class="k">def</span> <span class="nf">details</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Publication.details"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#journals.models.Publication.details">[docs]</a>    <span class="k">def</span> <span class="nf">details</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method is called from the publication_detail template.</span>
 <span class="sd">        It provides all the details for a publication.</span>
@@ -470,7 +468,7 @@
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Deposit"><a class="viewcode-back" href="../../modules/models.html#journals.models.Deposit">[docs]</a><span class="k">class</span> <span class="nc">Deposit</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="Deposit"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#journals.models.Deposit">[docs]</a><span class="k">class</span> <span class="nc">Deposit</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Each time a Crossref deposit is made for a Publication,</span>
 <span class="sd">    a Deposit object instance is created containing the Publication&#39;s</span>

@@ -84,10 +84,8 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributors/contributors.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers/developers.html">For Developers</a></li>
 </ul>
 
             
@@ -150,7 +148,7 @@
     <span class="p">(</span><span class="s1">&#39;preprint&#39;</span><span class="p">,</span> <span class="s1">&#39;arXiv preprint&#39;</span><span class="p">),</span>
     <span class="p">)</span>
 
-<div class="viewcode-block" id="Commentary"><a class="viewcode-back" href="../../modules/models.html#commentaries.models.Commentary">[docs]</a><span class="k">class</span> <span class="nc">Commentary</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="Commentary"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#commentaries.models.Commentary">[docs]</a><span class="k">class</span> <span class="nc">Commentary</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Commentary contains all the contents of a SciPost Commentary page for a given publication.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -294,7 +292,7 @@
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Commentary.parse_links_into_urls"><a class="viewcode-back" href="../../modules/models.html#commentaries.models.Commentary.parse_links_into_urls">[docs]</a>    <span class="k">def</span> <span class="nf">parse_links_into_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Commentary.parse_links_into_urls"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#commentaries.models.Commentary.parse_links_into_urls">[docs]</a>    <span class="k">def</span> <span class="nf">parse_links_into_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Takes the arXiv nr or DOI and turns it into the urls &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pub_DOI</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_or_DOI_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pub_DOI</span>
@@ -306,11 +304,11 @@
             <span class="k">pass</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Commentary.scipost_url"><a class="viewcode-back" href="../../modules/models.html#commentaries.models.Commentary.scipost_url">[docs]</a>    <span class="k">def</span> <span class="nf">scipost_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Commentary.scipost_url"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#commentaries.models.Commentary.scipost_url">[docs]</a>    <span class="k">def</span> <span class="nf">scipost_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns the url of the SciPost Commentary Page &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s1">&#39;/commentary/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_or_DOI_string</span></div>
 
-<div class="viewcode-block" id="Commentary.scipost_url_full"><a class="viewcode-back" href="../../modules/models.html#commentaries.models.Commentary.scipost_url_full">[docs]</a>    <span class="k">def</span> <span class="nf">scipost_url_full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Commentary.scipost_url_full"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#commentaries.models.Commentary.scipost_url_full">[docs]</a>    <span class="k">def</span> <span class="nf">scipost_url_full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Returns the url of the SciPost Commentary Page &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s1">&#39;https://scipost.org/commentary/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">arxiv_or_DOI_string</span></div></div>
 </pre></div>

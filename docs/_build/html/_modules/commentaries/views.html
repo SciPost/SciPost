@@ -84,10 +84,8 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributors/contributors.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers/developers.html">For Developers</a></li>
 </ul>
 
             
@@ -234,7 +232,7 @@
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;commentaries/request_commentary.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_request_commentary_pages&#39;</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="prefill_using_DOI"><a class="viewcode-back" href="../../modules/views.html#commentaries.views.prefill_using_DOI">[docs]</a><span class="k">def</span> <span class="nf">prefill_using_DOI</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="prefill_using_DOI"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#commentaries.views.prefill_using_DOI">[docs]</a><span class="k">def</span> <span class="nf">prefill_using_DOI</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Probes CrossRef API with the DOI, to pre-fill the form. &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
         <span class="n">doiform</span> <span class="o">=</span> <span class="n">DOIToQueryForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
@@ -312,7 +310,7 @@
     <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;commentaries:request_commentary&#39;</span><span class="p">))</span></div>
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_request_commentary_pages&#39;</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="prefill_using_identifier"><a class="viewcode-back" href="../../modules/views.html#commentaries.views.prefill_using_identifier">[docs]</a><span class="k">def</span> <span class="nf">prefill_using_identifier</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="prefill_using_identifier"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#commentaries.views.prefill_using_identifier">[docs]</a><span class="k">def</span> <span class="nf">prefill_using_identifier</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Probes arXiv with the identifier, to pre-fill the form. &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
         <span class="n">identifierform</span> <span class="o">=</span> <span class="n">IdentifierToQueryForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>

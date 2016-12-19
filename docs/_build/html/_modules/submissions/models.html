@@ -84,10 +84,8 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributors/contributors.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers/developers.html">For Developers</a></li>
 </ul>
 
             
@@ -229,7 +227,7 @@
 <span class="n">submission_type_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">SUBMISSION_TYPE</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Submission"><a class="viewcode-back" href="../../modules/models.html#submissions.models.Submission">[docs]</a><span class="k">class</span> <span class="nc">Submission</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="Submission"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#submissions.models.Submission">[docs]</a><span class="k">class</span> <span class="nc">Submission</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="n">is_current</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">is_resubmission</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">submitted_by</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
@@ -529,7 +527,7 @@
     <span class="p">)</span>
 <span class="n">assignment_refusal_reasons_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ASSIGNMENT_REFUSAL_REASONS</span><span class="p">)</span>
 
-<div class="viewcode-block" id="EditorialAssignment"><a class="viewcode-back" href="../../modules/models.html#submissions.models.EditorialAssignment">[docs]</a><span class="k">class</span> <span class="nc">EditorialAssignment</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="EditorialAssignment"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#submissions.models.EditorialAssignment">[docs]</a><span class="k">class</span> <span class="nc">EditorialAssignment</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="n">submission</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Submission</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">to</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">accepted</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">NullBooleanField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">ASSIGNMENT_NULLBOOL</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -597,7 +595,7 @@
                            <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">submission_status_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">submission</span><span class="o">.</span><span class="n">status</span><span class="p">]})</span>
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
-<div class="viewcode-block" id="EditorialAssignment.header_as_li"><a class="viewcode-back" href="../../modules/models.html#submissions.models.EditorialAssignment.header_as_li">[docs]</a>    <span class="k">def</span> <span class="nf">header_as_li</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="EditorialAssignment.header_as_li"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#submissions.models.EditorialAssignment.header_as_li">[docs]</a>    <span class="k">def</span> <span class="nf">header_as_li</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Same as above, but without link to Editorial Page. &quot;&quot;&quot;</span>
         <span class="n">header</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&lt;li&gt;&#39;</span>
                   <span class="c1">#&#39;&lt;div class=&quot;flex-container&quot;&gt;&#39;</span>
@@ -620,7 +618,7 @@
         <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="RefereeInvitation"><a class="viewcode-back" href="../../modules/models.html#submissions.models.RefereeInvitation">[docs]</a><span class="k">class</span> <span class="nc">RefereeInvitation</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="RefereeInvitation"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#submissions.models.RefereeInvitation">[docs]</a><span class="k">class</span> <span class="nc">RefereeInvitation</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="n">submission</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Submission</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">referee</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;referee&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                 <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
@@ -729,7 +727,7 @@
     <span class="p">)</span>
 <span class="n">report_rec_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">REPORT_REC</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Report"><a class="viewcode-back" href="../../modules/models.html#submissions.models.Report">[docs]</a><span class="k">class</span> <span class="nc">Report</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="Report"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#submissions.models.Report">[docs]</a><span class="k">class</span> <span class="nc">Report</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Both types of reports, invited or contributed. &quot;&quot;&quot;</span>
     <span class="c1"># status: see forms.py:REPORT_REFUSAL_CHOICES</span>
     <span class="c1"># 1: vetted</span>
@@ -854,7 +852,7 @@
     <span class="p">)</span>
 <span class="n">ed_comm_choices_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ED_COMM_CHOICES</span><span class="p">)</span>
 
-<div class="viewcode-block" id="EditorialCommunication"><a class="viewcode-back" href="../../modules/models.html#submissions.models.EditorialCommunication">[docs]</a><span class="k">class</span> <span class="nc">EditorialCommunication</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="EditorialCommunication"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#submissions.models.EditorialCommunication">[docs]</a><span class="k">class</span> <span class="nc">EditorialCommunication</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Each individual communication between Editor-in-charge</span>
 <span class="sd">    to and from Referees and Authors becomes an instance of this class.</span>
@@ -910,7 +908,7 @@
 <span class="c1">############################</span>
 
 <span class="c1"># From the Editor-in-charge of a Submission</span>
-<div class="viewcode-block" id="EICRecommendation"><a class="viewcode-back" href="../../modules/models.html#submissions.models.EICRecommendation">[docs]</a><span class="k">class</span> <span class="nc">EICRecommendation</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<div class="viewcode-block" id="EICRecommendation"><a class="viewcode-back" href="../../developers/codebase/modules/models.html#submissions.models.EICRecommendation">[docs]</a><span class="k">class</span> <span class="nc">EICRecommendation</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="n">submission</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Submission</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
     <span class="n">date_submitted</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="s1">&#39;date submitted&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
     <span class="n">remarks_for_authors</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

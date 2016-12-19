@@ -84,10 +84,8 @@
             
             
                 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../howto/production.html">Production of SciPost Publications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/models.html">Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modules/views.html">Views</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../dev/maintenance/docs.html">Maintenance of SciPost documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributors/contributors.html">For Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers/developers.html">For Developers</a></li>
 </ul>
 
             
@@ -243,7 +241,7 @@
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;journals/scipost_physics_issues.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="scipost_physics_recent"><a class="viewcode-back" href="../../modules/views.html#journals.views.scipost_physics_recent">[docs]</a><span class="k">def</span> <span class="nf">scipost_physics_recent</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="scipost_physics_recent"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#journals.views.scipost_physics_recent">[docs]</a><span class="k">def</span> <span class="nf">scipost_physics_recent</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Display page for the most recent 20 publications in SciPost Physics.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -257,7 +255,7 @@
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;journals/scipost_physics_recent.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="scipost_physics_accepted"><a class="viewcode-back" href="../../modules/views.html#journals.views.scipost_physics_accepted">[docs]</a><span class="k">def</span> <span class="nf">scipost_physics_accepted</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="scipost_physics_accepted"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#journals.views.scipost_physics_accepted">[docs]</a><span class="k">def</span> <span class="nf">scipost_physics_accepted</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Display page for submissions to SciPost Physics which</span>
 <span class="sd">    have been accepted but are not yet published.</span>
@@ -314,7 +312,7 @@
 <span class="c1">#     context = {&#39;accepted_submissions&#39;: accepted_submissions,}</span>
 <span class="c1">#     return render(request, &#39;journals/publishing_workspace.html&#39;, context)</span>
 
-<div class="viewcode-block" id="upload_proofs"><a class="viewcode-back" href="../../modules/views.html#journals.views.upload_proofs">[docs]</a><span class="k">def</span> <span class="nf">upload_proofs</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="upload_proofs"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#journals.views.upload_proofs">[docs]</a><span class="k">def</span> <span class="nf">upload_proofs</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    TODO</span>
 <span class="sd">    Called by a member of the Production Team.</span>
@@ -324,7 +322,7 @@
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_publish_accepted_submission&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="initiate_publication"><a class="viewcode-back" href="../../modules/views.html#journals.views.initiate_publication">[docs]</a><span class="k">def</span> <span class="nf">initiate_publication</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="initiate_publication"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#journals.views.initiate_publication">[docs]</a><span class="k">def</span> <span class="nf">initiate_publication</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Called by an Editorial Administrator.</span>
 <span class="sd">    Publish the manuscript after proofs have been accepted.</span>
@@ -405,7 +403,7 @@
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_publish_accepted_submission&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="validate_publication"><a class="viewcode-back" href="../../modules/views.html#journals.views.validate_publication">[docs]</a><span class="k">def</span> <span class="nf">validate_publication</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="validate_publication"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#journals.views.validate_publication">[docs]</a><span class="k">def</span> <span class="nf">validate_publication</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This creates a Publication instance from the ValidatePublicationForm,</span>
 <span class="sd">    pre-filled by the initiate_publication method above.</span>
@@ -483,7 +481,7 @@
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_publish_accepted_submission&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="add_author"><a class="viewcode-back" href="../../modules/views.html#journals.views.add_author">[docs]</a><span class="k">def</span> <span class="nf">add_author</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">publication_id</span><span class="p">,</span> <span class="n">contributor_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unregistered_author_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="add_author"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#journals.views.add_author">[docs]</a><span class="k">def</span> <span class="nf">add_author</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">publication_id</span><span class="p">,</span> <span class="n">contributor_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unregistered_author_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    If not all authors are registered Contributors or if they have not</span>
 <span class="sd">    all claimed authorship, this method allows editorial administrators</span>
@@ -554,7 +552,7 @@
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_publish_accepted_submission&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="create_citation_list_metadata"><a class="viewcode-back" href="../../modules/views.html#journals.views.create_citation_list_metadata">[docs]</a><span class="k">def</span> <span class="nf">create_citation_list_metadata</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">doi_string</span><span class="p">):</span>
+<div class="viewcode-block" id="create_citation_list_metadata"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#journals.views.create_citation_list_metadata">[docs]</a><span class="k">def</span> <span class="nf">create_citation_list_metadata</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">doi_string</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Called by an Editorial Administrator.</span>
 <span class="sd">    This populates the citation_list dictionary entry</span>
@@ -585,7 +583,7 @@
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_publish_accepted_submission&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="create_funding_info_metadata"><a class="viewcode-back" href="../../modules/views.html#journals.views.create_funding_info_metadata">[docs]</a><span class="k">def</span> <span class="nf">create_funding_info_metadata</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">doi_string</span><span class="p">):</span>
+<div class="viewcode-block" id="create_funding_info_metadata"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#journals.views.create_funding_info_metadata">[docs]</a><span class="k">def</span> <span class="nf">create_funding_info_metadata</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">doi_string</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Called by an Editorial Administrator.</span>
 <span class="sd">    This populates the funding_info dictionary entry</span>
@@ -614,7 +612,7 @@
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_publish_accepted_submission&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="create_metadata_xml"><a class="viewcode-back" href="../../modules/views.html#journals.views.create_metadata_xml">[docs]</a><span class="k">def</span> <span class="nf">create_metadata_xml</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">doi_string</span><span class="p">):</span>
+<div class="viewcode-block" id="create_metadata_xml"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#journals.views.create_metadata_xml">[docs]</a><span class="k">def</span> <span class="nf">create_metadata_xml</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">doi_string</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    To be called by an EdAdmin after the citation_list,</span>
 <span class="sd">    funding_info entries have been filled.</span>
@@ -814,7 +812,7 @@
 
 <span class="nd">@permission_required</span><span class="p">(</span><span class="s1">&#39;scipost.can_publish_accepted_submission&#39;</span><span class="p">,</span> <span class="n">return_403</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@transaction</span><span class="o">.</span><span class="n">atomic</span>
-<div class="viewcode-block" id="metadata_xml_deposit"><a class="viewcode-back" href="../../modules/views.html#journals.views.metadata_xml_deposit">[docs]</a><span class="k">def</span> <span class="nf">metadata_xml_deposit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">doi_string</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="metadata_xml_deposit"><a class="viewcode-back" href="../../developers/codebase/modules/views.html#journals.views.metadata_xml_deposit">[docs]</a><span class="k">def</span> <span class="nf">metadata_xml_deposit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">doi_string</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Crossref metadata deposit.</span>
 <span class="sd">    If test==True, test the metadata_xml using the Crossref test server.</span>
