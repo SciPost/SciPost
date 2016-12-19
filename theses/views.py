@@ -5,8 +5,9 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.core.mail import EmailMessage
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
@@ -33,15 +34,12 @@ title_dict = dict(TITLE_CHOICES)  # Convert titles for use in emails
 class RequestThesisLink(CreateView):
     form_class = RequestThesisLinkForm
     template_name = 'theses/request_thesislink.html'
-    success_url = ''
+    success_url = reverse_lazy('scipost:personal_page')
 
     def form_valid(self, form):
-        context = {'ack_header': 'Thank you for your request for a Thesis Link',
-                   'ack_message': 'Your request will soon be handled by an Editor. ',
-                   'followup_message': 'Return to your ',
-                   'followup_link': reverse('scipost:personal_page'),
-                   'followup_link_label': 'personal page'}
-        return render(self.request, 'scipost/acknowledgement.html', context)
+        messages.add_message(self.request, messages.SUCCESS,
+                             strings.acknowledge_request_thesis_link)
+        return super(RequestThesisLink, self).form_valid(form)
 
 
 @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
