@@ -1,6 +1,10 @@
 import factory
-from .models import ThesisLink
+
+from common.helpers.factories import FormFactory
 from scipost.factories import ContributorFactory
+
+from .models import ThesisLink
+from .forms import VetThesisLinkForm
 
 
 class ThesisLinkFactory(factory.django.DjangoModelFactory):
@@ -17,3 +21,11 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
     defense_date = factory.Faker('date_time_this_century')
     abstract = factory.Faker('text')
     domain = 'ET'
+
+
+class VetThesisLinkFormFactory(FormFactory):
+    class Meta:
+        model = VetThesisLinkForm
+
+    action_option = VetThesisLinkForm.ACCEPT
+    # justification = factory.Faker('lorem')

@@ -22,7 +22,7 @@
       <p>{{ thesislink_to_vet.abstract }}</p>
     </div>
     <div class="col-4">
-      <form action="{% url 'theses:vet_thesislink_request_ack' thesislink_id=thesislink_to_vet.id %}" method="post">
+      <form method="post">
         {% csrf_token %}
         {{ form.as_ul }}
         <input type="submit" value="Submit" />

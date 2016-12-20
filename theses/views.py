@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, FormView
 from django.utils.decorators import method_decorator
 
 from .models import *
@@ -42,14 +42,35 @@ class RequestThesisLink(CreateView):
         return super(RequestThesisLink, self).form_valid(form)
 
 
-@permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
-def vet_thesislink_requests(request):
-    contributor = Contributor.objects.get(user=request.user)
-    thesislink_to_vet = ThesisLink.objects.filter(
-        vetted=False).first()  # only handle one at a time
-    form = VetThesisLinkForm()
-    context = {'contributor': contributor, 'thesislink_to_vet': thesislink_to_vet, 'form': form}
-    return render(request, 'theses/vet_thesislink_requests.html', context)
+@method_decorator(permission_required(
+    'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
+class VetThesisLinkRequests(FormView):
+    form_class = VetThesisLinkForm
+    template_name = 'theses/vet_thesislink_requests.html'
+    # TODO: not right yet
+    success_url = reverse_lazy('theses:vet_thesislink_requests')
+
+    def get_context_data(self, **kwargs):
+        context = super(VetThesisLinkRequests, self).get_context_data(**kwargs)
+        context['thesislink_to_vet'] = self.thesislink_to_vet()
+        return context
+
+    def thesislink_to_vet(self):
+        return ThesisLink.objects.filter(vetted=False).first()
+
+    def form_valid(self, form):
+        form.vet_request(self.thesislink_to_vet())
+        return super(VetThesisLinkRequests, self).form_valid(form)
+
+
+# @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
+# def vet_thesislink_requests(request):
+#     contributor = Contributor.objects.get(user=request.user)
+#     thesislink_to_vet = ThesisLink.objects.filter(
+#         vetted=False).first()  # only handle one at a time
+#     form = VetThesisLinkForm()
+#     context = {'contributor': contributor, 'thesislink_to_vet': thesislink_to_vet, 'form': form}
+#     return render(request, 'theses/vet_thesislink_requests.html', context)
 
 
 @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
@@ -109,9 +130,9 @@ def vet_thesislink_request_ack(request, thesislink_id):
                               + ', has not been activated for the following reason: '
                               + form.cleaned_data['refusal_reason']
                               + '.\n\nThank you for your interest, \nThe SciPost Team.')
-                if form.cleaned_data['email_response_field']:
+                if form.cleaned_data['justification']:
                     email_text += '\n\nFurther explanations: ' + \
-                        form.cleaned_data['email_response_field']
+                        form.cleaned_data['justification']
                 emailmessage = EmailMessage('SciPost Thesis Link', email_text,
                                             'SciPost Theses <theses@scipost.org>',
                                             [thesislink.requested_by.user.email],

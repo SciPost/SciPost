@@ -6,9 +6,9 @@ from django.test.client import Client
 from django.contrib.auth.models import Group
 from django.urls import reverse
 
-from .views import RequestThesisLink, vet_thesislink_requests
-from scipost.factories import UserFactory
-from .factories import ThesisLinkFactory
+from .views import RequestThesisLink, VetThesisLinkRequests
+from scipost.factories import UserFactory, ContributorFactory
+from .factories import ThesisLinkFactory, VetThesisLinkFormFactory
 from .models import ThesisLink
 
 
@@ -64,7 +64,7 @@ class TestVetThesisLinkRequests(TestCase):
         user = UserFactory()
         request.user = user
         self.assertRaises(
-            PermissionDenied, vet_thesislink_requests, request)
+            PermissionDenied, VetThesisLinkRequests.as_view(), request)
 
     def test_response_vetting_editor(self):
         # Create ThesisLink to vet.
@@ -73,5 +73,18 @@ class TestVetThesisLinkRequests(TestCase):
         user = UserFactory()
         user.groups.add(Group.objects.get(name="Vetting Editors"))
         request.user = user
-        response = vet_thesislink_requests(request)
+        response = VetThesisLinkRequests.as_view()(request)
         self.assertEqual(response.status_code, 200)
+
+    def test_thesislink_is_vetted_by_correct_contributor(self):
+        # TODO: how to make sure we are vetting the right thesis link?
+        contributor = ContributorFactory()
+        contributor.user.groups.add(Group.objects.get(name="Vetting Editors"))
+        post_data = VetThesisLinkFormFactory().data
+
+        request = RequestFactory().post(self.target, post_data)
+        request.user = contributor.user
+
+        response = VetThesisLinkRequests.as_view()(request)
+
+        self.assertTrue(False)
