@@ -1,3 +1,6 @@
+import re
+
+from django.core.exceptions import PermissionDenied
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
 from django.contrib.auth.models import Group
@@ -25,14 +28,15 @@ class TestRequestThesisLink(TestCase):
 
     def setUp(self):
         self.client = Client()
+        self.target = reverse('theses:request_thesislink')
 
     def test_response_when_not_logged_in(self):
         '''A visitor that is not logged in cannot view this page.'''
-        response = self.client.get(reverse('theses:request_thesislink'))
+        response = self.client.get(self.target)
         self.assertEqual(response.status_code, 403)
 
     def test_response_when_logged_in(self):
-        request = RequestFactory().get(reverse('theses:request_thesislink'))
+        request = RequestFactory().get(self.target)
         request.user = UserFactory()
         response = RequestThesisLink.as_view()(request)
         self.assertEqual(response.status_code, 200)
@@ -49,7 +53,21 @@ class TestVetThesisLinkRequests(TestCase):
         response = self.client.get(self.target)
         self.assertEqual(response.status_code, 403)
 
-    def test_response_when_logged_in(self):
+    def test_response_regular_contributor(self):
+        '''
+        A Contributor needs to be in the Vetting Editors group to be able to
+        vet submitted thesis links.
+        '''
+        # Create ThesisLink to vet.
+        ThesisLinkFactory()
+        request = RequestFactory().get(self.target)
+        user = UserFactory()
+        request.user = user
+        self.assertRaises(
+            PermissionDenied, vet_thesislink_requests, request)
+
+    def test_response_vetting_editor(self):
+        # Create ThesisLink to vet.
         ThesisLinkFactory()
         request = RequestFactory().get(self.target)
         user = UserFactory()
