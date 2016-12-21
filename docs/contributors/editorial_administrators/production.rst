@@ -30,7 +30,7 @@ Source retrieval and folder preparation
       as a ``.tar.gz`` file on a UNIX system. Rename the file
       ``####.####v#.tar.gz``. Unzip it to produce the folder ``####.#####v#``.
    #. Copy the paper’s sources one level down (so from ``####.#####v#`` to
-      the current directory). BE CAREFUL: is the authors have included any of
+      the current directory). BE CAREFUL: if the authors have included any of
       the SciPost style files (``SciPost.cls``, ``SciPost_bibstyle.bst``), DO NOT
       copy those down.
    #. Copy the files in
@@ -55,9 +55,12 @@ LaTeX file preparation
 
    All steps involed appear in the skeleton ``.tex`` source in the form ``%%%%%%%%%% TODO: [TOKEN]`` opening marked, followed by a corresponding ``%%%%%%%%%% END TODO: [TOKEN]`` marker.
 
+   The easiest way to proceed is to copy and paste material from the authors' ``.tex``
+   source directly into the (appropriately renamed as per the instructions above)
+   skeleton file.
 
    During the file preparation, if there is anything worth noting about the
-   production process, please include this in a::
+   production process, please include this in the::
 
      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      % Production Notes
@@ -111,12 +114,6 @@ LaTeX file preparation
       If the authors have redefined commands, paste the redefinitions in this block.
 
 
-   #. Removal of extras
-
-      Strip out other size, length etc. redefinitions by the authors.
-
-      Remove any ``\date``.
-
 
    #. TODO: TITLE
 
@@ -140,7 +137,7 @@ LaTeX file preparation
    #. TODO: AFFILIATIONS
 
       If there are many affiliations, each is prepended by the appropriate
-      ``{\bf [nr]}\ ``. Separate affiliations ``\\``.
+      ``{\bf [nr]}``. Separate affiliations with double-backslash.
 
       Put a ``\\[\baselineskip]`` after the affiliations.
 
