@@ -5,6 +5,8 @@ Production of SciPost Publications
 
 This guide is meant for **Editorial Administrators** and **Production Officers**. It describes the post-acceptance workflow from paper acceptance to publication.
 
+Version: 2016-12-20.
+
 
 Formatting check
 ----------------
@@ -27,8 +29,10 @@ Source retrieval and folder preparation
    #. NOTE: the file will be named ``####.#####v#``, which is not recognized
       as a ``.tar.gz`` file on a UNIX system. Rename the file
       ``####.####v#.tar.gz``. Unzip it to produce the folder ``####.#####v#``.
-   #. Copy all the paper’s sources one level down (so from ``####.#####v#`` to
-      the current directory).
+   #. Copy the paper’s sources one level down (so from ``####.#####v#`` to
+      the current directory). BE CAREFUL: is the authors have included any of
+      the SciPost style files (``SciPost.cls``, ``SciPost_bibstyle.bst``), DO NOT
+      copy those down.
    #. Copy the files in
       ``[Journal full name]/v##_production/FILES_TO_COPY_IN_PAPER_DIR``
       to the current directory. There are 5 files:
@@ -265,7 +269,7 @@ References formatting
 
       * Author names are in comma-separated list with format [initials] [last name].
 
-      * Titles are in italics, and capitalization is displayed (using {\it e.g.} \{\{ \}\} in BiBTeX). For PRL: nouns capitalized.
+      * Titles are in italics, and capitalization is displayed (using *e.g.* \{\{ [title] \}\} in BiBTeX). For PRL: nouns capitalized.
 
       * Journal names are abbreviated.
 
@@ -357,11 +361,3 @@ Uploading to ``scipost.org``
 
 Metadata preparation and DOI registration with Crossref
 -------------------------------------------------------
-
-
-Maintenance
------------
-
-
-Cited-by updates
-~~~~~~~~~~~~~~~~
