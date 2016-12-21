@@ -15,6 +15,7 @@ class ArxivCaller():
     isvalid = None
     errorcode = ''
     resubmission = False
+    previous_submissions = []
     arxiv_journal_ref = ''
     arxiv_doi = ''
     metadata = {}
@@ -54,7 +55,8 @@ class ArxivCaller():
         previous_submissions = self.different_versions(self.identifier_without_vn_nr)
         if previous_submissions:
             if previous_submissions[0].status == 'revision_requested':
-                resubmission = True
+                self.resubmission = True
+                self.previous_submissions = previous_submissions
             else:
                 self.errorcode = 'previous_submission_undergoing_refereeing'
                 self.isvalid = False

@@ -67,33 +67,33 @@ submission_type_dict = dict(SUBMISSION_TYPE)
 
 class Submission(models.Model):
     # Main submission fields
-    is_current = models.BooleanField(default=True)
-    is_resubmission = models.BooleanField(default=False)
-    submitted_by = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-    editor_in_charge = models.ForeignKey(Contributor, related_name='EIC', blank=True, null=True,
-                                         on_delete=models.CASCADE)
-    submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
-                                            verbose_name="Journal to be submitted to")
-    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
-                                       blank=True, null=True, default=None)
+    author_comments = models.TextField(blank=True, null=True)
+    author_list = models.CharField(max_length=1000, verbose_name="author list")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
-    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
-                                    verbose_name='Primary subject area', default='Phys:QP')
+    editor_in_charge = models.ForeignKey(Contributor, related_name='EIC', blank=True, null=True,
+                                         on_delete=models.CASCADE)
+    is_current = models.BooleanField(default=True)
+    is_resubmission = models.BooleanField(default=False)
+    list_of_changes = models.TextField(blank=True, null=True)
+    open_for_commenting = models.BooleanField(default=False)
+    open_for_reporting = models.BooleanField(default=False)
+    referees_flagged = models.TextField(blank=True, null=True)
+    referees_suggested = models.TextField(blank=True, null=True)
+    remarks_for_editors = models.TextField(blank=True, null=True)
+    reporting_deadline = models.DateTimeField(default=timezone.now)
     secondary_areas = ChoiceArrayField(
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
-    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS)  # set by Editors
-    author_comments = models.TextField(blank=True, null=True)
-    list_of_changes = models.TextField(blank=True, null=True)
-    remarks_for_editors = models.TextField(blank=True, null=True)
-    referees_suggested = models.TextField(blank=True, null=True)
-    referees_flagged = models.TextField(blank=True, null=True)
-    open_for_reporting = models.BooleanField(default=False)
-    reporting_deadline = models.DateTimeField(default=timezone.now)
-    open_for_commenting = models.BooleanField(default=False)
+    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default='unassigned')  # set by Editors
+    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
+                                    verbose_name='Primary subject area', default='Phys:QP')
+    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
+                                       blank=True, null=True, default=None)
+    submitted_by = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
+                                            verbose_name="Journal to be submitted to")
     title = models.CharField(max_length=300)
-    author_list = models.CharField(max_length=1000, verbose_name="author list")
 
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField(Contributor, blank=True, related_name='authors_sub')
@@ -111,7 +111,7 @@ class Submission(models.Model):
 
     # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
-    submission_date = models.DateField(verbose_name='submission date')
+    submission_date = models.DateField(verbose_name='submission date', default=timezone.now)
     latest_activity = models.DateTimeField(default=timezone.now)
 
     class Meta:

@@ -63,7 +63,7 @@ $(document).ready(function(){
     </p>
     <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
       {% csrf_token %}
-      {{ identifierform }}
+      {{ form.as_p }}
       <input type="submit" value="Query arXiv"/>
     </form>
   </div>
@@ -74,25 +74,6 @@ $(document).ready(function(){
 
   {% if resubmessage %}
   <h3 style="color: green;">{{ resubmessage }}</h3>
-  {% endif %}
-
-  {% if form.arxiv_link.value %}
-  <form id="full_submission_form" action="{% url 'submissions:submit_manuscript' %}" method="post">
-    {% csrf_token %}
-    <table>
-      <ul>
-	{{ form.as_table }}
-      </ul>
-    </table>
-    <p>By clicking on Submit, you state that you have read and agree with
-      the <a href="{% url 'journals:journals_terms_and_conditions' %}">
-	SciPost Journals Terms and Conditions</a>, the
-      <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">
-	license and copyright agreement</a>
-      and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">
-	author obligations</a>.</p>
-    <input type="submit" value="Submit"/>
-  </form>
   {% endif %}
 
   {% else %}

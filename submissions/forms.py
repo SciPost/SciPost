@@ -76,6 +76,8 @@ class SubmissionForm(forms.ModelForm):
             'rows': 3})
 
 
+
+
 ######################
 # Editorial workflow #
 ######################
