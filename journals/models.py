@@ -3,8 +3,8 @@ from django.db import models
 from django.template import Template, Context
 from django.utils import timezone
 
-from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, TITLE_CHOICES
-from scipost.models import ChoiceArrayField, Contributor
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict
+from scipost.models import ChoiceArrayField, Contributor, TITLE_CHOICES
 
 
 class UnregisteredAuthor(models.Model):
@@ -22,9 +22,11 @@ SCIPOST_JOURNALS = (
     )
 journals_dict = dict(SCIPOST_JOURNALS)
 
+
 class JournalNameError(Exception):
     def __init__(self, name):
         self.name = name
+
     def __str__(self):
         return self.name
 

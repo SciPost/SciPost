@@ -1,0 +1,32 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$30000$iqtXX60Ahqcx$IKfNZNSMbSca/agzPXHTdEej3dXhQi1sK/MCrBTnuW4=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "Test",
+      "first_name": "Firstname",
+      "last_name": "Testuser",
+      "email": "testuser@test.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2016-12-14T20:41:31.282Z",
+      "groups": [
+        6
+      ],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "scipost.contributor",
+    "pk": 2,
+    "fields": {
+      "user": 1,
+      "status": 1,
+      "title": "MR",
+      "vetted_by": 2
+    }
+  }
+]
