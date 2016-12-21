@@ -29,5 +29,6 @@ class EmptyCommentaryFactory(CommentaryFactory):
     pub_DOI = None
     arxiv_identifier = None
 
+
 class VettedCommentaryFactory(CommentaryFactory):
     vetted = True

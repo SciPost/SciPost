@@ -1,5 +1,3 @@
-import factory
-
 from django.test import TestCase
 
 from scipost.factories import UserFactory
@@ -31,12 +29,31 @@ class TestRequestCommentaryForm(TestCase):
         form = RequestCommentaryForm(form_data, user=self.user)
         self.assertTrue(form.is_valid())
 
-    # def test_form_has_no_identifiers(self):
-    #     """Test invalid form has no DOI nor Arxiv ID"""
-    #     form_data = self.valid_form_data
-    #     form_data['pub_DOI'] = ''
-    #     form_data['arxiv_identifier'] = ''
-    #     form = RequestCommentaryForm(form_data, user=self.user)
-    #     form_response = form.is_valid()
-    #     print(form_response)
-    #     self.assertFormError(form_response, form, 'arxiv_identifier', None)
+    def test_form_has_no_identifiers(self):
+        """Test invalid form has no DOI nor Arxiv ID"""
+        form_data = self.valid_form_data
+        form_data['pub_DOI'] = ''
+        form_data['arxiv_identifier'] = ''
+        form = RequestCommentaryForm(form_data, user=self.user)
+        self.assertFalse(form.is_valid())
+        self.assertTrue('arxiv_identifier' in form.errors)
+        self.assertTrue('pub_DOI' in form.errors)
+
+    def test_form_with_duplicate_identifiers(self):
+        """Test form response with already existing identifiers"""
+        # Create a factory instance containing Arxiv ID and DOI
+        VettedCommentaryFactory.create()
+
+        # Test duplicate DOI entry
+        form_data = self.valid_form_data
+        form_data['arxiv_identifier'] = ''
+        form = RequestCommentaryForm(form_data, user=self.user)
+        self.assertTrue('pub_DOI' in form.errors)
+        self.assertFalse(form.is_valid())
+
+        # Test duplicate Arxiv entry
+        form_data = self.valid_form_data
+        form_data['pub_DOI'] = ''
+        form = RequestCommentaryForm(form_data, user=self.user)
+        self.assertTrue('arxiv_identifier' in form.errors)
+        self.assertFalse(form.is_valid())
