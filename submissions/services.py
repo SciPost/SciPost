@@ -1,9 +1,11 @@
 # Module for making external api calls as needed in the submissions cycle
-import feedparser, requests, pprint
+import feedparser
+import requests
+import pprint
+import re
 from io import BytesIO
 
-from .models import *
-import re
+from .models import Submission
 
 
 class ArxivCaller():
