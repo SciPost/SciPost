@@ -69,6 +69,8 @@ class RequestCommentaryForm(forms.ModelForm):
             self.existing_commentary = get_object_or_404(
                 Commentary,
                 arxiv_identifier=cleaned_data['arxiv_identifier'])
+            if not self.existing_commentary:
+                raise
             self.add_error('arxiv_identifier', msg)
         elif (cleaned_data['pub_DOI'] and
               Commentary.objects.filter(pub_DOI=cleaned_data['pub_DOI']).exists()):
