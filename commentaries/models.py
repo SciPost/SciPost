@@ -20,7 +20,6 @@ class CommentaryManager(models.Manager):
     def awaiting_vetting(self, **kwargs):
         return self.filter(vetted=False, **kwargs)
 
-
 class Commentary(TimeStampedModel):
     """
     A Commentary contains all the contents of a SciPost Commentary page for a given publication.
