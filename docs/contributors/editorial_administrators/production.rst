@@ -16,6 +16,9 @@ Formatting check
    the authors should be emailed and asked to do so,
    by providing either the ``.bbl`` file or the ``.bib`` source.
 
+   Any extra material provided by the authors which supplements
+   the arXiv source should be put in a folder ``EXTRA_FROM_AUTH``.
+
 
 Source retrieval and folder preparation
 ---------------------------------------
@@ -71,6 +74,9 @@ LaTeX file preparation
 
    block at the beginning of the document, just before the ``\documentclass`` declaration.
 
+   As the person running the production, please identify yourself by writing
+   your initials and surname in this block.
+
 
    #. TODO: PAPER CITATION 1 and 2
 
@@ -88,7 +94,7 @@ LaTeX file preparation
 
       The ``SciPost.cls`` (v1b) class definition requires the following packages:
 
-      * amsmath [NOTE: amsmath, amssymb are redundant and clash with mathdesign]
+      * amsmath [NOTE: amssymb is redundant and clashes with mathdesign]
       * cite
       * doi
       * fancyhdr
@@ -107,6 +113,9 @@ LaTeX file preparation
       Any package originally included by the authors which you do **not**
       include should be commented out with a  ``% REMOVED IN PROD``
       comments prepended.
+
+      Any package which is added during production should be listed after
+      the ``% ADDED IN PRODUCTION`` marker.
 
 
    #. TODO: COMMANDS
@@ -171,13 +180,19 @@ LaTeX file preparation
    #. TODO: COPYRIGHT
 
       Include the first author's initials and family name in the copyright
-      statement.
+      statement. If there are just two authors: give both authors' initials
+      and last names. If there are more than two authors, use the format
+      ``A. Bee {\it et al.}``. Be respectful of any special (non-latin)
+      characters in authors' names.
 
 
    #. TODO: DATES
 
       Fill in the appropriate received and accepted dates in
-      format ``DD-MM-YYYY``. The published date will be filled in later on.
+      format ``DD-MM-YYYY``. Be careful to use the correct submission data,
+      namely that of the original submission.
+
+      The published date will be filled in later on.
 
 
    #. TODO: DOI
@@ -207,7 +222,35 @@ LaTeX file preparation
    #. TODO: BBL
 
       The references are explicitly pasted into this block.
-      If BiBTeX was used, the contents of the ``.bib`` file are pasted here.
+
+      If using BiBTeX, use a ``\bibliography{[bibfilename]}`` command,
+      and comment out the ``\begin{thebibliography}`` and ``\end{thebibliography}``
+      commands. After running BiBTeX, the contents of the generated
+      ``.bib`` file should be pasted in the uncommented ``\begin,\end{thebibliography}``
+      block, and the ``\bibliography{[bibfilename]}`` should be commented out.
+
+      *Note: the reason to not use BiBTeX from now on is to easy in-file
+      correction of improperly formatted references (instead of having to correct
+      the ``.bib`` file)*.
+
+
+   **You are now ready to typeset the ``.tex`` file**. Simple issues are listed
+   below. If you encounter further problems, see the **Problems** list below.
+
+   If you need to run BiBTeX for the references, do so (remembering to do it
+   at least twice so the references appear), and then paste the contents of the
+   ``.bbl`` file in the ``% TODO: REFERENCES`` block. **Make sure you use the
+   correct** ``.bib`` **file**.
+
+
+Simple issues
+~~~~~~~~~~~~~
+
+   * *LaTeX Error: environment acknowledgements undefined*.
+
+     The users have used ReVTeX; simply change the ``\begin{acknowledgements}``
+     to ``\section*{Acknowledgements}`` and remove ``\end{acknowledgements}``.
+
 
 
 Problems
@@ -262,13 +305,12 @@ References formatting
 
    References should be in the following format:
 
-   Things to ensure:
-
-      * Author names are in comma-separated list with format [initials] [last name].
+      * Author names are in comma-separated list (except for the last author,
+	with no comma and an *and*) with format [initials] [last name].
 
       * Titles are in italics, and capitalization is displayed (using *e.g.* \{\{ [title] \}\} in BiBTeX). For PRL: nouns capitalized.
 
-      * Journal names are abbreviated.
+      * Journal names are abbreviated. A useful resource is this `list of journal abbreviations <http://www.efm.leeds.ac.uk/~mark/ISIabbr/A_abrvjt.html>`_.
 
       * Volume number is in bold.
 
@@ -281,6 +323,11 @@ References formatting
       * The reference is closed by a ``.``
 
 
+Layout verification
+~~~~~~~~~~~~~~~~~~~
+
+   The whole paper should be scanned through, and the layout of equations
+   and figures should be checked and corrected if necessary.
 
 
 Proofs
@@ -306,6 +353,8 @@ Proofs
 Online publication
 ------------------
 
+   These tasks must be performed by an **Editorial Administrator**.
+
 
 Preparation of final version of record
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -326,15 +375,21 @@ Preparation of final version of record
 
    #. Make sure linenumbers are deactivated.
 
-   #. Does the table of contents (if present) look OK? (Beware of hanging closing line pushed to top of second page.)
+   #. Does the table of contents (if present) look OK? (Beware of hanging closing
+      line pushed to top of second page.)
 
-   #. If the author-accepted proofs version used BiBTeX, copy the contents of the bbl file into the .tex file, so that BiBTeX is not needed anymore.
+   #. If the author-accepted proofs version used BiBTeX, copy the contents of the bbl
+      file into the .tex file, so that BiBTeX is not needed anymore.
 
    #. Manually correct any incorrect references.
 
-      For arXiv entries, use the format ``\href{https://arxiv.org/abs/####.#####}{arXiv:####.#####}``, and remove any ``(YEAR)``.
+      For arXiv entries, verify if the paper has been published in the meantime.
+      If so, replace this reference with its proper citation.
+      If not, use the format ``\href{https://arxiv.org/abs/####.#####}{arXiv:####.#####}``,
+      and remove any ``(YEAR)``.
 
-      J. Stat. Mech. is annoying (volume number is year). Manually remove volume nr for these, so the format becomes ``A. Bee, \emp{Bee's nice paper}, J. Stat. Mech.: Th. Exp. P##### (20##), \doi{10...}.``
+      J. Stat. Mech. is annoying (volume number is year). Manually remove volume nr for
+	 these, so the format becomes ``A. Bee, \emp{Bee's nice paper}, J. Stat. Mech.: Th. Exp. [P,L]##### (20##), \doi{10...}.``
 
    #. Recompile the LaTeX, and CAREFULLY CHECK EVERYTHING.
 
@@ -358,3 +413,83 @@ Uploading to ``scipost.org``
 
 Metadata preparation and DOI registration with Crossref
 -------------------------------------------------------
+
+   These tasks must be performed by **Editorial Administrators**,
+   who have access to the Publication's editorial tools
+   by navigating to the Publication's page.
+
+
+Author listing
+~~~~~~~~~~~~~~
+
+   If not all authors appear in the list presented at the top of the EdAdmin tools,
+   these should be added by following the ``Add a missing author`` link.
+
+   The search form can be used to find missing authors who might be
+   Registered Contributors. If found, a one-click process adds them.
+
+   You can otherwise create an UnregisteredAuthor object instance and link
+   it to the publication, by simply filling in the first and last name fields
+   and clicking on ``Add``.
+
+
+Preparation of the citations list
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Follow the ``Create/update citation list metadata`` link.
+
+   In the text area, paste the entire list of bibitems from the paper's
+   final ``.tex`` file. Upon clicking on ``Submit``, all DOI entires
+   are extracted and formatted into XML metadata which is saved in the
+   database.
+
+   Citations with no valid DOI (*e.g.* arXiv preprints, books, etc)
+   do not appear in the metadata.
+
+
+Funding info
+~~~~~~~~~~~~
+
+   Following the ``Create/update funding info metadata`` link leads to a
+   page where the funding statement of the Publication's ``.tex`` file
+   (found either as a separate subsection or in the Acknowledgements)
+   can be pasted.
+
+
+Preparation of the metadata XML
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Following the ``Create/update metadata XML`` link auto-generates a
+   full XML text field containing all the provided information,
+   properly formatted for the upcoming submission to Crossref.
+
+   Verify that the first author is indeed enclosed in a
+   ``<person_name sequence='first' contributor_role='author'>`` tag,
+   and that subsequent authors (enclosed in
+   ``<person_name sequence='additional' contributor_role='author'>`` tags)
+   appear in the order of the Publication's author list.
+
+   Once the metadata is set, clicking on ``Accept the metadata``
+   saves the metadata to the database and returns one to the Publication's
+   page.
+
+
+Metadata testing and deposit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   At this stage, the metadata is ready for uploading to Crossref.
+   This occurs via a POST query to either the test or live Crossref server.
+
+   Clicking on ``Test metadata deposit`` immediately posts the metadata
+   to the test server, and takes you to a page where the server's
+   response headers are displayed. The server also sends a more detailed
+   response via email
+   (to ``admin@scipost.org``; if you do not have access to this mailbox,
+   ask SciPost Administration) with the success status.
+
+   Similarly, the actual deposit is immediately performed upon clicking on the
+   ``Deposit the metadata to Crossref``. The response headers are displayed,
+   and a detailed email response is sent by Crossref to ``admin@scipost.org``.
+
+
+   **This completes the publication process.**
