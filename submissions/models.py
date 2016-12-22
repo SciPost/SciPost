@@ -73,6 +73,13 @@ SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     'withdrawn',
 ]
 
+# Submissions for which voting on a related recommendation is deprecated:
+SUBMISSION_STATUS_VOTING_DEPRECATED = [
+    'rejected',
+    'published',
+    'withdrawn',
+]
+
 
 # SUBMISSION_ACTION_REQUIRED = (
 #     ('assign_EIC', 'Editor-in-charge to be assigned'),

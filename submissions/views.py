@@ -475,7 +475,8 @@ def pool(request):
         recommendation=-1).exclude(recommendation=-2).exclude(
             voted_for__in=[contributor]).exclude(
             voted_against__in=[contributor]).exclude(
-            voted_abstain__in=[contributor])
+            voted_abstain__in=[contributor]).exclude(
+            submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED)
     rec_vote_form = RecommendationVoteForm()
     context = {'submissions_in_pool': submissions_in_pool,
                'recommendations_undergoing_voting': recommendations_undergoing_voting,
