@@ -109,6 +109,9 @@ class Contributor(models.Model):
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
 
+    def get_title(self):
+        return title_dict[self.title]
+
     def is_currently_available(self):
         unav_periods = UnavailabilityPeriod.objects.filter(contributor=self)
 

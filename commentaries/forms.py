@@ -5,18 +5,6 @@ from .models import Commentary
 
 from scipost.models import Contributor
 
-REFUSAL_EMPTY = 0
-REFUSAL_PAPER_EXISTS = -1
-REFUSAL_UNTRACEBLE = -2
-REFUSAL_ARXIV_EXISTS = -3
-COMMENTARY_REFUSAL_CHOICES = (
-    (REFUSAL_EMPTY, '-'),
-    (REFUSAL_PAPER_EXISTS, 'a commentary on this paper already exists'),
-    (REFUSAL_UNTRACEBLE, 'this paper cannot be traced'),
-    (REFUSAL_ARXIV_EXISTS, 'there exists a more revent version of this arXiv preprint'),
-    )
-commentary_refusal_dict = dict(COMMENTARY_REFUSAL_CHOICES)
-
 
 class DOIToQueryForm(forms.Form):
     doi = forms.CharField(widget=forms.TextInput(
@@ -112,6 +100,18 @@ class VetCommentaryForm(forms.Form):
         (ACTION_ACCEPT, 'accept'),
         (ACTION_REFUSE, 'refuse (give reason below)'),
     )
+    REFUSAL_EMPTY = 0
+    REFUSAL_PAPER_EXISTS = -1
+    REFUSAL_UNTRACEBLE = -2
+    REFUSAL_ARXIV_EXISTS = -3
+    COMMENTARY_REFUSAL_CHOICES = (
+        (REFUSAL_EMPTY, '-'),
+        (REFUSAL_PAPER_EXISTS, 'a commentary on this paper already exists'),
+        (REFUSAL_UNTRACEBLE, 'this paper cannot be traced'),
+        (REFUSAL_ARXIV_EXISTS, 'there exists a more revent version of this arXiv preprint'),
+    )
+    COMMENTARY_REFUSAL_DICT = dict(COMMENTARY_REFUSAL_CHOICES)
+
     action_option = forms.ChoiceField(widget=forms.RadioSelect,
                                       choices=COMMENTARY_ACTION_CHOICES,
                                       required=True, label='Action')
@@ -135,7 +135,7 @@ class VetCommentaryForm(forms.Form):
             self.add_error(None, 'No `commentary_id` provided')
             return cleaned_data
         else:
-            self.commentary = Commentary.objects.get(pk=self.commentary_id)
+            self.commentary = Commentary.objects.select_related('requested_by__user').get(pk=self.commentary_id)
 
         # Check valid `user`
         if not self.user:
@@ -156,10 +156,13 @@ class VetCommentaryForm(forms.Form):
         self._form_is_cleaned()
         return self.commentary
 
+    def get_refusal_reason(self):
+        """Return refusal reason"""
+        if self.commentary_is_refused():
+            return self.COMMENTARY_REFUSAL_DICT[int(self.cleaned_data['refusal_reason'])]
+
     def process_commentary(self):
         """Vet the commentary or delete it from the database"""
-        self._form_is_cleaned()
-
         if self.commentary_is_accepted():
             self.commentary.vetted = True
             self.commentary.vetted_by = Contributor.objects.get(user=self.user)

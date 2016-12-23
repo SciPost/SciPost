@@ -12,10 +12,11 @@ from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 
 from .models import Commentary
 from .forms import RequestCommentaryForm, DOIToQueryForm, IdentifierToQueryForm
-from .forms import VetCommentaryForm, CommentarySearchForm, commentary_refusal_dict
+from .forms import VetCommentaryForm, CommentarySearchForm
 
 from comments.models import Comment
 from comments.forms import CommentForm
@@ -240,33 +241,15 @@ def vet_commentary_request_ack(request, commentary_id):
         if form.is_valid():
             # Get commentary
             commentary = form.get_commentary()
+            email_context = {
+                'commentary': commentary
+            }
+
+            # Retrieve email_template for action
             if form.commentary_is_accepted():
-                # Accept the commentary as is
-                email_args = (
-                    'SciPost Commentary Page activated',
-                    ('Dear ' + title_dict[commentary.requested_by.title] + ' '
-                        + commentary.requested_by.user.last_name
-                        + ', \n\nThe Commentary Page you have requested, '
-                        'concerning publication with title '
-                        + commentary.pub_title + ' by ' + commentary.author_list
-                        + ', has been activated at https://scipost.org/commentary/'
-                        + str(commentary.arxiv_or_DOI_string)
-                        + '. You are now welcome to submit your comments.'
-                        '\n\nThank you for your contribution, \nThe SciPost Team.')
-                )
+                email_template = 'commentaries/vet_commentary_email_accepted.html'
             elif form.commentary_is_modified():
-                # Re-edit the form starting from the data provided
-                email_args = (
-                    'SciPost Commentary Page activated',
-                    ('Dear ' + title_dict[commentary.requested_by.title] + ' '
-                        + commentary.requested_by.user.last_name
-                        + ', \n\nThe Commentary Page you have requested, '
-                        'concerning publication with title ' + commentary.pub_title
-                        + ' by ' + commentary.author_list
-                        + ', has been activated (with slight modifications to your submitted details).'
-                        ' You are now welcome to submit your comments.'
-                        '\n\nThank you for your contribution, \nThe SciPost Team.')
-                )
+                email_template = 'commentaries/vet_commentary_email_modified.html'
 
                 request_commentary_form = RequestCommentaryForm(initial={
                     'pub_title': commentary.pub_title,
@@ -277,33 +260,24 @@ def vet_commentary_request_ack(request, commentary_id):
                     'pub_abstract': commentary.pub_abstract
                 })
             elif form.commentary_is_refused():
-                # The commentary request is simply rejected
-                email_text = ('Dear ' + title_dict[commentary.requested_by.title] + ' '
-                        + commentary.requested_by.user.last_name
-                        + ', \n\nThe Commentary Page you have requested, '
-                        'concerning publication with title '
-                        + commentary.pub_title + ' by ' + commentary.author_list
-                        + ', has not been activated for the following reason: '
-                        + commentary_refusal_dict[int(form.cleaned_data['refusal_reason'])]
-                        + '.\n\nThank you for your interest, \nThe SciPost Team.')
-
-                if form.cleaned_data['email_response_field']:
-                    email_text += '\n\nFurther explanations: '
-                    email_text += form.cleaned_data['email_response_field']
-
-                email_args = (
-                    'SciPost Commentary Page activated',
-                    email_text
-                )
+                email_template = 'commentaries/vet_commentary_email_rejected.html'
+                email_context['refusal_reason'] = form.get_refusal_reason()
+                email_context['further_explanation'] = form.cleaned_data['email_response_field']
 
             # Send email and process form
-            email_args += ([commentary.requested_by.user.email], ['commentaries@scipost.org'],)
+            email_text = render_to_string(email_template, email_context)
+            email_args = (
+                'SciPost Commentary Page activated',
+                email_text,
+                [commentary.requested_by.user.email],
+                ['commentaries@scipost.org']
+            )
             emailmessage = EmailMessage(*email_args, reply_to=['commentaries@scipost.org'])
             emailmessage.send(fail_silently=False)
             commentary = form.process_commentary()
 
+            # For a modified commentary, redirect to request_commentary_form
             if form.commentary_is_modified():
-                # For a modified commentary, redirect to request_commentary_form
                 context = {'form': request_commentary_form}
                 return render(request, 'commentaries/request_commentary.html', context)
 
