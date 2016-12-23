@@ -162,7 +162,8 @@ class PrefillUsingIdentifierView(FormView):
                                'arxiv_identifier_w_vn_nr': caller.identifier_with_vn_nr,
                                'arxiv_identifier_wo_vn_nr': caller.identifier_without_vn_nr,
                                'arxiv_vn_nr': caller.version_nr,
-                               'arxiv_link': arxiv_link, 'abstract': abstract}
+                               'arxiv_link': arxiv_link, 'abstract': abstract,
+                               'is_current': True}
                 if is_resubmission:
                     previous_submissions = caller.previous_submissions
                     resubmessage = ('There already exists a preprint with this arXiv identifier '
@@ -256,48 +257,14 @@ class SubmissionCreateView(CreateView):
     def form_valid(self, form):
         submitted_by = Contributor.objects.get(user=self.request.user)
         form.instance.submitted_by = submitted_by
-        form.instance.is_current = True
 
-        if form.cleaned_data['is_resubmission']:
-            form.instance.open_for_reporting = True
-            form.instance.open_for_commenting = True
-
-            deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
-            if form.cleaned_data['submitted_to_journal'] == 'SciPost Physics Lecture Notes':
-                deadline += datetime.timedelta(days=28)
-            form.instance.reporting_deadline = deadline
-
-            # Take information from previous submission(s)
-            previous_submissions = self.previous_submissions(form)
-            form.instance.editor_in_charge = previous_submissions[0].editor_in_charge
-            form.instance.status = 'EICassigned'
-
-            self.mark_previous_submissions_as_deprecated(previous_submissions)
-
+        # Save all the information contained in the form
         submission = form.save()
 
-        if form.cleaned_data['is_resubmission']:
-            # Add many-to-many data
-            for author in previous_submissions[0].authors.all():
-                print('Previous submissions!!')
-                submission.authors.add(author)
-            for author in previous_submissions[0].authors_claims.all():
-                submission.authors_claims.add(author)
-            for author in previous_submissions[0].authors_false_claims.all():
-                submission.authors_false_claims.add(author)
+        # Perform all extra actions and set information not contained in the form
+        submission.finish_submission()
 
-            submission.save()
-
-            # Make assignment
-            assignment = EditorialAssignment(
-                submission=submission,
-                to=submission.editor_in_charge,
-                accepted=True,
-                date_created=timezone.now(),
-                date_answered=timezone.now(),
-            )
-            assignment.save()
-
+        if submission.is_resubmission:
             # Assign permissions
             assign_perm('can_take_editorial_actions', submission.editor_in_charge.user, submission)
             ed_admins = Group.objects.get(name='Editorial Administrators')
@@ -308,10 +275,6 @@ class SubmissionCreateView(CreateView):
             SubmissionUtils.send_authors_resubmission_ack_email()
             SubmissionUtils.send_EIC_reappointment_email()
         else:
-            # Add many-to-many data
-            submission.authors.add(submitted_by)
-            submission.save()
-
             # Send emails
             SubmissionUtils.load({'submission': submission})
             SubmissionUtils.send_authors_submission_ack_email()

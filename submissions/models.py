@@ -1,6 +1,8 @@
+import datetime
+
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.template import Template, Context
@@ -138,8 +140,64 @@ class Submission(models.Model):
             return True
         return False
 
+    @transaction.atomic
+    def finish_submission(self):
+        if self.is_resubmission:
+            self.mark_other_versions_as_deprecated()
+            self.copy_authors_from_previous_version()
+            self.copy_EIC_from_previous_version()
+            self.set_resubmission_defaults()
+        else:
+            self.authors.add(self.submitted_by)
 
-    def header_as_table (self):
+        self.save()
+
+    def make_assignment(self):
+        assignment = EditorialAssignment(
+            submission=self,
+            to=self.editor_in_charge,
+            accepted=True,
+            date_created=timezone.now(),
+            date_answered=timezone.now(),
+        )
+        assignment.save()
+
+    def set_resubmission_defaults(self):
+        self.open_for_reporting = True
+        self.open_for_commenting = True
+        if self.other_versions()[0].submitted_to_journal == 'SciPost Physics Lecture Notes':
+            self.reporting_deadline = timezone.now() + datetime.timedelta(days=56)
+        else:
+            self.reporting_deadline = timezone.now() + datetime.timedelta(days=28)
+
+    def copy_EIC_from_previous_version(self):
+        last_version = self.other_versions()[0]
+        self.editor_in_charge = last_version.editor_in_charge
+        self.status = 'EICassigned'
+
+    def copy_authors_from_previous_version(self):
+        last_version = self.other_versions()[0]
+
+        for author in last_version.authors.all():
+            self.authors.add(author)
+        for author in last_version.authors_claims.all():
+            self.authors_claims.add(author)
+        for author in last_version.authors_false_claims.all():
+            self.authors_false_claims.add(author)
+
+    def mark_other_versions_as_deprecated(self):
+        for sub in self.other_versions():
+            sub.is_current = False
+            sub.open_for_reporting = False
+            sub.status = 'resubmitted'
+            sub.save()
+
+    def other_versions(self):
+        return Submission.objects.filter(
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
+        ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
+
+    def header_as_table(self):
         # for Submission page
         header = '<table>'
         header += '<tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>'
