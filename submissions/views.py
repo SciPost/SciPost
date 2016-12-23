@@ -162,8 +162,7 @@ class PrefillUsingIdentifierView(FormView):
                                'arxiv_identifier_w_vn_nr': caller.identifier_with_vn_nr,
                                'arxiv_identifier_wo_vn_nr': caller.identifier_without_vn_nr,
                                'arxiv_vn_nr': caller.version_nr,
-                               'arxiv_link': arxiv_link, 'abstract': abstract,
-                               'is_current': True}
+                               'arxiv_link': arxiv_link, 'abstract': abstract}
                 if is_resubmission:
                     previous_submissions = caller.previous_submissions
                     resubmessage = ('There already exists a preprint with this arXiv identifier '
