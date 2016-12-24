@@ -61,7 +61,7 @@ def request_commentary(request):
                            'errormessage': errormessage,
                            'existing_commentary': existing_commentary}
                 return render(request, 'commentaries/request_commentary.html', context)
-            
+
             # Otherwise we can create the Commentary
             contributor = Contributor.objects.get(user=request.user)
             commentary = Commentary (
@@ -84,7 +84,7 @@ def request_commentary(request):
                 )
             commentary.parse_links_into_urls()
             commentary.save()
-            
+
             context = {'ack_header': 'Thank you for your request for a Commentary Page',
                        'ack_message': 'Your request will soon be handled by an Editor. ',
                        'followup_message': 'Return to your ',
@@ -120,7 +120,7 @@ def prefill_using_DOI(request):
                            'errormessage': errormessage,
                            'existing_commentary': existing_commentary}
                 return render(request, 'commentaries/request_commentary.html', context)
-            
+
             # Otherwise we query Crossref for the information:
             try:
                 queryurl = 'http://api.crossref.org/works/%s' % doiform.cleaned_data['doi']
@@ -133,12 +133,12 @@ def prefill_using_DOI(request):
                 for author in doiqueryJSON['message']['author'][1:]:
                     authorlist += ', ' + author['given'] + ' ' + author['family']
                 journal = doiqueryJSON['message']['container-title'][0]
-                
+
                 try:
                     volume = doiqueryJSON['message']['volume']
                 except KeyError:
                     volume = ''
-                
+
                 pages = ''
                 try:
                     pages = doiqueryJSON['message']['article-number'] # for Phys Rev
@@ -148,7 +148,7 @@ def prefill_using_DOI(request):
                     pages = doiqueryJSON['message']['page']
                 except KeyError:
                     pass
-                
+
                 pub_date = ''
                 try:
                     pub_date = (str(doiqueryJSON['message']['issued']['date-parts'][0][0]) + '-' +
@@ -209,7 +209,7 @@ def prefill_using_identifier(request):
                 queryurl = ('http://export.arxiv.org/api/query?id_list=%s'
                             % identifierform.cleaned_data['identifier'])
                 arxivquery = feedparser.parse(queryurl)
-                
+
                 # If paper has been published, should comment on published version
                 try:
                     arxiv_journal_ref = arxivquery['entries'][0]['arxiv_journal_ref']
@@ -223,7 +223,7 @@ def prefill_using_identifier(request):
                                     + '. Please comment on the published version.')
                 except (IndexError, KeyError):
                     pass
-                
+
                 if errormessage:
                     form = RequestCommentaryForm()
                     doiform = DOIToQueryForm()
@@ -231,7 +231,7 @@ def prefill_using_identifier(request):
                                'errormessage': errormessage,
                                'existing_commentary': existing_commentary}
                     return render(request, 'commentaries/request_commentary.html', context)
-                
+
                 # otherwise prefill the form:
                 metadata = arxivquery
                 pub_title = arxivquery['entries'][0]['title']
@@ -334,7 +334,7 @@ def vet_commentary_request_ack(request, commentary_id):
                               + '.\n\nThank you for your interest, \nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:
                     email_text += '\n\nFurther explanations: ' + form.cleaned_data['email_response_field']
-                emailmessage = EmailMessage('SciPost Commentary Page activated', email_text,
+                emailmessage = EmailMessage('SciPost Commentary Page not activated', email_text,
                                             'SciPost commentaries <commentaries@scipost.org>',
                                             [commentary.requested_by.user.email],
                                             ['commentaries@scipost.org'],

@@ -78,6 +78,19 @@ LaTeX file preparation
    your initials and surname in this block.
 
 
+General LaTeX tips
+~~~~~~~~~~~~~~~~~~
+
+   * Prefer the ``align`` (from package ``amsmath``) environment to ``eqnarray``.
+     For a technical discussion, see *e.g.* `this link <http://tug.org/TUGboat/tb33-1/tb103madsen.pdf>`_.
+
+     You do **not** have to systematically replace all ``eqnarray`` with ``align``.
+     However, if you do reformat some equations, do shift to ``align``.
+
+
+Step-by-step procedure
+~~~~~~~~~~~~~~~~~~~~~~
+
    #. TODO: PAPER CITATION 1 and 2
 
       In these two places, fill the missing numbers in the citation header::
@@ -122,6 +135,7 @@ LaTeX file preparation
 
       If the authors have redefined commands, paste the redefinitions in this block.
 
+      Discard (namely: do not copy and paste) any length (and similar) redefinitions.
 
 
    #. TODO: TITLE
@@ -157,8 +171,10 @@ LaTeX file preparation
 
 	``\href{mailto:[email]}{\small \sf [email]}``
 
-      prepended with ``*`` if corresponding author. If a web link is offered,
-      use the format ``{\small \url{[url]}}``.
+      prepended with ``*`` if corresponding author. If no email is to be given,
+      comment out the ``* \href{mailto:[email]}{\small \sf [email]}`` line.
+
+      If a web link is offered, use the format ``{\small \url{[url]}}``.
 
 
    #. TODO: ABSTRACT
@@ -175,6 +191,15 @@ LaTeX file preparation
 
       As a general guideline, the paper should contain a table of contents
       if it has more than 6 pages.
+
+      If a TOC should be included, leave the skeleton as it is. If no TOC
+      should be there, simply comment out the lines::
+
+	\vspace{10pt}
+	\noindent\rule{\textwidth}{1pt}
+	\tableofcontents\thispagestyle{fancy}
+	\noindent\rule{\textwidth}{1pt}
+	\vspace{10pt}
 
 
    #. TODO: COPYRIGHT
@@ -243,14 +268,24 @@ LaTeX file preparation
    correct** ``.bib`` **file**.
 
 
+
+
 Simple issues
 ~~~~~~~~~~~~~
 
-   * *LaTeX Error: environment acknowledgements undefined*.
+   * *LaTeX Error: environment acknowledgements undefined* or
+     *Undefined control sequence \acknowledgements*
 
      The users have used ReVTeX; simply change the ``\begin{acknowledgements}``
-     to ``\section*{Acknowledgements}`` and remove ``\end{acknowledgements}``.
+     or ``\acknowledgements``
+     to ``\section*{Acknowledgements}`` (of course also removing any eventual
+     ``\end{acknowledgements}``).
 
+
+   * *LaTeX Error: Environment widetext undefined.*
+
+     The authors have used ReVTeX; simply comment out all ``\begin{widetext}``
+     and ``\end{widetext}`` markers.
 
 
 Problems
@@ -262,9 +297,7 @@ Problems
 
      Solution: [from `this link <http://phaseportrait.blogspot.nl/2007/08/lineno-and-amsmath-compatibility.html>`_]: paste this in the preamble::
 
-       {\small
-       \begin{verbatim}
-       %% Patch lineno when used with amsmaths
+       %% Patch lineno when used with amsmath
        \newcommand*\patchAmsMathEnvironmentForLineno[1]{%
        \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
        \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
@@ -290,7 +323,7 @@ Problems
      Simply prevent by forcing equations into a math atom by surrouding them with braces,::
 
        \begin{verbatim}
-       Here is an equation that shouldn't be broken: ${E=mc^2}$.
+       Here is an equation that should not be broken: ${E=mc^2}$.
        \end{verbatim}
 
 
@@ -318,7 +351,9 @@ References formatting
 
       * Commas separate all elements.
 
-      * All doi are present and displayed in format doi:[doi].
+      * All doi are present and displayed in format doi:[doi]. Note that the doi does
+	*not* include any ``http://doi.org`` or similar URL prefix. Instead, it should
+	be of the form ``10.###[...]/[...]``.
 
       * The reference is closed by a ``.``
 
@@ -328,6 +363,9 @@ Layout verification
 
    The whole paper should be scanned through, and the layout of equations
    and figures should be checked and corrected if necessary.
+
+   In particular, the punctuation of equations should be checked and corrected
+   if necessary.
 
 
 Proofs
