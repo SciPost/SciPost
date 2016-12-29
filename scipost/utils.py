@@ -441,7 +441,7 @@ class Utils(object):
                 'Contributor to the site.')
             email_text_html += (
                 '<p>Your work has been cited in a paper published by SciPost,</p>'
-                '<p>{{ pub_title }}</p> <p>by {{ pub_author_list }}<p/>'
+                '<p>{{ pub_title }}</p> <p>by {{ pub_author_list }}</p>'
                 '(published as <a href="https://scipost.org/{{ doi_label }}">{{ citation }}</a>).'
                 '</p>'
                 '\n<p>I would hereby like to use this opportunity to quickly introduce '
@@ -670,19 +670,24 @@ class Utils(object):
         email_text_html += ',<br/>'
         if cls.notification.cited_in_publication:
             email_text += (
-                'Your work has been cited in a paper published by SciPost,'
+                'We would like to notify you that '
+                'your work has been cited in a paper published by SciPost,'
                 '\n\n' + cls.notification.cited_in_publication.title
                 + '\nby ' + cls.notification.cited_in_publication.author_list +
-                '\n\n(published as ' + cls.notification.cited_in_publication.citation()
-                + ').\n\nBest regards,\n\nThe SciPost Team'
+                '\n\n(published as ' + cls.notification.cited_in_publication.citation() +
+                ').\n\nWe hope you will find this paper of interest to your own research.'
+                '\n\nBest regards,\n\nThe SciPost Team'
                 '\n\nDon\'t want to receive such emails? Unsubscribe by visiting '
                 'https://scipost.org/unsubscribe/'
                 + cls.notification.contributor.activation_key + '.')
             email_text_html += (
-                '<p>Your work has been cited in a paper published by SciPost,</p>'
-                '<p>{{ pub_title }}</p> <p>by {{ pub_author_list }}<p/>'
-                '(published as <a href="https://scipost.org/{{ doi_label }}">{{ citation }}</a>).'
-                '</p><br/><p>Best regards</p><p>The SciPost Team</p><br/>'
+                '<p>We would like to notify you that '
+                'your work has been cited in a paper published by SciPost,</p>'
+                '<p>{{ pub_title }}</p><p>by {{ pub_author_list }}</p>'
+                '<p>(published as <a href="https://scipost.org/{{ doi_label }}">'
+                '{{ citation }}</a>).</p>'
+                '<p>We hope you will find this paper of interest to your own research.</p>'
+                '<p>Best regards</p><p>The SciPost Team</p><br/>'
                 + EMAIL_FOOTER + '<br/>'
                 '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
                 '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')
@@ -712,7 +717,7 @@ class Utils(object):
                 'submission\'s page</a>.</p>'
                 '<p>You might for example consider reporting or '
                 'commenting on the above submission before the refereeing deadline.</p>'
-                '<br/><p>Best regards</p><p>The SciPost Team</p><br/>'
+                '<p>Best regards</p><p>The SciPost Team</p><br/>'
                 + EMAIL_FOOTER + '<br/>'
                 '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
                 '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')
