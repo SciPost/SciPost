@@ -392,6 +392,30 @@ def request_new_activation_link(request, oldkey):
     return render(request, 'scipost/acknowledgement.html', context)
 
 
+def unsubscribe(request, key):
+    """
+    The link to this method is included in all email communications
+    with a Contributor. The key used is the original activation key.
+    At this link, the Contributor can confirm that he/she does not
+    want to receive any non-essential email notifications from SciPost.
+    """
+    contributor = get_object_or_404(Contributor, activation_key=key)
+    context = {'contributor': contributor,}
+    return render(request, 'scipost/unsubscribe.html', context)
+
+def unsubscribe_confirm(request, key):
+    contributor = get_object_or_404(Contributor, activation_key=key)
+    contributor.accepts_SciPost_emails=False
+    contributor.save()
+    context = {'ack_header': 'Unsubscribe',
+               'followup_message': ('We have recorded your preference: you will '
+                                    'no longer receive non-essential email '
+                                    'from SciPost. You can go back to your '),
+               'followup_link': reverse('scipost:personal_page'),
+               'followup_link_label': 'personal page'}
+    return render(request, 'scipost/acknowledgement.html', context)
+
+
 @permission_required('scipost.can_vet_registration_requests', return_403=True)
 def vet_registration_requests(request):
     contributor = Contributor.objects.get(user=request.user)
@@ -572,6 +596,7 @@ def draft_registration_invitation(request):
                'decl_reg_inv': decl_reg_inv,
                'names_reg_contributors': names_reg_contributors,
                'existing_drafts': existing_drafts,
+               'notify': notify,
     }
     return render(request, 'scipost/draft_registration_invitation.html', context)
 
@@ -619,7 +644,6 @@ def map_draft_reg_inv_to_contributor(request, draft_id, contributor_id):
         processed=False)
     citation.save()
     return redirect(reverse('scipost:registration_invitations'))
-
 
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
@@ -831,8 +855,9 @@ def process_citation_notification(request, cn_id):
     notification = get_object_or_404(CitationNotification, id=cn_id)
     notification.processed=True
     notification.save()
-    Utils.load({'notification': notification})
-    Utils.send_citation_notification_email()
+    if notification.contributor.accepts_SciPost_emails:
+        Utils.load({'notification': notification})
+        Utils.send_citation_notification_email()
     return redirect(reverse('scipost:citation_notifications'))
 
 
@@ -1302,13 +1327,19 @@ def email_group_members(request):
                                 email_text += SCIPOST_SUMMARY_FOOTER
                                 email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
                             email_text_html += EMAIL_FOOTER
-                            if form.cleaned_data['personalize']:
-                                email_text += EMAIL_UNSUBSCRIBE_LINK_PLAIN
-                                email_text_html += EMAIL_UNSUBSCRIBE_LINK_HTML
+                            email_text += ('\n\nDon\'t want to receive such emails? '
+                                           'Unsubscribe by visiting '
+                                           'https://scipost.org/unsubscribe/'
+                                           + member.contributor.activation_key + '.')
+                            email_text_html += (
+                                '<br/>\n<p style="font-size: 10px;">Don\'t want to receive such '
+                                'emails? <a href="https://scipost.org/unsubscribe/{{ key }}>'
+                                'Unsubscribe</a>.</p>')
                             email_context = Context({
                                 'title': title_dict[member.contributor.title],
                                 'last_name': member.last_name,
                                 'email_text': form.cleaned_data['email_text'],
+                                'key': member.contributor.activation_key,
                             })
                             html_template = Template(email_text_html)
                             html_version = html_template.render(email_context)
@@ -1398,7 +1429,6 @@ def send_precooked_email(request):
             html_version = html_template.render(email_context)
             message = EmailMultiAlternatives(
                 precookedEmail.email_subject,
-                #email_text, 'SciPost Admin <admin@scipost.org>',
                 email_text,
                 SciPost_from_addresses_dict[form.cleaned_data['from_address']],
                 [form.cleaned_data['email_address']],

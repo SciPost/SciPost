@@ -17,7 +17,7 @@
   {% if unprocessed_notifications %}
   <ul>
     {% for un in unprocessed_notifications %}
-    <li>{{ un }} <a href="{% url 'scipost:process_citation_notification' cn_id=un.id %}">Process this notification</li>
+    <li>{{ un }} <a href="{% url 'scipost:process_citation_notification' cn_id=un.id %}">Process this notification</a></li>
     {% endfor %}
   </ul>
   {% else %}
