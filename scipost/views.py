@@ -1333,7 +1333,7 @@ def email_group_members(request):
                                            + member.contributor.activation_key + '.')
                             email_text_html += (
                                 '<br/>\n<p style="font-size: 10px;">Don\'t want to receive such '
-                                'emails? <a href="https://scipost.org/unsubscribe/{{ key }}>'
+                                'emails? <a href="https://scipost.org/unsubscribe/{{ key }}">'
                                 'Unsubscribe</a>.</p>')
                             email_context = Context({
                                 'title': title_dict[member.contributor.title],

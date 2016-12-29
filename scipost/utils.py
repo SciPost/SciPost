@@ -685,7 +685,7 @@ class Utils(object):
                 '</p><br/><p>Best regards</p><p>The SciPost Team</p><br/>'
                 + EMAIL_FOOTER + '<br/>'
                 '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
-                '<a href="https://scipost.org/unsubscribe/{{ key }}>Unsubscribe</a>.</p>')
+                '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')
             email_context['pub_title'] = cls.notification.cited_in_publication.title
             email_context['pub_author_list'] = cls.notification.cited_in_publication.author_list
             email_context['doi_label'] = cls.notification.cited_in_publication.doi_label
@@ -715,7 +715,7 @@ class Utils(object):
                 '<br/><p>Best regards</p><p>The SciPost Team</p><br/>'
                 + EMAIL_FOOTER + '<br/>'
                 '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
-                '<a href="https://scipost.org/unsubscribe/{{ key }}>Unsubscribe</a>.</p>')
+                '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')
             email_context['sub_title'] = cls.notification.cited_in_submission.title
             email_context['sub_author_list'] = cls.notification.cited_in_submission.author_list
             email_context['arxiv_identifier_w_vn_nr'] = cls.notification.cited_in_submission.arxiv_identifier_w_vn_nr
