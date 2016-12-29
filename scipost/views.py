@@ -577,10 +577,57 @@ def draft_registration_invitation(request):
 
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
+def edit_draft_reg_inv(request, draft_id):
+    draft = get_object_or_404(DraftInvitation, id=draft_id)
+    errormessage = ''
+    if request.method == 'POST':
+        draft_inv_form = DraftInvitationForm(request.POST)
+        if draft_inv_form.is_valid():
+            draft.title = draft_inv_form.cleaned_data['title']
+            draft.first_name = draft_inv_form.cleaned_data['first_name']
+            draft.last_name = draft_inv_form.cleaned_data['last_name']
+            draft.email = draft_inv_form.cleaned_data['email']
+            draft.save()
+            return redirect(reverse('scipost:registration_invitations'))
+        else:
+            errormessage = 'The form is invalidly filled'
+    else:
+        draft_inv_form = DraftInvitationForm(instance=draft)
+    context = {'draft_inv_form': draft_inv_form,
+               'draft': draft,
+               'errormessage': errormessage,}
+    return render(request, 'scipost/edit_draft_reg_inv.html', context)
+
+
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+def map_draft_reg_inv_to_contributor(request, draft_id, contributor_id):
+    """
+    If a draft invitation actually points to an already-registered
+    Contributor, this method marks the draft invitation as processed
+    and, if the draft invitation was for a citation type,
+    creates an instance of CitationNotification.
+    """
+    draft = get_object_or_404(DraftInvitation, id=draft_id)
+    contributor = get_object_or_404(Contributor, id=contributor_id)
+    errormessage = ''
+    draft.processed = True
+    draft.save()
+    citation = CitationNotification(
+        contributor=contributor,
+        cited_in_submission=draft.cited_in_submission,
+        cited_in_publication=draft.cited_in_publication,
+        processed=False)
+    citation.save()
+    return redirect(reverse('scipost:registration_invitations'))
+
+
+
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def registration_invitations(request, draft_id=None):
     """ Overview and tools for administrators """
     # List invitations sent; send new ones
     errormessage = ''
+    associated_contributors = None
     if request.method == 'POST':
         # Send invitation from form information
         reg_inv_form = RegistrationInvitationForm(request.POST)
@@ -622,6 +669,8 @@ def registration_invitations(request, draft_id=None):
         initial = {}
         if draft_id:
             draft = get_object_or_404(DraftInvitation, id=draft_id)
+            associated_contributors = Contributor.objects.filter(
+                user__last_name__icontains=draft.last_name)
             initial = {'title': draft.title,
                        'first_name': draft.first_name,
                        'last_name': draft.last_name,
@@ -687,6 +736,7 @@ def registration_invitations(request, draft_id=None):
                'decl_reg_inv': decl_reg_inv,
                'names_reg_contributors': names_reg_contributors,
                'existing_drafts': existing_drafts,
+               'associated_contributors': associated_contributors,
     }
     return render(request, 'scipost/registration_invitations.html', context)
 
@@ -765,6 +815,32 @@ def mark_reg_inv_as_declined(request, invitation_id):
     invitation.responded = True
     invitation.declined = True
     invitation.save()
+    return redirect(reverse('scipost:registration_invitations'))
+
+
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+def citation_notifications(request):
+    unprocessed_notifications = CitationNotification.objects.filter(
+        processed=False).order_by('contributor__user__last_name')
+    context = {'unprocessed_notifications': unprocessed_notifications,}
+    return render(request, 'scipost/citation_notifications.html', context)
+
+
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+def process_citation_notification(request, cn_id):
+    notification = get_object_or_404(CitationNotification, id=cn_id)
+    notification.processed=True
+    notification.save()
+    Utils.load({'notification': notification})
+    Utils.send_citation_notification_email()
+    return redirect(reverse('scipost:citation_notifications'))
+
+
+@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+def mark_draft_inv_as_processed(request, draft_id):
+    draft = get_object_or_404(DraftInvitation, id=draft_id)
+    draft.processed = True
+    draft.save()
     return redirect(reverse('scipost:registration_invitations'))
 
 

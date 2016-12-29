@@ -653,3 +653,63 @@ class Utils(object):
 
         # This function is now for all invitation types:
         emailmessage.send(fail_silently=False)
+
+
+    @classmethod
+    def send_citation_notification_email(cls):
+        """
+        Requires loading the 'notification' attribute.
+        """
+        email_context = Context({})
+        email_text = ('Dear ' + title_dict[cls.notification.contributor.title] +
+                      ' ' + cls.notification.contributor.user.last_name)
+        email_text_html = 'Dear {{ title }} {{ last_name }}'
+        email_context['title'] = title_dict[cls.notification.contributor.title]
+        email_context['last_name'] = cls.notification.contributor.user.last_name
+        email_text +=  ',\n\n'
+        email_text_html += ',<br/>'
+        if cls.notification.cited_in_publication:
+            email_text += (
+                'Your work has been cited in a paper published by SciPost,'
+                '\n\n' + cls.notification.cited_in_publication.title
+                + '\nby ' + cls.notification.cited_in_publication.author_list +
+                '\n\n(published as ' + cls.notification.cited_in_publication.citation()
+                + ').\n\n')
+            email_text_html += (
+                '<p>Your work has been cited in a paper published by SciPost,</p>'
+                '<p>{{ pub_title }}</p> <p>by {{ pub_author_list }}<p/>'
+                '(published as <a href="https://scipost.org/{{ doi_label }}">{{ citation }}</a>).'
+                '</p><br/>' + EMAIL_FOOTER)
+            email_context['pub_title'] = cls.notification.cited_in_publication.title
+            email_context['pub_author_list'] = cls.notification.cited_in_publication.author_list
+            email_context['doi_label'] = cls.notification.cited_in_publication.doi_label
+            email_context['citation'] = cls.notification.cited_in_publication.citation()
+            html_template = Template(email_text_html)
+            html_version = html_template.render(email_context)
+        elif cls.notification.cited_in_submission:
+            email_text += (
+                'Your work has been cited in a manuscript submitted to SciPost,'
+                '\n\n' + cls.notification.cited_in_submission.title
+                + ' by ' + cls.notification.cited_in_submission.author_list + '.\n\n'
+                'You might for example consider reporting or '
+                'commenting on the above submission before the refereeing deadline.')
+            email_text_html += (
+                '<p>Your work has been cited in a manuscript submitted to SciPost,</p>'
+                '<p>{{ sub_title }} <br>by {{ sub_author_list }},</p>'
+                '<p>which you can find online at the '
+                '<a href="https://scipost.org/submission/{{ arxiv_nr_w_vn_nr }}">'
+                'submission\'s page</a>.</p>'
+                '<p>You might for example consider reporting or '
+                'commenting on the above submission before the refereeing deadline.</p>')
+            email_context['sub_title'] = cls.notification.cited_in_submission.title
+            email_context['sub_author_list'] = cls.notification.cited_in_submission.author_list
+            email_context['arxiv_identifier_w_vn_nr'] = cls.notification.cited_in_submission.arxiv_identifier_w_vn_nr
+
+        emailmessage = EmailMultiAlternatives(
+            'SciPost: citation notification', email_text,
+            'SciPost admin <admin@scipost.org>',
+            [cls.notification.contributor.user.email],
+            bcc=['admin@scipost.org'],
+            reply_to=['admin@scipost.org'])
+        emailmessage.attach_alternative(html_version, 'text/html')
+        emailmessage.send(fail_silently=False)

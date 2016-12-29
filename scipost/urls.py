@@ -67,6 +67,10 @@ urlpatterns = [
         views.registration_invitations, name="registration_invitations"),
     url(r'^draft_registration_invitation$',
         views.draft_registration_invitation, name="draft_registration_invitation"),
+    url(r'^edit_draft_reg_inv/(?P<draft_id>[0-9]+)$',
+        views.edit_draft_reg_inv, name="edit_draft_reg_inv"),
+    url(r'^map_draft_reg_inv_to_contributor/(?P<draft_id>[0-9]+)/(?P<contributor_id>[0-9]+)$',
+        views.map_draft_reg_inv_to_contributor, name="map_draft_reg_inv_to_contributor"),
     url(r'^registration_invitations_cleanup$',
         views.registration_invitations_cleanup,
         name="registration_invitations_cleanup"),
@@ -90,6 +94,12 @@ urlpatterns = [
     url(r'^accept_invitation_error$',
         TemplateView.as_view(template_name='scipost/accept_invitation_error.html'),
         name='accept_invitation_error'),
+    url(r'^mark_draft_inv_as_processed/(?P<draft_id>[0-9]+)$',
+        views.mark_draft_inv_as_processed, name='mark_draft_inv_as_processed'),
+    url(r'^citation_notifications$',
+        views.citation_notifications, name='citation_notifications'),
+    url(r'^process_citation_notification/(?P<cn_id>[0-9]+)$',
+        views.process_citation_notification, name='process_citation_notification'),
 
     ## Authentication
     url(r'^login/$', views.login_view, name='login'),
