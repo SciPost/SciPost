@@ -596,7 +596,6 @@ def draft_registration_invitation(request):
                'decl_reg_inv': decl_reg_inv,
                'names_reg_contributors': names_reg_contributors,
                'existing_drafts': existing_drafts,
-               'notify': notify,
     }
     return render(request, 'scipost/draft_registration_invitation.html', context)
 
