@@ -687,7 +687,7 @@ class Utils(object):
                 '<p>(published as <a href="https://scipost.org/{{ doi_label }}">'
                 '{{ citation }}</a>).</p>'
                 '<p>We hope you will find this paper of interest to your own research.</p>'
-                '<p>Best regards</p><p>The SciPost Team</p><br/>'
+                '<p>Best regards,</p><p>The SciPost Team</p><br/>'
                 + EMAIL_FOOTER + '<br/>'
                 '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
                 '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')
@@ -717,7 +717,7 @@ class Utils(object):
                 'submission\'s page</a>.</p>'
                 '<p>You might for example consider reporting or '
                 'commenting on the above submission before the refereeing deadline.</p>'
-                '<p>Best regards</p><p>The SciPost Team</p><br/>'
+                '<p>Best regards,</p><p>The SciPost Team</p><br/>'
                 + EMAIL_FOOTER + '<br/>'
                 '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
                 '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')

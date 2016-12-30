@@ -322,15 +322,22 @@ Problems
 
      Simply prevent by forcing equations into a math atom by surrouding them with braces,::
 
-       \begin{verbatim}
        Here is an equation that should not be broken: ${E=mc^2}$.
-       \end{verbatim}
 
 
    * package ``MnSymbol`` is problematic and clashes with amsmath.
 
      One solution is to import individual symbols according to these
      `instructions <http://tex.stackexchange.com/questions/36006/importing-single-symbol-from-mnsymbol>`_.
+
+
+   * Equations spacing in ``align`` environment is too tight.
+
+     The simple solution is to include a spacing specifier of the form ``\nonumber \\[5pt]``,
+     where ``5pt`` is a good compromise.
+
+     This spacing can also be set globally by including ``\setlength{\jot}{5pt}`` before the
+     ``\begin{document}``.
 
 
 References formatting
@@ -356,6 +363,15 @@ References formatting
 	be of the form ``10.###[...]/[...]``.
 
       * The reference is closed by a ``.``
+
+
+      For arXiv entries, verify if the paper has been published in the meantime.
+      If so, replace this reference with its proper citation.
+      If not, use the format ``\href{https://arxiv.org/abs/####.#####}{arXiv:####.#####}``,
+      and remove any ``(YEAR)``.
+
+      \J. Stat. Mech. is annoying (volume number is year). Manually remove volume nr for
+      these, so the format becomes ``A. Bee, \emp{Bee's nice paper}, J. Stat. Mech.: Th. Exp. [P,L]##### (20##), \doi{10...}.``
 
 
 Layout verification
@@ -420,14 +436,6 @@ Preparation of final version of record
       file into the .tex file, so that BiBTeX is not needed anymore.
 
    #. Manually correct any incorrect references.
-
-      For arXiv entries, verify if the paper has been published in the meantime.
-      If so, replace this reference with its proper citation.
-      If not, use the format ``\href{https://arxiv.org/abs/####.#####}{arXiv:####.#####}``,
-      and remove any ``(YEAR)``.
-
-      J. Stat. Mech. is annoying (volume number is year). Manually remove volume nr for
-	 these, so the format becomes ``A. Bee, \emp{Bee's nice paper}, J. Stat. Mech.: Th. Exp. [P,L]##### (20##), \doi{10...}.``
 
    #. Recompile the LaTeX, and CAREFULLY CHECK EVERYTHING.
 
