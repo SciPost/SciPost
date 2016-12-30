@@ -32,3 +32,7 @@ class EmptyCommentaryFactory(CommentaryFactory):
 
 class VettedCommentaryFactory(CommentaryFactory):
     vetted = True
+
+
+class UnVettedCommentaryFactory(CommentaryFactory):
+    vetted = False

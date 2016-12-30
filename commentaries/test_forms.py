@@ -2,9 +2,29 @@ from django.test import TestCase
 
 from scipost.factories import UserFactory
 
-from .factories import VettedCommentaryFactory
-from .forms import RequestCommentaryForm
+from .factories import VettedCommentaryFactory, UnVettedCommentaryFactory
+from .forms import RequestCommentaryForm, VetCommentaryForm
 from common.helpers import model_form_data
+
+
+class TestVetCommentaryForm(TestCase):
+    fixtures = ['permissions', 'groups']
+
+    def setUp(self):
+        self.commentary = UnVettedCommentaryFactory.create()
+        self.user = UserFactory()
+
+    def test_valid_form(self):
+        """Test valid form data and return Commentary when accepted"""
+        form_data = {
+            'action_option': VetCommentaryForm.ACTION_ACCEPT,
+            'refusal_reason': VetCommentaryForm.REFUSAL_EMPTY,
+            'email_response_field': 'Lorem Ipsum'
+        }
+        print( form_data)
+        form = VetCommentaryForm(form_data, commentary_id=self.commentary.id, user=self.user)
+        print(form.errors)
+        self.assertTrue(form.is_valid())
 
 
 class TestRequestCommentaryForm(TestCase):
