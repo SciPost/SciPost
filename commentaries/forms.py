@@ -161,17 +161,6 @@ class VetCommentaryForm(forms.Form):
         if self.commentary_is_refused():
             return self.COMMENTARY_REFUSAL_DICT[int(self.cleaned_data['refusal_reason'])]
 
-    def process_commentary(self):
-        """Vet the commentary or delete it from the database"""
-        if self.commentary_is_accepted():
-            self.commentary.vetted = True
-            self.commentary.vetted_by = Contributor.objects.get(user=self.user)
-            self.commentary.save()
-            return self.commentary
-        elif self.commentary_is_modified() or self.commentary_is_refused():
-            self.commentary.delete()
-            return None
-
     def commentary_is_accepted(self):
         self._form_is_cleaned()
         return int(self.cleaned_data['action_option']) == self.ACTION_ACCEPT
@@ -183,6 +172,17 @@ class VetCommentaryForm(forms.Form):
     def commentary_is_refused(self):
         self._form_is_cleaned()
         return int(self.cleaned_data['action_option']) == self.ACTION_REFUSE
+
+    def process_commentary(self):
+        """Vet the commentary or delete it from the database"""
+        if self.commentary_is_accepted():
+            self.commentary.vetted = True
+            self.commentary.vetted_by = Contributor.objects.get(user=self.user)
+            self.commentary.save()
+            return self.commentary
+        elif self.commentary_is_modified() or self.commentary_is_refused():
+            self.commentary.delete()
+            return None
 
 
 class CommentarySearchForm(forms.Form):

@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from scipost.factories import UserFactory
 
+from .models import Commentary
 from .factories import VettedCommentaryFactory, UnVettedCommentaryFactory
 from .forms import RequestCommentaryForm, VetCommentaryForm
 from common.helpers import model_form_data
@@ -13,18 +14,55 @@ class TestVetCommentaryForm(TestCase):
     def setUp(self):
         self.commentary = UnVettedCommentaryFactory.create()
         self.user = UserFactory()
-
-    def test_valid_form(self):
-        """Test valid form data and return Commentary when accepted"""
-        form_data = {
+        self.form_data = {
             'action_option': VetCommentaryForm.ACTION_ACCEPT,
             'refusal_reason': VetCommentaryForm.REFUSAL_EMPTY,
             'email_response_field': 'Lorem Ipsum'
         }
-        print( form_data)
-        form = VetCommentaryForm(form_data, commentary_id=self.commentary.id, user=self.user)
-        print(form.errors)
+
+    def test_valid_accepted_form(self):
+        """Test valid form data and return Commentary"""
+        form = VetCommentaryForm(self.form_data, commentary_id=self.commentary.id, user=self.user)
         self.assertTrue(form.is_valid())
+        self.assertFalse(Commentary.objects.vetted().exists())
+        self.assertTrue(Commentary.objects.awaiting_vetting().exists())
+
+        # Accept Commentary in database
+        form.process_commentary()
+        self.assertTrue(Commentary.objects.vetted().exists())
+        self.assertFalse(Commentary.objects.awaiting_vetting().exists())
+
+    def test_valid_modified_form(self):
+        """Test valid form data and delete Commentary"""
+        self.form_data['action_option'] = VetCommentaryForm.ACTION_MODIFY
+        form = VetCommentaryForm(self.form_data, commentary_id=self.commentary.id, user=self.user)
+        self.assertTrue(form.is_valid())
+        self.assertFalse(Commentary.objects.vetted().exists())
+        self.assertTrue(Commentary.objects.awaiting_vetting().exists())
+
+        # Delete the Commentary
+        form.process_commentary()
+        self.assertTrue(form.commentary_is_modified())
+        self.assertFalse(Commentary.objects.awaiting_vetting().exists())
+
+    def test_valid_rejected_form(self):
+        """Test valid form data and delete Commentary"""
+        self.form_data['action_option'] = VetCommentaryForm.ACTION_REFUSE
+        self.form_data['refusal_reason'] = VetCommentaryForm.REFUSAL_UNTRACEBLE
+        form = VetCommentaryForm(self.form_data, commentary_id=self.commentary.id, user=self.user)
+        self.assertTrue(form.is_valid())
+        self.assertFalse(Commentary.objects.vetted().exists())
+        self.assertTrue(Commentary.objects.awaiting_vetting().exists())
+
+        # Delete the Commentary
+        form.process_commentary()
+        self.assertTrue(form.commentary_is_refused())
+        self.assertFalse(Commentary.objects.awaiting_vetting().exists())
+
+        # Refusal choice is ok
+        refusal_reason_inserted = VetCommentaryForm.COMMENTARY_REFUSAL_DICT[\
+            VetCommentaryForm.REFUSAL_UNTRACEBLE]
+        self.assertEqual(form.get_refusal_reason(), refusal_reason_inserted)
 
 
 class TestRequestCommentaryForm(TestCase):
