@@ -30,8 +30,3 @@ def is_in_group(user, group_name):
 def associated_contributors(draft):
     return Contributor.objects.filter(
         user__last_name__icontains=draft.last_name)
-
-
-@register.filter(name='paper_nr_string')
-def paper_nr_string_filter(nr):
-    return paper_nr_string(nr)
