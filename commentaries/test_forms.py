@@ -64,6 +64,11 @@ class TestVetCommentaryForm(TestCase):
             VetCommentaryForm.REFUSAL_UNTRACEBLE]
         self.assertEqual(form.get_refusal_reason(), refusal_reason_inserted)
 
+    def test_process_before_validation(self):
+        """Test response of form on processing before validation"""
+        form = VetCommentaryForm(self.form_data, commentary_id=self.commentary.id, user=self.user)
+        self.assertRaises(ValueError, form.process_commentary)
+
 
 class TestRequestCommentaryForm(TestCase):
     fixtures = ['permissions', 'groups']
