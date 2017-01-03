@@ -27,6 +27,7 @@ from .utils import SubmissionUtils
 
 from comments.models import Comment
 from journals.models import journals_submit_dict
+from scipost.forms import ModifyPersonalMessageForm
 from scipost.models import Contributor, title_dict, Remark, RegistrationInvitation
 
 from scipost.utils import Utils
@@ -640,15 +641,28 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
     This method is called from pool.html by an Editorial Administrator.
     """
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    submission.status = 'assignment_failed'
-    submission.latest_activity = timezone.now()
-    submission.save()
-    SubmissionUtils.load({'submission': submission})
-    SubmissionUtils.deprecate_all_assignments()
-    SubmissionUtils.assignment_failed_email_authors()
-
-    context = {'submission': submission}
-    return render(request, 'submissions/assignment_failed_ack.html', context)
+    if request.method == 'POST':
+        form = ModifyPersonalMessageForm(request.POST)
+        if form.is_valid():
+            submission.status = 'assignment_failed'
+            submission.latest_activity = timezone.now()
+            submission.save()
+            SubmissionUtils.load({'submission': submission,
+                                  'personal_message': form.cleaned_data['personal_message']})
+            SubmissionUtils.deprecate_all_assignments()
+            SubmissionUtils.assignment_failed_email_authors()
+            context = {'ack_header': ('Submission ' + submission.arxiv_identifier_w_vn_nr +
+                                      ' has failed pre-screening and been rejected. '
+                                      'Authors have been informed by email.'),
+                       'followup_message': 'Return to the ',
+                       'followup_link': reverse('submissions:pool'),
+                       'followup_link_label': 'Submissions pool'}
+            return render(request, 'scipost/acknowledgement.html', context)
+    else:
+        form = ModifyPersonalMessageForm()
+    context = {'submission': submission,
+               'form': form}
+    return render(request, 'submissions/assignment_failed.html', context)
 
 
 @login_required

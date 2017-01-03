@@ -7,8 +7,12 @@
 <section>
   <h1>Assignment has failed for Submission</h1>
   <p>{{ submission.title }} by {{ submission.author_list }}.</p>
-  <p>The Submission has been removed from the pool, and authors have been informed.</p>
-  <p>Return to the <a href="{% url 'submissions:pool' %}">Submissions Pool</a>.</p>
+  <p>Please add comments on the Submission in this box.</p>
+  <form action="{% url 'submissions:assignment_failed' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" name="Submit" />
+  </form>
 </section>
 
 {% endblock bodysup %}

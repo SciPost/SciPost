@@ -59,7 +59,7 @@ class SubmissionUtils(object):
                       '\n\nWith many thanks,' +
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ title }} {{ last_name }},<br/>'
+            '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>We have received your Submission to SciPost,</p>'
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}.</p>'
@@ -101,7 +101,7 @@ class SubmissionUtils(object):
                       '\n\nWith many thanks,' +
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ title }} {{ last_name}},<br/>'
+            '<p>Dear {{ title }} {{ last_name}},</p>'
             '<p>We have received your Resubmission to SciPost,</p>'
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}.</p>'
@@ -150,7 +150,7 @@ class SubmissionUtils(object):
                       '\n\nMany thanks in advance for your collaboration,' +
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ title }} {{ last_name }},'
+            '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>We have received a Submission to SciPost ' +
             'for which we would like you to consider becoming Editor-in-charge:</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
@@ -206,7 +206,7 @@ class SubmissionUtils(object):
                       '\n\nMany thanks in advance for your collaboration,'
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ title }} {{ last_name }},<br/>'
+            '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>Thank you for accepting to become Editor-in-charge '
             'of the SciPost Submission</p>'
             '<p>{{ sub_title }}</p>'
@@ -268,7 +268,7 @@ class SubmissionUtils(object):
                       '\n\nMany thanks in advance for your collaboration,'
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ title }} {{ last_name }},'
+            '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>The authors of the SciPost Submission</p>'
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}</p>'
@@ -334,7 +334,7 @@ class SubmissionUtils(object):
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ title }} {{ last_name }},'
+            '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>We are pleased to inform you that your recent Submission to SciPost,</p>'
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}</p>'
@@ -388,19 +388,24 @@ class SubmissionUtils(object):
                       + '\n\nhas unfortunately not passed the pre-screening stage. '
                       'We therefore regret to inform you that we will not '
                       'process your paper further towards publication, and that you '
-                      'are now free to send your manuscript to an alternative journal.'
-                      '\n\nWe nonetheless thank you very much for your contribution.'
+                      'are now free to send your manuscript to an alternative journal.')
+        if len(cls.personal_message) > 3:
+            email_text += '\n\n' + cls.personal_message
+        email_text += ('\n\nWe nonetheless thank you very much for your contribution.'
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ title }} {{ last_name }},'
+            '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>Your recent Submission to SciPost,</p>'
             '<p>{{ title }}</p>'
             '\n<p>by {{ author_list }}</p>'
             '\n<p>has unfortunately not passed the pre-screening stage. '
             'We therefore regret to inform you that we will not '
             'process your paper further towards publication, and that you '
-            'are now free to send your manuscript to an alternative journal.</p>'
+            'are now free to send your manuscript to an alternative journal.</p>')
+        if len(cls.personal_message) > 3:
+            email_text_html += '{{ personal_message|linebreaks }}'
+        email_text_html += (
             '<p>We nonetheless thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
@@ -409,6 +414,7 @@ class SubmissionUtils(object):
             'last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
+            'personal_message': cls.personal_message,
         })
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
@@ -460,7 +466,7 @@ class SubmissionUtils(object):
                       'and thank you in advance for your consideration.'
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ title }} {{ last_name }},'
+            '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>We have received a Submission to SciPost '
             'which, in view of your expertise and on behalf of the Editor-in-charge '
             '{{ EIC_title }} {{ EIC_last_name }}, '
@@ -526,7 +532,7 @@ class SubmissionUtils(object):
                       + cls.invitation.submission.title + ' by '
                       + cls.invitation.submission.author_list + '.')
         email_text_html = (
-            'Dear {{ title }} {{ last_name }},'
+            '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_last_name }}, '
             'we would like to cordially remind you of our recent request to referee</p>'
             '<p>{{ sub_title }}</p>'
@@ -631,7 +637,7 @@ class SubmissionUtils(object):
                       'at some other point in the future,'
                       '\n\nMany thanks for your time,\n\nThe SciPost Team')
         email_text_html = (
-            'Dear {{ title }} {{ last_name }},'
+            '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_last_name }}, '
             'we would like to inform you that your report on</p>'
             '<p>{{ sub_title }}</p>'
@@ -690,7 +696,7 @@ class SubmissionUtils(object):
                       '\n\nReferee ' + title_dict[cls.invitation.referee.title] + ' ' +
                       cls.invitation.referee.user.last_name + ' has ')
         email_text_html = (
-            'Dear {{ EIC_title }} {{ EIC_last_name }},'
+            '<p>Dear {{ EIC_title }} {{ EIC_last_name }},</p>'
             '<p>Referee {{ ref_title }} {{ ref_last_name }} has ')
         email_subject = 'SciPost: referee declines to review'
         if cls.invitation.accepted:
@@ -760,7 +766,7 @@ class SubmissionUtils(object):
                       '\n\nMany thanks for your collaboration,'
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ EIC_title }} {{ EIC_last_name }},'
+            '<p>Dear {{ EIC_title }} {{ EIC_last_name }},</p>'
             '<p>Referee {{ ref_title }} {{ ref_last_name }} '
             'has delivered a Report for Submission</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
@@ -800,7 +806,7 @@ class SubmissionUtils(object):
                        cls.report.submission.title + ' by '
                       + cls.report.submission.author_list + '.')
         email_text_html = (
-            'Dear {{ ref_title }} {{ ref_last_name }},'
+            '<p>Dear {{ ref_title }} {{ ref_last_name }},</p>'
             '<p>Many thanks for your Report on Submission</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')
         if cls.report.status == 1:
@@ -894,7 +900,7 @@ class SubmissionUtils(object):
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ auth_title }} {{ auth_last_name }},'
+            '<p>Dear {{ auth_title }} {{ auth_last_name }},</p>'
             '<p>A Report has been posted on your recent Submission to SciPost,</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
             '\n<p>You can view it at the '
@@ -943,7 +949,7 @@ class SubmissionUtils(object):
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
         email_text_html = (
-            'Dear {{ auth_title }} {{ auth_last_name }},'
+            '<p>Dear {{ auth_title }} {{ auth_last_name }},</p>'
             '<p>A Comment has been posted on your recent Submission to SciPost,</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
             '\n<p>You can view it at the '
@@ -1048,7 +1054,7 @@ class SubmissionUtils(object):
                       cls.submission.title + ' by ' + cls.submission.author_list + ','
                       '\n\nhas formulated an Editorial Recommendation, asking for a ')
         email_text_html = (
-            'Dear {{ auth_title }} {{ auth_last_name }},'
+            '<p>Dear {{ auth_title }} {{ auth_last_name }},</p>'
             '<p>The Editor-in-charge of your recent Submission to SciPost,</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }},</p>'
             '\n<p>has formulated an Editorial Recommendation, asking for a ')
@@ -1119,7 +1125,7 @@ class SubmissionUtils(object):
                       'regarding your recent Submission,\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + '.\n\n')
         email_text_html = (
-            'Dear {{ auth_title }} {{ auth_last_name }},'
+            '<p>Dear {{ auth_title }} {{ auth_last_name }},</p>'
             '<p>The Editorial College of SciPost has taken a decision '
             'regarding your recent Submission,</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')

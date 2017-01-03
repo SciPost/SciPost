@@ -236,7 +236,7 @@ $(document).ready(function(){
     <h4>Actions:</h4>
     <ul>
       <li><a href="{% url 'submissions:assign_submission' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Send a new assignment request</a></li>
-      <li><a href="{% url 'submissions:assignment_failed' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Close pre-screening: failure to find EIC (<span style="color: red;">careful: one-click termination</span>)</a></li>
+      <li><a href="{% url 'submissions:assignment_failed' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
     </ul>
     {% endif %}
     {% endif %}
