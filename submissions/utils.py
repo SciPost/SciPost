@@ -397,7 +397,7 @@ class SubmissionUtils(object):
         email_text_html = (
             '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>Your recent Submission to SciPost,</p>'
-            '<p>{{ title }}</p>'
+            '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}</p>'
             '\n<p>has unfortunately not passed the pre-screening stage. '
             'We therefore regret to inform you that we will not '
