@@ -1,6 +1,6 @@
-from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+
 
 class RequestCommentaryTest(TestCase):
     """Test cases for `request_commentary` view method"""
