@@ -58,6 +58,13 @@ def prefill_using_identifier(request):
             previous_submissions = Submission.objects.filter(
                 arxiv_identifier_wo_vn_nr=identifier_without_vn_nr).order_by('-arxiv_vn_nr')
             if previous_submissions.exists():
+                if previous_submissions[0].status in ['rejected', 'rejected_visible',]:
+                    errormessage = ('<p>This arXiv preprint has previously undergone refereeing '
+                                    'and has been rejected. Resubmission is only possible '
+                                    'if the manuscript has been substantially reworked into '
+                                    'a new arXiv submission with distinct identifier.</p>')
+                    return render(request, 'scipost/error.html',
+                                  {'errormessage': mark_safe(errormessage)})
                 # If the Editorial Recommendation hasn't been formulated, ask to wait
                 if previous_submissions[0].status != 'revision_requested':
                     errormessage = ('<p>There exists a preprint with this arXiv identifier '
@@ -321,11 +328,15 @@ def submission_detail_wo_vn_nr(request, arxiv_identifier_wo_vn_nr):
 
 def submission_detail(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if (submission.status in SUBMISSION_STATUS_PUBLICLY_UNLISTED
-        and request.user.contributor not in submission.authors.all()
+    try:
+        is_author = request.user.contributor in submission.authors.all()
+    except AttributeError:
+        is_author = False
+    if (submission.status in SUBMISSION_STATUS_PUBLICLY_INVISIBLE
         and not request.user.groups.filter(name='SciPost Administrators').exists()
         and not request.user.groups.filter(name='Editorial Administrators').exists()
         and not request.user.groups.filter(name='Editorial College').exists()
+        and not is_author
     ):
         raise PermissionDenied
     other_versions = Submission.objects.filter(
@@ -1245,6 +1256,12 @@ def fix_College_decision(request, rec_id):
     elif recommendation.recommendation==-3:
         # Reject
         recommendation.submission.status='rejected'
+        previous_submissions = Submission.objects.filter(
+            arxiv_identifier_wo_vn_nr=recommendation.submission.arxiv_identifier_wo_vn_nr
+        ).exclude(pk=recommendation.submission.id)
+        for sub in previous_submissions:
+            sub.status = 'resubmitted_rejected'
+            sub.save()
 
     recommendation.submission.save()
     SubmissionUtils.load({'submission': recommendation.submission,

@@ -9,10 +9,10 @@ Welcome to SciPost's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   modules/models
-   modules/views
+   contributors/contributors
+   developers/developers
 
 
 Indices and tables

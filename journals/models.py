@@ -201,13 +201,14 @@ class Publication(models.Model):
     def citation (self):
         return (journal_name_abbrev_citation(self.in_issue.in_volume.in_journal.name)
                 + ' ' + str(self.in_issue.in_volume.number)
-                + '(' + str(self.in_issue.number) + '), '
-                + paper_nr_string(self.paper_nr)
+                #+ '(' + str(self.in_issue.number) + ')'
+                + ', ' + paper_nr_string(self.paper_nr)
                 + ' (' + self.publication_date.strftime('%Y') + ')' )
 
     def citation_for_web (self):
-        citation = ('{{ abbrev }} <strong>{{ volume_nr }}</strong>({{ issue_nr }}), '
-                    '{{ paper_nr }} ({{ year }})')
+        citation = ('{{ abbrev }} <strong>{{ volume_nr }}</strong>'
+                    #'({{ issue_nr }})'
+                    ', {{ paper_nr }} ({{ year }})')
         template = Template(citation)
         context = Context(
             {'abbrev': journal_name_abbrev_citation(self.in_issue.in_volume.in_journal.name),
@@ -219,8 +220,9 @@ class Publication(models.Model):
 
     def citation_for_web_linked (self):
         citation = ('<a href="{% url \'scipost:publication_detail\' doi_string=doi_string %}">'
-                    '{{ abbrev }} <strong>{{ volume_nr }}</strong>({{ issue_nr }}), '
-                    '{{ paper_nr }} ({{ year }})')
+                    '{{ abbrev }} <strong>{{ volume_nr }}</strong>'
+                    #'({{ issue_nr }})'
+                    ', {{ paper_nr }} ({{ year }})')
         template = Template(citation)
         context = Context(
             {'doi_string': self.doi_string,

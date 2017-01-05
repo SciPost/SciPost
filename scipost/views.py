@@ -540,7 +540,8 @@ def draft_registration_invitation(request):
     resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
     nr_resp_reg_inv_cited_pub = resp_reg_inv_cited_pub.count()
 
-    decl_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=True)
+    decl_reg_inv = RegistrationInvitation.objects.filter(
+        responded=True, declined=True).order_by('last_name')
 
     names_reg_contributors = Contributor.objects.filter(
         status=1).order_by('user__last_name').values_list(
