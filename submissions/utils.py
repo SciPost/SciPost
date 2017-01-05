@@ -330,6 +330,10 @@ class SubmissionUtils(object):
                       'to-the-point clarifications of any issue raised on your manuscript.\n\n '
                       'Please wait for the Editor-in-charge\'s Editorial Recommendation '
                       'before any resubmission of your manuscript.'
+                      '\n\nTo facilitate metadata handling, we recommend that all authors '
+                      'have an ORCID id (easily obtained from https://orcid.org), '
+                      'and be registered as SciPost Contributors. Could we please ask you '
+                      '(and your eventual coathors) to ensure that this is the case?'
                       '\n\nWe thank you very much for your contribution.'
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
@@ -352,6 +356,11 @@ class SubmissionUtils(object):
             'to-the-point clarifications of any issue raised on your manuscript.</p>'
             '<p>Please wait for the Editor-in-charge\'s Editorial Recommendation '
             'before any resubmission of your manuscript.</p>'
+            '<h4>Author information</h4>'
+            '<p>To facilitate metadata handling, we recommend that all authors '
+            'have an ORCID id (easily obtained from <a href="https://orcid.org">orcid.org</a>), '
+            'and be registered as SciPost Contributors. Could we please ask you '
+            '(and your eventual coathors) to ensure that this is the case?</p>'
             '<p>We thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
