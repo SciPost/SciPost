@@ -15,11 +15,49 @@
   </div>
 
   <div class="flex-container">
-    <div class="flex-whitebox">
+    <div class="flex-greybox">
       <h3>News feeds</h3>
+    </div>
+    <div class="flex-whitebox">
       <p>We provide both RSS (2.0) and Atom feeds for latest news and announcements.</p>
       <p>The URL of the RSS feed is <a href="https://scipost.org/rss/news/">https://scipost.org/rss/news/</a>.</p>
       <p>The URL of the Atom feed is <a href="https://scipost.org/atom/news/">https://scipost.org/atom/news/</a>.</p>
+    </div>
+    <div class="flex-greybox">
+      <h3>Publications feeds</h3>
+    </div>
+    <div class="flex-whitebox">
+      <p>Similarly, we provide feeds for the latest publications.</p>
+      <p>The URL of the general RSS feed is <a href="https://scipost.org/rss/publications/">https://scipost.org/rss/publications</a>.</p>
+      <p>The URL of the general Atom feed is <a href="https://scipost.org/atom/publications/">https://scipost.org/atom/publications/</a>.</p>
+      <br/>
+      <p>You can also obtain feeds only for any specific specialization by using links of the form:</p>
+      <p><em>https://scipost.org/rss/publications/[spec]</em></p>
+      <p>in which <em>[spec]</em> is one of the subject area specifiers specified in the table below.</p>
+    </div>
+    <div class="flex-greybox">
+      <h3>Submissions feeds</h3>
+    </div>
+    <div class="flex-whitebox">
+      <p>We also provide feeds for the latest submissions.</p>
+      <p>The URL of the general RSS feed is <a href="https://scipost.org/rss/submissions/">https://scipost.org/rss/submissions</a>.</p>
+      <p>The URL of the general Atom feed is <a href="https://scipost.org/atom/submissions/">https://scipost.org/atom/submissions/</a>.</p>
+      <br/>
+      <p>You can also obtain feeds only for any specific specialization by using links of the form:</p>
+      <p><em>https://scipost.org/rss/submissions/[spec]</em></p>
+      <p>in which <em>[spec]</em> is one of the subject area specifiers specified in the table below.</p>
+    </div>
+
+
+    <div class="flex-greybox">
+      <h3>Subject area specifiers</h3>
+    </div>
+    <div class="flex-whitebox">
+      <table>
+	{% for key, val in subject_areas_physics %}
+	<tr><td>{{ key }}</td><td>&nbsp;</td><td>{{ val }}</td></tr>
+	{% endfor %}
+      </table>
     </div>
   </div>
 

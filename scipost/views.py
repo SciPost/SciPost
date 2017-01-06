@@ -223,6 +223,11 @@ def news(request):
     context = {'newsitems': newsitems}
     return render(request, 'scipost/news.html', context)
 
+def feeds(request):
+    context = {'subject_areas_physics': SCIPOST_SUBJECT_AREAS[0][1]}
+    return render(request, 'scipost/feeds.html', context)
+
+
 ################
 # Contributors:
 ################

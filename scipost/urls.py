@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 from django.views.generic import TemplateView
 
 from . import views
-from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS, LatestCommentsFeedAtom
+from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS, LatestCommentsFeedAtom, LatestSubmissionsFeedRSS, LatestSubmissionsFeedAtom, LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
 
@@ -31,11 +31,28 @@ urlpatterns = [
         name='privacy_policy'),
 
     # Feeds
-    url(r'^feeds$', TemplateView.as_view(template_name='scipost/feeds.html'), name='feeds'),
+    url(r'^feeds$', views.feeds, #TemplateView.as_view(template_name='scipost/feeds.html'),
+        name='feeds'),
     url(r'^rss/news/$', LatestNewsFeedRSS()),
     url(r'^atom/news/$', LatestNewsFeedAtom()),
     url(r'^rss/comments/$', LatestCommentsFeedRSS()),
     url(r'^atom/comments/$', LatestCommentsFeedAtom()),
+    url(r'^rss/submissions/$',
+        LatestSubmissionsFeedRSS()),
+    url(r'^rss/submissions/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+        LatestSubmissionsFeedRSS()),
+    url(r'^atom/submissions/$',
+        LatestSubmissionsFeedAtom()),
+    url(r'^atom/submissions/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+        LatestSubmissionsFeedAtom()),
+    url(r'^rss/publications/$',
+        LatestPublicationsFeedRSS()),
+    url(r'^rss/publications/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+        LatestPublicationsFeedRSS()),
+    url(r'^atom/publications/$',
+        LatestPublicationsFeedAtom()),
+    url(r'^atom/publications/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+        LatestPublicationsFeedAtom()),
 
     # Search
     url(r'^search$', views.search, name='search'),
