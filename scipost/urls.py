@@ -163,10 +163,10 @@ urlpatterns = [
         name='doi_SciPostPhys'),
     url(r'^SciPostPhys.(?P<volume_nr>[0-9]+).(?P<issue_nr>[0-9]+)$',
         journals_views.scipost_physics_issue_detail,
-        name='SciPostPhys_issue_detail'),
+        name='SciPostPhys_issue_detail_from_doi_label'),
     url(r'^10.21468/SciPostPhys.(?P<volume_nr>[0-9]+).(?P<issue_nr>[0-9]+)$',
         journals_views.scipost_physics_issue_detail,
-        name='doi_SciPostPhys_issue_detail'),
+        name='SciPostPhys_issue_detail'),
 
     url(r'^(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.publication_detail,
