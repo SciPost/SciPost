@@ -535,6 +535,13 @@ section ul li {
   padding: 2px;
 }
 
+table.tablePadded10 th {
+  padding: 5px 10px;
+}
+table.tablePadded10 td {
+  padding: 0px 10px;
+}
+
 #NWOOpenAccess {
   font-size: 80%;
 }
