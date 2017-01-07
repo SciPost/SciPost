@@ -45,7 +45,8 @@ urlpatterns = [
     url(r'^atom/submissions/$',
         LatestSubmissionsFeedAtom()),
     url(r'^atom/submissions/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
-        LatestSubmissionsFeedAtom()),
+        LatestSubmissionsFeedAtom(),
+        name='sub_feed_spec_atom'),
     url(r'^rss/publications/$',
         LatestPublicationsFeedRSS()),
     url(r'^rss/publications/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
@@ -54,7 +55,8 @@ urlpatterns = [
     url(r'^atom/publications/$',
         LatestPublicationsFeedAtom()),
     url(r'^atom/publications/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
-        LatestPublicationsFeedAtom()),
+        LatestPublicationsFeedAtom(),
+        name='pub_feed_spec_atom'),
 
     # Search
     url(r'^search$', views.search, name='search'),

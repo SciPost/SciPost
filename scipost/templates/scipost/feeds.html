@@ -70,8 +70,10 @@
 	  {% for key, val in subject_areas_physics %}
 	  <tr>
 	    <td>{{ val }}</td>
-	    <td><a href="{% url 'scipost:sub_feed_spec_rss' subject_area=key %}">RSS</a></td>
-	    <td><a href="{% url 'scipost:pub_feed_spec_rss' subject_area=key %}">RSS</a></td>
+	    <td><a href="{% url 'scipost:sub_feed_spec_rss' subject_area=key %}">RSS</a>
+	    &nbsp;<a href="{% url 'scipost:sub_feed_spec_atom' subject_area=key %}">Atom</a></td>
+	    <td><a href="{% url 'scipost:pub_feed_spec_rss' subject_area=key %}">RSS</a>
+	    &nbsp;<a href="{% url 'scipost:pub_feed_spec_atom' subject_area=key %}">Atom</a></td>
 	  </tr>
 	  {% endfor %}
 	</tbody>
