@@ -45,6 +45,8 @@ class LatestCommentsFeedAtom(LatestCommentsFeedRSS):
     def author_name(self):
         return 'SciPost'
 
+    def item_updateddate(self, item):
+        return item.date_submitted
 
 
 class LatestNewsFeedRSS(Feed):
@@ -71,6 +73,9 @@ class LatestNewsFeedAtom(LatestNewsFeedRSS):
 
     def author_name(self):
         return 'SciPost'
+
+    def item_updateddate(self, item):
+        return item.date
 
 
 class LatestSubmissionsFeedRSS(Feed):
@@ -121,6 +126,9 @@ class LatestSubmissionsFeedAtom(LatestSubmissionsFeedRSS):
     def author_name(self):
         return 'SciPost'
 
+    def item_updateddate(self, item):
+        return item.submission_date
+
 
 class LatestPublicationsFeedRSS(Feed):
     title_template = 'feeds/latest_publications_title.html'
@@ -167,3 +175,6 @@ class LatestPublicationsFeedAtom(LatestPublicationsFeedRSS):
 
     def author_name(self):
         return 'SciPost'
+
+    def item_updateddate(self, item):
+        return item.publication_date
