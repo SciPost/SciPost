@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from django.core.urlresolvers import reverse
@@ -75,7 +77,7 @@ class LatestNewsFeedAtom(LatestNewsFeedRSS):
         return 'SciPost'
 
     def item_updateddate(self, item):
-        return item.date
+        return datetime.datetime(item.date.year, item.date.month, item.date.day)
 
 
 class LatestSubmissionsFeedRSS(Feed):
@@ -127,7 +129,9 @@ class LatestSubmissionsFeedAtom(LatestSubmissionsFeedRSS):
         return 'SciPost'
 
     def item_updateddate(self, item):
-        return item.submission_date
+        return datetime.datetime(item.submission_date.year,
+                                 item.submission_date.month,
+                                 item.submission_date.day)
 
 
 class LatestPublicationsFeedRSS(Feed):
@@ -177,4 +181,6 @@ class LatestPublicationsFeedAtom(LatestPublicationsFeedRSS):
         return 'SciPost'
 
     def item_updateddate(self, item):
-        return item.publication_date
+        return datetime.datetime(item.publication_date.year,
+                                 item.publication_date.month,
+                                 item.publication_date.day)
