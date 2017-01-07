@@ -42,6 +42,9 @@ class LatestCommentsFeedAtom(LatestCommentsFeedRSS):
     feed_type = Atom1Feed
     subtitle = LatestCommentsFeedRSS.description
 
+    def author_name(self):
+        return 'SciPost'
+
 
 
 class LatestNewsFeedRSS(Feed):
@@ -65,6 +68,9 @@ class LatestNewsFeedRSS(Feed):
 class LatestNewsFeedAtom(LatestNewsFeedRSS):
     feed_type = Atom1Feed
     subtitle = LatestNewsFeedRSS.description
+
+    def author_name(self):
+        return 'SciPost'
 
 
 class LatestSubmissionsFeedRSS(Feed):
@@ -112,6 +118,9 @@ class LatestSubmissionsFeedAtom(LatestSubmissionsFeedRSS):
     feed_type = Atom1Feed
     subtitle = LatestSubmissionsFeedRSS.description
 
+    def author_name(self):
+        return 'SciPost'
+
 
 class LatestPublicationsFeedRSS(Feed):
     title_template = 'feeds/latest_publications_title.html'
@@ -155,3 +164,6 @@ class LatestPublicationsFeedRSS(Feed):
 class LatestPublicationsFeedAtom(LatestPublicationsFeedRSS):
     feed_type = Atom1Feed
     subtitle = LatestPublicationsFeedRSS.description
+
+    def author_name(self):
+        return 'SciPost'
