@@ -69,7 +69,7 @@ SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     'assignment_failed',
     'resubmitted_rejected',
     'rejected',
-    'published',
+    #'published',
     'withdrawn',
 ]
 
