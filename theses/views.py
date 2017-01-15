@@ -20,7 +20,7 @@ from .forms import *
 from comments.models import Comment
 from comments.forms import CommentForm
 from scipost.forms import TITLE_CHOICES, AuthenticationForm
-
+import strings
 
 title_dict = dict(TITLE_CHOICES)  # Convert titles for use in emails
 
@@ -47,30 +47,18 @@ class RequestThesisLink(CreateView):
 class VetThesisLinkRequests(FormView):
     form_class = VetThesisLinkForm
     template_name = 'theses/vet_thesislink_requests.html'
-    # TODO: not right yet
     success_url = reverse_lazy('theses:vet_thesislink_requests')
 
     def get_context_data(self, **kwargs):
         context = super(VetThesisLinkRequests, self).get_context_data(**kwargs)
-        context['thesislink_to_vet'] = self.thesislink_to_vet()
+        context['thesislink_to_vet'] = ThesisLink.objects.filter(vetted=False).first()
         return context
 
-    def thesislink_to_vet(self):
-        return ThesisLink.objects.filter(vetted=False).first()
-
     def form_valid(self, form):
-        form.vet_request(self.thesislink_to_vet())
+        form.vet_request(self.kwargs['thesislink_id'])
+        messages.add_message(self.request, messages.SUCCESS,
+                             strings.acknowledge_vet_thesis_link)
         return super(VetThesisLinkRequests, self).form_valid(form)
-
-
-# @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
-# def vet_thesislink_requests(request):
-#     contributor = Contributor.objects.get(user=request.user)
-#     thesislink_to_vet = ThesisLink.objects.filter(
-#         vetted=False).first()  # only handle one at a time
-#     form = VetThesisLinkForm()
-#     context = {'contributor': contributor, 'thesislink_to_vet': thesislink_to_vet, 'form': form}
-#     return render(request, 'theses/vet_thesislink_requests.html', context)
 
 
 @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)

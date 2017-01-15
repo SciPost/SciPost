@@ -41,10 +41,16 @@ class VetThesisLinkForm(forms.Form):
     justification = forms.CharField(widget=forms.Textarea(
         attrs={'rows': 5, 'cols': 40}), label='Justification (optional)', required=False)
 
-    def vet_request(self, thesis_link):
-        print(self.cleaned_data)
+    def vet_request(self, thesis_link_id):
         if self.cleaned_data['action_option'] == VetThesisLinkForm.ACCEPT:
-            print('hoi')
+
+            thesislink.vetted = True
+            thesislink.vetted_by = Contributor.objects.get(user=request.user)
+            thesislink.save()
+        elif self.cleaned_data['action_option'] == VetThesisLinkForm.MODIFY:
+            print('hai')
+        elif self.cleaned_data['action_option'] == VetThesisLinkForm.REFUSE:
+            print('bla')
 
 
 class ThesisLinkSearchForm(forms.Form):

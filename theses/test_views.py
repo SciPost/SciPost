@@ -4,7 +4,8 @@ from django.core.exceptions import PermissionDenied
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
 from django.contrib.auth.models import Group
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.contrib.messages.storage.fallback import FallbackStorage
 
 from .views import RequestThesisLink, VetThesisLinkRequests
 from scipost.factories import UserFactory, ContributorFactory
@@ -77,14 +78,20 @@ class TestVetThesisLinkRequests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_thesislink_is_vetted_by_correct_contributor(self):
-        # TODO: how to make sure we are vetting the right thesis link?
+        thesis_link = ThesisLinkFactory()
         contributor = ContributorFactory()
         contributor.user.groups.add(Group.objects.get(name="Vetting Editors"))
         post_data = VetThesisLinkFormFactory().data
+        target = reverse('theses:vet_thesislink_request', kwargs={'thesislink_id': thesis_link.id})
 
-        request = RequestFactory().post(self.target, post_data)
+        request = RequestFactory().post(target, post_data)
         request.user = contributor.user
 
-        response = VetThesisLinkRequests.as_view()(request)
+        # I don't know what the following three lines do, but they help make a RequestFactory
+        # work with the messages middleware
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
 
-        self.assertTrue(False)
+        response = VetThesisLinkRequests.as_view()(request, thesislink_id=thesis_link.id)
+        self.assertEqual(thesis_link.vetted_by, contributor)
