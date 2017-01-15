@@ -16,7 +16,7 @@
   <hr>
   <div class="row">
     <div class="col-8">
-      {{ thesislink_to_vet.header_as_table }}
+      {% include "./_header_as_table.html" with thesislink=thesislink_to_vet %}
       <br />
       <h4>Abstract:</h4>
       <p>{{ thesislink_to_vet.abstract }}</p>
