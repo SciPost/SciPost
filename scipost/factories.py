@@ -16,6 +16,14 @@ class ContributorFactory(factory.django.DjangoModelFactory):
     vetted_by = factory.SubFactory('scipost.factories.ContributorFactory', vetted_by=None)
 
 
+class VettingEditorFactory(ContributorFactory):
+    @factory.post_generation
+    def add_to_vetting_editors(self, create, extracted, **kwargs):
+        if not create:
+            return
+        self.user.groups.add(Group.objects.get(name="Vetting Editors"))
+
+
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = get_user_model()
