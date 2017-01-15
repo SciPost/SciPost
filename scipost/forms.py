@@ -11,6 +11,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
 
 from .models import *
+from .constants import SCIPOST_DISCIPLINES
 
 from journals.models import Publication
 from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
