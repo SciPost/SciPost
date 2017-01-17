@@ -348,6 +348,9 @@ class UnavailabilityPeriod(models.Model):
 
 class Remark(models.Model):
     contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission',
+                                   on_delete=models.CASCADE,
+                                   blank=True, null=True)
     recommendation = models.ForeignKey('submissions.EICRecommendation',
                                        on_delete=models.CASCADE,
                                        blank=True, null=True)

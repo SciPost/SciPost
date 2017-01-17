@@ -387,6 +387,7 @@ class Submission(models.Model):
 # Editorial workflow #
 ######################
 
+
 ASSIGNMENT_BOOL = ((True, 'Accept'), (False, 'Decline'))
 ASSIGNMENT_NULLBOOL = ((None, 'Response pending'), (True, 'Accept'), (False, 'Decline'))
 
