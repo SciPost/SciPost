@@ -358,8 +358,7 @@ class Remark(models.Model):
     remark = models.TextField()
 
     def __str__(self):
-        return (title_dict[self.contributor.title] + ' '
-                + self.contributor.user.first_name + ' '
+        return (self.contributor.user.first_name + ' '
                 + self.contributor.user.last_name + ' on '
                 + self.date.strftime("%Y-%m-%d"))
 

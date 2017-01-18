@@ -184,7 +184,8 @@ class RemarkForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(RemarkForm, self).__init__(*args, **kwargs)
         self.fields['remark'].widget.attrs.update(
-            {'rows': 3, 'cols': 40, 'placeholder': 'Enter your remarks here. You can use LaTeX in $...$ or \[ \].'})
+            {'rows': 3, 'cols': 40,
+             'placeholder': 'Enter your remarks here. You can use LaTeX in $...$ or \[ \].'})
 
 
 class SearchForm(forms.Form):
