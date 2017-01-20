@@ -20,6 +20,8 @@ SCIPOST_JOURNALS
 UPLOADS
 
 docs/_build
-local_files
+local_files/
+static/
+static_bundles/
 
 whoosh_index

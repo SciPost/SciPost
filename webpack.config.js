@@ -2,7 +2,7 @@ var BundleTracker = require('webpack-bundle-tracker');
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var glob = require("glob");
-var path_bundles = __dirname + '/static/bundles/';
+var path_bundles = __dirname + '/static_bundles/bundles';
 
 module.exports = {
     context: __dirname,

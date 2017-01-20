@@ -35,20 +35,6 @@ Now install dependencies:
 (scipostenv) $ npm install
 ```
 
-### Module bundler
-[Webpack](http://webpack.github.io/docs/what-is-webpack.html) takes care of assets in the `scipost/static/scipost/assets` folder. To (re)compile all assets, simply run:
-
-```shell
-(scipostenv) $ npm run webpack
-```
-
-While editing assets, it is helpfull to put webpack in _watch_ mode. This will recompile your assets every time you edit them. To do so, instead of the above command, run:
-
-```shell
-(scipostenv) $ npm run webpack-live
-```
-
-
 ### Host-specific settings
 In this project, host-specific settings are defined in the `scipost-host-settings.json` file in the directory *above* the project root. The structure is as follows:
 
@@ -87,6 +73,32 @@ To make sure everything is setup and configured well, run:
 
 ```shell
 (scipostenv) $ ./manage.py check
+```
+
+### Module bundler
+[Webpack](http://webpack.github.io/docs/what-is-webpack.html) takes care of assets in the `scipost/static/scipost/assets` folder. To (re)compile all assets into the `static_bundles` folder, simply run:
+
+```shell
+(scipostenv) $ npm run webpack
+```
+
+While editing assets, it is helpful to put Webpack in _watch_ mode. This will recompile your assets every time you edit them. To do so, instead of the above command, run:
+
+```shell
+(scipostenv) $ npm run webpack-live
+```
+
+### Collectstatic
+In order to collect static files from all `INSTALLED_APPS`, i.e. the assets managed by Webpack, run:
+
+```shell
+(scipostenv) $ ./manage collectstatic
+```
+
+This will put all static files in the `STATIC_ROOT` folder defined in your settings file. It's a good idea to use the clear option in order to remove stale static files:
+
+```shell
+(scipostenv) $ ./manage collectstatic --clear
 ```
 
 ### Create and run migrations

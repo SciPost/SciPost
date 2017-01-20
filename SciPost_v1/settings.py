@@ -177,14 +177,14 @@ USE_TZ = True
 STATIC_URL = host_settings["STATIC_URL"]
 STATIC_ROOT = host_settings["STATIC_ROOT"]
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'static_bundles'),
 )
 
 # Webpack handling the static bundles
 WEBPACK_LOADER = {
     'DEFAULT': {
         'CACHE': not DEBUG,
-        'BUNDLE_DIR_NAME': 'bundles/',
+        'BUNDLE_DIR_NAME': 'static/bundles/',
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
         'POLL_INTERVAL': 0.1,
         'TIMEOUT': None,
