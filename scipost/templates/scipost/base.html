@@ -1,8 +1,12 @@
+{% load render_bundle from webpack_loader %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+    {% render_bundle 'main' 'css' %}
 
     <link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
 
@@ -34,6 +38,8 @@
     {% endblock content %}
 
     {% include 'scipost/footer.html' %}
+
+    {% render_bundle 'main' 'js' %}
   </body>
 
 </html>

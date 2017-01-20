@@ -3,7 +3,7 @@ The complete scientific publication portal
 
 ## Dependencies
 SciPost is written in Python 3.5 using Django and requires PostgreSQL 9.3 or
-higher. Python dependencies are listed in `requirements.txt`.
+higher. Python dependencies are listed in `requirements.txt`. Frontend dependencies are managed by [NPM](https://www.npmjs.com/) in package.json.
 
 ## Getting started
 
@@ -27,6 +27,27 @@ Now install dependencies:
 ```shell
 (scipostenv) $ pip install -r requirements.txt
 ```
+
+### Frontend dependencies
+[NPM](https://www.npmjs.com/) will take care of frontend dependencies. To install all packages now run:
+
+```shell
+(scipostenv) $ npm install
+```
+
+### Module bundler
+[Webpack](http://webpack.github.io/docs/what-is-webpack.html) takes care of assets in the `scipost/static/scipost/assets` folder. To (re)compile all assets, simply run:
+
+```shell
+(scipostenv) $ npm run webpack
+```
+
+While editing assets, it is helpfull to put webpack in _watch_ mode. This will recompile your assets every time you edit them. To do so, instead of the above command, run:
+
+```shell
+(scipostenv) $ npm run webpack-live
+```
+
 
 ### Host-specific settings
 In this project, host-specific settings are defined in the `scipost-host-settings.json` file in the directory *above* the project root. The structure is as follows:

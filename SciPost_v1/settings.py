@@ -80,6 +80,7 @@ INSTALLED_APPS = (
     'scipost',
     'submissions',
     'theses',
+    'webpack_loader'
 )
 
 HAYSTACK_CONNECTIONS = {
@@ -175,6 +176,21 @@ USE_TZ = True
 
 STATIC_URL = host_settings["STATIC_URL"]
 STATIC_ROOT = host_settings["STATIC_ROOT"]
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+# Webpack handling the static bundles
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': not DEBUG,
+        'BUNDLE_DIR_NAME': 'bundles/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+        'POLL_INTERVAL': 0.1,
+        'TIMEOUT': None,
+        'IGNORE': ['.+\.hot-update.js', '.+\.map']
+    }
+}
 
 # Email
 EMAIL_BACKEND = host_settings["EMAIL_BACKEND"]
