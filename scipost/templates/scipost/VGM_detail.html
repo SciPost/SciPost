@@ -39,23 +39,17 @@ $(document).ready(function(){
       <h1>SciPost Virtual General Meeting</h1>
     </div>
   </div>
-
-  <ul>
-    <li>This VGM is scheduled from {{ VGM.start_date|date:'Y-m-d' }} to {{ VGM.end_date|date:'Y-m-d' }}.</li>
-    <li>Your feedback/suggestions/criticisms on any aspect of SciPost are greatly valued. Provide them by filling the <a href="#FeedbackBox">feedback form</a>.</li>
-    <li>Your nominations to the Editorial College are welcome. Simply fill the <a href="#NominationBox">nomination form</a>, and cast your vote on current nominations.</li>
-    <li>For substantial changes, for example to the by-laws, new Motions can be put forward until the end of the meeting using the <a href="#MotionBox">form</a>.</li>
-    <li>Voting on Motions is open until one week after the meeting.</li>
-    <li>You a referred to the <a href="{% url 'scipost:EdCol_by-laws' %}">by-laws</a>, section 2 for further details about the procedures.</li>
-  </ul>
-  <br/>
-  <h2>On this page:</h2>
-  <ul>
-    <li><a href="#Information">Information message</a></li>
-    <li><a href="#Nominations">Nominations</a></li>
-    <li><a href="#Motions">Motions</a></li>
-  </ul>
-  <br/>
+  <div class="flex-container">
+    <div class="flex-whitebox">
+      <h2>On this page:</h2>
+      <ul>
+	<li><a href="#Information">Information message</a></li>
+	<li><a href="#Feedback">Feedback</a></li>
+	<li><a href="#Nominations">Nominations</a></li>
+	<li><a href="#Motions">Motions</a></li>
+      </ul>
+    </div>
+  </div>
   <hr class="hr12"/>
 </section>
 
@@ -69,7 +63,39 @@ $(document).ready(function(){
   <div class="flex-whitebox">
     {{ VGM_information }}
   </div>
-  <h3>Feedback received for this VGM:</h3>
+  <br/>
+  <div class="flex-whitebox">
+    <h3>Quick bullet points:</h3>
+    <ul>
+      <li>This VGM is scheduled from {{ VGM.start_date|date:'Y-m-d' }} to {{ VGM.end_date|date:'Y-m-d' }}.</li>
+      <li>Your feedback/suggestions/criticisms on any aspect of SciPost are greatly valued. Provide them by filling the <a href="#FeedbackBox">feedback form</a>.</li>
+      <li>Your nominations to the Editorial College are welcome. Simply fill the <a href="#NominationBox">nomination form</a>, and cast your vote on current nominations.</li>
+      <li>For substantial changes, for example to the by-laws, new Motions can be put forward until the end of the meeting using the <a href="#MotionBox">form</a>.</li>
+      <li>Voting on Motions is open until one week after the meeting.</li>
+      <li>You a referred to the <a href="{% url 'scipost:EdCol_by-laws' %}">by-laws</a>, section 2 for further details about the procedures.</li>
+    </ul>
+  </div>
+  <br/>
+  <hr class="hr12"/>
+</section>
+
+<section id="Feedback">
+  <div class="flex-container">
+    <div class="flex-greybox" id="FeedbackBox">
+      <h2>Feedback on SciPost</h2>
+      <button id="submitFeedbackButton">Provide feedback</button>
+      <form id="submitFeedbackForm" action="{% url 'scipost:feedback' VGM_id=VGM.id %}" method="post">
+	{% csrf_token %}
+	{{ feedback_form.as_p }}
+	<input type="submit" value="Submit"/>
+      </form>
+    </div>
+  </div>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h2>General Feedback provided</h2>
+    </div>
+  </div>
   <div class="row">
     <div class="col-1"></div>
     <div class="col-10">
@@ -94,17 +120,6 @@ $(document).ready(function(){
 	{% endif %}
 	{% endfor %}
       </ul>
-    </div>
-  </div>
-  <div class="flex-container">
-    <div class="flex-greybox" id="FeedbackBox">
-      <h3>Feedback on SciPost</h3>
-      <button id="submitFeedbackButton">Provide feedback</button>
-      <form id="submitFeedbackForm" action="{% url 'scipost:feedback' VGM_id=VGM.id %}" method="post">
-	{% csrf_token %}
-	{{ feedback_form.as_p }}
-	<input type="submit" value="Submit"/>
-      </form>
     </div>
   </div>
   <hr class="hr12"/>
