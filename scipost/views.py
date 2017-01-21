@@ -1472,6 +1472,7 @@ def Fellow_activity_overview(request, Fellow_id=None):
     return render(request, 'scipost/Fellow_activity_overview.html', context)
 
 
+@login_required
 @permission_required('scipost.can_attend_VGMs', return_403=True)
 def VGMs(request):
     VGM_list = VGM.objects.all().order_by('start_date')
@@ -1479,6 +1480,7 @@ def VGMs(request):
     return render(request, 'scipost/VGMs.html', context)
 
 
+@login_required
 @permission_required('scipost.can_attend_VGMs', return_403=True)
 def VGM_detail(request, VGM_id):
     VGM_instance = get_object_or_404(VGM, id=VGM_id)
@@ -1502,6 +1504,7 @@ def VGM_detail(request, VGM_id):
     return render(request, 'scipost/VGM_detail.html', context)
 
 
+@login_required
 @permission_required('scipost.can_attend_VGMs', return_403=True)
 def feedback(request, VGM_id=None):
     if request.method == 'POST':
@@ -1530,6 +1533,7 @@ def feedback(request, VGM_id=None):
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
 
 
+@login_required
 @permission_required('scipost.can_attend_VGMs', raise_exception=True)
 def add_remark_on_feedback(request, VGM_id, feedback_id):
     contributor = request.user.contributor
@@ -1552,6 +1556,7 @@ def add_remark_on_feedback(request, VGM_id, feedback_id):
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
 
 
+@login_required
 @permission_required('scipost.can_attend_VGMs', return_403=True)
 def nominate_Fellow(request, VGM_id):
     VGM_instance = get_object_or_404(VGM, id=VGM_id)
@@ -1584,6 +1589,7 @@ def nominate_Fellow(request, VGM_id):
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
 
 
+@login_required
 @permission_required('scipost.can_attend_VGMs', raise_exception=True)
 def add_remark_on_nomination(request, VGM_id, nomination_id):
     contributor = request.user.contributor
@@ -1606,6 +1612,7 @@ def add_remark_on_nomination(request, VGM_id, nomination_id):
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
 
 
+@login_required
 @permission_required('scipost.can_attend_VGMs', raise_exception=True)
 def vote_on_nomination(request, nomination_id, vote):
     contributor = request.user.contributor
@@ -1618,6 +1625,7 @@ def vote_on_nomination(request, nomination_id, vote):
                                 '/#nomination_id' + str(nomination.id))
 
 
+@login_required
 @permission_required('scipost.can_attend_VGMs', return_403=True)
 def put_motion_forward(request, VGM_id):
     VGM_instance = get_object_or_404(VGM, id=VGM_id)
@@ -1652,6 +1660,7 @@ def put_motion_forward(request, VGM_id):
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
 
 
+@login_required
 @permission_required('scipost.can_attend_VGMs', raise_exception=True)
 def add_remark_on_motion(request, motion_id):
     contributor = request.user.contributor
@@ -1674,6 +1683,7 @@ def add_remark_on_motion(request, motion_id):
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
 
 
+@login_required
 @permission_required('scipost.can_attend_VGMs', raise_exception=True)
 def vote_on_motion(request, motion_id, vote):
     contributor = request.user.contributor
