@@ -26,6 +26,12 @@ class VGMAdmin(admin.ModelAdmin):
 admin.site.register(VGM, VGMAdmin)
 
 
+class FeedbackAdmin(admin.ModelAdmin):
+    search_fields = ['feedback', 'by']
+
+admin.site.register(Feedback, FeedbackAdmin)
+
+
 class NominationAdmin(admin.ModelAdmin):
     search_fields = ['last_name', 'first_name', 'by']
 
