@@ -349,6 +349,8 @@ class UnavailabilityPeriod(models.Model):
 
 class Remark(models.Model):
     contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    feedback = models.ForeignKey('scipost.Feedback', on_delete=models.CASCADE,
+                                 blank=True, null=True)
     nomination = models.ForeignKey('scipost.Nomination', on_delete=models.CASCADE,
                                blank=True, null=True)
     motion = models.ForeignKey('scipost.Motion', on_delete=models.CASCADE,

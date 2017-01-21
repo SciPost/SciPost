@@ -179,6 +179,8 @@ urlpatterns = [
     url(r'^VGM/(?P<VGM_id>[0-9]+)/$', views.VGM_detail, name='VGM_detail'),
     url(r'^feedback/(?P<VGM_id>[0-9]+)$',
         views.feedback, name='feedback'),
+    url(r'^add_remark_on_feedback/(?P<VGM_id>[0-9]+)/(?P<feedback_id>[0-9]+)$',
+        views.add_remark_on_feedback, name='add_remark_on_feedback'),
     url(r'^nominate_Fellow/(?P<VGM_id>[0-9]+)$',
         views.nominate_Fellow, name='nominate_Fellow'),
     url(r'^add_remark_on_nomination/(?P<VGM_id>[0-9]+)/(?P<nomination_id>[0-9]+)$',

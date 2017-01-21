@@ -76,6 +76,22 @@ $(document).ready(function(){
       <ul>
 	{% for feedback in feedback_received %}
 	<li>{{ feedback.as_li }}</li>
+	<button class="submitRemarkButton" id="remarkButton{{ nomination.id }}">Add a remark on this Feedback</button>
+	<div class="submitRemarkForm" id="remarkForm{{ feedback.id }}">
+	  <form action="{% url 'scipost:add_remark_on_feedback' VGM_id=VGM.id feedback_id=feedback.id %}" method="post">
+	    {% csrf_token %}
+	    {{ remark_form.as_p }}
+	    <input type="submit" value="Submit" />
+	  </form>
+	</div>
+	{% if feedback.remark_set.all %}
+	<h3>Remarks on this feedback:</h3>
+	<ul>
+	  {% for rem in feedback.remark_set.all %}
+	  {{ rem.as_li }}
+	  {% endfor %}
+	</ul>
+	{% endif %}
 	{% endfor %}
       </ul>
     </div>
@@ -144,14 +160,6 @@ $(document).ready(function(){
 	  {% endif %}
 	</div>
 	<br/><br/>
-	{% if nomination.remark_set.all %}
-	<h3>Remarks on this nomination:</h3>
-	<ul>
-	  {% for rem in nomination.remark_set.all %}
-	  {{ rem.as_li }}
-	  {% endfor %}
-	</ul>
-	{% endif %}
 	<button class="submitRemarkButton" id="remarkButton{{ nomination.id }}">Add a remark on this Nomination</button>
 	<div class="submitRemarkForm" id="remarkForm{{ nomination.id }}">
 	  <form action="{% url 'scipost:add_remark_on_nomination' VGM_id=VGM.id nomination_id=nomination.id %}" method="post">
@@ -160,6 +168,14 @@ $(document).ready(function(){
 	    <input type="submit" value="Submit" />
 	  </form>
 	</div>
+	{% if nomination.remark_set.all %}
+	<h3>Remarks on this nomination:</h3>
+	<ul>
+	  {% for rem in nomination.remark_set.all %}
+	  {{ rem.as_li }}
+	  {% endfor %}
+	</ul>
+	{% endif %}
 	<hr class="hr6"/>
 	<br/>
       </li>
@@ -232,14 +248,6 @@ $(document).ready(function(){
 	  {% endif %}
 	</div>
 	<br/><br/>
-	{% if motion.remark_set.all %}
-	<h3>Remarks on this motion:</h3>
-	<ul>
-	  {% for rem in motion.remark_set.all %}
-	  {{ rem.as_li }}
-	  {% endfor %}
-	</ul>
-	{% endif %}
 	<button class="submitRemarkButton" id="remarkButton{{ motion.id }}">Add a remark on this Motion</button>
 	<div class="submitRemarkForm" id="remarkForm{{ motion.id }}">
 	  <form action="{% url 'scipost:add_remark_on_motion' motion_id=motion.id %}" method="post">
@@ -248,6 +256,14 @@ $(document).ready(function(){
 	    <input type="submit" value="Submit" />
 	  </form>
 	</div>
+	{% if motion.remark_set.all %}
+	<h3>Remarks on this motion:</h3>
+	<ul>
+	  {% for rem in motion.remark_set.all %}
+	  {{ rem.as_li }}
+	  {% endfor %}
+	</ul>
+	{% endif %}
 	<hr class="hr6"/>
 	<br/>
       </li>

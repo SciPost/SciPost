@@ -1530,6 +1530,28 @@ def feedback(request, VGM_id=None):
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
 
 
+@permission_required('scipost.can_attend_VGMs', raise_exception=True)
+def add_remark_on_feedback(request, VGM_id, feedback_id):
+    contributor = request.user.contributor
+    feedback = get_object_or_404(Feedback, pk=feedback_id)
+    if request.method == 'POST':
+        remark_form = RemarkForm(request.POST)
+        if remark_form.is_valid():
+            remark = Remark(contributor=request.user.contributor,
+                            feedback=feedback,
+                            date=timezone.now(),
+                            remark=remark_form.cleaned_data['remark'])
+            remark.save()
+            return HttpResponseRedirect('/VGM/' + str(VGM_id) +
+                                        '/#feedback_id' + str(feedback.id))
+        else:
+            errormessage = 'The form was invalidly filled.'
+            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    else:
+        errormessage = 'This view can only be posted to.'
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+
 @permission_required('scipost.can_attend_VGMs', return_403=True)
 def nominate_Fellow(request, VGM_id):
     VGM_instance = get_object_or_404(VGM, id=VGM_id)
