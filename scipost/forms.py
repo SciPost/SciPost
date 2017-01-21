@@ -370,3 +370,58 @@ class SPBMembershipForm(forms.ModelForm):
                     css_class="col-4"),
                 css_class="row"),
         )
+
+#################
+# VGMs, Motions #
+#################
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = ['feedback']
+
+
+class NominationForm(forms.ModelForm):
+    class Meta:
+        model = Nomination
+        fields = ['first_name', 'last_name', 'discipline', 'expertises']
+
+    def __init__(self, *args, **kwargs):
+        super(NominationForm, self).__init__(*args, **kwargs)
+        self.fields['expertises'].widget = forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
+
+
+class MotionForm(forms.ModelForm):
+    class Meta:
+        model = Motion
+        fields = ['category', 'background', 'motion']
+
+    def __init__(self, *args, **kwargs):
+        super(MotionForm, self).__init__(*args, **kwargs)
+        self.fields['background'].label = ''
+        self.fields['background'].widget.attrs.update(
+            {'rows': 8, 'cols': 100,
+             'placeholder': 'Provide useful background information on your Motion.'})
+        self.fields['motion'].label = ''
+        self.fields['motion'].widget.attrs.update(
+            {'rows': 8, 'cols': 100,
+             'placeholder': 'Phrase your Motion as clearly and succinctly as possible.'})
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field('category'),
+            Div(
+                Div(HTML('<p>Background:</p>'),
+                    css_class="col-2"),
+                Div(
+                    Field('background'),
+                    css_class="col-10"),
+                css_class="row"),
+            Div(
+                Div(HTML('<p>Motion:</p>'),
+                    css_class="col-2"),
+                Div(
+                    Field('motion'),
+                    css_class="col-10"),
+                css_class="row"),
+            Submit('submit', 'Submit'),
+        )

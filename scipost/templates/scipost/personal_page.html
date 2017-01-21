@@ -282,6 +282,12 @@
       <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
       {% endif %}
     </ul>
+    {% if perms.scipost.can_attend_VGMs %}
+    <h3>Virtual General Meetings</h3>
+    <ul>
+      <li><a href="{% url 'scipost:VGMs' %}">List of VGMs</a></li>
+    </ul>
+    {% endif %}
   </div>
 
   {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' %}

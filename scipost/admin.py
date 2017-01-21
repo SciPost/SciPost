@@ -20,6 +20,24 @@ admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
 
+class VGMAdmin(admin.ModelAdmin):
+    search_fields = ['start_date']
+
+admin.site.register(VGM, VGMAdmin)
+
+
+class NominationAdmin(admin.ModelAdmin):
+    search_fields = ['last_name', 'first_name', 'by']
+
+admin.site.register(Nomination, NominationAdmin)
+
+
+class MotionAdmin(admin.ModelAdmin):
+    search_fields = ['background', 'motion', 'put_forward_by']
+
+admin.site.register(Motion, MotionAdmin)
+
+
 class RemarkAdmin(admin.ModelAdmin):
     search_fields = ['contributor', 'remark']
 

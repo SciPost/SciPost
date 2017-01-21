@@ -68,6 +68,10 @@ class Command(BaseCommand):
             codename='view_bylaws',
             name='Can view By-laws of Editorial College',
             content_type=content_type)
+        can_attend_VGMs, created = Permission.objects.get_or_create(
+            codename='can_attend_VGMs',
+            name='Can attend Virtual General Meetings',
+            content_type=content_type)
 
         # Contributions (not related to submissions)
         can_submit_comments, created = Permission.objects.get_or_create(
@@ -172,9 +176,11 @@ class Command(BaseCommand):
             can_assign_submissions,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
+            can_attend_VGMs,
         )
         AdvisoryBoard.permissions.add(
             can_manage_registration_invitations,
+            can_attend_VGMs,
         )
         EditorialAdmin.permissions.add(
             can_view_pool,
@@ -182,12 +188,14 @@ class Command(BaseCommand):
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
             can_publish_accepted_submission,
+            can_attend_VGMs,
             )
         EditorialCollege.permissions.add(
             can_view_pool,
             can_take_charge_of_submissions,
             can_vet_submitted_reports,
             view_bylaws,
+            can_attend_VGMs,
         )
         VettingEditors.permissions.add(
             can_vet_commentary_requests,
