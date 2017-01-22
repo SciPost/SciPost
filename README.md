@@ -76,7 +76,7 @@ To make sure everything is setup and configured well, run:
 ```
 
 ### Module bundler
-[Webpack](http://webpack.github.io/docs/what-is-webpack.html) takes care of assets in the `scipost/static/scipost/assets` folder. To (re)compile all assets into the `static_bundles` folder, simply run:
+[Webpack](https://webpack.js.org/) takes care of assets in the `scipost/static/scipost/assets` folder. To (re)compile all assets into the `static_bundles` folder, simply run:
 
 ```shell
 (scipostenv) $ npm run webpack
@@ -87,6 +87,10 @@ While editing assets, it is helpful to put Webpack in _watch_ mode. This will re
 ```shell
 (scipostenv) $ npm run webpack-live
 ```
+
+#### Sass and bootstrap
+Styling will mainly be configured using [.scss files](//sass-lang.com/) in the `scipost/static/scipost/scss/preconfig.scss` file, relying on [Bootstrap 4.0.0-beta.6](//v4-alpha.getbootstrap.com/). A full list of variables available by default can be found [here](https://github.com/twbs/bootstrap/blob/v4-dev/scss/_variables.scss).
+All modules are configured in the `.bootstraprc` file. Most modules are disabled by default.
 
 ### Collectstatic
 In order to collect static files from all `INSTALLED_APPS`, i.e. the assets managed by Webpack, run:

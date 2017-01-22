@@ -1,3 +1,4 @@
+var webpack = require("webpack");
 var BundleTracker = require('webpack-bundle-tracker');
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
@@ -7,7 +8,8 @@ var path_bundles = __dirname + '/static_bundles/bundles';
 module.exports = {
     context: __dirname,
     entry: {
-        main: glob.sync("./scipost/static/scipost/assets/css/*.css")
+        main: glob.sync("./scipost/static/scipost/assets/**/*.@(js|css)"),
+        bootstrap: 'bootstrap-loader'
     },
     output: {
         path: path_bundles,
@@ -18,17 +20,42 @@ module.exports = {
         loaders: [
             {
                 test: /\.css$/,
-                loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+                loader: ExtractTextPlugin.extract({
+                    fallbackLoader: "style-loader",
+                    loader: "css-loader"
+                })
             },
-            // Optionally extract less files (yeay!)
             {
                 test: /\.less$/,
-                loader: ExtractTextPlugin.extract("style-loader", "css-loader!less-loader")
-            }
+                loader: ExtractTextPlugin.extract({
+                    fallbackLoader: "style-loader",
+                    loader: "css-loader!less-loader"
+                })
+            },
         ]
     },
     plugins: [
-        new BundleTracker({filename: './webpack-stats.json'}),
+        new webpack.ProvidePlugin({
+            $: "jquery",
+            jQuery: "jquery",
+            "window.jQuery": "jquery",
+            Tether: "tether",
+            "window.Tether": "tether",
+            // Alert: "exports-loader?Alert!bootstrap/js/dist/alert",
+            // Button: "exports-loader?Button!bootstrap/js/dist/button",
+            // Carousel: "exports-loader?Carousel!bootstrap/js/dist/carousel",
+            Collapse: "exports-loader?Collapse!bootstrap/js/dist/collapse",
+            // Dropdown: "exports-loader?Dropdown!bootstrap/js/dist/dropdown",
+            // Modal: "exports-loader?Modal!bootstrap/js/dist/modal",
+            // Popover: "exports-loader?Popover!bootstrap/js/dist/popover",
+            // Scrollspy: "exports-loader?Scrollspy!bootstrap/js/dist/scrollspy",
+            // Tab: "exports-loader?Tab!bootstrap/js/dist/tab",
+            // Tooltip: "exports-loader?Tooltip!bootstrap/js/dist/tooltip",
+            Util: "exports-loader?Util!bootstrap/js/dist/util",
+        }),
+        new BundleTracker({
+            filename: './webpack-stats.json'
+        }),
         new ExtractTextPlugin('css/[name]-[hash].css'),
         new CleanWebpackPlugin(['css', 'js'], {
             root: path_bundles,
@@ -36,5 +63,5 @@ module.exports = {
             dry: false,
             exclude: []
         })
-    ]
+    ],
 }
