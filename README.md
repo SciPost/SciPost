@@ -89,7 +89,7 @@ While editing assets, it is helpful to put Webpack in _watch_ mode. This will re
 ```
 
 #### Sass and bootstrap
-Styling will mainly be configured using [.scss files](//sass-lang.com/) in the `scipost/static/scipost/scss/preconfig.scss` file, relying on [Bootstrap 4.0.0-beta.6](//v4-alpha.getbootstrap.com/). A full list of variables available by default can be found [here](https://github.com/twbs/bootstrap/blob/v4-dev/scss/_variables.scss).
+Styling will mainly be configured using [.scss files](http://www.sass-lang.com/) in the `scipost/static/scipost/scss/preconfig.scss` file, relying on [Bootstrap 4.0.0-beta.6](//v4-alpha.getbootstrap.com/). A full list of variables available by default can be found [here](https://github.com/twbs/bootstrap/blob/v4-dev/scss/_variables.scss).
 All modules are configured in the `.bootstraprc` file. Most modules are disabled by default.
 
 ### Collectstatic
