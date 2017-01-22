@@ -8,7 +8,7 @@ var path_bundles = __dirname + '/static_bundles/bundles';
 module.exports = {
     context: __dirname,
     entry: {
-        main: glob.sync("./scipost/static/scipost/assets/**/*.@(js|css)"),
+        main: glob.sync("./scipost/static/scipost/assets/**/*.@(js|css|scss)"),
         bootstrap: 'bootstrap-loader'
     },
     output: {
@@ -32,6 +32,13 @@ module.exports = {
                     loader: "css-loader!less-loader"
                 })
             },
+            {
+                test: /\.scss$/,
+                loader: ExtractTextPlugin.extract({
+                    fallbackLoader: "style-loader",
+                    loader: "css-loader!sass-loader",
+                })
+            }
         ]
     },
     plugins: [

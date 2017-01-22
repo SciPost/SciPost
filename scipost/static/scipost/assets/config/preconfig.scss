@@ -4,7 +4,11 @@
 
 // Colors
 //
-$blue: #6884C2 !default;
+$scipost-lightblue: #6884C2 !default;
+$scipost-darkblue: #002b49 !default;
+
+$blue: $scipost-lightblue !default;
+$body-color: $scipost-darkblue !default;
 
 // Fonts
 //
@@ -16,7 +20,7 @@ $font-family-base:       $font-family-sans-serif !default;
 $font-size-base: 0.8rem !default;
 
 
-.form-control,
-.btn {
-    font-family: inherit;
-}
+// navbar
+//
+$navbar-light-color: $scipost-darkblue !default;
+$navbar-light-hover-color: $scipost-darkblue !default;

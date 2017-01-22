@@ -1,6 +1,6 @@
 {
     "bootstrapVersion": 4,
-    "preBootstrapCustomizations": "./scipost/static/scipost/assets/scss/bootstrap_preconfig.scss",
+    "preBootstrapCustomizations": "./scipost/static/scipost/assets/config/preconfig.scss",
     "useFlexbox": true,
     "styleLoaders": [
         "style",
@@ -23,6 +23,7 @@
         "responsive-embed": true,
         "close": true,
         "utilities": true,
+        "transitions": true,
     },
     "scripts": {
         "collapse": true,
