@@ -4,135 +4,148 @@
 
 {% block bodysup %}
 
+<div class="container-fluid">
+    <div class="row">
+        {% if latest_newsitems %}
+        <div class="col-md-6 {% if user.is_authenticated %}col-lg-4{% else %}col-lg-3{% endif %}">
+            <div class="panel">
+                <h1><a href="{% url 'scipost:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14"></a></h1>
+                <p>Latest news and announcements.</p>
+                <hr class="hr6"/>
+                <ul class="NewsItemsList">
+                {% for item in latest_newsitems %}
+                    <li>{{ item.descriptor_small|linebreaks }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
 
-<section>
-  <div class="flex-container">
-    {% if latest_newsitems %}
-      <div class="flex-greybox320">
-        <h1><a href="{% url 'scipost:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14"></a></h1>
-        <p>Latest news and announcements.</p>
-        <hr class="hr6"/>
-        <ul class="NewsItemsList">
-      {% for item in latest_newsitems %}
-        <li>{{ item.descriptor_small|linebreaks }}</li>
-      {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-    <div class="flex-greybox320">
-      <h1><a href="{% url 'scipost:about' %}">About SciPost</a></h1>
-      <p>SciPost is a complete scientific publication portal managed by active professional scientists.</p>
-      <p>It is purely online-based and offers openly, globally and perpetually accessible science.</p>
-      <h3><a href="{% url 'scipost:about' %}#advisory_board">Advisory Board</a></h3>
-      <h3><a href="{% url 'scipost:call' %}">A call for openness</a></h3>
-      <h3><a href="{% url 'scipost:quick_tour' %}">Quick Tour</a></h3>
-      <h3><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h3>
-      <h3><a href="{% url 'scipost:about' %}">Read more</a></h3>
-      <h4><em>In the press:</em></h4>
-      <ul>
-	<li><a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016.pdf' %}">FOM expres 5/2016</a> (<a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016_eng.pdf' %}">English vn</a>)</li>
-	<li><a href="http://www.uva.nl/en/news-events/news/uva-news/content/news/2016/10/open-access-platform-scipost-launches-inaugural-edition-of-first-journal.html">Inaugural issue 10/2016</a></li>
-      </ul>
+        <div class="col-md-6 {% if user.is_authenticated %}col-lg-4{% else %}col-lg-3{% endif %}">
+            <div class="panel">
+                <h1><a href="{% url 'scipost:about' %}">About SciPost</a></h1>
+                <p>SciPost is a complete scientific publication portal managed by active professional scientists.</p>
+                <p>It is purely online-based and offers openly, globally and perpetually accessible science.</p>
+                <h3><a href="{% url 'scipost:about' %}#advisory_board">Advisory Board</a></h3>
+                <h3><a href="{% url 'scipost:call' %}">A call for openness</a></h3>
+                <h3><a href="{% url 'scipost:quick_tour' %}">Quick Tour</a></h3>
+                <h3><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h3>
+                <h3><a href="{% url 'scipost:about' %}">Read more</a></h3>
+                <h4><em>In the press:</em></h4>
+                <ul>
+                    <li><a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016.pdf' %}">FOM expres 5/2016</a> (<a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016_eng.pdf' %}">English vn</a>)</li>
+                    <li><a href="http://www.uva.nl/en/news-events/news/uva-news/content/news/2016/10/open-access-platform-scipost-launches-inaugural-edition-of-first-journal.html">Inaugural issue 10/2016</a></li>
+                </ul>
+            </div>
+        </div>
+
+        {% if not user.is_authenticated %}
+        <div class="col-md-6 col-lg-3">
+            <div class="panel">
+                <h1><a href="{% url 'scipost:register' %}">Register</a></h1>
+                <p>Professional scientists (PhD students and above) can become Contributors to SciPost by filling the
+                <a href="{% url 'scipost:register' %}">registration form</a>.</p>
+                <h4>Registered contributors can among others:</h4>
+                <ul>
+                    <li>Submit manuscripts to SciPost Journals</li>
+                    <li>Post reports and comments</li>
+                    <li>Express opinions on contributions</li>
+                    <li>Subscribe to feeds</li>
+                    <li>Use productivity tools</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="col-md-6 {% if user.is_authenticated %}col-lg-4{% else %}col-lg-3{% endif %}">
+            <div class="panel">
+              <h1><a href="{% url 'journals:journals' %}">Journals</a></h1>
+              <p>SciPost publishes a portfolio of high-quality two-way open access scientific journals.</p>
+              <p>All SciPost Journals implement the stringent <a href="/FAQ#pwr">peer-witnessed refereeing</a> principle.</p>
+              <p>All Journals are fully managed by professional scientists.</p>
+              <h3><a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a></h3>
+              <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a></h3>
+
+              <br/>
+
+              <p>View and comment on (login required) recent <a href="{% url 'submissions:submissions' %}">Submissions</a></p>
+
+              <br/>
+
+              <div class="SciPostPhysicsBanner">
+            	<h3><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h3>
+              </div>
+              <br/>
+              <p style="color: red;"><em>If you support and believe in our mission, <br/>be a pioneer and submit a manuscript!</em></p>
+            </div>
+        </div>
     </div>
 
-    {% if not user.is_authenticated %}
-      <div class="flex-greybox320">
-        <h1><a href="{% url 'scipost:register' %}">Register</a></h1>
-        <p>Professional scientists (PhD students and above) can become Contributors to SciPost by filling the
-      <a href="{% url 'scipost:register' %}">registration form</a>.</p>
-        <h4>Registered contributors can among others:</h4>
-        <ul>
-      <li>Submit manuscripts to SciPost Journals</li>
-      <li>Post reports and comments</li>
-      <li>Express opinions on contributions</li>
-      <li>Subscribe to feeds</li>
-      <li>Use productivity tools</li>
-        </ul>
-      </div>
-    {% endif %}
-
-    <div class="flex-greybox320">
-      <h1><a href="{% url 'journals:journals' %}">Journals</a></h1>
-      <p>SciPost publishes a portfolio of high-quality two-way open access scientific journals.</p>
-      <p>All SciPost Journals implement the stringent <a href="/FAQ#pwr">peer-witnessed refereeing</a> principle.</p>
-      <p>All Journals are fully managed by professional scientists.</p>
-      <h3><a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a></h3>
-      <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a></h3>
-      <br/>
-      <p>View and comment on (login required) recent <a href="{% url 'submissions:submissions' %}">Submissions</a></p>
-      <br/>
-      <div class="SciPostPhysicsBanner">
-	<h3><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h3>
-      </div>
-      <br/>
-      <p style="color: red;"><em>If you support and believe in our mission, <br/>be a pioneer and submit a manuscript!</em></p>
+    <div class="row">
+        <div class="col-md-6 col-lg-3">
+            <div class="panel">
+              <h1><a href="{% url 'commentaries:commentaries' %}">Commentaries</a></h1>
+              <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
+              <br/>
+              {% comment %}
+                  <h3>Search SciPost Commentaries:</h3>
+                  <form action="{% url 'commentaries:commentaries' %}" method="post">
+                {% csrf_token %}
+                <table>
+                  {{ commentary_search_form.as_table }}
+                </table>
+                <input type="submit" name="Submit" />
+                  </form>
+              {% endcomment %}
+              <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
+              <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="panel">
+              <h1><a href="{% url 'theses:theses' %}">Theses</a></h1>
+              <p>SciPost Theses allow Contributors to find Master's, Ph.D. and Habilitation theses relevant to their work.</p>
+              <br/>
+              {% comment %}
+                  <h3>Search SciPost Theses:</h3>
+                  <form action="{% url 'theses:theses' %}" method="post">
+                {% csrf_token %}
+                <table>
+                  {{ thesislink_search_form.as_table }}
+                </table>
+                <input type="submit" name="Submit" />
+                  </form>
+              {% endcomment %}
+              <h3><a href="{% url 'theses:request_thesislink' %}">Request a new Thesis Link</a></h3>
+            </div>
+        </div>
     </div>
-
-    <br/>
-  </div>
-  <div class="flex-container">
-    <div class="flex-greybox320">
-      <h1><a href="{% url 'commentaries:commentaries' %}">Commentaries</a></h1>
-      <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
-      <br/>
-      {% comment %}
-          <h3>Search SciPost Commentaries:</h3>
-          <form action="{% url 'commentaries:commentaries' %}" method="post">
-        {% csrf_token %}
-        <table>
-          {{ commentary_search_form.as_table }}
-        </table>
-        <input type="submit" name="Submit" />
-          </form>
-      {% endcomment %}
-      <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
-      <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
-    </div>
-    <div class="flex-greybox320">
-      <h1><a href="{% url 'theses:theses' %}">Theses</a></h1>
-      <p>SciPost Theses allow Contributors to find Master's, Ph.D. and Habilitation theses relevant to their work.</p>
-      <br/>
-      {% comment %}
-          <h3>Search SciPost Theses:</h3>
-          <form action="{% url 'theses:theses' %}" method="post">
-        {% csrf_token %}
-        <table>
-          {{ thesislink_search_form.as_table }}
-        </table>
-        <input type="submit" name="Submit" />
-          </form>
-      {% endcomment %}
-      <h3><a href="{% url 'theses:request_thesislink' %}">Request a new Thesis Link</a></h3>
-    </div>
-  </div>
-</section>
+</div>
 
 
-<section>
-  <hr class="hr12">
-  <div class="row">
-    <div class="col-6">
-      <h1>SciPost is endorsed by</h1>
-      <div class="row">
-	<div class="col-6">
-	  <a href="https://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width="300" /></a>
-	  <p id="NWOOpenAccess">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as
-	    stipulated on the NWO’s <a href="https://www.nwo.nl/en/policies/open+science">Open Science page</a>.</p>
-	</div>
-	<div class="col-1">
-	</div>
-	<div class="col-4">
-	  <a href="https://www.fom.nl"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width="100" /></a>
-	  <p style="font-size: 50%">FOM is part of NWO</p>
-	</div>
-      </div>
+<div class="container-fluid">
+    <hr class="hr12">
+    <div class="row">
+        <div class="col-md-6">
+            <h1>SciPost is endorsed by</h1>
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="//www.nwo.nl/en" target="_blank"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width="300" /></a>
+                    <p id="NWOOpenAccess">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as
+                        stipulated on the NWO’s <a href="//www.nwo.nl/en/policies/open+science" target="_blank">Open Science page</a>.</p>
+                </div>
+                <div class="col-md-6">
+                    <a href="//www.fom.nl" target="_blank"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width="100" /></a>
+                    <p style="font-size: 50%">FOM is part of NWO</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h1>SciPost is a member of</h1>
+            <br/>
+            <a href="//www.crossref.org" target="_blank"><img src="//assets.crossref.org/logo/crossref-logo-200.svg" width="100" alt="Crossref logo"></a>
+        </div>
     </div>
-    <div class="col-6">
-      <h1>SciPost is a member of</h1>
-      <br/>
-      <a href="http://www.crossref.org"><img src="https://assets.crossref.org/logo/crossref-logo-200.svg" width="100" alt="Crossref logo"></a>
-    </div>
-  </div>
-</section>
+</div>
 
 {% endblock bodysup %}

@@ -1,0 +1,22 @@
+// General variable structure
+//
+//
+
+// Colors
+//
+$blue: #6884C2 !default;
+
+// Fonts
+//
+$font-family-sans-serif: 'Merriweather Sans', "Helvetica Neue", Arial, sans-serif !default;
+$font-family-serif:      $font-family-sans-serif !default;
+$font-family-monospace:  $font-family-sans-serif !default;
+$font-family-base:       $font-family-sans-serif !default;
+
+$font-size-base: 0.8rem !default;
+
+
+.form-control,
+.btn {
+    font-family: inherit;
+}

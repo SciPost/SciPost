@@ -3,25 +3,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+
     {% load staticfiles %}
+
     <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
 
+    {% render_bundle 'bootstrap' 'css' %}
     {% render_bundle 'main' 'css' %}
 
     <link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
 
-    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
-
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-      tex2jax: {
-      inlineMath: [['$','$'], ['\\(','\\)']],
-      processEscapes: true
-      }});
-    </script>
-    <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
+
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
 
     {% block headsup %}
     {% endblock headsup %}
@@ -39,7 +35,23 @@
 
     {% include 'scipost/footer.html' %}
 
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+      }});
+    </script>
+    <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
     {% render_bundle 'main' 'js' %}
-  </body>
+    {% render_bundle 'bootstrap' 'js' %}
+
+    <script type="text/javascript" src="{% static 'scipost/global/utils.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scipost/global/collapse.js' %}"></script>
+
+    {% block footer_script %}
+    {% endblock footer_script %}
+</body>
 
 </html>

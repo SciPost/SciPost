@@ -1,0 +1,14 @@
+a {
+    color: #6884C2;
+    text-decoration: none;
+}
+a:hover {
+    color: #103050;
+    text-decoration: underline;
+}
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    padding: 5px 0;
+    text-shadow: none;
+    font-weight: 500;
+}
