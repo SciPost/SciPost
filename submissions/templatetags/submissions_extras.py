@@ -43,14 +43,17 @@ def required_actions(submission):
         todo.append('Only %s Referees have been invited. '
                     'At least 3 should be.' % nr_ref_inv)
     for ref_inv in submission.refereeinvitation_set.all():
+        refname = ref_inv.last_name + ', ' + ref_inv.last_name
+        if ref_inv.referee:
+            refname = str(ref_inv.referee)
         if ref_inv.accepted is None and not ref_inv.cancelled:
             todo.append('Referee %s has not yet responded. Consider sending a reminder '
-                        'or cancelling the invitation.' % ref_inv.referee)
+                        'or cancelling the invitation.' % refname)
         if ref_inv.accepted and not ref_inv.fulfilled and not ref_inv.cancelled:
             todo.append('Referee %s has accepted to send a Report, '
                         'but not yet delivered it. Consider sending a '
-                        'reminder.' % ref_inv.referee)
-    if submission.reporting_deadline > timezone.now():
+                        'reminder.' % refname)
+    if submission.reporting_deadline < timezone.now():
         todo.append('The refereeing deadline has passed. Please either extend it, '
                     'or formulate your Editorial Recommendation.')
     reports = submission.report_set.all()
