@@ -1,6 +1,7 @@
 from django import template
 from django.utils import timezone
 
+from submissions.models import SUBMISSION_STATUS_OUT_OF_POOL
 from submissions.models import Submission
 
 register = template.Library()
@@ -27,6 +28,8 @@ def required_actions(submission):
     This method returns a list of required actions on a Submission.
     Each list element is a textual statement.
     """
+    if submission.status in SUBMISSION_STATUS_OUT_OF_POOL:
+        return []
     todo = []
     for comment in submission.comment_set.all():
         if comment.status == 0:
@@ -40,7 +43,7 @@ def required_actions(submission):
         todo.append('Only %s Referees have been invited. '
                     'At least 3 should be.' % nr_ref_inv)
     for ref_inv in submission.refereeinvitation_set.all():
-        if ref_inv.accepted is None:
+        if ref_inv.accepted is None and not ref_inv.cancelled:
             todo.append('Referee %s has not yet responded. Consider sending a reminder '
                         'or cancelling the invitation.' % ref_inv.referee)
         if ref_inv.accepted and not ref_inv.fulfilled and not ref_inv.cancelled:
