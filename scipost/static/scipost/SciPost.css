@@ -15,8 +15,8 @@ General style sheet for SciPost
 }
 
 [class*="col-"] {
-    float: left;
-    padding: 5px;
+    /*float: left;
+    padding: 5px;*/
 }
 /* For desktop: */
 .col-1 {width: 8.33%;}
@@ -602,7 +602,6 @@ input, textarea {
   border: 1px solid black; border-radius: 1px;
 }
 input[type='text'], input[type='URL'], textarea {
-  width: 80%;
   max-width: 800px;
   min-width: 200px;
 }

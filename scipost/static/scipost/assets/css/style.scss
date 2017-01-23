@@ -73,6 +73,10 @@ h1, h2, h3, h4, h5, h6 {
     .highlighted > .nav-link {
         background-color: rgba(255, 255, 255, 0.6);
     }
+
+    .nav-item {
+        margin-right: 0.5rem;
+    }
 }
 .navbar-brand {
     height: 38px;
@@ -81,6 +85,6 @@ h1, h2, h3, h4, h5, h6 {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0, 43, 73, 1.0)");
 }
 .panel {
-    padding: 0.5rem;
+    padding: 0.75rem;
     background-color: #f4f4f4;
 }
