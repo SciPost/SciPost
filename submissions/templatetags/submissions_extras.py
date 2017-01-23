@@ -39,7 +39,8 @@ def required_actions(submission):
             todo.append('A Comment from %s has been delivered but is not yet vetted. '
                         'Please vet it.' % comment.author)
     nr_ref_inv = submission.refereeinvitation_set.count()
-    if submission.is_resubmission and nr_ref_inv == 0 and not submission.eicrecommendation :
+    if (submission.is_resubmission and nr_ref_inv == 0
+        and not submission.eicrecommendation_set.exists()):
         todo.append('This resubmission requires attention: either (re)invite referees '
                     'or formulate an Editorial Recommendation.')
     if nr_ref_inv == 0 and not submission.is_resubmission:
