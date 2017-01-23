@@ -253,6 +253,7 @@ $(document).ready(function(){
     {% get_obj_perms request.user for sub as "sub_perms" %}
     {% if "can_take_editorial_actions" in sub_perms or request.user|is_in_group:'Editorial Administrators' %}
     <br/>
+    {% if sub|required_actions %}
     <div class="flex-container">
       <div class-"flex-whitebox" style="background-color: #ffaaaa;">
 	<h3>Required actions:</h3>
@@ -263,6 +264,7 @@ $(document).ready(function(){
 	</ul>
       </div>
     </div>
+    {% endif %}
     <h4><a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">
       Go to this Submission's Editorial Page</a></h4>
     {% endif %}
