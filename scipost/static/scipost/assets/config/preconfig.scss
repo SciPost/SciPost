@@ -2,6 +2,19 @@
 //
 //
 
+// Grid
+//
+$grid-gutter-width-base: 20px;
+$container-max-widths: (
+  sm: 546px,
+  md: 738px,
+  lg: 962px,
+  xl: 1170px
+);
+.row {
+    margin-bottom: 1rem;
+}
+
 // Colors
 //
 $scipost-lightblue: #6884C2 !default;
