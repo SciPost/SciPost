@@ -1,28 +1,26 @@
 {% load staticfiles %}
-<footer>
+<footer class="container-fluid py-2">
   <div class="row">
 
-    <div class="col-4">
-      Copyright &copy; <a href="{% url 'scipost:foundation' %}">SciPost Foundation</a>.
+    <div class="col-md-4">
+      Copyright &copy; <a href="{% url 'scipost:foundation' %}" target="_">SciPost Foundation</a>.
       <br/>
       <a href="mailto:admin@scipost.org">Contact the administrators.</a>
       <br/>
       <a href="{% url 'scipost:terms_and_conditions' %}">Terms and conditions.</a>
     </div>
-    <div class="col-2">
-      Follow us on:<br/>
+    <div class="col-md-3">
+      Follow us:<br/>
       <table>
-	<tr>
-	  <td><a href="https://www.facebook.com/scipost" target="_blank" title="Facebook"><img src="{% static 'scipost/images/FB-f-Logo__white_29.png' %}" width="20" alt="Facebook"/></a></td>
-	  <td><a href="https://twitter.com/scipost_dot_org" target="_blank" title="Twitter"><img src="{% static 'scipost/images/Twitter_Logo_Blue.png' %}" width="32" alt="Twitter"/></a></td>
-	  </tr>
+    	<tr>
+    	  <td><a href="//www.facebook.com/scipost" target="_blank" title="Facebook"><img src="{% static 'scipost/images/FB-f-Logo__white_29.png' %}" width="20" alt="Facebook"/></a></td>
+    	  <td><a href="//twitter.com/scipost_dot_org" target="_blank" title="Twitter"><img src="{% static 'scipost/images/Twitter_Logo_Blue.png' %}" width="32" alt="Twitter"/></a></td>
+    	  <td><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-28x28.png' %}" alt="Feed logo" width="20"></a></td>
+    	</tr>
       </table>
     </div>
-    <div class="col-1">
+    <div class="col-md-5">
+      <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />Except where otherwise noted, all content on SciPost is licensed under a <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.
     </div>
-    <div class="col-5">
-      <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />Except where otherwise noted, all content on SciPost is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
-    </div>
-
   </div>
 </footer>

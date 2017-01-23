@@ -292,7 +292,7 @@ def validate_publication(request):
             publication.save()
             # Move file to final location
             initial_path = publication.pdf_file.path
-            new_dir =  (publication.in_issue.path
+            new_dir =  (publication.in_issue.path + '/'
                         + paper_nr_string(publication.paper_nr))
             new_path = new_dir + '/' + publication.doi_label.replace('.', '_') + '.pdf'
             os.makedirs(new_dir)

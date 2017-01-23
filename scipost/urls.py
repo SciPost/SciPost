@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 from django.views.generic import TemplateView
 
 from . import views
-from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS, LatestCommentsFeedAtom
+from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS, LatestCommentsFeedAtom, LatestSubmissionsFeedRSS, LatestSubmissionsFeedAtom, LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
 
@@ -31,14 +31,36 @@ urlpatterns = [
         name='privacy_policy'),
 
     # Feeds
-    url(r'^feeds$', TemplateView.as_view(template_name='scipost/feeds.html'), name='feeds'),
+    url(r'^feeds$', views.feeds, #TemplateView.as_view(template_name='scipost/feeds.html'),
+        name='feeds'),
     url(r'^rss/news/$', LatestNewsFeedRSS()),
     url(r'^atom/news/$', LatestNewsFeedAtom()),
     url(r'^rss/comments/$', LatestCommentsFeedRSS()),
     url(r'^atom/comments/$', LatestCommentsFeedAtom()),
+    url(r'^rss/submissions/$',
+        LatestSubmissionsFeedRSS()),
+    url(r'^rss/submissions/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+        LatestSubmissionsFeedRSS(),
+        name='sub_feed_spec_rss'),
+    url(r'^atom/submissions/$',
+        LatestSubmissionsFeedAtom()),
+    url(r'^atom/submissions/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+        LatestSubmissionsFeedAtom(),
+        name='sub_feed_spec_atom'),
+    url(r'^rss/publications/$',
+        LatestPublicationsFeedRSS()),
+    url(r'^rss/publications/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+        LatestPublicationsFeedRSS(),
+        name='pub_feed_spec_rss'),
+    url(r'^atom/publications/$',
+        LatestPublicationsFeedAtom()),
+    url(r'^atom/publications/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+        LatestPublicationsFeedAtom(),
+        name='pub_feed_spec_atom'),
 
     # Search
     url(r'^search$', views.search, name='search'),
+    url(r'^search/', include('haystack.urls')),
 
     ################
     # Contributors:
@@ -56,6 +78,9 @@ urlpatterns = [
     url(r'^already_activated$',
         TemplateView.as_view(template_name='scipost/already_activated.html'),
         name='already_activated'),
+    url(r'^unsubscribe/(?P<key>.+)$', views.unsubscribe, name='unsubscribe'),
+    url(r'^unsubscribe_confirm/(?P<key>.+)$',
+        views.unsubscribe_confirm, name='unsubscribe_confirm'),
     url(r'^vet_registration_requests$',
         views.vet_registration_requests, name='vet_registration_requests'),
     url(r'^vet_registration_request_ack/(?P<contributor_id>[0-9]+)$',
@@ -66,6 +91,10 @@ urlpatterns = [
         views.registration_invitations, name="registration_invitations"),
     url(r'^draft_registration_invitation$',
         views.draft_registration_invitation, name="draft_registration_invitation"),
+    url(r'^edit_draft_reg_inv/(?P<draft_id>[0-9]+)$',
+        views.edit_draft_reg_inv, name="edit_draft_reg_inv"),
+    url(r'^map_draft_reg_inv_to_contributor/(?P<draft_id>[0-9]+)/(?P<contributor_id>[0-9]+)$',
+        views.map_draft_reg_inv_to_contributor, name="map_draft_reg_inv_to_contributor"),
     url(r'^registration_invitations_cleanup$',
         views.registration_invitations_cleanup,
         name="registration_invitations_cleanup"),
@@ -89,6 +118,12 @@ urlpatterns = [
     url(r'^accept_invitation_error$',
         TemplateView.as_view(template_name='scipost/accept_invitation_error.html'),
         name='accept_invitation_error'),
+    url(r'^mark_draft_inv_as_processed/(?P<draft_id>[0-9]+)$',
+        views.mark_draft_inv_as_processed, name='mark_draft_inv_as_processed'),
+    url(r'^citation_notifications$',
+        views.citation_notifications, name='citation_notifications'),
+    url(r'^process_citation_notification/(?P<cn_id>[0-9]+)$',
+        views.process_citation_notification, name='process_citation_notification'),
 
     ## Authentication
     url(r'^login/$', views.login_view, name='login'),
@@ -149,10 +184,10 @@ urlpatterns = [
         name='doi_SciPostPhys'),
     url(r'^SciPostPhys.(?P<volume_nr>[0-9]+).(?P<issue_nr>[0-9]+)$',
         journals_views.scipost_physics_issue_detail,
-        name='SciPostPhys_issue_detail'),
+        name='SciPostPhys_issue_detail_from_doi_label'),
     url(r'^10.21468/SciPostPhys.(?P<volume_nr>[0-9]+).(?P<issue_nr>[0-9]+)$',
         journals_views.scipost_physics_issue_detail,
-        name='doi_SciPostPhys_issue_detail'),
+        name='SciPostPhys_issue_detail'),
 
     url(r'^(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.publication_detail,
@@ -166,6 +201,18 @@ urlpatterns = [
     url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
         journals_views.publication_pdf_from_doi_label,
         name='publication_pdf_from_doi_label'),
+
+
+    ################
+    # Howto guides #
+    ################
+
+    url(r'^howto$',
+        TemplateView.as_view(template_name='scipost/howto.html'),
+        name='howto'),
+    url(r'^howto/production$',
+        TemplateView.as_view(template_name='scipost/howto_production.html'),
+        name='howto_production'),
 
 
     #########

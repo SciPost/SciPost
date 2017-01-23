@@ -1,27 +1,47 @@
-<nav>
-  <div class="row">
-    <div class="col-5">
-      <a href="{% url 'scipost:index' %}" {% if request.path == '/' %}class="highlighted"{% endif %}>Home</a>
-      <a href="{% url 'journals:journals' %}" {% if "/journals/" in request.path %}class="highlighted"{% endif %}>Journals</a>
-      <a href="{% url 'submissions:submissions' %}" {% if "/submissions/" in request.path %}class="highlighted"{% endif %}>Submissions</a>
-      <a href="{% url 'commentaries:commentaries' %}" {% if "/commentaries/" in request.path %}class="highlighted"{% endif %}>Commentaries</a>
-      <a href="{% url 'theses:theses' %}" {% if "/theses/" in request.path %}class="highlighted"{% endif %}>Theses</a>
-    </div>
-    <div class="col-4">
+<nav class="navbar navbar-light navbar-toggleable-md">
+  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#header-navbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="#"></a>
+  <div class="collapse navbar-collapse" id="header-navbar">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item{% if request.path == '/' %} active{% endif %}">
+        <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
+      </li>
+      <li class="nav-item{% if '/journals/' in request.path %} active{% endif %}">
+        <a href="{% url 'journals:journals' %}" class="nav-link">Journals</a>
+      </li>
+      <li class="nav-item{% if '/submissions/' in request.path %} active{% endif %}">
+        <a class="nav-link" href="{% url 'submissions:submissions' %}">Submissions</a>
+      </li>
+      <li class="nav-item{% if '/commentaries/' in request.path %} active{% endif %}">
+        <a class="nav-link" href="{% url 'commentaries:commentaries' %}">Commentaries</a>
+      </li>
+      <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
+        <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
+      </li>
+
       {% if user.is_authenticated %}
-      <p id="loggedinas"><em>Logged in as {{ user.username }}</em></p>
-      <a href="{% url 'scipost:logout' %}">Logout</a>
-      <a href="{% url 'scipost:personal_page' %}" {% if "/personal_page" in request.path %}class="highlighted"{% endif %}>Personal Page</a>
+          <li class="nav-item highlighted">
+            <span class="nav-link">Logged in as {{ user.username }}</span>
+          </li>
+          <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
+            <a class="nav-link" href="{% url 'scipost:personal_page' %}">Personal Page</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'scipost:logout' %}">Logout</a>
+          </li>
       {% else %}
-      <a href="{% url 'scipost:login' %}">Login</a>
+          <li class="nav-item{% if request.path == '/login/' %} active{% endif %}">
+            <a class="nav-link" href="{% url 'scipost:login' %}">Login</a>
+          </li>
       {% endif %}
-    </div>
-    <div class="col-3">
-      <form action="{% url 'scipost:search' %}" method="post">
-	{% csrf_token %}
-	{{ search_form.as_p }}
-	<input type="submit" value="Search"/>
-      </form>
-    </div>
+
+    </ul>
+    <form action="{% url 'scipost:search' %}" method="post" class="form-inline">
+        {% csrf_token %}
+        {{ search_form }}
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
   </div>
 </nav>

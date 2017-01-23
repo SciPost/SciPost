@@ -27,6 +27,7 @@ from .utils import SubmissionUtils
 
 from comments.models import Comment
 from journals.models import journals_submit_dict
+from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, title_dict, Remark, RegistrationInvitation
 
 from scipost.utils import Utils
@@ -58,6 +59,13 @@ def prefill_using_identifier(request):
             previous_submissions = Submission.objects.filter(
                 arxiv_identifier_wo_vn_nr=identifier_without_vn_nr).order_by('-arxiv_vn_nr')
             if previous_submissions.exists():
+                if previous_submissions[0].status in ['rejected', 'rejected_visible',]:
+                    errormessage = ('<p>This arXiv preprint has previously undergone refereeing '
+                                    'and has been rejected. Resubmission is only possible '
+                                    'if the manuscript has been substantially reworked into '
+                                    'a new arXiv submission with distinct identifier.</p>')
+                    return render(request, 'scipost/error.html',
+                                  {'errormessage': mark_safe(errormessage)})
                 # If the Editorial Recommendation hasn't been formulated, ask to wait
                 if previous_submissions[0].status != 'revision_requested':
                     errormessage = ('<p>There exists a preprint with this arXiv identifier '
@@ -321,11 +329,15 @@ def submission_detail_wo_vn_nr(request, arxiv_identifier_wo_vn_nr):
 
 def submission_detail(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if (submission.status in SUBMISSION_STATUS_PUBLICLY_UNLISTED
-        and request.user.contributor not in submission.authors.all()
+    try:
+        is_author = request.user.contributor in submission.authors.all()
+    except AttributeError:
+        is_author = False
+    if (submission.status in SUBMISSION_STATUS_PUBLICLY_INVISIBLE
         and not request.user.groups.filter(name='SciPost Administrators').exists()
         and not request.user.groups.filter(name='Editorial Administrators').exists()
         and not request.user.groups.filter(name='Editorial College').exists()
+        and not is_author
     ):
         raise PermissionDenied
     other_versions = Submission.objects.filter(
@@ -441,16 +453,46 @@ def pool(request):
         recommendation=-1).exclude(recommendation=-2).exclude(
             voted_for__in=[contributor]).exclude(
             voted_against__in=[contributor]).exclude(
-            voted_abstain__in=[contributor])
+            voted_abstain__in=[contributor]).exclude(
+            submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED)
     rec_vote_form = RecommendationVoteForm()
+    remark_form = RemarkForm()
     context = {'submissions_in_pool': submissions_in_pool,
                'recommendations_undergoing_voting': recommendations_undergoing_voting,
                'recommendations_to_prepare_for_voting': recommendations_to_prepare_for_voting,
                'assignments_to_consider': assignments_to_consider,
                'consider_assignment_form': consider_assignment_form,
                'recs_to_vote_on': recs_to_vote_on,
-               'rec_vote_form': rec_vote_form}
+               'rec_vote_form': rec_vote_form,
+               'remark_form': remark_form,}
     return render(request, 'submissions/pool.html', context)
+
+
+@login_required
+@permission_required('scipost.can_view_pool', raise_exception=True)
+def add_remark(request, arxiv_identifier_w_vn_nr):
+    """
+    With this method, an Editorial Fellow or Board Member
+    is adding a remark on a Submission.
+    """
+    submission = get_object_or_404(Submission,
+                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    if request.method == 'POST':
+        remark_form = RemarkForm(request.POST)
+        if remark_form.is_valid():
+            remark = Remark(contributor=request.user.contributor,
+                            submission=submission,
+                            date=timezone.now(),
+                            remark=remark_form.cleaned_data['remark'])
+            remark.save()
+            return redirect(reverse('submissions:pool'))
+        else:
+            errormessage = 'The form was invalidly filled.'
+            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    else:
+        errormessage = 'This view can only be posted to.'
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
 
 
 @login_required
@@ -605,15 +647,28 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
     This method is called from pool.html by an Editorial Administrator.
     """
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    submission.status = 'assignment_failed'
-    submission.latest_activity = timezone.now()
-    submission.save()
-    SubmissionUtils.load({'submission': submission})
-    SubmissionUtils.deprecate_all_assignments()
-    SubmissionUtils.assignment_failed_email_authors()
-
-    context = {'submission': submission}
-    return render(request, 'submissions/assignment_failed_ack.html', context)
+    if request.method == 'POST':
+        form = ModifyPersonalMessageForm(request.POST)
+        if form.is_valid():
+            submission.status = 'assignment_failed'
+            submission.latest_activity = timezone.now()
+            submission.save()
+            SubmissionUtils.load({'submission': submission,
+                                  'personal_message': form.cleaned_data['personal_message']})
+            SubmissionUtils.deprecate_all_assignments()
+            SubmissionUtils.assignment_failed_email_authors()
+            context = {'ack_header': ('Submission ' + submission.arxiv_identifier_w_vn_nr +
+                                      ' has failed pre-screening and been rejected. '
+                                      'Authors have been informed by email.'),
+                       'followup_message': 'Return to the ',
+                       'followup_link': reverse('submissions:pool'),
+                       'followup_link_label': 'Submissions pool'}
+            return render(request, 'scipost/acknowledgement.html', context)
+    else:
+        form = ModifyPersonalMessageForm()
+    context = {'submission': submission,
+               'form': form}
+    return render(request, 'submissions/assignment_failed.html', context)
 
 
 @login_required
@@ -1245,6 +1300,12 @@ def fix_College_decision(request, rec_id):
     elif recommendation.recommendation==-3:
         # Reject
         recommendation.submission.status='rejected'
+        previous_submissions = Submission.objects.filter(
+            arxiv_identifier_wo_vn_nr=recommendation.submission.arxiv_identifier_wo_vn_nr
+        ).exclude(pk=recommendation.submission.id)
+        for sub in previous_submissions:
+            sub.status = 'resubmitted_rejected'
+            sub.save()
 
     recommendation.submission.save()
     SubmissionUtils.load({'submission': recommendation.submission,

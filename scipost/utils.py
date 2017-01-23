@@ -65,12 +65,12 @@ EMAIL_FOOTER = (
 )
 
 EMAIL_UNSUBSCRIBE_LINK_PLAIN = (
-    '\n\nUnsubscribe from our email list by '
+    '\n\nDon\'t want to receive such emails? Unsubscribe by '
     'updating your personal data at https://scipost.org/update_personal_data.'
 )
 
-EMAIL_UNSUBSCRIBE_LINK = (
-    '\n\n<p style="font-size: 10px;">Unsubscribe from our email list by '
+EMAIL_UNSUBSCRIBE_LINK_HTML = (
+    '\n\n<p style="font-size: 10px;">Don\'t want to receive such emails? Unsubscribe by '
     '<a href="https://scipost.org/update_personal_data">updating your personal data</a>.</p>'
 )
 
@@ -441,7 +441,7 @@ class Utils(object):
                 'Contributor to the site.')
             email_text_html += (
                 '<p>Your work has been cited in a paper published by SciPost,</p>'
-                '<p>{{ pub_title }}</p> <p>by {{ pub_author_list }}<p/>'
+                '<p>{{ pub_title }}</p> <p>by {{ pub_author_list }}</p>'
                 '(published as <a href="https://scipost.org/{{ doi_label }}">{{ citation }}</a>).'
                 '</p>'
                 '\n<p>I would hereby like to use this opportunity to quickly introduce '
@@ -652,4 +652,85 @@ class Utils(object):
 
 
         # This function is now for all invitation types:
+        emailmessage.send(fail_silently=False)
+
+
+    @classmethod
+    def send_citation_notification_email(cls):
+        """
+        Requires loading the 'notification' attribute.
+        """
+        email_context = Context({})
+        email_text = ('Dear ' + title_dict[cls.notification.contributor.title] +
+                      ' ' + cls.notification.contributor.user.last_name)
+        email_text_html = 'Dear {{ title }} {{ last_name }}'
+        email_context['title'] = title_dict[cls.notification.contributor.title]
+        email_context['last_name'] = cls.notification.contributor.user.last_name
+        email_text +=  ',\n\n'
+        email_text_html += ',<br/>'
+        if cls.notification.cited_in_publication:
+            email_text += (
+                'We would like to notify you that '
+                'your work has been cited in a paper published by SciPost,'
+                '\n\n' + cls.notification.cited_in_publication.title
+                + '\nby ' + cls.notification.cited_in_publication.author_list +
+                '\n\n(published as ' + cls.notification.cited_in_publication.citation() +
+                ').\n\nWe hope you will find this paper of interest to your own research.'
+                '\n\nBest regards,\n\nThe SciPost Team'
+                '\n\nDon\'t want to receive such emails? Unsubscribe by visiting '
+                'https://scipost.org/unsubscribe/'
+                + cls.notification.contributor.activation_key + '.')
+            email_text_html += (
+                '<p>We would like to notify you that '
+                'your work has been cited in a paper published by SciPost,</p>'
+                '<p>{{ pub_title }}</p><p>by {{ pub_author_list }}</p>'
+                '<p>(published as <a href="https://scipost.org/{{ doi_label }}">'
+                '{{ citation }}</a>).</p>'
+                '<p>We hope you will find this paper of interest to your own research.</p>'
+                '<p>Best regards,</p><p>The SciPost Team</p><br/>'
+                + EMAIL_FOOTER + '<br/>'
+                '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
+                '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')
+            email_context['pub_title'] = cls.notification.cited_in_publication.title
+            email_context['pub_author_list'] = cls.notification.cited_in_publication.author_list
+            email_context['doi_label'] = cls.notification.cited_in_publication.doi_label
+            email_context['citation'] = cls.notification.cited_in_publication.citation()
+            email_context['key'] = cls.notification.contributor.activation_key
+            html_template = Template(email_text_html)
+            html_version = html_template.render(email_context)
+        elif cls.notification.cited_in_submission:
+            email_text += (
+                'Your work has been cited in a manuscript submitted to SciPost,'
+                '\n\n' + cls.notification.cited_in_submission.title
+                + ' by ' + cls.notification.cited_in_submission.author_list + '.\n\n'
+                'You might for example consider reporting or '
+                'commenting on the above submission before the refereeing deadline.\n\n'
+                'Best regards,\n\nThe SciPost Team'
+                '\n\nDon\'t want to receive such emails? Unsubscribe by visiting '
+                'https://scipost.org/unsubscribe/'
+                + cls.notification.contributor.activation_key + '.')
+            email_text_html += (
+                '<p>Your work has been cited in a manuscript submitted to SciPost,</p>'
+                '<p>{{ sub_title }} <br>by {{ sub_author_list }},</p>'
+                '<p>which you can find online at the '
+                '<a href="https://scipost.org/submission/{{ arxiv_nr_w_vn_nr }}">'
+                'submission\'s page</a>.</p>'
+                '<p>You might for example consider reporting or '
+                'commenting on the above submission before the refereeing deadline.</p>'
+                '<p>Best regards,</p><p>The SciPost Team</p><br/>'
+                + EMAIL_FOOTER + '<br/>'
+                '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
+                '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')
+            email_context['sub_title'] = cls.notification.cited_in_submission.title
+            email_context['sub_author_list'] = cls.notification.cited_in_submission.author_list
+            email_context['arxiv_identifier_w_vn_nr'] = cls.notification.cited_in_submission.arxiv_identifier_w_vn_nr
+            email_context['key'] = cls.notification.contributor.activation_key
+
+        emailmessage = EmailMultiAlternatives(
+            'SciPost: citation notification', email_text,
+            'SciPost admin <admin@scipost.org>',
+            [cls.notification.contributor.user.email],
+            bcc=['admin@scipost.org'],
+            reply_to=['admin@scipost.org'])
+        emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)

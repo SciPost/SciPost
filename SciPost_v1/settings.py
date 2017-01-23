@@ -70,15 +70,30 @@ INSTALLED_APPS = (
     'django_mathjax',
     'captcha',
     'crispy_forms',
-    'rest_framework',
     'guardian',
+    'haystack',
+    'rest_framework',
+    'sphinxdoc',
     'commentaries',
     'comments',
     'journals',
     'scipost',
     'submissions',
     'theses',
+    'webpack_loader'
 )
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': host_settings['HAYSTACK_PATH'],
+    },
+}
+
+SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
+SPHINXDOC_PROTECTED_PROJECTS = {
+    'scipost': ['scipost.can_view_docs_scipost'],
+}
 
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
 CAPTCHA_LETTER_ROTATION = (-15, 15)
@@ -161,6 +176,21 @@ USE_TZ = True
 
 STATIC_URL = host_settings["STATIC_URL"]
 STATIC_ROOT = host_settings["STATIC_ROOT"]
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static_bundles'),
+)
+
+# Webpack handling the static bundles
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': not DEBUG,
+        'BUNDLE_DIR_NAME': 'static/bundles/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+        'POLL_INTERVAL': 0.1,
+        'TIMEOUT': None,
+        'IGNORE': ['.+\.hot-update.js', '.+\.map']
+    }
+}
 
 # Email
 EMAIL_BACKEND = host_settings["EMAIL_BACKEND"]

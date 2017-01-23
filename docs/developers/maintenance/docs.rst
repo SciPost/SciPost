@@ -1,0 +1,22 @@
+Maintenance of SciPost documentation
+====================================
+
+
+Sphinx-generated docs
+---------------------
+
+
+Generating the static html files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In the docs folder, invoke ``make html``.
+
+
+
+Sphinxdoc-generated docs (viewable online)
+------------------------------------------
+
+Updating the docs:
+~~~~~~~~~~~~~~~~~~
+
+Use the management command ``python manage.py updatedoc -b <project-slug>`` with slug scipost.

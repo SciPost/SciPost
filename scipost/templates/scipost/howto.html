@@ -1,0 +1,25 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Howto Guides{% endblock pagetitle %}
+
+{% block bodysup %}
+
+{% load scipost_extras %}
+
+
+<section>
+  <h1>SciPost Howto Guides</h1>
+
+  <ul>
+    <li>
+      Post-acceptance:
+      <ul>
+	<li><a href="{% url 'scipost:howto_production' %}">production</a></li>
+      </ul>
+    </li>
+  </ul>
+
+</section>
+
+
+{% endblock bodysup %}
