@@ -33,6 +33,8 @@ def required_actions(submission):
     """
     if submission.status in SUBMISSION_STATUS_OUT_OF_POOL:
         return []
+    if submission.status == 'revision_requested':
+        return []
     todo = []
     for comment in submission.comment_set.all():
         if comment.status == 0:
