@@ -19,7 +19,6 @@ from journals.models import Publication
 ###############
 # Submissions:
 ###############
-
 SUBMISSION_STATUS = (
     ('unassigned', 'Unassigned, undergoing pre-screening'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
@@ -62,6 +61,36 @@ SUBMISSION_STATUS_PUBLICLY_UNLISTED = [
     'published',
     'withdrawn',
 ]
+
+# Submissions which should not be viewable (except by admins, Fellows and authors)
+SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
+    'unassigned',
+    'assignment_failed',
+    'resubmitted_rejected',
+    'rejected',
+    #'published',
+    'withdrawn',
+]
+
+# Submissions for which voting on a related recommendation is deprecated:
+SUBMISSION_STATUS_VOTING_DEPRECATED = [
+    'rejected',
+    'published',
+    'withdrawn',
+]
+
+
+# SUBMISSION_ACTION_REQUIRED = (
+#     ('assign_EIC', 'Editor-in-charge to be assigned'),
+# #    ('Fellow_accepts_or_refuse_assignment', 'Fellow must accept or refuse assignment'),
+#     ('EIC_runs_refereeing_round', 'Editor-in-charge to run refereeing round (inviting referees)'),
+#     ('EIC_closes_refereeing_round', 'Editor-in-charge to close refereeing round'),
+#     ('EIC_invites_author_response', 'Editor-in-charge invites authors to complete their replies'),
+#     ('EIC_formulates_editorial_recommendation',
+#      'Editor-in-charge to formulate editorial recommendation'),
+#     ('EC_ratification', 'Editorial College ratifies editorial recommendation'),
+#     ('Decision_to_authors', 'Editor-in-charge forwards decision to authors'),
+#     )
 
 SUBMISSION_TYPE = (
     ('Letter', 'Letter (broad-interest breakthrough results)'),
