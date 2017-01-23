@@ -1,5 +1,8 @@
+import datetime
+
 from django import template
 from django.utils import timezone
+from django.utils.timesince import timesince
 
 from submissions.models import SUBMISSION_STATUS_OUT_OF_POOL
 from submissions.models import Submission
@@ -36,7 +39,7 @@ def required_actions(submission):
             todo.append('A Comment from %s has been delivered but is not yet vetted. '
                         'Please vet it.' % comment.author)
     nr_ref_inv = submission.refereeinvitation_set.count()
-    if submission.is_resubmission and nr_ref_inv == 0:
+    if submission.is_resubmission and nr_ref_inv == 0 and not submission.eicrecommendation :
         todo.append('This resubmission requires attention: either (re)invite referees '
                     'or formulate an Editorial Recommendation.')
     if nr_ref_inv == 0 and not submission.is_resubmission:
@@ -49,13 +52,19 @@ def required_actions(submission):
         refname = ref_inv.last_name + ', ' + ref_inv.first_name
         if ref_inv.referee:
             refname = str(ref_inv.referee)
-        if ref_inv.accepted is None and not ref_inv.cancelled:
-            todo.append('Referee %s has not yet responded. Consider sending a reminder '
-                        'or cancelling the invitation.' % refname)
-        if ref_inv.accepted and not ref_inv.fulfilled and not ref_inv.cancelled:
+        timelapse = timezone.now() - ref_inv.date_invited
+        timeleft = submission.reporting_deadline - timezone.now()
+        if (ref_inv.accepted is None and not ref_inv.cancelled
+            and timelapse > datetime.timedelta(days=3)):
+            todo.append('Referee %s has not responded for %s days. '
+                        'Consider sending a reminder '
+                        'or cancelling the invitation.' % (refname, str(timelapse.days)))
+        if (ref_inv.accepted and not ref_inv.fulfilled and not ref_inv.cancelled
+            and timeleft < datetime.timedelta(days=7)):
             todo.append('Referee %s has accepted to send a Report, '
-                        'but not yet delivered it. Consider sending a '
-                        'reminder or cancelling the invitation.' % refname)
+                        'but not yet delivered it (with %s days left). '
+                        'Consider sending a reminder or cancelling the invitation.'
+                        % (refname, str(timeleft.days)))
     if submission.reporting_deadline < timezone.now():
         todo.append('The refereeing deadline has passed. Please either extend it, '
                     'or formulate your Editorial Recommendation.')
