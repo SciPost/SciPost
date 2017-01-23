@@ -31,9 +31,9 @@ def required_actions(submission):
     This method returns a list of required actions on a Submission.
     Each list element is a textual statement.
     """
-    if submission.status in SUBMISSION_STATUS_OUT_OF_POOL:
-        return []
-    if submission.status == 'revision_requested':
+    if (submission.status in SUBMISSION_STATUS_OUT_OF_POOL
+        or submission.status == 'revision_requested'
+        or submission.eicrecommendation_set.exists()):
         return []
     todo = []
     for comment in submission.comment_set.all():
@@ -70,7 +70,8 @@ def required_actions(submission):
                         % (refname, str(timeleft.days)))
     if submission.reporting_deadline < timezone.now():
         todo.append('The refereeing deadline has passed. Please either extend it, '
-                    'or formulate your Editorial Recommendation.')
+                    'or formulate your Editorial Recommendation if at least '
+                    'one Report has been received.')
     reports = submission.report_set.all()
     for report in reports:
         if report.status == 0:
