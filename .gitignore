@@ -15,5 +15,6 @@ UPLOADS
 
 docs/_build
 local_files
+static/
 
 whoosh_index

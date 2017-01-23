@@ -39,6 +39,7 @@ urlpatterns = [
         views.assignment_failed, name='assignment_failed'),
     # Editorial workflow and refereeing
     url(r'^editorial_workflow$', views.editorial_workflow, name='editorial_workflow'),
+    url(r'^assignments$', views.assignments, name='assignments'),
     url(r'^editorial_page/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
         views.editorial_page, name='editorial_page'),
     url(r'^select_referee/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',

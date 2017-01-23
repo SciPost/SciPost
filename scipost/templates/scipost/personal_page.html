@@ -299,6 +299,7 @@
     <h3>Submissions assignments</h3>
     <ul>
       {% if perms.scipost.can_view_pool %}
+      <li><a href="{% url 'submissions:assignments' %}">Your assignments</a></li>
       <li><a href="{% url 'scipost:Fellow_activity_overview' %}">View assignments overview</a></li>
       {% endif %}
       {% if perms.scipost.can_assign_submissions %}

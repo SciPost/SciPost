@@ -709,6 +709,28 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+def assignments(request):
+    """
+    This page provides a Fellow with an explicit task list
+    of editorial actions which should be undertaken.
+    """
+    assignments = EditorialAssignment.objects.filter(
+        to=request.user.contributor).order_by('-date_created')
+    assignments_to_consider = assignments.filter(accepted=None,
+                                                 deprecated=False)
+    current_assignments = assignments.filter(accepted=True,
+                                             deprecated=False,
+                                             completed=False)
+    consider_assignment_form = ConsiderAssignmentForm()
+    context = {'assignments_to_consider': assignments_to_consider,
+               'consider_assignment_form': consider_assignment_form,
+               'current_assignments': current_assignments,
+    }
+    return render(request, 'submissions/assignments.html', context)
+
+
+@login_required
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def editorial_page(request, arxiv_identifier_w_vn_nr):
