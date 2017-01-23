@@ -36,14 +36,17 @@ def required_actions(submission):
             todo.append('A Comment from %s has been delivered but is not yet vetted. '
                         'Please vet it.' % comment.author)
     nr_ref_inv = submission.refereeinvitation_set.count()
-    if nr_ref_inv == 0:
+    if submission.is_resubmission and nr_ref_inv == 0:
+        todo.append('This resubmission requires attention: either (re)invite referees '
+                    'or formulate an Editorial Recommendation.')
+    if nr_ref_inv == 0 and not submission.is_resubmission:
         todo.append('No Referees have yet been invited. '
                     'At least 3 should be.')
-    elif nr_ref_inv < 3:
+    elif nr_ref_inv < 3 and not submission.is_resubmission:
         todo.append('Only %s Referees have been invited. '
                     'At least 3 should be.' % nr_ref_inv)
     for ref_inv in submission.refereeinvitation_set.all():
-        refname = ref_inv.last_name + ', ' + ref_inv.last_name
+        refname = ref_inv.last_name + ', ' + ref_inv.first_name
         if ref_inv.referee:
             refname = str(ref_inv.referee)
         if ref_inv.accepted is None and not ref_inv.cancelled:
@@ -52,7 +55,7 @@ def required_actions(submission):
         if ref_inv.accepted and not ref_inv.fulfilled and not ref_inv.cancelled:
             todo.append('Referee %s has accepted to send a Report, '
                         'but not yet delivered it. Consider sending a '
-                        'reminder.' % refname)
+                        'reminder or cancelling the invitation.' % refname)
     if submission.reporting_deadline < timezone.now():
         todo.append('The refereeing deadline has passed. Please either extend it, '
                     'or formulate your Editorial Recommendation.')
