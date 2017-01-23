@@ -481,6 +481,7 @@ def pool(request):
     rec_vote_form = RecommendationVoteForm()
     remark_form = RemarkForm()
     context = {'submissions_in_pool': submissions_in_pool,
+               'submission_status': SUBMISSION_STATUS,
                'recommendations_undergoing_voting': recommendations_undergoing_voting,
                'recommendations_to_prepare_for_voting': recommendations_to_prepare_for_voting,
                'assignments_to_consider': assignments_to_consider,
@@ -489,6 +490,19 @@ def pool(request):
                'rec_vote_form': rec_vote_form,
                'remark_form': remark_form,}
     return render(request, 'submissions/pool.html', context)
+
+
+@login_required
+@permission_required('scipost.can_view_pool', raise_exception=True)
+def submissions_by_status(request, status):
+    if status not in submission_status_dict.keys():
+        errormessage = 'Unknown status.'
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    submissions_of_status = Submission.objects.filter(
+        status=status).order_by('-submission_date')
+    context = {'status': submission_status_dict[status],
+               'submissions_of_status': submissions_of_status,}
+    return render(request, 'submissions/submissions_by_status.html', context)
 
 
 @login_required

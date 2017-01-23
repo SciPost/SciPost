@@ -49,6 +49,8 @@ SUBMISSION_STATUS_OUT_OF_POOL = [
     'resubmitted',
     'published',
     'withdrawn',
+    'rejected',
+    'rejected_visible',
 ]
 
 # Submissions which should not appear in search lists
