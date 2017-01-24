@@ -1571,6 +1571,7 @@ def nominate_Fellow(request, VGM_id):
                 last_name=nomination_form.cleaned_data['last_name'],
                 discipline=nomination_form.cleaned_data['discipline'],
                 expertises=nomination_form.cleaned_data['expertises'],
+                webpage=nomination_form.cleaned_data['webpage'],
                 voting_deadline=VGM_instance.end_date + datetime.timedelta(days=7),
             )
             nomination.save()
