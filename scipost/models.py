@@ -631,6 +631,7 @@ class Nomination(models.Model):
     expertises = ChoiceArrayField(
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
+    webpage = models.URLField(default='')
     nr_A = models.PositiveIntegerField(default=0)
     in_agreement = models.ManyToManyField(Contributor,
                                           related_name='in_agreement_with_nomination', blank=True)
@@ -650,14 +651,28 @@ class Nomination(models.Model):
                                             self.by)
 
     def as_li(self):
-        html = ('<div class="Nomination" id="nomination_id{{ nomination_id }}">'
-                '<h3><em> {{ name }}, nominated by {{ proposer }}</em></h3>'
-                '</div>')
+        html = ('<div class="Nomination" id="nomination_id{{ nomination_id }}" '
+                'style="background-color: #eeeeee;">'
+                '<div class="row">'
+                '<div class="col-4">'
+                '<h3><em> {{ name }}</em></h3>'
+                '<p>Nominated by {{ proposer }}</p>'
+                '</div>'
+                '<div class="col-4">'
+                '<p><a href="{{ webpage }}">Webpage</a></p>'
+                '<p>Discipline: {{ discipline }}</p></div>'
+                '<div class="col-4"><p>expertise:<ul>')
+        for exp in self.expertises:
+            html += '<li>%s</li>' % subject_areas_dict[exp]
+        html += '</ul></div></div></div>'
         context = Context({
             'nomination_id': self.id,
             'proposer': '%s %s' % (self.by.user.first_name,
                                    self.by.user.last_name),
-            'name': self.first_name + ' ' + self.last_name,})
+            'name': self.first_name + ' ' + self.last_name,
+            'discipline': disciplines_dict[self.discipline],
+            'webpage': self.webpage,
+        })
         template = Template(html)
         return template.render(context)
 

@@ -384,7 +384,8 @@ class FeedbackForm(forms.ModelForm):
 class NominationForm(forms.ModelForm):
     class Meta:
         model = Nomination
-        fields = ['first_name', 'last_name', 'discipline', 'expertises']
+        fields = ['first_name', 'last_name',
+                  'discipline', 'expertises', 'webpage']
 
     def __init__(self, *args, **kwargs):
         super(NominationForm, self).__init__(*args, **kwargs)
