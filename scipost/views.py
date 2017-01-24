@@ -1120,6 +1120,9 @@ def update_personal_data(request):
             return render(request, 'scipost/acknowledgement.html', context)
     else:
         user_form = UpdateUserDataForm(instance=contributor.user)
+        # Prevent exploit of gaining view on self-authored submissions by changing surname.
+        user_form.fields['last_name'].widget.attrs['disabled'] = True
+        # Surname can only be changed through the admin.
         cont_form = UpdatePersonalDataForm(instance=contributor)
     return render(request, 'scipost/update_personal_data.html',
                   {'user_form': user_form, 'cont_form': cont_form})
