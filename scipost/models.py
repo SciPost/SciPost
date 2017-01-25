@@ -290,15 +290,17 @@ class Contributor(models.Model):
 
     def expertises_as_ul(self):
         output = '<ul>'
-        for exp in self.expertises:
-            output += '<li>%s</li>' % subject_areas_dict[exp]
+        if self.expertises:
+            for exp in self.expertises:
+                output += '<li>%s</li>' % subject_areas_dict[exp]
         output += '</ul>'
         return mark_safe(output)
 
     def expertises_as_string(self):
         output = ''
-        for exp in self.expertises:
-            output += subject_areas_dict[exp] + ', '
+        if self.expertises:
+            for exp in self.expertises:
+                output += subject_areas_dict[exp] + ', '
         return output
 
     def assignments_summary_as_td(self):
