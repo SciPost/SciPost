@@ -14,6 +14,11 @@ $(document).ready(function(){
      $(this).next("form").toggle();
   });
 
+  $("#FellowshipListing").hide();
+  $("#FellowshipListingButton").click( function() {
+      $("#FellowshipListing").toggle();
+  });
+
   $("#submitNominationForm").hide();
   $("#submitNominationButton").click( function() {
      $(this).next("form").toggle();
@@ -137,7 +142,8 @@ $(document).ready(function(){
       </form>
     </div>
   </div>
-  <div class="row">
+  <button id="FellowshipListingButton">View/hide Fellows and Invitations listings</button>
+  <div class="row" id="FellowshipListing">
     <div class="col-6">
       <div class="flex-container">
 	<div class="flex-greybox">
