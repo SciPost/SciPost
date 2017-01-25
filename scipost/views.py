@@ -1977,7 +1977,10 @@ def api_graph(request, graph_id):
 #############################
 
 def supporting_partners(request):
-    return render(request, 'scipost/supporting_partners.html')
+    prospective_agreements = SPBMembershipAgreement.objects.filter(
+        status='Submitted').order_by('date_requested')
+    context = {'prospective_partners': prospective_agreements,}
+    return render(request, 'scipost/supporting_partners.html', context)
 
 @login_required
 def SPB_membership_request(request):
