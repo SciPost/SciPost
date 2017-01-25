@@ -137,6 +137,55 @@ $(document).ready(function(){
       </form>
     </div>
   </div>
+  <div class="row">
+    <div class="col-6">
+      <div class="flex-container">
+	<div class="flex-greybox">
+	  <h3>Current Fellows</h3>
+	</div>
+      </div>
+      <div class="flex-container">
+	<div class="flex-whitebox">
+	  <table class="tableofInviteesResponded">
+	    {% for Fellow in current_Fellows %}
+	    <tr><td>{{ Fellow }}</td><td>{{ Fellow.discipline_as_string }}</td>
+	      <td>{{ Fellow.expertises_as_string }}</td></tr>
+	    {% endfor %}
+	  </table>
+	</div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="flex-container">
+	<div class="flex-greybox">
+	  <h3>Invitations currently outstanding</h3>
+	</div>
+      </div>
+      <div class="flex-container">
+	<div class="flex-whitebox">
+	  <table class="tableofInvitees">
+	    {% for invitee in pending_inv_Fellows %}
+	    <tr><td>{{ invitee.first_name }} {{ invitee.last_name }}</td></tr>
+	    {% endfor %}
+	  </table>
+	</div>
+      </div>
+      <div class="flex-container">
+	<div class="flex-greybox">
+	  <h3>Invitations which have been turned down</h3>
+	</div>
+      </div>
+      <div class="flex-container">
+	<div class="flex-whitebox">
+	  <table class="tableofInviteesDeclined">
+	    {% for invitee in declined_inv_Fellows %}
+	    <tr><td>{{ invitee.first_name }} {{ invitee.last_name }}</td></tr>
+	    {% endfor %}
+	  </table>
+	</div>
+      </div>
+    </div>
+  </div>
 
   {% if nominations %}
   <div class="row">
@@ -145,6 +194,8 @@ $(document).ready(function(){
 	<h2>Nominations under consideration</h2>
       </div>
     </div>
+  </div>
+  <div class="row">
     <div class="col-1"></div>
     <div class="col-10">
     <ul style="list-style-type: none;">

@@ -295,6 +295,12 @@ class Contributor(models.Model):
         output += '</ul>'
         return mark_safe(output)
 
+    def expertises_as_string(self):
+        output = ''
+        for exp in self.expertises:
+            output += subject_areas_dict[exp] + ', '
+        return output
+
     def assignments_summary_as_td(self):
         assignments = self.editorialassignment_set.all()
         nr_ongoing = assignments.filter(accepted=True, completed=False).count()

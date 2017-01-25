@@ -1490,6 +1490,12 @@ def VGM_detail(request, VGM_id):
     VGM_information = Template(VGM_instance.information).render(Context({}))
     feedback_received = Feedback.objects.filter(VGM=VGM_instance).order_by('date')
     feedback_form = FeedbackForm()
+    current_Fellows = Contributor.objects.filter(
+        user__groups__name='Editorial College').order_by('user__last_name')
+    sent_inv_Fellows = RegistrationInvitation.objects.filter(
+        invitation_type='F', responded=False)
+    pending_inv_Fellows = sent_inv_Fellows.filter(declined=False).order_by('last_name')
+    declined_inv_Fellows = sent_inv_Fellows.filter(declined=True).order_by('last_name')
     nomination_form = NominationForm()
     nominations = Nomination.objects.filter(accepted=None).order_by('last_name')
     motion_form = MotionForm()
@@ -1498,6 +1504,9 @@ def VGM_detail(request, VGM_id):
                'VGM_information': VGM_information,
                'feedback_received': feedback_received,
                'feedback_form': feedback_form,
+               'current_Fellows': current_Fellows,
+               'pending_inv_Fellows': pending_inv_Fellows,
+               'declined_inv_Fellows': declined_inv_Fellows,
                'nominations': nominations,
                'nomination_form': nomination_form,
                'motion_categories_dict': motion_categories_dict,
