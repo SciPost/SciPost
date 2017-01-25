@@ -35,6 +35,14 @@ $(document).ready(function(){
 {% if request.user|is_in_group:'Editorial Administrators' and recommendations_undergoing_voting %}
 <section>
   <div class="flex-container">
+    <div class="flex-whitebox">
+      <h3>Administrative actions on recommendations undergoing voting:</h3>
+      <ul>
+	<li>To send an email reminder to each Fellow with at least one voting duty, <a href="{% url 'submissions:remind_Fellows_to_vote' %}">click here</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="flex-container">
     <div class="flex-greybox">
       <h1>Recommendations undergoing voting</h1>
     </div>

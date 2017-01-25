@@ -1339,6 +1339,36 @@ def vote_on_rec(request, rec_id):
     return redirect(reverse('submissions:pool'))
 
 
+@permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
+def remind_Fellows_to_vote(request):
+    """
+    This method sends an email to all Fellow with pending voting duties.
+    It must be called by and Editorial Administrator.
+    """
+    recommendations_undergoing_voting = (EICRecommendation.objects.filter(
+        submission__status__in=['put_to_EC_voting']))
+    Fellow_emails = []
+    Fellow_names = []
+    for rec in recommendations_undergoing_voting:
+        for Fellow in rec.eligible_to_vote.all():
+            if (Fellow not in rec.voted_for.all()
+                and Fellow not in rec.voted_against.all()
+                and Fellow not in rec.voted_abstain.all()):
+                Fellow_emails.append(Fellow.user.email)
+                Fellow_names.append(str(Fellow))
+    SubmissionUtils.load({'Fellow_emails': Fellow_emails})
+    SubmissionUtils.send_Fellows_voting_reminder_email()
+    ack_message = 'Email reminders have been sent to: <ul>'
+    for name in sorted(Fellow_names):
+        ack_message += '<li>' + name + '</li>'
+    ack_message += '</ul>'
+    context = {'ack_message': Template(ack_message).render(Context({})),
+               'followup_message': 'Return to the ',
+               'followup_link': reverse('submissions:pool'),
+               'followup_link_label': 'Submissions pool'}
+    return render (request, 'scipost/acknowledgement.html', context)
+
+
 @permission_required('scipost.can_fix_College_decision', raise_exception=True)
 @transaction.atomic
 def fix_College_decision(request, rec_id):

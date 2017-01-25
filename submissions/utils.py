@@ -1,6 +1,6 @@
 import datetime
 
-from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.core.mail import EmailMessage, EmailMultiAlternatives, get_connection
 from django.template import Context, Template
 
 from journals.models import journals_submit_dict
@@ -1218,5 +1218,42 @@ class SubmissionUtils(object):
             bcc=[cls.submission.editor_in_charge.user.email,
                  'submissions@scipost.org'],
             reply_to=['submissions@scipost.org'])
+        emailmessage.attach_alternative(html_version, 'text/html')
+        emailmessage.send(fail_silently=False)
+
+
+    @classmethod
+    def send_Fellows_voting_reminder_email(cls):
+        """
+        Requires loading 'Fellow_emails' attribute, which is a list of email addresses.
+        """
+        email_text = ('Dear Fellow,'
+                      '\n\nYou have pending voting duties in the SciPost '
+                      'submissions pool at https://scipost.org/submissions/pool'
+                      ' (also accessible from your personal page '
+                      'https://scipost.org/personal_page under the Editorial Actions tab). '
+                      'Could you please have a quick look within the next couple of days, '
+                      'so we can finish processing these submissions?'
+                      '\n\nMany thanks in advance,'
+                      '\n\nThe SciPost Team.')
+        email_text_html = (
+            '<p>Dear Fellow,</p>'
+            '<p>You have pending voting duties in the SciPost '
+            'submissions pool https://scipost.org/submissions/pool'
+            ' (also accessible from your personal page '
+            'https://scipost.org/personal_page under the Editorial Actions tab).</p>'
+            '<p>Could you please have a quick look within the next couple of days, '
+            'so we can finish processing these submissions?</p>'
+            '<p>Many thanks in advance,</p>'
+            '<p>The SciPost Team.</p><br/>' + EMAIL_FOOTER)
+        email_context = Context({})
+        html_template = Template(email_text_html)
+        html_version = html_template.render(email_context)
+        emailmessage = EmailMultiAlternatives(
+            'SciPost: voting duties', email_text,
+            'SciPost Editorial Admin <admin@scipost.org>',
+            to=['admin@scipost.org'],
+            bcc=cls.Fellow_emails,
+            reply_to=['admin@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
