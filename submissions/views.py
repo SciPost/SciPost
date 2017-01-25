@@ -1353,7 +1353,8 @@ def remind_Fellows_to_vote(request):
         for Fellow in rec.eligible_to_vote.all():
             if (Fellow not in rec.voted_for.all()
                 and Fellow not in rec.voted_against.all()
-                and Fellow not in rec.voted_abstain.all()):
+                and Fellow not in rec.voted_abstain.all()
+                and Fellow.user.email not in Fellow_emails):
                 Fellow_emails.append(Fellow.user.email)
                 Fellow_names.append(str(Fellow))
     SubmissionUtils.load({'Fellow_emails': Fellow_emails})
