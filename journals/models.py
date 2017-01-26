@@ -312,11 +312,13 @@ class Publication(models.Model):
             if cit['multiauthors']:
                 output += ' <em>et al.</em>'
             output += (', <em>{{ title_' + str(nr) + ' }}</em>, <br/>'
-                       '{{ journal_abbrev_' + str(nr) + ' }} '
-                       '<strong>{{ volume_' + str(nr) + ' }}</strong>, ')
+                       '{{ journal_abbrev_' + str(nr) + ' }}')
             context['title_' + str(nr)] = cit['article_title']
             context['journal_abbrev_' + str(nr)] = cit['journal_abbreviation']
-            context['volume_' + str(nr)] = cit['volume']
+            if cit['volume']:
+                context['volume_' + str(nr)] = cit['volume']
+                output += ' <strong>{{ volume_' + str(nr) + ' }}</strong>'
+            output += ', '
             if cit['first_page']:
                 output += '{{ first_page_' + str(nr) + ' }}'
                 context['first_page_' + str(nr)] = cit['first_page']

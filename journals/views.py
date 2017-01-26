@@ -757,7 +757,10 @@ def harvest_citedby_links(request, doi_string):
         article_title = link.find(prefix + 'journal_cite').find(prefix + 'article_title').text
         journal_abbreviation = link.find(prefix + 'journal_cite').find(
             prefix + 'journal_abbreviation').text
-        volume = link.find(prefix + 'journal_cite').find(prefix + 'volume').text
+        try:
+            volume = link.find(prefix + 'journal_cite').find(prefix + 'volume').text
+        except AttibuteError:
+            volume = None
         try:
             first_page = link.find(prefix + 'journal_cite').find(prefix + 'first_page').text
         except:
