@@ -759,7 +759,7 @@ def harvest_citedby_links(request, doi_string):
             prefix + 'journal_abbreviation').text
         try:
             volume = link.find(prefix + 'journal_cite').find(prefix + 'volume').text
-        except AttibuteError:
+        except AttributeError:
             volume = None
         try:
             first_page = link.find(prefix + 'journal_cite').find(prefix + 'first_page').text
