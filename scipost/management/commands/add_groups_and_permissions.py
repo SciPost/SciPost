@@ -31,6 +31,7 @@ class Command(BaseCommand):
         Testers, created = Group.objects.get_or_create(name='Testers')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
+        ProductionOfficers, created = Group.objects.get_or_create(name='Production Officers')
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
@@ -219,6 +220,9 @@ class Command(BaseCommand):
         )
         JuniorAmbassadors.permissions.add(
             can_draft_registration_invitations,
+        )
+        ProductionOfficers.permissions.add(
+            can_view_docs_scipost,
         )
 
         self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions.'))
