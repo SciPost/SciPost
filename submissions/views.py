@@ -27,6 +27,7 @@ from .utils import SubmissionUtils
 
 from comments.models import Comment
 from journals.models import journals_submit_dict
+from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, title_dict, Remark, RegistrationInvitation
 
 from scipost.utils import Utils
@@ -452,16 +453,46 @@ def pool(request):
         recommendation=-1).exclude(recommendation=-2).exclude(
             voted_for__in=[contributor]).exclude(
             voted_against__in=[contributor]).exclude(
-            voted_abstain__in=[contributor])
+            voted_abstain__in=[contributor]).exclude(
+            submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED)
     rec_vote_form = RecommendationVoteForm()
+    remark_form = RemarkForm()
     context = {'submissions_in_pool': submissions_in_pool,
                'recommendations_undergoing_voting': recommendations_undergoing_voting,
                'recommendations_to_prepare_for_voting': recommendations_to_prepare_for_voting,
                'assignments_to_consider': assignments_to_consider,
                'consider_assignment_form': consider_assignment_form,
                'recs_to_vote_on': recs_to_vote_on,
-               'rec_vote_form': rec_vote_form}
+               'rec_vote_form': rec_vote_form,
+               'remark_form': remark_form,}
     return render(request, 'submissions/pool.html', context)
+
+
+@login_required
+@permission_required('scipost.can_view_pool', raise_exception=True)
+def add_remark(request, arxiv_identifier_w_vn_nr):
+    """
+    With this method, an Editorial Fellow or Board Member
+    is adding a remark on a Submission.
+    """
+    submission = get_object_or_404(Submission,
+                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    if request.method == 'POST':
+        remark_form = RemarkForm(request.POST)
+        if remark_form.is_valid():
+            remark = Remark(contributor=request.user.contributor,
+                            submission=submission,
+                            date=timezone.now(),
+                            remark=remark_form.cleaned_data['remark'])
+            remark.save()
+            return redirect(reverse('submissions:pool'))
+        else:
+            errormessage = 'The form was invalidly filled.'
+            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    else:
+        errormessage = 'This view can only be posted to.'
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
 
 
 @login_required
@@ -616,15 +647,28 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
     This method is called from pool.html by an Editorial Administrator.
     """
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    submission.status = 'assignment_failed'
-    submission.latest_activity = timezone.now()
-    submission.save()
-    SubmissionUtils.load({'submission': submission})
-    SubmissionUtils.deprecate_all_assignments()
-    SubmissionUtils.assignment_failed_email_authors()
-
-    context = {'submission': submission}
-    return render(request, 'submissions/assignment_failed_ack.html', context)
+    if request.method == 'POST':
+        form = ModifyPersonalMessageForm(request.POST)
+        if form.is_valid():
+            submission.status = 'assignment_failed'
+            submission.latest_activity = timezone.now()
+            submission.save()
+            SubmissionUtils.load({'submission': submission,
+                                  'personal_message': form.cleaned_data['personal_message']})
+            SubmissionUtils.deprecate_all_assignments()
+            SubmissionUtils.assignment_failed_email_authors()
+            context = {'ack_header': ('Submission ' + submission.arxiv_identifier_w_vn_nr +
+                                      ' has failed pre-screening and been rejected. '
+                                      'Authors have been informed by email.'),
+                       'followup_message': 'Return to the ',
+                       'followup_link': reverse('submissions:pool'),
+                       'followup_link_label': 'Submissions pool'}
+            return render(request, 'scipost/acknowledgement.html', context)
+    else:
+        form = ModifyPersonalMessageForm()
+    context = {'submission': submission,
+               'form': form}
+    return render(request, 'submissions/assignment_failed.html', context)
 
 
 @login_required

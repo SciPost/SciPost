@@ -17,7 +17,14 @@ $(document).ready(function(){
           $('#ref_reason').hide();
       }
     });
+
+  $(".submitRemarkForm").hide();
+
+  $(".submitRemarkButton").click( function() {
+     $(this).next("div").toggle();
   });
+  });
+
 </script>
 
 {% load guardian_tags %}
@@ -218,6 +225,22 @@ $(document).ready(function(){
     {% if request.user|is_not_author_of_submission:sub.arxiv_identifier_w_vn_nr %}
     <br/>
     {{ sub.header_as_li_for_Fellows }}
+    {% if sub.remark_set.all %}
+    <h4>Remarks on this submission:</h4>
+    <ul>
+      {% for rem in sub.remark_set.all %}
+      {{ rem.as_li }}
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <button class="submitRemarkButton" id="remarkButton{{ submission.id }}">Add a remark on this Submission</button>
+    <div class="submitRemarkForm" id="remarkForm{{ submission.id }}">
+      <form action="{% url 'submissions:add_remark' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}" method="post">
+	{% csrf_token %}
+	{{ remark_form.as_p }}
+	<input type="submit" value="Submit" />
+      </form>
+    </div>
     {% get_obj_perms request.user for sub as "sub_perms" %}
     {% if "can_take_editorial_actions" in sub_perms or request.user|is_in_group:'Editorial Administrators' %}
     <h4><a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">
@@ -236,7 +259,7 @@ $(document).ready(function(){
     <h4>Actions:</h4>
     <ul>
       <li><a href="{% url 'submissions:assign_submission' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Send a new assignment request</a></li>
-      <li><a href="{% url 'submissions:assignment_failed' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Close pre-screening: failure to find EIC (<span style="color: red;">careful: one-click termination</span>)</a></li>
+      <li><a href="{% url 'submissions:assignment_failed' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
     </ul>
     {% endif %}
     {% endif %}

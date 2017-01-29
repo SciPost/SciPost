@@ -19,7 +19,7 @@
     <ul>
       {% for issue in issues %}
         <li>
-          <a href="{% url 'journals:scipost_physics_issue_detail' volume_nr=issue.in_volume.number issue_nr=issue.number %}">{{ issue }}</a>
+          <a href="{% url 'scipost:SciPostPhys_issue_detail' volume_nr=issue.in_volume.number issue_nr=issue.number %}">{{ issue }}</a>
         </li>
       {% endfor %}
   </div>

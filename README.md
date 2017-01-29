@@ -3,7 +3,7 @@ The complete scientific publication portal
 
 ## Dependencies
 SciPost is written in Python 3.5 using Django and requires PostgreSQL 9.3 or
-higher. Python dependencies are listed in `requirements.txt`.
+higher. Python dependencies are listed in `requirements.txt`. Frontend dependencies are managed by [NPM](https://www.npmjs.com/) in package.json.
 
 ## Getting started
 
@@ -26,6 +26,13 @@ Now install dependencies:
 
 ```shell
 (scipostenv) $ pip install -r requirements.txt
+```
+
+### Frontend dependencies
+[NPM](https://www.npmjs.com/) will take care of frontend dependencies. To install all packages now run:
+
+```shell
+(scipostenv) $ npm install
 ```
 
 ### Host-specific settings
@@ -66,6 +73,36 @@ To make sure everything is setup and configured well, run:
 
 ```shell
 (scipostenv) $ ./manage.py check
+```
+
+### Module bundler
+[Webpack](https://webpack.js.org/) takes care of assets in the `scipost/static/scipost/assets` folder. To (re)compile all assets into the `static_bundles` folder, simply run:
+
+```shell
+(scipostenv) $ npm run webpack
+```
+
+While editing assets, it is helpful to put Webpack in _watch_ mode. This will recompile your assets every time you edit them. To do so, instead of the above command, run:
+
+```shell
+(scipostenv) $ npm run webpack-live
+```
+
+#### Sass and bootstrap
+Styling will mainly be configured using [.scss files](http://www.sass-lang.com/) in the `scipost/static/scipost/scss/preconfig.scss` file, relying on [Bootstrap 4.0.0-beta.6](//v4-alpha.getbootstrap.com/). A full list of variables available by default can be found [here](https://github.com/twbs/bootstrap/blob/v4-dev/scss/_variables.scss).
+All modules are configured in the `.bootstraprc` file. Most modules are disabled by default.
+
+### Collectstatic
+In order to collect static files from all `INSTALLED_APPS`, i.e. the assets managed by Webpack, run:
+
+```shell
+(scipostenv) $ ./manage collectstatic
+```
+
+This will put all static files in the `STATIC_ROOT` folder defined in your settings file. It's a good idea to use the clear option in order to remove stale static files:
+
+```shell
+(scipostenv) $ ./manage collectstatic --clear
 ```
 
 ### Create and run migrations

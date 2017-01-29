@@ -19,7 +19,6 @@ from journals.models import Publication
 ###############
 # Submissions:
 ###############
-
 SUBMISSION_STATUS = (
     ('unassigned', 'Unassigned, undergoing pre-screening'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
@@ -68,6 +67,13 @@ SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     'unassigned',
     'assignment_failed',
     'resubmitted_rejected',
+    'rejected',
+    #'published',
+    'withdrawn',
+]
+
+# Submissions for which voting on a related recommendation is deprecated:
+SUBMISSION_STATUS_VOTING_DEPRECATED = [
     'rejected',
     'published',
     'withdrawn',
@@ -384,6 +390,7 @@ class Submission(models.Model):
 ######################
 # Editorial workflow #
 ######################
+
 
 ASSIGNMENT_BOOL = ((True, 'Accept'), (False, 'Decline'))
 ASSIGNMENT_NULLBOOL = ((None, 'Response pending'), (True, 'Accept'), (False, 'Decline'))
