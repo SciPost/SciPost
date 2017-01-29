@@ -1,9 +1,8 @@
-from django.utils import timezone
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
 
-from journals.models import SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
+from journals.models import SCIPOST_JOURNALS_DOMAINS
 from scipost.models import TimeStampedModel, Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 
@@ -19,6 +18,7 @@ class CommentaryManager(models.Manager):
 
     def awaiting_vetting(self, **kwargs):
         return self.filter(vetted=False, **kwargs)
+
 
 class Commentary(TimeStampedModel):
     """
@@ -126,8 +126,8 @@ class Commentary(TimeStampedModel):
                            'author_list': self.author_list,
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
         header = ('<li>'
-                  #'<div class="flex-container">'
-                  #'<div class="flex-whitebox0">'
+                  # '<div class="flex-container">'
+                  # '<div class="flex-whitebox0">'
                   '<p><a href="{{ scipost_url }}" '
                   'class="pubtitleli">{{ pub_title }}</a></p>'
                   '<p>by {{ author_list }}')
@@ -144,7 +144,7 @@ class Commentary(TimeStampedModel):
             header += '<p> (published {{ pub_date }}) - '
             context['pub_date'] = str(self.pub_date)
         header += ('latest activity: {{ latest_activity }}</p>'
-                   #'</div></div>'
+                   # '</div></div>'
                    '</li>')
         template = Template(header)
 
@@ -179,7 +179,7 @@ class Commentary(TimeStampedModel):
         elif self.arxiv_identifier:
             self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_identifier
             self.arxiv_link = 'http://arxiv.org/abs/' + self.arxiv_identifier
-        else: # should never come here
+        else:  # should never come here
             pass
         self.save()
 
