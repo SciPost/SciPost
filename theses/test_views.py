@@ -7,21 +7,39 @@ from django.contrib.auth.models import Group
 from django.urls import reverse, reverse_lazy
 from django.contrib.messages.storage.fallback import FallbackStorage
 
-from .views import RequestThesisLink, VetThesisLinkRequests
 from scipost.factories import UserFactory, ContributorFactory
+from comments.factories import CommentFactory
+from comments.forms import CommentForm
+from .views import RequestThesisLink, VetThesisLinkRequests, thesis_detail
 from .factories import ThesisLinkFactory, VetThesisLinkFormFactory
 from .models import ThesisLink
+from common.helpers import model_form_data
 
 
 class TestThesisDetail(TestCase):
     fixtures = ['groups', 'permissions']
 
     def test_visits_valid_thesis_detail(self):
+        """ A visitor does not have to be logged in to view a thesis link. """
         thesis_link = ThesisLinkFactory()
         client = Client()
         target = reverse('theses:thesis', kwargs={'thesislink_id': thesis_link.id})
         response = client.post(target)
         self.assertEqual(response.status_code, 200)
+
+    def test_submitting_comment_creates_comment(self):
+        """ Valid Comment gets saved """
+        contributor = ContributorFactory()
+        thesislink = ThesisLinkFactory()
+        valid_comment_data = model_form_data(CommentFactory(), CommentForm)
+        target = reverse('theses:thesis', kwargs={'thesislink_id': thesislink.id})
+
+        request = RequestFactory().post(target, valid_comment_data)
+        request.user = contributor.user
+
+        response = thesis_detail(request, thesislink_id=thesislink.id)
+        print(response)
+        self.assertTrue(False)
 
 
 class TestRequestThesisLink(TestCase):

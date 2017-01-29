@@ -28,4 +28,3 @@ class VetThesisLinkFormFactory(FormFactory):
         model = VetThesisLinkForm
 
     action_option = VetThesisLinkForm.ACCEPT
-    # justification = factory.Faker('lorem')
