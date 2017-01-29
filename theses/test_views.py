@@ -1,11 +1,14 @@
+import re
+
+from django.core.exceptions import PermissionDenied
 from django.test import TestCase, RequestFactory
 from django.test.client import Client
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import Group
 from django.urls import reverse
 
-from .views import RequestThesisLink
-from scipost.factories import UserFactory
-from .factories import ThesisLinkFactory
+from .views import RequestThesisLink, VetThesisLinkRequests
+from scipost.factories import UserFactory, ContributorFactory
+from .factories import ThesisLinkFactory, VetThesisLinkFormFactory
 from .models import ThesisLink
 
 
@@ -25,18 +28,63 @@ class TestRequestThesisLink(TestCase):
 
     def setUp(self):
         self.client = Client()
+        self.target = reverse('theses:request_thesislink')
 
     def test_response_when_not_logged_in(self):
         '''A visitor that is not logged in cannot view this page.'''
-        response = self.client.get(reverse('theses:request_thesislink'))
+        response = self.client.get(self.target)
         self.assertEqual(response.status_code, 403)
 
     def test_response_when_logged_in(self):
-        request = RequestFactory().get(reverse('theses:request_thesislink'))
+        request = RequestFactory().get(self.target)
         request.user = UserFactory()
         response = RequestThesisLink.as_view()(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_redirects_to_acknowledgement_page(self):
-        response = self.client.post(reverse('theses:request_thesislink'), {}, follow=True)
-        self.assertRedirects(response, reverse('scipost:acknowledgement'))
+
+class TestVetThesisLinkRequests(TestCase):
+    fixtures = ['groups', 'permissions']
+
+    def setUp(self):
+        self.client = Client()
+        self.target = reverse('theses:vet_thesislink_requests')
+
+    def test_response_when_not_logged_in(self):
+        response = self.client.get(self.target)
+        self.assertEqual(response.status_code, 403)
+
+    def test_response_regular_contributor(self):
+        '''
+        A Contributor needs to be in the Vetting Editors group to be able to
+        vet submitted thesis links.
+        '''
+        # Create ThesisLink to vet.
+        ThesisLinkFactory()
+        request = RequestFactory().get(self.target)
+        user = UserFactory()
+        request.user = user
+        self.assertRaises(
+            PermissionDenied, VetThesisLinkRequests.as_view(), request)
+
+    def test_response_vetting_editor(self):
+        # Create ThesisLink to vet.
+        ThesisLinkFactory()
+        request = RequestFactory().get(self.target)
+        user = UserFactory()
+        user.groups.add(Group.objects.get(name="Vetting Editors"))
+        request.user = user
+        response = VetThesisLinkRequests.as_view()(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_thesislink_is_vetted_by_correct_contributor(self):
+        # TODO: how to make sure we are vetting the right thesis link?
+        contributor = ContributorFactory()
+        contributor.user.groups.add(Group.objects.get(name="Vetting Editors"))
+        post_data = VetThesisLinkFormFactory().data
+
+        request = RequestFactory().post(self.target, post_data)
+        request.user = contributor.user
+
+        response = VetThesisLinkRequests.as_view()(request)
+
+        self.assertTrue(False)

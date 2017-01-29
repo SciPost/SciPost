@@ -1,6 +1,10 @@
 import factory
-from .models import ThesisLink
+
+from common.helpers.factories import FormFactory
 from scipost.factories import ContributorFactory
+
+from .models import ThesisLink
+from .forms import VetThesisLinkForm
 
 
 class ThesisLinkFactory(factory.django.DjangoModelFactory):
@@ -9,7 +13,7 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
 
     requested_by = factory.SubFactory(ContributorFactory)
     type = ThesisLink.MASTER_THESIS
-    title = factory.Sequence(lambda n: "thesis {0}".format(n))
+    title = factory.Faker('bs')
     pub_link = factory.Faker('uri')
     author = factory.Faker('name')
     supervisor = factory.Faker('name')
@@ -17,3 +21,11 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
     defense_date = factory.Faker('date_time_this_century')
     abstract = factory.Faker('text')
     domain = 'ET'
+
+
+class VetThesisLinkFormFactory(FormFactory):
+    class Meta:
+        model = VetThesisLinkForm
+
+    action_option = VetThesisLinkForm.ACCEPT
+    # justification = factory.Faker('lorem')
