@@ -21,12 +21,12 @@
     "bootstrap-loader": "^2.0.0-beta.19",
     "clean-webpack-plugin": "^0.1.15",
     "css-loader": "^0.26.1",
-    "extract-text-webpack-plugin": "^2.0.0-beta.5",
+    "exports-loader": "^0.6.3",
     "file-loader": "^0.8.4",
     "imports-loader": "^0.7.0",
     "jquery": "^2.2.0",
     "node-loader": "^0.6.0",
-    "node-sass": "^4.3.0",
+    "node-sass": "^4.4.0",
     "postcss-load-config": "1.0.0",
     "postcss-loader": "^1.2.2",
     "resolve-url-loader": "^1.6.1",
@@ -37,6 +37,7 @@
     "url-loader": "^0.5.7",
     "webpack": "^2.2.0",
     "webpack-bundle-tracker": "^0.2.0",
-    "webpack-glob-entry": "^2.1.1"
+    "webpack-glob-entry": "^2.1.1",
+    "extract-text-webpack-plugin": "2.0.0-beta.5"
   }
 }
