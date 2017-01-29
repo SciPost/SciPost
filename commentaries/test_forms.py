@@ -60,7 +60,7 @@ class TestVetCommentaryForm(TestCase):
         self.assertFalse(Commentary.objects.awaiting_vetting().exists())
 
         # Refusal choice is ok
-        refusal_reason_inserted = VetCommentaryForm.COMMENTARY_REFUSAL_DICT[\
+        refusal_reason_inserted = VetCommentaryForm.COMMENTARY_REFUSAL_DICT[
             VetCommentaryForm.REFUSAL_UNTRACEBLE]
         self.assertEqual(form.get_refusal_reason(), refusal_reason_inserted)
 

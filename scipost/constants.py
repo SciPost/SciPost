@@ -1,3 +1,7 @@
+DISCIPLINE_PHYSICS = 'physics'
+DISCIPLINE_ASTROPHYSICS = 'astrophysics'
+DISCIPLINE_MATH = 'mathematics'
+DISCIPLINE_COMPUTERSCIENCE = 'computerscience'
 SCIPOST_DISCIPLINES = (
     ('physics', 'Physics'),
     ('astrophysics', 'Astrophysics'),
