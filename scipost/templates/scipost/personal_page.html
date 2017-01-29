@@ -244,6 +244,12 @@
       <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
       {% endif %}
     </ul>
+    <h3>Notifications</h3>
+    <ul>
+      {% if perms.scipost.can_manage_registration_invitations %}
+      <li><a href="{% url 'scipost:citation_notifications' %}">Manage citation notifications</a></li>
+      {% endif %}
+    </ul>
     <h3>Email communications</h3>
     <ul>
       {% if perms.scipost.can_email_group_members %}

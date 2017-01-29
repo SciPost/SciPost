@@ -15,8 +15,8 @@ General style sheet for SciPost
 }
 
 [class*="col-"] {
-    float: left;
-    padding: 5px;
+    /*float: left;
+    padding: 5px;*/
 }
 /* For desktop: */
 .col-1 {width: 8.33%;}
@@ -311,7 +311,7 @@ body {
 /*  font-family: Merriweather, sans-serif; */
   font-family: 'Merriweather Sans';
   font-weight: lighter;
-  font-size: 80%;
+  font-size: 0.8rem;
   margin: 0px;
   padding: 0px;
   background-color: #ffffff;
@@ -374,66 +374,15 @@ header p {
 
 nav {
   background-color: #f0f0f0;
-  color: #002B49;
+  /*color: #002B49;
   margin:0px;
   padding:0px;
   float:center;
-  clear:both;
-  font-size: 12px;
-  font-weight: 500;
+  clear:both;*/
+  /*font-size: 12px;*/
+  /*font-weight: 500;*/
 }
-nav #loggedinas {
-  font-size: 12px;
-}
-nav ul {
-  margin: 0;
-  padding: 5px;
-}
-nav ul li {
-  display: inline;
-  margin: 5px;
-  padding: 5px;
-  background-color: #204080;
-  color: #002B49;
-/*  color: #222222; */
-  float: center;
-  clear: both;
-}
-nav a {
-  margin: 5px;
-  padding: 5px;
-  background-color: #f0f0f0;
-  color: #002B49;
-/*  color: #000000; */
-  text-decoration: none;
-  display: inline-block;
-  target: _parent;
-}
-nav a:visited {
-  color: #002B49;
-/*  color: #000000; */
-}
-nav a:hover {
-  color: #000000;
-/*  color: #FFA300 */
-  text-decoration: none;
-  background-color: #FFFFFF;
-}
-nav a:active {
-  color: #222222;
-}
-nav a.highlighted {
-/*  background-color: #FFFFFF; */
-  border: 1px solid black;
-}
-nav p {
-  display: inline-block;
-  margin: 10px;
-  padding: 0px;
-}
-nav form {
-  display: inline-block;
-}
+
 
 
 ol {
@@ -472,7 +421,6 @@ section {
   text-align: justify;
 }
 section a {
-  color: #103050;
   color: #6884C2;
   text-decoration: none;
   target: _parent;
@@ -533,6 +481,13 @@ section ul {
 }
 section ul li {
   padding: 2px;
+}
+
+table.tablePadded10 th {
+  padding: 5px 10px;
+}
+table.tablePadded10 td {
+  padding: 0px 10px;
 }
 
 #NWOOpenAccess {
@@ -631,9 +586,7 @@ article {
 footer {
   background-color: #002B49;
   color: #ffffff;
-  border: 1px solid grey; border-radius:1px;
-  margin:5px; margin-bottom:10px;
-  padding:5px;
+  border-top: 1px solid grey;
 }
 footer a {
   color: #eeeeee;
@@ -649,7 +602,6 @@ input, textarea {
   border: 1px solid black; border-radius: 1px;
 }
 input[type='text'], input[type='URL'], textarea {
-  width: 80%;
   max-width: 800px;
   min-width: 200px;
 }

@@ -1,8 +1,26 @@
 {% extends 'scipost/base.html' %}
 
+{% load journals_extras %}
+
 {% block pagetitle %}: Publication detail{% endblock pagetitle %}
 
 {% block headsup %}
+<meta name="citation_title" content="{{ publication.title }}"/>
+{% for author in publication.authors.all %}
+<meta name="citation_author" content="{{ author.user.last_name }}, {{ author.user.first_name }}"/>
+{% endfor %}
+{% for author in publication.authors_unregistered.all %}
+<meta name="citation_author" content="{{ author.last_name }}, {{ author.first_name }}"/>
+{% endfor %}
+<meta name="citation_doi" content="{{ publication.doi_string }}"/>
+<meta name="citation_publication_date" content="{{ publication.publication_date|date:'Y/m/d' }}"/>
+<meta name="citation_journal_title" content="{{ publication.in_issue.in_volume.in_journal.name }}"/>
+<meta name="citation_issn" content="{{ publication.in_issue.in_volume.in_journal.issn }}"/>
+<meta name="citation_volume" content="{{ publication.in_issue.in_volume.number }}"/>
+<meta name="citation_issue" content="{{ publication.in_issue.number }}"/>
+<meta name="citation_firstpage" content="{{ publication.paper_nr|paper_nr_string_filter }}"/>
+<meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
+
 <script>
   $(document).ready(function(){
     $("#citationslist").hide();

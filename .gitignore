@@ -2,12 +2,19 @@
 __pycache__
 
 *.json
+!package.json
 !**/fixtures/*.json
+*.log
 
 *~
 
+# Package managers
 venv*
+node_modules/
+*webpack-stats.json
+
 .python-version
+
 
 media/temp
 
@@ -15,6 +22,10 @@ SCIPOST_JOURNALS
 UPLOADS
 
 docs/_build
-local_files
+
+local_files/
+static/
+!/scipost/static/
+static_bundles/
 
 whoosh_index

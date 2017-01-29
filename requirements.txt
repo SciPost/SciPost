@@ -10,6 +10,7 @@ django-mathjax==0.0.5
 django-mptt==0.8.6
 django-simple-captcha==0.5.3
 django-sphinxdoc==1.5.1
+django-webpack-loader==0.4.1
 djangorestframework==3.5.3
 docutils==0.12
 factory-boy==2.7.0

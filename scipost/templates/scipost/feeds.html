@@ -15,14 +15,71 @@
   </div>
 
   <div class="flex-container">
-    <div class="flex-whitebox">
+    <div class="flex-greybox">
       <h3>News feeds</h3>
+    </div>
+  </div>
+  <div class="flex-container">
+    <div class="flex-whitebox">
       <p>We provide both RSS (2.0) and Atom feeds for latest news and announcements.</p>
       <p>The URL of the RSS feed is <a href="https://scipost.org/rss/news/">https://scipost.org/rss/news/</a>.</p>
       <p>The URL of the Atom feed is <a href="https://scipost.org/atom/news/">https://scipost.org/atom/news/</a>.</p>
     </div>
   </div>
-
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h3>Publications feeds</h3>
+    </div>
+  </div>
+  <div class="flex-container">
+    <div class="flex-whitebox">
+      <p>Similarly, we provide feeds for the latest publications.</p>
+      <p>The URL of the general RSS feed is <a href="https://scipost.org/rss/publications/">https://scipost.org/rss/publications</a>.</p>
+      <p>The URL of the general Atom feed is <a href="https://scipost.org/atom/publications/">https://scipost.org/atom/publications/</a>.</p>
+      <br/>
+      <p>You can also obtain feeds only for any specific specialization by using the links in the table below.</p>
+    </div>
+  </div>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h3>Submissions feeds</h3>
+    </div>
+  </div>
+  <div class="flex-container">
+    <div class="flex-whitebox">
+      <p>We also provide feeds for the latest submissions.</p>
+      <p>The URL of the general RSS feed is <a href="https://scipost.org/rss/submissions/">https://scipost.org/rss/submissions</a>.</p>
+      <p>The URL of the general Atom feed is <a href="https://scipost.org/atom/submissions/">https://scipost.org/atom/submissions/</a>.</p>
+      <br/>
+      <p>You can also obtain feeds only for any specific specialization by using the links in the table below.</p>
+    </div>
+  </div>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h3>Feeds by specific subject area</h3>
+    </div>
+  </div>
+  <div class="flex-container">
+    <div class="flex-whitebox">
+      <h3>Physics:</h3>
+      <table class="tablePadded10">
+	<thead>
+	<th>Subject area</th><th>Submissions</th><th>Publications</th>
+	</thead>
+	<tbody>
+	  {% for key, val in subject_areas_physics %}
+	  <tr>
+	    <td>{{ val }}</td>
+	    <td><a href="{% url 'scipost:sub_feed_spec_rss' subject_area=key %}">RSS</a>
+	    &nbsp;<a href="{% url 'scipost:sub_feed_spec_atom' subject_area=key %}">Atom</a></td>
+	    <td><a href="{% url 'scipost:pub_feed_spec_rss' subject_area=key %}">RSS</a>
+	    &nbsp;<a href="{% url 'scipost:pub_feed_spec_atom' subject_area=key %}">Atom</a></td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+    </div>
+  </div>
 </section>
 
 
