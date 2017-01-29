@@ -4,12 +4,14 @@ from django.template import Template, Context
 
 from journals.models import SCIPOST_JOURNALS_DOMAINS
 from scipost.models import TimeStampedModel, Contributor
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
 
+COMMENTARY_PUBLISHED = 'published'
+COMMENTARY_PREPRINT = 'preprint'
 COMMENTARY_TYPES = (
-    ('published', 'published paper'),
-    ('preprint', 'arXiv preprint'),
-    )
+    (COMMENTARY_PUBLISHED, 'published paper'),
+    (COMMENTARY_PREPRINT, 'arXiv preprint'),
+)
 
 
 class CommentaryManager(models.Manager):
@@ -30,7 +32,8 @@ class Commentary(TimeStampedModel):
     vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey(Contributor, blank=True, null=True, on_delete=models.CASCADE)
     type = models.CharField(max_length=9, choices=COMMENTARY_TYPES)
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
+    discipline = models.CharField(max_length=20,
+                                  choices=SCIPOST_DISCIPLINES, default=DISCIPLINE_PHYSICS)
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     subject_area = models.CharField(
         max_length=10, choices=SCIPOST_SUBJECT_AREAS,
@@ -50,8 +53,7 @@ class Commentary(TimeStampedModel):
     metadata = JSONField(default={}, blank=True, null=True)
     arxiv_or_DOI_string = models.CharField(
         max_length=100,
-        verbose_name='string form of arxiv nr or DOI for commentary url',
-        default='')
+        verbose_name='string form of arxiv nr or DOI for commentary url')
     author_list = models.CharField(max_length=1000)
 
     # Authors which have been mapped to contributors:
