@@ -11,7 +11,8 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 
 from .models import *
@@ -44,21 +45,51 @@ class RequestThesisLink(CreateView):
 
 @method_decorator(permission_required(
     'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
-class VetThesisLinkRequests(FormView):
-    form_class = VetThesisLinkForm
-    template_name = 'theses/vet_thesislink_requests.html'
-    success_url = reverse_lazy('theses:vet_thesislink_requests')
+class UnvettedThesisLinks(ListView):
+    model = ThesisLink
+    template_name = 'theses/unvetted_thesislinks.html'
+    context_object_name = 'thesislinks'
+    queryset = ThesisLink.objects.filter(vetted=False)
 
-    def get_context_data(self, **kwargs):
-        context = super(VetThesisLinkRequests, self).get_context_data(**kwargs)
-        context['thesislink_to_vet'] = ThesisLink.objects.filter(vetted=False).first()
-        return context
+@method_decorator(permission_required(
+    'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
+class VetThesisLink(UpdateView):
+    model = ThesisLink
+    fields = ['type', 'discipline', 'domain', 'subject_area',
+              'title', 'author', 'supervisor', 'institution',
+              'defense_date', 'pub_link', 'abstract']
+    template_name = "theses/vet_thesislink.html"
 
-    def form_valid(self, form):
-        form.vet_request(self.kwargs['thesislink_id'])
-        messages.add_message(self.request, messages.SUCCESS,
-                             strings.acknowledge_vet_thesis_link)
-        return super(VetThesisLinkRequests, self).form_valid(form)
+# @method_decorator(permission_required(
+#     'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
+# class VetThesisLink(UpdateView):
+#     form_class = VetThesisLinkForm
+#     template_name = "theses/vet_thesislink.html"
+#     success_url = reverse_lazy('theses:unvetted_thesislinks')
+#
+#     def form_valid(self, form):
+
+
+
+
+
+# @method_decorator(permission_required(
+#     'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
+# class VetThesisLinkRequests(FormView):
+#     form_class = VetThesisLinkForm
+#     template_name = 'theses/vet_thesislink_requests.html'
+#     success_url = reverse_lazy('theses:vet_thesislink_requests')
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(VetThesisLinkRequests, self).get_context_data(**kwargs)
+#         context['thesislink_to_vet'] = ThesisLink.objects.filter(vetted=False).first()
+#         return context
+#
+#     def form_valid(self, form):
+#         form.vet_request(self.kwargs['thesislink_id'])
+#         messages.add_message(self.request, messages.SUCCESS,
+#                              strings.acknowledge_vet_thesis_link)
+#         return super(VetThesisLinkRequests, self).form_valid(form)
 
 
 @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
