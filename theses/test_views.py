@@ -10,6 +10,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from scipost.factories import UserFactory, ContributorFactory
 from comments.factories import CommentFactory
 from comments.forms import CommentForm
+from comments.models import Comment
 from .views import RequestThesisLink, VetThesisLinkRequests, thesis_detail
 from .factories import ThesisLinkFactory, VetThesisLinkFormFactory
 from .models import ThesisLink
@@ -29,17 +30,21 @@ class TestThesisDetail(TestCase):
 
     def test_submitting_comment_creates_comment(self):
         """ Valid Comment gets saved """
+
         contributor = ContributorFactory()
         thesislink = ThesisLinkFactory()
-        valid_comment_data = model_form_data(CommentFactory(), CommentForm)
+        valid_comment_data = model_form_data(CommentFactory.build(), CommentForm)
         target = reverse('theses:thesis', kwargs={'thesislink_id': thesislink.id})
+
+        comment_count = Comment.objects.filter(author=contributor).count()
+        self.assertEqual(comment_count, 0)
 
         request = RequestFactory().post(target, valid_comment_data)
         request.user = contributor.user
-
         response = thesis_detail(request, thesislink_id=thesislink.id)
-        print(response)
-        self.assertTrue(False)
+
+        comment_count = Comment.objects.filter(author=contributor).count()
+        self.assertEqual(comment_count, 1)
 
 
 class TestRequestThesisLink(TestCase):
