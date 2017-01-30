@@ -51,45 +51,40 @@ class UnvettedThesisLinks(ListView):
     context_object_name = 'thesislinks'
     queryset = ThesisLink.objects.filter(vetted=False)
 
+# @method_decorator(permission_required(
+#     'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
+# class VetThesisLink(UpdateView):
+#     model = ThesisLink
+#     fields = ['type', 'discipline', 'domain', 'subject_area',
+#               'title', 'author', 'supervisor', 'institution',
+#               'defense_date', 'pub_link', 'abstract']
+#     template_name = "theses/vet_thesislink.html"
+
+
 @method_decorator(permission_required(
     'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
 class VetThesisLink(UpdateView):
     model = ThesisLink
-    fields = ['type', 'discipline', 'domain', 'subject_area',
-              'title', 'author', 'supervisor', 'institution',
-              'defense_date', 'pub_link', 'abstract']
+    form_class = VetThesisLinkForm
     template_name = "theses/vet_thesislink.html"
+    success_url = reverse_lazy('theses:unvetted_thesislinks')
 
-# @method_decorator(permission_required(
-#     'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
-# class VetThesisLink(UpdateView):
-#     form_class = VetThesisLinkForm
-#     template_name = "theses/vet_thesislink.html"
-#     success_url = reverse_lazy('theses:unvetted_thesislinks')
-#
-#     def form_valid(self, form):
+    def form_valid(self, form):
+        # I totally override the form_valid method. I do not call super.
+        # This is because, by default, an UpdateView saves the object as instance,
+        # which it builds from the form data. So, the changes (by whom the thesis link was vetted, etc.)
+        # would be lost.
 
+        # Builds model that reflects changes made during update. Does not yet save.
+        self.object = form.save(commit=False)
+        # Process vetting actions
+        form.vet_request(self.object, self.request.user)
+        # Save again.
+        self.object.save()
 
-
-
-
-# @method_decorator(permission_required(
-#     'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
-# class VetThesisLinkRequests(FormView):
-#     form_class = VetThesisLinkForm
-#     template_name = 'theses/vet_thesislink_requests.html'
-#     success_url = reverse_lazy('theses:vet_thesislink_requests')
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(VetThesisLinkRequests, self).get_context_data(**kwargs)
-#         context['thesislink_to_vet'] = ThesisLink.objects.filter(vetted=False).first()
-#         return context
-#
-#     def form_valid(self, form):
-#         form.vet_request(self.kwargs['thesislink_id'])
-#         messages.add_message(self.request, messages.SUCCESS,
-#                              strings.acknowledge_vet_thesis_link)
-#         return super(VetThesisLinkRequests, self).form_valid(form)
+        messages.add_message(self.request, messages.SUCCESS,
+                             strings.acknowledge_vet_thesis_link)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)

@@ -16,7 +16,7 @@ class RequestThesisLinkForm(forms.ModelForm):
         }
 
 
-class VetThesisLinkForm(forms.Form):
+class VetThesisLinkForm(RequestThesisLinkForm):
     MODIFY = 0
     ACCEPT = 1
     REFUSE = 2
@@ -41,16 +41,53 @@ class VetThesisLinkForm(forms.Form):
     justification = forms.CharField(widget=forms.Textarea(
         attrs={'rows': 5, 'cols': 40}), label='Justification (optional)', required=False)
 
-    def vet_request(self, thesis_link_id):
-        if self.cleaned_data['action_option'] == VetThesisLinkForm.ACCEPT:
-
+    def vet_request(self, thesislink, user):
+        if int(self.cleaned_data['action_option']) == VetThesisLinkForm.ACCEPT:
             thesislink.vetted = True
-            thesislink.vetted_by = Contributor.objects.get(user=request.user)
+            thesislink.vetted_by = Contributor.objects.get(user=user)
             thesislink.save()
-        elif self.cleaned_data['action_option'] == VetThesisLinkForm.MODIFY:
+        elif int(self.cleaned_data['action_option']) == VetThesisLinkForm.MODIFY:
             print('hai')
-        elif self.cleaned_data['action_option'] == VetThesisLinkForm.REFUSE:
-            print('bla')
+        elif int(self.cleaned_data['action_option']) == VetThesisLinkForm.REFUSE:
+            print('hoi')
+
+
+
+# class VetThesisLinkForm(forms.Form):
+#     MODIFY = 0
+#     ACCEPT = 1
+#     REFUSE = 2
+#     THESIS_ACTION_CHOICES = (
+#         (MODIFY, 'modify'),
+#         (ACCEPT, 'accept'),
+#         (REFUSE, 'refuse (give reason below)'),
+#     )
+#
+#     EMPTY_CHOICE = 0
+#     ALREADY_EXISTS = 1
+#     LINK_DOES_NOT_WORK = 2
+#     THESIS_REFUSAL_CHOICES = (
+#         (EMPTY_CHOICE, '---'),
+#         (ALREADY_EXISTS, 'a link to this thesis already exists'),
+#         (LINK_DOES_NOT_WORK, 'the external link to this thesis does not work'),
+#     )
+#
+#     action_option = forms.ChoiceField(
+#         widget=forms.RadioSelect, choices=THESIS_ACTION_CHOICES, required=True, label='Action')
+#     refusal_reason = forms.ChoiceField(choices=THESIS_REFUSAL_CHOICES, required=False)
+#     justification = forms.CharField(widget=forms.Textarea(
+#         attrs={'rows': 5, 'cols': 40}), label='Justification (optional)', required=False)
+#
+#     def vet_request(self, thesis_link_id):
+#         if self.cleaned_data['action_option'] == VetThesisLinkForm.ACCEPT:
+#
+#             thesislink.vetted = True
+#             thesislink.vetted_by = Contributor.objects.get(user=request.user)
+#             thesislink.save()
+#         elif self.cleaned_data['action_option'] == VetThesisLinkForm.MODIFY:
+#             print('hai')
+#         elif self.cleaned_data['action_option'] == VetThesisLinkForm.REFUSE:
+#             print('bla')
 
 
 class ThesisLinkSearchForm(forms.Form):

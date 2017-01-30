@@ -11,9 +11,10 @@ from scipost.factories import UserFactory, ContributorFactory
 from comments.factories import CommentFactory
 from comments.forms import CommentForm
 from comments.models import Comment
-from .views import RequestThesisLink, VetThesisLinkRequests, thesis_detail
+from .views import RequestThesisLink, VetThesisLink, thesis_detail
 from .factories import ThesisLinkFactory, VetThesisLinkFormFactory
 from .models import ThesisLink
+from .forms import VetThesisLinkForm
 from common.helpers import model_form_data
 
 
@@ -71,7 +72,8 @@ class TestVetThesisLinkRequests(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.target = reverse('theses:vet_thesislink_requests')
+        self.thesislink = ThesisLinkFactory()
+        self.target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
 
     def test_response_when_not_logged_in(self):
         response = self.client.get(self.target)
@@ -82,30 +84,26 @@ class TestVetThesisLinkRequests(TestCase):
         A Contributor needs to be in the Vetting Editors group to be able to
         vet submitted thesis links.
         '''
-        # Create ThesisLink to vet.
-        ThesisLinkFactory()
         request = RequestFactory().get(self.target)
         user = UserFactory()
         request.user = user
         self.assertRaises(
-            PermissionDenied, VetThesisLinkRequests.as_view(), request)
+            PermissionDenied, VetThesisLink.as_view(), request, pk=self.thesislink.id)
 
     def test_response_vetting_editor(self):
-        # Create ThesisLink to vet.
-        ThesisLinkFactory()
         request = RequestFactory().get(self.target)
         user = UserFactory()
         user.groups.add(Group.objects.get(name="Vetting Editors"))
         request.user = user
-        response = VetThesisLinkRequests.as_view()(request)
+        response = VetThesisLink.as_view()(request, pk=self.thesislink.id)
         self.assertEqual(response.status_code, 200)
 
     def test_thesislink_is_vetted_by_correct_contributor(self):
-        thesis_link = ThesisLinkFactory()
         contributor = ContributorFactory()
         contributor.user.groups.add(Group.objects.get(name="Vetting Editors"))
-        post_data = VetThesisLinkFormFactory().data
-        target = reverse('theses:vet_thesislink_request', kwargs={'thesislink_id': thesis_link.id})
+        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm)
+        post_data["action_option"] = VetThesisLinkForm.ACCEPT
+        target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
 
         request = RequestFactory().post(target, post_data)
         request.user = contributor.user
@@ -116,5 +114,26 @@ class TestVetThesisLinkRequests(TestCase):
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
 
-        response = VetThesisLinkRequests.as_view()(request, thesislink_id=thesis_link.id)
-        self.assertEqual(thesis_link.vetted_by, contributor)
+        response = VetThesisLink.as_view()(request, pk=self.thesislink.id)
+        self.thesislink.refresh_from_db()
+        self.assertEqual(self.thesislink.vetted_by, contributor)
+
+    def test_thesislink_that_is_refused_is_not_vetted(self):
+        contributor = ContributorFactory()
+        contributor.user.groups.add(Group.objects.get(name="Vetting Editors"))
+        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm)
+        post_data["action_option"] = VetThesisLinkForm.REFUSE
+        target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
+
+        request = RequestFactory().post(target, post_data)
+        request.user = contributor.user
+
+        # I don't know what the following three lines do, but they help make a RequestFactory
+        # work with the messages middleware
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = VetThesisLink.as_view()(request, pk=self.thesislink.id)
+        self.thesislink.refresh_from_db()
+        self.assertEqual(self.thesislink.vetted_by, None)

@@ -18,7 +18,7 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
     author = factory.Faker('name')
     supervisor = factory.Faker('name')
     institution = factory.Faker('company')
-    defense_date = factory.Faker('date_time_this_century')
+    defense_date = factory.Faker('date')
     abstract = factory.Faker('text')
     domain = 'ET'
 
