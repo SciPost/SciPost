@@ -38,6 +38,7 @@ class RequestThesisLink(CreateView):
     success_url = reverse_lazy('scipost:personal_page')
 
     def form_valid(self, form):
+        form.instance.requested_by = self.request.user.contributor
         messages.add_message(self.request, messages.SUCCESS,
                              strings.acknowledge_request_thesis_link)
         return super(RequestThesisLink, self).form_valid(form)
