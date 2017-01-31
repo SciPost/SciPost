@@ -11,7 +11,8 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Avg
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 
 from .models import *
@@ -20,7 +21,7 @@ from .forms import *
 from comments.models import Comment
 from comments.forms import CommentForm
 from scipost.forms import TITLE_CHOICES, AuthenticationForm
-
+import strings
 
 title_dict = dict(TITLE_CHOICES)  # Convert titles for use in emails
 
@@ -44,108 +45,39 @@ class RequestThesisLink(CreateView):
 
 @method_decorator(permission_required(
     'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
-class VetThesisLinkRequests(FormView):
+class UnvettedThesisLinks(ListView):
+    model = ThesisLink
+    template_name = 'theses/unvetted_thesislinks.html'
+    context_object_name = 'thesislinks'
+    queryset = ThesisLink.objects.filter(vetted=False)
+
+
+@method_decorator(permission_required(
+    'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
+class VetThesisLink(UpdateView):
+    model = ThesisLink
     form_class = VetThesisLinkForm
-    template_name = 'theses/vet_thesislink_requests.html'
-    # TODO: not right yet
-    success_url = reverse_lazy('theses:vet_thesislink_requests')
-
-    def get_context_data(self, **kwargs):
-        context = super(VetThesisLinkRequests, self).get_context_data(**kwargs)
-        context['thesislink_to_vet'] = self.thesislink_to_vet()
-        return context
-
-    def thesislink_to_vet(self):
-        return ThesisLink.objects.filter(vetted=False).first()
+    template_name = "theses/vet_thesislink.html"
+    success_url = reverse_lazy('theses:unvetted_thesislinks')
 
     def form_valid(self, form):
-        form.vet_request(self.thesislink_to_vet())
-        return super(VetThesisLinkRequests, self).form_valid(form)
+        # I totally override the form_valid method. I do not call super.
+        # This is because, by default, an UpdateView saves the object as instance,
+        # which it builds from the form data. So, the changes (by whom the thesis link was vetted, etc.)
+        # would be lost. Instead, we need the form to save with commit=False, then modify
+        # the vetting fields, and then save.
 
+        # Builds model that reflects changes made during update. Does not yet save.
+        self.object = form.save(commit=False)
+        # Process vetting actions (object already gets saved.)
+        form.vet_request(self.object, self.request.user)
+        # Save again.
+        self.object.save()
 
-# @permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
-# def vet_thesislink_requests(request):
-#     contributor = Contributor.objects.get(user=request.user)
-#     thesislink_to_vet = ThesisLink.objects.filter(
-#         vetted=False).first()  # only handle one at a time
-#     form = VetThesisLinkForm()
-#     context = {'contributor': contributor, 'thesislink_to_vet': thesislink_to_vet, 'form': form}
-#     return render(request, 'theses/vet_thesislink_requests.html', context)
-
-
-@permission_required('scipost.can_vet_thesislink_requests', raise_exception=True)
-def vet_thesislink_request_ack(request, thesislink_id):
-    if request.method == 'POST':
-        form = VetThesisLinkForm(request.POST)
-        thesislink = ThesisLink.objects.get(pk=thesislink_id)
-        if form.is_valid():
-            if form.cleaned_data['action_option'] == '1':
-                thesislink.vetted = True
-                thesislink.vetted_by = Contributor.objects.get(user=request.user)
-                thesislink.save()
-                email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
-                              + thesislink.requested_by.user.last_name
-                              + ', \n\nThe Thesis Link you have requested, concerning thesis with title '
-                              + thesislink.title + ' by ' + thesislink.author
-                              + ', has been activated at https://scipost.org/thesis/'
-                              + str(thesislink.id) + '.'
-                              + '\n\nThank you for your contribution, \nThe SciPost Team.')
-                emailmessage = EmailMessage('SciPost Thesis Link activated', email_text,
-                                            'SciPost Theses <theses@scipost.org>',
-                                            [thesislink.requested_by.user.email],
-                                            ['theses@scipost.org'],
-                                            reply_to=['theses@scipost.org'])
-                emailmessage.send(fail_silently=False)
-            elif form.cleaned_data['action_option'] == '0':
-                # re-edit the form starting from the data provided
-                form2 = RequestThesisLinkForm(initial={'title': thesislink.pub_title,
-                                                       'pub_ink': thesislink.pub_link,
-                                                       'author': thesislink.author,
-                                                       'institution': thesislink.institution,
-                                                       'defense_date': thesislink.defense_date,
-                                                       'abstract': thesislink.abstract})
-                thesislink.delete()
-                email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
-                              + thesislink.requested_by.user.last_name
-                              + ', \n\nThe Thesis Link you have requested, concerning thesis with title '
-                              + thesislink.title + ' by ' + thesislink.author_list
-                              + ', has been activated '
-                              '(with slight modifications to your submitted details) at '
-                              'https://scipost.org/thesis/' + str(thesislink.id) + '.'
-                              '\n\nThank you for your contribution, \nThe SciPost Team.')
-                emailmessage = EmailMessage('SciPost Thesis Link activated', email_text,
-                                            'SciPost Theses <theses@scipost.org>',
-                                            [thesislink.requested_by.user.email],
-                                            ['theses@scipost.org'],
-                                            reply_to=['theses@scipost.org'])
-                # Don't send email yet... only when option 1 has succeeded!
-                # emailmessage.send(fail_silently=False)
-                context = {'form': form2}
-                return render(request, 'theses/request_thesislink.html', context)
-            elif form.cleaned_data['action_option'] == '2':
-                email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
-                              + thesislink.requested_by.user.last_name
-                              + ', \n\nThe Thesis Link you have requested, concerning thesis with title '
-                              + thesislink.title + ' by ' + thesislink.author
-                              + ', has not been activated for the following reason: '
-                              + form.cleaned_data['refusal_reason']
-                              + '.\n\nThank you for your interest, \nThe SciPost Team.')
-                if form.cleaned_data['justification']:
-                    email_text += '\n\nFurther explanations: ' + \
-                        form.cleaned_data['justification']
-                emailmessage = EmailMessage('SciPost Thesis Link', email_text,
-                                            'SciPost Theses <theses@scipost.org>',
-                                            [thesislink.requested_by.user.email],
-                                            ['theses@scipost.org'],
-                                            reply_to=['theses@scipost.org'])
-                emailmessage.send(fail_silently=False)
-                thesislink.delete()
-
-    context = {'ack_header': 'Thesis Link request vetted.',
-               'followup_message': 'Return to the ',
-               'followup_link': reverse('theses:vet_thesislink_requests'),
-               'followup_link_label': 'Thesis Link requests page'}
-    return render(request, 'scipost/acknowledgement.html', context)
+        messages.add_message(
+            self.request, messages.SUCCESS,
+            strings.acknowledge_vet_thesis_link)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 def theses(request):

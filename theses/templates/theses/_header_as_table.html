@@ -1,0 +1,46 @@
+{% load theses_extras %}
+
+<table>
+    <tr>
+        <td>Title: </td><td>&nbsp;</td><td>{{ thesislink.title }}</td>
+    </tr>
+    <tr>
+        <td>Author: </td><td>&nbsp;</td><td>{{ thesislink.author }}</td>
+    </tr>
+    <tr>
+        <td>As Contributor: </td><td>&nbsp;</td>
+        {% if thesislink.author_as_cont.all %}
+            {% for author in thesislink.author_as_cont.all %}
+                <td><a href= {% url 'scipost:contributor_info' author.id %}>
+                        author.user.first_name author.user.last_name
+                </a></td>
+            {% endfor %}
+        {% else %}
+            <td>(not claimed)</td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td>Type: </td><td></td><td>  {{ thesislink|type }}</td>
+    </tr>
+    <tr>
+        <td>Discipline: </td><td></td><td>{{ thesislink|discipline }}</td>
+    </tr>
+    <tr>
+        <td>Domain: </td><td></td><td>{{ thesislink|domain }}</td>
+    </tr>
+    <tr>
+        <td>Subject area: </td><td></td><td> {{ thesislink|subject_area }} </td>
+    </tr>
+    <tr>
+        <td>URL: </td><td>&nbsp;</td><td><a href="{{ pub_link }}" target="_blank">{{ thesislink.pub_link }}</a></td>
+    </tr>
+    <tr>
+        <td>Degree granting institution: </td><td>&nbsp;</td><td>{{ thesislink.institution }}</td>
+    </tr>
+    <tr>
+        <td>Supervisor(s): </td><td></td><td>{{ thesislink.supervisor }}</td>
+    </tr>
+    <tr>
+        <td>Defense date: </td><td>&nbsp;</td><td>{{ thesislink.defense_date }}</td>
+    </tr>
+</table>

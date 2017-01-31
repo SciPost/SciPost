@@ -24,21 +24,3 @@ class TestRequestThesisLink(TestCase):
         form = RequestThesisLinkForm(form_data)
         form.is_valid()
         self.assertEqual(form.errors['domain'], ['This field is required.'])
-
-
-class TestVetThesisLinkRequests(TestCase):
-    fixtures = ['permissions', 'groups']
-
-    def test_thesislink_gets_vetted_when_accepted(self):
-        thesis_link = ThesisLinkFactory()
-        form = VetThesisLinkFormFactory()
-        form.is_valid()
-        form.vet_request(thesis_link)
-        self.assertTrue(thesis_link.vetted)
-
-    def test_thesislink_is_not_vetted_when_refused(self):
-        thesis_link = ThesisLinkFactory()
-        form = VetThesisLinkFormFactory(action_option=VetThesisLinkForm.REFUSE)
-        form.is_valid()
-        form.vet_request(thesis_link)
-        self.assertFalse(thesis_link.vetted)

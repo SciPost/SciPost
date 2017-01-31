@@ -1,0 +1,16 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Unvetted Thesis Links{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% endblock headsup %}
+
+{% block bodysup %}
+
+<form action="" method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Update" />
+</form>
+
+{% endblock bodysup %}
