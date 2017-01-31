@@ -51,15 +51,6 @@ class UnvettedThesisLinks(ListView):
     context_object_name = 'thesislinks'
     queryset = ThesisLink.objects.filter(vetted=False)
 
-# @method_decorator(permission_required(
-#     'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
-# class VetThesisLink(UpdateView):
-#     model = ThesisLink
-#     fields = ['type', 'discipline', 'domain', 'subject_area',
-#               'title', 'author', 'supervisor', 'institution',
-#               'defense_date', 'pub_link', 'abstract']
-#     template_name = "theses/vet_thesislink.html"
-
 
 @method_decorator(permission_required(
     'scipost.can_vet_thesislink_requests', raise_exception=True), name='dispatch')
@@ -73,17 +64,19 @@ class VetThesisLink(UpdateView):
         # I totally override the form_valid method. I do not call super.
         # This is because, by default, an UpdateView saves the object as instance,
         # which it builds from the form data. So, the changes (by whom the thesis link was vetted, etc.)
-        # would be lost.
+        # would be lost. Instead, we need the form to save with commit=False, then modify
+        # the vetting fields, and then save.
 
         # Builds model that reflects changes made during update. Does not yet save.
         self.object = form.save(commit=False)
-        # Process vetting actions
+        # Process vetting actions (object already gets saved.)
         form.vet_request(self.object, self.request.user)
         # Save again.
         self.object.save()
 
-        messages.add_message(self.request, messages.SUCCESS,
-                             strings.acknowledge_vet_thesis_link)
+        messages.add_message(
+            self.request, messages.SUCCESS,
+            strings.acknowledge_vet_thesis_link)
         return HttpResponseRedirect(self.get_success_url())
 
 
