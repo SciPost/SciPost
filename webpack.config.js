@@ -8,7 +8,10 @@ var path_bundles = __dirname + '/static_bundles/bundles';
 module.exports = {
     context: __dirname,
     entry: {
-        main: ["./scipost/static/scipost/assets/css/style.scss"],
+        main: [
+            "./scipost/static/scipost/assets/js/scripts.js",
+            "./scipost/static/scipost/assets/css/style.scss"
+        ],
         bootstrap: 'bootstrap-loader'
     },
     output: {
