@@ -52,22 +52,17 @@ class VetCommentaryRequestsTest(TestCase):
         """Test http response on GET requests"""
         # Registered Contributor should get 200
         self.client.login(username=self.contributor.user.username,
-                          password=self.contributor.user.password)
+                          password='adm1n')
 
         # Wrong permissions group!
-        reponse = self.client.get(self.view_url)
-        self.assertEquals(reponse.status_code, 403)
+        response = self.client.get(self.view_url)
+        self.assertEquals(response.status_code, 403)
 
         # Right permissions group!
-        # self.client.logout()
         group = Group.objects.get(name="Vetting Editors")
         self.contributor.user.groups.add(group)
-        # Permission group is still empty!?!? These fixtures just don't seem to work properly.
-
-        # self.client.login(username=self.contributor.user.username,
-        #                   password=self.contributor.user.password)
-        reponse = self.client.get(self.view_url)
-        self.assertEquals(reponse.status_code, 200)
+        response = self.client.get(self.view_url)
+        self.assertEquals(response.status_code, 200)
 
     # def test_get_valid_unvetted_commentaries(self):
     #     """Test if valid commentaries are sent back to user."""

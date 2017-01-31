@@ -21,10 +21,11 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = get_user_model()
 
     username = factory.Faker('user_name')
-    password = factory.Faker('password')
+    password = factory.PostGenerationMethodCall('set_password', 'adm1n')
     email = factory.Faker('safe_email')
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
+    is_active = True
     # When user object is created, associate new Contributor object to it.
     contributor = factory.RelatedFactory(ContributorFactory, 'user')
 
