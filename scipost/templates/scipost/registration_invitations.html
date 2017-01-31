@@ -9,8 +9,19 @@
 <script>
   $(document).ready(function(){
 
+  switch ($('select#id_invitation_type').val()) {
+  case "ci":
+  $("#div_id_cited_in_submission").show();
+  $("#div_id_cited_in_publication").hide();
+  break;
+  case "cp":
+  $("#div_id_cited_in_submission").hide();
+  $("#div_id_cited_in_publication").show();
+  break;
+  default:
   $("#div_id_cited_in_submission").hide();
   $("#div_id_cited_in_publication").hide();
+  }
 
   $('select#id_invitation_type').on('change', function() {
     switch ($('select#id_invitation_type').val()) {
@@ -67,7 +78,12 @@
       <td>{{ draft.date_drafted }} </td>
       <td>{{ draft.invitation_type }}</td>
       <td>{{ draft.drafted_by.user.last_name }}</td>
+      <td><a href="{% url 'scipost:edit_draft_reg_inv' draft_id=draft.id %}">Edit</a></td>
       <td><a href="{% url 'scipost:registration_invitations_from_draft' draft_id=draft.id %}">Process</a></td>
+      <td><a href="{% url 'scipost:mark_draft_inv_as_processed' draft_id=draft.id %}">Mark as processed</a></td>
+      {% for ac in draft|associated_contributors %}
+      <td><a href="{% url 'scipost:map_draft_reg_inv_to_contributor' draft_id=draft.id contributor_id=ac.id %}">Map to {{ ac.user.first_name }} {{ ac.user.last_name }}</a></td>
+      {% endfor %}
     </tr>
     {% endfor %}
   </table>

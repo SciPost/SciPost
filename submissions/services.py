@@ -57,6 +57,10 @@ class ArxivCaller():
             if previous_submissions[0].status == 'revision_requested':
                 self.resubmission = True
                 self.previous_submissions = previous_submissions
+            else if previous_submissions[0].status in ['rejected', 'rejected_visible']:
+                self.errorcode = 'previous_submissions_rejected'
+                self.isvalid = False
+                return
             else:
                 self.errorcode = 'previous_submission_undergoing_refereeing'
                 self.isvalid = False

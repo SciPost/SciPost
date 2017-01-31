@@ -1,0 +1,29 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: citation notifications{% endblock pagetitle %}
+
+{% block bodysup %}
+
+
+<section>
+  <div class="flex-greybox">
+    <h1>Citation notifications to process</h1>
+  </div>
+
+  {% if errormessage %}
+  <h3 style="color: red;">{{ errormessage }}</h3>
+  {% endif %}
+
+  {% if unprocessed_notifications %}
+  <ul>
+    {% for un in unprocessed_notifications %}
+    <li>{{ un }} <a href="{% url 'scipost:process_citation_notification' cn_id=un.id %}">Process this notification</a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <h3>There are no citation notifications to process.</h3>
+  <p>Return to your <a href="{% url 'scipost:personal_page' %}">personal page</a>.</p>
+  {% endif %}
+
+
+{% endblock bodysup %}

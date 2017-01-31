@@ -1,0 +1,56 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: edit draft reg inv{% endblock pagetitle %}
+
+{% block bodysup %}
+
+<script>
+  $(document).ready(function(){
+
+  switch ($('select#id_invitation_type').val()) {
+  case "ci":
+  $("#div_id_cited_in_submission").show();
+  $("#div_id_cited_in_publication").hide();
+  break;
+  case "cp":
+  $("#div_id_cited_in_submission").hide();
+  $("#div_id_cited_in_publication").show();
+  break;
+  default:
+  $("#div_id_cited_in_submission").hide();
+  $("#div_id_cited_in_publication").hide();
+  }
+
+  $('select#id_invitation_type').on('change', function() {
+    switch ($('select#id_invitation_type').val()) {
+      case "ci":
+        $("#div_id_cited_in_submission").show();
+        $("#div_id_cited_in_publication").hide();
+        break;
+      case "cp":
+        $("#div_id_cited_in_submission").hide();
+        $("#div_id_cited_in_publication").show();
+        break;
+      default:
+        $("#div_id_cited_in_submission").hide();
+        $("#div_id_cited_in_publication").hide();
+    }
+   });
+  });
+</script>
+
+<section>
+  <div class="flex-greybox">
+    <h1>Edit a draft registration invitation</h1>
+  </div>
+  {% if errormessage %}
+    <h3 style="color: red;">{{ errormessage }}</h3>
+  {% endif %}
+  <form action="{% url 'scipost:edit_draft_reg_inv' draft_id=draft.id %}" method="post">
+    {% csrf_token %}
+    {% load crispy_forms_tags %}
+    {% crispy draft_inv_form %}
+  </form>
+</section>
+
+{% endblock bodysup %}

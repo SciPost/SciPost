@@ -109,6 +109,9 @@ class Contributor(models.Model):
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
 
+    def get_title(self):
+        return title_dict[self.title]
+
     def is_currently_available(self):
         unav_periods = UnavailabilityPeriod.objects.filter(contributor=self)
 
@@ -241,6 +244,9 @@ class UnavailabilityPeriod(models.Model):
 
 class Remark(models.Model):
     contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission',
+                                   on_delete=models.CASCADE,
+                                   blank=True, null=True)
     recommendation = models.ForeignKey('submissions.EICRecommendation',
                                        on_delete=models.CASCADE,
                                        blank=True, null=True)
@@ -336,6 +342,25 @@ class RegistrationInvitation(models.Model):
                 + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
 
 
+class CitationNotification(models.Model):
+    contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    cited_in_submission = models.ForeignKey('submissions.Submission',
+                                            on_delete=models.CASCADE,
+                                            blank=True, null=True)
+    cited_in_publication = models.ForeignKey('journals.Publication',
+                                             on_delete=models.CASCADE,
+                                             blank=True, null=True)
+    processed = models.BooleanField(default=False)
+
+    def __str__(self):
+        text = str(self.contributor) + ', cited in '
+        if self.cited_in_submission:
+            text += self.cited_in_submission.arxiv_nr_w_vn_nr
+        elif self.cited_in_publication:
+            text += self.cited_in_publication.citation()
+        if self.processed:
+            text += ' (processed)'
+        return text
 
 AUTHORSHIP_CLAIM_STATUS = (
     (1, 'accepted'),

@@ -102,7 +102,7 @@
   <ul class="personalTabMenu">
 
     <li><a class="TabItem" id="AccountTab">Account</a></li>
-    {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Advisory Board' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' %}
+    {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Advisory Board' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' or request.user|is_in_group:'Junior Ambassadors' %}
     <li><a class="TabItem" id="EdActionTab">Editorial Actions</a></li>
     {% endif %}
     <li><a class="TabItem" id="RefereeingTab">Refereeing</a></li>
@@ -221,7 +221,7 @@
 </section>
 
 
-{% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' %}
+{% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' or request.user|is_in_group:'Junior Ambassadors' %}
 <section class="TabSection" id="EdActions">
   <hr class="hr12">
   <div class="flex-greybox">
@@ -242,6 +242,12 @@
       {% endif %}
       {% if perms.scipost.can_manage_registration_invitations %}
       <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
+      {% endif %}
+    </ul>
+    <h3>Notifications</h3>
+    <ul>
+      {% if perms.scipost.can_manage_registration_invitations %}
+      <li><a href="{% url 'scipost:citation_notifications' %}">Manage citation notifications</a></li>
       {% endif %}
     </ul>
     <h3>Email communications</h3>

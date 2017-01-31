@@ -21,7 +21,6 @@ from journals.models import Publication
 ###############
 # Submissions:
 ###############
-
 SUBMISSION_STATUS = (
     ('unassigned', 'Unassigned, undergoing pre-screening'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
@@ -30,6 +29,9 @@ SUBMISSION_STATUS = (
     # If revisions required: resubmission creates a new Submission object
     ('revision_requested', 'Editor-in-charge has requested revision'),
     ('resubmitted', 'Has been resubmitted'),
+    ('resubmitted_and_rejected', 'Has been resubmitted and subsequently rejected'),
+    ('resubmitted_and_rejected_visible',
+     'Has been resubmitted and subsequently rejected (still publicly visible)'),
     # If acceptance/rejection:
     ('voting_in_preparation', 'Voting in preparation (eligible Fellows being selected)'),
     ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
@@ -50,14 +52,47 @@ SUBMISSION_STATUS_OUT_OF_POOL = [
     'withdrawn',
 ]
 
+# Submissions which should not appear in search lists
 SUBMISSION_STATUS_PUBLICLY_UNLISTED = [
     'unassigned',
     'assignment_failed',
     'resubmitted',
+    'resubmitted_rejected',
+    'resubmitted_rejected_visible',
     'rejected',
     'published',
     'withdrawn',
 ]
+
+# Submissions which should not be viewable (except by admins, Fellows and authors)
+SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
+    'unassigned',
+    'assignment_failed',
+    'resubmitted_rejected',
+    'rejected',
+    #'published',
+    'withdrawn',
+]
+
+# Submissions for which voting on a related recommendation is deprecated:
+SUBMISSION_STATUS_VOTING_DEPRECATED = [
+    'rejected',
+    'published',
+    'withdrawn',
+]
+
+
+# SUBMISSION_ACTION_REQUIRED = (
+#     ('assign_EIC', 'Editor-in-charge to be assigned'),
+# #    ('Fellow_accepts_or_refuse_assignment', 'Fellow must accept or refuse assignment'),
+#     ('EIC_runs_refereeing_round', 'Editor-in-charge to run refereeing round (inviting referees)'),
+#     ('EIC_closes_refereeing_round', 'Editor-in-charge to close refereeing round'),
+#     ('EIC_invites_author_response', 'Editor-in-charge invites authors to complete their replies'),
+#     ('EIC_formulates_editorial_recommendation',
+#      'Editor-in-charge to formulate editorial recommendation'),
+#     ('EC_ratification', 'Editorial College ratifies editorial recommendation'),
+#     ('Decision_to_authors', 'Editor-in-charge forwards decision to authors'),
+#     )
 
 SUBMISSION_TYPE = (
     ('Letter', 'Letter (broad-interest breakthrough results)'),
@@ -413,6 +448,7 @@ class Submission(models.Model):
 ######################
 # Editorial workflow #
 ######################
+
 
 ASSIGNMENT_BOOL = ((True, 'Accept'), (False, 'Decline'))
 ASSIGNMENT_NULLBOOL = ((None, 'Response pending'), (True, 'Accept'), (False, 'Decline'))

@@ -3,18 +3,6 @@ from django import forms
 from .models import *
 from .helpers import past_years
 
-THESIS_ACTION_CHOICES = (
-    (0, 'modify'),
-    (1, 'accept'),
-    (2, 'refuse (give reason below)'),
-    )
-
-THESIS_REFUSAL_CHOICES = (
-    (0, '-'),
-    (-1, 'a link to this thesis already exists'),
-    (-2, 'the external link to this thesis does not work'),
-    )
-
 
 class RequestThesisLinkForm(forms.ModelForm):
     class Meta:
@@ -29,12 +17,34 @@ class RequestThesisLinkForm(forms.ModelForm):
 
 
 class VetThesisLinkForm(forms.Form):
-    action_option = forms.ChoiceField(widget=forms.RadioSelect,
-                                      choices=THESIS_ACTION_CHOICES,
-                                      required=True, label='Action')
+    MODIFY = 0
+    ACCEPT = 1
+    REFUSE = 2
+    THESIS_ACTION_CHOICES = (
+        (MODIFY, 'modify'),
+        (ACCEPT, 'accept'),
+        (REFUSE, 'refuse (give reason below)'),
+    )
+
+    EMPTY_CHOICE = 0
+    ALREADY_EXISTS = 1
+    LINK_DOES_NOT_WORK = 2
+    THESIS_REFUSAL_CHOICES = (
+        (EMPTY_CHOICE, '---'),
+        (ALREADY_EXISTS, 'a link to this thesis already exists'),
+        (LINK_DOES_NOT_WORK, 'the external link to this thesis does not work'),
+    )
+
+    action_option = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=THESIS_ACTION_CHOICES, required=True, label='Action')
     refusal_reason = forms.ChoiceField(choices=THESIS_REFUSAL_CHOICES, required=False)
-    email_response_field = forms.CharField(widget=forms.Textarea(
+    justification = forms.CharField(widget=forms.Textarea(
         attrs={'rows': 5, 'cols': 40}), label='Justification (optional)', required=False)
+
+    def vet_request(self, thesis_link):
+        print(self.cleaned_data)
+        if self.cleaned_data['action_option'] == VetThesisLinkForm.ACCEPT:
+            print('hoi')
 
 
 class ThesisLinkSearchForm(forms.Form):

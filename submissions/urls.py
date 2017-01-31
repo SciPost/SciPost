@@ -25,6 +25,8 @@ urlpatterns = [
     # url(r'^submit_manuscript$', views.submit_manuscript, name='submit_manuscript'),
     url(r'^submit_manuscript$', views.SubmissionCreateView.as_view(), name='submit_manuscript'),
     url(r'^pool$', views.pool, name='pool'),
+    url(r'^add_remark/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
+        views.add_remark, name='add_remark'),
     # Assignment of Editor-in-charge
     url(r'^assign_submission/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
         views.assign_submission, name='assign_submission'),
