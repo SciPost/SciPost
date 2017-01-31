@@ -1,20 +1,28 @@
 {% extends 'scipost/base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: request Thesis Link{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block page_header %}
+<div class="row">
+    <div class="col-12">
+      <h1 class="page-header">Request Activation of a Thesis Link</h1>
+    </div>
+</div>
+{% endblock page_header %}
 
-<section>
-  <div class="flex-greybox">
-    <h1>Request Activation of a Thesis Link:</h1>
+{% block content %}
+<div class="row">
+    <div class="col-12 col-md-8">
+      <form action="{% url 'theses:request_thesislink' %}" method="post">
+        {% csrf_token %}
+        <table>
+          {{ form|bootstrap }}
+        </table>
+        <input class="btn btn-primary" type="submit" value="Submit"/>
+      </form>
   </div>
-  <form action="{% url 'theses:request_thesislink' %}" method="post">
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-    </table>
-    <input type="submit" value="Submit"/>
-  </form>
-</section>
+</div>
 
-{% endblock bodysup %}
+{% endblock content %}
