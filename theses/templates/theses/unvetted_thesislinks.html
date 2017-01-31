@@ -6,21 +6,23 @@
 
 {% endblock headsup %}
 
-{% block bodysup %}
+{% block content %}
 
-
-<h1>Unvetted Thesis Links</h1>
-<ul>
-    {% for thesislink in thesislinks %}
-        <li>
-        {{ thesislink.author }} - {{ thesislink.title }} -
-        <a href = "{% url 'theses:vet_thesislink' pk=thesislink.id %}">vet</a>
-        </li>
-    {% empty %}
-        <li>
-            No unvetted thesis links.
-        </li>
-    {% endfor %}
-</ul>
-
-{% endblock bodysup %}
+<div class="row">
+    <div class="col-12">
+        <h1>Unvetted Thesis Links</h1>
+        <ul>
+            {% for thesislink in thesislinks %}
+                <li>
+                {{ thesislink.author }} - {{ thesislink.title }} -
+                <a href = "{% url 'theses:vet_thesislink' pk=thesislink.id %}">vet</a>
+                </li>
+            {% empty %}
+                <li>
+                    No unvetted thesis links.
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock content %}

@@ -31,8 +31,9 @@
     {% block bodysup %}
     {% endblock bodysup %}
 
-    {% block content %}
-    {% endblock content %}
+    <div class="container">
+        {% block content %}{% endblock content %}
+    </div>
 
     {% include 'scipost/footer.html' %}
 
