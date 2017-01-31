@@ -90,6 +90,10 @@ class TestRequestCommentaryForm(TestCase):
         form = RequestCommentaryForm(form_data, user=self.user)
         self.assertTrue(form.is_valid())
 
+        # Check if the user is properly saved to the new Commentary as `requested_by`
+        commentary = form.save()
+        self.assertTrue(commentary.requested_by)
+
     def test_valid_data_is_valid_for_DOI(self):
         """Test valid form for DOI"""
         form_data = self.valid_form_data
