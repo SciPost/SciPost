@@ -4,7 +4,8 @@ from django.test import TestCase
 
 from scipost.factories import ContributorFactory
 
-from .factories import UnVettedCommentaryFactory
+from .factories import UnVettedCommentaryFactory, VettedCommentaryFactory
+from .models import Commentary
 
 
 class RequestCommentaryTest(TestCase):
@@ -41,31 +42,46 @@ class VetCommentaryRequestsTest(TestCase):
     def setUp(self):
         self.view_url = reverse('commentaries:vet_commentary_requests')
         self.login_url = reverse('scipost:login')
-        self.contributor = ContributorFactory()
+        self.password = 'test123'
+        self.contributor = ContributorFactory(user__password=self.password)
 
-    def test_not_logged_in_user(self):
-        """Test view permission is restricted to logged in users."""
-        response = self.client.get(self.view_url)
-        self.assertEquals(response.status_code, 403)
-
-    def test_get_valid_http_responses(self):
-        """Test http response on GET requests"""
-        # Registered Contributor should get 200
-        self.client.login(username=self.contributor.user.username,
-                          password='adm1n')
-
-        # Wrong permissions group!
-        response = self.client.get(self.view_url)
-        self.assertEquals(response.status_code, 403)
-
-        # Right permissions group!
+    def set_required_permissions_and_login(self):
+        '''Set the required permissions to testuser to access vet_commentary_requests.'''
         group = Group.objects.get(name="Vetting Editors")
         self.contributor.user.groups.add(group)
+        self.client.login(username=self.contributor.user.username, password=self.password)
+
+    def test_user_permissions(self):
+        """Test view permission is restricted to Vetting Editors."""
+        # Anoymous user
+        response = self.client.get(self.view_url)
+        self.assertEquals(response.status_code, 403)
+
+        # Wrong permissions group
+        self.client.login(username=self.contributor.user.username, password=self.password)
+        response = self.client.get(self.view_url)
+        self.assertEquals(response.status_code, 403)
+
+        # Right permissions group
+        self.set_required_permissions_and_login()
         response = self.client.get(self.view_url)
         self.assertEquals(response.status_code, 200)
 
-    # def test_get_valid_unvetted_commentaries(self):
-    #     """Test if valid commentaries are sent back to user."""
-    #     self.client.login(username="Test", password="testpw")
-    #     request = self.client.get(self.view_url)
-    #     print(request)
+    def test_get_valid_unvetted_commentaries(self):
+        """Test if valid commentaries are sent back to user, if exists."""
+        self.set_required_permissions_and_login()
+
+        # No Commentary exists!
+        response = self.client.get(self.view_url)
+        self.assertTrue('commentary_to_vet' in response.context)
+        self.assertEquals(response.context['commentary_to_vet'], None)
+
+        # Only vetted Commentaries exist!
+        VettedCommentaryFactory()
+        response = self.client.get(self.view_url)
+        self.assertEquals(response.context['commentary_to_vet'], None)
+
+        # Unvetted Commentaries do exist!
+        UnVettedCommentaryFactory()
+        response = self.client.get(self.view_url)
+        self.assertTrue(type(response.context['commentary_to_vet']) is Commentary)
