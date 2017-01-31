@@ -9,6 +9,7 @@
     ],
     "extractStyles": true,
     "styles": {
+        "alert": true,
         "mixins": true,
         "normalize": true,
         "reboot": true,
@@ -26,6 +27,7 @@
         "transitions": true,
     },
     "scripts": {
+        "alert": true,
         "collapse": true,
         "util": true,
     }
