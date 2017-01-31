@@ -1,11 +1,11 @@
 from django.test import TestCase
 
+from common.helpers import model_form_data
 from scipost.factories import UserFactory
 
-from .models import Commentary
 from .factories import VettedCommentaryFactory, UnVettedCommentaryFactory
 from .forms import RequestCommentaryForm, VetCommentaryForm
-from common.helpers import model_form_data
+from .models import Commentary
 
 
 class TestVetCommentaryForm(TestCase):
@@ -89,6 +89,10 @@ class TestRequestCommentaryForm(TestCase):
         form_data['pub_DOI'] = ''
         form = RequestCommentaryForm(form_data, user=self.user)
         self.assertTrue(form.is_valid())
+
+        # Check if the user is properly saved to the new Commentary as `requested_by`
+        commentary = form.save()
+        self.assertTrue(commentary.requested_by)
 
     def test_valid_data_is_valid_for_DOI(self):
         """Test valid form for DOI"""
