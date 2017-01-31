@@ -1,11 +1,11 @@
 from django.test import TestCase
 
+from common.helpers import model_form_data
 from scipost.factories import UserFactory
 
-from .models import Commentary
 from .factories import VettedCommentaryFactory, UnVettedCommentaryFactory
 from .forms import RequestCommentaryForm, VetCommentaryForm
-from common.helpers import model_form_data
+from .models import Commentary
 
 
 class TestVetCommentaryForm(TestCase):

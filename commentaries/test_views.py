@@ -1,5 +1,10 @@
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import Group
 from django.test import TestCase
+
+from scipost.factories import ContributorFactory
+
+from .factories import UnVettedCommentaryFactory
 
 
 class RequestCommentaryTest(TestCase):
@@ -27,3 +32,45 @@ class RequestCommentaryTest(TestCase):
         self.client.login(username="Test", password="testpw")
         request = self.client.post(self.view_url)
         self.assertEquals(request.status_code, 200)
+
+
+class VetCommentaryRequestsTest(TestCase):
+    """Test cases for `vet_commentary_requests` view method"""
+    fixtures = ['groups', 'permissions']
+
+    def setUp(self):
+        self.view_url = reverse('commentaries:vet_commentary_requests')
+        self.login_url = reverse('scipost:login')
+        self.contributor = ContributorFactory()
+
+    def test_not_logged_in_user(self):
+        """Test view permission is restricted to logged in users."""
+        response = self.client.get(self.view_url)
+        self.assertEquals(response.status_code, 403)
+
+    def test_get_valid_http_responses(self):
+        """Test http response on GET requests"""
+        # Registered Contributor should get 200
+        self.client.login(username=self.contributor.user.username,
+                          password=self.contributor.user.password)
+
+        # Wrong permissions group!
+        reponse = self.client.get(self.view_url)
+        self.assertEquals(reponse.status_code, 403)
+
+        # Right permissions group!
+        # self.client.logout()
+        group = Group.objects.get(name="Vetting Editors")
+        self.contributor.user.groups.add(group)
+        # Permission group is still empty!?!? These fixtures just don't seem to work properly.
+
+        # self.client.login(username=self.contributor.user.username,
+        #                   password=self.contributor.user.password)
+        reponse = self.client.get(self.view_url)
+        self.assertEquals(reponse.status_code, 200)
+
+    # def test_get_valid_unvetted_commentaries(self):
+    #     """Test if valid commentaries are sent back to user."""
+    #     self.client.login(username="Test", password="testpw")
+    #     request = self.client.get(self.view_url)
+    #     print(request)
