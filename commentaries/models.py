@@ -52,7 +52,7 @@ class Commentary(TimeStampedModel):
         blank=True)
     metadata = JSONField(default={}, blank=True, null=True)
     arxiv_or_DOI_string = models.CharField(
-        max_length=100,
+        max_length=100, default='',
         verbose_name='string form of arxiv nr or DOI for commentary url')
     author_list = models.CharField(max_length=1000)
 
