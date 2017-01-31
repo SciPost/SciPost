@@ -1,7 +1,7 @@
 import factory
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group
 
 from .models import Contributor
 
