@@ -71,7 +71,7 @@ class RequestCommentaryForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         """Prefill instance before save"""
-        self.requested_by = Contributor.objects.get(user=self.user)
+        self.instance.requested_by = Contributor.objects.get(user=self.user)
         return super(RequestCommentaryForm, self).save(*args, **kwargs)
 
     def get_existing_commentary(self):
