@@ -56,26 +56,6 @@ $(document).ready(function(){
 
   {% if perms.scipost.can_submit_manuscript %}
 
-  <div class="flex-greybox">
-    <h3><em>Please provide the arXiv identifier for your Submission:</em></h3>
-    <p>
-      <em>(give the identifier without prefix but with version number, as per the placeholder)</em>
-    </p>
-    <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
-      {% csrf_token %}
-      {{ identifierform }}
-      <input type="submit" value="Query arXiv"/>
-    </form>
-  </div>
-  <br/>
-  <!-- {% if errormessage %}
-  <h3 style="color: red;">Error: {{ errormessage }}</h3>
-  {% endif %} -->
-
-  {% if resubmessage %}
-  <h3 style="color: green;">{{ resubmessage }}</h3>
-  {% endif %}
-
   {% if form.arxiv_link.value %}
   <form id="full_submission_form" action="{% url 'submissions:submit_manuscript' %}" method="post">
     {% csrf_token %}
