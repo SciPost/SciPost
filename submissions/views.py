@@ -1443,17 +1443,13 @@ def fix_College_decision(request, rec_id):
         recommendation.submission.status = 'accepted'
     elif recommendation.recommendation == -3:
         # Reject
-<<<<<<< HEAD
         recommendation.submission.status = 'rejected'
-=======
-        recommendation.submission.status='rejected'
         previous_submissions = Submission.objects.filter(
             arxiv_identifier_wo_vn_nr=recommendation.submission.arxiv_identifier_wo_vn_nr
         ).exclude(pk=recommendation.submission.id)
         for sub in previous_submissions:
             sub.status = 'resubmitted_rejected'
             sub.save()
->>>>>>> development
 
     recommendation.submission.save()
     SubmissionUtils.load({'submission': recommendation.submission,
