@@ -273,7 +273,7 @@
       <li><a href="{% url 'comments:vet_submitted_comments' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
       {% endif %}
       {% if perms.scipost.can_vet_thesislink_requests %}
-      <li><a href="{% url 'theses:vet_thesislink_requests' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
+      <li><a href="{% url 'theses:unvetted_thesislinks' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
       {% endif %}
       {% if perms.scipost.can_vet_authorship_claims %}
       <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
