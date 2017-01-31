@@ -1,91 +1,17 @@
 @import "node_modules/bootstrap/scss/_variables";
 @import "node_modules/bootstrap/scss/_mixins";
 @import "./../config/preconfig.scss";
+
 /**
  * Make variables defined in preconfig.scss accessable in this file,
  *  plus default variables and mixins of Bootstrap@4
- * - SciPost custom sass
+ *
+ * Do not write styles in this file. Get or create a file in this folder
+ *  and make sure its imported underneath!
  *
  */
-
-
-/**
- * Buttons
- *
- */
-.btn {
-    cursor: pointer;
-    font-family: inherit;
-}
-
-/**
- * Type
- *
- */
-a {
-    color: $scipost-lightblue;
-    text-decoration: none;
-}
-a:hover {
-    color: $scipost-darkblue;
-    text-decoration: underline;
-}
-h1, h2, h3, h4, h5, h6 {
-    margin: 0;
-    padding: 5px 0;
-    text-shadow: none;
-    font-weight: 500;
-}
-
-/**
- * Form
- *
- */
-.form-control {
-    font-family: inherit;
-}
-
-/**
- * Navbar
- *
- */
-.navbar {
-    margin-bottom: 0.75rem;
-
-    .nav-link {
-        padding-right: 1rem;
-        padding-left: 1rem;
-        border: 1px solid transparent;
-        border-radius: 0.1rem;
-        -webkit-transition: all 0.2s ease-in-out;
-             -o-transition: all 0.2s ease-in-out;
-                transition: all 0.2s ease-in-out;
-
-        @include hover-focus {
-            background-color: $white;
-        }
-    }
-
-    .active > .nav-link {
-        border-color: $scipost-darkblue;
-    }
-
-    .highlighted > .nav-link {
-        background-color: rgba(255, 255, 255, 0.6);
-    }
-
-    .nav-item {
-        margin-right: 0.5rem;
-    }
-}
-.navbar-brand {
-    height: 38px;
-    margin: 0;
-}
-.navbar-toggler-icon {
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0, 43, 73, 1.0)");
-}
-.panel {
-    padding: 0.75rem;
-    background-color: #f4f4f4;
-}
+@import "buttons";
+@import "form";
+@import "messages";
+@import "navbar";
+@import "type";
