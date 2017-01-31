@@ -8,7 +8,7 @@ var path_bundles = __dirname + '/static_bundles/bundles';
 module.exports = {
     context: __dirname,
     entry: {
-        main: glob.sync("./scipost/static/scipost/assets/**/*.@(js|css|scss)"),
+        main: ["./scipost/static/scipost/assets/css/style.scss"],
         bootstrap: 'bootstrap-loader'
     },
     output: {
@@ -48,7 +48,7 @@ module.exports = {
             "window.jQuery": "jquery",
             Tether: "tether",
             "window.Tether": "tether",
-            // Alert: "exports-loader?Alert!bootstrap/js/dist/alert",
+            Alert: "exports-loader?Alert!bootstrap/js/dist/alert",
             // Button: "exports-loader?Button!bootstrap/js/dist/button",
             // Carousel: "exports-loader?Carousel!bootstrap/js/dist/carousel",
             Collapse: "exports-loader?Collapse!bootstrap/js/dist/collapse",
