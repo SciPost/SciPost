@@ -163,3 +163,30 @@ To build the documentation, run:
 ```
 
 After this, generated documentation should be available in `docs/_build/html`.
+
+## Writing tests
+It is recommended, when writing tests, to use the `ContributorFactory` located in `scipost.factories`. This will automatically generate a related user with Registered Contributor membership. You may probably need to use the fixture list `["permissions", "groups"]` in your tests make sure the permissions groups are working properly.
+It is recommended, when writing tests for new models, to make use of ModelFactories instead of fixtures to prevent issues with altering fields in the model later on.
+
+A basic example of a test might look like:
+```shell
+from django.contrib.auth.models import Group
+from django.test import TestCase
+
+from scipost.factories import ContributorFactory
+
+
+class VetCommentaryRequestsTest(TestCase):
+    fixtures = ['groups', 'permissions']
+
+    def setUp(self):
+        self.contributor = ContributorFactory(user__password='test123')  # The default password is `adm1n`
+
+    def test_example_test(self):
+        group = Group.objects.get(name="Vetting Editors")
+        self.contributor.user.groups.add(group)  # Assign user membership to an extra group
+        self.client.login(username=self.contributor.user.username, password='test123')
+
+        # Write your tests here
+
+```
