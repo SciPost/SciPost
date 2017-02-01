@@ -1,0 +1,34 @@
+{
+    "bootstrapVersion": 4,
+    "preBootstrapCustomizations": "./scipost/static/scipost/assets/config/preconfig.scss",
+    "useFlexbox": true,
+    "styleLoaders": [
+        "style",
+        "css",
+        "sass",
+    ],
+    "extractStyles": true,
+    "styles": {
+        "alert": true,
+        "mixins": true,
+        "normalize": true,
+        "reboot": true,
+        "grid": true,
+        "forms": true,
+        "buttons": true,
+        "dropdown": true,
+        "button-group": true,
+        "input-group": true,
+        "nav": true,
+        "navbar": true,
+        "responsive-embed": true,
+        "close": true,
+        "utilities": true,
+        "transitions": true,
+    },
+    "scripts": {
+        "alert": true,
+        "collapse": true,
+        "util": true,
+    }
+}

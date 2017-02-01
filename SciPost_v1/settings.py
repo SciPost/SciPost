@@ -12,12 +12,14 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
 import json
+
+from django.utils.translation import ugettext_lazy as _
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-host_settings_path = os.path.join(os.path.dirname(BASE_DIR),"scipost-host-settings.json")
+host_settings_path = os.path.join(os.path.dirname(BASE_DIR), "scipost-host-settings.json")
 host_settings = json.load(open(host_settings_path))
 
 # Quick-start development settings - unsuitable for production
@@ -80,6 +82,7 @@ INSTALLED_APPS = (
     'scipost',
     'submissions',
     'theses',
+    'webpack_loader'
 )
 
 HAYSTACK_CONNECTIONS = {
@@ -108,6 +111,7 @@ MATHJAX_CONFIG_DATA = {
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -128,6 +132,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'scipost.context_processors.searchform',
@@ -158,7 +163,12 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
+LANGUAGES = (
+    ('en', _('English')),
+)
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 TIME_ZONE = 'CET'
 
 USE_I18N = True
@@ -175,6 +185,21 @@ USE_TZ = True
 
 STATIC_URL = host_settings["STATIC_URL"]
 STATIC_ROOT = host_settings["STATIC_ROOT"]
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static_bundles'),
+)
+
+# Webpack handling the static bundles
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': not DEBUG,
+        'BUNDLE_DIR_NAME': 'static/bundles/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+        'POLL_INTERVAL': 0.1,
+        'TIMEOUT': None,
+        'IGNORE': ['.+\.hot-update.js', '.+\.map']
+    }
+}
 
 # Email
 EMAIL_BACKEND = host_settings["EMAIL_BACKEND"]

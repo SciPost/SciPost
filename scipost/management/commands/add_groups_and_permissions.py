@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from scipost.models import Contributor
 
+
 class Command(BaseCommand):
     help = 'Defines groups and permissions'
 

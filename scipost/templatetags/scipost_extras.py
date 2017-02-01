@@ -2,7 +2,6 @@ from django import template
 from django.contrib.auth.models import Group
 
 from scipost.models import Contributor
-from journals.models import paper_nr_string
 
 register = template.Library()
 

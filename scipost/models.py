@@ -1,8 +1,8 @@
 import datetime
 
 from django import forms
-from django.contrib.auth.models import User, Group
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.shortcuts import get_object_or_404
 from django.template import Template, Context
@@ -11,129 +11,9 @@ from django.utils.safestring import mark_safe
 
 from django_countries.fields import CountryField
 
-from scipost.models import *
-
-
-SCIPOST_DISCIPLINES = (
-    ('physics', 'Physics'),
-    ('astrophysics', 'Astrophysics'),
-    ('mathematics', 'Mathematics'),
-    ('computerscience', 'Computer Science'),
-    )
-disciplines_dict = dict(SCIPOST_DISCIPLINES)
-
-SCIPOST_SUBJECT_AREAS = (
-    ('Physics', (
-        ('Phys:AE', 'Atomic, Molecular and Optical Physics - Experiment'),
-        ('Phys:AT', 'Atomic, Molecular and Optical Physics - Theory'),
-        ('Phys:BI', 'Biophysics'),
-        ('Phys:CE', 'Condensed Matter Physics - Experiment'),
-        ('Phys:CT', 'Condensed Matter Physics - Theory'),
-        ('Phys:FD', 'Fluid Dynamics'),
-        ('Phys:GR', 'Gravitation, Cosmology and Astroparticle Physics'),
-        ('Phys:HE', 'High-Energy Physics - Experiment'),
-        ('Phys:HT', 'High-Energy Physics- Theory'),
-        ('Phys:HP', 'High-Energy Physics - Phenomenology'),
-        ('Phys:MP', 'Mathematical Physics'),
-        ('Phys:NE', 'Nuclear Physics - Experiment'),
-        ('Phys:NT', 'Nuclear Physics - Theory'),
-        ('Phys:QP', 'Quantum Physics'),
-        ('Phys:SM', 'Statistical and Soft Matter Physics'),
-        )
-     ),
-    ('Astrophysics', (
-        ('Astro:GA', 'Astrophysics of Galaxies'),
-        ('Astro:CO', 'Cosmology and Nongalactic Astrophysics'),
-        ('Astro:EP', 'Earth and Planetary Astrophysics'),
-        ('Astro:HE', 'High Energy Astrophysical Phenomena'),
-        ('Astro:IM', 'Instrumentation and Methods for Astrophysics'),
-        ('Astro:SR', 'Solar and Stellar Astrophysics'),
-        )
-     ),
-    ('Mathematics', (
-        ('Math:AG', 'Algebraic Geometry'),
-        ('Math:AT', 'Algebraic Topology'),
-        ('Math:AP', 'Analysis of PDEs'),
-        ('Math:CT', 'Category Theory'),
-        ('Math:CA', 'Classical Analysis and ODEs'),
-        ('Math:CO', 'Combinatorics'),
-        ('Math:AC', 'Commutative Algebra'),
-        ('Math:CV', 'Complex Variables'),
-        ('Math:DG', 'Differential Geometry'),
-        ('Math:DS', 'Dynamical Systems'),
-        ('Math:FA', 'Functional Analysis'),
-        ('Math:GM', 'General Mathematics'),
-        ('Math:GN', 'General Topology'),
-        ('Math:GT', 'Geometric Topology'),
-        ('Math:GR', 'Group Theory'),
-        ('Math:HO', 'History and Overview'),
-        ('Math:IT', 'Information Theory'),
-        ('Math:KT', 'K-Theory and Homology'),
-        ('Math:LO', 'Logic'),
-        ('Math:MP', 'Mathematical Physics'),
-        ('Math:MG', 'Metric Geometry'),
-        ('Math:NT', 'Number Theory'),
-        ('Math:NA', 'Numerical Analysis'),
-        ('Math:OA', 'Operator Algebras'),
-        ('Math:OC', 'Optimization and Control'),
-        ('Math:PR', 'Probability'),
-        ('Math:QA', 'Quantum Algebra'),
-        ('Math:RT', 'Representation Theory'),
-        ('Math:RA', 'Rings and Algebras'),
-        ('Math:SP', 'Spectral Theory'),
-        ('Math:ST', 'Statistics Theory'),
-        ('Math:SG', 'Symplectic Geometry'),
-        )
-     ),
-    ('Computer Science', (
-        ('Comp:AI', 'Artificial Intelligence'),
-        ('Comp:CC', 'Computational Complexity'),
-        ('Comp:CE', 'Computational Engineering, Finance, and Science'),
-        ('Comp:CG', 'Computational Geometry'),
-        ('Comp:GT', 'Computer Science and Game Theory'),
-        ('Comp:CV', 'Computer Vision and Pattern Recognition'),
-        ('Comp:CY', 'Computers and Society'),
-        ('Comp:CR', 'Cryptography and Security'),
-        ('Comp:DS', 'Data Structures and Algorithms'),
-        ('Comp:DB', 'Databases'),
-        ('Comp:DL', 'Digital Libraries'),
-        ('Comp:DM', 'Discrete Mathematics'),
-        ('Comp:DC', 'Distributed, Parallel, and Cluster Computing'),
-        ('Comp:ET', 'Emerging Technologies'),
-        ('Comp:FL', 'Formal Languages and Automata Theory'),
-        ('Comp:GL', 'General Literature'),
-        ('Comp:GR', 'Graphics'),
-        ('Comp:AR', 'Hardware Architecture'),
-        ('Comp:HC', 'Human-Computer Interaction'),
-        ('Comp:IR', 'Information Retrieval'),
-        ('Comp:IT', 'Information Theory'),
-        ('Comp:LG', 'Learning'),
-        ('Comp:LO', 'Logic in Computer Science'),
-        ('Comp:MS', 'Mathematical Software'),
-        ('Comp:MA', 'Multiagent Systems'),
-        ('Comp:MM', 'Multimedia'),
-        ('Comp:NI', 'Networking and Internet Architecture'),
-        ('Comp:NE', 'Neural and Evolutionary Computing'),
-        ('Comp:NA', 'Numerical Analysis'),
-        ('Comp:OS', 'Operating Systems'),
-        ('Comp:OH', 'Other Computer Science'),
-        ('Comp:PF', 'Performance'),
-        ('Comp:PL', 'Programming Languages'),
-        ('Comp:RO', 'Robotics'),
-        ('Comp:SI', 'Social and Information Networks'),
-        ('Comp:SE', 'Software Engineering'),
-        ('Comp:SD', 'Sound'),
-        ('Comp:SC', 'Symbolic Computation'),
-        ('Comp:SY', 'Systems and Control'),
-        )
-     ),
-)
-subject_areas_raw_dict = dict(SCIPOST_SUBJECT_AREAS)
-
-# Make dict of the form {'Phys:AT': 'Atomic...', ...}
-subject_areas_dict = {}
-for k in subject_areas_raw_dict.keys():
-    subject_areas_dict.update(dict(subject_areas_raw_dict[k]))
+from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
+    disciplines_dict, subject_areas_dict
+from .db.fields import AutoDateTimeField
 
 
 class ChoiceArrayField(ArrayField):
@@ -180,6 +60,19 @@ TITLE_CHOICES = (
 title_dict = dict(TITLE_CHOICES)
 
 
+class TimeStampedModel(models.Model):
+    """
+    All objects should inherit from this abstract model.
+    This will ensure the creation of created and modified
+    timestamps in the objects.
+    """
+    created = models.DateTimeField(default=timezone.now)
+    latest_activity = AutoDateTimeField(default=timezone.now)
+
+    class Meta:
+        abstract = True
+
+
 class Contributor(models.Model):
     """
     All users of SciPost are Contributors.
@@ -213,9 +106,11 @@ class Contributor(models.Model):
         default=True,
         verbose_name="I accept to receive SciPost emails")
 
-
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
+
+    def get_title(self):
+        return title_dict[self.title]
 
     def is_currently_available(self):
         unav_periods = UnavailabilityPeriod.objects.filter(contributor=self)
@@ -255,7 +150,6 @@ class Contributor(models.Model):
             'accepts_SciPost_emails': self.accepts_SciPost_emails,
         })
         return template.render(context)
-
 
     def public_info_as_table(self):
         """Prints out all publicly-accessible info as a table."""
@@ -360,7 +254,7 @@ class Remark(models.Model):
     feedback = models.ForeignKey('scipost.Feedback', on_delete=models.CASCADE,
                                  blank=True, null=True)
     nomination = models.ForeignKey('scipost.Nomination', on_delete=models.CASCADE,
-                               blank=True, null=True)
+                                   blank=True, null=True)
     motion = models.ForeignKey('scipost.Motion', on_delete=models.CASCADE,
                                blank=True, null=True)
     submission = models.ForeignKey('submissions.Submission',
@@ -385,9 +279,9 @@ class Remark(models.Model):
         return template.render(context)
 
 
-##################
-## Invitations ###
-##################
+###############
+# Invitations #
+###############
 
 INVITATION_TYPE = (
     ('F', 'Editorial Fellow'),
@@ -401,6 +295,7 @@ INVITATION_STYLE = (
     ('F', 'formal'),
     ('P', 'personal'),
     )
+
 
 class DraftInvitation(models.Model):
     """
@@ -423,7 +318,7 @@ class DraftInvitation(models.Model):
     date_drafted = models.DateTimeField(default=timezone.now)
     processed = models.BooleanField(default=False)
 
-    def __str__ (self):
+    def __str__(self):
         return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name)
 
 
@@ -455,7 +350,7 @@ class RegistrationInvitation(models.Model):
     responded = models.BooleanField(default=False)
     declined = models.BooleanField(default=False)
 
-    def __str__ (self):
+    def __str__(self):
         return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name
                 + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
 
@@ -480,11 +375,13 @@ class CitationNotification(models.Model):
             text += ' (processed)'
         return text
 
+
 AUTHORSHIP_CLAIM_STATUS = (
     (1, 'accepted'),
     (0, 'not yet vetted (pending)'),
     (-1, 'rejected'),
 )
+
 
 class AuthorshipClaim(models.Model):
     claimant = models.ForeignKey(Contributor,
@@ -499,9 +396,9 @@ class AuthorshipClaim(models.Model):
     thesislink = models.ForeignKey('theses.ThesisLink',
                                    on_delete=models.CASCADE,
                                    blank=True, null=True)
-    vetted_by = models.ForeignKey (Contributor,
-                                   on_delete=models.CASCADE,
-                                   blank=True, null=True)
+    vetted_by = models.ForeignKey(Contributor,
+                                  on_delete=models.CASCADE,
+                                  blank=True, null=True)
     status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS, default=0)
 
 
@@ -551,10 +448,10 @@ class NewsItem(models.Model):
                       '<h3 class="NewsHeadline">{{ headline }}</h3>'
                       '<p>{{ date }}</p>'
                       '<p>{{ blurb }}</p>'
-                  )
+                      )
         context = Context({'headline': self.headline,
                            'date': self.date.strftime('%Y-%m-%d'),
-                           'blurb': self.blurb,})
+                           'blurb': self.blurb, })
         if self.followup_link:
             descriptor += '<p><a href="{{ followup_link }}">{{ followup_link_text }}</a></p>'
             context['followup_link'] = self.followup_link
@@ -563,16 +460,15 @@ class NewsItem(models.Model):
         template = Template(descriptor)
         return template.render(context)
 
-
     def descriptor_small(self):
         """ For index page. """
         descriptor = ('<h3 class="NewsHeadline">{{ headline }}</h3>'
                       '<p>{{ date }}</p>'
                       '<p>{{ blurb }}</p>'
-                  )
+                      )
         context = Context({'headline': self.headline,
                            'date': self.date.strftime('%Y-%m-%d'),
-                           'blurb': self.blurb,})
+                           'blurb': self.blurb, })
         if self.followup_link:
             descriptor += '<p><a href="{{ followup_link }}">{{ followup_link_text }}</a></p>'
             context['followup_link'] = self.followup_link
@@ -620,7 +516,7 @@ class Feedback(models.Model):
         context = Context({
             'feedback': self.feedback,
             'by': '%s %s' % (self.by.user.first_name,
-                                   self.by.user.last_name)})
+                             self.by.user.last_name)})
         template = Template(html)
         return template.render(context)
 
@@ -692,7 +588,7 @@ class Nomination(models.Model):
         <li style="background-color: #990000">Disagree {{ nr_D }}</li>
         </ul>
         ''')
-        context = Context ({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
+        context = Context({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
         return template.render(context)
 
     def update_votes(self, contributor_id, vote):
@@ -717,7 +613,7 @@ MOTION_CATEGORIES = (
     ('Workflow', 'Editorial workflow improvements'),
     ('General', 'General'),
 )
-motion_categories_dict=dict(MOTION_CATEGORIES)
+motion_categories_dict = dict(MOTION_CATEGORIES)
 
 
 class Motion(models.Model):
@@ -763,7 +659,7 @@ class Motion(models.Model):
             'proposer': '%s %s' % (self.put_forward_by.user.first_name,
                                    self.put_forward_by.user.last_name),
             'background': self.background,
-            'motion': self.motion,})
+            'motion': self.motion, })
         template = Template(html)
         return template.render(context)
 
@@ -775,7 +671,7 @@ class Motion(models.Model):
         <li style="background-color: #990000">Disagree {{ nr_D }}</li>
         </ul>
         ''')
-        context = Context ({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
+        context = Context({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
         return template.render(context)
 
     def update_votes(self, contributor_id, vote):
@@ -822,10 +718,9 @@ class List(models.Model):
     class Meta:
         default_permissions = ['add', 'view', 'change', 'delete']
 
-
     def __str__(self):
-        return '%s (owner: %s %s)' % (self.title[:30], self.owner.user.first_name, self.owner.user.last_name)
-
+        return '%s (owner: %s %s)' % (self.title[:30],
+                                      self.owner.user.first_name, self.owner.user.last_name)
 
     def header(self):
         context = Context({'id': self.id, 'title': self.title,
@@ -837,7 +732,6 @@ class List(models.Model):
         ''')
         return template.render(context)
 
-
     def header_as_li(self):
         context = Context({'id': self.id, 'title': self.title,
                            'first_name': self.owner.user.first_name,
@@ -847,7 +741,6 @@ class List(models.Model):
         {{ title }}</a> (owner: {{ first_name }} {{ last_name }})</p></li>
         ''')
         return template.render(context)
-
 
     def contents(self):
         context = Context({})
@@ -900,19 +793,18 @@ class Team(models.Model):
     class Meta:
         default_permissions = ['add', 'view', 'change', 'delete']
 
-
     def __str__(self):
         return (self.name + ' (led by ' + self.leader.user.first_name + ' '
                 + self.leader.user.last_name + ')')
 
     def header_as_li(self):
-        context = Context({'name': self.name,})
+        context = Context({'name': self.name, })
         output = ('<li><p>Team {{ name }}, led by ' + self.leader.user.first_name + ' '
                   + self.leader.user.last_name + '</p>')
         output += '<p>Members: '
         if not self.members.all():
             output += '(none yet, except for the leader)'
-        else :
+        else:
             for member in self.members.all():
                 output += member.user.first_name + ' ' + member.user.last_name + ', '
         output += '</p></li>'
@@ -940,9 +832,9 @@ class Graph(models.Model):
     class Meta:
         default_permissions = ['add', 'view', 'change', 'delete']
 
-
     def __str__(self):
-        return '%s (owner: %s %s)' % (self.title[:30], self.owner.user.first_name, self.owner.user.last_name)
+        return '%s (owner: %s %s)' % (self.title[:30],
+                                      self.owner.user.first_name, self.owner.user.last_name)
 
     def header_as_li(self):
         context = Context({'id': self.id, 'title': self.title,
@@ -982,7 +874,6 @@ class Node(models.Model):
     class Meta:
         default_permissions = ['add', 'view', 'change', 'delete']
 
-
     def __str__(self):
         return self.graph.title[:20] + ': ' + self.name[:20]
 
@@ -1009,9 +900,10 @@ class Node(models.Model):
 
 
 ARC_LENGTHS = [
-#    (4, '4'), (8, '8'), (16, '16'), (32, '32'), (64, '64'), (128, '128')
+    # (4, '4'), (8, '8'), (16, '16'), (32, '32'), (64, '64'), (128, '128')
     (1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'), (6, '6'), (7, '7'), (8, '8'),
     ]
+
 
 class Arc(models.Model):
     """
@@ -1024,7 +916,6 @@ class Arc(models.Model):
     source = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='source')
     target = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='target')
     length = models.PositiveSmallIntegerField(choices=ARC_LENGTHS, default=32)
-
 
 
 #######################
@@ -1076,6 +967,7 @@ class SupportingPartner(models.Model):
     def __str__(self):
         return self.institution_acronym + ' (' + partner_status_dict[self.status] + ')'
 
+
 SPB_MEMBERSHIP_AGREEMENT_STATUS = (
     ('Submitted', 'Request submitted by Partner'),
     ('Pending', 'Sent to Partner, response pending'),
@@ -1092,6 +984,7 @@ SPB_MEMBERSHIP_DURATION = (
     (datetime.timedelta(days=1825), '5 years'),
 )
 spb_membership_duration_dict = dict(SPB_MEMBERSHIP_DURATION)
+
 
 class SPBMembershipAgreement(models.Model):
     """

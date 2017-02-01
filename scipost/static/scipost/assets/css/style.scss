@@ -1,0 +1,18 @@
+@import "node_modules/bootstrap/scss/_variables";
+@import "node_modules/bootstrap/scss/_mixins";
+@import "./../config/preconfig.scss";
+
+/**
+ * Make variables defined in preconfig.scss accessable in this file,
+ *  plus default variables and mixins of Bootstrap@4
+ *
+ * Do not write styles in this file. Get or create a file in this folder
+ *  and make sure its imported underneath!
+ *
+ */
+@import "buttons";
+@import "form";
+@import "messages";
+@import "navbar";
+@import "page_header";
+@import "type";

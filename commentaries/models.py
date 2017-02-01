@@ -1,69 +1,86 @@
-from django.utils import timezone
 from django.db import models
-from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
 
-from journals.models import SCIPOST_JOURNALS_DOMAINS, SCIPOST_JOURNALS_SPECIALIZATIONS
-from scipost.models import Contributor
-from scipost.models import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
+from journals.models import SCIPOST_JOURNALS_DOMAINS
+from scipost.models import TimeStampedModel, Contributor
+from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
 
-
-
+COMMENTARY_PUBLISHED = 'published'
+COMMENTARY_PREPRINT = 'preprint'
 COMMENTARY_TYPES = (
-    ('published', 'published paper'),
-    ('preprint', 'arXiv preprint'),
-    )
+    (COMMENTARY_PUBLISHED, 'published paper'),
+    (COMMENTARY_PREPRINT, 'arXiv preprint'),
+)
 
-class Commentary(models.Model):
+
+class CommentaryManager(models.Manager):
+    def vetted(self, **kwargs):
+        return self.filter(vetted=True, **kwargs)
+
+    def awaiting_vetting(self, **kwargs):
+        return self.filter(vetted=False, **kwargs)
+
+
+class Commentary(TimeStampedModel):
     """
     A Commentary contains all the contents of a SciPost Commentary page for a given publication.
     """
-    requested_by = models.ForeignKey (Contributor, blank=True, null=True,
-                                      on_delete=models.CASCADE, related_name='requested_by')
+    requested_by = models.ForeignKey(
+        Contributor, blank=True, null=True,
+        on_delete=models.CASCADE, related_name='requested_by')
     vetted = models.BooleanField(default=False)
-    vetted_by = models.ForeignKey (Contributor, blank=True, null=True, on_delete=models.CASCADE)
-    type = models.CharField(max_length=9, choices=COMMENTARY_TYPES) # published paper or arxiv preprint
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
+    vetted_by = models.ForeignKey(Contributor, blank=True, null=True, on_delete=models.CASCADE)
+    type = models.CharField(max_length=9, choices=COMMENTARY_TYPES)
+    discipline = models.CharField(max_length=20,
+                                  choices=SCIPOST_DISCIPLINES, default=DISCIPLINE_PHYSICS)
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
-#    specialization = models.CharField(max_length=1, choices=SCIPOST_JOURNALS_SPECIALIZATIONS)
-    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS, default='Phys:QP')
+    subject_area = models.CharField(
+        max_length=10, choices=SCIPOST_SUBJECT_AREAS,
+        default='Phys:QP')
     open_for_commenting = models.BooleanField(default=True)
     pub_title = models.CharField(max_length=300, verbose_name='title')
-    arxiv_identifier = models.CharField(max_length=100,
-                                        verbose_name="arXiv identifier (including version nr)",
-                                        blank=True, null=True)
+    arxiv_identifier = models.CharField(
+        max_length=100, verbose_name="arXiv identifier (including version nr)",
+        blank=True, null=True)
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)
-    pub_DOI = models.CharField(max_length=200, verbose_name='DOI of the original publication',
-                               blank=True, null=True)
-    pub_DOI_link = models.URLField(verbose_name='DOI link to the original publication', blank=True)
+    pub_DOI = models.CharField(
+        max_length=200, verbose_name='DOI of the original publication',
+        blank=True, null=True)
+    pub_DOI_link = models.URLField(
+        verbose_name='DOI link to the original publication',
+        blank=True)
     metadata = JSONField(default={}, blank=True, null=True)
     arxiv_or_DOI_string = models.CharField(
-        max_length=100,
-        verbose_name='string form of arxiv nr or DOI for commentary url',
-        default='')
+        max_length=100, default='',
+        verbose_name='string form of arxiv nr or DOI for commentary url')
     author_list = models.CharField(max_length=1000)
+
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField (Contributor, blank=True,
-                                      related_name='authors_com')
-    authors_claims = models.ManyToManyField (Contributor, blank=True,
-                                             related_name='authors_com_claims')
-    authors_false_claims = models.ManyToManyField (Contributor, blank=True,
-                                                   related_name='authors_com_false_claims')
+    authors = models.ManyToManyField(
+        Contributor, blank=True,
+        related_name='authors_com')
+    authors_claims = models.ManyToManyField(
+        Contributor, blank=True,
+        related_name='authors_com_claims')
+    authors_false_claims = models.ManyToManyField(
+        Contributor, blank=True,
+        related_name='authors_com_false_claims')
     journal = models.CharField(max_length=300, blank=True, null=True)
     volume = models.CharField(max_length=50, blank=True, null=True)
     pages = models.CharField(max_length=50, blank=True, null=True)
-    pub_date = models.DateField(verbose_name='date of original publication', blank=True, null=True)
+    pub_date = models.DateField(
+        verbose_name='date of original publication',
+        blank=True, null=True)
     pub_abstract = models.TextField(verbose_name='abstract')
-    latest_activity = models.DateTimeField(default=timezone.now)
+
+    objects = CommentaryManager()
 
     class Meta:
         verbose_name_plural = 'Commentaries'
 
-
     def __str__(self):
         return self.pub_title
-
 
     def header_as_table(self):
         # for display in Commentary page itself
@@ -93,8 +110,8 @@ class Commentary(models.Model):
         header += '</table>'
         template = Template(header)
         context = Context({
-                'pub_title': self.pub_title, 'author_list': self.author_list,
-                })
+            'pub_title': self.pub_title, 'author_list': self.author_list,
+        })
         if self.type == 'published':
             context['journal'] = self.journal
             context['volume'] = self.volume
@@ -105,15 +122,14 @@ class Commentary(models.Model):
             context['arxiv_link'] = self.arxiv_link
         return template.render(context)
 
-
     def header_as_li(self):
         # for display in search lists
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
                            'author_list': self.author_list,
                            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
         header = ('<li>'
-                  #'<div class="flex-container">'
-                  #'<div class="flex-whitebox0">'
+                  # '<div class="flex-container">'
+                  # '<div class="flex-whitebox0">'
                   '<p><a href="{{ scipost_url }}" '
                   'class="pubtitleli">{{ pub_title }}</a></p>'
                   '<p>by {{ author_list }}')
@@ -130,12 +146,11 @@ class Commentary(models.Model):
             header += '<p> (published {{ pub_date }}) - '
             context['pub_date'] = str(self.pub_date)
         header += ('latest activity: {{ latest_activity }}</p>'
-                   #'</div></div>'
+                   # '</div></div>'
                    '</li>')
         template = Template(header)
 
         return template.render(context)
-
 
     def simple_header_as_li(self):
         # for display in Lists
@@ -158,7 +173,6 @@ class Commentary(models.Model):
         template = Template(header)
         return template.render(context)
 
-
     def parse_links_into_urls(self):
         """ Takes the arXiv nr or DOI and turns it into the urls """
         if self.pub_DOI:
@@ -167,7 +181,7 @@ class Commentary(models.Model):
         elif self.arxiv_identifier:
             self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_identifier
             self.arxiv_link = 'http://arxiv.org/abs/' + self.arxiv_identifier
-        else: # should never come here
+        else:  # should never come here
             pass
         self.save()
 

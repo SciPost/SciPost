@@ -1,0 +1,17 @@
+/**
+ * Form
+ *
+ */
+.form-control {
+    font-family: inherit;
+}
+
+.has-error .form-control {
+        border-color: #d9534f;
+}
+
+.form-control + .help-block {
+    margin-top: 3px;
+    display: inline-block;
+    font-weight: 600;
+}

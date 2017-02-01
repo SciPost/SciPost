@@ -1,0 +1,22 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Unvetted Thesis Links{% endblock pagetitle %}
+
+{% block headsup %}
+
+{% endblock headsup %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <form action="" method="post">{% csrf_token %}
+            {{ form|bootstrap }}
+            <input class="btn btn-primary" type="submit" value="Update" />
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

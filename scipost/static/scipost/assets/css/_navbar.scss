@@ -1,0 +1,44 @@
+/**
+ * Navbar
+ *
+ */
+.navbar {
+    margin-bottom: 0.75rem;
+
+    .nav-link {
+        padding-right: 1rem;
+        padding-left: 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.1rem;
+        -webkit-transition: all 0.2s ease-in-out;
+             -o-transition: all 0.2s ease-in-out;
+                transition: all 0.2s ease-in-out;
+
+        @include hover-focus {
+            background-color: $white;
+        }
+    }
+
+    .active > .nav-link {
+        border-color: $scipost-darkblue;
+    }
+
+    .highlighted > .nav-link {
+        background-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .nav-item {
+        margin-right: 0.5rem;
+    }
+}
+.navbar-brand {
+    height: 38px;
+    margin: 0;
+}
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0, 43, 73, 1.0)");
+}
+.panel {
+    padding: 0.75rem;
+    background-color: #f4f4f4;
+}

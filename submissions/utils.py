@@ -1,6 +1,6 @@
 import datetime
 
-from django.core.mail import EmailMessage, EmailMultiAlternatives, get_connection
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 
 from journals.models import journals_submit_dict
@@ -18,7 +18,6 @@ class SubmissionUtils(object):
     def load(cls, dict):
         for var_name in dict:
             setattr(cls, var_name, dict[var_name])
-
 
     @classmethod
     def deprecate_other_assignments(cls):
@@ -43,7 +42,6 @@ class SubmissionUtils(object):
         for atd in assignments_to_deprecate:
             atd.deprecated = True
             atd.save()
-
 
     @classmethod
     def send_authors_submission_ack_email(cls):
@@ -78,7 +76,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: Submission received', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -87,7 +84,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_authors_resubmission_ack_email(cls):
@@ -119,7 +115,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: Resubmission received', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -128,7 +123,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_assignment_request_email(cls):
@@ -174,7 +168,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: potential Submission assignment', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -183,7 +176,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_EIC_appointment_email(cls):
@@ -199,8 +191,8 @@ class SubmissionUtils(object):
                       + cls.assignment.submission.arxiv_identifier_w_vn_nr
                       + ' (also accessible from your personal page '
                       'https://scipost.org/personal_page under the Editorial Actions tab). '
-                      'In particular, you should now invite at least 3 referees; you might want to '
-                      'make sure you are aware of the '
+                      'In particular, you should now invite at least 3 referees; you might want to'
+                      ' make sure you are aware of the '
                       'detailed procedure described in the Editorial College by-laws at '
                       'https://scipost.org/EdCol_by-laws.'
                       '\n\nMany thanks in advance for your collaboration,'
@@ -233,7 +225,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: assignment as EIC', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -242,7 +233,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_EIC_reappointment_email(cls):
@@ -305,7 +295,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_author_prescreening_passed_email(cls):
@@ -376,7 +365,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: pre-screening passed', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -385,7 +373,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def assignment_failed_email_authors(cls):
@@ -401,8 +388,8 @@ class SubmissionUtils(object):
         if len(cls.personal_message) > 3:
             email_text += '\n\n' + cls.personal_message
         email_text += ('\n\nWe nonetheless thank you very much for your contribution.'
-                      '\n\nSincerely,' +
-                      '\n\nThe SciPost Team.')
+                       '\n\nSincerely,' +
+                       '\n\nThe SciPost Team.')
         email_text_html = (
             '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>Your recent Submission to SciPost,</p>'
@@ -428,7 +415,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: pre-screening not passed', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -437,7 +423,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_refereeing_invitation_email(cls):
@@ -514,7 +499,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: refereeing request', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -524,7 +508,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_ref_reminder_email(cls):
@@ -615,7 +598,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: reminder (refereeing request and registration invitation)', email_text,
             'SciPost Submissions <submissions@scipost.org>',
@@ -625,7 +607,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_ref_cancellation_email(cls):
@@ -685,7 +666,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: report no longer needed', email_text,
             'SciPost Submissions <submissions@scipost.org>',
@@ -695,7 +675,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def email_referee_response_to_EIC(cls):
@@ -712,7 +691,7 @@ class SubmissionUtils(object):
             email_text += 'accepted '
             email_text_html += 'accepted '
             email_subject = 'SciPost: referee accepts to review'
-        elif cls.invitation.accepted == False:
+        elif not cls.invitation.accepted:
             email_text += ('declined (due to reason: '
                            + assignment_refusal_reasons_dict[cls.invitation.refusal_reason] + ') ')
             email_text_html += 'declined (due to reason: {{ reason }}) '
@@ -723,7 +702,7 @@ class SubmissionUtils(object):
         email_text_html += (
             'to referee Submission</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')
-        if cls.invitation.accepted == False:
+        if not cls.invitation.accepted:
             email_text += ('\n\nPlease invite another referee from the Submission\'s editorial page '
                            'at https://scipost.org/submissions/editorial_page/'
                            + cls.invitation.submission.arxiv_identifier_w_vn_nr + '.')
@@ -749,7 +728,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             email_subject, email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -758,7 +736,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def email_EIC_report_delivered(cls):
@@ -795,7 +772,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: Report delivered', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -805,14 +781,13 @@ class SubmissionUtils(object):
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
-
     @classmethod
     def acknowledge_report_email(cls):
         """ Requires loading 'report' attribute. """
         email_text = ('Dear ' + title_dict[cls.report.author.title] + ' ' +
                       cls.report.author.user.last_name + ','
                       '\n\nMany thanks for your Report on Submission\n\n' +
-                       cls.report.submission.title + ' by '
+                      cls.report.submission.title + ' by '
                       + cls.report.submission.author_list + '.')
         email_text_html = (
             '<p>Dear {{ ref_title }} {{ ref_last_name }},</p>'
@@ -878,7 +853,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: Report acknowledgement', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -888,7 +862,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_author_report_received_email(cls):
@@ -933,7 +906,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: Report received on your Submission', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -942,7 +914,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_author_comment_received_email(cls):
@@ -977,7 +948,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: Comment received on your Submission', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -987,7 +957,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_communication_email(cls):
@@ -1006,8 +975,6 @@ class SubmissionUtils(object):
                                   cls.communication.submission.editor_in_charge.user.last_name)
             further_action_page = ('https://scipost.org/submission/editorial_page/'
                                    + cls.communication.submission.arxiv_identifier_w_vn_nr)
-            #if cls.communication.comtype == 'AtoE':
-            #    bcc_emails.append(cls.communication.submission.submitted_by.user.email) # BUG: must not happen!
             if cls.communication.comtype == 'RtoE':
                 bcc_emails.append(cls.communication.referee.user.email)
             bcc_emails.append('submissions@scipost.org')
@@ -1053,7 +1020,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.send(fail_silently=False)
 
-
     @classmethod
     def send_author_revision_requested_email(cls):
         """ Requires loading 'submission' and 'recommendation' attributes. """
@@ -1074,8 +1040,8 @@ class SubmissionUtils(object):
             email_text += 'major'
             email_text_html += 'major'
         email_text += (' revision.'
-                      '\n\nYou can view it at the Submission Page '
-                      'https://scipost.org/submission/'
+                       '\n\nYou can view it at the Submission Page '
+                       'https://scipost.org/submission/'
                        + cls.submission.arxiv_identifier_w_vn_nr + '. '
                        'Note that the recommendation is viewable only by '
                        'the registered authors of the submission.'
@@ -1113,7 +1079,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: revision requested', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -1123,7 +1088,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_author_College_decision_email(cls):
@@ -1147,7 +1111,7 @@ class SubmissionUtils(object):
             email_text_html += (
                 '<p>We are pleased to inform you that your Submission '
                 'has been accepted for publication in <strong>{{ journal }}</strong>')
-            if cls.recommendation.recommendation == 1 and False: # Temporary deactivation of Select
+            if cls.recommendation.recommendation == 1 and False:  # Temporary deactivation of Select
                 email_text += (', with a promotion to Select. We warmly congratulate you '
                                'on this achievement, which is reserved to papers deemed in '
                                'the top ten percent of papers we publish.')
@@ -1162,8 +1126,8 @@ class SubmissionUtils(object):
                            'production team, who will soon send you proofs '
                            'to check before final publication.')
             email_text_html += ('\n<p>Your manuscript will now be taken charge of by our '
-                           'production team, who will soon send you proofs '
-                           'to check before final publication.</p>')
+                                'production team, who will soon send you proofs '
+                                'to check before final publication.</p>')
 
         elif cls.recommendation.recommendation == -3:
             email_text += ('We are sorry to inform you that your Submission '
@@ -1173,12 +1137,9 @@ class SubmissionUtils(object):
                            + cls.submission.arxiv_identifier_w_vn_nr + '. '
                            'Note that these details are viewable only by '
                            'the registered authors of the submission.'
-                           #'\n\nUnless you explicitly request otherwise, we will deactivate your '
-                           #'Submission\'s Page within one week and remove it from public view.'
                            '\n\nThis Submission Page has now been removed '
                            'from general public view; if you wish, you can email us and '
-                           'request to make it publicly visible again.'
-            )
+                           'request to make it publicly visible again.')
             email_text_html += (
                 '<p>We are sorry to inform you that your Submission '
                 'has not been accepted for publication.</p>'
@@ -1187,8 +1148,6 @@ class SubmissionUtils(object):
                 '{{ arxiv_identifier_w_vn_nr }}">Submission\'s Page</a>. '
                 'Note that these details are viewable only by '
                 'the registered authors of the submission.</p>'
-                #'<p>Unless you explicitly request otherwise, we will deactivate your '
-                #'Submission\'s Page within one week and remove it from public view.</p>'
                 '<p>This Submission Page has now been removed '
                 'from general public view; if you wish, you can email us and '
                 'request to make it publicly visible again.</p>'
@@ -1210,7 +1169,6 @@ class SubmissionUtils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost: College decision', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -1220,7 +1178,6 @@ class SubmissionUtils(object):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_Fellows_voting_reminder_email(cls):

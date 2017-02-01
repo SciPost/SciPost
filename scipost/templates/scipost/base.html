@@ -1,12 +1,44 @@
+{% load render_bundle from webpack_loader %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
+
     {% load staticfiles %}
+
     <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+
+    {% render_bundle 'bootstrap' 'css' %}
+    {% render_bundle 'main' 'css' %}
 
     <link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
+
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+
+    {% block headsup %}
+    {% endblock headsup %}
+  </head>
+
+  <body>
+    {% include 'scipost/header.html' %}
+    {% include 'scipost/navbar.html' %}
+    {% include 'scipost/messages.html' %}
+
+
+    <div class="container">
+        {% block page_header %}{% endblock page_header %}
+
+        {% block content %}{% endblock content %}
+    </div>
+
+    {% block bodysup %}
+    {% endblock bodysup %}
+
+    {% include 'scipost/footer.html' %}
 
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({
@@ -17,23 +49,11 @@
     </script>
     <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
-    <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
+    {% render_bundle 'main' 'js' %}
+    {% render_bundle 'bootstrap' 'js' %}
 
-    {% block headsup %}
-    {% endblock headsup %}
-  </head>
-
-  <body>
-    {% include 'scipost/header.html' %}
-    {% include 'scipost/navbar.html' %}
-
-    {% block bodysup %}
-    {% endblock bodysup %}
-
-    {% block content %}
-    {% endblock content %}
-
-    {% include 'scipost/footer.html' %}
-  </body>
+    {% block footer_script %}
+    {% endblock footer_script %}
+</body>
 
 </html>

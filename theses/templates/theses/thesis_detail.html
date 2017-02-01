@@ -44,7 +44,8 @@
       <h2>Thesis information: </h2>
     </div>
   </div>
-  {{ thesislink.header_as_table }}
+  {% include "./_header_as_table.html" with thesislink=thesislink %}
+  {# {{ thesislink.header_as_table }}#}
   <h3>Abstract:</h3>
   <p>{{ thesislink.abstract }}</p>
 
