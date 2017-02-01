@@ -42,6 +42,10 @@ class VetThesisLinkForm(RequestThesisLinkForm):
     justification = forms.CharField(widget=forms.Textarea(
         attrs={'rows': 5, 'cols': 40}), label='Justification (optional)', required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(VetThesisLinkForm, self).__init__(*args, **kwargs)
+        self.order_fields(['action_option', 'refusal_reason', 'justification'])
+
     def vet_request(self, thesislink, user):
         if int(self.cleaned_data['action_option']) == VetThesisLinkForm.ACCEPT:
             thesislink.vetted = True
