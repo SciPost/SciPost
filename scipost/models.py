@@ -1,8 +1,8 @@
 import datetime
 
 from django import forms
-from django.contrib.auth.models import User, Group
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.template import Template, Context
 from django.utils import timezone
@@ -12,8 +12,7 @@ from django_countries.fields import CountryField
 
 from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
     disciplines_dict, subject_areas_dict
-
-from scipost.models import *
+from .db.fields import AutoDateTimeField
 
 
 class ChoiceArrayField(ArrayField):
@@ -66,8 +65,8 @@ class TimeStampedModel(models.Model):
     This will ensure the creation of created and modified
     timestamps in the objects.
     """
-    created = models.DateTimeField(auto_now_add=True)
-    latest_activity = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(default=timezone.now)
+    latest_activity = AutoDateTimeField(default=timezone.now)
 
     class Meta:
         abstract = True
@@ -150,7 +149,6 @@ class Contributor(models.Model):
             'accepts_SciPost_emails': self.accepts_SciPost_emails,
         })
         return template.render(context)
-
 
     def public_info_as_table(self):
         """Prints out all publicly-accessible info as a table."""
@@ -267,9 +265,9 @@ class Remark(models.Model):
         return template.render(context)
 
 
-##################
-## Invitations ###
-##################
+###############
+# Invitations #
+###############
 
 INVITATION_TYPE = (
     ('F', 'Editorial Fellow'),
@@ -283,6 +281,7 @@ INVITATION_STYLE = (
     ('F', 'formal'),
     ('P', 'personal'),
     )
+
 
 class DraftInvitation(models.Model):
     """
@@ -305,7 +304,7 @@ class DraftInvitation(models.Model):
     date_drafted = models.DateTimeField(default=timezone.now)
     processed = models.BooleanField(default=False)
 
-    def __str__ (self):
+    def __str__(self):
         return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name)
 
 
@@ -337,7 +336,7 @@ class RegistrationInvitation(models.Model):
     responded = models.BooleanField(default=False)
     declined = models.BooleanField(default=False)
 
-    def __str__ (self):
+    def __str__(self):
         return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name
                 + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
 
@@ -362,11 +361,13 @@ class CitationNotification(models.Model):
             text += ' (processed)'
         return text
 
+
 AUTHORSHIP_CLAIM_STATUS = (
     (1, 'accepted'),
     (0, 'not yet vetted (pending)'),
     (-1, 'rejected'),
 )
+
 
 class AuthorshipClaim(models.Model):
     claimant = models.ForeignKey(Contributor,
@@ -381,9 +382,9 @@ class AuthorshipClaim(models.Model):
     thesislink = models.ForeignKey('theses.ThesisLink',
                                    on_delete=models.CASCADE,
                                    blank=True, null=True)
-    vetted_by = models.ForeignKey (Contributor,
-                                   on_delete=models.CASCADE,
-                                   blank=True, null=True)
+    vetted_by = models.ForeignKey(Contributor,
+                                  on_delete=models.CASCADE,
+                                  blank=True, null=True)
     status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS, default=0)
 
 
@@ -433,10 +434,10 @@ class NewsItem(models.Model):
                       '<h3 class="NewsHeadline">{{ headline }}</h3>'
                       '<p>{{ date }}</p>'
                       '<p>{{ blurb }}</p>'
-                  )
+                      )
         context = Context({'headline': self.headline,
                            'date': self.date.strftime('%Y-%m-%d'),
-                           'blurb': self.blurb,})
+                           'blurb': self.blurb, })
         if self.followup_link:
             descriptor += '<p><a href="{{ followup_link }}">{{ followup_link_text }}</a></p>'
             context['followup_link'] = self.followup_link
@@ -445,23 +446,21 @@ class NewsItem(models.Model):
         template = Template(descriptor)
         return template.render(context)
 
-
     def descriptor_small(self):
         """ For index page. """
         descriptor = ('<h3 class="NewsHeadline">{{ headline }}</h3>'
                       '<p>{{ date }}</p>'
                       '<p>{{ blurb }}</p>'
-                  )
+                      )
         context = Context({'headline': self.headline,
                            'date': self.date.strftime('%Y-%m-%d'),
-                           'blurb': self.blurb,})
+                           'blurb': self.blurb, })
         if self.followup_link:
             descriptor += '<p><a href="{{ followup_link }}">{{ followup_link_text }}</a></p>'
             context['followup_link'] = self.followup_link
             context['followup_link_text'] = self.followup_link_text
         template = Template(descriptor)
         return template.render(context)
-
 
 
 #########
@@ -491,10 +490,9 @@ class List(models.Model):
     class Meta:
         default_permissions = ['add', 'view', 'change', 'delete']
 
-
     def __str__(self):
-        return '%s (owner: %s %s)' % (self.title[:30], self.owner.user.first_name, self.owner.user.last_name)
-
+        return '%s (owner: %s %s)' % (self.title[:30],
+                                      self.owner.user.first_name, self.owner.user.last_name)
 
     def header(self):
         context = Context({'id': self.id, 'title': self.title,
@@ -506,7 +504,6 @@ class List(models.Model):
         ''')
         return template.render(context)
 
-
     def header_as_li(self):
         context = Context({'id': self.id, 'title': self.title,
                            'first_name': self.owner.user.first_name,
@@ -516,7 +513,6 @@ class List(models.Model):
         {{ title }}</a> (owner: {{ first_name }} {{ last_name }})</p></li>
         ''')
         return template.render(context)
-
 
     def contents(self):
         context = Context({})
@@ -569,19 +565,18 @@ class Team(models.Model):
     class Meta:
         default_permissions = ['add', 'view', 'change', 'delete']
 
-
     def __str__(self):
         return (self.name + ' (led by ' + self.leader.user.first_name + ' '
                 + self.leader.user.last_name + ')')
 
     def header_as_li(self):
-        context = Context({'name': self.name,})
+        context = Context({'name': self.name, })
         output = ('<li><p>Team {{ name }}, led by ' + self.leader.user.first_name + ' '
                   + self.leader.user.last_name + '</p>')
         output += '<p>Members: '
         if not self.members.all():
             output += '(none yet, except for the leader)'
-        else :
+        else:
             for member in self.members.all():
                 output += member.user.first_name + ' ' + member.user.last_name + ', '
         output += '</p></li>'
@@ -609,9 +604,9 @@ class Graph(models.Model):
     class Meta:
         default_permissions = ['add', 'view', 'change', 'delete']
 
-
     def __str__(self):
-        return '%s (owner: %s %s)' % (self.title[:30], self.owner.user.first_name, self.owner.user.last_name)
+        return '%s (owner: %s %s)' % (self.title[:30],
+                                      self.owner.user.first_name, self.owner.user.last_name)
 
     def header_as_li(self):
         context = Context({'id': self.id, 'title': self.title,
@@ -651,7 +646,6 @@ class Node(models.Model):
     class Meta:
         default_permissions = ['add', 'view', 'change', 'delete']
 
-
     def __str__(self):
         return self.graph.title[:20] + ': ' + self.name[:20]
 
@@ -678,9 +672,10 @@ class Node(models.Model):
 
 
 ARC_LENGTHS = [
-#    (4, '4'), (8, '8'), (16, '16'), (32, '32'), (64, '64'), (128, '128')
+    # (4, '4'), (8, '8'), (16, '16'), (32, '32'), (64, '64'), (128, '128')
     (1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'), (6, '6'), (7, '7'), (8, '8'),
     ]
+
 
 class Arc(models.Model):
     """
@@ -693,7 +688,6 @@ class Arc(models.Model):
     source = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='source')
     target = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='target')
     length = models.PositiveSmallIntegerField(choices=ARC_LENGTHS, default=32)
-
 
 
 #######################
@@ -745,6 +739,7 @@ class SupportingPartner(models.Model):
     def __str__(self):
         return self.institution_acronym + ' (' + partner_status_dict[self.status] + ')'
 
+
 SPB_MEMBERSHIP_AGREEMENT_STATUS = (
     ('Submitted', 'Request submitted by Partner'),
     ('Pending', 'Sent to Partner, response pending'),
@@ -761,6 +756,7 @@ SPB_MEMBERSHIP_DURATION = (
     (datetime.timedelta(days=1825), '5 years'),
 )
 spb_membership_duration_dict = dict(SPB_MEMBERSHIP_DURATION)
+
 
 class SPBMembershipAgreement(models.Model):
     """

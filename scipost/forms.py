@@ -1,5 +1,6 @@
 from django import forms
 
+from django.contrib.auth.models import User, Group
 from django.db.models import Q
 
 from django_countries import countries
@@ -8,9 +9,13 @@ from django_countries.fields import LazyTypedChoiceField
 from captcha.fields import CaptchaField
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
+from crispy_forms.layout import Layout, Div, Field, HTML, Submit
 
-from .models import *
+from .models import TITLE_CHOICES, SCIPOST_FROM_ADDRESSES, ARC_LENGTHS,\
+                     Contributor, DraftInvitation, RegistrationInvitation,\
+                     SupportingPartner, SPBMembershipAgreement,\
+                     UnavailabilityPeriod, PrecookedEmail,\
+                     List, Team, Graph, Node
 from .constants import SCIPOST_DISCIPLINES
 
 from journals.models import Publication
@@ -26,6 +31,7 @@ REGISTRATION_REFUSAL_CHOICES = (
     )
 reg_ref_dict = dict(REGISTRATION_REFUSAL_CHOICES)
 
+
 class RegistrationForm(forms.Form):
     title = forms.ChoiceField(choices=TITLE_CHOICES, label='* Title')
     first_name = forms.CharField(label='* First name', max_length=100)
@@ -38,7 +44,9 @@ class RegistrationForm(forms.Form):
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
     country_of_employment = LazyTypedChoiceField(
         choices=countries, label='* Country of employment', initial='NL',
-        widget=CountrySelectWidget(layout='{widget}<img class="country-select-flag" id="{flag_id}" style="margin: 6px 4px 0" src="{country.flag}">'))
+        widget=CountrySelectWidget(layout=(
+            '{widget}<img class="country-select-flag" id="{flag_id}"'
+            ' style="margin: 6px 4px 0" src="{country.flag}">')))
     affiliation = forms.CharField(label='* Affiliation', max_length=300)
     address = forms.CharField(
         label='Address', max_length=1000,
@@ -60,7 +68,7 @@ class DraftInvitationForm(forms.ModelForm):
         fields = ['title', 'first_name', 'last_name', 'email',
                   'invitation_type',
                   'cited_in_submission', 'cited_in_publication'
-                 ]
+                  ]
 
     def __init__(self, *args, **kwargs):
         super(DraftInvitationForm, self).__init__(*args, **kwargs)
@@ -94,12 +102,13 @@ class RegistrationInvitationForm(forms.ModelForm):
                   'invitation_type',
                   'cited_in_submission', 'cited_in_publication',
                   'message_style', 'personal_message'
-                 ]
+                  ]
 
     def __init__(self, *args, **kwargs):
         super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
         self.fields['personal_message'].widget.attrs.update(
-            {'placeholder': 'NOTE: a personal phrase or two. The bulk of the text will be auto-generated.'})
+            {'placeholder': ('NOTE: a personal phrase or two.'
+                             ' The bulk of the text will be auto-generated.')})
         self.fields['cited_in_submission'] = forms.ModelChoiceField(
             queryset=Submission.objects.all().exclude(
                 status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED).order_by('-submission_date'),
@@ -124,6 +133,7 @@ class RegistrationInvitationForm(forms.ModelForm):
             Div(Field('cited_in_publication'),),
             )
 
+
 class ModifyPersonalMessageForm(forms.Form):
     personal_message = forms.CharField(widget=forms.Textarea())
 
@@ -133,36 +143,43 @@ class UpdateUserDataForm(forms.ModelForm):
         model = User
         fields = ['email', 'first_name', 'last_name']
 
+
 class UpdatePersonalDataForm(forms.ModelForm):
     class Meta:
         model = Contributor
         fields = ['title', 'discipline', 'expertises', 'orcid_id', 'country_of_employment',
                   'affiliation', 'address', 'personalwebpage',
                   'accepts_SciPost_emails'
-                 ]
+                  ]
         widgets = {'country_of_employment': CountrySelectWidget()}
 
+
 class VetRegistrationForm(forms.Form):
-    promote_to_registered_contributor = forms.BooleanField(required=False, label='Accept registration')
+    promote_to_registered_contributor = forms.BooleanField(required=False,
+                                                           label='Accept registration')
     refuse = forms.BooleanField(required=False)
     refusal_reason = forms.ChoiceField(choices=REGISTRATION_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(),
                                            label='Justification (optional)', required=False)
 
+
 class AuthenticationForm(forms.Form):
     username = forms.CharField(label='Username', max_length=100)
     password = forms.CharField(label='Password', widget=forms.PasswordInput())
+
 
 class PasswordChangeForm(forms.Form):
     password_prev = forms.CharField(label='Existing password', widget=forms.PasswordInput())
     password_new = forms.CharField(label='New password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
 
+
 AUTHORSHIP_CLAIM_CHOICES = (
     ('-', '-'),
     ('True', 'I am an author'),
     ('False', 'I am not an author'),
     )
+
 
 class AuthorshipClaimForm(forms.Form):
     claim = forms.ChoiceField(choices=AUTHORSHIP_CLAIM_CHOICES, required=False)
@@ -185,12 +202,14 @@ class RemarkForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(RemarkForm, self).__init__(*args, **kwargs)
         self.fields['remark'].widget.attrs.update(
-            {'rows': 3, 'cols': 40, 'placeholder': 'Enter your remarks here. You can use LaTeX in $...$ or \[ \].'})
+            {'rows': 3, 'cols': 40,
+             'placeholder': 'Enter your remarks here. You can use LaTeX in $...$ or \[ \].'})
 
 
 class SearchForm(forms.Form):
     query = forms.CharField(max_length=100, label='',
-                            widget=forms.TextInput(attrs={'class': 'form-control mr-0 mb-2 mr-lg-2 mb-lg-0'}))
+                            widget=forms.TextInput(attrs={
+                                'class': 'form-control mr-0 mb-2 mr-lg-2 mb-lg-0'}))
 
 
 class EmailGroupMembersForm(forms.Form):
@@ -290,7 +309,7 @@ class ManageTeamsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         contributor = kwargs.pop('contributor')
         super(ManageTeamsForm, self).__init__(*args, **kwargs)
-        self.fields['teams_with_access'].queryset=Team.objects.filter(
+        self.fields['teams_with_access'].queryset = Team.objects.filter(
             Q(leader=contributor) | Q(members__in=[contributor]))
         self.fields['teams_with_access'].widget.attrs.update(
             {'placeholder': 'Team(s) to be given access rights:'})
@@ -314,7 +333,6 @@ class CreateArcForm(forms.Form):
         self.fields['target'].queryset = Node.objects.filter(graph=graph)
 
 
-
 #############################
 # Supporting Partners Board #
 #############################
@@ -325,13 +343,13 @@ class SupportingPartnerForm(forms.ModelForm):
         fields = ['partner_type', 'institution',
                   'institution_acronym', 'institution_address',
                   'consortium_members'
-                 ]
+                  ]
 
     def __init__(self, *args, **kwargs):
         super(SupportingPartnerForm, self).__init__(*args, **kwargs)
-        self.fields['institution_address'].widget = forms.Textarea({'rows': 8,})
+        self.fields['institution_address'].widget = forms.Textarea({'rows': 8, })
         self.fields['consortium_members'].widget.attrs.update(
-            {'placeholder': 'Please list the names of the institutions within the consortium',})
+            {'placeholder': 'Please list the names of the institutions within the consortium', })
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -346,6 +364,7 @@ class SupportingPartnerForm(forms.ModelForm):
                     css_class='col-6'),
                 css_class='row')
         )
+
 
 class SPBMembershipForm(forms.ModelForm):
     class Meta:
