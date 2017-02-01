@@ -1,13 +1,11 @@
 from django.utils import timezone
 from django.db import models
-from django.contrib.auth.models import User
 from django.template import Template, Context
 
-from .models import *
-
-from journals.models import *
-from scipost.constants import SCIPOST_DISCIPLINES, subject_areas_dict, disciplines_dict
-from scipost.models import *
+from journals.models import SCIPOST_JOURNALS_DOMAINS, journals_domains_dict
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
+                              subject_areas_dict, disciplines_dict
+from scipost.models import Contributor
 
 
 class ThesisLink(models.Model):
@@ -75,8 +73,7 @@ class ThesisLink(models.Model):
             'pub_link': self.pub_link, 'institution': self.institution,
             'supervisor': self.supervisor, 'defense_date': self.defense_date,
             'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
-        print(subject_areas_dict)
-        print(self.subject_area in subject_areas_dict)
+
         header = (
             '<li><div class="flex-container">'
             '<div class="flex-whitebox0"><p><a href="/thesis/{{ id }}" '
