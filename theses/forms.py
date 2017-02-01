@@ -1,7 +1,6 @@
 from django import forms
 from django.core.mail import EmailMessage
 
-# from .models import *
 from .models import ThesisLink
 from .helpers import past_years
 

@@ -1,13 +1,14 @@
 from django import forms
 from django.core.validators import RegexValidator
-# from django.contrib.auth.models import User, Group
 
-from .models import *
+from .models import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS,\
+                    Submission, RefereeInvitation, Report, EICRecommendation
 
-from scipost.models import SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_SUBJECT_AREAS
+from scipost.models import Contributor
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
+from crispy_forms.layout import Layout, Div, Field, HTML, Submit
 
 
 class SubmissionSearchForm(forms.Form):
@@ -74,8 +75,6 @@ class SubmissionForm(forms.ModelForm):
         self.fields['referees_flagged'].widget.attrs.update({
             'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
             'rows': 3})
-
-
 
 
 ######################
@@ -153,6 +152,7 @@ class VotingEligibilityForm(forms.Form):
             widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
             required=True, label='Eligible for voting',
         )
+
 
 ############
 # Reports:

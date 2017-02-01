@@ -32,6 +32,7 @@ class Command(BaseCommand):
         Testers, created = Group.objects.get_or_create(name='Testers')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
+        ProductionOfficers, created = Group.objects.get_or_create(name='Production Officers')
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
@@ -68,6 +69,10 @@ class Command(BaseCommand):
         view_bylaws, created = Permission.objects.get_or_create(
             codename='view_bylaws',
             name='Can view By-laws of Editorial College',
+            content_type=content_type)
+        can_attend_VGMs, created = Permission.objects.get_or_create(
+            codename='can_attend_VGMs',
+            name='Can attend Virtual General Meetings',
             content_type=content_type)
 
         # Contributions (not related to submissions)
@@ -173,9 +178,11 @@ class Command(BaseCommand):
             can_assign_submissions,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
+            can_attend_VGMs,
         )
         AdvisoryBoard.permissions.add(
             can_manage_registration_invitations,
+            can_attend_VGMs,
         )
         EditorialAdmin.permissions.add(
             can_view_pool,
@@ -183,12 +190,14 @@ class Command(BaseCommand):
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
             can_publish_accepted_submission,
+            can_attend_VGMs,
             )
         EditorialCollege.permissions.add(
             can_view_pool,
             can_take_charge_of_submissions,
             can_vet_submitted_reports,
             view_bylaws,
+            can_attend_VGMs,
         )
         VettingEditors.permissions.add(
             can_vet_commentary_requests,
@@ -212,6 +221,9 @@ class Command(BaseCommand):
         )
         JuniorAmbassadors.permissions.add(
             can_draft_registration_invitations,
+        )
+        ProductionOfficers.permissions.add(
+            can_view_docs_scipost,
         )
 
         self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions.'))

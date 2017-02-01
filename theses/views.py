@@ -21,10 +21,10 @@ import strings
 
 title_dict = dict(TITLE_CHOICES)  # Convert titles for use in emails
 
+
 ################
 # Theses
 ################
-
 
 @method_decorator(permission_required(
     'scipost.can_request_thesislinks', raise_exception=True), name='dispatch')
