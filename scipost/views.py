@@ -1076,6 +1076,7 @@ def personal_page(request):
 def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.POST)
+        ack = False
         if form.is_valid():
             if not request.user.check_password(form.cleaned_data['password_prev']):
                 return render(
@@ -1089,7 +1090,7 @@ def change_password(request):
             request.user.set_password(form.cleaned_data['password_new'])
             request.user.save()
             ack = True
-        context = {'ack': True, 'form': form}
+        context = {'ack': ack, 'form': form}
     else:
         form = PasswordChangeForm()
         context = {'ack': False, 'form': form}
