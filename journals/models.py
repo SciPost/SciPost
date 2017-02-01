@@ -345,5 +345,5 @@ class Deposit(models.Model):
     deposition_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return (deposition_date.strftime('%Y-%m-%D') +
-                ' for ' + publication.doi_string)
+        return (self.deposition_date.strftime('%Y-%m-%D') +
+                ' for ' + self.publication.doi_string)
