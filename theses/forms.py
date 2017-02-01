@@ -87,7 +87,7 @@ class VetThesisLinkForm(RequestThesisLinkForm):
             email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
                           + thesislink.requested_by.user.last_name
                           + ', \n\nThe Thesis Link you have requested, concerning thesis with title '
-                          + thesislink.title + ' by ' + thesislink.author_list
+                          + thesislink.title + ' by ' + thesislink.author
                           + ', has been activated '
                           '(with slight modifications to your submitted details) at '
                           'https://scipost.org/thesis/' + str(thesislink.id) + '.'
