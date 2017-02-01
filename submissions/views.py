@@ -1,29 +1,31 @@
 import datetime
 import feedparser
-import re
-import requests
-import sys
 
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
-from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.db.models import Avg
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
+from django.template import Template, Context
 from django.utils import timezone
-from django.utils.safestring import mark_safe
-from django.views.decorators.csrf import csrf_protect
 
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
-from django.utils.decorators import method_decorator
 
-from .models import *
-from .forms import *
+# from .models import *
+# from .forms import *
+from .models import Submission, EICRecommendation, EditorialAssignment,\
+                    RefereeInvitation, Report, EditorialCommunication,\
+                    SUBMISSION_STATUS_PUBLICLY_UNLISTED, SUBMISSION_STATUS_VOTING_DEPRECATED,\
+                    SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS_OUT_OF_POOL,\
+                    SUBMISSION_STATUS, submission_status_dict, ed_comm_choices_dict
+from .forms import SubmissionIdentifierForm, SubmissionForm, SubmissionSearchForm,\
+                   RecommendationVoteForm, ConsiderAssignmentForm, AssignSubmissionForm,\
+                   SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
+                   ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
+                   EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm
 from .utils import SubmissionUtils
 
 from comments.models import Comment
@@ -37,7 +39,7 @@ from comments.forms import CommentForm
 
 from .services import ArxivCaller
 
-from django.views.generic.edit import UpdateView, CreateView, FormView
+from django.views.generic.edit import CreateView, FormView
 
 
 ###############
@@ -226,8 +228,8 @@ class PrefillUsingIdentifierView(FormView):
             return render(request, 'submissions/prefill_using_identifier.html',
                           {'form': identifierform})
 
-class SubmissionCreateView(CreateView):
 
+class SubmissionCreateView(CreateView):
     model = Submission
     fields = [
         'is_resubmission',
@@ -304,8 +306,6 @@ class SubmissionCreateView(CreateView):
         )
 
 
-
-
 # @login_required
 # @permission_required('scipost.can_submit_manuscript', raise_exception=True)
 # @transaction.atomic
@@ -315,13 +315,13 @@ class SubmissionCreateView(CreateView):
 #         if form.is_valid():
 #             submitted_by = Contributor.objects.get(user=request.user)
 #             # Verify if submitter is among the authors
-            # if submitted_by.user.last_name not in form.cleaned_data['author_list']:
-            #     errormessage = ('Your name does not match that of any of the authors. '
-            #                     'You are not authorized to submit this preprint.')
-            #     identifierform = SubmissionIdentifierForm()
-            #     return render(request, 'submissions/submit_manuscript.html',
-            #                   {'identifierform': identifierform, 'form': form,
-            #                    'errormessage': errormessage})
+#            if submitted_by.user.last_name not in form.cleaned_data['author_list']:
+#                errormessage = ('Your name does not match that of any of the authors. '
+#                                'You are not authorized to submit this preprint.')
+#                identifierform = SubmissionIdentifierForm()
+#                return render(request, 'submissions/submit_manuscript.html',
+#                              {'identifierform': identifierform, 'form': form,
+#                               'errormessage': errormessage})
 #             submission = Submission(
 #                 is_current=True,
 #                 is_resubmission=form.cleaned_data['is_resubmission'],
@@ -488,8 +488,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         and not request.user.groups.filter(name='SciPost Administrators').exists()
         and not request.user.groups.filter(name='Editorial Administrators').exists()
         and not request.user.groups.filter(name='Editorial College').exists()
-        and not is_author
-    ):
+        and not is_author):
         raise PermissionDenied
     other_versions = Submission.objects.filter(
         arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
@@ -607,14 +606,28 @@ def pool(request):
     rec_vote_form = RecommendationVoteForm()
     remark_form = RemarkForm()
     context = {'submissions_in_pool': submissions_in_pool,
+               'submission_status': SUBMISSION_STATUS,
                'recommendations_undergoing_voting': recommendations_undergoing_voting,
                'recommendations_to_prepare_for_voting': recommendations_to_prepare_for_voting,
                'assignments_to_consider': assignments_to_consider,
                'consider_assignment_form': consider_assignment_form,
                'recs_to_vote_on': recs_to_vote_on,
                'rec_vote_form': rec_vote_form,
-               'remark_form': remark_form,}
+               'remark_form': remark_form, }
     return render(request, 'submissions/pool.html', context)
+
+
+@login_required
+@permission_required('scipost.can_view_pool', raise_exception=True)
+def submissions_by_status(request, status):
+    if status not in submission_status_dict.keys():
+        errormessage = 'Unknown status.'
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    submissions_of_status = Submission.objects.filter(
+        status=status).order_by('-submission_date')
+    context = {'status': submission_status_dict[status],
+               'submissions_of_status': submissions_of_status, }
+    return render(request, 'submissions/submissions_by_status.html', context)
 
 
 @login_required
@@ -641,7 +654,6 @@ def add_remark(request, arxiv_identifier_w_vn_nr):
     else:
         errormessage = 'This view can only be posted to.'
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
-
 
 
 @login_required
@@ -817,6 +829,29 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
     context = {'submission': submission,
                'form': form}
     return render(request, 'submissions/assignment_failed.html', context)
+
+
+@login_required
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+def assignments(request):
+    """
+    This page provides a Fellow with an explicit task list
+    of editorial actions which should be undertaken.
+    """
+    assignments = EditorialAssignment.objects.filter(
+        to=request.user.contributor).order_by('-date_created')
+    assignments_to_consider = assignments.filter(accepted=None,
+                                                 deprecated=False)
+    current_assignments = assignments.filter(accepted=True,
+                                             deprecated=False,
+                                             completed=False)
+    consider_assignment_form = ConsiderAssignmentForm()
+    context = {
+        'assignments_to_consider': assignments_to_consider,
+        'consider_assignment_form': consider_assignment_form,
+        'current_assignments': current_assignments,
+    }
+    return render(request, 'submissions/assignments.html', context)
 
 
 @login_required
@@ -1005,7 +1040,6 @@ def accept_or_decline_ref_invitations(request):
 @login_required
 @permission_required('scipost.can_referee', raise_exception=True)
 def accept_or_decline_ref_invitation_ack(request, invitation_id):
-    contributor = Contributor.objects.get(user=request.user)
     invitation = get_object_or_404(RefereeInvitation, pk=invitation_id)
     if request.method == 'POST':
         form = ConsiderRefereeInvitationForm(request.POST)
@@ -1422,6 +1456,37 @@ def vote_on_rec(request, rec_id):
             return redirect(reverse('submissions:pool'))
 
     return redirect(reverse('submissions:pool'))
+
+
+@permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
+def remind_Fellows_to_vote(request):
+    """
+    This method sends an email to all Fellow with pending voting duties.
+    It must be called by and Editorial Administrator.
+    """
+    recommendations_undergoing_voting = (EICRecommendation.objects.filter(
+        submission__status__in=['put_to_EC_voting']))
+    Fellow_emails = []
+    Fellow_names = []
+    for rec in recommendations_undergoing_voting:
+        for Fellow in rec.eligible_to_vote.all():
+            if (Fellow not in rec.voted_for.all()
+                and Fellow not in rec.voted_against.all()
+                and Fellow not in rec.voted_abstain.all()
+                and Fellow.user.email not in Fellow_emails):
+                Fellow_emails.append(Fellow.user.email)
+                Fellow_names.append(str(Fellow))
+    SubmissionUtils.load({'Fellow_emails': Fellow_emails})
+    SubmissionUtils.send_Fellows_voting_reminder_email()
+    ack_message = 'Email reminders have been sent to: <ul>'
+    for name in sorted(Fellow_names):
+        ack_message += '<li>' + name + '</li>'
+    ack_message += '</ul>'
+    context = {'ack_message': Template(ack_message).render(Context({})),
+               'followup_message': 'Return to the ',
+               'followup_link': reverse('submissions:pool'),
+               'followup_link_label': 'Submissions pool'}
+    return render(request, 'scipost/acknowledgement.html', context)
 
 
 @permission_required('scipost.can_fix_College_decision', raise_exception=True)

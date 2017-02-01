@@ -1,8 +1,10 @@
 from django import forms
 from django.core.mail import EmailMessage
 
-from .models import *
+from .models import ThesisLink
 from .helpers import past_years
+
+from scipost.models import Contributor, title_dict
 
 
 class RequestThesisLinkForm(forms.ModelForm):
@@ -54,8 +56,8 @@ class VetThesisLinkForm(RequestThesisLinkForm):
 
             email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
                           + thesislink.requested_by.user.last_name
-                          + ', \n\nThe Thesis Link you have requested, concerning thesis with title '
-                          + thesislink.title + ' by ' + thesislink.author
+                          + ', \n\nThe Thesis Link you have requested, concerning thesis with'
+                          + ' title ' + thesislink.title + ' by ' + thesislink.author
                           + ', has been activated at https://scipost.org/thesis/'
                           + str(thesislink.id) + '.'
                           + '\n\nThank you for your contribution, \nThe SciPost Team.')
@@ -68,8 +70,8 @@ class VetThesisLinkForm(RequestThesisLinkForm):
         elif int(self.cleaned_data['action_option']) == VetThesisLinkForm.REFUSE:
             email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
                           + thesislink.requested_by.user.last_name
-                          + ', \n\nThe Thesis Link you have requested, concerning thesis with title '
-                          + thesislink.title + ' by ' + thesislink.author
+                          + ', \n\nThe Thesis Link you have requested, concerning thesis with'
+                          + ' title ' + thesislink.title + ' by ' + thesislink.author
                           + ', has not been activated for the following reason: '
                           + self.cleaned_data['refusal_reason']
                           + '.\n\nThank you for your interest, \nThe SciPost Team.')
@@ -90,8 +92,8 @@ class VetThesisLinkForm(RequestThesisLinkForm):
             thesislink.save()
             email_text = ('Dear ' + title_dict[thesislink.requested_by.title] + ' '
                           + thesislink.requested_by.user.last_name
-                          + ', \n\nThe Thesis Link you have requested, concerning thesis with title '
-                          + thesislink.title + ' by ' + thesislink.author
+                          + ', \n\nThe Thesis Link you have requested, concerning thesis with'
+                          + ' title ' + thesislink.title + ' by ' + thesislink.author
                           + ', has been activated '
                           '(with slight modifications to your submitted details) at '
                           'https://scipost.org/thesis/' + str(thesislink.id) + '.'

@@ -2,33 +2,29 @@ import datetime
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import User
+from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
-from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect
-from django.views.decorators.csrf import csrf_protect
-from django.db.models import Avg
-from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.http import HttpResponseRedirect
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 
-from .models import *
-from .forms import *
+from .models import ThesisLink
+from .forms import RequestThesisLinkForm, ThesisLinkSearchForm, VetThesisLinkForm
 
 from comments.models import Comment
 from comments.forms import CommentForm
-from scipost.forms import TITLE_CHOICES, AuthenticationForm
+from scipost.forms import TITLE_CHOICES
+from scipost.models import Contributor
 import strings
 
 title_dict = dict(TITLE_CHOICES)  # Convert titles for use in emails
 
+
 ################
 # Theses
 ################
-
 
 @method_decorator(permission_required(
     'scipost.can_request_thesislinks', raise_exception=True), name='dispatch')
@@ -64,9 +60,9 @@ class VetThesisLink(UpdateView):
     def form_valid(self, form):
         # I totally override the form_valid method. I do not call super.
         # This is because, by default, an UpdateView saves the object as instance,
-        # which it builds from the form data. So, the changes (by whom the thesis link was vetted, etc.)
-        # would be lost. Instead, we need the form to save with commit=False, then modify
-        # the vetting fields, and then save.
+        # which it builds from the form data. So, the changes (by whom the thesis link was
+        # vetted, etc.) would be lost. Instead, we need the form to save with commit=False,
+        # then modify the vetting fields, and then save.
 
         # Builds model that reflects changes made during update. Does not yet save.
         self.object = form.save(commit=False)
@@ -102,7 +98,8 @@ def theses(request):
 
     thesislink_recent_list = (ThesisLink.objects
                               .filter(vetted=True,
-                                      latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)))
+                                      latest_activity__gte=timezone.now() + datetime.timedelta(
+                                        days=-7)))
     context = {'form': form, 'thesislink_search_list': thesislink_search_list,
                'thesislink_recent_list': thesislink_recent_list}
     return render(request, 'theses/theses.html', context)

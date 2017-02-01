@@ -22,6 +22,8 @@ SCIPOST_JOURNALS
 UPLOADS
 
 docs/_build
+local_files
+static/
 
 local_files/
 static/
