@@ -26,36 +26,9 @@ from scipost.models import Contributor
 from guardian.decorators import permission_required
 
 
-# from requests.adapters import HTTPAdapter
-# from requests.packages.urllib3.poolmanager import PoolManager
-# import ssl
-
-# class MyAdapter(HTTPAdapter):
-#     def init_poolmanager(self, connections, maxsize, block=False):
-#         self.poolmanager = PoolManager(num_pools=connections,
-#                                        maxsize=maxsize,
-#                                        block=block,
-#                                        ssl_version=ssl.PROTOCOL_TLSv1)
-
 ############
 # Journals
 ############
-
-
-# Utilities
-
-# @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-# @transaction.atomic
-# def open_new_issue(request):
-#     """
-#     For a Journal/Volume, creates a new issue.
-#     """
-
-#     settings.JOURNALS_DIR
-#     + journal_name_abbrev_doi(publication.in_issue.in_volume.in_journal.name)
-#     + '/' + str(publication.in_issue.in_volume.number)
-#     + '/' + str(publication.in_issue.number)
-
 
 def journals(request):
     return render(request, 'journals/journals.html')
@@ -586,40 +559,6 @@ def create_metadata_xml(request, doi_string):
     return render(request, 'journals/create_metadata_xml.html', context)
 
 
-# @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-# @transaction.atomic
-# def test_metadata_xml_deposit(request, doi_string):
-#     """
-#     Prior to the actual Crossref metadata deposit,
-#     test the metadata_xml using the Crossref test server.
-#     Makes use of the python requests module.
-#     """
-#     publication = get_object_or_404 (Publication, doi_string=doi_string)
-#     url = 'http://test.crossref.org/servlet/deposit'
-#     #headers = {'Content-type': 'multipart/form-data'}
-#     params = {'operation': 'doMDUpload',
-#               'login_id': settings.CROSSREF_LOGIN_ID,
-#               'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
-#           }
-#     files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data')}
-#     r = requests.post(url,
-#                       params=params,
-#                       files=files,
-#                       #verify=settings.CERTFILE,
-#                       #verify=False,
-#     )
-#     #s = requests.Session()
-#     #s.mount('https://', MyAdapter())
-#     #r = s.post(url, params=params, files=files)
-#     response_headers = r.headers
-#     response_text = r.text
-#     context = {'publication': publication,
-#                'response_headers': response_headers,
-#                'response_text': response_text,
-#     }
-#     return render(request, 'journals/test_metadata_xml_deposit.html', context)
-
-
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
 def metadata_xml_deposit(request, doi_string, option='test'):
@@ -634,7 +573,7 @@ def metadata_xml_deposit(request, doi_string, option='test'):
     elif option == 'test':
         url = 'http://test.crossref.org/servlet/deposit'
     else:
-        {'errormessage': 'metadata_xml_deposit can only be called with options test or deposit', }
+        errormessage = 'metadata_xml_deposit can only be called with options test or deposit'
         return render(request, 'scipost/error.html', context={'errormessage': errormessage})
 
     params = {
