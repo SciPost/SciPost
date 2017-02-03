@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 from .models import *
 
 from commentaries.models import Commentary
-from scipost.models import Contributor
+from scipost.models import TimeStampedModel, Contributor
 from submissions.models import Submission, Report
 from theses.models import ThesisLink
 
@@ -34,7 +34,7 @@ COMMENT_STATUS = (
 comment_status_dict = dict(COMMENT_STATUS)
 
 
-class Comment(models.Model):
+class Comment(TimeStampedModel):
     """ A Comment is an unsollicited note, submitted by a Contributor,
     on a particular publication or in reply to an earlier Comment. """
 
@@ -42,7 +42,7 @@ class Comment(models.Model):
     vetted_by = models.ForeignKey(Contributor, blank=True, null=True,
                                   on_delete=models.CASCADE,
                                   related_name='comment_vetted_by')
-    # a Comment is either for a Commentary or Submission
+    # a Comment is either for a Commentary or Submission or a ThesisLink.
     commentary = models.ForeignKey(Commentary, blank=True, null=True, on_delete=models.CASCADE)
     submission = models.ForeignKey(Submission, blank=True, null=True, on_delete=models.CASCADE)
     thesislink = models.ForeignKey(ThesisLink, blank=True, null=True, on_delete=models.CASCADE)

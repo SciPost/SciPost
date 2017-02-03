@@ -1,13 +1,11 @@
 from django.utils import timezone
 from django.db import models
-from django.contrib.auth.models import User
 from django.template import Template, Context
 
-from .models import *
-
-from journals.models import *
-from scipost.constants import SCIPOST_DISCIPLINES, subject_areas_dict, disciplines_dict
-from scipost.models import *
+from journals.models import SCIPOST_JOURNALS_DOMAINS, journals_domains_dict
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
+                              subject_areas_dict, disciplines_dict
+from scipost.models import Contributor
 
 
 class ThesisLink(models.Model):
@@ -69,53 +67,13 @@ class ThesisLink(models.Model):
     def __str__(self):
         return self.title
 
-    def header_as_table(self):
-        context = Context({
-            'title': self.title, 'author': self.author,
-            'pub_link': self.pub_link, 'institution': self.institution,
-            'supervisor': self.supervisor, 'defense_date': self.defense_date})
-        header = (
-            '<table>'
-            '<tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>'
-            '<tr><td>Author: </td><td>&nbsp;</td><td>{{ author }}</td></tr>'
-            '<tr><td>As Contributor: </td><td>&nbsp;</td>')
-        if self.author_as_cont.all():
-            for auth in self.author_as_cont.all():
-                header += (
-                    '<td><a href="/contributor/' + str(auth.id) + '">' +
-                    auth.user.first_name + ' ' + auth.user.last_name +
-                    '</a></td>')
-        else:
-            header += '<td>(not claimed)</td>'
-        header += (
-            '</tr>'
-            '<tr><td>Type: </td><td></td><td>' + self.THESIS_TYPES_DICT[self.type] +
-            '</td></tr>'
-            '<tr><td>Discipline: </td><td></td><td>' +
-            disciplines_dict[self.discipline] + '</td></tr>'
-            '<tr><td>Domain: </td><td></td><td>' +
-            journals_domains_dict[self.domain] + '</td></tr>'
-            '<tr><td>Subject area: </td><td></td><td>' +
-            subject_areas_dict[self.subject_area] + '</td></tr>'
-            '<tr><td>URL: </td><td>&nbsp;</td><td><a href="{{ pub_link }}" '
-            'target="_blank">{{ pub_link }}</a></td></tr>'
-            '<tr><td>Degree granting institution: </td><td>&nbsp;</td>'
-            '<td>{{ institution }}</td></tr>'
-            '<tr><td>Supervisor(s): </td><td></td><td>{{ supervisor }}'
-            '</td></tr>' '<tr><td>Defense date: </td><td>&nbsp;</td>'
-            '<td>{{ defense_date }}</td></tr>'
-            '</table>')
-        template = Template(header)
-        return template.render(context)
-
     def header_as_li(self):
         context = Context({
             'id': self.id, 'title': self.title, 'author': self.author,
             'pub_link': self.pub_link, 'institution': self.institution,
             'supervisor': self.supervisor, 'defense_date': self.defense_date,
             'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
-        print(subject_areas_dict)
-        print(self.subject_area in subject_areas_dict)
+
         header = (
             '<li><div class="flex-container">'
             '<div class="flex-whitebox0"><p><a href="/thesis/{{ id }}" '

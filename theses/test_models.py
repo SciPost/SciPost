@@ -8,6 +8,8 @@ from .factories import ThesisLinkFactory
 
 
 class ThesisLinkTestCase(TestCase):
+    fixtures = ['permissions', 'groups']
+
     def test_domain_cannot_be_blank(self):
         thesis_link = ThesisLinkFactory()
         thesis_link.domain = ""

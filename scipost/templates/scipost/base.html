@@ -28,11 +28,15 @@
     {% include 'scipost/navbar.html' %}
     {% include 'scipost/messages.html' %}
 
+
+    <div class="container">
+        {% block page_header %}{% endblock page_header %}
+
+        {% block content %}{% endblock content %}
+    </div>
+
     {% block bodysup %}
     {% endblock bodysup %}
-
-    {% block content %}
-    {% endblock content %}
 
     {% include 'scipost/footer.html' %}
 

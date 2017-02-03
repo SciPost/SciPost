@@ -273,7 +273,7 @@
       <li><a href="{% url 'comments:vet_submitted_comments' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
       {% endif %}
       {% if perms.scipost.can_vet_thesislink_requests %}
-      <li><a href="{% url 'theses:vet_thesislink_requests' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
+      <li><a href="{% url 'theses:unvetted_thesislinks' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
       {% endif %}
       {% if perms.scipost.can_vet_authorship_claims %}
       <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
@@ -282,6 +282,12 @@
       <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
       {% endif %}
     </ul>
+    {% if perms.scipost.can_attend_VGMs %}
+    <h3>Virtual General Meetings</h3>
+    <ul>
+      <li><a href="{% url 'scipost:VGMs' %}">List of VGMs</a></li>
+    </ul>
+    {% endif %}
   </div>
 
   {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' %}
@@ -293,6 +299,7 @@
     <h3>Submissions assignments</h3>
     <ul>
       {% if perms.scipost.can_view_pool %}
+      <li><a href="{% url 'submissions:assignments' %}">Your assignments</a></li>
       <li><a href="{% url 'scipost:Fellow_activity_overview' %}">View assignments overview</a></li>
       {% endif %}
       {% if perms.scipost.can_assign_submissions %}

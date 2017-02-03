@@ -27,4 +27,5 @@ def model_form_data(model, form_class):
 
 
 def filter_keys(dictionary, keys_to_keep):
-    return {key: dictionary[key] for key in keys_to_keep}
+    # Field is empty if not on model.
+    return {key: dictionary.get(key, "") for key in keys_to_keep}
