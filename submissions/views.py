@@ -33,11 +33,10 @@ from journals.models import journals_submit_dict
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, title_dict, Remark, RegistrationInvitation
 
+from scipost.services import ArxivCaller
 from scipost.utils import Utils
 
 from comments.forms import CommentForm
-
-from .services import ArxivCaller
 
 from django.views.generic.edit import CreateView, FormView
 

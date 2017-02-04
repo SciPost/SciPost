@@ -1,6 +1,5 @@
 from django.test import TestCase
 from .services import ArxivCaller
-import pprint
 
 
 class ArxivCallerTest(TestCase):
