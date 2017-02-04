@@ -5,11 +5,15 @@ import requests
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib import messages
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import EmailMessage
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
+from django.views.generic.edit import CreateView
+from django.utils.decorators import method_decorator
 
 from .models import Commentary
 from .forms import RequestCommentaryForm, DOIToQueryForm, IdentifierToQueryForm
@@ -18,42 +22,41 @@ from .forms import VetCommentaryForm, CommentarySearchForm
 from comments.models import Comment
 from comments.forms import CommentForm
 from scipost.models import Contributor
+import strings
+
 
 ################
 # Commentaries
 ################
 
+@method_decorator(permission_required(
+    'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
+class RequestCommentary(LoginRequiredMixin, CreateView):
+    form_class = RequestCommentaryForm
+    template_name = 'commentaries/request_commentary.html'
+    success_url = reverse_lazy('scipost:personal_page')
 
-@login_required
-@permission_required('scipost.can_request_commentary_pages', raise_exception=True)
-def request_commentary(request):
-    form = RequestCommentaryForm(request.POST or None, user=request.user)
-    if request.method == 'POST':
-        if form.is_valid():
-            commentary = form.save(commit=False)
-            commentary.parse_links_into_urls()
-            commentary.save()
+    def get_context_data(self, *args, **kwargs):
+        '''Pass the DOI and identifier forms to the context.'''
+        context = super(RequestCommentary, self).get_context_data(*args, **kwargs)
+        doiform = DOIToQueryForm()
+        identifierform = IdentifierToQueryForm()
 
-            context = {'ack_header': 'Thank you for your request for a Commentary Page',
-                       'ack_message': 'Your request will soon be handled by an Editor. ',
-                       'followup_message': 'Return to your ',
-                       'followup_link': reverse('scipost:personal_page'),
-                       'followup_link_label': 'personal page'}
-            return render(request, 'scipost/acknowledgement.html', context)
+        context['existing_commentary'] = context['form'].get_existing_commentary()
+        context['doiform'] = doiform
+        context['identifierform'] = identifierform
+        return context
 
-        else:
-            doiform = DOIToQueryForm()
-            existing_commentary = form.get_existing_commentary()
-            identifierform = IdentifierToQueryForm()
-            context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
-                       'errormessage': form.errors,
-                       'existing_commentary': existing_commentary}
-            return render(request, 'commentaries/request_commentary.html', context)
+    def get_form_kwargs(self, *args, **kwargs):
+        '''User should be included in the arguments to have a valid form.'''
+        form_kwargs = super(RequestCommentary, self).get_form_kwargs(*args, **kwargs)
+        form_kwargs['user'] = self.request.user
+        return form_kwargs
 
-    doiform = DOIToQueryForm()
-    identifierform = IdentifierToQueryForm()
-    context = {'form': form, 'doiform': doiform, 'identifierform': identifierform}
-    return render(request, 'commentaries/request_commentary.html', context)
+    def form_valid(self, form):
+        form.instance.parse_links_into_urls()
+        messages.success(self.request, strings.acknowledge_request_commentary)
+        return super(RequestCommentary, self).form_valid(form)
 
 
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)

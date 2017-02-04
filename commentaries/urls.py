@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.conf.urls import url
 from django.views.generic import TemplateView
 
 from . import views
@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^(?P<arxiv_or_DOI_string>arXiv:[0-9]{4,}.[0-9]{5,}(v[0-9]+)?)/$', views.commentary_detail, name='commentary'),
     # old style identifiers:
     url(r'^(?P<arxiv_or_DOI_string>arXiv:[a-z-]+/[0-9]{7,}(v[0-9]+)?)/$', views.commentary_detail, name='commentary'),
-    url(r'^request_commentary$', views.request_commentary, name='request_commentary'),
+    url(r'^request_commentary$', views.RequestCommentary.as_view(), name='request_commentary'),
     url(r'^prefill_using_DOI$', views.prefill_using_DOI, name='prefill_using_DOI'),
     url(r'^prefill_using_identifier$', views.prefill_using_identifier, name='prefill_using_identifier'),
     url(r'^vet_commentary_requests$', views.vet_commentary_requests, name='vet_commentary_requests'),

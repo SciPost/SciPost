@@ -173,7 +173,7 @@ class Commentary(TimeStampedModel):
         template = Template(header)
         return template.render(context)
 
-    def parse_links_into_urls(self):
+    def parse_links_into_urls(self, commit=False):
         """ Takes the arXiv nr or DOI and turns it into the urls """
         if self.pub_DOI:
             self.arxiv_or_DOI_string = self.pub_DOI
@@ -181,9 +181,9 @@ class Commentary(TimeStampedModel):
         elif self.arxiv_identifier:
             self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_identifier
             self.arxiv_link = 'http://arxiv.org/abs/' + self.arxiv_identifier
-        else:  # should never come here
-            pass
-        self.save()
+
+        if commit:
+            self.save()
 
     def scipost_url(self):
         """ Returns the url of the SciPost Commentary Page """
