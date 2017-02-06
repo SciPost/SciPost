@@ -144,8 +144,8 @@ class PrefillUsingIdentifierView(FormView):
         identifierform = SubmissionIdentifierForm(request.POST)
         if identifierform.is_valid():
             # Use the ArxivCaller class to make the API calls
-            caller = ArxivCaller(Submission)
-            caller.process(identifierform.cleaned_data['identifier'])
+            caller = ArxivCaller(Submission, identifierform.cleaned_data['identifier'])
+            caller.process()
 
             if caller.is_valid():
                 # Arxiv response is valid and can be shown

@@ -6,136 +6,209 @@ import re
 from .behaviors import ArxivCallable
 
 
-class ArxivCaller():
+class BaseCaller(object):
+    '''Base mixin for caller (Arxiv, DOI).
+
+    An actual caller should inherit at least the following:
+    > Properties:
+      - query_base_url
+      - caller_regex
+    > Methods:
+      - process()
+    '''
+    # State of the caller
+    _is_processed = False
+    caller_regex = None
+    errorcode = None
+    identifier_without_vn_nr = ''
+    identifier_with_vn_nr = ''
+    metadata = {}
+    query_base_url = None
+    target_object = None
+    version_nr = None
+
+    def __init__(self, target_object, identifier, *args, **kwargs):
+        '''Initiate the Caller by assigning which object is used
+        the Arxiv identifier to be called.
+
+        After initiating call in specific order:
+        - process()
+        - is_valid()
+
+        Keyword arguments:
+        target_object -- The model calling the Caller (object)
+        identifier    -- The identifier used for the call (string)
+        '''
+        try:
+            self._check_valid_caller()
+        except NotImplementedError as e:
+            print('Caller invalid: %s' % e)
+            return
+
+        # Set given arguments
+        self.target_object = target_object
+        self.identifier = identifier
+        self._precheck_if_valid()
+        super(BaseCaller, self).__init__(*args, **kwargs)
+
+    def _check_identifier(self):
+        '''Split the given identifier in an article identifier and version number.'''
+        if not self.caller_regex:
+            raise NotImplementedError('No regex is set for this caller')
+
+        if re.match(self.caller_regex, self.identifier):
+            self.identifier_without_vn_nr = self.identifier.rpartition('v')[0]
+            self.identifier_with_vn_nr = self.identifier
+            self.version_nr = int(self.identifier.rpartition('v')[2])
+        else:
+            raise ValueError('bad_identifier')
+
+    def _check_valid_caller(self):
+        '''Check if all methods and variables are set appropriately'''
+        if not self.query_base_url:
+            raise NotImplementedError('No `query_base_url` set')
+
+    def _precheck_duplicate(self):
+        '''Check if identifier for object already exists.'''
+        if self.target_object.same_version_exists(self.identifier_with_vn_nr):
+            raise ValueError('preprint_already_submitted')
+
+    def _precheck_previous_submissions_are_valid(self):
+        '''Check if previous submitted versions have the appropriate status.'''
+        self.previous_submissions = self.target_object.different_versions(
+                                        self.identifier_without_vn_nr)
+        if self.previous_submissions:
+            for submission in [self.previous_submissions[0]]:
+                if submission.status == 'revision_requested':
+                    self.resubmission = True
+                elif submission.status in ['rejected', 'rejected_visible']:
+                    raise ValueError('previous_submissions_rejected')
+                else:
+                    raise ValueError('previous_submission_undergoing_refereeing')
+
+    def _precheck_if_valid(self):
+        '''The master method to perform all checks required during initializing Caller.'''
+        try:
+            self._check_identifier()
+            self._precheck_duplicate()
+            self._precheck_previous_submissions_are_valid()
+            # More tests should be called right here...!
+        except ValueError as e:
+            self.errorcode = str(e)
+
+        return not self.errorcode
+
+    def _post_process_checks(self):
+        '''Perform checks after process, to check received data.
+
+        Return:
+        None -- Raise ValueError with error code for an invalid check.
+        '''
+        pass
+
+    def is_valid(self):
+        '''Check if the process() call received valid data.
+
+        If `is_valid()` is overwritten in the actual caller, be
+        sure to call this parent method in the last line!
+
+        Return:
+        boolean -- True for valid data received. False otherwise.
+        '''
+        if self.errorcode:
+            return False
+        if not self._is_processed:
+            raise ValueError('`process()` should be called first!')
+        return True
+
+    def process(self):
+        '''Call to receive data.
+
+        The `process()` should be implemented in the actual
+        caller be! Be sure to call this parent method in the last line!
+        '''
+        try:
+            self._post_process_checks()
+        except ValueError as e:
+            self.errorcode = str(e)
+
+        self._is_processed = True
+
+
+class DOICaller(BaseCaller):
+    """Perform a DOI lookup for a given identifier."""
+    pass
+
+
+class ArxivCaller(BaseCaller):
     """ Performs an Arxiv article lookup for given identifier """
 
-    # State of the caller
-    isvalid = None
-    target_object = None
-    errorcode = ''
+    # # State of the caller
     resubmission = False
     previous_submissions = []
     arxiv_journal_ref = ''
     arxiv_doi = ''
     metadata = {}
     query_base_url = 'http://export.arxiv.org/api/query?id_list=%s'
-    identifier_without_vn_nr = ''
-    identifier_with_vn_nr = ''
-    version_nr = None
+    caller_regex = "^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$"
 
-    def __init__(self, target_object):
+    def __init__(self, target_object, identifier):
         if not issubclass(target_object, ArxivCallable):
             raise TypeError('Given target_object is not an ArxivCallable object.')
+        super(ArxivCaller, self).__init__(target_object, identifier)
 
-        self.target_object = target_object
-
-    def is_valid(self):
-        if self.isvalid is None:
-            print("Run process() first")
-            return False
-        return self.isvalid
-
-    def process(self, identifier):
-        # ============================= #
-        # Pre-checks                    #
-        # ============================= #
-        if self.same_version_exists(identifier):
-            self.errorcode = 'preprint_already_submitted'
-            self.isvalid = False
+    def process(self):
+        '''Do the actual call the receive Arxiv information.'''
+        if self.errorcode:
             return
 
-        # Split the given identifier in an article identifier and version number
-        if re.match("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$", identifier) is None:
-            self.errorcode = 'bad_identifier'
-            self.isvalid = False
-            return
-
-        self.identifier_without_vn_nr = identifier.rpartition('v')[0]
-        self.identifier_with_vn_nr = identifier
-        self.version_nr = int(identifier.rpartition('v')[2])
-
-        previous_submissions = self.different_versions(self.identifier_without_vn_nr)
-        if previous_submissions:
-            if previous_submissions[0].status == 'revision_requested':
-                self.resubmission = True
-                self.previous_submissions = previous_submissions
-            elif previous_submissions[0].status in ['rejected', 'rejected_visible']:
-                self.errorcode = 'previous_submissions_rejected'
-                self.isvalid = False
-                return
-            else:
-                self.errorcode = 'previous_submission_undergoing_refereeing'
-                self.isvalid = False
-                return
-
-        # ============================= #
-        # Arxiv query                   #
-        # ============================= #
-        queryurl = (self.query_base_url % identifier)
+        queryurl = (self.query_base_url % self.identifier_with_vn_nr)
 
         try:
-            req = requests.get(queryurl, timeout=4.0)
+            self._response = requests.get(queryurl, timeout=4.0)
         except requests.ReadTimeout:
             self.errorcode = 'arxiv_timeout'
-            self.isvalid = False
             return
         except requests.ConnectionError:
             self.errorcode = 'arxiv_timeout'
-            self.isvalid = False
             return
 
-        content = req.content
-        arxiv_response = feedparser.parse(content)
+        self._response_content = feedparser.parse(self._response.content)
 
+        super(ArxivCaller, self).process()
+
+    def _post_process_checks(self):
         # Check if response has at least one entry
-        if req.status_code == 400 or 'entries' not in arxiv_response:
-            self.errorcode = 'arxiv_bad_request'
-            self.isvalid = False
-            return
-
-        # arxiv_response['entries'][0]['title'] == 'Error'
+        if self._response.status_code == 400 or 'entries' not in self._response_content:
+            raise ValueError('arxiv_bad_request')
 
         # Check if preprint exists
-        if not self.preprint_exists(arxiv_response):
-            self.errorcode = 'preprint_does_not_exist'
-            self.isvalid = False
-            return
+        if not self.preprint_exists():
+            raise ValueError('preprint_does_not_exist')
 
         # Check via journal ref if already published
-        self.arxiv_journal_ref = self.published_journal_ref(arxiv_response)
+        self.arxiv_journal_ref = self.published_journal_ref()
         if self.arxiv_journal_ref:
-            self.errorcode = 'paper_published_journal_ref'
-            self.isvalid = False
-            return
+            raise ValueError('paper_published_journal_ref')
 
         # Check via DOI if already published
-        self.arxiv_doi = self.published_doi(arxiv_response)
+        self.arxiv_doi = self.published_doi()
         if self.arxiv_doi:
-            self.errorcode = 'paper_published_doi'
-            self.isvalid = False
-            return
+            raise ValueError('paper_published_doi')
 
-        self.metadata = arxiv_response
-        self.isvalid = True
-        return
+        self.metadata = self._response_content
 
-    def same_version_exists(self, identifier):
-        return self.target_object.same_version_exists(identifier)
+    def preprint_exists(self):
+        return 'title' in self._response_content['entries'][0]
 
-    def different_versions(self, identifier):
-        return self.target_object.different_versions(identifier)
-
-    def preprint_exists(self, arxiv_response):
-        return 'title' in arxiv_response['entries'][0]
-
-    def published_journal_ref(self, arxiv_response):
-        if 'arxiv_journal_ref' in arxiv_response['entries'][0]:
-            return arxiv_response['entries'][0]['arxiv_journal_ref']
+    def published_journal_ref(self):
+        if 'arxiv_journal_ref' in self._response_content['entries'][0]:
+            return self._response_content['entries'][0]['arxiv_journal_ref']
         else:
             return False
 
-    def published_doi(self, arxiv_response):
-        if 'arxiv_doi' in arxiv_response['entries'][0]:
-            return arxiv_response['entries'][0]['arxiv_doi']
+    def published_doi(self):
+        if 'arxiv_doi' in self._response_content['entries'][0]:
+            return self._response_content['entries'][0]['arxiv_doi']
         else:
             return False
