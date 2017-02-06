@@ -5,9 +5,9 @@ from django.db import models, transaction
 from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
 
-from scipost.models import ChoiceArrayField, Contributor, title_dict
+from scipost.behaviors import ArxivCallable
+from scipost.models import ChoiceArrayField, Contributor, TITLE_CHOICES, title_dict
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict
-from scipost.models import TITLE_CHOICES
 from journals.models import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import journals_submit_dict, journals_domains_dict
 from journals.models import Publication
@@ -98,7 +98,7 @@ SUBMISSION_TYPE = (
 submission_type_dict = dict(SUBMISSION_TYPE)
 
 
-class Submission(models.Model):
+class Submission(ArxivCallable, models.Model):
     # Main submission fields
     author_comments = models.TextField(blank=True, null=True)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
@@ -182,6 +182,14 @@ class Submission(models.Model):
             self.authors.add(self.submitted_by)
 
         self.save()
+
+    @classmethod
+    def same_version_exists(self, identifier):
+        return self.objects.filter(arxiv_identifier_w_vn_nr=identifier).exists()
+
+    @classmethod
+    def different_versions(self, identifier):
+        return self.objects.filter(arxiv_identifier_wo_vn_nr=identifier).order_by('-arxiv_vn_nr')
 
     def make_assignment(self):
         assignment = EditorialAssignment(

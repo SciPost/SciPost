@@ -144,7 +144,7 @@ class PrefillUsingIdentifierView(FormView):
         identifierform = SubmissionIdentifierForm(request.POST)
         if identifierform.is_valid():
             # Use the ArxivCaller class to make the API calls
-            caller = ArxivCaller()
+            caller = ArxivCaller(Submission)
             caller.process(identifierform.cleaned_data['identifier'])
 
             if caller.is_valid():

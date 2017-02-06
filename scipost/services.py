@@ -3,7 +3,7 @@ import feedparser
 import requests
 import re
 
-from .models import Submission
+from .behaviors import ArxivCallable
 
 
 class ArxivCaller():
@@ -11,6 +11,7 @@ class ArxivCaller():
 
     # State of the caller
     isvalid = None
+    target_object = None
     errorcode = ''
     resubmission = False
     previous_submissions = []
@@ -22,8 +23,11 @@ class ArxivCaller():
     identifier_with_vn_nr = ''
     version_nr = None
 
-    def __init__(self):
-        pass
+    def __init__(self, target_object):
+        if not issubclass(target_object, ArxivCallable):
+            raise TypeError('Given target_object is not an ArxivCallable object.')
+
+        self.target_object = target_object
 
     def is_valid(self):
         if self.isvalid is None:
@@ -116,20 +120,10 @@ class ArxivCaller():
         return
 
     def same_version_exists(self, identifier):
-        return Submission.objects.filter(arxiv_identifier_w_vn_nr=identifier).exists()
+        return self.target_object.same_version_exists(identifier)
 
     def different_versions(self, identifier):
-        return Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=identifier).order_by('-arxiv_vn_nr')
-
-    def check_previous_submissions(self, identifier):
-        previous_submissions = Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=identifier).order_by('-arxiv_vn_nr')
-
-        if previous_submissions:
-            return not previous_submissions[0].status == 'revision_requested'
-        else:
-            return False
+        return self.target_object.different_versions(identifier)
 
     def preprint_exists(self, arxiv_response):
         return 'title' in arxiv_response['entries'][0]
