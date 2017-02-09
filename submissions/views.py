@@ -277,6 +277,16 @@ class SubmissionCreateView(CreateView):
             ed_admins = Group.objects.get(name='Editorial Administrators')
             assign_perm('can_take_editorial_actions', ed_admins, submission)
 
+            # Assign editor
+            assignment = EditorialAssignment(
+                submission=submission,
+                to=submission.editor_in_charge,
+                accepted=True,
+                date_created=timezone.now(),
+                date_answered=timezone.now(),
+            )
+            assignment.save()
+
             # Send emails
             SubmissionUtils.load({'submission': submission})
             SubmissionUtils.send_authors_resubmission_ack_email()
