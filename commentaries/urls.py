@@ -18,7 +18,8 @@ urlpatterns = [
     url(r'^(?P<arxiv_or_DOI_string>arXiv:[a-z-]+/[0-9]{7,}(v[0-9]+)?)/$', views.commentary_detail, name='commentary'),
     url(r'^request_commentary$', views.RequestCommentary.as_view(), name='request_commentary'),
     url(r'^prefill_using_DOI$', views.prefill_using_DOI, name='prefill_using_DOI'),
-    url(r'^prefill_using_identifier$', views.prefill_using_identifier, name='prefill_using_identifier'),
+    # url(r'^prefill_using_identifier$', views.prefill_using_identifier, name='prefill_using_identifier'),
+    url(r'^prefill_using_identifier$', views.PrefillUsingIdentifierView.as_view(), name='prefill_using_identifier'),
     url(r'^vet_commentary_requests$', views.vet_commentary_requests, name='vet_commentary_requests'),
     url(r'^vet_commentary_request_ack/(?P<commentary_id>[0-9]+)$', views.vet_commentary_request_ack, name='vet_commentary_request_ack'),
 ]

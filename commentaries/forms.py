@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.shortcuts import get_object_or_404
 
@@ -15,6 +17,29 @@ class IdentifierToQueryForm(forms.Form):
     identifier = forms.CharField(widget=forms.TextInput(
         {'label': 'arXiv identifier',
          'placeholder': 'new style ####.####(#)v# or old-style e.g. cond-mat/#######'}))
+
+    def clean(self, *args, **kwargs):
+        cleaned_data = super(IdentifierToQueryForm, self).clean(*args, **kwargs)
+
+        identifierpattern_new = re.compile("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$")
+        identifierpattern_old = re.compile("^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$")
+
+        if not (identifierpattern_new.match(cleaned_data['identifier']) or
+                identifierpattern_old.match(cleaned_data['identifier'])):
+                msg = ('The identifier you entered is improperly formatted '
+                       '(did you forget the version number?).')
+                self.add_error('identifier', msg)
+
+        try:
+            commentary = Commentary.objects.get(arxiv_identifier=cleaned_data['identifier'])
+        except (Commentary.DoesNotExist, KeyError):
+            # Commentary either does not exists or form is invalid
+            commentary = None
+
+        if commentary:
+            msg = 'There already exists a Commentary Page on this preprint, see %s' % commentary.header_as_li()
+            self.add_error('identifier', msg)
+        return cleaned_data
 
 
 class RequestCommentaryForm(forms.ModelForm):

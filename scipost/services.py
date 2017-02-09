@@ -8,6 +8,8 @@ from .behaviors import ArxivCallable
 
 class BaseCaller(object):
     '''Base mixin for caller (Arxiv, DOI).
+    The basic workflow is to initiate the caller, call process() to make the actual call
+    followed by is_valid() to validate the response of the call.
 
     An actual caller should inherit at least the following:
     > Properties:
@@ -75,8 +77,13 @@ class BaseCaller(object):
 
     def _precheck_previous_submissions_are_valid(self):
         '''Check if previous submitted versions have the appropriate status.'''
-        self.previous_submissions = self.target_object.different_versions(
+        try:
+            self.previous_submissions = self.target_object.different_versions(
                                         self.identifier_without_vn_nr)
+        except AttributeError:
+            # Commentaries do not have previous version numbers?
+            pass
+
         if self.previous_submissions:
             for submission in [self.previous_submissions[0]]:
                 if submission.status == 'revision_requested':
@@ -204,11 +211,9 @@ class ArxivCaller(BaseCaller):
     def published_journal_ref(self):
         if 'arxiv_journal_ref' in self._response_content['entries'][0]:
             return self._response_content['entries'][0]['arxiv_journal_ref']
-        else:
-            return False
+        return None
 
     def published_doi(self):
         if 'arxiv_doi' in self._response_content['entries'][0]:
             return self._response_content['entries'][0]['arxiv_doi']
-        else:
-            return False
+        return None

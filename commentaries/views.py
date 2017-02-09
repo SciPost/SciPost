@@ -12,7 +12,7 @@ from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, FormView
 from django.utils.decorators import method_decorator
 
 from .models import Commentary
@@ -22,6 +22,8 @@ from .forms import VetCommentaryForm, CommentarySearchForm
 from comments.models import Comment
 from comments.forms import CommentForm
 from scipost.models import Contributor
+from scipost.services import ArxivCaller
+
 import strings
 
 
@@ -29,23 +31,26 @@ import strings
 # Commentaries
 ################
 
+class RequestCommentaryMixin(object):
+    def get_context_data(self, **kwargs):
+        '''Pass the DOI and identifier forms to the context.'''
+        if 'request_commentary_form' not in kwargs:
+            # Only intercept if not prefilled
+            kwargs['request_commentary_form'] = RequestCommentaryForm()
+        context = super(RequestCommentaryMixin, self).get_context_data(**kwargs)
+
+        context['existing_commentary'] = None  # context['request_commentary_form'].get_existing_commentary()
+        context['doiform'] = DOIToQueryForm()
+        context['identifierform'] = IdentifierToQueryForm()
+        return context
+
+
 @method_decorator(permission_required(
     'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
-class RequestCommentary(LoginRequiredMixin, CreateView):
+class RequestCommentary(LoginRequiredMixin, RequestCommentaryMixin, CreateView):
     form_class = RequestCommentaryForm
     template_name = 'commentaries/request_commentary.html'
     success_url = reverse_lazy('scipost:personal_page')
-
-    def get_context_data(self, *args, **kwargs):
-        '''Pass the DOI and identifier forms to the context.'''
-        context = super(RequestCommentary, self).get_context_data(*args, **kwargs)
-        doiform = DOIToQueryForm()
-        identifierform = IdentifierToQueryForm()
-
-        context['existing_commentary'] = context['form'].get_existing_commentary()
-        context['doiform'] = doiform
-        context['identifierform'] = identifierform
-        return context
 
     def get_form_kwargs(self, *args, **kwargs):
         '''User should be included in the arguments to have a valid form.'''
@@ -140,92 +145,165 @@ def prefill_using_DOI(request):
     return redirect(reverse('commentaries:request_commentary'))
 
 
-@permission_required('scipost.can_request_commentary_pages', raise_exception=True)
-def prefill_using_identifier(request):
-    """Probes arXiv with the identifier, to pre-fill the form"""
-    if request.method == "POST":
-        identifierform = IdentifierToQueryForm(request.POST)
-        if identifierform.is_valid():
-            # Check if given identifier is of expected form:
-            # we allow 1 or 2 digits for version
-            identifierpattern_new = re.compile("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$")
-            identifierpattern_old = re.compile("^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$")
-            errormessage = ''
-            existing_commentary = None
-            if not (identifierpattern_new.match(identifierform.cleaned_data['identifier']) or
-                    identifierpattern_old.match(identifierform.cleaned_data['identifier'])):
-                errormessage = ('The identifier you entered is improperly formatted '
-                                '(did you forget the version number?).')
-            elif (Commentary.objects
-                  .filter(arxiv_identifier=identifierform.cleaned_data['identifier']).exists()):
-                errormessage = 'There already exists a Commentary Page on this preprint, see'
-                existing_commentary = get_object_or_404(
-                    Commentary, arxiv_identifier=identifierform.cleaned_data['identifier'])
-            if errormessage:
-                form = RequestCommentaryForm()
-                doiform = DOIToQueryForm()
-                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
-                           'errormessage': errormessage,
-                           'existing_commentary': existing_commentary}
-                return render(request, 'commentaries/request_commentary.html', context)
-            # Otherwise we query arXiv for the information:
-            try:
-                queryurl = ('http://export.arxiv.org/api/query?id_list=%s'
-                            % identifierform.cleaned_data['identifier'])
-                arxivquery = feedparser.parse(queryurl)
+# @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
+# def prefill_using_identifier(request):
+#     """Probes arXiv with the identifier, to pre-fill the form"""
+#     if request.method == "POST":
+#         identifierform = IdentifierToQueryForm(request.POST)
+#         if identifierform.is_valid():
+#             # Check if given identifier is of expected form:
+#             # we allow 1 or 2 digits for version
+#             identifierpattern_new = re.compile("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$")
+#             identifierpattern_old = re.compile("^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$")
+#             errormessage = ''
+#             existing_commentary = None
+#             if not (identifierpattern_new.match(identifierform.cleaned_data['identifier']) or
+#                     identifierpattern_old.match(identifierform.cleaned_data['identifier'])):
+#                 errormessage = ('The identifier you entered is improperly formatted '
+#                                 '(did you forget the version number?).')
+#             elif (Commentary.objects
+#                   .filter(arxiv_identifier=identifierform.cleaned_data['identifier']).exists()):
+#                 errormessage = 'There already exists a Commentary Page on this preprint, see'
+#                 existing_commentary = get_object_or_404(
+#                     Commentary, arxiv_identifier=identifierform.cleaned_data['identifier'])
+#             if errormessage:
+#                 form = RequestCommentaryForm()
+#                 doiform = DOIToQueryForm()
+#                 context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
+#                            'errormessage': errormessage,
+#                            'existing_commentary': existing_commentary}
+#                 return render(request, 'commentaries/request_commentary.html', context)
+#             # Otherwise we query arXiv for the information:
+#             try:
+#                 queryurl = ('http://export.arxiv.org/api/query?id_list=%s'
+#                             % identifierform.cleaned_data['identifier'])
+#                 arxivquery = feedparser.parse(queryurl)
+#
+#                 # If paper has been published, should comment on published version
+#                 try:
+#                     arxiv_journal_ref = arxivquery['entries'][0]['arxiv_journal_ref']
+#                     errormessage = ('This paper has been published as ' + arxiv_journal_ref
+#                                     + '. Please comment on the published version.')
+#                 except (IndexError, KeyError):
+#                     pass
+#                 try:
+#                     arxiv_doi = arxivquery['entries'][0]['arxiv_doi']
+#                     errormessage = ('This paper has been published under DOI ' + arxiv_doi
+#                                     + '. Please comment on the published version.')
+#                 except (IndexError, KeyError):
+#                     pass
+#
+#                 if errormessage:
+#                     form = RequestCommentaryForm()
+#                     doiform = DOIToQueryForm()
+#                     context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
+#                                'errormessage': errormessage,
+#                                'existing_commentary': existing_commentary}
+#                     return render(request, 'commentaries/request_commentary.html', context)
+#
+#                 # otherwise prefill the form:
+#                 metadata = arxivquery
+#                 pub_title = arxivquery['entries'][0]['title']
+#                 authorlist = arxivquery['entries'][0]['authors'][0]['name']
+#                 for author in arxivquery['entries'][0]['authors'][1:]:
+#                     authorlist += ', ' + author['name']
+#                 arxiv_link = arxivquery['entries'][0]['id']
+#                 abstract = arxivquery['entries'][0]['summary']
+#                 form = RequestCommentaryForm(
+#                     initial={'type': 'preprint', 'metadata': metadata,
+#                              'pub_title': pub_title, 'author_list': authorlist,
+#                              'arxiv_identifier': identifierform.cleaned_data['identifier'],
+#                              'arxiv_link': arxiv_link, 'pub_abstract': abstract})
+#                 doiform = DOIToQueryForm()
+#                 context = {'form': form, 'doiform': doiform, 'identifierform': identifierform}
+#                 context['title'] = pub_title
+#                 return render(request, 'commentaries/request_commentary.html', context)
+#             except (IndexError, KeyError, ValueError):
+#                 # something went wrong with processing the arXiv data
+#                 errormessage = ('An error occurred while processing the arXiv data.'
+#                                 ' Are you sure this identifier exists?')
+#                 form = RequestCommentaryForm()
+#                 doiform = DOIToQueryForm()
+#                 context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
+#                            'errormessage': errormessage,
+#                            'existing_commentary': existing_commentary}
+#                 return render(request, 'commentaries/request_commentary.html', context)
+#         else:
+#             pass
+#     return redirect(reverse('commentaries:request_commentary'))
 
-                # If paper has been published, should comment on published version
-                try:
-                    arxiv_journal_ref = arxivquery['entries'][0]['arxiv_journal_ref']
-                    errormessage = ('This paper has been published as ' + arxiv_journal_ref
-                                    + '. Please comment on the published version.')
-                except (IndexError, KeyError):
-                    pass
-                try:
-                    arxiv_doi = arxivquery['entries'][0]['arxiv_doi']
-                    errormessage = ('This paper has been published under DOI ' + arxiv_doi
-                                    + '. Please comment on the published version.')
-                except (IndexError, KeyError):
-                    pass
+# CHECK PERMISSIONS !
+class PrefillUsingIdentifierView(RequestCommentaryMixin, FormView):
+    form_class = IdentifierToQueryForm
+    template_name = 'commentaries/request_commentary.html'
 
-                if errormessage:
-                    form = RequestCommentaryForm()
-                    doiform = DOIToQueryForm()
-                    context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
-                               'errormessage': errormessage,
-                               'existing_commentary': existing_commentary}
-                    return render(request, 'commentaries/request_commentary.html', context)
+    def form_valid(self, identifierform):
+        '''Prefill using the ArxivCaller if the Identifier is valid'''
+        caller = ArxivCaller(Commentary, identifierform.cleaned_data['identifier'])
+        caller.process()
 
-                # otherwise prefill the form:
-                metadata = arxivquery
-                pub_title = arxivquery['entries'][0]['title']
-                authorlist = arxivquery['entries'][0]['authors'][0]['name']
-                for author in arxivquery['entries'][0]['authors'][1:]:
-                    authorlist += ', ' + author['name']
-                arxiv_link = arxivquery['entries'][0]['id']
-                abstract = arxivquery['entries'][0]['summary']
-                form = RequestCommentaryForm(
-                    initial={'type': 'preprint', 'metadata': metadata,
-                             'pub_title': pub_title, 'author_list': authorlist,
-                             'arxiv_identifier': identifierform.cleaned_data['identifier'],
-                             'arxiv_link': arxiv_link, 'pub_abstract': abstract})
-                doiform = DOIToQueryForm()
-                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform}
-                context['title'] = pub_title
-                return render(request, 'commentaries/request_commentary.html', context)
-            except (IndexError, KeyError, ValueError):
-                # something went wrong with processing the arXiv data
-                errormessage = ('An error occurred while processing the arXiv data.'
-                                ' Are you sure this identifier exists?')
-                form = RequestCommentaryForm()
-                doiform = DOIToQueryForm()
-                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
-                           'errormessage': errormessage,
-                           'existing_commentary': existing_commentary}
-                return render(request, 'commentaries/request_commentary.html', context)
+        if caller.is_valid():
+            # Prefill the form
+            metadata = caller.metadata
+            pub_title = metadata['entries'][0]['title']
+            authorlist = metadata['entries'][0]['authors'][0]['name']
+            for author in metadata['entries'][0]['authors'][1:]:
+                authorlist += ', ' + author['name']
+            arxiv_link = metadata['entries'][0]['id']
+            abstract = metadata['entries'][0]['summary']
+
+            initialdata = {
+                'type': 'preprint',
+                'metadata': metadata,
+                'pub_title': pub_title,
+                'author_list': authorlist,
+                'arxiv_identifier': identifierform.cleaned_data['identifier'],
+                'arxiv_link': arxiv_link,
+                'pub_abstract': abstract
+            }
+            context = {
+                'title': pub_title,
+                'request_commentary_form': RequestCommentaryForm(initial=initialdata)
+            }
+            messages.success(self.request, 'Arxiv completed')
+            return render(self.request, 'commentaries/request_commentary.html',
+                          self.get_context_data(**context))
         else:
-            pass
-    return redirect(reverse('commentaries:request_commentary'))
+            # Arxiv response is not valid
+            errormessages = {
+                'preprint_does_not_exist':
+                    'A preprint associated to this identifier does not exist.',
+                'paper_published_journal_ref':
+                    ('This paper has been published as ' + caller.arxiv_journal_ref +
+                     '. Please comment on the published version.'),
+                'paper_published_doi':
+                    ('This paper has been published under DOI ' + caller.arxiv_doi +
+                     '. Please comment on the published version.'),
+                'arxiv_timeout': 'Arxiv did not respond in time. Please try again later',
+                'arxiv_bad_request':
+                    ('There was an error with requesting identifier ' +
+                     caller.identifier_with_vn_nr +
+                     ' from Arxiv. Please check the identifier and try again.'),
+                'previous_submission_undergoing_refereeing':
+                    ('There exists a preprint with this arXiv identifier '
+                     'but an earlier version number, which is still undergoing '
+                     'peer refereeing.'
+                     'A resubmission can only be performed after request '
+                     'from the Editor-in-charge. Please wait until the '
+                     'closing of the previous refereeing round and '
+                     'formulation of the Editorial Recommendation '
+                     'before proceeding with a resubmission.'),
+                'preprint_already_submitted':
+                    'This preprint version has already been submitted to SciPost.',
+                'previous_submissions_rejected':
+                    ('This arXiv preprint has previously undergone refereeing '
+                     'and has been rejected. Resubmission is only possible '
+                     'if the manuscript has been substantially reworked into '
+                     'a new arXiv submission with distinct identifier.')
+            }
+            messages.error(self.request, errormessages[caller.errorcode])
+            return render(self.request, 'commentaries/request_commentary.html',
+                          self.get_context_data(context))
 
 
 @permission_required('scipost.can_vet_commentary_requests', raise_exception=True)

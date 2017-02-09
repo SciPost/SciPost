@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
 
 from journals.models import SCIPOST_JOURNALS_DOMAINS
+from scipost.behaviors import ArxivCallable
 from scipost.models import TimeStampedModel, Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
 
@@ -22,7 +23,7 @@ class CommentaryManager(models.Manager):
         return self.filter(vetted=False, **kwargs)
 
 
-class Commentary(TimeStampedModel):
+class Commentary(ArxivCallable, TimeStampedModel):
     """
     A Commentary contains all the contents of a SciPost Commentary page for a given publication.
     """
@@ -81,6 +82,10 @@ class Commentary(TimeStampedModel):
 
     def __str__(self):
         return self.pub_title
+
+    @classmethod
+    def same_version_exists(self, identifier):
+        return self.objects.filter(arxiv_identifier=identifier).exists()
 
     def header_as_table(self):
         # for display in Commentary page itself

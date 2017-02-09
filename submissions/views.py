@@ -14,8 +14,6 @@ from django.utils import timezone
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
 
-# from .models import *
-# from .forms import *
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication,\
                     SUBMISSION_STATUS_PUBLICLY_UNLISTED, SUBMISSION_STATUS_VOTING_DEPRECATED,\
