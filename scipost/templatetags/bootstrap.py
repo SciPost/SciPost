@@ -12,8 +12,13 @@ register = template.Library()
 
 
 @register.filter
-def bootstrap(element):
-    markup_classes = {'label': 'col-md-2', 'value': 'col-md-10', 'single_value': ''}
+def bootstrap(element, arg='2-10'):
+    ratio = arg.split('-')
+    markup_classes = {
+        'label': 'col-md-%s' % ratio[0],
+        'value': 'col-md-%s' % ratio[1],
+        'single_value': ''
+    }
     return render(element, markup_classes)
 
 
