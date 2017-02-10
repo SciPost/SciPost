@@ -131,6 +131,8 @@ class TestVetThesisLinkRequests(TestCase):
 
         post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm, form_kwargs={'request': request})
         post_data["action_option"] = VetThesisLinkForm.REFUSE
+        post_data["refusal_reason"] = VetThesisLinkForm.ALREADY_EXISTS
+        post_data["justification"] = "This thesis already exists."
         target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
 
         request = RequestFactory().post(target, post_data)
