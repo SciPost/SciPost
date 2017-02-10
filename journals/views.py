@@ -89,7 +89,7 @@ def scipost_physics_about(request):
 
 def scipost_physics_issue_detail(request, volume_nr, issue_nr):
     issue = get_object_or_404(Issue, in_volume__in_journal__name='SciPost Physics',
-                              number=issue_nr)
+                              number=issue_nr, in_volume__number=volume_nr)
     papers = issue.publication_set.order_by('paper_nr')
     context = {'issue': issue, 'papers': papers}
     return render(request, 'journals/scipost_physics_issue_detail.html', context)
