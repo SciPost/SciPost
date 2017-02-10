@@ -124,10 +124,13 @@ class Journal(models.Model):
 
 class Volume(models.Model):
     in_journal = models.ForeignKey(Journal, on_delete=models.CASCADE)
-    number = models.PositiveSmallIntegerField(unique=True)
+    number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
     doi_string = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        unique_together = ('number', 'in_journal')
 
     def __str__(self):
         return str(self.in_journal) + ' Vol. ' + str(self.number)
@@ -135,12 +138,15 @@ class Volume(models.Model):
 
 class Issue(models.Model):
     in_volume = models.ForeignKey(Volume, on_delete=models.CASCADE)
-    number = models.PositiveSmallIntegerField(unique=True)
+    number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
     doi_string = models.CharField(max_length=200, blank=True, null=True)
     # absolute path on filesystem: (JOURNALS_DIR)/journal/vol/issue/
     path = models.CharField(max_length=200)
+
+    class Meta:
+        unique_together = ('number', 'in_volume')
 
     def __str__(self):
         text = str(self.in_volume) + ' issue ' + str(self.number)
