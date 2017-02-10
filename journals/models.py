@@ -124,10 +124,13 @@ class Journal(models.Model):
 
 class Volume(models.Model):
     in_journal = models.ForeignKey(Journal, on_delete=models.CASCADE)
-    number = models.PositiveSmallIntegerField(unique=True)
+    number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
     doi_string = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        unique_together = ('number', 'in_journal')
 
     def __str__(self):
         return str(self.in_journal) + ' Vol. ' + str(self.number)
