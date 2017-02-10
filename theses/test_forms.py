@@ -1,6 +1,6 @@
 import factory
 
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 
 from scipost.factories import ContributorFactory
 from .factories import ThesisLinkFactory, VetThesisLinkFormFactory
@@ -14,30 +14,34 @@ class TestRequestThesisLink(TestCase):
     def setUp(self):
         self.contributor = ContributorFactory()
         self.user = self.contributor.user
+        self.request = RequestFactory()
+        self.request.user = self.user
         self.valid_form_data = model_form_data(
-            ThesisLinkFactory(), RequestThesisLinkForm, form_kwargs={'user': self.user})
+            ThesisLinkFactory(), RequestThesisLinkForm, form_kwargs={'request': self.request})
 
     def test_valid_data_is_valid(self):
         form_data = self.valid_form_data
-        form = RequestThesisLinkForm(self.valid_form_data, user=self.user)
+        form = RequestThesisLinkForm(self.valid_form_data, request=self.request)
         self.assertTrue(form.is_valid())
 
     def test_data_without_user_is_not_valid(self):
         form_data = self.valid_form_data
-        with self.assertRaises(KeyError):
-            RequestThesisLinkForm(self.valid_form_data)
+        request = RequestFactory()
+        with self.assertRaises(AttributeError):
+            RequestThesisLinkForm(self.valid_form_data, request=request)
+        # Should we define a more semantic error like UserNotDefinedError?
+        self.assertTrue(False)
 
     def test_empty_domain_is_invalid(self):
         form_data = self.valid_form_data
         form_data['domain'] = ''
-        form = RequestThesisLinkForm(form_data, user=self.user)
+        form = RequestThesisLinkForm(form_data, request=self.request)
         self.assertEqual(form.errors['domain'], ['This field is required.'])
 
     def test_thesislink_is_requested_by_correct_contributor(self):
         form_data = self.valid_form_data
-        contributor = ContributorFactory()
-        form = RequestThesisLinkForm(form_data, user=contributor.user)
+        form = RequestThesisLinkForm(form_data, request=self.request)
 
         # Check if the user is properly saved to the new ThesisLink as `requested_by`
         thesislink = form.save()
-        self.assertEqual(thesislink.requested_by, contributor)
+        self.assertEqual(thesislink.requested_by, self.contributor)

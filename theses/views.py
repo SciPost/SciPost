@@ -40,7 +40,7 @@ class RequestThesisLink(CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(RequestThesisLink, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
+        kwargs['request'] = self.request
         return kwargs
 
 
@@ -82,7 +82,7 @@ class VetThesisLink(UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super(VetThesisLink, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
+        kwargs['request'] = self.request
         return kwargs
 
 
