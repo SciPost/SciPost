@@ -2,13 +2,13 @@ from django.core.mail import EmailMessage
 
 from scipost.models import title_dict
 
+
 class JournalUtils(object):
 
     @classmethod
     def load(cls, dict):
         for var_name in dict:
             setattr(cls, var_name, dict[var_name])
-
 
     @classmethod
     def send_authors_paper_published_email(cls):
@@ -37,7 +37,6 @@ class JournalUtils(object):
              'admin@scipost.org'],
             reply_to=['admin@scipost.org'])
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def generate_metadata_xml_file(cls):

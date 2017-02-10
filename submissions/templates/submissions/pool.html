@@ -35,6 +35,14 @@ $(document).ready(function(){
 {% if request.user|is_in_group:'Editorial Administrators' and recommendations_undergoing_voting %}
 <section>
   <div class="flex-container">
+    <div class="flex-whitebox">
+      <h3>Administrative actions on recommendations undergoing voting:</h3>
+      <ul>
+	<li>To send an email reminder to each Fellow with at least one voting duty, <a href="{% url 'submissions:remind_Fellows_to_vote' %}">click here</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="flex-container">
     <div class="flex-greybox">
       <h1>Recommendations undergoing voting</h1>
     </div>
@@ -220,6 +228,15 @@ $(document).ready(function(){
     </div>
   </div>
 
+  <h3>Submissions by status:</h3>
+  <ul>
+    {% for key, val in submission_status %}
+    <li><a href="{% url 'submissions:submissions_by_status' status=key %}">{{ val }}</a></li>
+    {% endfor %}
+  </ul>
+  <hr class="hr6"/>
+
+
   <ul>
     {% for sub in submissions_in_pool %}
     {% if request.user|is_not_author_of_submission:sub.arxiv_identifier_w_vn_nr %}
@@ -243,6 +260,19 @@ $(document).ready(function(){
     </div>
     {% get_obj_perms request.user for sub as "sub_perms" %}
     {% if "can_take_editorial_actions" in sub_perms or request.user|is_in_group:'Editorial Administrators' %}
+    <br/>
+    {% if sub|required_actions %}
+    <div class="flex-container">
+      <div class-"flex-whitebox" style="background-color: #ffaaaa;">
+	<h3>Required actions:</h3>
+	<ul>
+	  {% for todoitem in sub|required_actions %}
+	  <li>{{ todoitem }}</li>
+	  {% endfor %}
+	</ul>
+      </div>
+    </div>
+    {% endif %}
     <h4><a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">
       Go to this Submission's Editorial Page</a></h4>
     {% endif %}

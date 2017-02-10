@@ -118,10 +118,10 @@ In order to use the admin site, you'll need a superuser.
 ```
 
 ### Create groups and permissions
-Groups and their respective permissions are created using the management command. Since users depend on the *Contributor* object to work properly, setup the first (admin) user using the `-u` and `-a` arguments.
+Groups and their respective permissions are created using the management command.
 
 ```shell
-(scipostenv) $ ./manage.py add_groups_and_permissions -u=<username> -a
+(scipostenv) $ ./manage.py add_groups_and_permissions
 ```
 
 ### Run development server

@@ -4,11 +4,11 @@ import random
 import string
 
 from django.contrib.auth.models import User
-from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives
 from django.template import Context, Template
 from django.utils import timezone
 
-from .models import *
+from .models import Contributor, DraftInvitation, RegistrationInvitation, title_dict
 
 
 SCIPOST_SUMMARY_FOOTER = (
@@ -74,8 +74,8 @@ EMAIL_UNSUBSCRIBE_LINK_HTML = (
     '<a href="https://scipost.org/update_personal_data">updating your personal data</a>.</p>'
 )
 
-class Utils(object):
 
+class Utils(object):
     @classmethod
     def load(cls, dict):
         for var_name in dict:
@@ -118,25 +118,25 @@ class Utils(object):
 
     @classmethod
     def create_and_save_contributor(cls, invitation_key):
-        user = User.objects.create_user (
-            first_name = cls.form.cleaned_data['first_name'],
-            last_name = cls.form.cleaned_data['last_name'],
-            email = cls.form.cleaned_data['email'],
-            username = cls.form.cleaned_data['username'],
-            password = cls.form.cleaned_data['password']
+        user = User.objects.create_user(
+            first_name=cls.form.cleaned_data['first_name'],
+            last_name=cls.form.cleaned_data['last_name'],
+            email=cls.form.cleaned_data['email'],
+            username=cls.form.cleaned_data['username'],
+            password=cls.form.cleaned_data['password']
             )
         # Set to inactive until activation via email link
         user.is_active = False
         user.save()
-        contributor = Contributor (
+        contributor = Contributor(
             user=user,
             invitation_key=invitation_key,
-            title = cls.form.cleaned_data['title'],
-            orcid_id = cls.form.cleaned_data['orcid_id'],
-            country_of_employment = cls.form.cleaned_data['country_of_employment'],
-            address = cls.form.cleaned_data['address'],
-            affiliation = cls.form.cleaned_data['affiliation'],
-            personalwebpage = cls.form.cleaned_data['personalwebpage'],
+            title=cls.form.cleaned_data['title'],
+            orcid_id=cls.form.cleaned_data['orcid_id'],
+            country_of_employment=cls.form.cleaned_data['country_of_employment'],
+            address=cls.form.cleaned_data['address'],
+            affiliation=cls.form.cleaned_data['affiliation'],
+            personalwebpage=cls.form.cleaned_data['personalwebpage'],
             )
         contributor.save()
         Utils.load({'contributor': contributor})
@@ -179,7 +179,6 @@ class Utils(object):
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
-        #emailmessage = EmailMessage(
         emailmessage = EmailMultiAlternatives(
             'SciPost registration request received', email_text,
             'SciPost registration <registration@scipost.org>',
@@ -191,31 +190,31 @@ class Utils(object):
 
     @classmethod
     def create_draft_invitation(cls):
-        invitation = DraftInvitation (
-            title = cls.form.cleaned_data['title'],
-            first_name = cls.form.cleaned_data['first_name'],
-            last_name = cls.form.cleaned_data['last_name'],
-            email = cls.form.cleaned_data['email'],
-            invitation_type = cls.form.cleaned_data['invitation_type'],
-            cited_in_submission = cls.form.cleaned_data['cited_in_submission'],
-            cited_in_publication = cls.form.cleaned_data['cited_in_publication'],
-            drafted_by = cls.contributor,
+        invitation = DraftInvitation(
+            title=cls.form.cleaned_data['title'],
+            first_name=cls.form.cleaned_data['first_name'],
+            last_name=cls.form.cleaned_data['last_name'],
+            email=cls.form.cleaned_data['email'],
+            invitation_type=cls.form.cleaned_data['invitation_type'],
+            cited_in_submission=cls.form.cleaned_data['cited_in_submission'],
+            cited_in_publication=cls.form.cleaned_data['cited_in_publication'],
+            drafted_by=cls.contributor,
             )
         invitation.save()
 
     @classmethod
     def create_invitation(cls):
-        invitation = RegistrationInvitation (
-            title = cls.form.cleaned_data['title'],
-            first_name = cls.form.cleaned_data['first_name'],
-            last_name = cls.form.cleaned_data['last_name'],
-            email = cls.form.cleaned_data['email'],
-            invitation_type = cls.form.cleaned_data['invitation_type'],
-            cited_in_submission = cls.form.cleaned_data['cited_in_submission'],
-            cited_in_publication = cls.form.cleaned_data['cited_in_publication'],
-            invited_by = cls.contributor,
-            message_style = cls.form.cleaned_data['message_style'],
-            personal_message = cls.form.cleaned_data['personal_message'],
+        invitation = RegistrationInvitation(
+            title=cls.form.cleaned_data['title'],
+            first_name=cls.form.cleaned_data['first_name'],
+            last_name=cls.form.cleaned_data['last_name'],
+            email=cls.form.cleaned_data['email'],
+            invitation_type=cls.form.cleaned_data['invitation_type'],
+            cited_in_submission=cls.form.cleaned_data['cited_in_submission'],
+            cited_in_publication=cls.form.cleaned_data['cited_in_publication'],
+            invited_by=cls.contributor,
+            message_style=cls.form.cleaned_data['message_style'],
+            personal_message=cls.form.cleaned_data['personal_message'],
             )
         Utils.load({'invitation': invitation})
 
@@ -246,7 +245,7 @@ class Utils(object):
             email_text += ('Reminder: Invitation to SciPost\n'
                            '-------------------------------\n\n')
             email_text_html += ('<strong>Reminder: Invitation to SciPost</strong>'
-                               '<br/><hr/><br/>')
+                                '<br/><hr/><br/>')
         if cls.invitation.invitation_type == 'F':
             email_text += 'RE: Invitation to join the Editorial College of SciPost\n\n'
             email_text_html += ('<strong>RE: Invitation to join the Editorial College '
@@ -262,7 +261,7 @@ class Utils(object):
             email_text += cls.invitation.first_name
             email_text_html += '{{ first_name }}'
             email_context['first_name'] = cls.invitation.first_name
-        email_text +=  ',\n\n'
+        email_text += ',\n\n'
         email_text_html += ',<br/>'
         if len(cls.invitation.personal_message) > 3:
             email_text += cls.invitation.personal_message + '\n\n'
@@ -296,11 +295,6 @@ class Utils(object):
             'useful to your work as a professional scientist.'
             '\n\nMany thanks in advance for taking a few minutes to look into it,'
             '\n\nOn behalf of the SciPost Foundation,\n\n'
-            #'Prof. dr Jean-Sébastien Caux\n---------------------------------------------'
-            #'\nInstitute for Theoretical Physics\nUniversity of Amsterdam\nScience Park 904'
-            #'\n1098 XH Amsterdam\nThe Netherlands\n'
-            #'---------------------------------------------\ntel.: +31 (0)20 5255775'
-            #'\nfax: +31 (0)20 5255778\n---------------------------------------------'
             + signature + '\n'
         )
 
@@ -378,7 +372,6 @@ class Utils(object):
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
-            #emailmessage = EmailMessage(
             emailmessage = EmailMultiAlternatives(
                 'SciPost: refereeing request (and registration invitation)', email_text,
                 'SciPost Registration <registration@scipost.org>',
@@ -417,10 +410,8 @@ class Utils(object):
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
-            #emailmessage = EmailMessage(
             emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
-                #'J.-S. Caux <jscaux@scipost.org>',
                 'SciPost registration <registration@scipost.org>',
                 [cls.invitation.email],
                 cc=[cls.invitation.invited_by.user.email],
@@ -456,10 +447,8 @@ class Utils(object):
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
-            #emailmessage = EmailMessage(
             emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
-                #'J.-S. Caux <jscaux@scipost.org>',
                 'SciPost registration <registration@scipost.org>',
                 [cls.invitation.email],
                 cc=[cls.invitation.invited_by.user.email],
@@ -479,10 +468,8 @@ class Utils(object):
             email_text_html += summary_text_html + '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
-            #emailmessage = EmailMessage(
             emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
-                #'J.-S. Caux <jscaux@scipost.org>',
                 'SciPost registration <registration@scipost.org>',
                 [cls.invitation.email],
                 cc=[cls.invitation.invited_by.user.email],
@@ -640,7 +627,6 @@ class Utils(object):
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
-            #emailmessage = EmailMessage(
             emailmessage = EmailMultiAlternatives(
                 'SciPost registration invitation', email_text,
                 'J-S Caux <jscaux@scipost.org>',
@@ -650,10 +636,8 @@ class Utils(object):
                 reply_to=['registration@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
 
-
         # This function is now for all invitation types:
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_citation_notification_email(cls):
@@ -666,7 +650,7 @@ class Utils(object):
         email_text_html = 'Dear {{ title }} {{ last_name }}'
         email_context['title'] = title_dict[cls.notification.contributor.title]
         email_context['last_name'] = cls.notification.contributor.user.last_name
-        email_text +=  ',\n\n'
+        email_text += ',\n\n'
         email_text_html += ',<br/>'
         if cls.notification.cited_in_publication:
             email_text += (

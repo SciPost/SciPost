@@ -1,4 +1,3 @@
-import datetime
 import hashlib
 import os
 import random
@@ -7,72 +6,35 @@ import string
 import xml.etree.ElementTree as ET
 
 from django.conf import settings
-#from django.core import serializers
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
 from django.core.files import File
-from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseRedirect
-from django.views.decorators.csrf import csrf_protect
-from django.db.models import Avg
+from django.http import HttpResponse
 
-from .models import *
-from .forms import *
+from .models import Issue, Publication, PaperNumberingError,\
+                    journal_name_abbrev_doi, paper_nr_string, journal_name_abbrev_citation,\
+                    UnregisteredAuthor
+from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
+                   UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
+from .utils import JournalUtils
 
-from journals.utils import JournalUtils
-
-from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
 from submissions.models import Submission
+from scipost.models import Contributor
 
 from guardian.decorators import permission_required
-from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import assign_perm
 
-
-
-# from requests.adapters import HTTPAdapter
-# from requests.packages.urllib3.poolmanager import PoolManager
-# import ssl
-
-# class MyAdapter(HTTPAdapter):
-#     def init_poolmanager(self, connections, maxsize, block=False):
-#         self.poolmanager = PoolManager(num_pools=connections,
-#                                        maxsize=maxsize,
-#                                        block=block,
-#                                        ssl_version=ssl.PROTOCOL_TLSv1)
 
 ############
 # Journals
 ############
-
-
-# Utilities
-
-
-# @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-# @transaction.atomic
-# def open_new_issue(request):
-#     """
-#     For a Journal/Volume, creates a new issue.
-#     """
-
-#     settings.JOURNALS_DIR
-#     + journal_name_abbrev_doi(publication.in_issue.in_volume.in_journal.name)
-#     + '/' + str(publication.in_issue.in_volume.number)
-#     + '/' + str(publication.in_issue.number)
-
 
 def journals(request):
     return render(request, 'journals/journals.html')
 
 
 def scipost_physics(request):
-    #issues = Issue.objects.filter(
-    #    in_volume__in_journal__name='SciPost Physics').order_by('-until_date')
     current_issue = Issue.objects.filter(
         in_volume__in_journal__name='SciPost Physics',
         start_date__lte=timezone.now(),
@@ -80,23 +42,9 @@ def scipost_physics(request):
     latest_issue = Issue.objects.filter(
         in_volume__in_journal__name='SciPost Physics',
         until_date__lte=timezone.now()).order_by('-until_date').first()
-    #recent_papers = Publication.objects.filter(
-    #    #in_issue=latest_issue).order_by('paper_nr')
-    #    in_issue__in_volume__in_journal__name='SciPost Physics').order_by('-publication_date')[:20]
-    #accepted_SP_submissions = Submission.objects.filter(
-    #    submitted_to_journal='SciPost Physics', status='accepted'
-    #).order_by('-latest_activity')
-    #current_SP_submissions = Submission.objects.filter(
-    #    submitted_to_journal='SciPost Physics'
-    #    ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
-    #    ).order_by('-submission_date')
     context = {
-        #'issues': issues,
         'current_issue': current_issue,
-        'latest_issue': latest_issue,
-        #'recent_papers': recent_papers,
-        #'accepted_SP_submissions': accepted_SP_submissions,
-        #'current_SP_submissions': current_SP_submissions,
+        'latest_issue': latest_issue
     }
     return render(request, 'journals/scipost_physics.html', context)
 
@@ -104,7 +52,7 @@ def scipost_physics(request):
 def scipost_physics_issues(request):
     issues = Issue.objects.filter(
         in_volume__in_journal__name='SciPost Physics').order_by('-until_date')
-    context = {'issues': issues,}
+    context = {'issues': issues, }
     return render(request, 'journals/scipost_physics_issues.html', context)
 
 
@@ -112,13 +60,10 @@ def scipost_physics_recent(request):
     """
     Display page for the most recent 20 publications in SciPost Physics.
     """
-    #latest_issue = Issue.objects.filter(
-    #    in_volume__in_journal__name='SciPost Physics').order_by('-until_date').first()
+
     recent_papers = Publication.objects.filter(
-        #in_issue=latest_issue).order_by('-publication_date')
         in_issue__in_volume__in_journal__name='SciPost Physics').order_by('-publication_date')[:20]
-    context = {#'latest_issue': latest_issue,
-               'recent_papers': recent_papers}
+    context = {'recent_papers': recent_papers}
     return render(request, 'journals/scipost_physics_recent.html', context)
 
 
@@ -134,19 +79,6 @@ def scipost_physics_accepted(request):
     return render(request, 'journals/scipost_physics_accepted.html', context)
 
 
-# def scipost_physics_submissions(request):
-#     """
-#     Display page for submissions to SciPost Physics which
-#     have been accepted but are not yet published.
-#     """
-#     current_SP_submissions = Submission.objects.filter(
-#         submitted_to_journal='SciPost Physics'
-#         ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
-#         ).order_by('-submission_date')
-#     context = {'current_SP_submissions': current_SP_submissions}
-#     return render(request, 'journals/scipost_physics_submissions.html', context)
-
-
 def scipost_physics_info_for_authors(request):
     return render(request, 'journals/scipost_physics_info_for_authors.html')
 
@@ -155,14 +87,12 @@ def scipost_physics_about(request):
     return render(request, 'journals/scipost_physics_about.html')
 
 
-
 def scipost_physics_issue_detail(request, volume_nr, issue_nr):
-    issue = get_object_or_404 (Issue, in_volume__in_journal__name='SciPost Physics',
-                               number=issue_nr)
+    issue = get_object_or_404(Issue, in_volume__in_journal__name='SciPost Physics',
+                              number=issue_nr, in_volume__number=volume_nr)
     papers = issue.publication_set.order_by('paper_nr')
     context = {'issue': issue, 'papers': papers}
     return render(request, 'journals/scipost_physics_issue_detail.html', context)
-
 
 
 #######################
@@ -187,6 +117,7 @@ def upload_proofs(request):
     """
     return render(request, 'journals/upload_proofs.html')
 
+
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
 def initiate_publication(request):
@@ -199,16 +130,15 @@ def initiate_publication(request):
     if request.method == 'POST':
         initiate_publication_form = InitiatePublicationForm(request.POST)
         if initiate_publication_form.is_valid():
-            submission = get_object_or_404(Submission,
-                pk=initiate_publication_form.cleaned_data['accepted_submission'].id)
-            current_issue = get_object_or_404(Issue,
-                            pk=initiate_publication_form.cleaned_data['to_be_issued_in'].id)
+            submission = get_object_or_404(Submission, pk=initiate_publication_form.cleaned_data[
+                                                'accepted_submission'].id)
+            current_issue = get_object_or_404(Issue, pk=initiate_publication_form.cleaned_data[
+                                                'to_be_issued_in'].id)
+
             # Determine next available paper number:
-            #papers_in_current_issue = Publication.objects.filter(in_issue=current_issue)
             papers_in_current_volume = Publication.objects.filter(
                 in_issue__in_volume=current_issue.in_volume)
             paper_nr = 1
-            #while papers_in_current_issue.filter(paper_nr=paper_nr).exists():
             while papers_in_current_volume.filter(paper_nr=paper_nr).exists():
                 paper_nr += 1
                 if paper_nr > 999:
@@ -218,7 +148,7 @@ def initiate_publication(request):
                 + '.' + str(current_issue.in_volume.number)
                 + '.' + str(current_issue.number) + '.' + paper_nr_string(paper_nr)
             )
-            doi_string='10.21468/' + doi_label
+            doi_string = '10.21468/' + doi_label
             BiBTeX_entry = (
                 '@Article{' + doi_label + ',\n'
                 '\ttitle={{' + submission.title + '}},\n'
@@ -255,7 +185,7 @@ def initiate_publication(request):
                 'latest_activity': timezone.now(),
             }
             validate_publication_form = ValidatePublicationForm(initial=initial)
-            context = {'validate_publication_form': validate_publication_form,}
+            context = {'validate_publication_form': validate_publication_form, }
             return render(request, 'journals/validate_publication.html', context)
         else:
             errormessage = 'The form was not filled validly.'
@@ -292,8 +222,8 @@ def validate_publication(request):
             publication.save()
             # Move file to final location
             initial_path = publication.pdf_file.path
-            new_dir =  (publication.in_issue.path + '/'
-                        + paper_nr_string(publication.paper_nr))
+            new_dir = (publication.in_issue.path + '/'
+                       + paper_nr_string(publication.paper_nr))
             new_path = new_dir + '/' + publication.doi_label.replace('.', '_') + '.pdf'
             os.makedirs(new_dir)
             os.rename(initial_path, new_path)
@@ -308,7 +238,7 @@ def validate_publication(request):
             JournalUtils.load({'publication': publication})
             JournalUtils.send_authors_paper_published_email()
             ack_header = 'The publication has been validated.'
-            context = {'ack_header': ack_header,}
+            context = {'ack_header': ack_header, }
             return render(request, 'scipost/acknowledgement.html', context)
         else:
             errormessage = 'The form was invalid.'
@@ -331,7 +261,7 @@ def mark_first_author(request, publication_id, contributor_id):
     publication.first_author_unregistered = None
     publication.save()
     return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_string': publication.doi_string,}))
+                            kwargs={'doi_string': publication.doi_string, }))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -343,7 +273,7 @@ def mark_first_author_unregistered(request, publication_id, unregistered_author_
     publication.first_author_unregistered = unregistered_author
     publication.save()
     return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_string': publication.doi_string,}))
+                            kwargs={'doi_string': publication.doi_string, }))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -361,7 +291,7 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
         publication.authors.add(contributor)
         publication.save()
         return redirect(reverse('scipost:publication_detail',
-                                kwargs={'doi_string': publication.doi_string,}))
+                                kwargs={'doi_string': publication.doi_string, }))
     if request.method == 'POST':
         form = UnregisteredAuthorForm(request.POST)
         if form.is_valid():
@@ -371,7 +301,7 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
                 last_name__icontains=form.cleaned_data['last_name'])
             new_unreg_author_form = UnregisteredAuthorForm(
                 initial={'first_name': form.cleaned_data['first_name'],
-                         'last_name': form.cleaned_data['last_name'],})
+                         'last_name': form.cleaned_data['last_name'], })
         else:
             errormessage = 'Please fill in the form properly'
             return render(request, 'scipost/error.html', context={'errormessage': errormessage})
@@ -384,7 +314,7 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
                'contributors_found': contributors_found,
                'unregistered_authors_found': unregistered_authors_found,
                'form': form,
-               'new_unreg_author_form': new_unreg_author_form,}
+               'new_unreg_author_form': new_unreg_author_form, }
     return render(request, 'journals/add_author.html', context)
 
 
@@ -396,7 +326,7 @@ def add_unregistered_author(request, publication_id, unregistered_author_id):
     publication.unregistered_authors.add(unregistered_author)
     publication.save()
     return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_string': publication.doi_string,}))
+                            kwargs={'doi_string': publication.doi_string, }))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -407,12 +337,12 @@ def add_new_unreg_author(request, publication_id):
         new_unreg_author_form = UnregisteredAuthorForm(request.POST)
         if new_unreg_author_form.is_valid():
             new_unreg_author = UnregisteredAuthor(
-                first_name = new_unreg_author_form.cleaned_data['first_name'],
-                last_name = new_unreg_author_form.cleaned_data['last_name'],)
+                first_name=new_unreg_author_form.cleaned_data['first_name'],
+                last_name=new_unreg_author_form.cleaned_data['last_name'],)
             new_unreg_author.save()
             publication.authors_unregistered.add(new_unreg_author)
             return redirect(reverse('scipost:publication_detail',
-                                    kwargs={'doi_string': publication.doi_string,}))
+                                    kwargs={'doi_string': publication.doi_string, }))
     errormessage = 'Method add_new_unreg_author can only be called with POST.'
     return render(request, 'scipost/error.html', context={'errormessage': errormessage})
 
@@ -432,16 +362,17 @@ def create_citation_list_metadata(request, doi_string):
             publication.metadata['citation_list'] = []
             entries_list = bibitems_form.cleaned_data['latex_bibitems'].split('\doi{')
             nentries = 1
-            for entry in entries_list[1:]: # drop first bit before first \doi{
+            for entry in entries_list[1:]:  # drop first bit before first \doi{
                 publication.metadata['citation_list'].append(
                     {'key': 'ref' + str(nentries),
-                     'doi': entry.partition('}')[0],}
+                     'doi': entry.partition('}')[0], }
                 )
                 nentries += 1
             publication.save()
     bibitems_form = CitationListBibitemsForm()
-    context = {'publication': publication,
-               'bibitems_form': bibitems_form,
+    context = {
+        'publication': publication,
+        'bibitems_form': bibitems_form,
     }
     if request.method == 'POST':
         context['citation_list'] = publication.metadata['citation_list']
@@ -460,10 +391,11 @@ def create_funding_info_metadata(request, doi_string):
     if request.method == 'POST':
         funding_info_form = FundingInfoForm(request.POST)
         if funding_info_form.is_valid():
-            publication.metadata['funding_statement'] = funding_info_form.cleaned_data['funding_statement']
+            publication.metadata['funding_statement'] = funding_info_form.cleaned_data[
+                                                            'funding_statement']
             publication.save()
 
-    initial = {'funding_statement': '',}
+    initial = {'funding_statement': '', }
     funding_statement = ''
     try:
         initial['funding_statement'] = publication.metadata['funding_statement']
@@ -472,7 +404,7 @@ def create_funding_info_metadata(request, doi_string):
         pass
     context = {'publication': publication,
                'funding_info_form': FundingInfoForm(initial=initial),
-               'funding_statement': funding_statement,}
+               'funding_statement': funding_statement, }
 
     return render(request, 'journals/create_funding_info_metadata.html', context)
 
@@ -494,7 +426,7 @@ def create_metadata_xml(request, doi_string):
             publication.metadata_xml = create_metadata_xml_form.cleaned_data['metadata_xml']
             publication.save()
             return redirect(reverse('scipost:publication_detail',
-                                    kwargs={'doi_string': publication.doi_string,}))
+                                    kwargs={'doi_string': publication.doi_string, }))
 
     # create a doi_batch_id
     salt = ""
@@ -505,7 +437,6 @@ def create_metadata_xml(request, doi_string):
     idsalt = idsalt.encode('utf8')
     doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
 
-    #publication.metadata_xml = (
     initial = {'metadata_xml': ''}
     initial['metadata_xml'] += (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -553,44 +484,37 @@ def create_metadata_xml(request, doi_string):
     # this to be checked by EdAdmin before publishing.
     for author in publication.authors.all():
         if author == publication.first_author:
-            #publication.metadata_xml += (
             initial['metadata_xml'] += (
                 '<person_name sequence=\'first\' contributor_role=\'author\'> '
                 '<given_name>' + author.user.first_name + '</given_name> '
                 '<surname>' + author.user.last_name + '</surname> '
             )
         else:
-            #publication.metadata_xml += (
             initial['metadata_xml'] += (
                 '<person_name sequence=\'additional\' contributor_role=\'author\'> '
                 '<given_name>' + author.user.first_name + '</given_name> '
                 '<surname>' + author.user.last_name + '</surname> '
             )
         if author.orcid_id:
-            #publication.metadata_xml += '<ORCID>http://orcid.org' + author.orcid_id + '</ORCID>'
             initial['metadata_xml'] += '<ORCID>http://orcid.org/' + author.orcid_id + '</ORCID>'
         initial['metadata_xml'] += '</person_name>\n'
 
     for author_unreg in publication.authors_unregistered.all():
         if author_unreg == publication.first_author_unregistered:
-            #publication.metadata_xml += (
             initial['metadata_xml'] += (
                 '<person_name sequence=\'first\' contributor_role=\'author\'> '
                 '<given_name>' + author_unreg.first_name + '</given_name> '
                 '<surname>' + author_unreg.last_name + '</surname> '
             )
         else:
-            #publication.metadata_xml += (
             initial['metadata_xml'] += (
                 '<person_name sequence=\'additional\' contributor_role=\'author\'> '
                 '<given_name>' + author_unreg.first_name + '</given_name> '
                 '<surname>' + author_unreg.last_name + '</surname> '
             )
         initial['metadata_xml'] += '</person_name>\n'
-    #publication.metadata_xml += '</contributors>\n'
     initial['metadata_xml'] += '</contributors>\n'
 
-    #publication.metadata_xml += (
     initial['metadata_xml'] += (
         '<publication_date media_type=\'online\'>\n'
         '<month>' + publication.publication_date.strftime('%m') + '</month>'
@@ -612,69 +536,27 @@ def create_metadata_xml(request, doi_string):
     )
     try:
         if publication.metadata['citation_list']:
-            #publication.metadata_xml += '<citation_list>\n'
             initial['metadata_xml'] += '<citation_list>\n'
             for ref in publication.metadata['citation_list']:
-                #publication.metadata_xml += (
                 initial['metadata_xml'] += (
                     '<citation key="' + ref['key'] + '">'
                     '<doi>' + ref['doi'] + '</doi>'
                     '</citation>\n'
                 )
-        #publication.metadata_xml += '</citation_list>\n'
         initial['metadata_xml'] += '</citation_list>\n'
     except KeyError:
         pass
-    #publication.metadata_xml += (
     initial['metadata_xml'] += (
         '</journal_article>\n'
         '</journal>\n'
     )
-    #publication.metadata_xml += '</body>\n</doi_batch>'
     initial['metadata_xml'] += '</body>\n</doi_batch>'
     publication.save()
-    #else:
-    #   errormessage = 'The form was invalidly filled.'
 
     context = {'publication': publication,
                'create_metadata_xml_form': CreateMetadataXMLForm(initial=initial),
                }
     return render(request, 'journals/create_metadata_xml.html', context)
-
-
-# @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-# @transaction.atomic
-# def test_metadata_xml_deposit(request, doi_string):
-#     """
-#     Prior to the actual Crossref metadata deposit,
-#     test the metadata_xml using the Crossref test server.
-#     Makes use of the python requests module.
-#     """
-#     publication = get_object_or_404 (Publication, doi_string=doi_string)
-#     url = 'http://test.crossref.org/servlet/deposit'
-#     #headers = {'Content-type': 'multipart/form-data'}
-#     params = {'operation': 'doMDUpload',
-#               'login_id': settings.CROSSREF_LOGIN_ID,
-#               'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
-#           }
-#     #files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data', {'Expires': '0'})}
-#     files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data')}
-#     r = requests.post(url,
-#                       params=params,
-#                       files=files,
-#                       #verify=settings.CERTFILE,
-#                       #verify=False,
-#     )
-#     #s = requests.Session()
-#     #s.mount('https://', MyAdapter())
-#     #r = s.post(url, params=params, files=files)
-#     response_headers = r.headers
-#     response_text = r.text
-#     context = {'publication': publication,
-#                'response_headers': response_headers,
-#                'response_text': response_text,
-#     }
-#     return render(request, 'journals/test_metadata_xml_deposit.html', context)
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -685,30 +567,32 @@ def metadata_xml_deposit(request, doi_string, option='test'):
     If test==True, test the metadata_xml using the Crossref test server.
     Makes use of the python requests module.
     """
-    publication = get_object_or_404 (Publication, doi_string=doi_string)
-    if option=='deposit':
+    publication = get_object_or_404(Publication, doi_string=doi_string)
+    if option == 'deposit':
         url = 'http://doi.crossref.org/servlet/deposit'
-    elif option=='test':
+    elif option == 'test':
         url = 'http://test.crossref.org/servlet/deposit'
     else:
-        {'errormessage': 'metadata_xml_deposit can only be called with options test or deposit',}
+        errormessage = 'metadata_xml_deposit can only be called with options test or deposit'
         return render(request, 'scipost/error.html', context={'errormessage': errormessage})
 
-    params = {'operation': 'doMDUpload',
-              'login_id': settings.CROSSREF_LOGIN_ID,
-              'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
-          }
+    params = {
+        'operation': 'doMDUpload',
+        'login_id': settings.CROSSREF_LOGIN_ID,
+        'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
+        }
     files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data')}
     r = requests.post(url,
                       params=params,
                       files=files,
-    )
+                      )
     response_headers = r.headers
     response_text = r.text
-    context = {'option': option,
-               'publication': publication,
-               'response_headers': response_headers,
-               'response_text': response_text,
+    context = {
+        'option': option,
+        'publication': publication,
+        'response_headers': response_headers,
+        'response_text': response_text,
     }
     return render(request, 'journals/metadata_xml_deposit.html', context)
 
@@ -744,10 +628,9 @@ def harvest_citedby_links(request, doi_string):
     params = {'usr': settings.CROSSREF_LOGIN_ID,
               'pwd': settings.CROSSREF_LOGIN_PASSWORD,
               'qdata': query_xml,
-              'doi': publication.doi_string,}
+              'doi': publication.doi_string, }
     r = requests.post(url, params=params,)
     response_headers = r.headers
-    #response_text = bytes(r.text, 'utf-8').decode('unicode_escape')
     response_text = r.text
     response_deserialized = ET.fromstring(r.text)
     prefix = '{http://www.crossref.org/qrschema/2.0}'
@@ -757,7 +640,10 @@ def harvest_citedby_links(request, doi_string):
         article_title = link.find(prefix + 'journal_cite').find(prefix + 'article_title').text
         journal_abbreviation = link.find(prefix + 'journal_cite').find(
             prefix + 'journal_abbreviation').text
-        volume = link.find(prefix + 'journal_cite').find(prefix + 'volume').text
+        try:
+            volume = link.find(prefix + 'journal_cite').find(prefix + 'volume').text
+        except AttributeError:
+            volume = None
         try:
             first_page = link.find(prefix + 'journal_cite').find(prefix + 'first_page').text
         except:
@@ -783,17 +669,17 @@ def harvest_citedby_links(request, doi_string):
                           'volume': volume,
                           'first_page': first_page,
                           'item_number': item_number,
-                          'year': year,})
+                          'year': year, })
     publication.citedby = citations
     publication.save()
-    context = {'publication': publication,
-               'response_headers': response_headers,
-               'response_text': response_text,
-               'response_deserialized': response_deserialized,
-               'citations': citations,
+    context = {
+        'publication': publication,
+        'response_headers': response_headers,
+        'response_text': response_text,
+        'response_deserialized': response_deserialized,
+        'citations': citations,
     }
     return render(request, 'journals/harvest_citedby_links.html', context)
-
 
 
 ###########
@@ -801,13 +687,13 @@ def harvest_citedby_links(request, doi_string):
 ###########
 
 def publication_detail(request, doi_string):
-    publication = get_object_or_404 (Publication, doi_string=doi_string)
-    context = {'publication': publication,}
+    publication = get_object_or_404(Publication, doi_string=doi_string)
+    context = {'publication': publication, }
     return render(request, 'journals/publication_detail.html', context)
 
 
 def publication_pdf(request, doi_string):
-    publication = get_object_or_404 (Publication, doi_string=doi_string)
+    publication = get_object_or_404(Publication, doi_string=doi_string)
     pdf = File(publication.pdf_file)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = ('filename='
@@ -816,13 +702,13 @@ def publication_pdf(request, doi_string):
 
 
 def publication_detail_from_doi_label(request, doi_label):
-    publication = get_object_or_404 (Publication, doi_label=doi_label)
-    context = {'publication': publication,}
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    context = {'publication': publication, }
     return render(request, 'journals/publication_detail.html', context)
 
 
 def publication_pdf_from_doi_label(request, doi_label):
-    publication = get_object_or_404 (Publication, doi_label=doi_label)
+    publication = get_object_or_404(Publication, doi_label=doi_label)
     pdf = File(publication.pdf_file)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = ('filename='

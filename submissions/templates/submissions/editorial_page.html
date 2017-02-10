@@ -5,6 +5,7 @@
 {% block headsup %}
 
 {% load scipost_extras %}
+{% load submissions_extras %}
 
 {% endblock headsup %}
 
@@ -81,7 +82,20 @@
   </div>
   <h3>Status:</h3>
   {{ submission.status_info_as_table }}
+  {% if submission|required_actions %}
+  <div class="flex-container">
+    <div class-"flex-whitebox" style="background-color: #ffaaaa;">
+      <h3>Required actions:</h3>
+      <ul>
+	{% for todoitem in submission|required_actions %}
+	<li>{{ todoitem }}</li>
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
   <hr/>
+
   <h3>Refereeing status summary:</h3>
   {{ submission.refereeing_status_as_p }}
 
