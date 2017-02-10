@@ -1,7 +1,9 @@
 from django import forms
 from django.core.mail import EmailMessage
 
-from .models import *
+from scipost.models import Contributor, title_dict
+
+from .models import ThesisLink
 from .helpers import past_years
 
 
@@ -15,6 +17,15 @@ class RequestThesisLinkForm(forms.ModelForm):
             'defense_date': forms.SelectDateWidget(years=past_years(50)),
             'pub_link': forms.TextInput(attrs={'placeholder': 'Full URL'})
         }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        super(RequestThesisLinkForm, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        """Prefill instance before save"""
+        self.instance.requested_by = Contributor.objects.get(user=self.user)
+        return super(RequestThesisLinkForm, self).save(*args, **kwargs)
 
 
 class VetThesisLinkForm(RequestThesisLinkForm):

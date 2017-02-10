@@ -38,10 +38,14 @@ class RequestThesisLink(CreateView):
     success_url = reverse_lazy('scipost:personal_page')
 
     def form_valid(self, form):
-        form.instance.requested_by = self.request.user.contributor
         messages.add_message(self.request, messages.SUCCESS,
                              strings.acknowledge_request_thesis_link)
         return super(RequestThesisLink, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super(RequestThesisLink, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
 
 @method_decorator(permission_required(
@@ -79,6 +83,11 @@ class VetThesisLink(UpdateView):
             self.request, messages.SUCCESS,
             strings.acknowledge_vet_thesis_link)
         return HttpResponseRedirect(self.get_success_url())
+
+    def get_form_kwargs(self):
+        kwargs = super(VetThesisLink, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
 
 def theses(request):
