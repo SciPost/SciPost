@@ -15,9 +15,9 @@ from submissions.forms import report_refusal_choices_dict
 class SubmissionUtils(object):
 
     @classmethod
-    def load(cls, dict):
-        for var_name in dict:
-            setattr(cls, var_name, dict[var_name])
+    def load(cls, _dict):
+        for var_name in _dict:
+            setattr(cls, var_name, _dict[var_name])
 
     @classmethod
     def deprecate_other_assignments(cls):

@@ -37,245 +37,257 @@
 
 {% endblock headsup %}
 
-{% block bodysup %}
+{% block content %}
 
 
-<section>
-  <div class="flex-greybox">
-    <h1>SciPost Submission Page</h1>
-    {% if not submission.is_current %}
-    <h3 style="color: red;">This is not the current version.</h3>
-    {% endif %}
-    {% if user.contributor == submission.editor_in_charge %}
-    <h3>(You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h3>
-    {% endif %}
-  </div>
-
-  {% if other_versions %}
-  <h3>Other versions of this Submission (with Reports) exist:</h3>
-  <ul>
-    {% for vn in other_versions %}
-    {{ vn.version_info_as_li }}
-    {% endfor %}
-  </ul>
-  {% endif %}
-
-  <hr class="hr12">
-  <div class="row">
-    <div class="col-4">
-      <h2>Submission:</h2>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h1>SciPost Submission Page</h1>
+            {% if not submission.is_current %}
+                <h3 style="color: red;">This is not the current version.</h3>
+            {% endif %}
+            {% if user.contributor == submission.editor_in_charge %}
+                <h3>(You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h3>
+            {% endif %}
+        </div>
     </div>
-  </div>
-  {{ submission.header_as_table }}
-  <h3>Abstract:</h3>
-  <p>{{ submission.abstract }}</p>
+</div>
 
-  <h1>Status:</h1>
-  {{ submission.status_info_as_table }}
+{% if other_versions %}
+<div class="row">
+    <div class="col-12">
+      <h3>Other versions of this Submission (with Reports) exist:</h3>
+      <ul>
+        {% for vn in other_versions %}
+            {{ vn.version_info_as_li }}
+        {% endfor %}
+      </ul>
+    </div>
+</div>
+{% endif %}
 
-  {% if submission.author_comments %}
-  <h3>Author comments upon resubmission</h3>
-  <p>{{ submission.author_comments|linebreaks }}</p>
-  {% endif %}
+<div class="row">
+    <div class="col-12">
+        <hr>
+        {{ submission.header_as_table }}
 
-  {% if submission.list_of_changes %}
-  <h3>List of changes</h3>
-  <p>{{ submission.list_of_changes|linebreaks }}</p>
-  {% endif %}
+        <h3 class="mt-3">Abstract:</h3>
+        <p>{{ submission.abstract }}</p>
 
-</section>
+        <h3>Status:</h3>
+        {{ submission.status_info_as_table }}
+
+        {% if submission.author_comments %}
+            <h3>Author comments upon resubmission</h3>
+            <p>{{ submission.author_comments|linebreaks }}</p>
+        {% endif %}
+
+        {% if submission.list_of_changes %}
+            <h3>List of changes</h3>
+            <p>{{ submission.list_of_changes|linebreaks }}</p>
+        {% endif %}
+    </div>
+</div>
 
 {% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
 {% if recommendation %}
 {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' or recommendation|is_viewable_by_authors %}
-<section>
-  <div class="flex-greybox">
-    <h1>Editorial Recommendation</h1>
-  </div>
-  {{ recommendation.print_for_authors }}
-</section>
+<div class="row">
+    <div class="col-12">
+        <h2>Editorial Recommendation</h2>
+        {{ recommendation.print_for_authors }}
+    </div>
+</div>
 {% endif %}
 {% endif %}
 {% endif %}
 
 
 {% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
-<section>
-  <div class="flex-greybox">
-    <h1>Actions</h1>
-  </div>
-  <ul>
-    {% if submission.open_for_reporting %}
-    {% if perms.scipost.can_referee and not is_author and not is_author_unchecked %}
-    <li><h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Contribute a Report</a></h3>
-      <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div></li>
-    {% elif is_author_unchecked %}
-    <li><h3>Contribute a Report [deactivated]: the system flagged you as a potential author of this Submission.
-	Please go to your <a href="{% url 'scipost:personal_page' %}">personal page</a>
-	under the Submissions tab to clarify this.</h3></li>
-    {% endif %}
-    {% else %}
-    <li>Reporting for this Submission is closed.</li>
-    {% endif %}
-    {% if submission.open_for_commenting %}
-    {% if perms.scipost.can_submit_comments %}
-    <li><h3><a href="#contribute_comment">Contribute a Comment</a></h3></li>
-    {% endif %}
-    {% else %}
-    <li>Commenting on this Submission is closed.</li>
-    {% endif %}
-  </ul>
-</section>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Actions</h2>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <ul>
+            {% if submission.open_for_reporting %}
+                {% if perms.scipost.can_referee and not is_author and not is_author_unchecked %}
+                    <li><h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Contribute a Report</a></h3>
+                    <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div></li>
+                {% elif is_author_unchecked %}
+                    <li><h3>Contribute a Report [deactivated]: the system flagged you as a potential author of this Submission.
+                    Please go to your <a href="{% url 'scipost:personal_page' %}">personal page</a>
+                    under the Submissions tab to clarify this.</h3></li>
+                {% endif %}
+            {% else %}
+                <li>Reporting for this Submission is closed.</li>
+            {% endif %}
+            {% if submission.open_for_commenting %}
+                {% if perms.scipost.can_submit_comments %}
+                    <li><h3><a href="#contribute_comment">Contribute a Comment</a></h3></li>
+                {% endif %}
+            {% else %}
+                <li>Commenting on this Submission is closed.</li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
 {% endif %}
 
 {% if invited_reports %}
-<section>
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h2>Invited Reports on this Submission</h2>
-    <button id="invitedreportsbutton">Toggle invited reports view</button>
-  </div>
-
-  <div id="invitedreportslist">
-    {% for report in invited_reports %}
-    <hr class="hr6"/>
-    {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators'  and not is_author or user|is_in_group:'Editorial Administrators' and not is_author_unchecked %}
-    {% if report.flagged %}
-    <h4 style="color: red">CAUTION: check if this referee has been flagged by the authors</h4>
-    {% endif %}
-    {{ report.print_contents_for_editors|linebreaks }}
-    {% else %}
-    {{ report.print_identifier }}
-    {{ report.print_contents|linebreaks }}
-    {% endif %}
-
-    <hr style="border-style: dotted;" />
-    <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
-
-    {% for reply in author_replies %}
-    {% if reply.in_reply_to_report %}
-    {% if reply.in_reply_to_report.id == report.id %}
-    <div class="row">
-      <div class="col-1"></div>
-      <hr style="border-style: dotted;" />
-
-      <div class="flex-container">
-        <div class="flex-commentbox">
-          {{ reply.print_identifier }}
-          {{ reply.categories_as_ul }}
-          <div class="opinionsDisplay">
-            {% if user.is_authenticated and perms.scipost.can_express_opinion_on_comments %}
-            {% if user.contributor != reply.author %}
-            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='A' %}" method="post">
-              {% csrf_token %}
-              <input type="submit" class="agree" value="Agree {{ reply.nr_A }} "/>
-            </form>
-            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='N' %}" method="post">
-              {% csrf_token %}
-              <input type="submit" class="notsure" value="Not sure {{ reply.nr_N }}"/>
-            </form>
-            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='D'%}" method="post">
-              {% csrf_token %}
-              <input type="submit" class="disagree" value="Disagree {{ reply.nr_D }}"/>
-            </form>
-            {% else %}
-            {{ reply.opinions_as_ul }}
-            {% endif %}
-            {% endif %}
-          </div>
+<hr>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Invited Reports on this Submission</h2>
+            <button class="btn btn-secondary" id="invitedreportsbutton">Toggle invited reports view</button>
         </div>
-      </div>
     </div>
-    <div class="row">
-      <div class="col-1"></div>
-      <div class="col-10">
-        <p>{{ reply.comment_text|linebreaks }}</p>
-      </div>
-    </div>
+</div>
 
-    {% endif %}
-    {% endif %}
+<div class="row" id="invitedreportslist">
+    {% for report in invited_reports %}
+        <div class="col-12">
+            <div class="report">
+                {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators'  and not is_author or user|is_in_group:'Editorial Administrators' and not is_author_unchecked %}
+                    {% if report.flagged %}
+                        <h4 style="color: red">CAUTION: check if this referee has been flagged by the authors</h4>
+                    {% endif %}
+                    {{ report.print_contents_for_editors }}
+                {% else %}
+                    {{ report.print_identifier }}
+                    {{ report.print_contents }}
+                {% endif %}
+
+                <hr class="small">
+                <h3 class="mb-3"><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
+
+                {% for reply in author_replies %}
+                    {% if reply.in_reply_to_report %}
+                    {% if reply.in_reply_to_report.id == report.id %}
+                        <div class="report nested_report">
+                            <div class="row">
+                                <div class="col-12">
+                                    {{ reply.print_identifier }}
+                                    {{ reply.categories_as_ul }}
+                                    <div class="opinionsDisplay">
+                                        {% if user.is_authenticated and perms.scipost.can_express_opinion_on_comments %}
+                                            {% if user.contributor != reply.author %}
+                                                <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='A' %}" method="post">
+                                                    {% csrf_token %}
+                                                    <input type="submit" class="agree" value="Agree {{ reply.nr_A }} "/>
+                                                </form>
+                                                <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='N' %}" method="post">
+                                                    {% csrf_token %}
+                                                    <input type="submit" class="notsure" value="Not sure {{ reply.nr_N }}"/>
+                                                </form>
+                                                <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='D'%}" method="post">
+                                                    {% csrf_token %}
+                                                    <input type="submit" class="disagree" value="Disagree {{ reply.nr_D }}"/>
+                                                </form>
+                                            {% else %}
+                                                {{ reply.opinions_as_ul }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <p>{{ reply.comment_text|linebreaks }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
     {% endfor %}
+</div>
 
-    {% endfor %}
-  </div>
-
-</section>
 {% endif %}
 
 {% if contributed_reports %}
-<section>
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h2>Contributed Reports on this Submission</h2>
-    <button id="contributedreportsbutton">Toggle contributed reports view</button>
-  </div>
-
-  <div id="contributedreportslist">
-    {% for report in contributed_reports %}
-    <hr class="hr6"/>
-    {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators'  and not is_author or user|is_in_group:'Editorial Administrators' and not is_author_unchecked %}
-    {% if report.flagged %}
-    <h4 style="color: red">CAUTION: check if this referee has been flagged by the authors</h4>
-    {% endif %}
-    {{ report.print_contents_for_editors }}
-    {% else %}
-    {{ report.print_identifier }}
-    {{ report.print_contents }}
-    {% endif %}
-
-    <hr style="border-style: dotted;" />
-    <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
-
-    {% for reply in author_replies %}
-    {% if reply.in_reply_to_report %}
-    {% if reply.in_reply_to_report.id == report.id %}
-    <div class="row">
-      <div class="col-1"></div>
-      <hr style="border-style: dotted;" />
-
-      <div class="flex-container">
-        <div class="flex-commentbox">
-          {{ reply.print_identifier }}
-          {{ reply.categories_as_ul }}
-          <div class="opinionsDisplay">
-            {% if user.is_authenticated and perms.scipost.can_express_opinion_on_comments %}
-            {% if user.contributor != reply.author %}
-            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='A' %}" method="post">
-              {% csrf_token %}
-              <input type="submit" class="agree" value="Agree {{ reply.nr_A }} "/>
-            </form>
-            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='N' %}" method="post">
-              {% csrf_token %}
-              <input type="submit" class="notsure" value="Not sure {{ reply.nr_N }}"/>
-            </form>
-            <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='D'%}" method="post">
-              {% csrf_token %}
-              <input type="submit" class="disagree" value="Disagree {{ reply.nr_D }}"/>
-            </form>
-            {% else %}
-            {{ reply.opinions_as_ul }}
-            {% endif %}
-            {% endif %}
-          </div>
+<hr>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Contributed Reports on this Submission</h2>
+            <button class="btn btn-secondary" id="contributedreportsbutton">Toggle contributed reports view</button>
         </div>
-      </div>
     </div>
-    <div class="row">
-      <div class="col-1"></div>
-      <div class="col-10">
-        <p>{{ reply.comment_text|linebreaks }}</p>
-      </div>
-    </div>
+</div>
 
-    {% endif %}
-    {% endif %}
+<div class="row" id="contributedreportslist">
+    {% for report in contributed_reports %}
+        <div class="col-12">
+            <div class="report">
+                {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators'  and not is_author or user|is_in_group:'Editorial Administrators' and not is_author_unchecked %}
+                {% if report.flagged %}
+                <h4 style="color: red">CAUTION: check if this referee has been flagged by the authors</h4>
+                {% endif %}
+                {{ report.print_contents_for_editors }}
+                {% else %}
+                {{ report.print_identifier }}
+                {{ report.print_contents }}
+                {% endif %}
+
+                <hr class="small">
+                <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
+
+                {% for reply in author_replies %}
+                    {% if reply.in_reply_to_report %}
+                    {% if reply.in_reply_to_report.id == report.id %}
+                        <div class="row">
+                          <div class="col-1"></div>
+                          <hr style="border-style: dotted;" />
+
+                          <div class="flex-container">
+                            <div class="flex-commentbox">
+                              {{ reply.print_identifier }}
+                              {{ reply.categories_as_ul }}
+                              <div class="opinionsDisplay">
+                                {% if user.is_authenticated and perms.scipost.can_express_opinion_on_comments %}
+                                {% if user.contributor != reply.author %}
+                                <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='A' %}" method="post">
+                                  {% csrf_token %}
+                                  <input type="submit" class="agree" value="Agree {{ reply.nr_A }} "/>
+                                </form>
+                                <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='N' %}" method="post">
+                                  {% csrf_token %}
+                                  <input type="submit" class="notsure" value="Not sure {{ reply.nr_N }}"/>
+                                </form>
+                                <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='D'%}" method="post">
+                                  {% csrf_token %}
+                                  <input type="submit" class="disagree" value="Disagree {{ reply.nr_D }}"/>
+                                </form>
+                                {% else %}
+                                {{ reply.opinions_as_ul }}
+                                {% endif %}
+                                {% endif %}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-1"></div>
+                          <div class="col-10">
+                            <p>{{ reply.comment_text|linebreaks }}</p>
+                          </div>
+                        </div>
+
+                    {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
     {% endfor %}
+</div>
 
-    {% endfor %}
-  </div>
-
-</section>
 {% endif %}
 
 
@@ -283,25 +295,32 @@
 {% include 'scipost/comments_block.html' %}
 
 {% if user.is_authenticated and submission.open_for_commenting and perms.scipost.can_submit_comments %}
-<section id="contribute_comment">
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h1>Contribute a Comment:</h1>
-  </div>
-  <form action="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
-    {% csrf_token %}
-    {% load crispy_forms_tags %}
-    {% crispy form %}
-  </form>
-
-  <div class="row">
-    <div class="col-10">
-      <h3>Preview of your comment:</h3>
-      <p id="preview-comment_text"></p>
+<hr>
+<div id="contribute_comment">
+    <div class="row">
+        <div class="col-12">
+            <div class="panel">
+                <h2>Contribute a Comment:</h2>
+            </div>
+        </div>
     </div>
-  </div>
+    <div class="row">
+        <div class="col-12">
+            <form action="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+                {% csrf_token %}
+                {% load crispy_forms_tags %}
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
 
-</section>
+    <div class="row">
+        <div class="col-12">
+            <h3>Preview of your comment:</h3>
+            <p id="preview-comment_text"></p>
+        </div>
+    </div>
+</div>
 {% endif %}
 
-{% endblock bodysup %}
+{% endblock content %}
