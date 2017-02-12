@@ -105,12 +105,12 @@ def theses(request):
         form = ThesisLinkSearchForm()
         thesislink_search_list = []
 
-    thesislink_recent_list = (ThesisLink.objects
-                              .filter(vetted=True,
-                                      latest_activity__gte=timezone.now() + datetime.timedelta(
-                                        days=-7)))
-    context = {'form': form, 'thesislink_search_list': thesislink_search_list,
-               'thesislink_recent_list': thesislink_recent_list}
+    thesislink_recent_list = (
+        ThesisLink.objects.filter(vetted=True, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)))
+    context = {
+        'form': form, 'thesislink_search_list': thesislink_search_list,
+        'thesislink_recent_list': thesislink_recent_list
+    }
     return render(request, 'theses/theses.html', context)
 
 
