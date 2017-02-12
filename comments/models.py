@@ -42,6 +42,7 @@ class Comment(TimeStampedModel):
     vetted_by = models.ForeignKey(Contributor, blank=True, null=True,
                                   on_delete=models.CASCADE,
                                   related_name='comment_vetted_by')
+    pdf_file = models.FileField(upload_to='UPLOADS/COMMENTS/%Y/%m/', blank=True)
     # a Comment is either for a Commentary or Submission or a ThesisLink.
     commentary = models.ForeignKey(Commentary, blank=True, null=True, on_delete=models.CASCADE)
     submission = models.ForeignKey(Submission, blank=True, null=True, on_delete=models.CASCADE)
