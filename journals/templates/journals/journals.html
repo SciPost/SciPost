@@ -2,81 +2,123 @@
 
 {% block pagetitle %}: Journals{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
-
-<section>
-  <div class="flex-greybox">
-    <h1>SciPost Physics Journals</h1>
-  </div>
-  <br/>
-
-  <br/>
-  <h2>View and comment on (login required) current <a href="{% url 'submissions:submissions' %}">Submissions</a></h2>
-  <br/>
-  <div class="row">
-    <div class="col-6">
-      <hr class="hr6">
-      <div class="flex-container">
-        <div class="SciPostPhysicsBanner">
-          <h3>SciPost Physics Lecture Notes</h3>
-        </div>
+<div class="row">
+    <div class="col-12">
+      <div class="panel">
+        <h1>SciPost Physics Journals</h1>
       </div>
-      <p>Research-level didactic material in all domains and subject areas of Physics.</p>
-      <p style="color: red;">Open for submission!</p>
-      <br/>
-      <hr class="hr6">
-      
-      <div class="flex-container">
-        <div class="SciPostPhysicsBanner">
-          <h3><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h3>
-        </div>
-      </div>
-      
-      <p>SciPost Physics publishes outstanding-quality research articles in all domains and subject areas of Physics.</p>
-      <p>The journal accepts three types of content: Letters, Articles and Reviews.</p>
-      <p>Letters report broad-interest, significant breakthroughs in Physics, of interest and importance to researchers in multiple subject areas.</p>
-      <p>Articles provide in-depth, detailed reports of groundbreaking research within one or more subject areas.</p>
-      <p>Reviews are short pieces taking a snapshot of a research area, written by recognized leaders in the field, providing a critical assessment of current frontline research and providing pointers towards future opportunities.</p>
-      <br/>
-
-      <hr class="hr6">
-      <div class="flex-container">
-        <div class="SciPostPhysicsBanner">
-          <h3>SciPost Physics Select</h3>
-        </div>
-      </div>
-      
-      <p>SciPost Physics Select publishes articles of superlative quality in the field of Physics.</p>
-      <p>Authors cannot submit directly to this Journal; SPS papers are editorially selected from the most outstanding Submissions to SciPost Physics.</p>
-      <p style="color: red;"><em>Coming soon!</p>
-      <br/>
     </div>
-    <div class="col-1"></div>
-    <div class="col-5">
-      <hr class="hr6">
-      <p>The collection of SciPost Physics Journals covers research in the domains of Experimental, Theoretical and Computational physics, including the following specialties:</p>
-      <ul>
-        <li>A: Atomic, Molecular and Optical Physics</li>
-        <li>B: Biophysics</li>
-        <li>C: Condensed Matter Physics</li>
-        <li>F: Fluid Dynamics</li>
-        <li>G: Gravitation, Cosmology and Astroparticle Physics</li>
-        <li>H: High-Energy Physics</li>
-        <li>M: Mathematical Physics</li>
-        <li>N: Nuclear Physics</li>
-        <li>Q: Quantum Statistical Mechanics</li>
-        <li>S: Statistical and Soft Matter Physics</li>
-      </ul>
-      <hr class="hr12">
-      
-      <h3><a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a></h3>
-      <h3><a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a></h3>
-      <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and Refereeing procedure</a></h3>
-      <h3><a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a></h3>
+</div>
+<div class="row">
+    <div class="col-12">
+      <h2>View and comment on current <a href="{% url 'submissions:submissions' %}">Submissions</a> <small>(login required)</small></h2>
     </div>
-  </div>
-</section>
+</div>
+
+<div class="row">
+    <div class="col-12 col-md-6">
+        {# <hr>#}
+        <div class="SciPostPhysicsBanner">
+            <h1><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h1>
+        </div>
+        <div class="py-2">
+            <p>SciPost Physics publishes outstanding-quality research articles in all domains and subject areas of Physics.</p>
+            <p>The journal accepts three types of content: Letters, Articles and Reviews.</p>
+            <p>Letters report broad-interest, significant breakthroughs in Physics, of interest and importance to researchers in multiple subject areas.</p>
+            <p>Articles provide in-depth, detailed reports of groundbreaking research within one or more subject areas.</p>
+            <p>Reviews are short pieces taking a snapshot of a research area, written by recognized leaders in the field, providing a critical assessment of current frontline research and providing pointers towards future opportunities.</p>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="row">
+            <div class="col-12">
+                {# <hr>#}
+                <div class="SciPostPhysicsBanner">
+                    <h1>SciPost Physics Select</h1>
+                </div>
+                <div class="py-2">
+                    <p>SciPost Physics Select publishes articles of superlative quality in the field of Physics.</p>
+                    <p>Authors cannot submit directly to this Journal; SPS papers are editorially selected from the most outstanding Submissions to SciPost Physics.</p>
+                    <p style="color: red;"><em>Coming soon!</em></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                {# <hr>#}
+                <div class="SciPostPhysicsBanner">
+                    <h1>SciPost Physics Lecture Notes</h1>
+                </div>
+                <div class="py-2">
+                  <p>Research-level didactic material in all domains and subject areas of Physics.</p>
+                  <p style="color: red;">Open for submission!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% comment %} <div class="row">
+    <div class="col-12">
+        <hr>
+        <div class="SciPostPhysicsBanner">
+            <h3><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h3>
+        </div>
+        <div class="py-2">
+            <p>SciPost Physics publishes outstanding-quality research articles in all domains and subject areas of Physics.</p>
+            <p>The journal accepts three types of content: Letters, Articles and Reviews.</p>
+            <p>Letters report broad-interest, significant breakthroughs in Physics, of interest and importance to researchers in multiple subject areas.</p>
+            <p>Articles provide in-depth, detailed reports of groundbreaking research within one or more subject areas.</p>
+            <p>Reviews are short pieces taking a snapshot of a research area, written by recognized leaders in the field, providing a critical assessment of current frontline research and providing pointers towards future opportunities.</p>
+        </div>
+    </div>
+</div>{% endblock %}
+
+{% comment %} <div class="row">
+    <div class="col-12">
+        <hr>
+        <div class="SciPostPhysicsBanner">
+            <h3>SciPost Physics Select</h3>
+        </div>
+        <div class="py-2">
+            <p>SciPost Physics Select publishes articles of superlative quality in the field of Physics.</p>
+            <p>Authors cannot submit directly to this Journal; SPS papers are editorially selected from the most outstanding Submissions to SciPost Physics.</p>
+            <p style="color: red;"><em>Coming soon!</p>
+        </div>
+    </div>
+</div>{% endcomment %}
 
 
-{% endblock bodysup %}
+<div class="row">
+    <div class="col-12">
+        <hr>
+        <p>The collection of SciPost Physics Journals covers research in the domains of Experimental, Theoretical and Computational physics, including the following specialties:</p>
+        <ul>
+            <li>A: Atomic, Molecular and Optical Physics</li>
+            <li>B: Biophysics</li>
+            <li>C: Condensed Matter Physics</li>
+            <li>F: Fluid Dynamics</li>
+            <li>G: Gravitation, Cosmology and Astroparticle Physics</li>
+            <li>H: High-Energy Physics</li>
+            <li>M: Mathematical Physics</li>
+            <li>N: Nuclear Physics</li>
+            <li>Q: Quantum Statistical Mechanics</li>
+            <li>S: Statistical and Soft Matter Physics</li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <hr>
+        <h3><a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a></h3>
+        <h3><a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a></h3>
+        <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and Refereeing procedure</a></h3>
+        <h3><a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a></h3>
+    </div>
+</div>
+
+{% endblock content %}

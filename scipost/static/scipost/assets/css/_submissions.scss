@@ -1,0 +1,23 @@
+table.submission_header {
+    width: 100%;
+}
+
+.report,
+.comment {
+    border-left: 4px solid #f4f4f4;
+    padding-left: 1rem;
+
+    .reportid,
+    .commentid {
+        box-shadow: none;
+        display: block;
+        margin-bottom: 1rem;
+        padding: 0.5rem 1rem;
+        background: #f4f4f4;
+        margin-left: -1rem;
+    }
+}
+
+.reportRatings {
+    margin: 0 0 1rem;
+}
