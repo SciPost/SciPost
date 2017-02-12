@@ -12,13 +12,25 @@ register = template.Library()
 
 
 @register.filter
-def bootstrap(element, arg='2-10'):
-    ratio = arg.split('-')
+def bootstrap(element, args='2,10'):
+    '''Pass arguments to tag by separating them using a comma ",".
+
+    Arguments:
+    -- 1. Column width for label
+    -- 2. Column width for input
+    -- 3. Additional argument 'sm' or 'lg' for form groups.
+    '''
+    args = [arg.strip() for arg in args.split(',')]
     markup_classes = {
-        'label': 'col-md-%s' % ratio[0],
-        'value': 'col-md-%s' % ratio[1],
+        'label': 'col-md-%s' % args[0],
+        'value': 'col-md-%s' % args[1],
         'single_value': ''
     }
+    try:
+        markup_classes['label'] += ' col-form-label-%s' % args[2]
+        markup_classes['form_control'] = 'form-control-%s' % args[2]
+    except IndexError:
+        markup_classes['form_control'] = ''
     return render(element, markup_classes)
 
 
@@ -29,11 +41,11 @@ def bootstrap_inline(element):
 
 
 @register.filter
-def add_input_classes(field):
+def add_input_classes(field, extra_classes=''):
     if not is_checkbox(field) and not is_multiple_checkbox(field) \
        and not is_radio(field) and not is_file(field):
         field_classes = field.field.widget.attrs.get('class', '')
-        field_classes += ' form-control'
+        field_classes += ' form-control ' + extra_classes
         field.field.widget.attrs['class'] = field_classes
 
 
@@ -41,7 +53,7 @@ def render(element, markup_classes):
     element_type = element.__class__.__name__.lower()
 
     if element_type == 'boundfield':
-        add_input_classes(element)
+        add_input_classes(element, markup_classes['form_control'])
         template = get_template("tags/bootstrap/field.html")
         context = Context({'field': element, 'classes': markup_classes, 'form': element.form})
     else:
@@ -49,13 +61,13 @@ def render(element, markup_classes):
         if has_management:
             for form in element.forms:
                 for field in form.visible_fields():
-                    add_input_classes(field)
+                    add_input_classes(field, markup_classes['form_control'])
 
             template = get_template("tags/bootstrap/formset.html")
             context = Context({'formset': element, 'classes': markup_classes})
         else:
             for field in element.visible_fields():
-                add_input_classes(field)
+                add_input_classes(field, markup_classes['form_control'])
 
             template = get_template("tags/bootstrap/form.html")
             context = Context({'form': element, 'classes': markup_classes})
