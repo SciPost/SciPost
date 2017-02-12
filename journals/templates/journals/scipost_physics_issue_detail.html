@@ -17,33 +17,31 @@
 
 {% endblock headsup %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
+{% include 'journals/scipost_physics_menu.html' %}
 
-  {% include 'journals/scipost_physics_menu.html' %}
-
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>{{ issue }}</h2>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>{{ issue }}</h2>
+        </div>
     </div>
-  </div>
+</div>
 
-  <div class="flex-container">
-    <div class="flex-whitebox800">
-      <ul class="publicationHeaderList">
+<div class="publicationHeaderList">
+    <div class="row">
         {% for paper in papers %}
-          {{ paper.header_as_li }}
+            <div class="col-md-6">
+                <div class="panel">
+                  {{ paper.header_as_li }}
+                </div>
+            </div>
         {% endfor %}
-      </ul>
     </div>
-  </div>
-
-</section>
+</div>
 
 
-<section>
 {% include 'journals/scipost_physics_footer.html' %}
-</section>
 
-{% endblock bodysup %}
+{% endblock content %}

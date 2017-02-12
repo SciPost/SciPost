@@ -15,34 +15,32 @@
 </script>
 {% endblock headsup %}
 
-{% block bodysup %}
+{% block content %}
 
+{% include 'journals/scipost_physics_menu.html' %}
 
-<section>
-
-  {% include 'journals/scipost_physics_menu.html' %}
-
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>Recent publications:</h2>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Recent publications:</h2>
+        </div>
     </div>
-  </div>
+</div>
 
-  <div class="flex-container">
-    {% if recent_papers %}
-      <div class="flex-whitebox800">
-        <ul class="publicationHeaderList">
-          {% for paper in recent_papers %}
-            {{ paper.header_as_li }}
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
-  </div>
+{% if recent_papers %}
+<div class="publicationHeaderList">
+    <div class="row">
+        {% for paper in recent_papers %}
+            <div class="col-md-6">
+                <div class="panel">
+                    {{ paper.header_as_li }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
-  {% include 'journals/scipost_physics_footer.html' %}
+{% include 'journals/scipost_physics_footer.html' %}
 
-</section>
-
-
-{% endblock bodysup %}
+{% endblock content %}

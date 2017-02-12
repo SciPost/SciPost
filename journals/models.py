@@ -1,5 +1,6 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.http import Http404
 from django.template import Template, Context
 from django.utils import timezone
 
@@ -136,14 +137,45 @@ class Volume(models.Model):
         return str(self.in_journal) + ' Vol. ' + str(self.number)
 
 
+STATUS_DRAFT = 'draft'
+STATUS_PUBLISHED = 'published'
+ISSUE_STATUSES = (
+    (STATUS_DRAFT, 'Draft'),
+    (STATUS_PUBLISHED, 'Published'),
+)
+
+
+class IssueManager(models.Manager):
+    def get_published(self, *args, **kwargs):
+        try:
+            return self.published(*args, **kwargs)[0]
+        except IndexError:
+            raise Http404
+
+    def published(self, journal=None, **kwargs):
+        issues = self.filter(status=STATUS_PUBLISHED, **kwargs)
+        if journal:
+            issues.filter(in_volume__in_journal__name=journal)
+        return issues
+
+    def in_draft(self, journal=None, **kwargs):
+        issues = self.filter(status=STATUS_DRAFT, **kwargs)
+        if journal:
+            issues.filter(in_volume__in_journal__name=journal)
+        return issues
+
+
 class Issue(models.Model):
     in_volume = models.ForeignKey(Volume, on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
+    status = models.CharField(max_length=20, choices=ISSUE_STATUSES, default=STATUS_PUBLISHED)
     doi_string = models.CharField(max_length=200, blank=True, null=True)
     # absolute path on filesystem: (JOURNALS_DIR)/journal/vol/issue/
     path = models.CharField(max_length=200)
+
+    objects = IssueManager()
 
     class Meta:
         unique_together = ('number', 'in_volume')
@@ -155,6 +187,8 @@ class Issue(models.Model):
         else:
             text += (' (' + self.start_date.strftime('%B') + '-' + self.until_date.strftime('%B') +
                      ' ' + self.until_date.strftime('%Y') + ')')
+        if self.status == STATUS_DRAFT:
+            text += ' (In draft)'
         return text
 
     def period(self):
@@ -163,6 +197,20 @@ class Issue(models.Model):
         context = Context({'until_month': self.start_date.strftime('%B'),
                            'year': self.until_date.strftime('%Y')})
         return template.render(context)
+
+
+class PublicationManager(models.Manager):
+    def get_published(self, *args, **kwargs):
+        try:
+            return self.published(*args, **kwargs)[0]
+        except IndexError:
+            raise Http404
+
+    def published(self, **kwargs):
+        return self.filter(in_issue__status=STATUS_PUBLISHED, **kwargs)
+
+    def in_draft(self, **kwargs):
+        return self.filter(in_issue__status=STATUS_DRAFT, **kwargs)
 
 
 class Publication(models.Model):
@@ -203,6 +251,8 @@ class Publication(models.Model):
     latest_activity = models.DateTimeField(default=timezone.now)
     citedby = JSONField(default={}, blank=True, null=True)
 
+    objects = PublicationManager()
+
     def __str__(self):
         header = (self.citation() + ', '
                   + self.title[:30] + ' by ' + self.author_list[:30]
@@ -242,17 +292,17 @@ class Publication(models.Model):
         return template.render(context)
 
     def header_as_li(self):
-        header = ('<li class="publicationHeader">'
-                  '<p class="publicationTitle"><a href="{% url \'scipost:publication_detail\' doi_string=doi_string %}">{{ title }}</a></p>'
+        header = ('<div class="publicationHeader">'
+                  '<h3 class="publicationTitle"><a href="{% url \'scipost:publication_detail\' doi_string=doi_string %}">{{ title }}</a></h3>'
                   '<p class="publicationAuthors">{{ author_list }}</p>'
                   '<p class="publicationReference">{{ citation }} &nbsp;&nbsp;'
                   '|&nbsp;published {{ pub_date }}</p>'
                   '<p class="publicationAbstract">{{ abstract }}</p>'
                   '<ul class="publicationClickables">'
-                  '<li><button class="toggleAbstractButton">Toggle abstract</button></li>'
+                  '<li><button class="btn btn-secondary toggleAbstractButton">Toggle abstract</button></li>'
                   '<li class="publicationPDF"><a href="{% url \'scipost:publication_pdf\' doi_string=doi_string %}" target="_blank">pdf</a></li>'
                   '</ul>'
-                  '</li>')
+                  '</div>')
         template = Template(header)
         context = Context({
             'doi_string': self.doi_string,
@@ -270,7 +320,10 @@ class Publication(models.Model):
         It provides all the details for a publication.
         """
         pub_details = (
-            '<p class="publicationTitle"><a href="{% url \'scipost:publication_detail\' doi_string=doi_string %}">{{ title }}</a></p>'
+            '<div class="row"><div class="col-12">'
+            '<h3 class="publicationTitle">'
+            '<a href="{% url \'scipost:publication_detail\' doi_string=doi_string %}">{{ title }}</a>'
+            '</h3>'
             '<p class="publicationAuthors">{{ author_list }}</p>'
             '<p class="publicationReference">{{ citation }} &nbsp;&nbsp;'
             '|&nbsp;published {{ pub_date}}</p>'
@@ -282,12 +335,14 @@ class Publication(models.Model):
             '<li><a href="#openModal">BiBTeX</a></li>'
             '<li><a href="{% url \'submissions:submission\' arxiv_identifier_w_vn_nr='
             'arxiv_identifier_w_vn_nr %}">Submissions/Reports</a></li>'
-            '</ul><br/><hr class="hr6"/>'
+            '</ul></div></div>'
+            '<div class="row"><div class="col-12"><hr>'
             '<h3>Abstract:</h3>'
             '<p class="publicationAbstract">{{ abstract }}</p>'
             '<div id="openModal" class="modalDialog"><div>'
             '<a href="#close" title="Close" class="close">X</a>'
             '<h2>BiBTeX</h2><p>{{ BiBTeX|linebreaks }}</p></div></div>'
+            '</div></div>'
         )
         template = Template(pub_details)
         context = Context({

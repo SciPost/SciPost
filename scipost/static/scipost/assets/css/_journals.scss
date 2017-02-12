@@ -24,3 +24,20 @@
         }
     }
 }
+
+
+.SciPostPhysicsTabMenu {
+    display: block;
+}
+
+.publicationHeader {
+    .panel & .publicationTitle {
+        margin: -0.75rem -0.75rem 0.5rem -0.75rem;
+    }
+}
+
+.publicationTitle {
+    background: #eee;
+    padding: 0.75rem;
+    margin-bottom: .5rem;
+}

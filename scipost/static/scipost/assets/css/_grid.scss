@@ -1,0 +1,7 @@
+[class*="col-"] {
+    padding-bottom: $grid-gutter-width-base / 2;
+
+    &:not(> .panel) {
+        padding-bottom: 0;
+    }
+}

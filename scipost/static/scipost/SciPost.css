@@ -673,7 +673,7 @@ h3.NewsHeadline {
 
 ul.SciPostPhysicsTabMenu {
   background-color: #dddddd;
-  display: inline-block;
+  display: block;
   font-size: 16px;
   padding: 0px;
 }
