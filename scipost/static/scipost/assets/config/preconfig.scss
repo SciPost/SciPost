@@ -17,8 +17,9 @@ $container-max-widths: (
 
 // Colors
 //
-$scipost-lightblue: #6884C2 !default;
-$scipost-darkblue: #002b49 !default;
+$scipost-lightblue: #6884C2;
+$scipost-darkblue: #002b49;
+$scipost-orange: #FFA300;
 
 $blue: $scipost-lightblue !default;
 $body-color: $scipost-darkblue !default;
@@ -31,6 +32,14 @@ $font-family-monospace:  $font-family-sans-serif !default;
 $font-family-base:       $font-family-sans-serif !default;
 
 $font-size-base: 0.8rem !default;
+$font-size-sm: 0.75rem;
+
+$font-size-h1: 2.0rem;
+$font-size-h2: 1.75rem;
+$font-size-h3: 1.5rem;
+$font-size-h4: 1.25rem;
+$font-size-h5: 1.0rem;
+$font-size-h6: 0.8rem;
 
 
 // Navbar

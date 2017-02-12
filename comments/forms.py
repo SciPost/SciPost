@@ -43,7 +43,7 @@ class CommentForm(forms.ModelForm):
                     HTML('<p id="goodCommenter"><i>Be professional. Only serious and '
                          'meaningful comments will be vetted through.</i></p><br/>'),
                     Field('remarks_for_editors'),
-                    css_class="col-9"),
+                    css_class="col-md-9"),
                 Div(
                     Fieldset(
                         'Specify categorization(s):',
@@ -57,7 +57,7 @@ class CommentForm(forms.ModelForm):
                              '<a href="{% url \'scipost:terms_and_conditions\' %}">'
                              'Terms and Conditions</a>.</i></p>'),
                         ),
-                    css_class="col-3"),
+                    css_class="col-md-3"),
                 css_class="row"),
             )
 

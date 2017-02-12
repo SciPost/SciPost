@@ -210,11 +210,10 @@ class Comment(TimeStampedModel):
         template = Template(output)
         return template.render(context)
 
-
-    def header_as_li (self):
+    def header_as_li(self):
         # for search lists
         header = '<li>'
-        #header += '<div class="flex-container"><div class="flex-whitebox0">'
+        # header += '<div class="flex-container"><div class="flex-whitebox0">'
         header += 'Nr {{ id }}'
         context = Context({'id': self.id})
         header += ', <div class="opinionsDisplay">' + self.opinions_as_ul_tiny() + '</div>'

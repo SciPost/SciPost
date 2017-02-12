@@ -3,10 +3,10 @@ DISCIPLINE_ASTROPHYSICS = 'astrophysics'
 DISCIPLINE_MATH = 'mathematics'
 DISCIPLINE_COMPUTERSCIENCE = 'computerscience'
 SCIPOST_DISCIPLINES = (
-    ('physics', 'Physics'),
-    ('astrophysics', 'Astrophysics'),
-    ('mathematics', 'Mathematics'),
-    ('computerscience', 'Computer Science'),
+    (DISCIPLINE_PHYSICS, 'Physics'),
+    (DISCIPLINE_ASTROPHYSICS, 'Astrophysics'),
+    (DISCIPLINE_MATH, 'Mathematics'),
+    (DISCIPLINE_COMPUTERSCIENCE, 'Computer Science'),
     )
 disciplines_dict = dict(SCIPOST_DISCIPLINES)
 

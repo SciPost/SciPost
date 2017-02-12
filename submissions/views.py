@@ -14,8 +14,6 @@ from django.utils import timezone
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
 
-# from .models import *
-# from .forms import *
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication,\
                     SUBMISSION_STATUS_PUBLICLY_UNLISTED, SUBMISSION_STATUS_VOTING_DEPRECATED,\
@@ -33,11 +31,10 @@ from journals.models import journals_submit_dict
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, title_dict, Remark, RegistrationInvitation
 
+from scipost.services import ArxivCaller
 from scipost.utils import Utils
 
 from comments.forms import CommentForm
-
-from .services import ArxivCaller
 
 from django.views.generic.edit import CreateView, FormView
 
@@ -145,8 +142,8 @@ class PrefillUsingIdentifierView(FormView):
         identifierform = SubmissionIdentifierForm(request.POST)
         if identifierform.is_valid():
             # Use the ArxivCaller class to make the API calls
-            caller = ArxivCaller()
-            caller.process(identifierform.cleaned_data['identifier'])
+            caller = ArxivCaller(Submission, identifierform.cleaned_data['identifier'])
+            caller.process()
 
             if caller.is_valid():
                 # Arxiv response is valid and can be shown
@@ -1012,6 +1009,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
                                    date_invited=timezone.now(),
                                    invited_by=request.user.contributor)
     invitation.save()
+    # raise
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_refereeing_invitation_email()
     return redirect(reverse('submissions:editorial_page',

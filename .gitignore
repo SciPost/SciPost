@@ -9,25 +9,21 @@ __pycache__
 *~
 
 # Package managers
-venv*
-node_modules/
+/venv*
+/node_modules/
 *webpack-stats.json
 
 .python-version
 
 
-media/temp
+/media/temp
 
 SCIPOST_JOURNALS
 UPLOADS
 
-docs/_build
-local_files
-static/
-
-local_files/
-static/
-!/scipost/static/
+/docs/_build
+/local_files/
+/static/
 static_bundles/
 
 whoosh_index

@@ -73,13 +73,13 @@
   <div class="flex-greybox">
     <h1>Request Activation of a Commentary Page:</h1>
   </div>
-  {% if errormessage %}
-  <h3 style="color: red;">Error: {{ errormessage }}</h3>
-  {% if existing_commentary %}
-  <ul>{{ existing_commentary.header_as_li }}</ul>
-  {% endif %}
-  <br/>
-  {% endif %}
+    {% if errormessage %}
+        <h3 style="color: red;">Error: {{ errormessage }}</h3>
+        {% if existing_commentary %}
+            <ul>{{ existing_commentary.header_as_li }}</ul>
+        {% endif %}
+        <br/>
+    {% endif %}
 
   <div id="DOIprefill">
     <h3><em>For published papers, you can prefill the form (except for domain, subject area and abstract) using the DOI:</em></h3>
@@ -103,7 +103,7 @@
   <form action="{% url 'commentaries:request_commentary' %}" method="post">
     {% csrf_token %}
     <table>
-      {{ form.as_table }}
+      {{ request_commentary_form.as_table }}
     </table>
     <input type="submit" value="Submit"/>
   </form>
