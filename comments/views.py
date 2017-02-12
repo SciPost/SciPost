@@ -128,7 +128,7 @@ def reply_to_comment(request, comment_id):
             is_author = True
 
     if request.method == 'POST':
-        form = CommentForm(request.POST, request.FILES or None)
+        form = CommentForm(request.POST, request.FILES)
         if form.is_valid():
             newcomment = Comment(
                 commentary=comment.commentary,  # one of commentary, submission or thesislink will be not Null
@@ -146,6 +146,7 @@ def reply_to_comment(request, comment_id):
                 is_val=form.cleaned_data['is_val'],
                 is_lit=form.cleaned_data['is_lit'],
                 is_sug=form.cleaned_data['is_sug'],
+                file_attachment=form.cleaned_data['file_attachment'],
                 comment_text=form.cleaned_data['comment_text'],
                 remarks_for_editors=form.cleaned_data['remarks_for_editors'],
                 date_submitted=timezone.now(),
@@ -189,7 +190,7 @@ def reply_to_report(request, report_id):
     if report.submission.authors.filter(id=request.user.contributor.id).exists():
         is_author = True
     if is_author and request.method == 'POST':
-        form = CommentForm(request.POST, request.FILES or None)
+        form = CommentForm(request.POST, request.FILES)
         if form.is_valid():
             newcomment = Comment(
                 submission=report.submission,
@@ -205,6 +206,7 @@ def reply_to_report(request, report_id):
                 is_val=form.cleaned_data['is_val'],
                 is_lit=form.cleaned_data['is_lit'],
                 is_sug=form.cleaned_data['is_sug'],
+                file_attachment=form.cleaned_data['file_attachment'],
                 comment_text=form.cleaned_data['comment_text'],
                 remarks_for_editors=form.cleaned_data['remarks_for_editors'],
                 date_submitted=timezone.now(),
