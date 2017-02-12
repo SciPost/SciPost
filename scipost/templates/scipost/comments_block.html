@@ -1,4 +1,7 @@
 {% load scipost_extras %}
+
+{% load filename %}
+
 {% if comments %}
 <hr>
 <div class="row">
@@ -46,10 +49,21 @@
 
                 <div class="row">
                     <div class="col-12">
-                        <p>{{ comment.comment_text|linebreaks }}</p>
+                        <p>
+                            {{ comment.comment_text|linebreaks }}
+
+                            {% if comment.file_attachment %}
+                                <h3>Attachment:</h3>
+                                <p>
+                                    <a target="_blank" href="{{ comment.file_attachment.url }}">{{ comment.file_attachment|filename }}</a><br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
+                                </p>
+                            {% endif %}
+                        </p>
                         {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
-                        <h3>Remarks for editors:</h3>
-                        <p>{{ comment.remarks_for_editors|linebreaks }}</p>
+                        {% if comment.remarks_for_editors %}
+                            <h3>Remarks for editors:</h3>
+                            <p>{{ comment.remarks_for_editors|linebreaks }}</p>
+                        {% endif %}
                         {% endif %}
                     </div>
                 </div>
@@ -86,10 +100,21 @@
 
                     <div class="row">
                         <div class="col-12">
-                            <p>{{ reply.comment_text|linebreaks }}</p>
+                            <p>
+                                {{ reply.comment_text|linebreaks }}
+                                {% if reply.file_attachment %}
+                                    <h3>Attachment:</h3>
+                                    <p>
+                                        <a target="_blank" href="{{ reply.file_attachment.url }}">{{ reply.file_attachment|filename }}</a><br><small>{{ reply.file_attachment.size|filesizeformat }}</small>
+                                    </p>
+                                {% endif %}
+                            </p>
+
                             {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
+                            {% if reply.remarks_for_editors %}
                                 <h3>Remarks for editors:</h3>
                                 <p>{{ reply.remarks_for_editors|linebreaks }}</p>
+                            {% endif %}
                             {% endif %}
                         </div>
                     </div>

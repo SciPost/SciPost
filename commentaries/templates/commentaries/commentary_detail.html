@@ -70,7 +70,7 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <form action="{% url 'commentaries:commentary' arxiv_or_DOI_string=commentary.arxiv_or_DOI_string %}" method="post">
+        <form enctype="multipart/form-data" action="{% url 'commentaries:commentary' arxiv_or_DOI_string=commentary.arxiv_or_DOI_string %}" method="post">
           {% csrf_token %}
           {% load crispy_forms_tags %}
           {% crispy form %}

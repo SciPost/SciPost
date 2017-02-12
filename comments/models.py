@@ -1,7 +1,10 @@
+from django.conf import settings
 from django.db import models
 from django.shortcuts import get_object_or_404
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
+
+from .behaviors import validate_file_extension
 
 from commentaries.models import Commentary
 from scipost.models import TimeStampedModel, Contributor
@@ -38,7 +41,8 @@ class Comment(TimeStampedModel):
     vetted_by = models.ForeignKey(Contributor, blank=True, null=True,
                                   on_delete=models.CASCADE,
                                   related_name='comment_vetted_by')
-    pdf_file = models.FileField(upload_to='UPLOADS/COMMENTS/%Y/%m/', blank=True)
+    file_attachment = models.FileField(upload_to='comments/%Y/%m/%d/',
+                                       blank=True, validators=[validate_file_extension])
     # a Comment is either for a Commentary or Submission or a ThesisLink.
     commentary = models.ForeignKey(Commentary, blank=True, null=True, on_delete=models.CASCADE)
     submission = models.ForeignKey(Submission, blank=True, null=True, on_delete=models.CASCADE)

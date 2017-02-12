@@ -61,7 +61,7 @@
   <div class="flex-greybox">
     <h1>Contribute a Comment:</h1>
   </div>
-  <form action="{% url 'theses:thesis' thesislink.id %}" method="post">
+  <form enctype="multipart/form-data" action="{% url 'theses:thesis' thesislink.id %}" method="post">
     {% csrf_token %}
     {% load crispy_forms_tags %}
     {% crispy form %}

@@ -128,7 +128,7 @@ def reply_to_comment(request, comment_id):
             is_author = True
 
     if request.method == 'POST':
-        form = CommentForm(request.POST)
+        form = CommentForm(request.POST, request.FILES or None)
         if form.is_valid():
             newcomment = Comment(
                 commentary=comment.commentary,  # one of commentary, submission or thesislink will be not Null
@@ -189,7 +189,7 @@ def reply_to_report(request, report_id):
     if report.submission.authors.filter(id=request.user.contributor.id).exists():
         is_author = True
     if is_author and request.method == 'POST':
-        form = CommentForm(request.POST)
+        form = CommentForm(request.POST, request.FILES or None)
         if form.is_valid():
             newcomment = Comment(
                 submission=report.submission,
