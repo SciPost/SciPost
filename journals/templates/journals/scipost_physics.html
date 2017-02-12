@@ -17,56 +17,57 @@
 
 {% endblock headsup %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
+{% include 'journals/scipost_physics_menu.html' %}
 
-  {% include 'journals/scipost_physics_menu.html' %}
-
-  {% if current_issue %}
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>Current issue: Vol. {{ current_issue.in_volume.number }} issue {{ current_issue.number }} (in progress)</h2>
-    </div>
-  </div>
-
-  <div class="flex-container">
-    <div class="flex-whitebox800">
-      <ul class="publicationHeaderList">
-        {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
-          {{ paper.header_as_li }}
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
-  <hr class="hr12"/>
-  {% endif %}
-
-  {% if latest_issue %}
-    <div class="flex-container">
-      <div class="flex-greybox">
-        <h2>Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
-      </div>
-    </div>
-
-    <div class="flex-container">
-      {% if latest_issue %}
-        <div class="flex-whitebox800">
-            <ul class="publicationHeaderList">
-              {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
-                {{ paper.header_as_li }}
-              {% endfor %}
-            </ul>
+{% if current_issue %}
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Current issue: Vol. {{ current_issue.in_volume.number }} issue {{ current_issue.number }} (in progress)</h2>
         </div>
-      {% endif %}
     </div>
-  {% endif %}
+</div>
 
-</section>
+<div class="publicationHeaderList">
+    <div class="row">
+        {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
+          <div class="col-md-6">
+              <div class="panel">
+                  {{ paper.header_as_li }}
+              </div>
+          </div>
+        {% endfor %}
+    </div>
+</div>
+<hr>
+{% endif %}
+
+{% if latest_issue %}
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="publicationHeaderList">
+    <div class="row">
+        {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
+            <div class="col-md-6">
+                <div class="panel">
+                    {{ paper.header_as_li }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
 
-<section>
 {% include 'journals/scipost_physics_footer.html' %}
-</section>
 
-{% endblock bodysup %}
+
+{% endblock content %}
