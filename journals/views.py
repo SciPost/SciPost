@@ -694,8 +694,7 @@ def publication_detail(request, doi_string):
 
 def publication_pdf(request, doi_string):
     publication = Publication.objects.get_published(doi_string=doi_string)
-    pdf = File(publication.pdf_file)
-    response = HttpResponse(pdf, content_type='application/pdf')
+    response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = ('filename='
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response
@@ -709,8 +708,7 @@ def publication_detail_from_doi_label(request, doi_label):
 
 def publication_pdf_from_doi_label(request, doi_label):
     publication = Publication.objects.get_published(doi_label=doi_label)
-    pdf = File(publication.pdf_file)
-    response = HttpResponse(pdf, content_type='application/pdf')
+    response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = ('filename='
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response

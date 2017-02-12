@@ -1,13 +1,12 @@
 from django import forms
 
-from .models import *
+from .models import Comment
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
 
 
 COMMENT_ACTION_CHOICES = (
-#    (0, 'modify'),
     (1, 'accept'),
     (2, 'refuse (give reason below)'),
     )
@@ -24,8 +23,9 @@ comment_refusal_dict = dict(COMMENT_REFUSAL_CHOICES)
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['is_cor', 'is_rem', 'is_que', 'is_ans', 'is_obj', 'is_rep',
-                  'is_val', 'is_lit', 'is_sug', 'comment_text', 'remarks_for_editors']
+        fields = ['is_cor', 'is_rem', 'is_que', 'is_ans', 'is_obj',
+                  'is_rep', 'is_val', 'is_lit', 'is_sug',
+                  'comment_text', 'remarks_for_editors', 'file_attachment']
 
     def __init__(self, *args, **kwargs):
         super(CommentForm, self).__init__(*args, **kwargs)

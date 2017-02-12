@@ -306,7 +306,7 @@
     </div>
     <div class="row">
         <div class="col-12">
-            <form action="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+            <form enctype="multipart/form-data" action="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
                 {% csrf_token %}
                 {% load crispy_forms_tags %}
                 {% crispy form %}

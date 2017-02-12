@@ -601,10 +601,10 @@ input, textarea {
   color: black;
   border: 1px solid black; border-radius: 1px;
 }
-input[type='text'], input[type='URL'], textarea {
+/*input[type='text'], input[type='URL'], textarea {
   max-width: 800px;
   min-width: 200px;
-}
+}*/
 input:hover {
   text-decoration: underline;
 }
