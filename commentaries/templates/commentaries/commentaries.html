@@ -23,10 +23,10 @@
     <div class="col-md-4">
     	<div class="panel">
             <h2>Search SciPost Commentaries:</h2>
-            <form action="{% url 'commentaries:commentaries' %}" class="tinyform" method="post">
+            <form action="{% url 'commentaries:commentaries' %}" class="small" method="post">
           	{% csrf_token %}
-    	  {{ form|bootstrap:'4-8' }}
-          	<input class="btn btn-secondary" type="submit" name="Submit" />
+    	  {{ form|bootstrap:'4,8,sm' }}
+          	<input class="btn btn-sm btn-secondary" type="submit" name="Submit" />
             </form>
         </div>
     </div>

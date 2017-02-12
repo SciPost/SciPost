@@ -30,53 +30,59 @@
 
 {% endblock headsup %}
 
-{% block bodysup %}
+{% block content %}
 
 
-<section>
-  <div class="flex-greybox">
-    <h1>SciPost Commentary Page &nbsp; (non-SciPost publications)</h1>
-  </div>
-
-  <hr class="hr12">
-  <div class="row">
-    <div class="col-4">
-      <h2>Original publication: </h2>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h1>SciPost Commentary Page (non-SciPost publications)</h1>
+        </div>
     </div>
-  </div>
-  
-  {{ commentary.header_as_table }}
-  
-  <h3>Abstract:</h3>
-  <p>{{ commentary.pub_abstract }}</p>
+</div>
 
-</section>
+<hr>
+<div class="row">
+    <div class="col-12">
+        <h2>Original publication: </h2>
+        {{ commentary.header_as_table }}
+    </div>
+</div>
 
+<div class="row">
+    <div class="col-12">
+        <h3>Abstract:</h3>
+        <p>{{ commentary.pub_abstract }}</p>
+    </div>
+</div>
 
 {% include 'scipost/comments_block.html' %}
 
 
 {% if user.is_authenticated and commentary.open_for_commenting and perms.scipost.can_submit_comments %}
-  <section>
-    <hr class="hr12">
-    <div class="flex-greybox">
-      <h1>Contribute a Comment:</h1>
+<hr>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Contribute a Comment:</h2>
+        </div>
     </div>
-    <form action="{% url 'commentaries:commentary' arxiv_or_DOI_string=commentary.arxiv_or_DOI_string %}" method="post">
-      {% csrf_token %}
-      {% load crispy_forms_tags %}
-      {% crispy form %}
-    </form>
-
-    <div class="row">
-      <div class="col-10">
+</div>
+<div class="row">
+    <div class="col-12">
+        <form action="{% url 'commentaries:commentary' arxiv_or_DOI_string=commentary.arxiv_or_DOI_string %}" method="post">
+          {% csrf_token %}
+          {% load crispy_forms_tags %}
+          {% crispy form %}
+        </form>
+    </div>
+    <div class="col-12">
         <h3>Preview of your comment:</h3>
         <p id="preview-comment_text"></p>
-      </div>
     </div>
+</div>
 
-  </section>
 {% endif %}
 
 
-{% endblock bodysup %}
+{% endblock content %}
