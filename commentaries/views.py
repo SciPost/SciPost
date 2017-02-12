@@ -403,7 +403,7 @@ def commentary_detail(request, arxiv_or_DOI_string):
     commentary = get_object_or_404(Commentary, arxiv_or_DOI_string=arxiv_or_DOI_string)
     comments = commentary.comment_set.all()
     if request.method == 'POST':
-        form = CommentForm(request.POST)
+        form = CommentForm(request.POST, request.FILES)
         if form.is_valid():
             author = Contributor.objects.get(user=request.user)
             newcomment = Comment(commentary=commentary, author=author,
@@ -415,6 +415,7 @@ def commentary_detail(request, arxiv_or_DOI_string):
                                  is_val=form.cleaned_data['is_val'],
                                  is_lit=form.cleaned_data['is_lit'],
                                  is_sug=form.cleaned_data['is_sug'],
+                                 file_attachment=form.cleaned_data['file_attachment'],
                                  comment_text=form.cleaned_data['comment_text'],
                                  remarks_for_editors=form.cleaned_data['remarks_for_editors'],
                                  date_submitted=timezone.now(),
