@@ -1,13 +1,12 @@
 from django import forms
 
-from .models import *
+from .models import Comment
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
 
 
 COMMENT_ACTION_CHOICES = (
-#    (0, 'modify'),
     (1, 'accept'),
     (2, 'refuse (give reason below)'),
     )
