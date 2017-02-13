@@ -1,15 +1,18 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: request Commentary{% endblock pagetitle %}
-
-{% block bodysup %}
+{% load bootstrap %}
 
 {% load scipost_extras %}
+
+{% block pagetitle %}: request Commentary{% endblock pagetitle %}
+
+{% block content %}
 
   <script>
   $(document).ready(function(){
 
-    var allToggableRows = $('tr').slice(1)
+    var allToggableRows = $('#requestForm .form-group').slice(1)
+    var type_selector = $('select#id_type')
 
     var preprint = [5,6,7,8,10]
     var published = [9]
@@ -25,7 +28,7 @@
       })
     }
 
-    switch ($('select#id_type').val()) {
+    switch (type_selector.val()) {
      case "":
        allToggableRows.hide()
        $("#DOIprefill").hide();
@@ -47,7 +50,7 @@
        $("#arXivprefill").hide();
     }
 
-    $('select#id_type').on('change', function() {
+    type_selector.on('change', function() {
       var selection = $(this).val();
       switch(selection){
         case "published":
@@ -69,10 +72,15 @@
   });
 </script>
 
-<section>
-  <div class="flex-greybox">
-    <h1>Request Activation of a Commentary Page:</h1>
-  </div>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h1>Request Activation of a Commentary Page:</h1>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 offset-md-3">
     {% if errormessage %}
         <h3 style="color: red;">Error: {{ errormessage }}</h3>
         {% if existing_commentary %}
@@ -86,8 +94,8 @@
     <p><em>(give the DOI as 10.[4 to 9 digits]/[string], without prefix, as per the placeholder)</em></p>
     <form action="{% url 'commentaries:prefill_using_DOI' %}" method="post">
       {% csrf_token %}
-      {{ doiform }}
-      <input type="submit" value="Query DOI"/>
+      {{ doiform|bootstrap }}
+      <input class="btn btn-secondary" type="submit" value="Query DOI"/>
     </form>
   </div>
   <div id="arXivprefill">
@@ -95,19 +103,18 @@
     <p><em>(give the identifier without prefix, as per the placeholder)</em></p>
     <form action="{% url 'commentaries:prefill_using_identifier' %}" method="post">
       {% csrf_token %}
-      {{ identifierform }}
-      <input type="submit" value="Query arXiv"/>
+      {{ identifierform|bootstrap }}
+      <input class="btn btn-secondary" type="submit" value="Query arXiv"/>
     </form>
   </div>
   <br/>
-  <form action="{% url 'commentaries:request_commentary' %}" method="post">
+  <form id="requestForm" action="{% url 'commentaries:request_commentary' %}" method="post">
     {% csrf_token %}
-    <table>
-      {{ request_commentary_form.as_table }}
-    </table>
-    <input type="submit" value="Submit"/>
+      {{ request_commentary_form|bootstrap }}
+    <input class="btn btn-primary" type="submit" value="Submit"/>
   </form>
 
-</section>
+    </div>
+</div>
 
-{% endblock bodysup %}
+{% endblock content %}
