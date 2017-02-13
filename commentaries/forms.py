@@ -27,7 +27,7 @@ class IdentifierToQueryForm(forms.Form):
         if not (identifierpattern_new.match(cleaned_data['identifier']) or
                 identifierpattern_old.match(cleaned_data['identifier'])):
                 msg = ('The identifier you entered is improperly formatted '
-                       '(did you forget the version number?).')
+                       '(did you forget the version number?)')
                 self.add_error('identifier', msg)
 
         try:

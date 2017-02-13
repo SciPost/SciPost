@@ -83,9 +83,12 @@ def prefill_using_DOI(request):
             if errormessage:
                 form = RequestCommentaryForm()
                 identifierform = IdentifierToQueryForm()
-                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
-                           'errormessage': errormessage,
-                           'existing_commentary': existing_commentary}
+                context = {
+                    'request_commentary_form': form,
+                    'doiform': doiform,
+                    'identifierform': identifierform,
+                    'errormessage': errormessage,
+                    'existing_commentary': existing_commentary}
                 return render(request, 'commentaries/request_commentary.html', context)
 
             # Otherwise we query Crossref for the information:
@@ -135,7 +138,11 @@ def prefill_using_DOI(request):
                              'pages': pages, 'pub_date': pub_date,
                              'pub_DOI': pub_DOI})
                 identifierform = IdentifierToQueryForm()
-                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform, }
+                context = {
+                    'request_commentary_form': form,
+                    'doiform': doiform,
+                    'identifierform': identifierform
+                }
                 context['title'] = pub_title
                 return render(request, 'commentaries/request_commentary.html', context)
             except (IndexError, KeyError, ValueError):
@@ -239,8 +246,9 @@ class PrefillUsingIdentifierView(RequestCommentaryMixin, FormView):
     template_name = 'commentaries/request_commentary.html'
 
     def form_invalid(self, identifierform):
-        for error in identifierform.errors:
-            messages.error(self.request, error)
+        for field, errors in identifierform.errors.items():
+            for error in errors:
+                messages.warning(self.request, error)
         return render(self.request, 'commentaries/request_commentary.html',
                       self.get_context_data(**{}))
 
