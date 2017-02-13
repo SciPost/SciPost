@@ -102,7 +102,9 @@ class TestVetThesisLinkRequests(TestCase):
     def test_thesislink_is_vetted_by_correct_contributor_and_mail_is_sent(self):
         contributor = ContributorFactory()
         contributor.user.groups.add(Group.objects.get(name="Vetting Editors"))
-        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm)
+        request = RequestFactory().get(self.target)
+        request.user = contributor.user
+        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm, form_kwargs={'request': request})
         post_data["action_option"] = VetThesisLinkForm.ACCEPT
         target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
 
@@ -124,8 +126,13 @@ class TestVetThesisLinkRequests(TestCase):
     def test_thesislink_that_is_refused_is_deleted_and_mail_is_sent(self):
         contributor = ContributorFactory()
         contributor.user.groups.add(Group.objects.get(name="Vetting Editors"))
-        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm)
+        request = RequestFactory().get(self.target)
+        request.user = contributor.user
+
+        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm, form_kwargs={'request': request})
         post_data["action_option"] = VetThesisLinkForm.REFUSE
+        post_data["refusal_reason"] = VetThesisLinkForm.ALREADY_EXISTS
+        post_data["justification"] = "This thesis already exists."
         target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
 
         request = RequestFactory().post(target, post_data)

@@ -2,7 +2,6 @@ import factory
 
 from django.utils import timezone
 
-from scipost.factories import ContributorFactory
 from .models import Comment
 
 

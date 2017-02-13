@@ -4,6 +4,6 @@ function hide_all_alerts() {
 
 
 $(function(){
-    // Remove all alerts in screen automatically after 4sec.
-    setTimeout(function() {hide_all_alerts()}, 4000);
+    // Remove all alerts in screen automatically after 10sec.
+    setTimeout(function() {hide_all_alerts()}, 10000);
 });

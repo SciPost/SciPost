@@ -35,11 +35,11 @@ def journals(request):
 
 
 def scipost_physics(request):
-    current_issue = Issue.objects.filter(
+    current_issue = Issue.objects.published(
         in_volume__in_journal__name='SciPost Physics',
         start_date__lte=timezone.now(),
         until_date__gte=timezone.now()).order_by('-until_date').first()
-    latest_issue = Issue.objects.filter(
+    latest_issue = Issue.objects.published(
         in_volume__in_journal__name='SciPost Physics',
         until_date__lte=timezone.now()).order_by('-until_date').first()
     context = {
@@ -50,7 +50,7 @@ def scipost_physics(request):
 
 
 def scipost_physics_issues(request):
-    issues = Issue.objects.filter(
+    issues = Issue.objects.published(
         in_volume__in_journal__name='SciPost Physics').order_by('-until_date')
     context = {'issues': issues, }
     return render(request, 'journals/scipost_physics_issues.html', context)
@@ -61,7 +61,7 @@ def scipost_physics_recent(request):
     Display page for the most recent 20 publications in SciPost Physics.
     """
 
-    recent_papers = Publication.objects.filter(
+    recent_papers = Publication.objects.published(
         in_issue__in_volume__in_journal__name='SciPost Physics').order_by('-publication_date')[:20]
     context = {'recent_papers': recent_papers}
     return render(request, 'journals/scipost_physics_recent.html', context)
@@ -88,8 +88,8 @@ def scipost_physics_about(request):
 
 
 def scipost_physics_issue_detail(request, volume_nr, issue_nr):
-    issue = get_object_or_404(Issue, in_volume__in_journal__name='SciPost Physics',
-                              number=issue_nr)
+    issue = Issue.objects.get_published(journal='SciPost Physics',
+                                        number=issue_nr, in_volume__number=volume_nr)
     papers = issue.publication_set.order_by('paper_nr')
     context = {'issue': issue, 'papers': papers}
     return render(request, 'journals/scipost_physics_issue_detail.html', context)
@@ -687,30 +687,28 @@ def harvest_citedby_links(request, doi_string):
 ###########
 
 def publication_detail(request, doi_string):
-    publication = get_object_or_404(Publication, doi_string=doi_string)
+    publication = Publication.objects.get_published(doi_string=doi_string)
     context = {'publication': publication, }
     return render(request, 'journals/publication_detail.html', context)
 
 
 def publication_pdf(request, doi_string):
-    publication = get_object_or_404(Publication, doi_string=doi_string)
-    pdf = File(publication.pdf_file)
-    response = HttpResponse(pdf, content_type='application/pdf')
+    publication = Publication.objects.get_published(doi_string=doi_string)
+    response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = ('filename='
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response
 
 
 def publication_detail_from_doi_label(request, doi_label):
-    publication = get_object_or_404(Publication, doi_label=doi_label)
+    publication = Publication.objects.get_published(doi_label=doi_label)
     context = {'publication': publication, }
     return render(request, 'journals/publication_detail.html', context)
 
 
 def publication_pdf_from_doi_label(request, doi_label):
-    publication = get_object_or_404(Publication, doi_label=doi_label)
-    pdf = File(publication.pdf_file)
-    response = HttpResponse(pdf, content_type='application/pdf')
+    publication = Publication.objects.get_published(doi_label=doi_label)
+    response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = ('filename='
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response

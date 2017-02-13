@@ -36,7 +36,7 @@
   <hr class="hr12">
   <h1>The Submission concerned:</h1>
   {{ report.submission.header_as_table }}
-  
+
   <h3>Abstract:</h3>
   <p>{{ report.submission.abstract }}</p>
   <br>
@@ -51,7 +51,7 @@
   <hr class="hr6">
   <h1>Your Reply to this Report:</h1>
 
-  <form action="{% url 'comments:reply_to_report' report_id=report.id %}" method="post">
+  <form enctype="multipart/form-data" action="{% url 'comments:reply_to_report' report_id=report.id %}" method="post">
     {% csrf_token %}
     {% load crispy_forms_tags %}
     {% crispy form %}

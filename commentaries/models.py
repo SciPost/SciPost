@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
 
 from journals.models import SCIPOST_JOURNALS_DOMAINS
+from scipost.behaviors import ArxivCallable
 from scipost.models import TimeStampedModel, Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
 
@@ -22,7 +23,7 @@ class CommentaryManager(models.Manager):
         return self.filter(vetted=False, **kwargs)
 
 
-class Commentary(TimeStampedModel):
+class Commentary(ArxivCallable, TimeStampedModel):
     """
     A Commentary contains all the contents of a SciPost Commentary page for a given publication.
     """
@@ -81,6 +82,10 @@ class Commentary(TimeStampedModel):
 
     def __str__(self):
         return self.pub_title
+
+    @classmethod
+    def same_version_exists(self, identifier):
+        return self.objects.filter(arxiv_identifier=identifier).exists()
 
     def header_as_table(self):
         # for display in Commentary page itself
@@ -173,7 +178,7 @@ class Commentary(TimeStampedModel):
         template = Template(header)
         return template.render(context)
 
-    def parse_links_into_urls(self):
+    def parse_links_into_urls(self, commit=False):
         """ Takes the arXiv nr or DOI and turns it into the urls """
         if self.pub_DOI:
             self.arxiv_or_DOI_string = self.pub_DOI
@@ -181,9 +186,9 @@ class Commentary(TimeStampedModel):
         elif self.arxiv_identifier:
             self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_identifier
             self.arxiv_link = 'http://arxiv.org/abs/' + self.arxiv_identifier
-        else:  # should never come here
-            pass
-        self.save()
+
+        if commit:
+            self.save()
 
     def scipost_url(self):
         """ Returns the url of the SciPost Commentary Page """

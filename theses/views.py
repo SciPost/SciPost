@@ -34,10 +34,14 @@ class RequestThesisLink(CreateView):
     success_url = reverse_lazy('scipost:personal_page')
 
     def form_valid(self, form):
-        form.instance.requested_by = self.request.user.contributor
         messages.add_message(self.request, messages.SUCCESS,
                              strings.acknowledge_request_thesis_link)
         return super(RequestThesisLink, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super(RequestThesisLink, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
 
 
 @method_decorator(permission_required(
@@ -76,6 +80,11 @@ class VetThesisLink(UpdateView):
             strings.acknowledge_vet_thesis_link)
         return HttpResponseRedirect(self.get_success_url())
 
+    def get_form_kwargs(self):
+        kwargs = super(VetThesisLink, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
 
 def theses(request):
     if request.method == 'POST':
@@ -96,12 +105,12 @@ def theses(request):
         form = ThesisLinkSearchForm()
         thesislink_search_list = []
 
-    thesislink_recent_list = (ThesisLink.objects
-                              .filter(vetted=True,
-                                      latest_activity__gte=timezone.now() + datetime.timedelta(
-                                        days=-7)))
-    context = {'form': form, 'thesislink_search_list': thesislink_search_list,
-               'thesislink_recent_list': thesislink_recent_list}
+    thesislink_recent_list = (
+        ThesisLink.objects.filter(vetted=True, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)))
+    context = {
+        'form': form, 'thesislink_search_list': thesislink_search_list,
+        'thesislink_recent_list': thesislink_recent_list
+    }
     return render(request, 'theses/theses.html', context)
 
 

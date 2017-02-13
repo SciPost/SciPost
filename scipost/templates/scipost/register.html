@@ -1,54 +1,52 @@
 {% extends 'scipost/base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: register{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
-  <h1>Register to SciPost</h1>
-
-  <div class="flex-greybox">
-    <h2>{{ welcome_message }}</h2>
-  </div>
-
-  <div class="row">
-    <div class="col-4">
-      <h3>Notes:</h3>
-      <p><em style="color: red">Only professional academics (staff members, postdocs, PhD students) can register!</em></p>
-      <p>Required fields are marked with a *.</p>
-      <p>An ORCID id is not formally required but helps preventing identification ambiguities.
-      You can easily get one at  <a href="http://orcid.org">orcid.org</a>.</p>
-      <p>Registration and use of the portal means that you agree with our <a href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a> and with our <a href="{% url 'scipost:privacy_policy' %}">Privacy Policy</a>.</p>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h1>Register to SciPost</h1>
+            {% if welcome_message %}
+            <h2>{{ welcome_message }}</h2>
+            {% endif %}
+        </div>
     </div>
-    <div class="col-1"></div>
-    <div class="col-7">
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h3>Notes:</h3>
+        <p><em style="color: red">Only professional academics (staff members, postdocs, PhD students) can register!</em></p>
+        <p>Required fields are marked with a *.</p>
+        <p>An ORCID id is not formally required but helps preventing identification ambiguities.
+        You can easily get one at  <a href="http://orcid.org">orcid.org</a>.</p>
+        <p>Registration and use of the portal means that you agree with our <a href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a> and with our <a href="{% url 'scipost:privacy_policy' %}">Privacy Policy</a>.</p>
+    </div>
+    <div class="offset-md-1 col-md-7">
+
       {% if invited %}
-      <form action="{% url 'scipost:invitation' key=key %}" method="post">
-	{% csrf_token %}
-	<table>
-	  <ul>
-	    {{ form.as_table }}
-	  </ul>
-	</table>
-	<input type="submit" value="Submit" />
-      </form>
+          <form action="{% url 'scipost:invitation' key=key %}" method="post">
+            	{% csrf_token %}
+        	    {{ form|bootstrap }}
+        	<input class="btn btn-primary" type="submit" value="Submit" />
+          </form>
       {% else %}
-      <form action="{% url 'scipost:register' %}" method="post">
-	{% csrf_token %}
-	<table>
-	  <ul>
-	    {{ form.as_table }}
-	  </ul>
-	</table>
-	<input type="submit" value="Submit" />
-      </form>
+          <form action="{% url 'scipost:register' %}" method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <input class="btn btn-primary" type="submit" value="Submit" />
+          </form>
       {% endif %}
+
       {% if errormessage %}
-      <p>{{ errormessage }}</p>
+          <p style="color:red;">{{ errormessage }}</p>
       {% endif %}
     </div>
-  </div>
+</div>
 
-</section>
 
-{% endblock bodysup %}
+{% endblock content %}

@@ -16,3 +16,15 @@ h1, h2, h3, h4, h5, h6 {
     text-shadow: none;
     font-weight: 500;
 }
+hr,
+hr.hr12 {
+    height: 3px;
+    border: 0;
+    box-shadow: 0 2px 2px 0 #ccc;
+    background: rgba(246, 161, 26, 0.5);
+    margin-bottom: 1rem;
+
+    &.small {
+        height: 1px;
+    }
+}

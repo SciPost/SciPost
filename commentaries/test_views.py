@@ -5,6 +5,7 @@ from django.test import TestCase
 from scipost.factories import ContributorFactory
 
 from .factories import UnVettedCommentaryFactory, VettedCommentaryFactory
+from .forms import CommentarySearchForm
 from .models import Commentary
 
 
@@ -85,3 +86,25 @@ class VetCommentaryRequestsTest(TestCase):
         UnVettedCommentaryFactory()
         response = self.client.get(self.view_url)
         self.assertTrue(type(response.context['commentary_to_vet']) is Commentary)
+
+
+class BrowseCommentariesTest(TestCase):
+    """Test cases for `browse` view."""
+    fixtures = ['groups', 'permissions']
+
+    def setUp(self):
+        VettedCommentaryFactory(discipline='physics')
+        self.view_url = reverse('commentaries:browse', kwargs={
+            'discipline': 'physics',
+            'nrweeksback': '1'
+            })
+
+    def test_response_list(self):
+        '''Test if the browse view is passing commentaries to anoymous users.'''
+        response = self.client.get(self.view_url)
+        self.assertEquals(response.status_code, 200)
+
+        # The created vetted Commentary is found!
+        self.assertTrue(response.context['commentary_browse_list'].count() >= 1)
+        # The search form is passed trough the view...
+        self.assertTrue(type(response.context['form']) is CommentarySearchForm)

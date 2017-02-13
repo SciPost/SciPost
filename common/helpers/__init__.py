@@ -1,4 +1,4 @@
-def model_form_data(model, form_class):
+def model_form_data(model, form_class, form_kwargs={}):
     '''
     Returns a dict that can be used to instantiate a form object.
     It fills in the model's data, but filters out fields that are not on the form.
@@ -22,7 +22,7 @@ def model_form_data(model, form_class):
     '''
 
     model_data = model.__dict__
-    form_fields = list(form_class().fields.keys())
+    form_fields = list(form_class(**form_kwargs).fields.keys())
     return filter_keys(model_data, form_fields)
 
 

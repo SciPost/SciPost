@@ -1,0 +1,172 @@
+//
+// Labels
+// --------------------------------------------------
+// For each of Bootstrap's buttons, define text, background and border color.
+
+$label-padding-x:                  5px !default;
+$label-padding-y:                  3px !default;
+$label-line-height:                inherit;
+$label-font-weight:                $font-weight-normal !default;
+$label-box-shadow:                 none;
+$label-font-size:                  inherit;
+
+$label-primary-color:              $white !default;
+$label-primary-bg:                 $brand-primary !default;
+$label-primary-border:             $btn-primary-bg !default;
+
+$label-secondary-color:            $gray-dark !default;
+$label-secondary-bg:               $white !default;
+$label-secondary-border:           #ccc !default;
+
+$label-default-color:              #fff;
+$label-default-bg:                 #ccc;
+$label-default-border:             #ccc;
+
+$label-info-color:                 $white !default;
+$label-info-bg:                    $brand-info !default;
+$label-info-border:                $btn-info-bg !default;
+
+$label-success-color:              $white !default;
+$label-success-bg:                 $brand-success !default;
+$label-success-border:             $btn-success-bg !default;
+
+$label-warning-color:              $white !default;
+$label-warning-bg:                 $brand-warning !default;
+$label-warning-border:             $btn-warning-bg !default;
+
+$label-danger-color:               $white;
+$label-danger-bg:                  $brand-danger !default;
+$label-danger-border:              $btn-danger-bg !default;
+
+$label-padding-x-sm:               .5rem;
+$label-padding-y-sm:               .1rem;
+
+$label-padding-x-lg:               1rem !default;
+$label-padding-y-lg:               0.5rem !default;
+
+$label-label-spacing-y:            .5rem !default;
+
+// Allows for customizing button radius independently from global border radius
+$label-border-width:               $input-btn-border-width;
+$label-border-radius:              4px;
+$label-border-radius-lg:           4px;
+$label-border-radius-sm:           4px;
+
+$label-transition:                 all .2s ease-in-out !default;
+
+.label {
+    display: inline;
+    font-weight: $label-font-weight;
+    line-height: $label-line-height;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    // cursor: default;
+    border: $label-border-width solid transparent;
+    box-shadow: $label-box-shadow;
+
+    @include button-size($label-padding-y, $label-padding-x, $label-font-size, $label-border-radius);
+    @include transition($label-transition);
+}
+
+.label-flat > .label,
+.label-flat {
+    box-shadow: none;
+}
+
+// Colors
+// Contextual variations (linked labels get darker on :hover)
+a.label-primary,
+.label-primary {
+    @include label-variant($label-primary-color, $label-primary-bg, $label-primary-border);
+}
+a.label-secondary,
+.label-secondary {
+    @include label-variant($label-secondary-color, $label-secondary-bg, $label-secondary-border);
+}
+a.label-default,
+.label-default {
+    @include label-variant($label-default-color, $label-default-bg, $label-default-border);
+
+    &[href] {
+        @include hover-focus {
+            border-color: #999;
+            background-color: #999;
+        }
+    }
+}
+a.label-success,
+.label-success {
+    @include label-variant($label-success-color, $label-success-bg, $label-success-border);
+}
+a.label-info,
+.label-info {
+    @include label-variant($label-info-color, $label-info-bg, $label-info-border);
+}
+a.label-warning,
+.label-warning {
+    @include label-variant($label-warning-color, $label-warning-bg, $label-warning-border);
+}
+a.label-danger,
+.label-danger {
+    @include label-variant($label-danger-color, $label-danger-bg, $label-danger-border);
+
+    &[href] {
+        @include hover-focus {
+            border-color: #F44336;
+            background-color: #F44336;
+        }
+    }
+}
+
+// Remove all backgrounds
+.label-outline-primary {
+  @include label-outline-variant($label-primary-bg);
+}
+.label-outline-secondary {
+  @include label-outline-variant($label-secondary-border);
+}
+.label-outline-default {
+  @include label-outline-variant($label-default-bg);
+}
+.label-outline-info {
+  @include label-outline-variant($label-info-bg);
+}
+.label-outline-success {
+  @include label-outline-variant($label-success-bg);
+}
+.label-outline-warning {
+  @include label-outline-variant($label-warning-bg);
+}
+.label-outline-danger {
+  @include label-outline-variant($label-danger-bg);
+}
+
+//
+// Label Sizes
+//
+
+.label-lg {
+  // line-height: ensure even-numbered height of button next to large input
+  @include button-size($label-padding-y-lg, $label-padding-x-lg, $font-size-lg, $label-border-radius-lg);
+}
+.label-sm {
+  // line-height: ensure proper height of button next to small input
+  @include button-size($label-padding-y-sm, $label-padding-x-sm, $font-size-sm, $label-border-radius-sm);
+}
+
+
+//
+// Block label
+//
+
+.label-block {
+  display: block;
+  width: 100%;
+}
+
+// Vertically space out multiple labels
+.label-block + .label-block {
+  margin-top: $label-label-spacing-y;
+}

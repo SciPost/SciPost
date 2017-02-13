@@ -75,8 +75,7 @@ class ThesisLink(models.Model):
             'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
 
         header = (
-            '<li><div class="flex-container">'
-            '<div class="flex-whitebox0"><p><a href="/thesis/{{ id }}" '
+            '<li><p><a href="/thesis/{{ id }}" '
             'class="pubtitleli">{{ title }}</a></p>'
             '<p>' + self.THESIS_TYPES_DICT[self.type] + ' thesis by {{ author }} '
             '(supervisor(s): {{ supervisor }}) in ' +
@@ -84,8 +83,7 @@ class ThesisLink(models.Model):
             journals_domains_dict[self.domain] + ' ' +
             subject_areas_dict[self.subject_area] + '</p>'
             '<p>Defense date: {{ defense_date }} - '
-            'Latest activity: {{ latest_activity }}</p></div>'
-            '</div></li>')
+            'Latest activity: {{ latest_activity }}</p></li>')
         template = Template(header)
         return template.render(context)
 

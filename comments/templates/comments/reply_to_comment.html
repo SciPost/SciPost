@@ -2,7 +2,7 @@
 
 {% block pagetitle %}: reply to comment{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
 <script>
   $(document).ready(function(){
@@ -25,73 +25,92 @@
 
 
 {% if user.is_authenticated %}
-<section>
-  <hr class="hr12">
-  <h1>SciPost Reply to Comment Page</h1>
-  <hr class="hr12">
-  {% if comment.commentary %}
-    <h1>The Commentary concerned:</h1>
-    {{ commentary.header_as_table }}
-
-    <h3>Abstract:</h3>
-    <p>{{ commentary.pub_abstract }}</p>
-  {% endif %}
-  {% if comment.submission %}
-    <h1>The Submission concerned:</h1>
-    {{ submission.header_as_table }}
-
-    <h3>Abstract:</h3>
-    <p>{{ submission.abstract }}</p>
-  {% endif %}
-  {% if comment.thesislink %}
-    <h1>The Thesis concerned:</h1>
-    {% include "theses/_header_as_table.html" with thesislink=thesislink %}
-
-    <h3>Abstract:</h3>
-    <p>{{ thesislink.abstract }}</p>
-  {% endif %}
-  <br>
-
-  <hr class="hr6">
-  <h2>The Comment you wish to reply to:</h2>
-
-   <div class="flex-container">
-      <div class="flex-commentbox">
-        {{ comment.print_identifier }}
-        {{ comment.categories_as_ul }}
-        <div class="opinionsDisplay">
-          {{ comment.opinions_as_ul }}
+    <div class="row">
+        <div class="col-12">
+          <div class="panel">
+              <h1>SciPost Reply to Comment Page</h1>
+          </div>
         </div>
-      </div>
-   </div>
-   <div class="row">
-     <div class="col-1"></div>
-     <div class="col-10">
-       <p>{{ comment.comment_text|linebreaks }}</p>
-     </div>
-   </div>
-
-  <hr class="hr6">
-  <h1>Your Reply to this Comment:</h1>
-  {% if is_author %}
-    <h3>(you are identified as an author, your reply will appear as an author reply)</h3>
-  {% else %}
-    <h3>(you are not identified as an author of this publication; if you are, you can claim authorship on your Personal Page)</h3>
-  {% endif %}
-  <form action="{% url 'comments:reply_to_comment' comment.id %}" method="post">
-    {% csrf_token %}
-    {% load crispy_forms_tags %}
-    {% crispy form %}
-  </form>
-
-  <div class="row">
-    <div class="col-10">
-      <h3>Preview of your comment:</h3>
-      <p id="preview-comment_text"></p>
     </div>
-  </div>
 
-</section>
+    <div class="row">
+        <div class="col-12">
+            {% if comment.commentary %}
+                <h2>The Commentary concerned:</h2>
+                {{ comment.commentary.header_as_table }}
+
+                <h3 class="mt-3">Abstract:</h3>
+                <p>{{ comment.commentary.pub_abstract }}</p>
+            {% endif %}
+
+            {% if comment.submission %}
+                <h2>The Submission concerned:</h2>
+                {{ comment.submission.header_as_table }}
+
+                <h3 class="mt-3">Abstract:</h3>
+                <p>{{ comment.submission.abstract }}</p>
+            {% endif %}
+
+            {% if comment.thesislink %}
+                <h2>The Thesis concerned:</h2>
+                {% include "theses/_header_as_table.html" with thesislink=comment.thesislink %}
+
+                <h3 class="mt-3">Abstract:</h3>
+                <p>{{ comment.thesislink.abstract }}</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <h2>The Comment you wish to reply to:</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="comment">
+                {{ comment.print_identifier }}
+                {{ comment.categories_as_ul }}
+                <div class="opinionsDisplay">
+                    {{ comment.opinions_as_ul }}
+                </div>
+
+                <p>{{ comment.comment_text|linebreaks }}</p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="panel">
+                <h2>Your Reply to this Comment:</h2>
+                {% if is_author %}
+                    <h3>(you are identified as an author, your reply will appear as an author reply)</h3>
+                {% else %}
+                    <h3>(you are not identified as an author of this publication; if you are, you can claim authorship on your Personal Page)</h3>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <form enctype="multipart/form-data" action="{% url 'comments:reply_to_comment' comment.id %}" method="post">
+                {% csrf_token %}
+                {% load crispy_forms_tags %}
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <h3>Preview of your comment:</h3>
+            <p id="preview-comment_text"></p>
+        </div>
+    </div>
+
 {% endif %}
 
-{% endblock bodysup %}
+{% endblock content %}

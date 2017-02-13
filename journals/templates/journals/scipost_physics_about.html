@@ -2,52 +2,48 @@
 
 {% block pagetitle %}: About SciPost Physics{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
+{% include 'journals/scipost_physics_menu.html' %}
 
-<section>
-
-  {% include 'journals/scipost_physics_menu.html' %}
-
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>About</h2>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>About</h2>
+        </div>
     </div>
-  </div>
+</div>
 
-  <div class="row">
-    <div class="col-5">
-      <h3>Aims</h3>
-      <p>SciPost Physics is a premium-quality, two-way open access, peer-witnessed refereed Journal for the general field of Physics.</p>
-      <p>It aims at providing scientists with a publishing platform in which uncompromising scientific quality meets the highest achievable standards of open accessibility, with a resolutely international outlook.</p>
-      <p><em>Two-way open access</em> means free for readers, free for authors: there are no subscription or download costs, and authors are freed from dealing with article submission and/or processing charges.</p>
-      <p>The <em>peer-witnessed refereeing</em> process guarantees high-quality, responsible refereeing, with demonstrably greater utility for authors and recognition for referees.</p>
+<div class="row">
+    <div class="col-md-6">
+        <h2>Aims</h2>
+        <p>SciPost Physics is a premium-quality, two-way open access, peer-witnessed refereed Journal for the general field of Physics.</p>
+        <p>It aims at providing scientists with a publishing platform in which uncompromising scientific quality meets the highest achievable standards of open accessibility, with a resolutely international outlook.</p>
+        <p><em>Two-way open access</em> means free for readers, free for authors: there are no subscription or download costs, and authors are freed from dealing with article submission and/or processing charges.</p>
+        <p>The <em>peer-witnessed refereeing</em> process guarantees high-quality, responsible refereeing, with demonstrably greater utility for authors and recognition for referees.</p>
     </div>
-    <div class="col-1"></div>
-    <div class="col-5">
-      <h3>Scope</h3>
-      <p>SciPost Physics publishes outstanding-quality research articles in the domains of Experimental, Theoretical and Computational physics, among which:</p>
-      <ul>
-        <li>Atomic, Molecular and Optical Physics</li>
-        <li>Biophysics</li>
-        <li>Condensed Matter Physics</li>
-        <li>Fluid Dynamics</li>
-        <li>Gravitation</li>
-        <li>Cosmology and Astroparticle Physics</li>
-        <li>High-Energy Physics</li>
-        <li>Mathematical Physics</li>
-        <li>Nuclear Physics</li>
-        <li>Quantum Statistical Mechanics</li>
-        <li>Statistical and Soft Matter Physics</li>
-      </ul>
+    <div class="col-md-6">
+        <h2>Scope</h2>
+        <p>SciPost Physics publishes outstanding-quality research articles in the domains of Experimental, Theoretical and Computational physics, among which:</p>
+        <ul>
+            <li>Atomic, Molecular and Optical Physics</li>
+            <li>Biophysics</li>
+            <li>Condensed Matter Physics</li>
+            <li>Fluid Dynamics</li>
+            <li>Gravitation</li>
+            <li>Cosmology and Astroparticle Physics</li>
+            <li>High-Energy Physics</li>
+            <li>Mathematical Physics</li>
+            <li>Nuclear Physics</li>
+            <li>Quantum Statistical Mechanics</li>
+            <li>Statistical and Soft Matter Physics</li>
+        </ul>
     </div>
-  </div>
+</div>
 
-  <br/>
-
-  <div class="row">
-    <div class="col-5">
-      <h3>Content</h3>
+<div class="row">
+    <div class="col-md-6">
+      <h2>Content</h2>
       <p>The journal accepts three types of content: <strong>Letters</strong>, <strong>Articles</strong> and <strong>Reviews</strong>.</p>
       <ul>
         <li><strong>Letters</strong> report broad-interest, significant breakthroughs in Physics, of interest and importance to researchers in multiple subject areas.</li>
@@ -55,26 +51,22 @@
         <li><strong>Reviews</strong> are short pieces taking a snapshot of a research area, written by recognized leaders in the field, providing a critical assessment of current frontline research and providing pointers towards future opportunities.</li>
       </ul>
     </div>
-    <div class="col-1"></div>
-    <div class="col-5">
-      <h3>Submission and Editorial Process</h3>
+    <div class="col-md-6">
+      <h2>Submission and Editorial Process</h2>
       <p>Authors should follow the <a href="{% url 'submissions:author_guidelines' %}">submission guidelines</a> to ensure seamless processing of their manuscript. The <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a> apply to all Submissions to SciPost Physics.</p>
       <p>All incoming Submissions are checked for plagiarism and follow the peer-witnessed refereeing procedures outlined in <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and Refereeing procedure</a>.</p>
       <p>All publication decisions are taken by the <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a>, following the rules set out in the <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a>.</p>
     </div>
-  </div>
+</div>
 
-  <div class="flex-container">
-    <div class="flex-whitebox">
-      <h3>Publication: Open Access</h3>
+<div class="row">
+    <div class="col-12">
+      <h2>Publication: Open Access</h2>
       <p>Publications in SciPost Physics are published under the terms of the <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a>, allowing freedom to use, reproduce and distribute the articles and related content (unless otherwise noted), for commercial and noncommercial purposes, subject to the citation of the original source.</p>
     </div>
-  </div>
+</div>
 
 
-  {% include 'journals/scipost_physics_footer.html' %}
+{% include 'journals/scipost_physics_footer.html' %}
 
-</section>
-
-
-{% endblock bodysup %}
+{% endblock content %}

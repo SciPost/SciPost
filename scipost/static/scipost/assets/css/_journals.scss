@@ -1,0 +1,43 @@
+/**
+ * SciPost Physics Journal style
+ *
+ */
+
+.SciPostPhysicsBanner {
+    background-color: $scipost-darkblue;
+    color: $scipost-orange;
+    padding: 10px 20px;
+    text-align: center;
+
+    a {
+        color: #FFA300;
+        padding: 4px;
+
+        &.active {
+            background-color: #eeeeee;
+            border: 1px solid black;
+            padding: 4px;
+        }
+        &.inactive {
+            background-color: #dddddd;
+            border: none;
+        }
+    }
+}
+
+
+.SciPostPhysicsTabMenu {
+    display: block;
+}
+
+.publicationHeader {
+    .panel & .publicationTitle {
+        margin: -0.75rem -0.75rem 0.5rem -0.75rem;
+    }
+}
+
+.publicationTitle {
+    background: #eee;
+    padding: 0.75rem;
+    margin-bottom: .5rem;
+}

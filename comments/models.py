@@ -1,11 +1,10 @@
-from django.utils import timezone
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
 
-from .models import *
+from .behaviors import validate_file_extension
 
 from commentaries.models import Commentary
 from scipost.models import TimeStampedModel, Contributor
@@ -42,12 +41,15 @@ class Comment(TimeStampedModel):
     vetted_by = models.ForeignKey(Contributor, blank=True, null=True,
                                   on_delete=models.CASCADE,
                                   related_name='comment_vetted_by')
+    file_attachment = models.FileField(upload_to='comments/%Y/%m/%d/',
+                                       blank=True, validators=[validate_file_extension])
     # a Comment is either for a Commentary or Submission or a ThesisLink.
     commentary = models.ForeignKey(Commentary, blank=True, null=True, on_delete=models.CASCADE)
     submission = models.ForeignKey(Submission, blank=True, null=True, on_delete=models.CASCADE)
     thesislink = models.ForeignKey(ThesisLink, blank=True, null=True, on_delete=models.CASCADE)
     is_author_reply = models.BooleanField(default=False)
-    in_reply_to_comment = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE)
+    in_reply_to_comment = models.ForeignKey('self', blank=True, null=True,
+                                            on_delete=models.CASCADE)
     in_reply_to_report = models.ForeignKey(Report, blank=True, null=True, on_delete=models.CASCADE)
     author = models.ForeignKey(Contributor, default=1, on_delete=models.CASCADE)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
@@ -76,10 +78,9 @@ class Comment(TimeStampedModel):
     in_disagreement = models.ManyToManyField(Contributor,
                                              related_name='in_disagreement', blank=True)
 
-    def __str__ (self):
+    def __str__(self):
         return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name +
-                ' on ' + self.date_submitted.strftime('%Y-%m-%d') + ', '   + self.comment_text[:30])
-
+                ' on ' + self.date_submitted.strftime('%Y-%m-%d') + ', ' + self.comment_text[:30])
 
     def update_opinions(self, contributor_id, opinion):
         contributor = get_object_or_404(Contributor, pk=contributor_id)
@@ -97,7 +98,6 @@ class Comment(TimeStampedModel):
         self.nr_D = self.in_disagreement.count()
         self.save()
 
-
     def opinions_as_ul(self):
         template = Template('''
         <ul class="opinionsDisplay">
@@ -106,9 +106,8 @@ class Comment(TimeStampedModel):
         <li style="background-color: #990000">Disagree {{ nr_D }}</li>
         </ul>
         ''')
-        context = Context ({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
+        context = Context({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
         return template.render(context)
-
 
     def opinions_as_ul_tiny(self):
         template = Template('''
@@ -118,11 +117,10 @@ class Comment(TimeStampedModel):
         <li style="background-color: #990000; font-size: 8px; padding: 2px;">Disagree {{ nr_D }}</li>
         </ul>
         ''')
-        context = Context ({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
+        context = Context({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
         return template.render(context)
 
-
-    def print_identifier (self):
+    def print_identifier(self):
         # for display
         output = '<div class="commentid">\n'
         output += '<h3><a id="comment_id{{ id }}"></a>'
@@ -162,24 +160,24 @@ class Comment(TimeStampedModel):
                 output += 'Report {{ in_reply_to_report_id }}'
                 context['in_reply_to_report_id'] = self.in_reply_to_report_id
             output += ' on {{ date_report_submitted }}</a>)'
-            context['date_report_submitted'] = self.in_reply_to_report.date_submitted.strftime("%Y-%m-%d")
+            context['date_report_submitted'] = self.in_reply_to_report.date_submitted.strftime(
+                                                                                        "%Y-%m-%d")
         output += '</h3></div>'
         template = Template(output)
         return template.render(context)
 
-
-    def print_identifier_for_vetting (self):
+    def print_identifier_for_vetting(self):
         # for display, same as print_identifier but named even if anonymous, not linked
         output = '<div class="commentid">\n'
         output += '<h3>'
         context = Context()
         if self.is_author_reply:
             output += 'Author '
-        output += ' <a href="/contributor/{{ author_id }}">{{ first_name }} {{ last_name }}</a> on '
+        output += ' <a href="/contributor/{{ author_id }}">{{ first_name }} {{ last_name }}</a>'
         context['author_id'] = self.author.id
         context['first_name'] = self.author.user.first_name
         context['last_name'] = self.author.user.last_name
-        output += '{{ date_submitted }}'
+        output += ' on {{ date_submitted }}'
         context['date_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
         if self.in_reply_to_comment:
             output += (' (in reply to <a href="#comment_id{{ in_reply_to_comment_id }}">'
@@ -210,11 +208,10 @@ class Comment(TimeStampedModel):
         template = Template(output)
         return template.render(context)
 
-
-    def header_as_li (self):
+    def header_as_li(self):
         # for search lists
         header = '<li>'
-        #header += '<div class="flex-container"><div class="flex-whitebox0">'
+        # header += '<div class="flex-container"><div class="flex-whitebox0">'
         header += 'Nr {{ id }}'
         context = Context({'id': self.id})
         header += ', <div class="opinionsDisplay">' + self.opinions_as_ul_tiny() + '</div>'
@@ -255,21 +252,21 @@ class Comment(TimeStampedModel):
         if self.thesislink is not None:
             header += ('<a href="/thesis/{{ thesislink_id }}#comment_id{{ id }}">'
                        ' \"{{ text_cut }}\"</a><p>submitted on {{ date_submitted }}')
-            header += (' in thesislink on <a href="/thesis/{{ thesislink_id }}" class="pubtitleli">'
+            header += (' in thesislink on '
+                       '<a href="/thesis/{{ thesislink_id }}" class="pubtitleli">'
                        '{{ thesislink_title }}</a> by {{ thesislink_author }}</p>')
             context['thesislink_id'] = self.thesislink.id
             context['thesislink_title'] = self.thesislink.title
             context['thesislink_author'] = self.thesislink.author
-        #header += '</div></div>'
+        # header += '</div></div>'
         header += '</li>'
         template = Template(header)
         return template.render(context)
 
-
-    def simple_header_as_li (self):
+    def simple_header_as_li(self):
         # for Lists
         header = '<li>'
-        #header += '<div class="flex-container"><div class="flex-whitebox0">'
+        # header += '<div class="flex-container"><div class="flex-whitebox0">'
         context = Context({})
         text_cut = self.comment_text[:30]
         if len(self.comment_text) > 30:
@@ -298,16 +295,16 @@ class Comment(TimeStampedModel):
             context['commentary_author_list'] = self.commentary.author_list
         if self.thesislink is not None:
             header += '<a href="/thesis/{{ thesislink_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>'
-            header += (' in thesislink on <a href="/thesis/{{ thesislink_id }}" class="pubtitleli">' +
+            header += (' in thesislink on '
+                       '<a href="/thesis/{{ thesislink_id }}" class="pubtitleli">'
                        '{{ thesislink_title }}</a> by {{ thesislink_author }}</p>')
             context['thesislink_id'] = self.thesislink.id
             context['thesislink_title'] = self.thesislink.title
             context['thesislink_author'] = self.thesislink.author
-        #header += '</div></div>'
+        # header += '</div></div>'
         header += '</li>'
         template = Template(header)
         return template.render(context)
-
 
     def categories_as_ul(self):
         output = '<div class="commentcategorydisplay"><h4>Category:</h4><ul>'
