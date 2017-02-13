@@ -960,7 +960,9 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
                                     ', we would like to invite you to referee a Submission to ' +
                                     journals_submit_dict[submission.submitted_to_journal] +
                                     ', namely\n\n' + submission.title +
-                                    '\nby ' + submission.author_list + '.')
+                                    '\nby ' + submission.author_list +
+                                    '\n (see https://scipost.org/submission/'
+                                    + submission.arxiv_identifier_w_vn_nr + ').')
             reg_invitation = RegistrationInvitation(
                 title=ref_recruit_form.cleaned_data['title'],
                 first_name=ref_recruit_form.cleaned_data['first_name'],

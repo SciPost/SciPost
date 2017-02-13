@@ -152,7 +152,8 @@ Step-by-step procedure
 
    #. TODO: AUTHORS
 
-      Put the author names in textbf. No ``comma`` but rather an ``and`` before
+      Author names should be in format ``firstname lastname``, e.g. ``John Smith``,
+      and should be in textbf. No ``comma`` but rather an ``and`` before
       the last author. If multiple authors and affiliations, use ``\textsuperscript``
       and positive integer labels, with a ``*`` for the corresponding author.
 
@@ -193,11 +194,19 @@ Step-by-step procedure
       if it has more than 6 pages.
 
       If a TOC should be included, leave the skeleton as it is. If no TOC
-      should be there, simply comment out the lines::
+      should be there, simply comment out the 2nd and 3rd lines of::
 
 	\vspace{10pt}
 	\noindent\rule{\textwidth}{1pt}
 	\tableofcontents\thispagestyle{fancy}
+	\noindent\rule{\textwidth}{1pt}
+	\vspace{10pt}
+
+      explicitly leaving::
+
+	\vspace{10pt}
+	%\noindent\rule{\textwidth}{1pt}
+	%\tableofcontents\thispagestyle{fancy}
 	\noindent\rule{\textwidth}{1pt}
 	\vspace{10pt}
 
