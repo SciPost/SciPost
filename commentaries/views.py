@@ -83,9 +83,12 @@ def prefill_using_DOI(request):
             if errormessage:
                 form = RequestCommentaryForm()
                 identifierform = IdentifierToQueryForm()
-                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform,
-                           'errormessage': errormessage,
-                           'existing_commentary': existing_commentary}
+                context = {
+                    'request_commentary_form': form,
+                    'doiform': doiform,
+                    'identifierform': identifierform,
+                    'errormessage': errormessage,
+                    'existing_commentary': existing_commentary}
                 return render(request, 'commentaries/request_commentary.html', context)
 
             # Otherwise we query Crossref for the information:
@@ -135,7 +138,11 @@ def prefill_using_DOI(request):
                              'pages': pages, 'pub_date': pub_date,
                              'pub_DOI': pub_DOI})
                 identifierform = IdentifierToQueryForm()
-                context = {'form': form, 'doiform': doiform, 'identifierform': identifierform, }
+                context = {
+                    'request_commentary_form': form,
+                    'doiform': doiform,
+                    'identifierform': identifierform
+                }
                 context['title'] = pub_title
                 return render(request, 'commentaries/request_commentary.html', context)
             except (IndexError, KeyError, ValueError):
@@ -232,10 +239,18 @@ def prefill_using_DOI(request):
 #             pass
 #     return redirect(reverse('commentaries:request_commentary'))
 
-# CHECK PERMISSIONS !
+@method_decorator(permission_required(
+    'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
 class PrefillUsingIdentifierView(RequestCommentaryMixin, FormView):
     form_class = IdentifierToQueryForm
     template_name = 'commentaries/request_commentary.html'
+
+    def form_invalid(self, identifierform):
+        for field, errors in identifierform.errors.items():
+            for error in errors:
+                messages.warning(self.request, error)
+        return render(self.request, 'commentaries/request_commentary.html',
+                      self.get_context_data(**{}))
 
     def form_valid(self, identifierform):
         '''Prefill using the ArxivCaller if the Identifier is valid'''
@@ -303,7 +318,7 @@ class PrefillUsingIdentifierView(RequestCommentaryMixin, FormView):
             }
             messages.error(self.request, errormessages[caller.errorcode])
             return render(self.request, 'commentaries/request_commentary.html',
-                          self.get_context_data(context))
+                          self.get_context_data(**{}))
 
 
 @permission_required('scipost.can_vet_commentary_requests', raise_exception=True)
