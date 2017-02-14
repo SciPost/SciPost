@@ -1,6 +1,7 @@
 {% load scipost_extras %}
 
 {% load filename %}
+{% load file_extentions %}
 
 {% if comments %}
 <hr>
@@ -55,7 +56,13 @@
                             {% if comment.file_attachment %}
                                 <h3>Attachment:</h3>
                                 <p>
-                                    <a target="_blank" href="{{ comment.file_attachment.url }}">{{ comment.file_attachment|filename }}</a><br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
+                                    <a target="_blank" href="{{ comment.file_attachment.url }}">
+                                        {% if comment.file_attachment|is_image %}
+                                            <img class="attachment attachment-comment" src="{{ comment.file_attachment.url }}">
+                                        {% else %}
+                                            {{ comment.file_attachment|filename }}<br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
+                                        {% endif %}
+                                    </a>
                                 </p>
                             {% endif %}
                         </p>
@@ -105,7 +112,13 @@
                                 {% if reply.file_attachment %}
                                     <h3>Attachment:</h3>
                                     <p>
-                                        <a target="_blank" href="{{ reply.file_attachment.url }}">{{ reply.file_attachment|filename }}</a><br><small>{{ reply.file_attachment.size|filesizeformat }}</small>
+                                        <a target="_blank" href="{{ reply.file_attachment.url }}">
+                                            {% if reply.file_attachment|is_image %}
+                                                <img class="attachment attachment-comment" src="{{ reply.file_attachment.url }}">
+                                            {% else %}
+                                                {{ reply.file_attachment|filename }}<br><small>{{ reply.file_attachment.size|filesizeformat }}</small>
+                                            {% endif %}
+                                        </a>
                                     </p>
                                 {% endif %}
                             </p>
