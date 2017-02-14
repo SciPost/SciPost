@@ -133,6 +133,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'scipost.context_processors.searchform',
@@ -179,6 +180,10 @@ DATETIME_FORMAT = 'Y-m-d H:i'
 
 USE_TZ = True
 
+# MEDIA
+MEDIA_ROOT = host_settings['MEDIA_ROOT']
+MEDIA_URL = host_settings['MEDIA_URL']
+MAX_UPLOAD_SIZE = "1310720"  # Default max attachment size in Bytes
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/

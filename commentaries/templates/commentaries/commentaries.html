@@ -1,69 +1,84 @@
 {% extends 'scipost/base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: Commentaries{% endblock pagetitle %}
 
 {% block headsup %}
 <script type="text/javascript" async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 {% endblock headsup %}
 
-{% block bodysup %}
+{% block content %}
 
 
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox320">
-      <h1>SciPost Commentaries</h1>
-      <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
-      <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
+{# <section>#}
+<div class="row">
+    <div class="col-md-4">
+        <div class="panel page-header-panel">
+          <h1>SciPost Commentaries</h1>
+          <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
+          <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
+        </div>
     </div>
-    <div class="flex-greybox320">
-      <h2>Search SciPost Commentaries:</h2>
-      <form action="{% url 'commentaries:commentaries' %}" method="post">
-	{% csrf_token %}
-	<table>
-	  {{ form.as_table }}
-	</table>
-	<input type="submit" name="Submit" />
-      </form>
+    <div class="col-md-4">
+    	<div class="panel page-header-panel">
+            <h2>Search SciPost Commentaries:</h2>
+            <form action="{% url 'commentaries:commentaries' %}" class="small" method="post">
+          	{% csrf_token %}
+    	  {{ form|bootstrap:'4,8,sm' }}
+          	<input class="btn btn-sm btn-secondary" type="submit" name="Submit" />
+            </form>
+        </div>
     </div>
-    <div class="flex-greybox320">
-      <h2>View SciPost Commentaries</h2>
-      <ul>
-	<li>Physics: last <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
-      </ul>
+    <div class="col-md-4">
+        <div class="panel page-header-panel">
+          <h2>View SciPost Commentaries</h2>
+          <ul>
+    	<li>Physics: last <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
+          </ul>
+        </div>
     </div>
-  </div>
+</div>
 
   {% if commentary_search_list %}
-    <br />
-    <hr class="hr12">
-    <h3>Search results:</h3>
-    <ul>
-      {% for commentary in commentary_search_list %}
-        {{ commentary.header_as_li }}
-      {% endfor %}
-    </ul>
+    <div class="row">
+        <div class="col-12">
+            <hr class="hr12">
+            <h3>Search results:</h3>
+            <ul>
+              {% for commentary in commentary_search_list %}
+                {{ commentary.header_as_li }}
+              {% endfor %}
+            </ul>
+        </div>
+    </div>
   {% elif form.has_changed %}
-    <h3>No match found for your search query.</h3>
+      <div class="row">
+          <div class="col-12">
+            <h3>No match found for your search query.</h3>
+        </div>
+    </div>
   {% endif %}
 
-</section>
 
 
 {% if comment_recent_list %}
-  <section>
-   <hr class="hr12">
-   <h2>Recent Comments</h2>
-   <ul>
-     {% for comment in comment_recent_list %}
-     {{ comment.simple_header_as_li }}
-     {% endfor %}
-   </ul>
-  </section>
+  <div class="row">
+      <div class="col-12">
+        <hr class="hr12">
+        <h2>Recent Comments</h2>
+        <ul>
+            {% for comment in comment_recent_list %}
+                {{ comment.simple_header_as_li }}
+            {% endfor %}
+        </ul>
+    </div>
+  </div>
 {% endif %}
 
 {% if commentary_recent_list %}
-<section>
+<div class="row">
+    <div class="col-12">
   <hr class="hr12">
   <h2>Recently active Commentaries:</h2>
   <ul>
@@ -71,20 +86,23 @@
     {{ commentary.header_as_li }}
     {% endfor %}
   </ul>
-</section>
+  </div>
+</div>
 {% endif %}
 
 {% if commentary_browse_list %}
-<section>
-  <hr class="hr12">
-  <h2>Commentaries in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
-  <ul>
-    {% for commentary in commentary_browse_list %}
-    {{ commentary.header_as_li }}
-    {% endfor %}
-  </ul>
-  {% endif %}
-</section>
+<div class="row">
+    <div class="col-12">
+      <hr class="hr12">
+      <h2>Commentaries in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
+      <ul>
+        {% for commentary in commentary_browse_list %}
+        {{ commentary.header_as_li }}
+        {% endfor %}
+      </ul>
+  </div>
+</div>
+{% endif %}
 
 
-{% endblock bodysup %}
+{% endblock content %}

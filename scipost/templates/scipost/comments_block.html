@@ -1,118 +1,151 @@
 {% load scipost_extras %}
+
+{% load filename %}
+{% load file_extentions %}
+
 {% if comments %}
-  <section>
-    <hr class="hr12">
-    <div class="flex-greybox">
-      <h2>Comments on this publication</h2>
-      <button id="commentsbutton">Toggle comments view</button>
+<hr>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Comments on this publication</h2>
+            <button class="btn btn-secondary" id="commentsbutton">Toggle comments view</button>
+        </div>
     </div>
+</div>
 
-    <div id="commentslist">
-      {% for comment in comments %}
+<div class="row" id="commentslist">
+    {% for comment in comments %}
+        <div class="col-12">
+            <div class="comment">
 
-          <hr class="hr6">
+                <div class="row">
+                    <div class="col-12">
+                        {{ comment.print_identifier }}
+                        {{ comment.categories_as_ul }}
 
-          <div class="flex-container">
-            <div class="flex-commentbox">
-              {{ comment.print_identifier }}
-              {{ comment.categories_as_ul }}
-              <div class="opinionsDisplay">
-                {% if user.is_authenticated and perms.scipost.can_express_opinion_on_comments %}
-                  {% if user.contributor != comment.author %}
-                    <form action="{% url 'comments:express_opinion' comment_id=comment.id opinion='A' %}" method="post">
-                      {% csrf_token %}
-                      <input type="submit" class="agree" value="Agree {{ comment.nr_A }} "/>
-                    </form>
-                    <form action="{% url 'comments:express_opinion' comment_id=comment.id opinion='N' %}" method="post">
-                      {% csrf_token %}
-                      <input type="submit" class="notsure" value="Not sure {{ comment.nr_N }}"/>
-                    </form>
-                    <form action="{% url 'comments:express_opinion' comment_id=comment.id opinion='D'%}" method="post">
-                      {% csrf_token %}
-                      <input type="submit" class="disagree" value="Disagree {{ comment.nr_D }}"/>
-                    </form>
-                  {% else %}
-                    {{ comment.opinions_as_ul }}
-                  {% endif %}
-                {% endif %}
-              </div>
-            </div>
-          </div>
-
-
-          <div class="row">
-            <div class="col-1"></div>
-            <div class="col-10">
-          <p>{{ comment.comment_text|linebreaks }}</p>
-          {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
-            <h3>Remarks for editors:</h3>
-            <p>{{ comment.remarks_for_editors|linebreaks }}</p>
-          {% endif %}
-            </div>
-          </div>
-
-          {% for reply in author_replies %}
-            {% if reply.in_reply_to_comment %}
-              {% if reply.in_reply_to_comment.id == comment.id %}
-              <div class="row">
-                <div class="col-1"></div>
-                <hr style="border-style: dotted;" />
-
-                <div class="flex-container">
-              <div class="flex-commentbox">
-                    {{ reply.print_identifier }}
-                    {{ reply.categories_as_ul }}
-                    <div class="opinionsDisplay">
-                      {% if user.is_authenticated and perms.scipost.can_express_opinion_on_comments %}
-                  {% if user.contributor != reply.author %}
-                  <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='A' %}" method="post">
-                    {% csrf_token %}
-                    <input type="submit" class="agree" value="Agree {{ reply.nr_A }} "/>
-                  </form>
-                  <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='N' %}" method="post">
-                    {% csrf_token %}
-                    <input type="submit" class="notsure" value="Not sure {{ reply.nr_N }}"/>
-                  </form>
-                  <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='D'%}" method="post">
-                    {% csrf_token %}
-                    <input type="submit" class="disagree" value="Disagree {{ reply.nr_D }}"/>
-                  </form>
-                  {% else %}
-                    {{ reply.opinions_as_ul }}
-                  {% endif %}
-                      {% endif %}
+                        <div class="opinionsDisplay">
+                            {% if user.is_authenticated and perms.scipost.can_express_opinion_on_comments %}
+                                {% if user.contributor != comment.author %}
+                                <form action="{% url 'comments:express_opinion' comment_id=comment.id opinion='A' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="agree" value="Agree {{ comment.nr_A }} "/>
+                                </form>
+                                <form action="{% url 'comments:express_opinion' comment_id=comment.id opinion='N' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="notsure" value="Not sure {{ comment.nr_N }}"/>
+                                </form>
+                                <form action="{% url 'comments:express_opinion' comment_id=comment.id opinion='D'%}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="disagree" value="Disagree {{ comment.nr_D }}"/>
+                                </form>
+                                {% else %}
+                                    {{ comment.opinions_as_ul }}
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
-              </div>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-1"></div>
-                <div class="col-10">
-              <p>{{ reply.comment_text|linebreaks }}</p>
-              {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
-                <h3>Remarks for editors:</h3>
-                <p>{{ reply.remarks_for_editors|linebreaks }}</p>
-              {% endif %}
+
+
+                <div class="row">
+                    <div class="col-12">
+                        <p>
+                            {{ comment.comment_text|linebreaks }}
+
+                            {% if comment.file_attachment %}
+                                <h3>Attachment:</h3>
+                                <p>
+                                    <a target="_blank" href="{{ comment.file_attachment.url }}">
+                                        {% if comment.file_attachment|is_image %}
+                                            <img class="attachment attachment-comment" src="{{ comment.file_attachment.url }}">
+                                        {% else %}
+                                            {{ comment.file_attachment|filename }}<br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
+                                        {% endif %}
+                                    </a>
+                                </p>
+                            {% endif %}
+                        </p>
+                        {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
+                        {% if comment.remarks_for_editors %}
+                            <h3>Remarks for editors:</h3>
+                            <p>{{ comment.remarks_for_editors|linebreaks }}</p>
+                        {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
-              </div>
 
-              {% endif %}
-            {% endif %}
-          {% endfor %}
+                {% for reply in author_replies %}
+                    {% if reply.in_reply_to_comment %}
+                    {% if reply.in_reply_to_comment.id == comment.id %}
+                    <div class="row">
+                        <div class="col-12">
+                            {{ reply.print_identifier }}
+                            {{ reply.categories_as_ul }}
+                            <div class="opinionsDisplay">
+                                {% if user.is_authenticated and perms.scipost.can_express_opinion_on_comments %}
+                                    {% if user.contributor != reply.author %}
+                                        <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='A' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="submit" class="agree" value="Agree {{ reply.nr_A }} "/>
+                                        </form>
+                                        <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='N' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="submit" class="notsure" value="Not sure {{ reply.nr_N }}"/>
+                                        </form>
+                                        <form action="{% url 'comments:express_opinion' comment_id=reply.id opinion='D'%}" method="post">
+                                            {% csrf_token %}
+                                            <input type="submit" class="disagree" value="Disagree {{ reply.nr_D }}"/>
+                                        </form>
+                                    {% else %}
+                                        {{ reply.opinions_as_ul }}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
 
-        {% if user.is_authenticated and perms.scipost.can_submit_comments %}
-          <div class="row">
-            <div class="col-1"></div>
-            <hr class="hr6"/>
-          </div>
-          <div class="row">
-            <div class="col-1"></div>
-            <div class="col-5">
-          <h3><a href="{% url 'comments:reply_to_comment' comment_id=comment.id %}">Reply to this comment</a></h3>
+                    <div class="row">
+                        <div class="col-12">
+                            <p>
+                                {{ reply.comment_text|linebreaks }}
+                                {% if reply.file_attachment %}
+                                    <h3>Attachment:</h3>
+                                    <p>
+                                        <a target="_blank" href="{{ reply.file_attachment.url }}">
+                                            {% if reply.file_attachment|is_image %}
+                                                <img class="attachment attachment-comment" src="{{ reply.file_attachment.url }}">
+                                            {% else %}
+                                                {{ reply.file_attachment|filename }}<br><small>{{ reply.file_attachment.size|filesizeformat }}</small>
+                                            {% endif %}
+                                        </a>
+                                    </p>
+                                {% endif %}
+                            </p>
+
+                            {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
+                            {% if reply.remarks_for_editors %}
+                                <h3>Remarks for editors:</h3>
+                                <p>{{ reply.remarks_for_editors|linebreaks }}</p>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if user.is_authenticated and perms.scipost.can_submit_comments %}
+                <hr class="small">
+                <div class="row">
+                    <div class="col-12">
+                        <h3><a href="{% url 'comments:reply_to_comment' comment_id=comment.id %}">Reply to this comment</a></h3>
+                    </div>
+                </div>
+                {% endif %}
             </div>
-          </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-  </section>
+        </div>
+    {% endfor %}
+</div>
 {% endif %}

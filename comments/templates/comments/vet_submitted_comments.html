@@ -1,57 +1,85 @@
 {% extends 'scipost/base.html' %}
 
+{% load bootstrap %}
+{% load filename %}
+{% load file_extentions %}
+
 {% block pagetitle %}: vet comments{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
-  {% if not comments_to_vet %}
-    <h1>There are no comments for you to vet.</h1>
-  {% else %}
-    <h1>SciPost Comment to vet:</h1>
-    <hr class="hr12"/>
+{% if not comments_to_vet %}
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h1>There are no comments for you to vet.</h1>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h1>SciPost Comments to vet:</h1>
+        </div>
+    </div>
+</div>
 
+<div class="row">
     {% for comment_to_vet in comments_to_vet %}
-
-      {% if comment_to_vet.commentary %}
-        <h3>From Commentary (<a href="{% url 'commentaries:commentary' arxiv_or_DOI_string=comment_to_vet.commentary.arxiv_or_DOI_string %}">link</a>)</h3>
-        {{ comment_to_vet.commentary.header_as_table }}
-        <br />
-      {% endif %}
-
-      {% if comment_to_vet.submission %}
-        <h3>From Submission (<a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=comment_to_vet.submission.arxiv_identifier_w_vn_nr %}">link</a>)</h3>
-        {{ comment_to_vet.submission.header_as_table }}
-        <br />
-      {% endif %}
-
-      <hr style="border-style: dotted;" />
-      <h3>The Comment to be vetted:</h3>
-
-      <div class="row">
-        <div class="col-8">
-          {{ comment_to_vet.print_identifier_for_vetting }}
-          <h3>Comment text:</h3>
-          <p>{{ comment_to_vet.comment_text }}</p>
-          
-          {% if comment_to_vet.remarks_for_editors %}
-            <h3>Remarks for Editors only:</h3>
-            <p>{{ comment_to_vet.remarks_for_editors }}</p>
+        <div class="col-12">
+          {% if comment_to_vet.commentary %}
+            <h2>From Commentary (<a href="{% url 'commentaries:commentary' arxiv_or_DOI_string=comment_to_vet.commentary.arxiv_or_DOI_string %}">link</a>)</h2>
+            {{ comment_to_vet.commentary.header_as_table }}
+            <br />
           {% endif %}
+
+          {% if comment_to_vet.submission %}
+            <h2>From Submission (<a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=comment_to_vet.submission.arxiv_identifier_w_vn_nr %}">link</a>)</h2>
+            {{ comment_to_vet.submission.header_as_table }}
+            <br />
+          {% endif %}
+
+          <hr class="small">
+          <h2>The Comment to be vetted:</h2>
+
+          <div class="row">
+            <div class="col-md-6">
+                {{ comment_to_vet.print_identifier_for_vetting }}
+                <h3>Comment text:</h3>
+                <p>{{ comment_to_vet.comment_text }}</p>
+
+                {% if comment_to_vet.file_attachment %}
+                    <h3>Attachment:</h3>
+                    <p>
+                        <a target="_blank" href="{{ comment_to_vet.file_attachment.url }}">
+                            {% if comment_to_vet.file_attachment|is_image %}
+                                <img class="attachment attachment-comment" src="{{ comment_to_vet.file_attachment.url }}">
+                            {% else %}
+                                {{ comment_to_vet.file_attachment|filename }}<br><small>{{ comment_to_vet.file_attachment.size|filesizeformat }}</small>
+                            {% endif %}
+                        </a>
+                    </p>
+                {% endif %}
+
+                {% if comment_to_vet.remarks_for_editors %}
+                    <h3>Remarks for Editors only:</h3>
+                    <p>{{ comment_to_vet.remarks_for_editors }}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+              <form action="{% url 'comments:vet_submitted_comment_ack' comment_id=comment_to_vet.id %}" method="post">
+                {% csrf_token %}
+                {{ form|bootstrap }}
+                <input class="btn btn-primary" type="submit" value="Submit" />
+              </form>
+            </div>
         </div>
-        <div class="col-4">
-          <form action="{% url 'comments:vet_submitted_comment_ack' comment_id=comment_to_vet.id %}" method="post">
-            {% csrf_token %}
-            {{ form.as_ul }}
-            <input type="submit" value="Submit" />
-          </form>
-        </div>
-      </div>
-      <hr class="hr12"/>
+            <hr>
+    </div>
 
     {% endfor %}
-  {% endif %}
+</div>
+{% endif %}
 
-</section>
-
-{% endblock bodysup %}
+{% endblock content %}

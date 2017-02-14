@@ -2,34 +2,32 @@
 
 {% block pagetitle %}: SciPost Physics: accepted{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
+{% include 'journals/scipost_physics_menu.html' %}
 
-<section>
-
-  {% include 'journals/scipost_physics_menu.html' %}
-
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>Accepted for publication</h2>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Accepted for publication</h2>
+        </div>
     </div>
-  </div>
+</div>
 
-  <div class="flex-whitebox">
-    {% if accepted_SP_submissions %}
-      <ul>
-        {% for submission in accepted_SP_submissions %}
-          {{ submission.header_as_li }}
-        {% endfor %}
-      </ul>
-    {% else %}
-      <h2>All recently accepted Submissions to SciPost Physics have been published.</h2>
-    {% endif %}
-  </div>
+<div class="row">
+    <div class="col-12">
+        {% if accepted_SP_submissions %}
+            <ul>
+                {% for submission in accepted_SP_submissions %}
+                    {{ submission.header_as_li }}
+                {% endfor %}
+            </ul>
+        {% else %}
+            <h3>All recently accepted Submissions to SciPost Physics have been published.</h3>
+        {% endif %}
+    </div>
+</div>
 
-  {% include 'journals/scipost_physics_footer.html' %}
+{% include 'journals/scipost_physics_footer.html' %}
 
-</section>
-
-
-{% endblock bodysup %}
+{% endblock content %}

@@ -463,6 +463,7 @@ class NewsItem(models.Model):
     def descriptor_small(self):
         """ For index page. """
         descriptor = ('<h3 class="NewsHeadline">{{ headline }}</h3>'
+                      '<div class="p-2">'
                       '<p>{{ date }}</p>'
                       '<p>{{ blurb }}</p>'
                       )
@@ -473,6 +474,7 @@ class NewsItem(models.Model):
             descriptor += '<p><a href="{{ followup_link }}">{{ followup_link_text }}</a></p>'
             context['followup_link'] = self.followup_link
             context['followup_link_text'] = self.followup_link_text
+        descriptor += '</div>'
         template = Template(descriptor)
         return template.render(context)
 

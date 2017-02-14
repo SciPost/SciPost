@@ -10,9 +10,28 @@
  *  and make sure its imported underneath!
  *
  */
+
+/**
+ * Bootstrap elements
+ *
+ */
+@import "mixins_labels";
+
+@import "alert";
 @import "buttons";
 @import "form";
+@import "grid";
+@import "labels";
 @import "messages";
 @import "navbar";
 @import "page_header";
 @import "type";
+
+/**
+ * SciPost Specific
+ *
+ */
+@import "comments";
+@import "journals";
+@import "personal_page";
+@import "submissions";

@@ -14,8 +14,6 @@ from django.utils import timezone
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
 
-# from .models import *
-# from .forms import *
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication,\
                     SUBMISSION_STATUS_PUBLICLY_UNLISTED, SUBMISSION_STATUS_VOTING_DEPRECATED,\
@@ -33,11 +31,10 @@ from journals.models import journals_submit_dict
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, title_dict, Remark, RegistrationInvitation
 
+from scipost.services import ArxivCaller
 from scipost.utils import Utils
 
 from comments.forms import CommentForm
-
-from .services import ArxivCaller
 
 from django.views.generic.edit import CreateView, FormView
 
@@ -145,8 +142,8 @@ class PrefillUsingIdentifierView(FormView):
         identifierform = SubmissionIdentifierForm(request.POST)
         if identifierform.is_valid():
             # Use the ArxivCaller class to make the API calls
-            caller = ArxivCaller()
-            caller.process(identifierform.cleaned_data['identifier'])
+            caller = ArxivCaller(Submission, identifierform.cleaned_data['identifier'])
+            caller.process()
 
             if caller.is_valid():
                 # Arxiv response is valid and can be shown
@@ -503,9 +500,8 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     other_versions = Submission.objects.filter(
         arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
     ).exclude(pk=submission.id)
-    comments = submission.comment_set.all()
     if request.method == 'POST':
-        form = CommentForm(request.POST)
+        form = CommentForm(request.POST, request.FILES)
         if form.is_valid():
             author = Contributor.objects.get(user=request.user)
             newcomment = Comment(
@@ -519,6 +515,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                 is_val=form.cleaned_data['is_val'],
                 is_lit=form.cleaned_data['is_lit'],
                 is_sug=form.cleaned_data['is_sug'],
+                file_attachment=form.cleaned_data['file_attachment'],
                 comment_text=form.cleaned_data['comment_text'],
                 remarks_for_editors=form.cleaned_data['remarks_for_editors'],
                 date_submitted=timezone.now(),
@@ -559,6 +556,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         recommendation = EICRecommendation.objects.get(submission=submission)
     except EICRecommendation.DoesNotExist:
         recommendation = None
+    comments = submission.comment_set.all()
     context = {'submission': submission,
                'other_versions': other_versions,
                'recommendation': recommendation,
@@ -962,7 +960,9 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
                                     ', we would like to invite you to referee a Submission to ' +
                                     journals_submit_dict[submission.submitted_to_journal] +
                                     ', namely\n\n' + submission.title +
-                                    '\nby ' + submission.author_list + '.')
+                                    '\nby ' + submission.author_list +
+                                    '\n (see https://scipost.org/submission/'
+                                    + submission.arxiv_identifier_w_vn_nr + ').')
             reg_invitation = RegistrationInvitation(
                 title=ref_recruit_form.cleaned_data['title'],
                 first_name=ref_recruit_form.cleaned_data['first_name'],
@@ -1012,6 +1012,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
                                    date_invited=timezone.now(),
                                    invited_by=request.user.contributor)
     invitation.save()
+    # raise
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_refereeing_invitation_email()
     return redirect(reverse('submissions:editorial_page',

@@ -5,9 +5,9 @@ from django.db import models, transaction
 from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
 
-from scipost.models import ChoiceArrayField, Contributor, title_dict
+from scipost.behaviors import ArxivCallable
+from scipost.models import ChoiceArrayField, Contributor, TITLE_CHOICES, title_dict
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict
-from scipost.models import TITLE_CHOICES
 from journals.models import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import journals_submit_dict, journals_domains_dict
 from journals.models import Publication
@@ -98,7 +98,7 @@ SUBMISSION_TYPE = (
 submission_type_dict = dict(SUBMISSION_TYPE)
 
 
-class Submission(models.Model):
+class Submission(ArxivCallable, models.Model):
     # Main submission fields
     author_comments = models.TextField(blank=True, null=True)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
@@ -183,6 +183,14 @@ class Submission(models.Model):
 
         self.save()
 
+    @classmethod
+    def same_version_exists(self, identifier):
+        return self.objects.filter(arxiv_identifier_w_vn_nr=identifier).exists()
+
+    @classmethod
+    def different_versions(self, identifier):
+        return self.objects.filter(arxiv_identifier_wo_vn_nr=identifier).order_by('-arxiv_vn_nr')
+
     def make_assignment(self):
         assignment = EditorialAssignment(
             submission=self,
@@ -230,26 +238,26 @@ class Submission(models.Model):
 
     def header_as_table(self):
         # for Submission page
-        header = '<table>'
-        header += '<tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>'
-        header += '<tr><td>Author(s): </td><td>&nbsp;</td><td>{{ author_list }}</td></tr>'
-        header += '<tr><td>As Contributors: </td><td>&nbsp;</td>'
+        header = '<table class="submission_header">'
+        header += '<tr><td>Title: </td><td>{{ title }}</td></tr>'
+        header += '<tr><td>Author(s): </td><td>{{ author_list }}</td></tr>'
+        header += '<tr><td>As Contributors: </td>'
         if self.authors.all():
             header += '<td>'
             for auth in self.authors.all():
                 header += ('<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name
-                           + ' ' + auth.user.last_name + '</a>&nbsp;&nbsp;')
+                           + ' ' + auth.user.last_name + '</a>')
             header += '</td>'
         else:
             header += '<td>(none claimed)</td>'
         header += ('</tr>'
-                   '<tr><td>arxiv Link: </td><td>&nbsp;</td>'
+                   '<tr><td>arxiv Link: </td>'
                    '<td><a href="{{ arxiv_link }}" target="_blank">{{ arxiv_link }}</a></td></tr>'
-                   '<tr><td>Date submitted: </td><td>&nbsp;</td><td>{{ submission_date }}</td></tr>'
-                   '<tr><td>Submitted by: </td><td>&nbsp;</td><td>{{ submitted_by }}</td></tr>'
-                   '<tr><td>Submitted to: </td><td>&nbsp;</td><td>{{ to_journal }}</td></tr>'
-                   '<tr><td>Domain(s): </td><td>&nbsp;</td><td>{{ domain }}</td></tr>'
-                   '<tr><td>Subject area: </td><td>&nbsp;</td><td>{{ subject_area }}</td></tr>'
+                   '<tr><td>Date submitted: </td><td>{{ submission_date }}</td></tr>'
+                   '<tr><td>Submitted by: </td><td>{{ submitted_by }}</td></tr>'
+                   '<tr><td>Submitted to: </td><td>{{ to_journal }}</td></tr>'
+                   '<tr><td>Domain(s): </td><td>{{ domain }}</td></tr>'
+                   '<tr><td>Subject area: </td><td>{{ subject_area }}</td></tr>'
                    '</table>')
         template = Template(header)
         context = Context({
@@ -667,7 +675,7 @@ class Report(models.Model):
                            'first_name': self.author.user.first_name,
                            'last_name': self.author.user.last_name,
                            'date_submitted': self.date_submitted.strftime("%Y-%m-%d")})
-        output = '<div class="reportid">\n'
+        output = '<div class="reportid">'
         output += '<h3><a id="report_id{{ id }}"></a>'
         if self.anonymous:
             output += 'Anonymous Report {{ id }}'
@@ -680,15 +688,15 @@ class Report(models.Model):
     def print_contents(self):
         context = Context({'strengths': self.strengths, 'weaknesses': self.weaknesses,
                            'report': self.report, 'requested_changes': self.requested_changes})
-        output = ('<div class="row"><div class="col-2">'
-                  '<p>Strengths:</p></div><div class="col-10"><p>{{ strengths }}</p></div></div>'
-                  '<div class="row"><div class="col-2">'
-                  '<p>Weaknesses:</p></div><div class="col-10"><p>{{ weaknesses }}</p></div></div>'
-                  '<div class="row"><div class="col-2">'
-                  '<p>Report:</p></div><div class="col-10"><p>{{ report }}</p></div></div>'
-                  '<div class="row"><div class="col-2">'
-                  '<p>Requested changes:</p></div>'
-                  '<div class="col-10"><p>{{ requested_changes }}</p></div></div>'
+        output = ('<div class="row"><div class="col-6">'
+                  'Strengths:</div><div class="col-6">{{ strengths }}</div></div>'
+                  '<div class="row"><div class="col-6">'
+                  'Weaknesses:</div><div class="col-6">{{ weaknesses }}</div></div>'
+                  '<div class="row"><div class="col-6">'
+                  'Report:</div><div class="col-6">{{ report }}</div></div>'
+                  '<div class="row"><div class="col-6">'
+                  'Requested changes:</div>'
+                  '<div class="col-6">{{ requested_changes }}</div></div>'
                   '<div class="reportRatings"><ul>'
                   '<li>validity: ' + ranking_choices_dict[self.validity] + '</li>'
                   '<li>significance: ' + ranking_choices_dict[self.significance] + '</li>'
@@ -708,19 +716,19 @@ class Report(models.Model):
             'date_submitted': self.date_submitted.strftime("%Y-%m-%d"),
             'remarks_for_editors': self.remarks_for_editors,
         })
-        output = '<div class="reportid">\n'
-        output += '<h3><a id="report_id{{ id }}"></a>'
+        output = '<div class="reportid">'
+        output += '<h3>'
         if self.anonymous:
             output += '(chose public anonymity) '
         output += ('<a href="/contributor/{{ author_id }}">'
                    '{{ author_first_name }} {{ author_last_name }}</a>'
                    ' on {{ date_submitted }}</h3></div>'
-                   '<div class="row"><div class="col-2">Qualification:</p></div>'
-                   '<div class="col-10"><p>'
-                   + ref_qualif_dict[self.qualification] + '</p></div></div>')
+                   '<div class="row"><div class="col-6">Qualification:</div>'
+                   '<div class="col-6">'
+                   + ref_qualif_dict[self.qualification] + '</div></div>')
         output += self.print_contents()
         output += '<h3>Remarks for editors</h3><p>{{ remarks_for_editors }}</p>'
-        output += '<h3>Recommendation: ' + report_rec_dict[self.recommendation] + '</h3>'
+        output += '<h3>Recommendation</h3><p>%s</p>' % report_rec_dict[self.recommendation]
         template = Template(output)
         return template.render(context)
 

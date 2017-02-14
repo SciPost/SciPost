@@ -2,31 +2,30 @@
 
 {% block pagetitle %}: SciPost Physics: issues{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
+{% include 'journals/scipost_physics_menu.html' %}
 
-<section>
-
-  {% include 'journals/scipost_physics_menu.html' %}
-
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>Issues</h2>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Issues</h2>
+        </div>
     </div>
-  </div>
+</div>
 
-  <div class="flex-whitebox">
-    <ul>
-      {% for issue in issues %}
-        <li>
-          <a href="{% url 'scipost:SciPostPhys_issue_detail' volume_nr=issue.in_volume.number issue_nr=issue.number %}">{{ issue }}</a>
-        </li>
-      {% endfor %}
-  </div>
-
-  {% include 'journals/scipost_physics_footer.html' %}
-
-</section>
+<div class="row">
+    <div class="col-12">
+        <ul>
+          {% for issue in issues %}
+            <li>
+              <a href="{% url 'scipost:SciPostPhys_issue_detail' volume_nr=issue.in_volume.number issue_nr=issue.number %}">{{ issue }}</a>
+            </li>
+          {% endfor %}
+    </div>
+</div>
 
 
-{% endblock bodysup %}
+{% include 'journals/scipost_physics_footer.html' %}
+
+{% endblock content %}

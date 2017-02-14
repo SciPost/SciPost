@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.shortcuts import get_object_or_404
 
@@ -15,6 +17,29 @@ class IdentifierToQueryForm(forms.Form):
     identifier = forms.CharField(widget=forms.TextInput(
         {'label': 'arXiv identifier',
          'placeholder': 'new style ####.####(#)v# or old-style e.g. cond-mat/#######'}))
+
+    def clean(self, *args, **kwargs):
+        cleaned_data = super(IdentifierToQueryForm, self).clean(*args, **kwargs)
+
+        identifierpattern_new = re.compile("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$")
+        identifierpattern_old = re.compile("^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$")
+
+        if not (identifierpattern_new.match(cleaned_data['identifier']) or
+                identifierpattern_old.match(cleaned_data['identifier'])):
+                msg = ('The identifier you entered is improperly formatted '
+                       '(did you forget the version number?)')
+                self.add_error('identifier', msg)
+
+        try:
+            commentary = Commentary.objects.get(arxiv_identifier=cleaned_data['identifier'])
+        except (Commentary.DoesNotExist, KeyError):
+            # Commentary either does not exists or form is invalid
+            commentary = None
+
+        if commentary:
+            msg = 'There already exists a Commentary Page on this preprint, see %s' % commentary.header_as_li()
+            self.add_error('identifier', msg)
+        return cleaned_data
 
 
 class RequestCommentaryForm(forms.ModelForm):
@@ -47,7 +72,7 @@ class RequestCommentaryForm(forms.ModelForm):
         # Either Arxiv-ID or DOI is given
         if not cleaned_data['arxiv_identifier'] and not cleaned_data['pub_DOI']:
             msg = ('You must provide either a DOI (for a published paper) '
-                'or an arXiv identifier (for a preprint).')
+                   'or an arXiv identifier (for a preprint).')
             self.add_error('arxiv_identifier', msg)
             self.add_error('pub_DOI', msg)
         elif (cleaned_data['arxiv_identifier'] and
@@ -61,13 +86,13 @@ class RequestCommentaryForm(forms.ModelForm):
         elif (cleaned_data['pub_DOI'] and
               Commentary.objects.filter(pub_DOI=cleaned_data['pub_DOI']).exists()):
             msg = 'There already exists a Commentary Page on this publication, see'
-            self.existing_commentary = get_object_or_404(Commentary, pub_DOI=cleaned_data['pub_DOI'])
+            self.existing_commentary = get_object_or_404(
+                Commentary, pub_DOI=cleaned_data['pub_DOI'])
             self.add_error('pub_DOI', msg)
 
         # Current user is not known
         if not self.user or not Contributor.objects.filter(user=self.user).exists():
             self.add_error(None, 'Sorry, current user is not known to SciPost.')
-
 
     def save(self, *args, **kwargs):
         """Prefill instance before save"""
@@ -135,7 +160,8 @@ class VetCommentaryForm(forms.Form):
             self.add_error(None, 'No `commentary_id` provided')
             return cleaned_data
         else:
-            self.commentary = Commentary.objects.select_related('requested_by__user').get(pk=self.commentary_id)
+            self.commentary = Commentary.objects.select_related('requested_by__user').get(
+                pk=self.commentary_id)
 
         # Check valid `user`
         if not self.user:
@@ -149,7 +175,7 @@ class VetCommentaryForm(forms.Form):
         """Raise ValueError if form isn't validated"""
         if not self.is_cleaned:
             raise ValueError(('VetCommentaryForm could not be processed '
-                'because the data didn\'t validate'))
+                              'because the data didn\'t validate'))
 
     def get_commentary(self):
         """Return Commentary if available"""
