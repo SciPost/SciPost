@@ -1367,7 +1367,7 @@ def vet_submitted_report_ack(request, report_id):
                 report.submission.save()
             elif form.cleaned_data['action_option'] == '2':
                 # the report is simply rejected
-                report.status = form.cleaned_data['refusal_reason']
+                report.status = int(form.cleaned_data['refusal_reason'])
                 report.save()
             # email report author
             SubmissionUtils.load({'report': report,
