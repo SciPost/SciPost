@@ -51,7 +51,7 @@ class Comment(TimeStampedModel):
     in_reply_to_comment = models.ForeignKey('self', blank=True, null=True,
                                             on_delete=models.CASCADE)
     in_reply_to_report = models.ForeignKey(Report, blank=True, null=True, on_delete=models.CASCADE)
-    author = models.ForeignKey(Contributor, default=1, on_delete=models.CASCADE)
+    author = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
     # Categories:
     is_cor = models.BooleanField(default=False, verbose_name='correction/erratum')
