@@ -67,26 +67,6 @@ class ThesisLink(models.Model):
     def __str__(self):
         return self.title
 
-    def header_as_li(self):
-        context = Context({
-            'id': self.id, 'title': self.title, 'author': self.author,
-            'pub_link': self.pub_link, 'institution': self.institution,
-            'supervisor': self.supervisor, 'defense_date': self.defense_date,
-            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
-
-        header = (
-            '<li><p><a href="/thesis/{{ id }}" '
-            'class="pubtitleli">{{ title }}</a></p>'
-            '<p>' + self.THESIS_TYPES_DICT[self.type] + ' thesis by {{ author }} '
-            '(supervisor(s): {{ supervisor }}) in ' +
-            disciplines_dict[self.discipline] + ', ' +
-            journals_domains_dict[self.domain] + ' ' +
-            subject_areas_dict[self.subject_area] + '</p>'
-            '<p>Defense date: {{ defense_date }} - '
-            'Latest activity: {{ latest_activity }}</p></li>')
-        template = Template(header)
-        return template.render(context)
-
     def simple_header_as_li(self):
         # for Lists
         context = Context({

@@ -47,7 +47,7 @@
         {% if thesislink_search_list %}
           <ul>
             {% for thesislink in thesislink_search_list %}
-            {{ thesislink.header_as_li }}
+                {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesislink %}
             {% endfor %}
           </ul>
         {% elif form.has_changed %}
@@ -64,7 +64,7 @@
       <h2>Recently active Thesis Links:</h2>
       <ul>
         {% for thesislink in thesislink_recent_list %}
-        {{ thesislink.header_as_li }}
+            {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesislink %}
         {% endfor %}
       </ul>
     </div>
@@ -78,7 +78,7 @@
       <h2>Thesis Links in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
       <ul>
         {% for thesislink in thesislink_browse_list %}
-        {{ thesislink.header_as_li }}
+            {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesislink %}
         {% endfor %}
       </ul>
     </div>
