@@ -16,10 +16,7 @@
   <hr>
   <div class="row">
     <div class="col-8">
-      {% include "./_header_as_table.html" with thesislink=thesislink_to_vet %}
-      <br />
-      <h4>Abstract:</h4>
-      <p>{{ thesislink_to_vet.abstract }}</p>
+      {% include "./_thesislink_information.html" with thesislink=thesislink_to_vet %}
     </div>
     <div class="col-4">
       <form action= {% url 'theses:vet_thesislink_request' thesislink_to_vet.id %} method="post">
