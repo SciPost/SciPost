@@ -190,3 +190,14 @@ class VetCommentaryRequestsTest(TestCase):
         # Write your tests here
 
 ```
+
+## Django-extensions
+[django-extensions](https://github.com/django-extensions/django-extensions) provide added commands like
+`./manage.py shell_plus`, which preloads all models in a shell session. Additional imports may be specified in `settings.py` as follows:
+
+```python
+SHELL_PLUS_POST_IMPORTS = (
+    ('theses.factories', ('ThesisLinkFactory')),
+    ('comments.factories', ('CommentFactory')),
+)
+```
