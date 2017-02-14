@@ -5,6 +5,8 @@
 a {
     color: $scipost-lightblue;
     text-decoration: none;
+    cursor: pointer;
+    outline: none;
 }
 a:hover {
     color: $scipost-darkblue;
@@ -20,8 +22,8 @@ hr,
 hr.hr12 {
     height: 3px;
     border: 0;
-    box-shadow: 0 2px 2px 0 #ccc;
-    background: rgba(246, 161, 26, 0.5);
+    box-shadow: 0 1px 2px 0 #ccc;
+    background: rgba(104, 133, 195, 0.5);
     margin-bottom: 1rem;
 
     &.small {
