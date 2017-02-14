@@ -12,13 +12,13 @@
 
 <div class="row">
     <div class="col-md-4">
-        <div class="panel">
+        <div class="panel page-header-panel">
           <h1>SciPost Theses</h1>
           <h3><a href="{% url 'theses:request_thesislink' %}">Request a new Thesis Link</a></h3>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="panel">
+        <div class="panel page-header-panel">
           <h2>Search SciPost Theses:</h2>
           <form class="small" action="{% url 'theses:theses' %}" method="post">
             {% csrf_token %}
@@ -30,7 +30,7 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="panel">
+        <div class="panel page-header-panel">
           <h2>View SciPost Theses</h2>
           <ul>
             <li>Physics: last <a href="{% url 'theses:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'theses:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'theses:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>

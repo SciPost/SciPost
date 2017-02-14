@@ -2,6 +2,7 @@
 
 {% load bootstrap %}
 {% load filename %}
+{% load file_extentions %}
 
 {% block pagetitle %}: vet comments{% endblock pagetitle %}
 
@@ -51,7 +52,13 @@
                 {% if comment_to_vet.file_attachment %}
                     <h3>Attachment:</h3>
                     <p>
-                        <a target="_blank" href="{{ comment_to_vet.file_attachment.url }}">{{ comment_to_vet.file_attachment|filename }}</a><br><small>{{ comment_to_vet.file_attachment.size|filesizeformat }}</small>
+                        <a target="_blank" href="{{ comment_to_vet.file_attachment.url }}">
+                            {% if comment_to_vet.file_attachment|is_image %}
+                                <img class="attachment attachment-comment" src="{{ comment_to_vet.file_attachment.url }}">
+                            {% else %}
+                                {{ comment_to_vet.file_attachment|filename }}<br><small>{{ comment_to_vet.file_attachment.size|filesizeformat }}</small>
+                            {% endif %}
+                        </a>
                     </p>
                 {% endif %}
 

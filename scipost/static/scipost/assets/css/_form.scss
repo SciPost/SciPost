@@ -19,3 +19,9 @@
 form.small .form-group {
     margin-bottom: 0.5rem;
 }
+
+textarea {
+    // Hack old textarea's to become bigger
+    width: 800px;
+    max-width: 100%;
+}

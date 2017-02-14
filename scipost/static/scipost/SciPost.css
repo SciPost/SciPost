@@ -793,8 +793,10 @@ li.publicationPDF {
 }
 
 #preview-comment_text {
-  border: 1px solid black;
-  white-space: pre-wrap;
+    border: 1px solid black;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    padding: 1rem;
 }
 #preview-strengths {
   border: 1px solid black;

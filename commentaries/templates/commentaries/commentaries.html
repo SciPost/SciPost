@@ -14,14 +14,14 @@
 {# <section>#}
 <div class="row">
     <div class="col-md-4">
-        <div class="panel">
+        <div class="panel page-header-panel">
           <h1>SciPost Commentaries</h1>
           <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
           <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
         </div>
     </div>
     <div class="col-md-4">
-    	<div class="panel">
+    	<div class="panel page-header-panel">
             <h2>Search SciPost Commentaries:</h2>
             <form action="{% url 'commentaries:commentaries' %}" class="small" method="post">
           	{% csrf_token %}
@@ -31,7 +31,7 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="panel">
+        <div class="panel page-header-panel">
           <h2>View SciPost Commentaries</h2>
           <ul>
     	<li>Physics: last <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
