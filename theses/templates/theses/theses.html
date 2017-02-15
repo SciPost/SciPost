@@ -20,8 +20,7 @@
     <div class="col-md-4">
         <div class="panel page-header-panel">
           <h2>Search SciPost Theses:</h2>
-          <form class="small" action="{% url 'theses:theses' %}" method="post">
-            {% csrf_token %}
+          <form class="small" action="{% url 'theses:theses' %}" method="get">
             <table>
               {{ form|bootstrap:'4,8,sm' }}
             </table>
@@ -39,14 +38,14 @@
     </div>
   </div>
 
-  {% if thesislink_search_list or form.has_changed %}
+  {% if search_results or form.has_changed %}
   <div class="row">
       <div class="col-12">
         <hr class="hr12">
         <h3>Search results:</h3>
-        {% if thesislink_search_list %}
+        {% if search_results %}
           <ul>
-            {% for thesislink in thesislink_search_list %}
+            {% for thesislink in search_results %}
                 {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesislink %}
             {% endfor %}
           </ul>
@@ -57,13 +56,13 @@
 </div>
 {% endif %}
 
-{% if thesislink_recent_list %}
+{% if recent_theses %}
 <div class="row">
     <div class="col-12">
       <hr class="hr12">
       <h2>Recently active Thesis Links:</h2>
       <ul>
-        {% for thesislink in thesislink_recent_list %}
+        {% for thesislink in recent_theses %}
             {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesislink %}
         {% endfor %}
       </ul>
