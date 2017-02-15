@@ -66,32 +66,4 @@
     </div>
 </div>
 
-{% if submission_recent_list %}
-<div class="row">
-    <div class="col-12">
-        <hr class="hr12">
-        <h2>Recent Submissions:</h2>
-        <ul>
-            {% for submission in submission_recent_list %}
-            {{ submission.header_as_li }}
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-{% endif %}
-
-{% if submission_browse_list %}
-<div class="row">
-    <div class="col-12">
-        <hr class="hr12">
-        <h2>Submissions in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
-        <ul>
-            {% for submission in submission_browse_list %}
-            {{ submission.header_as_li }}
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-{% endif %}
-
 {% endblock content %}
