@@ -689,14 +689,14 @@ class Report(models.Model):
         context = Context({'strengths': self.strengths, 'weaknesses': self.weaknesses,
                            'report': self.report, 'requested_changes': self.requested_changes})
         output = ('<div class="row"><div class="col-12"><h3 class="highlight tight">'
-                  'Strengths</h3><div class="pl-md-4">{{ strengths }}</div></div></div>'
+                  'Strengths</h3><div class="pl-md-4">{{ strengths|linebreaks }}</div></div></div>'
                   '<div class="row"><div class="col-12"><h3 class="highlight tight">'
-                  'Weaknesses</h3><div class="pl-md-4">{{ weaknesses }}</div></div></div>'
+                  'Weaknesses</h3><div class="pl-md-4">{{ weaknesses|linebreaks }}</div></div></div>'
                   '<div class="row"><div class="col-12"><h3 class="highlight tight">'
-                  'Report</h3><div class="pl-md-4">{{ report }}</div></div></div>'
+                  'Report</h3><div class="pl-md-4">{{ report|linebreaks }}</div></div></div>'
                   '<div class="row"><div class="col-12"><h3 class="highlight tight">'
                   'Requested changes</h3><div class="pl-md-4">'
-                  '<p>{{ requested_changes }}</p>'
+                  '<p>{{ requested_changes|linebreaks }}</p>'
                   '<div class="reportRatings"><ul>'
                   '<li>validity: ' + ranking_choices_dict[self.validity] + '</li>'
                   '<li>significance: ' + ranking_choices_dict[self.significance] + '</li>'

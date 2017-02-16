@@ -6,6 +6,8 @@
 
 {% load scipost_extras %}
 {% load submissions_extras %}
+{% load filename %}
+{% load file_extentions %}
 
   <script>
     $(document).ready(function(){
@@ -198,6 +200,18 @@
                                 </div>
                                 <div class="col-12">
                                     <p>{{ reply.comment_text|linebreaks }}</p>
+				    {% if reply.file_attachment %}
+				    <h3>Attachment:</h3>
+				    <p>
+				      <a target="_blank" href="{{ reply.file_attachment.url }}">
+					{% if reply.file_attachment|is_image %}
+					<img class="attachment attachment-comment" src="{{ reply.file_attachment.url }}">                                                                              
+					{% else %}
+					{{ reply.file_attachment|filename }}<br><small>{{ reply.file_attachment.size|filesizeformat }}</small>
+					{% endif %}
+				      </a>
+				    </p>
+				    {% endif %}
                                 </div>
                             </div>
                         </div>
