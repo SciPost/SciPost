@@ -33,6 +33,7 @@ from scipost.models import Contributor, title_dict, Remark, RegistrationInvitati
 
 from scipost.services import ArxivCaller
 from scipost.utils import Utils
+from strings import arxiv_caller_errormessages_submissions
 
 from comments.forms import CommentForm
 
@@ -186,39 +187,8 @@ class PrefillUsingIdentifierView(FormView):
                 return render(request, 'submissions/new_submission.html', context)
 
             else:
-                # Arxiv response is not valid
-                errormessages = {
-                    'preprint_does_not_exist':
-                        'A preprint associated to this identifier does not exist.',
-                    'paper_published_journal_ref':
-                        ('This paper has been published as ' + caller.arxiv_journal_ref +
-                         '. You cannot submit it to SciPost anymore.'),
-                    'paper_published_doi':
-                        ('This paper has been published under DOI ' + caller.arxiv_doi +
-                         '. You cannot submit it to SciPost anymore.'),
-                    'arxiv_timeout': 'Arxiv did not respond in time. Please try again later',
-                    'arxiv_bad_request':
-                        ('There was an error with requesting identifier ' +
-                         caller.identifier_with_vn_nr +
-                         ' from Arxiv. Please check the identifier and try again.'),
-                    'previous_submission_undergoing_refereeing':
-                        ('There exists a preprint with this arXiv identifier '
-                         'but an earlier version number, which is still undergoing '
-                         'peer refereeing.'
-                         'A resubmission can only be performed after request '
-                         'from the Editor-in-charge. Please wait until the '
-                         'closing of the previous refereeing round and '
-                         'formulation of the Editorial Recommendation '
-                         'before proceeding with a resubmission.'),
-                    'preprint_already_submitted': 'This preprint version has already been submitted to SciPost.',
-                    'previous_submissions_rejected':
-                        ('This arXiv preprint has previously undergone refereeing '
-                         'and has been rejected. Resubmission is only possible '
-                         'if the manuscript has been substantially reworked into '
-                         'a new arXiv submission with distinct identifier.')
-                }
-
-                identifierform.add_error(None, errormessages[caller.errorcode])
+                msg = caller.get_error_message(arxiv_caller_errormessages_submissions)
+                identifierform.add_error(None, msg)
                 return render(request, 'submissions/prefill_using_identifier.html',
                               {'form': identifierform})
         else:
