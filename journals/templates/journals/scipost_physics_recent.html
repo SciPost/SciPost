@@ -31,10 +31,8 @@
 <div class="publicationHeaderList">
     <div class="row">
         {% for paper in recent_papers %}
-            <div class="col-md-6">
-                <div class="panel">
-                    {{ paper.header_as_li }}
-                </div>
+            <div class="col-12">
+                {{ paper.header_as_li }}
             </div>
         {% endfor %}
     </div>

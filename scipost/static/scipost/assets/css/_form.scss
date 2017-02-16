@@ -7,7 +7,7 @@
 }
 
 .has-error .form-control {
-        border-color: #d9534f;
+    border-color: #d9534f;
 }
 
 .form-control + .help-block {
@@ -16,7 +16,8 @@
     font-weight: 600;
 }
 
-form.small .form-group {
+.form-group,
+.row.form-group {
     margin-bottom: 0.5rem;
 }
 
