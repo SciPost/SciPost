@@ -35,6 +35,7 @@ DEBUG = host_settings["DEBUG"]
 
 # Emails for server error reporting
 ADMINS = host_settings["ADMINS"]
+MANAGERS = host_settings["MANAGERS"]
 
 ALLOWED_HOSTS = host_settings["ALLOWED_HOSTS"]
 
