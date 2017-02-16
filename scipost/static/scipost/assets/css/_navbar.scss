@@ -10,13 +10,19 @@
         padding-left: 1rem;
         border: 1px solid transparent;
         border-radius: 0.1rem;
-        -webkit-transition: all 0.2s ease-in-out;
-             -o-transition: all 0.2s ease-in-out;
-                transition: all 0.2s ease-in-out;
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-transition: all 0.1s ease-in-out;
+             -o-transition: all 0.1s ease-in-out;
+                transition: all 0.1s ease-in-out;
 
         @include hover-focus {
             background-color: $white;
         }
+    }
+
+    .navbar-collapse.show .nav-item {
+        margin-bottom: .25rem;
     }
 
     .active > .nav-link {
@@ -31,6 +37,7 @@
         margin-right: 0.5rem;
     }
 }
+
 .navbar-brand {
     height: 38px;
     margin: 0;
