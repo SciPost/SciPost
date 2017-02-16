@@ -37,7 +37,8 @@ class IdentifierToQueryForm(forms.Form):
             commentary = None
 
         if commentary:
-            msg = 'There already exists a Commentary Page on this preprint, see %s' % commentary.header_as_li()
+            msg = 'There already exists a Commentary Page on this preprint, see %s' % (
+                    commentary.title_label())
             self.add_error('identifier', msg)
         return cleaned_data
 
