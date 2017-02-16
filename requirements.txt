@@ -3,6 +3,7 @@ Babel==2.3.4
 Django==1.10.3
 django-countries==4.0
 django-crispy-forms==1.6.1
+django-extensions==1.7.6
 django-filter==1.0.0
 django-guardian==1.4.6
 django-haystack==2.5.1

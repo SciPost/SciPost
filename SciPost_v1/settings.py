@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_countries',
+    'django_extensions',
     'django_mathjax',
     'captcha',
     'crispy_forms',
@@ -101,6 +102,11 @@ SPHINXDOC_PROTECTED_PROJECTS = {
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
 CAPTCHA_LETTER_ROTATION = (-15, 15)
 CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_dots',)
+
+SHELL_PLUS_POST_IMPORTS = (
+    ('theses.factories', ('ThesisLinkFactory')),
+    ('comments.factories', 'CommentFactory'),
+)
 
 MATHJAX_ENABLED = True
 MATHJAX_CONFIG_DATA = {

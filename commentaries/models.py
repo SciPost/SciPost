@@ -127,6 +127,15 @@ class Commentary(ArxivCallable, TimeStampedModel):
             context['arxiv_link'] = self.arxiv_link
         return template.render(context)
 
+    def title_label(self):
+        context = Context({
+            'scipost_url': self.scipost_url(),
+            'pub_title': self.pub_title
+        })
+        template = Template('<a href="{{scipost_url}}" class="pubtitleli">{{pub_title}}</a>')
+        return template.render(context)
+
+
     def header_as_li(self):
         # for display in search lists
         context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,

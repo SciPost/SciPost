@@ -2,6 +2,8 @@ import factory
 
 from django.utils import timezone
 
+from scipost.factories import ContributorFactory
+
 from .models import Comment
 
 
@@ -9,5 +11,6 @@ class CommentFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Comment
 
+    author = factory.SubFactory(ContributorFactory)
     comment_text = factory.Faker('text')
     date_submitted = timezone.now()

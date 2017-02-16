@@ -7,6 +7,8 @@ from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                               subject_areas_dict, disciplines_dict
 from scipost.models import Contributor
 
+from .managers import ThesisLinkManager
+
 
 class ThesisLink(models.Model):
     MASTER_THESIS = 'MA'
@@ -64,28 +66,10 @@ class ThesisLink(models.Model):
     abstract = models.TextField(verbose_name='abstract, outline or summary')
     latest_activity = models.DateTimeField(default=timezone.now)
 
+    objects = ThesisLinkManager()
+
     def __str__(self):
         return self.title
-
-    def header_as_li(self):
-        context = Context({
-            'id': self.id, 'title': self.title, 'author': self.author,
-            'pub_link': self.pub_link, 'institution': self.institution,
-            'supervisor': self.supervisor, 'defense_date': self.defense_date,
-            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
-
-        header = (
-            '<li><p><a href="/thesis/{{ id }}" '
-            'class="pubtitleli">{{ title }}</a></p>'
-            '<p>' + self.THESIS_TYPES_DICT[self.type] + ' thesis by {{ author }} '
-            '(supervisor(s): {{ supervisor }}) in ' +
-            disciplines_dict[self.discipline] + ', ' +
-            journals_domains_dict[self.domain] + ' ' +
-            subject_areas_dict[self.subject_area] + '</p>'
-            '<p>Defense date: {{ defense_date }} - '
-            'Latest activity: {{ latest_activity }}</p></li>')
-        template = Template(header)
-        return template.render(context)
 
     def simple_header_as_li(self):
         # for Lists
