@@ -15,7 +15,7 @@ __pycache__
 
 .python-version
 
-
+/uploads*
 /media*
 
 SCIPOST_JOURNALS

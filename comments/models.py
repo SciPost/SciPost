@@ -40,7 +40,7 @@ class Comment(TimeStampedModel):
     vetted_by = models.ForeignKey(Contributor, blank=True, null=True,
                                   on_delete=models.CASCADE,
                                   related_name='comment_vetted_by')
-    file_attachment = models.FileField(upload_to='comments/%Y/%m/%d/', blank=True,
+    file_attachment = models.FileField(upload_to='uploads/comments/%Y/%m/%d/', blank=True,
                                        validators=[validate_file_extension,
                                                    validate_max_file_size])
     # a Comment is either for a Commentary or Submission or a ThesisLink.

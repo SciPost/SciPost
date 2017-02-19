@@ -3,7 +3,10 @@ import feedparser
 import requests
 import re
 
+from django.template import Template, Context
 from .behaviors import ArxivCallable
+
+from strings import arxiv_caller_errormessages
 
 
 class BaseCaller(object):
@@ -22,6 +25,8 @@ class BaseCaller(object):
     _is_processed = False
     caller_regex = None
     errorcode = None
+    errorvariables = {}
+    errormessages = {}
     identifier_without_vn_nr = ''
     identifier_with_vn_nr = ''
     metadata = {}
@@ -63,6 +68,7 @@ class BaseCaller(object):
             self.identifier_with_vn_nr = self.identifier
             self.version_nr = int(self.identifier.rpartition('v')[2])
         else:
+            self.errorvariables['identifier_with_vn_nr'] = self.identifier
             raise ValueError('bad_identifier')
 
     def _check_valid_caller(self):
@@ -141,6 +147,16 @@ class BaseCaller(object):
 
         self._is_processed = True
 
+    def get_error_message(self, errormessages={}):
+        '''Return the errormessages for a specific error code, with the possibility to
+        overrule the default errormessage dictionary for the specific Caller.
+        '''
+        try:
+            t = Template(errormessages[self.errorcode])
+        except KeyError:
+            t = Template(self.errormessages[self.errorcode])
+        return t.render(Context(self.errorvariables))
+
 
 class DOICaller(BaseCaller):
     """Perform a DOI lookup for a given identifier."""
@@ -153,6 +169,12 @@ class ArxivCaller(BaseCaller):
     # # State of the caller
     resubmission = False
     previous_submissions = []
+    errormessages = arxiv_caller_errormessages
+    errorvariables = {
+        'arxiv_journal_ref': '',
+        'arxiv_doi': '',
+        'identifier_with_vn_nr': ''
+    }
     arxiv_journal_ref = ''
     arxiv_doi = ''
     metadata = {}
@@ -195,11 +217,13 @@ class ArxivCaller(BaseCaller):
 
         # Check via journal ref if already published
         self.arxiv_journal_ref = self.published_journal_ref()
+        self.errorvariables['arxiv_journal_ref'] = self.arxiv_journal_ref
         if self.arxiv_journal_ref:
             raise ValueError('paper_published_journal_ref')
 
         # Check via DOI if already published
         self.arxiv_doi = self.published_doi()
+        self.errorvariables['arxiv_doi'] = self.arxiv_doi
         if self.arxiv_doi:
             raise ValueError('paper_published_doi')
 

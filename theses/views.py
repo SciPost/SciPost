@@ -87,29 +87,17 @@ class VetThesisLink(UpdateView):
 
 
 def theses(request):
-    if request.method == 'POST':
-        form = ThesisLinkSearchForm(request.POST)
-        if form.is_valid() and form.has_changed():
-            thesislink_search_list = ThesisLink.objects.filter(
-                title__icontains=form.cleaned_data['title_keyword'],
-                author__icontains=form.cleaned_data['author'],
-                abstract__icontains=form.cleaned_data['abstract_keyword'],
-                supervisor__icontains=form.cleaned_data['supervisor'],
-                vetted=True,
-            )
-            thesislink_search_list.order_by('-pub_date')
-        else:
-            thesislink_search_list = []
-
+    form = ThesisLinkSearchForm(request.GET)
+    if form.is_valid() and form.has_changed():
+        search_results = ThesisLink.objects.search_results(form)
+        recent_theses = []
     else:
-        form = ThesisLinkSearchForm()
-        thesislink_search_list = []
+        recent_theses = ThesisLink.objects.latest(5)
+        search_results = []
 
-    thesislink_recent_list = (
-        ThesisLink.objects.filter(vetted=True, latest_activity__gte=timezone.now() + datetime.timedelta(days=-7)))
     context = {
-        'form': form, 'thesislink_search_list': thesislink_search_list,
-        'thesislink_recent_list': thesislink_recent_list
+        'form': form, 'search_results': search_results,
+        'recent_theses': recent_theses
     }
     return render(request, 'theses/theses.html', context)
 

@@ -7,6 +7,8 @@ from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                               subject_areas_dict, disciplines_dict
 from scipost.models import Contributor
 
+from .managers import ThesisLinkManager
+
 
 class ThesisLink(models.Model):
     MASTER_THESIS = 'MA'
@@ -63,6 +65,8 @@ class ThesisLink(models.Model):
     defense_date = models.DateField(verbose_name='date of thesis defense')
     abstract = models.TextField(verbose_name='abstract, outline or summary')
     latest_activity = models.DateTimeField(default=timezone.now)
+
+    objects = ThesisLinkManager()
 
     def __str__(self):
         return self.title

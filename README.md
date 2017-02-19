@@ -44,6 +44,7 @@ In this project, host-specific settings are defined in the `scipost-host-setting
     "CERTFILE": "none",
     "DEBUG": true,
     "ADMINS": "",
+    "MANAGERS": "",
     "ALLOWED_HOSTS": ["localhost", "127.0.0.1"],
     "SESSION_COOKIE_SECURE": false,
     "CSRF_COOKIE_SECURE": false,

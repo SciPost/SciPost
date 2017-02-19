@@ -688,15 +688,15 @@ class Report(models.Model):
     def print_contents(self):
         context = Context({'strengths': self.strengths, 'weaknesses': self.weaknesses,
                            'report': self.report, 'requested_changes': self.requested_changes})
-        output = ('<div class="row"><div class="col-6">'
-                  'Strengths:</div><div class="col-6">{{ strengths }}</div></div>'
-                  '<div class="row"><div class="col-6">'
-                  'Weaknesses:</div><div class="col-6">{{ weaknesses }}</div></div>'
-                  '<div class="row"><div class="col-6">'
-                  'Report:</div><div class="col-6">{{ report }}</div></div>'
-                  '<div class="row"><div class="col-6">'
-                  'Requested changes:</div>'
-                  '<div class="col-6">{{ requested_changes }}</div></div>'
+        output = ('<div class="row"><div class="col-12"><h3 class="highlight tight">'
+                  'Strengths</h3><div class="pl-md-4">{{ strengths|linebreaks }}</div></div></div>'
+                  '<div class="row"><div class="col-12"><h3 class="highlight tight">'
+                  'Weaknesses</h3><div class="pl-md-4">{{ weaknesses|linebreaks }}</div></div></div>'
+                  '<div class="row"><div class="col-12"><h3 class="highlight tight">'
+                  'Report</h3><div class="pl-md-4">{{ report|linebreaks }}</div></div></div>'
+                  '<div class="row"><div class="col-12"><h3 class="highlight tight">'
+                  'Requested changes</h3><div class="pl-md-4">'
+                  '<p>{{ requested_changes|linebreaks }}</p>'
                   '<div class="reportRatings"><ul>'
                   '<li>validity: ' + ranking_choices_dict[self.validity] + '</li>'
                   '<li>significance: ' + ranking_choices_dict[self.significance] + '</li>'
@@ -704,7 +704,7 @@ class Report(models.Model):
                   '<li>clarity: ' + ranking_choices_dict[self.clarity] + '</li>'
                   '<li>formatting: ' + quality_spec_dict[self.formatting] + '</li>'
                   '<li>grammar: ' + quality_spec_dict[self.grammar] + '</li>'
-                  '</ul></div>')
+                  '</ul></div></div></div></div>')
         template = Template(output)
         return template.render(context)
 
@@ -723,12 +723,12 @@ class Report(models.Model):
         output += ('<a href="/contributor/{{ author_id }}">'
                    '{{ author_first_name }} {{ author_last_name }}</a>'
                    ' on {{ date_submitted }}</h3></div>'
-                   '<div class="row"><div class="col-6">Qualification:</div>'
-                   '<div class="col-6">'
-                   + ref_qualif_dict[self.qualification] + '</div></div>')
+                   '<div class="row"><div class="col-12"><h3 class="highlight tight">Qualification</h3>'
+                   '<div class="pl-md-4">'
+                   + ref_qualif_dict[self.qualification] + '</div></div></div>')
         output += self.print_contents()
-        output += '<h3>Remarks for editors</h3><p>{{ remarks_for_editors }}</p>'
-        output += '<h3>Recommendation</h3><p>%s</p>' % report_rec_dict[self.recommendation]
+        output += '<div class="row"><div class="col-12"><h3>Remarks for editors</h3><div class="pl-md-4">{{ remarks_for_editors }}</div></div></div>'
+        output += '<div class="row"><div class="col-12"><h3>Recommendation</h3><div class="pl-md-4">%s</div></div></div>' % report_rec_dict[self.recommendation]
         template = Template(output)
         return template.render(context)
 
