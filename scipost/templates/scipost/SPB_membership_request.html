@@ -3,21 +3,24 @@
 {% block pagetitle %}: Supporting Partners Board: Membership request{% endblock pagetitle %}
 
 {% load staticfiles %}
-
+{% load bootstrap %}
 {% block bodysup %}
 
 <script>
 $(document).ready(function(){
-  $("#div_id_consortium_members").hide()
+  $("#id_consortium_members").hide()
+  $("label[for='id_consortium_members']").hide()
 
   $('select#id_partner_type').on('change', function (){
   var selection = $(this).val();
   switch(selection){
     case "Consortium":
-      $("#div_id_consortium_members").show()
+      $("#id_consortium_members").show()
+      $("label[for='id_consortium_members']").show()
       break;
     default:
-      $("#div_id_consortium_members").hide()
+      $("#id_consortium_members").hide()
+      $("label[for='id_consortium_members']").hide()
   }
 });
 });
@@ -48,11 +51,11 @@ $(document).ready(function(){
       <form action="{% url 'scipost:SPB_membership_request' %}" method="post">
 	{% csrf_token %}
 	<h3>Partner details:</h3>
-	{% load crispy_forms_tags %}
-	{% crispy SP_form %}
+	
+	{{ SP_form|bootstrap }}
 	<h3>Agreement terms:</h3>
-	{% crispy membership_form %}
-	<input type="submit" value="Submit"/>
+	{{ membership_form|bootstrap }}
+	<input class="btn btn-secondary" type="submit" value="Submit"/>
       </form>
 
     </div>
