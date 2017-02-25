@@ -25,7 +25,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
 class EICassignedSubmissionFactory(SubmissionFactory):
     status = 'EICassigned'
     editor_in_charge = factory.SubFactory(ContributorFactory)
-
+    open_for_commenting = True
 
 
 def random_arxiv_identifier_with_version_number():

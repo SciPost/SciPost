@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import permission_required
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404
 
 from .models import Comment
@@ -11,7 +12,7 @@ from .forms import CommentForm, VetCommentForm, comment_refusal_dict
 from scipost.models import Contributor, title_dict
 from theses.models import ThesisLink
 from submissions.utils import SubmissionUtils
-from submissions.models import Report
+from submissions.models import Submission, Report
 
 @permission_required('scipost.can_submit_comments', raise_exception=True)
 def new_comment(request, **kwargs):
@@ -22,7 +23,6 @@ def new_comment(request, **kwargs):
             object_id = int(kwargs["object_id"])
             type_of_object = kwargs["type_of_object"]
             new_comment = Comment(
-                # thesislink=thesislink,
                 author=author,
                 is_rem=form.cleaned_data['is_rem'],
                 is_que=form.cleaned_data['is_que'],
@@ -39,9 +39,17 @@ def new_comment(request, **kwargs):
             if type_of_object == "thesislink":
                 thesislink = ThesisLink.objects.get(id=object_id)
                 new_comment.thesislink = thesislink
+                redirect_link = reverse('theses:thesis', kwargs={"thesislink_id":thesislink.id})
             elif type_of_object == "submission":
-                # TODO
-                1 + 1
+                submission = Submission.objects.get(id=object_id)
+                if not submission.open_for_commenting:
+                    raise PermissionDenied
+                    
+                new_comment.submission = submission
+                redirect_link = reverse(
+                    'submissions:submission',
+                    kwargs={"arxiv_identifier_w_vn_nr": submission.arxiv_identifier_w_vn_nr}
+                )
             elif type_of_object == "commentary":
                 # TODO
                 1 + 1
@@ -49,8 +57,7 @@ def new_comment(request, **kwargs):
             new_comment.save()
             author.nr_comments = Comment.objects.filter(author=author).count()
             author.save()
-            if type_of_object == "thesislink":
-                return redirect('theses:thesis', thesislink_id=object_id)
+            return redirect(redirect_link)
     else:
         # This view is only accessible by POST request
         raise Http404

@@ -205,7 +205,7 @@
 				    <p>
 				      <a target="_blank" href="{{ reply.file_attachment.url }}">
 					{% if reply.file_attachment|is_image %}
-					<img class="attachment attachment-comment" src="{{ reply.file_attachment.url }}">                                                                              
+					<img class="attachment attachment-comment" src="{{ reply.file_attachment.url }}">
 					{% else %}
 					{{ reply.file_attachment|filename }}<br><small>{{ reply.file_attachment.size|filesizeformat }}</small>
 					{% endif %}
@@ -304,37 +304,8 @@
 
 {% endif %}
 
-
-
 {% include 'scipost/comments_block.html' %}
 
-{% if user.is_authenticated and submission.open_for_commenting and perms.scipost.can_submit_comments %}
-<hr>
-<div id="contribute_comment">
-    <div class="row">
-        <div class="col-12">
-            <div class="panel">
-                <h2>Contribute a Comment:</h2>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <form enctype="multipart/form-data" action="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
-                {% csrf_token %}
-                {% load crispy_forms_tags %}
-                {% crispy form %}
-            </form>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <h3>Preview of your comment:</h3>
-            <p id="preview-comment_text"></p>
-        </div>
-    </div>
-</div>
-{% endif %}
+{% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting %}
 
 {% endblock content %}

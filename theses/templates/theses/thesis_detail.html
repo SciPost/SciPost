@@ -50,6 +50,6 @@
 
 {% include 'scipost/comments_block.html' %}
 
-{% include 'comments/new_comment.html' with object_id=thesislink.id type_of_object='thesislink' %}
+{% include 'comments/new_comment.html' with object_id=thesislink.id type_of_object='thesislink' open_for_commenting=thesislink.open_for_commenting %}
 
 {% endblock content %}
