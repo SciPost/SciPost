@@ -131,14 +131,12 @@ def browse(request, discipline, nrweeksback):
 
 def thesis_detail(request, thesislink_id):
     thesislink = get_object_or_404(ThesisLink, pk=thesislink_id)
-    comments = thesislink.comment_set.all()
     form = CommentForm()
-    try:
-        author_replies = Comment.objects.filter(thesislink=thesislink, is_author_reply=True)
-    except Comment.DoesNotExist:
-        author_replies = ()
-    # TODO: make manager for horribly obfuscating 'status__gte=1'
+
+    comments = thesislink.comment_set
+    author_replies = comments.filter(is_author_reply=True)
+
     context = {'thesislink': thesislink,
-               'comments': comments.filter(status__gte=1).order_by('date_submitted'),
+               'comments': comments.vetted().order_by('date_submitted'),
                'author_replies': author_replies, 'form': form}
     return render(request, 'theses/thesis_detail.html', context)
