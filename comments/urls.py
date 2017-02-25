@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^vet_submitted_comment_ack/(?P<comment_id>[0-9]+)$', views.vet_submitted_comment_ack, name='vet_submitted_comment_ack'),
     url(r'^express_opinion/(?P<comment_id>[0-9]+)$', views.express_opinion, name='express_opinion'),
     url(r'^express_opinion/(?P<comment_id>[0-9]+)/(?P<opinion>[AND])$', views.express_opinion, name='express_opinion'),
+    url(r'^new_comment/(?P<type_of_object>[a-z]+)/(?P<object_id>[0-9]+)$', views.new_comment, name='new_comment')
 ]

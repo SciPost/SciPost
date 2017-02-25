@@ -1,0 +1,27 @@
+{% if user.is_authenticated and thesislink.open_for_commenting and perms.scipost.can_submit_comments %}
+<hr />
+
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Contribute a Comment:</h2>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <form enctype="multipart/form-data"
+            action="{% url 'comments:new_comment' object_id=object_id type_of_object=type_of_object %}"
+            method="post">
+          {% csrf_token %}
+          {% load crispy_forms_tags %}
+          {% crispy form %}
+        </form>
+    </div>
+    <div class="col-12">
+        <h3>Preview of your comment:</h3>
+        <p id="preview-comment_text"></p>
+    </div>
+</div>
+
+{% endif %}
