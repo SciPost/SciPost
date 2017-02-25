@@ -37,6 +37,8 @@ def new_comment(request, **kwargs):
                 date_submitted=timezone.now(),
             )
             if type_of_object == "thesislink":
+                if not thesislink.open_for_commenting:
+                    raise PermissionDenied
                 thesislink = ThesisLink.objects.get(id=object_id)
                 new_comment.thesislink = thesislink
                 redirect_link = reverse('theses:thesis', kwargs={"thesislink_id":thesislink.id})
@@ -44,7 +46,6 @@ def new_comment(request, **kwargs):
                 submission = Submission.objects.get(id=object_id)
                 if not submission.open_for_commenting:
                     raise PermissionDenied
-                    
                 new_comment.submission = submission
                 redirect_link = reverse(
                     'submissions:submission',
