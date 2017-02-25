@@ -23,6 +23,11 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
     domain = 'ET'
 
 
+class VettedThesisLinkFactory(ThesisLinkFactory):
+    vetted_by = factory.SubFactory(ContributorFactory)
+    vetted = True
+
+
 class VetThesisLinkFormFactory(FormFactory):
     class Meta:
         model = VetThesisLinkForm

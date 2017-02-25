@@ -3,6 +3,7 @@ import datetime
 from django import template
 from django.utils import timezone
 from django.utils.timesince import timesince
+from urllib.parse import urlencode
 
 from submissions.models import SUBMISSION_STATUS_OUT_OF_POOL
 from submissions.models import Submission
@@ -78,3 +79,9 @@ def required_actions(submission):
             todo.append('The Report from %s has been delivered but is not yet vetted. '
                         'Please vet it.' % report.author)
     return todo
+
+@register.simple_tag(takes_context=True)
+def url_replace(context, **kwargs):
+    query = context['request'].GET.dict()
+    query.update(kwargs)
+    return urlencode(query)

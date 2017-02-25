@@ -108,5 +108,3 @@ class ThesisLinkSearchForm(forms.Form):
     title_keyword = forms.CharField(max_length=100, label="Title", required=False)
     abstract_keyword = forms.CharField(max_length=1000, required=False, label="Abstract")
     supervisor = forms.CharField(max_length=100, required=False, label="Supervisor")
-    from_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False)
-    to_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False)
