@@ -105,7 +105,8 @@ CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_dots',)
 
 SHELL_PLUS_POST_IMPORTS = (
     ('theses.factories', ('ThesisLinkFactory')),
-    ('comments.factories', 'CommentFactory'),
+    ('comments.factories', ('CommentFactory')),
+    ('submissions.factories', ('SubmissionFactory', 'EICassignedSubmissionFactory')),
 )
 
 MATHJAX_ENABLED = True
