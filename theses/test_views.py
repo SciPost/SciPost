@@ -31,7 +31,6 @@ class TestThesisDetail(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-
 class TestRequestThesisLink(TestCase):
     fixtures = ['groups', 'permissions']
 

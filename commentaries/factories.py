@@ -34,5 +34,5 @@ class VettedCommentaryFactory(CommentaryFactory):
     vetted = True
 
 
-class UnVettedCommentaryFactory(CommentaryFactory):
+class UnvettedCommentaryFactory(CommentaryFactory):
     vetted = False

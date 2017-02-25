@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from scipost.factories import ContributorFactory
 
-from .factories import UnVettedCommentaryFactory, VettedCommentaryFactory
+from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory
 from .forms import CommentarySearchForm
 from .models import Commentary
 
@@ -83,7 +83,7 @@ class VetCommentaryRequestsTest(TestCase):
         self.assertEquals(response.context['commentary_to_vet'], None)
 
         # Unvetted Commentaries do exist!
-        UnVettedCommentaryFactory()
+        UnvettedCommentaryFactory()
         response = self.client.get(self.view_url)
         self.assertTrue(type(response.context['commentary_to_vet']) is Commentary)
 

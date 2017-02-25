@@ -107,6 +107,7 @@ SHELL_PLUS_POST_IMPORTS = (
     ('theses.factories', ('ThesisLinkFactory')),
     ('comments.factories', ('CommentFactory')),
     ('submissions.factories', ('SubmissionFactory', 'EICassignedSubmissionFactory')),
+    ('commentaries.factories', ('EmptyCommentaryFactory', 'VettedCommentaryFactory', 'UnvettedCommentaryFactory')),
 )
 
 MATHJAX_ENABLED = True
