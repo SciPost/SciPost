@@ -63,7 +63,7 @@
     <h3>Potential authorships to claim (auto-detected)</h3>
     <ul>
       {% for thesis in thesis_authorships_to_claim %}
-        {{ thesis.header_as_li }}
+        {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesis %}
         <form action="{% url 'scipost:claim_thesis_authorship' thesis_id=thesis.id claim=1%}" method="post">
           {% csrf_token %}
           <input type="submit" value="I am an author" />

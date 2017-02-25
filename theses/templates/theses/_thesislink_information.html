@@ -12,7 +12,7 @@
         {% if thesislink.author_as_cont.all %}
             {% for author in thesislink.author_as_cont.all %}
                 <td><a href= {% url 'scipost:contributor_info' author.id %}>
-                        author.user.first_name author.user.last_name
+                        {{ author.user.first_name }} {{ author.user.last_name }}
                 </a></td>
             {% endfor %}
         {% else %}
