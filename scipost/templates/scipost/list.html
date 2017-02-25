@@ -72,7 +72,8 @@
   <h3>Theses:</h3>
   <ul>
     {% for thesislink in thesislink_search_list %}
-    {{ thesislink.header_as_li }}
+
+        {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesislink %}
     <form action="{% url 'scipost:list_add_element' list_id=list.id type='T' element_id=thesislink.id %}" method="post">
       {% csrf_token %}
       <input class="AddItemToList" type="submit" value="Add"/>

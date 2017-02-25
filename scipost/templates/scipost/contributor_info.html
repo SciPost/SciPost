@@ -103,7 +103,7 @@
     <h3>Theses for which this Contributor is identified as an author:</h3>
     <ul>
       {% for thesis in contributor_theses %}
-        {{ thesis.header_as_li }}
+        {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesis %}
       {% endfor %}
     </ul>
   </div>

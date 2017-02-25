@@ -27,7 +27,7 @@
     {{ claim.commentary.header_as_li }}
     {% elif claim.thesislink %}
     <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Thesis:</h4>
-    {{ claim.thesislink.header_as_li }}
+    {% include 'theses/_thesislink_header_as_li.html' with thesislink=claim.thesislink %}
     {% endif %}
 
     <form action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=1%}" method="post">
