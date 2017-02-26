@@ -334,6 +334,15 @@ Problems
        Here is an equation that should not be broken: ${E=mc^2}$.
 
 
+   * Equation/table or other text/maths element is just too wide.
+     Option: locally change the fontsize by embedding the object in a ``\fontsize`` block,::
+
+       \begingroup
+       \fontsize{new font size, e.g. 10pt}{skip, 120% of previous}\selectfont
+       [ element]
+       \endgroup
+
+
    * package ``MnSymbol`` is problematic and clashes with amsmath.
 
      One solution is to import individual symbols according to these
@@ -381,6 +390,10 @@ References formatting
 
       \J. Stat. Mech. is annoying (volume number is year). Manually remove volume nr for
       these, so the format becomes ``A. Bee, \emp{Bee's nice paper}, J. Stat. Mech.: Th. Exp. [P,L]##### (20##), \doi{10...}.``
+
+      \J. Phys. A is also annoying. Up to and including volume 39 (2006), it's
+      \J. Phys. A: Math. Gen. Afterwards, volume 40 (2007) onwards, it's
+      \J. Phys. A: Math. Theor.
 
 
 Layout verification
@@ -439,7 +452,9 @@ Preparation of final version of record
    #. Make sure linenumbers are deactivated.
 
    #. Does the table of contents (if present) look OK? (Beware of hanging closing
-      line pushed to top of second page.)
+      line pushed to top of second page). If needed, adjust the ``\vspace`` spacings
+      defined around the table of contents, and/or insert an additional ``vspace``
+      with negative spacing before the abstract.
 
    #. If the author-accepted proofs version used BiBTeX, copy the contents of the bbl
       file into the .tex file, so that BiBTeX is not needed anymore.
