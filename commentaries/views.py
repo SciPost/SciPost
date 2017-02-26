@@ -299,45 +299,10 @@ def browse(request, discipline, nrweeksback):
 def commentary_detail(request, arxiv_or_DOI_string):
     commentary = get_object_or_404(Commentary, arxiv_or_DOI_string=arxiv_or_DOI_string)
     comments = commentary.comment_set.all()
-    if request.method == 'POST':
-        form = CommentForm(request.POST, request.FILES)
-        if form.is_valid():
-            author = Contributor.objects.get(user=request.user)
-            newcomment = Comment(commentary=commentary, author=author,
-                                 is_rem=form.cleaned_data['is_rem'],
-                                 is_que=form.cleaned_data['is_que'],
-                                 is_ans=form.cleaned_data['is_ans'],
-                                 is_obj=form.cleaned_data['is_obj'],
-                                 is_rep=form.cleaned_data['is_rep'],
-                                 is_val=form.cleaned_data['is_val'],
-                                 is_lit=form.cleaned_data['is_lit'],
-                                 is_sug=form.cleaned_data['is_sug'],
-                                 file_attachment=form.cleaned_data['file_attachment'],
-                                 comment_text=form.cleaned_data['comment_text'],
-                                 remarks_for_editors=form.cleaned_data['remarks_for_editors'],
-                                 date_submitted=timezone.now(),
-                                 )
-            newcomment.save()
-            author.nr_comments = Comment.objects.filter(author=author).count()
-            author.save()
-            context = {'ack_header': 'Thank you for contributing a Comment.',
-                       'ack_message': 'It will soon be vetted by an Editor.',
-                       'followup_message': 'Back to the ',
-                       'followup_link': reverse(
-                           'commentaries:commentary',
-                           kwargs={
-                                'arxiv_or_DOI_string': newcomment.commentary.arxiv_or_DOI_string
-                           }
-                       ),
-                       'followup_link_label': ' Commentary page you came from'
-                       }
-            return render(request, 'scipost/acknowledgement.html', context)
-    else:
-        form = CommentForm()
+    form = CommentForm()
     try:
-        author_replies = Comment.objects.filter(commentary=commentary,
-                                                is_author_reply=True,
-                                                status__gte=1)
+        author_replies = Comment.objects.filter(
+            commentary=commentary, is_author_reply=True, status__gte=1)
     except Comment.DoesNotExist:
         author_replies = ()
     context = {'commentary': commentary,

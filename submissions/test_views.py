@@ -50,7 +50,7 @@ class SubmitManuscriptTest(TestCase):
 
 
 class SubmissionDetailTest(TestCase):
-    fixtures = ['permissions', 'groups', 'contributors']
+    fixtures = ['permissions', 'groups']
 
     def setUp(self):
         self.client = Client()

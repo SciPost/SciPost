@@ -1,10 +1,10 @@
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
-from django.test import TestCase
+from django.test import TestCase, Client
 
 from scipost.factories import ContributorFactory
 
-from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory
+from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory
 from .forms import CommentarySearchForm
 from .models import Commentary
 
@@ -108,3 +108,19 @@ class BrowseCommentariesTest(TestCase):
         self.assertTrue(response.context['commentary_browse_list'].count() >= 1)
         # The search form is passed trough the view...
         self.assertTrue(type(response.context['form']) is CommentarySearchForm)
+
+
+class CommentaryDetailTest(TestCase):
+    fixtures = ['permissions', 'groups']
+
+    def setUp(self):
+        self.client = Client()
+        self.commentary = UnpublishedVettedCommentaryFactory()
+        self.target = reverse(
+            'commentaries:commentary',
+            kwargs={'arxiv_or_DOI_string': self.commentary.arxiv_or_DOI_string}
+        )
+
+    def test_status_code_200(self):
+        response = self.client.get(self.target)
+        self.assertEqual(response.status_code, 200)
