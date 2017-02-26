@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views.generic.edit import CreateView, FormView
+from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 
 from .models import Commentary
@@ -267,21 +268,37 @@ def vet_commentary_request_ack(request, commentary_id):
     return render(request, 'scipost/acknowledgement.html', context)
 
 
-def commentaries(request):
-    """List and search all commentaries"""
-    form = CommentarySearchForm(request.POST or None)
-    if form.is_valid() and form.has_changed():
-        commentary_search_list = form.search_results()
-    else:
-        commentary_search_list = []
+class CommentaryListView(ListView):
+    model = Commentary
+    form = CommentarySearchForm
+    paginate_by = 10
 
-    comment_recent_list = Comment.objects.filter(status='1').order_by('-date_submitted')[:10]
-    commentary_recent_list = Commentary.objects.vetted().order_by('-latest_activity')[:10]
-    context = {
-        'form': form, 'commentary_search_list': commentary_search_list,
-        'comment_recent_list': comment_recent_list,
-        'commentary_recent_list': commentary_recent_list}
-    return render(request, 'commentaries/commentaries.html', context)
+    def get_queryset(self):
+        '''Perform search form here already to get the right pagination numbers.'''
+        self.form = self.form(self.request.GET)
+        if self.form.is_valid():
+            return self.form.search_results()
+        return self.model.objects.vetted().order_by('-latest_activity')
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        # Get newest comments
+        context['comment_list'] = Comment.objects.vetted().order_by('-date_submitted')[:10]
+
+        # Form into the context!
+        context['form'] = self.form
+
+        # To customize display in the template
+        if 'discipline' in self.kwargs:
+            context['discipline'] = self.kwargs['discipline']
+            context['nrweeksback'] = self.kwargs['nrweeksback']
+            context['browse'] = True
+        elif not any(argument in ['title', 'author', 'abstract'] for argument in self.request.GET):
+            context['recent'] = True
+
+        return context
 
 
 def browse(request, discipline, nrweeksback):
