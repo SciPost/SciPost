@@ -1,9 +1,6 @@
-import datetime
-import feedparser
 import re
 import requests
 
-from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
@@ -40,7 +37,7 @@ class RequestCommentaryMixin(object):
             kwargs['request_commentary_form'] = RequestCommentaryForm()
         context = super(RequestCommentaryMixin, self).get_context_data(**kwargs)
 
-        context['existing_commentary'] = None  # context['request_commentary_form'].get_existing_commentary()
+        context['existing_commentary'] = None
         context['doiform'] = DOIToQueryForm()
         context['identifierform'] = IdentifierToQueryForm()
         return context
@@ -276,7 +273,7 @@ class CommentaryListView(ListView):
     def get_queryset(self):
         '''Perform search form here already to get the right pagination numbers.'''
         self.form = self.form(self.request.GET)
-        if self.form.is_valid():
+        if self.form.is_valid() and self.form.has_changed():
             return self.form.search_results()
         return self.model.objects.vetted().order_by('-latest_activity')
 
@@ -295,22 +292,10 @@ class CommentaryListView(ListView):
             context['discipline'] = self.kwargs['discipline']
             context['nrweeksback'] = self.kwargs['nrweeksback']
             context['browse'] = True
-        elif not any(argument in ['title', 'author', 'abstract'] for argument in self.request.GET):
+        elif not any(self.request.GET[field] for field in self.request.GET):
             context['recent'] = True
 
         return context
-
-
-def browse(request, discipline, nrweeksback):
-    """List all commentaries for discipline and period"""
-    commentary_browse_list = Commentary.objects.vetted(
-        discipline=discipline,
-        latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
-    context = {
-        'form': CommentarySearchForm(),
-        'discipline': discipline, 'nrweeksback': nrweeksback,
-        'commentary_browse_list': commentary_browse_list}
-    return render(request, 'commentaries/commentaries.html', context)
 
 
 def commentary_detail(request, arxiv_or_DOI_string):
