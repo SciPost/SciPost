@@ -1,17 +1,79 @@
 from django.utils import timezone
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import permission_required
+from django.contrib import messages
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseRedirect, Http404
+
+import strings
 
 from .models import Comment
 from .forms import CommentForm, VetCommentForm, comment_refusal_dict
 
 from scipost.models import Contributor, title_dict
+from theses.models import ThesisLink
 from submissions.utils import SubmissionUtils
-from submissions.models import Report
+from submissions.models import Submission, Report
+from commentaries.models import Commentary
 
+@permission_required('scipost.can_submit_comments', raise_exception=True)
+def new_comment(request, **kwargs):
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            author = Contributor.objects.get(user=request.user)
+            object_id = int(kwargs["object_id"])
+            type_of_object = kwargs["type_of_object"]
+            new_comment = Comment(
+                author=author,
+                is_rem=form.cleaned_data['is_rem'],
+                is_que=form.cleaned_data['is_que'],
+                is_ans=form.cleaned_data['is_ans'],
+                is_obj=form.cleaned_data['is_obj'],
+                is_rep=form.cleaned_data['is_rep'],
+                is_val=form.cleaned_data['is_val'],
+                is_lit=form.cleaned_data['is_lit'],
+                is_sug=form.cleaned_data['is_sug'],
+                file_attachment=form.cleaned_data['file_attachment'],
+                comment_text=form.cleaned_data['comment_text'],
+                remarks_for_editors=form.cleaned_data['remarks_for_editors'],
+                date_submitted=timezone.now(),
+            )
+            if type_of_object == "thesislink":
+                thesislink = ThesisLink.objects.get(id=object_id)
+                if not thesislink.open_for_commenting:
+                    raise PermissionDenied
+                new_comment.thesislink = thesislink
+                redirect_link = reverse('theses:thesis', kwargs={"thesislink_id":thesislink.id})
+            elif type_of_object == "submission":
+                submission = Submission.objects.get(id=object_id)
+                if not submission.open_for_commenting:
+                    raise PermissionDenied
+                new_comment.submission = submission
+                redirect_link = reverse(
+                    'submissions:submission',
+                    kwargs={"arxiv_identifier_w_vn_nr": submission.arxiv_identifier_w_vn_nr}
+                )
+            elif type_of_object == "commentary":
+                commentary = Commentary.objects.get(id=object_id)
+                if not commentary.open_for_commenting:
+                    raise PermissionDenied
+                new_comment.commentary = commentary
+                redirect_link = reverse(
+                    'commentaries:commentary', kwargs={'arxiv_or_DOI_string': commentary.arxiv_or_DOI_string}
+                )
+
+            new_comment.save()
+            author.nr_comments = Comment.objects.filter(author=author).count()
+            author.save()
+            messages.add_message(
+                request, messages.SUCCESS, strings.acknowledge_submit_comment)
+            return redirect(redirect_link)
+    else:
+        # This view is only accessible by POST request
+        raise Http404
 
 @permission_required('scipost.can_vet_comments', raise_exception=True)
 def vet_submitted_comments(request):
