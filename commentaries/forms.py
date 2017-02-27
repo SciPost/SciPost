@@ -214,13 +214,13 @@ class VetCommentaryForm(forms.Form):
 
 class CommentarySearchForm(forms.Form):
     """Search for Commentary specified by user"""
-    pub_author = forms.CharField(max_length=100, required=False, label="Author(s)")
-    pub_title_keyword = forms.CharField(max_length=100, required=False, label="Title")
-    pub_abstract_keyword = forms.CharField(max_length=1000, required=False, label="Abstract")
+    author = forms.CharField(max_length=100, required=False, label="Author(s)")
+    title = forms.CharField(max_length=100, required=False, label="Title")
+    abstract = forms.CharField(max_length=1000, required=False, label="Abstract")
 
     def search_results(self):
         """Return all Commentary objects according to search"""
         return Commentary.objects.vetted(
-            pub_title__icontains=self.cleaned_data['pub_title_keyword'],
-            pub_abstract__icontains=self.cleaned_data['pub_abstract_keyword'],
-            author_list__icontains=self.cleaned_data['pub_author']).order_by('-pub_date')
+            pub_title__icontains=self.cleaned_data['title'],
+            pub_abstract__icontains=self.cleaned_data['abstract'],
+            author_list__icontains=self.cleaned_data['author']).order_by('-pub_date')
