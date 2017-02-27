@@ -6,7 +6,7 @@ from django.db.models import Q
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
-from captcha.fields import CaptchaField
+from captcha.fields import ReCaptchaField
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML, Submit
@@ -60,7 +60,9 @@ class RegistrationForm(forms.Form):
     username = forms.CharField(label='* Username', max_length=100)
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='* Verify pwd', widget=forms.PasswordInput())
-    captcha = CaptchaField(label='* Answer this simple maths question:')
+    captcha = ReCaptchaField(attrs={
+  'theme' : 'clean',
+}, label='* Answer this simple maths question:')
 
 
 class DraftInvitationForm(forms.ModelForm):

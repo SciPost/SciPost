@@ -31,6 +31,5 @@ urlpatterns = [
     url(r'^submission/', include('submissions.urls', namespace="submissions")),
     url(r'^theses/', include('theses.urls', namespace="theses")),
     url(r'^thesis/', include('theses.urls', namespace="theses")),
-    url(r'^captcha/', include('captcha.urls')),
+    # url(r'^captcha/', include('captcha.urls')),
 ]
-

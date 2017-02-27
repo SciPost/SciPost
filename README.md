@@ -35,39 +35,31 @@ Now install dependencies:
 (scipostenv) $ npm install
 ```
 
-### Host-specific settings
-In this project, host-specific settings are defined in the `scipost-host-settings.json` file in the directory *above* the project root. The structure is as follows:
+### Settings
+In this project, most settings are tracked using Git. Some settings however, are still secret are and should stay that way. These settings may be saved into the  `secrets.json` file in the root of the project. The minimum required structure is as follows, please mind the non-empty, but still invalid `SECRET_KEY`:
 
 ```json
 {
-    "SECRET_KEY": "<change_me>",
-    "CERTFILE": "none",
-    "DEBUG": true,
-    "ADMINS": "",
-    "MANAGERS": "",
-    "ALLOWED_HOSTS": ["localhost", "127.0.0.1"],
-    "SESSION_COOKIE_SECURE": false,
-    "CSRF_COOKIE_SECURE": false,
-    "DB_NAME": "scipost",
-    "DB_USER": "scipost",
-    "DB_PWD": "",
-    "MEDIA_ROOT": "<media_dir>",
-    "MEDIA_URL": "/media/",
-    "STATIC_URL": "/static/",
-    "STATIC_ROOT": "<static_dir>",
-    "EMAIL_BACKEND": "django.core.mail.backends.filebased.EmailBackend",
-    "EMAIL_FILE_PATH": "<email_dir>",
-    "EMAIL_HOST": "",
-    "EMAIL_HOST_USER": "",
-    "EMAIL_HOST_PASSWORD": "",
-    "DEFAULT_FROM_EMAIL": "",
-    "SERVER_EMAIL": "",
-    "JOURNALS_DIR": "<journals_dir>",
-    "CROSSREF_LOGIN_ID": "",
-    "CROSSREF_LOGIN_PASSWORD": "",
-    "HAYSTACK_PATH": "<haystack_dir>"
+  "SECRET_KEY": "<key>",
+  "DB_NAME": "",
+  "DB_USER": "",
+  "DB_PWD": ""
 }
 ```
+
+The settings files itself are saved into `SciPost_v1/settings/local_<name>.py`. Be sure to *wildcard import* the `base.py` file in the top of your settings file. To run the server, one can do it two ways. Either:
+
+```shell
+(scipostenv) $ ./manage.py runserver --settings=SciPost_v1.settings.local_<name>
+```
+
+...or for convenience export the same settingsfile path to the `DJANGO_SETTINGS_MODULE` variable, so that one can run the django commands are default:
+
+```shell
+(scipostenv) $ export DJANGO_SETTINGS_MODULE="SciPost_v1.settings.local_<name>"
+```
+
+One can of course also add the variable to the `~/.bash_profile` for convenience.
 
 ### Check, double check
 To make sure everything is setup and configured well, run:
