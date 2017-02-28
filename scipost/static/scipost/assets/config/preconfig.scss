@@ -6,11 +6,12 @@
 //
 $grid-gutter-width-base: 20px;
 $container-max-widths: (
-  sm: 546px,
-  md: 738px,
-  lg: 962px,
-  xl: 1170px
+    sm: 738px,
+    md: 962px,
+    lg: 1170px,
+    xl: 1200px
 );
+
 .row {
     margin-bottom: 1rem;
 }
