@@ -7,6 +7,10 @@ from .base import *
 DEBUG = False
 ALLOWED_HOSTS = ['jdewit.webfactional.com']
 
+# Recaptcha
+RECAPTCHA_PUBLIC_KEY = get_secret("GOOGLE_RECAPTCHA_PUBLIC_KEY")
+RECAPTCHA_PRIVATE_KEY = get_secret("GOOGLE_RECAPTCHA_PRIVATE_KEY")
+
 # Static and media
 STATIC_URL = '/static/'
 STATIC_ROOT = '/home/jdewit/webapps/scipost_static/'

@@ -11,6 +11,10 @@ STATIC_ROOT = '/home/jscaux/webapps/scipost_static/'
 MEDIA_URL = 'https://scipost.org/media/'
 MEDIA_ROOT = '/home/jscaux/webapps/scipost_media/'
 
+# Recaptcha
+RECAPTCHA_PUBLIC_KEY = get_secret("GOOGLE_RECAPTCHA_PUBLIC_KEY")
+RECAPTCHA_PRIVATE_KEY = get_secret("GOOGLE_RECAPTCHA_PRIVATE_KEY")
+
 WEBPACK_LOADER['DEFAULT']['CACHE'] = True
 WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] = '/home/jscaux/webapps/scipost_static/bundles/'
 
