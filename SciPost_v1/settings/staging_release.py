@@ -5,18 +5,20 @@ from .base import *
 
 # THE MAIN THING HERE
 DEBUG = False
+ALLOWED_HOSTS = ['jdewit.webfactional.com']
+
+# Recaptcha
+RECAPTCHA_PUBLIC_KEY = get_secret("GOOGLE_RECAPTCHA_PUBLIC_KEY")
+RECAPTCHA_PRIVATE_KEY = get_secret("GOOGLE_RECAPTCHA_PRIVATE_KEY")
 
 # Static and media
 STATIC_URL = '/static/'
 STATIC_ROOT = '/home/jdewit/webapps/scipost_static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '/home/jdewit/webapps/scipost_media/'
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'CACHE': True,
-        'BUNDLE_DIR_NAME': '/home/jdewit/webapps/scipost_static/bundles/',
-    }
-}
+
+WEBPACK_LOADER['DEFAULT']['CACHE'] = True
+WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] = '/home/jdewit/webapps/scipost_static/bundles/'
 
 # Error reporting
 ADMINS = MANAGERS = (('J. de Wit', 'jorrandewit@outlook.com'), )
