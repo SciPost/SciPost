@@ -5,6 +5,7 @@ from .base import *
 
 # THE MAIN THING HERE
 DEBUG = False
+ALLOWED_HOSTS = ['jdewit.webfactional.com']
 
 # Static and media
 STATIC_URL = '/static/'

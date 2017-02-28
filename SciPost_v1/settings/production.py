@@ -3,6 +3,7 @@ from .base import *
 # THE MAIN THING HERE
 DEBUG = False
 CERTFILE = get_secret("CERTFILE")
+ALLOWED_HOSTS = ['www.scipost.org', 'scipost.org']
 
 # Static and media
 STATIC_URL = 'https://scipost.org/static/'
