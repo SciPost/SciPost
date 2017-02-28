@@ -24,7 +24,7 @@ CSRF_COOKIE_SECURE = True
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_HOST = get_secret("EMAIL_HOST_USER")
+EMAIL_HOST = get_secret("EMAIL_HOST")
 EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 
