@@ -10,12 +10,9 @@ STATIC_URL = 'https://scipost.org/static/'
 STATIC_ROOT = '/home/jscaux/webapps/scipost_static/'
 MEDIA_URL = 'https://scipost.org/media/'
 MEDIA_ROOT = '/home/jscaux/webapps/scipost_media/'
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'CACHE': True,
-        'BUNDLE_DIR_NAME': '/home/jscaux/webapps/scipost_static/bundles/',
-    }
-}
+
+WEBPACK_LOADER['DEFAULT']['CACHE'] = True
+WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] = '/home/jscaux/webapps/scipost_static/bundles/'
 
 # Error reporting
 ADMINS = MANAGERS = (('J.S.Caux', 'J.S.Caux@uva.nl'), )
