@@ -89,13 +89,13 @@ All modules are configured in the `.bootstraprc` file. Most modules are disabled
 In order to collect static files from all `INSTALLED_APPS`, i.e. the assets managed by Webpack, run:
 
 ```shell
-(scipostenv) $ ./manage collectstatic
+(scipostenv) $ ./manage.py collectstatic
 ```
 
 This will put all static files in the `STATIC_ROOT` folder defined in your settings file. It's a good idea to use the clear option in order to remove stale static files:
 
 ```shell
-(scipostenv) $ ./manage collectstatic --clear
+(scipostenv) $ ./manage.py collectstatic --clear
 ```
 
 ### Create and run migrations
