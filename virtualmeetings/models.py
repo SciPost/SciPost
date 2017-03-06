@@ -21,7 +21,7 @@ class VGM(models.Model):
     information = models.TextField(default='')
 
     class Meta:
-        db_table = 'scipost_VGM'
+        db_table = 'scipost_vgm'
 
     def __str__(self):
         return 'From %s to %s' % (self.start_date.strftime('%Y-%m-%d'),
@@ -38,7 +38,7 @@ class Feedback(models.Model):
     feedback = models.TextField()
 
     class Meta:
-        db_table = 'scipost_Feedback'
+        db_table = 'scipost_feedback'
 
     def __str__(self):
         return '%s: %s' % (self.by, self.feedback[:50])
@@ -85,7 +85,7 @@ class Nomination(models.Model):
     accepted = models.NullBooleanField()
 
     class Meta:
-        db_table = 'scipost_Nomination'
+        db_table = 'scipost_nomination'
 
     def __str__(self):
         return '%s %s (nominated by %s)' % (self.first_name,
@@ -172,7 +172,7 @@ class Motion(models.Model):
     accepted = models.NullBooleanField()
 
     class Meta:
-        db_table = 'scipost_Motion'
+        db_table = 'scipost_motion'
 
     def __str__(self):
         return self.motion[:32]
