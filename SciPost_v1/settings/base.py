@@ -86,9 +86,11 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'journals',
+    'news',
     'scipost',
     'submissions',
     'theses',
+    'virtualmeetings',
     'webpack_loader'
 )
 
