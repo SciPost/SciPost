@@ -3,6 +3,7 @@ import datetime
 from django import template
 from django.utils import timezone
 from django.utils.timesince import timesince
+from urllib.parse import urlencode
 
 from submissions.models import SUBMISSION_STATUS_OUT_OF_POOL
 from submissions.models import Submission

@@ -84,7 +84,7 @@
     {% if errormessage %}
         <h3 style="color: red;">Error: {{ errormessage }}</h3>
         {% if existing_commentary %}
-            <ul>{{ existing_commentary.header_as_li }}</ul>
+            <ul>{% include 'commentaries/commentary_header_li.html' with object=existing_commentary %}</ul>
         {% endif %}
         <br/>
     {% endif %}

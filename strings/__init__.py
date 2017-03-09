@@ -7,6 +7,9 @@ acknowledge_request_commentary = (
     "Your request will soon be handled by an Editor. <br>"
     "Thank you for your request for a Commentary Page."
 )
+acknowledge_submit_comment = (
+    "Thank you for contributing a Comment. It will soon be vetted by an Editor."
+)
 
 # Arxiv response is not valid
 arxiv_caller_errormessages = {

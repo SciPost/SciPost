@@ -13,7 +13,7 @@ from comments.factories import CommentFactory
 from comments.forms import CommentForm
 from comments.models import Comment
 from .views import RequestThesisLink, VetThesisLink, thesis_detail
-from .factories import ThesisLinkFactory, VetThesisLinkFormFactory
+from .factories import ThesisLinkFactory, VettedThesisLinkFactory, VetThesisLinkFormFactory
 from .models import ThesisLink
 from .forms import VetThesisLinkForm
 from common.helpers import model_form_data
@@ -29,24 +29,6 @@ class TestThesisDetail(TestCase):
         target = reverse('theses:thesis', kwargs={'thesislink_id': thesis_link.id})
         response = client.post(target)
         self.assertEqual(response.status_code, 200)
-
-    def test_submitting_comment_creates_comment(self):
-        """ Valid Comment gets saved """
-
-        contributor = ContributorFactory()
-        thesislink = ThesisLinkFactory()
-        valid_comment_data = model_form_data(CommentFactory.build(), CommentForm)
-        target = reverse('theses:thesis', kwargs={'thesislink_id': thesislink.id})
-
-        comment_count = Comment.objects.filter(author=contributor).count()
-        self.assertEqual(comment_count, 0)
-
-        request = RequestFactory().post(target, valid_comment_data)
-        request.user = contributor.user
-        response = thesis_detail(request, thesislink_id=thesislink.id)
-
-        comment_count = Comment.objects.filter(author=contributor).count()
-        self.assertEqual(comment_count, 1)
 
 
 class TestRequestThesisLink(TestCase):
@@ -173,3 +155,26 @@ class TestVetThesisLinkRequests(TestCase):
         self.assertEqual(self.thesislink.vetted_by, contributor)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, 'SciPost Thesis Link activated')
+
+class TestTheses(TestCase):
+    fixtures = ['groups', 'permissions']
+
+    def setUp(self):
+        self.client = Client()
+        self.target = reverse('theses:theses')
+
+    def test_empty_search_query(self):
+        thesislink = VettedThesisLinkFactory()
+        response = self.client.get(self.target)
+        search_results = response.context["search_results"]
+        recent_theses = response.context["recent_theses"]
+        self.assertEqual(search_results, [])
+        self.assertEqual(recent_theses.exists(), True)
+
+    def test_search_query_on_author(self):
+        thesislink = VettedThesisLinkFactory()
+        form_data = {'author': thesislink.author}
+        response = self.client.get(self.target, form_data)
+        search_results = response.context['search_results']
+        self.assertTrue(thesislink in search_results)
+        self.assertEqual(len(search_results), 1)

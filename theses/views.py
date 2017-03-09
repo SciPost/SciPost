@@ -131,48 +131,12 @@ def browse(request, discipline, nrweeksback):
 
 def thesis_detail(request, thesislink_id):
     thesislink = get_object_or_404(ThesisLink, pk=thesislink_id)
-    comments = thesislink.comment_set.all()
-    if request.method == 'POST':
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            author = Contributor.objects.get(user=request.user)
-            new_comment = Comment(
-                thesislink=thesislink,
-                author=author,
-                is_rem=form.cleaned_data['is_rem'],
-                is_que=form.cleaned_data['is_que'],
-                is_ans=form.cleaned_data['is_ans'],
-                is_obj=form.cleaned_data['is_obj'],
-                is_rep=form.cleaned_data['is_rep'],
-                is_val=form.cleaned_data['is_val'],
-                is_lit=form.cleaned_data['is_lit'],
-                is_sug=form.cleaned_data['is_sug'],
-                comment_text=form.cleaned_data['comment_text'],
-                remarks_for_editors=form.cleaned_data['remarks_for_editors'],
-                date_submitted=timezone.now(),
-            )
-            new_comment.save()
-            author.nr_comments = Comment.objects.filter(author=author).count()
-            author.save()
-            context = {
-                'ack_header': 'Thank you for contributing a Comment.',
-                'ack_message': 'It will soon be vetted by an Editor.',
-                'followup_message': 'Back to the ',
-                'followup_link': reverse(
-                    'theses:thesis',
-                    kwargs={'thesislink_id': new_comment.thesislink.id}
-                ),
-                'followup_link_label': ' Thesis Link page you came from'
-            }
-            return render(request, 'scipost/acknowledgement.html', context)
-    else:
-        form = CommentForm()
+    form = CommentForm()
 
-    try:
-        author_replies = Comment.objects.filter(thesislink=thesislink, is_author_reply=True)
-    except Comment.DoesNotExist:
-        author_replies = ()
+    comments = thesislink.comment_set
+    author_replies = comments.filter(is_author_reply=True)
+
     context = {'thesislink': thesislink,
-               'comments': comments.filter(status__gte=1).order_by('date_submitted'),
+               'comments': comments.vetted().order_by('date_submitted'),
                'author_replies': author_replies, 'form': form}
     return render(request, 'theses/thesis_detail.html', context)

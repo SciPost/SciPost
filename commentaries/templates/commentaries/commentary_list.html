@@ -1,6 +1,7 @@
 {% extends 'scipost/base.html' %}
 
 {% load bootstrap %}
+{% load request_filters %}
 
 {% block pagetitle %}: Commentaries{% endblock pagetitle %}
 
@@ -9,9 +10,6 @@
 {% endblock headsup %}
 
 {% block content %}
-
-
-{# <section>#}
 <div class="row">
     <div class="col-md-4">
         <div class="panel page-header-panel">
@@ -23,10 +21,9 @@
     <div class="col-md-4">
     	<div class="panel page-header-panel">
             <h2>Search SciPost Commentaries:</h2>
-            <form action="{% url 'commentaries:commentaries' %}" class="small" method="post">
-          	{% csrf_token %}
+            <form action="{% url 'commentaries:commentaries' %}" class="small" method="get">
     	  {{ form|bootstrap:'4,8,sm' }}
-          	<input class="btn btn-sm btn-secondary" type="submit" name="Submit" />
+          	<input class="btn btn-sm btn-secondary" type="submit"/>
             </form>
         </div>
     </div>
@@ -40,69 +37,51 @@
     </div>
 </div>
 
-  {% if commentary_search_list %}
-    <div class="row">
-        <div class="col-12">
-            <hr class="hr12">
-            <h3>Search results:</h3>
-            <ul>
-              {% for commentary in commentary_search_list %}
-                {{ commentary.header_as_li }}
-              {% endfor %}
-            </ul>
-        </div>
-    </div>
-  {% elif form.has_changed %}
-      <div class="row">
-          <div class="col-12">
-            <h3>No match found for your search query.</h3>
-        </div>
-    </div>
-  {% endif %}
-
-
-
-{% if comment_recent_list %}
-  <div class="row">
-      <div class="col-12">
+{% if not browse and recent %}
+<div class="row">
+    <div class="col-12">
         <hr class="hr12">
         <h2>Recent Comments</h2>
         <ul>
-            {% for comment in comment_recent_list %}
+            {% for comment in comment_list %}
                 {{ comment.simple_header_as_li }}
             {% endfor %}
         </ul>
     </div>
-  </div>
-{% endif %}
-
-{% if commentary_recent_list %}
-<div class="row">
-    <div class="col-12">
-  <hr class="hr12">
-  <h2>Recently active Commentaries:</h2>
-  <ul>
-    {% for commentary in commentary_recent_list %}
-    {{ commentary.header_as_li }}
-    {% endfor %}
-  </ul>
-  </div>
 </div>
 {% endif %}
 
-{% if commentary_browse_list %}
 <div class="row">
     <div class="col-12">
-      <hr class="hr12">
-      <h2>Commentaries in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
-      <ul>
-        {% for commentary in commentary_browse_list %}
-        {{ commentary.header_as_li }}
-        {% endfor %}
-      </ul>
-  </div>
+        <hr class="hr12">
+        {% if recent %}
+          <h2>Recently active Commentaries:</h2>
+        {% elif browse %}
+          <h2>Commentaries in {{ discipline }} in the last {{ nrweeksback }} week{{ nrweeksback|pluralize }}:</h2>
+        {% else %}
+          <h2>Search results:</h3>
+        {% endif %}
+        {% if object_list %}
+            {% if is_paginated %}
+              <p>
+              {% if page_obj.has_previous %}
+                <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
+              {% endif %}
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+              {% if page_obj.has_next %}
+                <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
+              {% endif %}
+              </p>
+            {% endif %}
+            <ul>
+                {% for object in object_list %}
+                    {% include 'commentaries/commentary_header_li.html' with object=object %}
+                {% endfor %}
+            </ul>
+        {% else %}
+            <h3>No match found for your search query.</h3>
+        {% endif %}
+    </div>
 </div>
-{% endif %}
-
 
 {% endblock content %}

@@ -12,7 +12,7 @@ class ContributorFactory(factory.django.DjangoModelFactory):
 
     title = "MR"
     user = factory.SubFactory('scipost.factories.UserFactory', contributor=None)
-    status = 1
+    status = 1  # normal user
     vetted_by = factory.SubFactory('scipost.factories.ContributorFactory', vetted_by=None)
 
 

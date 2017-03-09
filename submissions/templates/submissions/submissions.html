@@ -1,6 +1,8 @@
 {% extends 'scipost/base.html' %}
 
 {% load bootstrap %}
+{% load submissions_extras %}
+{% load request_filters %}
 
 {% block pagetitle %}: Submissions{% endblock pagetitle %}
 
@@ -16,8 +18,7 @@
     <div class="col-md-4">
         <div class="panel page-header-panel">
           <h2>Search SciPost Submissions:</h2>
-          <form action="{% url 'submissions:submissions' %}" class="small" method="post">
-            {% csrf_token %}
+          <form action="{% url 'submissions:submissions' %}" class="small" method="get">
             {{ form|bootstrap:'4,8,sm' }}
             <input class="btn btn-sm btn-secondary" type="submit" name="Submit" />
           </form>
@@ -33,50 +34,37 @@
     </div>
 </div>
 
-{% if submission_search_list or form.has_changed %}
 <div class="row">
     <div class="col-12">
         <hr class="hr12">
-        <h3>Search results:</h3>
-        {% if submission_search_list %}
+        {% if recent %}
+          <h2>Recent Submissions:</h2>
+        {% elif browse %}
+          <h2>Submissions in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
+        {% else %}
+          <h2>Search results:</h3>
+        {% endif %}
+        {% if object_list %}
+            {% if is_paginated %}
+              <p>
+              {% if page_obj.has_previous %}
+                <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
+              {% endif %}
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+              {% if page_obj.has_next %}
+                <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
+              {% endif %}
+              </p>
+            {% endif %}
             <ul>
-                {% for submission in submission_search_list %}
+                {% for submission in object_list %}
                 {{ submission.header_as_li }}
                 {% endfor %}
             </ul>
-        {% elif form.has_changed %}
+        {% else %}
             <h3>No match found for your search query.</h3>
         {% endif %}
     </div>
 </div>
-{% endif %}
-
-{% if submission_recent_list %}
-<div class="row">
-    <div class="col-12">
-        <hr class="hr12">
-        <h2>Recent Submissions:</h2>
-        <ul>
-            {% for submission in submission_recent_list %}
-            {{ submission.header_as_li }}
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-{% endif %}
-
-{% if submission_browse_list %}
-<div class="row">
-    <div class="col-12">
-        <hr class="hr12">
-        <h2>Submissions in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
-        <ul>
-            {% for submission in submission_browse_list %}
-            {{ submission.header_as_li }}
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-{% endif %}
 
 {% endblock content %}

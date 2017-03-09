@@ -3,7 +3,7 @@ from django.test import TestCase
 from common.helpers import model_form_data
 from scipost.factories import UserFactory
 
-from .factories import VettedCommentaryFactory, UnVettedCommentaryFactory
+from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory
 from .forms import RequestCommentaryForm, VetCommentaryForm
 from .models import Commentary
 
@@ -12,7 +12,7 @@ class TestVetCommentaryForm(TestCase):
     fixtures = ['permissions', 'groups']
 
     def setUp(self):
-        self.commentary = UnVettedCommentaryFactory.create()
+        self.commentary = UnvettedCommentaryFactory.create()
         self.user = UserFactory()
         self.form_data = {
             'action_option': VetCommentaryForm.ACTION_ACCEPT,

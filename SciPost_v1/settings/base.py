@@ -1,3 +1,4 @@
+
 """
 Django settings for SciPost_v1 project.
 
@@ -16,33 +17,37 @@ import json
 
 from django.utils.translation import ugettext_lazy as _
 
+from django.core.exceptions import ImproperlyConfigured
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Build paths inside the project
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
-host_settings_path = os.path.join(os.path.dirname(BASE_DIR), "scipost-host-settings.json")
-host_settings = json.load(open(host_settings_path))
+# JSON-based secrets
+secrets = json.load(open(os.path.join(BASE_DIR, "secrets.json")))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = host_settings["SECRET_KEY"]
+def get_secret(setting, secrets=secrets):
+    """Get the secret variable or return explicit exception."""
+    try:
+        return secrets[setting]
+    except KeyError:
+        error_msg = "Set the {0} environment variable".format(setting)
+        raise ImproperlyConfigured(error_msg)
 
-CERTFILE = host_settings["CERTFILE"]
+
+SECRET_KEY = get_secret("SECRET_KEY")
+CERTFILE = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = host_settings["DEBUG"]
+DEBUG = True
 
-# Emails for server error reporting
-ADMINS = host_settings["ADMINS"]
-MANAGERS = host_settings["MANAGERS"]
-
-ALLOWED_HOSTS = host_settings["ALLOWED_HOSTS"]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Secure proxy SSL header and secure cookies
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = host_settings["SESSION_COOKIE_SECURE"]
-CSRF_COOKIE_SECURE = host_settings["CSRF_COOKIE_SECURE"]
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -90,7 +95,7 @@ INSTALLED_APPS = (
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': host_settings['HAYSTACK_PATH'],
+        'PATH': 'local_files/haystack/',
     },
 }
 
@@ -105,7 +110,13 @@ CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_dots',)
 
 SHELL_PLUS_POST_IMPORTS = (
     ('theses.factories', ('ThesisLinkFactory')),
-    ('comments.factories', 'CommentFactory'),
+    ('comments.factories', ('CommentFactory')),
+    ('submissions.factories', ('SubmissionFactory', 'EICassignedSubmissionFactory')),
+    ('commentaries.factories',
+        ('EmptyCommentaryFactory',
+         'VettedCommentaryFactory',
+         'UnvettedCommentaryFactory',
+         'UnpublishedVettedCommentaryFactory',)),
 )
 
 MATHJAX_ENABLED = True
@@ -158,9 +169,9 @@ WSGI_APPLICATION = 'SciPost_v1.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': host_settings["DB_NAME"],
-        'USER': host_settings["DB_USER"],
-        'PASSWORD': host_settings["DB_PWD"],
+        'NAME': get_secret("DB_NAME"),
+        'USER': get_secret("DB_USER"),
+        'PASSWORD': get_secret("DB_PWD"),
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
@@ -188,15 +199,13 @@ DATETIME_FORMAT = 'Y-m-d H:i'
 USE_TZ = True
 
 # MEDIA
-MEDIA_ROOT = host_settings['MEDIA_ROOT']
-MEDIA_URL = host_settings['MEDIA_URL']
+MEDIA_URL = '/media/'
+MEDIA_ROOT = 'local_files/media/'
 MAX_UPLOAD_SIZE = "1310720"  # Default max attachment size in Bytes
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.8/howto/static-files/
-
-STATIC_URL = host_settings["STATIC_URL"]
-STATIC_ROOT = host_settings["STATIC_ROOT"]
+STATIC_URL = '/static/'
+STATIC_ROOT = 'local_files/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static_bundles'),
 )
@@ -205,7 +214,7 @@ STATICFILES_DIRS = (
 WEBPACK_LOADER = {
     'DEFAULT': {
         'CACHE': not DEBUG,
-        'BUNDLE_DIR_NAME': host_settings["STATIC_ROOT"] + 'bundles/',
+        'BUNDLE_DIR_NAME': 'local_files/static/bundles/',
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
         'POLL_INTERVAL': 0.1,
         'TIMEOUT': None,
@@ -214,17 +223,16 @@ WEBPACK_LOADER = {
 }
 
 # Email
-EMAIL_BACKEND = host_settings["EMAIL_BACKEND"]
-EMAIL_FILE_PATH = host_settings["EMAIL_FILE_PATH"]
-EMAIL_HOST = host_settings["EMAIL_HOST"]
-EMAIL_HOST_USER = host_settings["EMAIL_HOST_USER"]
-EMAIL_HOST_PASSWORD = host_settings["EMAIL_HOST_PASSWORD"]
-DEFAULT_FROM_EMAIL = host_settings["DEFAULT_FROM_EMAIL"]
-SERVER_EMAIL = host_settings["SERVER_EMAIL"]
-
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = 'local_files/email/'
 
 # Own settings
-JOURNALS_DIR = host_settings["JOURNALS_DIR"]
+JOURNALS_DIR = 'journals'
 
-CROSSREF_LOGIN_ID = host_settings["CROSSREF_LOGIN_ID"]
-CROSSREF_LOGIN_PASSWORD = host_settings["CROSSREF_LOGIN_PASSWORD"]
+CROSSREF_LOGIN_ID = ''
+CROSSREF_LOGIN_PASSWORD = ''
+
+# Google reCaptcha
+RECAPTCHA_PUBLIC_KEY = ''
+RECAPTCHA_PRIVATE_KEY = ''
+NOCAPTCHA = True

@@ -471,7 +471,7 @@
             <h3>Theses for which you are identified as an author:</h3>
             <ul>
                 {% for thesis in own_thesislinks %}
-                    {{ thesis.header_as_li }}
+                    {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesis %}
                 {% endfor %}
             </ul>
         </div>

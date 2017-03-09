@@ -9,8 +9,8 @@ django-guardian==1.4.6
 django-haystack==2.5.1
 django-mathjax==0.0.5
 django-mptt==0.8.6
-django-simple-captcha==0.5.3
 django-sphinxdoc==1.5.1
+django-recaptcha==1.2.1
 django-webpack-loader==0.4.1
 djangorestframework==3.5.3
 docutils==0.12

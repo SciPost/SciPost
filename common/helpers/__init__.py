@@ -1,3 +1,6 @@
+import random
+import string
+
 def model_form_data(model, form_class, form_kwargs={}):
     '''
     Returns a dict that can be used to instantiate a form object.
@@ -25,6 +28,14 @@ def model_form_data(model, form_class, form_kwargs={}):
     form_fields = list(form_class(**form_kwargs).fields.keys())
     return filter_keys(model_data, form_fields)
 
+def random_arxiv_identifier_with_version_number():
+    return random_arxiv_identifier_without_version_number() + "v0"
+
+def random_arxiv_identifier_without_version_number():
+    return random_digits(4) + "." + random_digits(5)
+
+def random_digits(n):
+    return "".join(random.choice(string.digits) for _ in range(n))
 
 def filter_keys(dictionary, keys_to_keep):
     # Field is empty if not on model.

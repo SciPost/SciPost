@@ -105,7 +105,7 @@
   <h3>Theses:</h3>
   <ul>
     {% for thesislink in thesislink_search_list %}
-    {{ thesislink.header_as_li }}
+        {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesislink %}
     {% endfor %}
   </ul>
   {% endif %}
