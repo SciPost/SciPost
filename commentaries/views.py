@@ -282,7 +282,9 @@ class CommentaryListView(ListView):
         context = super().get_context_data(**kwargs)
 
         # Get newest comments
-        context['comment_list'] = Comment.objects.vetted().order_by('-date_submitted')[:10]
+        context['comment_list'] = Comment.objects.vetted().select_related(
+                                  'author__user', 'submission', 'commentary').order_by(
+                                  '-date_submitted')[:10]
 
         # Form into the context!
         context['form'] = self.form
