@@ -6,7 +6,6 @@ from . import views
 urlpatterns = [
     # Submissions
     url(r'^$', views.SubmissionListView.as_view(), name='submissions'),
-    url(r'^(?P<to_journal>[a-zA-Z]+)/$', views.SubmissionListView.as_view(), name='submissions'),
     url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]+)/$', views.SubmissionListView.as_view(), name='browse'),
     url(r'^sub_and_ref_procedure$',
         TemplateView.as_view(template_name='submissions/sub_and_ref_procedure.html'),

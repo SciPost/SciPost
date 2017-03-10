@@ -1117,7 +1117,6 @@ def update_personal_data(request):
         if user_form.is_valid() and cont_form.is_valid():
             request.user.email = user_form.cleaned_data['email']
             request.user.first_name = user_form.cleaned_data['first_name']
-            request.user.last_name = user_form.cleaned_data['last_name']
             request.user.contributor.title = cont_form.cleaned_data['title']
             request.user.contributor.discipline = cont_form.cleaned_data['discipline']
             request.user.contributor.expertises = cont_form.cleaned_data['expertises']
