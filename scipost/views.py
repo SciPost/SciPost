@@ -27,11 +27,10 @@ from guardian.shortcuts import assign_perm
 
 from .constants import SCIPOST_SUBJECT_AREAS
 from .models import Contributor, CitationNotification, UnavailabilityPeriod,\
-                    DraftInvitation, RegistrationInvitation, NewsItem,\
+                    DraftInvitation, RegistrationInvitation, Remark,\
                     List, Team, Graph, Node, Arc,\
                     title_dict, SciPost_from_addresses_dict,\
-                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement,\
-                    VGM, Feedback, Nomination, Remark, Motion, motion_categories_dict
+                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement
 from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriodForm,\
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\
@@ -48,12 +47,15 @@ from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
 from journals.models import Publication
+from news.models import NewsItem
 from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
 from submissions.models import Submission, EditorialAssignment
 from submissions.models import RefereeInvitation, Report, EICRecommendation
 from submissions.forms import SubmissionSearchForm
 from theses.models import ThesisLink
 from theses.forms import ThesisLinkSearchForm
+from virtualmeetings.models import VGM, Feedback, Nomination, Motion
+from virtualmeetings.constants import motion_categories_dict
 
 
 ##############
@@ -230,12 +232,6 @@ def index(request):
 def base(request):
     """ Skeleton for pages, used in template inheritance """
     return render(request, 'scipost/base.html')
-
-
-def news(request):
-    newsitems = NewsItem.objects.all().order_by('-date')
-    context = {'newsitems': newsitems}
-    return render(request, 'scipost/news.html', context)
 
 
 def feeds(request):

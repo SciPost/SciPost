@@ -16,8 +16,8 @@ from .models import TITLE_CHOICES, SCIPOST_FROM_ADDRESSES, ARC_LENGTHS,\
                      Contributor, DraftInvitation, RegistrationInvitation,\
                      SupportingPartner, SPBMembershipAgreement,\
                      UnavailabilityPeriod, PrecookedEmail,\
-                     List, Team, Graph, Node,\
-                     Feedback, Nomination, Motion
+                     List, Team, Graph, Node
+from virtualmeetings.models import Feedback, Nomination, Motion
 
 from journals.models import Publication
 from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
