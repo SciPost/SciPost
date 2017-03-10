@@ -935,137 +935,135 @@ def mark_unavailable_period(request):
     return redirect('scipost:personal_page')
 
 
+@login_required
 def personal_page(request):
     """
     The Personal Page is the main view for accessing user functions.
     """
-    if request.user.is_authenticated():
-        contributor = Contributor.objects.get(user=request.user)
+    contributor = Contributor.objects.select_related('user').get(user=request.user)
+    user_groups = contributor.user.groups.values_list('name', flat=True)
 
-        # Compile the unavailability periods:
-        now = timezone.now()
-        unavailabilities = UnavailabilityPeriod.objects.filter(
-            contributor=contributor).exclude(end__lt=now).order_by('start')
-        unavailability_form = UnavailabilityPeriodForm()
+    # Compile the unavailability periods:
+    now = timezone.now()
+    unavailabilities = UnavailabilityPeriod.objects.filter(
+        contributor=contributor).exclude(end__lt=now).order_by('start')
+    unavailability_form = UnavailabilityPeriodForm()
 
-        # if an editor, count the number of actions required:
-        nr_reg_to_vet = 0
-        nr_reg_awaiting_validation = 0
-        nr_submissions_to_assign = 0
-        nr_recommendations_to_prepare_for_voting = 0
-        if is_SP_Admin(request.user):
-            intwodays = now + timezone.timedelta(days=2)
+    # if an editor, count the number of actions required:
+    nr_reg_to_vet = 0
+    nr_reg_awaiting_validation = 0
+    nr_submissions_to_assign = 0
+    nr_recommendations_to_prepare_for_voting = 0
+    if is_SP_Admin(contributor.user):
+        intwodays = now + timezone.timedelta(days=2)
 
-            # count the number of pending registration requests
-            nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, status=0).count()
-            nr_reg_awaiting_validation = Contributor.objects.filter(
-                user__is_active=False, key_expires__gte=now,
-                key_expires__lte=intwodays, status=0).count()
-            nr_submissions_to_assign = Submission.objects.filter(status__in=['unassigned']).count()
-            nr_recommendations_to_prepare_for_voting = EICRecommendation.objects.filter(
-                submission__status__in=['voting_in_preparation']).count()
-        nr_assignments_to_consider = 0
-        active_assignments = None
-        nr_reports_to_vet = 0
-        if is_MEC(request.user):
-            nr_assignments_to_consider = (EditorialAssignment.objects
-                                          .filter(to=contributor, accepted=None, deprecated=False)
+        # count the number of pending registration requests
+        nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, status=0).count()
+        nr_reg_awaiting_validation = Contributor.objects.filter(
+            user__is_active=False, key_expires__gte=now,
+            key_expires__lte=intwodays, status=0).count()
+        nr_submissions_to_assign = Submission.objects.filter(status__in=['unassigned']).count()
+        nr_recommendations_to_prepare_for_voting = EICRecommendation.objects.filter(
+            submission__status__in=['voting_in_preparation']).count()
+    nr_assignments_to_consider = 0
+    active_assignments = None
+    nr_reports_to_vet = 0
+    if is_MEC(contributor.user):
+        nr_assignments_to_consider = (EditorialAssignment.objects
+                                      .filter(to=contributor, accepted=None, deprecated=False)
+                                      .count())
+        active_assignments = EditorialAssignment.objects.filter(
+            to=contributor, accepted=True, completed=False)
+        nr_reports_to_vet = Report.objects.filter(
+            status=0, submission__editor_in_charge=contributor).count()
+    nr_commentary_page_requests_to_vet = 0
+    nr_comments_to_vet = 0
+    nr_thesislink_requests_to_vet = 0
+    nr_authorship_claims_to_vet = 0
+    if is_VE(request.user):
+        nr_commentary_page_requests_to_vet = Commentary.objects.filter(vetted=False).count()
+        nr_comments_to_vet = Comment.objects.filter(status=0).count()
+        nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
+        nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
+    nr_ref_inv_to_consider = RefereeInvitation.objects.filter(
+        referee=contributor, accepted=None, cancelled=False).count()
+    pending_ref_tasks = RefereeInvitation.objects.filter(
+        referee=contributor, accepted=True, fulfilled=False)
+    # Verify if there exist objects authored by this contributor,
+    # whose authorship hasn't been claimed yet
+    own_submissions = (Submission.objects
+                       .filter(authors__in=[contributor], is_current=True)
+                       .order_by('-submission_date'))
+    own_commentaries = (Commentary.objects
+                        .filter(authors__in=[contributor])
+                        .order_by('-latest_activity'))
+    own_thesislinks = ThesisLink.objects.filter(author_as_cont__in=[contributor])
+    nr_submission_authorships_to_claim = (Submission.objects.filter(
+        author_list__contains=contributor.user.last_name)
+                                          .exclude(authors__in=[contributor])
+                                          .exclude(authors_claims__in=[contributor])
+                                          .exclude(authors_false_claims__in=[contributor])
                                           .count())
-            active_assignments = EditorialAssignment.objects.filter(
-                to=contributor, accepted=True, completed=False)
-            nr_reports_to_vet = Report.objects.filter(
-                status=0, submission__editor_in_charge=contributor).count()
-        nr_commentary_page_requests_to_vet = 0
-        nr_comments_to_vet = 0
-        nr_thesislink_requests_to_vet = 0
-        nr_authorship_claims_to_vet = 0
-        if is_VE(request.user):
-            nr_commentary_page_requests_to_vet = Commentary.objects.filter(vetted=False).count()
-            nr_comments_to_vet = Comment.objects.filter(status=0).count()
-            nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
-            nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
-        nr_ref_inv_to_consider = RefereeInvitation.objects.filter(
-            referee=contributor, accepted=None, cancelled=False).count()
-        pending_ref_tasks = RefereeInvitation.objects.filter(
-            referee=contributor, accepted=True, fulfilled=False)
-        # Verify if there exist objects authored by this contributor,
-        # whose authorship hasn't been claimed yet
-        own_submissions = (Submission.objects
-                           .filter(authors__in=[contributor], is_current=True)
-                           .order_by('-submission_date'))
-        own_commentaries = (Commentary.objects
-                            .filter(authors__in=[contributor])
-                            .order_by('-latest_activity'))
-        own_thesislinks = ThesisLink.objects.filter(author_as_cont__in=[contributor])
-        nr_submission_authorships_to_claim = (Submission.objects.filter(
-            author_list__contains=contributor.user.last_name)
-                                              .exclude(authors__in=[contributor])
-                                              .exclude(authors_claims__in=[contributor])
-                                              .exclude(authors_false_claims__in=[contributor])
-                                              .count())
-        nr_commentary_authorships_to_claim = (Commentary.objects.filter(
-            author_list__contains=contributor.user.last_name)
-                                              .exclude(authors__in=[contributor])
-                                              .exclude(authors_claims__in=[contributor])
-                                              .exclude(authors_false_claims__in=[contributor])
-                                              .count())
-        nr_thesis_authorships_to_claim = (ThesisLink.objects.filter(
-            author__contains=contributor.user.last_name)
-                                          .exclude(author_as_cont__in=[contributor])
-                                          .exclude(author_claims__in=[contributor])
-                                          .exclude(author_false_claims__in=[contributor])
+    nr_commentary_authorships_to_claim = (Commentary.objects.filter(
+        author_list__contains=contributor.user.last_name)
+                                          .exclude(authors__in=[contributor])
+                                          .exclude(authors_claims__in=[contributor])
+                                          .exclude(authors_false_claims__in=[contributor])
                                           .count())
-        own_comments = (Comment.objects
-                        .filter(author=contributor, is_author_reply=False)
-                        .order_by('-date_submitted'))
-        own_authorreplies = (Comment.objects
-                             .filter(author=contributor, is_author_reply=True)
-                             .order_by('-date_submitted'))
-        lists_owned = List.objects.filter(owner=contributor)
-        lists = List.objects.filter(teams_with_access__members__in=[contributor])
-        teams_led = Team.objects.filter(leader=contributor)
-        teams = Team.objects.filter(members__in=[contributor])
-        graphs_owned = Graph.objects.filter(owner=contributor)
-        graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor)
-                                              | Q(teams_with_access__members__in=[contributor]))
-        appellation = title_dict[contributor.title] + ' ' + contributor.user.last_name
-        context = {
-            'contributor': contributor,
-            'appellation': appellation,
-            'unavailabilities': unavailabilities,
-            'unavailability_form': unavailability_form,
-            'nr_reg_to_vet': nr_reg_to_vet,
-            'nr_reg_awaiting_validation': nr_reg_awaiting_validation,
-            'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet,
-            'nr_comments_to_vet': nr_comments_to_vet,
-            'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet,
-            'nr_authorship_claims_to_vet': nr_authorship_claims_to_vet,
-            'nr_reports_to_vet': nr_reports_to_vet,
-            'nr_submissions_to_assign': nr_submissions_to_assign,
-            'nr_recommendations_to_prepare_for_voting': nr_recommendations_to_prepare_for_voting,
-            'nr_assignments_to_consider': nr_assignments_to_consider,
-            'active_assignments': active_assignments,
-            'nr_submission_authorships_to_claim': nr_submission_authorships_to_claim,
-            'nr_commentary_authorships_to_claim': nr_commentary_authorships_to_claim,
-            'nr_thesis_authorships_to_claim': nr_thesis_authorships_to_claim,
-            'nr_ref_inv_to_consider': nr_ref_inv_to_consider,
-            'pending_ref_tasks': pending_ref_tasks,
-            'own_submissions': own_submissions,
-            'own_commentaries': own_commentaries,
-            'own_thesislinks': own_thesislinks,
-            'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
-            'lists_owned': lists_owned,
-            'lists': lists,
-            'teams_led': teams_led,
-            'teams': teams,
-            'graphs_owned': graphs_owned,
-            'graphs_private': graphs_private,
-        }
-        return render(request, 'scipost/personal_page.html', context)
-    else:
-        form = AuthenticationForm()
-        context = {'form': form}
-        return render(request, 'scipost/login.html', context)
+    nr_thesis_authorships_to_claim = (ThesisLink.objects.filter(
+        author__contains=contributor.user.last_name)
+                                      .exclude(author_as_cont__in=[contributor])
+                                      .exclude(author_claims__in=[contributor])
+                                      .exclude(author_false_claims__in=[contributor])
+                                      .count())
+    own_comments = (Comment.objects.select_related('author', 'submission')
+                    .filter(author=contributor, is_author_reply=False)
+                    .order_by('-date_submitted'))
+    own_authorreplies = (Comment.objects
+                         .filter(author=contributor, is_author_reply=True)
+                         .order_by('-date_submitted'))
+    lists_owned = List.objects.filter(owner=contributor)
+    lists = List.objects.filter(teams_with_access__members__in=[contributor])
+    teams_led = Team.objects.select_related('leader__user').filter(leader=contributor)
+    teams = Team.objects.select_related('leader__user').filter(members__in=[contributor])
+    graphs_owned = Graph.objects.filter(owner=contributor)
+    graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor)
+                                          | Q(teams_with_access__members__in=[contributor]))
+    appellation = title_dict[contributor.title] + ' ' + contributor.user.last_name
+    context = {
+        'contributor': contributor,
+        'user_groups': user_groups,
+        'appellation': appellation,
+        'unavailabilities': unavailabilities,
+        'unavailability_form': unavailability_form,
+        'nr_reg_to_vet': nr_reg_to_vet,
+        'nr_reg_awaiting_validation': nr_reg_awaiting_validation,
+        'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet,
+        'nr_comments_to_vet': nr_comments_to_vet,
+        'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet,
+        'nr_authorship_claims_to_vet': nr_authorship_claims_to_vet,
+        'nr_reports_to_vet': nr_reports_to_vet,
+        'nr_submissions_to_assign': nr_submissions_to_assign,
+        'nr_recommendations_to_prepare_for_voting': nr_recommendations_to_prepare_for_voting,
+        'nr_assignments_to_consider': nr_assignments_to_consider,
+        'active_assignments': active_assignments,
+        'nr_submission_authorships_to_claim': nr_submission_authorships_to_claim,
+        'nr_commentary_authorships_to_claim': nr_commentary_authorships_to_claim,
+        'nr_thesis_authorships_to_claim': nr_thesis_authorships_to_claim,
+        'nr_ref_inv_to_consider': nr_ref_inv_to_consider,
+        'pending_ref_tasks': pending_ref_tasks,
+        'own_submissions': own_submissions,
+        'own_commentaries': own_commentaries,
+        'own_thesislinks': own_thesislinks,
+        'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
+        'lists_owned': lists_owned,
+        'lists': lists,
+        'teams_led': teams_led,
+        'teams': teams,
+        'graphs_owned': graphs_owned,
+        'graphs_private': graphs_private,
+    }
+    return render(request, 'scipost/personal_page.html', context)
 
 
 @login_required
