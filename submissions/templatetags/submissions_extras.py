@@ -73,7 +73,7 @@ def required_actions(submission):
         todo.append('The refereeing deadline has passed. Please either extend it, '
                     'or formulate your Editorial Recommendation if at least '
                     'one Report has been received.')
-    reports = submission.report_set.all()
+    reports = submission.reports.all()
     for report in reports:
         if report.status == 0:
             todo.append('The Report from %s has been delivered but is not yet vetted. '

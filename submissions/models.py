@@ -634,7 +634,7 @@ class Report(models.Model):
     # -3: rejected (not useful)
     # -4: rejected (not academic in style)
     status = models.SmallIntegerField(default=0)
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
+    submission = models.ForeignKey(Submission, related_name='reports', on_delete=models.CASCADE)
     vetted_by = models.ForeignKey(Contributor, related_name="report_vetted_by",
                                   blank=True, null=True, on_delete=models.CASCADE)
     # `invited' filled from RefereeInvitation objects at moment of report submission
