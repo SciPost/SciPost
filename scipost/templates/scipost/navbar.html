@@ -38,9 +38,8 @@
       {% endif %}
 
     </ul>
-    <form action="{% url 'scipost:search' %}" method="post" class="form-inline">
-        {% csrf_token %}
-        {{ search_form }}
+    <form action="{% url 'scipost:search' %}" method="get" class="form-inline">
+        <input class="form-control mr-0 mb-2 mr-lg-2 mb-lg-0" id="id_q" maxlength="100" name="q" type="text" required="">
       <button class="btn btn-primary" type="submit">Search</button>
     </form>
   </div>

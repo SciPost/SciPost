@@ -153,17 +153,15 @@ def documentsSearchResults(query):
 
 def search(request):
     """ For the global search form in navbar """
-    if request.method == 'POST':
-        form = SearchForm(request.POST)
-        if form.is_valid():
-            context = documentsSearchResults(form.cleaned_data['query'])
-            request.session['query'] = form.cleaned_data['query']
-        else:
-            context = {}
+    form = SearchForm(request.GET or None)
+    context = {}
+    if form.is_valid():
+        context = documentsSearchResults(form.cleaned_data['q'])
+        request.session['query'] = form.cleaned_data['q']
+        context['search_term'] = form.cleaned_data['q']
     elif 'query' in request.session:
-            context = documentsSearchResults(request.session['query'])
-    else:
-        context = {}
+        context = documentsSearchResults(request.session['query'])
+        context['search_term'] = request.session['query']
 
     if 'publication_search_queryset' in context:
         publication_search_list_paginator = Paginator(context['publication_search_queryset'], 10)
