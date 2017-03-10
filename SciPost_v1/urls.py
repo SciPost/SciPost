@@ -33,3 +33,9 @@ urlpatterns = [
     url(r'^thesis/', include('theses.urls', namespace="theses")),
     url(r'^news/', include('news.urls', namespace="news")),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
