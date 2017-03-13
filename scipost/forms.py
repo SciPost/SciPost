@@ -210,8 +210,7 @@ class RemarkForm(forms.Form):
 
 
 class SearchForm(forms.Form):
-    q = forms.CharField(max_length=100, label='', widget=forms.TextInput(attrs={
-                        'class': 'form-control mr-0 mb-2 mr-lg-2 mb-lg-0'}))
+    q = forms.CharField(max_length=100)
 
 
 class EmailGroupMembersForm(forms.Form):
