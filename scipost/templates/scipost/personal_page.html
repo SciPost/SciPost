@@ -87,7 +87,7 @@
 
 {% block content %}
 
-{% if not request.user|is_in_group:'Registered Contributors' %}
+{% if 'Registered Contributors' not in user_groups %}
 <div class="row">
     <div class="col-12">
       <hr class="hr12">
@@ -110,7 +110,7 @@
     <div class="col-12">
         <ul class="personalTabMenu">
             <li><a class="TabItem" id="AccountTab">Account</a></li>
-            {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Advisory Board' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' or request.user|is_in_group:'Junior Ambassadors' %}
+            {% if 'Editorial Administrators' not in user_groups or 'Advisory Board' not in user_groups or 'Editorial College' not in user_groups or 'Vetting Editors' not in user_groups or 'Ambassadors' not in user_groups or 'Junior Ambassadors' not in user_groups %}
                 <li><a class="TabItem" id="EdActionTab">Editorial Actions</a></li>
             {% endif %}
             <li><a class="TabItem" id="RefereeingTab">Refereeing</a></li>
@@ -119,13 +119,13 @@
             <li><a class="TabItem" id="ThesesTab">Theses</a></li>
             <li><a class="TabItem" id="CommentsTab">Comments</a></li>
             <li><a class="TabItem" id="AuthorRepliesTab">Author Replies</a></li>
-            {% if request.user|is_in_group:'Testers' %}
+            {% if 'Testers' in user_groups %}
                 <li><a class="TabItem" id="ListsTab">Lists</a></li>
             {% endif %}
-            {% if request.user|is_in_group:'Testers' %}
+            {% if 'Testers' in user_groups %}
                 <li><a class="TabItem" id="TeamsTab">Teams</a></li>
             {% endif %}
-            {% if request.user|is_in_group:'Testers' %}
+            {% if 'Testers' in user_groups %}
                 <li><a class="TabItem" id="GraphsTab">Graphs</a></li>
             {% endif %}
         </ul>
@@ -160,31 +160,31 @@
             {% endif %}
         </div>
         <div class="col-md-6">
-            {% if request.user|is_in_group:'SciPost Administrators' %}
+            {% if 'SciPost Administrators' in user_groups %}
                 <h3>You are a SciPost Administrator.</h3>
             {% endif %}
-            {% if request.user|is_in_group:'Editorial Administrators' %}
+            {% if 'Editorial Administrators' in user_groups %}
                 <h3>You are a SciPost Editorial Administrator.</h3>
             {% endif %}
-            {% if request.user|is_in_group:'Advisory Board' %}
+            {% if 'Advisory Board' in user_groups %}
                 <h3>You are a member of the Advisory Board.</h3>
             {% endif %}
-            {% if request.user|is_in_group:'Editorial College' %}
+            {% if 'Editorial College' in user_groups %}
                 <h3>You are a member of the Editorial College.</h3>
             {% endif %}
-            {% if request.user|is_in_group:'Vetting Editors' %}
+            {% if 'Vetting Editors' in user_groups %}
                 <h3>You are a SciPost Vetting Editor.</h3>
             {% endif %}
-            {% if request.user|is_in_group:'Registered Contributors' %}
+            {% if 'Registered Contributors' in user_groups %}
                 <h3>You are a Registered Contributor.</h3>
             {% endif %}
-            {% if request.user|is_in_group:'Testers' %}
+            {% if 'Testers' in user_groups %}
                 <h3>You are a SciPost Tester.</h3>
             {% endif %}
-            {% if request.user|is_in_group:'Ambassadors' %}
+            {% if 'Ambassadors' in user_groups %}
                 <h3>You are a SciPost Ambassador.</h3>
             {% endif %}
-            {% if request.user|is_in_group:'Junior Ambassadors' %}
+            {% if 'Junior Ambassadors' in user_groups %}
                 <h3>You are a SciPost Junior Ambassador.</h3>
             {% endif %}
 
@@ -239,7 +239,7 @@
 </div>
 
 
-{% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' or request.user|is_in_group:'Vetting Editors' or request.user|is_in_group:'Ambassadors' or request.user|is_in_group:'Junior Ambassadors' %}
+{% if 'SciPost Administrators' in user_groups or 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups or 'Vetting Editors' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
 <div class="TabSection" id="EdActions">
 
     <div class="row">
@@ -251,7 +251,7 @@
     </div>
 
     <div class="row">
-        {% if request.user|is_in_group:'SciPost Administrators' or request.user|is_in_group:'Advisory Board' or request.user|is_in_group:'Ambassadors' or request.user|is_in_group:'Junior Ambassadors' %}
+        {% if 'SciPost Administrators' in user_groups or 'Advisory Board' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
         <div class="col-md-4">
             <h3>Registration actions</h3>
             <ul>
@@ -315,7 +315,7 @@
             {% endif %}
         </div>
 
-        {% if request.user|is_in_group:'Editorial Administrators' or request.user|is_in_group:'Editorial College' %}
+        {% if 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups %}
         <div class="col-md-4">
             <h3>Info</h3>
             <ul>
@@ -380,7 +380,7 @@
             {% for task in pending_ref_tasks %}
                 <li>{{ task.submission }}, due {{ task.submission.reporting_deadline }}. &nbsp;
                     <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=task.submission.arxiv_identifier_w_vn_nr %}">Submit your Report</a> &nbsp;
-                    <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=task.submission.arxiv_identifier_w_vn_nr comtype='RtoE' referee_id=request.user.contributor.id %}">Write to the Editor-in-charge</a>.
+                    <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=task.submission.arxiv_identifier_w_vn_nr comtype='RtoE' referee_id=contributor.user.contributor.id %}">Write to the Editor-in-charge</a>.
                 </li>
             {% endfor %}
             </ul>
@@ -411,7 +411,7 @@
             <ul class="mt-3">
                 {% for sub in own_submissions %}
                     {{ sub.header_as_li_for_authors }}
-                    {% if request.user.contributor == sub.submitted_by %}
+                    {% if contributor.user.contributor == sub.submitted_by %}
                         <p><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr comtype='AtoE' %}">Write to the Editor-in-charge</a>.</p>
                     {% endif %}
                 {% endfor %}

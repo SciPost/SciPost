@@ -21,8 +21,7 @@ def sort_by(queryset, order):
 
 @register.filter(name='is_in_group')
 def is_in_group(user, group_name):
-    group = Group.objects.get(name=group_name)
-    return True if group in user.groups.all() else False
+    return user.groups.filter(name=group_name).exists()
 
 
 @register.filter(name='associated_contributors')
