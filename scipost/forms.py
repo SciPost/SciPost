@@ -16,8 +16,8 @@ from .models import TITLE_CHOICES, SCIPOST_FROM_ADDRESSES, ARC_LENGTHS,\
                      Contributor, DraftInvitation, RegistrationInvitation,\
                      SupportingPartner, SPBMembershipAgreement,\
                      UnavailabilityPeriod, PrecookedEmail,\
-                     List, Team, Graph, Node,\
-                     Feedback, Nomination, Motion
+                     List, Team, Graph, Node
+from virtualmeetings.models import Feedback, Nomination, Motion
 
 from journals.models import Publication
 from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
@@ -210,9 +210,7 @@ class RemarkForm(forms.Form):
 
 
 class SearchForm(forms.Form):
-    query = forms.CharField(max_length=100, label='',
-                            widget=forms.TextInput(attrs={
-                                'class': 'form-control mr-0 mb-2 mr-lg-2 mb-lg-0'}))
+    q = forms.CharField(max_length=100)
 
 
 class EmailGroupMembersForm(forms.Form):

@@ -31,5 +31,11 @@ urlpatterns = [
     url(r'^submission/', include('submissions.urls', namespace="submissions")),
     url(r'^theses/', include('theses.urls', namespace="theses")),
     url(r'^thesis/', include('theses.urls', namespace="theses")),
-    # url(r'^captcha/', include('captcha.urls')),
+    url(r'^news/', include('news.urls', namespace="news")),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]

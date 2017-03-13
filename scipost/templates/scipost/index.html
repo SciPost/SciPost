@@ -9,7 +9,7 @@
         {% if latest_newsitems %}
         <div class="col-md-6 {% if user.is_authenticated %}col-lg-4{% else %}col-lg-3{% endif %}">
             <div class="panel">
-                <h1><a href="{% url 'scipost:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14"></a></h1>
+                <h1><a href="{% url 'news:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14"></a></h1>
                 <p>Latest news and announcements.</p>
                 {# <hr class="hr6"/>#}
                 <ul class="NewsItemsList">

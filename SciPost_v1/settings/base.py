@@ -86,9 +86,11 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'journals',
+    'news',
     'scipost',
     'submissions',
     'theses',
+    'virtualmeetings',
     'webpack_loader'
 )
 
@@ -154,7 +156,6 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'scipost.context_processors.searchform',
             ],
         },
     },

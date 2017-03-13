@@ -2,125 +2,171 @@
 
 {% block pagetitle %}: list{% endblock pagetitle %}
 
-{% block headsup %}
+{% block content %}
 
-{% endblock headsup %}
+<div class="row">
+    <div class="col-12">
+        <h1>Search results{% if search_term %}: <small><i>{{ search_term }}</i></small>{% endif %}</h1>
+        {% if not publication_search_list and not commentary_search_list and not submission_search_list and not thesislink_search_list and not comment_search_link and not comment_search_list %}
+            <p>Your search query did not return any result.</p>
+        {% endif %}
+    </div>
+</div>
 
-{% block bodysup %}
+{% if publication_search_list %}
+<hr>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Publications</h2>
+        </div>
+    </div>
+</div>
 
+<div class="row">
+    <div class="col-12">
+        {% for publication in publication_search_list %}
+            {{ publication.header_as_li }}
+        {% endfor %}
+    </div>
+</div>
 
-<section>
-  <h1>Search results</h1>
+<div class="row">
+    <div class="col-12">
+          <div class="pagination">
+            <span class="step-links">
+              {% if publication_search_list.has_previous %}
+              <a href="?publication_search_list_page={{ publication_search_list.previous_page_number }}">previous</a>
+              {% endif %}
+              <span class="current">
+        	Page {{ publication_search_list.number }} of {{ publication_search_list.paginator.num_pages }}.
+              </span>
+              {% if publication_search_list.has_next %}
+              <a href="?publication_search_list_page={{ publication_search_list.next_page_number }}">next</a>
+              {% endif %}
+            </span>
+          </div>
 
-  {% if publication_search_list or commentary_search_list or submission_search_list or thesislink_search_list or comment_search_link %}
-  {% else %}
-  <p>Your search query did not return any result.</p>
-  {% endif %}
-
-  {% if publication_search_list %}
-  <br />
-  <hr class="hr12">
-  <h3>Publications:</h3>
-
-  <ul>
-    {% for publication in publication_search_list %}
-    {{ publication.header_as_li }}
-    {% endfor %}
-  </ul>
-
-  <div class="pagination">
-    <span class="step-links">
-      {% if publication_search_list.has_previous %}
-      <a href="?publication_search_list_page={{ publication_search_list.previous_page_number }}">previous</a>
-      {% endif %}
-      <span class="current">
-	Page {{ publication_search_list.number }} of {{ publication_search_list.paginator.num_pages }}.
-      </span>
-      {% if publication_search_list.has_next %}
-      <a href="?publication_search_list_page={{ publication_search_list.next_page_number }}">next</a>
-      {% endif %}
-    </span>
-  </div>
-
-  {% endif %}
-
-
-  {% if commentary_search_list %}
-  <br />
-  <hr class="hr12">
-  <h3>Commentaries:</h3>
-
-  <ul>
-    {% for commentary in commentary_search_list %}
-    {{ commentary.header_as_li }}
-    {% endfor %}
-  </ul>
-
-  <div class="pagination">
-    <span class="step-links">
-      {% if commentary_search_list.has_previous %}
-      <a href="?commentary_search_list_page={{ commentary_search_list.previous_page_number }}">previous</a>
-      {% endif %}
-      <span class="current">
-	Page {{ commentary_search_list.number }} of {{ commentary_search_list.paginator.num_pages }}.
-      </span>
-      {% if commentary_search_list.has_next %}
-      <a href="?commentary_search_list_page={{ commentary_search_list.next_page_number }}">next</a>
-      {% endif %}
-    </span>
-  </div>
-
-  {% endif %}
+    </div>
+</div>
+{% endif %}
 
 
-  {% if submission_search_list %}
-  <br />
-  <hr class="hr12">
-  <h3>Submissions:</h3>
-  <ul>
-    {% for submission in submission_search_list %}
-    {{ submission.header_as_li }}
-    {% endfor %}
-  </ul>
+{% if commentary_search_list %}
+<hr>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Commentaries</h2>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <ul>
+            {% for commentary in commentary_search_list %}
+                {{ commentary.header_as_li }}
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 
-  <div class="pagination">
-    <span class="step-links">
-      {% if submission_search_list.has_previous %}
-      <a href="?submission_search_list_page={{ submission_search_list.previous_page_number }}">previous</a>
-      {% endif %}
-      <span class="current">
-	Page {{ submission_search_list.number }} of {{ submission_search_list.paginator.num_pages }}
-      </span>
-      {% if submission_search_list.has_next %}
-      <a href="?submission_search_list_page={{ submission_search_list.next_page_number }}">next</a>
-      {% endif %}
-    </span>
-  </div>
+<div class="row">
+    <div class="col-12">
+          <div class="pagination">
+            <span class="step-links">
+              {% if commentary_search_list.has_previous %}
+              <a href="?commentary_search_list_page={{ commentary_search_list.previous_page_number }}">previous</a>
+              {% endif %}
+              <span class="current">
+        	Page {{ commentary_search_list.number }} of {{ commentary_search_list.paginator.num_pages }}.
+              </span>
+              {% if commentary_search_list.has_next %}
+              <a href="?commentary_search_list_page={{ commentary_search_list.next_page_number }}">next</a>
+              {% endif %}
+            </span>
+          </div>
 
-  {% endif %}
+    </div>
+</div>
+{% endif %}
 
-  {% if thesislink_search_list %}
-  <br />
-  <hr class="hr12">
-  <h3>Theses:</h3>
-  <ul>
-    {% for thesislink in thesislink_search_list %}
-        {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesislink %}
-    {% endfor %}
-  </ul>
-  {% endif %}
 
-  {% if comment_search_list %}
-  <br />
-  <hr class="hr12">
-  <h3>Comments:</h3>
-  <ul>
-    {% for comment in comment_search_list %}
-    {{ comment.header_as_li }}
-    {% endfor %}
-  </ul>
-  {% endif %}
+{% if submission_search_list %}
+<hr>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Submissions</h2>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <ul>
+            {% for submission in submission_search_list %}
+            {{ submission.header_as_li }}
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 
-</section>
+<div class="row">
+    <div class="col-12">
+      <div class="pagination">
+        <span class="step-links">
+          {% if submission_search_list.has_previous %}
+          <a href="?submission_search_list_page={{ submission_search_list.previous_page_number }}">previous</a>
+          {% endif %}
+          <span class="current">
+    	Page {{ submission_search_list.number }} of {{ submission_search_list.paginator.num_pages }}
+          </span>
+          {% if submission_search_list.has_next %}
+          <a href="?submission_search_list_page={{ submission_search_list.next_page_number }}">next</a>
+          {% endif %}
+        </span>
+      </div>
+    </div>
+</div>
+{% endif %}
 
-{% endblock bodysup %}
+{% if thesislink_search_list %}
+<hr>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+            <h2>Theses</h2>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+          <ul>
+            {% for thesislink in thesislink_search_list %}
+                {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesislink %}
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          {% if comment_search_list %}
+          <div class="row">
+              <div class="col-12">
+                  <div class="panel">
+                      <h2>Comments</h2>
+                  </div>
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-12">
+                  <ul>
+                    {% for comment in comment_search_list %}
+                        {{ comment.header_as_li }}
+                    {% endfor %}
+                  </ul>
+              </div>
+          </div>
+          {% endif %}
+    </div>
+</div>
+
+{% endblock content %}
