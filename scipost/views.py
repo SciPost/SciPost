@@ -1018,13 +1018,7 @@ def personal_page(request):
     own_authorreplies = (Comment.objects
                          .filter(author=contributor, is_author_reply=True)
                          .order_by('-date_submitted'))
-    lists_owned = List.objects.filter(owner=contributor)
-    lists = List.objects.filter(teams_with_access__members__in=[contributor])
-    teams_led = Team.objects.select_related('leader__user').filter(leader=contributor)
-    teams = Team.objects.select_related('leader__user').filter(members__in=[contributor])
-    graphs_owned = Graph.objects.filter(owner=contributor)
-    graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor)
-                                          | Q(teams_with_access__members__in=[contributor]))
+
     appellation = title_dict[contributor.title] + ' ' + contributor.user.last_name
     context = {
         'contributor': contributor,
@@ -1052,12 +1046,6 @@ def personal_page(request):
         'own_commentaries': own_commentaries,
         'own_thesislinks': own_thesislinks,
         'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
-        'lists_owned': lists_owned,
-        'lists': lists,
-        'teams_led': teams_led,
-        'teams': teams,
-        'graphs_owned': graphs_owned,
-        'graphs_private': graphs_private,
     }
     return render(request, 'scipost/personal_page.html', context)
 
