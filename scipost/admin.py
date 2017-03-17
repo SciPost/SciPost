@@ -3,13 +3,11 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Permission
 
-from guardian.admin import GuardedModelAdmin
-
-from scipost.models import Contributor, Remark, List,\
-                           DraftInvitation, Node, Arc, Graph, Team, AffiliationObject,\
+from scipost.models import Contributor, Remark,\
+                           DraftInvitation,\
+                           AffiliationObject,\
                            SupportingPartner, SPBMembershipAgreement, RegistrationInvitation,\
                            AuthorshipClaim, PrecookedEmail
-from virtualmeetings.models import VGM, Feedback, Nomination, Motion
 
 
 class ContributorInline(admin.StackedInline):
@@ -25,34 +23,6 @@ class UserAdmin(UserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
-
-
-# class VGMAdmin(admin.ModelAdmin):
-#     search_fields = ['start_date']
-#
-#
-# admin.site.register(VGM, VGMAdmin)
-#
-#
-# class FeedbackAdmin(admin.ModelAdmin):
-#     search_fields = ['feedback', 'by']
-#
-#
-# admin.site.register(Feedback, FeedbackAdmin)
-#
-#
-# class NominationAdmin(admin.ModelAdmin):
-#     search_fields = ['last_name', 'first_name', 'by']
-#
-#
-# admin.site.register(Nomination, NominationAdmin)
-#
-#
-# class MotionAdmin(admin.ModelAdmin):
-#     search_fields = ['background', 'motion', 'put_forward_by']
-#
-#
-# admin.site.register(Motion, MotionAdmin)
 
 
 class RemarkAdmin(admin.ModelAdmin):
@@ -85,33 +55,6 @@ class PrecookedEmailAdmin(admin.ModelAdmin):
 
 
 admin.site.register(PrecookedEmail, PrecookedEmailAdmin)
-
-
-class ListAdmin(GuardedModelAdmin):
-    search_fields = ['owner', 'title']
-
-
-admin.site.register(List, ListAdmin)
-admin.site.register(Team)
-
-
-class NodeInline(admin.StackedInline):
-    model = Node
-
-
-class ArcInline(admin.StackedInline):
-    model = Arc
-
-
-class GraphAdmin(GuardedModelAdmin):
-    inlines = [
-        NodeInline,
-        ArcInline,
-        ]
-    search_fields = ['owner___user__last_name', 'title']
-
-
-admin.site.register(Graph, GraphAdmin)
 
 
 class AffiliationObjectAdmin(admin.ModelAdmin):

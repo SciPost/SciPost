@@ -236,33 +236,6 @@ urlpatterns = [
         name='howto_production'),
 
 
-    #########
-    # Lists #
-    #########
-
-    url(r'^create_list$', views.create_list, name='create_list'),
-    url(r'^list/(?P<list_id>[0-9]+)$', views.list, name='list'),
-    url(r'^list_add_element/(?P<list_id>[0-9]+)/(?P<type>[SCTc])/(?P<element_id>[0-9]+)$',
-        views.list_add_element, name='list_add_element'),
-    url(r'^list_remove_element/(?P<list_id>[0-9]+)/(?P<type>[SCTc])/(?P<element_id>[0-9]+)$',
-        views.list_remove_element, name='list_remove_element'),
-
-    # Teams
-    url(r'^create_team$', views.create_team, name='create_team'),
-    url(r'^add_team_member/(?P<team_id>[0-9]+)$', views.add_team_member, name='add_team_member'),
-    url(r'^add_team_member/(?P<team_id>[0-9]+)/(?P<contributor_id>[0-9]+)$',
-        views.add_team_member, name='add_team_member'),
-
-    # Graphs
-    url(r'^create_graph$', views.create_graph, name='create_graph'),
-    url(r'^graph/(?P<graph_id>[0-9]+)$', views.graph, name='graph'),
-    url(r'^edit_graph_node/(?P<node_id>[0-9]+)$',
-        views.edit_graph_node, name='edit_graph_node'),
-    url(r'^delete_graph_node/(?P<node_id>[0-9]+)$',
-        views.delete_graph_node, name='delete_graph_node'),
-    url(r'^api/graph/(?P<graph_id>[0-9]+)$', views.api_graph, name='api_graph'),
-
-
     #############################
     # Supporting Partners Board #
     #############################
