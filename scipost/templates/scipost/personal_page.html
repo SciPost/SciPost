@@ -92,7 +92,7 @@
     <div class="col-12">
         <ul class="personalTabMenu">
             <li><a class="TabItem" id="AccountTab">Account</a></li>
-            {% if 'Editorial Administrators' not in user_groups or 'Advisory Board' not in user_groups or 'Editorial College' not in user_groups or 'Vetting Editors' not in user_groups or 'Ambassadors' not in user_groups or 'Junior Ambassadors' not in user_groups %}
+            {% if 'Editorial Administrators' in user_groups or 'Advisory Board' in user_groups or 'Editorial College' in user_groups or 'Vetting Editors' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
                 <li><a class="TabItem" id="EdActionTab">Editorial Actions</a></li>
             {% endif %}
             <li><a class="TabItem" id="RefereeingTab">Refereeing</a></li>
@@ -283,7 +283,7 @@
             {% if perms.scipost.can_attend_VGMs %}
             <h3>Virtual General Meetings</h3>
             <ul>
-                <li><a href="{% url 'scipost:VGMs' %}">List of VGMs</a></li>
+                <li><a href="{% url 'virtualmeetings:VGMs' %}">List of VGMs</a></li>
             </ul>
             {% endif %}
         </div>

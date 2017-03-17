@@ -16,7 +16,7 @@
 
   <ul>
     {% for VGM in VGM_list %}
-    <li><a href="{% url 'scipost:VGM_detail' VGM_id=VGM.id %}">{{ VGM }}</a></li>
+    <li><a href="{% url 'virtualmeetings:VGM_detail' VGM_id=VGM.id %}">{{ VGM }}</a></li>
     {% endfor %}
   </ul>
 
