@@ -4,7 +4,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.shortcuts import get_object_or_404
 from django.template import Template, Context
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -512,3 +511,27 @@ class SPBMembershipAgreement(models.Model):
         return (str(self.partner) +
                 ' [' + spb_membership_duration_dict[self.duration] +
                 ' from ' + self.start_date.strftime('%Y-%m-%d') + ']')
+
+
+######################
+# Static info models #
+######################
+
+class EditorialCollege(models.Model):
+    '''A SciPost Editorial College for a specific discipline.'''
+    discipline = models.CharField(max_length=255)
+
+
+class EditorialCollegeMember(models.Model):
+    """
+    Editorial College Members for non-functional use!
+    This model is used for static information purposes only.
+    """
+    name = models.CharField(max_length=255)
+    title = models.CharField(max_length=10, blank=True)
+    link = models.URLField(blank=True)
+    subtitle = models.CharField(max_length=255, blank=True)
+    discipline = models.ForeignKey('scipost.EditorialCollege', related_name='member')
+
+    def __str__(self):
+        return ('%s %s' % (self.title, self.name)).strip()
