@@ -20,6 +20,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.http import is_safe_url
+from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required
 
@@ -27,7 +28,7 @@ from .constants import SCIPOST_SUBJECT_AREAS
 from .models import Contributor, CitationNotification, UnavailabilityPeriod,\
                     DraftInvitation, RegistrationInvitation,\
                     title_dict, SciPost_from_addresses_dict,\
-                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement
+                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement, EditorialCollege
 from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriodForm,\
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\
@@ -1752,3 +1753,9 @@ def SPB_membership_request(request):
                'SP_form': SP_form,
                'membership_form': membership_form, }
     return render(request, 'scipost/SPB_membership_request.html', context)
+
+
+class AboutView(ListView):
+    model = EditorialCollege
+    template_name = 'scipost/about.html'
+    queryset = EditorialCollege.objects.prefetch_related('member')

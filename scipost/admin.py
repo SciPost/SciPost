@@ -7,7 +7,8 @@ from scipost.models import Contributor, Remark,\
                            DraftInvitation,\
                            AffiliationObject,\
                            SupportingPartner, SPBMembershipAgreement, RegistrationInvitation,\
-                           AuthorshipClaim, PrecookedEmail
+                           AuthorshipClaim, PrecookedEmail,\
+                           EditorialCollege, EditorialCollegeMember
 
 
 class ContributorInline(admin.StackedInline):
@@ -77,3 +78,17 @@ class SupportingPartnerAdmin(admin.ModelAdmin):
 
 
 admin.site.register(SupportingPartner, SupportingPartnerAdmin)
+
+
+class EditorialCollegeAdmin(admin.ModelAdmin):
+    search_fields = ['discipline', 'member']
+
+
+admin.site.register(EditorialCollege, EditorialCollegeAdmin)
+
+
+class EditorialCollegeMemberAdmin(admin.ModelAdmin):
+    search_fields = ['name', 'subtitle', 'discipline']
+
+
+admin.site.register(EditorialCollegeMember, EditorialCollegeMemberAdmin)

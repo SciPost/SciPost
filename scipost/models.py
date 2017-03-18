@@ -519,7 +519,10 @@ class SPBMembershipAgreement(models.Model):
 
 class EditorialCollege(models.Model):
     '''A SciPost Editorial College for a specific discipline.'''
-    discipline = models.CharField(max_length=255)
+    discipline = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.discipline
 
 
 class EditorialCollegeMember(models.Model):
