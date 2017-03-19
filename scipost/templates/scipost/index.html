@@ -74,9 +74,12 @@
                       <div class="SciPostPhysicsBanner">
                     	<h2 class="py-0">
                             <a class="pb-0" href="{% url 'journals:scipost_physics' %}">SciPost Physics</a>
+                            {% if issue %}
                             <div class="banner-subtitle">Vol. {{ issue.in_volume.number }} issue {{ issue.number }} {{issue.period_as_string}}</div>
+                            {% endif %}
                         </h2>
                       </div>
+                      {% if issue and publications %}
                       <h4 class="card-text text-center">A selection of the current issue:</h4>
 
                       <ul class="list-group list-group-flush">
@@ -88,6 +91,7 @@
                               </li>
                           {% endfor %}
                       </ul>
+                      {% endif %}
                       <p class="text-center mt-3" style="color: red;"><em>If you support and believe in our mission, <br/>be a pioneer and submit a manuscript!</em></p>
                 </div>
             </div>
