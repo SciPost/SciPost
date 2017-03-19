@@ -205,14 +205,13 @@ def search(request):
 
 def index(request):
     """ Main page """
-    latest_newsitems = NewsItem.objects.all().order_by('-date')[:2]
-    issue = Issue.objects.get_current_issue(in_volume__in_journal__name='SciPost Physics')
-    publications = issue.publication_set.filter(doi_string__isnull=False).order_by('-publication_date')[:4]
+    context = {}
+    context['latest_newsitems'] = NewsItem.objects.all().order_by('-date')[:2]
+    context['issue'] = Issue.objects.get_current_issue(in_volume__in_journal__name='SciPost Physics')
+    if context['issue']:
+        context['publications'] = context['issue'].publication_set.filter(doi_string__isnull=False
+                                    ).order_by('-publication_date')[:4]
 
-    context = {'latest_newsitems': latest_newsitems,
-               'issue': issue,
-               'publications': publications
-               }
     return render(request, 'scipost/index.html', context)
 
 
