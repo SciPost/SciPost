@@ -11,7 +11,8 @@
 
     a {
         color: #FFA300;
-        padding: 4px;
+        padding: 0 4px;
+        display: block;
 
         &.active {
             background-color: #eeeeee;
@@ -22,6 +23,11 @@
             background-color: #dddddd;
             border: none;
         }
+    }
+
+    .banner-subtitle {
+        font-size: 0.7rem;
+        color: #fff;
     }
 }
 

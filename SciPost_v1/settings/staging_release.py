@@ -22,7 +22,3 @@ WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] = '/home/jdewit/webapps/scipost_sta
 
 # Error reporting
 ADMINS = MANAGERS = (('J. de Wit', 'jorrandewit@outlook.com'), )
-
-# Cookies
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
