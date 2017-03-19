@@ -1,9 +1,10 @@
 import factory
+import random
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
-from .models import Contributor
+from .models import Contributor, EditorialCollege, EditorialCollegeMember
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
@@ -48,3 +49,22 @@ class UserFactory(factory.django.DjangoModelFactory):
                 self.groups.add(group)
         else:
             self.groups.add(Group.objects.get(name="Registered Contributors"))
+
+
+class EditorialCollegeFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = EditorialCollege
+        django_get_or_create = ('discipline', )
+
+    discipline = random.choice(['Physics', 'Chemistry', 'Medicine'])
+
+
+class EditorialCollegeMemberFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = EditorialCollegeMember
+
+    title = factory.Faker('prefix')
+    name = factory.Faker('name')
+    link = factory.Faker('url')
+    subtitle = factory.Faker('company')
+    college = factory.Iterator(EditorialCollege.objects.all())

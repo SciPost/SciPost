@@ -534,7 +534,7 @@ class EditorialCollegeMember(models.Model):
     title = models.CharField(max_length=10, blank=True)
     link = models.URLField(blank=True)
     subtitle = models.CharField(max_length=255, blank=True)
-    discipline = models.ForeignKey('scipost.EditorialCollege', related_name='member')
+    college = models.ForeignKey('scipost.EditorialCollege', related_name='member')
 
     def __str__(self):
         return ('%s %s' % (self.title, self.name)).strip()
