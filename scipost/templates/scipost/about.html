@@ -155,9 +155,9 @@
 </div>
 
 <div class="row">
-    {% for member in college.member.all %}
+    {% for fellow in college.active_fellows %}
         <div class="col-md-4 py-1">
-            {% include 'scipost/_college_member.html' with member=member %}
+            {% include 'scipost/_contributor_short.html' with contributor=fellow.contributor %}
         </div>
     {% endfor %}
 </div>

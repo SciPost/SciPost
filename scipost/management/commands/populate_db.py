@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from news.factories import NewsItemFactory
 
-from ...factories import EditorialCollegeFactory, EditorialCollegeMemberFactory
+from ...factories import ContributorFactory, EditorialCollegeFactory, EditorialCollegeFellowFactory
 
 
 class Command(BaseCommand):
@@ -15,11 +15,18 @@ class Command(BaseCommand):
             help='Add NewsItems',
         )
         parser.add_argument(
-            '--editorial-college',
+            '--contributor',
+            action='store_true',
+            dest='contributor',
+            default=False,
+            help='Add Contributors',
+        )
+        parser.add_argument(
+            '--college',
             action='store_true',
             dest='editorial-college',
             default=False,
-            help='Add Editorial College and members',
+            help='Add Editorial College and Fellows (Contributors required)',
         )
         parser.add_argument(
             '--all',
@@ -30,19 +37,25 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
+        if kwargs['contributor'] or kwargs['all']:
+            self.create_contributors()
         if kwargs['editorial-college'] or kwargs['all']:
             self.create_editorial_college()
-            self.create_editorial_college_members()
+            self.create_editorial_college_fellows()
         if kwargs['news'] or kwargs['all']:
             self.create_news_items()
+
+    def create_contributors(self):
+        ContributorFactory.create_batch(5)
+        self.stdout.write(self.style.SUCCESS('Successfully created Contributors.'))
 
     def create_editorial_college(self):
         EditorialCollegeFactory.create_batch(5)
         self.stdout.write(self.style.SUCCESS('Successfully created Editorial College\'s.'))
 
-    def create_editorial_college_members(self):
-        EditorialCollegeMemberFactory.create_batch(20)
-        self.stdout.write(self.style.SUCCESS('Successfully created Editorial College Members.'))
+    def create_editorial_college_fellows(self):
+        EditorialCollegeFellowFactory.create_batch(5)
+        self.stdout.write(self.style.SUCCESS('Successfully created Editorial College Fellows.'))
 
     def create_news_items(self):
         NewsItemFactory.create_batch(5)

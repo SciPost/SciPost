@@ -1756,4 +1756,4 @@ def SPB_membership_request(request):
 class AboutView(ListView):
     model = EditorialCollege
     template_name = 'scipost/about.html'
-    queryset = EditorialCollege.objects.prefetch_related('member')
+    queryset = EditorialCollege.objects.prefetch_related('fellows__contributor')

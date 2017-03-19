@@ -8,8 +8,8 @@ from commentaries.forms import CommentarySearchForm
 from commentaries.models import Commentary
 
 from .factories import ContributorFactory,\
-                       EditorialCollegeMemberFactory, EditorialCollegeFactory
-from .models import EditorialCollege, EditorialCollegeMember
+                       EditorialCollegeFellowFactory, EditorialCollegeFactory
+from .models import EditorialCollege, EditorialCollegeFellow
 
 
 class RequestCommentaryTest(TestCase):
@@ -137,7 +137,7 @@ class AboutViewTest(TestCase):
 
         # Create College with 10 members
         self.college = EditorialCollegeFactory()
-        EditorialCollegeMemberFactory.create_batch(10)
+        EditorialCollegeFellowFactory.create_batch(10)
 
     def test_status_code_200_including_members(self):
         response = self.client.get(self.target)
@@ -151,4 +151,4 @@ class AboutViewTest(TestCase):
         # Members exist in college
         self.assertTrue(college.member.count() >= 10)
         last_member = college.member.last()
-        self.assertTrue(isinstance(last_member, EditorialCollegeMember))
+        self.assertTrue(isinstance(last_member, EditorialCollegeFellow))
