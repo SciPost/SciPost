@@ -40,7 +40,7 @@ from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_
 from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
-from journals.models import Publication
+from journals.models import Publication, Issue
 from news.models import NewsItem
 from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
 from submissions.models import Submission, EditorialAssignment
@@ -206,13 +206,12 @@ def search(request):
 def index(request):
     """ Main page """
     latest_newsitems = NewsItem.objects.all().order_by('-date')[:2]
-    submission_search_form = SubmissionSearchForm(request.POST)
-    commentary_search_form = CommentarySearchForm(request.POST)
-    thesislink_search_form = ThesisLinkSearchForm(request.POST)
+    issue = Issue.objects.get_current_issue(in_volume__in_journal__name='SciPost Physics')
+    publications = issue.publication_set.filter(doi_string__isnull=False).order_by('-publication_date')[:4]
+
     context = {'latest_newsitems': latest_newsitems,
-               'submission_search_form': submission_search_form,
-               'commentary_search_form': commentary_search_form,
-               'thesislink_search_form': thesislink_search_form,
+               'issue': issue,
+               'publications': publications
                }
     return render(request, 'scipost/index.html', context)
 

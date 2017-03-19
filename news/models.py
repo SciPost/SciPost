@@ -44,7 +44,7 @@ class NewsItem(models.Model):
                            'date': self.date.strftime('%Y-%m-%d'),
                            'blurb': self.blurb, })
         if self.followup_link:
-            descriptor += '<p><a href="{{ followup_link }}">{{ followup_link_text }}</a></p>'
+            descriptor += '<a href="{{ followup_link }}">{{ followup_link_text }}</a>'
             context['followup_link'] = self.followup_link
             context['followup_link_text'] = self.followup_link_text
         descriptor += '</div>'
