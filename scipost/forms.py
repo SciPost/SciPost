@@ -1,7 +1,6 @@
 from django import forms
 
 from django.contrib.auth.models import User, Group
-from django.db.models import Q
 
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
@@ -12,11 +11,10 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML, Submit
 
 from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
-from .models import TITLE_CHOICES, SCIPOST_FROM_ADDRESSES, ARC_LENGTHS,\
-                     Contributor, DraftInvitation, RegistrationInvitation,\
-                     SupportingPartner, SPBMembershipAgreement,\
-                     UnavailabilityPeriod, PrecookedEmail,\
-                     List, Team, Graph, Node
+from .models import TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,\
+                    Contributor, DraftInvitation, RegistrationInvitation,\
+                    SupportingPartner, SPBMembershipAgreement,\
+                    UnavailabilityPeriod, PrecookedEmail
 from virtualmeetings.models import Feedback, Nomination, Motion
 
 from journals.models import Publication
@@ -260,80 +258,6 @@ class SendPrecookedEmailForm(forms.Form):
     from_address = forms.ChoiceField(choices=SCIPOST_FROM_ADDRESSES)
 
 
-class CreateListForm(forms.ModelForm):
-    class Meta:
-        model = List
-        fields = ['title', 'description', 'private']
-
-    def __init__(self, *args, **kwargs):
-        super(CreateListForm, self).__init__(*args, **kwargs)
-        self.fields['title'].widget.attrs.update(
-            {'size': 30, 'placeholder': 'Descriptive title for the new List'})
-        self.fields['private'].widget.attrs.update({'placeholder': 'Private?'})
-
-
-class CreateTeamForm(forms.ModelForm):
-    class Meta:
-        model = Team
-        fields = ['name']
-
-    def __init__(self, *args, **kwargs):
-        super(CreateTeamForm, self).__init__(*args, **kwargs)
-        self.fields['name'].widget.attrs.update(
-            {'size': 30, 'placeholder': 'Descriptive name for the new Team'})
-
-
-class AddTeamMemberForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        super(AddTeamMemberForm, self).__init__(*args, **kwargs)
-        self.fields['last_name'].widget.attrs.update(
-            {'size': 20, 'placeholder': 'Search in contributors database'})
-
-    last_name = forms.CharField()
-
-
-class CreateGraphForm(forms.ModelForm):
-    class Meta:
-        model = Graph
-        fields = ['title', 'description', 'private']
-
-    def __init__(self, *args, **kwargs):
-        super(CreateGraphForm, self).__init__(*args, **kwargs)
-        self.fields['title'].widget.attrs.update(
-            {'size': 30, 'placeholder': 'Descriptive title for the new Graph'})
-        self.fields['description'].widget.attrs.update({'placeholder': 'Detailed description'})
-
-
-class ManageTeamsForm(forms.Form):
-    teams_with_access = forms.ModelMultipleChoiceField(queryset=None)
-
-    def __init__(self, *args, **kwargs):
-        contributor = kwargs.pop('contributor')
-        super(ManageTeamsForm, self).__init__(*args, **kwargs)
-        self.fields['teams_with_access'].queryset = Team.objects.filter(
-            Q(leader=contributor) | Q(members__in=[contributor]))
-        self.fields['teams_with_access'].widget.attrs.update(
-            {'placeholder': 'Team(s) to be given access rights:'})
-
-
-class CreateNodeForm(forms.ModelForm):
-    class Meta:
-        model = Node
-        fields = ['name', 'description']
-
-
-class CreateArcForm(forms.Form):
-    source = forms.ModelChoiceField(queryset=None)
-    target = forms.ModelChoiceField(queryset=None)
-    length = forms.ChoiceField(choices=ARC_LENGTHS)
-
-    def __init__(self, *args, **kwargs):
-        graph = kwargs.pop('graph')
-        super(CreateArcForm, self).__init__(*args, **kwargs)
-        self.fields['source'].queryset = Node.objects.filter(graph=graph)
-        self.fields['target'].queryset = Node.objects.filter(graph=graph)
-
-
 #############################
 # Supporting Partners Board #
 #############################
@@ -392,59 +316,59 @@ class SPBMembershipForm(forms.ModelForm):
                 css_class="row"),
         )
 
-
-#################
-# VGMs, Motions #
-#################
-
-class FeedbackForm(forms.ModelForm):
-    class Meta:
-        model = Feedback
-        fields = ['feedback']
-
-
-class NominationForm(forms.ModelForm):
-    class Meta:
-        model = Nomination
-        fields = ['first_name', 'last_name',
-                  'discipline', 'expertises', 'webpage']
-
-    def __init__(self, *args, **kwargs):
-        super(NominationForm, self).__init__(*args, **kwargs)
-        self.fields['expertises'].widget = forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
-
-
-class MotionForm(forms.ModelForm):
-    class Meta:
-        model = Motion
-        fields = ['category', 'background', 'motion']
-
-    def __init__(self, *args, **kwargs):
-        super(MotionForm, self).__init__(*args, **kwargs)
-        self.fields['background'].label = ''
-        self.fields['background'].widget.attrs.update(
-            {'rows': 8, 'cols': 100,
-             'placeholder': 'Provide useful background information on your Motion.'})
-        self.fields['motion'].label = ''
-        self.fields['motion'].widget.attrs.update(
-            {'rows': 8, 'cols': 100,
-             'placeholder': 'Phrase your Motion as clearly and succinctly as possible.'})
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Field('category'),
-            Div(
-                Div(HTML('<p>Background:</p>'),
-                    css_class="col-2"),
-                Div(
-                    Field('background'),
-                    css_class="col-10"),
-                css_class="row"),
-            Div(
-                Div(HTML('<p>Motion:</p>'),
-                    css_class="col-2"),
-                Div(
-                    Field('motion'),
-                    css_class="col-10"),
-                css_class="row"),
-            Submit('submit', 'Submit'),
-        )
+#
+# #################
+# # VGMs, Motions #
+# #################
+#
+# class FeedbackForm(forms.ModelForm):
+#     class Meta:
+#         model = Feedback
+#         fields = ['feedback']
+#
+#
+# class NominationForm(forms.ModelForm):
+#     class Meta:
+#         model = Nomination
+#         fields = ['first_name', 'last_name',
+#                   'discipline', 'expertises', 'webpage']
+#
+#     def __init__(self, *args, **kwargs):
+#         super(NominationForm, self).__init__(*args, **kwargs)
+#         self.fields['expertises'].widget = forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
+#
+#
+# class MotionForm(forms.ModelForm):
+#     class Meta:
+#         model = Motion
+#         fields = ['category', 'background', 'motion']
+#
+#     def __init__(self, *args, **kwargs):
+#         super(MotionForm, self).__init__(*args, **kwargs)
+#         self.fields['background'].label = ''
+#         self.fields['background'].widget.attrs.update(
+#             {'rows': 8, 'cols': 100,
+#              'placeholder': 'Provide useful background information on your Motion.'})
+#         self.fields['motion'].label = ''
+#         self.fields['motion'].widget.attrs.update(
+#             {'rows': 8, 'cols': 100,
+#              'placeholder': 'Phrase your Motion as clearly and succinctly as possible.'})
+#         self.helper = FormHelper()
+#         self.helper.layout = Layout(
+#             Field('category'),
+#             Div(
+#                 Div(HTML('<p>Background:</p>'),
+#                     css_class="col-2"),
+#                 Div(
+#                     Field('background'),
+#                     css_class="col-10"),
+#                 css_class="row"),
+#             Div(
+#                 Div(HTML('<p>Motion:</p>'),
+#                     css_class="col-2"),
+#                 Div(
+#                     Field('motion'),
+#                     css_class="col-10"),
+#                 css_class="row"),
+#             Submit('submit', 'Submit'),
+#         )

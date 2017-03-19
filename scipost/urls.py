@@ -17,7 +17,7 @@ urlpatterns = [
         name='acknowledgement'),
 
     ## Info
-    url(r'^about$', TemplateView.as_view(template_name='scipost/about.html'), name='about'),
+    url(r'^about$', views.AboutView.as_view(), name='about'),
     url(r'^call$', TemplateView.as_view(template_name='scipost/call.html'), name='call'),
     url(r'^foundation$', TemplateView.as_view(template_name='scipost/foundation.html'),
         name='foundation'),
@@ -171,27 +171,6 @@ urlpatterns = [
         views.Fellow_activity_overview,
         name='Fellow_activity_overview'),
 
-    ############################
-    # Virtual General Meetings #
-    ############################
-    url(r'^VGMs$', views.VGMs, name='VGMs'),
-    url(r'^VGM/(?P<VGM_id>[0-9]+)/$', views.VGM_detail, name='VGM_detail'),
-    url(r'^feedback/(?P<VGM_id>[0-9]+)$',
-        views.feedback, name='feedback'),
-    url(r'^add_remark_on_feedback/(?P<VGM_id>[0-9]+)/(?P<feedback_id>[0-9]+)$',
-        views.add_remark_on_feedback, name='add_remark_on_feedback'),
-    url(r'^nominate_Fellow/(?P<VGM_id>[0-9]+)$',
-        views.nominate_Fellow, name='nominate_Fellow'),
-    url(r'^add_remark_on_nomination/(?P<VGM_id>[0-9]+)/(?P<nomination_id>[0-9]+)$',
-        views.add_remark_on_nomination, name='add_remark_on_nomination'),
-    url(r'^vote_on_nomination/(?P<nomination_id>[0-9]+)/(?P<vote>[AND])$',
-        views.vote_on_nomination, name='vote_on_nomination'),
-    url(r'^put_motion_forward/(?P<VGM_id>[0-9]+)$',
-        views.put_motion_forward, name='put_motion_forward'),
-    url(r'^add_remark_on_motion/(?P<motion_id>[0-9]+)$',
-        views.add_remark_on_motion, name='add_remark_on_motion'),
-    url(r'^vote_on_motion/(?P<motion_id>[0-9]+)/(?P<vote>[AND])$',
-        views.vote_on_motion, name='vote_on_motion'),
 
     ################
     # Publications #
@@ -234,33 +213,6 @@ urlpatterns = [
     url(r'^howto/production$',
         TemplateView.as_view(template_name='scipost/howto_production.html'),
         name='howto_production'),
-
-
-    #########
-    # Lists #
-    #########
-
-    url(r'^create_list$', views.create_list, name='create_list'),
-    url(r'^list/(?P<list_id>[0-9]+)$', views.list, name='list'),
-    url(r'^list_add_element/(?P<list_id>[0-9]+)/(?P<type>[SCTc])/(?P<element_id>[0-9]+)$',
-        views.list_add_element, name='list_add_element'),
-    url(r'^list_remove_element/(?P<list_id>[0-9]+)/(?P<type>[SCTc])/(?P<element_id>[0-9]+)$',
-        views.list_remove_element, name='list_remove_element'),
-
-    # Teams
-    url(r'^create_team$', views.create_team, name='create_team'),
-    url(r'^add_team_member/(?P<team_id>[0-9]+)$', views.add_team_member, name='add_team_member'),
-    url(r'^add_team_member/(?P<team_id>[0-9]+)/(?P<contributor_id>[0-9]+)$',
-        views.add_team_member, name='add_team_member'),
-
-    # Graphs
-    url(r'^create_graph$', views.create_graph, name='create_graph'),
-    url(r'^graph/(?P<graph_id>[0-9]+)$', views.graph, name='graph'),
-    url(r'^edit_graph_node/(?P<node_id>[0-9]+)$',
-        views.edit_graph_node, name='edit_graph_node'),
-    url(r'^delete_graph_node/(?P<node_id>[0-9]+)$',
-        views.delete_graph_node, name='delete_graph_node'),
-    url(r'^api/graph/(?P<graph_id>[0-9]+)$', views.api_graph, name='api_graph'),
 
 
     #############################

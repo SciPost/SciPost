@@ -10,6 +10,7 @@
     "extractStyles": true,
     "styles": {
         "alert": true,
+        "card": true,
         "mixins": true,
         "normalize": true,
         "reboot": true,
@@ -18,6 +19,7 @@
         "buttons": true,
         "dropdown": true,
         "button-group": true,
+        "list-group": true,
         "input-group": true,
         "nav": true,
         "navbar": true,

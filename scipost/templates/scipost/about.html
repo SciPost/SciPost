@@ -4,39 +4,66 @@
 
 {% load staticfiles %}
 
-{% block bodysup %}
+{% block content %}
 
 
-<section>
-  <div class="row">
-    <div class="col-6">
-      <div class="flex-container">
-        <div class="flex-greybox">
-          <h1>About SciPost</h1>
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-12">
+              <div class="panel">
+                  <h2>About SciPost</h2>
+              </div>
+            </div>
+            <div class="col-12">
+                <a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a>
+            </div>
         </div>
-      </div>
-      {#<h4>Read the original <a href="{% static 'scipost/info/SciPost_Description.pdf' %}">SciPost description document</a>.</h4>#}
-      <h4><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a>.</h4>
+
+        {# <h3><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h3>#}
+
+        <p>SciPost is a complete scientific publication portal.</p>
+        <p>It is purely online-based, and offers freely, openly, globally and perpetually accessible science.</p>
+        <p>Being managed by professional scientists, and making use of editor-solicited and contributed reviews, its Journals aim at the highest achievable standards of refereeing.</p>
+        <p>SciPost Commentaries allow Contributors to seamlessly comment on all existing literature.</p>
     </div>
-    <div class="col-6">
-      <p>SciPost is a complete scientific publication portal.</p>
-      <p>It is purely online-based, and offers freely, openly, globally and perpetually accessible science.</p>
-      <p>Being managed by professional scientists, and making use of editor-solicited and contributed reviews, its Journals aim at the highest achievable standards of refereeing.</p>
-      <p>SciPost Commentaries allow Contributors to seamlessly comment on all existing literature.</p>
+    <div class="col-md-6">
+
+        <div class="row">
+            <div class="col-12">
+                <div class="panel">
+                    <h2>Acknowledgements</h2>
+                </div>
+            </div>
+        </div>
+
+        <h2>SciPost is endorsed by</h2>
+
+        <div class="row">
+            <div class="col-md-6">
+              <a href="http://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width='300px' /></a>
+              <p id="NWOOpenAccess" class="mt-3">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as stipulated on the NWO’s <a href="http://www.nwo.nl/en/policies/open+science">Open Science page</a>.</p>
+            </div>
+            <div class="col-md-6">
+                <a href="http://www.fom.nl/live/english/home.pag"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width='100px' /></a>
+                <p style="font-size: 50%">FOM is part of NWO</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+<div class="row">
+  <div class="col-12">
+    <div class="panel">
+      <h2>Guiding principles</h2>
     </div>
   </div>
-</section>
+</div>
 
-<section>
-  <hr class="hr12">
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>Guiding principles</h1>
-    </div>
-  </div>
 
-  <div class="row">
-    <div class="col-5">
+<div class="row">
+    <div class="col-md-6">
       <ul>
         <li><em>Two-way open access</em><br/> Publicly-funded science should be openly accessible to scientists and the general public, perpetually, worldwide. Conversely, scientists should not have to pay publishing charges to disseminate the fruits of their research efforts.</li>
         <li><em>Non-profit</em><br/>Academics do not perform research for profit, and by extension the publication of their scientific results should not involve commercial profit-making.</li>
@@ -46,84 +73,60 @@
         <li><em>Post-publication evaluation</em><br/> Peer evaluation does not stop at the moment of publication.</li>
       </ul>
     </div>
-    <div class="col-1"></div>
-    <div class="col-6">
-      <br/><br/>
-      <p>The first principle is reflected in the fact that all publications and related content on SciPost.org are accessible to anybody with an internet connection. Moreover, publishing in SciPost entails no author charges.</p>
+    <div class="col-md-6">
+      <p class="mt-md-4">The first principle is reflected in the fact that all publications and related content on SciPost.org are accessible to anybody with an internet connection. Moreover, publishing in SciPost entails no author charges.</p>
       <p>The second principle is reflected in SciPost’s not-for-profit status. SciPost is financially backed by national granting agencies, universities, foundations and individuals.</p>
       <p>The third principle is implemented by having only active scientists involved in SciPost’s decision-making and editorial processes.</p>
       <p>The fourth and fifth principles are implemented using SciPost’s maximally stringent peer-witnessed refereeing process.</p>
       <p>The sixth principle is implemented in the form of Commentary Pages associated to publications. These can either be SciPost Publications, or papers published elsewhere.</p>
     </div>
-  </div>
-</section>
+</div>
 
-<section>
-  <hr class="hr12">
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>Acknowledgements</h2>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-3">
-      <h1>SciPost is endorsed by</h1>
-    </div>
-    <div class="col-4">
-      <a href="http://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width='300px' /></a>
-      <p id="NWOOpenAccess">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as stipulated on the NWO’s <a href="http://www.nwo.nl/en/policies/open+science">Open Science page</a>.</p>
-    </div>
-    <div class="col-1">
-    </div>
-    <div class="col-4">
-      <a href="http://www.fom.nl/live/english/home.pag"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width='100px' /></a>
-      <p style="font-size: 50%">FOM is part of NWO</p>
-    </div>
 
-  </div>
-
-</section>
-<section>
-  <hr class="hr12">
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>The SciPost Team</h1>
+<hr>
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+      <h2>The SciPost Team</h2>
+        </div>
     </div>
-  </div>
-
-  <div class="flex-container">
-    <div class="flex-whitebox">
+</div>
+<div class="row">
+    <div class="col-md-3 offset-md-1">
       <h3><a href="{% url 'scipost:foundation' %}">The SciPost Foundation</a></h3>
       <ul>
-	<li>Chairman: Prof. J.-S. Caux</li>
-	<li>Secretary: Dr J. van Mameren</li>
-	<li>Treasurer: Dr J. van Wezel</li>
+    	<li>Chairman: Prof. J.-S. Caux</li>
+    	<li>Secretary: Dr J. van Mameren</li>
+    	<li>Treasurer: Dr J. van Wezel</li>
       </ul>
     </div>
-    <div class="flex-whitebox">
+    <div class="col-md-6">
       <h3>Code Development and Server Maintenance</h3>
       <ul>
-	<li>Lead programmer: J.-S. Caux</li>
-	<li>Dev team: J. de Wit, G. Kapteijns, M. Moeys and B. Ponsioen</li>
+    	<li>Lead programmer: J.-S. Caux</li>
+    	<li>Dev team: J. de Wit, G. Kapteijns, M. Moeys and B. Ponsioen</li>
       </ul>
     </div>
-  </div>
+</div>
 
-  <hr class="hr12">
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1 id="advisory_board">Advisory Board</h1>
+<hr>
+<div class="row">
+  <div class="col-12">
+    <div class="panel">
+      <h2 id="advisory_board">Advisory Board</h2>
     </div>
   </div>
-  <div class="flex-container">
-    <div class="flex-whitebox">
+</div>
+
+<div class="row">
+    <div class="col-md-3 offset-md-1">
       <ul>
 	<li>Prof. <a href="http://www.nikhef.nl/~h02/">J. J. Engelen</a><br/>(U. van Amsterdam)</li>
 	<li>Prof. <a href="https://www.asc.ox.ac.uk/person/18">P. Fendley</a><br/>(Oxford; <a href="https://www.asc.ox.ac.uk/all-souls-college-oxford">All Souls College</a>)</li>
 	<li>Prof. <a href="http://www.ru.nl/highenergyphysics/ehep/persons/sijbrand_de_jong/">S. J. de Jong</a><br/>(Radboud Univ. Nijmegen,<br/>President CERN Council)</li>
       </ul>
     </div>
-    <div class="flex-whitebox">
+    <div class="col-md-3">
       <ul>
 	<li>Prof. <a href="http://www.ens-lyon.fr/PHYSIQUE/presentation/annuaire/maillet-jean-michel">J. M. Maillet</a><br/>(ENS Lyon)</li>
 	<li>Prof. <a href="http://people.sissa.it/~mussardo/">G. Mussardo</a><br/>(SISSA)</li>
@@ -131,7 +134,7 @@
 	<li>Prof. <a href="http://atomchip.org/general-information/people/schmiedmayer/">J. Schmiedmayer</a><br/>(TU Vienna)</li>
       </ul>
     </div>
-    <div class="flex-whitebox">
+    <div class="col-md-3">
       <ul>
 	<li>Prof. <a href="http://www.professoren.tum.de/en/spohn-herbert/">H. Spohn</a><br/>(TU Munich)</li>
 	<li>Prof. <a href="http://www.comp.phys.ethz.ch/people/troyer.html">M. Troyer</a><br/>(ETH Zurich)</li>
@@ -139,85 +142,36 @@
 	<li>Prof. <a href="https://staff.fnwi.uva.nl/j.t.m.walraven/walraven/JookWalraven.htm">J. T. M. Walraven</a><br/>(U. van Amsterdam)</li>
       </ul>
     </div>
-  </div>
+</div>
 
 
-  <hr class="hr12">
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1 id="editorial_college_physics">Editorial College (Physics)</h1>
+<hr>
+{% for college in object_list %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="panel">
+          <h2>Editorial College ({{ college }})</h2>
+        </div>
     </div>
-  </div>
-  <div class="flex-container">
-    <div class="flex-whitebox">
-      <ul>
-	<li>Prof. <a href="https://www.uni-tuebingen.de/en/faculties/faculty-of-science/departments/physics/institutes/institute-for-theoretical-physics/research-groups/andergassen-group.html">Sabine Andergassen</a><br/>(Tübingen)</li>
-	<li>Prof. <a href="http://www.physik.uni-wuerzburg.de/~assaad/">Fakher Assaad</a><br/>(Würzbrug)</li>
-	<li>Dr <a href="http://www.attaccalite.com">Claudio Attaccalite</a><br/>(Marseille)</li>
-	<li>Prof. <a href="https://denis114.wordpress.com">Denis Bartolo</a><br/>(ENS Lyon)</li>
-	<li>Prof. <a href="http://www.physik.unizh.ch/~lbaudis/index.html">Laura Baudis</a><br/>(Zurich)</li>
-	<li>Prof. <a href="http://www.lorentz.leidenuniv.nl/beenakker/">Carlo Beenakker</a><br/>(Leiden)</li>
-	<li>Prof. <a href="https://www.coulomb.univ-montp2.fr/perso/ludovic.berthier/">Ludovic Berthier</a><br/>(Montpellier)</li>
-	<li>Prof. <a href="http://ipht.cea.fr/Pisp/giulio.biroli/index_en.php">Giulio Biroli</a><br/>(CEA Saclay)</li>
-	<li>Prof. <a href="http://www.en.physik.uni-muenchen.de/personen/professoren/bloch/index.html">Immanuel Bloch</a><br/>(LMU Munich)</li>
-	<li>Prof. <a href="https://staff.fnwi.uva.nl/j.deboer/">Jan de Boer</a><br/>(U. van Amsterdam)</li>
-	<li>Prof. <a href="http://www.uva.nl/en/about-the-uva/organisation/staff-members/content/b/o/d.bonn/d.bonn.html">Daniel Bonn</a><br/>(U. van Amsterdam)</li>
-	<li>Prof. <a href="http://www.statphys.sissa.it/wordpress/?page_id=1731">Pasquale Calabrese</a><br/>(SISSA)</li>
-	<li>Prof. <a href="http://personalpages.to.infn.it/~caselle/index_en.html">Michele Caselle</a><br/>(Torino)</li>
-	<li>Prof. <a href="http://www.saha.ac.in/cmp/bikask.chakrabarti/bikas.html">Bikas Chakrabarti</a><br/>(Kolkata)</li>
-	<li>Prof. <a href="http://www.tcm.phy.cam.ac.uk/~nrc25/">Nigel Cooper</a><br/>(Cambridge)</li>
-      </ul>
-    </div>
-    <div class="flex-whitebox">
-      <ul>
-	<li>Prof. <a href="http://physics.cornell.edu/csaba-csaki">Csaba Csaki</a><br/>(Cornell)</li>
-	<li>Prof. <a href="http://theory.tifr.res.in/~kedar/">Kedar Damle</a><br/>(TIFR Mumbai)</li>
-	<li>Prof. <a href="http://researchers.uq.edu.au/researcher/1134">Matthew Davis</a><br/>(U. of Queensland)</li>
-	<li>Prof. <a href="http://www-thphys.physics.ox.ac.uk/people/FabianEssler/">Fabian Essler</a><br/>(U. of Oxford)</li>
-	<li>Prof. <a href="http://www.pd.infn.it/~feruglio/">Ferruccio Feruglio</a><br/>(Padova, INFN)</li>
-	<li>Prof. <a href="http://www.ms.unimelb.edu.au/~jdgier@unimelb/">Jan de Gier</a><br/>(U. of Melbourne)</li>
-	<li>Prof. <a href="http://www.desy.de/about_desy/leading_scientists/beate_heinemann/index_eng.html">Beate Heinemann</a><br/>(DESY; Freiburg)</li>
-	<li>Prof. <a href="http://katzgraber.org">Helmut Katzgraber</a><br/>(Texas A&amp;M)</li>
-	<li>Prof. <a href="https://web.physik.rwth-aachen.de/~mkraemer/">Michael Kr&auml;mer</a><br/>(RWTH Aachen)</li>
-	<li>Prof. <a href="https://www.pmmh.espci.fr/~jorge/">Jorge Kurchan</a><br/>(<a href="https://www.pmmh.espci.fr/?-Home-">PMMH</a> Paris, CNRS)</li>
-	<li>Prof. <a href="https://vivo.brown.edu/display/glandsbe">Greg Landsberg</a><br/>(Brown Univ.)</li>
-	<li>Prof. <a href="https://www.mpg.de/6812374/chem_physik_fester_stoffe_mackenzie">Andrew P. MacKenzie</a><br/>(MPICPS Dresden, St-Andrews)</li>
-	<li>Prof. <a href="http://www.ens-lyon.fr/PHYSIQUE/presentation/annuaire/maillet-jean-michel">Jean Michel Maillet</a><br/>(ENS Lyon)</li>
-	<li>Prof. <a href="https://www.mpg.de/343435/physik_komplexer_systeme_wissM28">Roderich Moessner</a><br/>(MPIPKS Dresden)</li>
-	<li>Prof. <a href="https://www.uibk.ac.at/exphys/ultracold/people/christoph.naegerl/">Hanns-Christoph N&auml;gerl</a><br/>(Innsbruck)</li>
-	<li>Prof. <a href="http://www.physics.miami.edu/~nepomechie/">Rafael Nepomechie</a><br/>(U. of Miami)</li>
-      </ul>
-    </div>
-    <div class="flex-whitebox">
-      <ul>
-	<li>Prof. <a href="https://staff.fnwi.uva.nl/b.nienhuis/">Bernard Nienhuis</a><br/>(U. van Amsterdam)</li>
-	<!--<li>Prof. <a href="http://www.kip.uni-heidelberg.de/people/index.php?num=552">Markus Oberthaler</a><br/>(U. Heidelberg)</li>-->
-	<li>Prof. <a href="http://www.lpthe.jussieu.fr/~pioline/">Boris Pioline</a><br/>(LPTHE Jussieu)</li>
-	<li>Prof. <a href="https://www.uu.nl/staff/RHHGvanRoij/0">René van Roij</a><br/>(Utrecht)</li>
-	<li>Prof. <a href="http://www.thp.uni-koeln.de/rosch">Achim Rosch</a><br/>(U. of Cologne)</li>
-	<li>Prof. <a href="http://saleur.sandvox.net">Hubert Saleur</a><br/>(CEA Saclay/USC)</li>
-	<li>Prof. <a href="http://www.phy.ohiou.edu/people/faculty/sandler.html">Nancy Sandler</a><br/>(Ohio)</li>
-	<li>Dr. <a href="http://www.sussex.ac.uk/profiles/320359">Veronica Sanz</a><br/>(Sussex)</li>
-	<li>Prof. <a href="http://www-thphys.physics.ox.ac.uk/people/SubirSarkar/">Subir Sarkar</a><br/>(Oxford; Niels Bohr Institute)</li>
-	<li>Prof. <a href="https://staff.fnwi.uva.nl/c.j.m.schoutens/">Kareljan Schoutens</a><br/>(U. van Amsterdam)</li>
-	<li>Dr <a href="http://www.phys.ens.fr/~guilhem/">Guilhem Semerjian</a><br/>(ENS Paris)</li>
-	<li>Prof. <a href="http://www-thphys.physics.ox.ac.uk/people/SteveSimon/">Steve Simon</a><br/>(U. of Oxford)</li>
-	<li>Prof. <a href="http://bec.science.unitn.it/infm-bec/people/stringari.html">Sandro Stringari</a><br/>(Trento)</li>
-	<li>Prof. <a href="http://www.damtp.cam.ac.uk/user/tong/">David Tong</a><br/>(Cambridge)</li>
-	<li>Prof. <a href="http://www.physique.usherbrooke.ca/pages/en/node/3412">Andr&eacute;-Marie Tremblay</a><br/>(Sherbrooke)</li>
-	<li>Prof. <a href="http://trivediresearch.org.ohio-state.edu">Nandini Trivedi</a><br/>(Ohio State U.)</li>
-	<li>Prof. <a href="http://vergassolalab.ucsd.edu">Massimo Vergassola</a><br/>(UC Sand Diego)</li>
-      </ul>
-    </div>
+</div>
 
-    <br/>
-    <div>
-      <h2 style="color: red">We are currently building our Editorial College</h2>
-      <h3 style="color: red">We welcome your nominations for Editorial Fellows in all fields of Physics</h3>
+<div class="row">
+    {% for member in college.member.all %}
+        <div class="col-md-4 py-1">
+            {% include 'scipost/_college_member.html' with member=member %}
+        </div>
+    {% endfor %}
+</div>
+
+{% endfor %}
+
+<br/>
+<div class="row">
+    <div class="col-12">
+        <h2 style="color: red">We are currently building our Editorial College</h2>
+        <h3 style="color: red">We welcome your nominations for Editorial Fellows in all fields of Physics</h3>
     </div>
-  </div>
+</div>
 
-</section>
-
-
-{% endblock bodysup %}
+{% endblock content %}

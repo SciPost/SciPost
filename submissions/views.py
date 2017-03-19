@@ -291,7 +291,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
 
     form = CommentForm()
 
-    reports = submission.reports.prefetch_related('reports')
+    reports = submission.reports.all()
     try:
         author_replies = Comment.objects.filter(submission=submission,
                                                 is_author_reply=True,

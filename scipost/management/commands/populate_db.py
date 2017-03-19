@@ -1,20 +1,17 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
 
-from ...models import Contributor
+from ...factories import EditorialCollegeFactory, EditorialCollegeMemberFactory
 
 
 class Command(BaseCommand):
-    def add_arguments(self, parser):
-        parser.add_argument(
-            '--username', type=str, required=True,
-            help='Username of user to use for contributor model')
+    def create_editorial_college(self):
+        EditorialCollegeFactory.create_batch(5)
+        self.stdout.write(self.style.SUCCESS('Successfully created Editorial College\'s.'))
 
-    def create_contributor(self, username):
-        user = User.objects.get(username=username)
-        contributor = Contributor(user=user, status=1, title="MR")
-        contributor.vetted_by = contributor
-        contributor.save()
+    def create_editorial_college_members(self):
+        EditorialCollegeMemberFactory.create_batch(20)
+        self.stdout.write(self.style.SUCCESS('Successfully created Editorial College Members.'))
 
-    def handle(self, *args, **options):
-        self.create_contributor(options['username'])
+    def handle(self, *args, **kwargs):
+        self.create_editorial_college()
+        self.create_editorial_college_members()
