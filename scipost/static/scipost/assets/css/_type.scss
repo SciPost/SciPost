@@ -18,15 +18,21 @@ h1, h2, h3, h4, h5, h6 {
     text-shadow: none;
     font-weight: 500;
 }
-h3.highlight {
+
+.highlight {
     background-color: #f4f4f4;
+    margin: 10px 0;
 
     &.tight {
         display: inline-block;
         padding: 3px 5px;
-        margin-bottom: 3px;
     }
 }
+h1.highlight,
+h2.highlight {
+    padding: 15px;
+}
+
 hr,
 hr.hr12 {
     height: 3px;
