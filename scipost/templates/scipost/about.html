@@ -20,8 +20,6 @@
             </div>
         </div>
 
-        {# <h3><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h3>#}
-
         <p>SciPost is a complete scientific publication portal.</p>
         <p>It is purely online-based, and offers freely, openly, globally and perpetually accessible science.</p>
         <p>Being managed by professional scientists, and making use of editor-solicited and contributed reviews, its Journals aim at the highest achievable standards of refereeing.</p>
@@ -151,7 +149,7 @@
 <div class="row">
     <div class="col-12">
         <div class="panel">
-          <h2>Editorial College ({{ college }})</h2>
+          <h2 id="editorial_college_{{ college|lower }}">Editorial College ({{ college }})</h2>
         </div>
     </div>
 </div>
