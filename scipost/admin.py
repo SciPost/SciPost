@@ -88,7 +88,9 @@ admin.site.register(EditorialCollege, EditorialCollegeAdmin)
 
 
 class EditorialCollegeMemberAdmin(admin.ModelAdmin):
-    search_fields = ['name', 'subtitle', 'discipline']
+    list_display = ('__str__', 'college')
+    list_filter = ('college', 'subtitle')
+    search_fields = ['name', 'subtitle', 'college']
 
 
 admin.site.register(EditorialCollegeMember, EditorialCollegeMemberAdmin)
