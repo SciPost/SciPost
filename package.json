@@ -18,7 +18,7 @@
   "homepage": "https://www.scipost.org",
   "devDependencies": {
     "bootstrap": "^4.0.0-alpha.6",
-    "bootstrap-loader": "^2.0.0-beta.19",
+    "bootstrap-loader": "^2.0.0",
     "clean-webpack-plugin": "^0.1.15",
     "css-loader": "^0.26.1",
     "exports-loader": "^0.6.3",
@@ -35,7 +35,7 @@
     "style-loader": "^0.13.1",
     "tether": "^1.4.0",
     "url-loader": "^0.5.7",
-    "webpack": "^2.1.0-beta.19",
+    "webpack": "^2.2.1",
     "webpack-bundle-tracker": "^0.2.0",
     "webpack-glob-entry": "^2.1.1",
     "extract-text-webpack-plugin": "2.0.0-beta.5"
