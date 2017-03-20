@@ -525,14 +525,14 @@ class SPBMembershipAgreement(models.Model):
 ######################
 
 class FellowManager(models.Manager):
-    def current_fellows(self, *args, **kwargs):
+    def active(self, *args, **kwargs):
         today = datetime.date.today()
         return self.filter(
             Q(start_date__lte=today, until_date__isnull=True) |
             Q(start_date__isnull=True, until_date__gte=today) |
             Q(start_date__lte=today, until_date__gte=today) |
             Q(start_date__isnull=True, until_date__isnull=True),
-            **kwargs)
+            **kwargs).order_by('contributor__user__last_name')
 
 
 class EditorialCollege(models.Model):
@@ -542,17 +542,19 @@ class EditorialCollege(models.Model):
     def __str__(self):
         return self.discipline
 
-    @property
-    def active_fellows(self):
-        return self.fellows.current_fellows()
+    def active_fellowships(self):
+        return self.fellowships.current_fellowships()
 
 
-class EditorialCollegeFellow(TimeStampedModel):
-    '''Editorial College Fellow connecting Editorial College and Contributors.'''
+class EditorialCollegeFellowship(TimeStampedModel):
+    """
+    Editorial College Fellowship connecting Editorial College and Contributors,
+    maybe with a limiting start/until date.
+    """
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                     related_name='+')
     college = models.ForeignKey('scipost.EditorialCollege', on_delete=models.CASCADE,
-                                related_name='fellows')
+                                related_name='fellowships')
     start_date = models.DateField(null=True, blank=True)
     until_date = models.DateField(null=True, blank=True)
 
@@ -569,23 +571,7 @@ class EditorialCollegeFellow(TimeStampedModel):
         if not self.start_date:
             if not self.until_date:
                 return True
-            elif today <= self.until_date:
-                return True
-            return False
+            return today <= self.until_date
         elif not self.until_date:
-            if today >= self.start_date:
-                return True
-        elif today >= self.start_date and today <= self.until_date:
-            return True
-        return False
-        #
-        #
-        # if not self.start_date and not self.until_date:
-        #     return True
-        # elif not self.start_date and today <= self.until_date:
-        #     return True
-        # elif today >= self.start_date and not self.until_date:
-        #     return True
-        # elif today >= self.start_date and today <= self.until_date:
-        #     return True
-        # return False
+            return today >= self.start_date
+        return today >= self.start_date and today <= self.until_date

@@ -28,3 +28,13 @@ def is_in_group(user, group_name):
 def associated_contributors(draft):
     return Contributor.objects.filter(
         user__last_name__icontains=draft.last_name)
+
+
+@register.filter(name='reorder_list_three')
+def reorder_list_three(ul):
+    return ul[::3] + ul[1::3] + ul[2::3]
+
+
+@register.filter(name='remove_main_specialization')
+def remove_main_specialization(specialization_code):
+    return specialization_code.split(':')[1]

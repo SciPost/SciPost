@@ -10,7 +10,7 @@ from scipost.models import Contributor, Remark,\
                            AffiliationObject,\
                            SupportingPartner, SPBMembershipAgreement, RegistrationInvitation,\
                            AuthorshipClaim, PrecookedEmail,\
-                           EditorialCollege, EditorialCollegeFellow
+                           EditorialCollege, EditorialCollegeFellowship
 
 
 class ContributorInline(admin.StackedInline):
@@ -94,13 +94,14 @@ def college_fellow_is_active(fellow):
     return fellow.is_active()
 
 
-class EditorialCollegeFellowAdmin(admin.ModelAdmin):
+class EditorialCollegeFellowshipAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'college', college_fellow_is_active)
     list_filter = ('college', 'contributor__user')
-    search_fields = ['college', 'contributor__user']
+    search_fields = ['college__discipline',
+                     'contributor__user__first_name', 'contributor__user__last_name']
     fields = ('contributor', 'college', 'start_date', 'until_date')
 
     college_fellow_is_active.boolean = True
 
 
-admin.site.register(EditorialCollegeFellow, EditorialCollegeFellowAdmin)
+admin.site.register(EditorialCollegeFellowship, EditorialCollegeFellowshipAdmin)

@@ -1,4 +1,22 @@
-{% if contributor.personalwebpage %}<a target="_blank" href="{{ contributor.personalwebpage }}">{% endif %}{{ contributor.get_title_display }} {{ contributor.user.first_name }} {{ contributor.user.last_name }}{% if contributor.personalwebpage %}</a>{% endif %}
+{% load scipost_extras %}
+
+{% load static %}
+
+<span class="d-block">
+    {% if contributor.personalwebpage %}
+        <a target="_blank" href="{{ contributor.personalwebpage }}">
+    {% endif %}
+        {{ contributor.get_title_display }} {{ contributor.user.first_name }} {{ contributor.user.last_name }}
+    {% if contributor.personalwebpage %}
+        </a>
+    {% endif %}
+</span>
+
 {% if contributor.affiliation %}
-<br/>({{contributor.affiliation}})
+    <span class="text-muted">({{contributor.affiliation}})</span>
 {% endif %}
+<div class="d-block">
+    {% for expertise in contributor.expertises %}
+        <div class="specialization d-inline" data-specialization="{{expertise}}" >{{expertise|remove_main_specialization}}</div>
+    {% endfor %}
+</div>

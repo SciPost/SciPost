@@ -4,6 +4,8 @@
 
 {% load staticfiles %}
 
+{% load scipost_extras %}
+
 {% block content %}
 
 
@@ -155,9 +157,9 @@
 </div>
 
 <div class="row">
-    {% for fellow in college.active_fellows %}
-        <div class="col-md-4 py-1">
-            {% include 'scipost/_contributor_short.html' with contributor=fellow.contributor %}
+    {% for fellowship in college.current_fellows|reorder_list_three %}
+        <div class="col-md-4 py-1 contributor">
+            {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
         </div>
     {% endfor %}
 </div>
