@@ -17,6 +17,6 @@
 {% endif %}
 <div class="d-block">
     {% for expertise in contributor.expertises %}
-        <div class="specialization d-inline" data-specialization="{{expertise}}" >{{expertise|remove_main_specialization}}</div>
+        <div class="specialization d-inline" data-specialization="{{expertise}}" title="{{expertise}}">{{expertise|remove_main_specialization}}</div>
     {% endfor %}
 </div>
