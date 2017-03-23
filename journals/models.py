@@ -169,6 +169,10 @@ class IssueManager(models.Manager):
                               until_date__gte=timezone.now(),
                               **kwargs).order_by('-until_date').first()
 
+    def get_last_filled_issue(self, *args, **kwargs):
+        return self.published(publication__isnull=False,
+                              **kwargs).order_by('-until_date').first()
+
 
 class Issue(models.Model):
     in_volume = models.ForeignKey(Volume, on_delete=models.CASCADE)
@@ -198,6 +202,10 @@ class Issue(models.Model):
         else:
             return (' (' + self.start_date.strftime('%B') + '-' + self.until_date.strftime('%B') +
                     ' ' + self.until_date.strftime('%Y') + ')')
+
+    def is_current(self):
+        return self.start_date <= timezone.now().date() and\
+               self.until_date >= timezone.now().date()
 
     def period(self):
         text = 'up to {{ until_month }} {{ year }}'
