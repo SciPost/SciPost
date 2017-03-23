@@ -19,6 +19,7 @@
         "grid": true,
         "input-group": true,
         "list-group": true,
+        "modal": true,
         "mixins": true,
         "nav": true,
         "navbar": true,
@@ -31,6 +32,7 @@
     "scripts": {
         "alert": true,
         "collapse": true,
+        "modal": true,
         "util": true,
     }
 }

@@ -204,7 +204,7 @@ def index(request):
     """ Main page """
     context = {}
     context['latest_newsitems'] = NewsItem.objects.all().order_by('-date')[:2]
-    context['issue'] = Issue.objects.get_current_issue(in_volume__in_journal__name='SciPost Physics')
+    context['issue'] = Issue.objects.get_last_filled_issue(in_volume__in_journal__name='SciPost Physics')
     if context['issue']:
         context['publications'] = context['issue'].publication_set.filter(doi_string__isnull=False
                                     ).order_by('-publication_date')[:4]
@@ -1523,3 +1523,8 @@ class AboutView(ListView):
                          queryset=EditorialCollegeFellowship.objects.active().select_related(
                             'contributor__user'),
                          to_attr='current_fellows'))
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['subject_codes'] = SCIPOST_SUBJECT_AREAS
+        return context

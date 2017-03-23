@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models import Q
 from django.template import Template, Context
 from django.utils import timezone
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 from django_countries.fields import CountryField
@@ -74,7 +75,7 @@ class TimeStampedModel(models.Model):
 
 
 def get_sentinel_user():
-    '''Deceased people talk after their death.'''
+    '''Fallback user for models relying on Contributor that is being deleted.'''
     user, new = User.objects.get_or_create(username='deleted')
     return Contributor.objects.get_or_create(status=-4, user=user)[0]
 
@@ -197,11 +198,9 @@ class Contributor(models.Model):
         return mark_safe(output)
 
     def expertises_as_string(self):
-        output = ''
         if self.expertises:
-            for exp in self.expertises:
-                output += subject_areas_dict[exp] + ', '
-        return output
+            return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
+        return ''
 
     def assignments_summary_as_td(self):
         assignments = self.editorialassignment_set.all()

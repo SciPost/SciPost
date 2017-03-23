@@ -35,6 +35,6 @@ def reorder_list_three(ul):
     return ul[::3] + ul[1::3] + ul[2::3]
 
 
-@register.filter(name='remove_main_specialization')
-def remove_main_specialization(specialization_code):
-    return specialization_code.split(':')[1]
+@register.filter(name='filter_main_specialization')
+def filter_main_specialization(codes):
+    return ', '.join([code.split(':')[1] for code in codes])

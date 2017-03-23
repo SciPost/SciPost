@@ -1,5 +1,5 @@
 {% extends 'scipost/base.html' %}
-
+{% load render_bundle from webpack_loader %}
 {% block pagetitle %}: About{% endblock pagetitle %}
 
 {% load staticfiles %}
@@ -151,9 +151,7 @@
 <div class="row">
     <div class="col-12">
         <div class="panel">
-          <h2 id="editorial_college_{{ college|lower }}">Editorial College ({{ college }})
-
-          </h2>
+          <h2 id="editorial_college_{{ college|lower }}">Editorial College ({{ college }})</h2>
         </div>
     </div>
 </div>
@@ -161,9 +159,10 @@
 <div class="row">
     <div class="col-md-2">
         <div class="input-group">
-        <input type="text" class="form-control search-specialization" data-college="{{ college|lower }}" placeholder="Search for specialization">
-      </div>
-  </div>
+            <input type="text" class="form-control search-specialization" data-college="{{ college|lower }}" placeholder="Search for specialization">
+        </div>
+        <a class="mt-2 d-block" href="#" data-toggle="modal" data-target="#codes">All specialization codes</a>
+    </div>
 </div>
 
 <div class="row search-contributors" data-contributors="{{ college|lower }}">
@@ -184,24 +183,36 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="codes" tabindex="-1" role="dialog" aria-labelledby="codes" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        {% for subject_content in subject_codes %}
+            {% for subject in subject_content %}
+                {% if forloop.first %}
+                    <h3>{{subject}}</h3>
+                {% else %}
+                    <div class="text-muted">
+                        {% for code in subject %}
+                        {{code.0}} - {{code.1}}<br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock content %}
 
-
 {% block footer_script %}
-<script>
-    $(function() {
-        $('.search-specialization').on('change keyup', function(event) {
-            var el = $(this);
-            var val = el.val().trim(),
-                spec = el.attr('data-college');
-            if(val) {
-                $('[data-contributors="'+spec+'"]').addClass('searching');
-            } else {
-                $('[data-contributors="'+spec+'"]').removeClass('searching');
-            }
-            $('[data-contributors="'+spec+'"] [data-specialization*="'+val+'"]').parents('.contributor').addClass('active');
-            console.log(spec);
-        });
-    });
-</script>
+{{block.super}}
+    {% render_bundle 'modal' 'js' %}
+    <script src="{% static 'scipost/about.js' %}"></script>
 {% endblock %}

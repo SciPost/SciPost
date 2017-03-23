@@ -1,0 +1,9 @@
+.search-contributors {
+    &.searching > .contributor {
+        display: none;
+
+        &.active {
+            display: block;
+        }
+    }
+}
