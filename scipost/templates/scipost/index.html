@@ -77,7 +77,7 @@
                         </h2>
                       </div>
                       {% if issue and publications %}
-                      <h4 class="card-text text-center">A selection from the current issue:</h4>
+                      <h4 class="card-text text-center">A selection from the {% if issue.is_current %}current{% else %}last{% endif %} issue:</h4>
                       {% if issue %}
                       <div class="text-muted text-center">Vol. {{ issue.in_volume.number }} issue {{ issue.number }} {{issue.period_as_string}}</div>
                       {% endif %}
