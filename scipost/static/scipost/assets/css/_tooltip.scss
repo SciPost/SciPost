@@ -1,0 +1,11 @@
+[data-toggle="tooltip"] {
+    cursor: pointer;
+
+    &:hover {
+        color: $scipost-lightblue;
+    }
+}
+
+.tooltip-inner {
+    border-radius: 0.15rem;
+}

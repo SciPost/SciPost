@@ -13,7 +13,7 @@ module.exports = {
             "./scipost/static/scipost/assets/css/style.scss"
         ],
         bootstrap: 'bootstrap-loader',
-        modal: "./scipost/static/scipost/assets/js/modal.js",
+        tooltip: "./scipost/static/scipost/assets/js/tooltip.js",
     },
     output: {
         path: path_bundles,
@@ -57,7 +57,7 @@ module.exports = {
             // Carousel: "exports-loader?Carousel!bootstrap/js/dist/carousel",
             Collapse: "exports-loader?Collapse!bootstrap/js/dist/collapse",
             // Dropdown: "exports-loader?Dropdown!bootstrap/js/dist/dropdown",
-            Modal: "exports-loader?Modal!bootstrap/js/dist/modal",
+            // Modal: "exports-loader?Modal!bootstrap/js/dist/modal",
             // Popover: "exports-loader?Popover!bootstrap/js/dist/popover",
             // Scrollspy: "exports-loader?Scrollspy!bootstrap/js/dist/scrollspy",
             // Tab: "exports-loader?Tab!bootstrap/js/dist/tab",

@@ -26,7 +26,7 @@ from django.db.models import Prefetch
 
 from guardian.decorators import permission_required
 
-from .constants import SCIPOST_SUBJECT_AREAS
+from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict
 from .models import Contributor, CitationNotification, UnavailabilityPeriod,\
                     DraftInvitation, RegistrationInvitation,\
                     title_dict, SciPost_from_addresses_dict,\
@@ -1526,5 +1526,11 @@ class AboutView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['subject_codes'] = SCIPOST_SUBJECT_AREAS
+        object_list = []
+        for college in context['object_list']:
+            object_list.append((
+                college,
+                subject_areas_raw_dict[str(college)],
+            ))
+        context['object_list'] = object_list
         return context

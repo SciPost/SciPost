@@ -1,7 +1,8 @@
 from django import template
 from django.contrib.auth.models import Group
 
-from scipost.models import Contributor
+from ..constants import subject_areas_dict
+from ..models import Contributor
 
 register = template.Library()
 
@@ -35,6 +36,13 @@ def reorder_list_three(ul):
     return ul[::3] + ul[1::3] + ul[2::3]
 
 
-@register.filter(name='filter_main_specialization')
-def filter_main_specialization(codes):
-    return ', '.join([code.split(':')[1] for code in codes])
+@register.filter(name='get_specialization_code')
+def get_specialization_code(code):
+    # Get the specialization code without the main subject identifier
+    return code.split(':')[1]
+
+
+@register.filter(name='get_specialization_display')
+def get_specialization_display(code):
+    # Due to the ArrayField construction, one is not able to use get_FOO_display in the template
+    return subject_areas_dict[code]

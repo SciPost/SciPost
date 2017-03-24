@@ -2,7 +2,7 @@
 
 {% load static %}
 
-<h3 class="mb-0 pb-0 d-block">
+<h3 class="mb-0 py-0 d-block">
     {% if contributor.personalwebpage %}
         <a target="_blank" href="{{ contributor.personalwebpage }}">
     {% endif %}
@@ -16,7 +16,7 @@
     <span class="text-muted">({{contributor.affiliation}})</span>
 {% endif %}
 <div class="d-block">
-    {% if contributor.expertises %}
-        <div class="specialization d-inline" data-specialization="{{contributor.expertises_as_string}} {{expertise|lower}}" title="{{expertise}}">{{contributor.expertises|filter_main_specialization}}</div>
-    {% endif %}
+    {% for expertise in contributor.expertises %}
+        <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+    {% endfor %}
 </div>
