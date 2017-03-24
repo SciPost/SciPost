@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 
 from django_countries.data import COUNTRIES
 
-from .models import Contributor, EditorialCollege, EditorialCollegeFellow, TITLE_CHOICES
+from .models import Contributor, EditorialCollege, EditorialCollegeFellowship, TITLE_CHOICES
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
@@ -64,9 +64,9 @@ class EditorialCollegeFactory(factory.django.DjangoModelFactory):
     discipline = random.choice(['Physics', 'Chemistry', 'Medicine'])
 
 
-class EditorialCollegeFellowFactory(factory.django.DjangoModelFactory):
+class EditorialCollegeFellowshipFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = EditorialCollegeFellow
+        model = EditorialCollegeFellowship
 
     college = factory.Iterator(EditorialCollege.objects.all())
     contributor = factory.Iterator(Contributor.objects.exclude(

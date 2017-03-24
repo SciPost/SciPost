@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from news.factories import NewsItemFactory
 
-from ...factories import ContributorFactory, EditorialCollegeFactory, EditorialCollegeFellowFactory
+from ...factories import ContributorFactory, EditorialCollegeFactory, EditorialCollegeFellowshipFactory
 
 
 class Command(BaseCommand):
@@ -54,7 +54,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Successfully created Editorial College\'s.'))
 
     def create_editorial_college_fellows(self):
-        EditorialCollegeFellowFactory.create_batch(5)
+        EditorialCollegeFellowshipFactory.create_batch(5)
         self.stdout.write(self.style.SUCCESS('Successfully created Editorial College Fellows.'))
 
     def create_news_items(self):
