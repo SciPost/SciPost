@@ -1,7 +1,16 @@
 .card {
     margin-bottom: 10px;
+
+    &.card-grey {
+        background-color: #F4F4F4;
+    }
 }
 
 .list-group-item > .card-block {
     padding: 0.5rem;
+}
+
+.card-title,
+.card-text {
+    margin-bottom: 0.25rem;
 }

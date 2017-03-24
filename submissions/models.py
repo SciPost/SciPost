@@ -2,6 +2,7 @@ import datetime
 
 from django.utils import timezone
 from django.db import models, transaction
+from django.db.models import Q
 from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
 
@@ -77,25 +78,22 @@ SUBMISSION_STATUS_VOTING_DEPRECATED = [
     'withdrawn',
 ]
 
-
-# SUBMISSION_ACTION_REQUIRED = (
-#     ('assign_EIC', 'Editor-in-charge to be assigned'),
-#     ('Fellow_accepts_or_refuse_assignment', 'Fellow must accept or refuse assignment'),
-#     ('EIC_runs_refereeing_round', 'Editor-in-charge to run refereeing round (inviting referees)'),
-#     ('EIC_closes_refereeing_round', 'Editor-in-charge to close refereeing round'),
-#     ('EIC_invites_author_response', 'Editor-in-charge invites authors to complete their replies'),
-#     ('EIC_formulates_editorial_recommendation',
-#      'Editor-in-charge to formulate editorial recommendation'),
-#     ('EC_ratification', 'Editorial College ratifies editorial recommendation'),
-#     ('Decision_to_authors', 'Editor-in-charge forwards decision to authors'),
-#     )
-
 SUBMISSION_TYPE = (
     ('Letter', 'Letter (broad-interest breakthrough results)'),
     ('Article', 'Article (in-depth reports on specialized research)'),
     ('Review', 'Review (candid snapshot of current research in a given area)'),
 )
 submission_type_dict = dict(SUBMISSION_TYPE)
+
+
+class SubmissionManager(models.Manager):
+    def get_pool(self, user):
+        return self.exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)\
+                .exclude(is_current=False)\
+                .exclude(authors=user.contributor)\
+                .exclude(Q(author_list__icontains=user.last_name),
+                         ~Q(authors_false_claims=user.contributor))\
+                .order_by('-submission_date')
 
 
 class Submission(ArxivCallable, models.Model):
@@ -146,6 +144,8 @@ class Submission(ArxivCallable, models.Model):
     metadata = JSONField(default={}, blank=True, null=True)
     submission_date = models.DateField(verbose_name='submission date', default=timezone.now)
     latest_activity = models.DateTimeField(default=timezone.now)
+
+    objects = SubmissionManager()
 
     class Meta:
         permissions = (
@@ -320,6 +320,30 @@ class Submission(ArxivCallable, models.Model):
         })
         template = Template(header)
         return template.render(context)
+
+    def count_accepted_invitations(self):
+        return self.refereeinvitation_set.filter(accepted=True).count()
+
+    def count_declined_invitations(self):
+        return self.refereeinvitation_set.filter(accepted=False).count()
+
+    def count_pending_invitations(self):
+        return self.refereeinvitation_set.filter(accepted=None).count()
+
+    def count_invited_reports(self):
+        return self.reports.filter(status=1, invited=True).count()
+
+    def count_contrib_reports(self):
+        return self.reports.filter(status=1, invited=False).count()
+
+    def count_obtained_reports(self):
+        return self.reports.filter(status=1, invited__isnull=False).count()
+
+    def count_refused_resports(self):
+        return self.reports.filter(status__lte=-1).count()
+
+    def count_awaiting_vetting(self):
+        return self.reports.filter(status=0).count()
 
     def refereeing_status_as_p(self):
         nr_ref_invited = RefereeInvitation.objects.filter(submission=self).count()
@@ -802,6 +826,13 @@ class EditorialCommunication(models.Model):
 # Editorial Recommendation #
 ############################
 
+class EICRecommendationManager(models.Manager):
+    def get_for_user_in_pool(self, user):
+        return self.exclude(submission__authors=user.contributor)\
+                .exclude(Q(submission__author_list__icontains=user.last_name),
+                         ~Q(submission__authors_false_claims=user.contributor))
+
+
 # From the Editor-in-charge of a Submission
 class EICRecommendation(models.Model):
     submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
@@ -819,6 +850,8 @@ class EICRecommendation(models.Model):
     voted_against = models.ManyToManyField(Contributor, blank=True, related_name='voted_against')
     voted_abstain = models.ManyToManyField(Contributor, blank=True, related_name='voted_abstain')
     voting_deadline = models.DateTimeField('date submitted', default=timezone.now)
+
+    objects = EICRecommendationManager()
 
     def __str__(self):
         return (self.submission.title[:20] + ' by ' + self.submission.author_list[:30] +
