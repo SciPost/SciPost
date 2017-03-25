@@ -1528,9 +1528,13 @@ class AboutView(ListView):
         context = super().get_context_data(*args, **kwargs)
         object_list = []
         for college in context['object_list']:
+            try:
+                spec_list = subject_areas_raw_dict[str(college)]
+            except KeyError:
+                spec_list = None
             object_list.append((
                 college,
-                subject_areas_raw_dict[str(college)],
+                spec_list,
             ))
         context['object_list'] = object_list
         return context

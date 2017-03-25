@@ -156,6 +156,7 @@
         </div>
     </div>
 
+    {% if codes %}
     <div class="row">
         <div class="col-12">
             <a href="javascript:;" class="d-block mb-1" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show all specialization codes</a>
@@ -166,6 +167,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <div class="row search-contributors" data-contributors="{{ college|lower }}">
         {% for fellowship in college.current_fellows|reorder_list_three %}
