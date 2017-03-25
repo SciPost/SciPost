@@ -4,8 +4,10 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models import Q
 from django.template import Template, Context
 from django.utils import timezone
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 from django_countries.fields import CountryField
@@ -72,6 +74,12 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
+def get_sentinel_user():
+    '''Fallback user for models relying on Contributor that is being deleted.'''
+    user, new = User.objects.get_or_create(username='deleted')
+    return Contributor.objects.get_or_create(status=-4, user=user)[0]
+
+
 class Contributor(models.Model):
     """
     All users of SciPost are Contributors.
@@ -98,7 +106,7 @@ class Contributor(models.Model):
                                default='', blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page',
                                       blank=True)
-    vetted_by = models.ForeignKey('self', on_delete=models.CASCADE,
+    vetted_by = models.ForeignKey('self', on_delete=models.SET(get_sentinel_user),
                                   related_name="contrib_vetted_by",
                                   blank=True, null=True)
     accepts_SciPost_emails = models.BooleanField(
@@ -190,11 +198,9 @@ class Contributor(models.Model):
         return mark_safe(output)
 
     def expertises_as_string(self):
-        output = ''
         if self.expertises:
-            for exp in self.expertises:
-                output += subject_areas_dict[exp] + ', '
-        return output
+            return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
+        return ''
 
     def assignments_summary_as_td(self):
         assignments = self.editorialassignment_set.all()
@@ -517,6 +523,17 @@ class SPBMembershipAgreement(models.Model):
 # Static info models #
 ######################
 
+class FellowManager(models.Manager):
+    def active(self, *args, **kwargs):
+        today = datetime.date.today()
+        return self.filter(
+            Q(start_date__lte=today, until_date__isnull=True) |
+            Q(start_date__isnull=True, until_date__gte=today) |
+            Q(start_date__lte=today, until_date__gte=today) |
+            Q(start_date__isnull=True, until_date__isnull=True),
+            **kwargs).order_by('contributor__user__last_name')
+
+
 class EditorialCollege(models.Model):
     '''A SciPost Editorial College for a specific discipline.'''
     discipline = models.CharField(max_length=255, unique=True)
@@ -524,17 +541,36 @@ class EditorialCollege(models.Model):
     def __str__(self):
         return self.discipline
 
+    def active_fellowships(self):
+        return self.fellowships.current_fellowships()
 
-class EditorialCollegeMember(models.Model):
+
+class EditorialCollegeFellowship(TimeStampedModel):
     """
-    Editorial College Members for non-functional use!
-    This model is used for static information purposes only.
+    Editorial College Fellowship connecting Editorial College and Contributors,
+    maybe with a limiting start/until date.
     """
-    name = models.CharField(max_length=255)
-    title = models.CharField(max_length=10, blank=True)
-    link = models.URLField(blank=True)
-    subtitle = models.CharField(max_length=255, blank=True)
-    college = models.ForeignKey('scipost.EditorialCollege', related_name='member')
+    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                                    related_name='+')
+    college = models.ForeignKey('scipost.EditorialCollege', on_delete=models.CASCADE,
+                                related_name='fellowships')
+    start_date = models.DateField(null=True, blank=True)
+    until_date = models.DateField(null=True, blank=True)
+
+    objects = FellowManager()
+
+    class Meta:
+        unique_together = ('contributor', 'college', 'start_date', 'until_date')
 
     def __str__(self):
-        return ('%s %s' % (self.title, self.name)).strip()
+        return self.contributor.__str__()
+
+    def is_active(self):
+        today = datetime.date.today()
+        if not self.start_date:
+            if not self.until_date:
+                return True
+            return today <= self.until_date
+        elif not self.until_date:
+            return today >= self.start_date
+        return today >= self.start_date and today <= self.until_date

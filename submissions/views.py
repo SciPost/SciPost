@@ -347,25 +347,26 @@ def pool(request):
     to publication acceptance or rejection.
     All members of the Editorial College have access.
     """
-    submissions_in_pool = (Submission.objects.all()
-                           .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
-                           .exclude(is_current=False)
-                           .order_by('-submission_date'))
-    recommendations_undergoing_voting = (EICRecommendation.objects.filter(
-        submission__status__in=['put_to_EC_voting']))
-    recommendations_to_prepare_for_voting = (EICRecommendation.objects.filter(
-        submission__status__in=['voting_in_preparation']))
+    submissions_in_pool = Submission.objects.get_pool(request.user)
+    recommendations_undergoing_voting = (EICRecommendation.objects
+                                         .get_for_user_in_pool(request.user)
+                                         .filter(submission__status__in=['put_to_EC_voting']))
+    recommendations_to_prepare_for_voting = (EICRecommendation.objects
+                                             .get_for_user_in_pool(request.user)
+                                             .filter(submission__status__in=
+                                                     ['voting_in_preparation']))
     contributor = Contributor.objects.get(user=request.user)
     assignments_to_consider = EditorialAssignment.objects.filter(
         to=contributor, accepted=None, deprecated=False)
     consider_assignment_form = ConsiderAssignmentForm()
-    recs_to_vote_on = EICRecommendation.objects.filter(
-        eligible_to_vote__in=[contributor]).exclude(
-        recommendation=-1).exclude(recommendation=-2).exclude(
-            voted_for__in=[contributor]).exclude(
-            voted_against__in=[contributor]).exclude(
-            voted_abstain__in=[contributor]).exclude(
-            submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED)
+    recs_to_vote_on = (EICRecommendation.objects.get_for_user_in_pool(request.user)
+                       .filter(eligible_to_vote__in=[contributor])
+                       .exclude(recommendation=-1)
+                       .exclude(recommendation=-2)
+                       .exclude(voted_for__in=[contributor])
+                       .exclude(voted_against__in=[contributor])
+                       .exclude(voted_abstain__in=[contributor])
+                       .exclude(submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED))
     rec_vote_form = RecommendationVoteForm()
     remark_form = RemarkForm()
     context = {'submissions_in_pool': submissions_in_pool,

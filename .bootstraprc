@@ -26,11 +26,14 @@
         "reboot": true,
         "responsive-embed": true,
         "transitions": true,
+        "type": true,
+        "tooltip": true,
         "utilities": true,
     },
     "scripts": {
         "alert": true,
         "collapse": true,
+        "tooltip": true,
         "util": true,
     }
 }

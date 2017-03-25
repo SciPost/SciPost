@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib import admin
 
 from django.contrib.auth.admin import UserAdmin
@@ -8,7 +10,7 @@ from scipost.models import Contributor, Remark,\
                            AffiliationObject,\
                            SupportingPartner, SPBMembershipAgreement, RegistrationInvitation,\
                            AuthorshipClaim, PrecookedEmail,\
-                           EditorialCollege, EditorialCollegeMember
+                           EditorialCollege, EditorialCollegeFellowship
 
 
 class ContributorInline(admin.StackedInline):
@@ -87,10 +89,19 @@ class EditorialCollegeAdmin(admin.ModelAdmin):
 admin.site.register(EditorialCollege, EditorialCollegeAdmin)
 
 
-class EditorialCollegeMemberAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'college')
-    list_filter = ('college', 'subtitle')
-    search_fields = ['name', 'subtitle', 'college']
+def college_fellow_is_active(fellow):
+    '''Check if fellow is currently active.'''
+    return fellow.is_active()
 
 
-admin.site.register(EditorialCollegeMember, EditorialCollegeMemberAdmin)
+class EditorialCollegeFellowshipAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'college', college_fellow_is_active)
+    list_filter = ('college', 'contributor__user')
+    search_fields = ['college__discipline',
+                     'contributor__user__first_name', 'contributor__user__last_name']
+    fields = ('contributor', 'college', 'start_date', 'until_date')
+
+    college_fellow_is_active.boolean = True
+
+
+admin.site.register(EditorialCollegeFellowship, EditorialCollegeFellowshipAdmin)

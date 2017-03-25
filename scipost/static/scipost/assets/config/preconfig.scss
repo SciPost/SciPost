@@ -21,8 +21,6 @@ $container-max-widths: (
 $card-spacer-x: 0.75rem;
 $card-border-radius: 0.15rem;
 $card-border-color: rgba(238, 238, 238, 0.5);
-// $card-border-radius-inner: calc(#{$card-border-radius} - #{$card-border-width});
-$card-bg: #f4f4f4 !default;
 
 // Colors
 //
@@ -58,11 +56,11 @@ $font-family-base:       $font-family-sans-serif !default;
 $font-size-base: 0.8rem !default;
 $font-size-sm: 0.75rem;
 
-$font-size-h1: 2.0rem;
-$font-size-h2: 1.75rem;
-$font-size-h3: 1.5rem;
-$font-size-h4: 1.25rem;
-$font-size-h5: 1.0rem;
+$font-size-h1: 2.0em;
+$font-size-h2: 1.5em;
+$font-size-h3: 1.17em;
+$font-size-h4: 0.8rem;
+$font-size-h5: 0.8rem;
 $font-size-h6: 0.8rem;
 
 

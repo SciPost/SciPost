@@ -4,17 +4,22 @@ import random
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
-from .models import Contributor, EditorialCollege, EditorialCollegeMember
+from django_countries.data import COUNTRIES
+
+from .models import Contributor, EditorialCollege, EditorialCollegeFellowship, TITLE_CHOICES
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Contributor
 
-    title = "MR"
+    title = random.choice(list(dict(TITLE_CHOICES).keys()))
     user = factory.SubFactory('scipost.factories.UserFactory', contributor=None)
     status = 1  # normal user
     vetted_by = factory.SubFactory('scipost.factories.ContributorFactory', vetted_by=None)
+    personalwebpage = factory.Faker('url')
+    country_of_employment = factory.Iterator(list(COUNTRIES))
+    affiliation = factory.Faker('company')
 
 
 class VettingEditorFactory(ContributorFactory):
@@ -59,12 +64,10 @@ class EditorialCollegeFactory(factory.django.DjangoModelFactory):
     discipline = random.choice(['Physics', 'Chemistry', 'Medicine'])
 
 
-class EditorialCollegeMemberFactory(factory.django.DjangoModelFactory):
+class EditorialCollegeFellowshipFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = EditorialCollegeMember
+        model = EditorialCollegeFellowship
 
-    title = factory.Faker('prefix')
-    name = factory.Faker('name')
-    link = factory.Faker('url')
-    subtitle = factory.Faker('company')
     college = factory.Iterator(EditorialCollege.objects.all())
+    contributor = factory.Iterator(Contributor.objects.exclude(
+                                   user__username='deleted').order_by('?'))
