@@ -1450,15 +1450,21 @@ def EdCol_bylaws(request):
 
 @permission_required('scipost.can_view_pool', return_403=True)
 def Fellow_activity_overview(request, Fellow_id=None):
-    Fellows = Contributor.objects.filter(
+    fellows = Contributor.objects.filter(
         user__groups__name='Editorial College').order_by('user__last_name')
-    context = {'Fellows': Fellows, }
+    context = {'fellows': fellows}
     if Fellow_id:
-        Fellow = get_object_or_404(Contributor, pk=Fellow_id)
-        context['Fellow'] = Fellow
-        assignments_of_Fellow = EditorialAssignment.objects.filter(
-            to=Fellow).order_by('-date_created')
-        context['assignments_of_Fellow'] = assignments_of_Fellow
+        fellow = get_object_or_404(Contributor, pk=Fellow_id)
+        context['fellow'] = fellow
+
+        assignments_ongoing = (EditorialAssignment.objects.get_for_user_in_pool(request.user)
+                               .filter(accepted=True, completed=False, to=fellow)
+                               .order_by('-date_created'))
+        context['assignments_ongoing'] = assignments_ongoing
+
+        assignments_completed = (EditorialAssignment.objects.get_for_user_in_pool(request.user)
+                                 .filter(completed=True, to=fellow).order_by('-date_created'))
+        context['assignments_completed'] = assignments_completed
     return render(request, 'scipost/Fellow_activity_overview.html', context)
 
 

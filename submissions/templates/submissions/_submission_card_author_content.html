@@ -1,0 +1,15 @@
+{% extends 'submissions/_submission_card_base.html' %}
+
+{% block card_block_footer %}
+    {{block.super}}
+    <p class="card-text">by {{submission.author_list}}</p>
+    <p class="card-text text-muted">Version {{submission.arxiv_vn_nr}} ({% if submission.is_current %}current version{% else %}deprecated version {{submission.arxiv_vn_nr}}{% endif %})</p>
+    <p class="card-text text-muted">Submitted {{submission.submission_date}} to {{submission.get_submitted_to_journal_display}} - latest activity: {{submission.latest_activity}}</p>
+    <p class="card-text">Status: {{submission.get_status_display}}</p>
+
+    {% if current_user and current_user.contributor == submission.submitted_by %}
+        <p>
+            <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='AtoE' %}">Write to the Editor-in-charge</a>.
+        </p>
+    {% endif %}
+{% endblock %}

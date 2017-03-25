@@ -2,146 +2,132 @@
 
 {% block pagetitle %}: personal page{% endblock pagetitle %}
 
-{% block headsup %}
+{% block content %}
 
-<script>
-  $(document).ready(function(){
-  $("#mypublicationsbutton").click(function(){
-  $("#mypublicationslist").toggle();
-  });
-  $("#mysubmissionsbutton").click(function(){
-  $("#mysubmissionslist").toggle();
-  });
-  $("#mycommentariesbutton").click(function(){
-  $("#mycommentarieslist").toggle();
-  });
-  $("#mythesesbutton").click(function(){
-  $("#mytheseslist").toggle();
-  });
-  $("#mycommentsbutton").click(function(){
-  $("#mycommentslist").toggle();
-  });
-  $("#myauthorrepliesbutton").click(function(){
-  $("#myauthorreplieslist").toggle();
-  });
-  });
-</script>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Contributor info</h1>
+    </div>
+</div>
 
-{% endblock headsup %}
-
-{% block bodysup %}
-
-<section>
-  <div class="flex-greybox">
-    <h1>Contributor info</h1>
-  </div>
-  {{ contributor.public_info_as_table }}
-</section>
+{{ contributor.public_info_as_table }}
 
 {% if contributor_publications %}
-<section>
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h1>Publications</h1>
-    <button id="mypublicationsbutton">View/hide publications</button>
-  </div>
-  <div id="mypublicationslist">
-    <h3>Publications for which this Contributor is identified as an author:</h3>
-    <ul>
-      {% for pub in contributor_publications %}
-        {{ pub.header_as_li }}
-      {% endfor %}
-    </ul>
-  </div>
-</section>
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">Publications <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#mypublicationslist">View/hide publications</span></h2>
+        </div>
+        <div class="col-12" id="mypublicationslist">
+            <h3 class="mb-2">Publications for which this Contributor is identified as an author:</h3>
+            {% for pub in contributor_publications %}
+                <div class="card card-publication">
+                    {% include 'journals/_publication_card_content.html' with publication=pub %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
 {% endif %}
 
 {% if contributor_submissions %}
-<section>
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h1>Submissions</h1>
-    <button id="mysubmissionsbutton">View/hide submissions</button>
-  </div>
-  <div id="mysubmissionslist">
-    <h3>Submissions for which this Contributor is identified as an author:</h3>
-    <ul>
-      {% for sub in contributor_submissions %}
-        {{ sub.header_as_li }}
-      {% endfor %}
-    </ul>
-  </div>
-</section>
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">Submissions <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#mysubmissionslist">View/hide submissions</span></h2>
+        </div>
+        <div class="col-12" id="mysubmissionslist">
+            <h3>Submissions for which this Contributor is identified as an author:</h3>
+            <div>
+                <ul class="list-group list-group-flush">
+                    {% for sub in contributor_submissions %}
+                        <li class="list-group-item">
+                            {% include 'submissions/_submission_card_content.html' with submission=sub %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
 {% endif %}
 
 {% if contributor_commentaries %}
-<section>
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h1>Commentaries</h1>
-    <button id="mycommentariesbutton">View/hide commentaries</button>
-  </div>
-  <div id="mycommentarieslist">
-    <h3>Commentaries for which this Contributor is identified as an author:</h3>
-    <ul>
-      {% for com in contributor_commentaries %}
-        {{ com.header_as_li }}
-      {% endfor %}
-    </ul>
-  </div>
-</section>
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">Commentaries <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#mycommentarieslist">View/hide commentaries</span></h2>
+
+        </div>
+        <div class="col-12" id="mycommentarieslist">
+            <h3>Commentaries for which this Contributor is identified as an author:</h3>
+            <div>
+                <ul class="list-group list-group-flush">
+                    {% for com in contributor_commentaries %}
+                        <li class="list-group-item">
+                            {% include 'commentaries/_commentary_card_content.html' with commentary=com %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
 {% endif %}
 
 {% if contributor_theses %}
-<section>
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h1>Theses</h1>
-    <button id="mythesesbutton">View/hide theses</button>
-  </div>
-  <div id="mytheseslist">
-    <h3>Theses for which this Contributor is identified as an author:</h3>
-    <ul>
-      {% for thesis in contributor_theses %}
-        {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesis %}
-      {% endfor %}
-    </ul>
-  </div>
-</section>
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">Theses <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#mytheseslist">View/hide theses</span></h2>
+        </div>
+        <div class="col-12" id="mytheseslist">
+            <h3>Theses for which this Contributor is identified as an author:</h3>
+            <div>
+                <ul class="list-group list-group-flush">
+                    {% for thesis in contributor_theses %}
+                        <li class="list-group-item">
+                            {% include 'theses/_thesislink_card_content.html' with thesislink=thesis %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
 {% endif %}
 
 {% if contributor_comments %}
-<section>
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h1>Comments</h1>
-    <button id="mycommentsbutton">View/hide comments</button>
-  </div>
-  <div id="mycommentslist">
-    <ul>
-      {% for comment in contributor_comments %}
-        {{ comment.header_as_li }}
-      {% endfor %}
-    </ul>
-  </div>
-</section>
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">Comments <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#mycommentslist">View/hide comments</span></h2>
+        </div>
+        <div class="col-12" id="mycommentslist">
+            <ul class="list-group list-group-flush">
+                {% for comment in contributor_comments %}
+                    <li class="list-group-item">
+                        {% include 'comments/_comment_card_content.html' with comment=comment %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endif %}
 
 {% if contributor_authorreplies %}
-<section>
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h1>Author Replies</h1>
-    <button id="myauthorrepliesbutton">View/hide author replies</button>
-  </div>
-  <div id="myauthorreplieslist">
-    <ul>
-      {% for reply in contributor_authorreplies %}
-        {{ reply.header_as_li }}
-      {% endfor %}
-    </ul>
-  </div>
-</section>
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">Author Replies <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#myauthorreplieslist">View/hide author replies</span></h2>
+        </div>
+        <div class="col-12" id="myauthorreplieslist">
+            <ul class="list-group list-group-flush">
+                {% for reply in contributor_authorreplies %}
+                    <li class="list-group-item">
+                        {% include 'comments/_comment_card_extended_content.html' with comment=reply %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endif %}
 
-{% endblock bodysup %}
+{% endblock content %}

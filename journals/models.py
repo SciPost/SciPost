@@ -307,29 +307,6 @@ class Publication(models.Model):
              'year': self.publication_date.strftime('%Y'), })
         return template.render(context)
 
-    def header_as_li(self):
-        header = ('<div class="publicationHeader">'
-                  '<h3 class="publicationTitle"><a href="{% url \'scipost:publication_detail\' doi_string=doi_string %}">{{ title }}</a></h3>'
-                  '<p class="publicationAuthors">{{ author_list }}</p>'
-                  '<p class="publicationReference">{{ citation }} &nbsp;&nbsp;'
-                  '|&nbsp;published {{ pub_date }}</p>'
-                  '<p class="publicationAbstract">{{ abstract }}</p>'
-                  '<ul class="publicationClickables">'
-                  '<li><button class="btn btn-secondary toggleAbstractButton">Toggle abstract</button></li>'
-                  '<li class="publicationPDF"><a href="{% url \'scipost:publication_pdf\' doi_string=doi_string %}" target="_blank">pdf</a></li>'
-                  '</ul>'
-                  '</div>')
-        template = Template(header)
-        context = Context({
-            'doi_string': self.doi_string,
-            'title': self.title,
-            'author_list': self.author_list,
-            'citation': self.citation,
-            'pub_date': self.publication_date.strftime('%d %B %Y'),
-            'abstract': self.abstract,
-        })
-        return template.render(context)
-
     def details(self):
         """
         This method is called from the publication_detail template.

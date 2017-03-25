@@ -69,10 +69,10 @@
         <div class="col-12">
             <div class="comment">
                 {{ comment.print_identifier }}
-                {{ comment.categories_as_ul }}
-                <div class="opinionsDisplay">
-                    {{ comment.opinions_as_ul }}
-                </div>
+
+                {% include 'comments/_comment_categories.html' with comment=comment class='mr-2' %}
+
+                {% include 'comments/_comment_voting_summary.html' with comment=comment %}
 
                 <p>{{ comment.comment_text|linebreaks }}</p>
             </div>

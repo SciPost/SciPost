@@ -1,0 +1,31 @@
+<div class="card-block card-comment">
+    {% block card_block_header %}{% endblock %}
+    <p class="card-text">
+        <span class="text-blue">
+            <a href="{% if comment.get_author %}{% url 'scipost:contributor_info' comment.get_author.id %}{% else %}javascript:;{% endif %}">{{comment.get_author_str}}</a>:
+        </span>
+
+        {% if comment.submission %}
+            <a href="{% url 'submissions:submission' comment.submission.arxiv_identifier_w_vn_nr %}#comment_id{{comment.id}}">
+                "{{comment.comment_text|slice:'30'}}{% if comment.comment_text|length > 30 %}...{% endif %}"
+            </a>
+            </p><p class="card-text pl-md-3">
+            in submission on <a href="{% url 'submissions:submission' comment.submission.arxiv_identifier_w_vn_nr %}" class="pubtitleli">{{comment.submission.title}}</a>
+            <span class="text-muted">by {{comment.submission.author_list}}</span>
+        {% elif comment.commentary %}
+            <a href="{% url 'commentaries:commentary' comment.commentary.arxiv_or_DOI_string %}#comment_id{{comment.id}}">
+                "{{comment.comment_text|slice:'30'}}{% if comment.comment_text|length > 30 %}...{% endif %}"
+            </a>
+            </p><p class="card-text pl-md-3">
+            in commentary on <a href="{% url 'commentaries:commentary' comment.commentary.arxiv_or_DOI_string %}" class="pubtitleli">{{comment.commentary.pub_title}}</a>
+            <span class="text-muted">by {{comment.commentary.author_list}}</span>
+        {% elif comment.thesislink %}
+            <a href="{% url 'commentaries:commentary' comment.commentary.arxiv_or_DOI_string %}#comment_id{{comment.id}}">
+                "{{comment.comment_text|slice:'30'}}{% if comment.comment_text|length > 30 %}...{% endif %}"
+            </a>
+            </p><p class="card-text pl-md-3">
+            in thesislink on <a href="{% url 'theses:thesis' comment.thesislink.id %}" class="pubtitleli">{{comment.thesislink.title}}</a>
+            <span class="text-muted">by {{ comment.thesislink.author }}</span>
+        {% endif %}
+    </p>
+</div>

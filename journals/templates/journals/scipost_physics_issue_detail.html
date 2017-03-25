@@ -4,17 +4,6 @@
 
 {% block headsup %}
 
-<script>
-  $(document).ready(function(){
-
-    $(".publicationAbstract").hide();
-
-    $(".toggleAbstractButton").click(function(){
-      $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
-    });
-  });
-</script>
-
 {% endblock headsup %}
 
 {% block content %}
@@ -31,13 +20,13 @@
 
 <div class="publicationHeaderList">
     <div class="row">
-        {% for paper in papers %}
-            <div class="col-12">
-                <div class="panel">
-                  {{ paper.header_as_li }}
+        <div class="col-12">
+            {% for paper in papers %}
+                <div class="card card-publication">
+                    {% include 'journals/_publication_card_content.html' with publication=paper %}
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 </div>
 

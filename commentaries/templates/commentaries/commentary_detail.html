@@ -8,9 +8,6 @@
 
 <script>
   $(document).ready(function(){
-    $("#commentsbutton").click(function(){
-      $("#commentslist").toggle();
-    });
 
     var comment_text_input = $("#id_comment_text");
 
@@ -32,16 +29,12 @@
 
 {% block content %}
 
-
 <div class="row">
     <div class="col-12">
-        <div class="panel">
-            <h1>SciPost Commentary Page (non-SciPost publications)</h1>
-        </div>
+        <h1 class="highlight">SciPost Commentary Page (non-SciPost publications)</h1>
     </div>
 </div>
 
-<hr>
 <div class="row">
     <div class="col-12">
         <h2>Original publication: </h2>

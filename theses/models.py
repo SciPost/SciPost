@@ -1,10 +1,8 @@
 from django.utils import timezone
 from django.db import models
-from django.template import Template, Context
 
-from journals.models import SCIPOST_JOURNALS_DOMAINS, journals_domains_dict
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
-                              subject_areas_dict, disciplines_dict
+from journals.models import SCIPOST_JOURNALS_DOMAINS
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.models import Contributor
 
 from .managers import ThesisLinkManager
@@ -70,16 +68,3 @@ class ThesisLink(models.Model):
 
     def __str__(self):
         return self.title
-
-    def simple_header_as_li(self):
-        # for Lists
-        context = Context({
-            'id': self.id, 'title': self.title, 'author': self.author})
-        header = (
-            '<li><div class="flex-container">'
-            '<div class="flex-whitebox0"><p><a href="/thesis/{{ id }}" '
-            'class="pubtitleli">{{ title }}</a></p>'
-            '<p>' + self.THESIS_TYPES_DICT[self.type] +
-            ' thesis by {{ author }} </div></div></li>')
-        template = Template(header)
-        return template.render(context)

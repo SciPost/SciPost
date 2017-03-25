@@ -9,28 +9,6 @@
 
 {% block content %}
 
-<script>
-$(document).ready(function(){
-
-  $('#ref_reason').hide();
-
-  $('#id_accept').on('change', function() {
-      if ($('#id_accept_1').is(':checked')) {
-          $('#ref_reason').show();
-      }
-      else {
-          $('#ref_reason').hide();
-      }
-    });
-
-  $(".submitRemarkForm").hide();
-
-  $(".submitRemarkButton").click( function() {
-     $(this).next("div").toggle();
-  });
-  });
-</script>
-
 {% if request.user|is_in_group:'Editorial Administrators' and recommendations_undergoing_voting %}
     <div class="row">
         <div class="col-12">
@@ -145,33 +123,7 @@ $(document).ready(function(){
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-block">
-                        {{ assignment_to_consider.submission.header_as_table }}
-                        <br />
-
-                        <h4>Abstract:</h4>
-                        <p>{{ assignment_to_consider.submission.abstract }}</p>
-                    </div>
-                    <div class="card-footer">
-                        <h1>Accept or Decline this Assignment</h1>
-                        <h3 class="mb-2">By accepting, you will be required to start a refereeing round on the next screen.</h3>
-
-                        <form action="{% url 'submissions:accept_or_decline_assignment_ack' assignment_id=assignment_to_consider.id %}" method="post">
-                            {% csrf_token %}
-                            <div class="form-group row">
-                                <div class="col-12">
-                                    {{ consider_assignment_form.accept }}
-                                </div>
-                            </div>
-                            <div class="row" id="ref_reason">
-                                <div class="col-12">
-                                    <p>Please select a reason for declining this assignment</p>
-                                    {{ consider_assignment_form.refusal_reason|bootstrap:'0,12' }}
-                                </div>
-                            </div>
-                            <input class="btn btn-secondary" type="submit" value="Submit" />
-                        </form>
-                    </div>
+                    {% include 'submissions/_submission_assignment_request.html' with assignment=assignment_to_consider %}
                 </div>
             </div>
         </div>
@@ -281,71 +233,7 @@ $(document).ready(function(){
         <!-- Submissions list -->
         {% for sub in submissions_in_pool %}
             <div class="card card-outline-secondary mt-1">
-                {% include 'submissions/_submission_card_fellow_content.html' with submission=sub %}
-
-                <div class="card-block">
-                    {% if sub.remark_set.all %}
-                        <h4>Remarks on this submission:</h4>
-                        <ul>
-                          {% for rem in sub.remark_set.all %}
-                              {{ rem.as_li }}
-                          {% endfor %}
-                        </ul>
-                    {% endif %}
-                    <button class="btn btn-secondary mb-2 submitRemarkButton" id="remarkButton{{ submission.id }}">Add a remark on this Submission</button>
-                    <div class="submitRemarkForm pb-2" id="remarkForm{{ submission.id }}">
-                      <form action="{% url 'submissions:add_remark' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}" method="post">
-                    	{% csrf_token %}
-                    	{{ remark_form|bootstrap:'0,12' }}
-                    	<input class="btn btn-secondary" type="submit" value="Submit" />
-                      </form>
-                    </div>
-
-                    {% get_obj_perms request.user for sub as "sub_perms" %}
-                    {% if "can_take_editorial_actions" in sub_perms or request.user|is_in_group:'Editorial Administrators' %}
-                        {% if sub|required_actions %}
-                            <div class="required-actions">
-                            	<h3 class="pt-0">Required actions:</h3>
-                            	<ul>
-                            	  {% for todoitem in sub|required_actions %}
-                                	  <li>{{ todoitem }}</li>
-                            	  {% endfor %}
-                            	</ul>
-                            </div>
-                        {% endif %}
-
-                        <h4>
-                            <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
-                        </h4>
-                    {% endif %}
-
-                    {% if perms.scipost.can_assign_submissions %}
-                        {% if sub.editorialassignment_set.all %}
-                            <h4>EIC Assignment requests:</h4>
-                            <ul>
-                              {% for assignment in sub.editorialassignment_set.all %}
-                                  {{ assignment.info_as_li }}
-                              {% endfor %}
-                            </ul>
-                        {% endif %}
-                        {% if sub.editor_in_charge == None %}
-                            <h4>Actions:</h4>
-                            <ul>
-                              <li><a href="{% url 'submissions:assign_submission' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Send a new assignment request</a></li>
-                              <li><a href="{% url 'submissions:assignment_failed' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
-                            </ul>
-                        {% endif %}
-                    {% endif %}
-
-                    {% if request.user|is_in_group:'Editorial Administrators' %}
-                        <h4>
-                            <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a>
-                        </h4>
-                        {% if sub.status == 'accepted' %}
-                            <h4>After proofs have been accepted, you can <a href="{% url 'journals:initiate_publication' %}">initiate the publication process</a> (leads to the validation page)</h4>
-                        {% endif %}
-                    {% endif %}
-                </div>
+                {% include 'submissions/_submission_card_in_pool.html' with submission=sub remark_form=remark_form %}
             </div>
         {% endfor %}
     </div>

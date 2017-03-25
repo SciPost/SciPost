@@ -159,7 +159,7 @@
     {% if codes %}
     <div class="row">
         <div class="col-12">
-            <a href="javascript:;" class="d-block mb-1" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show all specialization codes</a>
+            <a href="javascript:;" class="d-block mb-1" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show Fellows by specialization</a>
             <div id="specializations-{{college|lower}}" class="all-specializations" style="border: 1px solid; display: none;">
                 {% for code in codes %}
                     <div class="specialization" data-specialization="{{code.0|lower}}">{{code.0}} - {{code.1}}</div>

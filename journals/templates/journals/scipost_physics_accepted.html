@@ -17,9 +17,11 @@
 <div class="row">
     <div class="col-12">
         {% if accepted_SP_submissions %}
-            <ul>
+            <ul class="list-group list-group-flush">
                 {% for submission in accepted_SP_submissions %}
-                    {{ submission.header_as_li }}
+                    <li class="list-group-item">
+                        {% include 'submissions/_submission_card_content.html' with submission=submission %}
+                    </li>
                 {% endfor %}
             </ul>
         {% else %}

@@ -4,6 +4,16 @@
     &.card-grey {
         background-color: #F4F4F4;
     }
+
+    &.card-publication {
+        .card-header {
+            background-color: #eee;
+        }
+
+        .card-block {
+            background-color: #f8f8f8;
+        }
+    }
 }
 
 .list-group-item > .card-block {
@@ -13,4 +23,8 @@
 .card-title,
 .card-text {
     margin-bottom: 0.25rem;
+}
+
+.card-subtitle {
+    line-height: 1.5;
 }

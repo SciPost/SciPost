@@ -71,11 +71,9 @@
                 <div class="card-block">
                   <h1 class="card-title mb-0"><a href="{% url 'journals:journals' %}">Journals</a></h1>
                   <h4 class="card-subtitle mb-2 text-muted">SciPost publishes a portfolio of high-quality two-way open access scientific journals.</h4>
-                      <div class="SciPostPhysicsBanner">
-                    	<h2 class="py-0">
-                            <a class="pb-0" href="{% url 'journals:scipost_physics' %}">SciPost Physics</a>
-                        </h2>
-                      </div>
+                    <h2 class="banner">
+                        <a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a>
+                    </h2>
                       {% if issue and publications %}
                       <h4 class="card-text text-center">A selection from the {% if issue.is_current %}current{% else %}last{% endif %} issue:</h4>
                       {% if issue %}

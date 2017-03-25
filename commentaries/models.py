@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.template import Template, Context
-from django.template.loader import get_template
 
 from journals.models import SCIPOST_JOURNALS_DOMAINS
 from scipost.behaviors import ArxivCallable
@@ -134,32 +133,6 @@ class Commentary(ArxivCallable, TimeStampedModel):
             'pub_title': self.pub_title
         })
         template = Template('<a href="{{scipost_url}}" class="pubtitleli">{{pub_title}}</a>')
-        return template.render(context)
-
-    def header_as_li(self):
-        # TO BE REMOVED!!!!
-        template = get_template('commentaries/commentary_header_li.html')
-        return template.render({'object': self})
-
-    def simple_header_as_li(self):
-        # for display in Lists
-        context = Context({'scipost_url': self.scipost_url(), 'pub_title': self.pub_title,
-                           'author_list': self.author_list})
-        header = ('<li>'
-                  '<p><a href="{{ scipost_url }}" '
-                  'class="pubtitleli">{{ pub_title }}</a></p>'
-                  '<p>by {{ author_list }}')
-        if self.type == 'published':
-            header += ', {{ journal }} {{ volume }}, {{ pages }}'
-            context['journal'] = self.journal
-            context['volume'] = self.volume
-            context['pages'] = self.pages
-        elif self.type == 'preprint':
-            header += ', <a href="{{ arxiv_link }}">{{ arxiv_link }}</a>'
-            context['arxiv_link'] = self.arxiv_link
-        header += '</p>'
-        header += '</li>'
-        template = Template(header)
         return template.render(context)
 
     def parse_links_into_urls(self, commit=False):

@@ -56,7 +56,7 @@ class Comment(TimeStampedModel):
     submission = models.ForeignKey(Submission, blank=True, null=True, on_delete=models.CASCADE)
     thesislink = models.ForeignKey(ThesisLink, blank=True, null=True, on_delete=models.CASCADE)
     is_author_reply = models.BooleanField(default=False)
-    in_reply_to_comment = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE)
+    in_reply_to_comment = models.ForeignKey('self', blank=True, null=True, related_name="nested_comments", on_delete=models.CASCADE)
     in_reply_to_report = models.ForeignKey(Report, blank=True, null=True, on_delete=models.CASCADE)
     author = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
@@ -89,6 +89,19 @@ class Comment(TimeStampedModel):
     def __str__(self):
         return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name +
                 ' on ' + self.date_submitted.strftime('%Y-%m-%d') + ', ' + self.comment_text[:30])
+
+    def get_author(self):
+        '''Get author, if and only if comment is not anonymous!!!'''
+        if not self.anonymous:
+            return self.author
+        return None
+
+    def get_author_str(self):
+        '''Get author string, if and only if comment is not anonymous!!!'''
+        author = self.get_author()
+        if author:
+            return author.user.first_name + ' ' + author.user.last_name
+        return 'Anonymous'
 
     def update_opinions(self, contributor_id, opinion):
         contributor = get_object_or_404(Contributor, pk=contributor_id)
@@ -214,104 +227,6 @@ class Comment(TimeStampedModel):
             context['date_submitted'] = self.in_reply_to_report.date_submitted.strftime("%Y-%m-%d")
         output += '</h3></div>'
         template = Template(output)
-        return template.render(context)
-
-    def header_as_li(self):
-        # for search lists
-        header = '<li>'
-        # header += '<div class="flex-container"><div class="flex-whitebox0">'
-        header += 'Nr {{ id }}'
-        context = Context({'id': self.id})
-        header += ', <div class="opinionsDisplay">' + self.opinions_as_ul_tiny() + '</div>'
-        if self.status <= 0:
-            header += (', status: <span style="color:red">'
-                       + comment_status_dict[self.status] + '</span>')
-        text_cut = self.comment_text[:50]
-        if len(self.comment_text) > 50:
-            text_cut += '...'
-        context['id'] = self.id
-        context['text_cut'] = text_cut
-        context['date_submitted'] = self.date_submitted.strftime("%Y-%m-%d")
-        header += ': '
-        if not self.anonymous:
-            header += (' <a href="/contributor/{{ author_id }}">'
-                       '{{ first_name }} {{ last_name }}</a>, ')
-            context['author_id'] = self.author.id
-            context['first_name'] = self.author.user.first_name
-            context['last_name'] = self.author.user.last_name
-        if self.submission is not None:
-            header += ('<a href="/submission/{{ arxiv_identifier_w_vn_nr }}#comment_id{{ id }}">'
-                       ' \"{{ text_cut }}\"</a><p>submitted on {{ date_submitted }}')
-            header += (' in submission on <a href="/submission/{{ arxiv_identifier_w_vn_nr }}"'
-                       ' class="pubtitleli">{{ submission_title }}</a> by '
-                       '{{ submission_author_list }}</p>')
-            context['arxiv_identifier_w_vn_nr'] = self.submission.arxiv_identifier_w_vn_nr
-            context['submission_title'] = self.submission.title
-            context['submission_author_list'] = self.submission.author_list
-        if self.commentary is not None:
-            header += ('<a href="/commentary/{{ commentary_url }}#comment_id{{ id }}">'
-                       ' \"{{ text_cut }}\"</a><p>submitted on {{ date_submitted }}')
-            header += (' in commentary on <a href="/commentary/{{ commentary_url }}"'
-                       ' class="pubtitleli">'
-                       '{{ commentary_pub_title }}</a> by {{ commentary_author_list }}</p>')
-            context['commentary_url'] = self.commentary.arxiv_or_DOI_string
-            context['commentary_pub_title'] = self.commentary.pub_title
-            context['commentary_author_list'] = self.commentary.author_list
-        if self.thesislink is not None:
-            header += ('<a href="/thesis/{{ thesislink_id }}#comment_id{{ id }}">'
-                       ' \"{{ text_cut }}\"</a><p>submitted on {{ date_submitted }}')
-            header += (' in thesislink on '
-                       '<a href="/thesis/{{ thesislink_id }}" class="pubtitleli">'
-                       '{{ thesislink_title }}</a> by {{ thesislink_author }}</p>')
-            context['thesislink_id'] = self.thesislink.id
-            context['thesislink_title'] = self.thesislink.title
-            context['thesislink_author'] = self.thesislink.author
-        # header += '</div></div>'
-        header += '</li>'
-        template = Template(header)
-        return template.render(context)
-
-    def simple_header_as_li(self):
-        # for Lists
-        header = '<li>'
-        # header += '<div class="flex-container"><div class="flex-whitebox0">'
-        context = Context({})
-        text_cut = self.comment_text[:30]
-        if len(self.comment_text) > 30:
-            text_cut += '...'
-        context['text_cut'] = text_cut
-        if not self.anonymous:
-            header += ' <a href="/contributor/{{ author_id }}">{{ first_name }} {{ last_name }}</a>, '
-            context['author_id'] = self.author.id
-            context['first_name'] = self.author.user.first_name
-            context['last_name'] = self.author.user.last_name
-        if self.submission is not None:
-            header += ('<a href="/submission/{{ arxiv_identifier_w_vn_nr }}#comment_id{{ id }}"> '
-                       '\"{{ text_cut }}\"</a>'
-                       ' in submission on <a href="/submission/{{ arxiv_identifier_w_vn_nr }}" class="pubtitleli">'
-                       '{{ submission_title }}</a> by {{ submission_author_list }}</p>')
-            context['arxiv_identifier_w_vn_nr'] = self.submission.arxiv_identifier_w_vn_nr
-            context['submission_title'] = self.submission.title
-            context['submission_author_list'] = self.submission.author_list
-        if self.commentary is not None:
-            header += ('<a href="/commentary/{{ commentary_url }}#comment_id{{ id }}"> '
-                       '\"{{ text_cut }}\"</a>'
-                       ' in commentary on <a href="/commentary/{{ commentary_url }}" class="pubtitleli">'
-                       '{{ commentary_pub_title }}</a> by {{ commentary_author_list }}</p>')
-            context['commentary_url'] = self.commentary.arxiv_or_DOI_string
-            context['commentary_pub_title'] = self.commentary.pub_title
-            context['commentary_author_list'] = self.commentary.author_list
-        if self.thesislink is not None:
-            header += '<a href="/thesis/{{ thesislink_id }}#comment_id{{ id }}"> \"{{ text_cut }}\"</a>'
-            header += (' in thesislink on '
-                       '<a href="/thesis/{{ thesislink_id }}" class="pubtitleli">'
-                       '{{ thesislink_title }}</a> by {{ thesislink_author }}</p>')
-            context['thesislink_id'] = self.thesislink.id
-            context['thesislink_title'] = self.thesislink.title
-            context['thesislink_author'] = self.thesislink.author
-        # header += '</div></div>'
-        header += '</li>'
-        template = Template(header)
         return template.render(context)
 
     def categories_as_ul(self):

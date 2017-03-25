@@ -167,9 +167,7 @@ class Submission(ArxivCallable, models.Model):
 
     @property
     def reporting_deadline_has_passed(self):
-        if timezone.now() > self.reporting_deadline:
-            return True
-        return False
+        return timezone.now() > self.reporting_deadline
 
     @transaction.atomic
     def finish_submission(self):
@@ -270,57 +268,6 @@ class Submission(ArxivCallable, models.Model):
         })
         return template.render(context)
 
-    def header_as_li(self):
-        # for search lists
-        header = ('<li>'
-                  '<p>'
-                  '<a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
-                  'class="pubtitleli">{{ title }}</a></p>'
-                  '<p>by {{ author_list }}</p>'
-                  '<p>Version {{ arxiv_vn_nr }}')
-        if self.is_current:
-            header += ' (current version)'
-        else:
-            header += ' (deprecated version {{ arxiv_vn_nr }})'
-        header += ('</p><p> Submitted {{ submission_date }} to {{ to_journal }}'
-                   ' - latest activity: {{ latest_activity }}</p>'
-                   '</li>')
-        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr,
-                           'arxiv_vn_nr': self.arxiv_vn_nr,
-                           'title': self.title, 'author_list': self.author_list,
-                           'submission_date': self.submission_date,
-                           'to_journal': journals_submit_dict[self.submitted_to_journal],
-                           'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M')})
-        template = Template(header)
-        return template.render(context)
-
-    def header_as_li_for_authors(self):
-        # includes status specification
-        header = ('<li>'
-                  '<p><a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
-                  'class="pubtitleli">{{ title }}</a></p>'
-                  '<p>by {{ author_list }}</p>'
-                  '<p>Version {{ arxiv_vn_nr }}')
-        if self.is_current:
-            header += ' (current version)'
-        else:
-            header += ' (deprecated version {{ arxiv_vn_nr }})'
-        header += ('</p><p>Submitted {{ submission_date }} to {{ to_journal }}'
-                   ' - latest activity: {{ latest_activity }}</p>'
-                   '<p>Status: {{ status }}</p>'
-                   '</li>')
-        context = Context({
-            'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr,
-            'arxiv_vn_nr': self.arxiv_vn_nr,
-            'title': self.title, 'author_list': self.author_list,
-            'submission_date': self.submission_date,
-            'to_journal': journals_submit_dict[self.submitted_to_journal],
-            'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M'),
-            'status': submission_status_dict[self.status]
-        })
-        template = Template(header)
-        return template.render(context)
-
     def count_accepted_invitations(self):
         return self.refereeinvitation_set.filter(accepted=True).count()
 
@@ -367,59 +314,6 @@ class Submission(ArxivCallable, models.Model):
                   ', nr awaiting vetting: ' + str(nr_reports_awaiting_vetting) + '</p>')
         template = Template(header)
         context = Context({})
-        return template.render(context)
-
-    def header_as_li_for_Fellows(self):
-        # for submissions pool
-        header = ('<li>'
-                  '<p><a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
-                  'class="pubtitleli">{{ title }}</a></p>'
-                  '<p>by {{ author_list }}</p>'
-                  '<p>Version {{ arxiv_vn_nr }}')
-        if self.is_current:
-            header += ' (current version)'
-        else:
-            header += ' (deprecated version {{ arxiv_vn_nr }})'
-        header += ('</p><p> Submitted {{ submission_date }} to {{ to_journal }}'
-                   ' - latest activity: {{ latest_activity }}</p>')
-        if self.status == 'unassigned':
-            header += ('<p style="color: red">Status: {{ status }}.'
-                       ' You can volunteer to become Editor-in-charge by '
-                       '<a href="/submissions/volunteer_as_EIC/{{ arxiv_identifier_w_vn_nr }}">'
-                       'clicking here</a>.</p>')
-        else:
-            header += '<p>Editor-in-charge: {{ EIC }}</p><p>Status: {{ status }}</p>'
-        header += self.refereeing_status_as_p()
-        header += '</li>'
-        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr,
-                           'arxiv_vn_nr': self.arxiv_vn_nr,
-                           'title': self.title, 'author_list': self.author_list,
-                           'submission_date': self.submission_date,
-                           'to_journal': journals_submit_dict[self.submitted_to_journal],
-                           'latest_activity': self.latest_activity.strftime('%Y-%m-%d %H:%M'),
-                           'EIC': str(self.editor_in_charge),
-                           'status': submission_status_dict[self.status]})
-        template = Template(header)
-        return template.render(context)
-
-    def simple_header_as_li(self):
-        # for Lists
-        header = ('<li>'
-                  '<p>'
-                  '<a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
-                  'class="pubtitleli">{{ title }}</a></p>'
-                  '<p>by {{ author_list }}</p>'
-                  '<p>Version {{ arxiv_vn_nr }}')
-        if self.is_current:
-            header += ' (current version)'
-        else:
-            header += ' (deprecated version {{ arxiv_vn_nr }})'
-        header += ('</p>'
-                   '</li>')
-        context = Context({'arxiv_identifier_w_vn_nr': self.arxiv_identifier_w_vn_nr,
-                           'arxiv_vn_nr': self.arxiv_vn_nr,
-                           'title': self.title, 'author_list': self.author_list})
-        template = Template(header)
         return template.render(context)
 
     def version_info_as_li(self):
@@ -471,6 +365,13 @@ ASSIGNMENT_REFUSAL_REASONS = (
 assignment_refusal_reasons_dict = dict(ASSIGNMENT_REFUSAL_REASONS)
 
 
+class EditorialAssignmentManager(models.Manager):
+    def get_for_user_in_pool(self, user):
+        return self.exclude(submission__authors=user.contributor)\
+                .exclude(Q(submission__author_list__icontains=user.last_name),
+                         ~Q(submission__authors_false_claims=user.contributor))
+
+
 class EditorialAssignment(models.Model):
     submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
     to = models.ForeignKey(Contributor, on_delete=models.CASCADE)
@@ -482,6 +383,8 @@ class EditorialAssignment(models.Model):
                                       blank=True, null=True)
     date_created = models.DateTimeField(default=timezone.now)
     date_answered = models.DateTimeField(blank=True, null=True)
+
+    objects = EditorialAssignmentManager()
 
     def __str__(self):
         return (self.to.user.first_name + ' ' + self.to.user.last_name + ' to become EIC of ' +
@@ -514,45 +417,6 @@ class EditorialAssignment(models.Model):
             context['reason'] = assignment_refusal_reasons_dict[self.refusal_reason]
         info += '</li>'
         template = Template(info)
-        return template.render(context)
-
-    def header_as_li_for_eic(self):
-        header = ('<li>'
-                  '<p><a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
-                  'class="pubtitleli">{{ title }}</a></p>'
-                  '<p>by {{ author_list }}</p>'
-                  '<p> (submitted {{ date }} to {{ to_journal }})</p>'
-                  '<p>Status: {{ status }}</p><p>Manage this Submission from its '
-                  '<a href="/submissions/editorial_page/{{ arxiv_identifier_w_vn_nr }}">'
-                  'Editorial Page</a>.'
-                  '</p>'
-                  '</li>')
-        template = Template(header)
-        context = Context({'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr,
-                           'title': self.submission.title,
-                           'author_list': self.submission.author_list,
-                           'date': self.submission.submission_date,
-                           'to_journal': journals_submit_dict[self.submission.submitted_to_journal],
-                           'status': submission_status_dict[self.submission.status]})
-        return template.render(context)
-
-    def header_as_li(self):
-        """ Same as above, but without link to Editorial Page. """
-        header = ('<li>'
-                  '<p><a href="/submission/{{ arxiv_identifier_w_vn_nr }}" '
-                  'class="pubtitleli">{{ title }}</a></p>'
-                  '<p>by {{ author_list }}</p>'
-                  '<p> (submitted {{ date }} to {{ to_journal }})</p>'
-                  '<p>Status: {{ status }}</p>'
-                  '</li>')
-        template = Template(header)
-        context = Context({
-            'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr,
-            'title': self.submission.title,
-            'author_list': self.submission.author_list,
-            'date': self.submission.submission_date,
-            'to_journal': journals_submit_dict[self.submission.submitted_to_journal],
-            'status': submission_status_dict[self.submission.status]})
         return template.render(context)
 
 

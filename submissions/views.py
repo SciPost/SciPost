@@ -384,10 +384,12 @@ def submissions_by_status(request, status):
     if status not in submission_status_dict.keys():
         errormessage = 'Unknown status.'
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    submissions_of_status = Submission.objects.filter(
-        status=status).order_by('-submission_date')
-    context = {'status': submission_status_dict[status],
-               'submissions_of_status': submissions_of_status, }
+    submissions_of_status = (Submission.objects.get_pool(request.user)
+                             .filter(status=status).order_by('-submission_date'))
+    context = {
+        'submissions_of_status': submissions_of_status,
+        'remark_form': RemarkForm()
+    }
     return render(request, 'submissions/submissions_by_status.html', context)
 
 
