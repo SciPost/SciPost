@@ -271,10 +271,7 @@ def submission_detail_wo_vn_nr(request, arxiv_identifier_wo_vn_nr):
 
 
 def submission_detail(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.select_related(
-                    'editor_in_charge', 'publication__in_issue__in_volume__in_journal'
-                    ).prefetch_related('authors'),
-                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     try:
         is_author = request.user.contributor in submission.authors.all()
     except AttributeError:
