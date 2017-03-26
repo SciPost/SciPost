@@ -1,7 +1,6 @@
 from django import template
 
 from scipost.constants import SCIPOST_DISCIPLINES, subject_areas_dict, disciplines_dict
-from journals.models import journals_domains_dict
 
 register = template.Library()
 
@@ -18,7 +17,7 @@ def discipline(thesislink):
 
 @register.filter
 def domain(thesislink):
-    return journals_domains_dict[thesislink.domain]
+    return thesislink.get_domain_display
 
 
 @register.filter

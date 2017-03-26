@@ -8,7 +8,7 @@
 
             <div class="row">
                 <div class="col-12">
-                    {{ comment.print_identifier }}
+                    {% include 'comments/_comment_identifier.html' with comment=comment %}
 
                     {% include 'comments/_comment_categories.html' with comment=comment class='mr-2' %}
 

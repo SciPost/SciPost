@@ -1,11 +1,15 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.core.urlresolvers import reverse
 from django.template import Template, Context
 
-from journals.models import SCIPOST_JOURNALS_DOMAINS
+from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.behaviors import ArxivCallable
 from scipost.models import TimeStampedModel, Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
+
+from .managers import CommentaryManager
+
 
 COMMENTARY_PUBLISHED = 'published'
 COMMENTARY_PREPRINT = 'preprint'
@@ -13,14 +17,6 @@ COMMENTARY_TYPES = (
     (COMMENTARY_PUBLISHED, 'published paper'),
     (COMMENTARY_PREPRINT, 'arXiv preprint'),
 )
-
-
-class CommentaryManager(models.Manager):
-    def vetted(self, **kwargs):
-        return self.filter(vetted=True, **kwargs)
-
-    def awaiting_vetting(self, **kwargs):
-        return self.filter(vetted=False, **kwargs)
 
 
 class Commentary(ArxivCallable, TimeStampedModel):
@@ -87,49 +83,9 @@ class Commentary(ArxivCallable, TimeStampedModel):
     def same_version_exists(self, identifier):
         return self.objects.filter(arxiv_identifier=identifier).exists()
 
-    def header_as_table(self):
-        # for display in Commentary page itself
-        header = ('<table>'
-                  '<tr><td>Title: </td><td>&nbsp;</td><td>{{ pub_title }}</td></tr>'
-                  '<tr><td>Author(s): </td><td>&nbsp;</td><td>{{ author_list }}</td></tr>'
-                  '<tr><td>As Contributors: </td><td>&nbsp;</td>')
-        if self.authors.all():
-            header += '<td>'
-            for auth in self.authors.all():
-                header += ('<a href="/contributor/' + str(auth.id) + '">' + auth.user.first_name
-                           + ' ' + auth.user.last_name + '</a>,&nbsp;')
-            header += '</td>'
-        else:
-            header += '<td>(none claimed)</td>'
-        header += '</tr>'
-        if self.type == 'published':
-            header += ('<tr><td>Journal ref.: </td><td>&nbsp;</td><td>{{ journal }} {{ volume }}, '
-                       '{{ pages }}</td></tr>'
-                       '<tr><td>DOI: </td><td>&nbsp;</td><td><a href="{{ pub_DOI_link }}" '
-                       'target="_blank">{{ pub_DOI_link }}</a></td></tr>')
-        elif self.type == 'preprint':
-            header += ('<tr><td>arxiv Link: </td><td>&nbsp;</td><td><a href="{{ arxiv_link }}">'
-                       '{{ arxiv_link }}</a></td></tr>')
-        if self.pub_date:
-            header += '<tr><td>Date: </td><td>&nbsp;</td><td>{{ pub_date }}</td></tr>'
-        header += '</table>'
-        template = Template(header)
-        context = Context({
-            'pub_title': self.pub_title, 'author_list': self.author_list,
-        })
-        if self.type == 'published':
-            context['journal'] = self.journal
-            context['volume'] = self.volume
-            context['pages'] = self.pages
-            context['pub_DOI_link'] = self.pub_DOI_link
-            context['pub_date'] = self.pub_date
-        elif self.type == 'preprint':
-            context['arxiv_link'] = self.arxiv_link
-        return template.render(context)
-
     def title_label(self):
         context = Context({
-            'scipost_url': self.scipost_url(),
+            'scipost_url': reverse('commentaries:commentary', args=(self.arxiv_or_DOI_string,)),
             'pub_title': self.pub_title
         })
         template = Template('<a href="{{scipost_url}}" class="pubtitleli">{{pub_title}}</a>')
@@ -146,11 +102,3 @@ class Commentary(ArxivCallable, TimeStampedModel):
 
         if commit:
             self.save()
-
-    def scipost_url(self):
-        """ Returns the url of the SciPost Commentary Page """
-        return '/commentary/' + self.arxiv_or_DOI_string
-
-    def scipost_url_full(self):
-        """ Returns the url of the SciPost Commentary Page """
-        return 'https://scipost.org/commentary/' + self.arxiv_or_DOI_string

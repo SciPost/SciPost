@@ -38,7 +38,7 @@
 <div class="row">
     <div class="col-12">
         <h2>Original publication: </h2>
-        {{ commentary.header_as_table }}
+        {% include 'commentaries/_commentary_summary.html' with commentary=commentary %}
     </div>
 </div>
 

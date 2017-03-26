@@ -38,14 +38,16 @@
 
 <div class="row">
     <div class="col-12">
-        <div class="panel">
-            <h1>SciPost Submission Page</h1>
-            {% if not submission.is_current %}
-                <h3 style="color: red;">This is not the current version.</h3>
-            {% endif %}
-            {% if user.contributor == submission.editor_in_charge %}
-                <h3>(You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h3>
-            {% endif %}
+        <div class="card card-grey">
+            <div class="card-block">
+                <h1>SciPost Submission Page</h1>
+                {% if not submission.is_current %}
+                    <h3 style="color: red;">This is not the current version.</h3>
+                {% endif %}
+                {% if user.contributor == submission.editor_in_charge %}
+                    <h3>(You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h3>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
@@ -53,26 +55,21 @@
 {% if other_versions %}
 <div class="row">
     <div class="col-12">
-      <h3>Other versions of this Submission (with Reports) exist:</h3>
-      <ul>
-        {% for vn in other_versions %}
-            {{ vn.version_info_as_li }}
-        {% endfor %}
-      </ul>
+        <h3>Other versions of this Submission (with Reports) exist:</h3>
+        <div class="pl-4">
+            {% for vn in other_versions %}
+                {% include 'submissions/_submission_version.html' with submission=vn %}
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endif %}
 
 <div class="row">
     <div class="col-12">
-        <hr>
-        {{ submission.header_as_table }}
+        {% include 'submissions/_submission_summary.html' with submission=submission %}
 
-        <h3 class="mt-3">Abstract:</h3>
-        <p>{{ submission.abstract }}</p>
-
-        <h3>Status:</h3>
-        {{ submission.status_info_as_table }}
+        {% include 'submissions/_submission_status_block.html' with submission=submission %}
 
         {% if submission.author_comments %}
             <h3>Author comments upon resubmission</h3>
@@ -87,16 +84,17 @@
 </div>
 
 {% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
-{% if recommendation %}
-{% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' or recommendation|is_viewable_by_authors %}
-<div class="row">
-    <div class="col-12">
-        <h2>Editorial Recommendation</h2>
-        {{ recommendation.print_for_authors }}
-    </div>
-</div>
-{% endif %}
-{% endif %}
+    {% if recommendation %}
+        {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' or recommendation|is_viewable_by_authors %}
+        <hr>
+            <div class="row">
+                <div class="col-12">
+                    <h2>Editorial Recommendation</h2>
+                    {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
 {% endif %}
 
 
@@ -113,12 +111,17 @@
         <ul>
             {% if submission.open_for_reporting %}
                 {% if perms.scipost.can_referee and not is_author and not is_author_unchecked %}
-                    <li><h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Contribute a Report</a></h3>
-                    <div class="reportingDeadline">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div></li>
+                    <li>
+                        <h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Contribute a Report</a></h3>
+                        <div class="text-danger">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
+                    </li>
                 {% elif is_author_unchecked %}
-                    <li><h3>Contribute a Report [deactivated]: the system flagged you as a potential author of this Submission.
-                    Please go to your <a href="{% url 'scipost:personal_page' %}">personal page</a>
-                    under the Submissions tab to clarify this.</h3></li>
+                    <li>
+                        <h3 class="text-blue">Contribute a Report [deactivated]</h3>
+                        <div>The system flagged you as a potential author of this Submission.
+                        Please go to your <a href="{% url 'scipost:personal_page' %}">personal page</a>
+                        under the Submissions tab to clarify this.</div>
+                    </li>
                 {% endif %}
             {% else %}
                 <li>Reporting for this Submission is closed.</li>
@@ -150,7 +153,7 @@
 
 <div id="invitedreportslist">
     {% for report in invited_reports %}
-        {% include 'submissions/_single_report.html' with report=report user=request.user perms=perms %}
+        {% include 'submissions/_single_public_report.html' with report=report user=request.user perms=perms %}
     {% endfor %}
 </div>
 
@@ -171,7 +174,7 @@
 
 <div id="contributedreportslist">
     {% for report in contributed_reports %}
-        {% include 'submissions/_single_report.html' with report=report user=request.user perms=perms %}
+        {% include 'submissions/_single_public_report.html' with report=report user=request.user perms=perms %}
     {% endfor %}
 </div>
 

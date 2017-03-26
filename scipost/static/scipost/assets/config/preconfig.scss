@@ -24,9 +24,11 @@ $card-border-color: rgba(238, 238, 238, 0.5);
 
 // Colors
 //
+$scipost-light: #C3D7EE;
 $scipost-lightblue: #6884C2;
 $scipost-darkblue: #002b49;
 $scipost-orange: #FFA300;
+$green: #6ebb6e;
 
 $blue: $scipost-lightblue !default;
 $body-color: $scipost-darkblue !default;
@@ -62,6 +64,10 @@ $font-size-h3: 1.17em;
 $font-size-h4: 0.8rem;
 $font-size-h5: 0.8rem;
 $font-size-h6: 0.8rem;
+
+// Tables
+//
+$table-cell-padding: 0.25rem 0.5rem;
 
 
 // Navbar

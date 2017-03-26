@@ -3,12 +3,10 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.urls import reverse
 
-from scipost.models import Contributor, title_dict
+from scipost.models import Contributor
 
 from .models import ThesisLink
 from .helpers import past_years
-
-from scipost.models import Contributor, title_dict
 
 
 class RequestThesisLinkForm(forms.ModelForm):
@@ -64,7 +62,7 @@ class VetThesisLinkForm(RequestThesisLinkForm):
 
     def vet_request(self, thesislink, user):
         mail_params = {
-            'vocative_title': title_dict[thesislink.requested_by.title],
+            'vocative_title': thesislink.requested_by.get_title_display(),
             'thesislink': thesislink,
             'full_url': self.request.build_absolute_uri(
                 reverse('theses:thesis', kwargs={'thesislink_id': thesislink.id}))

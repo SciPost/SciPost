@@ -13,13 +13,9 @@ from django.utils.decorators import method_decorator
 from .models import ThesisLink
 from .forms import RequestThesisLinkForm, ThesisLinkSearchForm, VetThesisLinkForm
 
-from comments.models import Comment
 from comments.forms import CommentForm
-from scipost.forms import TITLE_CHOICES
-from scipost.models import Contributor
-import strings
 
-title_dict = dict(TITLE_CHOICES)  # Convert titles for use in emails
+import strings
 
 
 ################

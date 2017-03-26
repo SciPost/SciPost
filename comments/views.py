@@ -10,13 +10,14 @@ from django.http import HttpResponseRedirect, Http404
 import strings
 
 from .models import Comment
-from .forms import CommentForm, VetCommentForm, comment_refusal_dict
+from .forms import CommentForm, VetCommentForm
 
-from scipost.models import Contributor, title_dict
+from scipost.models import Contributor
 from theses.models import ThesisLink
 from submissions.utils import SubmissionUtils
 from submissions.models import Submission, Report
 from commentaries.models import Commentary
+
 
 @permission_required('scipost.can_submit_comments', raise_exception=True)
 def new_comment(request, **kwargs):
@@ -46,7 +47,7 @@ def new_comment(request, **kwargs):
                 if not thesislink.open_for_commenting:
                     raise PermissionDenied
                 new_comment.thesislink = thesislink
-                redirect_link = reverse('theses:thesis', kwargs={"thesislink_id":thesislink.id})
+                redirect_link = reverse('theses:thesis', kwargs={"thesislink_id": thesislink.id})
             elif type_of_object == "submission":
                 submission = Submission.objects.get(id=object_id)
                 if not submission.open_for_commenting:
@@ -62,7 +63,8 @@ def new_comment(request, **kwargs):
                     raise PermissionDenied
                 new_comment.commentary = commentary
                 redirect_link = reverse(
-                    'commentaries:commentary', kwargs={'arxiv_or_DOI_string': commentary.arxiv_or_DOI_string}
+                    'commentaries:commentary',
+                    kwargs={'arxiv_or_DOI_string': commentary.arxiv_or_DOI_string}
                 )
 
             new_comment.save()
@@ -74,6 +76,7 @@ def new_comment(request, **kwargs):
     else:
         # This view is only accessible by POST request
         raise Http404
+
 
 @permission_required('scipost.can_vet_comments', raise_exception=True)
 def vet_submitted_comments(request):
@@ -95,7 +98,7 @@ def vet_submitted_comment_ack(request, comment_id):
                 comment.status = 1
                 comment.vetted_by = request.user.contributor
                 comment.save()
-                email_text = ('Dear ' + title_dict[comment.author.title] + ' '
+                email_text = ('Dear ' + comment.author.get_title_display() + ' '
                               + comment.author.user.last_name +
                               ', \n\nThe Comment you have submitted, '
                               'concerning publication with title ')
@@ -138,7 +141,7 @@ def vet_submitted_comment_ack(request, comment_id):
                 if comment.status == 0:
                     comment.status == -1
                 comment.save()
-                email_text = ('Dear ' + title_dict[comment.author.title] + ' '
+                email_text = ('Dear ' + comment.author.get_title_display() + ' '
                               + comment.author.user.last_name
                               + ', \n\nThe Comment you have submitted, '
                               'concerning publication with title ')
@@ -151,7 +154,7 @@ def vet_submitted_comment_ack(request, comment_id):
                 elif comment.thesislink is not None:
                     email_text += comment.thesislink.title + ' by ' + comment.thesislink.author
                 email_text += (', has been rejected for the following reason: '
-                               + comment_refusal_dict[comment.status] + '.' +
+                               + comment.get_status_display() + '.' +
                                '\n\nWe copy it below for your convenience.' +
                                '\n\nThank you for your contribution, \n\nThe SciPost Team.')
                 if form.cleaned_data['email_response_field']:

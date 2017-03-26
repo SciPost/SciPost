@@ -13,15 +13,11 @@
                     <h1 class="card-title mb-0"><a href="{% url 'news:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14"></a></h1>
                     <h4 class="card-subtitle mb-0 pb-0 text-muted">Latest news and announcements.</h4>
                 </div>
-                <ul class="list-group list-group-flush">
                 {% for item in latest_newsitems %}
-                    <li class="list-group-item">
-                        <div class="card-block">
-                            {{ item.descriptor_small }}
-                        </div>
-                    </li>
+                    <div class="card card-news bg-transparent m-2">
+                        {% include 'news/news_card_content.html' with news=item %}
+                    </div>
                 {% endfor %}
-                </ul>
             </div>
         </div>
         {% endif %}

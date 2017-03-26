@@ -20,7 +20,7 @@
             in commentary on <a href="{% url 'commentaries:commentary' comment.commentary.arxiv_or_DOI_string %}" class="pubtitleli">{{comment.commentary.pub_title}}</a>
             <span class="text-muted">by {{comment.commentary.author_list}}</span>
         {% elif comment.thesislink %}
-            <a href="{% url 'commentaries:commentary' comment.commentary.arxiv_or_DOI_string %}#comment_id{{comment.id}}">
+            <a href="{% url 'theses:thesis' comment.thesislink.id %}#comment_id{{comment.id}}">
                 "{{comment.comment_text|slice:'30'}}{% if comment.comment_text|length > 30 %}...{% endif %}"
             </a>
             </p><p class="card-text pl-md-3">

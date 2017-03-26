@@ -42,7 +42,7 @@
             <h4>EIC Assignment requests:</h4>
             <ul>
               {% for assignment in submission.editorialassignment_set.all %}
-                  {{ assignment.info_as_li }}
+                  {% include 'submissions/_assignment_info.html' with assignment=assignment %}
               {% endfor %}
             </ul>
         {% endif %}

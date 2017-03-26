@@ -35,8 +35,18 @@ def bootstrap(element, args='2,10'):
 
 
 @register.filter
-def bootstrap_inline(element):
-    markup_classes = {'label': 'sr-only', 'value': '', 'single_value': ''}
+def bootstrap_inline(element, args='2,10'):
+    args = [arg.strip() for arg in args.split(',')]
+    markup_classes = {
+        'label': 'sr-only col-md-%s' % args[0],
+        'value': 'col-md-%s' % args[1],
+        'single_value': ''
+    }
+    try:
+        markup_classes['label'] += ' col-form-label-%s' % args[2]
+        markup_classes['form_control'] = 'form-control-%s' % args[2]
+    except IndexError:
+        markup_classes['form_control'] = ''
     return render(element, markup_classes)
 
 

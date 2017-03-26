@@ -51,7 +51,7 @@
       <h2>Submission:</h2>
     </div>
   </div>
-  {{ submission.header_as_table }}
+  {% include 'submissions/_submission_summary.html' with submission=submission %}
   <h3>Abstract:</h3>
   <p>{{ submission.abstract }}</p>
 

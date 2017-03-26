@@ -1,6 +1,6 @@
 <div class="card-block">
     <h3 class="card-title">
-        <a href="{{ commentary.scipost_url }}">{{ commentary.pub_title }}</a>
+        <a href="{% url 'commentaries:commentary' commentary.arxiv_or_DOI_string %}">{{ commentary.pub_title }}</a>
     </h3>
     <p class="card-text">
         by {{ commentary.author_list }}{% if commentary.type == 'published' %}, {{ commentary.journal }} {{ commentary.volume }}, {{ commentary.pages }}{% elif commentary.type == 'preprint' %} - <a href="{{ commentary.arxiv_link }}">{{ commentary.arxiv_link }}</a>{% endif %}

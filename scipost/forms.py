@@ -10,15 +10,14 @@ from captcha.fields import ReCaptchaField
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML, Submit
 
-from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
-from .models import TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,\
+from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES
+from .models import SCIPOST_FROM_ADDRESSES,\
                     Contributor, DraftInvitation, RegistrationInvitation,\
                     SupportingPartner, SPBMembershipAgreement,\
                     UnavailabilityPeriod, PrecookedEmail
-from virtualmeetings.models import Feedback, Nomination, Motion
 
 from journals.models import Publication
-from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
+from submissions.constants import SUBMISSION_STATUS_PUBLICLY_UNLISTED
 from submissions.models import Submission
 
 

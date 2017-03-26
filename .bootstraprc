@@ -9,6 +9,8 @@
     ],
     "extractStyles": true,
     "styles": {
+        # First tables, due to self dependencies
+        "tables": true,
         "alert": true,
         "button-group": true,
         "buttons": true,

@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.db import models
 
-from journals.models import SCIPOST_JOURNALS_DOMAINS
+from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.models import Contributor
 

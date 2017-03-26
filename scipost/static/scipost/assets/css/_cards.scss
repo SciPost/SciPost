@@ -28,3 +28,10 @@
 .card-subtitle {
     line-height: 1.5;
 }
+
+.card.card-news {
+    .card-header {
+        background-color: $scipost-darkblue;
+        color: $scipost-light;
+    }
+}

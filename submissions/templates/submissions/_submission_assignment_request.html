@@ -1,11 +1,8 @@
 {% load bootstrap %}
 
 <div class="card-block">
-    {{ assignment.submission.header_as_table }}
+    {% include 'submissions/_submission_summary.html' with submission=assignment.submission %}
     <br />
-
-    <h4>Abstract:</h4>
-    <p>{{ assignment.submission.abstract }}</p>
 </div>
 <div class="card-footer">
     <h1>Accept or Decline this Assignment</h1>

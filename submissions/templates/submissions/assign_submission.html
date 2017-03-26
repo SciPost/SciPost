@@ -10,10 +10,9 @@
 
   <br>
   <hr>
-  {{ submission_to_assign.header_as_table }}
-  <br />
-  <h4>Abstract:</h4>
-  <p>{{ submission_to_assign.abstract }}</p>
+
+  {% include 'submissions/_submission_summary.html' with submission=submission_to_assign %}
+
   <br/>
   <hr/>
 
@@ -29,7 +28,7 @@
 
   <br/>
   <hr>
-  {{ submission_to_assign.status_info_as_table }}
+  {% include 'submissions/_submission_status_block.html' with submission=submission %}
   <hr>
 
   {% if submission_to_assign.editorialassignment_set.all %}
@@ -37,7 +36,7 @@
   <h3>If more than 5 Fellows have declined an assignment for a red-marked reason, the Submission should be rejected.</h3>
   <ul>
     {% for assignment in sub.editorialassignment_set.all %}
-    {{ assignment.info_as_li }}
+        {% include 'submissions/_assignment_info.html' with assignment=assignment %}
     {% endfor %}
   </ul>
   {% endif %}

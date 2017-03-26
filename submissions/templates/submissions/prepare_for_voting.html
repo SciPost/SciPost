@@ -34,7 +34,9 @@
   <div class="flex-greybox">
     <h3>Editorial recommendation:</h3>
     <ul>
-      <li>{{ recommendation.print_for_Fellows }}</li>
+      <li>
+          {% include 'submissions/_recommendation_fellow_content.html' with recommendation=recommendation %}
+      </li>
     </ul>
   </div>
 

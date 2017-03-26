@@ -8,14 +8,13 @@ import xml.etree.ElementTree as ET
 from django.conf import settings
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse
 
-from .models import Issue, Publication, PaperNumberingError,\
-                    journal_name_abbrev_doi, paper_nr_string, journal_name_abbrev_citation,\
-                    UnregisteredAuthor
+from .exceptions import PaperNumberingError
+from .helpers import journal_name_abbrev_citation, journal_name_abbrev_doi, paper_nr_string
+from .models import Issue, Publication, UnregisteredAuthor
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils

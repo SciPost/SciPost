@@ -7,13 +7,12 @@ from django.db import models
 from django.db.models import Q
 from django.template import Template, Context
 from django.utils import timezone
-from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 from django_countries.fields import CountryField
 
 from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
-    disciplines_dict, subject_areas_dict
+                       disciplines_dict, subject_areas_dict, CONTRIBUTOR_STATUS, TITLE_CHOICES
 from .db.fields import AutoDateTimeField
 
 
@@ -32,33 +31,6 @@ class ChoiceArrayField(ArrayField):
         }
         defaults.update(kwargs)
         return super(ArrayField, self).formfield(**defaults)
-
-
-CONTRIBUTOR_STATUS = (
-    # status determine the type of Contributor:
-    # 0: newly registered (unverified; not allowed to submit, comment or vote)
-    # 1: contributor has been vetted through
-    #
-    # Negative status denotes rejected requests or:
-    # -1: not a professional scientist (>= PhD student in known university)
-    # -2: other account already exists for this person
-    # -3: barred from SciPost (abusive behaviour)
-    # -4: disabled account (deceased)
-    (0, 'newly registered'),
-    (1, 'normal user'),
-    (-1, 'not a professional scientist'),
-    (-2, 'other account already exists'),
-    (-3, 'barred from SciPost'),
-    (-4, 'account disabled'),
-    )
-
-TITLE_CHOICES = (
-    ('PR', 'Prof.'),
-    ('DR', 'Dr'),
-    ('MR', 'Mr'),
-    ('MRS', 'Mrs'),
-    )
-title_dict = dict(TITLE_CHOICES)
 
 
 class TimeStampedModel(models.Model):
@@ -117,7 +89,8 @@ class Contributor(models.Model):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
 
     def get_title(self):
-        return title_dict[self.title]
+        # Please use get_title_display(). To be removed in future
+        return self.get_title_display()
 
     def is_currently_available(self):
         unav_periods = UnavailabilityPeriod.objects.filter(contributor=self)
@@ -145,7 +118,7 @@ class Contributor(models.Model):
             </table>
         ''')
         context = Context({
-            'title': title_dict[self.title],
+            'title': self.get_title_display(),
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,
             'email': self.user.email,
@@ -174,7 +147,7 @@ class Contributor(models.Model):
             </table>
         ''')
         context = Context({
-                'title': title_dict[self.title],
+                'title': self.get_title_display(),
                 'first_name': self.user.first_name,
                 'last_name': self.user.last_name,
                 'email': self.user.email,

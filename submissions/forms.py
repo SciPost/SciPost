@@ -1,8 +1,8 @@
 from django import forms
 from django.core.validators import RegexValidator
 
-from .models import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS,\
-                    Submission, RefereeInvitation, Report, EICRecommendation
+from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS
+from .models import Submission, RefereeInvitation, Report, EICRecommendation
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.models import Contributor

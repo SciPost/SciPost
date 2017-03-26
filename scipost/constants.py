@@ -122,3 +122,29 @@ subject_areas_raw_dict = dict(SCIPOST_SUBJECT_AREAS)
 subject_areas_dict = {}
 for k in subject_areas_raw_dict.keys():
     subject_areas_dict.update(dict(subject_areas_raw_dict[k]))
+
+
+CONTRIBUTOR_STATUS = (
+    # status determine the type of Contributor:
+    # 0: newly registered (unverified; not allowed to submit, comment or vote)
+    # 1: contributor has been vetted through
+    #
+    # Negative status denotes rejected requests or:
+    # -1: not a professional scientist (>= PhD student in known university)
+    # -2: other account already exists for this person
+    # -3: barred from SciPost (abusive behaviour)
+    # -4: disabled account (deceased)
+    (0, 'newly registered'),
+    (1, 'normal user'),
+    (-1, 'not a professional scientist'),
+    (-2, 'other account already exists'),
+    (-3, 'barred from SciPost'),
+    (-4, 'account disabled'),
+    )
+
+TITLE_CHOICES = (
+    ('PR', 'Prof.'),
+    ('DR', 'Dr'),
+    ('MR', 'Mr'),
+    ('MRS', 'Mrs'),
+)

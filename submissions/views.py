@@ -10,17 +10,15 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
-from django.utils.decorators import method_decorator
 
 from guardian.decorators import permission_required_or_403
-from guardian.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import assign_perm
 
+from .constants import SUBMISSION_STATUS_PUBLICLY_UNLISTED, SUBMISSION_STATUS_VOTING_DEPRECATED,\
+                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES
 from .models import Submission, EICRecommendation, EditorialAssignment,\
-                    RefereeInvitation, Report, EditorialCommunication,\
-                    SUBMISSION_STATUS_PUBLICLY_UNLISTED, SUBMISSION_STATUS_VOTING_DEPRECATED,\
-                    SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS_OUT_OF_POOL,\
-                    SUBMISSION_STATUS, submission_status_dict, ed_comm_choices_dict
+                    RefereeInvitation, Report, EditorialCommunication
 from .forms import SubmissionIdentifierForm, SubmissionForm, SubmissionSearchForm,\
                    RecommendationVoteForm, ConsiderAssignmentForm, AssignSubmissionForm,\
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
@@ -29,9 +27,8 @@ from .forms import SubmissionIdentifierForm, SubmissionForm, SubmissionSearchFor
 from .utils import SubmissionUtils
 
 from comments.models import Comment
-from journals.models import journals_submit_dict
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
-from scipost.models import Contributor, title_dict, Remark, RegistrationInvitation
+from scipost.models import Contributor, Remark, RegistrationInvitation
 
 from scipost.services import ArxivCaller
 from scipost.utils import Utils
@@ -381,7 +378,7 @@ def pool(request):
 @login_required
 @permission_required('scipost.can_view_pool', raise_exception=True)
 def submissions_by_status(request, status):
-    if status not in submission_status_dict.keys():
+    if status not in dict(SUBMISSION_STATUS).keys():
         errormessage = 'Unknown status.'
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
     submissions_of_status = (Submission.objects.get_pool(request.user)
@@ -470,7 +467,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
         context = {'errormessage': errormessage}
         return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
     if assignment.submission.editor_in_charge:
-        errormessage = (title_dict[assignment.submission.editor_in_charge.title] + ' ' +
+        errormessage = (assignment.submission.editor_in_charge.get_title_display() + ' ' +
                         assignment.submission.editor_in_charge.user.last_name +
                         ' has already agreed to be Editor-in-charge of this Submission.')
         context = {'errormessage': errormessage}
@@ -525,7 +522,7 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
         context = {'errormessage': errormessage}
         return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
     if submission.editor_in_charge:
-        errormessage = (title_dict[submission.editor_in_charge.title] + ' ' +
+        errormessage = (submission.editor_in_charge.get_title_display() + ' ' +
                         submission.editor_in_charge.user.last_name +
                         ' has already agreed to be Editor-in-charge of this Submission.')
         context = {'errormessage': errormessage}
@@ -710,10 +707,10 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
             ref_invitation.save()
             # Create and send a registration invitation
             ref_inv_message_head = ('On behalf of the Editor-in-charge ' +
-                                    title_dict[submission.editor_in_charge.title] + ' ' +
+                                    submission.editor_in_charge.get_title_display() + ' ' +
                                     submission.editor_in_charge.user.last_name +
                                     ', we would like to invite you to referee a Submission to ' +
-                                    journals_submit_dict[submission.submitted_to_journal] +
+                                    submission.get_submitted_to_journal_display +
                                     ', namely\n\n' + submission.title +
                                     '\nby ' + submission.author_list +
                                     '\n (see https://scipost.org/submission/'
@@ -917,7 +914,7 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
     """
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     errormessage = None
-    if comtype not in ed_comm_choices_dict.keys():
+    if comtype not in dict(ED_COMM_CHOICES).keys():
         errormessage = 'Unknown type of cummunication.'
     # TODO: Verify that this is requested by an authorized contributor (eic, ref, author)
     elif (comtype in ['EtoA', 'EtoR', 'EtoS'] and
@@ -971,7 +968,7 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if submission.status not in ['EICassigned', 'review_closed']:
         errormessage = ('This submission\'s current status is: ' +
-                        submission_status_dict[submission.status] + '. '
+                        submission.get_status_display + '. '
                         'An Editorial Recommendation is not required.')
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
     if request.method == 'POST':

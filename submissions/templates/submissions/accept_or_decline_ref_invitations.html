@@ -33,10 +33,8 @@ $(document).ready(function(){
   </div>
   <br>
   <hr>
-  {{ invitation_to_consider.submission.header_as_table }}
-  <br />
-  <h4>Abstract:</h4>
-  <p>{{ invitation_to_consider.submission.abstract }}</p>
+  {% include 'submissions/_submission_summary.html' with submission=invitation_to_consider.submission %}
+
   <br/>
   <hr>
   <div class="flex-greybox">

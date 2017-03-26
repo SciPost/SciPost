@@ -3,12 +3,9 @@ import datetime
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 
-from journals.models import journals_submit_dict
-from scipost.models import title_dict
 from scipost.utils import EMAIL_FOOTER
 
 from submissions.models import EditorialAssignment
-from submissions.models import assignment_refusal_reasons_dict, ed_comm_choices_dict
 from submissions.forms import report_refusal_choices_dict
 
 
@@ -46,7 +43,7 @@ class SubmissionUtils(object):
     @classmethod
     def send_authors_submission_ack_email(cls):
         """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nWe have received your Submission to SciPost,\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + '.' +
@@ -68,7 +65,7 @@ class SubmissionUtils(object):
             '<p>With many thanks,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'title': title_dict[cls.submission.submitted_by.title],
+            'title': cls.submission.submitted_by.get_title_display(),
             'last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
@@ -88,7 +85,7 @@ class SubmissionUtils(object):
     @classmethod
     def send_authors_resubmission_ack_email(cls):
         """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nWe have received your Resubmission to SciPost,\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + '.' +
@@ -107,7 +104,7 @@ class SubmissionUtils(object):
             '<p>With many thanks,</p>'
             '<p>The SciPost Team</p>')
         email_context = Context({
-            'title': title_dict[cls.submission.submitted_by.title],
+            'title': cls.submission.submitted_by.get_title_display(),
             'last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
@@ -127,7 +124,7 @@ class SubmissionUtils(object):
     @classmethod
     def send_assignment_request_email(cls):
         """ Requires loading 'assignment' attribute. """
-        email_text = ('Dear ' + title_dict[cls.assignment.to.title] + ' ' +
+        email_text = ('Dear ' + cls.assignment.to.get_title_display() + ' ' +
                       cls.assignment.to.user.last_name +
                       ', \n\nWe have received a Submission to SciPost ' +
                       'for which we would like you to consider becoming Editor-in-charge:\n\n' +
@@ -160,7 +157,7 @@ class SubmissionUtils(object):
             '\n<p>Many thanks in advance for your collaboration,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'title': title_dict[cls.assignment.to.title],
+            'title': cls.assignment.to.get_title_display(),
             'last_name': cls.assignment.to.user.last_name,
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
@@ -180,7 +177,7 @@ class SubmissionUtils(object):
     @classmethod
     def send_EIC_appointment_email(cls):
         """ Requires loading 'assignment' attribute. """
-        email_text = ('Dear ' + title_dict[cls.assignment.to.title] + ' '
+        email_text = ('Dear ' + cls.assignment.to.get_title_display() + ' '
                       + cls.assignment.to.user.last_name
                       + ', \n\nThank you for accepting to become Editor-in-charge '
                       'of the SciPost Submission\n\n'
@@ -216,7 +213,7 @@ class SubmissionUtils(object):
             '<p>Many thanks in advance for your collaboration,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'title': title_dict[cls.assignment.to.title],
+            'title': cls.assignment.to.get_title_display(),
             'last_name': cls.assignment.to.user.last_name,
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
@@ -237,7 +234,7 @@ class SubmissionUtils(object):
     @classmethod
     def send_EIC_reappointment_email(cls):
         """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + title_dict[cls.submission.editor_in_charge.title] + ' '
+        email_text = ('Dear ' + cls.submission.editor_in_charge.get_title_display() + ' '
                       + cls.submission.editor_in_charge.user.last_name
                       + ', \n\nThe authors of the SciPost Submission\n\n'
                       + cls.submission.title + ' by '
@@ -278,7 +275,7 @@ class SubmissionUtils(object):
             '<p>Many thanks in advance for your collaboration,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'title': title_dict[cls.submission.editor_in_charge.title],
+            'title': cls.submission.editor_in_charge.get_title_display(),
             'last_name': cls.submission.editor_in_charge.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
@@ -299,7 +296,7 @@ class SubmissionUtils(object):
     @classmethod
     def send_author_prescreening_passed_email(cls):
         """ Requires loading 'assignment' attribute. """
-        email_text = ('Dear ' + title_dict[cls.assignment.submission.submitted_by.title] + ' '
+        email_text = ('Dear ' + cls.assignment.submission.submitted_by.get_title_display() + ' '
                       + cls.assignment.submission.submitted_by.user.last_name
                       + ', \n\nWe are pleased to inform you that your recent Submission to SciPost,\n\n'
                       + cls.assignment.submission.title + ' by ' + cls.assignment.submission.author_list
@@ -354,7 +351,7 @@ class SubmissionUtils(object):
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'title': title_dict[cls.assignment.submission.submitted_by.title],
+            'title': cls.assignment.submission.submitted_by.get_title_display(),
             'last_name': cls.assignment.submission.submitted_by.user.last_name,
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
@@ -377,7 +374,7 @@ class SubmissionUtils(object):
     @classmethod
     def assignment_failed_email_authors(cls):
         """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' '
+        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' '
                       + cls.submission.submitted_by.user.last_name
                       + ', \n\nYou recent Submission to SciPost,\n\n'
                       + cls.submission.title + ' by ' + cls.submission.author_list
@@ -406,7 +403,7 @@ class SubmissionUtils(object):
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'title': title_dict[cls.submission.submitted_by.title],
+            'title': cls.submission.submitted_by.get_title_display(),
             'last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
@@ -433,11 +430,11 @@ class SubmissionUtils(object):
         instead, which calls the send_registration_email method in scipost/utils.
         Requires loading 'invitation' attribute.
         """
-        email_text = ('Dear ' + title_dict[cls.invitation.referee.title] + ' ' +
+        email_text = ('Dear ' + cls.invitation.referee.get_title_display() + ' ' +
                       cls.invitation.referee.user.last_name +
                       ', \n\nWe have received a Submission to SciPost '
                       'which, in view of your expertise and on behalf of the Editor-in-charge '
-                      + title_dict[cls.invitation.submission.editor_in_charge.title] + ' '
+                      + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
                       + cls.invitation.submission.editor_in_charge.user.last_name
                       + ', we would like to invite you to referee:\n\n'
                       + cls.invitation.submission.title + ' by ' + cls.invitation.submission.author_list
@@ -486,9 +483,9 @@ class SubmissionUtils(object):
             'and thank you in advance for your consideration.</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'title': title_dict[cls.invitation.referee.title],
+            'title': cls.invitation.referee.get_title_display(),
             'last_name': cls.invitation.referee.user.last_name,
-            'EIC_title': title_dict[cls.invitation.submission.editor_in_charge.title],
+            'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
@@ -515,10 +512,10 @@ class SubmissionUtils(object):
         This method is used to remind a referee who is not registered as a Contributor.
         It is called from the ref_invitation_reminder method in submissions/views.py.
         """
-        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' '
+        email_text = ('Dear ' + cls.invitation.get_title_display() + ' '
                       + cls.invitation.last_name + ',\n\n'
                       'On behalf of the Editor-in-charge '
-                      + title_dict[cls.invitation.submission.editor_in_charge.title] + ' '
+                      + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
                       + cls.invitation.submission.editor_in_charge.user.last_name
                       + ', we would like to cordially remind you of our recent request to referee\n\n'
                       + cls.invitation.submission.title + ' by '
@@ -584,9 +581,9 @@ class SubmissionUtils(object):
             '<p>Many thanks in advance,</p>'
             '<p>The SciPost Team</p>')
         email_context = Context({
-            'title': title_dict[cls.invitation.title],
+            'title': cls.invitation.get_title_display(),
             'last_name': cls.invitation.last_name,
-            'EIC_title': title_dict[cls.invitation.submission.editor_in_charge.title],
+            'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
@@ -614,10 +611,10 @@ class SubmissionUtils(object):
         This method is used to inform a referee that his/her services are no longer required.
         It is called from the cancel_ref_invitation method in submissions/views.py.
         """
-        email_text = ('Dear ' + title_dict[cls.invitation.title] + ' '
+        email_text = ('Dear ' + cls.invitation.get_title_display() + ' '
                       + cls.invitation.last_name + ',\n\n'
                       'On behalf of the Editor-in-charge '
-                      + title_dict[cls.invitation.submission.editor_in_charge.title] + ' '
+                      + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
                       + cls.invitation.submission.editor_in_charge.user.last_name
                       + ', we would like to inform you that your report on\n\n'
                       + cls.invitation.submission.title + ' by '
@@ -655,9 +652,9 @@ class SubmissionUtils(object):
                 'after which your registration will be activated, giving you full access to '
                 'the portal\'s facilities (in particular allowing you to provide referee reports).</p>')
         email_context = Context({
-            'title': title_dict[cls.invitation.title],
+            'title': cls.invitation.get_title_display(),
             'last_name': cls.invitation.last_name,
-            'EIC_title': title_dict[cls.invitation.submission.editor_in_charge.title],
+            'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
@@ -679,9 +676,9 @@ class SubmissionUtils(object):
     @classmethod
     def email_referee_response_to_EIC(cls):
         """ Requires loading 'invitation' attribute. """
-        email_text = ('Dear ' + title_dict[cls.invitation.submission.editor_in_charge.title] + ' ' +
+        email_text = ('Dear ' + cls.invitation.submission.editor_in_charge.get_title_display() + ' ' +
                       cls.invitation.submission.editor_in_charge.user.last_name + ','
-                      '\n\nReferee ' + title_dict[cls.invitation.referee.title] + ' ' +
+                      '\n\nReferee ' + cls.invitation.referee.get_title_display() + ' ' +
                       cls.invitation.referee.user.last_name + ' has ')
         email_text_html = (
             '<p>Dear {{ EIC_title }} {{ EIC_last_name }},</p>'
@@ -693,7 +690,7 @@ class SubmissionUtils(object):
             email_subject = 'SciPost: referee accepts to review'
         elif not cls.invitation.accepted:
             email_text += ('declined (due to reason: '
-                           + assignment_refusal_reasons_dict[cls.invitation.refusal_reason] + ') ')
+                           + cls.invitation.get_refusal_reason_display() + ') ')
             email_text_html += 'declined (due to reason: {{ reason }}) '
 
         email_text += ('to referee Submission\n\n'
@@ -715,16 +712,16 @@ class SubmissionUtils(object):
         email_text_html += ('<p>Many thanks for your collaboration,</p>'
                             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'EIC_title': title_dict[cls.invitation.submission.editor_in_charge.title],
+            'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
-            'ref_title': title_dict[cls.invitation.referee.title],
+            'ref_title': cls.invitation.referee.get_title_display(),
             'ref_last_name': cls.invitation.referee.user.last_name,
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.invitation.submission.arxiv_identifier_w_vn_nr,
         })
         if cls.invitation.refusal_reason:
-            email_context['reason'] = assignment_refusal_reasons_dict[cls.invitation.refusal_reason]
+            email_context['reason'] = cls.invitation.get_refusal_reason_display
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -740,9 +737,9 @@ class SubmissionUtils(object):
     @classmethod
     def email_EIC_report_delivered(cls):
         """ Requires loading 'report' attribute. """
-        email_text = ('Dear ' + title_dict[cls.report.submission.editor_in_charge.title] + ' '
+        email_text = ('Dear ' + cls.report.submission.editor_in_charge.get_title_display() + ' '
                       + cls.report.submission.editor_in_charge.user.last_name + ','
-                      '\n\nReferee ' + title_dict[cls.report.author.title] + ' '
+                      '\n\nReferee ' + cls.report.author.get_title_display() + ' '
                       + cls.report.author.user.last_name +
                       ' has delivered a Report for Submission\n\n'
                       + cls.report.submission.title + ' by '
@@ -762,9 +759,9 @@ class SubmissionUtils(object):
             '<p>Many thanks for your collaboration,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'EIC_title': title_dict[cls.report.submission.editor_in_charge.title],
+            'EIC_title': cls.report.submission.editor_in_charge.get_title_display(),
             'EIC_last_name': cls.report.submission.editor_in_charge.user.last_name,
-            'ref_title': title_dict[cls.report.author.title],
+            'ref_title': cls.report.author.get_title_display(),
             'ref_last_name': cls.report.author.user.last_name,
             'sub_title': cls.report.submission.title,
             'author_list': cls.report.submission.author_list,
@@ -784,7 +781,7 @@ class SubmissionUtils(object):
     @classmethod
     def acknowledge_report_email(cls):
         """ Requires loading 'report' attribute. """
-        email_text = ('Dear ' + title_dict[cls.report.author.title] + ' ' +
+        email_text = ('Dear ' + cls.report.author.get_title_display() + ' ' +
                       cls.report.author.user.last_name + ','
                       '\n\nMany thanks for your Report on Submission\n\n' +
                       cls.report.submission.title + ' by '
@@ -837,7 +834,7 @@ class SubmissionUtils(object):
                 '\n<strong>Requested changes</strong>: <br/><p>{{ requested_changes|linebreaks }}</p>'
                 '\n<strong>Remarks for Editors</strong>: <br/><p>{{ remarks_for_editors|linebreaks }}</p>')
         email_context = Context({
-            'ref_title': title_dict[cls.report.author.title],
+            'ref_title': cls.report.author.get_title_display(),
             'ref_last_name': cls.report.author.user.last_name,
             'sub_title': cls.report.submission.title,
             'author_list': cls.report.submission.author_list,
@@ -866,7 +863,7 @@ class SubmissionUtils(object):
     @classmethod
     def send_author_report_received_email(cls):
         """ Requires loading 'report' attribute. """
-        email_text = ('Dear ' + title_dict[cls.report.submission.submitted_by.title] + ' ' +
+        email_text = ('Dear ' + cls.report.submission.submitted_by.get_title_display() + ' ' +
                       cls.report.submission.submitted_by.user.last_name +
                       ', \n\nA Report has been posted on your recent Submission to SciPost,\n\n' +
                       cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.'
@@ -897,7 +894,7 @@ class SubmissionUtils(object):
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'auth_title': title_dict[cls.report.submission.submitted_by.title],
+            'auth_title': cls.report.submission.submitted_by.get_title_display(),
             'auth_last_name': cls.report.submission.submitted_by.user.last_name,
             'sub_title': cls.report.submission.title,
             'author_list': cls.report.submission.author_list,
@@ -918,7 +915,7 @@ class SubmissionUtils(object):
     @classmethod
     def send_author_comment_received_email(cls):
         """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nA Comment has been posted on your recent Submission to SciPost,\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + '.'
@@ -939,7 +936,7 @@ class SubmissionUtils(object):
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'auth_title': title_dict[cls.submission.submitted_by.title],
+            'auth_title': cls.submission.submitted_by.get_title_display(),
             'auth_last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
@@ -971,7 +968,7 @@ class SubmissionUtils(object):
         if cls.communication.comtype in ['AtoE', 'RtoE', 'StoE']:
             recipient_email.append(cls.communication.submission.editor_in_charge.user.email)
             recipient_greeting = ('Dear ' +
-                                  title_dict[cls.communication.submission.editor_in_charge.title] + ' ' +
+                                  cls.communication.submission.editor_in_charge.get_title_display() + ' ' +
                                   cls.communication.submission.editor_in_charge.user.last_name)
             further_action_page = ('https://scipost.org/submission/editorial_page/'
                                    + cls.communication.submission.arxiv_identifier_w_vn_nr)
@@ -981,14 +978,14 @@ class SubmissionUtils(object):
         elif cls.communication.comtype in ['EtoA']:
             recipient_email.append(cls.communication.submission.submitted_by.user.email)
             recipient_greeting = ('Dear ' +
-                                  title_dict[cls.communication.submission.submitted_by.title] + ' ' +
+                                  cls.communication.submission.submitted_by.get_title_display() + ' ' +
                                   cls.communication.submission.submitted_by.user.last_name)
             bcc_emails.append(cls.communication.submission.editor_in_charge)
             bcc_emails.append('submissions@scipost.org')
         elif cls.communication.comtype in ['EtoR']:
             recipient_email.append(cls.communication.referee.user.email)
             recipient_greeting = ('Dear ' +
-                                  title_dict[cls.communication.referee.title] + ' ' +
+                                  cls.communication.referee.get_title_display() + ' ' +
                                   cls.communication.referee.user.last_name)
             bcc_emails.append(cls.communication.submission.editor_in_charge)
             bcc_emails.append('submissions@scipost.org')
@@ -1000,7 +997,7 @@ class SubmissionUtils(object):
 
         email_text = (recipient_greeting +
                       ', \n\nPlease find here a communication (' +
-                      ed_comm_choices_dict[cls.communication.comtype] + ') '
+                      cls.communication.get_comtype_display() + ') '
                       'concerning Submission\n\n' +
                       cls.communication.submission.title + ' by '
                       + cls.communication.submission.author_list + '.'
@@ -1012,7 +1009,7 @@ class SubmissionUtils(object):
                        '\n\nSincerely,' +
                        '\n\nThe SciPost Team.')
         emailmessage = EmailMessage(
-            'SciPost: communication (' + ed_comm_choices_dict[cls.communication.comtype] + ')',
+            'SciPost: communication (' + cls.communication.get_comtype_display() + ')',
             email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
             recipient_email,
@@ -1023,7 +1020,7 @@ class SubmissionUtils(object):
     @classmethod
     def send_author_revision_requested_email(cls):
         """ Requires loading 'submission' and 'recommendation' attributes. """
-        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nThe Editor-in-charge of your recent Submission to SciPost,\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + ','
@@ -1070,7 +1067,7 @@ class SubmissionUtils(object):
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'auth_title': title_dict[cls.submission.submitted_by.title],
+            'auth_title': cls.submission.submitted_by.get_title_display(),
             'auth_last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
@@ -1092,7 +1089,7 @@ class SubmissionUtils(object):
     @classmethod
     def send_author_College_decision_email(cls):
         """ Requires loading 'submission' and 'recommendation' attributes. """
-        email_text = ('Dear ' + title_dict[cls.submission.submitted_by.title] + ' ' +
+        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nThe Editorial College of SciPost has taken a decision '
                       'regarding your recent Submission,\n\n' +
@@ -1107,7 +1104,7 @@ class SubmissionUtils(object):
             or cls.recommendation.recommendation == 3):
             email_text += ('We are pleased to inform you that your Submission '
                            'has been accepted for publication in '
-                           + journals_submit_dict[cls.submission.submitted_to_journal])
+                           + cls.submission.get_submitted_to_journal_display())
             email_text_html += (
                 '<p>We are pleased to inform you that your Submission '
                 'has been accepted for publication in <strong>{{ journal }}</strong>')
@@ -1159,12 +1156,12 @@ class SubmissionUtils(object):
                             '<p>Sincerely,</p>'
                             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'auth_title': title_dict[cls.submission.submitted_by.title],
+            'auth_title': cls.submission.submitted_by.get_title_display(),
             'auth_last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
-            'journal': journals_submit_dict[cls.submission.submitted_to_journal],
+            'journal': cls.submission.get_submitted_to_journal_display(),
         })
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)

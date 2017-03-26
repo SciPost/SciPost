@@ -4,25 +4,22 @@
 
 {% load staticfiles %}
 
-{% block bodysup %}
+{% block content %}
 
-
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>SciPost News</h1>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">SciPost News</h1>
     </div>
-  </div>
+</div>
 
-  <div class="flex-container">
-    <ul class="NewsItemsList">
-      {% for item in newsitems %}
-      <li>{{ item.descriptor_full|linebreaks }}</li>
-      {% endfor %}
-    </ul>
-  </div>
+<div class="row">
+    <div class="col-12">
+        {% for item in newsitems %}
+            <div class="card card-grey card-news">
+                {% include 'news/news_card_content.html' with news=item %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
 
-</section>
-
-
-{% endblock bodysup %}
+{% endblock content %}
