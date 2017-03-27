@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
                        STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES
-from .helpers import paper_nr_string, journal_name_abbrev_citation
+from .helpers import paper_nr_string, journal_name_abbrev_doi, journal_name_abbrev_citation
 from .managers import IssueManager, PublicationManager
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
@@ -29,6 +29,12 @@ class Journal(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_abbreviation_citation(self):
+        return journal_name_abbrev_citation(self.name)
+
+    def get_abbreviation_doi(self):
+        return journal_name_abbrev_doi(self.name)
 
 
 class Volume(models.Model):
@@ -132,37 +138,14 @@ class Publication(models.Model):
                   + ', published ' + self.publication_date.strftime('%Y-%m-%d'))
         return header
 
+    def get_paper_nr(self):
+        return paper_nr_string(self.paper_nr)
+
     def citation(self):
-        return (journal_name_abbrev_citation(self.in_issue.in_volume.in_journal.name)
+        return (self.in_issue.in_volume.in_journal.get_abbreviation_citation()
                 + ' ' + str(self.in_issue.in_volume.number)
-                + ', ' + paper_nr_string(self.paper_nr)
+                + ', ' + self.get_paper_nr()
                 + ' (' + self.publication_date.strftime('%Y') + ')')
-
-    def citation_for_web(self):
-        citation = ('{{ abbrev }} <strong>{{ volume_nr }}</strong>'
-                    ', {{ paper_nr }} ({{ year }})')
-        template = Template(citation)
-        context = Context(
-            {'abbrev': journal_name_abbrev_citation(self.in_issue.in_volume.in_journal.name),
-             'volume_nr': str(self.in_issue.in_volume.number),
-             'issue_nr': str(self.in_issue.number),
-             'paper_nr': paper_nr_string(self.paper_nr),
-             'year': self.publication_date.strftime('%Y'), })
-        return template.render(context)
-
-    def citation_for_web_linked(self):
-        citation = ('<a href="{% url \'scipost:publication_detail\' doi_string=doi_string %}">'
-                    '{{ abbrev }} <strong>{{ volume_nr }}</strong>'
-                    ', {{ paper_nr }} ({{ year }})</a>')
-        template = Template(citation)
-        context = Context(
-            {'doi_string': self.doi_string,
-             'abbrev': journal_name_abbrev_citation(self.in_issue.in_volume.in_journal.name),
-             'volume_nr': str(self.in_issue.in_volume.number),
-             'issue_nr': str(self.in_issue.number),
-             'paper_nr': paper_nr_string(self.paper_nr),
-             'year': self.publication_date.strftime('%Y'), })
-        return template.render(context)
 
     def citations_as_ul(self):
         output = '<ul>'
