@@ -1,7 +1,8 @@
 from django import forms
 from django.core.validators import RegexValidator
 
-from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS
+from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS,\
+                       REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES
 from .models import Submission, RefereeInvitation, Report, EICRecommendation
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
@@ -157,23 +158,6 @@ class VotingEligibilityForm(forms.Form):
 ############
 # Reports:
 ############
-
-REPORT_ACTION_CHOICES = (
-    #    (0, 'modify'),
-    (1, 'accept'),
-    (2, 'refuse'),
-)
-
-REPORT_REFUSAL_CHOICES = (
-    (0, '-'),
-    (-1, 'insufficiently clear'),
-    (-2, 'not fully factually correct'),
-    (-3, 'not useful for the authors'),
-    (-4, 'not sufficiently academic in style'),
-)
-
-report_refusal_choices_dict = dict(REPORT_REFUSAL_CHOICES)
-
 
 class ReportForm(forms.ModelForm):
     class Meta:

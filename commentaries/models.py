@@ -4,8 +4,8 @@ from django.core.urlresolvers import reverse
 from django.template import Template, Context
 
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
-from scipost.behaviors import ArxivCallable
-from scipost.models import TimeStampedModel, Contributor
+from scipost.behaviors import ArxivCallable, TimeStampedModel
+from scipost.models import Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
 
 from .managers import CommentaryManager

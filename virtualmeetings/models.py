@@ -6,8 +6,9 @@ from django.utils import timezone
 from .constants import MOTION_CATEGORIES
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
-                              subject_areas_dict, disciplines_dict
-from scipost.models import Contributor, ChoiceArrayField
+                              subject_areas_dict
+from scipost.fields import ChoiceArrayField
+from scipost.models import Contributor
 
 
 class VGM(models.Model):
@@ -112,7 +113,7 @@ class Nomination(models.Model):
             'proposer': '%s %s' % (self.by.user.first_name,
                                    self.by.user.last_name),
             'name': self.first_name + ' ' + self.last_name,
-            'discipline': disciplines_dict[self.discipline],
+            'discipline': self.get_discipline_display(),
             'webpage': self.webpage,
         })
         template = Template(html)

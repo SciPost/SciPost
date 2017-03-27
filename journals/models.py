@@ -9,7 +9,8 @@ from .helpers import paper_nr_string, journal_name_abbrev_citation
 from .managers import IssueManager, PublicationManager
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
-from scipost.models import ChoiceArrayField, Contributor
+from scipost.fields import ChoiceArrayField
+from scipost.models import Contributor
 
 
 class UnregisteredAuthor(models.Model):

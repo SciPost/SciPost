@@ -6,7 +6,6 @@ from django.template import Context, Template
 from scipost.utils import EMAIL_FOOTER
 
 from submissions.models import EditorialAssignment
-from submissions.forms import report_refusal_choices_dict
 
 
 class SubmissionUtils(object):
@@ -801,7 +800,7 @@ class SubmissionUtils(object):
         else:
             email_text += ('\n\nYour Report has been reviewed by the Editor-in-charge of the Submission, '
                            'who decided not to admit it for online posting, citing the reason: '
-                           + report_refusal_choices_dict[int(cls.report.status)] + '.'
+                           + cls.report.get_status_display() + '.'
                            ' We copy the text entries of your report below for your convenience, '
                            'if ever you wish to reformulate it and resubmit it.')
             email_text_html += (
@@ -846,7 +845,7 @@ class SubmissionUtils(object):
             'remarks_for_editors': cls.report.remarks_for_editors,
         })
         if cls.report.status < 0:
-            email_context['refusal_reason'] = report_refusal_choices_dict[int(cls.report.status)]
+            email_context['refusal_reason'] = cls.report.get_status_display()
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)

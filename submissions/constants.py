@@ -124,3 +124,38 @@ REPORT_REC = (
     (-2, 'Ask for major revision'),
     (-3, 'Reject')
 )
+
+#
+# Reports
+#
+REPORT_ACTION_ACCEPT = 1
+REPORT_ACTION_REFUSE = 2
+REPORT_ACTION_CHOICES = (
+    (REPORT_ACTION_ACCEPT, 'accept'),
+    (REPORT_ACTION_REFUSE, 'refuse'),
+)
+
+STATUS_VETTED = 1
+STATUS_UNVETTED = 0
+STATUS_UNCLEAR = -1
+STATUS_INCORRECT = -2
+STATUS_NOT_USEFUL = -3
+STATUS_NOT_ACADEMIC = -4
+
+REPORT_REFUSAL_NONE = 0
+REPORT_REFUSAL_CHOICES = (
+    (STATUS_UNVETTED, '-'),
+    (STATUS_UNCLEAR, 'insufficiently clear'),
+    (STATUS_INCORRECT, 'not fully factually correct'),
+    (STATUS_NOT_USEFUL, 'not useful for the authors'),
+    (STATUS_NOT_ACADEMIC, 'not sufficiently academic in style'),
+)
+
+REPORT_STATUSES = (
+    (STATUS_VETTED, 'Vetted'),
+    (STATUS_UNVETTED, 'Unvetted'),
+    (STATUS_INCORRECT, 'Rejected (incorrect)'),
+    (STATUS_UNCLEAR, 'Rejected (unclear)'),
+    (STATUS_NOT_USEFUL, 'Rejected (not useful)'),
+    (STATUS_NOT_ACADEMIC, 'Rejected (not academic in style)')
+)

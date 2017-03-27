@@ -6,12 +6,14 @@ from django.contrib.postgres.fields import JSONField
 
 from .constants import ASSIGNMENT_REFUSAL_REASONS, SUBMISSION_STATUS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
-                       RANKING_CHOICES, REPORT_REC
+                       RANKING_CHOICES, REPORT_REC, REPORT_REFUSAL_CHOICES,\
+                       REPORT_STATUSES, STATUS_UNVETTED
 from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager
 
 from scipost.behaviors import ArxivCallable
 from scipost.constants import TITLE_CHOICES
-from scipost.models import ChoiceArrayField, Contributor
+from scipost.fields import ChoiceArrayField
+from scipost.models import Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
@@ -242,14 +244,7 @@ class RefereeInvitation(models.Model):
 
 class Report(models.Model):
     """ Both types of reports, invited or contributed. """
-    # status: see forms.py:REPORT_REFUSAL_CHOICES
-    # 1: vetted
-    # 0: unvetted
-    # -1: rejected (unclear)
-    # -2: rejected (incorrect)
-    # -3: rejected (not useful)
-    # -4: rejected (not academic in style)
-    status = models.SmallIntegerField(default=0)
+    status = models.SmallIntegerField(choices=REPORT_STATUSES, default=STATUS_UNVETTED)
     submission = models.ForeignKey(Submission, related_name='reports', on_delete=models.CASCADE)
     vetted_by = models.ForeignKey(Contributor, related_name="report_vetted_by",
                                   blank=True, null=True, on_delete=models.CASCADE)

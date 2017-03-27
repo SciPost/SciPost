@@ -5,20 +5,11 @@ from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.models import Contributor
 
+from .constants import THESIS_TYPES
 from .managers import ThesisLinkManager
 
 
 class ThesisLink(models.Model):
-    MASTER_THESIS = 'MA'
-    PHD_THESIS = 'PhD'
-    HABILITATION_THESIS = 'Hab'
-    THESIS_TYPES = (
-        (MASTER_THESIS, 'Master\'s'),
-        (PHD_THESIS, 'Ph.D.'),
-        (HABILITATION_THESIS, 'Habilitation'),
-    )
-    THESIS_TYPES_DICT = dict(THESIS_TYPES)
-
     """ An URL pointing to a thesis """
     requested_by = models.ForeignKey(
         Contributor, blank=True, null=True,

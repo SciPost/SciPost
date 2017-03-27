@@ -1,25 +1,27 @@
 from django import template
 
-from scipost.constants import SCIPOST_DISCIPLINES, subject_areas_dict, disciplines_dict
-
 register = template.Library()
 
 
 @register.filter
 def type(thesislink):
-    return thesislink.THESIS_TYPES_DICT[thesislink.type]
+    # deprecated method, to be removed in future
+    return thesislink.get_type_display()
 
 
 @register.filter
 def discipline(thesislink):
-    return disciplines_dict[thesislink.discipline]
+    # deprecated method, to be removed in future
+    return thesislink.get_discipline_display()
 
 
 @register.filter
 def domain(thesislink):
-    return thesislink.get_domain_display
+    # deprecated method, to be removed in future
+    return thesislink.get_domain_display()
 
 
 @register.filter
 def subject_area(thesislink):
-    return subject_areas_dict[thesislink.subject_area]
+    # deprecated method, to be removed in future
+    return thesislink.get_subject_area_display()

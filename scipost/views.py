@@ -26,11 +26,11 @@ from django.db.models import Prefetch
 
 from guardian.decorators import permission_required
 
-from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict
+from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict
 from .models import Contributor, CitationNotification, UnavailabilityPeriod,\
                     DraftInvitation, RegistrationInvitation,\
-                    SciPost_from_addresses_dict,\
-                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement, EditorialCollege, EditorialCollegeFellowship
+                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement,\
+                    EditorialCollege, EditorialCollegeFellowship
 from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriodForm,\
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\

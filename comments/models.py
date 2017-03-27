@@ -2,7 +2,8 @@ from django.db import models
 from django.shortcuts import get_object_or_404
 
 from commentaries.models import Commentary
-from scipost.models import TimeStampedModel, Contributor
+from scipost.behaviors import TimeStampedModel
+from scipost.models import Contributor
 from submissions.models import Submission, Report
 from theses.models import ThesisLink
 
