@@ -27,4 +27,8 @@ table.submission_header {
     background-color: $brand-danger;
     color: $white;
     border-radius: $card-border-radius;
+
+    &.no-actions {
+        background-color: $brand-success;
+    }
 }

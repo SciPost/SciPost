@@ -1,0 +1,86 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+{% load request_filters %}
+
+{% block pagetitle %}: Theses{% endblock pagetitle %}
+
+{% block headsup %}
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+{% endblock headsup %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card card-grey">
+            <div class="card-block min-height-190">
+              <h1 class="card-title">SciPost Theses</h1>
+              <h3><a href="{% url 'theses:request_thesislink' %}">Request a new Thesis Link</a></h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-grey">
+            <div class="card-block min-height-190">
+              <h2 class="card-title">Search SciPost Theses:</h2>
+              <form class="small" action="{% url 'theses:theses' %}" method="get">
+                  {{ form|bootstrap:'4,8,sm' }}
+                <input class="btn btn-sm btn-secondary" type="submit" name="Submit" />
+              </form>
+          </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-grey">
+            <div class="card-block min-height-190">
+              <h2 class="card-title">View SciPost Theses</h2>
+              <ul>
+                <li>Physics: last <a href="{% url 'theses:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'theses:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'theses:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
+              </ul>
+          </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+<div class="row">
+    <div class="col-12">
+        {% if recent %}
+            <h2>Recently active Thesis Links:</h2>
+        {% elif browse %}
+            <h2>Thesis Links in {{ discipline }} in the last {{ nrweeksback }} week{{ nrweeksback|pluralize }}:</h2>
+        {% else %}
+            <h2>Search results:</h3>
+        {% endif %}
+
+        {% if object_list %}
+            {% if is_paginated %}
+                  <p>
+                  {% if page_obj.has_previous %}
+                    <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
+                  {% endif %}
+                  Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                  {% if page_obj.has_next %}
+                    <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
+                  {% endif %}
+                  </p>
+            {% endif %}
+
+            </div>
+            <div class="col-12">
+
+            <ul class="list-group list-group-flush">
+                {% for thesislink in object_list %}
+                    <li class="list-group-item">
+                        {% include 'theses/_thesislink_card_content.html' with thesislink=thesislink %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <h3>No match found for your search query.</h3>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock content %}

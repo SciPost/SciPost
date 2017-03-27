@@ -1,0 +1,19 @@
+<div class="card-block">
+    {% block recommendation_header %}
+        <h3 class="card-title">Date {{recommendation.date_submitted}}</h3>
+    {% endblock %}
+
+    <h3 class="pb-0">Remarks for authors</h3>
+    <p class="pl-md-3">{{recommendation.remarks_for_authors}}</p>
+
+    <h3 class="pb-0">Requested changes</h3>
+    <p class="pl-md-3">{{recommendation.requested_changes}}</p>
+
+    <h3 class="pb-0">Remarks for Editorial College</h3>
+    <p class="pl-md-3">{{recommendation.remarks_for_editorial_college}}</p>
+
+    {% block recommendation_before_recommendation %}{% endblock %}
+
+    <h3 class="pb-0">Recommendation</h3>
+    <p class="pl-md-3 mb-0">{{recommendation.get_recommendation_display}}</p>
+</div>

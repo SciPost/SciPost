@@ -1,6 +1,6 @@
 from django import template
 
-from journals.models import paper_nr_string
+from journals.helpers import paper_nr_string
 
 register = template.Library()
 

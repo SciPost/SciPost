@@ -6,7 +6,8 @@ from django.contrib.auth.models import Group
 
 from django_countries.data import COUNTRIES
 
-from .models import Contributor, EditorialCollege, EditorialCollegeFellowship, TITLE_CHOICES
+from .models import Contributor, EditorialCollege, EditorialCollegeFellowship
+from .constants import TITLE_CHOICES
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):

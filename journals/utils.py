@@ -1,7 +1,5 @@
 from django.core.mail import EmailMessage
 
-from scipost.models import title_dict
-
 
 class JournalUtils(object):
 
@@ -14,7 +12,7 @@ class JournalUtils(object):
     def send_authors_paper_published_email(cls):
         """ Requires loading 'publication' attribute. """
         email_text = ('Dear '
-                      + title_dict[cls.publication.accepted_submission.submitted_by.title]
+                      + cls.publication.accepted_submission.submitted_by.get_title_display()
                       + ' ' +
                       cls.publication.accepted_submission.submitted_by.user.last_name +
                       ', \n\nWe are happy to inform you that your Submission to SciPost,\n\n' +

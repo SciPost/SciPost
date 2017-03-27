@@ -2,19 +2,6 @@
 
 {% block pagetitle %}: SciPost Physics: recent{% endblock pagetitle %}
 
-{% block headsup %}
-<script>
-  $(document).ready(function(){
-
-    $(".publicationAbstract").hide();
-
-    $(".toggleAbstractButton").click(function(){
-      $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
-    });
-  });
-</script>
-{% endblock headsup %}
-
 {% block content %}
 
 {% include 'journals/scipost_physics_menu.html' %}
@@ -30,11 +17,13 @@
 {% if recent_papers %}
 <div class="publicationHeaderList">
     <div class="row">
-        {% for paper in recent_papers %}
-            <div class="col-12">
-                {{ paper.header_as_li }}
-            </div>
-        {% endfor %}
+        <div class="col-12">
+            {% for paper in recent_papers %}
+                <div class="card card-publication">
+                    {% include 'journals/_publication_card_content.html' with publication=paper %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endif %}

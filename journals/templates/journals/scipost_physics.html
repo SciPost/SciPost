@@ -2,21 +2,6 @@
 
 {% block pagetitle %}: SciPost Physics{% endblock pagetitle %}
 
-{% block headsup %}
-
-<script>
-  $(document).ready(function(){
-
-    $(".publicationAbstract").hide();
-
-    $(".toggleAbstractButton").click(function(){
-      $(this).parent("li").parent("ul").siblings("p.publicationAbstract").toggle();
-    });
-  });
-</script>
-
-{% endblock headsup %}
-
 {% block content %}
 
 {% include 'journals/scipost_physics_menu.html' %}
@@ -32,11 +17,13 @@
 
 <div class="publicationHeaderList">
     <div class="row">
-        {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
-          <div class="col-12">
-              {{ paper.header_as_li }}
-          </div>
-        {% endfor %}
+        <div class="col-12">
+            {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
+                <div class="card card-publication">
+                    {% include 'journals/_publication_card_content.html' with publication=paper %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 <hr>
@@ -53,11 +40,13 @@
 
 <div class="publicationHeaderList">
     <div class="row">
-        {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
-            <div class="col-12">
-                {{ paper.header_as_li }}
-            </div>
-        {% endfor %}
+        <div class="col-12">
+            {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
+                <div class="card card-publication">
+                    {% include 'journals/_publication_card_content.html' with publication=paper %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endif %}

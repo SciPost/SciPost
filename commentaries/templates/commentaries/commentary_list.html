@@ -6,54 +6,64 @@
 {% block pagetitle %}: Commentaries{% endblock pagetitle %}
 
 {% block headsup %}
-<script type="text/javascript" async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 {% endblock headsup %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-4">
-        <div class="panel page-header-panel">
-          <h1>SciPost Commentaries</h1>
-          <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
-          <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
+        <div class="card card-grey">
+            <div class="card-block min-height-190">
+                <h1 class="card-title">SciPost Commentaries</h1>
+                <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
+                <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
+            </div>
         </div>
     </div>
     <div class="col-md-4">
-    	<div class="panel page-header-panel">
-            <h2>Search SciPost Commentaries:</h2>
-            <form action="{% url 'commentaries:commentaries' %}" class="small" method="get">
-    	  {{ form|bootstrap:'4,8,sm' }}
-          	<input class="btn btn-sm btn-secondary" type="submit"/>
-            </form>
+        <div class="card card-grey">
+            <div class="card-block min-height-190">
+                <h2 class="card-title">Search SciPost Commentaries:</h2>
+                <form action="{% url 'commentaries:commentaries' %}" class="small" method="get">
+                    {{ form|bootstrap:'4,8,sm' }}
+                <input class="btn btn-sm btn-secondary" type="submit"/>
+                </form>
+            </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="panel page-header-panel">
-          <h2>View SciPost Commentaries</h2>
-          <ul>
-    	<li>Physics: last <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
-          </ul>
+        <div class="card card-grey">
+            <div class="card-block min-height-190">
+                <h2 class="card-title">View SciPost Commentaries</h2>
+                <ul>
+                    <li>Physics: last <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
 
 {% if not browse and recent %}
+<hr>
 <div class="row">
     <div class="col-12">
-        <hr class="hr12">
         <h2>Recent Comments</h2>
-        <ul>
+    </div>
+    <div class="col-12">
+        <ul class="list-group list-group-flush">
             {% for comment in comment_list %}
-                {{ comment.simple_header_as_li }}
+                <li class="list-group-item">
+                    {% include 'comments/_comment_card_content.html' with comment=comment %}
+                </li>
             {% endfor %}
         </ul>
     </div>
 </div>
 {% endif %}
 
+<hr>
 <div class="row">
     <div class="col-12">
-        <hr class="hr12">
         {% if recent %}
           <h2>Recently active Commentaries:</h2>
         {% elif browse %}
@@ -73,9 +83,15 @@
               {% endif %}
               </p>
             {% endif %}
-            <ul>
+
+            </div>
+            <div class="col-12">
+
+            <ul class="list-group list-group-flush">
                 {% for object in object_list %}
-                    {% include 'commentaries/commentary_header_li.html' with object=object %}
+                    <li class="list-group-item">
+                        {% include 'commentaries/_commentary_card_content.html' with commentary=object %}
+                    </li>
                 {% endfor %}
             </ul>
         {% else %}

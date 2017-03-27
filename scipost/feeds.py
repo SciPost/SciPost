@@ -5,11 +5,12 @@ from django.utils.feedgenerator import Atom1Feed
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 
-from scipost.models import subject_areas_dict
 from comments.models import Comment
 from journals.models import Publication
 from news.models import NewsItem
-from submissions.models import Submission, SUBMISSION_STATUS_PUBLICLY_INVISIBLE
+from scipost.models import subject_areas_dict
+from submissions.constants import SUBMISSION_STATUS_PUBLICLY_INVISIBLE
+from submissions.models import Submission
 
 
 class LatestCommentsFeedRSS(Feed):

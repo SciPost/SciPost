@@ -1,0 +1,25 @@
+<div class="card-block pt-3{% if communication.comtype == 'EtoA' or communication.comtype == 'EtoR' or communication.comtype == 'EtoS' %} text-right{% endif %}">
+    <div class="label label-sm label-secondary">
+        {% if communication.comtype == 'EtoA' %}
+            From you to Authors
+        {% elif communication.comtype == 'EtoR' %}
+            From you to Referee
+            {% if communication.referee %}
+                {{communication.referee.user.first_name}} {{communication.referee.user.last_name}}
+            {% endif %}
+        {% elif communication.comtype == 'EtoS' %}
+            From you to SciPost Ed Admin
+        {% elif communication.comtype == 'AtoE' %}
+            From Authors to you
+        {% elif communication.comtype == 'RtoE' %}
+            From Referee
+            {% if communication.referee %}
+                {{communication.referee.user.first_name}} {{communication.referee.user.last_name}}
+            {% endif %} to you
+        {% elif communication.comtype == 'StoE' %}
+            From SciPost Ed Admin to you
+        {% endif %}
+    </div>
+    <div class="text pb-1 pt-1">{{communication.text|linebreaks}}</div>
+    <div class="text-muted">on {{communication.timestamp}}</div>
+</div>

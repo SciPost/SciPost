@@ -13,15 +13,11 @@
                     <h1 class="card-title mb-0"><a href="{% url 'news:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14"></a></h1>
                     <h4 class="card-subtitle mb-0 pb-0 text-muted">Latest news and announcements.</h4>
                 </div>
-                <ul class="list-group list-group-flush">
                 {% for item in latest_newsitems %}
-                    <li class="list-group-item">
-                        <div class="card-block">
-                            {{ item.descriptor_small }}
-                        </div>
-                    </li>
+                    <div class="card card-news bg-transparent m-2">
+                        {% include 'news/news_card_content.html' with news=item %}
+                    </div>
                 {% endfor %}
-                </ul>
             </div>
         </div>
         {% endif %}
@@ -69,19 +65,17 @@
         <div class="col-md-6 {% if user.is_authenticated %}col-lg-4{% else %}col-lg-3{% endif %}">
             <div class="card card-grey">
                 <div class="card-block">
-                  <h1 class="card-title mb-0"><a href="{% url 'journals:journals' %}">Journals</a></h1>
-                  <h4 class="card-subtitle mb-2 text-muted">SciPost publishes a portfolio of high-quality two-way open access scientific journals.</h4>
-                      <div class="SciPostPhysicsBanner">
-                    	<h2 class="py-0">
-                            <a class="pb-0" href="{% url 'journals:scipost_physics' %}">SciPost Physics</a>
-                        </h2>
-                      </div>
+                  <h1 class="card-title"><a href="{% url 'journals:journals' %}">Latest Publications</a></h1>
+                    <h2 class="banner">
+                        <a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a>
+                    </h2>
                       {% if issue and publications %}
-                      <h4 class="card-text text-center">A selection from the {% if issue.is_current %}current{% else %}last{% endif %} issue:</h4>
+                      <h4 class="card-text text-center mt-2">A selection from the {% if issue.is_current %}current{% else %}last{% endif %} issue:</h4>
                       {% if issue %}
-                      <div class="text-muted text-center">Vol. {{ issue.in_volume.number }} issue {{ issue.number }} {{issue.period_as_string}}</div>
+                      <div class="text-muted text-center mt-2">Vol. {{ issue.in_volume.number }} issue {{ issue.number }} {{issue.period_as_string}}</div>
                       {% endif %}
-
+                </div>
+                <div class="card-block">
                       <ul class="list-group list-group-flush">
                           {% for publication in publications %}
                               <li class="list-group-item">
@@ -103,6 +97,7 @@
             <div class="card card-grey">
                 <div class="card-block">
                   <h1 class="card-title"><a href="{% url 'journals:journals' %}">Journals</a></h1>
+                  <h4 class="card-subtitle m text-muted">SciPost publishes a portfolio of high-quality two-way open access scientific journals.</h4>
                   <p>All SciPost Journals implement the stringent <a href="/FAQ#pwr">peer-witnessed refereeing</a> principle.</p>
                   <p>All Journals are fully managed by professional scientists.</p>
                   <h3><a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a></h3>

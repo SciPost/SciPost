@@ -40,9 +40,9 @@
     </div>
 </div>
 
+<hr>
 <div class="row">
     <div class="col-12">
-        <hr class="hr12">
         {% if recent %}
           <h2>Recent Submissions:</h2>
         {% elif browse %}
@@ -52,16 +52,20 @@
         {% endif %}
         {% if object_list %}
             {% if is_paginated %}
-              <p>
-              {% if page_obj.has_previous %}
-                <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
-              {% endif %}
-              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-              {% if page_obj.has_next %}
-                <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
-              {% endif %}
-              </p>
+                  <p>
+                  {% if page_obj.has_previous %}
+                    <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
+                  {% endif %}
+                  Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                  {% if page_obj.has_next %}
+                    <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
+                  {% endif %}
+                  </p>
             {% endif %}
+
+            </div>
+            <div class="col-12">
+
             <ul class="list-group list-group-flush">
                 {% for submission in object_list %}
                     <li class="list-group-item">

@@ -2,10 +2,11 @@ import factory
 
 from scipost.constants import DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
 from scipost.factories import ContributorFactory
-from journals.models import SCIPOST_JOURNALS_DOMAINS
+from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from common.helpers import random_arxiv_identifier_with_version_number
 
 from .models import Commentary, COMMENTARY_TYPES
+
 
 class CommentaryFactory(factory.django.DjangoModelFactory):
     class Meta:

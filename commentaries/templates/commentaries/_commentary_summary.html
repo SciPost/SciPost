@@ -1,0 +1,45 @@
+<table class="commentary summary">
+    <tr>
+        <td>Title:</td>
+        <td>{{commentary.pub_title}}</td>
+    </tr>
+    <tr>
+        <td>Author(s):</td>
+        <td>{{commentary.author_list}}</td>
+    </tr>
+    <tr>
+        <td>As Contributors:</td>
+        <td>
+            {% for author in commentary.authors.all %}
+                <a href="{% url 'scipost:contributor_info' author.id %}">{{author.user.first_name}} {{author.user.last_name}}</a>
+            {% empty %}
+                (none claimed)
+            {% endfor %}
+        </td>
+    </tr>
+    {% if commentary.type == 'published' %}
+    <tr>
+        <td>Journal ref.:</td>
+        <td>{{commentary.journal}} {{commentary.volume}}, {{commentary.pages}}</td>
+    </tr>
+    <tr>
+        <td>DOI:</td>
+        <td>
+            <a href="{{commentary.pub_DOI_link}}" target="_blank">{{commentary.pub_DOI_link}}</a>
+        </td>
+    </tr>
+    {% elif commentary.type == 'preprint' %}
+    <tr>
+        <td>arxiv Link:</td>
+        <td>
+            <a href="{{commentary.arxiv_link}}" target="_blank">{{commentary.arxiv_link}}</a>
+        </td>
+    </tr>
+    {% endif %}
+    {% if commentary.pub_date %}
+    <tr>
+        <td>Date:</td>
+        <td>{{commentary.pub_date}}</td>
+    </tr>
+    {% endif %}
+</table>

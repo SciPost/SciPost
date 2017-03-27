@@ -26,11 +26,11 @@ from django.db.models import Prefetch
 
 from guardian.decorators import permission_required
 
-from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict
+from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict
 from .models import Contributor, CitationNotification, UnavailabilityPeriod,\
                     DraftInvitation, RegistrationInvitation,\
-                    title_dict, SciPost_from_addresses_dict,\
-                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement, EditorialCollege, EditorialCollegeFellowship
+                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement,\
+                    EditorialCollege, EditorialCollegeFellowship
 from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriodForm,\
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\
@@ -43,9 +43,9 @@ from commentaries.models import Commentary
 from comments.models import Comment
 from journals.models import Publication, Issue
 from news.models import NewsItem
-from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
-from submissions.models import Submission, EditorialAssignment
-from submissions.models import RefereeInvitation, Report, EICRecommendation
+from submissions.constants import SUBMISSION_STATUS_PUBLICLY_UNLISTED
+from submissions.models import Submission, EditorialAssignment, RefereeInvitation,\
+                               Report, EICRecommendation
 from theses.models import ThesisLink
 
 
@@ -327,7 +327,7 @@ def invitation(request, key):
         form.fields['first_name'].initial = invitation.first_name
         form.fields['email'].initial = invitation.email
         errormessage = ''
-        welcome_message = ('Welcome, ' + title_dict[invitation.title] + ' '
+        welcome_message = ('Welcome, ' + invitation.get_title_display() + ' '
                            + invitation.last_name + ', and thanks in advance for '
                            'registering (by completing this form)')
         return render(request, 'scipost/register.html', {
@@ -374,7 +374,7 @@ def request_new_activation_link(request, oldkey):
     contributor.key_expires = datetime.datetime.strftime(
         datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
     contributor.save()
-    email_text = ('Dear ' + title_dict[contributor.title] + ' ' + contributor.user.last_name +
+    email_text = ('Dear ' + contributor.get_title_display() + ' ' + contributor.user.last_name +
                   ', \n\n'
                   'Your request for a new email activation link for registration to the SciPost '
                   'publication portal has been received. You now need to visit this link within '
@@ -453,7 +453,7 @@ def vet_registration_request_ack(request, contributor_id):
                 except RefereeInvitation.DoesNotExist:
                     pending_ref_inv_exists = False
 
-                email_text = ('Dear ' + title_dict[contributor.title] + ' '
+                email_text = ('Dear ' + contributor.get_title_display() + ' '
                               + contributor.user.last_name +
                               ', \n\nYour registration to the SciPost publication portal '
                               'has been accepted. '
@@ -472,7 +472,7 @@ def vet_registration_request_ack(request, contributor_id):
                 emailmessage.send(fail_silently=False)
             else:
                 ref_reason = int(form.cleaned_data['refusal_reason'])
-                email_text = ('Dear ' + title_dict[contributor.title] + ' '
+                email_text = ('Dear ' + contributor.get_title_display() + ' '
                               + contributor.user.last_name +
                               ', \n\nYour registration to the SciPost publication portal '
                               'has been turned down, the reason being: '
@@ -1012,7 +1012,7 @@ def personal_page(request):
                          .filter(author=contributor, is_author_reply=True)
                          .order_by('-date_submitted'))
 
-    appellation = title_dict[contributor.title] + ' ' + contributor.user.last_name
+    appellation = contributor.get_title_display() + ' ' + contributor.user.last_name
     context = {
         'contributor': contributor,
         'user_groups': user_groups,
@@ -1300,7 +1300,7 @@ def email_group_members(request):
             # emailmessage.send(fail_silently=False)
             # with mail.get_connection() as connection:
             #     for member in form.cleaned_data['group'].user_set.all():
-            #         email_text = ('Dear ' + title_dict[member.contributor.title] + ' ' +
+            #         email_text = ('Dear ' + member.contributor.get_title_display() + ' ' +
             #                       member.last_name + ', \n\n'
             #                       + form.cleaned_data['email_text'])
             #         mail.EmailMessage(form.cleaned_data['email_subject'],
@@ -1316,7 +1316,7 @@ def email_group_members(request):
                             email_text = ''
                             email_text_html = ''
                             if form.cleaned_data['personalize']:
-                                email_text = ('Dear ' + title_dict[member.contributor.title]
+                                email_text = ('Dear ' + member.contributor.get_title_display()
                                               + ' ' + member.last_name + ', \n\n')
                                 email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
                             email_text += form.cleaned_data['email_text']
@@ -1334,7 +1334,7 @@ def email_group_members(request):
                                 'emails? <a href="https://scipost.org/unsubscribe/{{ key }}">'
                                 'Unsubscribe</a>.</p>')
                             email_context = Context({
-                                'title': title_dict[member.contributor.title],
+                                'title': member.contributor.get_title_display(),
                                 'last_name': member.last_name,
                                 'email_text': form.cleaned_data['email_text'],
                                 'key': member.contributor.activation_key,
@@ -1450,15 +1450,21 @@ def EdCol_bylaws(request):
 
 @permission_required('scipost.can_view_pool', return_403=True)
 def Fellow_activity_overview(request, Fellow_id=None):
-    Fellows = Contributor.objects.filter(
+    fellows = Contributor.objects.filter(
         user__groups__name='Editorial College').order_by('user__last_name')
-    context = {'Fellows': Fellows, }
+    context = {'fellows': fellows}
     if Fellow_id:
-        Fellow = get_object_or_404(Contributor, pk=Fellow_id)
-        context['Fellow'] = Fellow
-        assignments_of_Fellow = EditorialAssignment.objects.filter(
-            to=Fellow).order_by('-date_created')
-        context['assignments_of_Fellow'] = assignments_of_Fellow
+        fellow = get_object_or_404(Contributor, pk=Fellow_id)
+        context['fellow'] = fellow
+
+        assignments_ongoing = (EditorialAssignment.objects.get_for_user_in_pool(request.user)
+                               .filter(accepted=True, completed=False, to=fellow)
+                               .order_by('-date_created'))
+        context['assignments_ongoing'] = assignments_ongoing
+
+        assignments_completed = (EditorialAssignment.objects.get_for_user_in_pool(request.user)
+                                 .filter(completed=True, to=fellow).order_by('-date_created'))
+        context['assignments_completed'] = assignments_completed
     return render(request, 'scipost/Fellow_activity_overview.html', context)
 
 

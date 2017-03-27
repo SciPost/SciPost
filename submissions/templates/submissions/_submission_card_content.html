@@ -1,8 +1,8 @@
-<div class="card-block">
-    <h3 class="card-title">
-        <a href="{% url 'submissions:submission' submission.arxiv_identifier_w_vn_nr %}">{{submission.title}}</a>
-    </h3>
+{% extends 'submissions/_submission_card_base.html' %}
+
+{% block card_block_footer %}
+    {{block.super}}
     <p class="card-text">by {{submission.author_list}}</p>
     <p class="card-text text-muted">Version {{submission.arxiv_vn_nr}} ({% if submission.is_current %}current version{% else %}deprecated version {{submission.arxiv_vn_nr}}{% endif %})</p>
     <p class="card-text text-muted">Submitted {{submission.submission_date}} to {{submission.get_submitted_to_journal_display}} - latest activity: {{submission.latest_activity}}</p>
-</div>
+{% endblock %}

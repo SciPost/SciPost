@@ -22,15 +22,27 @@ h1, h2, h3, h4, h5, h6 {
 .highlight {
     background-color: #f4f4f4;
     margin: 10px 0;
+    border-radius: 1.4px;
 
     &.tight {
         display: inline-block;
         padding: 3px 5px;
     }
 }
+.highlight-inline {
+    padding: 0.15rem 0.3rem;
+    background-color: #f4f4f4;
+    border-radius: 0.15rem;
+    color: #6884C2;
+}
+
 h1.highlight,
 h2.highlight {
     padding: 15px;
+}
+
+h3.highlight {
+    padding: 10px;
 }
 
 hr,

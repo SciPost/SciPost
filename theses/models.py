@@ -1,26 +1,15 @@
 from django.utils import timezone
 from django.db import models
-from django.template import Template, Context
 
-from journals.models import SCIPOST_JOURNALS_DOMAINS, journals_domains_dict
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
-                              subject_areas_dict, disciplines_dict
+from journals.constants import SCIPOST_JOURNALS_DOMAINS
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.models import Contributor
 
+from .constants import THESIS_TYPES
 from .managers import ThesisLinkManager
 
 
 class ThesisLink(models.Model):
-    MASTER_THESIS = 'MA'
-    PHD_THESIS = 'PhD'
-    HABILITATION_THESIS = 'Hab'
-    THESIS_TYPES = (
-        (MASTER_THESIS, 'Master\'s'),
-        (PHD_THESIS, 'Ph.D.'),
-        (HABILITATION_THESIS, 'Habilitation'),
-    )
-    THESIS_TYPES_DICT = dict(THESIS_TYPES)
-
     """ An URL pointing to a thesis """
     requested_by = models.ForeignKey(
         Contributor, blank=True, null=True,
@@ -70,16 +59,3 @@ class ThesisLink(models.Model):
 
     def __str__(self):
         return self.title
-
-    def simple_header_as_li(self):
-        # for Lists
-        context = Context({
-            'id': self.id, 'title': self.title, 'author': self.author})
-        header = (
-            '<li><div class="flex-container">'
-            '<div class="flex-whitebox0"><p><a href="/thesis/{{ id }}" '
-            'class="pubtitleli">{{ title }}</a></p>'
-            '<p>' + self.THESIS_TYPES_DICT[self.type] +
-            ' thesis by {{ author }} </div></div></li>')
-        template = Template(header)
-        return template.render(context)

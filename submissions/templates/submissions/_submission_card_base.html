@@ -1,0 +1,7 @@
+<div class="card-block">
+    <h3 class="card-title">
+        <a href="{% url 'submissions:submission' submission.arxiv_identifier_w_vn_nr %}">{{submission.title}}</a>
+    </h3>
+
+    {% block card_block_footer %}{% endblock %}
+</div>
