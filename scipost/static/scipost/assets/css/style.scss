@@ -19,18 +19,22 @@
 
 @import "alert";
 @import "buttons";
+@import "cards";
 @import "form";
 @import "grid";
 @import "labels";
 @import "messages";
+// @import "modal";
 @import "navbar";
 @import "page_header";
+@import "tooltip";
 @import "type";
 
 /**
  * SciPost Specific
  *
  */
+@import "about";
 @import "comments";
 @import "journals";
 @import "personal_page";

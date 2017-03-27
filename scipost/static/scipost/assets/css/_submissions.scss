@@ -21,3 +21,10 @@ table.submission_header {
 .reportRatings {
     margin: 0 0 1rem;
 }
+
+.required-actions {
+    padding: 0.5rem;
+    background-color: $brand-danger;
+    color: $white;
+    border-radius: $card-border-radius;
+}

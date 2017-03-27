@@ -2,7 +2,7 @@
 The complete scientific publication portal
 
 ## Dependencies
-SciPost is written in Python 3.5 using Django and requires PostgreSQL 9.3 or
+SciPost is written in Python 3.5 using Django and requires PostgreSQL 9.4 or
 higher. Python dependencies are listed in `requirements.txt`. Frontend dependencies are managed by [NPM](https://www.npmjs.com/) in package.json.
 
 ## Getting started
@@ -29,7 +29,7 @@ Now install dependencies:
 ```
 
 ### Frontend dependencies
-[NPM](https://www.npmjs.com/) will take care of frontend dependencies. To install all packages now run:
+[NPM](https://www.npmjs.com/) (version 4.0 or higher; tested on v4.1.2) will take care of frontend dependencies. To install all packages now run:
 
 ```shell
 (scipostenv) $ npm install

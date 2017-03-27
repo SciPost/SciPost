@@ -16,6 +16,12 @@ $container-max-widths: (
     margin-bottom: 1rem;
 }
 
+// Cards
+//
+$card-spacer-x: 0.75rem;
+$card-border-radius: 0.15rem;
+$card-border-color: rgba(238, 238, 238, 0.5);
+
 // Colors
 //
 $scipost-lightblue: #6884C2;
@@ -33,6 +39,13 @@ $btn-transition: none;
 $input-padding-x: .5rem;
 $input-padding-y: .25rem;
 
+// Lists
+//
+$list-group-bg: transparent;
+$list-group-item-padding-x: 0;
+$list-group-item-padding-y: 0;
+$list-group-border-color: #f1f1f1;
+
 // Fonts
 //
 $font-family-sans-serif: 'Merriweather Sans', "Helvetica Neue", Arial, sans-serif !default;
@@ -43,11 +56,11 @@ $font-family-base:       $font-family-sans-serif !default;
 $font-size-base: 0.8rem !default;
 $font-size-sm: 0.75rem;
 
-$font-size-h1: 2.0rem;
-$font-size-h2: 1.75rem;
-$font-size-h3: 1.5rem;
-$font-size-h4: 1.25rem;
-$font-size-h5: 1.0rem;
+$font-size-h1: 2.0em;
+$font-size-h2: 1.5em;
+$font-size-h3: 1.17em;
+$font-size-h4: 0.8rem;
+$font-size-h5: 0.8rem;
 $font-size-h6: 0.8rem;
 
 

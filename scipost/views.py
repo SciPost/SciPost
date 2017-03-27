@@ -10,52 +10,43 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core import mail
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.http import is_safe_url
+from django.views.generic.list import ListView
+
+from django.db.models import Prefetch
 
 from guardian.decorators import permission_required
-from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import assign_perm
 
-from .constants import SCIPOST_SUBJECT_AREAS
+from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict
 from .models import Contributor, CitationNotification, UnavailabilityPeriod,\
-                    DraftInvitation, RegistrationInvitation, Remark,\
-                    List, Team, Graph, Node, Arc,\
+                    DraftInvitation, RegistrationInvitation,\
                     title_dict, SciPost_from_addresses_dict,\
-                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement
+                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement, EditorialCollege, EditorialCollegeFellowship
 from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriodForm,\
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\
                    UpdatePersonalDataForm, UpdateUserDataForm, PasswordChangeForm,\
                    EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm,\
-                   CreateListForm, CreateTeamForm,\
-                   AddTeamMemberForm, CreateGraphForm,\
-                   ManageTeamsForm, CreateNodeForm, CreateArcForm,\
-                   SupportingPartnerForm, SPBMembershipForm,\
-                   FeedbackForm, MotionForm, NominationForm, RemarkForm
+                   SupportingPartnerForm, SPBMembershipForm
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from commentaries.models import Commentary
-from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
-from journals.models import Publication
+from journals.models import Publication, Issue
 from news.models import NewsItem
 from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
 from submissions.models import Submission, EditorialAssignment
 from submissions.models import RefereeInvitation, Report, EICRecommendation
-from submissions.forms import SubmissionSearchForm
 from theses.models import ThesisLink
-from theses.forms import ThesisLinkSearchForm
-from virtualmeetings.models import VGM, Feedback, Nomination, Motion
-from virtualmeetings.constants import motion_categories_dict
 
 
 ##############
@@ -211,15 +202,13 @@ def search(request):
 
 def index(request):
     """ Main page """
-    latest_newsitems = NewsItem.objects.all().order_by('-date')[:2]
-    submission_search_form = SubmissionSearchForm(request.POST)
-    commentary_search_form = CommentarySearchForm(request.POST)
-    thesislink_search_form = ThesisLinkSearchForm(request.POST)
-    context = {'latest_newsitems': latest_newsitems,
-               'submission_search_form': submission_search_form,
-               'commentary_search_form': commentary_search_form,
-               'thesislink_search_form': thesislink_search_form,
-               }
+    context = {}
+    context['latest_newsitems'] = NewsItem.objects.all().order_by('-date')[:2]
+    context['issue'] = Issue.objects.get_last_filled_issue(in_volume__in_journal__name='SciPost Physics')
+    if context['issue']:
+        context['publications'] = context['issue'].publication_set.filter(doi_string__isnull=False
+                                    ).order_by('-publication_date')[:4]
+
     return render(request, 'scipost/index.html', context)
 
 
@@ -1022,13 +1011,7 @@ def personal_page(request):
     own_authorreplies = (Comment.objects
                          .filter(author=contributor, is_author_reply=True)
                          .order_by('-date_submitted'))
-    lists_owned = List.objects.filter(owner=contributor)
-    lists = List.objects.filter(teams_with_access__members__in=[contributor])
-    teams_led = Team.objects.select_related('leader__user').filter(leader=contributor)
-    teams = Team.objects.select_related('leader__user').filter(members__in=[contributor])
-    graphs_owned = Graph.objects.filter(owner=contributor)
-    graphs_private = Graph.objects.filter(Q(teams_with_access__leader=contributor)
-                                          | Q(teams_with_access__members__in=[contributor]))
+
     appellation = title_dict[contributor.title] + ' ' + contributor.user.last_name
     context = {
         'contributor': contributor,
@@ -1056,12 +1039,6 @@ def personal_page(request):
         'own_commentaries': own_commentaries,
         'own_thesislinks': own_thesislinks,
         'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
-        'lists_owned': lists_owned,
-        'lists': lists,
-        'teams_led': teams_led,
-        'teams': teams,
-        'graphs_owned': graphs_owned,
-        'graphs_private': graphs_private,
     }
     return render(request, 'scipost/personal_page.html', context)
 
@@ -1485,501 +1462,6 @@ def Fellow_activity_overview(request, Fellow_id=None):
     return render(request, 'scipost/Fellow_activity_overview.html', context)
 
 
-@login_required
-@permission_required('scipost.can_attend_VGMs', return_403=True)
-def VGMs(request):
-    VGM_list = VGM.objects.all().order_by('start_date')
-    context = {'VGM_list': VGM_list}
-    return render(request, 'scipost/VGMs.html', context)
-
-
-@login_required
-@permission_required('scipost.can_attend_VGMs', return_403=True)
-def VGM_detail(request, VGM_id):
-    VGM_instance = get_object_or_404(VGM, id=VGM_id)
-    VGM_information = Template(VGM_instance.information).render(Context({}))
-    feedback_received = Feedback.objects.filter(VGM=VGM_instance).order_by('date')
-    feedback_form = FeedbackForm()
-    current_Fellows = Contributor.objects.filter(
-        user__groups__name='Editorial College').order_by('user__last_name')
-    sent_inv_Fellows = RegistrationInvitation.objects.filter(
-        invitation_type='F', responded=False)
-    pending_inv_Fellows = sent_inv_Fellows.filter(declined=False).order_by('last_name')
-    declined_inv_Fellows = sent_inv_Fellows.filter(declined=True).order_by('last_name')
-    nomination_form = NominationForm()
-    nominations = Nomination.objects.filter(accepted=None).order_by('last_name')
-    motion_form = MotionForm()
-    remark_form = RemarkForm()
-    context = {
-        'VGM': VGM_instance,
-        'VGM_information': VGM_information,
-        'feedback_received': feedback_received,
-        'feedback_form': feedback_form,
-        'current_Fellows': current_Fellows,
-        'pending_inv_Fellows': pending_inv_Fellows,
-        'declined_inv_Fellows': declined_inv_Fellows,
-        'nominations': nominations,
-        'nomination_form': nomination_form,
-        'motion_categories_dict': motion_categories_dict,
-        'motion_form': motion_form,
-        'remark_form': remark_form,
-    }
-    return render(request, 'scipost/VGM_detail.html', context)
-
-
-@login_required
-@permission_required('scipost.can_attend_VGMs', return_403=True)
-def feedback(request, VGM_id=None):
-    if request.method == 'POST':
-        feedback_form = FeedbackForm(request.POST)
-        if feedback_form.is_valid():
-            feedback = Feedback(by=request.user.contributor,
-                                date=timezone.now().date(),
-                                feedback=feedback_form.cleaned_data['feedback'],)
-            if VGM_id:
-                VGM_instance = get_object_or_404(VGM, id=VGM_id)
-                feedback.VGM = VGM_instance
-            feedback.save()
-            ack_message = 'Your feedback has been received.'
-            context = {'ack_message': ack_message}
-            if VGM_id:
-                context['followup_message'] = 'Return to the '
-                context['followup_link'] = reverse('scipost:VGM_detail',
-                                                   kwargs={'VGM_id': VGM_id})
-                context['followup_link_label'] = 'VGM page'
-            return render(request, 'scipost/acknowledgement.html', context)
-        else:
-            errormessage = 'The form was not filled properly.'
-            return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    else:
-        errormessage = 'This view can only be posted to.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
-
-
-@login_required
-@permission_required('scipost.can_attend_VGMs', raise_exception=True)
-def add_remark_on_feedback(request, VGM_id, feedback_id):
-    # contributor = request.user.contributor
-    feedback = get_object_or_404(Feedback, pk=feedback_id)
-    if request.method == 'POST':
-        remark_form = RemarkForm(request.POST)
-        if remark_form.is_valid():
-            remark = Remark(contributor=request.user.contributor,
-                            feedback=feedback,
-                            date=timezone.now(),
-                            remark=remark_form.cleaned_data['remark'])
-            remark.save()
-            return HttpResponseRedirect('/VGM/' + str(VGM_id) +
-                                        '/#feedback_id' + str(feedback.id))
-        else:
-            errormessage = 'The form was invalidly filled.'
-            return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    else:
-        errormessage = 'This view can only be posted to.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
-
-
-@login_required
-@permission_required('scipost.can_attend_VGMs', return_403=True)
-def nominate_Fellow(request, VGM_id):
-    VGM_instance = get_object_or_404(VGM, id=VGM_id)
-    if request.method == 'POST':
-        nomination_form = NominationForm(request.POST)
-        if nomination_form.is_valid():
-            nomination = Nomination(
-                VGM=VGM_instance,
-                by=request.user.contributor,
-                date=timezone.now().date(),
-                first_name=nomination_form.cleaned_data['first_name'],
-                last_name=nomination_form.cleaned_data['last_name'],
-                discipline=nomination_form.cleaned_data['discipline'],
-                expertises=nomination_form.cleaned_data['expertises'],
-                webpage=nomination_form.cleaned_data['webpage'],
-                voting_deadline=VGM_instance.end_date + datetime.timedelta(days=7),
-            )
-            nomination.save()
-            nomination.update_votes(request.user.contributor.id, 'A')
-            ack_message = 'The nomination has been registered.'
-            context = {'ack_message': ack_message,
-                       'followup_message': 'Return to the ',
-                       'followup_link': reverse('scipost:VGM_detail', kwargs={'VGM_id': VGM_id}),
-                       'followup_link_label': 'VGM page'}
-            return render(request, 'scipost/acknowledgement.html', context)
-        else:
-            errormessage = 'The form was not filled properly.'
-            return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    else:
-        errormessage = 'This view can only be posted to.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
-
-
-@login_required
-@permission_required('scipost.can_attend_VGMs', raise_exception=True)
-def add_remark_on_nomination(request, VGM_id, nomination_id):
-    # contributor = request.user.contributor
-    nomination = get_object_or_404(Nomination, pk=nomination_id)
-    if request.method == 'POST':
-        remark_form = RemarkForm(request.POST)
-        if remark_form.is_valid():
-            remark = Remark(contributor=request.user.contributor,
-                            nomination=nomination,
-                            date=timezone.now(),
-                            remark=remark_form.cleaned_data['remark'])
-            remark.save()
-            return HttpResponseRedirect('/VGM/' + str(VGM_id) +
-                                        '/#nomination_id' + str(nomination.id))
-        else:
-            errormessage = 'The form was invalidly filled.'
-            return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    else:
-        errormessage = 'This view can only be posted to.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
-
-
-@login_required
-@permission_required('scipost.can_attend_VGMs', raise_exception=True)
-def vote_on_nomination(request, nomination_id, vote):
-    contributor = request.user.contributor
-    nomination = get_object_or_404(Nomination, pk=nomination_id)
-    if timezone.now() > nomination.voting_deadline:
-        errormessage = 'The voting deadline on this nomination has passed.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    nomination.update_votes(contributor.id, vote)
-    return HttpResponseRedirect('/VGM/' + str(nomination.VGM.id) +
-                                '/#nomination_id' + str(nomination.id))
-
-
-@login_required
-@permission_required('scipost.can_attend_VGMs', return_403=True)
-def put_motion_forward(request, VGM_id):
-    VGM_instance = get_object_or_404(VGM, id=VGM_id)
-    if timezone.now().date() > VGM_instance.end_date:
-        errormessage = 'This VGM has ended. No new motions can be put forward.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    if request.method == 'POST':
-        motion_form = MotionForm(request.POST)
-        if motion_form.is_valid():
-            motion = Motion(
-                category=motion_form.cleaned_data['category'],
-                VGM=VGM_instance,
-                background=motion_form.cleaned_data['background'],
-                motion=motion_form.cleaned_data['motion'],
-                put_forward_by=request.user.contributor,
-                date=timezone.now().date(),
-                voting_deadline=VGM_instance.end_date + datetime.timedelta(days=7),
-            )
-            motion.save()
-            motion.update_votes(request.user.contributor.id, 'A')
-            ack_message = 'Your motion has been registered.'
-            context = {'ack_message': ack_message,
-                       'followup_message': 'Return to the ',
-                       'followup_link': reverse('scipost:VGM_detail', kwargs={'VGM_id': VGM_id}),
-                       'followup_link_label': 'VGM page'}
-            return render(request, 'scipost/acknowledgement.html', context)
-        else:
-            errormessage = 'The form was not filled properly.'
-            return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    else:
-        errormessage = 'This view can only be posted to.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
-
-
-@login_required
-@permission_required('scipost.can_attend_VGMs', raise_exception=True)
-def add_remark_on_motion(request, motion_id):
-    # contributor = request.user.contributor
-    motion = get_object_or_404(Motion, pk=motion_id)
-    if request.method == 'POST':
-        remark_form = RemarkForm(request.POST)
-        if remark_form.is_valid():
-            remark = Remark(contributor=request.user.contributor,
-                            motion=motion,
-                            date=timezone.now(),
-                            remark=remark_form.cleaned_data['remark'])
-            remark.save()
-            return HttpResponseRedirect('/VGM/' + str(motion.VGM.id) +
-                                        '/#motion_id' + str(motion.id))
-        else:
-            errormessage = 'The form was invalidly filled.'
-            return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    else:
-        errormessage = 'This view can only be posted to.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
-
-
-@login_required
-@permission_required('scipost.can_attend_VGMs', raise_exception=True)
-def vote_on_motion(request, motion_id, vote):
-    contributor = request.user.contributor
-    motion = get_object_or_404(Motion, pk=motion_id)
-    if timezone.now() > motion.voting_deadline:
-        errormessage = 'The voting deadline on this motion has passed.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    motion.update_votes(contributor.id, vote)
-    return HttpResponseRedirect('/VGM/' + str(motion.VGM.id) +
-                                '/#motion_id' + str(motion.id))
-
-
-#########
-# Lists #
-#########
-
-@permission_required('scipost.add_list', return_403=True)
-def create_list(request):
-    listcreated = False
-    message = None
-    if request.method == "POST":
-        create_list_form = CreateListForm(request.POST)
-        if create_list_form.is_valid():
-            newlist = List(owner=request.user.contributor,
-                           title=create_list_form.cleaned_data['title'],
-                           description=create_list_form.cleaned_data['description'],
-                           private=create_list_form.cleaned_data['private'],
-                           created=timezone.now())
-            newlist.save()
-            listcreated = True
-            assign_perm('scipost.change_list', request.user, newlist)
-            assign_perm('scipost.view_list', request.user, newlist)
-            assign_perm('scipost.delete_list', request.user, newlist)
-            message = 'List %s was successfully created.' % create_list_form.cleaned_data['title']
-    else:
-        create_list_form = CreateListForm()
-    context = {'create_list_form': create_list_form, 'listcreated': listcreated,
-               'message': message}
-    return render(request, 'scipost/create_list.html', context)
-
-
-@permission_required_or_403('scipost.view_list', (List, 'id', 'list_id'))
-def list(request, list_id):
-    list = get_object_or_404(List, pk=list_id)
-    context = {'list': list}
-    if request.method == "POST":
-        search_for_list_form = SearchForm(request.POST)
-        if search_for_list_form.is_valid():
-            context.update(documentsSearchResults(search_for_list_form.cleaned_data['query']))
-    else:
-        search_for_list_form = SearchForm()
-    context.update({'search_for_list_form': search_for_list_form})
-    return render(request, 'scipost/list.html', context)
-
-
-@permission_required_or_403('scipost.change_list', (List, 'id', 'list_id'))
-def list_add_element(request, list_id, type, element_id):
-    list = get_object_or_404(List, pk=list_id)
-    if type == 'C':
-        commentary = get_object_or_404(Commentary, pk=element_id)
-        list.commentaries.add(commentary)
-    elif type == 'S':
-        submission = get_object_or_404(Submission, pk=element_id)
-        list.submissions.add(submission)
-    elif type == 'T':
-        thesislink = get_object_or_404(ThesisLink, pk=element_id)
-        list.thesislinks.add(thesislink)
-    elif type == 'c':
-        comment = get_object_or_404(Comment, pk=element_id)
-        list.comments.add(comment)
-    return redirect(reverse('scipost:list', kwargs={'list_id': list_id}))
-
-
-@permission_required_or_403('scipost.change_list', (List, 'id', 'list_id'))
-def list_remove_element(request, list_id, type, element_id):
-    list = get_object_or_404(List, pk=list_id)
-    if type == 'C':
-        commentary = get_object_or_404(Commentary, pk=element_id)
-        list.commentaries.remove(commentary)
-    elif type == 'S':
-        submission = get_object_or_404(Submission, pk=element_id)
-        list.submissions.remove(submission)
-    elif type == 'T':
-        thesislink = get_object_or_404(ThesisLink, pk=element_id)
-        list.thesislinks.remove(thesislink)
-    elif type == 'c':
-        comment = get_object_or_404(Comment, pk=element_id)
-        list.comments.remove(comment)
-    return redirect(reverse('scipost:list', kwargs={'list_id': list_id}))
-
-
-#########
-# Teams #
-#########
-
-@permission_required('scipost.add_team', return_403=True)
-def create_team(request):
-    if request.method == "POST":
-        create_team_form = CreateTeamForm(request.POST)
-        if create_team_form.is_valid():
-            newteam = Team(leader=request.user.contributor,
-                           name=create_team_form.cleaned_data['name'],
-                           established=timezone.now())
-            newteam.save()
-            assign_perm('scipost.change_team', request.user, newteam)
-            assign_perm('scipost.view_team', request.user, newteam)
-            assign_perm('scipost.delete_team', request.user, newteam)
-            return redirect(reverse('scipost:add_team_member', kwargs={'team_id': newteam.id}))
-    else:
-        create_team_form = CreateTeamForm()
-    add_team_member_form = AddTeamMemberForm()
-    context = {'create_team_form': create_team_form,
-               'add_team_member_form': add_team_member_form}
-    return render(request, 'scipost/create_team.html', context)
-
-
-@permission_required_or_403('scipost.change_team', (Team, 'id', 'team_id'))
-def add_team_member(request, team_id, contributor_id=None):
-    team = get_object_or_404(Team, pk=team_id)
-    contributors_found = None
-    if contributor_id is not None:
-        contributor = get_object_or_404(Contributor, pk=contributor_id)
-        team.members.add(contributor)
-        team.save()
-        assign_perm('scipost.view_team', contributor.user, team)
-        return redirect(reverse('scipost:add_team_member', kwargs={'team_id': team_id}))
-    if request.method == "POST":
-        add_team_member_form = AddTeamMemberForm(request.POST)
-        if add_team_member_form.is_valid():
-            contributors_found = Contributor.objects.filter(
-                user__last_name__icontains=add_team_member_form.cleaned_data['last_name'])
-    else:
-        add_team_member_form = AddTeamMemberForm()
-    context = {'team': team, 'add_team_member_form': add_team_member_form,
-               'contributors_found': contributors_found}
-    return render(request, 'scipost/add_team_member.html', context)
-
-
-##########
-# Graphs #
-##########
-
-@permission_required('scipost.add_graph', return_403=True)
-def create_graph(request):
-    graphcreated = False
-    message = None
-    if request.method == "POST":
-        create_graph_form = CreateGraphForm(request.POST)
-        if create_graph_form.is_valid():
-            newgraph = Graph(owner=request.user.contributor,
-                             title=create_graph_form.cleaned_data['title'],
-                             description=create_graph_form.cleaned_data['description'],
-                             private=create_graph_form.cleaned_data['private'],
-                             created=timezone.now())
-            newgraph.save()
-            assign_perm('scipost.change_graph', request.user, newgraph)
-            assign_perm('scipost.view_graph', request.user, newgraph)
-            assign_perm('scipost.delete_graph', request.user, newgraph)
-            graphcreated = True
-            message = ('Graph ' + create_graph_form.cleaned_data['title']
-                       + ' was successfully created.')
-    else:
-        create_graph_form = CreateGraphForm()
-    context = {'create_graph_form': create_graph_form, 'graphcreated': graphcreated,
-               'message': message}
-    return render(request, 'scipost/create_graph.html', context)
-
-
-@permission_required_or_403('scipost.view_graph', (Graph, 'id', 'graph_id'))
-def graph(request, graph_id):
-    graph = get_object_or_404(Graph, pk=graph_id)
-    nodes = Node.objects.filter(graph=graph)
-    if request.method == "POST":
-        attach_teams_form = ManageTeamsForm(request.POST,
-                                            contributor=request.user.contributor,
-                                            initial={
-                                                'teams_with_access': graph.teams_with_access.all()}
-                                            )
-        create_node_form = CreateNodeForm(request.POST)
-        create_arc_form = CreateArcForm(request.POST, graph=graph)
-        if attach_teams_form.has_changed() and attach_teams_form.is_valid():
-            graph.teams_with_access = attach_teams_form.cleaned_data['teams_with_access']
-            graph.save()
-        elif create_node_form.has_changed() and create_node_form.is_valid():
-            newnode = Node(graph=graph,
-                           added_by=request.user.contributor,
-                           created=timezone.now(),
-                           name=create_node_form.cleaned_data['name'],
-                           description=create_node_form.cleaned_data['description'])
-            newnode.save()
-        elif create_arc_form.has_changed() and create_arc_form.is_valid():
-            sourcenode = create_arc_form.cleaned_data['source']
-            targetnode = create_arc_form.cleaned_data['target']
-            if sourcenode != targetnode:
-                newarc = Arc(graph=graph,
-                             added_by=request.user.contributor,
-                             created=timezone.now(),
-                             source=sourcenode,
-                             target=targetnode,
-                             length=create_arc_form.cleaned_data['length']
-                             )
-                newarc.save()
-    else:
-        attach_teams_form = ManageTeamsForm(contributor=request.user.contributor,
-                                            initial={
-                                                'teams_with_access': graph.teams_with_access.all()}
-                                            )
-        create_node_form = CreateNodeForm()
-        create_arc_form = CreateArcForm(graph=graph)
-    context = {'graph': graph, 'nodes': nodes,
-               'attach_teams_form': attach_teams_form,
-               'create_node_form': create_node_form,
-               'create_arc_form': create_arc_form}
-    return render(request, 'scipost/graph.html', context)
-
-
-def edit_graph_node(request, node_id):
-    node = get_object_or_404(Node, pk=node_id)
-    errormessage = ''
-    if not request.user.has_perm('scipost.change_graph', node.graph):
-        errormessage = 'You do not have permission to edit this graph.'
-    elif request.method == "POST":
-        edit_node_form = CreateNodeForm(request.POST, instance=node)
-        if edit_node_form.is_valid():
-            node.name = edit_node_form.cleaned_data['name']
-            node.description = edit_node_form.cleaned_data['description']
-            node.save()
-            create_node_form = CreateNodeForm()
-            create_arc_form = CreateArcForm(graph=node.graph)
-            context = {'create_node_form': create_node_form,
-                       'create_arc_form': create_arc_form}
-            return redirect(reverse('scipost:graph', kwargs={'graph_id': node.graph.id}), context)
-    else:
-        edit_node_form = CreateNodeForm(instance=node)
-    context = {'graph': graph, 'node': node, 'edit_node_form': edit_node_form,
-               'errormessage': errormessage}
-    return render(request, 'scipost/edit_graph_node.html', context)
-
-
-def delete_graph_node(request, node_id):
-    node = get_object_or_404(Node, pk=node_id)
-    if not request.user.has_perm('scipost.change_graph', node.graph):
-        raise PermissionDenied
-    else:
-        # Remove all the graph arcs
-        Arc.objects.filter(source=node).delete()
-        Arc.objects.filter(target=node).delete()
-        # Delete node itself
-        node.delete()
-    return redirect(reverse('scipost:graph', kwargs={'graph_id': node.graph.id}))
-
-
-@permission_required_or_403('scipost.view_graph', (Graph, 'id', 'graph_id'))
-def api_graph(request, graph_id):
-    """ Produce JSON data to plot graph """
-    graph = get_object_or_404(Graph, pk=graph_id)
-    nodes = Node.objects.filter(graph=graph)
-    arcs = Arc.objects.filter(graph=graph)
-    nodesjson = []
-    arcsjson = []
-
-    for node in nodes:
-        nodesjson.append({'name': node.name, 'id': node.id})
-
-    for arc in arcs:
-        arcsjson.append({'id': arc.id,
-                         'source': arc.source.name, 'source_id': arc.source.id,
-                         'target': arc.target.name, 'target_id': arc.target.id,
-                         'length': arc.length})
-    return JsonResponse({'nodes': nodesjson, 'arcs': arcsjson}, safe=False)
-
-
 #############################
 # Supporting Partners Board #
 #############################
@@ -2031,3 +1513,28 @@ def SPB_membership_request(request):
                'SP_form': SP_form,
                'membership_form': membership_form, }
     return render(request, 'scipost/SPB_membership_request.html', context)
+
+
+class AboutView(ListView):
+    model = EditorialCollege
+    template_name = 'scipost/about.html'
+    queryset = EditorialCollege.objects.prefetch_related(
+                Prefetch('fellowships',
+                         queryset=EditorialCollegeFellowship.objects.active().select_related(
+                            'contributor__user'),
+                         to_attr='current_fellows'))
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        object_list = []
+        for college in context['object_list']:
+            try:
+                spec_list = subject_areas_raw_dict[str(college)]
+            except KeyError:
+                spec_list = None
+            object_list.append((
+                college,
+                spec_list,
+            ))
+        context['object_list'] = object_list
+        return context

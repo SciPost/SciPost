@@ -164,6 +164,15 @@ class IssueManager(models.Manager):
             issues.filter(in_volume__in_journal__name=journal)
         return issues
 
+    def get_current_issue(self, *args, **kwargs):
+        return self.published(start_date__lte=timezone.now(),
+                              until_date__gte=timezone.now(),
+                              **kwargs).order_by('-until_date').first()
+
+    def get_last_filled_issue(self, *args, **kwargs):
+        return self.published(publication__isnull=False,
+                              **kwargs).order_by('-until_date').first()
+
 
 class Issue(models.Model):
     in_volume = models.ForeignKey(Volume, on_delete=models.CASCADE)
@@ -182,14 +191,21 @@ class Issue(models.Model):
 
     def __str__(self):
         text = str(self.in_volume) + ' issue ' + str(self.number)
-        if self.start_date.month == self.until_date.month:
-            text += ' (' + self.until_date.strftime('%B') + ' ' + self.until_date.strftime('%Y') + ')'
-        else:
-            text += (' (' + self.start_date.strftime('%B') + '-' + self.until_date.strftime('%B') +
-                     ' ' + self.until_date.strftime('%Y') + ')')
+        text += self.period_as_string()
         if self.status == STATUS_DRAFT:
             text += ' (In draft)'
         return text
+
+    def period_as_string(self):
+        if self.start_date.month == self.until_date.month:
+            return ' (' + self.until_date.strftime('%B') + ' ' + self.until_date.strftime('%Y') + ')'
+        else:
+            return (' (' + self.start_date.strftime('%B') + '-' + self.until_date.strftime('%B') +
+                    ' ' + self.until_date.strftime('%Y') + ')')
+
+    def is_current(self):
+        return self.start_date <= timezone.now().date() and\
+               self.until_date >= timezone.now().date()
 
     def period(self):
         text = 'up to {{ until_month }} {{ year }}'

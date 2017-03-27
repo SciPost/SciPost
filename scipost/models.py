@@ -4,9 +4,10 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from django.template import Template, Context
 from django.utils import timezone
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 from django_countries.fields import CountryField
@@ -73,6 +74,12 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
+def get_sentinel_user():
+    '''Fallback user for models relying on Contributor that is being deleted.'''
+    user, new = User.objects.get_or_create(username='deleted')
+    return Contributor.objects.get_or_create(status=-4, user=user)[0]
+
+
 class Contributor(models.Model):
     """
     All users of SciPost are Contributors.
@@ -99,7 +106,7 @@ class Contributor(models.Model):
                                default='', blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page',
                                       blank=True)
-    vetted_by = models.ForeignKey('self', on_delete=models.CASCADE,
+    vetted_by = models.ForeignKey('self', on_delete=models.SET(get_sentinel_user),
                                   related_name="contrib_vetted_by",
                                   blank=True, null=True)
     accepts_SciPost_emails = models.BooleanField(
@@ -191,11 +198,9 @@ class Contributor(models.Model):
         return mark_safe(output)
 
     def expertises_as_string(self):
-        output = ''
         if self.expertises:
-            for exp in self.expertises:
-                output += subject_areas_dict[exp] + ', '
-        return output
+            return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
+        return ''
 
     def assignments_summary_as_td(self):
         assignments = self.editorialassignment_set.all()
@@ -428,233 +433,6 @@ class PrecookedEmail(models.Model):
         return self.email_subject
 
 
-#########
-# Lists #
-#########
-
-class List(models.Model):
-    """
-    A collection of commentaries, submissions, thesislinks, comments, etc
-    defined by a Contributor, for use in Graphs, etc
-    """
-    owner = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-    private = models.BooleanField(default=True)
-    teams_with_access = models.ManyToManyField('scipost.Team', blank=True)
-    title = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
-    created = models.DateTimeField(default=timezone.now)
-    submissions = models.ManyToManyField('submissions.Submission', blank=True,
-                                         related_name='list_submissions')
-    commentaries = models.ManyToManyField('commentaries.Commentary', blank=True,
-                                          related_name='list_commentaries')
-    thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True,
-                                         related_name='list_thesislinks')
-    comments = models.ManyToManyField('comments.Comment', blank=True,
-                                      related_name='list_comments')
-
-    class Meta:
-        default_permissions = ['add', 'view', 'change', 'delete']
-
-    def __str__(self):
-        return '%s (owner: %s %s)' % (self.title[:30],
-                                      self.owner.user.first_name, self.owner.user.last_name)
-
-    def header(self):
-        context = Context({'id': self.id, 'title': self.title,
-                           'first_name': self.owner.user.first_name,
-                           'last_name': self.owner.user.last_name})
-        template = Template('''
-        <p>List <a href="{% url 'scipost:list' list_id=id %}">{{ title }}
-        </a> (owner: {{ first_name }} {{ last_name }})</p>
-        ''')
-        return template.render(context)
-
-    def header_as_li(self):
-        context = Context({'id': self.id, 'title': self.title,
-                           'first_name': self.owner.user.first_name,
-                           'last_name': self.owner.user.last_name})
-        template = Template('''
-        <li><p>List <a href="{% url 'scipost:list' list_id=id %}">
-        {{ title }}</a> (owner: {{ first_name }} {{ last_name }})</p></li>
-        ''')
-        return template.render(context)
-
-    def contents(self):
-        context = Context({})
-        output = '<p>' + self.description + '</p>'
-        output += '<hr class="hr6"/>'
-        emptylist = True
-        if self.submissions.exists():
-            emptylist = False
-            output += '<p>Submissions:<ul>'
-            for submission in self.submissions.all():
-                output += submission.simple_header_as_li()
-            output += '</ul></p>'
-        if self.commentaries.exists():
-            emptylist = False
-            output += '<p>Commentaries:<ul>'
-            for commentary in self.commentaries.all():
-                output += commentary.simple_header_as_li()
-            output += '</ul></p>'
-        if self.thesislinks.exists():
-            emptylist = False
-            output += '<p>Thesislinks:<ul>'
-            for thesislink in self.thesislinks.all():
-                output += thesislink.simple_header_as_li()
-            output += '</ul></p>'
-        if self.comments.exists():
-            emptylist = False
-            output += '<p>Comments:<ul>'
-            for comment in self.comments.all():
-                output += comment.simple_header_as_li()
-            output += '</ul></p>'
-        if emptylist:
-            output += '<br/><h3>This List is empty.</h3>'
-        template = Template(output)
-        return template.render(context)
-
-
-#########
-# Teams #
-#########
-
-class Team(models.Model):
-    """
-    Team of Contributors, to enable private collaborations.
-    """
-    leader = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-    members = models.ManyToManyField(Contributor, blank=True, related_name='team_members')
-    name = models.CharField(max_length=100)
-    established = models.DateField(default=timezone.now)
-
-    class Meta:
-        default_permissions = ['add', 'view', 'change', 'delete']
-
-    def __str__(self):
-        return (self.name + ' (led by ' + self.leader.user.first_name + ' '
-                + self.leader.user.last_name + ')')
-
-    def header_as_li(self):
-        context = Context({'name': self.name, })
-        output = ('<li><p>Team {{ name }}, led by ' + self.leader.user.first_name + ' '
-                  + self.leader.user.last_name + '</p>')
-        output += '<p>Members: '
-        if not self.members.all():
-            output += '(none yet, except for the leader)'
-        else:
-            for member in self.members.all():
-                output += member.user.first_name + ' ' + member.user.last_name + ', '
-        output += '</p></li>'
-        template = Template(output)
-        return template.render(context)
-
-
-##########
-# Graphs #
-##########
-
-class Graph(models.Model):
-    """
-    A Graph is a collection of Nodes with directed arrows,
-    representing e.g. a reading list, exploration path, etc.
-    If private, only the teams in teams_with_access can see/edit it.
-    """
-    owner = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-    private = models.BooleanField(default=True)
-    teams_with_access = models.ManyToManyField(Team, blank=True)
-    title = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
-    created = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        default_permissions = ['add', 'view', 'change', 'delete']
-
-    def __str__(self):
-        return '%s (owner: %s %s)' % (self.title[:30],
-                                      self.owner.user.first_name, self.owner.user.last_name)
-
-    def header_as_li(self):
-        context = Context({'id': self.id, 'title': self.title,
-                           'first_name': self.owner.user.first_name,
-                           'last_name': self.owner.user.last_name})
-        template = Template('''
-        <li><p>Graph <a href="{% url 'scipost:graph' graph_id=id %}">
-        {{ title }}</a> (owner: {{ first_name }} {{ last_name }})</li>
-        ''')
-        return template.render(context)
-
-    def contents(self):
-        context = Context({})
-        output = self.description
-        template = Template(output)
-        return template.render(context)
-
-
-class Node(models.Model):
-    """
-    Node of a graph (directed).
-    Each node is composed of a set of submissions, commentaries, thesislinks.
-    Accessibility rights are set in the Graph ForeignKey.
-    """
-    graph = models.ForeignKey(Graph, on_delete=models.CASCADE, default=None)
-    added_by = models.ForeignKey(Contributor, on_delete=models.CASCADE, default=None)
-    created = models.DateTimeField(default=timezone.now)
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
-    submissions = models.ManyToManyField('submissions.Submission', blank=True,
-                                         related_name='node_submissions')
-    commentaries = models.ManyToManyField('commentaries.Commentary', blank=True,
-                                          related_name='node_commentaries')
-    thesislinks = models.ManyToManyField('theses.ThesisLink', blank=True,
-                                         related_name='node_thesislinks')
-
-    class Meta:
-        default_permissions = ['add', 'view', 'change', 'delete']
-
-    def __str__(self):
-        return self.graph.title[:20] + ': ' + self.name[:20]
-
-    def header_as_p(self):
-        context = Context({'graph_id': self.graph.id, 'id': self.id, 'name': self.name})
-        output = ('<p class="node_p" id="node_id{{ id }}">'
-                  '<a href="{% url \'scipost:graph\' graph_id=graph_id %}">{{ name }}</a></p>')
-        template = Template(output)
-        return template.render(context)
-
-    def contents(self):
-        context = Context({'graph_id': self.graph.id,
-                           'id': self.id, 'name': self.name,
-                           'description': self.description})
-        output = ('<div class="node_contents node_id{{ id }}">'
-                  + '<h3>{{ name }}</h3><p>{{ description }}</p></div>')
-        template = Template(output)
-        return template.render(context)
-
-    def contents_small(self):
-        output = '<div style="font-size: 60%">' + self.contents + '</div>'
-        template = Template(output)
-        return template.render()
-
-
-ARC_LENGTHS = [
-    # (4, '4'), (8, '8'), (16, '16'), (32, '32'), (64, '64'), (128, '128')
-    (1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5'), (6, '6'), (7, '7'), (8, '8'),
-    ]
-
-
-class Arc(models.Model):
-    """
-    Arc of a graph, linking two nodes.
-    The length is user-adjustable.
-    """
-    graph = models.ForeignKey(Graph, on_delete=models.CASCADE, default=None)
-    added_by = models.ForeignKey(Contributor, on_delete=models.CASCADE, default=None)
-    created = models.DateTimeField(default=timezone.now)
-    source = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='source')
-    target = models.ForeignKey(Node, on_delete=models.CASCADE, related_name='target')
-    length = models.PositiveSmallIntegerField(choices=ARC_LENGTHS, default=32)
-
-
 #######################
 # Affiliation Objects #
 #######################
@@ -739,3 +517,60 @@ class SPBMembershipAgreement(models.Model):
         return (str(self.partner) +
                 ' [' + spb_membership_duration_dict[self.duration] +
                 ' from ' + self.start_date.strftime('%Y-%m-%d') + ']')
+
+
+######################
+# Static info models #
+######################
+
+class FellowManager(models.Manager):
+    def active(self, *args, **kwargs):
+        today = datetime.date.today()
+        return self.filter(
+            Q(start_date__lte=today, until_date__isnull=True) |
+            Q(start_date__isnull=True, until_date__gte=today) |
+            Q(start_date__lte=today, until_date__gte=today) |
+            Q(start_date__isnull=True, until_date__isnull=True),
+            **kwargs).order_by('contributor__user__last_name')
+
+
+class EditorialCollege(models.Model):
+    '''A SciPost Editorial College for a specific discipline.'''
+    discipline = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.discipline
+
+    def active_fellowships(self):
+        return self.fellowships.current_fellowships()
+
+
+class EditorialCollegeFellowship(TimeStampedModel):
+    """
+    Editorial College Fellowship connecting Editorial College and Contributors,
+    maybe with a limiting start/until date.
+    """
+    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                                    related_name='+')
+    college = models.ForeignKey('scipost.EditorialCollege', on_delete=models.CASCADE,
+                                related_name='fellowships')
+    start_date = models.DateField(null=True, blank=True)
+    until_date = models.DateField(null=True, blank=True)
+
+    objects = FellowManager()
+
+    class Meta:
+        unique_together = ('contributor', 'college', 'start_date', 'until_date')
+
+    def __str__(self):
+        return self.contributor.__str__()
+
+    def is_active(self):
+        today = datetime.date.today()
+        if not self.start_date:
+            if not self.until_date:
+                return True
+            return today <= self.until_date
+        elif not self.until_date:
+            return today >= self.start_date
+        return today >= self.start_date and today <= self.until_date
