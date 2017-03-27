@@ -1,0 +1,10 @@
+<div class="py-1">
+    <a href="{% url 'submissions:submission' submission.arxiv_identifier_w_vn_nr %}" class="pubtitleli">version {{submission.arxiv_vn_nr}}</a>
+    <span class="version-suffix">
+        {% if submission.is_current %}
+            (current version)
+        {% else %}
+            (deprecated version {{submission.arxiv_vn_nr}})
+        {% endif %}
+    </span>
+</div>

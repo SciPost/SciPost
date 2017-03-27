@@ -1,0 +1,12 @@
+.table {
+    th,
+    td {
+    padding: $table-cell-padding;
+        vertical-align: middle;
+    }
+}
+
+
+.table-invitations {
+    background-color: #ddd;
+}

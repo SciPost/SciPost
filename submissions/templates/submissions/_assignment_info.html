@@ -1,0 +1,23 @@
+<li class="py-1">
+    {{ assignment.to.user.first_name }} {{ assignment.to.user.last_name }}
+
+    {% if assignment.accepted %}
+        <span class="label label-sm label-outline-success">accepted</span>
+    {% endif %}
+    {% if assignment.deprecated %}
+        <span class="label label-sm label-outline-info">deprecated</span>
+    {% endif %}
+    {% if assignment.refusal_reason %}
+        <span class="label label-sm label-outline-{% if assignment.refusal_reason == 'NIE' or assignment.refusal_reason == 'DNP' %}danger{% else %}warning{% endif %}">declined
+            | Reason: {{ assignment.get_refusal_reason_display }}
+        </span>
+    {% endif %}
+
+    <br>
+    <span class="text-muted">
+        requested {{ assignment.date_created }}
+        {% if assignment.date_answered %}
+            | anwsered {{ assignment.date_answered }}
+        {% endif %}
+    </span>
+</li>

@@ -1,0 +1,7 @@
+<h3 class="d-inline-block">Current status:</h3>
+<div class="d-inline">
+    <span class="label label-secondary">{{submission.get_status_display}}</span>
+    {% if submission.publication %}
+        as {{submission.publication.citation_for_web_linked}}
+    {% endif %}
+</div>
