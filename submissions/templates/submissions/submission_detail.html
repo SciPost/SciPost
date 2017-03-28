@@ -49,21 +49,17 @@
                 {% endif %}
             </div>
         </div>
-    </div>
-</div>
 
-{% if other_versions %}
-<div class="row">
-    <div class="col-12">
-        <h3>Other versions of this Submission (with Reports) exist:</h3>
-        <div class="pl-4">
-            {% for vn in other_versions %}
-                {% include 'submissions/_submission_version.html' with submission=vn %}
-            {% endfor %}
-        </div>
+        {% if other_versions %}
+            <h3>Other versions of this Submission (with Reports) exist:</h3>
+            <div class="pl-4">
+                {% for vn in other_versions %}
+                    {% include 'submissions/_submission_version.html' with submission=vn %}
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 </div>
-{% endif %}
 
 <div class="row">
     <div class="col-12">
@@ -71,14 +67,16 @@
 
         {% include 'submissions/_submission_status_block.html' with submission=submission %}
 
+        <br>
+        <br>
         {% if submission.author_comments %}
             <h3>Author comments upon resubmission</h3>
-            <p>{{ submission.author_comments|linebreaks }}</p>
+            <div class="pl-md-4">{{ submission.author_comments|linebreaks }}</div>
         {% endif %}
 
         {% if submission.list_of_changes %}
             <h3>List of changes</h3>
-            <p>{{ submission.list_of_changes|linebreaks }}</p>
+            <div class="pl-md-4">{{ submission.list_of_changes|linebreaks }}</div>
         {% endif %}
     </div>
 </div>
@@ -86,11 +84,11 @@
 {% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
     {% if recommendation %}
         {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' or recommendation|is_viewable_by_authors %}
-        <hr>
             <div class="row">
                 <div class="col-12">
-                    <h2>Editorial Recommendation</h2>
-                    {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
+                    <div class="card card-outline-secondary">
+                        {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
+                    </div>
                 </div>
             </div>
         {% endif %}

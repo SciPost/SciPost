@@ -1,5 +1,5 @@
-<div class="card-block pt-3{% if communication.comtype == 'EtoA' or communication.comtype == 'EtoR' or communication.comtype == 'EtoS' %} text-right{% endif %}">
-    <div class="label label-sm label-secondary">
+<div class="card-block">
+    <div class="font-weight-bold d-inline-block">
         {% if communication.comtype == 'EtoA' %}
             From you to Authors
         {% elif communication.comtype == 'EtoR' %}
@@ -20,6 +20,7 @@
             From SciPost Ed Admin to you
         {% endif %}
     </div>
-    <div class="text pb-1 pt-1">{{communication.text|linebreaks}}</div>
-    <div class="text-muted">on {{communication.timestamp}}</div>
+    <small class="d-inline-block text-muted text-sm">on {{communication.timestamp}}</small>
+
+    <div class="text mt-1 pl-md-3">{{communication.text|linebreaks}}</div>
 </div>

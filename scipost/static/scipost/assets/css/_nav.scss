@@ -1,0 +1,18 @@
+.nav.btn-group .nav-item {
+    padding: 0 !important;
+}
+
+.nav.personal-page-nav {
+    .nav-item {
+        background-color: #ddd;
+        color: #002b49;
+
+        .nav-link.active {
+            background-color: #eeeeee;
+        }
+
+        a {
+            color: #002b49;
+        }
+    }
+}

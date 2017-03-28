@@ -2,81 +2,62 @@
 
 {% block pagetitle %}: editorial recommendation for submission{% endblock pagetitle %}
 
-{% block headsup %}
-
 {% load scipost_extras %}
+{% load bootstrap %}
 
-{% endblock headsup %}
+{% block content %}
 
-{% block bodysup %}
-
-
-<script>
-
-  $('#id_remarks_for_authors').hide()
-  $('#id_requested_changes').hide()
-  $('#id_remarks_for_editorial_college').hide()
-
-  $(document).ready(function() {
-    $('select#id_recommendation').on('change', function() {
-    var selection = $(this).val();
-    switch(selection){
-     case 1 or 2 or 3 or -3:
-      $('#id_remarks_for_editorial_college').show()
-      $('#id_remarks_for_authors').hide()
-      $('#id_requested_changes').hide()
-      break;
-     case -1 or -2:
-      $('#id_remarks_for_editorial_college').hide()
-      $('#id_remarks_for_authors').show()
-      $('#id_requested_changes').show()
-      break;
-    }
-    });
-  });
-</script>
-
-<section>
-  <div class="flex-greybox">
-    <h1>Formulate Editorial Recommendation for Submission</h1>
-    <h3>(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
-	Submissions Page</a> to view Reports and Comments)</h3>
-    <h3>(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
-	Editorial Page</a> to take editorial actions)</h3>
-  </div>
-
-  <hr class="hr12">
-  <div class="row">
-    <div class="col-4">
-      <h2>Submission:</h2>
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class="card-block">
+                <h1 class="card-title">Formulate Editorial Recommendation for Submission</h1>
+                <h3>
+                    (go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
+                	Submissions Page</a> to view Reports and Comments)
+                </h3>
+                <h3>
+                    (go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
+                	Editorial Page</a> to take editorial actions)
+                </h3>
+            </div>
+        </div>
     </div>
-  </div>
-  {% include 'submissions/_submission_summary.html' with submission=submission %}
-  <h3>Abstract:</h3>
-  <p>{{ submission.abstract }}</p>
+</div>
 
-</section>
-
-
-<section>
-  <div class="flex-greybox">
-    <h1>Your Editorial Recommendation</h1>
-    <p>You recommendation will be processed by the Editorial Administration.</p>
-    <ul>
-      <li>acceptance or rejection: forwarded to the Editorial College for ratification</li>
-      <li>request for revision: sent directly to the authors</li>
-  </div>
-
-  <form action="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
-    {% csrf_token %}
-    <table>
-      <ul>
-        {{ form.as_table }}
-      </ul>
-    </table>
-    <input type="submit" value="Submit"/>
-  </form>
-</section>
+  {# <hr class="hr12">#}
+<div class="row">
+    <div class="col-12">
+        <h2>Submission</h2>
+        {% include 'submissions/_submission_summary.html' with submission=submission %}
+    </div>
+</div>
 
 
-{% endblock bodysup %}
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class="card-block">
+                <h1 class="card-title">Your Editorial Recommendation</h1>
+                <p class="card-text">You recommendation will be processed by the Editorial Administration.</p>
+                <ul class="mb-0">
+                    <li>acceptance or rejection: forwarded to the Editorial College for ratification</li>
+                    <li>request for revision: sent directly to the authors</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <form action="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <input class="btn btn-secondary" type="submit" value="Submit"/>
+        </form>
+    </div>
+</div>
+
+
+{% endblock content %}
