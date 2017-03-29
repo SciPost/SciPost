@@ -2,17 +2,23 @@
     padding: 0 !important;
 }
 
+.nav > .btn {
+    border-radius: 1.4px;
+}
 .nav.personal-page-nav {
     .nav-item {
-        background-color: #ddd;
+        background-color: #f0f0f0;
         color: #002b49;
 
         .nav-link.active {
-            background-color: #eeeeee;
+            background-color: #f8f8f8;
+            color: #6885c3;
         }
 
         a {
             color: #002b49;
+            padding-top: 0.4em;
+            padding-bottom: 0.4em;
         }
     }
 }

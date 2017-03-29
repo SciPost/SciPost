@@ -20,17 +20,18 @@ def bootstrap(element, args='2,10'):
     -- 2. Column width for input
     -- 3. Additional argument 'sm' or 'lg' for form groups.
     '''
-    args = [arg.strip() for arg in args.split(',')]
+    args = dict(enumerate(args.split(',')))
     markup_classes = {
-        'label': 'col-md-%s' % args[0],
-        'value': 'col-md-%s' % args[1],
-        'single_value': ''
+        'label': 'col-md-%s' % args.get(0, '4'),
+        'value': 'col-md-%s' % args.get(1, '8'),
+        'single_value': args.get(2, 'col-12'),
+        'form_control': ''
     }
-    try:
-        markup_classes['label'] += ' col-form-label-%s' % args[2]
-        markup_classes['form_control'] = 'form-control-%s' % args[2]
-    except IndexError:
-        markup_classes['form_control'] = ''
+
+    if args.get(2, False):
+        markup_classes['label'] += ' col-form-label-%s' % args.get(2)
+        markup_classes['form_control'] = 'form-control-%s' % args.get(2)
+
     return render(element, markup_classes)
 
 
