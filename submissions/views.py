@@ -307,7 +307,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     try:
         recommendation = (EICRecommendation.objects.get_for_user_in_pool(request.user)
                           .get(submission=submission))
-    except EICRecommendation.DoesNotExist:
+    except (EICRecommendation.DoesNotExist, AttributeError):
         recommendation = None
     comments = submission.comment_set.all()
     context = {'submission': submission,
