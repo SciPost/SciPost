@@ -13,7 +13,7 @@ from django.db import transaction
 from django.http import HttpResponse
 
 from .exceptions import PaperNumberingError
-from .helpers import journal_name_abbrev_citation, journal_name_abbrev_doi, paper_nr_string
+from .helpers import paper_nr_string
 from .models import Issue, Publication, UnregisteredAuthor
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
@@ -143,7 +143,7 @@ def initiate_publication(request):
                 if paper_nr > 999:
                     raise PaperNumberingError(paper_nr)
             doi_label = (
-                journal_name_abbrev_doi(current_issue.in_volume.in_journal.name)
+                current_issue.in_volume.in_journal.get_abbreviation_doi()
                 + '.' + str(current_issue.in_volume.number)
                 + '.' + str(current_issue.number) + '.' + paper_nr_string(paper_nr)
             )
@@ -153,7 +153,7 @@ def initiate_publication(request):
                 '\ttitle={{' + submission.title + '}},\n'
                 '\tauthor={' + submission.author_list.replace(',', ' and') + '},\n'
                 '\tjournal={'
-                + journal_name_abbrev_citation(current_issue.in_volume.in_journal.name)
+                + current_issue.in_volume.in_journal.get_abbreviation_citation()
                 + '},\n'
                 '\tvolume={' + str(current_issue.in_volume.number) + '},\n'
                 '\tissue={' + str(current_issue.number) + '},\n'
@@ -222,7 +222,7 @@ def validate_publication(request):
             # Move file to final location
             initial_path = publication.pdf_file.path
             new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-                       + paper_nr_string(publication.paper_nr))
+                       + publication.get_paper_nr())
             new_path = new_dir + '/' + publication.doi_label.replace('.', '_') + '.pdf'
             os.makedirs(new_dir)
             os.rename(initial_path, new_path)
@@ -456,7 +456,7 @@ def create_metadata_xml(request, doi_string):
         '<journal_metadata>\n'
         '<full_title>' + publication.in_issue.in_volume.in_journal.name + '</full_title>\n'
         '<abbrev_title>'
-        + journal_name_abbrev_citation(publication.in_issue.in_volume.in_journal.name) +
+        + publication.in_issue.in_volume.in_journal.get_abbreviation_citation() +
         '</abbrev_title>\n'
         '<issn>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
         '<doi_data>\n'

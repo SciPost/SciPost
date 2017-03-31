@@ -41,6 +41,7 @@ class LatestCommentsFeedRSS(Feed):
         else:
             return reverse('scipost:index')
 
+
 class LatestCommentsFeedAtom(LatestCommentsFeedRSS):
     feed_type = Atom1Feed
     subtitle = LatestCommentsFeedRSS.description

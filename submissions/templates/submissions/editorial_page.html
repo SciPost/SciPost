@@ -21,66 +21,57 @@
                 <h3>(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</h3>
             </div>
         </div>
-    </div>
-</div>
-
-
-{% if other_versions %}
-    <div class="row">
-        <div class="col-12">
+        {% if other_versions %}
             <h3>Other versions of this Submission exist:</h3>
             <div class="pl-4">
                 {% for vn in other_versions %}
                     {% include 'submissions/_submission_version.html' with submission=vn %}
                 {% endfor %}
             </div>
-        </div>
-    </div>
-{% endif %}
-
-
-<div class="row">
-    <div class="col-12">
-        <h2>Submission:</h2>
-        {% include 'submissions/_submission_summary_short.html' with submission=submission %}
+        {% endif %}
     </div>
 </div>
 
+
 <div class="row">
     <div class="col-12">
-      {% if submission.author_comments %}
-          <h3>Author comments upon resubmission</h3>
-          <p>{{ submission.author_comments|linebreaks }}</p>
-      {% endif %}
+        <h2>Submission</h2>
+        {% include 'submissions/_submission_summary_short.html' with submission=submission %}
 
-      {% if submission.list_of_changes %}
-          <h3>List of changes</h3>
-          <p>{{ submission.list_of_changes|linebreaks }}</p>
-      {% endif %}
+        <br>
+        {% if submission.author_comments %}
+          <h3>Author comments upon resubmission:</h3>
+          <div class="pl-md-4">{{ submission.author_comments|linebreaks }}</div>
+        {% endif %}
 
-      {% if submission.remarks_for_editors %}
-          <h3>Comments for the Editor-in-charge</h3>
-          <p>{{ submission.remarks_for_editors|linebreaks }}</p>
-      {% endif %}
+        {% if submission.list_of_changes %}
+          <h3>List of changes:</h3>
+          <div class="pl-md-4">{{ submission.list_of_changes|linebreaks }}</div>
+        {% endif %}
 
-      {% if submission.referees_suggested %}
+        {% if submission.remarks_for_editors %}
+          <h3>Comments for the Editor-in-charge:</h3>
+          <div class="pl-md-4">{{ submission.remarks_for_editors|linebreaks }}</div>
+        {% endif %}
+
+        {% if submission.referees_suggested %}
           <h3>Referees suggested by authors upon submission:</h3>
-          <p>{{ submission.referees_suggested }}</p>
-      {% endif %}
+          <div class="pl-md-4">{{ submission.referees_suggested }}</div>
+        {% endif %}
 
-      {% if submission.referees_flagged %}
+        {% if submission.referees_flagged %}
           <h3>Referees flagged upon submission (treat reports with caution):</h3>
-          <p>{{ submission.referees_flagged }}</p>
-      {% endif %}
-
+          <div class="pl-md-4">{{ submission.referees_flagged }}</div>
+        {% endif %}
     </div>
 </div>
 
 {% if recommendation %}
     <div class="row">
         <div class="col-12">
-            <h2 class="highlight">Editorial Recommendation</h2>
-            {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
+            <div class="card card-outline-secondary">
+                {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
+            </div>
         </div>
     </div>
 {% endif %}
@@ -181,9 +172,7 @@
                 {% if not submission.reporting_deadline_has_passed %}
                     <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
                 {% endif %}
-                <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoA' %}">Draft and send a communication with the submitting Author</a></li>
-                <li>Communicate with a Referee: see the table above.</li>
-                <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
+                <li>Communicate with a Referee: see the communication block below.</li>
                 <li>
                     <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
                     <p>If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
@@ -196,11 +185,15 @@
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Communications</h1>
+        <ul>
+            <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoA' %}">Draft and send a communication with the submitting Author</a></li>
+            <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
+        </ul>
     </div>
 </div>
 
 <div class="row">
-    <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
+    <div class="col-12">
         <ul class="list-group list-group-flush">
             {% for comm in communications %}
                 <li class="list-group-item">

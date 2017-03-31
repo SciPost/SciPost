@@ -10,7 +10,7 @@
         <h4>Remarks on this submission:</h4>
         <ul>
           {% for rem in submission.remark_set.all %}
-              {{ rem.as_li }}
+              {% include 'scipost/_remark_li.html' with remark=rem %}
           {% endfor %}
         </ul>
     {% endif %}

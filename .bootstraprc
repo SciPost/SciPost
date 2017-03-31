@@ -35,6 +35,7 @@
     "scripts": {
         "alert": true,
         "collapse": true,
+        "tab": true,
         "tooltip": true,
         "util": true,
     }

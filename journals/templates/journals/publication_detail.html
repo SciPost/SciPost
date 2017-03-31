@@ -43,21 +43,22 @@
 {% include 'journals/_publication_details.html' with publication=publication %}
 
 {% if publication.citedby|length >= 1 %}
-<hr>
-<div class="row">
-    <div class="col-6 col-md-2">
-        <h3 class="mb-2">Cited by {{ publication.citedby|length }}</h3>
-        <button class="btn btn-sm btn-secondary" id="citationslistbutton">Toggle view</button>
+    <hr>
+    <div class="row">
+        <div class="col-6 col-md-2">
+            <h3 class="mb-2">Cited by {{ publication.citedby|length }}</h3>
+            <button class="btn btn-sm btn-secondary" id="citationslistbutton">Toggle view</button>
+        </div>
+        <div class="col-6 col-md-2">
+            <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
+        </div>
     </div>
-    <div class="col-6 col-md-2">
-        <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
+    <div class="row" id="citationslist">
+        <div class="col-12">
+            {# {% include 'journals/_publication_citations.html' with publication=publication %}#}
+            {{ publication.citations_as_ul }}
+        </div>
     </div>
-</div>
-<div class="row" id="citationslist">
-    <div class="col-12">
-        {{ publication.citations_as_ul }}
-    </div>
-</div>
 {% endif %}
 
 <div class="row">

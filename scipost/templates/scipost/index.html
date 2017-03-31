@@ -2,9 +2,8 @@
 
 {% load staticfiles %}
 
-{% block bodysup %}
+{% block content %}
 
-<div class="container">
     <div class="row">
         {% if latest_newsitems %}
         <div class="col-md-6 {% if user.is_authenticated %}col-lg-4{% else %}col-lg-3{% endif %}">
@@ -131,23 +130,20 @@
             </div>
         </div>
     </div>
-</div>
 
-
-<div class="container">
     <hr>
     <div class="row">
         <div class="col-md-6">
             <h1>SciPost is endorsed by</h1>
             <div class="row">
                 <div class="col-md-6">
-                    <a href="//www.nwo.nl/en" target="_blank"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width="300" /></a>
-                    <p id="NWOOpenAccess">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as
+                    <a href="//www.nwo.nl/en" target="_blank"><img  style="max-height: 55px; width: auto;" src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo"></a>
+                    <p id="NWOOpenAccess" class="mt-1">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as
                         stipulated on the NWO’s <a href="//www.nwo.nl/en/policies/open+science" target="_blank">Open Science page</a>.</p>
                 </div>
                 <div class="col-md-6">
-                    <a href="//www.fom.nl" target="_blank"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width="100" /></a>
-                    <p style="font-size: 50%">FOM is part of NWO</p>
+                    <a href="//www.fom.nl" target="_blank"><img style="max-height: 55px; width: auto;" src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo"></a>
+                    <p style="font-size: 80%" class="mt-1">FOM is part of NWO</p>
                 </div>
             </div>
         </div>
@@ -157,6 +153,6 @@
             <a href="//www.crossref.org" target="_blank"><img src="//assets.crossref.org/logo/crossref-logo-200.svg" width="100" alt="Crossref logo"></a>
         </div>
     </div>
-</div>
 
-{% endblock bodysup %}
+
+{% endblock %}

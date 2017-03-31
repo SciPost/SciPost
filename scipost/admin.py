@@ -28,8 +28,64 @@ admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
 
+class RemarkTypeListFilter(admin.SimpleListFilter):
+    title = 'Remark Type'
+    parameter_name = 'type'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples to define the filter values in the Admin UI.
+        """
+        return (
+            ('feedback', 'Feedback'),
+            ('nomination', 'Nomination'),
+            ('motion', 'Motion'),
+            ('submission', 'Submission'),
+            ('recommendation', 'Recommendation'),
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        if self.value() == 'feedback':
+            return queryset.filter(feedback__isnull=False)
+        if self.value() == 'nomination':
+            return queryset.filter(nomination__isnull=False)
+        if self.value() == 'motion':
+            return queryset.filter(motion__isnull=False)
+        if self.value() == 'submission':
+            return queryset.filter(submission__isnull=False)
+        if self.value() == 'recommendation':
+            return queryset.filter(recommendation__isnull=False)
+        return None
+
+
+def remark_text(obj):
+    return obj.remark[:30]
+
+
+def get_remark_type(remark):
+    if remark.feedback:
+        return 'Feedback'
+    if remark.nomination:
+        return 'Nomination'
+    if remark.motion:
+        return 'Motion'
+    if remark.submission:
+        return 'Submission'
+    if remark.recommendation:
+        return 'Recommendation'
+    return ''
+
+
 class RemarkAdmin(admin.ModelAdmin):
     search_fields = ['contributor', 'remark']
+    list_display = [remark_text, 'contributor', 'date', get_remark_type]
+    date_hierarchy = 'date'
+    list_filter = [RemarkTypeListFilter]
 
 
 admin.site.register(Remark, RemarkAdmin)

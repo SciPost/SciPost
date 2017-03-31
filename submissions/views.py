@@ -718,7 +718,7 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
                                     submission.editor_in_charge.get_title_display() + ' ' +
                                     submission.editor_in_charge.user.last_name +
                                     ', we would like to invite you to referee a Submission to ' +
-                                    submission.get_submitted_to_journal_display +
+                                    submission.get_submitted_to_journal_display() +
                                     ', namely\n\n' + submission.title +
                                     '\nby ' + submission.author_list +
                                     '\n (see https://scipost.org/submission/'
@@ -981,7 +981,7 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if submission.status not in ['EICassigned', 'review_closed']:
         errormessage = ('This submission\'s current status is: ' +
-                        submission.get_status_display + '. '
+                        submission.get_status_display() + '. '
                         'An Editorial Recommendation is not required.')
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
     if request.method == 'POST':

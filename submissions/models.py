@@ -3,6 +3,7 @@ import datetime
 from django.utils import timezone
 from django.db import models, transaction
 from django.contrib.postgres.fields import JSONField
+from django.urls import reverse
 
 from .constants import ASSIGNMENT_REFUSAL_REASONS, SUBMISSION_STATUS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
@@ -91,6 +92,9 @@ class Submission(ArxivCallable, models.Model):
         except Publication.DoesNotExist:
             pass
         return header
+
+    def get_absolute_url(self):
+        return reverse('submissions:submission', args=[self.arxiv_identifier_w_vn_nr])
 
     @property
     def reporting_deadline_has_passed(self):
