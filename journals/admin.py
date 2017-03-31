@@ -26,6 +26,9 @@ admin.site.register(Issue, IssueAdmin)
 
 class PublicationAdmin(admin.ModelAdmin):
     search_fields = ['title', 'author_list']
+    list_display = ['title', 'author_list', 'in_issue', 'doi_string', 'publication_date']
+    date_hierarchy = 'publication_date'
+    list_filter = ['in_issue']
 
 
 admin.site.register(Publication, PublicationAdmin)
