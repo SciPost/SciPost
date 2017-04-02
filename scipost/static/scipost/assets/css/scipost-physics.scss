@@ -1,0 +1,26 @@
+.journals .navbar-secondary ul.links {
+    background-color: #dddddd;
+    display: block;
+    font-size: 16px;
+    padding: 0px;
+    border-radius: 1.4px;
+    margin-top: 0.5rem;
+    margin-bottom: -1.5rem;
+
+    > li {
+        display: inline-block;
+        margin: 0;
+        padding: 0.5rem 0.25rem;
+
+        a {
+            padding: 0.25rem 1.0rem;
+            border-radius: 1.4px;
+            display: block;
+
+            &.active {
+                border: 1px solid #6885c3;
+                color: #6885c3;
+            }
+        }
+    }
+}

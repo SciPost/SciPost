@@ -25,9 +25,10 @@
     {% endblock headsup %}
   </head>
 
-  <body>
+  <body class="{% block body_class %}{% endblock %}">
     {% include 'scipost/header.html' %}
     {% include 'scipost/navbar.html' %}
+    {% block secondary_navbar %}{% endblock secondary_navbar %}
     {% include 'scipost/messages.html' %}
 
 

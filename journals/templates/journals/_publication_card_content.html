@@ -1,9 +1,7 @@
-<div class="card-header">
-    <h3><a href="{% url 'scipost:publication_detail' publication.doi_string %}">{{ publication.title }}</a></h3>
-</div>
 <div class="card-block publication-{{publication.id}}">
-    <p>{{ publication.author_list }}</p>
-    <p>{{ publication.citation }}&nbsp;|&nbsp;published {{ publication.publication_date|date:'j F Y' }}</p>
+    <h3 class="card-title"><a href="{% url 'scipost:publication_detail' publication.doi_string %}">{{ publication.title }}</a></h3>
+    <p class="card-text">{{ publication.author_list }}</p>
+    <p class="card-text text-muted mb-2">{{ publication.citation }}&nbsp;|&nbsp;published {{ publication.publication_date|date:'j F Y' }}</p>
     <p class="abstract" style="display:none;">{{ publication.abstract }}</p>
     <div class="actions">
         <button class="btn btn-secondary mr-3" data-toggle="toggle" data-target=".card-block.publication-{{publication.id}} .abstract">Toggle abstract</button>
