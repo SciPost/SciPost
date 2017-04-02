@@ -8,12 +8,6 @@
         <div class="container">
             <div>
                 <h2 class="banner d-inline-block"><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h2>
-
-                {% if current_issue %}
-                    <h2 class="highlight-empty text-blue d-inline-block mb-0">Current issue: Vol. {{ current_issue.in_volume.number }} issue {{ current_issue.number }} (in progress)</h2>
-                {% elif latest_issue %}
-                    <h2 class="highlight-empty text-blue d-inline-block mb-0">Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
-                {% endif %}
             </div>
             <ul class="links">
                 <li><a href="{% url 'journals:scipost_physics_issues' %}">Issues</a></li>
@@ -29,13 +23,25 @@
 
 {% block content %}
 
+<div class="row">
+    <div class="col-12">
+        {% if current_issue %}
+            <h2 class="highlight-empty text-blue m-0 py-2">Current issue: Vol. {{ current_issue.in_volume.number }} issue {{ current_issue.number }} (in progress)</h2>
+        {% elif latest_issue %}
+            <h2 class="highlight-empty text-blue m-0 py-2">Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
+        {% endif %}
+    </div>
+</div>
+
 {% if current_issue %}
     <div class="row">
         <div class="col-12">
             <ul class="list-group list-group-flush px-3">
                 {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
                     <li class="list-group-item">
-                        {% include 'journals/_publication_card_content.html' with publication=paper %}
+                        <div class="card card-grey w-100">
+                            {% include 'journals/_publication_card_content.html' with publication=paper %}
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
@@ -48,7 +54,9 @@
             <ul class="list-group list-group-flush px-3">
                 {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
                     <li class="list-group-item">
-                        {% include 'journals/_publication_card_content.html' with publication=paper %}
+                        <div class="card card-grey w-100">
+                            {% include 'journals/_publication_card_content.html' with publication=paper %}
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
