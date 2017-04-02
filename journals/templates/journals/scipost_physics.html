@@ -6,9 +6,7 @@
 {% block secondary_navbar %}
     <nav class="navbar navbar-secondary">
         <div class="container">
-            <div>
-                <h2 class="banner d-inline-block"><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h2>
-            </div>
+            <h2 class="banner d-inline-block mr-2"><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h2>
             <ul class="links">
                 <li><a href="{% url 'journals:scipost_physics_issues' %}">Issues</a></li>
                 <li><a class="active" href="{% url 'journals:scipost_physics_recent' %}">Recent</a></li>
@@ -39,7 +37,7 @@
             <ul class="list-group list-group-flush px-3">
                 {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
                     <li class="list-group-item">
-                        <div class="card card-grey w-100">
+                        <div class="card card-grey card-publication">
                             {% include 'journals/_publication_card_content.html' with publication=paper %}
                         </div>
                     </li>
@@ -54,7 +52,7 @@
             <ul class="list-group list-group-flush px-3">
                 {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
                     <li class="list-group-item">
-                        <div class="card card-grey w-100">
+                        <div class="card card-grey card-publication">
                             {% include 'journals/_publication_card_content.html' with publication=paper %}
                         </div>
                     </li>

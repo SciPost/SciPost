@@ -1,4 +1,4 @@
-<div class="card-block publication-{{publication.id}} py-2">
+<div class="card-block publication-{{publication.id}}">
     <h3 class="card-title"><a href="{% url 'scipost:publication_detail' publication.doi_string %}">{{ publication.title }}</a></h3>
     <p class="card-text">{{ publication.author_list }}</p>
     <p class="card-text text-muted">{{ publication.citation }} - published {{ publication.publication_date|date:'j F Y' }} | <a href="javascript:;" class="btn btn-outline-primary btn-sm mx-2" data-toggle="toggle" data-target=".card-block.publication-{{publication.id}} .abstract">Toggle abstract</a> <a href="{% url 'scipost:publication_pdf' publication.doi_string %}" target="_blank">pdf</a></p>

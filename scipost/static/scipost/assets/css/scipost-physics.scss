@@ -1,11 +1,10 @@
 .journals .navbar-secondary ul.links {
     background-color: #dddddd;
-    display: block;
+    display: inline-block;
     font-size: 16px;
-    padding: 0px;
+    padding: 0;
     border-radius: 1.4px;
-    margin-top: 0.5rem;
-    margin-bottom: -1.5rem;
+    margin: 0;
 
     > li {
         display: inline-block;
