@@ -4,14 +4,14 @@
 
 {% block link_class_physics_issues %}active{% endblock %}
 
-{% block header_text_class %}highlight-empty text-blue m-0 pb-0{% endblock %}
+{% block header_text_class %}highlight-empty text-blue m-0 p-0 pt-2{% endblock %}
 
 {% block journal_header_block %}
     {% if prev_issue %}
-        <h4 class="px-3 d-inline-block"><a href="{{prev_issue.get_absolute_url}}">< Previous issue | Vol. {{prev_issue.in_volume.number}} issue {{prev_issue.number}}</a></h4>
+        <h4 class="d-inline-block"><a href="{{prev_issue.get_absolute_url}}">< Previous issue | Vol. {{prev_issue.in_volume.number}} issue {{prev_issue.number}}</a></h4>
     {% endif %}
     {% if next_issue %}
-        <h4 class="px-3 float-right d-inline-block"><a href="{{next_issue.get_absolute_url}}">Vol. {{next_issue.in_volume.number}} issue {{next_issue.number}} | Next issue ></a></h4>
+        <h4 class="float-right d-inline-block"><a href="{{next_issue.get_absolute_url}}">Vol. {{next_issue.in_volume.number}} issue {{next_issue.number}} | Next issue ></a></h4>
     {% endif %}
 {% endblock %}
 
@@ -23,7 +23,7 @@
 
     <div class="row">
         <div class="col-12">
-            <ul class="list-group list-group-flush px-3">
+            <ul class="list-group list-group-flush">
                 {% for paper in papers %}
                     <li class="list-group-item">
                         <div class="card card-grey card-publication">

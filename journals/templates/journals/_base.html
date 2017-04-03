@@ -5,7 +5,7 @@
 
 {% block secondary_navbar %}
     <nav class="navbar navbar-secondary">
-        <div class="container">
+        <div class="container my-2">
             <h2 class="banner d-inline-block mr-2"><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h2>
             <ul class="links">
                 <li><a class="{% block link_class_physics_issues %}{% endblock %}" href="{% url 'journals:scipost_physics_issues' %}">Issues</a></li>
@@ -23,7 +23,7 @@
 {% block content %}
     <div class="row">
         <div class="col-12">
-            <h2 class="{% block header_text_class %}highlight-empty text-blue m-0 py-2{% endblock %}">{{header_text}}</h2>
+            <h2 class="{% block header_text_class %}highlight-empty text-blue m-0 py-2 px-0{% endblock %}">{{header_text}}</h2>
             {% block journal_header_block %}{% endblock %}
         </div>
     </div>

@@ -12,13 +12,13 @@
 
     <div class="row">
         <div class="col-12">
-            <ul class="list-group list-group-flush px-2">
+            <ul class="list-group list-group-flush">
                 {% for submission in accepted_SP_submissions %}
                     <li class="list-group-item">
                         {% include 'submissions/_submission_card_content.html' with submission=submission %}
                     </li>
                 {% empty %}
-                    <li class="list-group-item px-2">
+                    <li class="list-group-item">
                         <h3>All recently accepted Submissions to SciPost Physics have been published.</h3>
                     </li>
                 {% endfor %}
