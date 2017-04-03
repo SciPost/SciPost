@@ -23,7 +23,8 @@
 {% block content %}
     <div class="row">
         <div class="col-12">
-            <h2 class="highlight-empty text-blue m-0 py-2">{{header_text}}</h2>
+            <h2 class="{% block header_text_class %}highlight-empty text-blue m-0 py-2{% endblock %}">{{header_text}}</h2>
+            {% block journal_header_block %}{% endblock %}
         </div>
     </div>
 {% endblock %}

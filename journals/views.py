@@ -41,9 +41,17 @@ def scipost_physics(request):
     latest_issue = Issue.objects.published(
         in_volume__in_journal__name='SciPost Physics',
         until_date__lte=timezone.now()).order_by('-until_date').first()
+
+    prev_issue = None
+    if current_issue:
+        prev_issue = (Issue.objects.published(journal='SciPost Physics',
+                                              start_date__lt=current_issue.start_date)
+                                   .order_by('start_date').last())
+
     context = {
         'current_issue': current_issue,
-        'latest_issue': latest_issue
+        'latest_issue': latest_issue,
+        'prev_issue': prev_issue
     }
     return render(request, 'journals/scipost_physics.html', context)
 
@@ -90,23 +98,25 @@ def scipost_physics_issue_detail(request, volume_nr, issue_nr):
     issue = Issue.objects.get_published(journal='SciPost Physics',
                                         number=issue_nr, in_volume__number=volume_nr)
     papers = issue.publication_set.order_by('paper_nr')
-    context = {'issue': issue, 'papers': papers}
+    next_issue = (Issue.objects.published(journal='SciPost Physics',
+                                          start_date__gt=issue.start_date)
+                               .order_by('start_date').first())
+    prev_issue = (Issue.objects.published(journal='SciPost Physics',
+                                          start_date__lt=issue.start_date)
+                               .order_by('start_date').last())
+
+    context = {
+        'issue': issue,
+        'prev_issue': prev_issue,
+        'next_issue': next_issue,
+        'papers': papers
+    }
     return render(request, 'journals/scipost_physics_issue_detail.html', context)
 
 
 #######################
 # Publication process #
 #######################
-
-# @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-# @transaction.atomic
-# def publishing_workspace(request):
-#     """
-#     Page containing post-acceptance publishing workflow items.
-#     """
-#     accepted_submissions = Submission.objects.filter(status='accepted')
-#     context = {'accepted_submissions': accepted_submissions,}
-#     return render(request, 'journals/publishing_workspace.html', context)
 
 def upload_proofs(request):
     """
