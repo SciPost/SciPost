@@ -25,9 +25,10 @@
     {% endblock headsup %}
   </head>
 
-  <body>
+  <body class="{% block body_class %}{% endblock %}">
     {% include 'scipost/header.html' %}
     {% include 'scipost/navbar.html' %}
+    {% block secondary_navbar %}{% endblock secondary_navbar %}
     {% include 'scipost/messages.html' %}
 
 
@@ -35,10 +36,14 @@
         {% block page_header %}{% endblock page_header %}
 
         {% block content %}{% endblock content %}
+
+        {% block content_footer %}{% endblock content_footer %}
     </div>
 
     {% block bodysup %}
     {% endblock bodysup %}
+
+    {% block secondary_footer %}{% endblock secondary_footer %}
 
     {% include 'scipost/footer.html' %}
 

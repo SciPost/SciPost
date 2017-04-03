@@ -1,31 +1,25 @@
-{% extends 'scipost/base.html' %}
+{% extends 'journals/_base.html' %}
 
-{% block pagetitle %}: SciPost Physics: issues{% endblock pagetitle %}
+{% block pagetitle %}{{block.super}}: issues{% endblock pagetitle %}
+
+{% block link_class_physics_issues %}active{% endblock %}
 
 {% block content %}
 
-{% include 'journals/scipost_physics_menu.html' %}
+    {% with header_text='Issues' %}
+        {{block.super}}
+    {% endwith %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="panel">
-            <h2>Issues</h2>
+    <div class="row">
+        <div class="col-12">
+            <ul>
+                {% for issue in issues %}
+                    <li>
+                        <a href="{{issue.get_absolute_url}}">{{ issue }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-12">
-        <ul>
-          {% for issue in issues %}
-            <li>
-              <a href="{% url 'scipost:SciPostPhys_issue_detail' volume_nr=issue.in_volume.number issue_nr=issue.number %}">{{ issue }}</a>
-            </li>
-          {% endfor %}
-    </div>
-</div>
-
-
-{% include 'journals/scipost_physics_footer.html' %}
-
-{% endblock content %}
+{% endblock %}

@@ -35,3 +35,22 @@
         color: $scipost-light;
     }
 }
+
+.card-publication {
+    width: 100%;
+
+    &.card-grey {
+        background-color: #f8f8f8;
+    }
+
+    .card-block {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+
+        .card-title {
+            background-color: #f4f4f4;
+            margin: -0.5rem -0.75rem 0.5rem -0.75rem;
+            padding: .75rem 0.75rem;
+        }
+    }
+}

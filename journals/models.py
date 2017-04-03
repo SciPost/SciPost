@@ -2,6 +2,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.template import Template, Context
 from django.utils import timezone
+from django.urls import reverse
 
 from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
                        STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES
@@ -72,6 +73,10 @@ class Issue(models.Model):
         if self.status == STATUS_DRAFT:
             text += ' (In draft)'
         return text
+
+    def get_absolute_url(self):
+        return reverse('scipost:SciPostPhys_issue_detail',
+                       args=[self.in_volume.number, self.number])
 
     def period_as_string(self):
         if self.start_date.month == self.until_date.month:

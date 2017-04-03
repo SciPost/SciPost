@@ -1,58 +1,59 @@
-{% extends 'scipost/base.html' %}
-
-{% block pagetitle %}: SciPost Physics{% endblock pagetitle %}
+{% extends 'journals/_base.html' %}
 
 {% block content %}
 
-{% include 'journals/scipost_physics_menu.html' %}
-
-{% if current_issue %}
-<div class="row">
-    <div class="col-12">
-        <div class="panel">
-            <h2>Current issue: Vol. {{ current_issue.in_volume.number }} issue {{ current_issue.number }} (in progress)</h2>
+    {% if current_issue %}
+        <div class="row">
+            <div class="col-12">
+                <h2 class="highlight-empty text-blue m-0 p-0 pt-2">Current issue: Vol. {{ current_issue.in_volume.number }} issue {{ current_issue.number }} (in progress)</h2>
+                {% if prev_issue %}
+                    <h4 class="d-inline-block"><a href="{{prev_issue.get_absolute_url}}">< Previous issue | Vol. {{prev_issue.in_volume.number}} issue {{prev_issue.number}}</a></h4>
+                {% endif %}
+            </div>
         </div>
-    </div>
-</div>
 
-<div class="publicationHeaderList">
-    <div class="row">
-        <div class="col-12">
-            {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
-                <div class="card card-publication">
-                    {% include 'journals/_publication_card_content.html' with publication=paper %}
-                </div>
-            {% endfor %}
+        <div class="row">
+            <div class="col-12">
+                <ul class="list-group list-group-flush">
+                    {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
+                        <li class="list-group-item">
+                            <div class="card card-grey card-publication">
+                                {% include 'journals/_publication_card_content.html' with publication=paper %}
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">
+                            <h3>No publications found for this issue</h3>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-    </div>
-</div>
-<hr>
-{% endif %}
+    {% endif %}
 
-{% if latest_issue %}
-<div class="row">
-    <div class="col-12">
-        <div class="panel">
-            <h2>Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
+    {% if latest_issue %}
+        <div class="row">
+            <div class="col-12">
+                <h2 class="highlight-empty text-blue m-0 p-0">Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
+            </div>
         </div>
-    </div>
-</div>
-
-<div class="publicationHeaderList">
-    <div class="row">
-        <div class="col-12">
-            {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
-                <div class="card card-publication">
-                    {% include 'journals/_publication_card_content.html' with publication=paper %}
-                </div>
-            {% endfor %}
+        <div class="row">
+            <div class="col-12">
+                <ul class="list-group list-group-flush">
+                    {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
+                        <li class="list-group-item">
+                            <div class="card card-grey card-publication">
+                                {% include 'journals/_publication_card_content.html' with publication=paper %}
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">
+                            <h3>No publications found for this issue</h3>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-    </div>
-</div>
-{% endif %}
+    {% endif %}
 
-
-{% include 'journals/scipost_physics_footer.html' %}
-
-
-{% endblock content %}
+{% endblock %}
