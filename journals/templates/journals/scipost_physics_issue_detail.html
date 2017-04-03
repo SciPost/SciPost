@@ -1,36 +1,27 @@
-{% extends 'scipost/base.html' %}
+{% extends 'journals/_base.html' %}
 
-{% block pagetitle %}: SciPost Physics: issue detail{% endblock pagetitle %}
+{% block pagetitle %}{{block.super}}: issue detail{% endblock pagetitle %}
 
-{% block headsup %}
-
-{% endblock headsup %}
+{% block link_class_physics_issues %}active{% endblock %}
 
 {% block content %}
 
-{% include 'journals/scipost_physics_menu.html' %}
+    {% with header_text=issue %}
+        {{block.super}}
+    {% endwith %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="panel">
-            <h2>{{ issue }}</h2>
-        </div>
-    </div>
-</div>
-
-<div class="publicationHeaderList">
     <div class="row">
         <div class="col-12">
-            {% for paper in papers %}
-                <div class="card card-publication">
-                    {% include 'journals/_publication_card_content.html' with publication=paper %}
-                </div>
-            {% endfor %}
+            <ul class="list-group list-group-flush px-3">
+                {% for paper in papers %}
+                    <li class="list-group-item">
+                        <div class="card card-grey card-publication">
+                            {% include 'journals/_publication_card_content.html' with publication=paper %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
-</div>
 
-
-{% include 'journals/scipost_physics_footer.html' %}
-
-{% endblock content %}
+{% endblock %}

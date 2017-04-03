@@ -1,67 +1,48 @@
-{% extends 'scipost/base.html' %}
-
-{% block pagetitle %}: SciPost Physics{% endblock pagetitle %}
-{% block body_class %}{{block.super}} journals{% endblock %}
-
-{% block secondary_navbar %}
-    <nav class="navbar navbar-secondary">
-        <div class="container">
-            <h2 class="banner d-inline-block mr-2"><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h2>
-            <ul class="links">
-                <li><a href="{% url 'journals:scipost_physics_issues' %}">Issues</a></li>
-                <li><a class="active" href="{% url 'journals:scipost_physics_recent' %}">Recent</a></li>
-                <li><a href="{% url 'journals:scipost_physics_accepted' %}">Accepted</a></li>
-                <li><a href="{% url 'submissions:submissions' %}?to_journal=SciPostPhysics">Submissions</a></li>
-                <li><a href="{% url 'journals:scipost_physics_info_for_authors' %}">Info for authors</a></li>
-                <li><a href="{% url 'journals:scipost_physics_about' %}">About</a></li>
-            </ul>
-        </div>
-    </nav>
-{% endblock secondary_navbar %}
+{% extends 'journals/_base.html' %}
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        {% if current_issue %}
-            <h2 class="highlight-empty text-blue m-0 py-2">Current issue: Vol. {{ current_issue.in_volume.number }} issue {{ current_issue.number }} (in progress)</h2>
-        {% elif latest_issue %}
-            <h2 class="highlight-empty text-blue m-0 py-2">Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
-        {% endif %}
-    </div>
-</div>
-
-{% if current_issue %}
-    <div class="row">
-        <div class="col-12">
-            <ul class="list-group list-group-flush px-3">
-                {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
-                    <li class="list-group-item">
-                        <div class="card card-grey card-publication">
-                            {% include 'journals/_publication_card_content.html' with publication=paper %}
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
+    {% if current_issue %}
+        <div class="row">
+            <div class="col-12">
+                <h2 class="highlight-empty text-blue m-0 py-2">Current issue: Vol. {{ current_issue.in_volume.number }} issue {{ current_issue.number }} (in progress)</h2>
+            </div>
         </div>
-    </div>
-    <hr>
-{% elif latest_issue %}
-    <div class="row">
-        <div class="col-12">
-            <ul class="list-group list-group-flush px-3">
-                {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
-                    <li class="list-group-item">
-                        <div class="card card-grey card-publication">
-                            {% include 'journals/_publication_card_content.html' with publication=paper %}
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
+
+        <div class="row">
+            <div class="col-12">
+                <ul class="list-group list-group-flush px-3">
+                    {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
+                        <li class="list-group-item">
+                            <div class="card card-grey card-publication">
+                                {% include 'journals/_publication_card_content.html' with publication=paper %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
 
-{% include 'journals/scipost_physics_footer.html' %}
+    {% if latest_issue %}
+        <div class="row">
+            <div class="col-12">
+                <h2 class="highlight-empty text-blue m-0 py-2">Latest issue: Vol. {{ latest_issue.in_volume.number }} issue {{ latest_issue.number }}</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <ul class="list-group list-group-flush px-3">
+                    {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
+                        <li class="list-group-item">
+                            <div class="card card-grey card-publication">
+                                {% include 'journals/_publication_card_content.html' with publication=paper %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
 
-{% endblock content %}
+{% endblock %}

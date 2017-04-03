@@ -1,35 +1,29 @@
-{% extends 'scipost/base.html' %}
+{% extends 'journals/_base.html' %}
 
-{% block pagetitle %}: SciPost Physics: accepted{% endblock pagetitle %}
+{% block pagetitle %}{{block.super}}: accepted{% endblock pagetitle %}
+
+{% block link_class_physics_accepted %}active{% endblock %}
 
 {% block content %}
 
-{% include 'journals/scipost_physics_menu.html' %}
+    {% with header_text='Accepted for publication' %}
+        {{block.super}}
+    {% endwith %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="panel">
-            <h2>Accepted for publication</h2>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        {% if accepted_SP_submissions %}
-            <ul class="list-group list-group-flush">
+    <div class="row">
+        <div class="col-12">
+            <ul class="list-group list-group-flush px-2">
                 {% for submission in accepted_SP_submissions %}
                     <li class="list-group-item">
                         {% include 'submissions/_submission_card_content.html' with submission=submission %}
                     </li>
+                {% empty %}
+                    <li class="list-group-item px-2">
+                        <h3>All recently accepted Submissions to SciPost Physics have been published.</h3>
+                    </li>
                 {% endfor %}
             </ul>
-        {% else %}
-            <h3>All recently accepted Submissions to SciPost Physics have been published.</h3>
-        {% endif %}
+        </div>
     </div>
-</div>
 
-{% include 'journals/scipost_physics_footer.html' %}
-
-{% endblock content %}
+{% endblock %}

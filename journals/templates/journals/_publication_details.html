@@ -1,11 +1,11 @@
 <div class="row">
     <div class="col-12">
-        <h3 class="highlight py-3">
+        <h2 class="pb-1 pt-3">
             <a href="{% url 'scipost:publication_detail' publication.doi_string %}">{{publication.title}}</a>
-        </h3>
+        </h2>
 
-        <p class="font-weight-bold">{{ publication.author_list }}</p>
-        <p>{{ publication.citation }} | published {{ publication.publication_date|date:'j F Y' }}</p>
+        <p class="font-weight-bold mb-1">{{ publication.author_list }}</p>
+        <p class="text-muted">{{ publication.citation }} | published {{ publication.publication_date|date:'j F Y' }}</p>
 
         <ul class="publicationClickables">
             <li>doi:  {{publication.doi_string}}</li>

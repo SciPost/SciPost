@@ -1,0 +1,39 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: SciPost Physics{% endblock pagetitle %}
+{% block body_class %}{{block.super}} journals{% endblock %}
+
+{% block secondary_navbar %}
+    <nav class="navbar navbar-secondary">
+        <div class="container">
+            <h2 class="banner d-inline-block mr-2"><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h2>
+            <ul class="links">
+                <li><a class="{% block link_class_physics_issues %}{% endblock %}" href="{% url 'journals:scipost_physics_issues' %}">Issues</a></li>
+                <li><a class="{% block link_class_physics_recent %}{% endblock %}" href="{% url 'journals:scipost_physics_recent' %}">Recent</a></li>
+                <li><a class="{% block link_class_physics_accepted %}{% endblock %}" href="{% url 'journals:scipost_physics_accepted' %}">Accepted</a></li>
+                <li><a href="{% url 'submissions:submissions' %}?to_journal=SciPostPhysics">Submissions</a></li>
+                <li><a class="{% block link_class_physics_info %}{% endblock %}" href="{% url 'journals:scipost_physics_info_for_authors' %}">Info for authors</a></li>
+                <li><a class="{% block link_class_physics_about %}{% endblock %}" href="{% url 'journals:scipost_physics_about' %}">About</a></li>
+            </ul>
+        </div>
+    </nav>
+{% endblock secondary_navbar %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight-empty text-blue m-0 py-2">{{header_text}}</h2>
+        </div>
+    </div>
+{% endblock %}
+
+{% block secondary_footer %}
+    <footer class="secondary container-fluid py-2">
+        <div class="row my-1">
+            <div class="col-12">
+                SciPost Physics is published by the SciPost Foundation under the journal doi: 10.21468/SciPostPhys and ISSN 2542-4653.
+            </div>
+        </div>
+    </footer>
+{% endblock %}
