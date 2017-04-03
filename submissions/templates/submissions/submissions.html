@@ -63,8 +63,8 @@
                   </p>
             {% endif %}
 
-            </div>
-            <div class="col-12">
+    </div>
+    <div class="col-12">
 
             <ul class="list-group list-group-flush">
                 {% for submission in object_list %}
@@ -75,6 +75,20 @@
             </ul>
         {% else %}
             <h3>No match found for your search query.</h3>
+        {% endif %}
+
+    </div>
+    <div class="col-12">
+        {% if is_paginated %}
+              <p>
+              {% if page_obj.has_previous %}
+                <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
+              {% endif %}
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+              {% if page_obj.has_next %}
+                <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
+              {% endif %}
+              </p>
         {% endif %}
     </div>
 </div>
