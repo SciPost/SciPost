@@ -146,111 +146,59 @@
 
 <hr>
 
-{% if request.user.is_staff %}
-    {% for college, codes in object_list %}
+{% for college, codes in object_list %}
 
-        <div class="row">
-            <div class="col-12">
-                <div class="panel">
-                  <h2 id="editorial_college_{{ college|lower }}">Editorial College ({{ college }})</h2>
+    <div class="row">
+        <div class="col-12">
+            <div class="panel">
+              <h2 id="editorial_college_{{ college|lower }}">Editorial College ({{ college }})</h2>
+            </div>
+        </div>
+    </div>
+
+
+{% if codes %}
+<div class="row">
+    <div class="col-12">
+        <a href="#editorial_college_{{ college|lower }}" class="d-block mb-1" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show Fellows by specialization</a>
+        <div id="specializations-{{college|lower}}" class="all-specializations" style="border: 1px solid; display: none;">
+            <div class="row">
+                <div class="col-md-6">
+                    {% with total_count=codes|length %}
+                        {% for code in codes %}
+                            <div class="specialization" data-specialization="{{code.0|lower}}">{{code.0}} - {{code.1}}</div>
+                            {% if forloop.counter|is_modulo_one_half:total_count %}
+                                </div>
+                                <div class="col-md-6">
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
                 </div>
             </div>
         </div>
+    </div>
+</div>
+{% endif %}
 
-
-    {% if codes %}
-    <div class="row">
-        <div class="col-12">
-            <a href="#editorial_college_{{ college|lower }}" class="d-block mb-1" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show Fellows by specialization</a>
-            <div id="specializations-{{college|lower}}" class="all-specializations" style="border: 1px solid; display: none;">
-                {% for code in codes %}
-                    <div class="specialization" data-specialization="{{code.0|lower}}">{{code.0}} - {{code.1}}</div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        <div class="row search-contributors" data-contributors="{{ college|lower }}">
-            {% for fellowship in college.current_fellows|reorder_list_three %}
-                <div class="col-md-4 contributor-col">
+<div class="row search-contributors" data-contributors="{{ college|lower }}">
+    <div class="col-md-4">
+        {% with total_count=college.current_fellows|length %}
+            {% for fellowship in college.current_fellows %}
+                <div class="col-12 contributor-col">
                     <div class="contributor">
                         {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
                     </div>
                 </div>
+                {% if forloop.counter|is_modulo_one_third:total_count %}
+                    </div>
+                    <div class="col-md-4">
+                {% endif %}
             {% endfor %}
-        </div>
-
-    {% endfor %}
-{% else %}
-    <div class="row">
-        <div class="col-12">
-              <h2 class="highlight" id="editorial_college_physics">Editorial College (Physics)</h2>
-        </div>
+        {% endwith %}
     </div>
+</div>
 
-      <div class="row">
-        <div class="col-md-4">
-          <ul>
-    	<li>Prof. <a href="https://www.uni-tuebingen.de/en/faculties/faculty-of-science/departments/physics/institutes/institute-for-theoretical-physics/research-groups/andergassen-group.html">Sabine Andergassen</a><br/>(Tübingen)</li>
-    	<li>Prof. <a href="http://www.physik.uni-wuerzburg.de/~assaad/">Fakher Assaad</a><br/>(Würzbrug)</li>
-    	<li>Dr <a href="http://www.attaccalite.com">Claudio Attaccalite</a><br/>(Marseille)</li>
-    	<li>Prof. <a href="https://denis114.wordpress.com">Denis Bartolo</a><br/>(ENS Lyon)</li>
-    	<li>Prof. <a href="http://www.physik.unizh.ch/~lbaudis/index.html">Laura Baudis</a><br/>(Zurich)</li>
-    	<li>Prof. <a href="http://www.lorentz.leidenuniv.nl/beenakker/">Carlo Beenakker</a><br/>(Leiden)</li>
-    	<li>Prof. <a href="https://www.coulomb.univ-montp2.fr/perso/ludovic.berthier/">Ludovic Berthier</a><br/>(Montpellier)</li>
-    	<li>Prof. <a href="http://ipht.cea.fr/Pisp/giulio.biroli/index_en.php">Giulio Biroli</a><br/>(CEA Saclay)</li>
-    	<li>Prof. <a href="http://www.en.physik.uni-muenchen.de/personen/professoren/bloch/index.html">Immanuel Bloch</a><br/>(LMU Munich)</li>
-    	<li>Prof. <a href="https://staff.fnwi.uva.nl/j.deboer/">Jan de Boer</a><br/>(U. van Amsterdam)</li>
-    	<li>Prof. <a href="http://www.uva.nl/en/about-the-uva/organisation/staff-members/content/b/o/d.bonn/d.bonn.html">Daniel Bonn</a><br/>(U. van Amsterdam)</li>
-    	<li>Prof. <a href="http://www.statphys.sissa.it/wordpress/?page_id=1731">Pasquale Calabrese</a><br/>(SISSA)</li>
-    	<li>Prof. <a href="http://personalpages.to.infn.it/~caselle/index_en.html">Michele Caselle</a><br/>(Torino)</li>
-    	<li>Prof. <a href="http://www.saha.ac.in/cmp/bikask.chakrabarti/bikas.html">Bikas Chakrabarti</a><br/>(Kolkata)</li>
-    	<li>Prof. <a href="http://www.tcm.phy.cam.ac.uk/~nrc25/">Nigel Cooper</a><br/>(Cambridge)</li>
-          </ul>
-        </div>
-        <div class="col-md-4">
-          <ul>
-    	<li>Prof. <a href="http://physics.cornell.edu/csaba-csaki">Csaba Csaki</a><br/>(Cornell)</li>
-    	<li>Prof. <a href="http://theory.tifr.res.in/~kedar/">Kedar Damle</a><br/>(TIFR Mumbai)</li>
-    	<li>Prof. <a href="http://researchers.uq.edu.au/researcher/1134">Matthew Davis</a><br/>(U. of Queensland)</li>
-    	<li>Prof. <a href="http://www-thphys.physics.ox.ac.uk/people/FabianEssler/">Fabian Essler</a><br/>(U. of Oxford)</li>
-    	<li>Prof. <a href="http://www.pd.infn.it/~feruglio/">Ferruccio Feruglio</a><br/>(Padova, INFN)</li>
-    	<li>Prof. <a href="http://www.ms.unimelb.edu.au/~jdgier@unimelb/">Jan de Gier</a><br/>(U. of Melbourne)</li>
-    	<li>Prof. <a href="http://www.desy.de/about_desy/leading_scientists/beate_heinemann/index_eng.html">Beate Heinemann</a><br/>(DESY; Freiburg)</li>
-    	<li>Prof. <a href="http://katzgraber.org">Helmut Katzgraber</a><br/>(Texas A&amp;M)</li>
-    	<li>Prof. <a href="https://web.physik.rwth-aachen.de/~mkraemer/">Michael Kr&auml;mer</a><br/>(RWTH Aachen)</li>
-    	<li>Prof. <a href="https://www.pmmh.espci.fr/~jorge/">Jorge Kurchan</a><br/>(<a href="https://www.pmmh.espci.fr/?-Home-">PMMH</a> Paris, CNRS)</li>
-    	<li>Prof. <a href="https://vivo.brown.edu/display/glandsbe">Greg Landsberg</a><br/>(Brown Univ.)</li>
-    	<li>Prof. <a href="https://www.mpg.de/6812374/chem_physik_fester_stoffe_mackenzie">Andrew P. MacKenzie</a><br/>(MPICPS Dresden, St-Andrews)</li>
-    	<li>Prof. <a href="http://www.ens-lyon.fr/PHYSIQUE/presentation/annuaire/maillet-jean-michel">Jean Michel Maillet</a><br/>(ENS Lyon)</li>
-    	<li>Prof. <a href="https://www.mpg.de/343435/physik_komplexer_systeme_wissM28">Roderich Moessner</a><br/>(MPIPKS Dresden)</li>
-    	<li>Prof. <a href="https://www.uibk.ac.at/exphys/ultracold/people/christoph.naegerl/">Hanns-Christoph N&auml;gerl</a><br/>(Innsbruck)</li>
-    	<li>Prof. <a href="http://www.physics.miami.edu/~nepomechie/">Rafael Nepomechie</a><br/>(U. of Miami)</li>
-          </ul>
-        </div>
-        <div class="col-md-4">
-          <ul>
-    	<li>Prof. <a href="https://staff.fnwi.uva.nl/b.nienhuis/">Bernard Nienhuis</a><br/>(U. van Amsterdam)</li>
-    	<!--<li>Prof. <a href="http://www.kip.uni-heidelberg.de/people/index.php?num=552">Markus Oberthaler</a><br/>(U. Heidelberg)</li>-->
-    	<li>Prof. <a href="http://www.lpthe.jussieu.fr/~pioline/">Boris Pioline</a><br/>(LPTHE Jussieu)</li>
-    	<li>Prof. <a href="https://www.uu.nl/staff/RHHGvanRoij/0">René van Roij</a><br/>(Utrecht)</li>
-    	<li>Prof. <a href="http://www.thp.uni-koeln.de/rosch">Achim Rosch</a><br/>(U. of Cologne)</li>
-    	<li>Prof. <a href="http://saleur.sandvox.net">Hubert Saleur</a><br/>(CEA Saclay/USC)</li>
-    	<li>Prof. <a href="http://www.phy.ohiou.edu/people/faculty/sandler.html">Nancy Sandler</a><br/>(Ohio)</li>
-    	<li>Dr. <a href="http://www.sussex.ac.uk/profiles/320359">Veronica Sanz</a><br/>(Sussex)</li>
-    	<li>Prof. <a href="http://www-thphys.physics.ox.ac.uk/people/SubirSarkar/">Subir Sarkar</a><br/>(Oxford; Niels Bohr Institute)</li>
-    	<li>Prof. <a href="https://staff.fnwi.uva.nl/c.j.m.schoutens/">Kareljan Schoutens</a><br/>(U. van Amsterdam)</li>
-    	<li>Dr <a href="http://www.phys.ens.fr/~guilhem/">Guilhem Semerjian</a><br/>(ENS Paris)</li>
-    	<li>Prof. <a href="http://www-thphys.physics.ox.ac.uk/people/SteveSimon/">Steve Simon</a><br/>(U. of Oxford)</li>
-    	<li>Prof. <a href="http://bec.science.unitn.it/infm-bec/people/stringari.html">Sandro Stringari</a><br/>(Trento)</li>
-    	<li>Prof. <a href="http://www.damtp.cam.ac.uk/user/tong/">David Tong</a><br/>(Cambridge)</li>
-    	<li>Prof. <a href="http://www.physique.usherbrooke.ca/pages/en/node/3412">Andr&eacute;-Marie Tremblay</a><br/>(Sherbrooke)</li>
-    	<li>Prof. <a href="http://trivediresearch.org.ohio-state.edu">Nandini Trivedi</a><br/>(Ohio State U.)</li>
-    	<li>Prof. <a href="http://vergassolalab.ucsd.edu">Massimo Vergassola</a><br/>(UC Sand Diego)</li>
-          </ul>
-        </div>
-  </div>
-{% endif %}
+{% endfor %}
 
 <br/>
 <div class="row">

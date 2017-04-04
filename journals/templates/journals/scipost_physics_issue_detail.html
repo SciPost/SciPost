@@ -2,16 +2,22 @@
 
 {% block pagetitle %}{{block.super}}: issue detail{% endblock pagetitle %}
 
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{{issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{issue.in_volume.in_journal}}</a>
+    <span class="breadcrumb-item active">{{issue.short_str}}</span>
+{% endblock %}
+
 {% block link_class_physics_issues %}active{% endblock %}
 
-{% block header_text_class %}highlight-empty text-blue m-0 p-0 pt-2{% endblock %}
+{% block header_text_class %}text-blue m-0 p-0 pt-2{% endblock %}
 
 {% block journal_header_block %}
     {% if prev_issue %}
-        <h4 class="d-inline-block"><a href="{{prev_issue.get_absolute_url}}">< Previous issue | Vol. {{prev_issue.in_volume.number}} issue {{prev_issue.number}}</a></h4>
+        <h4 class="d-inline-block"><a href="{{prev_issue.get_absolute_url}}">< Previous issue | {{prev_issue.short_str}}</a></h4>
     {% endif %}
     {% if next_issue %}
-        <h4 class="float-right d-inline-block"><a href="{{next_issue.get_absolute_url}}">Vol. {{next_issue.in_volume.number}} issue {{next_issue.number}} | Next issue ></a></h4>
+        <h4 class="float-right d-inline-block"><a href="{{next_issue.get_absolute_url}}">{{next_issue.short_str}} | Next issue ></a></h4>
     {% endif %}
 {% endblock %}
 

@@ -4,6 +4,12 @@
 
 {% block link_class_physics_recent %}active{% endblock %}
 
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{{recent_papers.0.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{recent_papers.0.in_issue.in_volume.in_journal}}</a>
+    <span class="breadcrumb-item active">Recent</span>
+{% endblock %}
+
 {% block content %}
 
     {% with header_text='Recent publications:' %}

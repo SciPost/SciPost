@@ -5,6 +5,12 @@
 
 {% block link_class_physics_about %}active{% endblock %}
 
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'journals:scipost_physics_issues' %}" class="breadcrumb-item">SciPost Physics</a>
+    <span class="breadcrumb-item active">About</span>
+{% endblock %}
+
 {% block content %}
 
     {% with header_text='About SciPost Physics' %}

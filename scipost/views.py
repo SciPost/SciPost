@@ -1527,7 +1527,7 @@ class AboutView(ListView):
     queryset = EditorialCollege.objects.prefetch_related(
                 Prefetch('fellowships',
                          queryset=EditorialCollegeFellowship.objects.active().select_related(
-                            'contributor__user'),
+                            'contributor__user').order_by('contributor__user__last_name'),
                          to_attr='current_fellows'))
 
     def get_context_data(self, *args, **kwargs):

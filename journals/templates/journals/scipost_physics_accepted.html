@@ -4,6 +4,12 @@
 
 {% block link_class_physics_accepted %}active{% endblock %}
 
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{{accepted_SP_submissions.0.submitted_to_journal.get_absolute_url}}" class="breadcrumb-item">{{accepted_SP_submissions.0.submitted_to_journal}}</a>
+    <span class="breadcrumb-item active">Accepted</span>
+{% endblock %}
+
 {% block content %}
 
     {% with header_text='Accepted for publication' %}

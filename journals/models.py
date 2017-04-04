@@ -31,6 +31,9 @@ class Journal(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('journals:scipost_physics_issues')
+
     def get_abbreviation_citation(self):
         return journal_name_abbrev_citation(self.name)
 
@@ -68,7 +71,7 @@ class Issue(models.Model):
         unique_together = ('number', 'in_volume')
 
     def __str__(self):
-        text = str(self.in_volume) + ' issue ' + str(self.number)
+        text = '%s issue %s' % (self.in_volume, self.number)
         text += self.period_as_string()
         if self.status == STATUS_DRAFT:
             text += ' (In draft)'
@@ -77,6 +80,9 @@ class Issue(models.Model):
     def get_absolute_url(self):
         return reverse('scipost:SciPostPhys_issue_detail',
                        args=[self.in_volume.number, self.number])
+
+    def short_str(self):
+        return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
 
     def period_as_string(self):
         if self.start_date.month == self.until_date.month:
@@ -142,6 +148,9 @@ class Publication(models.Model):
                   + self.title[:30] + ' by ' + self.author_list[:30]
                   + ', published ' + self.publication_date.strftime('%Y-%m-%d'))
         return header
+
+    def get_absolute_url(self):
+        return reverse('scipost:publication_detail', args=[self.doi_string])
 
     def get_paper_nr(self):
         return paper_nr_string(self.paper_nr)
