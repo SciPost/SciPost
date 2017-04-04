@@ -16,10 +16,6 @@ $container-max-widths: (
     margin-bottom: 1rem;
 }
 
-// breadcrumb
-//
-$breadcrumb-bg: #f9f9f9;
-
 // Cards
 //
 $card-spacer-x: 0.75rem;
@@ -36,6 +32,12 @@ $green: #6ebb6e;
 
 $blue: $scipost-lightblue !default;
 $body-color: $scipost-darkblue !default;
+
+// breadcrumb
+//
+$breadcrumb-bg: #f9f9f9;
+$breadcrumb-active-color: $scipost-darkblue;
+$breadcrumb-divider-color: $scipost-orange;
 
 // Forms
 //

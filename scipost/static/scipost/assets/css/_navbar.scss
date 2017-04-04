@@ -6,8 +6,8 @@
     margin-bottom: 0.75rem;
 
     .nav-link {
-        padding-right: 1rem;
-        padding-left: 1rem;
+        padding-right: .5rem;
+        padding-left: .5rem;
         border: 1px solid transparent;
         border-radius: 0.1rem;
         word-wrap: break-word;
@@ -21,9 +21,13 @@
         }
     }
 
-    .navbar-collapse.show .nav-item {
-        margin-bottom: .25rem;
+    .navbar-nav {
+        flex-direction: row;
     }
+
+    // .navbar-collapse.show .nav-item {
+    //     margin-bottom: .25rem;
+    // }
 
     .active > .nav-link {
         border-color: $scipost-darkblue;
@@ -35,6 +39,26 @@
 
     .nav-item {
         margin-right: 0.5rem;
+    }
+}
+
+.navbar-scroll {
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    .navbar-scroll-inner {
+        display: flex !important;
+        width: 100%;
+    }
+
+    .form-inline {
+        min-width: 250px;
+
+        .form-control {
+            width: auto !important;
+        }
     }
 }
 

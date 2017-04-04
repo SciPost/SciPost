@@ -9,6 +9,10 @@
 .tab-nav-container {
     border-bottom: 3px solid $scipost-darkblue;
     text-align: center;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 
     .tab-nav-inner {
         display: inline-block;
@@ -35,17 +39,6 @@
                 position: absolute;
                 right: 40%;
                 bottom: 3px;
-            }
-
-            &:after {
-                border-bottom: 11px solid $white;
-                border-left: 11px solid transparent;
-                border-right: 11px solid transparent;
-                content: "";
-                display: inline-block;
-                position: absolute;
-                right: 40%;
-                bottom: 0;
             }
         }
 
