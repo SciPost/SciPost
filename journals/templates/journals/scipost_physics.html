@@ -1,5 +1,14 @@
 {% extends 'journals/_base.html' %}
 
+{% block breadcrumb_items %}
+    {{block.super}}
+    {% if current_issue %}
+        <a href="{{current_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{current_issue.in_volume.in_journal}}</a>
+    {% elif latest_issue %}
+        <a href="{{latest_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{latest_issue.in_volume.in_journal}}</a>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 
     {% if current_issue %}

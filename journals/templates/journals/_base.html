@@ -3,6 +3,18 @@
 {% block pagetitle %}: SciPost Physics{% endblock pagetitle %}
 {% block body_class %}{{block.super}} journals{% endblock %}
 
+{% block breadcrumb %}
+
+    <nav class="breadcrumb py-md-2 px-0">
+        <div class="container">
+            {% block breadcrumb_items %}
+                {# <a href="{% url 'scipost:index' %}" class="breadcrumb-item">Home</a>#}
+                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+            {% endblock %}
+        </div>
+    </nav>
+{% endblock %}
+
 {% block secondary_navbar %}
     <nav class="navbar navbar-secondary">
         <div class="container my-2">

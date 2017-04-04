@@ -6,6 +6,13 @@
 
 {% block pagetitle %}: Publication detail{% endblock pagetitle %}
 
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
+    <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
+    <span class="breadcrumb-item active">{{publication.title}}</span>
+{% endblock %}
+
 {% block headsup %}
 
     <meta name="citation_title" content="{{ publication.title }}"/>

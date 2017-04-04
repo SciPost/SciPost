@@ -4,6 +4,11 @@
 
 {% block link_class_physics_issues %}active{% endblock %}
 
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item active">{{issues.0.in_volume.in_journal}}</span>
+{% endblock %}
+
 {% block content %}
 
     {% with header_text='Issues' %}

@@ -16,6 +16,7 @@ module.exports = {
             'bootstrap-loader'
         ],
         tooltip: "./scipost/static/scipost/assets/js/tooltip.js",
+        modal: "./scipost/static/scipost/assets/js/modal.js",
     },
     output: {
         path: path_bundles,
