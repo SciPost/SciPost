@@ -1,22 +1,27 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: personal page{% endblock pagetitle %}
+{% block pagetitle %}: Contributor {{contributor}}{% endblock pagetitle %}
 
 {% block content %}
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Contributor info</h1>
+        <div class="card card-grey">
+            <div class="card-block">
+                <h1 class="card-title mb-0">Contributor info</h1>
+                <h3 class="card-subtitle text-muted">{{contributor.get_formal_display}}</h2>
+            </div>
+        </div>
     </div>
 </div>
 
 {{ contributor.public_info_as_table }}
-
+<br>
 {% if contributor_publications %}
-    <hr>
+    {# <hr>#}
     <div class="row">
         <div class="col-12">
-            <h2 class="highlight">Publications <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#mypublicationslist">View/hide publications</span></h2>
+            <h2 class="highlight">Publications <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mypublicationslist">View/hide publications</a></small></h2>
         </div>
         <div class="col-12" id="mypublicationslist">
             <h3 class="mb-2">Publications for which this Contributor is identified as an author:</h3>
@@ -31,10 +36,10 @@
 {% endif %}
 
 {% if contributor_submissions %}
-    <hr>
+    {# <hr>#}
     <div class="row">
         <div class="col-12">
-            <h2 class="highlight">Submissions <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#mysubmissionslist">View/hide submissions</span></h2>
+            <h2 class="highlight">Submissions <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mysubmissionslist">View/hide submissions</a></small></h2>
         </div>
         <div class="col-12" id="mysubmissionslist">
             <h3>Submissions for which this Contributor is identified as an author:</h3>
@@ -52,10 +57,10 @@
 {% endif %}
 
 {% if contributor_commentaries %}
-    <hr>
+    {# <hr>#}
     <div class="row">
         <div class="col-12">
-            <h2 class="highlight">Commentaries <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#mycommentarieslist">View/hide commentaries</span></h2>
+            <h2 class="highlight">Commentaries <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mycommentarieslist">View/hide commentaries</a></small></h2>
 
         </div>
         <div class="col-12" id="mycommentarieslist">
@@ -74,10 +79,10 @@
 {% endif %}
 
 {% if contributor_theses %}
-    <hr>
+    {# <hr>#}
     <div class="row">
         <div class="col-12">
-            <h2 class="highlight">Theses <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#mytheseslist">View/hide theses</span></h2>
+            <h2 class="highlight">Theses <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mytheseslist">View/hide theses</a></small></h2>
         </div>
         <div class="col-12" id="mytheseslist">
             <h3>Theses for which this Contributor is identified as an author:</h3>
@@ -95,10 +100,10 @@
 {% endif %}
 
 {% if contributor_comments %}
-    <hr>
+    {# <hr>#}
     <div class="row">
         <div class="col-12">
-            <h2 class="highlight">Comments <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#mycommentslist">View/hide comments</span></h2>
+            <h2 class="highlight">Comments <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mycommentslist">View/hide comments</a></small></h2>
         </div>
         <div class="col-12" id="mycommentslist">
             <ul class="list-group list-group-flush">
@@ -113,10 +118,10 @@
 {% endif %}
 
 {% if contributor_authorreplies %}
-    <hr>
+    {# <hr>#}
     <div class="row">
         <div class="col-12">
-            <h2 class="highlight">Author Replies <span class="btn btn-secondary ml-2" data-toggle="toggle" data-target="#myauthorreplieslist">View/hide author replies</span></h2>
+            <h2 class="highlight">Author Replies <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#myauthorreplieslist">View/hide author replies</a></small></h2>
         </div>
         <div class="col-12" id="myauthorreplieslist">
             <ul class="list-group list-group-flush">

@@ -67,6 +67,9 @@ class Contributor(models.Model):
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
 
+    def get_formal_display(self):
+        return '%s %s %s' % (self.get_title_display(), self.user.first_name, self.user.last_name)
+
     def get_title(self):
         # Please use get_title_display(). To be removed in future
         return self.get_title_display()
