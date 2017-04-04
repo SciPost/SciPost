@@ -31,9 +31,20 @@ def associated_contributors(draft):
         user__last_name__icontains=draft.last_name)
 
 
-@register.filter(name='reorder_list_three')
-def reorder_list_three(ul):
-    return ul[::3] + ul[1::3] + ul[2::3]
+def is_modulo(counter, total, modulo):
+    q = max(1, int(total / modulo))
+    counter -= 1
+    return (counter % q) == (q - 1)
+
+
+@register.filter(name='is_modulo_one_half')
+def is_modulo_one_half(counter, total):
+    return is_modulo(counter, total, 2)
+
+
+@register.filter(name='is_modulo_one_third')
+def is_modulo_one_third(counter, total):
+    return is_modulo(counter, total, 3)
 
 
 @register.filter(name='get_specialization_code')

@@ -152,10 +152,10 @@ def college_fellow_is_active(fellow):
 
 class EditorialCollegeFellowshipAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'college', college_fellow_is_active)
-    list_filter = ('college', 'contributor__user')
+    list_filter = ('college', 'affiliation')
     search_fields = ['college__discipline',
                      'contributor__user__first_name', 'contributor__user__last_name']
-    fields = ('contributor', 'college', 'start_date', 'until_date')
+    fields = ('contributor', 'college', 'start_date', 'until_date', 'affiliation', )
 
     college_fellow_is_active.boolean = True
 
