@@ -1,46 +1,42 @@
-<nav class="navbar navbar-light navbar-toggleable-sm">
-  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#header-navbar">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <a class="navbar-brand" href="#"></a>
-  <div class="collapse navbar-collapse" id="header-navbar">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item{% if request.path == '/' %} active{% endif %}">
-        <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
-      </li>
-      <li class="nav-item{% if '/journals/' in request.path %} active{% endif %}">
-        <a href="{% url 'journals:journals' %}" class="nav-link">Journals</a>
-      </li>
-      <li class="nav-item{% if '/submissions/' in request.path %} active{% endif %}">
-        <a class="nav-link" href="{% url 'submissions:submissions' %}">Submissions</a>
-      </li>
-      <li class="nav-item{% if '/commentaries/' in request.path %} active{% endif %}">
-        <a class="nav-link" href="{% url 'commentaries:commentaries' %}">Commentaries</a>
-      </li>
-      <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
-        <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
-      </li>
+<nav class="navbar navbar-scroll navbar-light">
+    <div class="navbar-scroll-inner">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item{% if request.path == '/' %} active{% endif %}">
+            <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item{% if '/journals/' in request.path %} active{% endif %}">
+            <a href="{% url 'journals:journals' %}" class="nav-link">Journals</a>
+          </li>
+          <li class="nav-item{% if '/submissions/' in request.path %} active{% endif %}">
+            <a class="nav-link" href="{% url 'submissions:submissions' %}">Submissions</a>
+          </li>
+          <li class="nav-item{% if '/commentaries/' in request.path %} active{% endif %}">
+            <a class="nav-link" href="{% url 'commentaries:commentaries' %}">Commentaries</a>
+          </li>
+          <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
+            <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
+          </li>
 
-      {% if user.is_authenticated %}
-          <li class="nav-item highlighted">
-            <span class="nav-link">Logged in as {{ user.username }}</span>
-          </li>
-          <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
-            <a class="nav-link" href="{% url 'scipost:personal_page' %}">Personal Page</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'scipost:logout' %}">Logout</a>
-          </li>
-      {% else %}
-          <li class="nav-item{% if request.path == '/login/' %} active{% endif %}">
-            <a class="nav-link" href="{% url 'scipost:login' %}">Login</a>
-          </li>
-      {% endif %}
+          {% if user.is_authenticated %}
+              <li class="nav-item highlighted">
+                <span class="nav-link">Logged in as {{ user.username }}</span>
+              </li>
+              <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
+                <a class="nav-link" href="{% url 'scipost:personal_page' %}">Personal Page</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'scipost:logout' %}">Logout</a>
+              </li>
+          {% else %}
+              <li class="nav-item{% if request.path == '/login/' %} active{% endif %}">
+                <a class="nav-link" href="{% url 'scipost:login' %}">Login</a>
+              </li>
+          {% endif %}
 
-    </ul>
-    <form action="{% url 'scipost:search' %}" method="get" class="form-inline">
-        <input class="form-control mr-0 mb-2 mr-lg-2 mb-lg-0" id="id_q" maxlength="100" name="q" type="text" required="">
-      <button class="btn btn-outline-secondary text-muted" type="submit">Search</button>
-    </form>
-  </div>
+        </ul>
+        <form action="{% url 'scipost:search' %}" method="get" class="form-inline">
+            <input class="form-control mr-2 mb-0" id="id_q" maxlength="100" name="q" type="text" required="">
+          <button class="btn btn-outline-secondary text-muted" type="submit">Search</button>
+        </form>
+    </div>
 </nav>

@@ -5,20 +5,46 @@
 .nav > .btn {
     border-radius: 1.4px;
 }
+
+.tab-nav-container {
+    border-bottom: 3px solid $scipost-darkblue;
+    text-align: center;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+
+    .tab-nav-inner {
+        display: inline-block;
+    }
+}
+
 .nav.personal-page-nav {
     .nav-item {
-        background-color: #f0f0f0;
-        color: #002b49;
+        background-color: transparent;
+        color: $scipost-lightblue;
+        border: 0;
+        margin-bottom: -3px;
 
         .nav-link.active {
-            background-color: #f8f8f8;
-            color: #6885c3;
+            text-decoration: underline;
+            color: $scipost-darkblue;
+
+            &:before {
+                border-bottom: 11px solid $scipost-darkblue;
+                border-left: 11px solid transparent;
+                border-right: 11px solid transparent;
+                content: "";
+                display: inline-block;
+                position: absolute;
+                right: 40%;
+                bottom: 3px;
+            }
         }
 
         a {
-            color: #002b49;
-            padding-top: 0.4em;
-            padding-bottom: 0.4em;
+            padding-top: 0.5rem;
+            padding-bottom: 1.5rem;
         }
     }
 }

@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Q
 
-from .constants import SUBMISSION_STATUS_OUT_OF_POOL
+from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED
 
 
 class SubmissionManager(models.Manager):
@@ -12,6 +12,9 @@ class SubmissionManager(models.Manager):
                 .exclude(Q(author_list__icontains=user.last_name),
                          ~Q(authors_false_claims=user.contributor))\
                 .order_by('-submission_date')
+
+    def public(self):
+        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
 
 
 class EditorialAssignmentManager(models.Manager):

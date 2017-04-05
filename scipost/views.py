@@ -1246,23 +1246,22 @@ def vet_authorship_claim(request, claim_id, claim):
     return redirect('scipost:vet_authorship_claims')
 
 
-@login_required
 def contributor_info(request, contributor_id):
     """
-    Logged-in Contributors can see a digest of another
+    All visitors can see a digest of a
     Contributor's activities/contributions by clicking
     on the relevant name (in listing headers of Submissions, ...).
     """
     contributor = Contributor.objects.get(pk=contributor_id)
-    contributor_publications = Publication.objects.filter(authors__in=[contributor])
-    contributor_submissions = Submission.objects.filter(authors__in=[contributor])
-    contributor_commentaries = Commentary.objects.filter(authors__in=[contributor])
-    contributor_theses = ThesisLink.objects.filter(author_as_cont__in=[contributor])
-    contributor_comments = (Comment.objects
-                            .filter(author=contributor, is_author_reply=False, status__gte=1)
+    contributor_publications = Publication.objects.published().filter(authors=contributor)
+    contributor_submissions = Submission.objects.public().filter(authors=contributor)
+    contributor_commentaries = Commentary.objects.filter(authors=contributor)
+    contributor_theses = ThesisLink.objects.vetted().filter(author_as_cont=contributor)
+    contributor_comments = (Comment.objects.vetted()
+                            .filter(author=contributor, is_author_reply=False)
                             .order_by('-date_submitted'))
-    contributor_authorreplies = (Comment.objects
-                                 .filter(author=contributor, is_author_reply=True, status__gte=1)
+    contributor_authorreplies = (Comment.objects.vetted()
+                                 .filter(author=contributor, is_author_reply=True)
                                  .order_by('-date_submitted'))
     context = {'contributor': contributor,
                'contributor_publications': contributor_publications,
