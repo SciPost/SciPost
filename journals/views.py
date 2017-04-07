@@ -28,10 +28,6 @@ from guardian.decorators import permission_required
 # Journals
 ############
 
-def journals(request):
-    return render(request, 'journals/journals.html')
-
-
 def landing_page(request, doi_string):
     journal = get_object_or_404(Journal, doi_string=doi_string)
 

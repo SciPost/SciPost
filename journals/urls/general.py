@@ -6,7 +6,7 @@ from journals import views as journals_views
 
 urlpatterns = [
     # Journals
-    url(r'^$', journals_views.journals, name='journals'),
+    url(r'^$', TemplateView.as_view(template_name='journals/journals.html'), name='journals'),
     url(r'^journals_terms_and_conditions$',
         TemplateView.as_view(template_name='journals/journals_terms_and_conditions.html'),
         name='journals_terms_and_conditions'),
