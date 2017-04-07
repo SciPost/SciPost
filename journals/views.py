@@ -175,7 +175,7 @@ def initiate_publication(request):
                 if paper_nr > 999:
                     raise PaperNumberingError(paper_nr)
             doi_label = (
-                current_issue.in_volume.in_journal.get_abbreviation_doi()
+                current_issue.in_volume.in_journal.name
                 + '.' + str(current_issue.in_volume.number)
                 + '.' + str(current_issue.number) + '.' + paper_nr_string(paper_nr)
             )
@@ -677,6 +677,7 @@ def harvest_citedby_links(request, doi_string):
             item_number = link.find(prefix + 'journal_cite').find(prefix + 'item_number').text
         except:
             item_number = None
+        multiauthors = False
         for author in link.find(prefix + 'journal_cite').find(
                 prefix + 'contributors').iter(prefix + 'contributor'):
             if author.get('sequence') == 'first':
