@@ -6,7 +6,6 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
 
 from journals import views as journals_views
 
-
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^base$', views.base, name='base'),
@@ -176,18 +175,20 @@ urlpatterns = [
     # Publications #
     ################
 
-    url(r'^SciPostPhys$',
-        journals_views.scipost_physics,
-        name='SciPostPhys'),
-    url(r'^10.21468/SciPostPhys$',
-        journals_views.scipost_physics,
-        name='doi_SciPostPhys'),
-    url(r'^SciPostPhys.(?P<volume_nr>[0-9]+).(?P<issue_nr>[0-9]+)$',
-        journals_views.scipost_physics_issue_detail,
-        name='SciPostPhys_issue_detail_from_doi_label'),
-    url(r'^10.21468/SciPostPhys.(?P<volume_nr>[0-9]+).(?P<issue_nr>[0-9]+)$',
-        journals_views.scipost_physics_issue_detail,
-        name='SciPostPhys_issue_detail'),
+
+
+    # url(r'^10.21468/%s$' % JOURNAL_REGEX,
+    #     journals_views.journal_landing_page,
+    #     name='journal_abbreviation'),
+    # url(r'^%s$' % JOURNAL_REGEX,
+    #     journals_views.journal_landing_page,
+    #    name='journal_abbreviation'),
+    # url(r'^SciPostPhys.(?P<volume_nr>[0-9]+).(?P<issue_nr>[0-9]+)$',
+    #     journals_views.scipost_physics_issue_detail,
+    #     name='SciPostPhys_issue_detail_from_doi_label'),
+    # url(r'^10.21468/SciPostPhys.(?P<volume_nr>[0-9]+).(?P<issue_nr>[0-9]+)$',
+    #     journals_views.scipost_physics_issue_detail,
+    #     name='SciPostPhys_issue_detail'),
 
     url(r'^(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.publication_detail,
@@ -195,12 +196,12 @@ urlpatterns = [
     url(r'^(?P<doi_string>10.21468/[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
         journals_views.publication_pdf,
         name='publication_pdf'),
-    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
-        journals_views.publication_detail_from_doi_label,
-        name='publication_detail_from_doi_label'),
-    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
-        journals_views.publication_pdf_from_doi_label,
-        name='publication_pdf_from_doi_label'),
+    # url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+    #     journals_views.publication_detail_from_doi_label,
+    #     name='publication_detail_from_doi_label'),
+    # url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
+    #     journals_views.publication_pdf_from_doi_label,
+    #     name='publication_pdf_from_doi_label'),
 
 
     ################

@@ -18,7 +18,7 @@
 <div class="row">
     <div class="col-md-6">
         <h1 class="banner">
-            <a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a>
+            <a href="{% url 'journal:landing_page' 'SciPostPhys' %}">SciPost Physics</a>
         </h1>
         <div class="py-2">
             <p>SciPost Physics publishes outstanding-quality research articles in all domains and subject areas of Physics.</p>
@@ -30,25 +30,29 @@
     </div>
 
     <div class="col-md-6">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="banner">SciPost Physics Select</h1>
-                <div class="py-2">
-                    <p>SciPost Physics Select publishes articles of superlative quality in the field of Physics.</p>
-                    <p>Authors cannot submit directly to this Journal; SPS papers are editorially selected from the most outstanding Submissions to SciPost Physics.</p>
-                    <p style="color: red;"><em>Coming soon!</em></p>
-                </div>
-            </div>
+        <h1 class="banner">
+            <a href="{% url 'journal:about' 'SciPostPhysProc' %}">SciPost Physics Proceedings</a>
+        </h1>
+        <div class="py-2">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean ultrices tristique ligula. Praesent id odio mollis, egestas est blandit, tempus nisi. Nulla facilisi. Donec a consequat magna. In pulvinar libero laoreet finibus rhoncus. Vestibulum sodales risus in ornare ultricies. Donec vitae euismod sem, vitae finibus purus. Vestibulum vehicula, orci pellentesque congue sodales, leo nulla pellentesque elit, in interdum enim dui quis urna. Etiam at lectus sit amet risus sollicitudin faucibus.</p>
         </div>
+    </div>
+</div>
 
-        <div class="row">
-            <div class="col-12">
-                <h1 class="banner">SciPost Physics Lecture Notes</h1>
-                <div class="py-2">
-                  <p>Research-level didactic material in all domains and subject areas of Physics.</p>
-                  <p style="color: red;">Open for submission!</p>
-                </div>
-            </div>
+<div class="row">
+    <div class="col-md-6">
+        <h1 class="banner">SciPost Physics Select</h1>
+        <div class="py-2">
+            <p>SciPost Physics Select publishes articles of superlative quality in the field of Physics.</p>
+            <p>Authors cannot submit directly to this Journal; SPS papers are editorially selected from the most outstanding Submissions to SciPost Physics.</p>
+            <p style="color: red;"><em>Coming soon!</em></p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h1 class="banner">SciPost Physics Lecture Notes</h1>
+        <div class="py-2">
+          <p>Research-level didactic material in all domains and subject areas of Physics.</p>
+          <p style="color: red;">Open for submission!</p>
         </div>
     </div>
 </div>

@@ -23,8 +23,7 @@ class UnregisteredAuthor(models.Model):
 
 
 class Journal(models.Model):
-    name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS,
-                            unique=True)
+    name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS, unique=True)
     doi_string = models.CharField(max_length=200, blank=True, null=True)
     issn = models.CharField(max_length=16, default='2542-4653')
 
@@ -32,7 +31,7 @@ class Journal(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('journals:scipost_physics_issues')
+        return reverse('journal:landing_page', args=[self.get_abbreviation_doi()])
 
     def get_abbreviation_citation(self):
         return journal_name_abbrev_citation(self.name)
@@ -78,8 +77,9 @@ class Issue(models.Model):
         return text
 
     def get_absolute_url(self):
-        return reverse('scipost:SciPostPhys_issue_detail',
-                       args=[self.in_volume.number, self.number])
+        return reverse('journal:issue_detail', args=[
+                       self.in_volume.in_journal.get_abbreviation_doi(),
+                       self.in_volume.number, self.number])
 
     def short_str(self):
         return 'Vol. %s issue %s' % (self.in_volume.number, self.number)

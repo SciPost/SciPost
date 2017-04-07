@@ -171,8 +171,7 @@ class LatestPublicationsFeedRSS(Feed):
         return obj
 
     def item_link(self, item):
-        return reverse('scipost:publication_detail',
-                       kwargs={'doi_string': item.doi_string})
+        return item.get_absolute_url()
 
 
 class LatestPublicationsFeedAtom(LatestPublicationsFeedRSS):

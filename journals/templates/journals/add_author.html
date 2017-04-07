@@ -94,7 +94,7 @@
       </div>
 
       <h3>
-          <a href="{% url 'scipost:publication_detail' doi_string=publication.doi_string %}">Return to the publication's page</a>
+          <a href="{{publication.get_absolute_url}}">Return to the publication's page</a>
       </h3>
     </div>
 </div>

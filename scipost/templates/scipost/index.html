@@ -66,7 +66,7 @@
                 <div class="card-block">
                   <h1 class="card-title"><a href="{% url 'journals:journals' %}">Latest Publications</a></h1>
                     <h2 class="banner">
-                        <a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a>
+                        <a href="{% url 'journal:landing_page' 'SciPostPhys' %}">SciPost Physics</a>
                     </h2>
                       {% if issue and publications %}
                       <h4 class="card-text text-center mt-2">A selection from the {% if issue.is_current %}current{% else %}last{% endif %} issue:</h4>

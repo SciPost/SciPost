@@ -17,6 +17,8 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
+JOURNAL_REGEX = '(?P<journal_key>SciPostPhys|SciPostPhysProc)'
+
 urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
@@ -26,7 +28,9 @@ urlpatterns = [
     url(r'^commentaries/', include('commentaries.urls', namespace="commentaries")),
     url(r'^commentary/', include('commentaries.urls', namespace="commentaries")),
     url(r'^comments/', include('comments.urls', namespace="comments")),
-    url(r'^journals/', include('journals.urls', namespace="journals")),
+    url(r'^journals/', include('journals.urls.general', namespace="journals")),
+    url(r'^10.21468/%s' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
+    url(r'^%s' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
     url(r'^submissions/', include('submissions.urls', namespace="submissions")),
     url(r'^submission/', include('submissions.urls', namespace="submissions")),
     url(r'^theses/', include('theses.urls', namespace="theses")),

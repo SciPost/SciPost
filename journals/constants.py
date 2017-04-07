@@ -42,3 +42,8 @@ ISSUE_STATUSES = (
     (STATUS_DRAFT, 'Draft'),
     (STATUS_PUBLISHED, 'Published'),
 )
+
+JOURNALS_NAME_MAPPING = {
+    'SciPostPhys': 'SciPost Physics',
+    'SciPostPhysProc': 'SciPost Physics Proceedings',
+}

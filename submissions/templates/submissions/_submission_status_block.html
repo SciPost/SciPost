@@ -2,6 +2,6 @@
 <div class="d-inline">
     <span class="label label-secondary">{{submission.get_status_display}}</span>
     {% if submission.publication %}
-        as <a href="{% url 'scipost:publication_detail' submission.publication.doi_string %}">{{submission.publication.in_issue.in_volume.in_journal.get_abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}} ({{submission.publication.publication_date|date:'Y'}})</a>
+        as <a href="{{submission.publication.get_absolute_url}}">{{submission.publication.in_issue.in_volume.in_journal.get_abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}} ({{submission.publication.publication_date|date:'Y'}})</a>
     {% endif %}
 </div>

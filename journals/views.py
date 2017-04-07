@@ -10,8 +10,9 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
+from .constants import JOURNALS_NAME_MAPPING
 from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string
 from .models import Issue, Publication, UnregisteredAuthor
@@ -29,79 +30,121 @@ from guardian.decorators import permission_required
 # Journals
 ############
 
+def map_journal(key, _map=JOURNALS_NAME_MAPPING):
+    # try:
+    journal_name = _map[key]
+    # except KeyError:
+    #     raise Http404('Journal does not exist')
+    return journal_name
+
+
+def inverse_map_journal(name):
+    inv_map = {v: k for k, v in JOURNALS_NAME_MAPPING.items()}
+    return map_journal(name, inv_map)
+
+
 def journals(request):
     return render(request, 'journals/journals.html')
 
 
-def scipost_physics(request):
+def landing_page(request, journal_key):
+    journal_name = map_journal(journal_key)
+
     current_issue = Issue.objects.published(
-        in_volume__in_journal__name='SciPost Physics',
+        in_volume__in_journal__name=journal_name,
         start_date__lte=timezone.now(),
         until_date__gte=timezone.now()).order_by('-until_date').first()
     latest_issue = Issue.objects.published(
-        in_volume__in_journal__name='SciPost Physics',
+        in_volume__in_journal__name=journal_name,
         until_date__lte=timezone.now()).order_by('-until_date').first()
 
     prev_issue = None
     if current_issue:
-        prev_issue = (Issue.objects.published(journal='SciPost Physics',
+        prev_issue = (Issue.objects.published(journal=journal_name,
                                               start_date__lt=current_issue.start_date)
                                    .order_by('start_date').last())
 
     context = {
         'current_issue': current_issue,
         'latest_issue': latest_issue,
-        'prev_issue': prev_issue
+        'prev_issue': prev_issue,
+        'journal_name': journal_name,
+        'journal_key': journal_key
     }
     return render(request, 'journals/scipost_physics.html', context)
 
 
-def scipost_physics_issues(request):
+def issues(request, journal_key):
+    journal_name = map_journal(journal_key)
     issues = Issue.objects.published(
-        in_volume__in_journal__name='SciPost Physics').order_by('-until_date')
-    context = {'issues': issues, }
-    return render(request, 'journals/scipost_physics_issues.html', context)
+        in_volume__in_journal__name=journal_name).order_by('-until_date')
+    context = {
+        'issues': issues,
+        'journal_name': journal_name,
+        'journal_key': journal_key
+    }
+    return render(request, 'journals/journal_issues.html', context)
 
 
-def scipost_physics_recent(request):
+def recent(request, journal_key):
     """
     Display page for the most recent 20 publications in SciPost Physics.
     """
-
+    journal_name = map_journal(journal_key)
     recent_papers = Publication.objects.published(
-        in_issue__in_volume__in_journal__name='SciPost Physics').order_by('-publication_date')[:20]
-    context = {'recent_papers': recent_papers}
+        in_issue__in_volume__in_journal__name=journal_name).order_by('-publication_date')[:20]
+    context = {
+        'recent_papers': recent_papers,
+        'journal_name': journal_name,
+        'journal_key': journal_key
+    }
     return render(request, 'journals/scipost_physics_recent.html', context)
 
 
-def scipost_physics_accepted(request):
+def accepted(request, journal_key):
     """
     Display page for submissions to SciPost Physics which
     have been accepted but are not yet published.
     """
+    journal_name = map_journal(journal_key)
     accepted_SP_submissions = Submission.objects.filter(
-        submitted_to_journal='SciPost Physics', status='accepted'
+        submitted_to_journal=journal_name, status='accepted'
     ).order_by('-latest_activity')
-    context = {'accepted_SP_submissions': accepted_SP_submissions}
+    context = {
+        'accepted_SP_submissions': accepted_SP_submissions,
+        'journal_name': journal_name,
+        'journal_key': journal_key
+    }
     return render(request, 'journals/scipost_physics_accepted.html', context)
 
 
-def scipost_physics_info_for_authors(request):
-    return render(request, 'journals/scipost_physics_info_for_authors.html')
+def info_for_authors(request, journal_key):
+    journal_name = map_journal(journal_key)
+    context = {
+        'journal_name': journal_name,
+        'journal_key': journal_key
+    }
+    return render(request, 'journals/%s_info_for_authors.html' % journal_key, context)
 
 
-def scipost_physics_about(request):
-    return render(request, 'journals/scipost_physics_about.html')
+def about(request, journal_key):
+    journal_name = map_journal(journal_key)
+    context = {
+        'journal_name': journal_name,
+        'journal_key': journal_key
+    }
+    return render(request, 'journals/%s_about.html' % journal_key, context)
 
 
-def scipost_physics_issue_detail(request, volume_nr, issue_nr):
-    issue = Issue.objects.get_published(journal='SciPost Physics',
+def issue_detail(request, journal_key, volume_nr, issue_nr):
+    journal_name = map_journal(journal_key)
+    issue = Issue.objects.get_published(journal=journal_name,
                                         number=issue_nr, in_volume__number=volume_nr)
     papers = issue.publication_set.order_by('paper_nr')
-    next_issue = (Issue.objects.published(journal='SciPost Physics',
+    next_issue = (Issue.objects.published(journal=journal_name,
                                           start_date__gt=issue.start_date)
                                .order_by('start_date').first())
-    prev_issue = (Issue.objects.published(journal='SciPost Physics',
+    prev_issue = (Issue.objects.published(journal=journal_name,
                                           start_date__lt=issue.start_date)
                                .order_by('start_date').last())
 
@@ -109,7 +152,9 @@ def scipost_physics_issue_detail(request, volume_nr, issue_nr):
         'issue': issue,
         'prev_issue': prev_issue,
         'next_issue': next_issue,
-        'papers': papers
+        'papers': papers,
+        'journal_name': journal_name,
+        'journal_key': journal_key
     }
     return render(request, 'journals/scipost_physics_issue_detail.html', context)
 
@@ -268,8 +313,7 @@ def mark_first_author(request, publication_id, contributor_id):
     publication.first_author = contributor
     publication.first_author_unregistered = None
     publication.save()
-    return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_string': publication.doi_string, }))
+    return redirect(publication.get_absolute_url())
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -280,8 +324,7 @@ def mark_first_author_unregistered(request, publication_id, unregistered_author_
     publication.first_author = None
     publication.first_author_unregistered = unregistered_author
     publication.save()
-    return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_string': publication.doi_string, }))
+    return redirect(publication.get_absolute_url())
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -298,8 +341,8 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
         contributor = get_object_or_404(Contributor, id=contributor_id)
         publication.authors.add(contributor)
         publication.save()
-        return redirect(reverse('scipost:publication_detail',
-                                kwargs={'doi_string': publication.doi_string, }))
+        return redirect(publication.get_absolute_url())
+
     if request.method == 'POST':
         form = UnregisteredAuthorForm(request.POST)
         if form.is_valid():
@@ -333,8 +376,7 @@ def add_unregistered_author(request, publication_id, unregistered_author_id):
     unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
     publication.unregistered_authors.add(unregistered_author)
     publication.save()
-    return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_string': publication.doi_string, }))
+    return redirect(publication.get_absolute_url())
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -349,8 +391,7 @@ def add_new_unreg_author(request, publication_id):
                 last_name=new_unreg_author_form.cleaned_data['last_name'],)
             new_unreg_author.save()
             publication.authors_unregistered.add(new_unreg_author)
-            return redirect(reverse('scipost:publication_detail',
-                                    kwargs={'doi_string': publication.doi_string, }))
+            return redirect(publication.get_absolute_url())
     errormessage = 'Method add_new_unreg_author can only be called with POST.'
     return render(request, 'scipost/error.html', context={'errormessage': errormessage})
 
@@ -433,8 +474,7 @@ def create_metadata_xml(request, doi_string):
         if create_metadata_xml_form.is_valid():
             publication.metadata_xml = create_metadata_xml_form.cleaned_data['metadata_xml']
             publication.save()
-            return redirect(reverse('scipost:publication_detail',
-                                    kwargs={'doi_string': publication.doi_string, }))
+            return redirect(publication.get_absolute_url())
 
     # create a doi_batch_id
     salt = ""
@@ -696,7 +736,14 @@ def harvest_citedby_links(request, doi_string):
 
 def publication_detail(request, doi_string):
     publication = Publication.objects.get_published(doi_string=doi_string)
-    context = {'publication': publication, }
+    journal_name = publication.in_issue.in_volume.in_journal.name
+    journal_key = inverse_map_journal(journal_name)
+
+    context = {
+        'publication': publication,
+        'journal_name': journal_name,
+        'journal_key': journal_key
+    }
     return render(request, 'journals/publication_detail.html', context)
 
 
