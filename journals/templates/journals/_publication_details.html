@@ -10,7 +10,7 @@
         <ul class="publicationClickables">
             <li>doi:  {{publication.doi_string}}</li>
             <li class="publicationPDF">
-                <a href="{% url 'scipost:publication_pdf' publication.doi_string %}" target="_blank">pdf</a>
+                <a href="{{publication.get_absolute_url}}/pdf" target="_blank">pdf</a>
             </li>
             <li><a href="javascript:;" data-toggle="modal" data-target="#bibtextmodal">BiBTeX</a></li>
             <li><a href="{% url 'submissions:submission' publication.accepted_submission.arxiv_identifier_w_vn_nr %}">Submissions/Reports</a></li>

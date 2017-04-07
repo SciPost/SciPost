@@ -24,14 +24,15 @@ class UnregisteredAuthor(models.Model):
 
 class Journal(models.Model):
     name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS, unique=True)
-    doi_string = models.CharField(max_length=200, blank=True, null=True)
+    doi_string = models.CharField(max_length=200, blank=True, unique=True)
     issn = models.CharField(max_length=16, default='2542-4653')
+    active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.name
+        return self.get_name_display()
 
     def get_absolute_url(self):
-        return reverse('journal:landing_page', args=[self.get_abbreviation_doi()])
+        return reverse('scipost:landing_page', args=[self.doi_string])
 
     def get_abbreviation_citation(self):
         return journal_name_abbrev_citation(self.name)
@@ -45,7 +46,7 @@ class Volume(models.Model):
     number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
-    doi_string = models.CharField(max_length=200, blank=True, null=True)
+    doi_string = models.CharField(max_length=200, blank=True, unique=True)
 
     class Meta:
         unique_together = ('number', 'in_journal')
@@ -60,7 +61,7 @@ class Issue(models.Model):
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
     status = models.CharField(max_length=20, choices=ISSUE_STATUSES, default=STATUS_PUBLISHED)
-    doi_string = models.CharField(max_length=200, blank=True, null=True)
+    doi_string = models.CharField(max_length=200, blank=True, unique=True)
     # absolute path on filesystem: (JOURNALS_DIR)/journal/vol/issue/
     path = models.CharField(max_length=200)
 
@@ -77,9 +78,7 @@ class Issue(models.Model):
         return text
 
     def get_absolute_url(self):
-        return reverse('journal:issue_detail', args=[
-                       self.in_volume.in_journal.get_abbreviation_doi(),
-                       self.in_volume.number, self.number])
+        return reverse('scipost:issue_detail', args=[self.doi_string])
 
     def short_str(self):
         return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
@@ -133,8 +132,8 @@ class Publication(models.Model):
     metadata = JSONField(default={}, blank=True, null=True)
     metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
     BiBTeX_entry = models.TextField(blank=True, null=True)
-    doi_label = models.CharField(max_length=200, blank=True, null=True)  # Used for file name
-    doi_string = models.CharField(max_length=200, blank=True, null=True)
+    doi_string = models.CharField(max_length=200, blank=True, unique=True)  # Used for file name
+    # doi_string = models.CharField(max_length=200, blank=True, null=True)
     submission_date = models.DateField(verbose_name='submission date')
     acceptance_date = models.DateField(verbose_name='acceptance date')
     publication_date = models.DateField(verbose_name='publication date')
@@ -211,4 +210,4 @@ class Deposit(models.Model):
 
     def __str__(self):
         return (self.deposition_date.strftime('%Y-%m-%D') +
-                ' for ' + self.publication.doi_string)
+                ' for 10.21468/' + self.publication.doi_string)

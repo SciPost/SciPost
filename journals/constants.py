@@ -1,17 +1,31 @@
-SCIPOST_JOURNAL_PHYSICS_SELECT = 'SciPost Physics Select'
-SCIPOST_JOURNAL_PHYSICS = 'SciPost Physics'
-SCIPOST_JOURNAL_LECTURE_NOTES = 'SciPost Physics Lecture Notes'
-SCIPOST_JOURNALS = (
-    (SCIPOST_JOURNAL_PHYSICS_SELECT, 'SciPost Physics Select'),
-    (SCIPOST_JOURNAL_PHYSICS, 'SciPost Physics'),
-    (SCIPOST_JOURNAL_LECTURE_NOTES, 'SciPost Physics Lecture Notes'),
-)
+# These are DOI's of the Journals, they are used as keys for the choicefield in `models.Journal`!
+SCIPOST_JOURNAL_PHYSICS = 'SciPostPhys'
+SCIPOST_JOURNAL_PHYSICS_SELECT = 'SciPostPhysSel'
+SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES = 'SciPostPhysLectNotes'
+SCIPOST_JOURNAL_PHYSICS_PROC = 'SciPostPhysProc'
 
-# Same as SCIPOST_JOURNALS, but SciPost Select deactivated
+# Journal open for submission
 SCIPOST_JOURNALS_SUBMIT = (
     (SCIPOST_JOURNAL_PHYSICS, 'SciPost Physics'),
-    (SCIPOST_JOURNAL_LECTURE_NOTES, 'SciPost Physics Lecture Notes'),
+    (SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES, 'SciPost Physics Lecture Notes')
 )
+
+# Journal closed for submission
+SCIPOST_JOURNALS_NO_SUBMIT = (
+    (SCIPOST_JOURNAL_PHYSICS_SELECT, 'SciPost Physics Select'),
+    (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Physics Proceedings'),
+)
+
+# All allowed journals
+SCIPOST_JOURNALS = SCIPOST_JOURNALS_SUBMIT + SCIPOST_JOURNALS_NO_SUBMIT
+
+REGEX_CHOICES = '|'.join([
+    SCIPOST_JOURNAL_PHYSICS_PROC,
+    SCIPOST_JOURNAL_PHYSICS_SELECT,
+    SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES,
+    SCIPOST_JOURNAL_PHYSICS
+])
+
 
 SCIPOST_JOURNALS_DOMAINS = (
     ('E', 'Experimental'),
@@ -42,8 +56,3 @@ ISSUE_STATUSES = (
     (STATUS_DRAFT, 'Draft'),
     (STATUS_PUBLISHED, 'Published'),
 )
-
-JOURNALS_NAME_MAPPING = {
-    'SciPostPhys': 'SciPost Physics',
-    'SciPostPhysProc': 'SciPost Physics Proceedings',
-}

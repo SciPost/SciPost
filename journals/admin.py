@@ -5,20 +5,21 @@ from journals.models import Journal, Volume, Issue, Publication, Deposit
 
 class JournalAdmin(admin.ModelAdmin):
     search_fields = ['name']
+    list_display = ['__str__', 'doi_string', 'active']
 
 
 admin.site.register(Journal, JournalAdmin)
 
 
 class VolumeAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['__str__', 'doi_string']
 
 
 admin.site.register(Volume, VolumeAdmin)
 
 
 class IssueAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['__str__', 'doi_string']
 
 
 admin.site.register(Issue, IssueAdmin)

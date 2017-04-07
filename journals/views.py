@@ -8,14 +8,12 @@ import xml.etree.ElementTree as ET
 from django.conf import settings
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 
-from .constants import JOURNALS_NAME_MAPPING
 from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string
-from .models import Issue, Publication, UnregisteredAuthor
+from .models import Journal, Issue, Publication, UnregisteredAuthor
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
@@ -30,37 +28,24 @@ from guardian.decorators import permission_required
 # Journals
 ############
 
-def map_journal(key, _map=JOURNALS_NAME_MAPPING):
-    # try:
-    journal_name = _map[key]
-    # except KeyError:
-    #     raise Http404('Journal does not exist')
-    return journal_name
-
-
-def inverse_map_journal(name):
-    inv_map = {v: k for k, v in JOURNALS_NAME_MAPPING.items()}
-    return map_journal(name, inv_map)
-
-
 def journals(request):
     return render(request, 'journals/journals.html')
 
 
-def landing_page(request, journal_key):
-    journal_name = map_journal(journal_key)
+def landing_page(request, doi_string):
+    journal = get_object_or_404(Journal, doi_string=doi_string)
 
     current_issue = Issue.objects.published(
-        in_volume__in_journal__name=journal_name,
+        in_volume__in_journal=journal,
         start_date__lte=timezone.now(),
         until_date__gte=timezone.now()).order_by('-until_date').first()
     latest_issue = Issue.objects.published(
-        in_volume__in_journal__name=journal_name,
+        in_volume__in_journal=journal,
         until_date__lte=timezone.now()).order_by('-until_date').first()
 
     prev_issue = None
     if current_issue:
-        prev_issue = (Issue.objects.published(journal=journal_name,
+        prev_issue = (Issue.objects.published(in_volume__in_journal=journal,
                                               start_date__lt=current_issue.start_date)
                                    .order_by('start_date').last())
 
@@ -68,95 +53,87 @@ def landing_page(request, journal_key):
         'current_issue': current_issue,
         'latest_issue': latest_issue,
         'prev_issue': prev_issue,
-        'journal_name': journal_name,
-        'journal_key': journal_key
+        'journal': journal
     }
-    return render(request, 'journals/scipost_physics.html', context)
+    return render(request, 'journals/journal_landing_page.html', context)
 
 
-def issues(request, journal_key):
-    journal_name = map_journal(journal_key)
-    issues = Issue.objects.published(
-        in_volume__in_journal__name=journal_name).order_by('-until_date')
+def issues(request, doi_string):
+    journal = get_object_or_404(Journal, doi_string=doi_string)
+
+    issues = Issue.objects.published(in_volume__in_journal=journal).order_by('-until_date')
     context = {
         'issues': issues,
-        'journal_name': journal_name,
-        'journal_key': journal_key
+        'journal': journal
     }
     return render(request, 'journals/journal_issues.html', context)
 
 
-def recent(request, journal_key):
+def recent(request, doi_string):
     """
     Display page for the most recent 20 publications in SciPost Physics.
     """
-    journal_name = map_journal(journal_key)
+    journal = get_object_or_404(Journal, doi_string=doi_string)
     recent_papers = Publication.objects.published(
-        in_issue__in_volume__in_journal__name=journal_name).order_by('-publication_date')[:20]
+        in_issue__in_volume__in_journal=journal).order_by('-publication_date')[:20]
     context = {
         'recent_papers': recent_papers,
-        'journal_name': journal_name,
-        'journal_key': journal_key
+        'journal': journal,
     }
-    return render(request, 'journals/scipost_physics_recent.html', context)
+    return render(request, 'journals/journal_recent.html', context)
 
 
-def accepted(request, journal_key):
+def accepted(request, doi_string):
     """
     Display page for submissions to SciPost Physics which
     have been accepted but are not yet published.
     """
-    journal_name = map_journal(journal_key)
+    journal = get_object_or_404(Journal, doi_string=doi_string)
     accepted_SP_submissions = Submission.objects.filter(
-        submitted_to_journal=journal_name, status='accepted'
+        submitted_to_journal=journal.name, status='accepted'
     ).order_by('-latest_activity')
     context = {
         'accepted_SP_submissions': accepted_SP_submissions,
-        'journal_name': journal_name,
-        'journal_key': journal_key
+        'journal': journal
     }
-    return render(request, 'journals/scipost_physics_accepted.html', context)
+    return render(request, 'journals/journal_accepted.html', context)
 
 
-def info_for_authors(request, journal_key):
-    journal_name = map_journal(journal_key)
+def info_for_authors(request, doi_string):
+    journal = get_object_or_404(Journal, doi_string=doi_string)
     context = {
-        'journal_name': journal_name,
-        'journal_key': journal_key
+        'journal': journal
     }
-    return render(request, 'journals/%s_info_for_authors.html' % journal_key, context)
+    return render(request, 'journals/%s_info_for_authors.html' % doi_string, context)
 
 
-def about(request, journal_key):
-    journal_name = map_journal(journal_key)
+def about(request, doi_string):
+    journal = get_object_or_404(Journal, doi_string=doi_string)
     context = {
-        'journal_name': journal_name,
-        'journal_key': journal_key
+        'journal': journal
     }
-    return render(request, 'journals/%s_about.html' % journal_key, context)
+    return render(request, 'journals/%s_about.html' % doi_string, context)
 
 
-def issue_detail(request, journal_key, volume_nr, issue_nr):
-    journal_name = map_journal(journal_key)
-    issue = Issue.objects.get_published(journal=journal_name,
-                                        number=issue_nr, in_volume__number=volume_nr)
+def issue_detail(request, doi_string):
+    issue = Issue.objects.get_published(doi_string=doi_string)
+    journal = issue.in_volume.in_journal
+
     papers = issue.publication_set.order_by('paper_nr')
-    next_issue = (Issue.objects.published(journal=journal_name,
+    next_issue = (Issue.objects.published(journal=journal,
                                           start_date__gt=issue.start_date)
                                .order_by('start_date').first())
-    prev_issue = (Issue.objects.published(journal=journal_name,
+    prev_issue = (Issue.objects.published(in_volume__in_journal=journal,
                                           start_date__lt=issue.start_date)
                                .order_by('start_date').last())
-
     context = {
         'issue': issue,
         'prev_issue': prev_issue,
         'next_issue': next_issue,
         'papers': papers,
-        'journal_name': journal_name,
-        'journal_key': journal_key
+        'journal': journal
     }
-    return render(request, 'journals/scipost_physics_issue_detail.html', context)
+    return render(request, 'journals/journal_issue_detail.html', context)
 
 
 #######################
@@ -278,7 +255,7 @@ def validate_publication(request):
             initial_path = publication.pdf_file.path
             new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
                        + publication.get_paper_nr())
-            new_path = new_dir + '/' + publication.doi_label.replace('.', '_') + '.pdf'
+            new_path = new_dir + '/' + publication.doi_string.replace('.', '_') + '.pdf'
             os.makedirs(new_dir)
             os.rename(initial_path, new_path)
             publication.pdf_file.name = new_path
@@ -736,34 +713,18 @@ def harvest_citedby_links(request, doi_string):
 
 def publication_detail(request, doi_string):
     publication = Publication.objects.get_published(doi_string=doi_string)
-    journal_name = publication.in_issue.in_volume.in_journal.name
-    journal_key = inverse_map_journal(journal_name)
+    journal = publication.in_issue.in_volume.in_journal
 
     context = {
         'publication': publication,
-        'journal_name': journal_name,
-        'journal_key': journal_key
+        'journal': journal
     }
     return render(request, 'journals/publication_detail.html', context)
 
 
-def publication_pdf(request, doi_string):
+def publication_detail_pdf(request, doi_string):
     publication = Publication.objects.get_published(doi_string=doi_string)
     response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = ('filename='
-                                       + publication.doi_label.replace('.', '_') + '.pdf')
-    return response
-
-
-def publication_detail_from_doi_label(request, doi_label):
-    publication = Publication.objects.get_published(doi_label=doi_label)
-    context = {'publication': publication, }
-    return render(request, 'journals/publication_detail.html', context)
-
-
-def publication_pdf_from_doi_label(request, doi_label):
-    publication = Publication.objects.get_published(doi_label=doi_label)
-    response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
-    response['Content-Disposition'] = ('filename='
-                                       + publication.doi_label.replace('.', '_') + '.pdf')
+                                       + publication.doi_string.replace('.', '_') + '.pdf')
     return response

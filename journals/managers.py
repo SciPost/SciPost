@@ -15,13 +15,13 @@ class IssueManager(models.Manager):
     def published(self, journal=None, **kwargs):
         issues = self.filter(status=STATUS_PUBLISHED, **kwargs)
         if journal:
-            issues.filter(in_volume__in_journal__name=journal)
+            issues.filter(in_volume__in_journal=journal)
         return issues
 
     def in_draft(self, journal=None, **kwargs):
         issues = self.filter(status=STATUS_DRAFT, **kwargs)
         if journal:
-            issues.filter(in_volume__in_journal__name=journal)
+            issues.filter(in_volume__in_journal=journal)
         return issues
 
     def get_current_issue(self, *args, **kwargs):

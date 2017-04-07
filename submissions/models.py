@@ -51,7 +51,7 @@ class Submission(ArxivCallable, models.Model):
                                        blank=True, null=True, default=None)
     submitted_by = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
-                                            verbose_name="Journal to be submitted to")
+                                            verbose_name="Journal to be submitted to")  #Replace this by foreignkey?
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:

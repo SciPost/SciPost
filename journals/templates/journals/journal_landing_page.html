@@ -2,11 +2,7 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    {% if current_issue %}
-        <a href="{{current_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{current_issue.in_volume.in_journal}}</a>
-    {% elif latest_issue %}
-        <a href="{{latest_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{latest_issue.in_volume.in_journal}}</a>
-    {% endif %}
+    <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
 {% endblock %}
 
 {% block content %}
@@ -61,6 +57,14 @@
                         </li>
                     {% endfor %}
                 </ul>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if not current_issue and not latest_issue %}
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-blue">Coming soon!</h2>
             </div>
         </div>
     {% endif %}

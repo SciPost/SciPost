@@ -4,7 +4,7 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{{issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{issue.in_volume.in_journal}}</a>
+    <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
     <span class="breadcrumb-item active">{{issue.short_str}}</span>
 {% endblock %}
 

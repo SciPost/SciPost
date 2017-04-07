@@ -1,0 +1,29 @@
+
+{% extends 'journals/_base.html' %}
+
+{% block pagetitle %}{{block.super}}: About{% endblock pagetitle %}
+
+{% block link_class_physics_about %}active{% endblock %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'journal:issues' journal.doi_string %}" class="breadcrumb-item">SciPost Physics Proceedings</a>
+    <span class="breadcrumb-item active">About</span>
+{% endblock %}
+
+{% block content %}
+    {% with header_text='About SciPost Physics Proceedings' %}
+        {{block.super}}
+    {% endwith %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Neque porro quisquam</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean ultrices tristique ligula. Praesent id odio mollis, egestas est blandit, tempus nisi. Nulla facilisi. Donec a consequat magna. In pulvinar libero laoreet finibus rhoncus. Vestibulum sodales risus in ornare ultricies. Donec vitae euismod sem, vitae finibus purus. Vestibulum vehicula, orci pellentesque congue sodales, leo nulla pellentesque elit, in interdum enim dui quis urna. Etiam at lectus sit amet risus sollicitudin faucibus.</p>
+        </div>
+        <div class="col-md-6">
+            <h2>Mauris vel dolor lacus</h2>
+            <p>Phasellus dapibus euismod rutrum. Aliquam gravida nisl nulla. Sed et hendrerit mauris. Curabitur pulvinar turpis sed orci eleifend sodales. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec ut luctus nunc. Nulla rhoncus mattis magna, at tincidunt purus ullamcorper eu. Duis sem nisl, porttitor ac dui a, rutrum dictum mi.</p>
+        </div>
+    </div>
+{% endblock %}
