@@ -2,23 +2,12 @@ from .exceptions import JournalNameError, PaperNumberError
 
 
 def journal_name_abbrev_citation(journal_name):
-    if journal_name == 'SciPost Physics':
+    if journal_name == 'SciPostPhys':
         return 'SciPost Phys.'
-    elif journal_name == 'SciPost Physics Select':
+    elif journal_name == 'SciPostPhysSel':
         return 'SciPost Phys. Sel.'
-    elif journal_name == 'SciPost Physics Lecture Notes':
+    elif journal_name == 'SciPostPhysLectNotes':
         return 'SciPost Phys. Lect. Notes'
-    else:
-        raise JournalNameError(journal_name)
-
-
-def journal_name_abbrev_doi(journal_name):
-    if journal_name == 'SciPost Physics':
-        return 'SciPostPhys'
-    elif journal_name == 'SciPost Physics Select':
-        return 'SciPostPhysSel'
-    elif journal_name == 'SciPost Physics Lecture Notes':
-        return 'SciPostPhysLectNotes'
     else:
         raise JournalNameError(journal_name)
 

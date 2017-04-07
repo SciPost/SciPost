@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
                        STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES
-from .helpers import paper_nr_string, journal_name_abbrev_doi, journal_name_abbrev_citation
+from .helpers import paper_nr_string, journal_name_abbrev_citation
 from .managers import IssueManager, PublicationManager
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
@@ -36,9 +36,6 @@ class Journal(models.Model):
 
     def get_abbreviation_citation(self):
         return journal_name_abbrev_citation(self.name)
-
-    def get_abbreviation_doi(self):
-        return journal_name_abbrev_doi(self.name)
 
 
 class Volume(models.Model):
@@ -93,13 +90,6 @@ class Issue(models.Model):
     def is_current(self):
         return self.start_date <= timezone.now().date() and\
                self.until_date >= timezone.now().date()
-
-    def period(self):
-        text = 'up to {{ until_month }} {{ year }}'
-        template = Template(text)
-        context = Context({'until_month': self.start_date.strftime('%B'),
-                           'year': self.until_date.strftime('%Y')})
-        return template.render(context)
 
 
 class Publication(models.Model):
