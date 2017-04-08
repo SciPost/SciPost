@@ -42,7 +42,7 @@
             <div class="card-block">
                 <h1>SciPost Submission Page</h1>
                 {% if not submission.is_current %}
-                    <h3 style="color: red;">This is not the current version.</h3>
+                    <h3 class="text-danger">This is not the current version.</h3>
                 {% endif %}
                 {% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
                     <h3>(You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h3>

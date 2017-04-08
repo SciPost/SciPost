@@ -123,7 +123,6 @@ class Publication(models.Model):
     metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
     BiBTeX_entry = models.TextField(blank=True, null=True)
     doi_string = models.CharField(max_length=200, blank=True, unique=True)  # Used for file name
-    # doi_string = models.CharField(max_length=200, blank=True, null=True)
     submission_date = models.DateField(verbose_name='submission date')
     acceptance_date = models.DateField(verbose_name='acceptance date')
     publication_date = models.DateField(verbose_name='publication date')

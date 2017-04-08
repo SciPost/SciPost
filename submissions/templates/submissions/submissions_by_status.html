@@ -1,4 +1,4 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/_pool_base.html' %}
 
 {% load guardian_tags %}
 {% load scipost_extras %}
@@ -6,11 +6,18 @@
 
 {% block pagetitle %}: Submissions by status{% endblock pagetitle %}
 
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <span class="breadcrumb-item">Status: {{status}}</span>
+{% endblock %}
+
 {% block content %}
 
+{% with is_ECAdmin=request.user|is_in_group:'Editorial Administrators' %}
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">SciPost Submissions with status {{ submissions_of_status.first.get_status_display }}</h1>
+        <h1 class="highlight">SciPost Submissions with status {{status}}</h1>
     </div>
 </div>
 
@@ -19,10 +26,11 @@
         <!-- Submissions list -->
         {% for sub in submissions_of_status %}
             <div class="card card-outline-secondary mt-1">
-                {% include 'submissions/_submission_card_in_pool.html' with submission=sub remark_form=remark_form %}
+                {% include 'submissions/_submission_card_in_pool.html' with submission=sub remark_form=remark_form is_ECAdmin=is_ECAdmin %}
             </div>
         {% endfor %}
     </div>
 </div>
+{% endwith %}
 
 {% endblock content %}

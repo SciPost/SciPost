@@ -1,10 +1,16 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/_pool_base.html' %}
 
 {% block pagetitle %}: editorial page for submission{% endblock pagetitle %}
 
 {% load scipost_extras %}
 {% load submissions_extras %}
 {% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <span class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</span>
+{% endblock %}
 
 {% block content %}
 
@@ -18,7 +24,7 @@
                     <p>Please go to the current version's page.</p>
                 {% endif %}
 
-                <h3>(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</h3>
+                <p class="card-text">(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</h3>
             </div>
         </div>
         {% if other_versions %}
