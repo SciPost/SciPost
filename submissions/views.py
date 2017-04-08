@@ -1,6 +1,7 @@
 import datetime
 import feedparser
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
@@ -1174,8 +1175,9 @@ def prepare_for_voting(request, rec_id):
             recommendation.save()
             recommendation.submission.status = 'put_to_EC_voting'
             recommendation.submission.save()
-            return render(request, 'scipost/acknowledgement.html',
-                          context={'ack_message': 'We have registered your selection.'})
+            messages.success(request, 'We have registered your selection.')
+            return redirect(reverse('submissions:editorial_page',
+                                    args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
         # Identify possible co-authorships in last 3 years, disqualifying Fellow from voting:
         if recommendation.submission.metadata is not None:

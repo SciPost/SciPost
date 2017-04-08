@@ -37,12 +37,12 @@
                     </div>
                 </div>
 
-                {% for rec in recommendations_undergoing_voting %}
-                    {% if not forloop.first %}
-                        <hr>
-                    {% endif %}
+                <div class="row">
+                    {% for rec in recommendations_undergoing_voting %}
+                        {% if not forloop.first %}
+                            <hr>
+                        {% endif %}
 
-                    <div class="row">
                         <div class="col-12">
                             <div class="card card-outline-secondary">
                                 {% include 'submissions/_submission_card_fellow_content.html' with submission=rec.submission %}
@@ -257,44 +257,46 @@
                     </ul>
                 </div><!-- end status -->
 
-                {% if recommendations_undergoing_voting %}
-                    <!-- Preparing -->
-                    <a href="#rec_filter_voting" data-toggle="collapse" class="collapsed">
-                        <h3 class="card-title text-gray-dark">Recommendations undergoing voting ({{recommendations_to_prepare_for_voting|length}})</h3>
-                    </a>
-                    <div id="rec_filter_voting" class="collapse">
-                        <ul class="list-group list-group-flush">
-                            {% for recommendation in recommendations_undergoing_voting %}
-                                <li class="list-group-item">
-                                    <div class="card-block">
-                                        <a href="#prepare_rec_{{recommendation.id}}">{{recommendation.submission.title}}</a>
-                                        <p class="text-muted my-0">{{recommendation.submission.author_list}}</p>
-                                        <p class="my-0">Formulated on {{recommendation.date_submitted}}</p>
-                                    </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div><!-- end preparing -->
-                {% endif %}
+                {% if is_ECAdmin %}
+                    {% if recommendations_undergoing_voting %}
+                        <!-- Preparing -->
+                        <a href="#rec_filter_voting" data-toggle="collapse" class="collapsed">
+                            <h3 class="card-title text-gray-dark">Recommendations undergoing voting ({{recommendations_undergoing_voting|length}})</h3>
+                        </a>
+                        <div id="rec_filter_voting" class="collapse">
+                            <ul class="list-group list-group-flush">
+                                {% for recommendation in recommendations_undergoing_voting %}
+                                    <li class="list-group-item">
+                                        <div class="card-block">
+                                            <a href="#prepare_rec_{{recommendation.id}}">{{recommendation.submission.title}}</a>
+                                            <p class="text-muted my-0">{{recommendation.submission.author_list}}</p>
+                                            <p class="my-0">Formulated on {{recommendation.date_submitted}}</p>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div><!-- end preparing -->
+                    {% endif %}
 
-                {% if recommendations_to_prepare_for_voting %}
-                    <!-- Preparing -->
-                    <a href="#rec_filter_prepare" data-toggle="collapse" class="collapsed">
-                        <h3 class="card-title text-gray-dark">Recommendations to prepare ({{recommendations_to_prepare_for_voting|length}})</h3>
-                    </a>
-                    <div id="rec_filter_prepare" class="collapse">
-                        <ul class="list-group list-group-flush">
-                            {% for recommendation in recommendations_to_prepare_for_voting %}
-                                <li class="list-group-item">
-                                    <div class="card-block">
-                                        <a href="#prepare_rec_{{recommendation.id}}">{{recommendation.submission.title}}</a>
-                                        <p class="text-muted my-0">{{recommendation.submission.author_list}}</p>
-                                        <p class="my-0">Formulated on {{recommendation.date_submitted}}</p>
-                                    </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div><!-- end preparing -->
+                    {% if recommendations_to_prepare_for_voting %}
+                        <!-- Preparing -->
+                        <a href="#rec_filter_prepare" data-toggle="collapse" class="collapsed">
+                            <h3 class="card-title text-gray-dark">Recommendations to prepare ({{recommendations_to_prepare_for_voting|length}})</h3>
+                        </a>
+                        <div id="rec_filter_prepare" class="collapse">
+                            <ul class="list-group list-group-flush">
+                                {% for recommendation in recommendations_to_prepare_for_voting %}
+                                    <li class="list-group-item">
+                                        <div class="card-block">
+                                            <a href="#prepare_rec_{{recommendation.id}}">{{recommendation.submission.title}}</a>
+                                            <p class="text-muted my-0">{{recommendation.submission.author_list}}</p>
+                                            <p class="my-0">Formulated on {{recommendation.date_submitted}}</p>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div><!-- end preparing -->
+                    {% endif %}
                 {% endif %}
 
                 <!-- Pool -->
