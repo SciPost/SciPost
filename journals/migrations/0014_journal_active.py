@@ -15,7 +15,7 @@ def auto_deactivate_scipost_physics_proc(apps, schema_editor):
         journal = Journal.objects.get(name='SciPostPhysProc', doi_string='SciPostPhysProc')
         journal.active = False
         journal.save()
-        print('\n...SciPost Physics Proceedings deactivated.')
+        print('\n   - SciPost Physics Proceedings deactivated...')
     except Journal.DoesNotExist:
         pass
 

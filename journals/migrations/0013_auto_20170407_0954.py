@@ -10,37 +10,55 @@ def auto_remove_scipost_physics_proc(apps, schema_editor):
     try:
         journal = Journal.objects.get(name='SciPostPhysProc')
         journal.delete()
-        print('\n...SciPost Physics Proceedings deleted.')
+        print('\n   - SciPost Physics Proceedings deleted...')
     except Journal.DoesNotExist:
-        print('\n...No SciPost Physics Proceedings does not exist.')
+        print('   - No SciPost Physics Proceedings does not exist...')
 
 
 def auto_add_scipost_physics_proc(apps, schema_editor):
     Journal = apps.get_model('journals', 'Journal')
     Journal.objects.create(name='SciPostPhysProc', doi_string='SciPostPhysProc')
-    print('\n...SciPost Physics Proceedings created.')
+    print('   - SciPost Physics Proceedings created...')
 
 
 def alter_existing_journal_name(apps, schema_editor):
     Journal = apps.get_model('journals', 'Journal')
+    Submission = apps.get_model('submissions', 'Submission')
     try:
         journal = Journal.objects.get(name='SciPost Physics')
         journal.name = 'SciPostPhys'
         journal.save()
-        print('\n...SciPost Physics name updated.')
+        print('\n   - SciPost Physics name updated...')
+
+        Submission.objects.filter(submitted_to_journal='SciPost Physics').update(
+                                  submitted_to_journal='SciPostPhys'
+        )
+        Submission.objects.filter(submitted_to_journal='SciPost Physics Lecture Notes').update(
+                                  submitted_to_journal='SciPostPhysLectNotes'
+        )
+        print('   - Submission `submitted_to_journal` keys updated...')
     except Journal.DoesNotExist:
-        print('\n...No Journal Names altered.')
+        print('   - No Journal Names altered...')
 
 
 def reverse_alter_existing_journal_name(apps, schema_editor):
     Journal = apps.get_model('journals', 'Journal')
+    Submission = apps.get_model('submissions', 'Submission')
     try:
         journal = Journal.objects.get(name='SciPostPhys')
         journal.name = 'SciPost Physics'
         journal.save()
-        print('\n...SciPost Physics name updated.')
+        print('   - SciPost Physics name updated...')
+
+        Submission.objects.filter(submitted_to_journal='SciPostPhys').update(
+                                  submitted_to_journal='SciPost Physics'
+        )
+        Submission.objects.filter(submitted_to_journal='SciPostPhysLectNotes').update(
+                                  submitted_to_journal='SciPost Physics Lecture Notes'
+        )
+        print('   - Submission `submitted_to_journal` keys updated...')
     except Journal.DoesNotExist:
-        print('\n...No Journal Names altered.')
+        print('   - No Journal Names altered...')
 
 
 class Migration(migrations.Migration):
