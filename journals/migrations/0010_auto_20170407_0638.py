@@ -5,6 +5,51 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
+def remove_doi_prefix(apps, schema_editor):
+    Journal = apps.get_model('journals', 'Journal')
+    for journal in Journal.objects.all():
+        try:
+            journal.doi_string = journal.doi_string.split('10.21468/', 1)[1]
+        except KeyError:
+            print('   - Journal %s has no valid `doi_string`' % journal.id)
+        journal.save()
+
+    Issue = apps.get_model('journals', 'Issue')
+    for issue in Issue.objects.all():
+        try:
+            issue.doi_string = issue.doi_string.split('10.21468/', 1)[1]
+        except KeyError:
+            print('   - Issue %s has no valid `doi_string`' % issue.id)
+        issue.save()
+
+    Volume = apps.get_model('journals', 'Volume')
+    for volume in Volume.objects.all():
+        try:
+            volume.doi_string = volume.doi_string.split('10.21468/', 1)[1]
+        except KeyError:
+            print('   - Volume %s has no valid `doi_string`' % volume.id)
+        volume.save()
+    print('   - DOI prefixes removed...')
+
+
+def add_doi_prefix(apps, schema_editor):
+    Journal = apps.get_model('journals', 'Journal')
+    for journal in Journal.objects.all():
+        journal.doi_string = '10.21468/' + journal.doi_string
+        journal.save()
+
+    Issue = apps.get_model('journals', 'Issue')
+    for issue in Issue.objects.all():
+        issue.doi_string = '10.21468/' + issue.doi_string
+        issue.save()
+
+    Volume = apps.get_model('journals', 'Volume')
+    for volume in Volume.objects.all():
+        volume.doi_string = '10.21468/' + volume.doi_string
+        volume.save()
+    print('   - DOI prefixes added...')
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -30,4 +75,5 @@ class Migration(migrations.Migration):
             field=models.CharField(blank=True, default='', max_length=200, unique=True),
             preserve_default=False,
         ),
+        migrations.RunPython(remove_doi_prefix, add_doi_prefix),
     ]
