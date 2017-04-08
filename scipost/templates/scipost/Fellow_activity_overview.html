@@ -2,78 +2,79 @@
 
 {% block pagetitle %}: Overview{% endblock pagetitle %}
 
-{% block headsup %}
-
-{% endblock headsup %}
-
-{% block bodysup %}
-
 {% load scipost_extras %}
 {% load submissions_extras %}
 
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>Overview of Fellows's activities</h1>
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Overview of Fellows's activities</h1>
+        <h3>Click on a Fellow's name to view full assignment details.</h3>
     </div>
-  </div>
-  <p>Click on a Fellow's name to view full assignment details.</p>
-  <table class="assignments_listing">
-    <thead>
-      <th>Name</th>
-      <th>Expertises</th>
-      <th>Ongoing</th>
-      <th>Assignments<br/>last yr / tot</th>
-      <th>Accepted<br/>last yr / tot</th>
-      <th>Refused<br/>last yr / tot</th>
-      <th>Ignored<br/>last yr / tot</th>
-      <th>Fulfilled<br/>last yr / tot</th>
-    </thead>
-    <tbody>
-      {% for Fellow in Fellows %}
-      <tr>
-	<td><a href="{% url 'scipost:Fellow_activity_overview' Fellow_id=Fellow.id %}">{{ Fellow.user.last_name }}, {{ Fellow.user.first_name }}</a></td>
-	{{ Fellow.assignments_summary_as_td }}
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+</div>
 
-</section>
-
-{% if Fellow %}
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>Overview of Fellows's activities</h1>
+<div class="row">
+    <div class="col-12">
+      <table class="assignments_listing w-100">
+        <thead>
+          <th>Name</th>
+          <th>Expertises</th>
+          <th>Ongoing</th>
+          <th>Assignments<br/>last yr / tot</th>
+          <th>Accepted<br/>last yr / tot</th>
+          <th>Refused<br/>last yr / tot</th>
+          <th>Ignored<br/>last yr / tot</th>
+          <th>Fulfilled<br/>last yr / tot</th>
+        </thead>
+        <tbody>
+          {% for fellow in fellows %}
+          <tr>
+    	<td><a href="{% url 'scipost:Fellow_activity_overview' Fellow_id=fellow.id %}">{{ fellow.user.last_name }}, {{ fellow.user.first_name }}</a></td>
+    	{{ fellow.assignments_summary_as_td }}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-  </div>
-  <h3>Assignments for {{ Fellow.user.first_name }} {{ Fellow.user.last_name }}</h3>
+</div>
 
-  <h4>Ongoing:</h4>
-  <ul>
-    {% for assignment in assignments_of_Fellow %}
-      {% if assignment.accepted and not assignment.completed %}
-        {% if request.user|is_not_author_of_submission:assignment.submission.arxiv_identifier_w_vn_nr %}
-          {{ assignment.header_as_li }}
-        {% endif %}
-      {% endif %}
-    {% endfor %}
-  </ul>
+{% if fellow %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="highlight">Assignments for {{ fellow.user.first_name }} {{ fellow.user.last_name }}</h3>
+        </div>
+    </div>
 
-  <h4>Completed:</h4>
-  <ul>
-    {% for assignment in assignments_of_Fellow %}
-      {% if assignment.completed %}
-        {% if request.user|is_not_author_of_submission:assignment.submission.arxiv_identifier_w_vn_nr %}
-          {{ assignment.header_as_li }}
-        {% endif %}
-      {% endif %}
-    {% endfor %}
-  </ul>
+    <div class="row">
+        <div class="col-12">
+            <h3>Ongoing:</h3>
+        </div>
+        <div class="col-12">
+            <ul class="list-group list-group-flush">
+              {% for assignment in assignments_ongoing %}
+                  <li class="list-group-item">
+                      {% include 'submissions/_submission_card_contributor_content.html' with submission=assignment.submission %}
+                  </li>
+              {% endfor %}
+            </ul>
+        </div>
 
+        <div class="col-12">
+            <h3>Completed:</h3>
+        </div>
 
-</section>
+        <div class="col-12">
+          <ul class="list-group list-group-flush">
+            {% for assignment in assignments_completed %}
+                <li class="list-group-item">
+                    {% include 'submissions/_submission_card_contributor_content.html' with submission=assignment.submission %}
+                </li>
+            {% endfor %}
+          </ul>
+        </div>
+    </div>
+
 {% endif %}
 
-{% endblock bodysup %}
+{% endblock content %}

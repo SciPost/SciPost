@@ -1,0 +1,35 @@
+{% extends 'journals/_base.html' %}
+
+{% block pagetitle %}{{block.super}}: recent{% endblock pagetitle %}
+
+{% block link_class_physics_recent %}active{% endblock %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
+    <span class="breadcrumb-item active">Recent</span>
+{% endblock %}
+
+{% block content %}
+
+    {% with header_text='Recent publications:' %}
+        {{block.super}}
+    {% endwith %}
+
+    <div class="row">
+        <div class="col-12">
+            <ul class="list-group list-group-flush">
+                {% for paper in recent_papers %}
+                    <li class="list-group-item">
+                        <div class="card card-grey card-publication">
+                            {% include 'journals/_publication_card_content.html' with publication=paper %}
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item"><h3>Sorry, no recent publications were found.</h3></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}

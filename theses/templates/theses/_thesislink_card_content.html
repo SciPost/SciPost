@@ -1,0 +1,15 @@
+{% load theses_extras %}
+
+<div class="card-block">
+    <h3 class="card-title">
+        <a href="{% url 'theses:thesis' thesislink_id=thesislink.id %}">{{ thesislink.title }}</a>
+    </h3>
+    <p class="card-text">
+        {{ thesislink.get_type_display }} thesis by {{ thesislink.author }}
+        (supervisor(s): {{ thesislink.supervisor }}) in
+        {{ thesislink.get_discipline_display }}, {{ thesislink.get_domain_display }} {{ thesislink.get_subject_area_display }}.
+    </p>
+    <p class="card-text text-muted">
+        Defense date: {{ thesislink.defense_date }}. Latest activity: {{ thesislink.latest_activity|date:"DATE_FORMAT" }}.
+    </p>
+</div>

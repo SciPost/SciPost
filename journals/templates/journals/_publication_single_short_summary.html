@@ -1,3 +1,3 @@
-<h3 class="pb-0"><a href="{% url 'scipost:publication_detail' doi_string=publication.doi_string %}">{{ publication.title }}</a></h3>
+<h3 class="pb-0"><a href="{{publication.get_absolute_url}}">{{ publication.title }}</a></h3>
 <div>by {{ publication.author_list|truncatechars:30 }}</div>
 <div class="text-muted">published {{ publication.publication_date }}</div>

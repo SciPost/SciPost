@@ -20,9 +20,26 @@ def bootstrap(element, args='2,10'):
     -- 2. Column width for input
     -- 3. Additional argument 'sm' or 'lg' for form groups.
     '''
+    args = dict(enumerate(args.split(',')))
+    markup_classes = {
+        'label': 'col-md-%s' % args.get(0, '4'),
+        'value': 'col-md-%s' % args.get(1, '8'),
+        'single_value': args.get(2, 'col-12'),
+        'form_control': ''
+    }
+
+    if args.get(2, False):
+        markup_classes['label'] += ' col-form-label-%s' % args.get(2)
+        markup_classes['form_control'] = 'form-control-%s' % args.get(2)
+
+    return render(element, markup_classes)
+
+
+@register.filter
+def bootstrap_inline(element, args='2,10'):
     args = [arg.strip() for arg in args.split(',')]
     markup_classes = {
-        'label': 'col-md-%s' % args[0],
+        'label': 'sr-only col-md-%s' % args[0],
         'value': 'col-md-%s' % args[1],
         'single_value': ''
     }
@@ -31,12 +48,6 @@ def bootstrap(element, args='2,10'):
         markup_classes['form_control'] = 'form-control-%s' % args[2]
     except IndexError:
         markup_classes['form_control'] = ''
-    return render(element, markup_classes)
-
-
-@register.filter
-def bootstrap_inline(element):
-    markup_classes = {'label': 'sr-only', 'value': '', 'single_value': ''}
     return render(element, markup_classes)
 
 

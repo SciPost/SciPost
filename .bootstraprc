@@ -9,16 +9,21 @@
     ],
     "extractStyles": true,
     "styles": {
+        # First tables, due to self dependencies
+        "tables": true,
         "alert": true,
         "button-group": true,
         "buttons": true,
+        "breadcrumb": true,
         "card": true,
         "close": true,
+        "code": true,
         "dropdown": true,
         "forms": true,
         "grid": true,
         "input-group": true,
         "list-group": true,
+        "modal": true,
         "mixins": true,
         "nav": true,
         "navbar": true,
@@ -33,6 +38,8 @@
     "scripts": {
         "alert": true,
         "collapse": true,
+        "modal": true,
+        "tab": true,
         "tooltip": true,
         "util": true,
     }

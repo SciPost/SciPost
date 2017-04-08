@@ -1,99 +1,105 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/_pool_base.html' %}
 
 {% block pagetitle %}: prepare recommendation for voting{% endblock pagetitle %}
 
-{% block headsup %}
-
 {% load scipost_extras %}
+{% load bootstrap %}
 
-{% endblock headsup %}
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <a href="{% url 'submissions:editorial_page' recommendation.submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{recommendation.submission.arxiv_identifier_w_vn_nr}})</a>
+    <span class="breadcrumb-item">Prepare recommendation for voting</span>
+{% endblock %}
 
-{% block bodysup %}
+{% block content %}
 
-
-<section>
-  <div class="flex-greybox">
-    <h1>Prepare Editorial Recommendation for Voting</h1>
-    <h3>(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=recommendation.submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</h3>
-    <h3>(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=recommendation.submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h3>
-  </div>
-
-  <hr class="hr12">
-  <div class="row">
-    <div class="col-4">
-      <h2>Submission:</h2>
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class="card-block">
+                <h1 class="card-title">Prepare Editorial Recommendation for Voting</h1>
+                <p class="card-text">(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=recommendation.submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</p>
+                <p class="card-text">(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=recommendation.submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</p>
+            </div>
+        </div>
     </div>
-  </div>
-  {{ recommendation.submission.header_as_table }}
+</div>
 
-  {% if recommendation.submission.referees_flagged %}
-  <h3>Referees flagged upon submission (treat reports with caution):</h3>
-  <p>{{ recommendation.submission.referees_flagged }}</p>
-  {% endif %}
+<div class="row">
+    <div class="col-12">
+        <h2>Submission:</h2>
+        {% include 'submissions/_submission_summary.html' with submission=recommendation.submission %}
 
-  <div class="flex-greybox">
-    <h3>Editorial recommendation:</h3>
-    <ul>
-      <li>{{ recommendation.print_for_Fellows }}</li>
-    </ul>
-  </div>
-
-</section>
-
-
-
-<section>
-  <div class="flex-greybox">
-    <h1>Select Fellows eligible to vote</h1>
-  </div>
-  <div class="row">
-    <div class="col-6">
-      <p>Fellows with expertise matching the Submission's subject area:</p>
-      <ul>
-	{% for Fellow in Fellows_with_expertise %}
-	<li>{{ Fellow.user.last_name }}</li>
-	{% endfor %}
-      </ul>
+        {% if recommendation.submission.referees_flagged %}
+            <h3>Referees flagged upon submission (treat reports with caution):</h3>
+            <p>{{ recommendation.submission.referees_flagged }}</p>
+        {% endif %}
     </div>
-    <div class="col-6">
+</div>
 
-      <form action="{% url 'submissions:prepare_for_voting' rec_id=recommendation.id %}" method="post">
-	{% csrf_token %}
-	{{ eligibility_form.as_table }}
-	<input type="submit" value="Submit" />
-      </form>
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-outline-secondary">
+            {% include 'submissions/_recommendation_fellow_content.html' with recommendation=recommendation %}
+        </div>
     </div>
-  </div>
+</div>
 
-  {% if coauthorships %}
-  <div style="background-color: #ffdddd">
-    <h3 style="color: red">The system identified the following potential coauthorships (from arXiv database)</h3>
-    <p style="color: red">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
-    <ul>
-      {% for key, value in coauthorships.items %}
-      <li>For Fellow {{ key }}:
-	<ul>
-	  {% for entry in value.entries %}
-	  <li>
-	    <p><a href="{{ entry.id }}">{{ entry.id }}</a></p>
-	    <p>{{ entry.title }}</p>
-	    <p>
-	      {% for author in entry.authors %}
-	      {{ author.name }}, &nbsp;
-	      {% endfor %}
-	    </p>
-	    <p>{{ entry.published }}</p>
-	  </li>
-	  {% endfor %}
-      </ul>
-      {% endfor %}
-    </ul>
-  </div>
-  {% else %}
-  <h3 style="color: green">The system has not identified any coauthorships (from arXiv database)</h3>
-  {% endif %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Select Fellows eligible to vote</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <p>Fellows with expertise matching the Submission's subject area:</p>
+        <ul>
+            {% for Fellow in Fellows_with_expertise %}
+                <li>{{ Fellow.user.last_name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <form action="{% url 'submissions:prepare_for_voting' rec_id=recommendation.id %}" method="post">
+            {% csrf_token %}
+            {{ eligibility_form|bootstrap }}
+            <input class="btn btn-secondary" type="submit" value="Submit" />
+        </form>
+    </div>
+</div>
 
-</section>
+<div class="row">
+    <div class="col-12">
+        {% if coauthorships %}
+            <div class="card card-outline-danger">
+                <div class="card-block">
+                    <h3 class="card-title text-danger">The system identified the following potential coauthorships (from arXiv database)</h3>
+                    <p class="card-text text-danger">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
+                </div>
+                <div class="card-block">
+                    <ul class="list-group list-group-flush">
+                        {% for key, value in coauthorships.items %}
+                            <li class="list-group-item pt-3">
+                                <div class="card-content">
+                                    <h3>For Fellow {{key}}:</h3>
+                                </div>
+                            </li>
+                            {% for entry in value.entries %}
+                                <li class="list-group-item">
+                                    {% include 'submissions/_arxiv_queryresult.html' with item=entry %}
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% else %}
+            <h3 class="text-success">The system has not identified any coauthorships (from arXiv database)</h3>
+        {% endif %}
+    </div>
+</div>
 
-
-{% endblock bodysup %}
+{% endblock %}

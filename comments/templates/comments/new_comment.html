@@ -1,11 +1,31 @@
-{% if user.is_authenticated and open_for_commenting and perms.scipost.can_submit_comments %}
-<hr />
+{% load bootstrap %}
 
-<div class="row">
+{% if user.is_authenticated and open_for_commenting and perms.scipost.can_submit_comments %}
+
+<script>
+  $(document).ready(function(){
+
+    var comment_text_input = $("#id_comment_text");
+
+    function set_comment_text(value) {
+      $("#preview-comment_text").text(value)
+    }
+    set_comment_text(comment_text_input.val())
+
+    comment_text_input.keyup(function(){
+      var new_text = $(this).val()
+      set_comment_text(new_text)
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    })
+
+  });
+</script>
+
+<hr>
+
+<div class="row" id="contribute_comment">
     <div class="col-12">
-        <div class="panel">
-            <h2>Contribute a Comment:</h2>
-        </div>
+        <h2 class="highlight">Contribute a Comment:</h2>
     </div>
 </div>
 <div class="row">
@@ -14,8 +34,45 @@
             action="{% url 'comments:new_comment' object_id=object_id type_of_object=type_of_object %}"
             method="post">
           {% csrf_token %}
-          {% load crispy_forms_tags %}
-          {% crispy form %}
+          <div class="row">
+              <div class="col-md-9">
+                  {{form.comment_text|bootstrap:'12,12'}}
+                  <p>
+                      In your comment, you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.
+                  </p>
+                  <p id="goodCommenter"><em>
+                      Be professional. Only serious and meaningful comments will be vetted through.
+                  </em></p>
+              </div>
+              <div class="col-md-3 radio-list">
+                  <label>Specify categorization(s):</label>
+                  {{form.is_cor|bootstrap}}
+                  {{form.is_rem|bootstrap}}
+                  {{form.is_que|bootstrap}}
+                  {{form.is_ans|bootstrap}}
+                  {{form.is_obj|bootstrap}}
+                  {{form.is_rep|bootstrap}}
+                  {{form.is_val|bootstrap}}
+                  {{form.is_lit|bootstrap}}
+                  {{form.is_sug|bootstrap}}
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-md-9">
+                  {{form.remarks_for_editors|bootstrap:'12,12'}}
+              </div>
+              <div class="col-md-3">
+                  {{form.file_attachment|bootstrap:'12,12'}}
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-12">
+                  <input type="submit" name="submit" value="Submit your Comment for vetting" class="btn btn-primary" id="submit-id-submit">
+                  <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>.</i></p>
+              </div>
+          </div>
         </form>
     </div>
     <div class="col-12">

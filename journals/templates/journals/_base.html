@@ -1,0 +1,52 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: {{journal}}{% endblock pagetitle %}
+{% block body_class %}{{block.super}} journals{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0">
+        <div class="container">
+            {% block breadcrumb_items %}
+                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+            {% endblock %}
+        </div>
+    </nav>
+{% endblock %}
+
+{% block secondary_navbar %}
+    <nav class="navbar navbar-secondary">
+        <div class="container my-2">
+            <h2 class="banner d-inline-block mr-2"><a href="{% url 'scipost:landing_page' journal.doi_string %}">{{journal}}</a></h2>
+            <ul class="links">
+                {% if journal.active or request.user.is_staff %}
+                    <li><a class="{% block link_class_physics_issues %}{% endblock %}" href="{% url 'journal:issues' journal.doi_string %}">Issues</a></li>
+                    <li><a class="{% block link_class_physics_recent %}{% endblock %}" href="{% url 'journal:recent' journal.doi_string %}">Recent</a></li>
+                    <li><a class="{% block link_class_physics_accepted %}{% endblock %}" href="{% url 'journal:accepted' journal.doi_string %}">Accepted</a></li>
+                    <li><a href="{% url 'submissions:submissions' %}?to_journal=SciPostPhysics">Submissions</a></li>
+                    <li><a class="{% block link_class_physics_info %}{% endblock %}" href="{% url 'journal:info_for_authors' journal.doi_string %}">Info for authors</a></li>
+                {% endif %}
+                <li><a class="{% block link_class_physics_about %}{% endblock %}" href="{% url 'journal:about' journal.doi_string %}">About</a></li>
+            </ul>
+        </div>
+    </nav>
+{% endblock secondary_navbar %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="{% block header_text_class %}highlight-empty text-blue m-0 py-2 px-0{% endblock %}">{{header_text}}</h2>
+            {% block journal_header_block %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block secondary_footer %}
+    <footer class="secondary container-fluid py-2">
+        <div class="row my-1">
+            <div class="col-12">
+                {{journal}} is published by the SciPost Foundation under the journal doi: 10.21468/{{journal.name}} and ISSN {{journal.issn}}.
+            </div>
+        </div>
+    </footer>
+{% endblock %}

@@ -2,70 +2,37 @@
 
 {% block pagetitle %}: reply to report{% endblock pagetitle %}
 
-{% block bodysup %}
-
-<script>
-  $(document).ready(function(){
-
-    var comment_text_input = $("#id_comment_text");
-
-    function set_comment_text(value) {
-      $("#preview-comment_text").text(value)
-    }
-    set_comment_text(comment_text_input.val())
-
-    comment_text_input.keyup(function(){
-      var new_text = $(this).val()
-      set_comment_text(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
-
-  });
-</script>
-
+{% block content %}
 
 {% if user.is_authenticated %}
-<section>
-  <hr class="hr12">
-  <h1>SciPost Reply to Report Page</h1>
-
-  {% if not is_author %}
-    <h3>(you are not identified as an author of this Submission; if you are, you can claim authorship on your Personal Page)</h3>
-  {% else %}
-
-  <hr class="hr12">
-  <h1>The Submission concerned:</h1>
-  {{ report.submission.header_as_table }}
-
-  <h3>Abstract:</h3>
-  <p>{{ report.submission.abstract }}</p>
-  <br>
-
-  <hr class="hr6">
-  <h2>The Report you wish to reply to:</h2>
-
-  {{ report.print_identifier }}
-  {{ report.print_contents }}
-
-
-  <hr class="hr6">
-  <h1>Your Reply to this Report:</h1>
-
-  <form enctype="multipart/form-data" action="{% url 'comments:reply_to_report' report_id=report.id %}" method="post">
-    {% csrf_token %}
-    {% load crispy_forms_tags %}
-    {% crispy form %}
-  </form>
-
-  <div class="row">
-    <div class="col-10">
-      <h3>Preview of your comment:</h3>
-      <p id="preview-comment_text"></p>
+    <div class="row">
+        <div class="col-12">
+            <h1 class="highlight">SciPost Reply to Report Page</h1>
+        </div>
     </div>
-  </div>
 
-  {% endif %}
-</section>
+    <div class="row">
+        <div class="col-12">
+            {% if not is_author %}
+                <h2>(you are not identified as an author of this Submission; if you are, you can claim authorship on your Personal Page)</h2>
+            {% else %}
+                <h2>The Submission concerned:</h2>
+
+                {% include 'submissions/_submission_summary.html' with submission=report.submission %}
+
+            </div>
+        </div>
+
+        {% include 'submissions/_single_public_report_without_comments.html' with report=report %}
+
+        <div class="row">
+            <div class="col-12">
+                <h2 class="highlight">Your Reply to this Report:</h2>
+                {% url 'comments:reply_to_report' report_id=report.id as add_comment_url %}
+                {% include 'comments/_add_comment_form.html' with url=add_comment_url form=form %}
+            {% endif %}
+        </div>
+    </div>
 {% endif %}
 
-{% endblock bodysup %}
+{% endblock content %}

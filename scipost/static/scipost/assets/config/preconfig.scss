@@ -6,10 +6,10 @@
 //
 $grid-gutter-width-base: 20px;
 $container-max-widths: (
-    sm: 768px,
-    md: 992px,
-    lg: 1200px,
-    xl: 1240px
+    sm: 728px,
+    md: 952px,
+    lg: 1160px,
+    xl: 1200px
 );
 
 .row {
@@ -24,17 +24,26 @@ $card-border-color: rgba(238, 238, 238, 0.5);
 
 // Colors
 //
+$scipost-light: #C3D7EE;
 $scipost-lightblue: #6884C2;
 $scipost-darkblue: #002b49;
 $scipost-orange: #FFA300;
+$green: #6ebb6e;
 
 $blue: $scipost-lightblue !default;
 $body-color: $scipost-darkblue !default;
+
+// breadcrumb
+//
+$breadcrumb-bg: #f9f9f9;
+$breadcrumb-active-color: $scipost-darkblue;
+$breadcrumb-divider-color: $scipost-orange;
 
 // Forms
 //
 $btn-padding-x: .5rem;
 $btn-padding-y: .25rem;
+$btn-padding-y-sm: .15rem;
 $btn-transition: none;
 $input-padding-x: .5rem;
 $input-padding-y: .25rem;
@@ -63,11 +72,17 @@ $font-size-h4: 0.8rem;
 $font-size-h5: 0.8rem;
 $font-size-h6: 0.8rem;
 
+$close-font-weight: 100;
+
+// Tables
+//
+$table-cell-padding: 0.25rem 0.5rem;
+
 
 // Navbar
 //
 $navbar-light-color: $scipost-darkblue !default;
 $navbar-light-hover-color: $scipost-darkblue !default;
 
-$input-border-radius: 0.15rem !default;
-$btn-border-radius: 0.15rem !default;
+$input-border-radius: 2px !default;
+$btn-border-radius: 2px !default;

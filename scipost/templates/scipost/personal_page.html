@@ -4,495 +4,503 @@
 
 {% block pagetitle %}: personal page{% endblock pagetitle %}
 
-{% block headsup %}
-
-{% load scipost_extras %}
-
-<script>
-  $(document).ready(function(){
-   $(".TabSection").hide();
-   $(".TabItem").attr("class", "TabItem inactive");
-   $("#AccountTab").attr("class", "TabItem active");
-   $("#Account").show();
-   $("#AccountTab").click(function(){
-    $(".TabItem").attr("class", "TabItem inactive");
-    $("#AccountTab").attr("class", "TabItem active");
-    $(".TabSection").hide();
-    $("#Account").show();
-   });
-   $("#EdActionTab").click(function(){
-    $(".TabItem").attr("class", "TabItem inactive");
-    $("#EdActionTab").attr("class", "TabItem active");
-    $(".TabSection").hide();
-    $("#EdActions").show();
-   });
-   $("#RefereeingTab").click(function(){
-    $(".TabItem").attr("class", "TabItem inactive");
-    $("#RefereeingTab").attr("class", "TabItem active");
-    $(".TabSection").hide();
-    $("#Refereeing").show();
-   });
-   $("#SubmissionsTab").click(function(){
-    $(".TabItem").attr("class", "TabItem inactive");
-    $("#SubmissionsTab").attr("class", "TabItem active");
-    $(".TabSection").hide();
-    $("#Submissions").show();
-   });
-   $("#CommentariesTab").click(function(){
-    $(".TabItem").attr("class", "TabItem inactive");
-    $("#CommentariesTab").attr("class", "TabItem active");
-    $(".TabSection").hide();
-    $("#Commentaries").show();
-   });
-   $("#ThesesTab").click(function(){
-    $(".TabItem").attr("class", "TabItem inactive");
-    $("#ThesesTab").attr("class", "TabItem active");
-    $(".TabSection").hide();
-    $("#Theses").show();
-   });
-   $("#CommentsTab").click(function(){
-    $(".TabItem").attr("class", "TabItem inactive");
-    $("#CommentsTab").attr("class", "TabItem active");
-    $(".TabSection").hide();
-    $("#Comments").show();
-   });
-   $("#AuthorRepliesTab").click(function(){
-    $(".TabItem").attr("class", "TabItem inactive");
-    $("#AuthorRepliesTab").attr("class", "TabItem active");
-    $(".TabSection").hide();
-    $("#AuthorReplies").show();
-   });
-  });
-</script>
-
-{% endblock headsup %}
-
 {% block content %}
 
 {% if 'Registered Contributors' not in user_groups %}
-<div class="row">
-    <div class="col-12">
-      <hr class="hr12">
-      <h3>Your credentials will soon be verified by an Editor.</h3>
-      <p>If accepted, you will become a registered Contributor, enabling you to submit, comment and vote.</p>
+
+    <div class="row">
+        <div class="col-12">
+          <hr class="hr12">
+          <h3>Your credentials will soon be verified by an Editor.</h3>
+          <p>If accepted, you will become a registered Contributor, enabling you to submit, comment and vote.</p>
+        </div>
     </div>
-</div>
 
 {% else %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="panel">
-            <h1>Welcome to your SciPost Personal Page, {{ appellation }}</h1>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        <ul class="personalTabMenu">
-            <li><a class="TabItem" id="AccountTab">Account</a></li>
-            {% if 'Editorial Administrators' in user_groups or 'Advisory Board' in user_groups or 'Editorial College' in user_groups or 'Vetting Editors' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
-                <li><a class="TabItem" id="EdActionTab">Editorial Actions</a></li>
-            {% endif %}
-            <li><a class="TabItem" id="RefereeingTab">Refereeing</a></li>
-            <li><a class="TabItem" id="SubmissionsTab">Submissions</a></li>
-            <li><a class="TabItem" id="CommentariesTab">Commentaries</a></li>
-            <li><a class="TabItem" id="ThesesTab">Theses</a></li>
-            <li><a class="TabItem" id="CommentsTab">Comments</a></li>
-            <li><a class="TabItem" id="AuthorRepliesTab">Author Replies</a></li>
-        </ul>
-    </div>
-</div>
-
-<hr>
-
-<div class="TabSection" id="Account">
     <div class="row">
         <div class="col-12">
-            <div class="panel">
-                <h2>Your Account</h2>
-            </div>
+            <h1 class="highlight">Welcome to your SciPost Personal Page, {{ appellation }}</h1>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-6">
-            <h3>Your personal details:</h3>
-            {{ contributor.private_info_as_table }}
-
-            <h3 class="mt-3">Your main discipline:</h3>
-            <ul><li>{{ contributor.discipline_as_string }}</li></ul>
-
-            <h3 class="mt-3">Your expertises:</h3>
-            {% if contributor.expertises %}
-                {{ contributor.expertises_as_ul }}
-            {% else %}
-                <p>You haven't listed your expertise(s).<br/>
-                Do so by <a href="{% url 'scipost:update_personal_data' %}">updating your personal data</a>
-                </p>
-            {% endif %}
-        </div>
-        <div class="col-md-6">
-            {% if 'SciPost Administrators' in user_groups %}
-                <h3>You are a SciPost Administrator.</h3>
-            {% endif %}
-            {% if 'Editorial Administrators' in user_groups %}
-                <h3>You are a SciPost Editorial Administrator.</h3>
-            {% endif %}
-            {% if 'Advisory Board' in user_groups %}
-                <h3>You are a member of the Advisory Board.</h3>
-            {% endif %}
-            {% if 'Editorial College' in user_groups %}
-                <h3>You are a member of the Editorial College.</h3>
-            {% endif %}
-            {% if 'Vetting Editors' in user_groups %}
-                <h3>You are a SciPost Vetting Editor.</h3>
-            {% endif %}
-            {% if 'Registered Contributors' in user_groups %}
-                <h3>You are a Registered Contributor.</h3>
-            {% endif %}
-            {% if 'Testers' in user_groups %}
-                <h3>You are a SciPost Tester.</h3>
-            {% endif %}
-            {% if 'Ambassadors' in user_groups %}
-                <h3>You are a SciPost Ambassador.</h3>
-            {% endif %}
-            {% if 'Junior Ambassadors' in user_groups %}
-                <h3>You are a SciPost Junior Ambassador.</h3>
-            {% endif %}
-
-            <h3 class="mt-3">Update your personal data or password</h3>
-
-            <ul>
-                <li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
-                <li><a href="{% url 'scipost:change_password' %}">Change your password</a></li>
-            </ul>
-        </div>
-    </div>
-
-        <hr>
-    <div class="row">
-        <div class="col-12">
-            <div class="panel">
-                <h2>Your Availability</h2>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-4 offset-md-1">
-            <p>To help with the editorial workflow, you can inform us of any periods during which you are unavailable. We will do our best to respect these.</p>
-            <h3 class="mb-3">Mark a period as unavailable:</h3>
-            <form action="{% url 'scipost:mark_unavailable_period' %}" method="post">
-                {% csrf_token %}
-        	    {{ unavailability_form|bootstrap }}
-            	<input class="btn btn-secondary" type="submit" value="Submit" />
-            </form>
-        </div>
-        <div class="col-md-4 offset-md-1">
-            {% if unavailabilities %}
-                <h3>Your unavailability periods in our records (YYYY-DD-MM):</h3>
-                <table class="availabilities">
-                    <tr>
-                        <th>Start</th>
-                        <th>End</th>
-                    </tr>
-                {% for unav in unavailabilities %}
-                    <tr>
-                        <td>{{ unav.start }}</td>
-                        <td>{{ unav.end }}</td>
-                    </tr>
-                {% endfor %}
-                </table>
-            {% else %}
-                <p>You don't have any upcoming unavailability periods on record.</p>
-            {% endif %}
-        </div>
-  </div>
-
-</div>
-
-
-{% if 'SciPost Administrators' in user_groups or 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups or 'Vetting Editors' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
-<div class="TabSection" id="EdActions">
 
     <div class="row">
         <div class="col-12">
-            <div class="panel">
-                <h2>Pending Editorial Actions</h2>
+            <div class="tab-nav-container">
+                <div class="tab-nav-inner">
+                    <!-- Nav tabs -->
+                    <ul class="nav btn-group personal-page-nav" role="tablist">
+                      <li class="nav-item btn btn-secondary">
+                        <a href="#account" class="nav-link active" data-toggle="tab">Account</a>
+                      </li>
+                      {% if 'SciPost Administrators' in user_groups or 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups or 'Advisory Board' in user_groups or 'Vetting Editors' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
+                          <li class="nav-item btn btn-secondary">
+                            <a href="#editorial-actions" class="nav-link" data-toggle="tab">Editorial Actions</a>
+                          </li>
+                      {% endif %}
+                      {% if perms.scipost.can_referee %}
+                          <li class="nav-item btn btn-secondary">
+                            <a class="nav-link" data-toggle="tab" href="#refereeing">Refereeing</a>
+                          </li>
+                      {% endif %}
+                      <li class="nav-item btn btn-secondary">
+                        <a class="nav-link" data-toggle="tab" href="#submissions">Submissions</a>
+                      </li>
+                      <li class="nav-item btn btn-secondary">
+                        <a class="nav-link" data-toggle="tab" href="#commentaries">Commentaries</a>
+                      </li>
+                      <li class="nav-item btn btn-secondary">
+                        <a class="nav-link" data-toggle="tab" href="#theses">Theses</a>
+                      </li>
+                      <li class="nav-item btn btn-secondary">
+                        <a class="nav-link" data-toggle="tab" href="#comments">Comments</a>
+                      </li>
+                      <li class="nav-item btn btn-secondary">
+                        <a class="nav-link" data-toggle="tab" href="#author-replies">Author Replies</a>
+                      </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        {% if 'SciPost Administrators' in user_groups or 'Advisory Board' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
-        <div class="col-md-4">
-            <h3>Registration actions</h3>
-            <ul>
-                {% if perms.scipost.can_vet_registration_requests %}
-                    <li><a href="{% url 'scipost:vet_registration_requests' %}">Vet Registration requests</a> ({{ nr_reg_to_vet }})</li>
-                    <li>Awaiting validation ({{ nr_reg_awaiting_validation }}) (no action necessary)</li>
-                {% endif %}
-                {% if perms.scipost.can_draft_registration_invitations %}
-                    <li><a href="{% url 'scipost:draft_registration_invitation' %}">Draft a Registration Invitation</a></li>
-                {% endif %}
-                {% if perms.scipost.can_manage_registration_invitations %}
-                    <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
-                {% endif %}
-            </ul>
+    <div class="tab-content">
+        <!-- Tab: Account -->
+        <div class="tab-pane active" id="account" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-grey">
+                        <div class="card-block">
+                            <h2 class="card-title mb-0">Your Account</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Your personal details:</h3>
+                    {{ contributor.private_info_as_table }}
 
-            {% if perms.scipost.can_manage_registration_invitations %}
-            <h3>Notifications</h3>
-            <ul>
-                <li><a href="{% url 'scipost:citation_notifications' %}">Manage citation notifications</a></li>
-            </ul>
-            {% endif %}
+                    <h3 class="mt-3">Your main discipline:</h3>
+                    <ul><li>{{ contributor.discipline_as_string }}</li></ul>
 
-            <h3>Email communications</h3>
-            <ul>
-                {% if perms.scipost.can_email_group_members %}
-                    <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
+                    <h3 class="mt-3">Your expertises:</h3>
+                    {% if contributor.expertises %}
+                        {{ contributor.expertises_as_ul }}
+                    {% else %}
+                        <p>You haven't listed your expertise(s).<br/>
+                        Do so by <a href="{% url 'scipost:update_personal_data' %}">updating your personal data</a>
+                        </p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    {% if 'SciPost Administrators' in user_groups %}
+                        <h3>You are a SciPost Administrator.</h3>
+                    {% endif %}
+                    {% if 'Editorial Administrators' in user_groups %}
+                        <h3>You are a SciPost Editorial Administrator.</h3>
+                    {% endif %}
+                    {% if 'Advisory Board' in user_groups %}
+                        <h3>You are a member of the Advisory Board.</h3>
+                    {% endif %}
+                    {% if 'Editorial College' in user_groups %}
+                        <h3>You are a member of the Editorial College.</h3>
+                    {% endif %}
+                    {% if 'Vetting Editors' in user_groups %}
+                        <h3>You are a SciPost Vetting Editor.</h3>
+                    {% endif %}
+                    {% if 'Registered Contributors' in user_groups %}
+                        <h3>You are a Registered Contributor.</h3>
+                    {% endif %}
+                    {% if 'Testers' in user_groups %}
+                        <h3>You are a SciPost Tester.</h3>
+                    {% endif %}
+                    {% if 'Ambassadors' in user_groups %}
+                        <h3>You are a SciPost Ambassador.</h3>
+                    {% endif %}
+                    {% if 'Junior Ambassadors' in user_groups %}
+                        <h3>You are a SciPost Junior Ambassador.</h3>
+                    {% endif %}
+
+                    <h3 class="mt-3">Update your personal data or password</h3>
+
+                    <ul>
+                        <li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
+                        <li><a href="{% url 'scipost:change_password' %}">Change your password</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-grey">
+                        <div class="card-block">
+                            <h2 class="card-title mb-0">Your Availability</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 offset-md-1">
+                    <p>To help with the editorial workflow, you can inform us of any periods during which you are unavailable. We will do our best to respect these.</p>
+                    <h3 class="mb-3">Mark a period as unavailable:</h3>
+                    <form action="{% url 'scipost:mark_unavailable_period' %}" method="post">
+                        {% csrf_token %}
+                	    {{ unavailability_form|bootstrap }}
+                    	<input class="btn btn-secondary" type="submit" value="Submit" />
+                    </form>
+                </div>
+                <div class="col-md-4 offset-md-1">
+                    {% if unavailabilities %}
+                        <h3>Your unavailability periods in our records (YYYY-DD-MM):</h3>
+                        <table class="availabilities">
+                            <tr>
+                                <th>Start</th>
+                                <th>End</th>
+                            </tr>
+                        {% for unav in unavailabilities %}
+                            <tr>
+                                <td>{{ unav.start }}</td>
+                                <td>{{ unav.end }}</td>
+                            </tr>
+                        {% endfor %}
+                        </table>
+                    {% else %}
+                        <p>You don't have any upcoming unavailability periods on record.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div><!-- End tab -->
+
+        {% if 'SciPost Administrators' in user_groups or 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups or 'Advisory Board' in user_groups or 'Vetting Editors' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
+            <!-- Tab: Editorial Actions -->
+            <div class="tab-pane" id="editorial-actions" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card card-grey">
+                            <div class="card-block">
+                                <h2 class="card-title mb-0">Pending Editorial Actions</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    {% if 'SciPost Administrators' in user_groups or 'Advisory Board' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
+                    <div class="col-md-4">
+                        <h3>Registration actions</h3>
+                        <ul>
+                            {% if perms.scipost.can_vet_registration_requests %}
+                                <li><a href="{% url 'scipost:vet_registration_requests' %}">Vet Registration requests</a> ({{ nr_reg_to_vet }})</li>
+                                <li>Awaiting validation ({{ nr_reg_awaiting_validation }}) (no action necessary)</li>
+                            {% endif %}
+                            {% if perms.scipost.can_draft_registration_invitations %}
+                                <li><a href="{% url 'scipost:draft_registration_invitation' %}">Draft a Registration Invitation</a></li>
+                            {% endif %}
+                            {% if perms.scipost.can_manage_registration_invitations %}
+                                <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
+                            {% endif %}
+                        </ul>
+
+                        {% if perms.scipost.can_manage_registration_invitations %}
+                        <h3>Notifications</h3>
+                        <ul>
+                            <li><a href="{% url 'scipost:citation_notifications' %}">Manage citation notifications</a></li>
+                        </ul>
+                        {% endif %}
+
+                        <h3>Email communications</h3>
+                        <ul>
+                            {% if perms.scipost.can_email_group_members %}
+                                <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
+                            {% endif %}
+                            {% if perms.scipost.can_email_particulars %}
+                                <li><a href="{% url 'scipost:send_precooked_email' %}">Send a precooked email</a></li>
+                                <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <div class="col-md-4">
+                        <h3>Vetting actions</h3>
+                        <ul>
+                            {% if perms.scipost.can_vet_commentary_requests %}
+                                <li><a href="{% url 'commentaries:vet_commentary_requests' %}">Vet Commentary Page requests</a> ({{ nr_commentary_page_requests_to_vet }})</li>
+                            {% endif %}
+                            {% if perms.scipost.can_vet_comments %}
+                                <li><a href="{% url 'comments:vet_submitted_comments' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
+                            {% endif %}
+                            {% if perms.scipost.can_vet_thesislink_requests %}
+                                <li><a href="{% url 'theses:unvetted_thesislinks' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
+                            {% endif %}
+                            {% if perms.scipost.can_vet_authorship_claims %}
+                                <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
+                            {% endif %}
+                            {% if perms.scipost.can_vet_submitted_reports %}
+                                <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+                            {% endif %}
+                        </ul>
+
+                        {% if perms.scipost.can_attend_VGMs %}
+                        <h3>Virtual General Meetings</h3>
+                        <ul>
+                            <li><a href="{% url 'virtualmeetings:VGMs' %}">List of VGMs</a></li>
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    {% if 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups %}
+                    <div class="col-md-4">
+                        <h3>Info</h3>
+                        <ul>
+                            <li><a href="{% url 'submissions:editorial_workflow' %}">How-to guide: summary of the editorial workflow</a></li>
+                        </ul>
+
+                        <h3>Submissions assignments</h3>
+                        <ul>
+                        {% if perms.scipost.can_view_pool %}
+                            <li><a href="{% url 'submissions:assignments' %}">Your assignments</a></li>
+                            <li><a href="{% url 'scipost:Fellow_activity_overview' %}">View assignments overview</a></li>
+                        {% endif %}
+                        {% if perms.scipost.can_assign_submissions %}
+                            <li>Assign Submissions via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_submissions_to_assign }})</li>
+                        {% endif %}
+                        {% if perms.scipost.can_take_charge_of_submissions %}
+                            <li>Accept or decline assignments via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_assignments_to_consider }})</li>
+                        {% endif %}
+                        </ul>
+
+                        <h3>Voting</h3>
+                        <ul>
+                            <li>Prepare Editorial Recommendations for voting via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_recommendations_to_prepare_for_voting }})</li>
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if active_assignments %}
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="highlight">Submissions for which you are Editor-in-charge</h3>
+                    </div>
+                    <div class="col-12">
+                        <ul class="list-group list-group-flush">
+                            {% for assignment in active_assignments %}
+                                <li class="list-group-item">
+                                    {% include 'submissions/_submission_card_eic_content.html' with submission=assignment.submission %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
                 {% endif %}
-                {% if perms.scipost.can_email_particulars %}
-                    <li><a href="{% url 'scipost:send_precooked_email' %}">Send a precooked email</a></li>
-                    <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
-                {% endif %}
-            </ul>
-        </div>
+            </div><!-- End tab -->
         {% endif %}
 
-        <div class="col-md-4">
-            <h3>Vetting actions</h3>
-            <ul>
-                {% if perms.scipost.can_vet_commentary_requests %}
-                    <li><a href="{% url 'commentaries:vet_commentary_requests' %}">Vet Commentary Page requests</a> ({{ nr_commentary_page_requests_to_vet }})</li>
-                {% endif %}
-                {% if perms.scipost.can_vet_comments %}
-                    <li><a href="{% url 'comments:vet_submitted_comments' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
-                {% endif %}
-                {% if perms.scipost.can_vet_thesislink_requests %}
-                    <li><a href="{% url 'theses:unvetted_thesislinks' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
-                {% endif %}
-                {% if perms.scipost.can_vet_authorship_claims %}
-                    <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
-                {% endif %}
-                {% if perms.scipost.can_vet_submitted_reports %}
-                    <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
-                {% endif %}
-            </ul>
+        {% if perms.scipost.can_referee %}
+            <!-- Tab: Refereeing -->
+            <div class="tab-pane" id="refereeing" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card card-grey">
+                            <div class="card-block">
+                                <h2 class="card-title">Refereeing Tasks</h2>
+                                <ul class="mb-0">
+                                    <li><a href="{% url 'submissions:accept_or_decline_ref_invitations' %}">Accept/decline refereeing invitations</a> ({{ nr_ref_inv_to_consider }})</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            {% if perms.scipost.can_attend_VGMs %}
-            <h3>Virtual General Meetings</h3>
-            <ul>
-                <li><a href="{% url 'virtualmeetings:VGMs' %}">List of VGMs</a></li>
-            </ul>
-            {% endif %}
-        </div>
-
-        {% if 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups %}
-        <div class="col-md-4">
-            <h3>Info</h3>
-            <ul>
-                <li><a href="{% url 'submissions:editorial_workflow' %}">How-to guide: summary of the editorial workflow</a></li>
-            </ul>
-
-            <h3>Submissions assignments</h3>
-            <ul>
-            {% if perms.scipost.can_view_pool %}
-                <li><a href="{% url 'submissions:assignments' %}">Your assignments</a></li>
-                <li><a href="{% url 'scipost:Fellow_activity_overview' %}">View assignments overview</a></li>
-            {% endif %}
-            {% if perms.scipost.can_assign_submissions %}
-                <li>Assign Submissions via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_submissions_to_assign }})</li>
-            {% endif %}
-            {% if perms.scipost.can_take_charge_of_submissions %}
-                <li>Accept or decline assignments via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_assignments_to_consider }})</li>
-            {% endif %}
-            </ul>
-
-            <h3>Voting</h3>
-            <ul>
-                <li>Prepare Editorial Recommendations for voting via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_recommendations_to_prepare_for_voting }})</li>
-            </ul>
-        </div>
+                <div class="row">
+                    <div class="col-12">
+                        <h3>Pending Refereeing Tasks:</h3>
+                    </div>
+                    <div class="col-12">
+                        <ul class="list-group list-group-flush">
+                        {% for task in pending_ref_tasks %}
+                            <li class="list-group-item">
+                                {% include 'submissions/_refereeing_invitation_card_content.html' with invitation=task %}
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item"><em>You do not have pending Refereering Tasks</em></li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div><!-- End tab -->
         {% endif %}
-    </div>
 
-    {% if active_assignments %}
-    <div class="row">
-        <div class="col-12">
-            <h3>Submissions for which you are Editor-in-charge</h3>
-            <ul>
-                {% for assignment in active_assignments %}
-                    {{ assignment.header_as_li_for_eic }}
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    {% endif %}
-</div>
-{% endif %}
-
-
-{% if perms.scipost.can_referee %}
-<div class="TabSection" id="Refereeing">
-    <div class="row">
-        <div class="col-12">
-            <div class="panel">
-                <h2>Refereeing Tasks</h2>
-                <ul class="mb-0">
-                    <li><a href="{% url 'submissions:accept_or_decline_ref_invitations' %}">Accept/decline refereeing invitations</a> ({{ nr_ref_inv_to_consider }})</li>
-                </ul>
+        <!-- Tab: Submissions -->
+        <div class="tab-pane" id="submissions" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-grey">
+                        <div class="card-block">
+                            <h2 class="card-title">Submissions</h2>
+                            <ul class="mb-0">
+                                {% if nr_submission_authorships_to_claim > 0 %}
+                                    <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_submission_authorships_to_claim}})</a></li>
+                                {% endif %}
+                                <li><a href="{% url 'submissions:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    {% if pending_ref_tasks %}
-    <div class="row">
-        <div class="col-12">
-            <h3>Pending Refereeing Tasks:</h3>
-            <ul>
-            {% for task in pending_ref_tasks %}
-                <li>{{ task.submission }}, due {{ task.submission.reporting_deadline }}. &nbsp;
-                    <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=task.submission.arxiv_identifier_w_vn_nr %}">Submit your Report</a> &nbsp;
-                    <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=task.submission.arxiv_identifier_w_vn_nr comtype='RtoE' referee_id=contributor.user.contributor.id %}">Write to the Editor-in-charge</a>.
-                </li>
-            {% endfor %}
-            </ul>
-        </div>
-    </div>
-    {% endif %}
-</div>
-{% endif %}
 
-<div class="TabSection" id="Submissions">
-    <div class="row">
-        <div class="col-12">
-            <div class="panel">
-                <h2>Submissions</h2>
-                <ul class="mb-0">
-                    {% if nr_submission_authorships_to_claim > 0 %}
-                        <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_submission_authorships_to_claim}})</a></li>
-                    {% endif %}
-                    <li><a href="{% url 'submissions:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></li>
-                </ul>
+            {# {% if own_submissions %}#}
+            <div class="row" id="mysubmissionslist">
+                <div class="col-12">
+                    <h3>Submissions for which you are identified as an author:</h3>
+                </div>
+                <div class="col-12">
+                    <ul class="list-group list-group-flush">
+                        {% for sub in own_submissions %}
+                            <li class="list-group-item">
+                                {% include 'submissions/_submission_card_author_content.html' with submission=sub current_user=request.user %}
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">
+                                <em>No Submissions found</em>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-        </div>
-    </div>
-    {% if own_submissions %}
-    <div class="row" id="mysubmissionslist">
-        <div class="col-12">
-            <h3>Submissions for which you are identified as an author:</h3>
-            <ul class="mt-3">
-                {% for sub in own_submissions %}
-                    {{ sub.header_as_li_for_authors }}
-                    {% if contributor.user.contributor == sub.submitted_by %}
-                        <p><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr comtype='AtoE' %}">Write to the Editor-in-charge</a>.</p>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    {% endif %}
-</div>
+            {# {% endif %}#}
+        </div><!-- End tab -->
 
-
-<div class="TabSection" id="Commentaries">
-    <div class="row">
-        <div class="col-12">
-            <div class="panel">
-                <h2>Commentaries</h2>
-                <ul class="mb-0">
-                    {% if nr_commentary_authorships_to_claim > 0 %}
-                        <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_commentary_authorships_to_claim}})</a></li>
-                    {% endif %}
-                    <li><a href="{% url 'commentaries:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
-                </ul>
+        <!-- Tab: Commentaries -->
+        <div class="tab-pane" id="commentaries" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-grey">
+                        <div class="card-block">
+                            <h2 class="card-title">Commentaries</h2>
+                            <ul class="mb-0">
+                                {% if nr_commentary_authorships_to_claim > 0 %}
+                                    <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_commentary_authorships_to_claim}})</a></li>
+                                {% endif %}
+                                <li><a href="{% url 'commentaries:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    {% if own_commentaries %}
-    <div class="row" id="mycommentarieslist">
-        <div class="col-12">
-            <h3>Commentaries for which you are identified as an author:</h3>
-            <ul>
-                {% for com in own_commentaries %}
-                {{ com.header_as_li }}
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    {% endif %}
-</div>
 
-
-<div class="TabSection" id="Theses">
-    <div class="row">
-        <div class="col-12">
-            <div class="panel">
-                <h2>Theses</h2>
-                <ul class="mb-0">
-                    {% if nr_thesis_authorships_to_claim > 0 %}
-                        <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_thesis_authorships_to_claim}})</a></li>
-                    {% endif %}
-                    <li><a href="{% url 'theses:request_thesislink' %}">Request a SciPost ThesisLink</a></li>
-                </ul>
+            <div class="row" id="mycommentarieslist">
+                <div class="col-12">
+                    <h3>Commentaries for which you are identified as an author:</h3>
+                </div>
+                <div class="col-12">
+                    <ul class="list-group list-group-flush">
+                        {% for com in own_commentaries %}
+                            <li class="list-group-item">
+                                {% include 'commentaries/_commentary_card_content.html' with commentary=com %}
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item"><em>No Commentaries found</em></li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-        </div>
-    </div>
-    {% if own_thesislinks %}
-    <div class="row" id="mytheseslist">
-        <div class="col-12">
-            <h3>Theses for which you are identified as an author:</h3>
-            <ul>
-                {% for thesis in own_thesislinks %}
-                    {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesis %}
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    {% endif %}
-</div>
+        </div><!-- End tab -->
 
-<div class="TabSection" id="Comments">
-    <div class="row">
-        <div class="col-12">
-            <div class="panel">
-                <h2>Your Comments</h2>
+        <!-- Tab: Theses -->
+        <div class="tab-pane" id="theses" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-grey">
+                        <div class="card-block">
+                            <h2 class="card-title">Theses</h2>
+                            <ul class="mb-0">
+                                {% if nr_thesis_authorships_to_claim > 0 %}
+                                    <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_thesis_authorships_to_claim}})</a></li>
+                                {% endif %}
+                                <li><a href="{% url 'theses:request_thesislink' %}">Request a SciPost ThesisLink</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="row" id="mycommentslist">
-        <div class="col-12">
-            <ul>
-                {% for own_comment in own_comments %}
-                    {{ own_comment.header_as_li }}
-                {% empty %}
-                    <li>You have not commented yet.</li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-</div>
 
-{% if own_authorreplies %}
-<div class="TabSection" id="AuthorReplies">
-    <div class="row">
-        <div class="col-12">
-            <div class="panel">
-                <h2>Your Author Replies</h2>
+            <div class="row" id="mytheseslist">
+                <div class="col-12">
+                    <h3>Theses for which you are identified as an author:</h3>
+                </div>
+                <div class="col-12">
+                    <ul class="list-group list-group-flush">
+                        {% for thesis in own_thesislinks %}
+                            <li class="list-group-item">
+                                {% include 'theses/_thesislink_card_content.html' with thesislink=thesis %}
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item"><em>No Theses found</em></li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-        </div>
+
+        </div><!-- End tab -->
+
+        <!-- Tab: Comments -->
+        <div class="tab-pane" id="comments" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-grey">
+                        <div class="card-block">
+                            <h2 class="card-title mb-0">Your Comments</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="mycommentslist">
+                <div class="col-12">
+                    <ul class="list-group list-group-flush">
+                        {% for own_comment in own_commentsx %}
+                            <li class="list-group-item">
+                                {% include 'comments/_comment_card_extended_content.html' with comment=own_comment %}
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item"><em>You have not commented yet.</em></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div><!-- End tab -->
+
+        <!-- Tab: Author Replies -->
+        <div class="tab-pane" id="author-replies" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-grey">
+                        <div class="card-block">
+                            <h2 class="card-title mb-0">Your Author Replies</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="myauthorreplieslist">
+                <div class="col-12">
+                    <ul class="list-group list-group-flush">
+                      {% for own_reply in own_authorreplies %}
+                          <li class="list-group-item">
+                              {% include 'comments/_comment_card_extended_content.html' with comment=own_reply %}
+                          </li>
+                      {% empty %}
+                          <li class="list-group-item"><em>You do not have Author Replies yet.</em></li>
+                      {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div><!-- End tab -->
     </div>
-    <div class="row" id="myauthorreplieslist">
-        <div class="col-12">
-            <ul>
-              {% for own_reply in own_authorreplies %}
-              {{ own_reply.header_as_li }}
-              {% endfor %}
-            </ul>
-        </div>
-    </div>
-</div>
-{% endif %}
 
 {% endif %}
 

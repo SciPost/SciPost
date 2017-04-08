@@ -1,15 +1,10 @@
-<div class="card-block">
-    <h3 class="card-title text-blue">By {{recommendation.submission.editor_in_charge.get_title_display}} {{recommendation.submission.editor_in_charge.user.first_name}} {{recommendation.submission.editor_in_charge.user.last_name}}, formulated on {{recommendation.date_submitted}}</h3>
+{% extends 'submissions/_recommendation_author_content.html' %}
 
-    <h3 class="pb-0">Remarks for authors</h3>
-    <p class="pl-md-3">{{recommendation.remarks_for_authors}}</p>
+{% block recommendation_header %}
+    <h3 class="card-title text-muted mb-3">By {{recommendation.submission.editor_in_charge.get_title_display}} {{recommendation.submission.editor_in_charge.user.first_name}} {{recommendation.submission.editor_in_charge.user.last_name}}, formulated on {{recommendation.date_submitted}}</h3>
+{% endblock %}
 
-    <h3 class="pb-0">Requested changes</h3>
-    <p class="pl-md-3">{{recommendation.requested_changes}}</p>
-
+{% block recommendation_before_recommendation %}
     <h3 class="pb-0">Remarks for Editorial College</h3>
     <p class="pl-md-3">{{recommendation.remarks_for_editorial_college}}</p>
-
-    <h3 class="pb-0">Recommendation</h3>
-    <p class="pl-md-3 mb-0">{{recommendation.get_recommendation_display}}</p>
-</div>
+{% endblock %}

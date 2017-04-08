@@ -1,98 +1,36 @@
-{% extends 'scipost/base.html' %}
-
-{% block pagetitle %}: Submissions by status{% endblock pagetitle %}
-
-{% block bodysup %}
-
-<script>
-$(document).ready(function(){
-
-  $('#ref_reason').hide();
-
-  $('#id_accept').on('change', function() {
-      if ($('#id_accept_1').is(':checked')) {
-          $('#ref_reason').show();
-      }
-      else {
-          $('#ref_reason').hide();
-      }
-    });
-
-  $(".submitRemarkForm").hide();
-
-  $(".submitRemarkButton").click( function() {
-     $(this).next("div").toggle();
-  });
-  });
-
-</script>
+{% extends 'submissions/_pool_base.html' %}
 
 {% load guardian_tags %}
 {% load scipost_extras %}
 {% load submissions_extras %}
 
+{% block pagetitle %}: Submissions by status{% endblock pagetitle %}
 
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>SciPost Submissions with status {{ status }}</h1>
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <span class="breadcrumb-item">Status: {{status}}</span>
+{% endblock %}
+
+{% block content %}
+
+{% with is_ECAdmin=request.user|is_in_group:'Editorial Administrators' %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">SciPost Submissions with status {{status}}</h1>
     </div>
-  </div>
+</div>
 
-  <ul>
-    {% for sub in submissions_of_status %}
-    {% if request.user|is_not_author_of_submission:sub.arxiv_identifier_w_vn_nr %}
-    <br/>
-    {{ sub.header_as_li_for_Fellows }}
-    {% if sub.remark_set.all %}
-    <h4>Remarks on this submission:</h4>
-    <ul>
-      {% for rem in sub.remark_set.all %}
-      {{ rem.as_li }}
-      {% endfor %}
-    </ul>
-    {% endif %}
-    <button class="submitRemarkButton" id="remarkButton{{ submission.id }}">Add a remark on this Submission</button>
-    <div class="submitRemarkForm" id="remarkForm{{ submission.id }}">
-      <form action="{% url 'submissions:add_remark' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}" method="post">
-	{% csrf_token %}
-	{{ remark_form.as_p }}
-	<input type="submit" value="Submit" />
-      </form>
+<div class="row">
+    <div class="col-12">
+        <!-- Submissions list -->
+        {% for sub in submissions_of_status %}
+            <div class="card card-outline-secondary mt-1">
+                {% include 'submissions/_submission_card_in_pool.html' with submission=sub remark_form=remark_form is_ECAdmin=is_ECAdmin %}
+            </div>
+        {% endfor %}
     </div>
-    {% get_obj_perms request.user for sub as "sub_perms" %}
-    {% if "can_take_editorial_actions" in sub_perms or request.user|is_in_group:'Editorial Administrators' %}
-    <h4><a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">
-      Go to this Submission's Editorial Page</a></h4>
-    {% endif %}
-    {% if perms.scipost.can_assign_submissions %}
-    {% if sub.editorialassignment_set.all %}
-    <h4>EIC Assignment requests:</h4>
-    <ul>
-      {% for assignment in sub.editorialassignment_set.all %}
-      {{ assignment.info_as_li }}
-      {% endfor %}
-    </ul>
-    {% endif %}
-    {% if sub.editor_in_charge == None %}
-    <h4>Actions:</h4>
-    <ul>
-      <li><a href="{% url 'submissions:assign_submission' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Send a new assignment request</a></li>
-      <li><a href="{% url 'submissions:assignment_failed' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
-    </ul>
-    {% endif %}
-    {% endif %}
-    {% if request.user|is_in_group:'Editorial Administrators' %}
-    <h4><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a></h4>
-    {% if sub.status == 'accepted' %}
-    <h4>After proofs have been accepted, you can
-      <a href="{% url 'journals:initiate_publication' %}">initiate the publication process</a> (leads to the validation page)</h4>
-    {% endif %}
-    {% endif %}
-    {% endif %}
-    {% endfor %}
-  </ul>
+</div>
+{% endwith %}
 
-</section>
-
-{% endblock bodysup %}
+{% endblock content %}

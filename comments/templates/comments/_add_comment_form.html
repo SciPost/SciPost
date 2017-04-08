@@ -1,0 +1,35 @@
+<script>
+  $(document).ready(function(){
+
+    var comment_text_input = $("#id_comment_text");
+
+    function set_comment_text(value) {
+      $("#preview-comment_text").text(value)
+    }
+    set_comment_text(comment_text_input.val())
+
+    comment_text_input.keyup(function(){
+      var new_text = $(this).val()
+      set_comment_text(new_text)
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    })
+
+  });
+</script>
+
+<div class="row">
+    <div class="col-12">
+        <form enctype="multipart/form-data" action="{{url}}" method="post">
+            {% csrf_token %}
+            {% load crispy_forms_tags %}
+            {% crispy form %}
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-10">
+        <h3>Preview of your comment:</h3>
+        <p id="preview-comment_text"></p>
+    </div>
+</div>

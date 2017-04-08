@@ -1,8 +1,10 @@
 {% extends 'scipost/base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: submit report{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
 <script>
   $(document).ready(function(){
@@ -56,57 +58,58 @@
 
 
 {% if user.is_authenticated %}
-<section>
-  <div class="flex-greybox">
-    <h1>Submit a Report on a SciPost Submission</h1>
-  </div>
-
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h2>Submission summary and link</h2>
-  </div>
-  {{ submission.header_as_table }}
-  <br />
-  <h3>Abstract:</h3>
-  <p>{{ submission.abstract }}</p>
-
-</section>
-
-<section>
-  <hr class="hr12">
-  <div class="flex-greybox">
-    <h1>Your report:</h1>
-    <p>A preview of text areas will appear below as you type (you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
-  </div>
-  <form action="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
-    {% csrf_token %}
-    <table>
-      <ul>
-	{{ form.as_table }}
-      </ul>
-    </table>
-    <em>By clicking on Submit, you state that you abide by the <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.</em>
-    <input type="submit" value="Submit"/>
-  </form>
-
-  <hr class="hr6"/>
-  <div class="row">
-    <div class="col-10">
-      <h3>Preview of your report (text areas only):</h3>
-
-      <h4>Strengths:</h4>
-      <p id="preview-strengths"></p>
-      <h4>Weaknesses:</h4>
-      <p id="preview-weaknesses"></p>
-      <h4>Report:</h4>
-      <p id="preview-report"></p>
-      <h4>Requested changes:</h4>
-      <p id="preview-requested_changes"></p>
-
+    <div class="row">
+        <div class="col-12">
+            <h1 class="highlight">Submit a Report on a SciPost Submission</h1>
+        </div>
     </div>
-  </div>
 
-</section>
+    <div class="row">
+        <div class="col-12">
+            <h2>Submission</h2>
+            {% include 'submissions/_submission_summary.html' with submission=submission %}
+        </div>
+    </div>
+
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-grey">
+                <div class="card-block">
+                    <h1>Your report:</h1>
+                    <p class="mb-0">A preview of text areas will appear below as you type (you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
+                </div>
+            </div>
+            <form action="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+                {% csrf_token %}
+                {{ form|bootstrap:'3,9' }}
+                <input class="btn btn-primary" type="submit" value="Submit your report"/>
+                <div class="mt-2">
+                    <em>By clicking on Submit, you state that you abide by the <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.</em>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <h3>Preview of your report (text areas only):</h3>
+
+            <h4>Strengths:</h4>
+            <p class="p-2" id="preview-strengths"></p>
+
+            <h4>Weaknesses:</h4>
+            <p class="p-2" id="preview-weaknesses"></p>
+
+            <h4>Report:</h4>
+            <p class="p-2" id="preview-report"></p>
+
+            <h4>Requested changes:</h4>
+            <p class="p-2" id="preview-requested_changes"></p>
+        </div>
+    </div>
+
 {% endif %}
 
-{% endblock bodysup %}
+{% endblock %}

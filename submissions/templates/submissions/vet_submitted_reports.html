@@ -1,6 +1,8 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/_pool_base.html' %}
 
 {% block pagetitle %}: vet reports{% endblock pagetitle %}
+
+{% load bootstrap %}
 
 {% block headsup %}
 
@@ -9,7 +11,7 @@ $(document).ready(function(){
 
   $('#refusal').hide();
 
-  $('#id_action_option').on('change', function() {
+  $('[name="action_option"]').on('change', function() {
       if ($('#id_action_option_1').is(':checked')) {
           $('#refusal').show();
       }
@@ -22,46 +24,46 @@ $(document).ready(function(){
 
 {% endblock headsup %}
 
-{% block bodysup %}
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <span class="breadcrumb-item">Vet Reports</span>
+{% endblock %}
 
-<section>
-  {% if not report_to_vet %}
-  <h1>There are no Reports for you to vet.</h1>
+{% block content %}
 
-  {% else %}
+<div class="row">
+    <div class="col-12">
+        {% if not report_to_vet %}
+            <h1>There are no Reports for you to vet.</h1>
+        {% else %}
+            <h1 class="highlight">SciPost Report to vet:</h1>
 
-  <h1>SciPost Report to vet:</h1>
+            <h2 class="mb-2">Submission associated to Report:</h2>
+            <div class="row">
+                <div class="col-12">
+                    {% include 'submissions/_submission_summary_short.html' with submission=report_to_vet.submission %}
+                </div>
+            </div>
 
-  <br>
-  <hr>
-  <h3>Submission associated to Report:</h3>
-  {{ report_to_vet.submission.header_as_table }}
-  <br />
-  <h4>Abstract:</h4>
-  <p>{{ report_to_vet.submission.abstract }}</p>
-  <hr style="border-style: dotted;" />
-  <div class="flex-greybox">
-    <h3>Report to vet:</h3>
-  </div>
-  {{ report_to_vet.print_contents_for_editors|linebreaks }}
+            <h2 class="mb-2">Report to vet:</h2>
 
-  <hr class="hr6"/>
-  <div class="flex-greaybox">
-    <h2>Please vet this Report:</h2>
-  </div>
-  <form action="{% url 'submissions:vet_submitted_report_ack' report_id=report_to_vet.id %}" method="post">
-    {% csrf_token %}
-    {{ form.action_option }}
-    <div id="refusal">
-      <ul>
-	<li>Refusal reason: {{ form.refusal_reason }}</li>
-	<li>{{ form.email_response_field }}</li>
-      </ul>
+            {% include 'submissions/_single_public_report_without_comments.html' with report=report_to_vet %}
+
+            <hr class="small">
+            <h2>Please vet this Report:</h2>
+            <form action="{% url 'submissions:vet_submitted_report_ack' report_id=report_to_vet.id %}" method="post">
+                {% csrf_token %}
+                {{ form.action_option|bootstrap }}
+                <div class="col-md-6" id="refusal">
+                    {{ form.refusal_reason|bootstrap }}
+                    {{ form.email_response_field|bootstrap }}
+                </div>
+                <input class="btn btn-secondary" type="submit" value="Submit" />
+            </form>
+
+        {% endif %}
     </div>
-    <input type="submit" value="Submit" />
-  </form>
+</div>
 
-  {% endif %}
-</section>
-
-{% endblock bodysup %}
+{% endblock content %}

@@ -1,0 +1,22 @@
+.table {
+    th,
+    td {
+    padding: $table-cell-padding;
+        vertical-align: middle;
+    }
+}
+
+
+.table-invitations {
+    background-color: #f4f4f4;
+}
+
+table.submission td {
+    padding: 0.1em 0.7em;
+
+    &:first-child {
+        padding-left: 0;
+        padding-right: 1em;
+        min-width: 150px;
+    }
+}

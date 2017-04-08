@@ -1,0 +1,50 @@
+.nav.btn-group .nav-item {
+    padding: 0 !important;
+}
+
+.nav > .btn {
+    border-radius: 1.4px;
+}
+
+.tab-nav-container {
+    border-bottom: 3px solid $scipost-darkblue;
+    text-align: center;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+
+    .tab-nav-inner {
+        display: inline-block;
+    }
+}
+
+.nav.personal-page-nav {
+    .nav-item {
+        background-color: transparent;
+        color: $scipost-lightblue;
+        border: 0;
+        margin-bottom: -3px;
+
+        .nav-link.active {
+            text-decoration: underline;
+            color: $scipost-darkblue;
+
+            &:before {
+                border-bottom: 11px solid $scipost-darkblue;
+                border-left: 11px solid transparent;
+                border-right: 11px solid transparent;
+                content: "";
+                display: inline-block;
+                position: absolute;
+                right: 40%;
+                bottom: 3px;
+            }
+        }
+
+        a {
+            padding-top: 0.5rem;
+            padding-bottom: 1.5rem;
+        }
+    }
+}

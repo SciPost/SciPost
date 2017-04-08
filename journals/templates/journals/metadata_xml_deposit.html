@@ -22,7 +22,7 @@
   <h3>Response text:</h3>
   <p>{{ response_text|linebreaks }}</p>
 
-  <h3><a href="{% url 'scipost:publication_detail' doi_string=publication.doi_string %}">return to the publication's page</a></h3>
+  <h3><a href="{{publication.get_absolute_url}}">return to the publication's page</a></h3>
 
 </section>
 

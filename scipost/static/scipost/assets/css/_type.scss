@@ -21,16 +21,36 @@ h1, h2, h3, h4, h5, h6 {
 
 .highlight {
     background-color: #f4f4f4;
-    margin: 10px 0;
+    border-radius: 1.4px;
+    border: 1px solid #f1f1f1;
 
     &.tight {
         display: inline-block;
         padding: 3px 5px;
     }
 }
+.highlight-inline {
+    padding: 0.15rem 0.3rem;
+    background-color: #f4f4f4;
+    border-radius: 0.15rem;
+    color: #6884C2;
+}
+
+.highlight,
+.highlight-empty {
+    margin: 10px 0;
+}
+
 h1.highlight,
-h2.highlight {
+h1.highlight-empty,
+h2.highlight,
+h2.highlight-empty {
     padding: 15px;
+}
+
+h3.highlight,
+h3.highlight-empty {
+    padding: 10px;
 }
 
 hr,

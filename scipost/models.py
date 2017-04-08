@@ -1,81 +1,32 @@
 import datetime
 
-from django import forms
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import Q
 from django.template import Template, Context
 from django.utils import timezone
-from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 from django_countries.fields import CountryField
 
+from .behaviors import TimeStampedModel
 from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
-    disciplines_dict, subject_areas_dict
-from .db.fields import AutoDateTimeField
-
-
-class ChoiceArrayField(ArrayField):
-    """
-    A field that allows us to store an array of choices.
-    Uses Django 1.9's postgres ArrayField
-    and a MultipleChoiceField for its formfield.
-    """
-
-    def formfield(self, **kwargs):
-        defaults = {
-            'form_class': forms.MultipleChoiceField,
-            'widget': forms.CheckboxSelectMultiple,
-            'choices': self.base_field.choices,
-        }
-        defaults.update(kwargs)
-        return super(ArrayField, self).formfield(**defaults)
-
-
-CONTRIBUTOR_STATUS = (
-    # status determine the type of Contributor:
-    # 0: newly registered (unverified; not allowed to submit, comment or vote)
-    # 1: contributor has been vetted through
-    #
-    # Negative status denotes rejected requests or:
-    # -1: not a professional scientist (>= PhD student in known university)
-    # -2: other account already exists for this person
-    # -3: barred from SciPost (abusive behaviour)
-    # -4: disabled account (deceased)
-    (0, 'newly registered'),
-    (1, 'normal user'),
-    (-1, 'not a professional scientist'),
-    (-2, 'other account already exists'),
-    (-3, 'barred from SciPost'),
-    (-4, 'account disabled'),
-    )
-
-TITLE_CHOICES = (
-    ('PR', 'Prof.'),
-    ('DR', 'Dr'),
-    ('MR', 'Mr'),
-    ('MRS', 'Mrs'),
-    )
-title_dict = dict(TITLE_CHOICES)
-
-
-class TimeStampedModel(models.Model):
-    """
-    All objects should inherit from this abstract model.
-    This will ensure the creation of created and modified
-    timestamps in the objects.
-    """
-    created = models.DateTimeField(default=timezone.now)
-    latest_activity = AutoDateTimeField(default=timezone.now)
-
-    class Meta:
-        abstract = True
+                       subject_areas_dict, CONTRIBUTOR_STATUS, TITLE_CHOICES,\
+                       INVITATION_STYLE, INVITATION_TYPE,\
+                       INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
+                       AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS,\
+                       PARTNER_TYPES, PARTNER_STATUS,\
+                       SPB_MEMBERSHIP_AGREEMENT_STATUS, SPB_MEMBERSHIP_DURATION
+from .fields import ChoiceArrayField
+from .managers import FellowManager
 
 
 def get_sentinel_user():
-    '''Fallback user for models relying on Contributor that is being deleted.'''
+    '''
+    Temporary fix: eventually the 'to-be-removed-Contributor' should be
+    status: "deactivated" and anonymized.
+    Fallback user for models relying on Contributor that is being deleted.
+    '''
     user, new = User.objects.get_or_create(username='deleted')
     return Contributor.objects.get_or_create(status=-4, user=user)[0]
 
@@ -116,8 +67,12 @@ class Contributor(models.Model):
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
 
+    def get_formal_display(self):
+        return '%s %s %s' % (self.get_title_display(), self.user.first_name, self.user.last_name)
+
     def get_title(self):
-        return title_dict[self.title]
+        # Please use get_title_display(). To be removed in future
+        return self.get_title_display()
 
     def is_currently_available(self):
         unav_periods = UnavailabilityPeriod.objects.filter(contributor=self)
@@ -145,7 +100,7 @@ class Contributor(models.Model):
             </table>
         ''')
         context = Context({
-            'title': title_dict[self.title],
+            'title': self.get_title_display(),
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,
             'email': self.user.email,
@@ -174,7 +129,7 @@ class Contributor(models.Model):
             </table>
         ''')
         context = Context({
-                'title': title_dict[self.title],
+                'title': self.get_title_display(),
                 'first_name': self.user.first_name,
                 'last_name': self.user.last_name,
                 'email': self.user.email,
@@ -187,7 +142,8 @@ class Contributor(models.Model):
         return template.render(context)
 
     def discipline_as_string(self):
-        return disciplines_dict[self.discipline]
+        # Redundant, to be removed in future
+        return self.get_discipline_display()
 
     def expertises_as_ul(self):
         output = '<ul>'
@@ -288,20 +244,6 @@ class Remark(models.Model):
 # Invitations #
 ###############
 
-INVITATION_TYPE = (
-    ('F', 'Editorial Fellow'),
-    ('C', 'Contributor'),
-    ('R', 'Refereeing'),
-    ('ci', 'cited in submission'),
-    ('cp', 'cited in publication'),
-    )
-
-INVITATION_STYLE = (
-    ('F', 'formal'),
-    ('P', 'personal'),
-    )
-
-
 class DraftInvitation(models.Model):
     """
     Draft of an invitation, filled in by an officer.
@@ -310,7 +252,8 @@ class DraftInvitation(models.Model):
     first_name = models.CharField(max_length=30, default='')
     last_name = models.CharField(max_length=30, default='')
     email = models.EmailField()
-    invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE, default='C')
+    invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE,
+                                       default=INVITATION_CONTRIBUTOR)
     cited_in_submission = models.ForeignKey('submissions.Submission',
                                             on_delete=models.CASCADE,
                                             blank=True, null=True)
@@ -335,14 +278,16 @@ class RegistrationInvitation(models.Model):
     first_name = models.CharField(max_length=30, default='')
     last_name = models.CharField(max_length=30, default='')
     email = models.EmailField()
-    invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE, default='C')
+    invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE,
+                                       default=INVITATION_CONTRIBUTOR)
     cited_in_submission = models.ForeignKey('submissions.Submission',
                                             on_delete=models.CASCADE,
                                             blank=True, null=True)
     cited_in_publication = models.ForeignKey('journals.Publication',
                                              on_delete=models.CASCADE,
                                              blank=True, null=True)
-    message_style = models.CharField(max_length=1, choices=INVITATION_STYLE, default='F')
+    message_style = models.CharField(max_length=1, choices=INVITATION_STYLE,
+                                     default=INVITATION_FORMAL)
     personal_message = models.TextField(blank=True, null=True)
     invitation_key = models.CharField(max_length=40, default='')
     key_expires = models.DateTimeField(default=timezone.now)
@@ -381,13 +326,6 @@ class CitationNotification(models.Model):
         return text
 
 
-AUTHORSHIP_CLAIM_STATUS = (
-    (1, 'accepted'),
-    (0, 'not yet vetted (pending)'),
-    (-1, 'rejected'),
-)
-
-
 class AuthorshipClaim(models.Model):
     claimant = models.ForeignKey(Contributor,
                                  on_delete=models.CASCADE,
@@ -404,15 +342,8 @@ class AuthorshipClaim(models.Model):
     vetted_by = models.ForeignKey(Contributor,
                                   on_delete=models.CASCADE,
                                   blank=True, null=True)
-    status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS, default=0)
-
-
-SCIPOST_FROM_ADDRESSES = (
-    ('Admin', 'SciPost Admin <admin@scipost.org>'),
-    ('J.-S. Caux', 'J.-S. Caux <jscaux@scipost.org>'),
-    ('J. van Wezel', 'J. van Wezel <vanwezel@scipost.org>'),
-)
-SciPost_from_addresses_dict = dict(SCIPOST_FROM_ADDRESSES)
+    status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS,
+                                      default=AUTHORSHIP_CLAIM_PENDING)
 
 
 class PrecookedEmail(models.Model):
@@ -447,26 +378,6 @@ class AffiliationObject(models.Model):
 # Supporting Partners Board #
 #############################
 
-PARTNER_TYPES = (
-    ('Int. Fund. Agency', 'International Funding Agency'),
-    ('Nat. Fund. Agency', 'National Funding Agency'),
-    ('Nat. Library', 'National Library'),
-    ('Univ. Library', 'University Library'),
-    ('Res. Library', 'Research Library'),
-    ('Consortium', 'Consortium'),
-    ('Foundation', 'Foundation'),
-    ('Individual', 'Individual'),
-)
-partner_types_dict = dict(PARTNER_TYPES)
-
-PARTNER_STATUS = (
-    ('Prospective', 'Prospective'),
-    ('Active', 'Active'),
-    ('Inactive', 'Inactive'),
-)
-partner_status_dict = dict(PARTNER_STATUS)
-
-
 class SupportingPartner(models.Model):
     """
     Supporting Partners.
@@ -480,25 +391,7 @@ class SupportingPartner(models.Model):
     contact_person = models.ForeignKey(Contributor, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.institution_acronym + ' (' + partner_status_dict[self.status] + ')'
-
-
-SPB_MEMBERSHIP_AGREEMENT_STATUS = (
-    ('Submitted', 'Request submitted by Partner'),
-    ('Pending', 'Sent to Partner, response pending'),
-    ('Signed', 'Signed by Partner'),
-    ('Honoured', 'Honoured: payment of Partner received'),
-)
-SPB_membership_agreement_status_dict = dict(SPB_MEMBERSHIP_AGREEMENT_STATUS)
-
-SPB_MEMBERSHIP_DURATION = (
-    (datetime.timedelta(days=365), '1 year'),
-    (datetime.timedelta(days=730), '2 years'),
-    (datetime.timedelta(days=1095), '3 years'),
-    (datetime.timedelta(days=1460), '4 years'),
-    (datetime.timedelta(days=1825), '5 years'),
-)
-spb_membership_duration_dict = dict(SPB_MEMBERSHIP_DURATION)
+        return self.institution_acronym + ' (' + self.get_status_display() + ')'
 
 
 class SPBMembershipAgreement(models.Model):
@@ -515,7 +408,7 @@ class SPBMembershipAgreement(models.Model):
 
     def __str__(self):
         return (str(self.partner) +
-                ' [' + spb_membership_duration_dict[self.duration] +
+                ' [' + self.get_duration_display() +
                 ' from ' + self.start_date.strftime('%Y-%m-%d') + ']')
 
 
@@ -523,26 +416,12 @@ class SPBMembershipAgreement(models.Model):
 # Static info models #
 ######################
 
-class FellowManager(models.Manager):
-    def active(self, *args, **kwargs):
-        today = datetime.date.today()
-        return self.filter(
-            Q(start_date__lte=today, until_date__isnull=True) |
-            Q(start_date__isnull=True, until_date__gte=today) |
-            Q(start_date__lte=today, until_date__gte=today) |
-            Q(start_date__isnull=True, until_date__isnull=True),
-            **kwargs).order_by('contributor__user__last_name')
-
-
 class EditorialCollege(models.Model):
     '''A SciPost Editorial College for a specific discipline.'''
     discipline = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.discipline
-
-    def active_fellowships(self):
-        return self.fellowships.current_fellowships()
 
 
 class EditorialCollegeFellowship(TimeStampedModel):
@@ -554,6 +433,7 @@ class EditorialCollegeFellowship(TimeStampedModel):
                                     related_name='+')
     college = models.ForeignKey('scipost.EditorialCollege', on_delete=models.CASCADE,
                                 related_name='fellowships')
+    affiliation = models.CharField(max_length=255, blank=True)
     start_date = models.DateField(null=True, blank=True)
     until_date = models.DateField(null=True, blank=True)
 

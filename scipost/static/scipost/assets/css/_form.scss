@@ -26,3 +26,19 @@ textarea {
     width: 800px;
     max-width: 100%;
 }
+
+.radio-list label {
+    margin: 0;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1.25;
+    background-color: #fff;
+    background-image: none;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.15rem;
+}

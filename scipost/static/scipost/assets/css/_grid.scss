@@ -17,3 +17,10 @@ img {
 .col-md-0 {
     display: none;
 }
+
+footer.secondary {
+    color: $scipost-darkblue;
+    background: transparent;
+    border-top: 1px solid $scipost-darkblue;
+    text-align: center;
+}

@@ -6,3 +6,56 @@
     cursor: pointer;
     font-family: inherit;
 }
+
+.category-group,
+.voting-group {
+    border-radius: 0.05rem;
+
+    .btn {
+        color: #fff;
+        box-shadow: 0 1px 1px 0 #ccc;
+        border-color: #ccc;
+        margin: 0;
+        font-size: 0.7rem;
+        border-radius: 0.05rem;
+        cursor: default;
+
+        &.agree {
+            background-color: $scipost-darkblue;
+        }
+        &.neutral {
+            background-color: $scipost-lightblue;
+        }
+        &.disagree {
+            background-color: $red;
+        }
+    }
+
+    &.small .btn {
+        font-size: 0.55rem;
+    }
+
+    form .btn {
+        cursor: pointer;
+
+        &.agree:hover {
+            background-color: #004f86;
+        }
+        &.neutral:hover {
+            background-color: #045f9e;
+        }
+        &.disagree:hover {
+            background-color: #c9302c;
+        }
+    }
+}
+
+.category-group .btn {
+    color: #333;
+    background-color: #fafafa;
+
+    &.name {
+        background-color: #ddd;
+        color: #002b49;
+    }
+}

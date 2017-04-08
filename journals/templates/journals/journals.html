@@ -6,9 +6,7 @@
 
 <div class="row">
     <div class="col-12">
-      <div class="panel">
-        <h1>SciPost Physics Journals</h1>
-      </div>
+        <h1 class="highlight">SciPost Physics Journals</h1>
     </div>
 </div>
 <div class="row">
@@ -18,11 +16,10 @@
 </div>
 
 <div class="row">
-    <div class="col-12 col-md-6">
-        {# <hr>#}
-        <div class="SciPostPhysicsBanner">
-            <h1><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h1>
-        </div>
+    <div class="col-md-6">
+        <h1 class="banner">
+            <a href="{% url 'scipost:landing_page' 'SciPostPhys' %}">SciPost Physics</a>
+        </h1>
         <div class="py-2">
             <p>SciPost Physics publishes outstanding-quality research articles in all domains and subject areas of Physics.</p>
             <p>The journal accepts three types of content: Letters, Articles and Reviews.</p>
@@ -32,70 +29,41 @@
         </div>
     </div>
 
-    <div class="col-12 col-md-6">
-        <div class="row">
-            <div class="col-12">
-                {# <hr>#}
-                <div class="SciPostPhysicsBanner">
-                    <h1>SciPost Physics Select</h1>
-                </div>
-                <div class="py-2">
-                    <p>SciPost Physics Select publishes articles of superlative quality in the field of Physics.</p>
-                    <p>Authors cannot submit directly to this Journal; SPS papers are editorially selected from the most outstanding Submissions to SciPost Physics.</p>
-                    <p style="color: red;"><em>Coming soon!</em></p>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12">
-                {# <hr>#}
-                <div class="SciPostPhysicsBanner">
-                    <h1>SciPost Physics Lecture Notes</h1>
-                </div>
-                <div class="py-2">
-                  <p>Research-level didactic material in all domains and subject areas of Physics.</p>
-                  <p style="color: red;">Open for submission!</p>
-                </div>
-            </div>
+    <div class="col-md-6">
+        <h1 class="banner">
+            <a href="{% url 'journal:about' 'SciPostPhysProc' %}">SciPost Physics Proceedings</a>
+        </h1>
+        <div class="py-2">
+          <p style="color: red;">New!</p>
+            <p>SciPost Physics Proceedings is a premium-quality, two-way open access, peer-witnessed refereed Journal for the general field of Physics.</p>
+            <p>It aims at providing a high-quality, openly accessible publishing venue for conference/workshop/school proceedings.</p>
+            <p>SciPost Physics Proceedings publishes articles in the domains of Experimental, Theoretical and Computational physics, in all specializations.</p>
+	  <p>Interested in setting up a Proceedings Issue? Contact our <a href="mailto:proceedings@scipost.org">proceedings administrators</a>.</p>
         </div>
     </div>
 </div>
 
-{% comment %} <div class="row">
-    <div class="col-12">
-        <hr>
-        <div class="SciPostPhysicsBanner">
-            <h3><a href="{% url 'journals:scipost_physics' %}">SciPost Physics</a></h3>
-        </div>
-        <div class="py-2">
-            <p>SciPost Physics publishes outstanding-quality research articles in all domains and subject areas of Physics.</p>
-            <p>The journal accepts three types of content: Letters, Articles and Reviews.</p>
-            <p>Letters report broad-interest, significant breakthroughs in Physics, of interest and importance to researchers in multiple subject areas.</p>
-            <p>Articles provide in-depth, detailed reports of groundbreaking research within one or more subject areas.</p>
-            <p>Reviews are short pieces taking a snapshot of a research area, written by recognized leaders in the field, providing a critical assessment of current frontline research and providing pointers towards future opportunities.</p>
-        </div>
-    </div>
-</div>{% endblock %}
-
-{% comment %} <div class="row">
-    <div class="col-12">
-        <hr>
-        <div class="SciPostPhysicsBanner">
-            <h3>SciPost Physics Select</h3>
-        </div>
+<div class="row">
+    <div class="col-md-6">
+        <h1 class="banner">SciPost Physics Select</h1>
         <div class="py-2">
             <p>SciPost Physics Select publishes articles of superlative quality in the field of Physics.</p>
             <p>Authors cannot submit directly to this Journal; SPS papers are editorially selected from the most outstanding Submissions to SciPost Physics.</p>
-            <p style="color: red;"><em>Coming soon!</p>
+            <p style="color: red;"><em>Coming soon!</em></p>
         </div>
     </div>
-</div>{% endcomment %}
+    <div class="col-md-6">
+        <h1 class="banner">SciPost Physics Lecture Notes</h1>
+        <div class="py-2">
+          <p>Research-level didactic material in all domains and subject areas of Physics.</p>
+          <p style="color: red;">Open for submission!</p>
+        </div>
+    </div>
+</div>
 
-
+<hr>
 <div class="row">
     <div class="col-12">
-        <hr>
         <p>The collection of SciPost Physics Journals covers research in the domains of Experimental, Theoretical and Computational physics, including the following specialties:</p>
         <ul>
             <li>A: Atomic, Molecular and Optical Physics</li>
@@ -111,9 +79,10 @@
         </ul>
     </div>
 </div>
+
+<hr>
 <div class="row">
     <div class="col-12">
-        <hr>
         <h3><a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a></h3>
         <h3><a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a></h3>
         <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and Refereeing procedure</a></h3>

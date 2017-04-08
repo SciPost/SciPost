@@ -3,6 +3,17 @@
 
     &.card-grey {
         background-color: #F4F4F4;
+        border-color: #f1f1f1;
+    }
+
+    &.card-publication {
+        .card-header {
+            background-color: #eee;
+        }
+
+        .card-block {
+            background-color: #f8f8f8;
+        }
     }
 }
 
@@ -13,4 +24,35 @@
 .card-title,
 .card-text {
     margin-bottom: 0.25rem;
+}
+
+.card-subtitle {
+    line-height: 1.5;
+}
+
+.card.card-news {
+    .card-header {
+        background-color: $scipost-darkblue;
+        color: $scipost-light;
+    }
+}
+
+.card-publication {
+    width: 100%;
+    border-color: #f1f1f1;
+
+    &.card-grey {
+        background-color: #f8f8f8;
+    }
+
+    .card-block {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+
+        .card-title {
+            background-color: #f4f4f4;
+            margin: -0.5rem -0.75rem 0.5rem -0.75rem;
+            padding: .75rem 0.75rem;
+        }
+    }
 }

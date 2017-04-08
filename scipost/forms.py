@@ -10,15 +10,13 @@ from captcha.fields import ReCaptchaField
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML, Submit
 
-from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
-from .models import TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,\
-                    Contributor, DraftInvitation, RegistrationInvitation,\
+from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES
+from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     SupportingPartner, SPBMembershipAgreement,\
                     UnavailabilityPeriod, PrecookedEmail
-from virtualmeetings.models import Feedback, Nomination, Motion
 
 from journals.models import Publication
-from submissions.models import SUBMISSION_STATUS_PUBLICLY_UNLISTED
+from submissions.constants import SUBMISSION_STATUS_PUBLICLY_UNLISTED
 from submissions.models import Submission
 
 
@@ -315,60 +313,3 @@ class SPBMembershipForm(forms.ModelForm):
                     css_class="col-4"),
                 css_class="row"),
         )
-
-#
-# #################
-# # VGMs, Motions #
-# #################
-#
-# class FeedbackForm(forms.ModelForm):
-#     class Meta:
-#         model = Feedback
-#         fields = ['feedback']
-#
-#
-# class NominationForm(forms.ModelForm):
-#     class Meta:
-#         model = Nomination
-#         fields = ['first_name', 'last_name',
-#                   'discipline', 'expertises', 'webpage']
-#
-#     def __init__(self, *args, **kwargs):
-#         super(NominationForm, self).__init__(*args, **kwargs)
-#         self.fields['expertises'].widget = forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
-#
-#
-# class MotionForm(forms.ModelForm):
-#     class Meta:
-#         model = Motion
-#         fields = ['category', 'background', 'motion']
-#
-#     def __init__(self, *args, **kwargs):
-#         super(MotionForm, self).__init__(*args, **kwargs)
-#         self.fields['background'].label = ''
-#         self.fields['background'].widget.attrs.update(
-#             {'rows': 8, 'cols': 100,
-#              'placeholder': 'Provide useful background information on your Motion.'})
-#         self.fields['motion'].label = ''
-#         self.fields['motion'].widget.attrs.update(
-#             {'rows': 8, 'cols': 100,
-#              'placeholder': 'Phrase your Motion as clearly and succinctly as possible.'})
-#         self.helper = FormHelper()
-#         self.helper.layout = Layout(
-#             Field('category'),
-#             Div(
-#                 Div(HTML('<p>Background:</p>'),
-#                     css_class="col-2"),
-#                 Div(
-#                     Field('background'),
-#                     css_class="col-10"),
-#                 css_class="row"),
-#             Div(
-#                 Div(HTML('<p>Motion:</p>'),
-#                     css_class="col-2"),
-#                 Div(
-#                     Field('motion'),
-#                     css_class="col-10"),
-#                 css_class="row"),
-#             Submit('submit', 'Submit'),
-#         )

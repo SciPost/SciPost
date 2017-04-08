@@ -1,0 +1,44 @@
+{% extends 'journals/_base.html' %}
+
+{% block pagetitle %}{{block.super}}: issue detail{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
+    <span class="breadcrumb-item active">{{issue.short_str}}</span>
+{% endblock %}
+
+{% block link_class_physics_issues %}active{% endblock %}
+
+{% block header_text_class %}text-blue m-0 p-0 pt-2{% endblock %}
+
+{% block journal_header_block %}
+    {% if prev_issue %}
+        <h4 class="d-inline-block"><a href="{{prev_issue.get_absolute_url}}">< Previous issue | {{prev_issue.short_str}}</a></h4>
+    {% endif %}
+    {% if next_issue %}
+        <h4 class="float-right d-inline-block"><a href="{{next_issue.get_absolute_url}}">{{next_issue.short_str}} | Next issue ></a></h4>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    {% with header_text=issue %}
+        {{block.super}}
+    {% endwith %}
+
+    <div class="row">
+        <div class="col-12">
+            <ul class="list-group list-group-flush">
+                {% for paper in papers %}
+                    <li class="list-group-item">
+                        <div class="card card-grey card-publication">
+                            {% include 'journals/_publication_card_content.html' with publication=paper %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}

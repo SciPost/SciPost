@@ -1,23 +1,10 @@
 from django import forms
 
+from .constants import COMMENT_ACTION_CHOICES, COMMENT_REFUSAL_CHOICES
 from .models import Comment
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Fieldset, HTML, Submit
-
-
-COMMENT_ACTION_CHOICES = (
-    (1, 'accept'),
-    (2, 'refuse (give reason below)'),
-    )
-
-COMMENT_REFUSAL_CHOICES = (
-    (0, '-'),
-    (-1, 'unclear'),
-    (-2, 'incorrect'),
-    (-3, 'not useful'),
-    )
-comment_refusal_dict = dict(COMMENT_REFUSAL_CHOICES)
 
 
 class CommentForm(forms.ModelForm):
@@ -52,7 +39,8 @@ class CommentForm(forms.ModelForm):
                         style="border: 0px; font-size: 90%"),
                     HTML('<br>'),
                     Div(
-                        Submit('submit', 'Submit your Comment for vetting', css_class="submitButton"),
+                        Submit('submit', 'Submit your Comment for vetting',
+                               css_class="submitButton"),
                         HTML('<p id="goodCommenter"><i>By clicking on Submit, you agree with the '
                              '<a href="{% url \'scipost:terms_and_conditions\' %}">'
                              'Terms and Conditions</a>.</i></p>'),

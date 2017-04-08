@@ -6,81 +6,104 @@
 
 {% endblock headsup %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
-  <div class="flex-greybox">
-    <h1>Contributor Authorship Claims</h1>
-  </div>
-
-  {% if submission_authorships_to_claim %}
-    <hr class="hr12">
-    <div class="flex-greybox">
-      <h1>SciPost Submissions</h1>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Contributor Authorship Claims</h1>
     </div>
-    <h3>Potential authorships to claim (auto-detected)</h3>
-    <ul>
-      {% for sub in submission_authorships_to_claim %}
-        {{ sub.header_as_li }}
-        <form action="{% url 'scipost:claim_sub_authorship' submission_id=sub.id claim=1%}" method="post">
-          {% csrf_token %}
-          <input type="submit" value="I am an author" />
-        </form>
-        <form action="{% url 'scipost:claim_sub_authorship' submission_id=sub.id claim=0%}" method="post">
-          {% csrf_token %}
-          <input type="submit" value="I am not an author" />
-        </form>
-      {% endfor %}
-    </ul>
-  {% endif %}
+</div>
 
-  {% if commentary_authorships_to_claim %}
-    <hr class="hr12">
-    <div class="flex-greybox">
-      <h1>SciPost Commentaries</h1>
+{% if submission_authorships_to_claim %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">SciPost Submissions</h2>
+            <h3>Potential authorships to claim (auto-detected)</h3>
+        </div>
     </div>
-    <h3>Potential authorships to claim (auto-detected)</h3>
-    <ul>
-      {% for com in commentary_authorships_to_claim %}
-        {{ com.header_as_li }}
-        <form action="{% url 'scipost:claim_com_authorship' commentary_id=com.id claim=1%}" method="post">
-          {% csrf_token %}
-          <input type="submit" value="I am an author" />
-        </form>
-        <form action="{% url 'scipost:claim_com_authorship' commentary_id=com.id claim=0%}" method="post">
-          {% csrf_token %}
-          <input type="submit" value="I am not an author" />
-        </form>
-      {% endfor %}
-    </ul>
-  {% endif %}
-
-  {% if thesis_authorships_to_claim %}
-    <hr class="hr12">
-    <div class="flex-greybox">
-      <h1>SciPost Thesis Links</h1>
+    <div class="row">
+        <div class="col-12">
+            {% for sub in submission_authorships_to_claim %}
+                <div class="card">
+                    {% include 'submissions/_submission_card_content.html' with submission=sub %}
+                    <div class="card-footer">
+                        <form class="d-inline-block" action="{% url 'scipost:claim_sub_authorship' submission_id=sub.id claim=1 %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-secondary" type="submit" value="I am an author" />
+                        </form>
+                        <form class="d-inline-block ml-1" action="{% url 'scipost:claim_sub_authorship' submission_id=sub.id claim=0 %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-danger" type="submit" value="I am not an author" />
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-    <h3>Potential authorships to claim (auto-detected)</h3>
-    <ul>
-      {% for thesis in thesis_authorships_to_claim %}
-        {% include 'theses/_thesislink_header_as_li.html' with thesislink=thesis %}
-        <form action="{% url 'scipost:claim_thesis_authorship' thesis_id=thesis.id claim=1%}" method="post">
-          {% csrf_token %}
-          <input type="submit" value="I am an author" />
-        </form>
-        <form action="{% url 'scipost:claim_thesis_authorship' thesis_id=thesis.id claim=0%}" method="post">
-          {% csrf_token %}
-          <input type="submit" value="I am not an author" />
-        </form>
-      {% endfor %}
-    </ul>
+{% endif %}
+
+{% if commentary_authorships_to_claim %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">SciPost Commentaries</h2>
+            <h3>Potential authorships to claim (auto-detected)</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            {% for com in commentary_authorships_to_claim %}
+                <div class="card">
+                    {% include 'commentaries/_commentary_card_content.html' with commentary=com %}
+                    <div class="card-footer">
+                        <form class="d-inline-block" action="{% url 'scipost:claim_com_authorship' commentary_id=com.id claim=1 %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-secondary" type="submit" value="I am an author" />
+                        </form>
+                        <form class="d-inline-block ml-1" action="{% url 'scipost:claim_com_authorship' commentary_id=com.id claim=0 %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-danger" type="submit" value="I am not an author" />
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
   {% endif %}
 
-  {% if not submission_authorships_to_claim and not commentary_authorships_to_claim and not thesis_authorships_to_claim %}
-    <hr class="hr12">
-    <h1>You have no authorships to claim</h1>
-  {% endif %}
+{% if thesis_authorships_to_claim %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">SciPost Thesis Links</h2>
+            <h3>Potential authorships to claim (auto-detected)</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            {% for thesis in thesis_authorships_to_claim %}
+                <div class="card">
+                    {% include 'theses/_thesislink_card_content.html' with thesislink=thesis %}
+                    <div class="card-footer">
+                        <form class="d-inline-block" action="{% url 'scipost:claim_thesis_authorship' thesis_id=thesis.id claim=1%}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-secondary" type="submit" value="I am an author" />
+                        </form>
+                        <form class="d-inline-block ml-1" action="{% url 'scipost:claim_thesis_authorship' thesis_id=thesis.id claim=0%}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-danger" type="submit" value="I am not an author" />
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
 
-</section>
+{% if not submission_authorships_to_claim and not commentary_authorships_to_claim and not thesis_authorships_to_claim %}
+<div class="row">
+    <div class="col-12">
+        <h2>You have no authorships to claim</h2>
+    </div>
+</div>
+{% endif %}
 
-{% endblock bodysup %}
+{% endblock content %}

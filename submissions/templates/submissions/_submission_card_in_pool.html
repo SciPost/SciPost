@@ -1,0 +1,66 @@
+{% load guardian_tags %}
+{% load scipost_extras %}
+{% load submissions_extras %}
+
+
+{% include 'submissions/_submission_card_fellow_content.html' with submission=submission %}
+
+<div class="card-block">
+    {% if submission.remark_set.all %}
+        <h4>Remarks on this submission:</h4>
+        <ul>
+          {% for rem in submission.remark_set.all %}
+              {% include 'scipost/_remark_li.html' with remark=rem %}
+          {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if remark_form %}
+        {% include 'submissions/_remark_add_form.html' with submission=submission form=remark_form %}
+    {% endif %}
+
+    {% get_obj_perms request.user for submission as "sub_perms" %}
+    {% if "can_take_editorial_actions" in sub_perms or is_ECAdmin %}
+        {% if submission|required_actions %}
+            <div class="required-actions">
+                <h3 class="pt-0">Required actions:</h3>
+                <ul>
+                  {% for todoitem in submission|required_actions %}
+                      <li>{{ todoitem }}</li>
+                  {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <h4>
+            <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
+        </h4>
+    {% endif %}
+
+    {% if perms.scipost.can_assign_submissions %}
+        {% if submission.editorialassignment_set.all %}
+            <h4>EIC Assignment requests:</h4>
+            <ul>
+              {% for assignment in submission.editorialassignment_set.all %}
+                  {% include 'submissions/_assignment_info.html' with assignment=assignment %}
+              {% endfor %}
+            </ul>
+        {% endif %}
+        {% if submission.editor_in_charge == None %}
+            <h4>Actions:</h4>
+            <ul>
+              <li><a href="{% url 'submissions:assign_submission' submission.arxiv_identifier_w_vn_nr %}">Send a new assignment request</a></li>
+              <li><a href="{% url 'submissions:assignment_failed' submission.arxiv_identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
+            </ul>
+        {% endif %}
+    {% endif %}
+
+    {% if is_ECAdmin %}
+        <h4>
+            <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a>
+        </h4>
+        {% if submission.status == 'accepted' %}
+            <h4>After proofs have been accepted, you can <a href="{% url 'journals:initiate_publication' %}">initiate the publication process</a> (leads to the validation page)</h4>
+        {% endif %}
+    {% endif %}
+</div>

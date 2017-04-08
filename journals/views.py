@@ -8,14 +8,12 @@ import xml.etree.ElementTree as ET
 from django.conf import settings
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.core.files import File
-from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse
 
-from .models import Issue, Publication, PaperNumberingError,\
-                    journal_name_abbrev_doi, paper_nr_string, journal_name_abbrev_citation,\
-                    UnregisteredAuthor
+from .exceptions import PaperNumberingError
+from .helpers import paper_nr_string
+from .models import Journal, Issue, Publication, UnregisteredAuthor
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
@@ -30,84 +28,113 @@ from guardian.decorators import permission_required
 # Journals
 ############
 
-def journals(request):
-    return render(request, 'journals/journals.html')
+def landing_page(request, doi_string):
+    journal = get_object_or_404(Journal, doi_string=doi_string)
 
-
-def scipost_physics(request):
     current_issue = Issue.objects.published(
-        in_volume__in_journal__name='SciPost Physics',
+        in_volume__in_journal=journal,
         start_date__lte=timezone.now(),
         until_date__gte=timezone.now()).order_by('-until_date').first()
     latest_issue = Issue.objects.published(
-        in_volume__in_journal__name='SciPost Physics',
+        in_volume__in_journal=journal,
         until_date__lte=timezone.now()).order_by('-until_date').first()
+
+    prev_issue = None
+    if current_issue:
+        prev_issue = (Issue.objects.published(in_volume__in_journal=journal,
+                                              start_date__lt=current_issue.start_date)
+                                   .order_by('start_date').last())
+
     context = {
         'current_issue': current_issue,
-        'latest_issue': latest_issue
+        'latest_issue': latest_issue,
+        'prev_issue': prev_issue,
+        'journal': journal
     }
-    return render(request, 'journals/scipost_physics.html', context)
+    return render(request, 'journals/journal_landing_page.html', context)
 
 
-def scipost_physics_issues(request):
-    issues = Issue.objects.published(
-        in_volume__in_journal__name='SciPost Physics').order_by('-until_date')
-    context = {'issues': issues, }
-    return render(request, 'journals/scipost_physics_issues.html', context)
+def issues(request, doi_string):
+    journal = get_object_or_404(Journal, doi_string=doi_string)
+
+    issues = Issue.objects.published(in_volume__in_journal=journal).order_by('-until_date')
+    context = {
+        'issues': issues,
+        'journal': journal
+    }
+    return render(request, 'journals/journal_issues.html', context)
 
 
-def scipost_physics_recent(request):
+def recent(request, doi_string):
     """
     Display page for the most recent 20 publications in SciPost Physics.
     """
-
+    journal = get_object_or_404(Journal, doi_string=doi_string)
     recent_papers = Publication.objects.published(
-        in_issue__in_volume__in_journal__name='SciPost Physics').order_by('-publication_date')[:20]
-    context = {'recent_papers': recent_papers}
-    return render(request, 'journals/scipost_physics_recent.html', context)
+        in_issue__in_volume__in_journal=journal).order_by('-publication_date')[:20]
+    context = {
+        'recent_papers': recent_papers,
+        'journal': journal,
+    }
+    return render(request, 'journals/journal_recent.html', context)
 
 
-def scipost_physics_accepted(request):
+def accepted(request, doi_string):
     """
     Display page for submissions to SciPost Physics which
     have been accepted but are not yet published.
     """
+    journal = get_object_or_404(Journal, doi_string=doi_string)
     accepted_SP_submissions = Submission.objects.filter(
-        submitted_to_journal='SciPost Physics', status='accepted'
+        submitted_to_journal=journal.name, status='accepted'
     ).order_by('-latest_activity')
-    context = {'accepted_SP_submissions': accepted_SP_submissions}
-    return render(request, 'journals/scipost_physics_accepted.html', context)
+    context = {
+        'accepted_SP_submissions': accepted_SP_submissions,
+        'journal': journal
+    }
+    return render(request, 'journals/journal_accepted.html', context)
 
 
-def scipost_physics_info_for_authors(request):
-    return render(request, 'journals/scipost_physics_info_for_authors.html')
+def info_for_authors(request, doi_string):
+    journal = get_object_or_404(Journal, doi_string=doi_string)
+    context = {
+        'journal': journal
+    }
+    return render(request, 'journals/%s_info_for_authors.html' % doi_string, context)
 
 
-def scipost_physics_about(request):
-    return render(request, 'journals/scipost_physics_about.html')
+def about(request, doi_string):
+    journal = get_object_or_404(Journal, doi_string=doi_string)
+    context = {
+        'journal': journal
+    }
+    return render(request, 'journals/%s_about.html' % doi_string, context)
 
 
-def scipost_physics_issue_detail(request, volume_nr, issue_nr):
-    issue = Issue.objects.get_published(journal='SciPost Physics',
-                                        number=issue_nr, in_volume__number=volume_nr)
+def issue_detail(request, doi_string):
+    issue = Issue.objects.get_published(doi_string=doi_string)
+    journal = issue.in_volume.in_journal
+
     papers = issue.publication_set.order_by('paper_nr')
-    context = {'issue': issue, 'papers': papers}
-    return render(request, 'journals/scipost_physics_issue_detail.html', context)
+    next_issue = (Issue.objects.published(journal=journal,
+                                          start_date__gt=issue.start_date)
+                               .order_by('start_date').first())
+    prev_issue = (Issue.objects.published(in_volume__in_journal=journal,
+                                          start_date__lt=issue.start_date)
+                               .order_by('start_date').last())
+    context = {
+        'issue': issue,
+        'prev_issue': prev_issue,
+        'next_issue': next_issue,
+        'papers': papers,
+        'journal': journal
+    }
+    return render(request, 'journals/journal_issue_detail.html', context)
 
 
 #######################
 # Publication process #
 #######################
-
-# @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-# @transaction.atomic
-# def publishing_workspace(request):
-#     """
-#     Page containing post-acceptance publishing workflow items.
-#     """
-#     accepted_submissions = Submission.objects.filter(status='accepted')
-#     context = {'accepted_submissions': accepted_submissions,}
-#     return render(request, 'journals/publishing_workspace.html', context)
 
 def upload_proofs(request):
     """
@@ -144,7 +171,7 @@ def initiate_publication(request):
                 if paper_nr > 999:
                     raise PaperNumberingError(paper_nr)
             doi_label = (
-                journal_name_abbrev_doi(current_issue.in_volume.in_journal.name)
+                current_issue.in_volume.in_journal.name
                 + '.' + str(current_issue.in_volume.number)
                 + '.' + str(current_issue.number) + '.' + paper_nr_string(paper_nr)
             )
@@ -154,7 +181,7 @@ def initiate_publication(request):
                 '\ttitle={{' + submission.title + '}},\n'
                 '\tauthor={' + submission.author_list.replace(',', ' and') + '},\n'
                 '\tjournal={'
-                + journal_name_abbrev_citation(current_issue.in_volume.in_journal.name)
+                + current_issue.in_volume.in_journal.get_abbreviation_citation()
                 + '},\n'
                 '\tvolume={' + str(current_issue.in_volume.number) + '},\n'
                 '\tissue={' + str(current_issue.number) + '},\n'
@@ -223,8 +250,8 @@ def validate_publication(request):
             # Move file to final location
             initial_path = publication.pdf_file.path
             new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-                       + paper_nr_string(publication.paper_nr))
-            new_path = new_dir + '/' + publication.doi_label.replace('.', '_') + '.pdf'
+                       + publication.get_paper_nr())
+            new_path = new_dir + '/' + publication.doi_string.replace('.', '_') + '.pdf'
             os.makedirs(new_dir)
             os.rename(initial_path, new_path)
             publication.pdf_file.name = new_path
@@ -259,8 +286,7 @@ def mark_first_author(request, publication_id, contributor_id):
     publication.first_author = contributor
     publication.first_author_unregistered = None
     publication.save()
-    return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_string': publication.doi_string, }))
+    return redirect(publication.get_absolute_url())
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -271,8 +297,7 @@ def mark_first_author_unregistered(request, publication_id, unregistered_author_
     publication.first_author = None
     publication.first_author_unregistered = unregistered_author
     publication.save()
-    return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_string': publication.doi_string, }))
+    return redirect(publication.get_absolute_url())
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -289,8 +314,8 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
         contributor = get_object_or_404(Contributor, id=contributor_id)
         publication.authors.add(contributor)
         publication.save()
-        return redirect(reverse('scipost:publication_detail',
-                                kwargs={'doi_string': publication.doi_string, }))
+        return redirect(publication.get_absolute_url())
+
     if request.method == 'POST':
         form = UnregisteredAuthorForm(request.POST)
         if form.is_valid():
@@ -324,8 +349,7 @@ def add_unregistered_author(request, publication_id, unregistered_author_id):
     unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
     publication.unregistered_authors.add(unregistered_author)
     publication.save()
-    return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_string': publication.doi_string, }))
+    return redirect(publication.get_absolute_url())
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -340,8 +364,7 @@ def add_new_unreg_author(request, publication_id):
                 last_name=new_unreg_author_form.cleaned_data['last_name'],)
             new_unreg_author.save()
             publication.authors_unregistered.add(new_unreg_author)
-            return redirect(reverse('scipost:publication_detail',
-                                    kwargs={'doi_string': publication.doi_string, }))
+            return redirect(publication.get_absolute_url())
     errormessage = 'Method add_new_unreg_author can only be called with POST.'
     return render(request, 'scipost/error.html', context={'errormessage': errormessage})
 
@@ -424,8 +447,7 @@ def create_metadata_xml(request, doi_string):
         if create_metadata_xml_form.is_valid():
             publication.metadata_xml = create_metadata_xml_form.cleaned_data['metadata_xml']
             publication.save()
-            return redirect(reverse('scipost:publication_detail',
-                                    kwargs={'doi_string': publication.doi_string, }))
+            return redirect(publication.get_absolute_url())
 
     # create a doi_batch_id
     salt = ""
@@ -457,7 +479,7 @@ def create_metadata_xml(request, doi_string):
         '<journal_metadata>\n'
         '<full_title>' + publication.in_issue.in_volume.in_journal.name + '</full_title>\n'
         '<abbrev_title>'
-        + journal_name_abbrev_citation(publication.in_issue.in_volume.in_journal.name) +
+        + publication.in_issue.in_volume.in_journal.get_abbreviation_citation() +
         '</abbrev_title>\n'
         '<issn>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
         '<doi_data>\n'
@@ -651,6 +673,7 @@ def harvest_citedby_links(request, doi_string):
             item_number = link.find(prefix + 'journal_cite').find(prefix + 'item_number').text
         except:
             item_number = None
+        multiauthors = False
         for author in link.find(prefix + 'journal_cite').find(
                 prefix + 'contributors').iter(prefix + 'contributor'):
             if author.get('sequence') == 'first':
@@ -687,27 +710,18 @@ def harvest_citedby_links(request, doi_string):
 
 def publication_detail(request, doi_string):
     publication = Publication.objects.get_published(doi_string=doi_string)
-    context = {'publication': publication, }
+    journal = publication.in_issue.in_volume.in_journal
+
+    context = {
+        'publication': publication,
+        'journal': journal
+    }
     return render(request, 'journals/publication_detail.html', context)
 
 
-def publication_pdf(request, doi_string):
+def publication_detail_pdf(request, doi_string):
     publication = Publication.objects.get_published(doi_string=doi_string)
     response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = ('filename='
-                                       + publication.doi_label.replace('.', '_') + '.pdf')
-    return response
-
-
-def publication_detail_from_doi_label(request, doi_label):
-    publication = Publication.objects.get_published(doi_label=doi_label)
-    context = {'publication': publication, }
-    return render(request, 'journals/publication_detail.html', context)
-
-
-def publication_pdf_from_doi_label(request, doi_label):
-    publication = Publication.objects.get_published(doi_label=doi_label)
-    response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
-    response['Content-Disposition'] = ('filename='
-                                       + publication.doi_label.replace('.', '_') + '.pdf')
+                                       + publication.doi_string.replace('.', '_') + '.pdf')
     return response

@@ -16,7 +16,7 @@
   <hr>
   <div class="row">
     <div class="col-8">
-      {{ commentary_to_vet.header_as_table }}
+      {% include 'commentaries/_commentary_summary.html' with commentary=commentary_to_vet %}
       <h3>Abstract:</h3>
       <p>{{ commentary_to_vet.pub_abstract }}</p>
 

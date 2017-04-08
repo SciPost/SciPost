@@ -445,7 +445,7 @@ Preparation of final version of record
 
    #. In this tex source, replace the ??? with the 3-digit paper number (6 places: 4 in preamble, 2 in copyright statement).
 
-   #. Ensure that the author names are in format A. Bee, C. Dee and E. Final.
+   #. Ensure that the author names are in format Abe Bee, Cee Dee and Elle Fine.
 
    #. Insert the correct Received, Accepted and Published dates in copyright statement.
 
@@ -459,7 +459,8 @@ Preparation of final version of record
    #. If the author-accepted proofs version used BiBTeX, copy the contents of the bbl
       file into the .tex file, so that BiBTeX is not needed anymore.
 
-   #. Manually correct any incorrect references.
+   #. Verify each reference: authors, title, journal reference, doi link.
+      Manually correct any incorrect references.
 
    #. Recompile the LaTeX, and CAREFULLY CHECK EVERYTHING.
 

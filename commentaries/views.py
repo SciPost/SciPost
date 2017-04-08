@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views.generic.edit import CreateView, FormView
@@ -282,9 +283,12 @@ class CommentaryListView(ListView):
         context = super().get_context_data(**kwargs)
 
         # Get newest comments
-        context['comment_list'] = Comment.objects.vetted().select_related(
-                                  'author__user', 'submission', 'commentary').order_by(
-                                  '-date_submitted')[:10]
+        context['comment_list'] = (Comment.objects.vetted()
+                                   .filter(Q(commentary__isnull=False) |
+                                           Q(submission__isnull=False) |
+                                           Q(thesislink__isnull=False))
+                                   .select_related('author__user', 'submission', 'commentary')
+                                   .order_by('-date_submitted')[:10])
 
         # Form into the context!
         context['form'] = self.form

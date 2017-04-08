@@ -1,8 +1,12 @@
 {% extends 'scipost/base.html' %}
 
+{% load guardian_tags %}
+{% load scipost_extras %}
+{% load submissions_extras %}
+
 {% block pagetitle %}: Assignments{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
 <script>
 $(document).ready(function(){
@@ -16,92 +20,74 @@ $(document).ready(function(){
       else {
           $('#ref_reason').hide();
       }
-    });
-
-  $(".submitRemarkForm").hide();
-
-  $(".submitRemarkButton").click( function() {
-     $(this).next("div").toggle();
   });
-  });
+});
 
 </script>
 
-{% load guardian_tags %}
-{% load scipost_extras %}
-{% load submissions_extras %}
-
-
 {% if assignments_to_consider %}
-<section>
-
-  {% for assignment_to_consider in assignments_to_consider %}
-
-  <div class="flex-greybox">
-    <h1>Assignment request: can you act as Editor-in-charge? (see below to accept/decline):</h1>
-  </div>
-  <br>
-  <hr>
-
-  {{ assignment_to_consider.submission.header_as_table }}
-  <br />
-  <h4>Abstract:</h4>
-  <p>{{ assignment_to_consider.submission.abstract }}</p>
-  <br/>
-
-  <hr>
-  <div class="flex-greybox">
-    <h1>Accept or Decline this Assignment</h1>
-  </div>
-  <h3>By accepting, you will be required to start a refereeing round on the next screen.</h3>
-  <form action="{% url 'submissions:accept_or_decline_assignment_ack' assignment_id=assignment_to_consider.id %}" method="post">
-    {% csrf_token %}
-    {{ consider_assignment_form.accept }}
-    <div id="ref_reason">
-      <p>Please select a reason for declining this assignment:</p>
-      {{ consider_assignment_form.refusal_reason }}
+    <div class="row">
+        <div class="col-12">
+            <div class="highlight d-block p-3">
+                <h1 class="p-0">Assignment request</h1>
+                <h3 class="p-0 mt-1 d-block text-muted">Can you act as Editor-in-charge? (see below to accept/decline)</h3>
+            </div>
+        </div>
     </div>
-    <input type="submit" value="Submit" />
-  </form>
-
-  <hr class="hr6"/>
-  {% endfor %}
-
-</section>
-<hr class="hr12"/>
+    {% for assignment_to_consider in assignments_to_consider %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    {% include 'submissions/_submission_assignment_request.html' with assignment=assignment_to_consider %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+<hr>
 {% endif %}
 
 
 {% if current_assignments %}
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>Your current assignments:</h1>
+    <div class="row">
+        <div class="col-12">
+            <h1 class="highlight">Your current assignments:</h1>
+        </div>
     </div>
-  </div>
-  <ul>
-    {% for assignment in current_assignments %}
-    {{ assignment.submission.header_as_li_for_Fellows }}
-    <div class="flex-container">
-      <div class-"flex-whitebox" style="background-color: #ffaaaa;">
-	<h3>Required actions:</h3>
-	<ul>
-	  {% for todoitem in assignment.submission|required_actions %}
-	  <li>{{ todoitem }}</li>
-	  {% endfor %}
-	</ul>
-      </div>
+    <div class="row">
+        <div class="col-12">
+            <ul class="list-group list-group-flush">
+                {% for assignment in current_assignments %}
+                    <li class="list-group-item">
+                        {% include 'submissions/_submission_card_fellow_content.html' with submission=assignment.submission %}
+                        <div class="card-block">
+                            {% with actions=assignment.submission|required_actions %}
+                                <div class="required-actions{% if not actions %} no-actions{% endif %}">
+                                    <h3>{% if actions %}Required actions{% else %}No required actions{% endif %}</h3>
+                                    {% if actions %}
+                                        <ul>
+                                        {% for todoitem in assignment.submission|required_actions %}
+                                            <li>{{ todoitem }}</li>
+                                        {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            {% endwith %}
+                            <h4 class="d-block mt-2">
+                                <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=assignment.submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
+                            </h4>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-    <h4><a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=assignment.submission.arxiv_identifier_w_vn_nr %}">
-      Go to this Submission's Editorial Page</a></h4>
-    {% endfor %}
-  </ul>
-</section>
 {% else %}
-<section>
-  <p>You currently have no assignments to take care of.</p>
-</section>
+    <div class="row">
+        <div class="col-12">
+            <p>You currently have no assignments to take care of.</p>
+        </div>
+    </div>
 {% endif %}
 
 
-{% endblock bodysup %}
+{% endblock content %}

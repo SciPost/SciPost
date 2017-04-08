@@ -13,13 +13,9 @@ from django.utils.decorators import method_decorator
 from .models import ThesisLink
 from .forms import RequestThesisLinkForm, ThesisLinkSearchForm, VetThesisLinkForm
 
-from comments.models import Comment
 from comments.forms import CommentForm
-from scipost.forms import TITLE_CHOICES
-from scipost.models import Contributor
-import strings
 
-title_dict = dict(TITLE_CHOICES)  # Convert titles for use in emails
+import strings
 
 
 ################
@@ -86,47 +82,44 @@ class VetThesisLink(UpdateView):
         return kwargs
 
 
-def theses(request):
-    form = ThesisLinkSearchForm(request.GET)
-    if form.is_valid() and form.has_changed():
-        search_results = ThesisLink.objects.search_results(form)
-        recent_theses = []
-    else:
-        recent_theses = ThesisLink.objects.latest(5)
-        search_results = []
+class ThesisListView(ListView):
+    model = ThesisLink
+    form = ThesisLinkSearchForm
+    thesis_search_list = []
+    paginate_by = 10
 
-    context = {
-        'form': form, 'search_results': search_results,
-        'recent_theses': recent_theses
-    }
-    return render(request, 'theses/theses.html', context)
+    def get_queryset(self):
+        # Context is not saved to View object by default
+        self.pre_context = self.kwargs
 
+        # Browse is discipline is given
+        if 'discipline' in self.kwargs:
+            self.pre_context['browse'] = True
 
-def browse(request, discipline, nrweeksback):
-    if request.method == 'POST':
-        form = ThesisLinkSearchForm(request.POST)
-        if form.is_valid() and form.has_changed():
-            thesislink_search_list = ThesisLink.objects.filter(
-                title__icontains=form.cleaned_data['title_keyword'],
-                author__icontains=form.cleaned_data['author'],
-                abstract__icontains=form.cleaned_data['abstract_keyword'],
-                supervisor__icontains=form.cleaned_data['supervisor'],
-                vetted=True,
+        # Queryset for browsing
+        if self.kwargs.get('browse', False):
+            return self.model.objects.vetted().filter(
+                discipline=self.kwargs['discipline'],
+                latest_activity__gte=timezone.now() + datetime.timedelta(
+                                        weeks=-int(self.kwargs['nrweeksback'])),
             )
-            thesislink_search_list.order_by('-pub_date')
-        else:
-            thesislink_search_list = []
-        context = {'form': form, 'thesislink_search_list': thesislink_search_list}
-        return HttpResponseRedirect(request, 'theses/theses.html', context)
-    else:
-        form = ThesisLinkSearchForm()
-    thesislink_browse_list = (ThesisLink.objects.filter(
-        vetted=True, discipline=discipline,
-        latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))))
-    context = {'form': form, 'discipline': discipline,
-               'nrweeksback': nrweeksback,
-               'thesislink_browse_list': thesislink_browse_list}
-    return render(request, 'theses/theses.html', context)
+
+        # Queryset for searchform is processed by managers
+        form = self.form(self.request.GET)
+        if form.is_valid() and form.has_changed():
+            return self.model.objects.search_results(form)
+        self.pre_context['recent'] = True
+        return self.model.objects.vetted()
+
+    def get_context_data(self, **kwargs):
+        # Update the context data from `get_queryset`
+        context = super().get_context_data(**kwargs)
+        context.update(self.pre_context)
+
+        # Search form added to context
+        context['form'] = self.form(initial=self.request.GET)
+
+        return context
 
 
 def thesis_detail(request, thesislink_id):

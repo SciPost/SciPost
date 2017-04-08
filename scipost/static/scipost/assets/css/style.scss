@@ -18,15 +18,20 @@
 @import "mixins_labels";
 
 @import "alert";
+@import "breadcrumb";
 @import "buttons";
 @import "cards";
+@import "code";
 @import "form";
 @import "grid";
 @import "labels";
+@import "list_group";
 @import "messages";
-// @import "modal";
+@import "modal";
 @import "navbar";
+@import "nav";
 @import "page_header";
+@import "tables";
 @import "tooltip";
 @import "type";
 
@@ -34,8 +39,17 @@
  * SciPost Specific
  *
  */
+@import "general";
 @import "about";
 @import "comments";
+@import "icons";
 @import "journals";
 @import "personal_page";
 @import "submissions";
+
+
+/**
+ * SciPost Journal styles
+ *
+ */
+ @import "scipost-physics";

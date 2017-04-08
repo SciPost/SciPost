@@ -1,0 +1,12 @@
+{% extends 'comments/_comment_identifier.html' %}
+
+{% comment %}
+
+    Be careful using this template!!!
+    It overwrites the anonymity of the writer!
+
+{% endcomment %}
+
+{% block comment_author %}
+    <a href="{% url 'scipost:contributor_info' comment.author.id %}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a>
+{% endblock comment_author %}

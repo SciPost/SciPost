@@ -1,54 +1,65 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/_pool_base.html' %}
+
+{% load bootstrap %}
 
 {% block pagetitle %}: assign submission{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <a href="{% url 'submissions:editorial_page' submission_to_assign.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission_to_assign.arxiv_identifier_w_vn_nr}})</a>
+    <span class="breadcrumb-item">Assign Submission</span>
+{% endblock %}
 
-<section>
+{% block content %}
 
-  <h1>SciPost Submission: send an Assignment Request</h1>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">SciPost Submission: send an Assignment Request</h1>
+    </div>
+</div>
 
-  <br>
-  <hr>
-  {{ submission_to_assign.header_as_table }}
-  <br />
-  <h4>Abstract:</h4>
-  <p>{{ submission_to_assign.abstract }}</p>
-  <br/>
-  <hr/>
+{% include 'submissions/_submission_summary.html' with submission=submission_to_assign %}
 
-  {% if submission_to_assign.referees_suggested %}
-  <h3>Referees suggested by the authors upon submission (treat with due care):</h3>
-  <p>{{ submission_to_assign.referees_suggested }}</p>
-  {% endif %}
+<div class="row">
+    <div class="col-12">
+      {% if submission_to_assign.referees_suggested %}
+          <h3>Referees suggested by the authors upon submission (treat with due care):</h3>
+          <p>{{ submission_to_assign.referees_suggested }}</p>
+      {% endif %}
 
-  {% if submission_to_assign.referees_flagged %}
-  <h3>Referees flagged upon submission (treat reports with caution):</h3>
-  <p>{{ submission_to_assign.referees_flagged }}</p>
-  {% endif %}
+      {% if submission_to_assign.referees_flagged %}
+          <h3>Referees flagged upon submission (treat reports with caution):</h3>
+          <p>{{ submission_to_assign.referees_flagged }}</p>
+      {% endif %}
 
-  <br/>
-  <hr>
-  {{ submission_to_assign.status_info_as_table }}
-  <hr>
+      {% include 'submissions/_submission_status_block.html' with submission=submission_to_assign %}
+    </div>
+</div>
 
-  {% if submission_to_assign.editorialassignment_set.all %}
-  <h4>EIC Assignment requests already sent:</h4>
-  <h3>If more than 5 Fellows have declined an assignment for a red-marked reason, the Submission should be rejected.</h3>
-  <ul>
-    {% for assignment in sub.editorialassignment_set.all %}
-    {{ assignment.info_as_li }}
-    {% endfor %}
-  </ul>
-  {% endif %}
+<div class="row">
+    <div class="col-12">
+      {% if submission_to_assign.editorialassignment_set.all %}
+          <h4>EIC Assignment requests already sent:</h4>
+          <h3>If more than 5 Fellows have declined an assignment for a red-marked reason, the Submission should be rejected.</h3>
+          <ul>
+            {% for assignment in sub.editorialassignment_set.all %}
+                {% include 'submissions/_assignment_info.html' with assignment=assignment %}
+            {% endfor %}
+          </ul>
+      {% endif %}
+    </div>
+</div>
 
-  <h1>Send a new assignment request:</h1>
-  <form action="{% url 'submissions:assign_submission_ack' arxiv_identifier_w_vn_nr=submission_to_assign.arxiv_identifier_w_vn_nr %}" method="post">
-    {% csrf_token %}
-    {{ form.as_ul }}
-    <input type="submit" value="Submit" />
-  </form>
+<div class="row mb-md-4">
+    <div class="col-12">
+      <h2 class="highlight">Send a new assignment request:</h2>
+      <form action="{% url 'submissions:assign_submission_ack' arxiv_identifier_w_vn_nr=submission_to_assign.arxiv_identifier_w_vn_nr %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input class="btn btn-secondary" type="submit" value="Submit" />
+      </form>
+    </div>
+</div>
 
-</section>
-
-{% endblock bodysup %}
+{% endblock %}

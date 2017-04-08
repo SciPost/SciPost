@@ -8,7 +8,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template import Context, Template
 from django.utils import timezone
 
-from .models import Contributor, DraftInvitation, RegistrationInvitation, title_dict
+from .models import Contributor, DraftInvitation, RegistrationInvitation
 
 
 SCIPOST_SUMMARY_FOOTER = (
@@ -154,7 +154,7 @@ class Utils(object):
         cls.contributor.key_expires = datetime.datetime.strftime(
             datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
         cls.contributor.save()
-        email_text = ('Dear ' + title_dict[cls.contributor.title] + ' ' +
+        email_text = ('Dear ' + cls.contributor.get_title_display() + ' ' +
                       cls.contributor.user.last_name +
                       ', \n\nYour request for registration to the SciPost publication portal' +
                       ' has been received. You now need to validate your email by visiting ' +
@@ -172,7 +172,7 @@ class Utils(object):
             '\n<p>Your registration will thereafter be vetted. Many thanks for your interest.</p>'
             '<p>The SciPost Team.</p>')
         email_context = Context({
-            'title': title_dict[cls.contributor.title],
+            'title': cls.contributor.get_title_display(),
             'last_name': cls.contributor.user.last_name,
             'activation_key': cls.contributor.activation_key,
         })
@@ -220,7 +220,7 @@ class Utils(object):
 
     @classmethod
     def send_registration_invitation_email(cls, renew=False):
-        signature = (title_dict[cls.invitation.invited_by.title] + ' '
+        signature = (cls.invitation.invited_by.get_title_display() + ' '
                      + cls.invitation.invited_by.user.first_name + ' '
                      + cls.invitation.invited_by.user.last_name)
         if not renew:
@@ -253,9 +253,9 @@ class Utils(object):
         email_text += 'Dear '
         email_text_html += 'Dear '
         if cls.invitation.message_style == 'F':
-            email_text += title_dict[cls.invitation.title] + ' ' + cls.invitation.last_name
+            email_text += cls.invitation.get_title_display() + ' ' + cls.invitation.last_name
             email_text_html += '{{ title }} {{ last_name }}'
-            email_context['title'] = title_dict[cls.invitation.title]
+            email_context['title'] = cls.invitation.get_title_display()
             email_context['last_name'] = cls.invitation.last_name
         else:
             email_text += cls.invitation.first_name
@@ -645,10 +645,10 @@ class Utils(object):
         Requires loading the 'notification' attribute.
         """
         email_context = Context({})
-        email_text = ('Dear ' + title_dict[cls.notification.contributor.title] +
+        email_text = ('Dear ' + cls.notification.contributor.get_title_display() +
                       ' ' + cls.notification.contributor.user.last_name)
         email_text_html = 'Dear {{ title }} {{ last_name }}'
-        email_context['title'] = title_dict[cls.notification.contributor.title]
+        email_context['title'] = cls.notification.contributor.get_title_display()
         email_context['last_name'] = cls.notification.contributor.user.last_name
         email_text += ',\n\n'
         email_text_html += ',<br/>'

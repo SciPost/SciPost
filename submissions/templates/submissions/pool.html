@@ -1,4 +1,4 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/_pool_base.html' %}
 
 {% block pagetitle %}: Submissions Pool{% endblock pagetitle %}
 
@@ -7,348 +7,324 @@
 {% load scipost_extras %}
 {% load submissions_extras %}
 
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Pool</span>
+{% endblock %}
+
 {% block content %}
 
-<script>
-$(document).ready(function(){
+{% with is_ECAdmin=request.user|is_in_group:'Editorial Administrators' %}
 
-  $('#ref_reason').hide();
+<!-- Page content -->
+<div class="row">
+    <div class="col-lg-8">
 
-  $('#id_accept').on('change', function() {
-      if ($('#id_accept_1').is(':checked')) {
-          $('#ref_reason').show();
-      }
-      else {
-          $('#ref_reason').hide();
-      }
-    });
+        {% if is_ECAdmin %}
+            {% if recommendations_undergoing_voting %}
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="highlight mt-0">Administrative actions on recommendations undergoing voting:</h3>
+                        <ul>
+                            <li>To send an email reminder to each Fellow with at least one voting duty, <a href="{% url 'submissions:remind_Fellows_to_vote' %}">click here</a></li>
+                        </ul>
+                    </div>
+                </div>
 
-  $(".submitRemarkForm").hide();
+                <div class="row">
+                    <div class="col-12">
+                        <h1 class="highlight mt-0">Recommendations undergoing voting</h1>
+                    </div>
+                </div>
 
-  $(".submitRemarkButton").click( function() {
-     $(this).next("div").toggle();
-  });
-  });
-</script>
+                <div class="row">
+                    {% for rec in recommendations_undergoing_voting %}
+                        {% if not forloop.first %}
+                            <hr>
+                        {% endif %}
 
-{% if request.user|is_in_group:'Editorial Administrators' and recommendations_undergoing_voting %}
-    <div class="row">
-        <div class="col-12">
-            <h3 class="highlight">Administrative actions on recommendations undergoing voting:</h3>
-            <ul>
-                <li>To send an email reminder to each Fellow with at least one voting duty, <a href="{% url 'submissions:remind_Fellows_to_vote' %}">click here</a></li>
-            </ul>
-        </div>
-    </div>
+                        <div class="col-12">
+                            <div class="card card-outline-secondary">
+                                {% include 'submissions/_submission_card_fellow_content.html' with submission=rec.submission %}
+                            </div>
 
-    <div class="row">
-        <div class="col-12">
-            <h1 class="highlight d-block">Recommendations undergoing voting</h1>
-        </div>
-    </div>
+                            <div class="card card-outline-secondary">
+                                {% include 'submissions/_recommendation_fellow_content.html' with recommendation=rec %}
+                                <div class="card-block">
+                                    {% if rec.remark_set.all %}
+                                        <h3 class="card-title">Remarks by Fellows:</h3>
+                                        <ul>
+                                          {% for remark in rec.remark_set.all|sort_by:'date' %}
+                                              {{ remark.as_li }}
+                                          {% endfor %}
+                                        </ul>
+                                    {% endif %}
 
-    {% for rec in recommendations_undergoing_voting %}
-        {% if not forloop.first %}
+                                    <h3 class="card-title">Fellows eligible to vote:</h3>
+                                    <ul>
+                                      <li>
+                                    	  {% for eligible in rec.eligible_to_vote.all|sort_by:'user__last_name' %}
+                                        	  {{ eligible.user.last_name }},&nbsp;
+                                    	  {% endfor %}
+                                        </li>
+                                    </ul>
+
+                                    <h3 class="card-title">Voting results up to now:</h3>
+                                    <ul>
+                                        <li>
+                                            Agreed:&nbsp;({{ rec.voted_for.all.count }})
+                                            {% for agreed in rec.voted_for.all|sort_by:'user__last_name' %}
+                                                {{ agreed.user.last_name }},&nbsp;
+                                            {% endfor %}
+                                        </li>
+                                        <li>
+                                            Disagreed:&nbsp;({{ rec.voted_against.all.count }})
+                                            {% for disagreed in rec.voted_against.all|sort_by:'user__last_name' %}
+                                                {{ disagreed.user.last_name }},&nbsp;
+                                            {% endfor %}
+                                        </li>
+                                        <li>
+                                            Abstained:&nbsp;({{ rec.voted_abstain.all.count }})
+                                            {% for abstained in rec.voted_abstain.all|sort_by:'user__last_name' %}
+                                                {{ abstained.user.last_name }},&nbsp;
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+
+                                    {% if rec.remark_set %}
+                                        <h3 class="card-title">Remarks:</h3>
+                                        <ul>
+                                          {% for rem in rec.remark_set.all %}
+                                              <li>{{ rem }}</li>
+                                         {% empty %}
+                                             <li><em>No remarks</em></li>
+                                          {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                                <div class="card-footer">
+                                    <h3 class="card-title">Actions:</h3>
+                                    <ul>
+                                        <li>To fix the College decision and follow the Editorial Recommendation as is: <a href="{% url 'submissions:fix_College_decision' rec_id=rec.id %}">click here</a></li>
+                                        <li>To request a modification of the Recommendation to request for revision: click here</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <hr>
+            {% endif %}
+
+            {% if recommendations_to_prepare_for_voting %}
+                <div class="row">
+                    <div class="col-12">
+                        <h1 class="highlight mt-0">Recommendations to prepare for voting</h1>
+                    </div>
+                </div>
+
+                {% for rec in recommendations_to_prepare_for_voting %}
+                    {% if not forloop.first %}
+                        <hr>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-12" id="prepare_rec_{{rec.id}}">
+                            <div class="card card-outline-secondary">
+                                {% include 'submissions/_submission_card_fellow_content.html' with submission=rec.submission %}
+                            </div>
+
+                            <div class="card card-outline-secondary">
+                                {% include 'submissions/_recommendation_fellow_content.html' with recommendation=rec %}
+                                <div class="card-footer">
+                                    <h3>Actions:</h3>
+                                    <ul>
+                                        <li><a href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <hr>
+            {% endif %}
+        {% endif %}
+
+        {% if assignments_to_consider %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="highlight p-3">
+                        <h1 class="p-0">Assignment request</h1>
+                        <h3 class="p-0 mt-1 d-block text-muted">Can you act as Editor-in-charge? (see below to accept/decline)</h3>
+                    </div>
+                </div>
+            </div>
+            {% for assignment_to_consider in assignments_to_consider %}
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            {% include 'submissions/_submission_assignment_request.html' with assignment=assignment_to_consider %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
             <hr>
         {% endif %}
 
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-outline-secondary">
-                    {% include 'submissions/_submission_card_fellow_content.html' with submission=rec.submission %}
+        {% if recs_to_vote_on %}
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="highlight mt-0">Recommendations to vote on</h1>
                 </div>
+            </div>
+            {% for rec in recs_to_vote_on %}
+                {% if not forloop.first %}
+                    <hr>
+                {% endif %}
 
-                <div class="card card-outline-secondary">
-                    <div class="card-header">
-                        <h3>Editorial recommendation</h3>
-                    </div>
-                    <div class="card-block">
-                        {# {{ rec.print_for_Fellows }}#}
+                <div class="row">
+                    <div class="col-12">
                         <div class="card card-outline-secondary">
-                            {% include 'submissions/_recommendation_fellow_content.html' with recommendation=rec %}
+                            {% include 'submissions/_submission_card_fellow_content.html' with submission=rec.submission %}
                         </div>
 
-                        {% if rec.remark_set.all %}
-                            <h3 class="card-title">Remarks by Fellows:</h3>
-                            <ul>
-                              {% for remark in rec.remark_set.all|sort_by:'date' %}
-                                  {{ remark.as_li }}
-                              {% endfor %}
-                            </ul>
-                        {% endif %}
-
-                        <h3 class="card-title">Fellows eligible to vote:</h3>
-                        <ul>
-                          <li>
-                        	  {% for eligible in rec.eligible_to_vote.all|sort_by:'user__last_name' %}
-                            	  {{ eligible.user.last_name }},&nbsp;
-                        	  {% endfor %}
-                            </li>
-                        </ul>
-
-                        <h3 class="card-title">Voting results up to now:</h3>
-                        <ul>
-                            <li>
-                                Agreed:&nbsp;({{ rec.voted_for.all.count }})
-                                {% for agreed in rec.voted_for.all|sort_by:'user__last_name' %}
-                                    {{ agreed.user.last_name }},&nbsp;
-                                {% endfor %}
-                            </li>
-                            <li>
-                                Disagreed:&nbsp;({{ rec.voted_against.all.count }})
-                                {% for disagreed in rec.voted_against.all|sort_by:'user__last_name' %}
-                                    {{ disagreed.user.last_name }},&nbsp;
-                                {% endfor %}
-                            </li>
-                            <li>
-                                Abstained:&nbsp;({{ rec.voted_abstain.all.count }})
-                                {% for abstained in rec.voted_abstain.all|sort_by:'user__last_name' %}
-                                    {{ abstained.user.last_name }},&nbsp;
-                                {% endfor %}
-                            </li>
-                        </ul>
-
-                        {% if rec.remark_set %}
-                            <h4 class="card-title">Remarks:</h4>
-                            <ul>
-                              {% for rem in rec.remark_set.all %}
-                                  <li>{{ rem }}</li>
-                              {% endfor %}
-                            </ul>
-                        {% endif %}
-                    </div>
-                    <div class="card-footer">
-                        <h3 class="card-title">Actions:</h3>
-                        <ul>
-                            <li>To fix the College decision and follow the Editorial Recommendation as is: <a href="{% url 'submissions:fix_College_decision' rec_id=rec.id %}">click here</a></li>
-                            <li>To request a modification of the Recommendation to request for revision: click here</li>
-                        </ul>
+                        <div class="card card-outline-secondary">
+                            {% include 'submissions/_recommendation_fellow_content.html' with recommendation=rec %}
+                            <div class="card-footer">
+                                <h3>Your position on this recommendation</h3>
+                                <form action="{% url 'submissions:vote_on_rec' rec_id=rec.id %}" method="post">
+                                    {% csrf_token %}
+                                    {{ rec_vote_form|bootstrap:'0,12' }}
+                                    <input type="submit" name="submit" value="Cast your vote" class="btn btn-primary submitButton" id="submit-id-submit">
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
-    <hr>
-{% endif %}
-
-
-{% if assignments_to_consider %}
-    <div class="row">
-        <div class="col-12">
-            <div class="highlight d-block p-3">
-                <h1 class="p-0">Assignment request</h1>
-                <h3 class="p-0 mt-1 d-block text-muted">Can you act as Editor-in-charge? (see below to accept/decline)</h3>
-            </div>
-        </div>
-    </div>
-    {% for assignment_to_consider in assignments_to_consider %}
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-block">
-                        {{ assignment_to_consider.submission.header_as_table }}
-                        <br />
-
-                        <h4>Abstract:</h4>
-                        <p>{{ assignment_to_consider.submission.abstract }}</p>
-                    </div>
-                    <div class="card-footer">
-                        <h1>Accept or Decline this Assignment</h1>
-                        <h3 class="mb-2">By accepting, you will be required to start a refereeing round on the next screen.</h3>
-
-                        <form action="{% url 'submissions:accept_or_decline_assignment_ack' assignment_id=assignment_to_consider.id %}" method="post">
-                            {% csrf_token %}
-                            <div class="form-group row">
-                                <div class="col-12">
-                                    {{ consider_assignment_form.accept }}
-                                </div>
-                            </div>
-                            <div class="row" id="ref_reason">
-                                <div class="col-12">
-                                    <p>Please select a reason for declining this assignment</p>
-                                    {{ consider_assignment_form.refusal_reason|bootstrap:'0,12' }}
-                                </div>
-                            </div>
-                            <input class="btn btn-secondary" type="submit" value="Submit" />
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
-    <hr>
-{% endif %}
-
-{% if request.user|is_in_group:'Editorial Administrators' and recommendations_to_prepare_for_voting %}
-    <div class="row">
-        <div class="col-12">
-            <h1 class="highlight d-block">Recommendations to prepare for voting</h1>
-        </div>
-    </div>
-
-    {% for rec in recommendations_to_prepare_for_voting %}
-        {% if not forloop.first %}
+            {% endfor %}
             <hr>
         {% endif %}
 
         <div class="row">
             <div class="col-12">
-                <div class="card card-outline-secondary">
-                    {% include 'submissions/_submission_card_fellow_content.html' with submission=rec.submission %}
-                </div>
-
-                <div class="card card-outline-secondary">
-                    <div class="card-header">
-                        <h3>Editorial recommendation</h3>
-                    </div>
-                    <div class="card-block">
-                        {{ rec.print_for_Fellows }}
-                    </div>
-                    <div class="card-footer">
-                        <h3>Actions:</h3>
-                        <ul>
-                            <li><a href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a></li>
-                        </ul>
-                    </div>
-                </div>
+                <h1 class="highlight mt-0">SciPost Submissions Pool</h1>
             </div>
         </div>
-    {% endfor %}
-    <hr>
-{% endif %}
 
-{% if recs_to_vote_on %}
-    <div class="row">
-        <div class="col-12">
-            <h1 class="highlight d-block">Recommendations to vote on</h1>
+        <div class="row hidden-lg-up">
+            <div class="col-12">
+                <h3>Submissions by status:</h3>
+                <ul>
+                {% for key, val in submission_status %}
+                    <li>
+                        <a href="{% url 'submissions:submissions_by_status' status=key %}">{{ val }}</a>
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
         </div>
-    </div>
-    {% for rec in recs_to_vote_on %}
-        {% if not forloop.first %}
-            <hr>
-        {% endif %}
+
+        <hr class="hidden-lg-up">
 
         <div class="row">
             <div class="col-12">
-                <div class="card card-outline-secondary">
-                    {% include 'submissions/_submission_card_fellow_content.html' with submission=rec.submission %}
-                </div>
-
-                <div class="card card-outline-secondary">
-                    <div class="card-header">
-                        <h3>Editorial recommendation</h3>
+                <!-- Submissions list -->
+                {% for sub in submissions_in_pool %}
+                    <div class="card card-outline-secondary mt-1" id="pool_submission_{{sub.id}}">
+                        {% include 'submissions/_submission_card_in_pool.html' with submission=sub remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
                     </div>
-                    <div class="card-block">
-                        {{ rec.print_for_Fellows }}
-                    </div>
-                    <div class="card-footer">
-                        <h3>Your position on this recommendation</h3>
-                        <form action="{% url 'submissions:vote_on_rec' rec_id=rec.id %}" method="post">
-                            {% csrf_token %}
-                            {{ rec_vote_form|bootstrap:'0,12' }}
-                            <input type="submit" name="submit" value="Cast your vote" class="btn btn-primary submitButton" id="submit-id-submit">
-                        </form>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
-    {% endfor %}
-    <hr>
-{% endif %}
+    </div><!-- End page content -->
 
-<div class="row">
-    <div class="col-12">
-        <h1 class="highlight">SciPost Submissions Pool</h1>
-    </div>
-</div>
+    <!-- Sidebar -->
+    <div class="col-lg-4 hidden-md-down">
+        <div class="card card-outline-secondary">
+            <div class="card-block">
+                <h2 class="card-title">Pool</h2>
+                <!-- Status -->
+                <a href="#pool_filter_status" data-toggle="collapse" class="collapsed">
+                    <h3 class="card-title text-gray-dark">Submissions by status</h3>
+                </a>
+                <div id="pool_filter_status" class="collapse">
+                    <ul class="pl-4">
+                        {% for key, val in submission_status %}
+                            <li>
+                                <a href="{% url 'submissions:submissions_by_status' status=key %}">{{ val }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div><!-- end status -->
 
-<div class="row">
-    <div class="col-12">
-        <h3>Submissions by status:</h3>
-        <ul>
-        {% for key, val in submission_status %}
-            <li>
-                <a href="{% url 'submissions:submissions_by_status' status=key %}">{{ val }}</a>
-            </li>
-        {% endfor %}
-        </ul>
-    </div>
-</div>
-
-<hr>
-<div class="row">
-    <div class="col-12">
-        <!-- Submissions list -->
-        {% for sub in submissions_in_pool %}
-            <div class="card card-outline-secondary mt-1">
-                {% include 'submissions/_submission_card_fellow_content.html' with submission=sub %}
-
-                <div class="card-block">
-                    {% if sub.remark_set.all %}
-                        <h4>Remarks on this submission:</h4>
-                        <ul>
-                          {% for rem in sub.remark_set.all %}
-                              {{ rem.as_li }}
-                          {% endfor %}
-                        </ul>
-                    {% endif %}
-                    <button class="btn btn-secondary mb-2 submitRemarkButton" id="remarkButton{{ submission.id }}">Add a remark on this Submission</button>
-                    <div class="submitRemarkForm pb-2" id="remarkForm{{ submission.id }}">
-                      <form action="{% url 'submissions:add_remark' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}" method="post">
-                    	{% csrf_token %}
-                    	{{ remark_form|bootstrap:'0,12' }}
-                    	<input class="btn btn-secondary" type="submit" value="Submit" />
-                      </form>
-                    </div>
-
-                    {% get_obj_perms request.user for sub as "sub_perms" %}
-                    {% if "can_take_editorial_actions" in sub_perms or request.user|is_in_group:'Editorial Administrators' %}
-                        {% if sub|required_actions %}
-                            <div class="required-actions">
-                            	<h3 class="pt-0">Required actions:</h3>
-                            	<ul>
-                            	  {% for todoitem in sub|required_actions %}
-                                	  <li>{{ todoitem }}</li>
-                            	  {% endfor %}
-                            	</ul>
-                            </div>
-                        {% endif %}
-
-                        <h4>
-                            <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
-                        </h4>
-                    {% endif %}
-
-                    {% if perms.scipost.can_assign_submissions %}
-                        {% if sub.editorialassignment_set.all %}
-                            <h4>EIC Assignment requests:</h4>
-                            <ul>
-                              {% for assignment in sub.editorialassignment_set.all %}
-                                  {{ assignment.info_as_li }}
-                              {% endfor %}
+                {% if is_ECAdmin %}
+                    {% if recommendations_undergoing_voting %}
+                        <!-- Preparing -->
+                        <a href="#rec_filter_voting" data-toggle="collapse" class="collapsed">
+                            <h3 class="card-title text-gray-dark">Recommendations undergoing voting ({{recommendations_undergoing_voting|length}})</h3>
+                        </a>
+                        <div id="rec_filter_voting" class="collapse">
+                            <ul class="list-group list-group-flush">
+                                {% for recommendation in recommendations_undergoing_voting %}
+                                    <li class="list-group-item">
+                                        <div class="card-block">
+                                            <a href="#prepare_rec_{{recommendation.id}}">{{recommendation.submission.title}}</a>
+                                            <p class="text-muted my-0">{{recommendation.submission.author_list}}</p>
+                                            <p class="my-0">Formulated on {{recommendation.date_submitted}}</p>
+                                        </div>
+                                    </li>
+                                {% endfor %}
                             </ul>
-                        {% endif %}
-                        {% if sub.editor_in_charge == None %}
-                            <h4>Actions:</h4>
-                            <ul>
-                              <li><a href="{% url 'submissions:assign_submission' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Send a new assignment request</a></li>
-                              <li><a href="{% url 'submissions:assignment_failed' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
-                            </ul>
-                        {% endif %}
+                        </div><!-- end preparing -->
                     {% endif %}
 
-                    {% if request.user|is_in_group:'Editorial Administrators' %}
-                        <h4>
-                            <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=sub.arxiv_identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a>
-                        </h4>
-                        {% if sub.status == 'accepted' %}
-                            <h4>After proofs have been accepted, you can <a href="{% url 'journals:initiate_publication' %}">initiate the publication process</a> (leads to the validation page)</h4>
-                        {% endif %}
+                    {% if recommendations_to_prepare_for_voting %}
+                        <!-- Preparing -->
+                        <a href="#rec_filter_prepare" data-toggle="collapse" class="collapsed">
+                            <h3 class="card-title text-gray-dark">Recommendations to prepare ({{recommendations_to_prepare_for_voting|length}})</h3>
+                        </a>
+                        <div id="rec_filter_prepare" class="collapse">
+                            <ul class="list-group list-group-flush">
+                                {% for recommendation in recommendations_to_prepare_for_voting %}
+                                    <li class="list-group-item">
+                                        <div class="card-block">
+                                            <a href="#prepare_rec_{{recommendation.id}}">{{recommendation.submission.title}}</a>
+                                            <p class="text-muted my-0">{{recommendation.submission.author_list}}</p>
+                                            <p class="my-0">Formulated on {{recommendation.date_submitted}}</p>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div><!-- end preparing -->
                     {% endif %}
-                </div>
+                {% endif %}
+
+                <!-- Pool -->
+                <a href="#pool_filter_submissions" data-toggle="collapse">
+                    <h3 class="card-title text-gray-dark">Submissions in pool ({{submissions_in_pool|length}})</h3>
+                </a>
+                <div id="pool_filter_submissions" class="collapse show">
+                    <ul class="list-group list-group-flush">
+                        {% for submission in submissions_in_pool %}
+                            <li class="list-group-item">
+                                <div class="card-block">
+                                    <a href="#pool_submission_{{submission.id}}">{{submission.title}}</a>
+                                    <p class="text-muted mb-1">{{submission.author_list}}</p>
+                                    <p class="label label-secondary label-sm my-2">{{submission.get_status_display}}</p>
+                                </div>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">
+                                <h4 class="card-title"><em>No submission in the pool</em></h4>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div><!-- end pool -->
             </div>
-        {% endfor %}
+        </div>
     </div>
 </div>
 
-{% endblock content %}
+{% endwith %}
+
+{% endblock %}

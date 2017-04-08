@@ -2,90 +2,102 @@
 
 {% block pagetitle %}: add author to publication{% endblock pagetitle %}
 
-{% block headsup %}
-
 {% load scipost_extras %}
+{% load bootstrap %}
 
-{% endblock headsup %}
+{% block content %}
 
-{% block bodysup %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Add author to publication</h1>
+    </div>
+</div>
 
-
-<section>
-  <div class="flex-greybox">
-    <h1>Add author to publication</h1>
-  </div>
-  {{ publication.details }}
-</section>
-
-
-<section>
-  <div class="flex-greybox">
-    <h1>Add an (unregistered) author</h1>
-  </div>
-
-  <h3>Current list of authors as contributors:</h3>
-  <p>
-    {% for author in publication.authors.all %}
-      <a href="/contributor/{{ author.id }}">{{ author.user.first_name }} {{ author.user.last_name }}</a>&nbsp;
-    {% endfor %}
-  </p>
-  <h3>Current list of additional authors (unregistered):</h3>
-  <p>
-    {% for author in publication.authors_unregistered.all %}
-      {{ author }}
-    {% endfor %}
-  </p>
-
-  <h3>Search for missing author:</h3>
-  <form action="{% url 'journals:add_author' publication_id=publication.id %}" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Search">
-  </form>
-
-  {% if contributors_found %}
-    <h3>Identified as contributor:</h3>
-    <table>
-      {% for contributor in contributors_found %}
-        <tr>
-          <td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td>
-          <td>&nbsp;</td>
-          <td><a href="{% url 'journals:add_author' publication_id=publication.id contributor_id=contributor.id %}">Add this Contributor as author of this Publication</a></td>
-        </tr>
-      {% endfor %}
-    </table>
-  {% elif form.has_changed %}
-    <p>No Contributor with this name could be identified.</p>
-  {% endif %}
-  <br/>
-
-  {% if unregistered_authors_found %}
-    <h3>Identified as existing unregistered author:</h3>
-    <table>
-      {% for unreg_auth in unregistered_authors_found %}
-        <tr>
-          <td>{{ unreg_auth }}</td>
-          <td>&nbsp;</td>
-          <td><a href="{% url 'journals:add_unregistered_author' publication_id=publication.id unregistered_author_id=unreg_auth.id %}">Add this unregistered author as author of this Publication</a></td>
-        </tr>
-      {% endfor %}
-    </table>
-  {% elif form.has_changed %}
-    <p>No UnregisteredAuthor with this name could be found in the database.</p>
-  {% endif %}
-  <br/>
-
-  <h3>You can otherwise create an UnregisteredAuthor object instance and link it to this publication:</h3>
-  <form action="{% url 'journals:add_new_unreg_author' publication_id=publication.id %}" method="post">
-    {% csrf_token %}
-    {{ new_unreg_author_form.as_p }}
-    <input type="submit" value="Add">
-  </form>
-
-  <h3><a href="{% url 'scipost:publication_detail' doi_string=publication.doi_string %}">Return to the publication's page</a></h3>
-
-</section>
+<div class="row">
+    <div class="col-12">
+        {% include 'journals/_publication_details.html' with publication=publication %}
+    </div>
+</div>
 
 
-{% endblock bodysup %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="highlight">Add an (unregistered) author</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+      <h3>Current list of authors as contributors:</h3>
+      <ul class="list-group list-group-noborder">
+        {% for author in publication.authors.all %}
+            <li class="list-group-item py-1 pl-2">
+                <a href="{% url 'scipost:contributor_info' author.id %}">{{ author.user.first_name }} {{ author.user.last_name }}</a>
+            </li>
+        {% empty %}
+            No unregistered authors known.
+        {% endfor %}
+      </ul>
+      <h3>Current list of additional authors (unregistered):</h3>
+      <ul class="list-group list-group-noborder">
+        {% for author in publication.authors_unregistered.all %}
+            <li class="list-group-item py-1 pl-2">{{ author }}</li>
+        {% empty %}
+            No unregistered authors known.
+        {% endfor %}
+      </ul>
+      <hr class="small">
+
+      <div class="row">
+          <div class="col-md-8">
+              <h3>Search for missing author:</h3>
+              <form action="{% url 'journals:add_author' publication.id %}" method="post">
+                    {% csrf_token %}
+                    {{form|bootstrap}}
+                    <input class="btn btn-secondary" type="submit" value="Search">
+              </form>
+
+              {% if form.has_changed %}
+                <h3 class="mt-4">Identified as contributor:</h3>
+                <ul class="list-group">
+                  {% for contributor in contributors_found %}
+                      <li class="list-group-item p-2">
+                        <div class="d-block w-100 font-weight-bold">{{ contributor.user.first_name }} {{ contributor.user.last_name }}</div>
+                        <a class="d-block" href="{% url 'journals:add_author' publication_id=publication.id contributor_id=contributor.id %}">Add this Contributor as author of this Publication</a>
+                      </li>
+                  {% empty %}
+                      <span class="text-danger">No Contributor with this name could be identified.</span>
+                  {% endfor %}
+                </ul>
+
+                <h3 class="mt-2">Identified as existing unregistered author:</h3>
+                <ul class="list-group">
+                  {% for unreg_auth in unregistered_authors_found %}
+                    <li class="list-group-item">
+                        <div class="d-block w-100 font-weight-bold">{{ unreg_auth }}
+                        <a class="d-block" href="{% url 'journals:add_unregistered_author' publication_id=publication.id unregistered_author_id=unreg_auth.id %}">Add this unregistered author as author of this Publication</a>
+                    </li>
+                    {% empty %}
+                        <span class="text-danger">No UnregisteredAuthor with this name could be found in the database.</span>
+                    {% endfor %}
+                </ul>
+
+                <h3 class="mt-3">You can otherwise create an UnregisteredAuthor object instance and link it to this publication:</h3>
+                <form action="{% url 'journals:add_new_unreg_author' publication_id=publication.id %}" method="post">
+                    {% csrf_token %}
+                    {{ new_unreg_author_form|bootstrap }}
+                    <input class="btn btn-secondary" type="submit" value="Add">
+                </form>
+
+              {% endif %}
+          </div>
+      </div>
+
+      <h3>
+          <a href="{{publication.get_absolute_url}}">Return to the publication's page</a>
+      </h3>
+    </div>
+</div>
+
+
+{% endblock content %}

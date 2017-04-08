@@ -1,26 +1,29 @@
 {% extends 'scipost/base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: Validate publication{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Validate publication page</h1>
+    </div>
+</div>
 
-<section>
-  <div class="flex-greybox">
-    <h1>Validate publication page</h1>
-  </div>
+<div class="row">
+    <div class="col-lg-10 offset-lg-1">
+        {% if errormessage %}
+            <h2 style="color: red;">{{ errormessage }}</h2>
+        {% endif %}
 
-  {% if errormessage %}
-    <h2 style="color: red;">{{ errormessage }}</h2>
-  {% endif %}
+        <form action="{% url 'journals:validate_publication' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ validate_publication_form|bootstrap }}
+            <input class="btn btn-secondary" type="submit" value="Submit">
+        </form>
+    </div>
+</div>
 
-  <form action="{% url 'journals:validate_publication' %}" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ validate_publication_form.as_p }}
-    <input type="submit" value="Submit">
-  </form>
-
-</section>
-
-
-{% endblock bodysup %}
+{% endblock content %}

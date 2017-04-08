@@ -2,162 +2,154 @@
 
 {% block pagetitle %}: Editorial Workflow Summary{% endblock pagetitle %}
 
-{% block headsup %} {% load staticfiles %} {% endblock headsup %}
+{% load staticfiles %}
 
-{% block bodysup %}
+{% block content %}
 
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Editorial Workflow: Summary</h1>
 
-<section>
+        <p>As an Editorial Fellow, you are automatically a member of the
+          Editorial College, whose detailed functioning is explained in the
+          <a href="{% url 'scipost:EdCol_by-laws' %}">by-laws</a>. These include a
+          detailed description of the Submissions handling process, of which this is
+          a quick summary.
+        </p>
+        <p>
+          Some other important information is to be found in the
+          <a href="{% url 'journals:journals_terms_and_conditions' %}">
+    	Journals Terms and Conditions</a>.
+        </p>
+  </div>
+</div>
 
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>Editorial Workflow: Summary</h1>
+{# <hr>#}
+
+<div class="row">
+    <div class="col-12">
+        <h3 class="highlight">The Submissions Pool</h3>
+        <p>
+        At any moment, you can peruse the <a href="{% url 'submissions:pool' %}">
+          Submissions Pool</a> in order to view the status of all Submissions
+        currently undergoing peer review in SciPost. Only members of the Editorial
+        College and Editorial Administrators have access to this page.
+        </p>
     </div>
-  </div>
-  <div>
-    <p>As an Editorial Fellow, you are automatically a member of the
-      Editorial College, whose detailed functioning is explained in the
-      <a href="{% url 'scipost:EdCol_by-laws' %}">by-laws</a>. These include a
-      detailed description of the Submissions handling process, of which this is
-      a quick summary.
-    </p>
-    <p>
-      Some other important information is to be found in the
-      <a href="{% url 'journals:journals_terms_and_conditions' %}">
-	Journals Terms and Conditions</a>.
-    </p>
-  </div>
+</div>
 
-  <hr class="hr6"/>
+{# <hr>#}
 
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h3>The Submissions Pool</h3>
+<div class="row">
+    <div class="col-12">
+        <h3 class="highlight">Becoming Editor-in-charge of a Submission</h3>
+        <p>You can become Editor-in-charge of a Submission by either:
+            <ul>
+                <li>accepting an assignment request (emailed to you by an Editorial Administrator)</li>
+                <li>volunteering directly from the <a href="{% url 'submissions:pool' %}">
+                Submissions Pool</a>.</li>
+            </ul>
+            For each incoming Submission, assignment requests are emailed to a handful of
+            Fellows whose expertise matches that of the Submission. You are never obliged
+            to accept an assignment; we do however appreciate a quick response, including a
+            reason for declining (since this determines the results of the pre-screening stage:
+            if five Fellows decline for lack of interest, the paper is rejected at this stage).
+        </p>
     </div>
-  </div>
-  <p>
-    At any moment, you can peruse the <a href="{% url 'submissions:pool' %}">
-      Submissions Pool</a> in order to view the status of all Submissions
-    currently undergoing peer review in SciPost. Only members of the Editorial
-    College and Editorial Administrators have access to this page.
-  </p>
+</div>
 
-  <hr class="hr6"/>
+{# <hr>#}
 
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h3>Becoming Editor-in-charge of a Submission</h3>
+<div class="row">
+    <div class="col-12">
+        <h3 class="highlight">Your tasks as an Editor-in-charge of a particular Submission</h3>
+
+      <p>
+        Once you become Editor-in-charge of a Submission, you gain access to this
+        Submission's Editorial Page, containing all you need to run the editorial process.
+        The online tools at your disposal are meant to make your work as Editor-in-charge
+        as simple and rapid as possible. They allow you to:
+        <ul>
+          <li>Invite referees</li>
+          <li>Communicate with authors, referees and Editorial Administrators</li>
+          <li>Open/extend/close refereeing rounds</li>
+          <li>Formulate your Editorial Recommendation.</li>
+        </ul>
+      </p>
+      <p>
+        Here is a step-by-step guide to the process
+        (when appropriate, you will receive emails containing relevant information
+        and notifying you of any pending tasks):
+      </p>
+        <ul>
+          <li>Upon becoming Editor-in-charge, please invite at least 3 referees</li>
+          <li>If any referee declines to review, please invite a replacement</li>
+          <li>If a referee does not respond after 3 days, please send a reminder (one-click)</li>
+          <li>If needed, extend the refereeing round (one-click)</li>
+          <li>When reports come in, please vet them</li>
+          <li>Once reports have been gathered, close the refereeing round (one-click)</li>
+          <li>Based on the delivered Reports and Comments, formulate your Editorial Recommendation.</li>
+        </ul>
+      <p>
+        After you have formulated and sent your Editorial Recommendation, your tasks are fulfilled.
+      </p>
+      <p>
+        If and when the paper is resubmitted (after minor or major modifications), the process
+        starts again with you as Editor-in-charge (you can start a new refereeing round if needed,
+        or immediately formulate a new Editorial Recommendation).
+      </p>
+      </p>
+      <p>
+        If your Editorial Recommendation is for minor or major modification of the paper, it is
+        forwarded directly to the authors. If it is to accept or reject the paper, it is forwarded
+        to the Editorial College for ratification.
+      </p>
+      <p>
+        From this point onwards, the process is carried further by the Editorial Administrators.
+      </p>
     </div>
-  </div>
-  <p>You can become Editor-in-charge of a Submission by either:
-    <ul>
-      <li>accepting an assignment request (emailed to you by an Editorial Administrator)</li>
-      <li>volunteering directly from the <a href="{% url 'submissions:pool' %}">
-	  Submissions Pool</a>.</li>
-    </ul>
-    For each incoming Submission, assignment requests are emailed to a handful of
-    Fellows whose expertise matches that of the Submission. You are never obliged
-    to accept an assignment; we do however appreciate a quick response, including a
-    reason for declining (since this determines the results of the pre-screening stage:
-    if five Fellows decline for lack of interest, the paper is rejected at this stage).
-  </p>
+</div>
 
-  <hr class="hr6"/>
+{# <hr>#}
 
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h3>Your tasks as an Editor-in-charge of a particular Submission</h3>
+<div class="row">
+    <div class="col-12">
+        <h3 class="highlight">The Editorial College</h3>
+
+        <p>
+            The binding decision on publication or rejection is taken by the Editorial College.
+            Fellows receive a communication by email from the Editorial Administrators, asking
+            for ratification of submitted Editorial Recommendations. Acceptance of the
+            Editor-in-charge's recommendation is tacitly assumed when no response is received.
+        </p>
     </div>
-  </div>
-  <p>
-    Once you become Editor-in-charge of a Submission, you gain access to this
-    Submission's Editorial Page, containing all you need to run the editorial process.
-    The online tools at your disposal are meant to make your work as Editor-in-charge
-    as simple and rapid as possible. They allow you to:
-    <ul>
-      <li>Invite referees</li>
-      <li>Communicate with authors, referees and Editorial Administrators</li>
-      <li>Open/extend/close refereeing rounds</li>
-      <li>Formulate your Editorial Recommendation.</li>
-    </ul>
-  </p>
-  <p>
-    Here is a step-by-step guide to the process
-    (when appropriate, you will receive emails containing relevant information
-    and notifying you of any pending tasks):
-  </p>
-    <ul>
-      <li>Upon becoming Editor-in-charge, please invite at least 3 referees</li>
-      <li>If any referee declines to review, please invite a replacement</li>
-      <li>If a referee does not respond after 3 days, please send a reminder (one-click)</li>
-      <li>If needed, extend the refereeing round (one-click)</li>
-      <li>When reports come in, please vet them</li>
-      <li>Once reports have been gathered, close the refereeing round (one-click)</li>
-      <li>Based on the delivered Reports and Comments, formulate your Editorial Recommendation.</li>
-    </ul>
-  <p>
-    After you have formulated and sent your Editorial Recommendation, your tasks are fulfilled.
-  </p>
-  <p>
-    If and when the paper is resubmitted (after minor or major modifications), the process
-    starts again with you as Editor-in-charge (you can start a new refereeing round if needed,
-    or immediately formulate a new Editorial Recommendation).
-  </p>
-  </p>
-  <p>
-    If your Editorial Recommendation is for minor or major modification of the paper, it is
-    forwarded directly to the authors. If it is to accept or reject the paper, it is forwarded
-    to the Editorial College for ratification.
-  </p>
-  <p>
-    From this point onwards, the process is carried further by the Editorial Administrators.
-  </p>
+</div>
 
-  <hr class="hr6"/>
+{# <hr>#}
 
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h3>The Editorial College</h3>
+<div class="row">
+    <div class="col-12">
+        <h3 class="highlight">Production of the published version (version of record)</h3>
+        <p>
+            Post-acceptance, the paper is handled by the production team, who produce the
+            final version and publish it in the relevant Journal. As an Editorial Fellow,
+            you carry no responsibility for any of these tasks.
+        </p>
     </div>
-  </div>
-  <p>
-    The binding decision on publication or rejection is taken by the Editorial College.
-    Fellows receive a communication by email from the Editorial Administrators, asking
-    for ratification of submitted Editorial Recommendations. Acceptance of the
-    Editor-in-charge's recommendation is tacitly assumed when no response is received.
-  </p>
+</div>
 
-  <hr class="hr6"/>
+{# <hr>#}
 
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h3>Production of the published version (version of record)</h3>
+<div class="row">
+    <div class="col-12">
+        <h3 class="highlight">Commitment</h3>
+        <p>
+            Your involvement in the Editorial College is greatly valued, and we understand
+            that your time is precious. A normal workload would be to handle a handful of
+            Submissions in any calendar year. This should represent on average two to four
+            hours of work per month.
+        </p>
     </div>
-  </div>
-  <p>
-    Post-acceptance, the paper is handled by the production team, who produce the
-    final version and publish it in the relevant Journal. As an Editorial Fellow,
-    you carry no responsibility for any of these tasks.
-  </p>
+</div>
 
-  <hr class="hr6"/>
-
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h3>Commitment</h3>
-    </div>
-  </div>
-  <p>
-    Your involvement in the Editorial College is greatly valued, and we understand
-    that your time is precious. A normal workload would be to handle a handful of
-    Submissions in any calendar year. This should represent on average two to four
-    hours of work per month.
-  </p>
-
-
-
-
-</section>
-
-
-{% endblock bodysup %}
+{% endblock %}

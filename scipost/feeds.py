@@ -5,11 +5,12 @@ from django.utils.feedgenerator import Atom1Feed
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 
-from scipost.models import subject_areas_dict
 from comments.models import Comment
 from journals.models import Publication
 from news.models import NewsItem
-from submissions.models import Submission, SUBMISSION_STATUS_PUBLICLY_INVISIBLE
+from scipost.models import subject_areas_dict
+from submissions.constants import SUBMISSION_STATUS_PUBLICLY_INVISIBLE
+from submissions.models import Submission
 
 
 class LatestCommentsFeedRSS(Feed):
@@ -39,6 +40,7 @@ class LatestCommentsFeedRSS(Feed):
                            kwargs={'thesislink_id': item.thesislink.id})
         else:
             return reverse('scipost:index')
+
 
 class LatestCommentsFeedAtom(LatestCommentsFeedRSS):
     feed_type = Atom1Feed
@@ -169,8 +171,7 @@ class LatestPublicationsFeedRSS(Feed):
         return obj
 
     def item_link(self, item):
-        return reverse('scipost:publication_detail',
-                       kwargs={'doi_string': item.doi_string})
+        return item.get_absolute_url()
 
 
 class LatestPublicationsFeedAtom(LatestPublicationsFeedRSS):

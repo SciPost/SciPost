@@ -1,0 +1,15 @@
+.banner {
+    background-color: #002b49;
+    padding: 0.9rem 1rem;
+    text-align: center;
+    border-radius: 1.4px;
+
+    &,
+    a {
+        color: #FFA300;
+    }
+}
+
+.bg-transparent {
+    background-color: transparent;
+}

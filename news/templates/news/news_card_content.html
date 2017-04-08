@@ -1,0 +1,11 @@
+<div class="card-header p-2 border-0">
+    <h3 class="card-title mb-0">{{news.headline}}</h3>
+</div>
+<div class="card-block px-2 pt-1">
+    <h4 class="text-muted font-weight-bold">{{news.date|date:'Y-n-j'}}</h4>
+    <div>{{news.blurb|linebreaks}}</div>
+
+    {% if news.followup_link %}
+        <a href="{{news.followup_link}}">{{news.followup_link_text}}</a>
+    {% endif %}
+</div>
