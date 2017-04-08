@@ -14,8 +14,9 @@
 {% endblock %}
 
 {% block secondary_navbar %}
-    <nav class="navbar navbar-secondary">
-        <div class="container my-2">
+<div class="container my-2">
+    <nav class="navbar navbar-secondary px-0">
+        <div>
             <h2 class="banner d-inline-block mr-2"><a href="{% url 'scipost:landing_page' journal.doi_string %}">{{journal}}</a></h2>
             <ul class="links">
                 {% if journal.active or request.user.is_staff %}
@@ -29,6 +30,7 @@
             </ul>
         </div>
     </nav>
+</div>
 {% endblock secondary_navbar %}
 
 
