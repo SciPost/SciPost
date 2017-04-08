@@ -1,6 +1,7 @@
 import datetime
 import feedparser
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
@@ -342,7 +343,8 @@ def pool(request):
     to publication acceptance or rejection.
     All members of the Editorial College have access.
     """
-    submissions_in_pool = Submission.objects.get_pool(request.user)
+    submissions_in_pool = (Submission.objects.get_pool(request.user)
+                           .prefetch_related('refereeinvitation_set', 'remark_set', 'comment_set'))
     recommendations_undergoing_voting = (EICRecommendation.objects
                                          .get_for_user_in_pool(request.user)
                                          .filter(submission__status__in=['put_to_EC_voting']))
@@ -379,7 +381,8 @@ def pool(request):
 @login_required
 @permission_required('scipost.can_view_pool', raise_exception=True)
 def submissions_by_status(request, status):
-    if status not in dict(SUBMISSION_STATUS).keys():
+    status_dict = dict(SUBMISSION_STATUS)
+    if status not in status_dict.keys():
         errormessage = 'Unknown status.'
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
     submissions_of_status = (Submission.objects.get_pool(request.user)
@@ -387,6 +390,7 @@ def submissions_by_status(request, status):
 
     context = {
         'submissions_of_status': submissions_of_status,
+        'status': status_dict[status],
         'remark_form': RemarkForm()
     }
     return render(request, 'submissions/submissions_by_status.html', context)
@@ -1171,8 +1175,9 @@ def prepare_for_voting(request, rec_id):
             recommendation.save()
             recommendation.submission.status = 'put_to_EC_voting'
             recommendation.submission.save()
-            return render(request, 'scipost/acknowledgement.html',
-                          context={'ack_message': 'We have registered your selection.'})
+            messages.success(request, 'We have registered your selection.')
+            return redirect(reverse('submissions:editorial_page',
+                                    args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
         # Identify possible co-authorships in last 3 years, disqualifying Fellow from voting:
         if recommendation.submission.metadata is not None:

@@ -1,0 +1,10 @@
+<div class="card-block">
+    <h3 class="card-title">{{ item.title }}</h3>
+    <div class="card-text">
+        {% for author in item.authors %}
+            {{ author.name }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+        - <a href="{{ item.id }}" target="_blank">{{ item.id }}</a>
+    </div>
+    <p class="card-text text-muted">Published: {{ item.published }}</p>
+</div>

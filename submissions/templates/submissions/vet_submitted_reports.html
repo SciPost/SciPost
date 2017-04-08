@@ -1,4 +1,4 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/_pool_base.html' %}
 
 {% block pagetitle %}: vet reports{% endblock pagetitle %}
 
@@ -23,6 +23,12 @@ $(document).ready(function(){
 </script>
 
 {% endblock headsup %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <span class="breadcrumb-item">Vet Reports</span>
+{% endblock %}
 
 {% block content %}
 

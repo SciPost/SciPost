@@ -16,14 +16,35 @@
         {{block.super}}
     {% endwith %}
 
-    <div class="row">
+
+        <div class="row">
         <div class="col-md-6">
-            <h2>Neque porro quisquam</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean ultrices tristique ligula. Praesent id odio mollis, egestas est blandit, tempus nisi. Nulla facilisi. Donec a consequat magna. In pulvinar libero laoreet finibus rhoncus. Vestibulum sodales risus in ornare ultricies. Donec vitae euismod sem, vitae finibus purus. Vestibulum vehicula, orci pellentesque congue sodales, leo nulla pellentesque elit, in interdum enim dui quis urna. Etiam at lectus sit amet risus sollicitudin faucibus.</p>
+            <h2>Aims and Scope</h2>
+            <p>SciPost Physics Proceedings is a premium-quality, two-way open access, peer-witnessed refereed Journal for the general field of Physics.</p>
+            <p>It aims at providing a high-quality, openly accessible publishing venue for conference/workshop/school proceedings.</p>
+            <p>SciPost Physics Proceedings publishes articles in the domains of Experimental, Theoretical and Computational physics, in all specializations.</p>
         </div>
         <div class="col-md-6">
-            <h2>Mauris vel dolor lacus</h2>
-            <p>Phasellus dapibus euismod rutrum. Aliquam gravida nisl nulla. Sed et hendrerit mauris. Curabitur pulvinar turpis sed orci eleifend sodales. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec ut luctus nunc. Nulla rhoncus mattis magna, at tincidunt purus ullamcorper eu. Duis sem nisl, porttitor ac dui a, rutrum dictum mi.</p>
+	  <h2>Setup</h2>
+	  <p>Each Issue of SciPost Physics Proceedings corresponds to a distinct event (<i>e.g.</i> conference, workshop, school).</p>
+	  <p>A set of guest Editors is appointed by the event's organizing committee. These guest Editors participate in the refereeing process of all submissions considered for publication in the Issue. Publication decisions are taken jointly by the set of guest Editors and the Editorial College (Physics).</p>
+	  <p>Opening of a Proceedings Issue can be requested by <a href="mailto:proceedings@scipost.org">contacting our proceedings administrators</a>.</p>
+	</div>
+    </div>
+
+    <div class="row">
+	<div class="col-md-6">
+          <h2>Submission and Editorial Process</h2>
+	  <p>Submission to a particular Issue of SciPost Physics Proceedings is by invitation of the guest Editors only.</p>
+          <p>Authors should follow the <a href="{% url 'submissions:author_guidelines' %}">submission guidelines</a> to ensure seamless processing of their manuscript. The <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a> apply to all Submissions to SciPost Physics Proceedings.</p>
+          <p>All incoming Submissions are checked for plagiarism and follow the peer-witnessed refereeing procedures outlined in <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and Refereeing procedure</a>.</p>
+          <p>All publication decisions are taken jointly by the guest Editors and the <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a>, following the rules set out in the <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a>.</p>
+        </div>
+
+        <div class="col-md-6">
+          <h2>Publication: Open Access</h2>
+          <p>Publications in SciPost Physics Proceedings are published under the terms of the <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a>, allowing freedom to use, reproduce and distribute the articles and related content (unless otherwise noted), for commercial and noncommercial purposes, subject to the citation of the original source.</p>
         </div>
     </div>
+
 {% endblock %}

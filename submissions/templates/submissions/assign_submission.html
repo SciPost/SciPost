@@ -1,8 +1,15 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/_pool_base.html' %}
 
 {% load bootstrap %}
 
 {% block pagetitle %}: assign submission{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <a href="{% url 'submissions:editorial_page' submission_to_assign.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission_to_assign.arxiv_identifier_w_vn_nr}})</a>
+    <span class="breadcrumb-item">Assign Submission</span>
+{% endblock %}
 
 {% block content %}
 

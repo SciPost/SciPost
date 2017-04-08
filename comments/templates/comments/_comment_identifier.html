@@ -11,20 +11,21 @@
         {% endblock comment_author %}
         on {{comment.date_submitted|date:'Y-m-d'}}
     </h3>
-    <h4>
-        {% if comment.in_reply_to_comment %}
-            (in reply to <a href="#comment_id{{comment.in_reply_to_comment.id}}">{{comment.in_reply_to_comment.comment.get_author_str}}</a> on {{comment.in_reply_to_comment.date_submitted|date:'Y-m-d'}})
-        {% elif comment.in_reply_to_report %}
-            (in reply to <a href="#report_id{{comment.in_reply_to_report.id}}">
+    {% if comment.in_reply_to_comment or comment.in_reply_to_report %}
+        <h4>
+            {% if comment.in_reply_to_comment %}
+                (in reply to <a href="#comment_id{{comment.in_reply_to_comment.id}}">{{comment.in_reply_to_comment.comment.get_author_str}}</a> on {{comment.in_reply_to_comment.date_submitted|date:'Y-m-d'}})
+            {% elif comment.in_reply_to_report %}
+                (in reply to <a href="#report_id{{comment.in_reply_to_report.id}}">
 
-            {% if not comment.in_reply_to_report.anonymous %}
-                {{comment.in_reply_to_report.get_author_str}}
-            {% else %}
-                Report {{comment.in_reply_to_report.id}}
+                {% if not comment.in_reply_to_report.anonymous %}
+                    {{comment.in_reply_to_report.get_author_str}}
+                {% else %}
+                    Report {{comment.in_reply_to_report.id}}
+                {% endif %}
+
+                </a> on {{comment.in_reply_to_report.date_submitted|date:'Y-m-d'}})
             {% endif %}
-
-            </a> on {{comment.in_reply_to_report.date_submitted|date:'Y-m-d'}})
-        {% endif %}
-
-    </h4>
+        </h4>
+    {% endif %}
 </div>

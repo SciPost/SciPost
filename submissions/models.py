@@ -165,6 +165,7 @@ class Submission(ArxivCallable, models.Model):
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
         ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
 
+    # Underneath: All very inefficient methods as they initiate a new query
     def count_accepted_invitations(self):
         return self.refereeinvitation_set.filter(accepted=True).count()
 

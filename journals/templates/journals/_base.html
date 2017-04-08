@@ -4,7 +4,6 @@
 {% block body_class %}{{block.super}} journals{% endblock %}
 
 {% block breadcrumb %}
-
     <nav class="breadcrumb py-md-2 px-0">
         <div class="container">
             {% block breadcrumb_items %}
@@ -46,7 +45,7 @@
     <footer class="secondary container-fluid py-2">
         <div class="row my-1">
             <div class="col-12">
-                SciPost Physics is published by the SciPost Foundation under the journal doi: 10.21468/SciPostPhys and ISSN 2542-4653.
+                {{journal}} is published by the SciPost Foundation under the journal doi: 10.21468/{{journal.name}} and ISSN {{journal.issn}}.
             </div>
         </div>
     </footer>

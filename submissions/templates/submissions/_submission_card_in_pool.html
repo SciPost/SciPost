@@ -20,7 +20,7 @@
     {% endif %}
 
     {% get_obj_perms request.user for submission as "sub_perms" %}
-    {% if "can_take_editorial_actions" in sub_perms or request.user|is_in_group:'Editorial Administrators' %}
+    {% if "can_take_editorial_actions" in sub_perms or is_ECAdmin %}
         {% if submission|required_actions %}
             <div class="required-actions">
                 <h3 class="pt-0">Required actions:</h3>
@@ -55,7 +55,7 @@
         {% endif %}
     {% endif %}
 
-    {% if request.user|is_in_group:'Editorial Administrators' %}
+    {% if is_ECAdmin %}
         <h4>
             <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a>
         </h4>

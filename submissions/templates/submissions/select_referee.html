@@ -1,87 +1,100 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/_pool_base.html' %}
 
 {% block pagetitle %}: select referee for submission{% endblock pagetitle %}
 
-{% block headsup %}
-
 {% load scipost_extras %}
+{% load bootstrap %}
 
-{% endblock headsup %}
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</a>
+    <span class="breadcrumb-item">Select Referee</span>
+{% endblock %}
 
-{% block bodysup %}
+{% block content %}
 
-
-<section>
-  <div class="flex-greybox">
-    <h1>Referee Selection Page for Submission</h1>
-    <h3>(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</h3>
-    <h3>(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h3>
-  </div>
-
-  <hr class="hr12">
-  <div class="row">
-    <div class="col-4">
-      <h2>Submission:</h2>
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class="card-block">
+                <h1 class="card-text">Referee Selection Page for Submission</h1>
+                <p class="card-text">(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</p>
+                <p class="card-text">(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</p>
+            </div>
+        </div>
     </div>
-  </div>
-  {{ submission.header_as_table }}
+</div>
 
-  {% if submission.referees_flagged %}
-  <h3>Referees flagged upon submission (treat reports with caution):</h3>
-  <p>{{ submission.referees_flagged }}</p>
-  {% endif %}
-</section>
+<div class="row">
+    <div class="col-12">
+        <h2>Submission:</h2>
+        {% include 'submissions/_submission_summary.html' with submission=submission %}
 
+        {% if submission.referees_flagged %}
+            <h3>Referees flagged upon submission (treat reports with caution):</h3>
+            <p>{{ submission.referees_flagged }}</p>
+        {% endif %}
+    </div>
+</div>
 
-<section>
-  <div class="flex-greybox">
-    <h1>Select an additional Referee</h1>
-  </div>
-  <form action="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post" id="refereeSearch">
-    {% csrf_token %}
-    {{ ref_search_form }}
-    <input type="submit" value="Find referee">
-  </form>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight" id="form">Select an additional Referee</h1>
 
-  {% if queryresults.entries %}
-  <div style="background-color: #ffdddd">
-    <h3 style="color: red">The system identified the following potential coauthorships (from arXiv database)</h3>
-    <p style="color: red">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
-    <ul>
-      {% for entry in queryresults.entries %}
-      <li>
-	<p><a href="{{ entry.id }}">{{ entry.id }}</a></p>
-	<p>{{ entry.title }}</p>
-	<p>{% for author in entry.authors %}
-	  {{ author.name }}, &nbsp;
-	  {% endfor %}
-	</p>
-	<p>{{ entry.published }}</p>
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
+        <form action="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}#form" method="post">
+            {% csrf_token %}
+            {{ ref_search_form|bootstrap }}
+            <input class="btn btn-secondary" type="submit" value="Find referee">
+        </form>
+    </div>
+</div>
 
-  {% if contributors_found %}
-  <h3>Identified as contributor:</h3>
-  <table>
+{% if queryresults.entries %}
+<div class="row">
+    <div class="col-12">
+        <div class="card card-outline-danger">
+            <div class="card-block">
+                <h3 class="card-title text-danger">The system identified the following potential coauthorships (from arXiv database)</h3>
+                <p class="card-text text-danger">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
+            </div>
+            <div class="card-block">
+                <ul class="list-group list-group-flush">
+                    {% for entry in queryresults.entries %}
+                        <li class="list-group-item">
+                            {% include 'submissions/_arxiv_queryresult.html' with item=entry %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if contributors_found %}
+    <h3>Identified as contributor:</h3>
+    <table>
     {% for contributor in contributors_found %}
     <tr><td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td><td>&nbsp;</td>
-      <td><a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td></tr>
+    <td><a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td></tr>
     {% endfor %}
-  </table>
-  {% elif ref_search_form.has_changed %}
-  <p>No Contributor with this last name could be identified.</p>
-  {% endif %}
-  <br/>
-  <p>You can send a registration and refereeing invitation by filling this form:</p>
-  <form action="{% url 'submissions:recruit_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
-    {% csrf_token %}
-    {% load crispy_forms_tags %}
-    {% crispy ref_recruit_form %}
-  </form>
-</section>
+    </table>
+    {% elif ref_search_form.has_changed %}
+    <p>No Contributor with this last name could be identified.</p>
+{% endif %}
 
 
-{% endblock bodysup %}
+<div class="row">
+    <div class="col-12">
+        <p>You can send a registration and refereeing invitation by filling this form:</p>
+        <form action="{% url 'submissions:recruit_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+            {% csrf_token %}
+            {{ ref_recruit_form|bootstrap }}
+            <input type="submit" name="submit" value="Send invitation" class="btn btn-primary">
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}
