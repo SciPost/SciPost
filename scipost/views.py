@@ -204,7 +204,7 @@ def index(request):
     """ Main page """
     context = {}
     context['latest_newsitems'] = NewsItem.objects.all().order_by('-date')[:2]
-    context['issue'] = Issue.objects.get_last_filled_issue(in_volume__in_journal__name='SciPost Physics')
+    context['issue'] = Issue.objects.get_last_filled_issue(in_volume__in_journal__name='SciPostPhys')
     if context['issue']:
         context['publications'] = context['issue'].publication_set.filter(doi_string__isnull=False
                                     ).order_by('-publication_date')[:4]
