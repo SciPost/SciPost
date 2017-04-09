@@ -146,6 +146,10 @@ class Publication(models.Model):
     def get_absolute_url(self):
         return reverse('scipost:publication_detail', args=[self.doi_string])
 
+    @property
+    def complete_doi_string(self):
+        return '10.21468/' + self.doi_string
+
     def get_paper_nr(self):
         return paper_nr_string(self.paper_nr)
 
