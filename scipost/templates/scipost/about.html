@@ -163,6 +163,9 @@
         <a href="#editorial_college_{{ college|lower }}" class="d-block mb-1" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show Fellows by specialization</a>
         <div id="specializations-{{college|lower}}" class="all-specializations" style="border: 1px solid; display: none;">
             <div class="row">
+                <div class="col-12">
+                    <p class="text-muted">Hover to highlight, click to select</p>
+                </div>
                 <div class="col-md-6">
                     {% with total_count=codes|length %}
                         {% for code in codes %}
