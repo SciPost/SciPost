@@ -14,7 +14,7 @@ class SubmissionManager(models.Manager):
                 .order_by('-submission_date')
 
     def public(self):
-        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
+        return self.filter(is_current=True).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
 
 
 class EditorialAssignmentManager(models.Manager):
