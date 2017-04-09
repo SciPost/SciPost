@@ -5,7 +5,9 @@ import requests
 import string
 import xml.etree.ElementTree as ET
 
+from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.contrib import messages
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
 from django.db import transaction
@@ -251,7 +253,7 @@ def validate_publication(request):
             initial_path = publication.pdf_file.path
             new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
                        + publication.get_paper_nr())
-            new_path = new_dir + '/' + publication.doi_string.replace('.', '_') + '.pdf'
+            new_path = new_dir + '/' + publication.complete_doi_string.replace('.', '_') + '.pdf'
             os.makedirs(new_dir)
             os.rename(initial_path, new_path)
             publication.pdf_file.name = new_path
@@ -483,9 +485,9 @@ def create_metadata_xml(request, doi_string):
         '</abbrev_title>\n'
         '<issn>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
         '<doi_data>\n'
-        '<doi>' + publication.in_issue.in_volume.in_journal.doi_string + '</doi>\n'
+        '<doi>' + publication.in_issue.in_volume.in_journal.complete_doi_string + '</doi>\n'
         '<resource>https://scipost.org/'
-        + publication.in_issue.in_volume.in_journal.doi_string + '</resource>\n'
+        + publication.in_issue.in_volume.in_journal.complete_doi_string + '</resource>\n'
         '</doi_data>\n'
         '</journal_metadata>\n'
         '<journal_issue>\n'
@@ -546,12 +548,12 @@ def create_metadata_xml(request, doi_string):
         + paper_nr_string(publication.paper_nr) +
         '</item_number></publisher_item>\n'
         '<doi_data>\n'
-        '<doi>' + publication.doi_string + '</doi>\n'
-        '<resource>https://scipost.org/' + publication.doi_string + '</resource>\n'
+        '<doi>' + publication.complete_doi_string + '</doi>\n'
+        '<resource>https://scipost.org/' + publication.complete_doi_string + '</resource>\n'
         '<collection property="crawler-based">\n'
         '<item crawler="iParadigms">\n'
         '<resource>https://scipost.org/'
-        + publication.doi_string + '/pdf</resource>\n'
+        + publication.complete_doi_string + '/pdf</resource>\n'
         '</item></collection>\n'
         '</doi_data>\n'
     )
@@ -641,7 +643,7 @@ def harvest_citedby_links(request, doi_string):
                  '</head>'
                  '<body>'
                  '<fl_query alert="false">'
-                 '<doi>' + publication.doi_string + '</doi>'
+                 '<doi>' + publication.complete_doi_string + '</doi>'
                  '</fl_query>'
                  '</body>'
                  '</query_batch>')
@@ -649,7 +651,7 @@ def harvest_citedby_links(request, doi_string):
     params = {'usr': settings.CROSSREF_LOGIN_ID,
               'pwd': settings.CROSSREF_LOGIN_PASSWORD,
               'qdata': query_xml,
-              'doi': publication.doi_string, }
+              'doi': publication.complete_doi_string, }
     r = requests.post(url, params=params,)
     response_headers = r.headers
     response_text = r.text
