@@ -208,34 +208,26 @@ class SubmissionListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
+        queryset = Submission.objects.public()
         if 'to_journal' in self.kwargs:
-            queryset = Submission.objects.filter(
+            queryset = queryset.filter(
                 latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
                 submitted_to_journal=self.kwargs['to_journal']
-            ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
-                      ).exclude(is_current=False).order_by('-submission_date')
-            # Submission.objects.filter(submitted_to_journal=self.kwargs['to_journal'])
+            )
         elif 'discipline' in self.kwargs and 'nrweeksback' in self.kwargs:
             discipline = self.kwargs['discipline']
             nrweeksback = self.kwargs['nrweeksback']
-            queryset = Submission.objects.filter(
+            queryset = queryset.filter(
                 discipline=discipline,
                 latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
         elif 'Submit' in self.request.GET:
-            queryset = Submission.objects.filter(
+            queryset = queryset.filter(
                 title__icontains=self.request.GET.get('title_keyword', ''),
                 author_list__icontains=self.request.GET.get('author', ''),
                 abstract__icontains=self.request.GET.get('abstract_keyword', '')
             )
-        else:
-            queryset = Submission.objects.filter(
-                latest_activity__gte=timezone.now() + datetime.timedelta(days=-60)
-            ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
-                      ).exclude(is_current=False).order_by('-submission_date')
 
-        queryset = queryset.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED,
-                                    ).order_by('-submission_date')
-        return queryset
+        return queryset.order_by('-submission_date')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
