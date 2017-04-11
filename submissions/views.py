@@ -16,7 +16,7 @@ from guardian.decorators import permission_required_or_403
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import assign_perm
 
-from .constants import SUBMISSION_STATUS_PUBLICLY_UNLISTED, SUBMISSION_STATUS_VOTING_DEPRECATED,\
+from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication
@@ -208,7 +208,7 @@ class SubmissionListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Submission.objects.public()
+        queryset = Submission.objects.public_overcomplete().filter(is_current=True)
         if 'to_journal' in self.kwargs:
             queryset = queryset.filter(
                 latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
@@ -219,7 +219,8 @@ class SubmissionListView(ListView):
             nrweeksback = self.kwargs['nrweeksback']
             queryset = queryset.filter(
                 discipline=discipline,
-                latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
+                latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
+            )
         elif 'Submit' in self.request.GET:
             queryset = queryset.filter(
                 title__icontains=self.request.GET.get('title_keyword', ''),
