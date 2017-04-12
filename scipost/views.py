@@ -6,6 +6,7 @@ import string
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
@@ -892,7 +893,8 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return render(request, 'scipost/logout.html')
+    messages.success(request, '<h3>Keep contributing!</h3>You are now logged out of SciPost.')
+    return redirect(reverse('scipost:index'))
 
 
 def mark_unavailable_period(request):

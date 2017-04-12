@@ -350,12 +350,11 @@ def pool(request):
         to=contributor, accepted=None, deprecated=False)
     consider_assignment_form = ConsiderAssignmentForm()
     recs_to_vote_on = (EICRecommendation.objects.get_for_user_in_pool(request.user)
-                       .filter(eligible_to_vote__in=[contributor])
-                       .exclude(recommendation=-1)
-                       .exclude(recommendation=-2)
-                       .exclude(voted_for__in=[contributor])
-                       .exclude(voted_against__in=[contributor])
-                       .exclude(voted_abstain__in=[contributor])
+                       .filter(eligible_to_vote=contributor)
+                       .exclude(recommendation__in=[-1, -2])
+                       .exclude(voted_for=contributor)
+                       .exclude(voted_against=contributor)
+                       .exclude(voted_abstain=contributor)
                        .exclude(submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED))
     rec_vote_form = RecommendationVoteForm()
     remark_form = RemarkForm()
@@ -518,15 +517,17 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     errormessage = None
     if submission.status == 'assignment_failed':
-        errormessage = 'This Submission has failed pre-screening and has been rejected.'
-        context = {'errormessage': errormessage}
-        return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
+        errormessage = '<h3>Thank you for considering.</h3>'
+        errormessage += 'This Submission has failed pre-screening and has been rejected.'
+        messages.warning(request, errormessage)
+        return redirect(reverse('submissions:pool'))
     if submission.editor_in_charge:
-        errormessage = (submission.editor_in_charge.get_title_display() + ' ' +
-                        submission.editor_in_charge.user.last_name +
-                        ' has already agreed to be Editor-in-charge of this Submission.')
-        context = {'errormessage': errormessage}
-        return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
+        errormessage = '<h3>Thank you for considering.</h3>'
+        errormessage += (submission.editor_in_charge.get_title_display() + ' ' +
+                         submission.editor_in_charge.user.last_name +
+                         ' has already agreed to be Editor-in-charge of this Submission.')
+        messages.warning(request, errormessage)
+        return redirect(reverse('submissions:pool'))
     contributor = Contributor.objects.get(user=request.user)
     assignment = EditorialAssignment(submission=submission,
                                      to=contributor,
@@ -553,8 +554,9 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     SubmissionUtils.send_EIC_appointment_email()
     SubmissionUtils.send_author_prescreening_passed_email()
 
-    context = {'assignment': assignment}
-    return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
+    messages.success(request, 'Thank you for becoming Editor-in-charge of this submission.')
+    return redirect(reverse('submissions:editorial_page',
+                            args=[submission.arxiv_identifier_w_vn_nr]))
 
 
 @login_required
