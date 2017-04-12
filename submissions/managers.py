@@ -26,6 +26,19 @@ class EditorialAssignmentManager(models.Manager):
 
 class EICRecommendationManager(models.Manager):
     def get_for_user_in_pool(self, user):
+        """
+        -- DEPRECATED --
+
+        Return list of EICRecommendation which are filtered as these objects
+        are not related to the Contributor, by checking last_name and author_list of
+        the linked Submission.
+        """
         return self.exclude(submission__authors=user.contributor)\
-                .exclude(Q(submission__author_list__icontains=user.last_name),
-                         ~Q(submission__authors_false_claims=user.contributor))
+                   .exclude(Q(submission__author_list__icontains=user.last_name),
+                            ~Q(submission__authors_false_claims=user.contributor))
+
+    def filter_for_user(self, user, **kwargs):
+        """
+        Return list of EICRecommendation which are owned linked to an author owned Submission.
+        """
+        return self.filter(submission__authors=user.contributor).filter(**kwargs)

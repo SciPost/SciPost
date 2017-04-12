@@ -295,7 +295,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         is_author = False
         is_author_unchecked = False
     try:
-        recommendation = (EICRecommendation.objects.get_for_user_in_pool(request.user)
+        recommendation = (EICRecommendation.objects.filter_for_user(request.user)
                           .get(submission=submission))
     except (EICRecommendation.DoesNotExist, AttributeError):
         recommendation = None
