@@ -1,5 +1,6 @@
-from django.utils import timezone
 from django.db import models
+from django.urls import reverse
+from django.utils import timezone
 
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
@@ -59,3 +60,6 @@ class ThesisLink(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('theses:thesis', args=[self.id])
