@@ -41,9 +41,8 @@ from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_
 
 from commentaries.models import Commentary
 from comments.models import Comment
-from journals.models import Publication, Issue
+from journals.models import Publication
 from news.models import NewsItem
-from submissions.constants import SUBMISSION_STATUS_PUBLICLY_UNLISTED
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation,\
                                Report, EICRecommendation
 from theses.models import ThesisLink
@@ -203,10 +202,8 @@ def index(request):
     """ Main page """
     context = {}
     context['latest_newsitems'] = NewsItem.objects.all().order_by('-date')[:2]
-    context['issue'] = Issue.objects.get_last_filled_issue(in_volume__in_journal__name='SciPostPhys')
-    if context['issue']:
-        context['publications'] = context['issue'].publication_set.filter(doi_string__isnull=False
-                                    ).order_by('-publication_date')[:4]
+    context['submissions'] = Submission.objects.public().order_by('-submission_date')[:4]
+    context['publications'] = Publication.objects.published().order_by('-publication_date')[:4]
 
     return render(request, 'scipost/index.html', context)
 
