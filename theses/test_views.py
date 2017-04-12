@@ -86,7 +86,7 @@ class TestVetThesisLinkRequests(TestCase):
         contributor.user.groups.add(Group.objects.get(name="Vetting Editors"))
         request = RequestFactory().get(self.target)
         request.user = contributor.user
-        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm, form_kwargs={'request': request})
+        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm)
         post_data["action_option"] = VetThesisLinkForm.ACCEPT
         target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
 
@@ -111,7 +111,7 @@ class TestVetThesisLinkRequests(TestCase):
         request = RequestFactory().get(self.target)
         request.user = contributor.user
 
-        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm, form_kwargs={'request': request})
+        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm)
         post_data["action_option"] = VetThesisLinkForm.REFUSE
         post_data["refusal_reason"] = VetThesisLinkForm.ALREADY_EXISTS
         post_data["justification"] = "This thesis already exists."
@@ -137,7 +137,7 @@ class TestVetThesisLinkRequests(TestCase):
         contributor.user.groups.add(Group.objects.get(name="Vetting Editors"))
         request = RequestFactory().get(self.target)
         request.user = contributor.user
-        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm, form_kwargs={'request': request})
+        post_data = model_form_data(ThesisLinkFactory(), VetThesisLinkForm)
         post_data["action_option"] = VetThesisLinkForm.MODIFY
         target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
 
@@ -155,6 +155,7 @@ class TestVetThesisLinkRequests(TestCase):
         self.assertEqual(self.thesislink.vetted_by, contributor)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, 'SciPost Thesis Link activated')
+
 
 class TestTheses(TestCase):
     fixtures = ['groups', 'permissions']
