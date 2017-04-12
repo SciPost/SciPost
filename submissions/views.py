@@ -397,21 +397,18 @@ def add_remark(request, arxiv_identifier_w_vn_nr):
     """
     submission = get_object_or_404(Submission.objects.get_pool(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if request.method == 'POST':
-        remark_form = RemarkForm(request.POST)
-        if remark_form.is_valid():
-            remark = Remark(contributor=request.user.contributor,
-                            submission=submission,
-                            date=timezone.now(),
-                            remark=remark_form.cleaned_data['remark'])
-            remark.save()
-            return redirect(reverse('submissions:pool'))
-        else:
-            errormessage = 'The form was invalidly filled.'
-            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+    remark_form = RemarkForm(request.POST or None)
+    if remark_form.is_valid():
+        remark = Remark(contributor=request.user.contributor,
+                        submission=submission,
+                        date=timezone.now(),
+                        remark=remark_form.cleaned_data['remark'])
+        remark.save()
+        messages.success(request, 'Your remark has succesfully been posted')
     else:
-        errormessage = 'This view can only be posted to.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+        messages.warning(request, 'The form was invalidly filled.')
+    return redirect(reverse('submissions:pool'))
 
 
 @login_required
