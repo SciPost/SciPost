@@ -9,7 +9,7 @@ from .models import ThesisLink
 from .helpers import past_years
 
 
-class RequestThesisLinkForm(forms.ModelForm):
+class BaseRequestThesisLinkForm(forms.ModelForm):
     class Meta:
         model = ThesisLink
         fields = ['type', 'discipline', 'domain', 'subject_area',
@@ -20,6 +20,8 @@ class RequestThesisLinkForm(forms.ModelForm):
             'pub_link': forms.TextInput(attrs={'placeholder': 'Full URL'})
         }
 
+
+class RequestThesisLinkForm(BaseRequestThesisLinkForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         self.user = self.request.user
@@ -31,7 +33,7 @@ class RequestThesisLinkForm(forms.ModelForm):
         return super(RequestThesisLinkForm, self).save(*args, **kwargs)
 
 
-class VetThesisLinkForm(RequestThesisLinkForm):
+class VetThesisLinkForm(BaseRequestThesisLinkForm):
     MODIFY = 0
     ACCEPT = 1
     REFUSE = 2
@@ -64,8 +66,7 @@ class VetThesisLinkForm(RequestThesisLinkForm):
         mail_params = {
             'vocative_title': thesislink.requested_by.get_title_display(),
             'thesislink': thesislink,
-            'full_url': self.request.build_absolute_uri(
-                reverse('theses:thesis', kwargs={'thesislink_id': thesislink.id}))
+            'full_url': thesislink.get_absolute_url()
         }
         action = int(self.cleaned_data['action_option'])
 

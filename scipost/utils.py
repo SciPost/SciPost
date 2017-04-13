@@ -440,7 +440,7 @@ class Utils(object):
                 'Contributor to the site.</p>')
             email_context['pub_title'] = cls.invitation.cited_in_publication.title
             email_context['pub_author_list'] = cls.invitation.cited_in_publication.author_list
-            email_context['doi_label'] = cls.invitation.cited_in_publication.doi_label
+            email_context['doi_label'] = cls.invitation.cited_in_publication.doi_string
             email_context['citation'] = cls.invitation.cited_in_publication.citation()
             email_text += summary_text
             email_text_html += summary_text_html
@@ -677,7 +677,7 @@ class Utils(object):
                 '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')
             email_context['pub_title'] = cls.notification.cited_in_publication.title
             email_context['pub_author_list'] = cls.notification.cited_in_publication.author_list
-            email_context['doi_label'] = cls.notification.cited_in_publication.doi_label
+            email_context['doi_label'] = cls.notification.cited_in_publication.doi_string
             email_context['citation'] = cls.notification.cited_in_publication.citation()
             email_context['key'] = cls.notification.contributor.activation_key
             html_template = Template(email_text_html)

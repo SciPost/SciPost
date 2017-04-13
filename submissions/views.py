@@ -208,34 +208,26 @@ class SubmissionListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
+        queryset = Submission.objects.public()
         if 'to_journal' in self.kwargs:
-            queryset = Submission.objects.filter(
+            queryset = queryset.filter(
                 latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
                 submitted_to_journal=self.kwargs['to_journal']
-            ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
-                      ).exclude(is_current=False).order_by('-submission_date')
-            # Submission.objects.filter(submitted_to_journal=self.kwargs['to_journal'])
+            )
         elif 'discipline' in self.kwargs and 'nrweeksback' in self.kwargs:
             discipline = self.kwargs['discipline']
             nrweeksback = self.kwargs['nrweeksback']
-            queryset = Submission.objects.filter(
+            queryset = queryset.filter(
                 discipline=discipline,
                 latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback)))
         elif 'Submit' in self.request.GET:
-            queryset = Submission.objects.filter(
+            queryset = queryset.filter(
                 title__icontains=self.request.GET.get('title_keyword', ''),
                 author_list__icontains=self.request.GET.get('author', ''),
                 abstract__icontains=self.request.GET.get('abstract_keyword', '')
             )
-        else:
-            queryset = Submission.objects.filter(
-                latest_activity__gte=timezone.now() + datetime.timedelta(days=-60)
-            ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED
-                      ).exclude(is_current=False).order_by('-submission_date')
 
-        queryset = queryset.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED,
-                                    ).order_by('-submission_date')
-        return queryset
+        return queryset.order_by('-submission_date')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -303,7 +295,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         is_author = False
         is_author_unchecked = False
     try:
-        recommendation = (EICRecommendation.objects.get_for_user_in_pool(request.user)
+        recommendation = (EICRecommendation.objects.filter_for_user(request.user)
                           .get(submission=submission))
     except (EICRecommendation.DoesNotExist, AttributeError):
         recommendation = None
@@ -405,21 +397,18 @@ def add_remark(request, arxiv_identifier_w_vn_nr):
     """
     submission = get_object_or_404(Submission.objects.get_pool(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if request.method == 'POST':
-        remark_form = RemarkForm(request.POST)
-        if remark_form.is_valid():
-            remark = Remark(contributor=request.user.contributor,
-                            submission=submission,
-                            date=timezone.now(),
-                            remark=remark_form.cleaned_data['remark'])
-            remark.save()
-            return redirect(reverse('submissions:pool'))
-        else:
-            errormessage = 'The form was invalidly filled.'
-            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+    remark_form = RemarkForm(request.POST or None)
+    if remark_form.is_valid():
+        remark = Remark(contributor=request.user.contributor,
+                        submission=submission,
+                        date=timezone.now(),
+                        remark=remark_form.cleaned_data['remark'])
+        remark.save()
+        messages.success(request, 'Your remark has succesfully been posted')
     else:
-        errormessage = 'This view can only be posted to.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+        messages.warning(request, 'The form was invalidly filled.')
+    return redirect(reverse('submissions:pool'))
 
 
 @login_required

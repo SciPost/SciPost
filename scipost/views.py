@@ -122,9 +122,8 @@ def documentsSearchResults(query):
         commentary_query,
         vetted=True,
         ).order_by('-pub_date')
-    submission_search_queryset = Submission.objects.filter(
+    submission_search_queryset = Submission.objects.public().filter(
         submission_query,
-        ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED,
         ).order_by('-submission_date')
     thesislink_search_list = ThesisLink.objects.filter(
         thesislink_query,
