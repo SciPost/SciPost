@@ -76,11 +76,6 @@ class VetThesisLink(UpdateView):
             strings.acknowledge_vet_thesis_link)
         return HttpResponseRedirect(self.get_success_url())
 
-    def get_form_kwargs(self):
-        kwargs = super(VetThesisLink, self).get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
 
 class ThesisListView(ListView):
     model = ThesisLink
