@@ -277,5 +277,6 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['refereeing_cycle'].default = None
-        self.fields['referees_reinvite'].queryset = (self.instance.other_versions()
-                                                     .first().referee_invitations.all())
+        other_submission = self.instance.other_versions().first()
+        if other_submission:
+            self.fields['referees_reinvite'].queryset = other_submission.referee_invitations.all()

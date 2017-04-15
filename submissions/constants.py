@@ -1,12 +1,15 @@
 STATUS_UNASSIGNED = 'unassigned'
 STATUS_RESUBMISSION_SCREENING = 'resubmitted_incomin'
 STATUS_REVISION_REQUESTED = 'revision_requested'
+STATUS_EIC_ASSIGNED = 'EICassigned'
+STATUS_AWAITING_ED_REC = 'awaiting_ed_rec'
+STATUS_REVIEW_CLOSED = 'review_closed'
 SUBMISSION_STATUS = (
     (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
     (STATUS_RESUBMISSION_SCREENING, 'Resubmission incoming, undergoing pre-screening'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
-    ('EICassigned', 'Editor-in-charge assigned, manuscript under review'),
-    ('review_closed', 'Review period closed, editorial recommendation pending'),
+    (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned, manuscript under review'),
+    (STATUS_REVIEW_CLOSED, 'Review period closed, editorial recommendation pending'),
     # If revisions required: resubmission creates a new Submission object
     (STATUS_REVISION_REQUESTED, 'Editor-in-charge has requested revision'),
     ('resubmitted', 'Has been resubmitted'),
@@ -16,6 +19,7 @@ SUBMISSION_STATUS = (
     # If acceptance/rejection:
     ('voting_in_preparation', 'Voting in preparation (eligible Fellows being selected)'),
     ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
+    (STATUS_AWAITING_ED_REC, 'Awaiting Editorial Recommendation'),
     ('EC_vote_completed', 'Editorial College voting rounded up'),
     ('accepted', 'Publication decision taken: accept'),
     ('rejected', 'Publication decision taken: reject'),
@@ -32,6 +36,12 @@ SUBMISSION_STATUS_OUT_OF_POOL = [
     'withdrawn',
     'rejected',
     'rejected_visible',
+]
+
+SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [
+    STATUS_EIC_ASSIGNED,
+    STATUS_REVIEW_CLOSED,
+    STATUS_AWAITING_ED_REC
 ]
 
 # Submissions which should not be viewable (except by admins, Fellows and authors)

@@ -4,9 +4,9 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 from django.utils import timezone
 
-from .constants import STATUS_RESUBMISSION_SCREENING, SUBMISSION_STATUS_OUT_OF_POOL,\
-                       STATUS_REVISION_REQUESTED
-# from .models import EditorialAssignment
+from .constants import SUBMISSION_STATUS_OUT_OF_POOL,\
+                       STATUS_REVISION_REQUESTED, STATUS_EIC_ASSIGNED,\
+                       STATUS_RESUBMISSION_SCREENING, STATUS_AWAITING_ED_REC
 
 from scipost.utils import EMAIL_FOOTER
 
@@ -47,7 +47,7 @@ class BaseSubmissionCycle:
             ''''Editor-in-charge has requested revision'''
             return False
 
-        if self.submission.eicrecommendation_set.exists():
+        if self.submission.eicrecommendations.exists():
             '''A Editorial Recommendation has already been submitted. Cycle done.'''
             return False
 
@@ -93,9 +93,25 @@ class BaseSubmissionCycle:
 
         return True
 
+    def reinvite_referees(self, referees):
+        """
+        Reinvite referees if allowed. This method does not check if it really is
+        an reinvitation or just a new invitation.
+        """
+        if self.may_reinvite_referees:
+            for referee in referees:
+                invitation = referee
+                invitation.pk = None  # Duplicate, do not remove the old invitation
+                invitation.submission = self.submission
+                invitation.reset_content()
+                invitation.date_invited = timezone.now()
+                invitation.save()
+
     def update_deadline(self, period=None):
-        deadline = timezone.now() + datetime.timedelta(days=(period or self.default_days))
+        delta_d = period or self.default_days
+        deadline = timezone.now() + datetime.timedelta(days=delta_d)
         self.submission.reporting_deadline = deadline
+        self.submission.save()
 
     def get_required_actions(self):
         '''Return list of the submission its required actions'''
@@ -117,6 +133,11 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
     This *abstract* submission cycle adds the specific actions needed for submission cycles
     that require referees to be invited.
     """
+    def update_status(self):
+        if self.submission.status == STATUS_RESUBMISSION_SCREENING:
+            self.submission.status = STATUS_EIC_ASSIGNED
+            self.submission.save()
+
     def _update_actions(self):
         continue_update = super()._update_actions()
         if not continue_update:
@@ -188,7 +209,22 @@ class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
     may_add_referees = False
     may_reinvite_referees = False
     minimum_referees = 0
-    pass
+
+    def update_status(self):
+        if self.submission.status == STATUS_RESUBMISSION_SCREENING:
+            self.submission.status = STATUS_AWAITING_ED_REC
+            self.submission.save()
+
+    def _update_actions(self):
+        continue_update = super()._update_actions()
+        if not continue_update:
+            return False
+
+        # No EIC Recommendation has been formulated yet
+        text = 'Formulate an Editorial Recommendation.'
+        self.required_actions.append(('need_eic_rec', text,))
+
+        return True
 
 
 class SubmissionUtils(object):
@@ -203,6 +239,9 @@ class SubmissionUtils(object):
         """
         Called when a Fellow has accepted or volunteered to become EIC.
         """
+        # Import here due to circular import error
+        from .models import EditorialAssignment
+
         assignments_to_deprecate = (EditorialAssignment.objects
                                     .filter(submission=cls.assignment.submission, accepted=None)
                                     .exclude(to=cls.assignment.to))
@@ -216,6 +255,9 @@ class SubmissionUtils(object):
         Called when the pre-screening has failed.
         Requires loading 'submission' attribute.
         """
+        # Import here due to circular import error
+        from .models import EditorialAssignment
+
         assignments_to_deprecate = (EditorialAssignment.objects
                                     .filter(submission=cls.submission, accepted=None))
         for atd in assignments_to_deprecate:

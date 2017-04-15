@@ -650,6 +650,24 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
 @login_required
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
+    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    form = SubmissionCycleChoiceForm(request.POST or None, instance=submission)
+    if form.is_valid():
+        submission = form.save()
+        submission.cycle.update_status()
+        submission.cycle.update_deadline()
+        submission.cycle.reinvite_referees(form.cleaned_data['referees_reinvite'])
+        messages.success(request, ('<h3>Your choice has been confirmed</h3>'
+                                   'The new cycle will be <em>%s</em>'
+                                   % submission.get_refereeing_cycle_display()))
+    return redirect(reverse('submissions:editorial_page', args=[submission.arxiv_identifier_w_vn_nr]))
+
+
+@login_required
+@permission_required_or_403('can_take_editorial_actions',
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def select_referee(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.get_pool(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
@@ -772,7 +790,6 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
                                    date_invited=timezone.now(),
                                    invited_by=request.user.contributor)
     invitation.save()
-    # raise
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_refereeing_invitation_email()
     return redirect(reverse('submissions:editorial_page',
@@ -978,11 +995,12 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
 def eic_recommendation(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.get_pool(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if submission.status not in ['EICassigned', 'review_closed']:
-        errormessage = ('This submission\'s current status is: ' +
-                        submission.get_status_display() + '. '
-                        'An Editorial Recommendation is not required.')
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    if submission.eic_recommendation_required():
+        messages.warning(request, ('<h3>An Editorial Recommendation is not required</h3>'
+                                   'This submission\'s current status is: <em>%s</em>'
+                                   % submission.get_status_display()))
+        return redirect(reverse('scipost:editorial_page',
+                                args=[submission.arxiv_identifier_w_vn_nr]))
     if request.method == 'POST':
         form = EICRecommendationForm(request.POST)
         if form.is_valid():

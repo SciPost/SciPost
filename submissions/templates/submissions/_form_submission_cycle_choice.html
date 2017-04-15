@@ -1,6 +1,7 @@
-<form method="post">
+<form method="post" action="{% url 'submissions:cycle_confirmation' submission.arxiv_identifier_w_vn_nr %}">
+    {% csrf_token %}
     <h3 class="mb-2">This submission is a resubmission, please choose which submission cycle to proceed with</h3>
-    <div class="card-deck" id="id_submission_cycle">
+    <div class="card-deck mb-5" id="id_submission_cycle">
         {% for choice in form.refereeing_cycle %}
             <div class="card radio-option" for="{{choice.id_for_label}}" data-reinvite="{% if choice.choice_value == 'direct_rec' %}0{% else %}1{% endif %}">
                 <div class="card-block text-center">
@@ -53,7 +54,6 @@
 
 <script>
     $(function(){
-        console.log($('#id_submission_cycle .radio-option'));
         $('#id_submission_cycle .radio-option').on('click', function(){
             var el_id = $('#id_submission_cycle .radio-option input[type="radio"]:checked'),
                 radio_cards = $('#id_submission_cycle .radio-option');

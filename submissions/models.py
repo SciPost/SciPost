@@ -9,7 +9,8 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
                        REPORT_STATUSES, STATUS_UNVETTED, STATUS_RESUBMISSION_SCREENING,\
-                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC
+                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
+                       SUBMISSION_EIC_RECOMMENDATION_REQUIRED
 from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
                       ReportManager
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
@@ -88,17 +89,12 @@ class Submission(ArxivCallable, models.Model):
             )
 
     def __init__(self, *args, **kwargs):
-        """
-        Append the specific submission cycle to the instance to eventually handle the
-        complete submission cycle outside the submission instance itself.
-        """
         super().__init__(*args, **kwargs)
-        if self.refereeing_cycle == CYCLE_SHORT:
-            self.cycle = ShortSubmissionCycle(self)
-        elif self.refereeing_cycle == CYCLE_DIRECT_REC:
-            self.cycle = DirectRecommendationSubmissionCycle(self)
-        else:
-            self.cycle = GeneralSubmissionCycle(self)
+        self._update_cycle()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self._update_cycle()
 
     def __str__(self):
         header = (self.arxiv_identifier_w_vn_nr + ', '
@@ -113,8 +109,23 @@ class Submission(ArxivCallable, models.Model):
             pass
         return header
 
+    def _update_cycle(self):
+        """
+        Append the specific submission cycle to the instance to eventually handle the
+        complete submission cycle outside the submission instance itself.
+        """
+        if self.refereeing_cycle == CYCLE_SHORT:
+            self.cycle = ShortSubmissionCycle(self)
+        elif self.refereeing_cycle == CYCLE_DIRECT_REC:
+            self.cycle = DirectRecommendationSubmissionCycle(self)
+        else:
+            self.cycle = GeneralSubmissionCycle(self)
+
     def get_absolute_url(self):
         return reverse('submissions:submission', args=[self.arxiv_identifier_w_vn_nr])
+
+    def eic_recommendation_required(self):
+        return self.status not in SUBMISSION_EIC_RECOMMENDATION_REQUIRED
 
     @property
     def reporting_deadline_has_passed(self):
@@ -272,6 +283,14 @@ class RefereeInvitation(models.Model):
             return str(self.referee)
         return self.last_name + ', ' + self.first_name
 
+    def reset_content(self):
+        self.nr_reminders = 0
+        self.date_last_reminded = None
+        self.accepted = None
+        self.refusal_reason = None
+        self.fulfilled = False
+        self.cancelled = False
+
 
 ###########
 # Reports:
@@ -351,7 +370,8 @@ class EditorialCommunication(models.Model):
 
 # From the Editor-in-charge of a Submission
 class EICRecommendation(models.Model):
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='eicrecommendations')
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
     remarks_for_authors = models.TextField(blank=True, null=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True, null=True)
