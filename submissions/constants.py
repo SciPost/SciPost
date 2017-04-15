@@ -31,18 +31,6 @@ SUBMISSION_STATUS_OUT_OF_POOL = [
     'rejected_visible',
 ]
 
-# Submissions which should not appear in search lists
-SUBMISSION_STATUS_PUBLICLY_UNLISTED = [
-    'unassigned',
-    'assignment_failed',
-    'resubmitted',
-    'resubmitted_rejected',
-    'resubmitted_rejected_visible',
-    'rejected',
-    'published',
-    'withdrawn',
-]
-
 # Submissions which should not be viewable (except by admins, Fellows and authors)
 SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     'unassigned',
@@ -50,6 +38,13 @@ SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     'resubmitted_rejected',
     'rejected',
     'withdrawn',
+]
+
+# Submissions which should not appear in search lists
+SUBMISSION_STATUS_PUBLICLY_UNLISTED = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
+    'resubmitted',
+    'resubmitted_rejected_visible',
+    'published'
 ]
 
 # Submissions for which voting on a related recommendation is deprecated:

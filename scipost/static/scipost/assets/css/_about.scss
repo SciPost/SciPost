@@ -1,18 +1,18 @@
-.search-contributors.active-search .contributor-col {
+.search-contributors.active-search .contributor {
     display: none;
 
     &.active {
-        display: block;
+        display: inline-block;
     }
 }
 
 .contributor {
-    margin: 0.25rem 0;
-    padding: 0.05rem 0.75rem;
-    border-radius: 0.15rem;
     -webkit-transition: all 0.05s ease-in-out;
          -o-transition: all 0.05s ease-in-out;
             transition: all 0.05s ease-in-out;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border: 0;
 
     &.hover-active {
         background-color: rgba(104, 132, 194, 0.3);

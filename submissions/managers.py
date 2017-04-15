@@ -1,7 +1,8 @@
 from django.db import models
 from django.db.models import Q
 
-from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED
+from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED,\
+                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE
 
 
 class SubmissionManager(models.Manager):
@@ -14,7 +15,14 @@ class SubmissionManager(models.Manager):
                 .order_by('-submission_date')
 
     def public(self):
-        return self.filter(is_current=True).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
+        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
+
+    def public_overcomplete(self):
+        """
+        This query contains an overcomplete set of public submissions, i.e. also containing
+        submissions with status "published" or "resubmitted".
+        """
+        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE)
 
 
 class EditorialAssignmentManager(models.Manager):

@@ -159,11 +159,12 @@
 {% if codes %}
 <div class="row">
     <div class="col-12">
-        <a href="#editorial_college_{{ college|lower }}" class="d-block mb-1" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show Fellows by specialization</a>
-        <div id="specializations-{{college|lower}}" class="all-specializations" style="border: 1px solid; display: none;">
+        <a href="#editorial_college_{{ college|lower }}" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show Fellows by specialization</a>
+        <a href="#editorial_college_{{ college|lower }}" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show full list of Fellows</a>
+        <div id="specializations-{{college|lower}}" class="all-specializations mt-2" style="border: 1px solid; display: none;">
             <div class="row">
                 <div class="col-12">
-                    <p class="text-muted">Hover to highlight, click to select</p>
+                    <p class="text-muted">Hover to highlight or click to select</p>
                 </div>
                 <div class="col-md-6">
                     {% with total_count=codes|length %}
@@ -183,20 +184,14 @@
 {% endif %}
 
 <div class="row search-contributors" data-contributors="{{ college|lower }}">
-    <div class="col-md-4">
-        {% with total_count=college.current_fellows|length %}
+    <div class="col-12">
+        <div class="card-columns">
             {% for fellowship in college.current_fellows %}
-                <div class="col-12 contributor-col">
-                    <div class="contributor">
-                        {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
-                    </div>
+                <div class="card contributor">
+                    {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
                 </div>
-                {% if forloop.counter|is_modulo_one_third:total_count %}
-                    </div>
-                    <div class="col-md-4">
-                {% endif %}
             {% endfor %}
-        {% endwith %}
+        </div>
     </div>
 </div>
 
