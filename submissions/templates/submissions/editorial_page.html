@@ -3,7 +3,6 @@
 {% block pagetitle %}: editorial page for submission{% endblock pagetitle %}
 
 {% load scipost_extras %}
-{% load submissions_extras %}
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
@@ -101,12 +100,12 @@
 
 <div class="row">
     <div class="col-md-10 col-lg-8">
-        <div class="card {% if submission|required_actions %}card-danger text-white{% else %}card-outline-success text-success{% endif %}">
+        <div class="card {% if submission.cycle.get_required_actions %}card-danger text-white{% else %}card-outline-success text-success{% endif %}">
             <div class="card-block">
                 <h3 class="card-title pt-0">Required actions:</h3>
                 <ul class="mb-0">
-                    {% for todoitem in submission|required_actions %}
-                        <li>{{ todoitem }}</li>
+                    {% for action in submission.cycle.get_required_actions %}
+                        <li>{{action.1}}</li>
                     {% empty %}
                         <li>No actions required</li>
                     {% endfor %}
@@ -151,10 +150,22 @@
 {% if submission.status == 'resubmitted_incomin' %}
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-block">
-                    <h3 class="card-title">This submission is a resubmission, please choose which submission cycle to proceed with</h3>
-                    {{submission.cycle}}
+            <h3 class="highlight">This submission is a resubmission, please choose which submission cycle to proceed with</h3>
+            <div class="card-deck">
+                <div class="card">
+                    <div class="card-block">
+                        HENK
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-block">
+                        INGRID
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-block">
+                        DE BUURVROUW
+                    </div>
                 </div>
             </div>
         </div>

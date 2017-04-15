@@ -299,7 +299,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                           .get(submission=submission))
     except (EICRecommendation.DoesNotExist, AttributeError):
         recommendation = None
-    comments = submission.comment_set.all()
+    comments = submission.comments.all()
     context = {'submission': submission,
                'other_versions': other_versions,
                'recommendation': recommendation,
@@ -336,7 +336,7 @@ def pool(request):
     All members of the Editorial College have access.
     """
     submissions_in_pool = (Submission.objects.get_pool(request.user)
-                           .prefetch_related('refereeinvitation_set', 'remark_set', 'comment_set'))
+                           .prefetch_related('referee_invitations', 'remark_set', 'comments'))
     recommendations_undergoing_voting = (EICRecommendation.objects
                                          .get_for_user_in_pool(request.user)
                                          .filter(submission__status__in=['put_to_EC_voting']))

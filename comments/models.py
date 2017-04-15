@@ -24,7 +24,7 @@ class Comment(TimeStampedModel):
     commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True,
                                    on_delete=models.CASCADE)
     submission = models.ForeignKey('submissions.Submission', blank=True, null=True,
-                                   on_delete=models.CASCADE)
+                                   on_delete=models.CASCADE, related_name='comments')
     thesislink = models.ForeignKey('theses.ThesisLink', blank=True, null=True,
                                    on_delete=models.CASCADE)
     is_author_reply = models.BooleanField(default=False)

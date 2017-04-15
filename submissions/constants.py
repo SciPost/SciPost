@@ -1,5 +1,6 @@
 STATUS_UNASSIGNED = 'unassigned'
 STATUS_RESUBMISSION_SCREENING = 'resubmitted_incomin'
+STATUS_REVISION_REQUESTED = 'revision_requested'
 SUBMISSION_STATUS = (
     (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
     (STATUS_RESUBMISSION_SCREENING, 'Resubmission incoming, undergoing pre-screening'),
@@ -7,7 +8,7 @@ SUBMISSION_STATUS = (
     ('EICassigned', 'Editor-in-charge assigned, manuscript under review'),
     ('review_closed', 'Review period closed, editorial recommendation pending'),
     # If revisions required: resubmission creates a new Submission object
-    ('revision_requested', 'Editor-in-charge has requested revision'),
+    (STATUS_REVISION_REQUESTED, 'Editor-in-charge has requested revision'),
     ('resubmitted', 'Has been resubmitted'),
     ('resubmitted_and_rejected', 'Has been resubmitted and subsequently rejected'),
     ('resubmitted_and_rejected_visible',

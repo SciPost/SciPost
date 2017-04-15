@@ -1,9 +1,5 @@
 {% extends 'scipost/base.html' %}
 
-{% load guardian_tags %}
-{% load scipost_extras %}
-{% load submissions_extras %}
-
 {% block pagetitle %}: Assignments{% endblock pagetitle %}
 
 {% block content %}
@@ -22,7 +18,6 @@ $(document).ready(function(){
       }
   });
 });
-
 </script>
 
 {% if assignments_to_consider %}
@@ -60,14 +55,14 @@ $(document).ready(function(){
                     <li class="list-group-item">
                         {% include 'submissions/_submission_card_fellow_content.html' with submission=assignment.submission %}
                         <div class="card-block">
-                            {% with actions=assignment.submission|required_actions %}
+                            {% with actions=assignment.submission.cycle.get_required_actions %}
                                 <div class="required-actions{% if not actions %} no-actions{% endif %}">
                                     <h3>{% if actions %}Required actions{% else %}No required actions{% endif %}</h3>
                                     {% if actions %}
                                         <ul>
-                                        {% for todoitem in assignment.submission|required_actions %}
-                                            <li>{{ todoitem }}</li>
-                                        {% endfor %}
+                                            {% for action in actions %}
+                                                <li>{{action.1}}</li>
+                                            {% endfor %}
                                         </ul>
                                     {% endif %}
                                 </div>

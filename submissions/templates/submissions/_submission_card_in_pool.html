@@ -21,12 +21,12 @@
 
     {% get_obj_perms request.user for submission as "sub_perms" %}
     {% if "can_take_editorial_actions" in sub_perms or is_ECAdmin %}
-        {% if submission|required_actions %}
+        {% if submission.cycle.get_required_actions %}
             <div class="required-actions">
                 <h3 class="pt-0">Required actions:</h3>
                 <ul>
-                  {% for todoitem in submission|required_actions %}
-                      <li>{{ todoitem }}</li>
+                  {% for action in submission.cycle.get_required_actions %}
+                      <li>{{action.1}}</li>
                   {% endfor %}
                 </ul>
             </div>

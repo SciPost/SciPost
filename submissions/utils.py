@@ -4,7 +4,8 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 from django.utils import timezone
 
-# from .constants import SUBMISSION_STATUS
+from .constants import STATUS_RESUBMISSION_SCREENING, SUBMISSION_STATUS_OUT_OF_POOL,\
+                       STATUS_REVISION_REQUESTED
 # from .models import EditorialAssignment
 
 from scipost.utils import EMAIL_FOOTER
@@ -17,19 +18,88 @@ class BaseSubmissionCycle:
     is meant as an abstract blueprint for the overall submission cycle and its needed
     actions.
     """
-    submission = None
-    name = None
     default_days = 28
+    may_add_referees = True
+    may_reinvite_referees = True
+    minimum_referees = 3
+    name = None
+    required_actions = []
+    submission = None
 
     def __init__(self, submission):
         self.submission = submission
+        self._update_actions()
 
     def __str__(self):
         return self.submission.get_refereeing_cycle_display()
 
+    def _update_actions(self):
+        """
+        Create the list of required_actions for the current submission to be used on the
+        editorial page.
+        """
+        self.required_actions = []
+        if self.submission.status in SUBMISSION_STATUS_OUT_OF_POOL:
+            '''Submission does not appear in the pool, no action required.'''
+            return False
+
+        if self.submission.status == STATUS_REVISION_REQUESTED:
+            ''''Editor-in-charge has requested revision'''
+            return False
+
+        if self.submission.eicrecommendation_set.exists():
+            '''A Editorial Recommendation has already been submitted. Cycle done.'''
+            return False
+
+        if self.submission.status == STATUS_RESUBMISSION_SCREENING:
+            """
+            Submission is a resubmission and the EIC still has to determine which
+            cycle to proceed with.
+            """
+            self.required_actions.append(('choose_cycle',
+                                          'Choose the submission cycle to proceed with.',))
+            return False
+
+        comments_to_vet = self.submission.comments.awaiting_vetting().count()
+        if comments_to_vet > 0:
+            '''There are comments on the submission awaiting vetting.'''
+            if comments_to_vet > 1:
+                text = 'One Comment has'
+            else:
+                text = '%i Comment\'s have' % comments_to_vet
+            text += ' been delivered but is not yet vetted. Please vet it.'
+            self.required_actions.append(('vet_comments', text,))
+
+        nr_ref_inv = self.submission.referee_invitations.count()
+        if nr_ref_inv < self.minimum_referees:
+            """
+            The submission cycle does not meet the criteria of a minimum of
+            `self.minimum_referees` referees yet.
+            """
+            text = 'No' if nr_ref_inv == 0 else 'Only %i' % nr_ref_inv
+            text += ' Referees have yet been invited.'
+            text += ' At least %i should be.' % self.minimum_referees
+            self.required_actions.append(('invite_referees', text,))
+
+        reports_awaiting_vetting = self.submission.reports.awaiting_vetting().count()
+        if reports_awaiting_vetting > 0:
+            '''There are reports on the submission awaiting vetting.'''
+            if reports_awaiting_vetting > 1:
+                text = 'One Report has'
+            else:
+                text = '%i Reports have' % reports_awaiting_vetting
+            text += ' been delivered but is not yet vetted. Please vet it.'
+            self.required_actions.append(('vet_reports', text,))
+
+        return True
+
     def update_deadline(self, period=None):
         deadline = timezone.now() + datetime.timedelta(days=(period or self.default_days))
         self.submission.reporting_deadline = deadline
+
+    def get_required_actions(self):
+        '''Return list of the submission its required actions'''
+        return self.required_actions
 
     def update_status(self):
         """
@@ -42,7 +112,51 @@ class BaseSubmissionCycle:
         raise NotImplementedError
 
 
-class GeneralSubmissionCycle(BaseSubmissionCycle):
+class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
+    """
+    This *abstract* submission cycle adds the specific actions needed for submission cycles
+    that require referees to be invited.
+    """
+    def _update_actions(self):
+        continue_update = super()._update_actions()
+        if not continue_update:
+            return False
+
+        for ref_inv in self.submission.referee_invitations.all():
+            if not ref_inv.cancelled:
+                if ref_inv.accepted is None:
+                    '''An invited referee may have not responsed yet.'''
+                    timelapse = timezone.now() - ref_inv.date_invited
+                    if timelapse > datetime.timedelta(days=3):
+                        text = ('Referee %s has not responded for %i days. '
+                                'Consider sending a reminder or cancelling the invitation.'
+                                % (ref_inv.referee_str, timelapse.days))
+                        self.required_actions.append(('referee_no_response', text,))
+                elif ref_inv.accepted and not ref_inv.fulfilled:
+                    '''A referee has not fulfilled its duty and the deadline is closing in.'''
+                    timeleft = self.submission.reporting_deadline - timezone.now()
+                    if timeleft < datetime.timedelta(days=7):
+                        text = ('Referee %s has accepted to send a Report, '
+                                'but not yet delivered it ' % ref_inv.referee_str)
+                        if timeleft.days < 0:
+                            text += '(%i days overdue). ' % (- timeleft.days)
+                        elif timeleft.days == 1:
+                            text += '(with 1 day left). '
+                        else:
+                            text += '(with %i days left). ' % timeleft.days
+                        text += 'Consider sending a reminder or cancelling the invitation.'
+                        self.required_actions.append(('referee_no_delivery', text,))
+
+        if self.submission.reporting_deadline < timezone.now():
+            text = ('The refereeing deadline has passed. Please either extend it, '
+                    'or formulate your Editorial Recommendation if at least '
+                    'one Report has been received.')
+            self.required_actions.append(('deadline_passed', text,))
+
+        return True
+
+
+class GeneralSubmissionCycle(BaseRefereeSubmissionCycle):
     """
     The default submission cycle assigned to all 'regular' submissions and resubmissions
     which are explicitly assigned to go trough the default cycle by the EIC.
@@ -51,7 +165,7 @@ class GeneralSubmissionCycle(BaseSubmissionCycle):
     pass
 
 
-class ShortSubmissionCycle(BaseSubmissionCycle):
+class ShortSubmissionCycle(BaseRefereeSubmissionCycle):
     """
     This cycle is used if the EIC has explicitly chosen to do a short version of the general
     submission cycle. The deadline is within two weeks instead of the default four weeks.
@@ -59,6 +173,8 @@ class ShortSubmissionCycle(BaseSubmissionCycle):
     This cycle is only available for resubmitted submissions!
     """
     default_days = 14
+    may_add_referees = False
+    minimum_referees = 1
     pass
 
 
@@ -69,6 +185,9 @@ class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
 
     This cycle is only available for resubmitted submissions!
     """
+    may_add_referees = False
+    may_reinvite_referees = False
+    minimum_referees = 0
     pass
 
 

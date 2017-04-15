@@ -10,7 +10,8 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
                        REPORT_STATUSES, STATUS_UNVETTED, STATUS_RESUBMISSION_SCREENING,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC
-from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager
+from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
+                      ReportManager
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
@@ -128,7 +129,7 @@ class Submission(ArxivCallable, models.Model):
             self.copy_authors_from_previous_version()
             self.copy_EIC_from_previous_version()
             self.set_resubmission_defaults()
-            self.update_status(STATUS_RESUBMISSION_SCREENING)
+            self.status = STATUS_RESUBMISSION_SCREENING
         else:
             self.authors.add(self.submitted_by)
 
@@ -151,11 +152,6 @@ class Submission(ArxivCallable, models.Model):
             date_answered=timezone.now(),
         )
         assignment.save()
-
-    def update_status(self, status_code):
-        if status_code in SUBMISSION_STATUS:
-            self.status = status_code
-            self.save()
 
     def set_resubmission_defaults(self):
         self.open_for_reporting = True
@@ -194,13 +190,13 @@ class Submission(ArxivCallable, models.Model):
 
     # Underneath: All very inefficient methods as they initiate a new query
     def count_accepted_invitations(self):
-        return self.refereeinvitation_set.filter(accepted=True).count()
+        return self.referee_invitations.filter(accepted=True).count()
 
     def count_declined_invitations(self):
-        return self.refereeinvitation_set.filter(accepted=False).count()
+        return self.referee_invitations.filter(accepted=False).count()
 
     def count_pending_invitations(self):
-        return self.refereeinvitation_set.filter(accepted=None).count()
+        return self.referee_invitations.filter(accepted=None).count()
 
     def count_invited_reports(self):
         return self.reports.filter(status=1, invited=True).count()
@@ -243,9 +239,10 @@ class EditorialAssignment(models.Model):
 
 
 class RefereeInvitation(models.Model):
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
-    referee = models.ForeignKey('scipost.Contributor', related_name='referee', blank=True, null=True,
-                                on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='referee_invitations')
+    referee = models.ForeignKey('scipost.Contributor', related_name='referee', blank=True,
+                                null=True, on_delete=models.CASCADE)  # Why is this blank/null=True
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30, default='')
     last_name = models.CharField(max_length=30, default='')
@@ -268,6 +265,12 @@ class RefereeInvitation(models.Model):
         return (self.first_name + ' ' + self.last_name + ' to referee ' +
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))
+
+    @property
+    def referee_str(self):
+        if self.referee:
+            return str(self.referee)
+        return self.last_name + ', ' + self.first_name
 
 
 ###########
@@ -309,6 +312,8 @@ class Report(models.Model):
     remarks_for_editors = models.TextField(default='', blank=True,
                                            verbose_name='optional remarks for the Editors only')
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
+
+    objects = ReportManager()
 
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
