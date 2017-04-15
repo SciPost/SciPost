@@ -23,7 +23,8 @@ from .forms import SubmissionIdentifierForm, SubmissionForm, SubmissionSearchFor
                    RecommendationVoteForm, ConsiderAssignmentForm, AssignSubmissionForm,\
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
                    ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
-                   EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm
+                   EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
+                   SubmissionCycleChoiceForm
 from .utils import SubmissionUtils
 
 from comments.models import Comment
@@ -633,13 +634,16 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
                           .get(submission=submission))
     except EICRecommendation.DoesNotExist:
         recommendation = None
-    context = {'submission': submission,
-               'other_versions': other_versions,
-               'recommendation': recommendation,
-               'set_deadline_form': SetRefereeingDeadlineForm(),
-               'ref_invitations': ref_invitations,
-               'nr_reports_to_vet': nr_reports_to_vet,
-               'communications': communications}
+    context = {
+        'submission': submission,
+        'other_versions': other_versions,
+        'recommendation': recommendation,
+        'set_deadline_form': SetRefereeingDeadlineForm(),
+        'cycle_choice_form': SubmissionCycleChoiceForm(instance=submission),
+        'ref_invitations': ref_invitations,
+        'nr_reports_to_vet': nr_reports_to_vet,
+        'communications': communications
+    }
     return render(request, 'submissions/editorial_page.html', context)
 
 

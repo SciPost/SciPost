@@ -150,24 +150,7 @@
 {% if submission.status == 'resubmitted_incomin' %}
     <div class="row">
         <div class="col-12">
-            <h3 class="highlight">This submission is a resubmission, please choose which submission cycle to proceed with</h3>
-            <div class="card-deck">
-                <div class="card">
-                    <div class="card-block">
-                        HENK
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-block">
-                        INGRID
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-block">
-                        DE BUURVROUW
-                    </div>
-                </div>
-            </div>
+            {% include 'submissions/_form_submission_cycle_choice.html' with form=cycle_choice_form %}
         </div>
     </div>
 {% else %}
