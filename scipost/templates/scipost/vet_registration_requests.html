@@ -1,78 +1,60 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
 
 {% block pagetitle %}: registrations to vet{% endblock pagetitle %}
 
-{% block bodysup %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Registration requests to vet</span>
+{% endblock %}
+
+{% block content %}
+
 <script>
-
-$( document ).ready(function() {
-    function toggleBoxes(specificTarget){
-      if (typeof specificTarget === 'undefined') {
-          $('select#id_refusal_reason').parent().toggle();
-          $('textarea#id_email_response_field').parent().toggle();
-      } else {
-        for (i = 0; i < specificTarget.length; i++){
-          $(specificTarget[i]).toggle()
+$(function() {
+    $('#id_refuse').on('click', function(){
+        if($(this).prop('checked')) {
+            $('#id_refusal_reason, #id_email_response_field').parents('.form-group').show();
+        } else {
+            $('#id_refusal_reason, #id_email_response_field').parents('.form-group').hide();
         }
-      }
-    }
-    toggleBoxes()
-
-    $("input:checkbox").on('click', function(event) {
-      var clickedBox = $(this)
-      var boxes = $(this).closest('div').find('input:checkbox')
-      var specificTarget = $(this).closest('div').find('p').slice(2,4)
-      if (!clickedBox.is(":checked")){
-          if (  clickedBox.prop('name') == 'refuse' && $(specificTarget[0]).is(":visible") ){
-            toggleBoxes(specificTarget)
-          }
-      }
-      else {
-        if (clickedBox.attr("name") == "promote_to_registered_contributor"){
-          $(boxes[1]).prop('checked', false);
-          if ($(specificTarget[0]).is(":visible")){
-            toggleBoxes(specificTarget)
-          }
-        }
-        else if (clickedBox.attr("name") == "refuse"){
-          $(boxes[0]).prop('checked', false);
-          if (!$(specificTarget[0]).is(":visible")){
-            toggleBoxes(specificTarget)
-          }
-        }
-      }
-    })
+    }).trigger('click');
 });
 </script>
 
-<section>
-  {% if not contributors_to_vet %}
-  <h1>There are no Registration requests for you to vet.</h1>
-  <p>Back to your <a href="{% url 'scipost:personal_page' %}">personal page</a>.
-  {% else %}
-
-  <h1>SciPost Registration requests to vet:</h1>
-  <p>These Contributors are currently not registered (submitting, commenting and voting disabled).</p>
-  <p>Use this page to promote them to give them registered status, or refuse registration.</p>
-
-  {% for contributor_to_vet in contributors_to_vet %}
-  <br>
-  <hr>
-  <div class="flex-container">
-    <div class="flex-whitebox">
-      {{ contributor_to_vet.private_info_as_table }}
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class="card-block">
+                <h1 class="card-title">SciPost Registration requests to vet:</h1>
+                <p class="card-text mb-0">
+                    These Contributors are currently not registered (submitting, commenting and voting disabled).<br>
+                    Use this page to promote them to give them registered status, or refuse registration.
+                </p>
+            </div>
+        </div>
     </div>
-    <div class="flex-whitebox">
-      <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">
-	{% csrf_token %}
-	{{ form.as_p }}
-	<input type="submit" value="Submit" />
-      </form>
+</div>
+
+{% for contributor_to_vet in contributors_to_vet %}
+    {% if not forloop.first %}<hr class="small">{% endif %}
+    <div class="row">
+        <div class="col-md-4">
+            {{ contributor_to_vet.private_info_as_table }}
+        </div>
+        <div class="col-md-8">
+            <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">
+                {% csrf_token %}
+                {{form|bootstrap}}
+                <input type="submit" class="btn btn-secondary" />
+            </form>
+        </div>
     </div>
-  </div>
-  {% endfor %}
+{% empty %}
+    <h1>There are no Registration requests for you to vet.</h1>
+    <p>Back to your <a href="{% url 'scipost:personal_page' %}">personal page</a>.
+{% endfor %}
 
-  {% endif %}
-</section>
 
-{% endblock bodysup %}
+{% endblock content %}

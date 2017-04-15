@@ -540,58 +540,37 @@ def draft_registration_invitation(request):
 
     sent_reg_inv = RegistrationInvitation.objects.filter(responded=False, declined=False)
     sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
-    nr_sent_reg_inv_fellows = sent_reg_inv_fellows.count()
     sent_reg_inv_contrib = sent_reg_inv.filter(invitation_type='C').order_by('last_name')
-    nr_sent_reg_inv_contrib = sent_reg_inv_contrib.count()
     sent_reg_inv_ref = sent_reg_inv.filter(invitation_type='R').order_by('last_name')
-    nr_sent_reg_inv_ref = sent_reg_inv_ref.count()
     sent_reg_inv_cited_sub = sent_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    nr_sent_reg_inv_cited_sub = sent_reg_inv_cited_sub.count()
     sent_reg_inv_cited_pub = sent_reg_inv.filter(invitation_type='cp').order_by('last_name')
-    nr_sent_reg_inv_cited_pub = sent_reg_inv_cited_pub.count()
 
     resp_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=False)
     resp_reg_inv_fellows = resp_reg_inv.filter(invitation_type='F').order_by('last_name')
-    nr_resp_reg_inv_fellows = resp_reg_inv_fellows.count()
     resp_reg_inv_contrib = resp_reg_inv.filter(invitation_type='C').order_by('last_name')
-    nr_resp_reg_inv_contrib = resp_reg_inv_contrib.count()
     resp_reg_inv_ref = resp_reg_inv.filter(invitation_type='R').order_by('last_name')
-    nr_resp_reg_inv_ref = resp_reg_inv_ref.count()
     resp_reg_inv_cited_sub = resp_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    nr_resp_reg_inv_cited_sub = resp_reg_inv_cited_sub.count()
     resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
-    nr_resp_reg_inv_cited_pub = resp_reg_inv_cited_pub.count()
 
     decl_reg_inv = RegistrationInvitation.objects.filter(
         responded=True, declined=True).order_by('last_name')
 
-    names_reg_contributors = Contributor.objects.filter(
-        status=1).order_by('user__last_name').values_list(
-        'user__first_name', 'user__last_name')
+    names_reg_contributors = (Contributor.objects.filter(status=1).order_by('user__last_name')
+                              .values_list('user__first_name', 'user__last_name'))
     existing_drafts = DraftInvitation.objects.filter(processed=False).order_by('last_name')
 
     context = {
         'draft_inv_form': draft_inv_form, 'errormessage': errormessage,
         'sent_reg_inv_fellows': sent_reg_inv_fellows,
-        'nr_sent_reg_inv_fellows': nr_sent_reg_inv_fellows,
         'sent_reg_inv_contrib': sent_reg_inv_contrib,
-        'nr_sent_reg_inv_contrib': nr_sent_reg_inv_contrib,
         'sent_reg_inv_ref': sent_reg_inv_ref,
-        'nr_sent_reg_inv_ref': nr_sent_reg_inv_ref,
         'sent_reg_inv_cited_sub': sent_reg_inv_cited_sub,
-        'nr_sent_reg_inv_cited_sub': nr_sent_reg_inv_cited_sub,
         'sent_reg_inv_cited_pub': sent_reg_inv_cited_pub,
-        'nr_sent_reg_inv_cited_pub': nr_sent_reg_inv_cited_pub,
         'resp_reg_inv_fellows': resp_reg_inv_fellows,
-        'nr_resp_reg_inv_fellows': nr_resp_reg_inv_fellows,
         'resp_reg_inv_contrib': resp_reg_inv_contrib,
-        'nr_resp_reg_inv_contrib': nr_resp_reg_inv_contrib,
         'resp_reg_inv_ref': resp_reg_inv_ref,
-        'nr_resp_reg_inv_ref': nr_resp_reg_inv_ref,
         'resp_reg_inv_cited_sub': resp_reg_inv_cited_sub,
-        'nr_resp_reg_inv_cited_sub': nr_resp_reg_inv_cited_sub,
         'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
-        'nr_resp_reg_inv_cited_pub': nr_resp_reg_inv_cited_pub,
         'decl_reg_inv': decl_reg_inv,
         'names_reg_contributors': names_reg_contributors,
         'existing_drafts': existing_drafts,

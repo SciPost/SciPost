@@ -301,7 +301,7 @@ class RegistrationInvitation(models.Model):
     declined = models.BooleanField(default=False)
 
     def __str__(self):
-        return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name
+        return (self.first_name + ' ' + self.last_name
                 + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
 
 

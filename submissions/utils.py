@@ -26,10 +26,10 @@ class BaseSubmissionCycle:
     name = None
     required_actions = []
     submission = None
+    updated_action = False
 
     def __init__(self, submission):
         self.submission = submission
-        self._update_actions()
 
     def __str__(self):
         return self.submission.get_refereeing_cycle_display()
@@ -116,6 +116,9 @@ class BaseSubmissionCycle:
 
     def get_required_actions(self):
         '''Return list of the submission its required actions'''
+        if self.updated_action:
+            self._update_actions()
+            self.updated_action = True
         return self.required_actions
 
     def update_status(self):

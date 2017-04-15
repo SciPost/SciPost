@@ -104,7 +104,8 @@ class Submission(ArxivCallable, models.Model):
         else:
             header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
         try:
-            header += ' (published as ' + self.publication.citation() + ')'
+            header += ' (published as %s (%s))' % (self.publication.doi_string,
+                                                 self.publication.publication_date.strftime('%Y'))
         except Publication.DoesNotExist:
             pass
         return header
