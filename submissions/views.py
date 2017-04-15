@@ -4,10 +4,9 @@ import feedparser
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
@@ -268,11 +267,11 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     except AttributeError:
         is_author = False
     if (submission.status in SUBMISSION_STATUS_PUBLICLY_INVISIBLE
-        and not request.user.groups.filter(name='SciPost Administrators').exists()
-        and not request.user.groups.filter(name='Editorial Administrators').exists()
-        and not request.user.groups.filter(name='Editorial College').exists()
-        and not is_author):
-        raise PermissionDenied
+            and not request.user.groups.filter(name__in=['SciPost Administrators',
+                                                         'Editorial Administrators',
+                                                         'Editorial College']).exists()
+            and not is_author):
+        raise Http404
     other_versions = Submission.objects.filter(
         arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
     ).exclude(pk=submission.id)

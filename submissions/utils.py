@@ -2,10 +2,74 @@ import datetime
 
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
+from django.utils import timezone
+
+# from .constants import SUBMISSION_STATUS
+# from .models import EditorialAssignment
 
 from scipost.utils import EMAIL_FOOTER
 
-from submissions.models import EditorialAssignment
+
+class BaseSubmissionCycle:
+    """
+    The submission cycle may take different approaches. All steps within a specific
+    cycle are handles by the class related to the specific cycle chosen. This class
+    is meant as an abstract blueprint for the overall submission cycle and its needed
+    actions.
+    """
+    submission = None
+    name = None
+    default_days = 28
+
+    def __init__(self, submission):
+        self.submission = submission
+
+    def __str__(self):
+        return self.submission.get_refereeing_cycle_display()
+
+    def update_deadline(self, period=None):
+        deadline = timezone.now() + datetime.timedelta(days=(period or self.default_days))
+        self.submission.reporting_deadline = deadline
+
+    def update_status(self):
+        """
+        Implement:
+        Let the submission status be centrally handled by this method. This makes sure
+        the status cycle is clear and makes sure the cycle isn't broken due to unclear coding
+        elsewhere. The next status to go to should ideally be determined on all the
+        available in the submission with only few exceptions to explicilty force a new status code.
+        """
+        raise NotImplementedError
+
+
+class GeneralSubmissionCycle(BaseSubmissionCycle):
+    """
+    The default submission cycle assigned to all 'regular' submissions and resubmissions
+    which are explicitly assigned to go trough the default cycle by the EIC.
+    It's a four week cycle with full capabilities i.e. invite referees, vet reports, etc. etc.
+    """
+    pass
+
+
+class ShortSubmissionCycle(BaseSubmissionCycle):
+    """
+    This cycle is used if the EIC has explicitly chosen to do a short version of the general
+    submission cycle. The deadline is within two weeks instead of the default four weeks.
+
+    This cycle is only available for resubmitted submissions!
+    """
+    default_days = 14
+    pass
+
+
+class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
+    """
+    This cycle is used if the EIC has explicitly chosen to immediately write an
+    editorial recommendation.
+
+    This cycle is only available for resubmitted submissions!
+    """
+    pass
 
 
 class SubmissionUtils(object):

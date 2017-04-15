@@ -148,45 +148,58 @@
 </div>
 {% endif %}
 
-<div class="row">
-    <div class="col-12">
-        <h3>Actions:</h3>
-            <ul>
-                <li>
-                    <a href="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Select an additional referee</a> (bear in mind flagged referees if any)
-                </li>
-                <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}) by
-                    <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=2 %}">2 days</a>,
-                    <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=7 %}">1 week</a> or
-                    <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=14 %}">2 weeks</a>
-                    {% if submission.reporting_deadline_has_passed %}
-                        <span class="ml-1 label label-sm label-outline-danger">THE REPORTING DEADLINE HAS PASSED</span>
-                    {% endif %}
-                </li>
-                <li>
-                    Set refereeing deadline:
-                    <form class="form-inline" action="{% url 'submissions:set_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
-                        {% csrf_token %}{{ set_deadline_form|bootstrap_inline:'0,12' }}
-                        <div class="ml-2 form-group row">
-                            <div class="col-12">
-                                <input class="btn btn-secondary" type="submit" value="Set deadline"/>
-                            </div>
-                        </div>
-                    </form>
-                </li>
-                <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
-                {% if not submission.reporting_deadline_has_passed %}
-                    <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
-                {% endif %}
-                <li>Communicate with a Referee: see the communication block below.</li>
-                <li>
-                    <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
-                    <p>If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
-                    <br/>If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.</p>
-                </li>
-          </ul>
+{% if submission.status == 'resubmitted_incomin' %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-block">
+                    <h3 class="card-title">This submission is a resubmission, please choose which submission cycle to proceed with</h3>
+                    {{submission.cycle}}
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <h3>Actions:</h3>
+                <ul>
+                    <li>
+                        <a href="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Select an additional referee</a> (bear in mind flagged referees if any)
+                    </li>
+                    <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}) by
+                        <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=2 %}">2 days</a>,
+                        <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=7 %}">1 week</a> or
+                        <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=14 %}">2 weeks</a>
+                        {% if submission.reporting_deadline_has_passed %}
+                            <span class="ml-1 label label-sm label-outline-danger">THE REPORTING DEADLINE HAS PASSED</span>
+                        {% endif %}
+                    </li>
+                    <li>
+                        Set refereeing deadline:
+                        <form class="form-inline" action="{% url 'submissions:set_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+                            {% csrf_token %}{{ set_deadline_form|bootstrap_inline:'0,12' }}
+                            <div class="ml-2 form-group row">
+                                <div class="col-12">
+                                    <input class="btn btn-secondary" type="submit" value="Set deadline"/>
+                                </div>
+                            </div>
+                        </form>
+                    </li>
+                    <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+                    {% if not submission.reporting_deadline_has_passed %}
+                        <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
+                    {% endif %}
+                    <li>Communicate with a Referee: see the communication block below.</li>
+                    <li>
+                        <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
+                        <p>If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
+                        <br/>If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.</p>
+                    </li>
+              </ul>
+        </div>
+    </div>
+{% endif %}
 
 <div class="row">
     <div class="col-12">

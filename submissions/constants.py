@@ -1,6 +1,8 @@
-
+STATUS_UNASSIGNED = 'unassigned'
+STATUS_RESUBMISSION_SCREENING = 'resubmitted_incomin'
 SUBMISSION_STATUS = (
-    ('unassigned', 'Unassigned, undergoing pre-screening'),
+    (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
+    (STATUS_RESUBMISSION_SCREENING, 'Resubmission incoming, undergoing pre-screening'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
     ('EICassigned', 'Editor-in-charge assigned, manuscript under review'),
     ('review_closed', 'Review period closed, editorial recommendation pending'),
@@ -33,7 +35,8 @@ SUBMISSION_STATUS_OUT_OF_POOL = [
 
 # Submissions which should not be viewable (except by admins, Fellows and authors)
 SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
-    'unassigned',
+    STATUS_UNASSIGNED,
+    STATUS_RESUBMISSION_SCREENING,
     'assignment_failed',
     'resubmitted_rejected',
     'rejected',
@@ -153,4 +156,13 @@ REPORT_STATUSES = (
     (STATUS_UNCLEAR, 'Rejected (unclear)'),
     (STATUS_NOT_USEFUL, 'Rejected (not useful)'),
     (STATUS_NOT_ACADEMIC, 'Rejected (not academic in style)')
+)
+
+CYCLE_DEFAULT = 'default'
+CYCLE_SHORT = 'short'
+CYCLE_DIRECT_REC = 'direct_rec'
+SUBMISSION_CYCLES = (
+    (CYCLE_DEFAULT, 'Default cycle'),
+    (CYCLE_SHORT, 'Short cycle'),
+    (CYCLE_DIRECT_REC, 'Direct editorial recommendation'),
 )

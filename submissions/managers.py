@@ -47,6 +47,7 @@ class EICRecommendationManager(models.Manager):
 
     def filter_for_user(self, user, **kwargs):
         """
-        Return list of EICRecommendation which are owned linked to an author owned Submission.
+        Return list of EICRecommendation's which are owned/assigned author through the
+        related submission.
         """
         return self.filter(submission__authors=user.contributor).filter(**kwargs)
