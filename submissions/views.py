@@ -165,9 +165,7 @@ class SubmissionCreateView(PermissionRequiredMixin, CreateView):
             assignment = EditorialAssignment(
                 submission=submission,
                 to=submission.editor_in_charge,
-                accepted=True,
-                date_created=timezone.now(),
-                date_answered=timezone.now(),
+                accepted=True
             )
             assignment.save()
 

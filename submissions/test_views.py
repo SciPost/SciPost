@@ -27,6 +27,7 @@ class PrefillUsingIdentifierTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+
 class SubmitManuscriptTest(TestCase):
     fixtures = ['permissions', 'groups', 'contributors']
 

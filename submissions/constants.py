@@ -38,6 +38,7 @@ SUBMISSION_STATUS_OUT_OF_POOL = [
     'rejected_visible',
 ]
 
+# Submissions which are allowed/required to submit a EIC Recommendation
 SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [
     STATUS_EIC_ASSIGNED,
     STATUS_REVIEW_CLOSED,
