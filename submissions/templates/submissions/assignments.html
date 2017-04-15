@@ -1,6 +1,12 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/_pool_base.html' %}
 
 {% block pagetitle %}: Assignments{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <span class="breadcrumb-item">Your assignments</span>
+{% endblock %}
 
 {% block content %}
 
@@ -48,34 +54,20 @@ $(document).ready(function(){
             <h1 class="highlight">Your current assignments:</h1>
         </div>
     </div>
-    <div class="row">
-        <div class="col-12">
-            <ul class="list-group list-group-flush">
-                {% for assignment in current_assignments %}
-                    <li class="list-group-item">
-                        {% include 'submissions/_submission_card_fellow_content.html' with submission=assignment.submission %}
-                        <div class="card-block">
-                            {% with actions=assignment.submission.cycle.get_required_actions %}
-                                <div class="required-actions{% if not actions %} no-actions{% endif %}">
-                                    <h3>{% if actions %}Required actions{% else %}No required actions{% endif %}</h3>
-                                    {% if actions %}
-                                        <ul>
-                                            {% for action in actions %}
-                                                <li>{{action.1}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    {% endif %}
-                                </div>
-                            {% endwith %}
-                            <h4 class="d-block mt-2">
-                                <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=assignment.submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
-                            </h4>
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
+    {% for assignment in current_assignments %}
+        {% if not forloop.first %}<hr class="small">{% endif %}
+        <div class="row ">
+            <div class="col-lg-8">
+                {% include 'submissions/_submission_card_fellow_content.html' with submission=assignment.submission %}
+            </div>
+            <div class="col-lg-4">
+                {% include 'submissions/_required_actions_block.html' with submission=submission %}
+                <h4 class="d-block mt-2">
+                    <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=assignment.submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
+                </h4>
+            </div>
         </div>
-    </div>
+    {% endfor %}
 {% else %}
     <div class="row">
         <div class="col-12">

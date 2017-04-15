@@ -21,17 +21,7 @@
 
     {% get_obj_perms request.user for submission as "sub_perms" %}
     {% if "can_take_editorial_actions" in sub_perms or is_ECAdmin %}
-        {% if submission.cycle.get_required_actions %}
-            <div class="required-actions">
-                <h3 class="pt-0">Required actions:</h3>
-                <ul>
-                  {% for action in submission.cycle.get_required_actions %}
-                      <li>{{action.1}}</li>
-                  {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
-
+        {% include 'submissions/_required_actions_block.html' with submission=submission %}
         <h4>
             <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
         </h4>

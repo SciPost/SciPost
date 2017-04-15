@@ -30,10 +30,10 @@
                 <div class="form-group row" id="id_referees_reinvite">
                     <label class="col-form-label col-md-2" for="id_referees_reinvite">Reinvite referees</label>
                     <div class="col-md-10 multiple-checkbox">
-                        <ul class="mb-0">
+                        <ul class="mb-0 list-group list-group-flush">
                             {% for referee in form.referees_reinvite.field.queryset %}
-                                <li>
-                                    <label for="{{form.referees_reinvite.name}}_{{forloop.counter0}}">
+                                <li class="list-group-item py-1">
+                                    <label for="{{form.referees_reinvite.name}}_{{forloop.counter0}}" class="mb-0">
                                         <input checked="checked" id="{{form.referees_reinvite.name}}_{{forloop.counter0}}" name="{{form.referees_reinvite.name}}" type="checkbox" value="{{referee.id}}">
                                         <div class="d-inline-block" style="vertical-align: top;">
                                             {{referee.referee_str}}

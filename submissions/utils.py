@@ -9,6 +9,7 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL,\
                        STATUS_RESUBMISSION_SCREENING, STATUS_AWAITING_ED_REC
 
 from scipost.utils import EMAIL_FOOTER
+from common.utils import BaseMailUtil
 
 
 class BaseSubmissionCycle:
@@ -227,12 +228,9 @@ class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
         return True
 
 
-class SubmissionUtils(object):
-
-    @classmethod
-    def load(cls, _dict):
-        for var_name in _dict:
-            setattr(cls, var_name, _dict[var_name])
+class SubmissionUtils(BaseMailUtil):
+    mail_sender = 'submissions@scipost.org'
+    mail_sender_title = 'SciPost Editorial Admin'
 
     @classmethod
     def deprecate_other_assignments(cls):
@@ -458,64 +456,9 @@ class SubmissionUtils(object):
     @classmethod
     def send_EIC_reappointment_email(cls):
         """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + cls.submission.editor_in_charge.get_title_display() + ' '
-                      + cls.submission.editor_in_charge.user.last_name
-                      + ', \n\nThe authors of the SciPost Submission\n\n'
-                      + cls.submission.title + ' by '
-                      + cls.submission.author_list +
-                      '\n\nhave resubmitted their manuscript. '
-                      '\n\nAs Editor-in-charge, you can take your editorial actions '
-                      'from the editorial page '
-                      'https://scipost.org/submission/editorial_page/'
-                      + cls.submission.arxiv_identifier_w_vn_nr
-                      + ' (also accessible from your personal page '
-                      'https://scipost.org/personal_page under the Editorial Actions tab). '
-                      '\n\nYou can either take an immediate acceptance/rejection decision, '
-                      'or run a new refereeing round, in which case you '
-                      'should now invite at least 3 referees; you might want to '
-                      'make sure you are aware of the '
-                      'detailed procedure described in the Editorial College by-laws at '
-                      'https://scipost.org/EdCol_by-laws.'
-                      '\n\nMany thanks in advance for your collaboration,'
-                      '\n\nThe SciPost Team.')
-        email_text_html = (
-            '<p>Dear {{ title }} {{ last_name }},</p>'
-            '<p>The authors of the SciPost Submission</p>'
-            '<p>{{ sub_title }}</p>'
-            '\n<p>by {{ author_list }}</p>'
-            '\n<p>have resubmitted their manuscript.</p>'
-            '\n<p>As Editor-in-charge, you can take your editorial actions '
-            'from the submission\'s <a href="https://scipost.org/submission/editorial_page/'
-            '{{ arxiv_identifier_w_vn_nr }}">editorial page</a>'
-            ' (also accessible from your '
-            '<a href="https://scipost.org/personal_page">personal page</a> '
-            'under the Editorial Actions tab).</p>'
-            '\n<p>You can either take an immediate acceptance/rejection decision, '
-            'or run a new refereeing round, in which case you '
-            'should now invite at least 3 referees; you might want to '
-            'make sure you are aware of the '
-            'detailed procedure described in the '
-            '<a href="https://scipost.org/EdCol_by-laws">Editorial College by-laws</a>.</p>'
-            '<p>Many thanks in advance for your collaboration,</p>'
-            '<p>The SciPost Team.</p>')
-        email_context = Context({
-            'title': cls.submission.editor_in_charge.get_title_display(),
-            'last_name': cls.submission.editor_in_charge.user.last_name,
-            'sub_title': cls.submission.title,
-            'author_list': cls.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
-        })
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
-        emailmessage = EmailMultiAlternatives(
-            'SciPost: resubmission received', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.submission.editor_in_charge.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
+        cls._send_mail(cls, 'submission_eic_reappointment',
+                       [cls._context['submission'].editor_in_charge.user.email],
+                       'resubmission received')
 
     @classmethod
     def send_author_prescreening_passed_email(cls):
@@ -961,46 +904,9 @@ class SubmissionUtils(object):
     @classmethod
     def email_EIC_report_delivered(cls):
         """ Requires loading 'report' attribute. """
-        email_text = ('Dear ' + cls.report.submission.editor_in_charge.get_title_display() + ' '
-                      + cls.report.submission.editor_in_charge.user.last_name + ','
-                      '\n\nReferee ' + cls.report.author.get_title_display() + ' '
-                      + cls.report.author.user.last_name +
-                      ' has delivered a Report for Submission\n\n'
-                      + cls.report.submission.title + ' by '
-                      + cls.report.submission.author_list + '.'
-                      '\n\nPlease vet this Report via your personal page at '
-                      'https://scipost.org/personal_page under the Editorial Actions tab.'
-                      '\n\nMany thanks for your collaboration,'
-                      '\n\nThe SciPost Team.')
-        email_text_html = (
-            '<p>Dear {{ EIC_title }} {{ EIC_last_name }},</p>'
-            '<p>Referee {{ ref_title }} {{ ref_last_name }} '
-            'has delivered a Report for Submission</p>'
-            '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
-            '\n<p>Please vet this Report via your '
-            '<a href="https://scipost.org/personal_page">personal page</a> '
-            'under the Editorial Actions tab.</p>'
-            '<p>Many thanks for your collaboration,</p>'
-            '<p>The SciPost Team.</p>')
-        email_context = Context({
-            'EIC_title': cls.report.submission.editor_in_charge.get_title_display(),
-            'EIC_last_name': cls.report.submission.editor_in_charge.user.last_name,
-            'ref_title': cls.report.author.get_title_display(),
-            'ref_last_name': cls.report.author.user.last_name,
-            'sub_title': cls.report.submission.title,
-            'author_list': cls.report.submission.author_list,
-        })
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
-        emailmessage = EmailMultiAlternatives(
-            'SciPost: Report delivered', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.report.submission.editor_in_charge.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
+        cls._send_mail(cls, 'report_delivered_eic',
+                       [cls._context['report'].submission.editor_in_charge.user.email],
+                       'Report delivered')
 
     @classmethod
     def acknowledge_report_email(cls):
