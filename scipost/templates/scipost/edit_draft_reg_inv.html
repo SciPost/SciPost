@@ -41,6 +41,7 @@ $(document).ready(function(){
         {% endif %}
         <form action="{% url 'scipost:edit_draft_reg_inv' draft_id=draft.id %}" method="post">
             {% csrf_token %}
+            {{draft_inv_form.media}}
             {{draft_inv_form|bootstrap}}
             <input type="submit" class="btn btn-secondary">
         </form>

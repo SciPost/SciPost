@@ -77,6 +77,7 @@ INSTALLED_APPS = (
     'django_countries',
     'django_extensions',
     'django_mathjax',
+    'ajax_select',
     'captcha',
     'crispy_forms',
     'guardian',
@@ -233,7 +234,8 @@ JOURNALS_DIR = 'journals'
 CROSSREF_LOGIN_ID = ''
 CROSSREF_LOGIN_PASSWORD = ''
 
-# Google reCaptcha
-RECAPTCHA_PUBLIC_KEY = ''
-RECAPTCHA_PRIVATE_KEY = ''
+# Google reCaptcha with Google's global test keys
+# https://developers.google.com/recaptcha/docs/faq#id-like-to-run-automated-tests-with-recaptcha-v2-what-should-i-do
+RECAPTCHA_PUBLIC_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+RECAPTCHA_PRIVATE_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
 NOCAPTCHA = True

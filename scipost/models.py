@@ -282,7 +282,8 @@ class RegistrationInvitation(models.Model):
                                        default=INVITATION_CONTRIBUTOR)
     cited_in_submission = models.ForeignKey('submissions.Submission',
                                             on_delete=models.CASCADE,
-                                            blank=True, null=True)
+                                            blank=True, null=True,
+                                            related_name='registration_invitations')
     cited_in_publication = models.ForeignKey('journals.Publication',
                                              on_delete=models.CASCADE,
                                              blank=True, null=True)
@@ -299,6 +300,7 @@ class RegistrationInvitation(models.Model):
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     responded = models.BooleanField(default=False)
     declined = models.BooleanField(default=False)
+
 
     def __str__(self):
         return (self.first_name + ' ' + self.last_name
