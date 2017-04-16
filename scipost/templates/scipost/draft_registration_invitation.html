@@ -47,6 +47,7 @@ $(document).ready(function(){
 
         <form action="{% url 'scipost:draft_registration_invitation' %}" method="post">
               {% csrf_token %}
+              {{draft_inv_form.media}}
               {{draft_inv_form|bootstrap}}
               <input type="submit" class="btn btn-secondary"/>
         </form>

@@ -54,6 +54,7 @@ $(document).ready(function(){
         {% endif %}
         <form action="{% url 'scipost:registration_invitations' %}" method="post">
             {% csrf_token %}
+            {{reg_inv_form.media}}
             {{reg_inv_form|bootstrap}}
             <input type="submit" class="btn btn-secondary">
         </form>

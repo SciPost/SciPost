@@ -4,7 +4,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 from django.utils import timezone
 
-from .constants import SUBMISSION_STATUS_OUT_OF_POOL,\
+from .constants import NO_REQUIRED_ACTION_STATUSES,\
                        STATUS_REVISION_REQUESTED, STATUS_EIC_ASSIGNED,\
                        STATUS_RESUBMISSION_SCREENING, STATUS_AWAITING_ED_REC
 
@@ -40,7 +40,7 @@ class BaseSubmissionCycle:
         editorial page.
         """
         self.required_actions = []
-        if self.submission.status in SUBMISSION_STATUS_OUT_OF_POOL:
+        if self.submission.status in NO_REQUIRED_ACTION_STATUSES:
             '''Submission does not appear in the pool, no action required.'''
             return False
 
@@ -120,6 +120,13 @@ class BaseSubmissionCycle:
             self._update_actions()
             self.updated_action = True
         return self.required_actions
+
+    def has_required_actions(self):
+        """
+        Certain submission statuses will not show the required actions block.
+        The decision to show this block is taken by this method.
+        """
+        return self.submission.status not in NO_REQUIRED_ACTION_STATUSES
 
     def update_status(self):
         """

@@ -13,3 +13,13 @@
 .bg-transparent {
     background-color: transparent;
 }
+
+body #MathJax_Message {
+    left: 1rem;
+    bottom: 1rem;
+    background-color: #f9f9f9;
+    border: 1px solid #f4f4f4;
+    border-radius: 2px;
+    color: #002b49;
+    opacity: 0.9;
+}

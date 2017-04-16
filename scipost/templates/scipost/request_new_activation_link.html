@@ -2,11 +2,13 @@
 
 {% block pagetitle %}: request new activation link{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
-  <h1>Request a new activation link</h1>
-  <p>Your previous activation link has expired. <a href="{% url 'scipost:request_new_activation_link' oldkey=oldkey %}">Click here</a> to have us email you a new one.</p>
-</section>
+<div class="row">
+    <div class="col-12">
+        <h2>Request a new activation link</h2>
+        <p>Your previous activation link has expired. <a href="{% url 'scipost:request_new_activation_link' contributor.id contributor.activation_key %}?confirm=1">Click here</a> to have us email you a new one.</p>
+    </div>
+</div>
 
-{% endblock bodysup %}
+{% endblock content %}

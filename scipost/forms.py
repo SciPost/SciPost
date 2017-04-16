@@ -1,3 +1,6 @@
+import string
+import random
+
 from django import forms
 
 from django.contrib.auth.models import User, Group
@@ -7,8 +10,9 @@ from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
 from captcha.fields import ReCaptchaField
 
+from ajax_select.fields import AutoCompleteSelectField
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, HTML, Submit
+from crispy_forms.layout import Layout, Div, Field, HTML
 
 from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES
 from .models import Contributor, DraftInvitation, RegistrationInvitation,\
@@ -16,8 +20,6 @@ from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
 from journals.models import Publication
-from submissions.constants import SUBMISSION_STATUS_PUBLICLY_UNLISTED
-from submissions.models import Submission
 
 
 REGISTRATION_REFUSAL_CHOICES = (
@@ -30,14 +32,20 @@ reg_ref_dict = dict(REGISTRATION_REFUSAL_CHOICES)
 
 
 class RegistrationForm(forms.Form):
+    """
+    Use this form to process the registration of new accounts.
+    Due to the construction of a separate Contributor from the User,
+    it is difficult to create a 'combined ModelForm'. All fields
+    are thus separately handled here.
+    """
     title = forms.ChoiceField(choices=TITLE_CHOICES, label='* Title')
     first_name = forms.CharField(label='* First name', max_length=100)
     last_name = forms.CharField(label='* Last name', max_length=100)
     email = forms.EmailField(label='* Email address')
-    orcid_id = forms.CharField(
-        label="  ORCID id", max_length=20,
-        widget=forms.TextInput({'placeholder': 'Recommended. Get one at orcid.org'}),
-        required=False)
+    invitation_key = forms.CharField(max_length=40, widget=forms.HiddenInput(), required=False)
+    orcid_id = forms.CharField(label="ORCID id", max_length=20, required=False,
+                               widget=forms.TextInput(
+                                    {'placeholder': 'Recommended. Get one at orcid.org'}))
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
     country_of_employment = LazyTypedChoiceField(
         choices=countries, label='* Country of employment', initial='NL',
@@ -55,13 +63,54 @@ class RegistrationForm(forms.Form):
         required=False)
     username = forms.CharField(label='* Username', max_length=100)
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
-    password_verif = forms.CharField(label='* Verify pwd', widget=forms.PasswordInput())
-    captcha = ReCaptchaField(attrs={
-  'theme' : 'clean',
-}, label='* Answer this simple maths question:')
+    password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput())
+    captcha = ReCaptchaField(attrs={'theme': 'clean'}, label='*Please verify to continue:')
+
+    def clean_password_verif(self):
+        if self.cleaned_data['password'] != self.cleaned_data['password_verif']:
+            self.add_error('password', 'Your passwords must match')
+            self.add_error('password_verif', 'Your passwords must match')
+
+    def clean_username(self):
+        if User.objects.filter(username=self.cleaned_data['username']).exists():
+            self.add_error('username', 'This username is already in use')
+        return self.cleaned_data.get('username', '')
+
+    def clean_email(self):
+        if User.objects.filter(email=self.cleaned_data['email']).exists():
+            self.add_error('email', 'This email address is already in use')
+        return self.cleaned_data.get('email', '')
+
+    def create_and_save_contributor(self, invitation_key=''):
+        user = User.objects.create_user(**{
+            'first_name': self.cleaned_data['first_name'],
+            'last_name': self.cleaned_data['last_name'],
+            'email': self.cleaned_data['email'],
+            'username': self.cleaned_data['username'],
+            'password': self.cleaned_data['password'],
+            'is_active': False
+        })
+        contributor, new = Contributor.objects.get_or_create(**{
+            'user': user,
+            'invitation_key': invitation_key,
+            'title': self.cleaned_data['title'],
+            'orcid_id': self.cleaned_data['orcid_id'],
+            'country_of_employment': self.cleaned_data['country_of_employment'],
+            'address': self.cleaned_data['address'],
+            'affiliation': self.cleaned_data['affiliation'],
+            'personalwebpage': self.cleaned_data['personalwebpage'],
+        })
+
+        if contributor.invitation_key == '':
+            contributor.generate_key()
+        contributor.save()
+        return contributor
 
 
 class DraftInvitationForm(forms.ModelForm):
+    cited_in_submission = AutoCompleteSelectField('submissions_lookup', required=False)
+    cited_in_publication = AutoCompleteSelectField('publication_lookup', required=False)
+
     class Meta:
         model = DraftInvitation
         fields = ['title', 'first_name', 'last_name', 'email',
@@ -69,33 +118,11 @@ class DraftInvitationForm(forms.ModelForm):
                   'cited_in_submission', 'cited_in_publication'
                   ]
 
-    def __init__(self, *args, **kwargs):
-        super(DraftInvitationForm, self).__init__(*args, **kwargs)
-        self.fields['cited_in_submission'] = forms.ModelChoiceField(
-            queryset=(Submission.objects.public()
-                      .order_by('-submission_date').prefetch_related('publication')),
-            required=False)
-        self.fields['cited_in_publication'] = forms.ModelChoiceField(
-            queryset=(Publication.objects.all().order_by('-publication_date')
-                      .prefetch_related('in_issue__in_volume__in_journal')),
-            required=False)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Div(
-                Div(
-                    Field('title'), Field('first_name'), Field('last_name'),
-                    Field('email'), Field('invitation_type'),
-                    css_class="col-6"),
-                Div(
-                    Submit('submit', 'Save draft'),
-                    css_class="col-6"),
-                css_class="row"),
-            Div(Field('cited_in_submission'),),
-            Div(Field('cited_in_publication'),),
-            )
-
 
 class RegistrationInvitationForm(forms.ModelForm):
+    cited_in_submission = AutoCompleteSelectField('submissions_lookup', required=False)
+    cited_in_publication = AutoCompleteSelectField('publication_lookup', required=False)
+
     class Meta:
         model = RegistrationInvitation
         fields = ['title', 'first_name', 'last_name', 'email',
@@ -105,33 +132,20 @@ class RegistrationInvitationForm(forms.ModelForm):
                   ]
 
     def __init__(self, *args, **kwargs):
+        if kwargs.get('initial', {}).get('cited_in_submission', False):
+            kwargs['initial']['cited_in_submission'] = kwargs['initial']['cited_in_submission'].id
+        if kwargs.get('initial', {}).get('cited_in_publication', False):
+            kwargs['initial']['cited_in_publication'] = kwargs['initial']['cited_in_publication'].id
+
         super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
         self.fields['personal_message'].widget.attrs.update(
             {'placeholder': ('NOTE: a personal phrase or two.'
                              ' The bulk of the text will be auto-generated.')})
-        self.fields['cited_in_submission'] = forms.ModelChoiceField(
-            queryset=Submission.objects.all().exclude(
-                status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED).order_by('-submission_date'),
-            required=False)
+
+
         self.fields['cited_in_publication'] = forms.ModelChoiceField(
             queryset=Publication.objects.all().order_by('-publication_date'),
             required=False)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Div(
-                Div(
-                    Field('title'), Field('first_name'), Field('last_name'),
-                    Field('email'), Field('invitation_type'),
-                    css_class="col-6"),
-                Div(
-                    Field('message_style'),
-                    Field('personal_message'),
-                    Submit('submit', 'Send invitation'),
-                    css_class="col-6"),
-                css_class="row"),
-            Div(Field('cited_in_submission'),),
-            Div(Field('cited_in_publication'),),
-            )
 
 
 class ModifyPersonalMessageForm(forms.Form):
@@ -142,6 +156,18 @@ class UpdateUserDataForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['last_name'].widget.attrs['readonly'] = True
+
+    def clean_last_name(self):
+        '''Make sure the `last_name` cannot be saved via this form.'''
+        instance = getattr(self, 'instance', None)
+        if instance and instance.last_name:
+            return instance.last_name
+        else:
+            return self.cleaned_data['last_name']
 
 
 class UpdatePersonalDataForm(forms.ModelForm):
@@ -155,12 +181,14 @@ class UpdatePersonalDataForm(forms.ModelForm):
 
 
 class VetRegistrationForm(forms.Form):
-    promote_to_registered_contributor = forms.BooleanField(required=False,
-                                                           label='Accept registration')
-    refuse = forms.BooleanField(required=False)
+    decision = forms.ChoiceField(widget=forms.RadioSelect,
+                                 choices=((True, 'Accept registration'), (False, 'Refuse')))
     refusal_reason = forms.ChoiceField(choices=REGISTRATION_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(),
                                            label='Justification (optional)', required=False)
+
+    def promote_to_registered_contributor(self):
+        return bool(self.cleaned_data.get('decision', False))
 
 
 class AuthenticationForm(forms.Form):

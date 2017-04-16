@@ -1,6 +1,7 @@
 alabaster==0.7.9
 Babel==2.3.4
 Django==1.10.3
+django_ajax_selects==1.5.2
 django-countries==4.0
 django-crispy-forms==1.6.1
 django-debug-toolbar==1.7
