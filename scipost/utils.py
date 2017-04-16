@@ -3,12 +3,14 @@ import hashlib
 import random
 import string
 
-from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
+from django.core.urlresolvers import reverse
 from django.template import Context, Template
 from django.utils import timezone
 
-from .models import Contributor, DraftInvitation, RegistrationInvitation
+from .models import DraftInvitation, RegistrationInvitation
+
+from common.utils import BaseMailUtil
 
 
 SCIPOST_SUMMARY_FOOTER = (
@@ -75,11 +77,9 @@ EMAIL_UNSUBSCRIBE_LINK_HTML = (
 )
 
 
-class Utils(object):
-    @classmethod
-    def load(cls, dict):
-        for var_name in dict:
-            setattr(cls, var_name, dict[var_name])
+class Utils(BaseMailUtil):
+    mail_sender = 'registration@scipost.org'
+    mail_sender_title = 'SciPost registration'
 
     @classmethod
     def password_mismatch(cls):
@@ -117,76 +117,28 @@ class Utils(object):
             return False
 
     @classmethod
-    def create_and_save_contributor(cls, invitation_key):
-        user = User.objects.create_user(
-            first_name=cls.form.cleaned_data['first_name'],
-            last_name=cls.form.cleaned_data['last_name'],
-            email=cls.form.cleaned_data['email'],
-            username=cls.form.cleaned_data['username'],
-            password=cls.form.cleaned_data['password']
-            )
-        # Set to inactive until activation via email link
-        user.is_active = False
-        user.save()
-        contributor = Contributor(
-            user=user,
-            invitation_key=invitation_key,
-            title=cls.form.cleaned_data['title'],
-            orcid_id=cls.form.cleaned_data['orcid_id'],
-            country_of_employment=cls.form.cleaned_data['country_of_employment'],
-            address=cls.form.cleaned_data['address'],
-            affiliation=cls.form.cleaned_data['affiliation'],
-            personalwebpage=cls.form.cleaned_data['personalwebpage'],
-            )
-        contributor.save()
-        Utils.load({'contributor': contributor})
+    def send_registration_email(cls):
+        """
+        Send mail after registration request has been recieved.
+
+        Requires loading:
+        contributor -- Contributor
+        """
+        cls._send_mail(cls, 'registration_request_received',
+                       [cls._context['contributor'].user.email],
+                       'request received')
 
     @classmethod
-    def send_registration_email(cls):
-        # Generate email activation key and link
-        salt = ""
-        for i in range(5):
-            salt = salt + random.choice(string.ascii_letters)
-        salt = salt.encode('utf8')
-        usernamesalt = cls.contributor.user.username
-        usernamesalt = usernamesalt.encode('utf8')
-        cls.contributor.activation_key = hashlib.sha1(salt+usernamesalt).hexdigest()
-        cls.contributor.key_expires = datetime.datetime.strftime(
-            datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
-        cls.contributor.save()
-        email_text = ('Dear ' + cls.contributor.get_title_display() + ' ' +
-                      cls.contributor.user.last_name +
-                      ', \n\nYour request for registration to the SciPost publication portal' +
-                      ' has been received. You now need to validate your email by visiting ' +
-                      'this link within the next 48 hours: \n\n' + 'https://scipost.org/activation/' +
-                      cls.contributor.activation_key +
-                      '\n\nYour registration will thereafter be vetted. Many thanks for your interest.'
-                      '\n\nThe SciPost Team.')
-        email_text_html = (
-            'Dear {{ title }} {{ last_name }},<br/>'
-            '\n<p>Your request for registration to the SciPost publication portal'
-            ' has been received. You now need to validate your email by visiting '
-            'this link within the next 48 hours:</p>'
-            '<p><a href="https://scipost.org/activation/{{ activation_key }}">'
-            'Activate your account</a></p>'
-            '\n<p>Your registration will thereafter be vetted. Many thanks for your interest.</p>'
-            '<p>The SciPost Team.</p>')
-        email_context = Context({
-            'title': cls.contributor.get_title_display(),
-            'last_name': cls.contributor.user.last_name,
-            'activation_key': cls.contributor.activation_key,
-        })
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
-        emailmessage = EmailMultiAlternatives(
-            'SciPost registration request received', email_text,
-            'SciPost registration <registration@scipost.org>',
-            [cls.contributor.user.email],
-            ['registration@scipost.org'],
-            reply_to=['registration@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
+    def send_new_activation_link_email(cls):
+        """
+        Send mail after a new activation link on a Contributor has been generated.
+
+        Requires loading:
+        contributor -- Contributor
+        """
+        cls._send_mail(cls, 'new_activation_link',
+                       [cls._context['contributor'].user.email],
+                       'new email activation link')
 
     @classmethod
     def create_draft_invitation(cls):
@@ -653,6 +605,9 @@ class Utils(object):
         email_text += ',\n\n'
         email_text_html += ',<br/>'
         if cls.notification.cited_in_publication:
+            url_unsubscribe = reverse('scipost:unsubscribe',
+                                      args=[cls.notification.contributor.id,
+                                            cls.notification.contributor.activation_key])
             email_text += (
                 'We would like to notify you that '
                 'your work has been cited in a paper published by SciPost,'
@@ -662,8 +617,7 @@ class Utils(object):
                 ').\n\nWe hope you will find this paper of interest to your own research.'
                 '\n\nBest regards,\n\nThe SciPost Team'
                 '\n\nDon\'t want to receive such emails? Unsubscribe by visiting '
-                'https://scipost.org/unsubscribe/'
-                + cls.notification.contributor.activation_key + '.')
+                + url_unsubscribe + '.')
             email_text_html += (
                 '<p>We would like to notify you that '
                 'your work has been cited in a paper published by SciPost,</p>'
@@ -674,7 +628,7 @@ class Utils(object):
                 '<p>Best regards,</p><p>The SciPost Team</p><br/>'
                 + EMAIL_FOOTER + '<br/>'
                 '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
-                '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')
+                '<a href="%s">Unsubscribe</a>.</p>' % url_unsubscribe)
             email_context['pub_title'] = cls.notification.cited_in_publication.title
             email_context['pub_author_list'] = cls.notification.cited_in_publication.author_list
             email_context['doi_label'] = cls.notification.cited_in_publication.doi_string
@@ -683,6 +637,9 @@ class Utils(object):
             html_template = Template(email_text_html)
             html_version = html_template.render(email_context)
         elif cls.notification.cited_in_submission:
+            url_unsubscribe = reverse('scipost:unsubscribe',
+                                      args=[cls.notification.contributor.id,
+                                            cls.notification.contributor.activation_key])
             email_text += (
                 'Your work has been cited in a manuscript submitted to SciPost,'
                 '\n\n' + cls.notification.cited_in_submission.title
@@ -691,8 +648,7 @@ class Utils(object):
                 'commenting on the above submission before the refereeing deadline.\n\n'
                 'Best regards,\n\nThe SciPost Team'
                 '\n\nDon\'t want to receive such emails? Unsubscribe by visiting '
-                'https://scipost.org/unsubscribe/'
-                + cls.notification.contributor.activation_key + '.')
+                + url_unsubscribe + '.')
             email_text_html += (
                 '<p>Your work has been cited in a manuscript submitted to SciPost,</p>'
                 '<p>{{ sub_title }} <br>by {{ sub_author_list }},</p>'
@@ -704,7 +660,7 @@ class Utils(object):
                 '<p>Best regards,</p><p>The SciPost Team</p><br/>'
                 + EMAIL_FOOTER + '<br/>'
                 '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
-                '<a href="https://scipost.org/unsubscribe/{{ key }}">Unsubscribe</a>.</p>')
+                '<a href="%s">Unsubscribe</a>.</p>' % url_unsubscribe)
             email_context['sub_title'] = cls.notification.cited_in_submission.title
             email_context['sub_author_list'] = cls.notification.cited_in_submission.author_list
             email_context['arxiv_identifier_w_vn_nr'] = cls.notification.cited_in_submission.arxiv_identifier_w_vn_nr

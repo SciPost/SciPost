@@ -10,8 +10,8 @@
     <div class="col-12">
         <div class="panel">
             <h1>Register to SciPost</h1>
-            {% if welcome_message %}
-            <h2>{{ welcome_message }}</h2>
+            {% if invitation %}
+                <h2>Welcome {{invitation.get_title_display}} {{invitation.last_name}} and thanks in advance for registering (by completing this form)</h2>
             {% endif %}
         </div>
     </div>
@@ -28,22 +28,14 @@
     </div>
     <div class="offset-md-1 col-md-7">
 
-      {% if invited %}
-          <form action="{% url 'scipost:invitation' key=key %}" method="post">
-            	{% csrf_token %}
-        	    {{ form|bootstrap }}
-        	<input class="btn btn-primary" type="submit" value="Submit" />
-          </form>
-      {% else %}
-          <form action="{% url 'scipost:register' %}" method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <input class="btn btn-primary" type="submit" value="Submit" />
-          </form>
-      {% endif %}
+      <form action="{% url 'scipost:register' %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input class="btn btn-primary" type="submit" value="Submit" />
+      </form>
 
       {% if errormessage %}
-          <p style="color:red;">{{ errormessage }}</p>
+          <p class="text-danger">{{ errormessage }}</p>
       {% endif %}
     </div>
 </div>

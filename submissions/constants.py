@@ -6,7 +6,7 @@ STATUS_AWAITING_ED_REC = 'awaiting_ed_rec'
 STATUS_REVIEW_CLOSED = 'review_closed'
 SUBMISSION_STATUS = (
     (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
-    (STATUS_RESUBMISSION_SCREENING, 'Resubmission incoming, undergoing pre-screening'),
+    (STATUS_RESUBMISSION_SCREENING, 'Resubmission incoming'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
     (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned, manuscript under review'),
     (STATUS_REVIEW_CLOSED, 'Review period closed, editorial recommendation pending'),
@@ -74,6 +74,11 @@ SUBMISSION_TYPE = (
     ('Article', 'Article (in-depth reports on specialized research)'),
     ('Review', 'Review (candid snapshot of current research in a given area)'),
 )
+
+NO_REQUIRED_ACTION_STATUSES = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
+    STATUS_UNASSIGNED,
+    STATUS_RESUBMISSION_SCREENING
+]
 
 ED_COMM_CHOICES = (
     ('EtoA', 'Editor-in-charge to Author'),
