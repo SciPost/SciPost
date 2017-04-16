@@ -178,12 +178,10 @@ class SubmissionCreateView(PermissionRequiredMixin, CreateView):
             SubmissionUtils.load({'submission': submission})
             SubmissionUtils.send_authors_submission_ack_email()
 
-        context = {'ack_header': 'Thank you for your Submission to SciPost',
-                   'ack_message': 'Your Submission will soon be handled by an Editor. ',
-                   'followup_message': 'Return to your ',
-                   'followup_link': reverse('scipost:personal_page'),
-                   'followup_link_label': 'personal page'}
-        return render(self.request, 'scipost/acknowledgement.html', context)
+        text = ('<h3>Thank you for your Submission to SciPost</h3>'
+                'Your Submission will soon be handled by an Editor.')
+        messages.success(self.request, text)
+        return redirect(reverse('scipost:personal_page'))
 
     def mark_previous_submissions_as_deprecated(self, previous_submissions):
         for sub in previous_submissions:

@@ -1022,27 +1022,23 @@ def personal_page(request):
 
 @login_required
 def change_password(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.POST)
-        ack = False
-        if form.is_valid():
-            if not request.user.check_password(form.cleaned_data['password_prev']):
-                return render(
-                    request, 'scipost/change_password.html',
-                    {'form': form,
-                     'errormessage': 'The currently existing password you entered is incorrect'})
-            if form.cleaned_data['password_new'] != form.cleaned_data['password_verif']:
-                return render(request, 'scipost/change_password.html', {
-                              'form': form,
-                              'errormessage': 'Your new password entries must match'})
-            request.user.set_password(form.cleaned_data['password_new'])
-            request.user.save()
-            ack = True
-        context = {'ack': ack, 'form': form}
-    else:
-        form = PasswordChangeForm()
-        context = {'ack': False, 'form': form}
-    return render(request, 'scipost/change_password.html', context)
+    form = PasswordChangeForm(request.POST or None)
+    ack = False
+    if form.is_valid():
+        if not request.user.check_password(form.cleaned_data['password_prev']):
+            return render(
+                request, 'scipost/change_password.html',
+                {'form': form,
+                 'errormessage': 'The currently existing password you entered is incorrect'})
+        if form.cleaned_data['password_new'] != form.cleaned_data['password_verif']:
+            return render(request, 'scipost/change_password.html', {
+                          'form': form,
+                          'errormessage': 'Your new password entries must match'})
+        request.user.set_password(form.cleaned_data['password_new'])
+        request.user.save()
+        ack = True
+
+    return render(request, 'scipost/change_password.html', {'ack': ack, 'form': form})
 
 
 def reset_password_confirm(request, uidb64=None, token=None):
@@ -1078,11 +1074,8 @@ def update_personal_data(request):
             request.user.contributor.accepts_SciPost_emails = cont_form.cleaned_data['accepts_SciPost_emails']
             request.user.save()
             request.user.contributor.save()
-            context = {'ack_header': 'Your personal data has been updated.',
-                       'followup_message': 'Return to your ',
-                       'followup_link': reverse('scipost:personal_page'),
-                       'followup_link_label': 'personal page'}
-            return render(request, 'scipost/acknowledgement.html', context)
+            messages.success(request, 'Your personal data has been updated.')
+            return redirect(reverse('scipost:personal_page'))
     else:
         user_form = UpdateUserDataForm(instance=contributor.user)
         # Prevent exploit of gaining view on self-authored submissions by changing surname.

@@ -116,7 +116,7 @@ class BaseSubmissionCycle:
 
     def get_required_actions(self):
         '''Return list of the submission its required actions'''
-        if self.updated_action:
+        if not self.updated_action:
             self._update_actions()
             self.updated_action = True
         return self.required_actions

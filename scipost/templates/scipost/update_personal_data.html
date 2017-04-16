@@ -2,7 +2,9 @@
 
 {% block pagetitle %}: update personal data{% endblock pagetitle %}
 
-{% block bodysup %}
+{% load bootstrap %}
+
+{% block content %}
 
 <script>
 
@@ -81,18 +83,16 @@ $(document).ready(function(){
 
 </script>
 
-<section>
-  <h1>Update your personal data</h1>
-  <form action="{% url 'scipost:update_personal_data' %}" method="post">
-    {% csrf_token %}
-    <table>
-      <ul>
-	{{ user_form.as_table }}
-	{{ cont_form.as_table }}
-      </ul>
-    </table>
-    <input type="submit" value="Update" />
-  </form>
-</section>
+<div class="row">
+    <div class="col-lg-10 offset-lg-1">
+        <h1 class="highlight">Update your personal data</h1>
+        <form action="{% url 'scipost:update_personal_data' %}" method="post">
+            {% csrf_token %}
+            {{user_form|bootstrap}}
+        	{{cont_form|bootstrap}}
+            <input type="submit" class="btn btn-secondary" value="Update" />
+        </form>
+    </div>
+</div>
 
-{% endblock bodysup %}
+{% endblock content %}
