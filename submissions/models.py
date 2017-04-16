@@ -5,11 +5,16 @@ from django.db import models, transaction
 from django.contrib.postgres.fields import JSONField
 from django.urls import reverse
 
-from .constants import ASSIGNMENT_REFUSAL_REASONS, SUBMISSION_STATUS, ASSIGNMENT_NULLBOOL,\
+from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
-                       RANKING_CHOICES, REPORT_REC, REPORT_REFUSAL_CHOICES,\
-                       REPORT_STATUSES, STATUS_UNVETTED
-from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager
+                       RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
+                       REPORT_STATUSES, STATUS_UNVETTED, STATUS_RESUBMISSION_SCREENING,\
+                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
+                       SUBMISSION_EIC_RECOMMENDATION_REQUIRED
+from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
+                      ReportManager
+from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
+                   GeneralSubmissionCycle
 
 from scipost.behaviors import ArxivCallable
 from scipost.constants import TITLE_CHOICES
@@ -29,8 +34,8 @@ class Submission(ArxivCallable, models.Model):
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
-    editor_in_charge = models.ForeignKey(Contributor, related_name='EIC', blank=True, null=True,
-                                         on_delete=models.CASCADE)
+    editor_in_charge = models.ForeignKey('scipost.Contributor', related_name='EIC', blank=True,
+                                         null=True, on_delete=models.CASCADE)
     is_current = models.BooleanField(default=True)
     is_resubmission = models.BooleanField(default=False)
     list_of_changes = models.TextField(blank=True, null=True)
@@ -44,21 +49,24 @@ class Submission(ArxivCallable, models.Model):
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
     # Status set by Editors
-    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default='unassigned')
+    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_UNASSIGNED)
+    refereeing_cycle = models.CharField(max_length=30, choices=SUBMISSION_CYCLES,
+                                        default=CYCLE_DEFAULT)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
                                        blank=True, null=True, default=None)
-    submitted_by = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    # Replace this by foreignkey?
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
-                                            verbose_name="Journal to be submitted to")  #Replace this by foreignkey?
+                                            verbose_name="Journal to be submitted to")
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField(Contributor, blank=True, related_name='authors_sub')
-    authors_claims = models.ManyToManyField(Contributor, blank=True,
+    authors = models.ManyToManyField('scipost.Contributor', blank=True, related_name='authors_sub')
+    authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
                                             related_name='authors_sub_claims')
-    authors_false_claims = models.ManyToManyField(Contributor, blank=True,
+    authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,
                                                   related_name='authors_sub_false_claims')
     abstract = models.TextField()
 
@@ -80,6 +88,14 @@ class Submission(ArxivCallable, models.Model):
             ('can_take_editorial_actions', 'Can take editorial actions'),
             )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._update_cycle()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self._update_cycle()
+
     def __str__(self):
         header = (self.arxiv_identifier_w_vn_nr + ', '
                   + self.title[:30] + ' by ' + self.author_list[:30])
@@ -88,13 +104,29 @@ class Submission(ArxivCallable, models.Model):
         else:
             header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
         try:
-            header += ' (published as ' + self.publication.citation() + ')'
+            header += ' (published as %s (%s))' % (self.publication.doi_string,
+                                                 self.publication.publication_date.strftime('%Y'))
         except Publication.DoesNotExist:
             pass
         return header
 
+    def _update_cycle(self):
+        """
+        Append the specific submission cycle to the instance to eventually handle the
+        complete submission cycle outside the submission instance itself.
+        """
+        if self.refereeing_cycle == CYCLE_SHORT:
+            self.cycle = ShortSubmissionCycle(self)
+        elif self.refereeing_cycle == CYCLE_DIRECT_REC:
+            self.cycle = DirectRecommendationSubmissionCycle(self)
+        else:
+            self.cycle = GeneralSubmissionCycle(self)
+
     def get_absolute_url(self):
         return reverse('submissions:submission', args=[self.arxiv_identifier_w_vn_nr])
+
+    def eic_recommendation_required(self):
+        return self.status not in SUBMISSION_EIC_RECOMMENDATION_REQUIRED
 
     @property
     def reporting_deadline_has_passed(self):
@@ -103,10 +135,13 @@ class Submission(ArxivCallable, models.Model):
     @transaction.atomic
     def finish_submission(self):
         if self.is_resubmission:
+            # If submissions is a resubmission, the submission needs to be prescreened
+            # by the EIC to choose which of the available submission cycle to assign
             self.mark_other_versions_as_deprecated()
             self.copy_authors_from_previous_version()
             self.copy_EIC_from_previous_version()
             self.set_resubmission_defaults()
+            self.status = STATUS_RESUBMISSION_SCREENING
         else:
             self.authors.add(self.submitted_by)
 
@@ -167,13 +202,13 @@ class Submission(ArxivCallable, models.Model):
 
     # Underneath: All very inefficient methods as they initiate a new query
     def count_accepted_invitations(self):
-        return self.refereeinvitation_set.filter(accepted=True).count()
+        return self.referee_invitations.filter(accepted=True).count()
 
     def count_declined_invitations(self):
-        return self.refereeinvitation_set.filter(accepted=False).count()
+        return self.referee_invitations.filter(accepted=False).count()
 
     def count_pending_invitations(self):
-        return self.refereeinvitation_set.filter(accepted=None).count()
+        return self.referee_invitations.filter(accepted=None).count()
 
     def count_invited_reports(self):
         return self.reports.filter(status=1, invited=True).count()
@@ -196,8 +231,8 @@ class Submission(ArxivCallable, models.Model):
 ######################
 
 class EditorialAssignment(models.Model):
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
-    to = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    to = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
     # attribute `deprecated' becomes True if another Fellow becomes Editor-in-charge
     deprecated = models.BooleanField(default=False)
@@ -216,9 +251,10 @@ class EditorialAssignment(models.Model):
 
 
 class RefereeInvitation(models.Model):
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
-    referee = models.ForeignKey(Contributor, related_name='referee', blank=True, null=True,
-                                on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='referee_invitations')
+    referee = models.ForeignKey('scipost.Contributor', related_name='referee', blank=True,
+                                null=True, on_delete=models.CASCADE)  # Why is this blank/null=True
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30, default='')
     last_name = models.CharField(max_length=30, default='')
@@ -226,7 +262,7 @@ class RefereeInvitation(models.Model):
     # if Contributor not found, person is invited to register
     invitation_key = models.CharField(max_length=40, default='')
     date_invited = models.DateTimeField(default=timezone.now)
-    invited_by = models.ForeignKey(Contributor, related_name='referee_invited_by',
+    invited_by = models.ForeignKey('scipost.Contributor', related_name='referee_invited_by',
                                    blank=True, null=True, on_delete=models.CASCADE)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
@@ -242,6 +278,20 @@ class RefereeInvitation(models.Model):
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))
 
+    @property
+    def referee_str(self):
+        if self.referee:
+            return str(self.referee)
+        return self.last_name + ', ' + self.first_name
+
+    def reset_content(self):
+        self.nr_reminders = 0
+        self.date_last_reminded = None
+        self.accepted = None
+        self.refusal_reason = None
+        self.fulfilled = False
+        self.cancelled = False
+
 
 ###########
 # Reports:
@@ -250,15 +300,16 @@ class RefereeInvitation(models.Model):
 class Report(models.Model):
     """ Both types of reports, invited or contributed. """
     status = models.SmallIntegerField(choices=REPORT_STATUSES, default=STATUS_UNVETTED)
-    submission = models.ForeignKey(Submission, related_name='reports', on_delete=models.CASCADE)
-    vetted_by = models.ForeignKey(Contributor, related_name="report_vetted_by",
+    submission = models.ForeignKey('submissions.Submission', related_name='reports',
+                                   on_delete=models.CASCADE)
+    vetted_by = models.ForeignKey('scipost.Contributor', related_name="report_vetted_by",
                                   blank=True, null=True, on_delete=models.CASCADE)
     # `invited' filled from RefereeInvitation objects at moment of report submission
     invited = models.BooleanField(default=False)
     # `flagged' if author of report has been flagged by submission authors (surname check only)
     flagged = models.BooleanField(default=False)
     date_submitted = models.DateTimeField('date submitted')
-    author = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     qualification = models.PositiveSmallIntegerField(
         choices=REFEREE_QUALIFICATION,
         verbose_name="Qualification to referee this: I am ")
@@ -282,6 +333,8 @@ class Report(models.Model):
                                            verbose_name='optional remarks for the Editors only')
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
 
+    objects = ReportManager()
+
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
@@ -296,8 +349,8 @@ class EditorialCommunication(models.Model):
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
     """
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
-    referee = models.ForeignKey(Contributor, related_name='referee_in_correspondence',
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    referee = models.ForeignKey('scipost.Contributor', related_name='referee_in_correspondence',
                                 blank=True, null=True, on_delete=models.CASCADE)
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
@@ -318,7 +371,8 @@ class EditorialCommunication(models.Model):
 
 # From the Editor-in-charge of a Submission
 class EICRecommendation(models.Model):
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='eicrecommendations')
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
     remarks_for_authors = models.TextField(blank=True, null=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True, null=True)

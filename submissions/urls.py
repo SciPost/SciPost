@@ -69,6 +69,8 @@ urlpatterns = [
         views.communication, name='communication'),
     url(r'^eic_recommendation/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
         views.eic_recommendation, name='eic_recommendation'),
+    url(r'^cycle/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/submit$', views.cycle_form_submit,
+        name='cycle_confirmation'),
     # Reports
     url(r'^submit_report/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
         views.submit_report, name='submit_report'),

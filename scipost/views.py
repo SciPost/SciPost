@@ -540,58 +540,37 @@ def draft_registration_invitation(request):
 
     sent_reg_inv = RegistrationInvitation.objects.filter(responded=False, declined=False)
     sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
-    nr_sent_reg_inv_fellows = sent_reg_inv_fellows.count()
     sent_reg_inv_contrib = sent_reg_inv.filter(invitation_type='C').order_by('last_name')
-    nr_sent_reg_inv_contrib = sent_reg_inv_contrib.count()
     sent_reg_inv_ref = sent_reg_inv.filter(invitation_type='R').order_by('last_name')
-    nr_sent_reg_inv_ref = sent_reg_inv_ref.count()
     sent_reg_inv_cited_sub = sent_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    nr_sent_reg_inv_cited_sub = sent_reg_inv_cited_sub.count()
     sent_reg_inv_cited_pub = sent_reg_inv.filter(invitation_type='cp').order_by('last_name')
-    nr_sent_reg_inv_cited_pub = sent_reg_inv_cited_pub.count()
 
     resp_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=False)
     resp_reg_inv_fellows = resp_reg_inv.filter(invitation_type='F').order_by('last_name')
-    nr_resp_reg_inv_fellows = resp_reg_inv_fellows.count()
     resp_reg_inv_contrib = resp_reg_inv.filter(invitation_type='C').order_by('last_name')
-    nr_resp_reg_inv_contrib = resp_reg_inv_contrib.count()
     resp_reg_inv_ref = resp_reg_inv.filter(invitation_type='R').order_by('last_name')
-    nr_resp_reg_inv_ref = resp_reg_inv_ref.count()
     resp_reg_inv_cited_sub = resp_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    nr_resp_reg_inv_cited_sub = resp_reg_inv_cited_sub.count()
     resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
-    nr_resp_reg_inv_cited_pub = resp_reg_inv_cited_pub.count()
 
     decl_reg_inv = RegistrationInvitation.objects.filter(
         responded=True, declined=True).order_by('last_name')
 
-    names_reg_contributors = Contributor.objects.filter(
-        status=1).order_by('user__last_name').values_list(
-        'user__first_name', 'user__last_name')
+    names_reg_contributors = (Contributor.objects.filter(status=1).order_by('user__last_name')
+                              .values_list('user__first_name', 'user__last_name'))
     existing_drafts = DraftInvitation.objects.filter(processed=False).order_by('last_name')
 
     context = {
         'draft_inv_form': draft_inv_form, 'errormessage': errormessage,
         'sent_reg_inv_fellows': sent_reg_inv_fellows,
-        'nr_sent_reg_inv_fellows': nr_sent_reg_inv_fellows,
         'sent_reg_inv_contrib': sent_reg_inv_contrib,
-        'nr_sent_reg_inv_contrib': nr_sent_reg_inv_contrib,
         'sent_reg_inv_ref': sent_reg_inv_ref,
-        'nr_sent_reg_inv_ref': nr_sent_reg_inv_ref,
         'sent_reg_inv_cited_sub': sent_reg_inv_cited_sub,
-        'nr_sent_reg_inv_cited_sub': nr_sent_reg_inv_cited_sub,
         'sent_reg_inv_cited_pub': sent_reg_inv_cited_pub,
-        'nr_sent_reg_inv_cited_pub': nr_sent_reg_inv_cited_pub,
         'resp_reg_inv_fellows': resp_reg_inv_fellows,
-        'nr_resp_reg_inv_fellows': nr_resp_reg_inv_fellows,
         'resp_reg_inv_contrib': resp_reg_inv_contrib,
-        'nr_resp_reg_inv_contrib': nr_resp_reg_inv_contrib,
         'resp_reg_inv_ref': resp_reg_inv_ref,
-        'nr_resp_reg_inv_ref': nr_resp_reg_inv_ref,
         'resp_reg_inv_cited_sub': resp_reg_inv_cited_sub,
-        'nr_resp_reg_inv_cited_sub': nr_resp_reg_inv_cited_sub,
         'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
-        'nr_resp_reg_inv_cited_pub': nr_resp_reg_inv_cited_pub,
         'decl_reg_inv': decl_reg_inv,
         'names_reg_contributors': names_reg_contributors,
         'existing_drafts': existing_drafts,
@@ -1043,27 +1022,23 @@ def personal_page(request):
 
 @login_required
 def change_password(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.POST)
-        ack = False
-        if form.is_valid():
-            if not request.user.check_password(form.cleaned_data['password_prev']):
-                return render(
-                    request, 'scipost/change_password.html',
-                    {'form': form,
-                     'errormessage': 'The currently existing password you entered is incorrect'})
-            if form.cleaned_data['password_new'] != form.cleaned_data['password_verif']:
-                return render(request, 'scipost/change_password.html', {
-                              'form': form,
-                              'errormessage': 'Your new password entries must match'})
-            request.user.set_password(form.cleaned_data['password_new'])
-            request.user.save()
-            ack = True
-        context = {'ack': ack, 'form': form}
-    else:
-        form = PasswordChangeForm()
-        context = {'ack': False, 'form': form}
-    return render(request, 'scipost/change_password.html', context)
+    form = PasswordChangeForm(request.POST or None)
+    ack = False
+    if form.is_valid():
+        if not request.user.check_password(form.cleaned_data['password_prev']):
+            return render(
+                request, 'scipost/change_password.html',
+                {'form': form,
+                 'errormessage': 'The currently existing password you entered is incorrect'})
+        if form.cleaned_data['password_new'] != form.cleaned_data['password_verif']:
+            return render(request, 'scipost/change_password.html', {
+                          'form': form,
+                          'errormessage': 'Your new password entries must match'})
+        request.user.set_password(form.cleaned_data['password_new'])
+        request.user.save()
+        ack = True
+
+    return render(request, 'scipost/change_password.html', {'ack': ack, 'form': form})
 
 
 def reset_password_confirm(request, uidb64=None, token=None):
@@ -1099,11 +1074,8 @@ def update_personal_data(request):
             request.user.contributor.accepts_SciPost_emails = cont_form.cleaned_data['accepts_SciPost_emails']
             request.user.save()
             request.user.contributor.save()
-            context = {'ack_header': 'Your personal data has been updated.',
-                       'followup_message': 'Return to your ',
-                       'followup_link': reverse('scipost:personal_page'),
-                       'followup_link_label': 'personal page'}
-            return render(request, 'scipost/acknowledgement.html', context)
+            messages.success(request, 'Your personal data has been updated.')
+            return redirect(reverse('scipost:personal_page'))
     else:
         user_form = UpdateUserDataForm(instance=contributor.user)
         # Prevent exploit of gaining view on self-authored submissions by changing surname.

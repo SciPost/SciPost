@@ -1,29 +1,36 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
 
 {% block pagetitle %}: citation notifications{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Pool</span>
+{% endblock %}
+
+{% block content %}
 
 
-<section>
-  <div class="flex-greybox">
-    <h1>Citation notifications to process</h1>
-  </div>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Citation notifications to process</h1>
+        {% if errormessage %}
+            <h3 class="text-danger">{{ errormessage }}</h3>
+        {% endif %}
 
-  {% if errormessage %}
-  <h3 style="color: red;">{{ errormessage }}</h3>
-  {% endif %}
+        <ul>
+          {% for un in unprocessed_notifications %}
+              <li>
+                  {{ un }} <a href="{% url 'scipost:process_citation_notification' cn_id=un.id %}">Process this notification</a>
+              </li>
+          {% empty %}
+              <li>There are no citation notifications to process.</li>
+          {% endfor %}
+        </ul>
 
-  {% if unprocessed_notifications %}
-  <ul>
-    {% for un in unprocessed_notifications %}
-    <li>{{ un }} <a href="{% url 'scipost:process_citation_notification' cn_id=un.id %}">Process this notification</a></li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <h3>There are no citation notifications to process.</h3>
-  <p>Return to your <a href="{% url 'scipost:personal_page' %}">personal page</a>.</p>
-  {% endif %}
+        <p>Return to your <a href="{% url 'scipost:personal_page' %}">personal page</a>.</p>
+    </div>
+</div>
 
 
-{% endblock bodysup %}
+
+{% endblock content %}

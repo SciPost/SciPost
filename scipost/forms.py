@@ -72,11 +72,12 @@ class DraftInvitationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(DraftInvitationForm, self).__init__(*args, **kwargs)
         self.fields['cited_in_submission'] = forms.ModelChoiceField(
-            queryset=Submission.objects.all().exclude(
-                status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED).order_by('-submission_date'),
+            queryset=(Submission.objects.public()
+                      .order_by('-submission_date').prefetch_related('publication')),
             required=False)
         self.fields['cited_in_publication'] = forms.ModelChoiceField(
-            queryset=Publication.objects.all().order_by('-publication_date'),
+            queryset=(Publication.objects.all().order_by('-publication_date')
+                      .prefetch_related('in_issue__in_volume__in_journal')),
             required=False)
         self.helper = FormHelper()
         self.helper.layout = Layout(

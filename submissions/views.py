@@ -4,10 +4,9 @@ import feedparser
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
@@ -24,7 +23,8 @@ from .forms import SubmissionIdentifierForm, SubmissionForm, SubmissionSearchFor
                    RecommendationVoteForm, ConsiderAssignmentForm, AssignSubmissionForm,\
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
                    ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
-                   EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm
+                   EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
+                   SubmissionCycleChoiceForm
 from .utils import SubmissionUtils
 
 from comments.models import Comment
@@ -165,9 +165,7 @@ class SubmissionCreateView(PermissionRequiredMixin, CreateView):
             assignment = EditorialAssignment(
                 submission=submission,
                 to=submission.editor_in_charge,
-                accepted=True,
-                date_created=timezone.now(),
-                date_answered=timezone.now(),
+                accepted=True
             )
             assignment.save()
 
@@ -180,12 +178,10 @@ class SubmissionCreateView(PermissionRequiredMixin, CreateView):
             SubmissionUtils.load({'submission': submission})
             SubmissionUtils.send_authors_submission_ack_email()
 
-        context = {'ack_header': 'Thank you for your Submission to SciPost',
-                   'ack_message': 'Your Submission will soon be handled by an Editor. ',
-                   'followup_message': 'Return to your ',
-                   'followup_link': reverse('scipost:personal_page'),
-                   'followup_link_label': 'personal page'}
-        return render(self.request, 'scipost/acknowledgement.html', context)
+        text = ('<h3>Thank you for your Submission to SciPost</h3>'
+                'Your Submission will soon be handled by an Editor.')
+        messages.success(self.request, text)
+        return redirect(reverse('scipost:personal_page'))
 
     def mark_previous_submissions_as_deprecated(self, previous_submissions):
         for sub in previous_submissions:
@@ -268,11 +264,11 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     except AttributeError:
         is_author = False
     if (submission.status in SUBMISSION_STATUS_PUBLICLY_INVISIBLE
-        and not request.user.groups.filter(name='SciPost Administrators').exists()
-        and not request.user.groups.filter(name='Editorial Administrators').exists()
-        and not request.user.groups.filter(name='Editorial College').exists()
-        and not is_author):
-        raise PermissionDenied
+            and not request.user.groups.filter(name__in=['SciPost Administrators',
+                                                         'Editorial Administrators',
+                                                         'Editorial College']).exists()
+            and not is_author):
+        raise Http404
     other_versions = Submission.objects.filter(
         arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
     ).exclude(pk=submission.id)
@@ -300,7 +296,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                           .get(submission=submission))
     except (EICRecommendation.DoesNotExist, AttributeError):
         recommendation = None
-    comments = submission.comment_set.all()
+    comments = submission.comments.all()
     context = {'submission': submission,
                'other_versions': other_versions,
                'recommendation': recommendation,
@@ -337,7 +333,7 @@ def pool(request):
     All members of the Editorial College have access.
     """
     submissions_in_pool = (Submission.objects.get_pool(request.user)
-                           .prefetch_related('refereeinvitation_set', 'remark_set', 'comment_set'))
+                           .prefetch_related('referee_invitations', 'remark_set', 'comments'))
     recommendations_undergoing_voting = (EICRecommendation.objects
                                          .get_for_user_in_pool(request.user)
                                          .filter(submission__status__in=['put_to_EC_voting']))
@@ -634,14 +630,35 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
                           .get(submission=submission))
     except EICRecommendation.DoesNotExist:
         recommendation = None
-    context = {'submission': submission,
-               'other_versions': other_versions,
-               'recommendation': recommendation,
-               'set_deadline_form': SetRefereeingDeadlineForm(),
-               'ref_invitations': ref_invitations,
-               'nr_reports_to_vet': nr_reports_to_vet,
-               'communications': communications}
+    context = {
+        'submission': submission,
+        'other_versions': other_versions,
+        'recommendation': recommendation,
+        'set_deadline_form': SetRefereeingDeadlineForm(),
+        'cycle_choice_form': SubmissionCycleChoiceForm(instance=submission),
+        'ref_invitations': ref_invitations,
+        'nr_reports_to_vet': nr_reports_to_vet,
+        'communications': communications
+    }
     return render(request, 'submissions/editorial_page.html', context)
+
+
+@login_required
+@permission_required_or_403('can_take_editorial_actions',
+                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
+def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
+    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    form = SubmissionCycleChoiceForm(request.POST or None, instance=submission)
+    if form.is_valid():
+        submission = form.save()
+        submission.cycle.update_status()
+        submission.cycle.update_deadline()
+        submission.cycle.reinvite_referees(form.cleaned_data['referees_reinvite'])
+        messages.success(request, ('<h3>Your choice has been confirmed</h3>'
+                                   'The new cycle will be <em>%s</em>'
+                                   % submission.get_refereeing_cycle_display()))
+    return redirect(reverse('submissions:editorial_page', args=[submission.arxiv_identifier_w_vn_nr]))
 
 
 @login_required
@@ -769,7 +786,6 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
                                    date_invited=timezone.now(),
                                    invited_by=request.user.contributor)
     invitation.save()
-    # raise
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_refereeing_invitation_email()
     return redirect(reverse('submissions:editorial_page',
@@ -975,11 +991,12 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
 def eic_recommendation(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.get_pool(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if submission.status not in ['EICassigned', 'review_closed']:
-        errormessage = ('This submission\'s current status is: ' +
-                        submission.get_status_display() + '. '
-                        'An Editorial Recommendation is not required.')
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    if submission.eic_recommendation_required():
+        messages.warning(request, ('<h3>An Editorial Recommendation is not required</h3>'
+                                   'This submission\'s current status is: <em>%s</em>'
+                                   % submission.get_status_display()))
+        return redirect(reverse('scipost:editorial_page',
+                                args=[submission.arxiv_identifier_w_vn_nr]))
     if request.method == 'POST':
         form = EICRecommendationForm(request.POST)
         if form.is_valid():

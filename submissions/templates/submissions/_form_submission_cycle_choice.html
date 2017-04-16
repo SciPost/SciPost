@@ -1,0 +1,82 @@
+<form method="post" action="{% url 'submissions:cycle_confirmation' submission.arxiv_identifier_w_vn_nr %}">
+    {% csrf_token %}
+    <h3 class="mb-2">This submission is a resubmission, please choose which submission cycle to proceed with</h3>
+    <div class="card-deck mb-5" id="id_submission_cycle">
+        {% for choice in form.refereeing_cycle %}
+            <div class="card radio-option" for="{{choice.id_for_label}}" data-reinvite="{% if choice.choice_value == 'direct_rec' %}0{% else %}1{% endif %}">
+                <div class="card-block text-center">
+                    <span class="hidden-xs-up">{{choice.tag}}</span>
+                    <label for="{{choice.id_for_label}}">
+                        <h3 class="card-title">{{choice.choice_label}}</h3>
+                        <p class="card-text text-muted">
+                            {% if choice.choice_value == 'short' %}
+                                Run a speedy refereeing round: two weeks, with option of reinviting previous referees
+                            {% elif choice.choice_value == 'direct_rec' %}
+                                Immediately write an editorial recommendation.
+                            {% else %}
+                                Run a new full refereeing round: four weeks as usual, can invite previous referees and/or new ones.
+                            {% endif %}
+                        </p>
+                    </label>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="card-deck" id="id_referees_reinvite_block" style="display: none;">
+        <div class="card">
+            <div class="card-block">
+                <h3 class="card-title">The following referees were also invited in the last submission</h3>
+                <h4 class="card-subtitle text-muted pt-0">Please choose who you want to reinvite</h4>
+                <div class="form-group row" id="id_referees_reinvite">
+                    <label class="col-form-label col-md-2" for="id_referees_reinvite">Reinvite referees</label>
+                    <div class="col-md-10 multiple-checkbox">
+                        <ul class="mb-0 list-group list-group-flush">
+                            {% for referee in form.referees_reinvite.field.queryset %}
+                                <li class="list-group-item py-1">
+                                    <label for="{{form.referees_reinvite.name}}_{{forloop.counter0}}" class="mb-0">
+                                        <input checked="checked" id="{{form.referees_reinvite.name}}_{{forloop.counter0}}" name="{{form.referees_reinvite.name}}" type="checkbox" value="{{referee.id}}">
+                                        <div class="d-inline-block" style="vertical-align: top;">
+                                            {{referee.referee_str}}
+                                            <br>
+                                            <span class="text-muted">Originally invited on {{referee.date_invited}}</span>
+                                        </div>
+                                     </label>
+                                 </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="submit" class="btn btn-primary" value="Confirm choice">
+</form>
+
+<script>
+    $(function(){
+        $('#id_submission_cycle .radio-option').on('click', function(){
+            var el_id = $('#id_submission_cycle .radio-option input[type="radio"]:checked'),
+                radio_cards = $('#id_submission_cycle .radio-option');
+
+            // Check/uncheck radiobuttons
+            $('#id_submission_cycle input[type="radio"]')
+                .prop('checked', false)
+                .filter(el_id)
+                .prop('checked', true);
+
+            // Toggle classes of cards
+            radio_cards.removeClass('checked')
+            var el_card = el_id.parents('.radio-option');
+            el_card.addClass('checked');
+
+            // Show/hide invitation block
+            if(el_card.attr('data-reinvite') > 0) {
+                $('#id_referees_reinvite_block').show();
+            } else {
+                $('#id_referees_reinvite_block').hide();
+            }
+        }).trigger('click');
+
+
+    });
+</script>

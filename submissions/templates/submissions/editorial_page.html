@@ -3,7 +3,6 @@
 {% block pagetitle %}: editorial page for submission{% endblock pagetitle %}
 
 {% load scipost_extras %}
-{% load submissions_extras %}
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
@@ -93,100 +92,101 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row"><!-- Status -->
     <div class="col-md-12">
         {% include 'submissions/_submission_status_block.html' with submission=submission %}
     </div>
-</div>
+</div><!-- End status -->
 
 <div class="row">
     <div class="col-md-10 col-lg-8">
-        <div class="card {% if submission|required_actions %}card-danger text-white{% else %}card-outline-success text-success{% endif %}">
-            <div class="card-block">
-                <h3 class="card-title pt-0">Required actions:</h3>
-                <ul class="mb-0">
-                    {% for todoitem in submission|required_actions %}
-                        <li>{{ todoitem }}</li>
-                    {% empty %}
-                        <li>No actions required</li>
-                    {% endfor %}
-                </ul>
+        {% include 'submissions/_required_actions_block.html' with submission=submission %}
+    </div>
+</div>
+
+{% if submission.status == 'resubmitted_incomin' %}
+    <div class="row">
+        <div class="col-12">
+            {% include 'submissions/_form_submission_cycle_choice.html' with form=cycle_choice_form submission=submission %}
+        </div>
+    </div>
+{% else %}
+
+    {% if submission.refereeing_cycle != 'direct_rec' %}
+        <div class="row">
+            <div class="col-12">
+                <h3>Refereeing status summary:</h3>
+                {% include 'submissions/_submission_refereeing_status.html' with submission=submission %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <h3 class="mb-2">Detail of refereeing invitations:</h3>
+                {% include 'submissions/_submission_refereeing_invitations.html' with submission=submission invitations=ref_invitations %}
+            </div>
+        </div>
+    {% endif %}
+
+    <hr>
+
+    {% if not submission.is_current %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-outline-warning">
+                <div class="card-block">
+                    <h3 class="mb-3 font-weight-bold">BEWARE: This is not the editorial page for the current version!</h3>
+                    <p class="mb-0">
+                        The tools here are thus available only for exceptional circumstances (e.g. vetting a late report on a deprecated version).
+                        <br>Please go to the current version's page using the link at the top.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    {% endif %}
 
-<div class="row">
-    <div class="col-12">
-        <h3>Refereeing status summary:</h3>
-        {% include 'submissions/_submission_refereeing_status.html' with submission=submission %}
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        <h3 class="mb-2">Detail of refereeing invitations:</h3>
-        {% include 'submissions/_submission_refereeing_invitations.html' with submission=submission invitations=ref_invitations %}
-    </div>
-</div>
-
-<hr>
-
-{% if not submission.is_current %}
-<div class="row">
-    <div class="col-12">
-        <div class="card card-outline-warning">
-            <div class="card-block">
-                <h3 class="mb-3 font-weight-bold">BEWARE: This is not the editorial page for the current version!</h3>
-                <p class="mb-0">
-                    The tools here are thus available only for exceptional circumstances (e.g. vetting a late report on a deprecated version).
-                    <br>Please go to the current version's page using the link at the top.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<div class="row">
-    <div class="col-12">
-        <h3>Actions:</h3>
-            <ul>
-                <li>
-                    <a href="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Select an additional referee</a> (bear in mind flagged referees if any)
-                </li>
-                <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}) by
-                    <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=2 %}">2 days</a>,
-                    <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=7 %}">1 week</a> or
-                    <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=14 %}">2 weeks</a>
-                    {% if submission.reporting_deadline_has_passed %}
-                        <span class="ml-1 label label-sm label-outline-danger">THE REPORTING DEADLINE HAS PASSED</span>
+    <div class="row">
+        <div class="col-12">
+            <h3>Actions:</h3>
+                <ul>
+                    {% if submission.refereeing_cycle != 'direct_rec' %}
+                        <li>
+                            <a href="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Select an additional referee</a> (bear in mind flagged referees if any)
+                        </li>
+                        <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}) by
+                            <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=2 %}">2 days</a>,
+                            <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=7 %}">1 week</a> or
+                            <a href="{% url 'submissions:extend_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr days=14 %}">2 weeks</a>
+                            {% if submission.reporting_deadline_has_passed %}
+                                <span class="ml-1 label label-sm label-outline-danger">THE REPORTING DEADLINE HAS PASSED</span>
+                            {% endif %}
+                        </li>
+                        <li>
+                            Set refereeing deadline:
+                            <form class="form-inline" action="{% url 'submissions:set_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+                                {% csrf_token %}{{ set_deadline_form|bootstrap_inline:'0,12' }}
+                                <div class="ml-2 form-group row">
+                                    <div class="col-12">
+                                        <input class="btn btn-secondary" type="submit" value="Set deadline"/>
+                                    </div>
+                                </div>
+                            </form>
+                        </li>
+                        <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+                        {% if not submission.reporting_deadline_has_passed %}
+                            <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
+                        {% endif %}
                     {% endif %}
-                </li>
-                <li>
-                    Set refereeing deadline:
-                    <form class="form-inline" action="{% url 'submissions:set_refereeing_deadline' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
-                        {% csrf_token %}{{ set_deadline_form|bootstrap_inline:'0,12' }}
-                        <div class="ml-2 form-group row">
-                            <div class="col-12">
-                                <input class="btn btn-secondary" type="submit" value="Set deadline"/>
-                            </div>
-                        </div>
-                    </form>
-                </li>
-                <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
-                {% if not submission.reporting_deadline_has_passed %}
-                    <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
-                {% endif %}
-                <li>Communicate with a Referee: see the communication block below.</li>
-                <li>
-                    <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
-                    <p>If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
-                    <br/>If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.</p>
-                </li>
-          </ul>
+                    <li>
+                        <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
+                        <p>If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
+                        <br/>If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.</p>
+                    </li>
+              </ul>
+        </div>
     </div>
-</div>
+{% endif %}
 
 <div class="row">
     <div class="col-12">

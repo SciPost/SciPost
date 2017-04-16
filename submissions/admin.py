@@ -32,7 +32,10 @@ admin.site.register(EditorialAssignment, EditorialAssignmentAdmin)
 class RefereeInvitationAdmin(admin.ModelAdmin):
     search_fields = ['submission__title', 'submission__author_list',
                      'referee__user__last_name',
-                     'first_name', 'last_name', 'email_address', ]
+                     'first_name', 'last_name', 'email_address']
+    list_display = ('referee', submission_short_title, 'accepted', )
+    list_filter = ('accepted', 'fulfilled', 'cancelled',)
+    date_hierarchy = 'date_invited'
 
 
 admin.site.register(RefereeInvitation, RefereeInvitationAdmin)

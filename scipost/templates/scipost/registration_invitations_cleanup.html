@@ -1,44 +1,63 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
 
 {% block pagetitle %}: registration invitations cleanup{% endblock pagetitle %}
 
-{% block bodysup %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'scipost:registration_invitations' %}" class="breadcrumb-item">Registration invitations</a>
+    <span class="breadcrumb-item">Cleanup</span>
+{% endblock %}
+
+{% block content %}
 
 
-<section>
-  <div class="flex-greybox">
-    <h1>Registration Invitations Cleanup</h1>
-  </div>
-</section>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Registration Invitations Cleanup</h1>
+    </div>
+</div>
 
-<hr class="hr12"/>
 
-<section>
-  {% if invs_to_cleanup %}
-  <h3>Email duplicates (a contributor exists with the email address in these invitations):</h3>
-  <table class="tableofInvitees">
-    <tr><td>Last name</td><td>First name</td>
-      <td>Email</td><td>Date sent</td>
-      <td>Type</td><td>Invited by</td></tr>
-    {% for inv in invs_to_cleanup %}
-    <tr>
-      <td>{{ inv.last_name }}</td>
-      <td>{{ inv.first_name }}</td>
-      <td>{{ inv.email }}</td>
-      <td>{{ inv.date_sent }} </td>
-      <td>{{ inv.invitation_type }}</td>
-      <td>{{ inv.invited_by.user.last_name }}</td>
-      <td>
-	<a href="{% url 'scipost:remove_registration_invitation' invitation_id=inv.id %}">Remove</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
-  {% else %}
-  <h3>There were no duplicate emails found in the sets of Contributors/Invitations.</h3>
-  {% endif %}
-  <hr class="hr6"/>
-  <h3>Return to the <a href="{% url 'scipost:registration_invitations' %}">Registration Invitations</a> page.</h3>
-</section>
+<div class="row">
+    <div class="col-12">
+        <h3>Email duplicates (a contributor exists with the email address in these invitations)</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Last name</th>
+                    <th>First name</th>
+                    <th>Email</th>
+                    <th>Date sent</th>
+                    <th>Type</th>
+                    <th>Invited by</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inv in invs_to_cleanup %}
+                    <tr>
+                        <td>{{ inv.last_name }}</td>
+                        <td>{{ inv.first_name }}</td>
+                        <td>{{ inv.email }}</td>
+                        <td>{{ inv.date_sent }} </td>
+                        <td>{{ inv.invitation_type }}</td>
+                        <td>{{ inv.invited_by.user.last_name }}</td>
+                        <td>
+                            <a href="{% url 'scipost:remove_registration_invitation' invitation_id=inv.id %}">Remove</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            There were no duplicate emails found in the sets of Contributors/Invitations.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-{% endblock bodysup %}
+        <p>Return to the <a href="{% url 'scipost:registration_invitations' %}">Registration Invitations</a> page.</p>
+    </div>
+</div>
+
+{% endblock content %}

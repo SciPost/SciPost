@@ -2,7 +2,8 @@ from django.db import models
 from django.db.models import Q
 
 from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED,\
-                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE
+                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
+                       STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC
 
 
 class SubmissionManager(models.Manager):
@@ -47,6 +48,19 @@ class EICRecommendationManager(models.Manager):
 
     def filter_for_user(self, user, **kwargs):
         """
-        Return list of EICRecommendation which are owned linked to an author owned Submission.
+        Return list of EICRecommendation's which are owned/assigned author through the
+        related submission.
         """
         return self.filter(submission__authors=user.contributor).filter(**kwargs)
+
+
+class ReportManager(models.Manager):
+    def accepted(self):
+        return self.filter(status__gte=STATUS_VETTED)
+
+    def awaiting_vetting(self):
+        return self.filter(status=STATUS_UNVETTED)
+
+    def rejected(self):
+        return self.filter(status__in=[STATUS_UNCLEAR, STATUS_INCORRECT,
+                                       STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC])

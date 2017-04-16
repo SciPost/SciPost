@@ -58,3 +58,14 @@
         }
     }
 }
+
+.card.radio-option {
+    label {
+        cursor: pointer;
+    }
+
+    &.checked,
+    &:hover {
+        border-color: $scipost-darkblue;
+    }
+}

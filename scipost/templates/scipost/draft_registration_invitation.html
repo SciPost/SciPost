@@ -1,268 +1,92 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% load bootstrap %}
 
 {% block pagetitle %}: registration invitations{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Pool</span>
+{% endblock %}
 
-{% load scipost_extras %}
+{% block content %}
 
 <script>
-  $(document).ready(function(){
+$(document).ready(function(){
 
-  $("#div_id_cited_in_submission").hide();
-  $("#div_id_cited_in_publication").hide();
-
-  $('select#id_invitation_type').on('change', function() {
-    switch ($('select#id_invitation_type').val()) {
-      case "ci":
-        $("#div_id_cited_in_submission").show();
-        $("#div_id_cited_in_publication").hide();
-        break;
-      case "cp":
-        $("#div_id_cited_in_submission").hide();
-        $("#div_id_cited_in_publication").show();
-        break;
-      default:
-        $("#div_id_cited_in_submission").hide();
-        $("#div_id_cited_in_publication").hide();
-    }
-   });
-  });
+    $('#id_invitation_type').on('change', function() {
+        switch ($(this).val()) {
+            case "ci":
+                $("#id_cited_in_submission").parents('.form-group').show();
+                $("#id_cited_in_publication").parents('.form-group').hide();
+            break;
+            case "cp":
+                $("#id_cited_in_submission").parents('.form-group').hide();
+                $("#id_cited_in_publication").parents('.form-group').show();
+            break;
+            default:
+                $("#id_cited_in_submission").parents('.form-group').hide();
+                $("#id_cited_in_publication").parents('.form-group').hide();
+        }
+    }).trigger('change');
+});
 </script>
 
-<section>
-  <div class="flex-greybox">
-    <h1>Draft a registration invitation</h1>
-  </div>
-</section>
-<hr class="hr12"/>
-<section>
-  <div class="flex-greybox">
-    <h2>Draft a new invitation:</h2>
-  </div>
-  {% if errormessage %}
-    <h3 style="color: red;">{{ errormessage }}</h3>
-  {% endif %}
-  <form action="{% url 'scipost:draft_registration_invitation' %}" method="post">
-    {% csrf_token %}
-    {% load crispy_forms_tags %}
-    {% crispy draft_inv_form %}
-  </form>
-</section>
-<hr class="hr12"/>
-<section>
-  <div class="flex-greybox">
-    <h2>Existing drafts (to be processed by Admin):</h2>
-  </div>
-  <table class="tableofInvitees">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date drafted</td><td>Type</td><td>Drafted by</td></tr>
-    {% for draft in existing_drafts %}
-      <tr>
-        <td>{{ draft.last_name }}</td>
-        <td>{{ draft.first_name }}</td>
-        <td>{{ draft.email }}</td>
-        <td>{{ draft.date_drafted }} </td>
-        <td>{{ draft.invitation_type }}</td>
-        <td>{{ draft.drafted_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
-</section>
-<hr class="hr12"/>
-<section>
-  <div class="flex-greybox">
-    <h2>Invitations sent (response pending) &nbsp;&nbsp; EF ({{ nr_sent_reg_inv_fellows }}), C ({{ nr_sent_reg_inv_contrib }}), R ({{ nr_sent_reg_inv_ref }}), cited in sub ({{ nr_sent_reg_inv_cited_sub }}), cited in pub ({{ nr_sent_reg_inv_cited_pub }}):</h2>
-  </div>
-  <hr class="hr6"/>
-  <h3>Editorial Fellows ({{ nr_sent_reg_inv_fellows }})</h3>
-  <table class="tableofInvitees">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in sent_reg_inv_fellows %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
-  <hr class="hr6"/>
-  <h3>Normal Contributors ({{ nr_sent_reg_inv_contrib }})</h3>
-  <table class="tableofInvitees">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in sent_reg_inv_contrib %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
-  <hr class="hr6"/>
-  <h3>Referees ({{ nr_sent_reg_inv_ref }})</h3>
-  <table class="tableofInvitees">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in sent_reg_inv_ref %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
-  <hr class="hr6"/>
-  <h3>Cited in sub ({{ nr_sent_reg_inv_cited_sub }})</h3>
-  <table class="tableofInvitees">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in sent_reg_inv_cited_sub %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
-  <hr class="hr6"/>
-  <h3>Cited in pub ({{ nr_sent_reg_inv_cited_pub }})</h3>
-  <table class="tableofInvitees">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in sent_reg_inv_cited_pub %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
-</section>
-  <hr class="hr12"/>
-<section>
-  <div class="flex-greybox">
-    <h2>Invitations sent (responded) &nbsp;&nbsp; EF ({{ nr_resp_reg_inv_fellows }}), C ({{ nr_resp_reg_inv_contrib }}), R ({{ nr_resp_reg_inv_ref }}), cited in sub ({{ nr_resp_reg_inv_cited_sub }}), cited in pub ({{ nr_resp_reg_inv_cited_pub }}):</h2>
-  </div>
-  <hr class="hr6"/>
-  <h3>Editorial Fellows ({{ nr_resp_reg_inv_fellows }})</h3>
-  <table class="tableofInviteesResponded">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in resp_reg_inv_fellows %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
-  <hr class="hr6"/>
-  <h3>Normal Contributors ({{ nr_resp_reg_inv_contrib}})</h3>
-  <table class="tableofInviteesResponded">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in resp_reg_inv_contrib %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Draft a registration invitation</h1>
+    </div>
+</div>
 
-  <hr class="hr6"/>
-  <h3>Referees ({{ nr_resp_reg_inv_ref }})</h3>
-  <table class="tableofInviteesResponded">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in resp_reg_inv_ref %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
+<div class="row">
+    <div class="col-12">
+        <h2 class="highlight">Draft a new invitation</h2>
+        {% if errormessage %}
+            <h3 class="text-danger">{{ errormessage }}</h3>
+        {% endif %}
 
-  <hr class="hr6"/>
-  <h3>Cited in sub ({{ nr_resp_reg_inv_cited_sub }})</h3>
-  <table class="tableofInviteesResponded">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in resp_reg_inv_cited_sub %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
+        <form action="{% url 'scipost:draft_registration_invitation' %}" method="post">
+              {% csrf_token %}
+              {{draft_inv_form|bootstrap}}
+              <input type="submit" class="btn btn-secondary"/>
+        </form>
+    </div>
+</div>
 
-  <hr class="hr6"/>
-  <h3>Cited in pub ({{ nr_resp_reg_inv_cited_pub }})</h3>
-  <table class="tableofInviteesResponded">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in resp_reg_inv_cited_pub %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
+<div class="row">
+    <div class="col-12">
+        <h2 class="highlight">Existing drafts (to be processed by Admin) ({{existing_drafts|length}}) <small><a href="javascript:void(0)" data-toggle="toggle" data-target="#table_existing_drafts">view/hide</a></small></h2>
+        <table class="table" id="table_existing_drafts" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Last name</th>
+                    <th>First name</th>
+                    <th>Email</th>
+                    <th>Date drafted</th>
+                    <th>Type</th>
+                    <th>Drafted by</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for draft in existing_drafts %}
+                  <tr>
+                    <td>{{ draft.last_name }}</td>
+                    <td>{{ draft.first_name }}</td>
+                    <td>{{ draft.email }}</td>
+                    <td>{{ draft.date_drafted }} </td>
+                    <td>{{ draft.get_invitation_type_display }}</td>
+                    <td>{{ draft.drafted_by.user.first_name }} {{ draft.drafted_by.user.last_name }}</td>
+                  </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">No drafts found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-  <hr class="hr6"/>
-  <h3>Declined</h3>
-  <table class="tableofInviteesDeclined">
-    <tr><td>Last name</td><td>First name</td><td>Email</td><td>Date sent</td><td>Type</td><td>Invited by</td></tr>
-    {% for fellow in decl_reg_inv %}
-      <tr>
-        <td>{{ fellow.last_name }}</td>
-        <td>{{ fellow.first_name }}</td>
-        <td>{{ fellow.email }}</td>
-        <td>{{ fellow.date_sent }} </td>
-        <td>{{ fellow.invitation_type }}</td>
-        <td>{{ fellow.invited_by.user.last_name }}</td>
-      </tr>
-    {% endfor %}
-  </table>
+{% include 'scipost/_draft_registration_tables.html' %}
 
-</section>
-
-
-<hr class="hr12"/>
-
-<section>
-  <div class="flex-greybox">
-    <h2>List of already-registered contributors:</h3>
-  </div>
-  <p>
-    {% for first_name, last_name in names_reg_contributors %}
-      {{ first_name }} {{ last_name }},&nbsp;
-    {% endfor %}
-  </p>
-</section>
-
-{% endblock bodysup %}
+{% endblock %}
