@@ -29,14 +29,18 @@ SUBMISSION_STATUS = (
     ('withdrawn', 'Withdrawn by the Authors'),
 )
 
-SUBMISSION_STATUS_OUT_OF_POOL = [
+SUBMISSION_HTTP404_ON_EDITORIAL_PAGE = [
     'assignment_failed',
-    'resubmitted',
     'published',
     'withdrawn',
     'rejected',
     'rejected_visible',
 ]
+
+SUBMISSION_STATUS_OUT_OF_POOL = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
+    'resubmitted'
+]
+
 
 # Submissions which are allowed/required to submit a EIC Recommendation
 SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [

@@ -614,14 +614,14 @@ def assignments(request):
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def editorial_page(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+    submission = get_object_or_404(Submission.objects.filter_editorial_page(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     other_versions = (Submission.objects
                       .filter(arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr)
                       .exclude(pk=submission.id))
     ref_invitations = RefereeInvitation.objects.filter(submission=submission)
     nr_reports_to_vet = (Report.objects
-                         .filter(status=0, submission__editor_in_charge=request.user.contributor)
+                         .filter(status=0, submission=submission)
                          .count())
     communications = (EditorialCommunication.objects
                       .filter(submission=submission).order_by('timestamp'))
