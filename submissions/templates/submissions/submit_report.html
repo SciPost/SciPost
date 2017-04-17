@@ -1,4 +1,9 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Submit a report</span>
+{% endblock %}
 
 {% load bootstrap %}
 

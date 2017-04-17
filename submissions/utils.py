@@ -65,9 +65,9 @@ class BaseSubmissionCycle:
         if comments_to_vet > 0:
             '''There are comments on the submission awaiting vetting.'''
             if comments_to_vet > 1:
-                text = 'One Comment has'
-            else:
                 text = '%i Comment\'s have' % comments_to_vet
+            else:
+                text = 'One Comment has'
             text += ' been delivered but is not yet vetted. Please vet it.'
             self.required_actions.append(('vet_comments', text,))
 
@@ -86,9 +86,9 @@ class BaseSubmissionCycle:
         if reports_awaiting_vetting > 0:
             '''There are reports on the submission awaiting vetting.'''
             if reports_awaiting_vetting > 1:
-                text = 'One Report has'
-            else:
                 text = '%i Reports have' % reports_awaiting_vetting
+            else:
+                text = 'One Report has'
             text += ' been delivered but is not yet vetted. Please vet it.'
             self.required_actions.append(('vet_reports', text,))
 

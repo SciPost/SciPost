@@ -1,0 +1,13 @@
+{% extends 'submissions/_submission_card_content.html' %}
+
+{% block card_block_footer %}
+    {{block.super}}
+
+    <!-- Fellow specific info -->
+    {% if submission.status == 'unassigned' %}
+        <p class="card-text text-danger">Status: {{ submission.get_status_display }}. You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:volunteer_as_EIC' submission.arxiv_identifier_w_vn_nr %}">clicking here</a>.</p>
+    {% else %}
+        <p class="card-text">Editor-in-charge: <em>{{ submission.editor_in_charge }}</em></p>
+        <p class="card-text">Status: {{ submission.get_status_display }}</p>
+    {% endif %}
+{% endblock %}

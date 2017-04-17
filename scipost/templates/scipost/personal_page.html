@@ -40,7 +40,9 @@
                       {% endif %}
                       {% if perms.scipost.can_referee %}
                           <li class="nav-item btn btn-secondary">
-                            <a class="nav-link" data-toggle="tab" href="#refereeing">Refereeing {% if nr_ref_inv_to_consider %}({{ nr_ref_inv_to_consider }}){% endif %}</a>
+                            {% with pending_count=pending_ref_tasks|length %}
+                                <a class="nav-link" data-toggle="tab" href="#refereeing">Refereeing {% if nr_ref_inv_to_consider|add:pending_count %}({{nr_ref_inv_to_consider|add:pending_count}}){% endif %}</a>
+                            {% endwith %}
                           </li>
                       {% endif %}
                       <li class="nav-item btn btn-secondary">
