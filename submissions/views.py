@@ -614,14 +614,14 @@ def assignments(request):
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def editorial_page(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+    submission = get_object_or_404(Submission.objects.filter_editorial_page(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     other_versions = (Submission.objects
                       .filter(arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr)
                       .exclude(pk=submission.id))
     ref_invitations = RefereeInvitation.objects.filter(submission=submission)
     nr_reports_to_vet = (Report.objects
-                         .filter(status=0, submission__editor_in_charge=request.user.contributor)
+                         .filter(status=0, submission=submission)
                          .count())
     communications = (EditorialCommunication.objects
                       .filter(submission=submission).order_by('timestamp'))
@@ -814,8 +814,7 @@ def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
 @login_required
 @permission_required('scipost.can_referee', raise_exception=True)
 def accept_or_decline_ref_invitations(request):
-    contributor = Contributor.objects.get(user=request.user)
-    invitation = RefereeInvitation.objects.filter(referee=contributor, accepted=None).first()
+    invitation = RefereeInvitation.objects.filter(referee__user=request.user, accepted=None)[0]
     form = ConsiderRefereeInvitationForm()
     context = {'invitation_to_consider': invitation, 'form': form}
     return render(request, 'submissions/accept_or_decline_ref_invitations.html', context)
@@ -825,18 +824,18 @@ def accept_or_decline_ref_invitations(request):
 @permission_required('scipost.can_referee', raise_exception=True)
 def accept_or_decline_ref_invitation_ack(request, invitation_id):
     invitation = get_object_or_404(RefereeInvitation, pk=invitation_id)
-    if request.method == 'POST':
-        form = ConsiderRefereeInvitationForm(request.POST)
-        if form.is_valid():
-            invitation.date_responded = timezone.now()
-            if form.cleaned_data['accept'] == 'True':
-                invitation.accepted = True
-            else:
-                invitation.accepted = False
-                invitation.refusal_reason = form.cleaned_data['refusal_reason']
-            invitation.save()
-            SubmissionUtils.load({'invitation': invitation})
-            SubmissionUtils.email_referee_response_to_EIC()
+    form = ConsiderRefereeInvitationForm(request.POST or None)
+    if form.is_valid():
+        invitation.date_responded = timezone.now()
+        if form.cleaned_data['accept'] == 'True':
+            invitation.accepted = True
+        else:
+            invitation.accepted = False
+            invitation.refusal_reason = form.cleaned_data['refusal_reason']
+        invitation.save()
+        SubmissionUtils.load({'invitation': invitation})
+        SubmissionUtils.email_referee_response_to_EIC()
+        SubmissionUtils.email_referee_in_response_to_decision()
 
     context = {'invitation': invitation}
     return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)

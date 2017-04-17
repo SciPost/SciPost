@@ -40,7 +40,7 @@
                       {% endif %}
                       {% if perms.scipost.can_referee %}
                           <li class="nav-item btn btn-secondary">
-                            <a class="nav-link" data-toggle="tab" href="#refereeing">Refereeing</a>
+                            <a class="nav-link" data-toggle="tab" href="#refereeing">Refereeing {% if nr_ref_inv_to_consider %}({{ nr_ref_inv_to_consider }}){% endif %}</a>
                           </li>
                       {% endif %}
                       <li class="nav-item btn btn-secondary">

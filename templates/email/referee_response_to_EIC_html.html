@@ -1,0 +1,21 @@
+<h3>Dear {{invitation.submission.editor_in_charge.get_title_display}} {{invitation.submission.editor_in_charge.user.last_name}},</h3>
+
+<p>
+    Referee {{invitation.referee.get_title_display}} {{invitation.referee.user.last_name}} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{invitation.get_refusal_reason_display}}){% endif %} to referee Submission
+</p>
+<p>
+    "<span style="color: grey;">{{invitation.submission.title}} by {{invitation.submission.author_list}}</span>".
+</p>
+
+{% if not invitation.accepted %}
+    <p>
+        Please invite another referee from the Submission's <a href="{% url 'submissions:editorial_page' invitation.submission.arxiv_identifier_w_vn_nr %}">editorial page</a>.
+    </p>
+{% endif %}
+
+<p>
+    Many thanks for your collaboration,
+    The SciPost Team.
+</p>
+
+{% include 'email/_footer.html' %}
