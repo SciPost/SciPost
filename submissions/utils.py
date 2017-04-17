@@ -852,64 +852,25 @@ class SubmissionUtils(BaseMailUtil):
 
     @classmethod
     def email_referee_response_to_EIC(cls):
-        """ Requires loading 'invitation' attribute. """
-        email_text = ('Dear ' + cls.invitation.submission.editor_in_charge.get_title_display() + ' ' +
-                      cls.invitation.submission.editor_in_charge.user.last_name + ','
-                      '\n\nReferee ' + cls.invitation.referee.get_title_display() + ' ' +
-                      cls.invitation.referee.user.last_name + ' has ')
-        email_text_html = (
-            '<p>Dear {{ EIC_title }} {{ EIC_last_name }},</p>'
-            '<p>Referee {{ ref_title }} {{ ref_last_name }} has ')
-        email_subject = 'SciPost: referee declines to review'
-        if cls.invitation.accepted:
-            email_text += 'accepted '
-            email_text_html += 'accepted '
-            email_subject = 'SciPost: referee accepts to review'
-        elif not cls.invitation.accepted:
-            email_text += ('declined (due to reason: '
-                           + cls.invitation.get_refusal_reason_display() + ') ')
-            email_text_html += 'declined (due to reason: {{ reason }}) '
+        '''Requires loading `invitation` attribute.'''
+        if cls._context['invitation'].accepted:
+            email_subject = 'referee accepts to review'
+        else:
+            email_subject = 'referee declines to review'
+        cls._send_mail(cls, 'referee_response_to_EIC',
+                       [cls._context['invitation'].submission.editor_in_charge.user.email],
+                       email_subject)
 
-        email_text += ('to referee Submission\n\n'
-                       + cls.invitation.submission.title + ' by '
-                       + cls.invitation.submission.author_list + '.')
-        email_text_html += (
-            'to referee Submission</p>'
-            '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')
-        if not cls.invitation.accepted:
-            email_text += ('\n\nPlease invite another referee from the Submission\'s editorial page '
-                           'at https://scipost.org/submissions/editorial_page/'
-                           + cls.invitation.submission.arxiv_identifier_w_vn_nr + '.')
-            email_text_html += (
-                '\n<p>Please invite another referee from the Submission\'s '
-                '<a href="https://scipost.org/submissions/editorial_page/'
-                '{{ arxiv_identifier_w_vn_nr }}">editorial page</a>.</p>')
-        email_text += ('\n\nMany thanks for your collaboration,'
-                       '\n\nThe SciPost Team.')
-        email_text_html += ('<p>Many thanks for your collaboration,</p>'
-                            '<p>The SciPost Team.</p>')
-        email_context = Context({
-            'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
-            'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
-            'ref_title': cls.invitation.referee.get_title_display(),
-            'ref_last_name': cls.invitation.referee.user.last_name,
-            'sub_title': cls.invitation.submission.title,
-            'author_list': cls.invitation.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.invitation.submission.arxiv_identifier_w_vn_nr,
-        })
-        if cls.invitation.refusal_reason:
-            email_context['reason'] = cls.invitation.get_refusal_reason_display
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
-        emailmessage = EmailMultiAlternatives(
-            email_subject, email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.invitation.submission.editor_in_charge.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
+    @classmethod
+    def email_referee_in_response_to_decision(cls):
+        '''Requires loading `invitation` attribute.'''
+        if cls._context['invitation'].accepted:
+            email_subject = 'confirmation accepted invitation'
+        else:
+            email_subject = 'confirmation declined invitation'
+        cls._send_mail(cls, 'referee_in_response_to_decision',
+                       [cls._context['invitation'].referee.user.email],
+                       email_subject)
 
     @classmethod
     def email_EIC_report_delivered(cls):

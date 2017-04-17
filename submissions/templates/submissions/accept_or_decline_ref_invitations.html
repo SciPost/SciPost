@@ -2,56 +2,50 @@
 
 {% block pagetitle %}: accept or decline refereeing invitations{% endblock pagetitle %}
 
-{% block bodysup %}
+{% load bootstrap %}
+
+{% block content %}
 
 <script>
 $(document).ready(function(){
 
-  $('#ref_reason').hide();
-
-  $('#id_accept').on('change', function() {
-      if ($('#id_accept_1').is(':checked')) {
-          $('#ref_reason').show();
+  $('[name="accept"]').on('change', function() {
+      if($('[name="accept"]:checked').val() == 'False') {
+          $('#id_refusal_reason').parents('.form-group').show();
       }
       else {
-          $('#ref_reason').hide();
+          $('#id_refusal_reason').parents('.form-group').hide();
       }
-    });
+    }).trigger('change');
   });
 </script>
 
 
-
-<section>
-  {% if not invitation_to_consider %}
-  <h1>There are no Refereeing Invitations for you to consider.</h1>
-
-  {% else %}
-
-  <div class="flex-greybox">
-    <h1>SciPost Submission which you are asked to Referee (see below to accept/decline):</h1>
-  </div>
-  <br>
-  <hr>
-  {% include 'submissions/_submission_summary.html' with submission=invitation_to_consider.submission %}
-
-  <br/>
-  <hr>
-  <div class="flex-greybox">
-    <h1>Accept or Decline this Refereeing Invitation</h1>
-  </div>
-  <h3>Please let us know if you can provide us with a Report for this Submission:</h3>
-  <form action="{% url 'submissions:accept_or_decline_ref_invitation_ack' invitation_id=invitation_to_consider.id %}" method="post">
-    {% csrf_token %}
-    {{ form.accept }}
-    <div id="ref_reason">
-      <p>Please select a reason for declining this invitation:</p>
-      {{ form.refusal_reason }}
+{% if not invitation_to_consider %}
+    <div class="row">
+        <div class="col-12">
+            <h1>There are no Refereeing Invitations for you to consider.</h1>
+        </div>
     </div>
-    <input type="submit" value="Submit" />
-  </form>
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <h1 class="highlight">SciPost Submission which you are asked to Referee (see below to accept/decline):</h1>
+            {% include 'submissions/_submission_summary.html' with submission=invitation_to_consider.submission %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">Accept or Decline this Refereeing Invitation</h2>
+            <h3>Please let us know if you can provide us with a Report for this Submission:</h3>
+            <p class="text-muted">We will expect your report by <b>{{invitation_to_consider.submission.reporting_deadline}}</b></p>
+            <form action="{% url 'submissions:accept_or_decline_ref_invitation_ack' invitation_id=invitation_to_consider.id %}" method="post">
+                {% csrf_token %}
+                {{ form|bootstrap }}
+                <input type="submit" class="btn btn-secondary" value="Submit" />
+            </form>
+        </div>
+    </div>
+{% endif %}
 
-  {% endif %}
-</section>
-
-{% endblock bodysup %}
+{% endblock content %}

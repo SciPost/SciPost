@@ -50,7 +50,7 @@ urlpatterns = [
         views.recruit_referee, name='recruit_referee'),
     url(r'^send_refereeing_invitation/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/(?P<contributor_id>[0-9]+)$',
         views.send_refereeing_invitation, name='send_refereeing_invitation'),
-    url(r'^accept_or_decline_ref_invitations$',
+    url(r'^accept_or_decline_ref_invitations/$',
         views.accept_or_decline_ref_invitations, name='accept_or_decline_ref_invitations'),
     url(r'^accept_or_decline_ref_invitation/(?P<invitation_id>[0-9]+)$',
         views.accept_or_decline_ref_invitation_ack, name='accept_or_decline_ref_invitation_ack'),
