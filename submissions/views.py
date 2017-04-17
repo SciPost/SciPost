@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponseRedirect, Http404
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
@@ -261,8 +261,12 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     try:
         is_author = request.user.contributor in submission.authors.all()
+        is_author_unchecked = (not is_author and not
+                               (request.user.contributor in submission.authors_false_claims.all()) and
+                               (request.user.last_name in submission.author_list))
     except AttributeError:
         is_author = False
+        is_author_unchecked = False
     if (submission.status in SUBMISSION_STATUS_PUBLICLY_INVISIBLE
             and not request.user.groups.filter(name__in=['SciPost Administrators',
                                                          'Editorial Administrators',
@@ -275,37 +279,27 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
 
     form = CommentForm()
 
-    reports = submission.reports.all()
-    try:
-        author_replies = Comment.objects.filter(submission=submission,
-                                                is_author_reply=True,
-                                                status__gte=1)
-    except Comment.DoesNotExist:
-        author_replies = ()
-    # To check in template whether the user can submit a report:
-    try:
-        is_author = request.user.contributor in submission.authors.all()
-        is_author_unchecked = (not is_author and not
-                               (request.user.contributor in submission.authors_false_claims.all()) and
-                               (request.user.last_name in submission.author_list))
-    except AttributeError:
-        is_author = False
-        is_author_unchecked = False
+    invited_reports = submission.reports.accepted().filter(invited=True)
+    contributed_reports = submission.reports.accepted().filter(invited=False)
+    comments = submission.comments.vetted().filter(is_author_reply=False).order_by('-date_submitted')
+    author_replies = submission.comments.vetted().filter(is_author_reply=True).order_by('-date_submitted')
+
     try:
         recommendation = (EICRecommendation.objects.filter_for_user(request.user)
                           .get(submission=submission))
-    except (EICRecommendation.DoesNotExist, AttributeError):
+    except EICRecommendation.DoesNotExist:
         recommendation = None
-    comments = submission.comments.all()
+
     context = {'submission': submission,
                'other_versions': other_versions,
                'recommendation': recommendation,
-               'comments': (comments.filter(status__gte=1, is_author_reply=False)
-                            .order_by('-date_submitted')),
-               'invited_reports': reports.filter(status__gte=1, invited=True),
-               'contributed_reports': reports.filter(status__gte=1, invited=False),
-               'author_replies': author_replies, 'form': form,
-               'is_author': is_author, 'is_author_unchecked': is_author_unchecked}
+               'comments': comments,
+               'invited_reports': invited_reports,
+               'contributed_reports': contributed_reports,
+               'author_replies': author_replies,
+               'form': form,
+               'is_author': is_author,
+               'is_author_unchecked': is_author_unchecked}
     return render(request, 'submissions/submission_detail.html', context)
 
 
@@ -814,7 +808,14 @@ def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
 @login_required
 @permission_required('scipost.can_referee', raise_exception=True)
 def accept_or_decline_ref_invitations(request):
-    invitation = RefereeInvitation.objects.filter(referee__user=request.user, accepted=None)[0]
+    """
+    RefereeInvitations need to be either accepted or declined by the invited user
+    using this view. The decision will be taken one invitation at a time.
+    """
+    invitation = RefereeInvitation.objects.filter(referee__user=request.user, accepted=None).first()
+    if not invitation:
+        messages.success(request, 'There are no Refereeing Invitations for you to consider.')
+        return redirect(reverse('scipost:personal_page'))
     form = ConsiderRefereeInvitationForm()
     context = {'invitation_to_consider': invitation, 'form': form}
     return render(request, 'submissions/accept_or_decline_ref_invitations.html', context)
@@ -957,28 +958,25 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
         context = {'errormessage': errormessage, 'comtype': comtype}
         return render(request, 'submissions/communication.html', context)
 
-    if request.method == 'POST':
-        form = EditorialCommunicationForm(request.POST)
-        if form.is_valid():
-            communication = EditorialCommunication(submission=submission,
-                                                   comtype=comtype,
-                                                   timestamp=timezone.now(),
-                                                   text=form.cleaned_data['text'])
-            if referee_id is not None:
-                referee = get_object_or_404(Contributor, pk=referee_id)
-                communication.referee = referee
-            communication.save()
-            SubmissionUtils.load({'communication': communication})
-            SubmissionUtils.send_communication_email()
-            if comtype == 'EtoA' or comtype == 'EtoR' or comtype == 'EtoS':
-                return redirect(reverse('submissions:editorial_page',
-                                        kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
-            elif comtype == 'AtoE' or comtype == 'RtoE':
-                return redirect(reverse('scipost:personal_page'))
-            elif comtype == 'StoE':
-                return redirect(reverse('submissions:pool'))
-    else:
-        form = EditorialCommunicationForm()
+    form = EditorialCommunicationForm(request.POST or None)
+    if form.is_valid():
+        communication = EditorialCommunication(submission=submission,
+                                               comtype=comtype,
+                                               timestamp=timezone.now(),
+                                               text=form.cleaned_data['text'])
+        if referee_id is not None:
+            referee = get_object_or_404(Contributor, pk=referee_id)
+            communication.referee = referee
+        communication.save()
+        SubmissionUtils.load({'communication': communication})
+        SubmissionUtils.send_communication_email()
+        if comtype == 'EtoA' or comtype == 'EtoR' or comtype == 'EtoS':
+            return redirect(reverse('submissions:editorial_page',
+                                    kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
+        elif comtype == 'AtoE' or comtype == 'RtoE':
+            return redirect(reverse('scipost:personal_page'))
+        elif comtype == 'StoE':
+            return redirect(reverse('submissions:pool'))
     context = {'submission': submission, 'comtype': comtype, 'referee_id': referee_id, 'form': form}
     return render(request, 'submissions/communication.html', context)
 
@@ -996,46 +994,45 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
                                    % submission.get_status_display()))
         return redirect(reverse('scipost:editorial_page',
                                 args=[submission.arxiv_identifier_w_vn_nr]))
-    if request.method == 'POST':
-        form = EICRecommendationForm(request.POST)
-        if form.is_valid():
-            recommendation = EICRecommendation(
-                submission=submission,
-                date_submitted=timezone.now(),
-                remarks_for_authors=form.cleaned_data['remarks_for_authors'],
-                requested_changes=form.cleaned_data['requested_changes'],
-                remarks_for_editorial_college=form.cleaned_data['remarks_for_editorial_college'],
-                recommendation=form.cleaned_data['recommendation'],
-                voting_deadline=timezone.now() + datetime.timedelta(days=7),
-            )
-            recommendation.save()
-            # If recommendation is to accept or reject,
-            # it is forwarded to the Editorial College for voting
-            # If it is to carry out minor or major revisions,
-            # it is returned to the Author who is asked to resubmit
-            if (recommendation.recommendation == 1 or
-                    recommendation.recommendation == 2 or
-                    recommendation.recommendation == 3 or
-                    recommendation.recommendation == -3):
-                submission.status = 'voting_in_preparation'
-            elif (recommendation.recommendation == -1 or
-                  recommendation.recommendation == -2):
-                submission.status = 'revision_requested'
-                SubmissionUtils.load({'submission': submission,
-                                      'recommendation': recommendation})
-                SubmissionUtils.send_author_revision_requested_email()
-            submission.open_for_reporting = False
-            submission.save()
 
-            # The EIC has fulfilled this editorial assignment.
-            assignment = get_object_or_404(EditorialAssignment,
-                                           submission=submission, to=request.user.contributor)
-            assignment.completed = True
-            assignment.save()
-            return redirect(reverse('submissions:editorial_page',
-                                    kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
-    else:
-        form = EICRecommendationForm()
+    form = EICRecommendationForm(request.POST or None)
+    if form.is_valid():
+        recommendation = EICRecommendation(
+            submission=submission,
+            date_submitted=timezone.now(),
+            remarks_for_authors=form.cleaned_data['remarks_for_authors'],
+            requested_changes=form.cleaned_data['requested_changes'],
+            remarks_for_editorial_college=form.cleaned_data['remarks_for_editorial_college'],
+            recommendation=form.cleaned_data['recommendation'],
+            voting_deadline=timezone.now() + datetime.timedelta(days=7),
+        )
+        recommendation.save()
+        # If recommendation is to accept or reject,
+        # it is forwarded to the Editorial College for voting
+        # If it is to carry out minor or major revisions,
+        # it is returned to the Author who is asked to resubmit
+        if (recommendation.recommendation == 1 or
+                recommendation.recommendation == 2 or
+                recommendation.recommendation == 3 or
+                recommendation.recommendation == -3):
+            submission.status = 'voting_in_preparation'
+        elif (recommendation.recommendation == -1 or
+              recommendation.recommendation == -2):
+            submission.status = 'revision_requested'
+            SubmissionUtils.load({'submission': submission,
+                                  'recommendation': recommendation})
+            SubmissionUtils.send_author_revision_requested_email()
+        submission.open_for_reporting = False
+        submission.save()
+
+        # The EIC has fulfilled this editorial assignment.
+        assignment = get_object_or_404(EditorialAssignment,
+                                       submission=submission, to=request.user.contributor)
+        assignment.completed = True
+        assignment.save()
+        return redirect(reverse('submissions:editorial_page',
+                                kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
+
     context = {'submission': submission,
                'form': form}
     return render(request, 'submissions/eic_recommendation.html', context)
@@ -1049,72 +1046,63 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
 @permission_required('scipost.can_referee', raise_exception=True)
 @transaction.atomic
 def submit_report(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+    submission = get_object_or_404(Submission.objects.all(),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     # Check whether the user can submit a report:
     is_author = request.user.contributor in submission.authors.all()
     is_author_unchecked = (not is_author and not
                            (request.user.contributor in submission.authors_false_claims.all()) and
                            (request.user.last_name in submission.author_list))
-    invited = RefereeInvitation.objects.filter(submission=submission,
-                                               referee=request.user.contributor).exists()
+    try:
+        invitation = RefereeInvitation.objects.get(submission=submission,
+                                                   referee=request.user.contributor)
+    except RefereeInvitation.DoesNotExist:
+        invitation = None
+
     errormessage = None
-    if not invited and timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
+    if not invitation and timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
         errormessage = ('The reporting deadline has passed. You cannot submit'
                         ' a Report anymore.')
     if is_author:
         errormessage = 'You are an author of this Submission and cannot submit a Report.'
     if is_author_unchecked:
         errormessage = ('The system flagged you as a potential author of this Submission. '
-                        'Please go to your personal page under the Submissions tab to clarify this.')
+                        'Please go to your personal page under the Submissions tab'
+                        ' to clarify this.')
     if errormessage:
-        context = {'errormessage': errormessage}
-        return render(request, 'submissions/submit_report_ack.html', context)
+        messages.warning(request, errormessage)
+        return redirect(reverse('scipost:personal_page'))
 
-    if request.method == 'POST':
-        form = ReportForm(request.POST)
-        if form.is_valid():
-            author = Contributor.objects.get(user=request.user)
-            if invited:
-                invitation = RefereeInvitation.objects.get(submission=submission,
-                                                           referee=request.user.contributor)
-                invitation.fulfilled = True
-                invitation.save()
-            flagged = False
-            if submission.referees_flagged is not None:
-                if author.user.last_name in submission.referees_flagged:
-                    flagged = True
-            newreport = Report(
-                submission=submission,
-                author=author,
-                invited=invited,
-                flagged=flagged,
-                qualification=form.cleaned_data['qualification'],
-                strengths=form.cleaned_data['strengths'],
-                weaknesses=form.cleaned_data['weaknesses'],
-                report=form.cleaned_data['report'],
-                requested_changes=form.cleaned_data['requested_changes'],
-                validity=form.cleaned_data['validity'],
-                significance=form.cleaned_data['significance'],
-                originality=form.cleaned_data['originality'],
-                clarity=form.cleaned_data['clarity'],
-                formatting=form.cleaned_data['formatting'],
-                grammar=form.cleaned_data['grammar'],
-                recommendation=form.cleaned_data['recommendation'],
-                remarks_for_editors=form.cleaned_data['remarks_for_editors'],
-                anonymous=form.cleaned_data['anonymous'],
-                date_submitted=timezone.now(),
-            )
-            newreport.save()
-            author.nr_reports = Report.objects.filter(author=author).count()
-            author.save()
-            SubmissionUtils.load({'report': newreport})
-            SubmissionUtils.email_EIC_report_delivered()
-            request.session['arxiv_identifier_w_vn_nr'] = arxiv_identifier_w_vn_nr
-            return HttpResponseRedirect(reverse('submissions:submit_report_ack'))
+    form = ReportForm(request.POST or None)
+    if form.is_valid():
+        author = request.user.contributor
+        newreport = form.save(commit=False)
+        newreport.submission = submission
+        newreport.author = request.user.contributor
+        if invitation:
+            invitation.fulfilled = True
+            newreport.invited = True
+            invitation.save()
 
-    else:
-        form = ReportForm()
+        if submission.referees_flagged is not None:
+            if author.user.last_name in submission.referees_flagged:
+                newreport.flagged = True
+
+        newreport.date_submitted = timezone.now()
+        newreport.save()
+
+        # Update user stats
+        author.nr_reports = Report.objects.filter(author=author).count()
+        author.save()
+        SubmissionUtils.load({'report': newreport})
+        SubmissionUtils.email_EIC_report_delivered()
+
+        # Why is this session update?
+        request.session['arxiv_identifier_w_vn_nr'] = arxiv_identifier_w_vn_nr
+
+        messages.success(request, 'Thank you for your Report')
+        return redirect(reverse('scipost:personal_page'))
+
     context = {'submission': submission, 'form': form}
     return render(request, 'submissions/submit_report.html', context)
 
@@ -1133,33 +1121,30 @@ def vet_submitted_reports(request):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 @transaction.atomic
 def vet_submitted_report_ack(request, report_id):
-    if request.method == 'POST':
-        form = VetReportForm(request.POST)
-        report = Report.objects.get(pk=report_id)
-        if form.is_valid():
-            report.vetted_by = request.user.contributor
-            if form.cleaned_data['action_option'] == '1':
-                # accept the report as is
-                report.status = 1
-                report.save()
-                report.submission.latest_activity = timezone.now()
-                report.submission.save()
-            elif form.cleaned_data['action_option'] == '2':
-                # the report is simply rejected
-                report.status = int(form.cleaned_data['refusal_reason'])
-                report.save()
-            # email report author
-            SubmissionUtils.load({'report': report,
-                                  'email_response': form.cleaned_data['email_response_field']})
-            SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
-            if report.status == 1:
-                SubmissionUtils.send_author_report_received_email()
-    context = {'ack_header': 'Submitted Report vetted.',
-               'followup_message': 'Return to the ',
-               'followup_link': reverse('submissions:editorial_page',
-                                        kwargs={'arxiv_identifier_w_vn_nr': report.submission.arxiv_identifier_w_vn_nr}),
-               'followup_link_label': 'Submission\'s Editorial Page'}
-    return render(request, 'scipost/acknowledgement.html', context)
+    report = get_object_or_404(Report, pk=report_id)
+    form = VetReportForm(request.POST or None)
+    if form.is_valid():
+        report.vetted_by = request.user.contributor
+        if form.cleaned_data['action_option'] == '1':
+            # accept the report as is
+            report.status = 1
+            report.save()
+            report.submission.latest_activity = timezone.now()
+            report.submission.save()
+        elif form.cleaned_data['action_option'] == '2':
+            # the report is simply rejected
+            report.status = int(form.cleaned_data['refusal_reason'])
+            report.save()
+        # email report author
+        SubmissionUtils.load({'report': report,
+                              'email_response': form.cleaned_data['email_response_field']})
+        SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
+        if report.status == 1:
+            SubmissionUtils.send_author_report_received_email()
+        messages.success(request, 'Submitted Report vetted.')
+        return redirect(reverse('submissions:editorial_page',
+                                args=[report.submission.arxiv_identifier_w_vn_nr]))
+    return redirect(reverse('submissions:vet_submitted_reports'))
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
@@ -1221,31 +1206,30 @@ def prepare_for_voting(request, rec_id):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 @transaction.atomic
 def vote_on_rec(request, rec_id):
-    if request.method == 'POST':
-        recommendation = get_object_or_404((EICRecommendation.objects
-                                            .get_for_user_in_pool(request.user)), id=rec_id)
-        form = RecommendationVoteForm(request.POST)
-        if form.is_valid():
-            if form.cleaned_data['vote'] == 'agree':
-                recommendation.voted_for.add(request.user.contributor)
-                recommendation.voted_against.remove(request.user.contributor)
-                recommendation.voted_abstain.remove(request.user.contributor)
-            elif form.cleaned_data['vote'] == 'disagree':
-                recommendation.voted_for.remove(request.user.contributor)
-                recommendation.voted_against.add(request.user.contributor)
-                recommendation.voted_abstain.remove(request.user.contributor)
-            elif form.cleaned_data['vote'] == 'abstain':
-                recommendation.voted_for.remove(request.user.contributor)
-                recommendation.voted_against.remove(request.user.contributor)
-                recommendation.voted_abstain.add(request.user.contributor)
-            if form.cleaned_data['remark']:
-                remark = Remark(contributor=request.user.contributor,
-                                recommendation=recommendation,
-                                date=timezone.now(),
-                                remark=form.cleaned_data['remark'])
-                remark.save()
-            recommendation.save()
-            return redirect(reverse('submissions:pool'))
+    recommendation = get_object_or_404((EICRecommendation.objects
+                                        .get_for_user_in_pool(request.user)), id=rec_id)
+    form = RecommendationVoteForm(request.POST or None)
+    if form.is_valid():
+        if form.cleaned_data['vote'] == 'agree':
+            recommendation.voted_for.add(request.user.contributor)
+            recommendation.voted_against.remove(request.user.contributor)
+            recommendation.voted_abstain.remove(request.user.contributor)
+        elif form.cleaned_data['vote'] == 'disagree':
+            recommendation.voted_for.remove(request.user.contributor)
+            recommendation.voted_against.add(request.user.contributor)
+            recommendation.voted_abstain.remove(request.user.contributor)
+        elif form.cleaned_data['vote'] == 'abstain':
+            recommendation.voted_for.remove(request.user.contributor)
+            recommendation.voted_against.remove(request.user.contributor)
+            recommendation.voted_abstain.add(request.user.contributor)
+        if form.cleaned_data['remark']:
+            remark = Remark(contributor=request.user.contributor,
+                            recommendation=recommendation,
+                            date=timezone.now(),
+                            remark=form.cleaned_data['remark'])
+            remark.save()
+        recommendation.save()
+        return redirect(reverse('submissions:pool'))
 
     return redirect(reverse('submissions:pool'))
 
@@ -1291,14 +1275,8 @@ def fix_College_decision(request, rec_id):
     """
     recommendation = get_object_or_404((EICRecommendation.objects
                                         .get_for_user_in_pool(request.user)), pk=rec_id)
-    if recommendation.recommendation == 1:
-        # Publish as Tier I (top 10%)
-        recommendation.submission.status = 'accepted'
-    elif recommendation.recommendation == 2:
-        # Publish as Tier II (top 50%)
-        recommendation.submission.status = 'accepted'
-    elif recommendation.recommendation == 3:
-        # Publish as Tier III (meets criteria)
+    if recommendation.recommendation in [1, 2, 3]:
+        # Publish as Tier I, II or III
         recommendation.submission.status = 'accepted'
     elif recommendation.recommendation == -3:
         # Reject

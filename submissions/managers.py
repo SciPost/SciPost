@@ -13,9 +13,12 @@ class SubmissionManager(models.Manager):
         Prevent conflic of interest by filtering submissions possible related to user.
         This filter should be inherited by other filters.
         """
-        return (self.exclude(authors=user.contributor)
-                .exclude(Q(author_list__icontains=user.last_name),
-                         ~Q(authors_false_claims=user.contributor)))
+        try:
+            return (self.exclude(authors=user.contributor)
+                    .exclude(Q(author_list__icontains=user.last_name),
+                             ~Q(authors_false_claims=user.contributor)))
+        except AttributeError:
+            return self.none()
 
     def get_pool(self, user):
         """
@@ -37,7 +40,13 @@ class SubmissionManager(models.Manager):
                 .order_by('-submission_date'))
 
     def public(self):
-        '''List only all public submissions. Should be used as a default filter!'''
+        """
+        List only all public submissions. Should be used as a default filter!
+
+        Implement: Use this filter to also determine, using a optional user argument,
+                   if the query should be filtered or not as a logged in EdCol Admin
+                   should be able to view *all* submissions.
+        """
         return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
 
     def public_overcomplete(self):
@@ -64,16 +73,22 @@ class EICRecommendationManager(models.Manager):
         are not related to the Contributor, by checking last_name and author_list of
         the linked Submission.
         """
-        return self.exclude(submission__authors=user.contributor)\
-                   .exclude(Q(submission__author_list__icontains=user.last_name),
-                            ~Q(submission__authors_false_claims=user.contributor))
+        try:
+            return self.exclude(submission__authors=user.contributor)\
+                       .exclude(Q(submission__author_list__icontains=user.last_name),
+                                ~Q(submission__authors_false_claims=user.contributor))
+        except AttributeError:
+            return self.none()
 
     def filter_for_user(self, user, **kwargs):
         """
         Return list of EICRecommendation's which are owned/assigned author through the
         related submission.
         """
-        return self.filter(submission__authors=user.contributor).filter(**kwargs)
+        try:
+            return self.filter(submission__authors=user.contributor).filter(**kwargs)
+        except AttributeError:
+            return self.none()
 
 
 class ReportManager(models.Manager):
