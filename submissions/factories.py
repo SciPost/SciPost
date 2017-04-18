@@ -4,7 +4,7 @@ from scipost.factories import ContributorFactory
 from journals.constants import SCIPOST_JOURNAL_PHYSICS
 from common.helpers import random_arxiv_identifier_with_version_number
 
-from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSION_SCREENING
+from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSION_INCOMING
 from .models import Submission
 
 
@@ -33,5 +33,5 @@ class UnassignedSubmissionFactory(SubmissionFactory):
 
 
 class ResubmittedScreeningSubmissionFactory(SubmissionFactory):
-    status = STATUS_RESUBMISSION_SCREENING
+    status = STATUS_RESUBMISSION_INCOMING
     editor_in_charge = factory.SubFactory(ContributorFactory)

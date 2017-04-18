@@ -26,7 +26,7 @@ class UnregisteredAuthor(models.Model):
 
 class Journal(models.Model):
     name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS, unique=True)
-    doi_string = models.CharField(max_length=200, unique=True, db_index=True,
+    doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                   validators=[doi_journal_validator])
     issn = models.CharField(max_length=16, default='2542-4653')
     active = models.BooleanField(default=True)
@@ -34,8 +34,12 @@ class Journal(models.Model):
     def __str__(self):
         return self.get_name_display()
 
+    @property
+    def doi_string(self):
+        return '10.21468/' + self.doi_label
+
     def get_absolute_url(self):
-        return reverse('scipost:landing_page', args=[self.doi_string])
+        return reverse('scipost:landing_page', args=[self.doi_label])
 
     def get_abbreviation_citation(self):
         return journal_name_abbrev_citation(self.name)
@@ -46,7 +50,7 @@ class Volume(models.Model):
     number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
-    doi_string = models.CharField(max_length=200, unique=True, db_index=True,
+    doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                   validators=[doi_volume_validator])
 
     class Meta:
@@ -55,6 +59,10 @@ class Volume(models.Model):
     def __str__(self):
         return str(self.in_journal) + ' Vol. ' + str(self.number)
 
+    @property
+    def doi_string(self):
+        return '10.21468/' + self.doi_label
+
 
 class Issue(models.Model):
     in_volume = models.ForeignKey(Volume, on_delete=models.CASCADE)
@@ -62,8 +70,8 @@ class Issue(models.Model):
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
     status = models.CharField(max_length=20, choices=ISSUE_STATUSES, default=STATUS_PUBLISHED)
-    doi_string = models.CharField(max_length=200, unique=True, db_index=True,
-                                  validators=[doi_issue_validator])
+    doi_label = models.CharField(max_length=200, unique=True, db_index=True,
+                                 validators=[doi_issue_validator])
     # absolute path on filesystem: (JOURNALS_DIR)/journal/vol/issue/
     path = models.CharField(max_length=200)
 
@@ -80,7 +88,11 @@ class Issue(models.Model):
         return text
 
     def get_absolute_url(self):
-        return reverse('scipost:issue_detail', args=[self.doi_string])
+        return reverse('scipost:issue_detail', args=[self.doi_label])
+
+    @property
+    def doi_string(self):
+        return '10.21468/' + self.doi_label
 
     def short_str(self):
         return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
@@ -127,8 +139,8 @@ class Publication(models.Model):
     metadata = JSONField(default={}, blank=True, null=True)
     metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
     BiBTeX_entry = models.TextField(blank=True, null=True)
-    doi_string = models.CharField(max_length=200, unique=True, db_index=True,
-                                  validators=[doi_publication_validator])
+    doi_label = models.CharField(max_length=200, unique=True, db_index=True,
+                                 validators=[doi_publication_validator])
     submission_date = models.DateField(verbose_name='submission date')
     acceptance_date = models.DateField(verbose_name='acceptance date')
     publication_date = models.DateField(verbose_name='publication date')
@@ -144,11 +156,11 @@ class Publication(models.Model):
         return header
 
     def get_absolute_url(self):
-        return reverse('scipost:publication_detail', args=[self.doi_string])
+        return reverse('scipost:publication_detail', args=[self.doi_label])
 
     @property
-    def complete_doi_string(self):
-        return '10.21468/' + self.doi_string
+    def doi_string(self):
+        return '10.21468/' + self.doi_label
 
     def get_paper_nr(self):
         return paper_nr_string(self.paper_nr)
@@ -209,4 +221,4 @@ class Deposit(models.Model):
 
     def __str__(self):
         return (self.deposition_date.strftime('%Y-%m-%D') +
-                ' for 10.21468/' + self.publication.doi_string)
+                ' for 10.21468/' + self.publication.doi_label)

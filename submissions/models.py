@@ -8,7 +8,7 @@ from django.urls import reverse
 from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
-                       REPORT_STATUSES, STATUS_UNVETTED, STATUS_RESUBMISSION_SCREENING,\
+                       REPORT_STATUSES, STATUS_UNVETTED, STATUS_RESUBMISSION_INCOMING,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
                        SUBMISSION_EIC_RECOMMENDATION_REQUIRED
 from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
@@ -105,7 +105,7 @@ class Submission(ArxivCallable, models.Model):
             header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
         try:
             header += ' (published as %s (%s))' % (self.publication.doi_string,
-                                                 self.publication.publication_date.strftime('%Y'))
+                                                   self.publication.publication_date.strftime('%Y'))
         except Publication.DoesNotExist:
             pass
         return header
@@ -141,7 +141,7 @@ class Submission(ArxivCallable, models.Model):
             self.copy_authors_from_previous_version()
             self.copy_EIC_from_previous_version()
             self.set_resubmission_defaults()
-            self.status = STATUS_RESUBMISSION_SCREENING
+            self.status = STATUS_RESUBMISSION_INCOMING
         else:
             self.authors.add(self.submitted_by)
 
