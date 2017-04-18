@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from .constants import NO_REQUIRED_ACTION_STATUSES,\
                        STATUS_REVISION_REQUESTED, STATUS_EIC_ASSIGNED,\
-                       STATUS_RESUBMISSION_SCREENING, STATUS_AWAITING_ED_REC
+                       STATUS_RESUBMISSION_INCOMING, STATUS_AWAITING_ED_REC
 
 from scipost.utils import EMAIL_FOOTER
 from common.utils import BaseMailUtil
@@ -52,7 +52,7 @@ class BaseSubmissionCycle:
             '''A Editorial Recommendation has already been submitted. Cycle done.'''
             return False
 
-        if self.submission.status == STATUS_RESUBMISSION_SCREENING:
+        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
             """
             Submission is a resubmission and the EIC still has to determine which
             cycle to proceed with.
@@ -145,7 +145,7 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
     that require referees to be invited.
     """
     def update_status(self):
-        if self.submission.status == STATUS_RESUBMISSION_SCREENING:
+        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
             self.submission.status = STATUS_EIC_ASSIGNED
             self.submission.save()
 
@@ -222,7 +222,7 @@ class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
     minimum_referees = 0
 
     def update_status(self):
-        if self.submission.status == STATUS_RESUBMISSION_SCREENING:
+        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
             self.submission.status = STATUS_AWAITING_ED_REC
             self.submission.save()
 

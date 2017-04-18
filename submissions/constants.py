@@ -1,12 +1,12 @@
 STATUS_UNASSIGNED = 'unassigned'
-STATUS_RESUBMISSION_SCREENING = 'resubmitted_incomin'
+STATUS_RESUBMISSION_INCOMING = 'resubmitted_incoming'
 STATUS_REVISION_REQUESTED = 'revision_requested'
 STATUS_EIC_ASSIGNED = 'EICassigned'
 STATUS_AWAITING_ED_REC = 'awaiting_ed_rec'
 STATUS_REVIEW_CLOSED = 'review_closed'
 SUBMISSION_STATUS = (
     (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
-    (STATUS_RESUBMISSION_SCREENING, 'Resubmission incoming'),
+    (STATUS_RESUBMISSION_INCOMING, 'Resubmission incoming'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
     (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned, manuscript under review'),
     (STATUS_REVIEW_CLOSED, 'Review period closed, editorial recommendation pending'),
@@ -52,7 +52,7 @@ SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [
 # Submissions which should not be viewable (except by admins, Fellows and authors)
 SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     STATUS_UNASSIGNED,
-    STATUS_RESUBMISSION_SCREENING,
+    STATUS_RESUBMISSION_INCOMING,
     'assignment_failed',
     'resubmitted_rejected',
     'rejected',
@@ -81,7 +81,7 @@ SUBMISSION_TYPE = (
 
 NO_REQUIRED_ACTION_STATUSES = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
     STATUS_UNASSIGNED,
-    STATUS_RESUBMISSION_SCREENING
+    STATUS_RESUBMISSION_INCOMING
 ]
 
 ED_COMM_CHOICES = (

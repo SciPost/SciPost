@@ -615,7 +615,8 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
                       .exclude(pk=submission.id))
     ref_invitations = RefereeInvitation.objects.filter(submission=submission)
     nr_reports_to_vet = (Report.objects
-                         .filter(status=0, submission=submission)
+                         .filter(status=0, submission=submission,
+                                 submission__editor_in_charge=request.user.contributor)
                          .count())
     communications = (EditorialCommunication.objects
                       .filter(submission=submission).order_by('timestamp'))
@@ -1121,7 +1122,8 @@ def vet_submitted_reports(request):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 @transaction.atomic
 def vet_submitted_report_ack(request, report_id):
-    report = get_object_or_404(Report, pk=report_id)
+    report = get_object_or_404(Report, pk=report_id,
+                               submission__editor_in_charge=request.user.contributor)
     form = VetReportForm(request.POST or None)
     if form.is_valid():
         report.vetted_by = request.user.contributor

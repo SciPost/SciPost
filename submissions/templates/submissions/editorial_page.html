@@ -104,7 +104,7 @@
     </div>
 </div>
 
-{% if submission.status == 'resubmitted_incomin' %}
+{% if submission.status == 'resubmitted_incoming' %}
     <div class="row">
         <div class="col-12">
             {% include 'submissions/_form_submission_cycle_choice.html' with form=cycle_choice_form submission=submission %}
