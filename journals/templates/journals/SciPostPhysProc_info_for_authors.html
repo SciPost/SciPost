@@ -6,7 +6,7 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'journal:issues' journal.doi_string %}" class="breadcrumb-item">SciPost Physics Proceedings</a>
+    <a href="{% url 'journal:issues' journal.doi_label %}" class="breadcrumb-item">SciPost Physics Proceedings</a>
     <span class="breadcrumb-item active">Info for Authors</span>
 {% endblock %}
 

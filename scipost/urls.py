@@ -9,7 +9,7 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
 from journals import views as journals_views
 from journals.constants import REGEX_CHOICES
 
-JOURNAL_REGEX = '(?P<doi_string>%s)' % REGEX_CHOICES
+JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -175,23 +175,23 @@ urlpatterns = [
     ################
 
     # Publication detail (+pdf)
-    url(r'^10.21468/(?P<doi_string>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.publication_detail,
         name='publication_detail'),
-    url(r'^(?P<doi_string>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.publication_detail,
         name='publication_detail'),
-    url(r'^10.21468/(?P<doi_string>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
+    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
         journals_views.publication_detail_pdf,
         name='publication_pdf'),
-    url(r'^(?P<doi_string>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
+    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
         journals_views.publication_detail_pdf,
         name='publication_pdf'),
 
     # Journal issue
-    url(r'^10.21468/(?P<doi_string>[a-zA-Z]+.[0-9]+.[0-9])$',
+    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9])$',
         journals_views.issue_detail, name='issue_detail'),
-    url(r'^(?P<doi_string>[a-zA-Z]+.[0-9]+.[0-9])$',
+    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9])$',
         journals_views.issue_detail, name='issue_detail'),
 
     # Journal landing page
