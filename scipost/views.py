@@ -1,8 +1,4 @@
-import datetime
-import hashlib
-import random
 import re
-import string
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
@@ -17,7 +13,6 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.http import is_safe_url
