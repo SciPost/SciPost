@@ -211,7 +211,7 @@ def register(request):
     form = RegistrationForm(request.POST or None)
     if form.is_valid():
         contributor = form.create_and_save_contributor()
-        Utils.load({'contributor': contributor})
+        Utils.load({'contributor': contributor}, request)
         Utils.send_registration_email()
 
         # Disable invitations related to the new Contributor
@@ -286,7 +286,7 @@ def request_new_activation_link(request, contributor_id, key):
     if request.GET.get('confirm', False):
         # Generate a new email activation key and link
         contributor.generate_key()
-        Utils.load({'contributor': contributor})
+        Utils.load({'contributor': contributor}, request)
         Utils.send_new_activation_link_email()
 
         context = {

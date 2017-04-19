@@ -27,7 +27,6 @@ from .forms import SubmissionIdentifierForm, SubmissionForm, SubmissionSearchFor
                    SubmissionCycleChoiceForm
 from .utils import SubmissionUtils
 
-from comments.models import Comment
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, Remark, RegistrationInvitation
 
@@ -170,7 +169,7 @@ class SubmissionCreateView(PermissionRequiredMixin, CreateView):
             assignment.save()
 
             # Send emails
-            SubmissionUtils.load({'submission': submission})
+            SubmissionUtils.load({'submission': submission}, self.request)
             SubmissionUtils.send_authors_resubmission_ack_email()
             SubmissionUtils.send_EIC_reappointment_email()
         else:
@@ -333,8 +332,8 @@ def pool(request):
                                          .filter(submission__status__in=['put_to_EC_voting']))
     recommendations_to_prepare_for_voting = (EICRecommendation.objects
                                              .get_for_user_in_pool(request.user)
-                                             .filter(submission__status__in=
-                                                     ['voting_in_preparation']))
+                                             .filter(
+                                                submission__status__in=['voting_in_preparation']))
     contributor = Contributor.objects.get(user=request.user)
     assignments_to_consider = EditorialAssignment.objects.filter(
         to=contributor, accepted=None, deprecated=False)
@@ -835,7 +834,7 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
             invitation.accepted = False
             invitation.refusal_reason = form.cleaned_data['refusal_reason']
         invitation.save()
-        SubmissionUtils.load({'invitation': invitation})
+        SubmissionUtils.load({'invitation': invitation}, request)
         SubmissionUtils.email_referee_response_to_EIC()
         SubmissionUtils.email_referee_in_response_to_decision()
 
@@ -1095,7 +1094,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         # Update user stats
         author.nr_reports = Report.objects.filter(author=author).count()
         author.save()
-        SubmissionUtils.load({'report': newreport})
+        SubmissionUtils.load({'report': newreport}, request)
         SubmissionUtils.email_EIC_report_delivered()
 
         # Why is this session update?
