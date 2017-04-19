@@ -649,7 +649,7 @@ def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
         submission = form.save()
         submission.cycle.update_status()
         submission.cycle.update_deadline()
-        submission.cycle.reinvite_referees(form.cleaned_data['referees_reinvite'])
+        submission.cycle.reinvite_referees(form.cleaned_data['referees_reinvite'], request)
         messages.success(request, ('<h3>Your choice has been confirmed</h3>'
                                    'The new cycle will be <em>%s</em>'
                                    % submission.get_refereeing_cycle_display()))

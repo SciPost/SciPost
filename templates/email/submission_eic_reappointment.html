@@ -2,10 +2,10 @@ Dear {{submission.editor_in_charge.get_title_display}} {{submission.editor_in_ch
 
 The authors of the SciPost Submission {{submission.title}} by {{submission.author_list}} have resubmitted their manuscript.\n\n
 
-As Editor-in-charge, you can take your editorial actions from the submission\'s <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">editorial page</a>
-(also accessible from your <a href="{% url 'scipost:personal_page' %}">personal page</a> under the Editorial Actions tab).\n
+As Editor-in-charge, you can take your editorial actions from the submission\'s editorial page: {{request.get_host}}{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}.\n
+(also accessible from your personal page under the Editorial Actions tab), see {{request.get_host}}{% url 'scipost:personal_page' %}. \n\n
 
-You can either take an immediate acceptance/rejection decision, or run a new refereeing round, in which case you should now invite at least 3 referees; you might want to make sure you are aware of the detailed procedure described in the <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a>.
+You can either take an immediate acceptance/rejection decision, or run a new refereeing round, in which case you should now invite at least 3 referees; you might want to make sure you are aware of the detailed procedure described in the Editorial College by-laws. See {{request.get_host}}{% url 'scipost:EdCol_by-laws' %}.
 \n\n
 
 Many thanks in advance for your collaboration,\n

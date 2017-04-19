@@ -94,12 +94,13 @@ class BaseSubmissionCycle:
 
         return True
 
-    def reinvite_referees(self, referees):
+    def reinvite_referees(self, referees, request=None):
         """
         Reinvite referees if allowed. This method does not check if it really is
         an reinvitation or just a new invitation.
         """
         if self.may_reinvite_referees:
+            SubmissionUtils.load({'submission': self.submission})
             for referee in referees:
                 invitation = referee
                 invitation.pk = None  # Duplicate, do not remove the old invitation
@@ -107,6 +108,8 @@ class BaseSubmissionCycle:
                 invitation.reset_content()
                 invitation.date_invited = timezone.now()
                 invitation.save()
+                SubmissionUtils.load({'invitation': invitation}, request)
+                SubmissionUtils.reinvite_referees_email()
 
     def update_deadline(self, period=None):
         delta_d = period or self.default_days
@@ -271,6 +274,19 @@ class SubmissionUtils(BaseMailUtil):
         for atd in assignments_to_deprecate:
             atd.deprecated = True
             atd.save()
+
+    @classmethod
+    def reinvite_referees_email(cls):
+        """
+        Email to be sent to referees when they are being reinvited by the EIC.
+
+        Requires context to contain:
+        - `invitation`
+        """
+        cls._send_mail(cls, 'submission_cycle_reinvite_referee',
+                       [cls._context['invitation'].email_address],
+                       'Invitation on resubmission')
+
 
     @classmethod
     def send_authors_submission_ack_email(cls):

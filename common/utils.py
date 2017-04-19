@@ -7,8 +7,9 @@ class BaseMailUtil(object):
     mail_sender_title = ''
 
     @classmethod
-    def load(cls, _dict):
+    def load(cls, _dict, request=None):
         cls._context = _dict
+        cls._context['request'] = request
         for var_name in _dict:
             setattr(cls, var_name, _dict[var_name])
 
@@ -30,7 +31,11 @@ class BaseMailUtil(object):
         message = template.render(Context(cls._context))
         html_message = html_template.render(Context(cls._context))
         email = EmailMultiAlternatives(
-            'SciPost: ' + subject, message, '%s <%s>' % (cls.mail_sender_title, cls.mail_sender),
-            recipients, bcc=[cls.mail_sender], reply_to=[cls.mail_sender])
+            'SciPost: ' + subject,  # message,
+            message,
+            '%s <%s>' % (cls.mail_sender_title, cls.mail_sender),
+            recipients,
+            bcc=[cls.mail_sender],
+            reply_to=[cls.mail_sender])
         email.attach_alternative(html_message, 'text/html')
         email.send(fail_silently=False)
