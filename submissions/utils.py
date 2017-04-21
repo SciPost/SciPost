@@ -97,7 +97,7 @@ class BaseSubmissionCycle:
     def reinvite_referees(self, referees, request=None):
         """
         Reinvite referees if allowed. This method does not check if it really is
-        an reinvitation or just a new invitation.
+        a reinvitation or just a new invitation.
         """
         if self.may_reinvite_referees:
             SubmissionUtils.load({'submission': self.submission})
