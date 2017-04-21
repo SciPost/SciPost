@@ -97,7 +97,7 @@ class BaseSubmissionCycle:
     def reinvite_referees(self, referees, request=None):
         """
         Reinvite referees if allowed. This method does not check if it really is
-        an reinvitation or just a new invitation.
+        a reinvitation or just a new invitation.
         """
         if self.may_reinvite_referees:
             SubmissionUtils.load({'submission': self.submission})
@@ -506,7 +506,7 @@ class SubmissionUtils(BaseMailUtil):
                       'Submission Page; you will be informed by email of any such Report or '
                       'Comment being delivered). In order to facilitate the work of the '
                       'Editorial College, we recommend limiting these replies to short '
-                      'to-the-point clarifications of any issue raised on your manuscript.\n\n '
+                      'to-the-point clarifications of any issue raised on your manuscript.\n\n'
                       'Please wait for the Editor-in-charge\'s Editorial Recommendation '
                       'before any resubmission of your manuscript.'
                       '\n\nTo facilitate metadata handling, we recommend that all authors '
