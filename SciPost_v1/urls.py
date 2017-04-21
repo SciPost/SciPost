@@ -17,11 +17,16 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
-JOURNAL_REGEX = '(?P<doi_string>SciPostPhysProc|SciPostPhys)'
+from ajax_select import urls as ajax_select_urls
+
+from journals.constants import REGEX_CHOICES
+
+JOURNAL_REGEX = '(?P<doi_string>%s)' % REGEX_CHOICES
 
 urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^ajax_select/', include(ajax_select_urls)),
     url(r'^docs/', include('sphinxdoc.urls')),
     url(r'^10.21468/%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
     url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),

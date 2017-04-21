@@ -1,0 +1,17 @@
+Dear {{submission.editor_in_charge.get_title_display}} {{submission.editor_in_charge.user.last_name}},\n\n
+
+The authors of the SciPost Submission\n\n
+{{submission.title}}
+\n\n
+by {{submission.author_list}}
+\n\n
+have resubmitted their manuscript.\n\n
+
+As Editor-in-charge, you can take your editorial actions from the submission\'s editorial page: {{request.get_host}}{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}.\n
+(also accessible from your personal page under the Editorial Actions tab), see {{request.get_host}}{% url 'scipost:personal_page' %}. \n\n
+
+You can either take an immediate acceptance/rejection decision, quickly consult previous referees or run a new refereeing round, in which case you should now invite at least 3 referees; you might want to make sure you are aware of the detailed procedure described in the Editorial College by-laws. See {{request.get_host}}{% url 'scipost:EdCol_by-laws' %}.
+\n\n
+
+Many thanks in advance for your collaboration,\n
+The SciPost Team.

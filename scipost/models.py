@@ -1,4 +1,7 @@
 import datetime
+import hashlib
+import random
+import string
 
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
@@ -37,10 +40,9 @@ class Contributor(models.Model):
     Permissions determine the sub-types.
     username, password, email, first_name and last_name are inherited from User.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    invitation_key = models.CharField(max_length=40, default='',
-                                      blank=True, null=True)
-    activation_key = models.CharField(max_length=40, default='')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+    invitation_key = models.CharField(max_length=40, blank=True)
+    activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
@@ -74,6 +76,15 @@ class Contributor(models.Model):
         # Please use get_title_display(). To be removed in future
         return self.get_title_display()
 
+    def is_SP_Admin(self):
+        return self.user.groups.filter(name='SciPost Administrators').exists()
+
+    def is_MEC(self):
+        return self.user.groups.filter(name='Editorial College').exists()
+
+    def is_VE(self):
+        return self.user.groups.filter(name='Vetting Editors').exists()
+
     def is_currently_available(self):
         unav_periods = UnavailabilityPeriod.objects.filter(contributor=self)
 
@@ -82,6 +93,18 @@ class Contributor(models.Model):
             if unav.start < today and unav.end > today:
                 return False
         return True
+
+    def generate_key(self, feed=''):
+        """
+        Generate and save a new activation_key for the contributor, given a certain feed.
+        """
+        for i in range(5):
+            feed += random.choice(string.ascii_letters)
+        feed = feed.encode('utf8')
+        salt = self.user.username.encode('utf8')
+        self.activation_key = hashlib.sha1(salt+salt).hexdigest()
+        self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
+        self.save()
 
     def private_info_as_table(self):
         template = Template('''
@@ -282,14 +305,15 @@ class RegistrationInvitation(models.Model):
                                        default=INVITATION_CONTRIBUTOR)
     cited_in_submission = models.ForeignKey('submissions.Submission',
                                             on_delete=models.CASCADE,
-                                            blank=True, null=True)
+                                            blank=True, null=True,
+                                            related_name='registration_invitations')
     cited_in_publication = models.ForeignKey('journals.Publication',
                                              on_delete=models.CASCADE,
                                              blank=True, null=True)
     message_style = models.CharField(max_length=1, choices=INVITATION_STYLE,
                                      default=INVITATION_FORMAL)
-    personal_message = models.TextField(blank=True, null=True)
-    invitation_key = models.CharField(max_length=40, default='')
+    personal_message = models.TextField(blank=True)
+    invitation_key = models.CharField(max_length=40, unique=True)
     key_expires = models.DateTimeField(default=timezone.now)
     date_sent = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey(Contributor,
@@ -301,7 +325,7 @@ class RegistrationInvitation(models.Model):
     declined = models.BooleanField(default=False)
 
     def __str__(self):
-        return (self.invitation_type + ' ' + self.first_name + ' ' + self.last_name
+        return (self.first_name + ' ' + self.last_name
                 + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
 
 

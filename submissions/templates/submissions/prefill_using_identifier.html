@@ -1,9 +1,10 @@
 {% extends 'scipost/base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: submit manuscript{% endblock pagetitle %}
 
-{% block bodysup %}
-
+{% block content %}
 
 <script>
 $(document).ready(function(){
@@ -34,53 +35,50 @@ $(document).ready(function(){
 });
 </script>
 
-<section>
-  <div class="flex-greybox">
-    <h1>Submit a manuscript to SciPost</h1>
-  </div>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Submit a manuscript to SciPost</h1>
+        <p class="mb-1">
+            Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
+        </p>
+        <p class="mb-1">
+            You should also make sure you understand the <a href="{% url 'submissions:sub_and_ref_procedure' %}#pwr">refereeing procedure</a> and its open aspect.
+        </p>
+        <p class="mb-1">
+            In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations"> author obligations</a>.
+        </p>
+        <p>
+            Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
+        </p>
+    </div>
+</div>
 
-  <p>Before submitting, make sure you agree with the
-    <a href="{% url 'journals:journals_terms_and_conditions' %}">
-      SciPost Journals Terms and Conditions</a>.</p>
-  <p>You should also make sure you understand the
-    <a href="{% url 'submissions:sub_and_ref_procedure' %}#pwr">
-      refereeing procedure</a> and its open aspect.</p>
-  <p>In particular, make sure you are familiar with the
-    <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">
-      license and copyright agreement</a>
-    and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">
-      author obligations</a>.</p>
-  <p>Please prepare your manuscript according to the
-    <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.</p>
+{% if perms.scipost.can_submit_manuscript %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class='card-block'>
+                <h3>Please provide the arXiv identifier for your Submission</h3>
+                <p><em>(give the identifier without prefix but with version number, as per the placeholder)</em></p>
+                <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
+                  {% csrf_token %}
+                  {{ form|bootstrap }}
+                  <input type="submit" class="btn btn-secondary" value="Query arXiv"/>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 
-  {% if perms.scipost.can_submit_manuscript %}
+    {% if resubmessage %}
+      <h3 class="text-success">{{ resubmessage }}</h3>
+    {% endif %}
 
-  <div class="flex-greybox">
-    <h3><em>Please provide the arXiv identifier for your Submission:</em></h3>
-    <p>
-      <em>(give the identifier without prefix but with version number, as per the placeholder)</em>
-    </p>
-    <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <input type="submit" value="Query arXiv"/>
-    </form>
-  </div>
-  <br/>
-  <!-- {% if errormessage %}
-  <h3 style="color: red;">Error: {{ errormessage }}</h3>
-  {% endif %} -->
-
-  {% if resubmessage %}
-  <h3 style="color: green;">{{ resubmessage }}</h3>
-  {% endif %}
-
-  {% else %}
+{% else %}
   <h3>You are currently not allowed to submit a manuscript.</h3>
-  {% endif %}
-
-</section>
+{% endif %}
 
 
-{% endblock bodysup %}
+{% endblock content %}

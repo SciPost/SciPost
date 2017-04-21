@@ -2,7 +2,7 @@ from django import forms
 from django.core.validators import RegexValidator
 
 from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS,\
-                       REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES
+                       REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, SUBMISSION_CYCLES
 from .models import Submission, RefereeInvitation, Report, EICRecommendation
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
@@ -261,3 +261,22 @@ class RecommendationVoteForm(forms.Form):
                     css_class='flex-Fellowactionbox'),
                 css_class='flex-container')
         )
+
+
+class SubmissionCycleChoiceForm(forms.ModelForm):
+    referees_reinvite = forms.ModelMultipleChoiceField(queryset=RefereeInvitation.objects.none(),
+                                                       widget=forms.CheckboxSelectMultiple({
+                                                            'checked': 'checked'}),
+                                                       required=False, label='Reinvite referees')
+
+    class Meta:
+        model = Submission
+        fields = ('refereeing_cycle',)
+        widgets = {'refereeing_cycle': forms.RadioSelect}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['refereeing_cycle'].default = None
+        other_submission = self.instance.other_versions().first()
+        if other_submission:
+            self.fields['referees_reinvite'].queryset = other_submission.referee_invitations.all()

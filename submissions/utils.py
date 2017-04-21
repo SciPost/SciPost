@@ -2,24 +2,257 @@ import datetime
 
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
+from django.utils import timezone
+
+from .constants import NO_REQUIRED_ACTION_STATUSES,\
+                       STATUS_REVISION_REQUESTED, STATUS_EIC_ASSIGNED,\
+                       STATUS_RESUBMISSION_INCOMING, STATUS_AWAITING_ED_REC
 
 from scipost.utils import EMAIL_FOOTER
+from common.utils import BaseMailUtil
 
-from submissions.models import EditorialAssignment
+
+class BaseSubmissionCycle:
+    """
+    The submission cycle may take different approaches. All steps within a specific
+    cycle are handles by the class related to the specific cycle chosen. This class
+    is meant as an abstract blueprint for the overall submission cycle and its needed
+    actions.
+    """
+    default_days = 28
+    may_add_referees = True
+    may_reinvite_referees = True
+    minimum_referees = 3
+    name = None
+    required_actions = []
+    submission = None
+    updated_action = False
+
+    def __init__(self, submission):
+        self.submission = submission
+
+    def __str__(self):
+        return self.submission.get_refereeing_cycle_display()
+
+    def _update_actions(self):
+        """
+        Create the list of required_actions for the current submission to be used on the
+        editorial page.
+        """
+        self.required_actions = []
+        if self.submission.status in NO_REQUIRED_ACTION_STATUSES:
+            '''Submission does not appear in the pool, no action required.'''
+            return False
+
+        if self.submission.status == STATUS_REVISION_REQUESTED:
+            ''''Editor-in-charge has requested revision'''
+            return False
+
+        if self.submission.eicrecommendations.exists():
+            '''A Editorial Recommendation has already been submitted. Cycle done.'''
+            return False
+
+        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
+            """
+            Submission is a resubmission and the EIC still has to determine which
+            cycle to proceed with.
+            """
+            self.required_actions.append(('choose_cycle',
+                                          'Choose the submission cycle to proceed with.',))
+            return False
+
+        comments_to_vet = self.submission.comments.awaiting_vetting().count()
+        if comments_to_vet > 0:
+            '''There are comments on the submission awaiting vetting.'''
+            if comments_to_vet > 1:
+                text = '%i Comment\'s have' % comments_to_vet
+            else:
+                text = 'One Comment has'
+            text += ' been delivered but is not yet vetted. Please vet it.'
+            self.required_actions.append(('vet_comments', text,))
+
+        nr_ref_inv = self.submission.referee_invitations.count()
+        if nr_ref_inv < self.minimum_referees:
+            """
+            The submission cycle does not meet the criteria of a minimum of
+            `self.minimum_referees` referees yet.
+            """
+            text = 'No' if nr_ref_inv == 0 else 'Only %i' % nr_ref_inv
+            text += ' Referees have yet been invited.'
+            text += ' At least %i should be.' % self.minimum_referees
+            self.required_actions.append(('invite_referees', text,))
+
+        reports_awaiting_vetting = self.submission.reports.awaiting_vetting().count()
+        if reports_awaiting_vetting > 0:
+            '''There are reports on the submission awaiting vetting.'''
+            if reports_awaiting_vetting > 1:
+                text = '%i Reports have' % reports_awaiting_vetting
+            else:
+                text = 'One Report has'
+            text += ' been delivered but is not yet vetted. Please vet it.'
+            self.required_actions.append(('vet_reports', text,))
+
+        return True
+
+    def reinvite_referees(self, referees, request=None):
+        """
+        Reinvite referees if allowed. This method does not check if it really is
+        a reinvitation or just a new invitation.
+        """
+        if self.may_reinvite_referees:
+            SubmissionUtils.load({'submission': self.submission})
+            for referee in referees:
+                invitation = referee
+                invitation.pk = None  # Duplicate, do not remove the old invitation
+                invitation.submission = self.submission
+                invitation.reset_content()
+                invitation.date_invited = timezone.now()
+                invitation.save()
+                SubmissionUtils.load({'invitation': invitation}, request)
+                SubmissionUtils.reinvite_referees_email()
+
+    def update_deadline(self, period=None):
+        delta_d = period or self.default_days
+        deadline = timezone.now() + datetime.timedelta(days=delta_d)
+        self.submission.reporting_deadline = deadline
+        self.submission.save()
+
+    def get_required_actions(self):
+        '''Return list of the submission its required actions'''
+        if not self.updated_action:
+            self._update_actions()
+            self.updated_action = True
+        return self.required_actions
+
+    def has_required_actions(self):
+        """
+        Certain submission statuses will not show the required actions block.
+        The decision to show this block is taken by this method.
+        """
+        return self.submission.status not in NO_REQUIRED_ACTION_STATUSES
+
+    def update_status(self):
+        """
+        Implement:
+        Let the submission status be centrally handled by this method. This makes sure
+        the status cycle is clear and makes sure the cycle isn't broken due to unclear coding
+        elsewhere. The next status to go to should ideally be determined on all the
+        available in the submission with only few exceptions to explicilty force a new status code.
+        """
+        raise NotImplementedError
 
 
-class SubmissionUtils(object):
+class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
+    """
+    This *abstract* submission cycle adds the specific actions needed for submission cycles
+    that require referees to be invited.
+    """
+    def update_status(self):
+        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
+            self.submission.status = STATUS_EIC_ASSIGNED
+            self.submission.save()
 
-    @classmethod
-    def load(cls, _dict):
-        for var_name in _dict:
-            setattr(cls, var_name, _dict[var_name])
+    def _update_actions(self):
+        continue_update = super()._update_actions()
+        if not continue_update:
+            return False
+
+        for ref_inv in self.submission.referee_invitations.all():
+            if not ref_inv.cancelled:
+                if ref_inv.accepted is None:
+                    '''An invited referee may have not responsed yet.'''
+                    timelapse = timezone.now() - ref_inv.date_invited
+                    if timelapse > datetime.timedelta(days=3):
+                        text = ('Referee %s has not responded for %i days. '
+                                'Consider sending a reminder or cancelling the invitation.'
+                                % (ref_inv.referee_str, timelapse.days))
+                        self.required_actions.append(('referee_no_response', text,))
+                elif ref_inv.accepted and not ref_inv.fulfilled:
+                    '''A referee has not fulfilled its duty and the deadline is closing in.'''
+                    timeleft = self.submission.reporting_deadline - timezone.now()
+                    if timeleft < datetime.timedelta(days=7):
+                        text = ('Referee %s has accepted to send a Report, '
+                                'but not yet delivered it ' % ref_inv.referee_str)
+                        if timeleft.days < 0:
+                            text += '(%i days overdue). ' % (- timeleft.days)
+                        elif timeleft.days == 1:
+                            text += '(with 1 day left). '
+                        else:
+                            text += '(with %i days left). ' % timeleft.days
+                        text += 'Consider sending a reminder or cancelling the invitation.'
+                        self.required_actions.append(('referee_no_delivery', text,))
+
+        if self.submission.reporting_deadline < timezone.now():
+            text = ('The refereeing deadline has passed. Please either extend it, '
+                    'or formulate your Editorial Recommendation if at least '
+                    'one Report has been received.')
+            self.required_actions.append(('deadline_passed', text,))
+
+        return True
+
+
+class GeneralSubmissionCycle(BaseRefereeSubmissionCycle):
+    """
+    The default submission cycle assigned to all 'regular' submissions and resubmissions
+    which are explicitly assigned to go trough the default cycle by the EIC.
+    It's a four week cycle with full capabilities i.e. invite referees, vet reports, etc. etc.
+    """
+    pass
+
+
+class ShortSubmissionCycle(BaseRefereeSubmissionCycle):
+    """
+    This cycle is used if the EIC has explicitly chosen to do a short version of the general
+    submission cycle. The deadline is within two weeks instead of the default four weeks.
+
+    This cycle is only available for resubmitted submissions!
+    """
+    default_days = 14
+    may_add_referees = False
+    minimum_referees = 1
+    pass
+
+
+class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
+    """
+    This cycle is used if the EIC has explicitly chosen to immediately write an
+    editorial recommendation.
+
+    This cycle is only available for resubmitted submissions!
+    """
+    may_add_referees = False
+    may_reinvite_referees = False
+    minimum_referees = 0
+
+    def update_status(self):
+        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
+            self.submission.status = STATUS_AWAITING_ED_REC
+            self.submission.save()
+
+    def _update_actions(self):
+        continue_update = super()._update_actions()
+        if not continue_update:
+            return False
+
+        # No EIC Recommendation has been formulated yet
+        text = 'Formulate an Editorial Recommendation.'
+        self.required_actions.append(('need_eic_rec', text,))
+
+        return True
+
+
+class SubmissionUtils(BaseMailUtil):
+    mail_sender = 'submissions@scipost.org'
+    mail_sender_title = 'SciPost Editorial Admin'
 
     @classmethod
     def deprecate_other_assignments(cls):
         """
         Called when a Fellow has accepted or volunteered to become EIC.
         """
+        # Import here due to circular import error
+        from .models import EditorialAssignment
+
         assignments_to_deprecate = (EditorialAssignment.objects
                                     .filter(submission=cls.assignment.submission, accepted=None)
                                     .exclude(to=cls.assignment.to))
@@ -33,11 +266,29 @@ class SubmissionUtils(object):
         Called when the pre-screening has failed.
         Requires loading 'submission' attribute.
         """
+        # Import here due to circular import error
+        from .models import EditorialAssignment
+
         assignments_to_deprecate = (EditorialAssignment.objects
                                     .filter(submission=cls.submission, accepted=None))
         for atd in assignments_to_deprecate:
             atd.deprecated = True
             atd.save()
+
+    @classmethod
+    def reinvite_referees_email(cls):
+        """
+        Email to be sent to referees when they are being reinvited by the EIC.
+
+        Requires context to contain:
+        - `invitation`
+        """
+        extra_bcc_list = [cls._context['invitation'].submission.editor_in_charge.user.email]
+        cls._send_mail(cls, 'submission_cycle_reinvite_referee',
+                       [cls._context['invitation'].email_address],
+                       'Invitation on resubmission',
+                       extra_bcc=extra_bcc_list)
+
 
     @classmethod
     def send_authors_submission_ack_email(cls):
@@ -233,64 +484,9 @@ class SubmissionUtils(object):
     @classmethod
     def send_EIC_reappointment_email(cls):
         """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + cls.submission.editor_in_charge.get_title_display() + ' '
-                      + cls.submission.editor_in_charge.user.last_name
-                      + ', \n\nThe authors of the SciPost Submission\n\n'
-                      + cls.submission.title + ' by '
-                      + cls.submission.author_list +
-                      '\n\nhave resubmitted their manuscript. '
-                      '\n\nAs Editor-in-charge, you can take your editorial actions '
-                      'from the editorial page '
-                      'https://scipost.org/submission/editorial_page/'
-                      + cls.submission.arxiv_identifier_w_vn_nr
-                      + ' (also accessible from your personal page '
-                      'https://scipost.org/personal_page under the Editorial Actions tab). '
-                      '\n\nYou can either take an immediate acceptance/rejection decision, '
-                      'or run a new refereeing round, in which case you '
-                      'should now invite at least 3 referees; you might want to '
-                      'make sure you are aware of the '
-                      'detailed procedure described in the Editorial College by-laws at '
-                      'https://scipost.org/EdCol_by-laws.'
-                      '\n\nMany thanks in advance for your collaboration,'
-                      '\n\nThe SciPost Team.')
-        email_text_html = (
-            '<p>Dear {{ title }} {{ last_name }},</p>'
-            '<p>The authors of the SciPost Submission</p>'
-            '<p>{{ sub_title }}</p>'
-            '\n<p>by {{ author_list }}</p>'
-            '\n<p>have resubmitted their manuscript.</p>'
-            '\n<p>As Editor-in-charge, you can take your editorial actions '
-            'from the submission\'s <a href="https://scipost.org/submission/editorial_page/'
-            '{{ arxiv_identifier_w_vn_nr }}">editorial page</a>'
-            ' (also accessible from your '
-            '<a href="https://scipost.org/personal_page">personal page</a> '
-            'under the Editorial Actions tab).</p>'
-            '\n<p>You can either take an immediate acceptance/rejection decision, '
-            'or run a new refereeing round, in which case you '
-            'should now invite at least 3 referees; you might want to '
-            'make sure you are aware of the '
-            'detailed procedure described in the '
-            '<a href="https://scipost.org/EdCol_by-laws">Editorial College by-laws</a>.</p>'
-            '<p>Many thanks in advance for your collaboration,</p>'
-            '<p>The SciPost Team.</p>')
-        email_context = Context({
-            'title': cls.submission.editor_in_charge.get_title_display(),
-            'last_name': cls.submission.editor_in_charge.user.last_name,
-            'sub_title': cls.submission.title,
-            'author_list': cls.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
-        })
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
-        emailmessage = EmailMultiAlternatives(
-            'SciPost: resubmission received', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.submission.editor_in_charge.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
+        cls._send_mail(cls, 'submission_eic_reappointment',
+                       [cls._context['submission'].editor_in_charge.user.email],
+                       'resubmission received')
 
     @classmethod
     def send_author_prescreening_passed_email(cls):
@@ -312,7 +508,7 @@ class SubmissionUtils(object):
                       'Submission Page; you will be informed by email of any such Report or '
                       'Comment being delivered). In order to facilitate the work of the '
                       'Editorial College, we recommend limiting these replies to short '
-                      'to-the-point clarifications of any issue raised on your manuscript.\n\n '
+                      'to-the-point clarifications of any issue raised on your manuscript.\n\n'
                       'Please wait for the Editor-in-charge\'s Editorial Recommendation '
                       'before any resubmission of your manuscript.'
                       '\n\nTo facilitate metadata handling, we recommend that all authors '
@@ -674,108 +870,32 @@ class SubmissionUtils(object):
 
     @classmethod
     def email_referee_response_to_EIC(cls):
-        """ Requires loading 'invitation' attribute. """
-        email_text = ('Dear ' + cls.invitation.submission.editor_in_charge.get_title_display() + ' ' +
-                      cls.invitation.submission.editor_in_charge.user.last_name + ','
-                      '\n\nReferee ' + cls.invitation.referee.get_title_display() + ' ' +
-                      cls.invitation.referee.user.last_name + ' has ')
-        email_text_html = (
-            '<p>Dear {{ EIC_title }} {{ EIC_last_name }},</p>'
-            '<p>Referee {{ ref_title }} {{ ref_last_name }} has ')
-        email_subject = 'SciPost: referee declines to review'
-        if cls.invitation.accepted:
-            email_text += 'accepted '
-            email_text_html += 'accepted '
-            email_subject = 'SciPost: referee accepts to review'
-        elif not cls.invitation.accepted:
-            email_text += ('declined (due to reason: '
-                           + cls.invitation.get_refusal_reason_display() + ') ')
-            email_text_html += 'declined (due to reason: {{ reason }}) '
+        '''Requires loading `invitation` attribute.'''
+        if cls._context['invitation'].accepted:
+            email_subject = 'referee accepts to review'
+        else:
+            email_subject = 'referee declines to review'
+        cls._send_mail(cls, 'referee_response_to_EIC',
+                       [cls._context['invitation'].submission.editor_in_charge.user.email],
+                       email_subject)
 
-        email_text += ('to referee Submission\n\n'
-                       + cls.invitation.submission.title + ' by '
-                       + cls.invitation.submission.author_list + '.')
-        email_text_html += (
-            'to referee Submission</p>'
-            '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')
-        if not cls.invitation.accepted:
-            email_text += ('\n\nPlease invite another referee from the Submission\'s editorial page '
-                           'at https://scipost.org/submissions/editorial_page/'
-                           + cls.invitation.submission.arxiv_identifier_w_vn_nr + '.')
-            email_text_html += (
-                '\n<p>Please invite another referee from the Submission\'s '
-                '<a href="https://scipost.org/submissions/editorial_page/'
-                '{{ arxiv_identifier_w_vn_nr }}">editorial page</a>.</p>')
-        email_text += ('\n\nMany thanks for your collaboration,'
-                       '\n\nThe SciPost Team.')
-        email_text_html += ('<p>Many thanks for your collaboration,</p>'
-                            '<p>The SciPost Team.</p>')
-        email_context = Context({
-            'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
-            'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
-            'ref_title': cls.invitation.referee.get_title_display(),
-            'ref_last_name': cls.invitation.referee.user.last_name,
-            'sub_title': cls.invitation.submission.title,
-            'author_list': cls.invitation.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.invitation.submission.arxiv_identifier_w_vn_nr,
-        })
-        if cls.invitation.refusal_reason:
-            email_context['reason'] = cls.invitation.get_refusal_reason_display
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
-        emailmessage = EmailMultiAlternatives(
-            email_subject, email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.invitation.submission.editor_in_charge.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
+    @classmethod
+    def email_referee_in_response_to_decision(cls):
+        '''Requires loading `invitation` attribute.'''
+        if cls._context['invitation'].accepted:
+            email_subject = 'confirmation accepted invitation'
+        else:
+            email_subject = 'confirmation declined invitation'
+        cls._send_mail(cls, 'referee_in_response_to_decision',
+                       [cls._context['invitation'].referee.user.email],
+                       email_subject)
 
     @classmethod
     def email_EIC_report_delivered(cls):
         """ Requires loading 'report' attribute. """
-        email_text = ('Dear ' + cls.report.submission.editor_in_charge.get_title_display() + ' '
-                      + cls.report.submission.editor_in_charge.user.last_name + ','
-                      '\n\nReferee ' + cls.report.author.get_title_display() + ' '
-                      + cls.report.author.user.last_name +
-                      ' has delivered a Report for Submission\n\n'
-                      + cls.report.submission.title + ' by '
-                      + cls.report.submission.author_list + '.'
-                      '\n\nPlease vet this Report via your personal page at '
-                      'https://scipost.org/personal_page under the Editorial Actions tab.'
-                      '\n\nMany thanks for your collaboration,'
-                      '\n\nThe SciPost Team.')
-        email_text_html = (
-            '<p>Dear {{ EIC_title }} {{ EIC_last_name }},</p>'
-            '<p>Referee {{ ref_title }} {{ ref_last_name }} '
-            'has delivered a Report for Submission</p>'
-            '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
-            '\n<p>Please vet this Report via your '
-            '<a href="https://scipost.org/personal_page">personal page</a> '
-            'under the Editorial Actions tab.</p>'
-            '<p>Many thanks for your collaboration,</p>'
-            '<p>The SciPost Team.</p>')
-        email_context = Context({
-            'EIC_title': cls.report.submission.editor_in_charge.get_title_display(),
-            'EIC_last_name': cls.report.submission.editor_in_charge.user.last_name,
-            'ref_title': cls.report.author.get_title_display(),
-            'ref_last_name': cls.report.author.user.last_name,
-            'sub_title': cls.report.submission.title,
-            'author_list': cls.report.submission.author_list,
-        })
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
-        emailmessage = EmailMultiAlternatives(
-            'SciPost: Report delivered', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.report.submission.editor_in_charge.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
+        cls._send_mail(cls, 'report_delivered_eic',
+                       [cls._context['report'].submission.editor_in_charge.user.email],
+                       'Report delivered')
 
     @classmethod
     def acknowledge_report_email(cls):

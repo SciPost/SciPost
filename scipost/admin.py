@@ -100,6 +100,9 @@ admin.site.register(DraftInvitation, DraftInvitationAdmin)
 
 class RegistrationInvitationAdmin(admin.ModelAdmin):
     search_fields = ['first_name', 'last_name', 'email', 'invitation_key']
+    list_display = ['__str__', 'invitation_type', 'invited_by', 'responded']
+    list_filter = ['invitation_type', 'message_style', 'responded', 'declined']
+    date_hierarchy = 'date_sent'
 
 
 admin.site.register(RegistrationInvitation, RegistrationInvitationAdmin)

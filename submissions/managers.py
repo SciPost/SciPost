@@ -1,20 +1,60 @@
 from django.db import models
 from django.db.models import Q
 
-from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED
+from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED,\
+                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
+                       STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
+                       SUBMISSION_HTTP404_ON_EDITORIAL_PAGE
 
 
 class SubmissionManager(models.Manager):
+    def user_filter(self, user):
+        """
+        Prevent conflic of interest by filtering submissions possible related to user.
+        This filter should be inherited by other filters.
+        """
+        try:
+            return (self.exclude(authors=user.contributor)
+                    .exclude(Q(author_list__icontains=user.last_name),
+                             ~Q(authors_false_claims=user.contributor)))
+        except AttributeError:
+            return self.none()
+
     def get_pool(self, user):
-        return self.exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)\
-                .exclude(is_current=False)\
-                .exclude(authors=user.contributor)\
-                .exclude(Q(author_list__icontains=user.last_name),
-                         ~Q(authors_false_claims=user.contributor))\
-                .order_by('-submission_date')
+        """
+        This filter will return submission currently in an active submission cycle.
+        """
+        return (self.user_filter(user)
+                .exclude(is_current=False)
+                .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
+                .order_by('-submission_date'))
+
+    def filter_editorial_page(self, user):
+        """
+        This filter returns a subgroup of the `get_pool` filter, to allow opening and editing
+        certain submissions that are officially out of the submission cycle i.e. due
+        to resubmission, but should still have the possibility to be opened by the EIC.
+        """
+        return (self.user_filter(user)
+                .exclude(status__in=SUBMISSION_HTTP404_ON_EDITORIAL_PAGE)
+                .order_by('-submission_date'))
 
     def public(self):
-        return self.filter(is_current=True).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
+        """
+        List only all public submissions. Should be used as a default filter!
+
+        Implement: Use this filter to also determine, using a optional user argument,
+                   if the query should be filtered or not as a logged in EdCol Admin
+                   should be able to view *all* submissions.
+        """
+        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
+
+    def public_overcomplete(self):
+        """
+        This query contains an overcomplete set of public submissions, i.e. also containing
+        submissions with status "published" or "resubmitted".
+        """
+        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE)
 
 
 class EditorialAssignmentManager(models.Manager):
@@ -33,12 +73,31 @@ class EICRecommendationManager(models.Manager):
         are not related to the Contributor, by checking last_name and author_list of
         the linked Submission.
         """
-        return self.exclude(submission__authors=user.contributor)\
-                   .exclude(Q(submission__author_list__icontains=user.last_name),
-                            ~Q(submission__authors_false_claims=user.contributor))
+        try:
+            return self.exclude(submission__authors=user.contributor)\
+                       .exclude(Q(submission__author_list__icontains=user.last_name),
+                                ~Q(submission__authors_false_claims=user.contributor))
+        except AttributeError:
+            return self.none()
 
     def filter_for_user(self, user, **kwargs):
         """
-        Return list of EICRecommendation which are owned linked to an author owned Submission.
+        Return list of EICRecommendation's which are owned/assigned author through the
+        related submission.
         """
-        return self.filter(submission__authors=user.contributor).filter(**kwargs)
+        try:
+            return self.filter(submission__authors=user.contributor).filter(**kwargs)
+        except AttributeError:
+            return self.none()
+
+
+class ReportManager(models.Manager):
+    def accepted(self):
+        return self.filter(status__gte=STATUS_VETTED)
+
+    def awaiting_vetting(self):
+        return self.filter(status=STATUS_UNVETTED)
+
+    def rejected(self):
+        return self.filter(status__in=[STATUS_UNCLEAR, STATUS_INCORRECT,
+                                       STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC])

@@ -2,16 +2,18 @@
 
 {% block pagetitle %}: acknowledgement {% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
-  <h3>{{ ack_header }}</h3>
-  {% if ack_message %}
-    <p>{{ ack_message }}</p>
-  {% endif %}
-  {% if followup_message %}
-    <p>{{ followup_message }} <a href="{{ followup_link }}">{{ followup_link_label }}</a>.</p>
-  {% endif %}
-</section>
+<div class="row">
+    <div class="col-12">
+      <h2>{{ ack_header }}</h2>
+      {% if ack_message %}
+        <p>{{ ack_message }}</p>
+      {% endif %}
+      {% if followup_message %}
+        <p>{{ followup_message }} <a href="{{ followup_link }}">{{ followup_link_label }}</a>.</p>
+      {% endif %}
+    </div>
+</div>
 
-{% endblock bodysup %}
+{% endblock %}

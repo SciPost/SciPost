@@ -1,11 +1,17 @@
-
+STATUS_UNASSIGNED = 'unassigned'
+STATUS_RESUBMISSION_INCOMING = 'resubmitted_incoming'
+STATUS_REVISION_REQUESTED = 'revision_requested'
+STATUS_EIC_ASSIGNED = 'EICassigned'
+STATUS_AWAITING_ED_REC = 'awaiting_ed_rec'
+STATUS_REVIEW_CLOSED = 'review_closed'
 SUBMISSION_STATUS = (
-    ('unassigned', 'Unassigned, undergoing pre-screening'),
+    (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
+    (STATUS_RESUBMISSION_INCOMING, 'Resubmission incoming'),
     ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
-    ('EICassigned', 'Editor-in-charge assigned, manuscript under review'),
-    ('review_closed', 'Review period closed, editorial recommendation pending'),
+    (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned, manuscript under review'),
+    (STATUS_REVIEW_CLOSED, 'Review period closed, editorial recommendation pending'),
     # If revisions required: resubmission creates a new Submission object
-    ('revision_requested', 'Editor-in-charge has requested revision'),
+    (STATUS_REVISION_REQUESTED, 'Editor-in-charge has requested revision'),
     ('resubmitted', 'Has been resubmitted'),
     ('resubmitted_and_rejected', 'Has been resubmitted and subsequently rejected'),
     ('resubmitted_and_rejected_visible',
@@ -13,6 +19,7 @@ SUBMISSION_STATUS = (
     # If acceptance/rejection:
     ('voting_in_preparation', 'Voting in preparation (eligible Fellows being selected)'),
     ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
+    (STATUS_AWAITING_ED_REC, 'Awaiting Editorial Recommendation'),
     ('EC_vote_completed', 'Editorial College voting rounded up'),
     ('accepted', 'Publication decision taken: accept'),
     ('rejected', 'Publication decision taken: reject'),
@@ -22,34 +29,41 @@ SUBMISSION_STATUS = (
     ('withdrawn', 'Withdrawn by the Authors'),
 )
 
-SUBMISSION_STATUS_OUT_OF_POOL = [
+SUBMISSION_HTTP404_ON_EDITORIAL_PAGE = [
     'assignment_failed',
-    'resubmitted',
     'published',
     'withdrawn',
     'rejected',
     'rejected_visible',
 ]
 
-# Submissions which should not appear in search lists
-SUBMISSION_STATUS_PUBLICLY_UNLISTED = [
-    'unassigned',
-    'assignment_failed',
-    'resubmitted',
-    'resubmitted_rejected',
-    'resubmitted_rejected_visible',
-    'rejected',
-    'published',
-    'withdrawn',
+SUBMISSION_STATUS_OUT_OF_POOL = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
+    'resubmitted'
+]
+
+
+# Submissions which are allowed/required to submit a EIC Recommendation
+SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [
+    STATUS_EIC_ASSIGNED,
+    STATUS_REVIEW_CLOSED,
+    STATUS_AWAITING_ED_REC
 ]
 
 # Submissions which should not be viewable (except by admins, Fellows and authors)
 SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
-    'unassigned',
+    STATUS_UNASSIGNED,
+    STATUS_RESUBMISSION_INCOMING,
     'assignment_failed',
     'resubmitted_rejected',
     'rejected',
     'withdrawn',
+]
+
+# Submissions which should not appear in search lists
+SUBMISSION_STATUS_PUBLICLY_UNLISTED = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
+    'resubmitted',
+    'resubmitted_rejected_visible',
+    'published'
 ]
 
 # Submissions for which voting on a related recommendation is deprecated:
@@ -64,6 +78,11 @@ SUBMISSION_TYPE = (
     ('Article', 'Article (in-depth reports on specialized research)'),
     ('Review', 'Review (candid snapshot of current research in a given area)'),
 )
+
+NO_REQUIRED_ACTION_STATUSES = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
+    STATUS_UNASSIGNED,
+    STATUS_RESUBMISSION_INCOMING
+]
 
 ED_COMM_CHOICES = (
     ('EtoA', 'Editor-in-charge to Author'),
@@ -158,4 +177,13 @@ REPORT_STATUSES = (
     (STATUS_UNCLEAR, 'Rejected (unclear)'),
     (STATUS_NOT_USEFUL, 'Rejected (not useful)'),
     (STATUS_NOT_ACADEMIC, 'Rejected (not academic in style)')
+)
+
+CYCLE_DEFAULT = 'default'
+CYCLE_SHORT = 'short'
+CYCLE_DIRECT_REC = 'direct_rec'
+SUBMISSION_CYCLES = (
+    (CYCLE_DEFAULT, 'Default cycle'),
+    (CYCLE_SHORT, 'Short cycle'),
+    (CYCLE_DIRECT_REC, 'Direct editorial recommendation'),
 )

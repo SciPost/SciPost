@@ -8,7 +8,5 @@ class PublicationList(ListAPIView):
     """
     List all publications that are published.
     """
-    # def get_queryset(self, request, format=None):
     queryset = Publication.objects.published()
     serializer_class = PublicationSerializer
-        # return Response(serializer.data)

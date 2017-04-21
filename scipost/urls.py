@@ -13,19 +13,19 @@ JOURNAL_REGEX = '(?P<doi_string>%s)' % REGEX_CHOICES
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^base$', views.base, name='base'),
 
     # General use pages
     url(r'^error$', TemplateView.as_view(template_name='scipost/error.html'), name='error'),
     url(r'^acknowledgement$', TemplateView.as_view(template_name='scipost/acknowledgement.html'),
         name='acknowledgement'),
 
-    ## Info
+    # Info
     url(r'^about$', views.AboutView.as_view(), name='about'),
     url(r'^call$', TemplateView.as_view(template_name='scipost/call.html'), name='call'),
     url(r'^foundation$', TemplateView.as_view(template_name='scipost/foundation.html'),
         name='foundation'),
-    url(r'^tour$', TemplateView.as_view(template_name='scipost/quick_tour.html'), name='quick_tour'),
+    url(r'^tour$', TemplateView.as_view(template_name='scipost/quick_tour.html'),
+        name='quick_tour'),
     url(r'^FAQ$', TemplateView.as_view(template_name='scipost/FAQ.html'), name='FAQ'),
     url(r'^terms_and_conditions$',
         TemplateView.as_view(template_name='scipost/terms_and_conditions.html'),
@@ -34,8 +34,7 @@ urlpatterns = [
         name='privacy_policy'),
 
     # Feeds
-    url(r'^feeds$', views.feeds, #TemplateView.as_view(template_name='scipost/feeds.html'),
-        name='feeds'),
+    url(r'^feeds$', views.feeds, name='feeds'),
     url(r'^rss/news/$', LatestNewsFeedRSS()),
     url(r'^atom/news/$', LatestNewsFeedAtom()),
     url(r'^rss/comments/$', LatestCommentsFeedRSS()),
@@ -69,21 +68,17 @@ urlpatterns = [
     # Contributors:
     ################
 
-    ## Registration
+    # Registration
     url(r'^register$', views.register, name='register'),
     url(r'^thanks_for_registering$',
         TemplateView.as_view(template_name='scipost/thanks_for_registering.html'),
         name='thanks_for_registering'),
-    url(r'^activation/(?P<key>.+)$', views.activation, name='activation'),
-    url(r'^request_new_activation_link/(?P<oldkey>.+)$',
-        views.request_new_activation_link,
-        name='request_new_activation_link'),
-    url(r'^already_activated$',
-        TemplateView.as_view(template_name='scipost/already_activated.html'),
-        name='already_activated'),
-    url(r'^unsubscribe/(?P<key>.+)$', views.unsubscribe, name='unsubscribe'),
-    url(r'^unsubscribe_confirm/(?P<key>.+)$',
-        views.unsubscribe_confirm, name='unsubscribe_confirm'),
+    url(r'^activation/(?P<contributor_id>[0-9]+)/(?P<key>.+)/$',
+        views.activation, name='activation'),
+    url(r'^activation/(?P<contributor_id>[0-9]+)/(?P<key>.+)/renew$',
+        views.request_new_activation_link, name='request_new_activation_link'),
+    url(r'^unsubscribe/(?P<contributor_id>[0-9]+)/(?P<key>.+)$', views.unsubscribe,
+        name='unsubscribe'),
     url(r'^vet_registration_requests$',
         views.vet_registration_requests, name='vet_registration_requests'),
     url(r'^vet_registration_request_ack/(?P<contributor_id>[0-9]+)$',
@@ -116,11 +111,9 @@ urlpatterns = [
     url(r'^registration_invitation_sent$',
         TemplateView.as_view(template_name='scipost/registration_invitation_sent.html'),
         name='registration_invitation_sent'),
-    #url(r'^invitation/(?P<key>.+)$', views.accept_invitation, name='accept_invitation'),
+
+    # Registration invitations
     url(r'^invitation/(?P<key>.+)$', views.invitation, name='invitation'),
-    url(r'^accept_invitation_error$',
-        TemplateView.as_view(template_name='scipost/accept_invitation_error.html'),
-        name='accept_invitation_error'),
     url(r'^mark_draft_inv_as_processed/(?P<draft_id>[0-9]+)$',
         views.mark_draft_inv_as_processed, name='mark_draft_inv_as_processed'),
     url(r'^citation_notifications$',
@@ -128,7 +121,7 @@ urlpatterns = [
     url(r'^process_citation_notification/(?P<cn_id>[0-9]+)$',
         views.process_citation_notification, name='process_citation_notification'),
 
-    ## Authentication
+    # Authentication
     url(r'^login/$', views.login_view, name='login'),
     url(r'^logout$', views.logout_view, name='logout'),
     url(r'^personal_page$', views.personal_page, name='personal_page'),
@@ -139,7 +132,8 @@ urlpatterns = [
     url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
 
     # Unavailabilities
-    url(r'^mark_unavailable_period$', views.mark_unavailable_period, name='mark_unavailable_period'),
+    url(r'^mark_unavailable_period$', views.mark_unavailable_period,
+        name='mark_unavailable_period'),
 
     # Contributor info
     url(r'^(?P<contributor_id>[0-9]+)$', views.contributor_info, name="contributor_info"),

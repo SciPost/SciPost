@@ -1,19 +1,7 @@
-{% extends 'submissions/_submission_card_base.html' %}
+{% extends 'submissions/_submission_card_fellow_content_sparse.html' %}
 
 {% block card_block_footer %}
     {{block.super}}
-
-    <p class="card-text">by {{submission.author_list}}</p>
-    <p class="card-text text-muted">Version {{submission.arxiv_vn_nr}} ({% if submission.is_current %}current version{% else %}deprecated version {{submission.arxiv_vn_nr}}{% endif %})</p>
-    <p class="card-text text-muted">Submitted {{submission.submission_date}} to {{submission.get_submitted_to_journal_display}} - latest activity: {{submission.latest_activity}}</p>
-
-    <!-- Fellow specific info -->
-    {% if submission.status == 'unassigned' %}
-        <p class="card-text text-danger">Status: {{ submission.get_status_display }}. You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:volunteer_as_EIC' submission.arxiv_identifier_w_vn_nr %}">clicking here</a>.</p>
-    {% else %}
-        <p class="card-text">Editor-in-charge: <em>{{ submission.editor_in_charge }}</em></p>
-        <p class="card-text">Status: {{ submission.get_status_display }}</p>
-    {% endif %}
 
     {% include 'submissions/_submission_refereeing_status.html' with submission=submission %}
 {% endblock %}

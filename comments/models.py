@@ -1,11 +1,8 @@
 from django.db import models
 from django.shortcuts import get_object_or_404
 
-from commentaries.models import Commentary
 from scipost.behaviors import TimeStampedModel
 from scipost.models import Contributor
-from submissions.models import Submission, Report
-from theses.models import ThesisLink
 
 from .behaviors import validate_file_extension, validate_max_file_size
 from .constants import COMMENT_STATUS, STATUS_PENDING
@@ -17,28 +14,26 @@ class Comment(TimeStampedModel):
     on a particular publication or in reply to an earlier Comment. """
 
     status = models.SmallIntegerField(default=STATUS_PENDING, choices=COMMENT_STATUS)
-    vetted_by = models.ForeignKey(
-        Contributor,
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-        related_name='comment_vetted_by'
-    )
+    vetted_by = models.ForeignKey('scipost.Contributor', blank=True, null=True,
+                                  on_delete=models.CASCADE, related_name='comment_vetted_by')
     file_attachment = models.FileField(
         upload_to='uploads/comments/%Y/%m/%d/', blank=True,
         validators=[validate_file_extension, validate_max_file_size]
     )
     # a Comment is either for a Commentary or Submission or a ThesisLink.
-    commentary = models.ForeignKey(Commentary, blank=True, null=True, on_delete=models.CASCADE)
-    submission = models.ForeignKey(Submission, blank=True, null=True, on_delete=models.CASCADE)
-    thesislink = models.ForeignKey(ThesisLink, blank=True, null=True, on_delete=models.CASCADE)
+    commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True,
+                                   on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', blank=True, null=True,
+                                   on_delete=models.CASCADE, related_name='comments')
+    thesislink = models.ForeignKey('theses.ThesisLink', blank=True, null=True,
+                                   on_delete=models.CASCADE)
     is_author_reply = models.BooleanField(default=False)
     in_reply_to_comment = models.ForeignKey('self', blank=True, null=True,
                                             related_name="nested_comments",
                                             on_delete=models.CASCADE)
-    in_reply_to_report = models.ForeignKey(Report, blank=True, null=True,
+    in_reply_to_report = models.ForeignKey('submissions.Report', blank=True, null=True,
                                            on_delete=models.CASCADE)
-    author = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
     # Categories:
     is_cor = models.BooleanField(default=False, verbose_name='correction/erratum')

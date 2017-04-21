@@ -1,56 +1,51 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
 
 {% block pagetitle %}: edit draft reg inv{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'scipost:registration_invitations' %}" class="breadcrumb-item">Registration Invitations</a>
+    <span class="breadcrumb-item">Pool</span>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block content %}
 
 <script>
-  $(document).ready(function(){
+$(document).ready(function(){
 
-  switch ($('select#id_invitation_type').val()) {
-  case "ci":
-  $("#div_id_cited_in_submission").show();
-  $("#div_id_cited_in_publication").hide();
-  break;
-  case "cp":
-  $("#div_id_cited_in_submission").hide();
-  $("#div_id_cited_in_publication").show();
-  break;
-  default:
-  $("#div_id_cited_in_submission").hide();
-  $("#div_id_cited_in_publication").hide();
-  }
-
-  $('select#id_invitation_type').on('change', function() {
-    switch ($('select#id_invitation_type').val()) {
-      case "ci":
-        $("#div_id_cited_in_submission").show();
-        $("#div_id_cited_in_publication").hide();
-        break;
-      case "cp":
-        $("#div_id_cited_in_submission").hide();
-        $("#div_id_cited_in_publication").show();
-        break;
-      default:
-        $("#div_id_cited_in_submission").hide();
-        $("#div_id_cited_in_publication").hide();
-    }
-   });
-  });
+    $('#id_invitation_type').on('change', function() {
+        switch ($(this).val()) {
+            case "ci":
+                $("#id_cited_in_submission").parents('.form-group').show();
+                $("#id_cited_in_publication").parents('.form-group').hide();
+            break;
+            case "cp":
+                $("#id_cited_in_submission").parents('.form-group').hide();
+                $("#id_cited_in_publication").parents('.form-group').show();
+            break;
+            default:
+                $("#id_cited_in_submission").parents('.form-group').hide();
+                $("#id_cited_in_publication").parents('.form-group').hide();
+        }
+    }).trigger('change');
+});
 </script>
 
-<section>
-  <div class="flex-greybox">
-    <h1>Edit a draft registration invitation</h1>
-  </div>
-  {% if errormessage %}
-    <h3 style="color: red;">{{ errormessage }}</h3>
-  {% endif %}
-  <form action="{% url 'scipost:edit_draft_reg_inv' draft_id=draft.id %}" method="post">
-    {% csrf_token %}
-    {% load crispy_forms_tags %}
-    {% crispy draft_inv_form %}
-  </form>
-</section>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Edit a draft registration invitation</h1>
+        {% if errormessage %}
+            <h3 class="text-danger">{{ errormessage }}</h3>
+        {% endif %}
+        <form action="{% url 'scipost:edit_draft_reg_inv' draft_id=draft.id %}" method="post">
+            {% csrf_token %}
+            {{draft_inv_form.media}}
+            {{draft_inv_form|bootstrap}}
+            <input type="submit" class="btn btn-secondary">
+        </form>
+    </div>
+</div>
 
-{% endblock bodysup %}
+{% endblock content %}

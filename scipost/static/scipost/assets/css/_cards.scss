@@ -30,10 +30,12 @@
     line-height: 1.5;
 }
 
-.card.card-news {
-    .card-header {
+.card-news {
+    .news-item .card-title {
         background-color: $scipost-darkblue;
         color: $scipost-light;
+        padding: 0.5rem;
+        border-radius: 1.4px;
     }
 }
 
@@ -54,5 +56,16 @@
             margin: -0.5rem -0.75rem 0.5rem -0.75rem;
             padding: .75rem 0.75rem;
         }
+    }
+}
+
+.card.radio-option {
+    label {
+        cursor: pointer;
+    }
+
+    &.checked,
+    &:hover {
+        border-color: $scipost-darkblue;
     }
 }

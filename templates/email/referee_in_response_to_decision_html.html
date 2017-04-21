@@ -1,0 +1,19 @@
+<h3>Dear {{invitation.referee.get_title_display}} {{invitation.referee.user.last_name}},</h3>
+
+<p>
+    We hereby confirm your choice to {% if invitation.accepted %}accept{% else %}decline (due to reason: {{invitation.get_refusal_reason_display}}){% endif %} to referee Submission
+</p>
+<p>
+    "<span style="color: grey;">{{invitation.submission.title}} by {{invitation.submission.author_list}}</span>".
+</p>
+
+<p>
+    {% if invitation.accepted %}
+    Many thanks for your collaboration,
+    {% else %}
+    Nonetheless, we thank you very much for considering this refereeing invitation,
+    {% endif %}
+    The SciPost Team.
+</p>
+
+{% include 'email/_footer.html' %}
