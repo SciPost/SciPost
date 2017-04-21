@@ -1030,6 +1030,7 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
                                        submission=submission, to=request.user.contributor)
         assignment.completed = True
         assignment.save()
+        messages.success(request, 'Your Editorial Recommendation has been succesfully submitted')
         return redirect(reverse('submissions:editorial_page',
                                 kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
