@@ -32,7 +32,9 @@ class Command(BaseCommand):
         fieldnames = ['first_name', 'last_name', 'email_address']
 
         # Query
-        queryset = Contributor.objects.filter(user__is_active=True, status=CONTRIBUTOR_NORMAL)
+        queryset = Contributor.objects.filter(user__is_active=True,
+                                              status=CONTRIBUTOR_NORMAL,
+                                              accepts_SciPost_emails=True)
         if kwargs['group']:
             queryset = queryset.filter(user__groups__name=kwargs['group'])
 
