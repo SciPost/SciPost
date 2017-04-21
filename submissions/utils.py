@@ -283,9 +283,11 @@ class SubmissionUtils(BaseMailUtil):
         Requires context to contain:
         - `invitation`
         """
+        extra_bcc_list = [cls._context['invitation'].submission.editor_in_charge.user.email]
         cls._send_mail(cls, 'submission_cycle_reinvite_referee',
                        [cls._context['invitation'].email_address],
-                       'Invitation on resubmission')
+                       'Invitation on resubmission',
+                       extra_bcc=extra_bcc_list)
 
 
     @classmethod

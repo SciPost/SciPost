@@ -13,7 +13,7 @@ class BaseMailUtil(object):
         for var_name in _dict:
             setattr(cls, var_name, _dict[var_name])
 
-    def _send_mail(cls, template_name, recipients, subject):
+    def _send_mail(cls, template_name, recipients, subject, extra_bcc=None):
         """
         Call this method from a classmethod to send emails.
         The template will have context variables defined appended from the `load` method.
@@ -30,12 +30,15 @@ class BaseMailUtil(object):
         html_template = loader.get_template('email/%s_html.html' % template_name)
         message = template.render(Context(cls._context))
         html_message = html_template.render(Context(cls._context))
+        bcc_list = [cls.mail_sender]
+        if extra_bcc:
+            bcc_list += extra_bcc
         email = EmailMultiAlternatives(
             'SciPost: ' + subject,  # message,
             message,
             '%s <%s>' % (cls.mail_sender_title, cls.mail_sender),
             recipients,
-            bcc=[cls.mail_sender],
+            bcc=bcc_list,
             reply_to=[cls.mail_sender])
         email.attach_alternative(html_message, 'text/html')
         email.send(fail_silently=False)
