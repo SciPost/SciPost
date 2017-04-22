@@ -86,7 +86,7 @@ def documentsSearchResults(query):
     Naive implementation based on exact match of query.
     NEEDS UPDATING with e.g. Haystack.
     """
-    publication_query = get_query(query, ['title', 'author_list', 'abstract', 'doi_string'])
+    publication_query = get_query(query, ['title', 'author_list', 'abstract', 'doi_label'])
     commentary_query = get_query(query, ['pub_title', 'author_list', 'pub_abstract'])
     submission_query = get_query(query, ['title', 'author_list', 'abstract'])
     thesislink_query = get_query(query, ['title', 'author', 'abstract', 'supervisor'])

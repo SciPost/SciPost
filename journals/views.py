@@ -30,8 +30,8 @@ from guardian.decorators import permission_required
 # Journals
 ############
 
-def landing_page(request, doi_string):
-    journal = get_object_or_404(Journal, doi_string=doi_string)
+def landing_page(request, doi_label):
+    journal = get_object_or_404(Journal, doi_label=doi_label)
 
     current_issue = Issue.objects.published(
         in_volume__in_journal=journal,
@@ -56,8 +56,8 @@ def landing_page(request, doi_string):
     return render(request, 'journals/journal_landing_page.html', context)
 
 
-def issues(request, doi_string):
-    journal = get_object_or_404(Journal, doi_string=doi_string)
+def issues(request, doi_label):
+    journal = get_object_or_404(Journal, doi_label=doi_label)
 
     issues = Issue.objects.published(in_volume__in_journal=journal).order_by('-until_date')
     context = {
@@ -67,11 +67,11 @@ def issues(request, doi_string):
     return render(request, 'journals/journal_issues.html', context)
 
 
-def recent(request, doi_string):
+def recent(request, doi_label):
     """
     Display page for the most recent 20 publications in SciPost Physics.
     """
-    journal = get_object_or_404(Journal, doi_string=doi_string)
+    journal = get_object_or_404(Journal, doi_label=doi_label)
     recent_papers = Publication.objects.published(
         in_issue__in_volume__in_journal=journal).order_by('-publication_date')[:20]
     context = {
@@ -81,12 +81,12 @@ def recent(request, doi_string):
     return render(request, 'journals/journal_recent.html', context)
 
 
-def accepted(request, doi_string):
+def accepted(request, doi_label):
     """
     Display page for submissions to SciPost Physics which
     have been accepted but are not yet published.
     """
-    journal = get_object_or_404(Journal, doi_string=doi_string)
+    journal = get_object_or_404(Journal, doi_label=doi_label)
     accepted_SP_submissions = Submission.objects.filter(
         submitted_to_journal=journal.name, status='accepted'
     ).order_by('-latest_activity')
@@ -97,24 +97,24 @@ def accepted(request, doi_string):
     return render(request, 'journals/journal_accepted.html', context)
 
 
-def info_for_authors(request, doi_string):
-    journal = get_object_or_404(Journal, doi_string=doi_string)
+def info_for_authors(request, doi_label):
+    journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
         'journal': journal
     }
-    return render(request, 'journals/%s_info_for_authors.html' % doi_string, context)
+    return render(request, 'journals/%s_info_for_authors.html' % doi_label, context)
 
 
-def about(request, doi_string):
-    journal = get_object_or_404(Journal, doi_string=doi_string)
+def about(request, doi_label):
+    journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
         'journal': journal
     }
-    return render(request, 'journals/%s_about.html' % doi_string, context)
+    return render(request, 'journals/%s_about.html' % doi_label, context)
 
 
-def issue_detail(request, doi_string):
-    issue = Issue.objects.get_published(doi_string=doi_string)
+def issue_detail(request, doi_label):
+    issue = Issue.objects.get_published(doi_label=doi_label)
     journal = issue.in_volume.in_journal
 
     papers = issue.publication_set.order_by('paper_nr')
@@ -207,7 +207,6 @@ def initiate_publication(request):
                 'abstract': submission.abstract,
                 'BiBTeX_entry': BiBTeX_entry,
                 'doi_label': doi_label,
-                'doi_string': doi_string,
                 'submission_date': initiate_publication_form.cleaned_data['original_submission_date'],
                 'acceptance_date': initiate_publication_form.cleaned_data['acceptance_date'],
                 'publication_date': timezone.now(),
@@ -238,45 +237,42 @@ def validate_publication(request):
     # TODO: create metadata
     # TODO: set DOI, register with Crossref
     # TODO: add funding info
-    if request.method == 'POST':
-        validate_publication_form = ValidatePublicationForm(request.POST, request.FILES)
-        if validate_publication_form.is_valid():
-            publication = validate_publication_form.save()
-            # Fill in remaining data
-            publication.pdf_file = request.FILES['pdf_file']
-            submission = publication.accepted_submission
-            publication.authors.add(*submission.authors.all())
-            publication.authors_claims.add(*submission.authors_claims.all())
-            publication.authors_false_claims.add(*submission.authors_false_claims.all())
-            publication.save()
-            # Move file to final location
-            initial_path = publication.pdf_file.path
-            new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-                       + publication.get_paper_nr())
-            new_path = new_dir + '/' + publication.doi_string.replace('.', '_') + '.pdf'
-            os.makedirs(new_dir)
-            os.rename(initial_path, new_path)
-            publication.pdf_file.name = new_path
-            publication.save()
-            # Mark the submission as having been published:
-            publication.accepted_submission.published_as = publication
-            publication.accepted_submission.status = 'published'
-            publication.accepted_submission.save()
-            # TODO: Create a Commentary Page
-            # Email authors
-            JournalUtils.load({'publication': publication})
-            JournalUtils.send_authors_paper_published_email()
-            ack_header = 'The publication has been validated.'
-            context = {'ack_header': ack_header, }
-            return render(request, 'scipost/acknowledgement.html', context)
-        else:
-            errormessage = 'The form was invalid.'
-            context = {'validate_publication_form': validate_publication_form,
-                       'errormessage': errormessage}
-            return render(request, 'journals/validate_publication.html', context)
+    context = {}
+    validate_publication_form = ValidatePublicationForm(request.POST or None,
+                                                        request.FILES or None)
+    if validate_publication_form.is_valid():
+        publication = validate_publication_form.save()
+        # Fill in remaining data
+        publication.pdf_file = request.FILES['pdf_file']
+        submission = publication.accepted_submission
+        publication.authors.add(*submission.authors.all())
+        publication.authors_claims.add(*submission.authors_claims.all())
+        publication.authors_false_claims.add(*submission.authors_false_claims.all())
+        publication.save()
+        # Move file to final location
+        initial_path = publication.pdf_file.path
+        new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+                   + publication.get_paper_nr())
+        new_path = new_dir + '/' + publication.doi_label.replace('.', '_') + '.pdf'
+        os.makedirs(new_dir)
+        os.rename(initial_path, new_path)
+        publication.pdf_file.name = new_path
+        publication.save()
+        # Mark the submission as having been published:
+        publication.accepted_submission.published_as = publication
+        publication.accepted_submission.status = 'published'
+        publication.accepted_submission.save()
+        # TODO: Create a Commentary Page
+        # Email authors
+        JournalUtils.load({'publication': publication})
+        JournalUtils.send_authors_paper_published_email()
+        ack_header = 'The publication has been validated.'
+        context['ack_header'] = ack_header
+        return render(request, 'scipost/acknowledgement.html', context)
     else:
-        validate_publication_form = ValidatePublicationForm()
-    context = {'validate_publication_form': validate_publication_form}
+        context['errormessage'] = 'The form was invalid.'
+
+    context['validate_publication_form'] = validate_publication_form
     return render(request, 'journals/validate_publication.html', context)
 
 
@@ -373,13 +369,13 @@ def add_new_unreg_author(request, publication_id):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
-def create_citation_list_metadata(request, doi_string):
+def create_citation_list_metadata(request, doi_label):
     """
     Called by an Editorial Administrator.
     This populates the citation_list dictionary entry
     in the metadata field in a Publication instance.
     """
-    publication = get_object_or_404(Publication, doi_string=doi_string)
+    publication = get_object_or_404(Publication, doi_label=doi_label)
     if request.method == 'POST':
         bibitems_form = CitationListBibitemsForm(request.POST, request.FILES)
         if bibitems_form.is_valid():
@@ -405,13 +401,13 @@ def create_citation_list_metadata(request, doi_string):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
-def create_funding_info_metadata(request, doi_string):
+def create_funding_info_metadata(request, doi_label):
     """
     Called by an Editorial Administrator.
     This populates the funding_info dictionary entry
     in the metadata field in a Publication instance.
     """
-    publication = get_object_or_404(Publication, doi_string=doi_string)
+    publication = get_object_or_404(Publication, doi_label=doi_label)
     if request.method == 'POST':
         funding_info_form = FundingInfoForm(request.POST)
         if funding_info_form.is_valid():
@@ -435,14 +431,14 @@ def create_funding_info_metadata(request, doi_string):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
-def create_metadata_xml(request, doi_string):
+def create_metadata_xml(request, doi_label):
     """
     To be called by an EdAdmin after the citation_list,
     funding_info entries have been filled.
     Populates the metadata_xml field of a Publication instance.
     The contents can then be sent to Crossref for registration.
     """
-    publication = get_object_or_404(Publication, doi_string=doi_string)
+    publication = get_object_or_404(Publication, doi_label=doi_label)
 
     if request.method == 'POST':
         create_metadata_xml_form = CreateMetadataXMLForm(request.POST)
@@ -485,9 +481,9 @@ def create_metadata_xml(request, doi_string):
         '</abbrev_title>\n'
         '<issn>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
         '<doi_data>\n'
-        '<doi>' + publication.in_issue.in_volume.in_journal.complete_doi_string + '</doi>\n'
+        '<doi>' + publication.in_issue.in_volume.in_journal.doi_string + '</doi>\n'
         '<resource>https://scipost.org/'
-        + publication.in_issue.in_volume.in_journal.complete_doi_string + '</resource>\n'
+        + publication.in_issue.in_volume.in_journal.doi_string + '</resource>\n'
         '</doi_data>\n'
         '</journal_metadata>\n'
         '<journal_issue>\n'
@@ -548,12 +544,12 @@ def create_metadata_xml(request, doi_string):
         + paper_nr_string(publication.paper_nr) +
         '</item_number></publisher_item>\n'
         '<doi_data>\n'
-        '<doi>' + publication.complete_doi_string + '</doi>\n'
-        '<resource>https://scipost.org/' + publication.complete_doi_string + '</resource>\n'
+        '<doi>' + publication.doi_string + '</doi>\n'
+        '<resource>https://scipost.org/' + publication.doi_string + '</resource>\n'
         '<collection property="crawler-based">\n'
         '<item crawler="iParadigms">\n'
         '<resource>https://scipost.org/'
-        + publication.complete_doi_string + '/pdf</resource>\n'
+        + publication.doi_string + '/pdf</resource>\n'
         '</item></collection>\n'
         '</doi_data>\n'
     )
@@ -584,13 +580,13 @@ def create_metadata_xml(request, doi_string):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
-def metadata_xml_deposit(request, doi_string, option='test'):
+def metadata_xml_deposit(request, doi_label, option='test'):
     """
     Crossref metadata deposit.
     If test==True, test the metadata_xml using the Crossref test server.
     Makes use of the python requests module.
     """
-    publication = get_object_or_404(Publication, doi_string=doi_string)
+    publication = get_object_or_404(Publication, doi_label=doi_label)
     if option == 'deposit':
         url = 'http://doi.crossref.org/servlet/deposit'
     elif option == 'test':
@@ -622,8 +618,8 @@ def metadata_xml_deposit(request, doi_string, option='test'):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
-def harvest_citedby_links(request, doi_string):
-    publication = get_object_or_404(Publication, doi_string=doi_string)
+def harvest_citedby_links(request, doi_label):
+    publication = get_object_or_404(Publication, doi_label=doi_label)
     # create a doi_batch_id
     salt = ""
     for i in range(5):
@@ -643,7 +639,7 @@ def harvest_citedby_links(request, doi_string):
                  '</head>'
                  '<body>'
                  '<fl_query alert="false">'
-                 '<doi>' + publication.complete_doi_string + '</doi>'
+                 '<doi>' + publication.doi_string + '</doi>'
                  '</fl_query>'
                  '</body>'
                  '</query_batch>')
@@ -651,7 +647,7 @@ def harvest_citedby_links(request, doi_string):
     params = {'usr': settings.CROSSREF_LOGIN_ID,
               'pwd': settings.CROSSREF_LOGIN_PASSWORD,
               'qdata': query_xml,
-              'doi': publication.complete_doi_string, }
+              'doi': publication.doi_string, }
     r = requests.post(url, params=params,)
     response_headers = r.headers
     response_text = r.text
@@ -710,8 +706,8 @@ def harvest_citedby_links(request, doi_string):
 # Viewing #
 ###########
 
-def publication_detail(request, doi_string):
-    publication = Publication.objects.get_published(doi_string=doi_string)
+def publication_detail(request, doi_label):
+    publication = Publication.objects.get_published(doi_label=doi_label)
     journal = publication.in_issue.in_volume.in_journal
 
     context = {
@@ -721,9 +717,9 @@ def publication_detail(request, doi_string):
     return render(request, 'journals/publication_detail.html', context)
 
 
-def publication_detail_pdf(request, doi_string):
-    publication = Publication.objects.get_published(doi_string=doi_string)
+def publication_detail_pdf(request, doi_label):
+    publication = Publication.objects.get_published(doi_label=doi_label)
     response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = ('filename='
-                                       + publication.doi_string.replace('.', '_') + '.pdf')
+                                       + publication.doi_label.replace('.', '_') + '.pdf')
     return response

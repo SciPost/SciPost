@@ -21,7 +21,7 @@ from ajax_select import urls as ajax_select_urls
 
 from journals.constants import REGEX_CHOICES
 
-JOURNAL_REGEX = '(?P<doi_string>%s)' % REGEX_CHOICES
+JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
 
 urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
