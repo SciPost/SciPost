@@ -3,7 +3,8 @@ Dear {{report.submission.editor_in_charge.get_title_display}} {{report.submissio
 Referee {{report.author.get_title_display}} {{report.author.user.last_name}} has delivered a Report for Submission "{{report.submission.title}} by {{report.submission.author_list}}".
 \n\n
 
-Please vet this Report via your <a href="{% url 'scipost:personal_page' %}">personal page</a> under the Editorial Actions tab.
+Please vet this Report via your personal page under the Editorial Actions tab.\n
+{{request.get_host}}{% url 'scipost:personal_page' %}
 \n\n\n
 
 Many thanks in advance for your collaboration,\n

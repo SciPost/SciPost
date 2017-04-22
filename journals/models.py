@@ -27,7 +27,7 @@ class UnregisteredAuthor(models.Model):
 class Journal(models.Model):
     name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS, unique=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
-                                  validators=[doi_journal_validator])
+                                 validators=[doi_journal_validator])
     issn = models.CharField(max_length=16, default='2542-4653')
     active = models.BooleanField(default=True)
 
@@ -51,7 +51,7 @@ class Volume(models.Model):
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
-                                  validators=[doi_volume_validator])
+                                 validators=[doi_volume_validator])
 
     class Meta:
         unique_together = ('number', 'in_journal')
