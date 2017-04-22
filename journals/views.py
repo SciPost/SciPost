@@ -253,7 +253,7 @@ def validate_publication(request):
             initial_path = publication.pdf_file.path
             new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
                        + publication.get_paper_nr())
-            new_path = new_dir + '/' + publication.complete_doi_string.replace('.', '_') + '.pdf'
+            new_path = new_dir + '/' + publication.doi_string.replace('.', '_') + '.pdf'
             os.makedirs(new_dir)
             os.rename(initial_path, new_path)
             publication.pdf_file.name = new_path
