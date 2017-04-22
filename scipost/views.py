@@ -1075,7 +1075,7 @@ def contributor_info(request, contributor_id):
     Contributor's activities/contributions by clicking
     on the relevant name (in listing headers of Submissions, ...).
     """
-    contributor = Contributor.objects.get(pk=contributor_id)
+    contributor = get_object_or_404(Contributor, pk=contributor_id)
     contributor_publications = Publication.objects.published().filter(authors=contributor)
     contributor_submissions = Submission.objects.public().filter(authors=contributor)
     contributor_commentaries = Commentary.objects.filter(authors=contributor)
