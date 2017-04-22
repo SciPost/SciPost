@@ -237,45 +237,42 @@ def validate_publication(request):
     # TODO: create metadata
     # TODO: set DOI, register with Crossref
     # TODO: add funding info
-    if request.method == 'POST':
-        validate_publication_form = ValidatePublicationForm(request.POST, request.FILES)
-        if validate_publication_form.is_valid():
-            publication = validate_publication_form.save()
-            # Fill in remaining data
-            publication.pdf_file = request.FILES['pdf_file']
-            submission = publication.accepted_submission
-            publication.authors.add(*submission.authors.all())
-            publication.authors_claims.add(*submission.authors_claims.all())
-            publication.authors_false_claims.add(*submission.authors_false_claims.all())
-            publication.save()
-            # Move file to final location
-            initial_path = publication.pdf_file.path
-            new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-                       + publication.get_paper_nr())
-            new_path = new_dir + '/' + publication.doi_string.replace('.', '_') + '.pdf'
-            os.makedirs(new_dir)
-            os.rename(initial_path, new_path)
-            publication.pdf_file.name = new_path
-            publication.save()
-            # Mark the submission as having been published:
-            publication.accepted_submission.published_as = publication
-            publication.accepted_submission.status = 'published'
-            publication.accepted_submission.save()
-            # TODO: Create a Commentary Page
-            # Email authors
-            JournalUtils.load({'publication': publication})
-            JournalUtils.send_authors_paper_published_email()
-            ack_header = 'The publication has been validated.'
-            context = {'ack_header': ack_header, }
-            return render(request, 'scipost/acknowledgement.html', context)
-        else:
-            errormessage = 'The form was invalid.'
-            context = {'validate_publication_form': validate_publication_form,
-                       'errormessage': errormessage}
-            return render(request, 'journals/validate_publication.html', context)
+    context = {}
+    validate_publication_form = ValidatePublicationForm(request.POST or None,
+                                                        request.FILES or None)
+    if validate_publication_form.is_valid():
+        publication = validate_publication_form.save()
+        # Fill in remaining data
+        publication.pdf_file = request.FILES['pdf_file']
+        submission = publication.accepted_submission
+        publication.authors.add(*submission.authors.all())
+        publication.authors_claims.add(*submission.authors_claims.all())
+        publication.authors_false_claims.add(*submission.authors_false_claims.all())
+        publication.save()
+        # Move file to final location
+        initial_path = publication.pdf_file.path
+        new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+                   + publication.get_paper_nr())
+        new_path = new_dir + '/' + publication.doi_label.replace('.', '_') + '.pdf'
+        os.makedirs(new_dir)
+        os.rename(initial_path, new_path)
+        publication.pdf_file.name = new_path
+        publication.save()
+        # Mark the submission as having been published:
+        publication.accepted_submission.published_as = publication
+        publication.accepted_submission.status = 'published'
+        publication.accepted_submission.save()
+        # TODO: Create a Commentary Page
+        # Email authors
+        JournalUtils.load({'publication': publication})
+        JournalUtils.send_authors_paper_published_email()
+        ack_header = 'The publication has been validated.'
+        context['ack_header'] = ack_header
+        return render(request, 'scipost/acknowledgement.html', context)
     else:
-        validate_publication_form = ValidatePublicationForm()
-    context = {'validate_publication_form': validate_publication_form}
+        context['errormessage'] = 'The form was invalid.'
+
+    context['validate_publication_form'] = validate_publication_form
     return render(request, 'journals/validate_publication.html', context)
 
 
