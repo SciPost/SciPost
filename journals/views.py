@@ -475,7 +475,7 @@ def create_metadata_xml(request, doi_label):
         '<body>\n'
         '<journal>\n'
         '<journal_metadata>\n'
-        '<full_title>' + publication.in_issue.in_volume.in_journal.name + '</full_title>\n'
+        '<full_title>' + publication.in_issue.in_volume.in_journal.get_name_display() + '</full_title>\n'
         '<abbrev_title>'
         + publication.in_issue.in_volume.in_journal.get_abbreviation_citation() +
         '</abbrev_title>\n'
