@@ -63,6 +63,7 @@ urlpatterns = [
         views.set_refereeing_deadline, name='set_refereeing_deadline'),
     url(r'^close_refereeing_round/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
         views.close_refereeing_round, name='close_refereeing_round'),
+    url(r'^refereeing_overview$', views.refereeing_overview, name='refereeing_overview'),
     url(r'^communication/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/(?P<comtype>[a-zA-Z]{4,})$',
         views.communication, name='communication'),
     url(r'^communication/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/(?P<comtype>[a-zA-Z]{4,})/(?P<referee_id>[0-9]+)$',
