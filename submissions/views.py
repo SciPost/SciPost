@@ -930,6 +930,14 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
 
+@permission_required('scipost.can_oversee_refereeing', raise_exception=True)
+def refereeing_overview(request):
+    submissions_under_refereeing = Submission.objects.filter(
+        status='EICassigned').order_by('submission_date')
+    context= {'submissions_under_refereeing': submissions_under_refereeing,}
+    return render(request, 'submissions/refereeing_overview.html', context)
+
+
 @login_required
 def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
     """

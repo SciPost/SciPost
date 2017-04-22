@@ -1,0 +1,45 @@
+{% extends 'submissions/_pool_base.html' %}
+
+{% block pagetitle %}: overview of refereeing{% endblock pagetitle %}
+
+{% load scipost_extras %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'scipost:personal_page' %}" class="breadcrumb-item">Personal page</a>
+    <span class="breadcrumb-item">Refereeing overview</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class="card-block">
+                <h1>Refereeing overview</h1>
+	    </div>
+	</div>
+    </div>
+</div>
+
+{% for submission in submissions_under_refereeing %}
+
+<hr/>
+<div class="row">
+  <div class="col-12">
+    <h3>{{ submission.title }}</h3>
+    <p>{{ submission.author_list }}</p>
+    <h4>Refereeing deadline: {{ submission.reporting_deadline }}</h4>
+    <h4>Refereeing status summary:</h4>
+    {% include 'submissions/_submission_refereeing_status.html' with submission=submission %}
+    <h3 class="mb-2">Detail of refereeing invitations:</h3>
+    {% include 'submissions/_submission_refereeing_invitations.html' with submission=submission invitations=ref_invitations %}
+  </div>
+</div>
+
+{% endfor %}
+
+
+
+{% endblock content %}
