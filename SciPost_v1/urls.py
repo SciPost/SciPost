@@ -31,7 +31,6 @@ urlpatterns = [
     url(r'^10.21468/%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
     url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
     url(r'^', include('scipost.urls', namespace="scipost")),
-    url(r'^contributor/', include('scipost.urls', namespace="scipost")),
     url(r'^commentaries/', include('commentaries.urls', namespace="commentaries")),
     url(r'^commentary/', include('commentaries.urls', namespace="commentaries")),
     url(r'^comments/', include('comments.urls', namespace="comments")),

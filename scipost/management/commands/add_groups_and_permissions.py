@@ -132,6 +132,10 @@ class Command(BaseCommand):
             codename='can_referee',
             name='Can act as a referee and submit reports on Submissions',
             content_type=content_type)
+        can_oversee_refereeing, created = Permission.objects.get_or_create(
+            codename='can_oversee_refereeing',
+            name='Can oversee refereeing',
+            content_type=content_type)
 
         # Voting
         can_prepare_recommendations_for_voting, created = Permission.objects.get_or_create(
@@ -178,6 +182,7 @@ class Command(BaseCommand):
         EditorialAdmin.permissions.add(
             can_view_pool,
             can_assign_submissions,
+            can_oversee_refereeing,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
             can_publish_accepted_submission,

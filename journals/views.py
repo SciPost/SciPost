@@ -475,7 +475,7 @@ def create_metadata_xml(request, doi_label):
         '<body>\n'
         '<journal>\n'
         '<journal_metadata>\n'
-        '<full_title>' + publication.in_issue.in_volume.in_journal.name + '</full_title>\n'
+        '<full_title>' + publication.in_issue.in_volume.in_journal.get_name_display() + '</full_title>\n'
         '<abbrev_title>'
         + publication.in_issue.in_volume.in_journal.get_abbreviation_citation() +
         '</abbrev_title>\n'
@@ -649,6 +649,10 @@ def harvest_citedby_links(request, doi_label):
               'qdata': query_xml,
               'doi': publication.doi_string, }
     r = requests.post(url, params=params,)
+    if r.status_code == 401:
+        messages.warning(request, ('<h3>Crossref credentials are invalid.</h3>'
+                                   'Please contact the SciPost Admin.'))
+        return redirect(publication.get_absolute_url())
     response_headers = r.headers
     response_text = r.text
     response_deserialized = ET.fromstring(r.text)

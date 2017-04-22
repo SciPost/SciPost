@@ -136,7 +136,7 @@ urlpatterns = [
         name='mark_unavailable_period'),
 
     # Contributor info
-    url(r'^(?P<contributor_id>[0-9]+)$', views.contributor_info, name="contributor_info"),
+    url(r'^contributor/(?P<contributor_id>[0-9]+)$', views.contributor_info, name="contributor_info"),
 
     # Authorship claims
     url(r'^claim_authorships$', views.claim_authorships, name="claim_authorships"),

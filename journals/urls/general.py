@@ -1,12 +1,13 @@
 from django.conf.urls import url
-
-from django.views.generic import TemplateView
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, RedirectView
 
 from journals import views as journals_views
 
 urlpatterns = [
     # Journals
     url(r'^$', TemplateView.as_view(template_name='journals/journals.html'), name='journals'),
+    url(r'scipost_physics', RedirectView.as_view(url=reverse_lazy('scipost:landing_page', args=['SciPostPhys']))),
     url(r'^journals_terms_and_conditions$',
         TemplateView.as_view(template_name='journals/journals_terms_and_conditions.html'),
         name='journals_terms_and_conditions'),
