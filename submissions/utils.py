@@ -94,12 +94,13 @@ class BaseSubmissionCycle:
 
         return True
 
-    def reinvite_referees(self, referees):
+    def reinvite_referees(self, referees, request=None):
         """
         Reinvite referees if allowed. This method does not check if it really is
-        an reinvitation or just a new invitation.
+        a reinvitation or just a new invitation.
         """
         if self.may_reinvite_referees:
+            SubmissionUtils.load({'submission': self.submission})
             for referee in referees:
                 invitation = referee
                 invitation.pk = None  # Duplicate, do not remove the old invitation
@@ -107,6 +108,8 @@ class BaseSubmissionCycle:
                 invitation.reset_content()
                 invitation.date_invited = timezone.now()
                 invitation.save()
+                SubmissionUtils.load({'invitation': invitation}, request)
+                SubmissionUtils.reinvite_referees_email()
 
     def update_deadline(self, period=None):
         delta_d = period or self.default_days
@@ -271,6 +274,21 @@ class SubmissionUtils(BaseMailUtil):
         for atd in assignments_to_deprecate:
             atd.deprecated = True
             atd.save()
+
+    @classmethod
+    def reinvite_referees_email(cls):
+        """
+        Email to be sent to referees when they are being reinvited by the EIC.
+
+        Requires context to contain:
+        - `invitation`
+        """
+        extra_bcc_list = [cls._context['invitation'].submission.editor_in_charge.user.email]
+        cls._send_mail(cls, 'submission_cycle_reinvite_referee',
+                       [cls._context['invitation'].email_address],
+                       'Invitation on resubmission',
+                       extra_bcc=extra_bcc_list)
+
 
     @classmethod
     def send_authors_submission_ack_email(cls):
@@ -490,7 +508,7 @@ class SubmissionUtils(BaseMailUtil):
                       'Submission Page; you will be informed by email of any such Report or '
                       'Comment being delivered). In order to facilitate the work of the '
                       'Editorial College, we recommend limiting these replies to short '
-                      'to-the-point clarifications of any issue raised on your manuscript.\n\n '
+                      'to-the-point clarifications of any issue raised on your manuscript.\n\n'
                       'Please wait for the Editor-in-charge\'s Editorial Recommendation '
                       'before any resubmission of your manuscript.'
                       '\n\nTo facilitate metadata handling, we recommend that all authors '

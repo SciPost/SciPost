@@ -9,7 +9,7 @@
 
 {% if not invitation.accepted %}
     <p>
-        Please invite another referee from the Submission's <a href="{% url 'submissions:editorial_page' invitation.submission.arxiv_identifier_w_vn_nr %}">editorial page</a>.
+        Please invite another referee from the Submission's <a href="{{request.get_host}}{% url 'submissions:editorial_page' invitation.submission.arxiv_identifier_w_vn_nr %}">editorial page</a>.
     </p>
 {% endif %}
 
