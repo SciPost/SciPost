@@ -1,12 +1,38 @@
+import re
+
 from django.test import TestCase
 
 from common.helpers import model_form_data
 from scipost.factories import UserFactory
 
 from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory
-from .forms import RequestCommentaryForm, VetCommentaryForm
+from .forms import RequestCommentaryForm, VetCommentaryForm, DOIToQueryForm
 from .models import Commentary
+from common.helpers import model_form_data
 from common.helpers.test import add_groups_and_permissions
+
+class TestDOIToQueryForm(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+        doi_string = "10.21468/SciPostPhys.2.2.010"
+        self.valid_form_data = {'doi': doi_string}
+
+    def test_valid_doi_is_valid(self):
+        form = DOIToQueryForm(self.valid_form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_doi_is_invalid(self):
+        invalid_data = {'doi': 'blablab'}
+        form = DOIToQueryForm(invalid_data)
+        self.assertFalse(form.is_valid())
+
+    def test_doi_that_already_has_commentary_page_is_invalid(self):
+        unvetted_commentary = UnvettedCommentaryFactory()
+        invalid_data = {'doi': unvetted_commentary.pub_DOI}
+        form = DOIToQueryForm(invalid_data)
+        self.assertFalse(form.is_valid())
+        error_message = form.errors['doi'][0]
+        self.assertRegexpMatches(error_message, re.compile('already exist'))
 
 
 class TestVetCommentaryForm(TestCase):
@@ -19,6 +45,7 @@ class TestVetCommentaryForm(TestCase):
             'refusal_reason': VetCommentaryForm.REFUSAL_EMPTY,
             'email_response_field': 'Lorem Ipsum'
         }
+
 
     def test_valid_accepted_form(self):
         """Test valid form data and return Commentary"""
