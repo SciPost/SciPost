@@ -217,7 +217,7 @@ class Utils(BaseMailUtil):
         email_text_html += ',<br/>'
         if len(cls.invitation.personal_message) > 3:
             email_text += cls.invitation.personal_message + '\n\n'
-            email_text_html += '\n<i>{{ personal_message|linebreaks }}</i><br/>\n'
+            email_text_html += '\n{{ personal_message|linebreaks }}<br/>\n'
             email_context['personal_message'] = cls.invitation.personal_message
 
         # This text to be put in C, ci invitations
