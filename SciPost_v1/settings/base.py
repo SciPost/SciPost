@@ -87,6 +87,7 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'journals',
+    'mailchimp',
     'news',
     'scipost',
     'submissions',
@@ -227,6 +228,7 @@ WEBPACK_LOADER = {
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = 'local_files/email/'
+MAILCHIMP_API_KEY = 'test_API-key'
 
 # Own settings
 JOURNALS_DIR = 'journals'
