@@ -5,10 +5,12 @@ from django.core.exceptions import ValidationError
 
 from .models import ThesisLink
 from .factories import ThesisLinkFactory
+from common.helpers.test import add_groups_and_permissions
 
 
 class ThesisLinkTestCase(TestCase):
-    fixtures = ['permissions', 'groups']
+    def setUp(self):
+        add_groups_and_permissions()
 
     def test_domain_cannot_be_blank(self):
         thesis_link = ThesisLinkFactory()

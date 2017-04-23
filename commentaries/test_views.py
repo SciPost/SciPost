@@ -7,11 +7,13 @@ from scipost.factories import ContributorFactory
 from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory
 from .forms import CommentarySearchForm
 from .models import Commentary
+from common.helpers.test import add_groups_and_permissions
 
 
 class RequestCommentaryTest(TestCase):
     """Test cases for `request_commentary` view method"""
-    fixtures = ['permissions', 'groups', 'contributors']
+    def setUp(self):
+        add_groups_and_permissions()
 
     def setUp(self):
         self.view_url = reverse('commentaries:request_commentary')
@@ -38,9 +40,9 @@ class RequestCommentaryTest(TestCase):
 
 class VetCommentaryRequestsTest(TestCase):
     """Test cases for `vet_commentary_requests` view method"""
-    fixtures = ['groups', 'permissions']
 
     def setUp(self):
+        add_groups_and_permissions()
         self.view_url = reverse('commentaries:vet_commentary_requests')
         self.login_url = reverse('scipost:login')
         self.password = 'test123'
@@ -90,9 +92,9 @@ class VetCommentaryRequestsTest(TestCase):
 
 class BrowseCommentariesTest(TestCase):
     """Test cases for `browse` view."""
-    fixtures = ['groups', 'permissions']
 
     def setUp(self):
+        add_groups_and_permissions()
         VettedCommentaryFactory(discipline='physics')
         self.view_url = reverse('commentaries:browse', kwargs={
             'discipline': 'physics',
@@ -111,9 +113,8 @@ class BrowseCommentariesTest(TestCase):
 
 
 class CommentaryDetailTest(TestCase):
-    fixtures = ['permissions', 'groups']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.client = Client()
         self.commentary = UnpublishedVettedCommentaryFactory()
         self.target = reverse(
