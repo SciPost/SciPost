@@ -158,8 +158,16 @@ To build the documentation, run:
 After this, generated documentation should be available in `docs/_build/html`.
 
 ## Writing tests
-It is recommended, when writing tests, to use the `ContributorFactory` located in `scipost.factories`. This will automatically generate a related user with Registered Contributor membership. You may probably need to use the fixture list `["permissions", "groups"]` in your tests make sure the permissions groups are working properly.
-It is recommended, when writing tests for new models, to make use of ModelFactories instead of fixtures to prevent issues with altering fields in the model later on.
+It is recommended, when writing tests, to use the `ContributorFactory` located in `scipost.factories`. This will
+automatically generate a related user with Registered Contributor membership. Using the `Contributor` model in tests
+requires loading the permissions and groups. Previously, this was done by including `fixtures = ["permissions",
+"groups"]` at the top of the `TestCase`, but since these fixtures behave unpredictable and are a nuisance to keep up to
+date with the actual groups and permissions, it is much better to call `add_groups_and_permissions`, located in
+`common.helpers.test`, in a function named `setUp`, which runs before each test. `add_groups_and_permissions` wraps the
+management command of the same name.
+
+It is recommended, when writing tests for new models, to make use of `ModelFactory` instead of fixtures
+for the same reason.
 
 A basic example of a test might look like:
 ```shell
@@ -167,12 +175,12 @@ from django.contrib.auth.models import Group
 from django.test import TestCase
 
 from scipost.factories import ContributorFactory
+from common.helpers.test import add_groups_and_permissions
 
 
 class VetCommentaryRequestsTest(TestCase):
-    fixtures = ['groups', 'permissions']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.contributor = ContributorFactory(user__password='test123')  # The default password is `adm1n`
 
     def test_example_test(self):
