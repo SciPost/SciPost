@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.views.generic import UpdateView
 from django.views.generic.list import ListView
 from django.core.urlresolvers import reverse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 
 from .forms import MailchimpUpdateForm
 from .models import MailchimpList
@@ -37,6 +37,20 @@ def syncronize_lists(request):
     updated = form.sync()
     messages.success(request, '%i mailing lists have succesfully been updated.' % updated)
     return redirect(reverse('mailing_lists:overview'))
+
+
+@login_required
+@permission_required('scipost.can_manage_mailchimp', raise_exception=True)
+def syncronize_members(request, list_id):
+    """
+    Syncronize the Mailchimp lists in the database with the lists known in
+    the mailchimp account which is related to the API_KEY.
+    """
+    _list = get_object_or_404(MailchimpList, mailchimp_list_id=list_id)
+    form = MailchimpUpdateForm()
+    updated = form.sync_members(_list)
+    messages.success(request, '%i members have succesfully been updated.' % updated)
+    return redirect(_list.get_absolute_url())
 
 
 class ListDetailView(MailchimpMixin, UpdateView):

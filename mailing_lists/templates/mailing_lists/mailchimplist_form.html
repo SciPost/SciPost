@@ -18,6 +18,10 @@
         <h1>Edit the mailing list <i>{{object}}</i></h1>
         <h3>Mailchimp configuration:</h3>
         <pre><code>ID: {{object.mailchimp_list_id}}<br>name: {{object.name}}<br>Status: {{object.get_status_display}}</code></pre>
+        <h3 class="mt-2">Actions:</h3>
+        <ul class="actions">
+            <li><a href="{% url 'mailing_lists:sync_members' object.mailchimp_list_id %}">Syncronize members of the list</a></li>
+        </ul>
     </div>
 </div>
 

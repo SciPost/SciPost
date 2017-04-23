@@ -21,7 +21,7 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        PARTNER_TYPES, PARTNER_STATUS,\
                        SPB_MEMBERSHIP_AGREEMENT_STATUS, SPB_MEMBERSHIP_DURATION
 from .fields import ChoiceArrayField
-from .managers import FellowManager
+from .managers import FellowManager, ContributorManager
 
 
 def get_sentinel_user():
@@ -65,6 +65,8 @@ class Contributor(models.Model):
     accepts_SciPost_emails = models.BooleanField(
         default=True,
         verbose_name="I accept to receive SciPost emails")
+
+    objects = ContributorManager()
 
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
