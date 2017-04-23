@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .services import ArxivCaller
+from .services import ArxivCaller, DOICaller
 
 from submissions.models import Submission
 
@@ -44,3 +44,12 @@ class ArxivCallerTest(TestCase):
         caller.process()
         self.assertEqual(caller.is_valid(), False)
         self.assertEqual(caller.errorcode, 'bad_identifier')
+
+
+class DOICallerTest(TestCase):
+    def setUp(self):
+        self.doi_string = '10.1103/PhysRevB.92.214427'
+        self.caller = DOICaller(self.doi_string)
+
+    def test_collects_data(self):
+        print(self.caller.crossref_data)

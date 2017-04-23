@@ -9,6 +9,22 @@ from .behaviors import ArxivCallable
 from strings import arxiv_caller_errormessages
 
 
+class DOICaller:
+    def __init__(self, doi_string):
+        self.doi_string = doi_string
+        self._call_crosslink()
+        self._format_data()
+
+    def _call_crosslink(self):
+        url = 'http://api.crossref.org/works/%s' % self.doi_string
+        self.crossref_data = requests.get(url).json()
+
+    def _collect_data(self):
+        # read out json here.
+
+
+
+# I'm going to revamp this whole thing...
 class BaseCaller(object):
     '''Base mixin for caller (Arxiv, DOI).
     The basic workflow is to initiate the caller, call process() to make the actual call
@@ -158,9 +174,9 @@ class BaseCaller(object):
         return t.render(Context(self.errorvariables))
 
 
-class DOICaller(BaseCaller):
-    """Perform a DOI lookup for a given identifier."""
-    pass
+# class DOICaller(BaseCaller):
+#     """Perform a DOI lookup for a given identifier."""
+#     pass
 
 
 class ArxivCaller(BaseCaller):
