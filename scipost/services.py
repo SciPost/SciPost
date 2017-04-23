@@ -166,7 +166,7 @@ class DOICaller(BaseCaller):
 class ArxivCaller(BaseCaller):
     """ Performs an Arxiv article lookup for given identifier """
 
-    # # State of the caller
+    # State of the caller
     resubmission = False
     previous_submissions = []
     errormessages = arxiv_caller_errormessages
