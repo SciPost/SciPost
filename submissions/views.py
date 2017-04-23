@@ -842,6 +842,24 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
     return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)
 
 
+def decline_ref_invitation(request, invitation_key):
+    invitation = get_object_or_404(RefereeInvitation, invitation_key=invitation_key)
+    if request.method == 'POST':
+        form = ConsiderRefereeInvitationForm(request.POST)
+        if form.is_valid():
+            invitation.accepted = False
+            invitation.refusal_reason = form.cleaned_data['refusal_reason']
+            invitation.save()
+            SubmissionUtils.load({'invitation': invitation}, request)
+            SubmissionUtils.email_referee_response_to_EIC()
+            messages.success(request, 'Thank you for informing us that you will not provide a Report.')
+            return redirect(reverse('scipost:index'))
+    else:
+        form = ConsiderRefereeInvitationForm(initial={'accept': False})
+    context = {'invitation': invitation, 'form': form}
+    return render(request, 'submissions/decline_ref_invitation.html', context)
+
+
 @login_required
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
