@@ -221,6 +221,9 @@
                                 <li><a href="{% url 'scipost:send_precooked_email' %}">Send a precooked email</a></li>
                                 <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
                             {% endif %}
+                            {% if perms.scipost.can_manage_mailchimp %}
+                                <li><a href="{% url 'mailing_lists:overview' %}">Manage mailing lists</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                     {% endif %}

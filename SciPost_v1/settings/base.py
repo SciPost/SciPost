@@ -87,13 +87,13 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'journals',
-    'mailchimp',
+    'mailing_lists',
     'news',
     'scipost',
     'submissions',
     'theses',
     'virtualmeetings',
-    'webpack_loader'
+    'webpack_loader',
 )
 
 HAYSTACK_CONNECTIONS = {
@@ -228,6 +228,8 @@ WEBPACK_LOADER = {
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = 'local_files/email/'
+MAILCHIMP_DATABASE_CODE = 'us6'
+MAILCHIMP_API_USER = 'test_API-user'
 MAILCHIMP_API_KEY = 'test_API-key'
 
 # Own settings

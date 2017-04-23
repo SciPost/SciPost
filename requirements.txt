@@ -21,6 +21,7 @@ fake-factory==0.7.2
 feedparser==5.2.1
 imagesize==0.7.1
 Jinja2==2.8
+mailchimp3==2.0.11
 Markdown==2.6.7
 MarkupSafe==0.23
 pep8==1.7.0
