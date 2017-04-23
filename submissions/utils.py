@@ -616,6 +616,7 @@ class SubmissionUtils(BaseMailUtil):
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
+
     @classmethod
     def send_refereeing_invitation_email(cls):
         """
@@ -702,65 +703,161 @@ class SubmissionUtils(BaseMailUtil):
         emailmessage.send(fail_silently=False)
 
     @classmethod
-    def send_ref_reminder_email(cls):
+    def send_unreg_ref_reminder_email(cls):
         """
-        This method is used to remind a referee who is not registered as a Contributor.
+        This method is used to remind a referee who has not yet responded.
+        It is used for unregistered referees only.
         It is called from the ref_invitation_reminder method in submissions/views.py.
         """
-        email_text = ('Dear ' + cls.invitation.get_title_display() + ' '
-                      + cls.invitation.last_name + ',\n\n'
-                      'On behalf of the Editor-in-charge '
-                      + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
-                      + cls.invitation.submission.editor_in_charge.user.last_name
-                      + ', we would like to cordially remind you of our recent request to referee\n\n'
-                      + cls.invitation.submission.title + ' by '
-                      + cls.invitation.submission.author_list + '.')
+        email_text = (
+            'Dear ' + cls.invitation.title + ' '
+            + cls.invitation.last_name + ',\n\n'
+            'On behalf of the Editor-in-charge '
+            + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
+            + cls.invitation.submission.editor_in_charge.user.last_name
+            + ', we would like to cordially remind you of our recent request to referee\n\n'
+            + cls.invitation.submission.title + ' by '
+            + cls.invitation.submission.author_list + '.')
         email_text_html = (
             '<p>Dear {{ title }} {{ last_name }},</p>'
             '<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_last_name }}, '
             'we would like to cordially remind you of our recent request to referee</p>'
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}.</p>')
-        if cls.invitation.referee is None:
-            email_text += ('\n\nWe would also like to renew '
-                           'our invitation to become a Contributor on SciPost '
-                           '(our records show that you are not yet registered); '
-                           'your partially pre-filled registration form is still available at\n\n'
-                           'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n'
-                           'after which your registration will be activated, giving you full access to '
-                           'the portal\'s facilities (in particular allowing you to provide referee reports).')
-            email_text_html += (
-                '\n<p>We would also like to renew '
-                'our invitation to become a Contributor on SciPost '
-                '(our records show that you are not yet registered); '
-                'your partially pre-filled '
-                '<a href="https://scipost.org/invitation/{{ invitation_key }}">'
-                'registration form</a> is still available, '
-                'after which your registration will be activated, giving you full access to '
-                'the portal\'s facilities (in particular allowing you to provide referee reports).</p>')
+        email_text += (
+            '\n\nWe would also like to renew '
+            'our invitation to become a Contributor on SciPost '
+            '(our records show that you are not yet registered); '
+            'your partially pre-filled registration form is still available at\n\n'
+            'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n'
+            'after which your registration will be activated, giving you full access to '
+            'the portal\'s facilities (in particular allowing you to '
+            'provide referee reports).\n\n'
+            'To ensure timely processing of the submission (out of respect for the authors), '
+            'we would appreciate a quick accept/decline response from you, '
+            'ideally within the next 2 days.\n\n'
+            'If you are not able to provide a Report, you can quickly let us know by simply '
+            'navigating to \n\nhttps://scipost.org/decline_ref_invitation/'
+            + cls.invitation.invitation_key + '\n\n'
+            'If you are able to provide a Report, you can confirm this after registering '
+            'and logging in (you will automatically be prompted for a confirmation). '
+            'Your report can thereafter be submitted by simply clicking on '
+            'the "Contribute a Report" link at '
+            'https://scipost.org/submission/'
+            + cls.invitation.submission.arxiv_identifier_w_vn_nr
+            + ' before the reporting deadline (currently set at '
+            + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
+            + '; your report will be automatically recognized as an invited report). '
+            'You might want to make sure you are familiar with our refereeing code of conduct '
+            'https://scipost.org/journals/journals_terms_and_conditions and with the '
+            'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.'
+            '\n\nWe very much hope we can count on your expertise,'
+            '\n\nMany thanks in advance,\n\nThe SciPost Team'
+        )
+        email_text_html += (
+            '\n<p>We would also like to renew '
+            'our invitation to become a Contributor on SciPost '
+            '(our records show that you are not yet registered); '
+            'your partially pre-filled '
+            '<a href="https://scipost.org/invitation/{{ invitation_key }}">'
+            'registration form</a> is still available, '
+            'after which your registration will be activated, giving you full access to '
+            'the portal\'s facilities (in particular allowing you to provide referee reports).</p>'
+            '<p>To ensure timely processing of the submission (out of respect for the authors), '
+            'we would appreciate a quick accept/decline response from you, '
+            'ideally within the next 2 days.</p>'
+            '<p>If you are <strong>not</strong> able to provide a Report, '
+            'you can quickly let us know by simply '
+            '<a href="https://scipost.org/decline_ref_invitation/{{ invitation_key }}>'
+            'clicking here</a>.</p>'
+            '<p>If you are able to provide a Report, you can confirm this after registering '
+            'and logging in (you will automatically be prompted for a confirmation). '
+            'Your report can thereafter be submitted by simply clicking on '
+            'the "Contribute a Report" link at '
+            'the <a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
+            'Submission\'s page</a> before the reporting deadline (currently set at '
+            '{{ deadline }}; your report will be automatically recognized as an invited report).</p>'
+            '\n<p>You might want to make sure you are familiar with our '
+            '<a href="https://scipost.org/journals/journals_terms_and_conditions">'
+            'refereeing code of conduct</a> and with the '
+            '<a href="https://scipost.org/submissions/sub_and_ref_procedure">'
+            'refereeing procedure</a>.</p>'
+            '<p>We very much hope we can count on your expertise,</p>'
+            '<p>Many thanks in advance,</p>'
+            '<p>The SciPost Team</p>')
+        email_context = Context({
+            'title': cls.invitation.title,
+            'last_name': cls.invitation.last_name,
+            'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
+            'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
+            'sub_title': cls.invitation.submission.title,
+            'author_list': cls.invitation.submission.author_list,
+            'arxiv_identifier_w_vn_nr': cls.invitation.submission.arxiv_identifier_w_vn_nr,
+            'deadline': datetime.datetime.strftime(cls.invitation.submission.reporting_deadline,
+                                                   "%Y-%m-%d"),
+            'invitation_key': cls.invitation.invitation_key,
+        })
+        email_text_html += '<br/>' + EMAIL_FOOTER
+        html_template = Template(email_text_html)
+        html_version = html_template.render(email_context)
+        emailmessage = EmailMultiAlternatives(
+            'SciPost: reminder (refereeing request and registration invitation)', email_text,
+            'SciPost Submissions <submissions@scipost.org>',
+            [cls.invitation.email_address],
+            bcc=[cls.invitation.submission.editor_in_charge.user.email,
+                 'submissions@scipost.org'],
+            reply_to=['submissions@scipost.org'])
+        emailmessage.attach_alternative(html_version, 'text/html')
+        emailmessage.send(fail_silently=False)
+
+
+    @classmethod
+    def send_ref_reminder_email(cls):
+        """
+        This method is used to remind a referee who has not yet responded.
+        It is used for registered Contributors only.
+        It is called from the ref_invitation_reminder method in submissions/views.py.
+        """
+        email_text = (
+            'Dear ' + cls.invitation.get_title_display() + ' '
+            + cls.invitation.last_name + ',\n\n'
+            'On behalf of the Editor-in-charge '
+            + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
+            + cls.invitation.submission.editor_in_charge.user.last_name
+            + ', we would like to cordially remind you of our recent request to referee\n\n'
+            + cls.invitation.submission.title + ' by '
+            + cls.invitation.submission.author_list + '.')
+        email_text_html = (
+            '<p>Dear {{ title }} {{ last_name }},</p>'
+            '<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_last_name }}, '
+            'we would like to cordially remind you of our recent request to referee</p>'
+            '<p>{{ sub_title }}</p>'
+            '\n<p>by {{ author_list }}.</p>')
         if cls.invitation.accepted is None:
-            email_text += ('\n\nPlease visit '
-                           'https://scipost.org/submissions/accept_or_decline_ref_invitations '
-                           '(login required) as soon as possible (ideally within the next 2 days) '
-                           'in order to accept or decline this invitation.')
+            email_text += (
+                '\n\nPlease visit '
+                'https://scipost.org/submissions/accept_or_decline_ref_invitations '
+                '(login required) as soon as possible (ideally within the next 2 days) '
+                'in order to accept or decline this invitation.')
             email_text_html += (
                 '\n<p>Please '
                 '<a href="https://scipost.org/submissions/accept_or_decline_ref_invitations">'
                 'accept or decline the invitation</a> '
                 '(login required) as soon as possible (ideally within the next 2 days) '
                 'in order to ensure rapid processing of the submission.')
-        email_text += ('\n\nYour report can be submitted by simply clicking on '
-                       'the "Contribute a Report" link at '
-                       'https://scipost.org/submission/'
-                       + cls.invitation.submission.arxiv_identifier_w_vn_nr
-                       + ' before the reporting deadline (currently set at '
-                       + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
-                       + '; your report will be automatically recognized as an invited report). '
-                       'You might want to make sure you are familiar with our refereeing code of conduct '
-                       'https://scipost.org/journals/journals_terms_and_conditions and with the '
-                       'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.'
-                       '\n\nWe very much hope we can count on your expertise,'
-                       '\n\nMany thanks in advance,\n\nThe SciPost Team')
+        email_text += (
+            '\n\nYour report can be submitted by simply clicking on '
+            'the "Contribute a Report" link at '
+            'https://scipost.org/submission/'
+            + cls.invitation.submission.arxiv_identifier_w_vn_nr
+            + ' before the reporting deadline (currently set at '
+            + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
+            + '; your report will be automatically recognized as an invited report). '
+            'You might want to make sure you are familiar with our refereeing code of conduct '
+            'https://scipost.org/journals/journals_terms_and_conditions and with the '
+            'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.'
+            '\n\nWe very much hope we can count on your expertise,'
+            '\n\nMany thanks in advance,\n\nThe SciPost Team')
         email_text_html += (
             '\n<p>Your report can be submitted by simply clicking on '
             'the "Contribute a Report" link at '
@@ -799,6 +896,7 @@ class SubmissionUtils(BaseMailUtil):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
+
 
     @classmethod
     def send_ref_cancellation_email(cls):

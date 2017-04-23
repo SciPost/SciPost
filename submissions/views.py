@@ -800,7 +800,10 @@ def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
     invitation.date_last_reminded = timezone.now()
     invitation.save()
     SubmissionUtils.load({'invitation': invitation})
-    SubmissionUtils.send_ref_reminder_email()
+    if invitation.referee is not None:
+        SubmissionUtils.send_ref_reminder_email()
+    else:
+        SubmissionUtils.send_unreg_ref_reminder_email()
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
