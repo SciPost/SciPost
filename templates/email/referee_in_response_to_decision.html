@@ -5,6 +5,7 @@ We hereby confirm your choice to {% if invitation.accepted %}accept{% else %}dec
 {{invitation.submission.title}} by {{invitation.submission.author_list}}\n\n
 
 {% if invitation.accepted %}
+We will look forward to receiving your Report by the reporting deadline {{ invitation.submission.reporting_deadline|date:'Y-m-d' }}.\n\n
 Many thanks for your collaboration,\n
 {% else %}
 Nonetheless, we thank you very much for considering this refereeing invitation,\n

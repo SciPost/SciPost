@@ -35,7 +35,7 @@
 	<h4>Refereeing status summary:</h4>
 	{% include 'submissions/_submission_refereeing_status.html' with submission=submission %}
 	<h3 class="mb-2">Detail of refereeing invitations:</h3>
-	{% include 'submissions/_submission_refereeing_invitations.html' with submission=submission invitations=ref_invitations %}
+	{% include 'submissions/_submission_refereeing_invitations.html' with submission=submission invitations=submission.referee_invitations.all %}
 	<a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a>
       </div>
     </div>
