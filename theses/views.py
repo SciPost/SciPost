@@ -80,7 +80,6 @@ class VetThesisLink(UpdateView):
 class ThesisListView(ListView):
     model = ThesisLink
     form = ThesisLinkSearchForm
-    thesis_search_list = []
     paginate_by = 10
 
     def get_queryset(self):

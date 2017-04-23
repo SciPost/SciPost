@@ -167,15 +167,15 @@ class TestTheses(TestCase):
     def test_empty_search_query(self):
         thesislink = VettedThesisLinkFactory()
         response = self.client.get(self.target)
-        search_results = response.context["search_results"]
-        recent_theses = response.context["recent_theses"]
-        self.assertEqual(search_results, [])
-        self.assertEqual(recent_theses.exists(), True)
+        search_results = response.context["object_list"]
+        self.assertTrue(thesislink in search_results)
 
     def test_search_query_on_author(self):
         thesislink = VettedThesisLinkFactory()
+        other_thesislink = VettedThesisLinkFactory()
         form_data = {'author': thesislink.author}
         response = self.client.get(self.target, form_data)
-        search_results = response.context['search_results']
+        search_results = response.context['object_list']
         self.assertTrue(thesislink in search_results)
+        self.assertTrue(other_thesislink not in search_results)
         self.assertEqual(len(search_results), 1)
