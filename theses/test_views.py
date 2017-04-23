@@ -17,10 +17,11 @@ from .factories import ThesisLinkFactory, VettedThesisLinkFactory, VetThesisLink
 from .models import ThesisLink
 from .forms import VetThesisLinkForm
 from common.helpers import model_form_data
-
+from common.helpers.test import add_groups_and_permissions
 
 class TestThesisDetail(TestCase):
-    fixtures = ['groups', 'permissions']
+    def setUp(self):
+        add_groups_and_permissions()
 
     def test_visits_valid_thesis_detail(self):
         """ A visitor does not have to be logged in to view a thesis link. """
@@ -32,9 +33,8 @@ class TestThesisDetail(TestCase):
 
 
 class TestRequestThesisLink(TestCase):
-    fixtures = ['groups', 'permissions']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.client = Client()
         self.target = reverse('theses:request_thesislink')
 
@@ -51,9 +51,8 @@ class TestRequestThesisLink(TestCase):
 
 
 class TestVetThesisLinkRequests(TestCase):
-    fixtures = ['groups', 'permissions']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.client = Client()
         self.thesislink = ThesisLinkFactory()
         self.target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
@@ -158,9 +157,8 @@ class TestVetThesisLinkRequests(TestCase):
 
 
 class TestTheses(TestCase):
-    fixtures = ['groups', 'permissions']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.client = Client()
         self.target = reverse('theses:theses')
 
