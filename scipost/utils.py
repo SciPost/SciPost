@@ -343,11 +343,11 @@ class Utils(BaseMailUtil):
             html_version = html_template.render(email_context)
             emailmessage = EmailMultiAlternatives(
                 'SciPost: refereeing request (and registration invitation)', email_text,
-                'SciPost Registration <registration@scipost.org>',
+                'SciPost Refereeing <refereeing@scipost.org>',
                 [cls.invitation.email],
                 cc=[cls.invitation.invited_by.user.email],
-                bcc=['registration@scipost.org'],
-                reply_to=['registration@scipost.org'])
+                bcc=['refereeing@scipost.org'],
+                reply_to=['refereeing@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
 
         elif cls.invitation.invitation_type == 'ci':
