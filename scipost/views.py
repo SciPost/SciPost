@@ -930,6 +930,7 @@ def update_personal_data(request):
     if user_form.is_valid() and cont_form.is_valid():
         user_form.save()
         cont_form.save()
+        cont_form.sync_lists()
         messages.success(request, 'Your personal data has been updated.')
         return redirect(reverse('scipost:personal_page'))
     else:

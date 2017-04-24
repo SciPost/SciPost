@@ -60,7 +60,7 @@ class ListDetailView(MailchimpMixin, UpdateView):
     """
     slug_field = 'mailchimp_list_id'
     slug_url_kwarg = 'list_id'
-    fields = ('allowed_groups', 'internal_name', 'supporting_text')
+    fields = ('allowed_groups', 'internal_name', 'open_for_subscription')
     model = MailchimpList
 
     def form_valid(self, form):

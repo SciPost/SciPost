@@ -28,11 +28,8 @@
                 {% for mail_list in object_list %}
                     <li class="list-group-item">
                         <div class="py-1">
-                            <h3><a href="{{mail_list.get_absolute_url}}">{{mail_list}}</a> <small><code>ID: {{mail_list.mailchimp_list_id}}</code></small></h3>
+                            <h3><a href="{{mail_list.get_absolute_url}}">{{mail_list}}</a> <small><code>ID: {{mail_list.mailchimp_list_id}}</code></small> {% if mail_list.open_for_subscription %}<span class="label label-sm label-outline-info">Open for subscription</span>{% endif %}</h3>
                             <p class="text-muted mb-0">{{mail_list.get_status_display}} | {{mail_list.allowed_groups.count}} group{{mail_list.allowed_groups.count|pluralize}} | last update: {{mail_list.latest_activity}}</p>
-                            {% if mail_list.supporting_text %}
-                                <p class="my-1">{{mail_list.supporting_text|linebreaks}}</p>
-                            {% endif %}
                         </div>
                     </li>
                 {% empty %}
