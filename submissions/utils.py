@@ -694,11 +694,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
             'SciPost: refereeing request', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
+            'SciPost Refereeing <refereeing@scipost.org>',
             [cls.invitation.referee.user.email],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 'refereeing@scipost.org'],
+            reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -802,11 +802,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
             'SciPost: reminder (refereeing request and registration invitation)', email_text,
-            'SciPost Submissions <submissions@scipost.org>',
+            'SciPost Refereeing <refereeing@scipost.org>',
             [cls.invitation.email_address],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 'refereeing@scipost.org'],
+            reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -889,11 +889,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
             'SciPost: reminder (refereeing request and registration invitation)', email_text,
-            'SciPost Submissions <submissions@scipost.org>',
+            'SciPost Refereeing <refereeing@scipost.org>',
             [cls.invitation.email_address],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 'refereeing@scipost.org'],
+            reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -958,11 +958,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
             'SciPost: report no longer needed', email_text,
-            'SciPost Submissions <submissions@scipost.org>',
+            'SciPost Refereeing <refereeing@scipost.org>',
             [cls.invitation.email_address],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 'refereeing@scipost.org'],
+            reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -1069,11 +1069,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
             'SciPost: Report acknowledgement', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
+            'SciPost Refereeing <refereeing@scipost.org>',
             [cls.report.author.user.email],
             bcc=[cls.report.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 'refereeing@scipost.org'],
+            reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
