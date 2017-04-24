@@ -24,7 +24,8 @@ $(document).ready(function(){
 <div class="row">
   <div class="col-12">
     <h1 class="highlight">SciPost Submission which you have been asked to Referee:</h1>
-    {% include 'submissions/_submission_summary.html' with submission=invitation.submission %}
+    <h3><a href="{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a></h3>
+    <p>{{ invitation.submission.author_list }}</p>
   </div>
 </div>
 <div class="row">
