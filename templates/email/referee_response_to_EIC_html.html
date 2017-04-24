@@ -1,10 +1,10 @@
-<h3>Dear {{invitation.submission.editor_in_charge.get_title_display}} {{invitation.submission.editor_in_charge.user.last_name}},</h3>
+<p>Dear {{invitation.submission.editor_in_charge.get_title_display}} {{invitation.submission.editor_in_charge.user.last_name}},</p>
 
 <p>
     Referee {{invitation.referee.get_title_display}} {{invitation.referee.user.last_name}} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{invitation.get_refusal_reason_display}}){% endif %} to referee Submission
 </p>
 <p>
-    "<span style="color: grey;">{{invitation.submission.title}} by {{invitation.submission.author_list}}</span>".
+    "{{invitation.submission.title}} by {{invitation.submission.author_list}}".
 </p>
 
 {% if not invitation.accepted %}
