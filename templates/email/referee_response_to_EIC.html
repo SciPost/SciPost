@@ -1,6 +1,6 @@
 Dear {{invitation.submission.editor_in_charge.get_title_display}} {{invitation.submission.editor_in_charge.user.last_name}},\n\n
 
-Referee {{invitation.referee.get_title_display}} {{invitation.referee.user.last_name}} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{invitation.get_refusal_reason_display}}){% endif %} to referee Submission\n\n
+Referee {% if invitation.referee %}{{invitation.referee.get_title_display}} {{invitation.referee.user.last_name}}{% else %}{{ invitation.title }} {{ invitation.first_name }} {{ invitation.last_name }}{% endif %} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{invitation.get_refusal_reason_display}}){% endif %} to referee Submission\n\n
 
 {{invitation.submission.title}} by {{invitation.submission.author_list}}\n\n
 

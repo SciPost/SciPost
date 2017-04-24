@@ -13,12 +13,13 @@ from .factories import CommentFactory
 from .forms import CommentForm
 from .models import Comment
 from .views import new_comment
-
 from common.helpers import model_form_data
+from common.helpers.test import add_groups_and_permissions
 
 
 class TestNewComment(TestCase):
-    fixtures = ['groups', 'permissions']
+    def setUp(self):
+        add_groups_and_permissions()
 
     def install_messages_middleware(self, request):
         # I don't know what the following three lines do, but they help make a RequestFactory

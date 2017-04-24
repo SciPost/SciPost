@@ -6,12 +6,12 @@ from scipost.factories import UserFactory
 from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory
 from .forms import RequestCommentaryForm, VetCommentaryForm
 from .models import Commentary
+from common.helpers.test import add_groups_and_permissions
 
 
 class TestVetCommentaryForm(TestCase):
-    fixtures = ['permissions', 'groups']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.commentary = UnvettedCommentaryFactory.create()
         self.user = UserFactory()
         self.form_data = {
@@ -71,9 +71,8 @@ class TestVetCommentaryForm(TestCase):
 
 
 class TestRequestCommentaryForm(TestCase):
-    fixtures = ['permissions', 'groups']
-
     def setUp(self):
+        add_groups_and_permissions()
         factory_instance = VettedCommentaryFactory.build()
         self.user = UserFactory()
         self.valid_form_data = model_form_data(factory_instance, RequestCommentaryForm)

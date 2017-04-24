@@ -9,7 +9,7 @@ from scipost.models import Contributor
 class Command(BaseCommand):
     help = 'Defines groups and permissions'
 
-    def handle(self, *args, **options):
+    def handle(self, *args, verbose=True, **options):
         """Append all user Groups and setup a Contributor roles to user."""
 
         # Create Groups
@@ -229,4 +229,6 @@ class Command(BaseCommand):
             can_view_docs_scipost,
         )
 
-        self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions.'))
+
+        if verbose:
+            self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions.'))

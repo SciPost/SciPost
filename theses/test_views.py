@@ -17,10 +17,11 @@ from .factories import ThesisLinkFactory, VettedThesisLinkFactory, VetThesisLink
 from .models import ThesisLink
 from .forms import VetThesisLinkForm
 from common.helpers import model_form_data
-
+from common.helpers.test import add_groups_and_permissions
 
 class TestThesisDetail(TestCase):
-    fixtures = ['groups', 'permissions']
+    def setUp(self):
+        add_groups_and_permissions()
 
     def test_visits_valid_thesis_detail(self):
         """ A visitor does not have to be logged in to view a thesis link. """
@@ -32,9 +33,8 @@ class TestThesisDetail(TestCase):
 
 
 class TestRequestThesisLink(TestCase):
-    fixtures = ['groups', 'permissions']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.client = Client()
         self.target = reverse('theses:request_thesislink')
 
@@ -51,9 +51,8 @@ class TestRequestThesisLink(TestCase):
 
 
 class TestVetThesisLinkRequests(TestCase):
-    fixtures = ['groups', 'permissions']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.client = Client()
         self.thesislink = ThesisLinkFactory()
         self.target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
@@ -158,24 +157,23 @@ class TestVetThesisLinkRequests(TestCase):
 
 
 class TestTheses(TestCase):
-    fixtures = ['groups', 'permissions']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.client = Client()
         self.target = reverse('theses:theses')
 
     def test_empty_search_query(self):
         thesislink = VettedThesisLinkFactory()
         response = self.client.get(self.target)
-        search_results = response.context["search_results"]
-        recent_theses = response.context["recent_theses"]
-        self.assertEqual(search_results, [])
-        self.assertEqual(recent_theses.exists(), True)
+        search_results = response.context["object_list"]
+        self.assertTrue(thesislink in search_results)
 
     def test_search_query_on_author(self):
         thesislink = VettedThesisLinkFactory()
+        other_thesislink = VettedThesisLinkFactory()
         form_data = {'author': thesislink.author}
         response = self.client.get(self.target, form_data)
-        search_results = response.context['search_results']
+        search_results = response.context['object_list']
         self.assertTrue(thesislink in search_results)
+        self.assertTrue(other_thesislink not in search_results)
         self.assertEqual(len(search_results), 1)
