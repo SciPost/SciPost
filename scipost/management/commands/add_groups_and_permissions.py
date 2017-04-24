@@ -159,6 +159,12 @@ class Command(BaseCommand):
             name='Can view docs: scipost',
             content_type=content_type)
 
+        # Mailchimp
+        can_manage_mailchimp, created = Permission.objects.get_or_create(
+            codename='can_manage_mailchimp',
+            name='Can manage Mailchimp settings',
+            content_type=content_type)
+
         # Assign permissions to groups
         SciPostAdmin.permissions.add(
             can_manage_registration_invitations,
@@ -174,6 +180,7 @@ class Command(BaseCommand):
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
             can_attend_VGMs,
+            can_manage_mailchimp,
         )
         AdvisoryBoard.permissions.add(
             can_manage_registration_invitations,

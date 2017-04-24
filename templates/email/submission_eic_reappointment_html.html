@@ -1,7 +1,7 @@
-<h3>Dear {{submission.editor_in_charge.get_title_display}} {{submission.editor_in_charge.user.last_name}},</h3>
+<p>Dear {{submission.editor_in_charge.get_title_display}} {{submission.editor_in_charge.user.last_name}},</p>
 
 <p>
-    The authors of the SciPost Submission "<span style="color: grey;">{{submission.title}} by {{submission.author_list}}</span>" have resubmitted their manuscript.
+    The authors of the SciPost Submission "{{submission.title}} by {{submission.author_list}}" have resubmitted their manuscript.
 </p>
 <p>
     As Editor-in-charge, you can take your editorial actions from the submission\'s <a href="{{request.get_host}}{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">editorial page</a>.
