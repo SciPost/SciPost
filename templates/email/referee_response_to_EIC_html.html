@@ -9,12 +9,12 @@
 
 {% if not invitation.accepted %}
     <p>
-        Please invite another referee from the Submission's <a href="{{request.get_host}}{% url 'submissions:editorial_page' invitation.submission.arxiv_identifier_w_vn_nr %}">editorial page</a>.
+        Please invite another referee from the Submission's <a href="https://scipost.org{% url 'submissions:editorial_page' invitation.submission.arxiv_identifier_w_vn_nr %}">editorial page</a>.
     </p>
 {% endif %}
 
 <p>
-    Many thanks for your collaboration,
+    Many thanks for your collaboration,<br>
     The SciPost Team.
 </p>
 

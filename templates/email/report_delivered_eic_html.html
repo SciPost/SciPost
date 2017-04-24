@@ -1,13 +1,16 @@
 <p>Dear {{report.submission.editor_in_charge.get_title_display}} {{report.submission.editor_in_charge.user.last_name}},</p>
 
 <p>
-    Referee {{report.author.get_title_display}} {{report.author.user.last_name}} has delivered a Report for Submission "{{report.submission.title}} by {{report.submission.author_list}}".
+    Referee {{report.author.get_title_display}} {{report.author.user.last_name}} has delivered a Report for Submission:
 </p>
 <p>
-    Please vet this Report via your <a href="{{request.get_host}}{% url 'scipost:personal_page' %}">personal page</a> under the Editorial Actions tab.
+    "{{report.submission.title}} by {{report.submission.author_list}}"
 </p>
 <p>
-    Many thanks in advance for your collaboration,
+    Please vet this Report via your <a href="https://scipost.org{% url 'scipost:personal_page' %}">personal page</a> under the Editorial Actions tab.
+</p>
+<p>
+    Many thanks in advance for your collaboration,<br>
     The SciPost Team.
 </p>
 
