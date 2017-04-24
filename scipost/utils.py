@@ -217,7 +217,7 @@ class Utils(BaseMailUtil):
         email_text_html += ',<br/>'
         if len(cls.invitation.personal_message) > 3:
             email_text += cls.invitation.personal_message + '\n\n'
-            email_text_html += '\n<i>{{ personal_message|linebreaks }}</i><br/>\n'
+            email_text_html += '\n{{ personal_message|linebreaks }}<br/>\n'
             email_context['personal_message'] = cls.invitation.personal_message
 
         # This text to be put in C, ci invitations
@@ -304,6 +304,14 @@ class Utils(BaseMailUtil):
                 'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n'
                 'after which your registration will be activated, allowing you to contribute, '
                 'in particular by providing referee reports.\n\n'
+                'To ensure timely processing of the submission (out of respect for the authors), '
+                'we would appreciate a quick accept/decline '
+                'response from you, ideally within the next 2 days.\n\n'
+                'If you are not able to provide a Report, you can let us know by simply '
+                'navigating to \n\nhttps://scipost.org/submissions/decline_ref_invitation/'
+                + cls.invitation.invitation_key + '\n\n'
+                'If you are able to provide a Report, you can confirm this after registering '
+                'and logging in (you will automatically be prompted for a confirmation).\n\n'
                 'We very much hope that we can count on your expertise,\n\n'
                 'Many thanks in advance,\n\nThe SciPost Team')
             email_text_html += (
@@ -315,6 +323,15 @@ class Utils(BaseMailUtil):
                 '<a href="https://scipost.org/invitation/{{ invitation_key }}">registration form</a> '
                 'for you. After activation of your registration, you will be allowed to contribute, '
                 'in particular by providing referee reports.</p>'
+                '<p>To ensure timely processing of the submission (out of respect for the authors), '
+                'we would appreciate a quick accept/decline '
+                'response from you, ideally within the next 2 days.</p>'
+                '<p>If you are <strong>not</strong> able to provide a Report, '
+                'you can let us know by simply '
+                '<a href="https://scipost.org/submissions/decline_ref_invitation/{{ invitation_key }}>'
+                'clicking here</a>.</p>'
+                '<p>If you are able to provide a Report, you can confirm this after registering '
+                'and logging in (you will automatically be prompted for a confirmation).</p>'
                 '<p>We very much hope that we can count on your expertise,</p>'
                 '<p>Many thanks in advance,</p>'
                 '<p>The SciPost Team</p>')
@@ -326,11 +343,11 @@ class Utils(BaseMailUtil):
             html_version = html_template.render(email_context)
             emailmessage = EmailMultiAlternatives(
                 'SciPost: refereeing request (and registration invitation)', email_text,
-                'SciPost Registration <registration@scipost.org>',
+                'SciPost Refereeing <refereeing@scipost.org>',
                 [cls.invitation.email],
                 cc=[cls.invitation.invited_by.user.email],
-                bcc=['registration@scipost.org'],
-                reply_to=['registration@scipost.org'])
+                bcc=['refereeing@scipost.org'],
+                reply_to=['refereeing@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
 
         elif cls.invitation.invitation_type == 'ci':

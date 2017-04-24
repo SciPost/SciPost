@@ -5,6 +5,7 @@ from scipost.factories import ContributorFactory
 
 from .models import ThesisLink
 from .forms import VetThesisLinkForm
+from .constants import MASTER_THESIS
 
 
 class ThesisLinkFactory(factory.django.DjangoModelFactory):
@@ -12,7 +13,7 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
         model = ThesisLink
 
     requested_by = factory.SubFactory(ContributorFactory)
-    type = ThesisLink.MASTER_THESIS
+    type = MASTER_THESIS
     title = factory.Faker('bs')
     pub_link = factory.Faker('uri')
     author = factory.Faker('name')

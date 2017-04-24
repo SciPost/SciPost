@@ -9,7 +9,7 @@ from scipost.models import Contributor
 class Command(BaseCommand):
     help = 'Defines groups and permissions'
 
-    def handle(self, *args, **options):
+    def handle(self, *args, verbose=True, **options):
         """Append all user Groups and setup a Contributor roles to user."""
 
         # Create Groups
@@ -132,6 +132,10 @@ class Command(BaseCommand):
             codename='can_referee',
             name='Can act as a referee and submit reports on Submissions',
             content_type=content_type)
+        can_oversee_refereeing, created = Permission.objects.get_or_create(
+            codename='can_oversee_refereeing',
+            name='Can oversee refereeing',
+            content_type=content_type)
 
         # Voting
         can_prepare_recommendations_for_voting, created = Permission.objects.get_or_create(
@@ -155,6 +159,12 @@ class Command(BaseCommand):
             name='Can view docs: scipost',
             content_type=content_type)
 
+        # Mailchimp
+        can_manage_mailchimp, created = Permission.objects.get_or_create(
+            codename='can_manage_mailchimp',
+            name='Can manage Mailchimp settings',
+            content_type=content_type)
+
         # Assign permissions to groups
         SciPostAdmin.permissions.add(
             can_manage_registration_invitations,
@@ -170,6 +180,7 @@ class Command(BaseCommand):
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
             can_attend_VGMs,
+            can_manage_mailchimp,
         )
         AdvisoryBoard.permissions.add(
             can_manage_registration_invitations,
@@ -178,6 +189,7 @@ class Command(BaseCommand):
         EditorialAdmin.permissions.add(
             can_view_pool,
             can_assign_submissions,
+            can_oversee_refereeing,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
             can_publish_accepted_submission,
@@ -217,4 +229,6 @@ class Command(BaseCommand):
             can_view_docs_scipost,
         )
 
-        self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions.'))
+
+        if verbose:
+            self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions.'))

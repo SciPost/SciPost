@@ -20,6 +20,7 @@ from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
 from journals.models import Publication
+from mailing_lists.models import MailchimpList, MailchimpSubscription
 
 
 REGISTRATION_REFUSAL_CHOICES = (
@@ -174,10 +175,36 @@ class UpdatePersonalDataForm(forms.ModelForm):
     class Meta:
         model = Contributor
         fields = ['title', 'discipline', 'expertises', 'orcid_id', 'country_of_employment',
-                  'affiliation', 'address', 'personalwebpage',
-                  'accepts_SciPost_emails'
+                  'affiliation', 'address', 'personalwebpage'
                   ]
         widgets = {'country_of_employment': CountrySelectWidget()}
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields['mail_subscription'] = forms.ModelMultipleChoiceField(
+    #             queryset=MailchimpList.objects.open_to_subscribe(kwargs['instance']).distinct(),
+    #             widget=forms.CheckboxSelectMultiple(),
+    #             label='Subscribe to the following mailing lists:',
+    #             required=False)
+    #     self.fields['mailing_lists'] = forms.ModelMultipleChoiceField(
+    #             queryset=MailchimpList.objects.open_to_subscribe(kwargs['instance']).distinct(),
+    #             widget=forms.CheckboxSelectMultiple(),
+    #             label='Subscribe to the following mailing lists:',
+    #             required=False)
+
+    def sync_lists(self):
+        return
+        # contributor = self.instance
+        # original_lists = list(self.fields['mailing_lists'].queryset)
+        #
+        # # Subscribe to lists
+        # for _list in self.cleaned_data['mailing_lists']:
+        #     _list.update_membership([contributor])
+        #     original_lists.remove(_list)
+        #
+        # # Unsubscribe from the leftovers
+        # for _list in original_lists:
+        #     _list.update_membership([contributor], status='unsubscribed')
 
 
 class VetRegistrationForm(forms.Form):

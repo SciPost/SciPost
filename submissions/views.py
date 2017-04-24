@@ -800,7 +800,10 @@ def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
     invitation.date_last_reminded = timezone.now()
     invitation.save()
     SubmissionUtils.load({'invitation': invitation})
-    SubmissionUtils.send_ref_reminder_email()
+    if invitation.referee is not None:
+        SubmissionUtils.send_ref_reminder_email()
+    else:
+        SubmissionUtils.send_unreg_ref_reminder_email()
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
@@ -840,6 +843,24 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
 
     context = {'invitation': invitation}
     return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)
+
+
+def decline_ref_invitation(request, invitation_key):
+    invitation = get_object_or_404(RefereeInvitation, invitation_key=invitation_key)
+    if request.method == 'POST':
+        form = ConsiderRefereeInvitationForm(request.POST)
+        if form.is_valid():
+            invitation.accepted = False
+            invitation.refusal_reason = form.cleaned_data['refusal_reason']
+            invitation.save()
+            SubmissionUtils.load({'invitation': invitation}, request)
+            SubmissionUtils.email_referee_response_to_EIC()
+            messages.success(request, 'Thank you for informing us that you will not provide a Report.')
+            return redirect(reverse('scipost:index'))
+    else:
+        form = ConsiderRefereeInvitationForm(initial={'accept': False})
+    context = {'invitation': invitation, 'form': form}
+    return render(request, 'submissions/decline_ref_invitation.html', context)
 
 
 @login_required
@@ -928,6 +949,14 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
     submission.save()
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
+
+
+@permission_required('scipost.can_oversee_refereeing', raise_exception=True)
+def refereeing_overview(request):
+    submissions_under_refereeing = Submission.objects.filter(
+        status='EICassigned').order_by('submission_date')
+    context= {'submissions_under_refereeing': submissions_under_refereeing,}
+    return render(request, 'submissions/refereeing_overview.html', context)
 
 
 @login_required

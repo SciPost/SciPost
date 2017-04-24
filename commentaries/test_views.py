@@ -1,46 +1,45 @@
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
 
-from scipost.factories import ContributorFactory
+from scipost.factories import ContributorFactory, UserFactory
 
 from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory
 from .forms import CommentarySearchForm
 from .models import Commentary
+from .views import RequestCommentary
+from common.helpers.test import add_groups_and_permissions
 
 
 class RequestCommentaryTest(TestCase):
     """Test cases for `request_commentary` view method"""
-    fixtures = ['permissions', 'groups', 'contributors']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.view_url = reverse('commentaries:request_commentary')
         self.login_url = reverse('scipost:login')
         self.redirected_login_url = '%s?next=%s' % (self.login_url, self.view_url)
 
-    def test_get_requests(self):
-        """Test different GET requests on view"""
-        # Anoymous user should redirect to login page
+    def test_redirects_if_not_logged_in(self):
         request = self.client.get(self.view_url)
         self.assertRedirects(request, self.redirected_login_url)
 
-        # Registered Contributor should get 200
-        self.client.login(username="Test", password="testpw")
-        request = self.client.get(self.view_url)
-        self.assertEquals(request.status_code, 200)
+    def test_valid_response_if_logged_in(self):
+        """Test different GET requests on view"""
+        request = RequestFactory().get(self.view_url)
+        request.user = UserFactory()
+        response = RequestCommentary.as_view()(request)
+        self.assertEqual(response.status_code, 200)
 
     def test_post_invalid_forms(self):
         """Test different kind of invalid RequestCommentaryForm submits"""
-        self.client.login(username="Test", password="testpw")
-        request = self.client.post(self.view_url)
-        self.assertEquals(request.status_code, 200)
+        raise NotImplementedError
 
 
 class VetCommentaryRequestsTest(TestCase):
     """Test cases for `vet_commentary_requests` view method"""
-    fixtures = ['groups', 'permissions']
 
     def setUp(self):
+        add_groups_and_permissions()
         self.view_url = reverse('commentaries:vet_commentary_requests')
         self.login_url = reverse('scipost:login')
         self.password = 'test123'
@@ -90,9 +89,9 @@ class VetCommentaryRequestsTest(TestCase):
 
 class BrowseCommentariesTest(TestCase):
     """Test cases for `browse` view."""
-    fixtures = ['groups', 'permissions']
 
     def setUp(self):
+        add_groups_and_permissions()
         VettedCommentaryFactory(discipline='physics')
         self.view_url = reverse('commentaries:browse', kwargs={
             'discipline': 'physics',
@@ -111,9 +110,8 @@ class BrowseCommentariesTest(TestCase):
 
 
 class CommentaryDetailTest(TestCase):
-    fixtures = ['permissions', 'groups']
-
     def setUp(self):
+        add_groups_and_permissions()
         self.client = Client()
         self.commentary = UnpublishedVettedCommentaryFactory()
         self.target = reverse(
