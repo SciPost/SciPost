@@ -328,7 +328,7 @@ class Utils(BaseMailUtil):
                 'response from you, ideally within the next 2 days.</p>'
                 '<p>If you are <strong>not</strong> able to provide a Report, '
                 'you can let us know by simply '
-                '<a href="https://scipost.org/submissions/decline_ref_invitation/{{ invitation_key }}>'
+                '<a href="https://scipost.org/submissions/decline_ref_invitation/{{ invitation_key }}">'
                 'clicking here</a>.</p>'
                 '<p>If you are able to provide a Report, you can confirm this after registering '
                 'and logging in (you will automatically be prompted for a confirmation).</p>'
