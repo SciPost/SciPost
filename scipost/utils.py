@@ -3,6 +3,8 @@ import hashlib
 import random
 import string
 
+from django.contrib.auth.models import User
+
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
