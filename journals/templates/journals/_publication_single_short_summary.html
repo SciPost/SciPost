@@ -1,3 +1,3 @@
 <h3 class="pb-0"><a href="{{publication.get_absolute_url}}">{{ publication.title }}</a></h3>
-<div class="text-muted mb-1"><span class="d-inline-block">published {{ publication.publication_date }}</span> <span class="d-inline-block">as {{ publication.doi_string }}</span></div>
+<div class="text-muted mb-1"><span class="d-inline-block">published {{ publication.publication_date }}</span> <span class="d-inline-block">as {{ publication.citation }}</span></div>
 <div>by {{ publication.author_list|truncatechars:30 }}</div>
