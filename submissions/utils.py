@@ -710,7 +710,7 @@ class SubmissionUtils(BaseMailUtil):
         It is called from the ref_invitation_reminder method in submissions/views.py.
         """
         email_text = (
-            'Dear ' + cls.invitation.title + ' '
+            'Dear ' + cls.invitation.get_title_display() + ' '
             + cls.invitation.last_name + ',\n\n'
             'On behalf of the Editor-in-charge '
             + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
@@ -786,7 +786,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>Many thanks in advance,</p>'
             '<p>The SciPost Team</p>')
         email_context = Context({
-            'title': cls.invitation.title,
+            'title': cls.invitation.get_title_display(),
             'last_name': cls.invitation.last_name,
             'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
