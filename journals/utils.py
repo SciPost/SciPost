@@ -21,7 +21,7 @@ class JournalUtils(object):
                       '\n\nhas been published online with reference '
                       + cls.publication.citation() + '.'
                       '\n\nThe publication page is located at the permanent link '
-                      'https://scipost.org/' + cls.publication.doi_string + '.'
+                      'https://scipost.org/' + cls.publication.doi_label + '.'
                       '\n\nTo facilitate dissemination of your paper, we greatly encourage '
                       'you to update the arXiv Journal-ref with this information.'
                       '\n\nWe warmly congratulate you on this achievement and thank you '
