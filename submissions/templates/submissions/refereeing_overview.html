@@ -31,12 +31,13 @@
       <div class="card-block">
 	<h3><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
 	<p>{{ submission.author_list }}</p>
+	<h4>Editor-in-charge: {{ submission.editor_in_charge }}</h4>
 	<h4>Refereeing deadline: {{ submission.reporting_deadline }}</h4>
 	<h4>Refereeing status summary:</h4>
 	{% include 'submissions/_submission_refereeing_status.html' with submission=submission %}
 	<h3 class="mb-2">Detail of refereeing invitations:</h3>
 	{% include 'submissions/_submission_refereeing_invitations.html' with submission=submission invitations=submission.referee_invitations.all %}
-	<a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a>
+	<a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='StoE' %}" target="_blank">Send a communication to the Editor-in-charge</a>
       </div>
     </div>
   </div>
