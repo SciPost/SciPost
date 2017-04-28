@@ -1,8 +1,9 @@
-Dear {{invitation.referee.get_title_display}} {{invitation.referee.user.last_name}},\n\n
+Dear {{ invitation.referee.get_title_display }} {{ invitation.referee.user.last_name }},\n\n
 
-We hereby confirm your choice to {% if invitation.accepted %}accept{% else %}decline (due to reason: {{invitation.get_refusal_reason_display}}){% endif %} to referee Submission\n\n
+We hereby confirm your choice to {% if invitation.accepted %}accept{% else %}decline (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission\n\n
 
-{{invitation.submission.title}} by {{invitation.submission.author_list}}\n\n
+{{invitation.submission.title}}\n
+by {{ invitation.submission.author_list }}\n\n
 
 {% if invitation.accepted %}
 We will look forward to receiving your Report by the reporting deadline {{ invitation.submission.reporting_deadline|date:'Y-m-d' }}.\n\n
