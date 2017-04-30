@@ -996,6 +996,13 @@ class SubmissionUtils(BaseMailUtil):
                        'Report delivered')
 
     @classmethod
+    def email_referee_report_delivered(cls):
+        """ Requires loading 'report' attribute. """
+        cls._send_mail(cls, 'report_delivered_referee',
+                       [cls._context['report'].report.author.user.email],
+                       'Report delivered')
+
+    @classmethod
     def acknowledge_report_email(cls):
         """ Requires loading 'report' attribute. """
         email_text = ('Dear ' + cls.report.author.get_title_display() + ' ' +
