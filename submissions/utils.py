@@ -999,7 +999,7 @@ class SubmissionUtils(BaseMailUtil):
     def email_referee_report_delivered(cls):
         """ Requires loading 'report' attribute. """
         cls._send_mail(cls, 'report_delivered_referee',
-                       [cls._context['report'].report.author.user.email],
+                       [cls._context['report'].author.user.email],
                        'Report delivered')
 
     @classmethod

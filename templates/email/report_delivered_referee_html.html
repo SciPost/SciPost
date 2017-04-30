@@ -1,13 +1,13 @@
 <p>
-  Dear {{ invitation.referee.get_title_display }} {{ invitation.referee.user.last_name }},
+  Dear {{ report.author.get_title_display }} {{ report.author.user.last_name }},
 </p>
 
 <p>We hereby confirm reception of your Report on Submission</p>
 
 <p>
-  {{ invitation.submission.title }}
+  {{ report.submission.title }}
   <br/>
-  by {{ invitation.submission.author_list }}.
+  by {{ report.submission.author_list }}.
 </p>
 
 <p>
