@@ -21,9 +21,6 @@ class VGM(models.Model):
     end_date = models.DateField()
     information = models.TextField(default='')
 
-    class Meta:
-        db_table = 'scipost_vgm'
-
     def __str__(self):
         return 'From %s to %s' % (self.start_date.strftime('%Y-%m-%d'),
                                   self.end_date.strftime('%Y-%m-%d'))
@@ -33,13 +30,10 @@ class Feedback(models.Model):
     """
     Feedback, suggestion or criticism on any aspect of SciPost.
     """
-    VGM = models.ForeignKey(VGM, blank=True, null=True)
-    by = models.ForeignKey(Contributor)
+    VGM = models.ForeignKey('virtualmeetings.VGM', blank=True, null=True)
+    by = models.ForeignKey('scipost.Contributor')
     date = models.DateField()
     feedback = models.TextField()
-
-    class Meta:
-        db_table = 'scipost_feedback'
 
     def __str__(self):
         return '%s: %s' % (self.by, self.feedback[:50])
@@ -61,8 +55,8 @@ class Nomination(models.Model):
     """
     Nomination to an Editorial Fellowship.
     """
-    VGM = models.ForeignKey(VGM, blank=True, null=True)
-    by = models.ForeignKey(Contributor)
+    VGM = models.ForeignKey('virtualmeetings.VGM', blank=True, null=True)
+    by = models.ForeignKey('scipost.Contributor')
     date = models.DateField()
     first_name = models.CharField(max_length=30, default='')
     last_name = models.CharField(max_length=30, default='')
@@ -84,9 +78,6 @@ class Nomination(models.Model):
                                              blank=True)
     voting_deadline = models.DateTimeField('voting deadline', default=timezone.now)
     accepted = models.NullBooleanField()
-
-    class Meta:
-        db_table = 'scipost_nomination'
 
     def __str__(self):
         return '%s %s (nominated by %s)' % (self.first_name,
@@ -154,26 +145,23 @@ class Motion(models.Model):
     They are meant to be voted on at the annual VGM.
     """
     category = models.CharField(max_length=10, choices=MOTION_CATEGORIES, default='General')
-    VGM = models.ForeignKey(VGM, blank=True, null=True)
+    VGM = models.ForeignKey('virtualmeetings.VGM', blank=True, null=True)
     background = models.TextField()
     motion = models.TextField()
-    put_forward_by = models.ForeignKey(Contributor)
+    put_forward_by = models.ForeignKey('scipost.Contributor')
     date = models.DateField()
     nr_A = models.PositiveIntegerField(default=0)
-    in_agreement = models.ManyToManyField(Contributor,
+    in_agreement = models.ManyToManyField('scipost.Contributor',
                                           related_name='in_agreement_with_motion', blank=True)
     nr_N = models.PositiveIntegerField(default=0)
-    in_notsure = models.ManyToManyField(Contributor,
+    in_notsure = models.ManyToManyField('scipost.Contributor',
                                         related_name='in_notsure_with_motion', blank=True)
     nr_D = models.PositiveIntegerField(default=0)
-    in_disagreement = models.ManyToManyField(Contributor,
+    in_disagreement = models.ManyToManyField('scipost.Contributor',
                                              related_name='in_disagreement_with_motion',
                                              blank=True)
     voting_deadline = models.DateTimeField('voting deadline', default=timezone.now)
     accepted = models.NullBooleanField()
-
-    class Meta:
-        db_table = 'scipost_motion'
 
     def __str__(self):
         return self.motion[:32]
