@@ -2,7 +2,7 @@ Dear {{contributor.get_title_display}} {{contributor.user.last_name}},\n\n
 
 Your request for a new email activation link for registration to the SciPost publication portal has been received. You now need to visit this link within the next 48 hours: \n\n
 
-{{request.get_host}}{% url 'scipost:activation' contributor.id contributor.activation_key %}
+https://scipost.org{% url 'scipost:activation' contributor.id contributor.activation_key %}
 \n\n
 
 Your registration will thereafter be vetted. Many thanks for your interest.\n

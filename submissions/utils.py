@@ -694,11 +694,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
             'SciPost: refereeing request', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
+            'SciPost Refereeing <refereeing@scipost.org>',
             [cls.invitation.referee.user.email],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 'refereeing@scipost.org'],
+            reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -710,7 +710,7 @@ class SubmissionUtils(BaseMailUtil):
         It is called from the ref_invitation_reminder method in submissions/views.py.
         """
         email_text = (
-            'Dear ' + cls.invitation.title + ' '
+            'Dear ' + cls.invitation.get_title_display() + ' '
             + cls.invitation.last_name + ',\n\n'
             'On behalf of the Editor-in-charge '
             + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
@@ -768,7 +768,7 @@ class SubmissionUtils(BaseMailUtil):
             'ideally within the next 2 days.</p>'
             '<p>If you are <strong>not</strong> able to provide a Report, '
             'you can quickly let us know by simply '
-            '<a href="https://scipost.org/decline_ref_invitation/{{ invitation_key }}>'
+            '<a href="https://scipost.org/decline_ref_invitation/{{ invitation_key }}">'
             'clicking here</a>.</p>'
             '<p>If you are able to provide a Report, you can confirm this after registering '
             'and logging in (you will automatically be prompted for a confirmation). '
@@ -786,7 +786,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>Many thanks in advance,</p>'
             '<p>The SciPost Team</p>')
         email_context = Context({
-            'title': cls.invitation.title,
+            'title': cls.invitation.get_title_display(),
             'last_name': cls.invitation.last_name,
             'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
@@ -802,11 +802,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
             'SciPost: reminder (refereeing request and registration invitation)', email_text,
-            'SciPost Submissions <submissions@scipost.org>',
+            'SciPost Refereeing <refereeing@scipost.org>',
             [cls.invitation.email_address],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 'refereeing@scipost.org'],
+            reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -889,11 +889,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
             'SciPost: reminder (refereeing request and registration invitation)', email_text,
-            'SciPost Submissions <submissions@scipost.org>',
+            'SciPost Refereeing <refereeing@scipost.org>',
             [cls.invitation.email_address],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 'refereeing@scipost.org'],
+            reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -958,11 +958,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
             'SciPost: report no longer needed', email_text,
-            'SciPost Submissions <submissions@scipost.org>',
+            'SciPost Refereeing <refereeing@scipost.org>',
             [cls.invitation.email_address],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 'refereeing@scipost.org'],
+            reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -993,6 +993,13 @@ class SubmissionUtils(BaseMailUtil):
         """ Requires loading 'report' attribute. """
         cls._send_mail(cls, 'report_delivered_eic',
                        [cls._context['report'].submission.editor_in_charge.user.email],
+                       'Report delivered')
+
+    @classmethod
+    def email_referee_report_delivered(cls):
+        """ Requires loading 'report' attribute. """
+        cls._send_mail(cls, 'report_delivered_referee',
+                       [cls._context['report'].author.user.email],
                        'Report delivered')
 
     @classmethod
@@ -1069,11 +1076,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(
             'SciPost: Report acknowledgement', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
+            'SciPost Refereeing <refereeing@scipost.org>',
             [cls.report.author.user.email],
             bcc=[cls.report.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 'refereeing@scipost.org'],
+            reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 

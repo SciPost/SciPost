@@ -3,6 +3,8 @@ import hashlib
 import random
 import string
 
+from django.contrib.auth.models import User
+
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.template import Context, Template
@@ -328,7 +330,7 @@ class Utils(BaseMailUtil):
                 'response from you, ideally within the next 2 days.</p>'
                 '<p>If you are <strong>not</strong> able to provide a Report, '
                 'you can let us know by simply '
-                '<a href="https://scipost.org/submissions/decline_ref_invitation/{{ invitation_key }}>'
+                '<a href="https://scipost.org/submissions/decline_ref_invitation/{{ invitation_key }}">'
                 'clicking here</a>.</p>'
                 '<p>If you are able to provide a Report, you can confirm this after registering '
                 'and logging in (you will automatically be prompted for a confirmation).</p>'
@@ -343,11 +345,11 @@ class Utils(BaseMailUtil):
             html_version = html_template.render(email_context)
             emailmessage = EmailMultiAlternatives(
                 'SciPost: refereeing request (and registration invitation)', email_text,
-                'SciPost Registration <registration@scipost.org>',
+                'SciPost Refereeing <refereeing@scipost.org>',
                 [cls.invitation.email],
                 cc=[cls.invitation.invited_by.user.email],
-                bcc=['registration@scipost.org'],
-                reply_to=['registration@scipost.org'])
+                bcc=['refereeing@scipost.org'],
+                reply_to=['refereeing@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
 
         elif cls.invitation.invitation_type == 'ci':
