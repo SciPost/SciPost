@@ -215,7 +215,7 @@ class VetRegistrationForm(forms.Form):
                                            label='Justification (optional)', required=False)
 
     def promote_to_registered_contributor(self):
-        return bool(self.cleaned_data.get('decision', False))
+        return self.cleaned_data.get('decision') == 'True'
 
 
 class AuthenticationForm(forms.Form):

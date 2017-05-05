@@ -24,10 +24,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('date', models.DateField()),
                 ('feedback', models.TextField()),
-            ],
-            options={
-                'db_table': 'scipost_feedback',
-            },
+            ]
         ),
         migrations.CreateModel(
             name='Motion',
@@ -42,10 +39,7 @@ class Migration(migrations.Migration):
                 ('nr_D', models.PositiveIntegerField(default=0)),
                 ('voting_deadline', models.DateTimeField(default=django.utils.timezone.now, verbose_name='voting deadline')),
                 ('accepted', models.NullBooleanField()),
-            ],
-            options={
-                'db_table': 'scipost_motion',
-            },
+            ]
         ),
         migrations.CreateModel(
             name='Nomination',
@@ -62,10 +56,7 @@ class Migration(migrations.Migration):
                 ('nr_D', models.PositiveIntegerField(default=0)),
                 ('voting_deadline', models.DateTimeField(default=django.utils.timezone.now, verbose_name='voting deadline')),
                 ('accepted', models.NullBooleanField()),
-            ],
-            options={
-                'db_table': 'scipost_nomination',
-            },
+            ]
         ),
         migrations.CreateModel(
             name='VGM',
@@ -74,10 +65,7 @@ class Migration(migrations.Migration):
                 ('start_date', models.DateField()),
                 ('end_date', models.DateField()),
                 ('information', models.TextField(default='')),
-            ],
-            options={
-                'db_table': 'scipost_vgm',
-            },
+            ]
         ),
         migrations.AddField(
             model_name='nomination',
