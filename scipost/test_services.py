@@ -47,9 +47,27 @@ class ArxivCallerTest(TestCase):
 
 
 class DOICallerTest(TestCase):
-    def setUp(self):
-        self.doi_string = '10.1103/PhysRevB.92.214427'
-        self.caller = DOICaller(self.doi_string)
+    def test_works_for_physrev_doi(self):
+        caller = DOICaller('10.1103/PhysRevB.92.214427')
+        correct_data = {
+            'pub_date': '2015-12-18',
+            'journal': 'Physical Review B',
+            'pages': '',
+            'authorlist': [
+                'R. Vlijm', 'M. Ganahl', 'D. Fioretto', 'M. Brockmann', 'M. Haque', 'H. G. Evertz', 'J.-S. Caux'],
+            'volume': '92',
+            'pub_title': 'Quasi-soliton scattering in quantum spin chains'
+        }
+        self.assertEqual(caller.data, correct_data)
 
-    def test_collects_data(self):
-        print(self.caller.crossref_data)
+    def test_works_for_scipost_doi(self):
+        caller = DOICaller('10.21468/SciPostPhys.2.2.012')
+        correct_data = {
+            'pub_date': '2017-04-04',
+            'journal': 'SciPost Physics',
+            'pub_title': 'One-particle density matrix of trapped one-dimensional impenetrable  bosons from conformal invariance',
+            'pages': '',
+            'volume': '2',
+            'authorlist': ['Yannis Brun', 'Jerome Dubail']
+        }
+        self.assertEqual(caller.data, correct_data)

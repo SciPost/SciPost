@@ -2,6 +2,7 @@
 import feedparser
 import requests
 import re
+import datetime
 
 from django.template import Template, Context
 from .behaviors import ArxivCallable
@@ -26,8 +27,16 @@ class DOICaller:
         journal = data['container-title'][0]
         volume = data.get('volume', '')
         pages = self._get_pages(data)
-        pub_data = self._get_pub_date(data)
+        pub_date = self._get_pub_date(data)
 
+        self.data = {
+            'pub_title': pub_title,
+            'authorlist': authorlist,
+            'journal': journal,
+            'volume': volume,
+            'pages': pages,
+            'pub_date': pub_date,
+        }
 
     def _get_pages(self, data):
         # For Physical Review
@@ -37,25 +46,17 @@ class DOICaller:
         return pages
 
     def _get_pub_date(self, data):
-        date_parts = data.get('issued', {}).get('date_parts', {})
-        date_parts = data['issued']['date-parts'][0]
-        year = date_parts[0]
-        month = date_parts[1]
-        day = date_parts[2]
-        pub_date = "{}-{}-{}".format(year, month, day)
+        date_parts = data.get('issued', {}).get('date-parts', {})
+        if date_parts:
+            date_parts = date_parts[0]
+            year = date_parts[0]
+            month = date_parts[1]
+            day = date_parts[2]
+            pub_date = datetime.date(year, month, day).isoformat()
+        else:
+            pub_date = ''
 
-        pub_date = ''
-        try:
-            pub_date = (str(data['message']['issued']['date-parts'][0][0]) + '-' +
-                        str(data['message']['issued']['date-parts'][0][1]))
-            try:
-                pub_date += '-' + str(
-                    data['message']['issued']['date-parts'][0][2])
-            except (IndexError, KeyError):
-                pass
-        except (IndexError, KeyError):
-            pass
-
+        return pub_date
 
 
 
