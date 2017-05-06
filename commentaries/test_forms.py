@@ -14,12 +14,6 @@ from common.helpers.test import add_groups_and_permissions
 class TestDOIToQueryForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
-        doi_string = "10.21468/SciPostPhys.2.2.010"
-        self.valid_form_data = {'doi': doi_string}
-
-    def test_valid_doi_is_valid(self):
-        form = DOIToQueryForm(self.valid_form_data)
-        self.assertTrue(form.is_valid())
 
     def test_invalid_doi_is_invalid(self):
         invalid_data = {'doi': 'blablab'}
@@ -33,6 +27,21 @@ class TestDOIToQueryForm(TestCase):
         self.assertFalse(form.is_valid())
         error_message = form.errors['doi'][0]
         self.assertRegexpMatches(error_message, re.compile('already exist'))
+
+    def test_physrev_doi_is_valid(self):
+        physrev_doi = "10.21468/SciPostPhys.2.2.010"
+        form = DOIToQueryForm({'doi': physrev_doi})
+        self.assertTrue(form.is_valid())
+
+    def test_scipost_doi_is_valid(self):
+        scipost_doi = "10.21468/SciPostPhys.2.2.010"
+        form = DOIToQueryForm({'doi': scipost_doi})
+        self.assertTrue(form.is_valid())
+
+    def test_old_doi_is_valid(self):
+        old_doi = "10.1088/0022-3719/7/6/005"
+        form = DOIToQueryForm({'doi': old_doi})
+        self.assertTrue(form.is_valid())
 
 
 class TestVetCommentaryForm(TestCase):
