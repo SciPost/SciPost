@@ -13,6 +13,7 @@ from django.template.loader import render_to_string
 from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
+from django.http import Http404
 
 from .models import Commentary
 from .forms import RequestCommentaryForm, DOIToQueryForm, IdentifierToQueryForm
@@ -21,7 +22,7 @@ from .forms import VetCommentaryForm, CommentarySearchForm
 from comments.models import Comment
 from comments.forms import CommentForm
 from scipost.models import Contributor
-from scipost.services import ArxivCaller
+from scipost.services import ArxivCaller, DOICaller
 
 import strings
 
@@ -65,90 +66,119 @@ class RequestCommentary(LoginRequiredMixin, RequestCommentaryMixin, CreateView):
 
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def prefill_using_DOI(request):
-    """ Probes CrossRef API with the DOI, to pre-fill the form. """
     if request.method == "POST":
-        doiform = DOIToQueryForm(request.POST)
-        if doiform.is_valid():
-            # Check if given doi is of expected form:
-            doipattern = re.compile("^10.[0-9]{4,9}/[-._;()/:a-zA-Z0-9]+")
-            errormessage = ''
-            existing_commentary = None
-            if not doipattern.match(doiform.cleaned_data['doi']):
-                errormessage = 'The DOI you entered is improperly formatted.'
-            elif Commentary.objects.filter(pub_DOI=doiform.cleaned_data['doi']).exists():
-                errormessage = 'There already exists a Commentary Page on this publication, see'
-                existing_commentary = get_object_or_404(Commentary,
-                                                        pub_DOI=doiform.cleaned_data['doi'])
-            if errormessage:
-                form = RequestCommentaryForm()
-                identifierform = IdentifierToQueryForm()
-                context = {
-                    'request_commentary_form': form,
-                    'doiform': doiform,
-                    'identifierform': identifierform,
-                    'errormessage': errormessage,
-                    'existing_commentary': existing_commentary}
-                return render(request, 'commentaries/request_commentary.html', context)
-
-            # Otherwise we query Crossref for the information:
-            try:
-                queryurl = 'http://api.crossref.org/works/%s' % doiform.cleaned_data['doi']
-                doiquery = requests.get(queryurl)
-                doiqueryJSON = doiquery.json()
-                metadata = doiqueryJSON
-                pub_title = doiqueryJSON['message']['title'][0]
-                authorlist = (doiqueryJSON['message']['author'][0]['given'] + ' ' +
-                              doiqueryJSON['message']['author'][0]['family'])
-                for author in doiqueryJSON['message']['author'][1:]:
-                    authorlist += ', ' + author['given'] + ' ' + author['family']
-                journal = doiqueryJSON['message']['container-title'][0]
-
-                try:
-                    volume = doiqueryJSON['message']['volume']
-                except KeyError:
-                    volume = ''
-
-                pages = ''
-                try:
-                    pages = doiqueryJSON['message']['article-number']  # for Phys Rev
-                except KeyError:
-                    pass
-                try:
-                    pages = doiqueryJSON['message']['page']
-                except KeyError:
-                    pass
-
-                pub_date = ''
-                try:
-                    pub_date = (str(doiqueryJSON['message']['issued']['date-parts'][0][0]) + '-' +
-                                str(doiqueryJSON['message']['issued']['date-parts'][0][1]))
-                    try:
-                        pub_date += '-' + str(
-                            doiqueryJSON['message']['issued']['date-parts'][0][2])
-                    except (IndexError, KeyError):
-                        pass
-                except (IndexError, KeyError):
-                    pass
-                pub_DOI = doiform.cleaned_data['doi']
-                form = RequestCommentaryForm(
-                    initial={'type': 'published', 'metadata': metadata,
-                             'pub_title': pub_title, 'author_list': authorlist,
-                             'journal': journal, 'volume': volume,
-                             'pages': pages, 'pub_date': pub_date,
-                             'pub_DOI': pub_DOI})
-                identifierform = IdentifierToQueryForm()
-                context = {
-                    'request_commentary_form': form,
-                    'doiform': doiform,
-                    'identifierform': identifierform
-                }
-                context['title'] = pub_title
-                return render(request, 'commentaries/request_commentary.html', context)
-            except (IndexError, KeyError, ValueError):
-                pass
+        doi_form = DOIToQueryForm(request.POST)
+        identifier_form = IdentifierToQueryForm()
+        # The form checks if doi is valid and commentary doesn't already exist.
+        if doi_form.is_valid():
+            doi = doi_form.cleaned_data['doi']
+            crossref_data = DOICaller(doi).data
+            additional_form_data = {'type': 'published', 'pub_DOI': doi}
+            total_form_data = {**crossref_data, **additional_form_data}
+            commentary_form = RequestCommentaryForm(initial=total_form_data)
+            context = {
+                'request_commentary_form': commentary_form,
+                'doiform': doi_form,
+                'identifierform': identifier_form,
+            }
+            return render(request, 'commentaries/request_commentary.html', context)
         else:
-            pass
-    return redirect(reverse('commentaries:request_commentary'))
+            context = {
+                'request_commentary_form': RequestCommentaryForm(),
+                'doiform': doi_form,
+                'identifierform': identifier_form
+            }
+            return render(request, 'commentaries/request_commentary.html', context)
+    else:
+        raise Http404('Only accessible by POST-request.')
+
+
+
+# def prefill_using_DOI(request):
+#     """ Probes CrossRef API with the DOI, to pre-fill the form. """
+#     if request.method == "POST":
+#         doiform = DOIToQueryForm(request.POST)
+#         if doiform.is_valid():
+#             # Check if given doi is of expected form:
+#             doipattern = re.compile("^10.[0-9]{4,9}/[-._;()/:a-zA-Z0-9]+")
+#             errormessage = ''
+#             existing_commentary = None
+#             if not doipattern.match(doiform.cleaned_data['doi']):
+#                 errormessage = 'The DOI you entered is improperly formatted.'
+#             elif Commentary.objects.filter(pub_DOI=doiform.cleaned_data['doi']).exists():
+#                 errormessage = 'There already exists a Commentary Page on this publication, see'
+#                 existing_commentary = get_object_or_404(Commentary,
+#                                                         pub_DOI=doiform.cleaned_data['doi'])
+#             if errormessage:
+#                 form = RequestCommentaryForm()
+#                 identifierform = IdentifierToQueryForm()
+#                 context = {
+#                     'request_commentary_form': form,
+#                     'doiform': doiform,
+#                     'identifierform': identifierform,
+#                     'errormessage': errormessage,
+#                     'existing_commentary': existing_commentary}
+#                 return render(request, 'commentaries/request_commentary.html', context)
+#
+#             # Otherwise we query Crossref for the information:
+#             try:
+#                 queryurl = 'http://api.crossref.org/works/%s' % doiform.cleaned_data['doi']
+#                 doiquery = requests.get(queryurl)
+#                 doiqueryJSON = doiquery.json()
+#                 metadata = doiqueryJSON
+#                 pub_title = doiqueryJSON['message']['title'][0]
+#                 authorlist = (doiqueryJSON['message']['author'][0]['given'] + ' ' +
+#                               doiqueryJSON['message']['author'][0]['family'])
+#                 for author in doiqueryJSON['message']['author'][1:]:
+#                     authorlist += ', ' + author['given'] + ' ' + author['family']
+#                 journal = doiqueryJSON['message']['container-title'][0]
+#
+#                 try:
+#                     volume = doiqueryJSON['message']['volume']
+#                 except KeyError:
+#                     volume = ''
+#
+#                 pages = ''
+#                 try:
+#                     pages = doiqueryJSON['message']['article-number']  # for Phys Rev
+#                 except KeyError:
+#                     pass
+#                 try:
+#                     pages = doiqueryJSON['message']['page']
+#                 except KeyError:
+#                     pass
+#
+#                 pub_date = ''
+#                 try:
+#                     pub_date = (str(doiqueryJSON['message']['issued']['date-parts'][0][0]) + '-' +
+#                                 str(doiqueryJSON['message']['issued']['date-parts'][0][1]))
+#                     try:
+#                         pub_date += '-' + str(
+#                             doiqueryJSON['message']['issued']['date-parts'][0][2])
+#                     except (IndexError, KeyError):
+#                         pass
+#                 except (IndexError, KeyError):
+#                     pass
+#                 pub_DOI = doiform.cleaned_data['doi']
+#                 form = RequestCommentaryForm(
+#                     initial={'type': 'published', 'metadata': metadata,
+#                              'pub_title': pub_title, 'author_list': authorlist,
+#                              'journal': journal, 'volume': volume,
+#                              'pages': pages, 'pub_date': pub_date,
+#                              'pub_DOI': pub_DOI})
+#                 identifierform = IdentifierToQueryForm()
+#                 context = {
+#                     'request_commentary_form': form,
+#                     'doiform': doiform,
+#                     'identifierform': identifierform
+#                 }
+#                 context['title'] = pub_title
+#                 return render(request, 'commentaries/request_commentary.html', context)
+#             except (IndexError, KeyError, ValueError):
+#                 pass
+#         else:
+#             pass
+#     return redirect(reverse('commentaries:request_commentary'))
 
 
 @method_decorator(permission_required(
