@@ -7,7 +7,7 @@ from scipost.factories import ContributorFactory, UserFactory
 from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory
 from .forms import CommentarySearchForm
 from .models import Commentary
-from .views import RequestCommentary
+from .views import RequestCommentary, prefill_using_DOI
 from common.helpers.test import add_groups_and_permissions
 
 
@@ -33,6 +33,21 @@ class RequestCommentaryTest(TestCase):
     def test_post_invalid_forms(self):
         """Test different kind of invalid RequestCommentaryForm submits"""
         raise NotImplementedError
+
+
+class PrefillUsingDOITest(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+        self.target = reverse('commentaries:prefill_using_DOI')
+        self.physrev_doi = '10.1103/PhysRevB.92.214427'
+
+    def test_submit_valid_physrev_doi(self):
+        post_data = {'doi': self.physrev_doi}
+        request = RequestFactory().post(self.target, post_data)
+        request.user = UserFactory()
+
+        response = prefill_using_DOI(request)
+        self.assertRedirects(response, reverse('commentaries:request_commentary'))
 
 
 class VetCommentaryRequestsTest(TestCase):

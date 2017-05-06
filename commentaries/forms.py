@@ -10,16 +10,20 @@ from scipost.models import Contributor
 
 
 class DOIToQueryForm(forms.Form):
-    VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
-    doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=False, widget=forms.TextInput(
+    doi = forms.CharField(widget=forms.TextInput(
         {'label': 'DOI', 'placeholder': 'ex.: 10.21468/00.000.000000'}))
 
-    def clean_doi(self):
-        input_doi = self.cleaned_data['doi']
-        if Commentary.objects.filter(pub_DOI=input_doi).exists():
-            error_message = 'There already exists a Commentary Page on this publication.'
-            raise forms.ValidationError(error_message)
-        return input_doi
+# class DOIToQueryForm(forms.Form):
+#     VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
+#     doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=False, widget=forms.TextInput(
+#         {'label': 'DOI', 'placeholder': 'ex.: 10.21468/00.000.000000'}))
+#
+#     def clean_doi(self):
+#         input_doi = self.cleaned_data['doi']
+#         if Commentary.objects.filter(pub_DOI=input_doi).exists():
+#             error_message = 'There already exists a Commentary Page on this publication.'
+#             raise forms.ValidationError(error_message)
+#         return input_doi
 
 
 class IdentifierToQueryForm(forms.Form):

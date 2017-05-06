@@ -17,10 +17,45 @@ class DOICaller:
 
     def _call_crosslink(self):
         url = 'http://api.crossref.org/works/%s' % self.doi_string
-        self.crossref_data = requests.get(url).json()
+        self.crossref_data = requests.get(url).json()['message']
 
-    def _collect_data(self):
-        # read out json here.
+    def _format_data(self):
+        data = self.crossref_data
+        pub_title = data['title'][0]
+        authorlist = ['{} {}'.format(author['given'], author['family']) for author in data['author']]
+        journal = data['container-title'][0]
+        volume = data.get('volume', '')
+        pages = self._get_pages(data)
+        pub_data = self._get_pub_date(data)
+
+
+    def _get_pages(self, data):
+        # For Physical Review
+        pages = data.get('article-number', '')
+        # For other journals?
+        pages = data.get('page', '')
+        return pages
+
+    def _get_pub_date(self, data):
+        date_parts = data.get('issued', {}).get('date_parts', {})
+        date_parts = data['issued']['date-parts'][0]
+        year = date_parts[0]
+        month = date_parts[1]
+        day = date_parts[2]
+        pub_date = "{}-{}-{}".format(year, month, day)
+
+        pub_date = ''
+        try:
+            pub_date = (str(data['message']['issued']['date-parts'][0][0]) + '-' +
+                        str(data['message']['issued']['date-parts'][0][1]))
+            try:
+                pub_date += '-' + str(
+                    data['message']['issued']['date-parts'][0][2])
+            except (IndexError, KeyError):
+                pass
+        except (IndexError, KeyError):
+            pass
+
 
 
 
