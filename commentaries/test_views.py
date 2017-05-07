@@ -47,7 +47,8 @@ class PrefillUsingDOITest(TestCase):
         request.user = UserFactory()
 
         response = prefill_using_DOI(request)
-        self.assertRedirects(response, reverse('commentaries:request_commentary'))
+        # Not sure what to test here
+        raise NotImplementedError
 
 
 class VetCommentaryRequestsTest(TestCase):

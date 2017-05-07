@@ -1,0 +1,27 @@
+{% extends 'scipost/base.html' %}
+{% load bootstrap %}
+{% load scipost_extras %}
+
+{% block pagetitle %}: request Commentary{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+    {# <h3><em>For published papers, you can prefill the form (except for domain, subject area and abstract) using the DOI:</em></h3>#}
+    {# <p><em>(give the DOI as 10.[4 to 9 digits]/[string], without prefix, as per the placeholder)</em></p>#}
+    <form action="{% url 'commentaries:prefill_using_DOI' %}" method="post">
+      {% csrf_token %}
+      {{ doi_query_form|bootstrap }}
+      <input class="btn btn-secondary" type="submit" value="Query DOI"/>
+    </form>
+</div>
+
+<div class="row">
+    <form id="requestForm" action="{% url 'commentaries:request_published_article' %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input class="btn btn-primary" type="submit" value="Submit"/>
+    </form>
+</div>
+
+{% endblock content%}

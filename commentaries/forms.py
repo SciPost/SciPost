@@ -9,10 +9,6 @@ from .models import Commentary
 from scipost.models import Contributor
 
 
-# class DOIToQueryForm(forms.Form):
-#     doi = forms.CharField(widget=forms.TextInput(
-#         {'label': 'DOI', 'placeholder': 'ex.: 10.21468/00.000.000000'}))
-
 class DOIToQueryForm(forms.Form):
     VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
     doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=False, widget=forms.TextInput(
@@ -54,6 +50,23 @@ class IdentifierToQueryForm(forms.Form):
                     commentary.title_label())
             self.add_error('identifier', msg)
         return cleaned_data
+
+
+class RequestPublishedArticleForm(forms.ModelForm):
+    class Meta:
+        model = Commentary
+        fields = [
+            'type', 'discipline', 'domain', 'subject_area', 'pub_title', 'author_list', 'metadata', 'journal', 'volume',
+            'pages', 'pub_date', 'pub_DOI', 'pub_abstract'
+        ]
+        widgets = {
+            'metadata': forms.HiddenInput(),
+            'type': forms.HiddenInput(),
+        }
+        placeholders = {
+            'pub_DOI': 'ex.: 10.21468/00.000.000000',
+            'pub_date': 'Format: YYYY-MM-DD',
+        }
 
 
 class RequestCommentaryForm(forms.ModelForm):
