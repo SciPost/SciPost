@@ -6,10 +6,11 @@ from django.utils import timezone
 
 from scipost.factories import ContributorFactory
 from scipost.models import Contributor
-from journals.constants import SCIPOST_JOURNAL_PHYSICS, SCIPOST_JOURNALS_DOMAINS
-from common.helpers import random_arxiv_identifier_without_version_number
+from journals.constants import SCIPOST_JOURNALS_DOMAINS
+from common.helpers import random_arxiv_identifier_without_version_number, random_scipost_journal
 
-from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSION_INCOMING
+from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSION_INCOMING,\
+                       STATUS_PUBLISHED
 from .models import Submission
 
 from faker import Faker
@@ -21,9 +22,9 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
 
     author_list = factory.Faker('name')
     submitted_by = factory.SubFactory(ContributorFactory)
-    submitted_to_journal = SCIPOST_JOURNAL_PHYSICS
+    submitted_to_journal = factory.Sequence(lambda n: random_scipost_journal())
     title = factory.lazy_attribute(lambda x: Faker().sentence())
-    abstract = factory.lazy_attribute(Faker().text())
+    abstract = factory.lazy_attribute(lambda x: Faker().paragraph())
     arxiv_link = factory.Faker('uri')
     arxiv_identifier_wo_vn_nr = factory.Sequence(
                                     lambda n: random_arxiv_identifier_without_version_number())
@@ -62,7 +63,6 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
 
 class EICassignedSubmissionFactory(SubmissionFactory):
     status = STATUS_EIC_ASSIGNED
-    editor_in_charge = factory.SubFactory(ContributorFactory)
     open_for_commenting = True
     open_for_reporting = True
 
@@ -77,3 +77,10 @@ class UnassignedSubmissionFactory(SubmissionFactory):
 
 class ResubmittedScreeningSubmissionFactory(SubmissionFactory):
     status = STATUS_RESUBMISSION_INCOMING
+
+
+class PublishedSubmissionFactory(SubmissionFactory):
+    status = STATUS_PUBLISHED
+    open_for_commenting = False
+    open_for_reporting = False
+    is_current = True
