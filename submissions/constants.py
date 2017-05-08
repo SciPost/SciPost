@@ -4,6 +4,8 @@ STATUS_REVISION_REQUESTED = 'revision_requested'
 STATUS_EIC_ASSIGNED = 'EICassigned'
 STATUS_AWAITING_ED_REC = 'awaiting_ed_rec'
 STATUS_REVIEW_CLOSED = 'review_closed'
+STATUS_ACCEPTED = 'accepted'
+STATUS_PUBLISHED = 'published'
 SUBMISSION_STATUS = (
     (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
     (STATUS_RESUBMISSION_INCOMING, 'Resubmission incoming'),
@@ -21,10 +23,10 @@ SUBMISSION_STATUS = (
     ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
     (STATUS_AWAITING_ED_REC, 'Awaiting Editorial Recommendation'),
     ('EC_vote_completed', 'Editorial College voting rounded up'),
-    ('accepted', 'Publication decision taken: accept'),
+    (STATUS_ACCEPTED, 'Publication decision taken: accept'),
     ('rejected', 'Publication decision taken: reject'),
     ('rejected_visible', 'Publication decision taken: reject (still publicly visible)'),
-    ('published', 'Published'),
+    (STATUS_PUBLISHED, 'Published'),
     # If withdrawn:
     ('withdrawn', 'Withdrawn by the Authors'),
 )

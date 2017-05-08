@@ -8,6 +8,8 @@ def journal_name_abbrev_citation(journal_name):
         return 'SciPost Phys. Sel.'
     elif journal_name == 'SciPostPhysLectNotes':
         return 'SciPost Phys. Lect. Notes'
+    elif journal_name == 'SciPostPhysProc':
+        return 'SciPost Phys. Proc.'
     else:
         raise JournalNameError(journal_name)
 
