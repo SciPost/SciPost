@@ -1,8 +1,10 @@
 from django.core.management.base import BaseCommand
 
 from news.factories import NewsItemFactory
+from submissions.factories import EICassignedSubmissionFactory
 
-from ...factories import ContributorFactory, EditorialCollegeFactory, EditorialCollegeFellowshipFactory
+from ...factories import ContributorFactory, EditorialCollegeFactory,\
+                         EditorialCollegeFellowshipFactory
 
 
 class Command(BaseCommand):
@@ -29,6 +31,13 @@ class Command(BaseCommand):
             help='Add Editorial College and Fellows (Contributors required)',
         )
         parser.add_argument(
+            '--submissions',
+            action='store_true',
+            dest='submissions',
+            default=False,
+            help='Add 5 new submissions status EIC assigned',
+        )
+        parser.add_argument(
             '--all',
             action='store_true',
             dest='all',
@@ -44,6 +53,8 @@ class Command(BaseCommand):
             self.create_editorial_college_fellows()
         if kwargs['news'] or kwargs['all']:
             self.create_news_items()
+        if kwargs['submissions'] or kwargs['all']:
+            self.create_submissions()
 
     def create_contributors(self):
         ContributorFactory.create_batch(5)
@@ -60,3 +71,7 @@ class Command(BaseCommand):
     def create_news_items(self):
         NewsItemFactory.create_batch(5)
         self.stdout.write(self.style.SUCCESS('Successfully created News items.'))
+
+    def create_submissions(self):
+        EICassignedSubmissionFactory.create_batch(5)
+        self.stdout.write(self.style.SUCCESS('Successfully created Submissions.'))

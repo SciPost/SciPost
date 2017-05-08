@@ -29,6 +29,7 @@ def model_form_data(model, form_class, form_kwargs={}):
     form_fields = list(form_class(**form_kwargs).fields.keys())
     return filter_keys(model_data, form_fields)
 
+
 def random_arxiv_identifier_with_version_number():
     return random_arxiv_identifier_without_version_number() + "v0"
 
