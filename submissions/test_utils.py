@@ -76,7 +76,6 @@ class TestResubmissionSubmissionCycle(TestCase):
     @tag('cycle', 'core')
     def test_init_resubmission_factory_is_valid(self):
         """Ensure valid fields for the factory."""
-        return
         self.assertEqual(self.submission.status, STATUS_RESUBMISSION_INCOMING)
         self.assertIsInstance(self.submission.editor_in_charge, Contributor)
         self.assertTrue(self.submission.is_current)
@@ -117,7 +116,6 @@ class TestResubmissionDirectSubmissionCycle(TestCase):
     @tag('cycle', 'core')
     def test_init_resubmission_factory_is_valid(self):
         """Ensure valid fields for the factory."""
-        return
         self.assertEqual(self.submission.status, STATUS_RESUBMISSION_INCOMING)
         self.assertIsInstance(self.submission.editor_in_charge, Contributor)
         self.assertTrue(self.submission.is_current)
