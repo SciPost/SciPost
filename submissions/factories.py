@@ -44,10 +44,13 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     @factory.post_generation
     def contributors(self, create, extracted, **kwargs):
         contributors = list(Contributor.objects.order_by('?')
-                            .exclude(pk=self.submitted_by.pk).all()[:4])
+                            .exclude(pk=self.submitted_by.pk).all()[:3])
         if not create:
             return
-        self.editor_in_charge = contributors.pop()
+        # Auto-add the submitter as an author
+        self.authors.add(self.submitted_by)
+
+        # Add three random authors
         for contrib in contributors:
             self.authors.add(contrib)
             self.author_list += ', %s %s' % (contrib.user.first_name, contrib.user.last_name)
@@ -55,10 +58,20 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     @factory.post_generation
     def dates(self, create, extracted, **kwargs):
         timezone.now()
-        self.submission_date = Faker().date_time_between(start_date="-3y", end_date="now",
-                                                         tzinfo=pytz.UTC)
+        if kwargs.get('submission', False):
+            self.submission_date = kwargs['submission']
+        else:
+            self.submission_date = Faker().date_time_between(start_date="-3y", end_date="now",
+                                                             tzinfo=pytz.UTC)
         self.latest_activity = Faker().date_time_between(start_date=self.submission_date,
                                                          end_date="now", tzinfo=pytz.UTC)
+
+
+class UnassignedSubmissionFactory(SubmissionFactory):
+    '''
+    This Submission is a 'new request' by a Contributor for its Submission.
+    '''
+    status = STATUS_UNASSIGNED
 
 
 class EICassignedSubmissionFactory(SubmissionFactory):
@@ -70,9 +83,12 @@ class EICassignedSubmissionFactory(SubmissionFactory):
     def report_dates(self, create, extracted, **kwargs):
         self.reporting_deadline = self.latest_activity + datetime.timedelta(weeks=2)
 
-
-class UnassignedSubmissionFactory(SubmissionFactory):
-    status = STATUS_UNASSIGNED
+    @factory.post_generation
+    def eic(self, create, extracted, **kwargs):
+        author_ids = list(self.authors.values_list('id', flat=True))
+        self.editor_in_charge = (Contributor.objects.order_by('?')
+                                            .exclude(pk=self.submitted_by.pk)
+                                            .exclude(pk__in=author_ids).first())
 
 
 class ResubmittedScreeningSubmissionFactory(SubmissionFactory):
