@@ -6,7 +6,8 @@ from common.helpers.test import add_groups_and_permissions
 from scipost.factories import ContributorFactory
 from scipost.models import Contributor
 
-from .constants import STATUS_UNASSIGNED, STATUS_RESUBMISSION_INCOMING
+from .constants import STATUS_UNASSIGNED, STATUS_RESUBMISSION_INCOMING, STATUS_AWAITING_ED_REC,\
+                       STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC
 from .exceptions import CycleUpdateDeadlineError
 from .factories import UnassignedSubmissionFactory, ResubmittedSubmissionFactory
 from .utils import GeneralSubmissionCycle
@@ -68,7 +69,7 @@ class TestResubmissionSubmissionCycle(TestCase):
         self.submission_date = datetime.date.today()
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
-        self.new_submission = ResubmittedSubmissionFactory(
+        self.submission = ResubmittedSubmissionFactory(
             dates__submission=self.submission_date
         )
 
@@ -76,18 +77,63 @@ class TestResubmissionSubmissionCycle(TestCase):
     def test_init_resubmission_factory_is_valid(self):
         """Ensure valid fields for the factory."""
         return
-        self.assertEqual(self.new_submission.status, STATUS_RESUBMISSION_INCOMING)
-        self.assertIsInstance(self.new_submission.editor_in_charge, Contributor)
-        self.assertTrue(self.new_submission.is_current)
-        self.assertTrue(self.new_submission.is_resubmission)
-        self.assertIsNot(self.new_submission.title, '')
-        self.assertIsInstance(self.new_submission.submitted_by, Contributor)
-        self.assertTrue(self.new_submission.open_for_commenting)
-        self.assertTrue(self.new_submission.open_for_reporting)
-        self.assertEqual(self.new_submission.submission_date, self.submission_date)
+        self.assertEqual(self.submission.status, STATUS_RESUBMISSION_INCOMING)
+        self.assertIsInstance(self.submission.editor_in_charge, Contributor)
+        self.assertTrue(self.submission.is_current)
+        self.assertTrue(self.submission.is_resubmission)
+        self.assertIsNot(self.submission.title, '')
+        self.assertIsInstance(self.submission.submitted_by, Contributor)
+        self.assertTrue(self.submission.open_for_commenting)
+        self.assertTrue(self.submission.open_for_reporting)
+        self.assertEqual(self.submission.submission_date, self.submission_date)
+        self.assertEqual(self.submission.refereeing_cycle, CYCLE_DEFAULT)
 
     @tag('cycle', 'core')
     def test_initial_cycle_required_actions_and_deadline(self):
         """Test valid required actions for default cycle."""
+        self.assertRaises(CycleUpdateDeadlineError, self.submission.cycle.update_deadline)
+
+        # Update status for default cycle to check new status
+        self.submission.cycle.update_status()
+        self.assertEqual(self.submission.status, STATUS_EIC_ASSIGNED)
+
+
+class TestResubmissionDirectSubmissionCycle(TestCase):
+    '''
+    This TestCase should act as a master test to check all steps in the
+    submission's cycle: resubmission (cycle: DIRECT_RECOMMENDATION).
+    '''
+
+    def setUp(self):
+        """Basics for all tests"""
+        self.submission_date = datetime.date.today()
+        add_groups_and_permissions()
+        ContributorFactory.create_batch(5)
+        self.submission = ResubmittedSubmissionFactory(
+            dates__submission=self.submission_date,
+            refereeing_cycle=CYCLE_DIRECT_REC
+        )
+
+    @tag('cycle', 'core')
+    def test_init_resubmission_factory_is_valid(self):
+        """Ensure valid fields for the factory."""
         return
-        self.assertRaises(CycleUpdateDeadlineError, self.new_submission.update_deadline())
+        self.assertEqual(self.submission.status, STATUS_RESUBMISSION_INCOMING)
+        self.assertIsInstance(self.submission.editor_in_charge, Contributor)
+        self.assertTrue(self.submission.is_current)
+        self.assertTrue(self.submission.is_resubmission)
+        self.assertIsNot(self.submission.title, '')
+        self.assertIsInstance(self.submission.submitted_by, Contributor)
+        self.assertTrue(self.submission.open_for_commenting)
+        self.assertTrue(self.submission.open_for_reporting)
+        self.assertEqual(self.submission.submission_date, self.submission_date)
+        self.assertEqual(self.submission.refereeing_cycle, CYCLE_DIRECT_REC)
+
+    @tag('cycle', 'core')
+    def test_initial_cycle_required_actions_and_deadline(self):
+        """Test valid required actions for default cycle."""
+        self.assertRaises(CycleUpdateDeadlineError, self.submission.cycle.update_deadline)
+
+        # Update status for default cycle to check new status
+        self.submission.cycle.update_status()
+        self.assertEqual(self.submission.status, STATUS_AWAITING_ED_REC)
