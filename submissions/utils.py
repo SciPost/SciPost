@@ -7,6 +7,7 @@ from django.utils import timezone
 from .constants import NO_REQUIRED_ACTION_STATUSES,\
                        STATUS_REVISION_REQUESTED, STATUS_EIC_ASSIGNED,\
                        STATUS_RESUBMISSION_INCOMING, STATUS_AWAITING_ED_REC
+from .exceptions import CycleUpdateDeadlineError
 
 from scipost.utils import EMAIL_FOOTER
 from common.utils import BaseMailUtil
@@ -112,10 +113,18 @@ class BaseSubmissionCycle:
                 SubmissionUtils.reinvite_referees_email()
 
     def update_deadline(self, period=None):
+        """
+        Reset the reporting deadline according to current datetime and default cycle length.
+        New reporting deadline may be explicitly given as datetime instance.
+        """
+        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
+            raise CycleUpdateDeadlineError('Submission has invalid status: %s'
+                                           % self.submission.status)
         delta_d = period or self.default_days
         deadline = timezone.now() + datetime.timedelta(days=delta_d)
         self.submission.reporting_deadline = deadline
         self.submission.save()
+
 
     def get_required_actions(self):
         '''Return list of the submission its required actions'''
