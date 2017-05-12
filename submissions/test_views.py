@@ -1,3 +1,5 @@
+import json
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test import Client
@@ -10,6 +12,39 @@ from .constants import STATUS_UNASSIGNED
 from .factories import EICassignedSubmissionFactory
 from .forms import SubmissionForm, SubmissionIdentifierForm
 from .models import Submission
+
+# This is content of a real arxiv submission. As long as it isn't published it should
+# be possible to run tests using this submission.
+TEST_SUBMISSION = {
+    'is_resubmission': False,
+    'title': ('General solution of 2D and 3D superconducting quasiclassical'
+              ' systems:\n  coalescing vortices and nanodisk geometries'),
+    'author_list': 'Morten Amundsen, Jacob Linder',
+    'arxiv_identifier_w_vn_nr': '1512.00030v1',
+    'arxiv_identifier_wo_vn_nr': '1512.00030',
+    'arxiv_vn_nr': 1,
+    'arxiv_link': 'http://arxiv.org/abs/1512.00030v1',
+    'abstract': ('In quasiclassical Keldysh theory, the Green function matrix $\\check{g}$'
+                 ' is\nused to compute a variety of physical quantities in mesoscopic syst'
+                 'ems.\nHowever, solving the set of non-linear differential equations that'
+                 ' provide\n$\\check{g}$ becomes a challenging task when going to higher s'
+                 'patial dimensions\nthan one. Such an extension is crucial in order to de'
+                 'scribe physical phenomena\nlike charge/spin Hall effects and topological'
+                 ' excitations like vortices and\nskyrmions, none of which can be captured'
+                 ' in one-dimensional models. We here\npresent a numerical finite element '
+                 'method which solves the 2D and 3D\nquasiclassical Usadel equation, witho'
+                 'ut any linearisation, relevant for the\ndiffusive regime. We show the ap'
+                 'plication of this on two model systems with\nnon-trivial geometries: (i)'
+                 ' a bottlenecked Josephson junction with external\nflux and (ii) a nanodi'
+                 'sk ferromagnet deposited on top of a superconductor. We\ndemonstrate tha'
+                 't it is possible to control externally not only the geometrical\narray i'
+                 'n which superconducting vortices arrange themselves, but also to cause\n'
+                 'coalescence and thus tune the number of vortices. The finite element met'
+                 'hod\npresented herein could pave the way for gaining insight in physical'
+                 ' phenomena\nwhich so far have remained largely unexplored due to the com'
+                 'plexity of solving\nthe full quasiclassical equations in higher dimensio'
+                 'ns.')
+}
 
 
 class BaseContributorTestCase(TestCase):
@@ -34,7 +69,8 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
         client = Client()
         response = client.get(self.url)
         self.assertEqual(response.status_code, 403)
-        response = client.post(self.url, {'identifier': '1512.00030v1'})
+        response = client.post(self.url,
+                               {'identifier': TEST_SUBMISSION['arxiv_identifier_w_vn_nr']})
         self.assertEqual(response.status_code, 403)
 
         # Registered Contributor should get 200
@@ -43,11 +79,30 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
 
     def test_retrieving_existing_arxiv_paper(self):
         '''Test view with a valid post request.'''
-        response = self.client.post(self.url, {'identifier': '1512.00030v1'})
+        response = self.client.post(self.url,
+                                    {'identifier':
+                                        TEST_SUBMISSION['arxiv_identifier_w_vn_nr']})
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.context['form'], SubmissionForm)
         self.assertIsInstance(response.context['identifierform'], SubmissionIdentifierForm)
         self.assertTrue(response.context['identifierform'].is_valid())
+
+        # Explicitly compare fields instead of assertDictEqual as metadata field may be outdated
+        self.assertEqual(TEST_SUBMISSION['is_resubmission'],
+                         response.context['form'].initial['is_resubmission'])
+        self.assertEqual(TEST_SUBMISSION['title'], response.context['form'].initial['title'])
+        self.assertEqual(TEST_SUBMISSION['author_list'],
+                         response.context['form'].initial['author_list'])
+        self.assertEqual(TEST_SUBMISSION['arxiv_identifier_w_vn_nr'],
+                         response.context['form'].initial['arxiv_identifier_w_vn_nr'])
+        self.assertEqual(TEST_SUBMISSION['arxiv_identifier_wo_vn_nr'],
+                         response.context['form'].initial['arxiv_identifier_wo_vn_nr'])
+        self.assertEqual(TEST_SUBMISSION['arxiv_vn_nr'],
+                         response.context['form'].initial['arxiv_vn_nr'])
+        self.assertEqual(TEST_SUBMISSION['arxiv_link'],
+                         response.context['form'].initial['arxiv_link'])
+        self.assertEqual(TEST_SUBMISSION['abstract'],
+                         response.context['form'].initial['abstract'])
 
     def test_still_200_ok_if_identifier_is_wrong(self):
         response = self.client.post(self.url, {'identifier': '1512.00030'})
@@ -60,29 +115,43 @@ class SubmitManuscriptTest(BaseContributorTestCase):
 
         # Unauthorized request shouldn't be possible
         response = client.post(reverse('submissions:prefill_using_identifier'),
-                               {'identifier': '1512.00030v1'})
+                               {'identifier': TEST_SUBMISSION['arxiv_identifier_w_vn_nr']})
         self.assertEquals(response.status_code, 403)
 
-        # Registered Contributor should get 200
+        # Registered Contributor should get 200; assuming prefiller is working properly
         self.assertTrue(client.login(username="Test", password="testpw"))
         response = client.post(reverse('submissions:prefill_using_identifier'),
-                               {'identifier': '1512.00030v1'})
+                               {'identifier': TEST_SUBMISSION['arxiv_identifier_w_vn_nr']})
         self.assertEqual(response.status_code, 200)
 
         # Fill form parameters
         params = response.context['form'].initial
         params.update({
             'discipline': 'physics',
-            'submitted_to_journal': 'SciPost Physics',
+            'subject_area': 'Phys:MP',
+            'submitted_to_journal': 'SciPostPhys',
             'submission_type': 'Article',
             'domain': 'T'
         })
-        response = client.post(reverse('submissions:submit_manuscript'), **params)
+        params['metadata'] = json.dumps(params['metadata'], separators=(',', ':'))
 
-        self.assertEqual(response.status_code, 200)
-        # submission = Submission.objects.filter(status=STATUS_UNASSIGNED).last()
-        # raise Exception(response.content)
-        # self.assertIn(submission, response.context)
+        # Submit new Submission form
+        response = client.post(reverse('submissions:submit_manuscript'), params)
+        self.assertEqual(response.status_code, 302)
+
+        # Do a quick check on the Submission submitted.
+        submission = Submission.objects.filter(status=STATUS_UNASSIGNED).last()
+        self.assertIsNotNone(submission)
+        self.assertEqual(TEST_SUBMISSION['is_resubmission'], submission.is_resubmission)
+        self.assertEqual(TEST_SUBMISSION['title'], submission.title)
+        self.assertEqual(TEST_SUBMISSION['author_list'], submission.author_list)
+        self.assertEqual(TEST_SUBMISSION['arxiv_identifier_w_vn_nr'],
+                         submission.arxiv_identifier_w_vn_nr)
+        self.assertEqual(TEST_SUBMISSION['arxiv_identifier_wo_vn_nr'],
+                         submission.arxiv_identifier_wo_vn_nr)
+        self.assertEqual(TEST_SUBMISSION['arxiv_vn_nr'], submission.arxiv_vn_nr)
+        self.assertEqual(TEST_SUBMISSION['arxiv_link'], submission.arxiv_link)
+        self.assertEqual(TEST_SUBMISSION['abstract'], submission.abstract)
 
 
 class SubmissionDetailTest(BaseContributorTestCase):

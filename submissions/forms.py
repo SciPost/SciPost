@@ -77,6 +77,20 @@ class SubmissionForm(forms.ModelForm):
             'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
             'rows': 3})
 
+    def update_submission_data(self):
+        """
+        Some fields should not be accessible in the HTML form by the user and should be
+        inserted by for example an extra call to Arxiv into the Submission instance, right
+        *after* the form is submitted.
+
+        Example fields:
+        - is_resubmission
+        - arxiv_link
+        - arxiv_identifier_w_vn_nr
+        - metadata (!)
+        """
+        raise NotImplementedError
+
 
 ######################
 # Editorial workflow #
