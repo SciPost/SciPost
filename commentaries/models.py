@@ -8,15 +8,8 @@ from scipost.behaviors import ArxivCallable, TimeStampedModel
 from scipost.models import Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
 
+from .constants import COMMENTARY_TYPES
 from .managers import CommentaryManager
-
-
-COMMENTARY_PUBLISHED = 'published'
-COMMENTARY_PREPRINT = 'preprint'
-COMMENTARY_TYPES = (
-    (COMMENTARY_PUBLISHED, 'published paper'),
-    (COMMENTARY_PREPRINT, 'arXiv preprint'),
-)
 
 
 class Commentary(ArxivCallable, TimeStampedModel):
