@@ -37,7 +37,7 @@ Source retrieval and folder preparation
    #. Copy the paper’s sources one level down (so from ``####.#####v#`` to
       the current directory). BE CAREFUL: if the authors have included any of
       the SciPost style files (``SciPost.cls``, ``SciPost_bibstyle.bst``), DO NOT
-      copy those down. You can skip this step if the previous step immediately led 
+      copy those down. You can skip this step if the previous step immediately led
       to a ``.tex`` file.
    #. Copy the files in
       ``[Journal full name]/v##_production/FILES_TO_COPY_IN_PAPER_DIR``
@@ -216,7 +216,7 @@ Step-by-step procedure
 
       If a single horizontal line is pushed to the next page, correct by
       playing with negatime ``\vspace``.
-      
+
 
    #. TODO: COPYRIGHT
 
@@ -400,8 +400,8 @@ References formatting
       If not, use the format ``\href{https://arxiv.org/abs/####.#####}{arXiv:####.#####}``,
       and remove any ``(YEAR)``.
 
-      \J. Stat. Mech. is annoying (volume number is year). Manually remove volume nr for
-      these, so the format becomes ``A. Bee, \emp{Bee's nice paper}, J. Stat. Mech.: Th. Exp. [P,L]##### (20##), \doi{10...}.``
+      \J. Stat. Mech. and JHEP are annoying (because the volume number is the year).
+      Manually remove volume nr for these, so the format becomes ``A. Bee, \emp{Bee's nice paper}, J. Stat. Mech.: Th. Exp. [P,L]##### (20##), \doi{10...}.``
 
       \J. Phys. A is also annoying. Up to and including volume 39 (2006), it's
       \J. Phys. A: Math. Gen. Afterwards, volume 40 (2007) onwards, it's
@@ -413,7 +413,7 @@ References formatting
 
       Check that all DOIs work. Remove the ``\meta`` at the end of the bibitem
       if it is present.
-    
+
 
 Layout verification
 ~~~~~~~~~~~~~~~~~~~
