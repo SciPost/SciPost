@@ -52,6 +52,7 @@ class BaseContributorTestCase(TestCase):
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
         ContributorFactory.create(
+            user__last_name='Linder',  # To pass the author check in create submissions view
             user__username='Test',
             user__password='testpw'
         )
@@ -111,6 +112,7 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
 
 class SubmitManuscriptTest(BaseContributorTestCase):
     def test_submit_correct_manuscript(self):
+        '''Check is view POST request works as expected.'''
         client = Client()
 
         # Unauthorized request shouldn't be possible
@@ -152,6 +154,41 @@ class SubmitManuscriptTest(BaseContributorTestCase):
         self.assertEqual(TEST_SUBMISSION['arxiv_vn_nr'], submission.arxiv_vn_nr)
         self.assertEqual(TEST_SUBMISSION['arxiv_link'], submission.arxiv_link)
         self.assertEqual(TEST_SUBMISSION['abstract'], submission.abstract)
+
+    def test_non_author_tries_submission(self):
+        '''See what happens if a non-author of an Arxiv submission submits to SciPost.'''
+        client = Client()
+
+        # Contributor Linder tries to submit the Quench Action.
+        # Eventually this call should already give an error. Waiting for
+        # Arxiv caller which is under construction [Jorran de Wit, 12 May 2017]
+        self.assertTrue(client.login(username="Test", password="testpw"))
+        response = client.post(reverse('submissions:prefill_using_identifier'),
+                               {'identifier': '1603.04689v1'})
+        self.assertEqual(response.status_code, 200)
+
+        # Fill form parameters
+        params = response.context['form'].initial
+        params.update({
+            'discipline': 'physics',
+            'subject_area': 'Phys:MP',
+            'submitted_to_journal': 'SciPostPhys',
+            'submission_type': 'Article',
+            'domain': 'T'
+        })
+        params['metadata'] = json.dumps(params['metadata'], separators=(',', ':'))
+
+        # Submit new Submission form
+        response = client.post(reverse('submissions:submit_manuscript'), params)
+        self.assertEqual(response.status_code, 302)
+
+        # No real check is done here to see if submission submit is aborted.
+        # To be implemented after Arxiv caller.
+        # Temporary fix:
+        last_submission = Submission.objects.last()
+        if last_submission:
+            self.assertNotEqual(last_submission.title, 'The Quench Action')
+            self.assertNotEqual(last_submission.arxiv_identifier_w_vn_nr, '1603.04689v1')
 
 
 class SubmissionDetailTest(BaseContributorTestCase):
