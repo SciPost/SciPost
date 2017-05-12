@@ -1,14 +1,25 @@
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test import Client
-from submissions.views import *
-import django.core.urlresolvers
+
+from common.helpers.test import add_groups_and_permissions
+from scipost.factories import ContributorFactory
+from scipost.models import Contributor
 
 from .factories import EICassignedSubmissionFactory
 
 
-class PrefillUsingIdentifierTest(TestCase):
-    fixtures = ['permissions', 'groups', 'contributors']
+class BaseContributorTestCase(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+        ContributorFactory.create_batch(5)
+        ContributorFactory.create(
+            user__username='Test',
+            user__password='testpw'
+        )
 
+
+class PrefillUsingIdentifierTest(BaseContributorTestCase):
     def test_retrieving_existing_arxiv_paper(self):
         client = Client()
         client.login(username="Test", password="testpw")
@@ -28,9 +39,7 @@ class PrefillUsingIdentifierTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class SubmitManuscriptTest(TestCase):
-    fixtures = ['permissions', 'groups', 'contributors']
-
+class SubmitManuscriptTest(BaseContributorTestCase):
     def test_submit_correct_manuscript(self):
         client = Client()
         client.login(username="Test", password="testpw")
@@ -40,20 +49,20 @@ class SubmitManuscriptTest(TestCase):
 
         params = response.context['form'].initial
 
-        extras = {'discipline': 'physics',
-                  'submitted_to_journal': 'SciPost Physics',
-                  'submission_type': 'Article',
-                  'domain': 'T'}
-        response = client.post(reverse('submissions:submit_manuscript'),
-                               {**params, **extras})
+        extras = {
+            'discipline': 'physics',
+            'submitted_to_journal': 'SciPost Physics',
+            'submission_type': 'Article',
+            'domain': 'T'
+        }
+        response = client.post(reverse('submissions:submit_manuscript'), {**params, **extras})
 
         self.assertEqual(response.status_code, 200)
 
 
-class SubmissionDetailTest(TestCase):
-    fixtures = ['permissions', 'groups']
-
+class SubmissionDetailTest(BaseContributorTestCase):
     def setUp(self):
+        super().setUp()
         self.client = Client()
         self.submission = EICassignedSubmissionFactory()
         self.target = reverse(
