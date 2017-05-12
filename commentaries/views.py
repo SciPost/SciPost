@@ -91,10 +91,8 @@ def prefill_using_DOI(request):
         doi_query_form = DOIToQueryForm(request.POST)
         # The form checks if doi is valid and commentary doesn't already exist.
         if doi_query_form.is_valid():
-            doi = doi_query_form.cleaned_data['doi']
-            additional_form_data = {'type': 'published', 'pub_DOI': doi}
-            total_form_data = {**doi_query_form.crossref_data, **additional_form_data}
-            form = RequestPublishedArticleForm(initial=total_form_data)
+            prefill_data = doi_query_form.request_published_article_form_prefill_data()
+            form = RequestPublishedArticleForm(initial=prefill_data)
         else:
             form = RequestPublishedArticleForm()
 

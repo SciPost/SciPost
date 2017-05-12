@@ -34,6 +34,10 @@ class DOIToQueryForm(forms.Form):
     def commentary_exists(self, input_doi):
         return Commentary.objects.filter(pub_DOI=input_doi).exists()
 
+    def request_published_article_form_prefill_data(self):
+        additional_form_data = {'type': 'published', 'pub_DOI': self.cleaned_data['doi']}
+        return {**self.crossref_data, **additional_form_data}
+
 
 class IdentifierToQueryForm(forms.Form):
     identifier = forms.CharField(widget=forms.TextInput(

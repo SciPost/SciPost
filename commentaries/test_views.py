@@ -59,8 +59,7 @@ class PrefillUsingDOITest(TestCase):
         request.user = UserFactory()
 
         response = prefill_using_DOI(request)
-        # Not sure what to test here
-        raise NotImplementedError
+        self.assertEqual(response.status_code, 200)
 
 
 class VetCommentaryRequestsTest(TestCase):
