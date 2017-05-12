@@ -8,8 +8,8 @@ from scipost.factories import UserFactory
 from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory
 from .forms import RequestCommentaryForm, VetCommentaryForm, DOIToQueryForm
 from .models import Commentary
-from common.helpers import model_form_data
 from common.helpers.test import add_groups_and_permissions
+
 
 class TestDOIToQueryForm(TestCase):
     def setUp(self):
@@ -42,6 +42,11 @@ class TestDOIToQueryForm(TestCase):
         old_doi = "10.1088/0022-3719/7/6/005"
         form = DOIToQueryForm({'doi': old_doi})
         self.assertTrue(form.is_valid())
+
+    def test_valid_but_nonexistent_doi_is_invalid(self):
+        doi = "10.21468/NonExistentJournal.2.2.010"
+        form = DOIToQueryForm({'doi': doi})
+        self.assertEqual(form.is_valid(), False)
 
 
 class TestVetCommentaryForm(TestCase):
@@ -109,7 +114,7 @@ class TestVetCommentaryForm(TestCase):
 class TestRequestCommentaryForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
-        factory_instance = VettedCommentaryFactory.build()
+        factory_instance = UnvettedCommentaryFactory.build()
         self.user = UserFactory()
         self.valid_form_data = model_form_data(factory_instance, RequestCommentaryForm)
 

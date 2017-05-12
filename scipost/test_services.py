@@ -58,6 +58,7 @@ class DOICallerTest(TestCase):
             'volume': '92',
             'pub_title': 'Quasi-soliton scattering in quantum spin chains'
         }
+        self.assertTrue(caller.is_valid)
         self.assertEqual(caller.data, correct_data)
 
     def test_works_for_scipost_doi(self):
@@ -72,4 +73,9 @@ class DOICallerTest(TestCase):
             'volume': '2',
             'authorlist': ['Yannis Brun', 'Jerome Dubail']
         }
+        self.assertTrue(caller.is_valid)
         self.assertEqual(caller.data, correct_data)
+
+    def test_valid_but_non_existent_doi(self):
+        caller = DOICaller('10.21468/NonExistentJournal.2.2.012')
+        self.assertEqual(caller.is_valid, False)

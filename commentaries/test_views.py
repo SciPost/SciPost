@@ -5,10 +5,11 @@ from django.test import TestCase, Client, RequestFactory
 from scipost.factories import ContributorFactory, UserFactory
 
 from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory
-from .forms import CommentarySearchForm
+from .forms import CommentarySearchForm, RequestPublishedArticleForm
 from .models import Commentary
-from .views import RequestCommentary, prefill_using_DOI
+from .views import RequestPublishedArticle, prefill_using_DOI
 from common.helpers.test import add_groups_and_permissions
+from common.helpers import model_form_data
 
 
 class RequestCommentaryTest(TestCase):
@@ -33,6 +34,17 @@ class RequestCommentaryTest(TestCase):
     def test_post_invalid_forms(self):
         """Test different kind of invalid RequestCommentaryForm submits"""
         raise NotImplementedError
+
+    def test_saved_commentary_has_a_type(self):
+        self.assertEqual(Commentary.objects.count(), 0)
+        commentary = UnvettedCommentaryFactory.build()
+        valid_post_data = model_form_data(commentary, RequestPublishedArticleForm)
+        print(valid_post_data)
+        request = RequestFactory().post(reverse('commentaries:request_published_article'), valid_post_data)
+        request.user = UserFactory()
+        response = RequestPublishedArticle.as_view()(request)
+
+        self.assertEqual(Commentary.objects.count(), 1)
 
 
 class PrefillUsingDOITest(TestCase):

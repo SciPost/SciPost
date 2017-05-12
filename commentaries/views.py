@@ -22,7 +22,7 @@ from .forms import RequestCommentaryForm, DOIToQueryForm, IdentifierToQueryForm,
 from comments.models import Comment
 from comments.forms import CommentForm
 from scipost.models import Contributor
-from scipost.services import ArxivCaller, DOICaller
+from scipost.services import ArxivCaller
 
 import strings
 
@@ -80,6 +80,11 @@ class RequestPublishedArticle(CreateView):
         context['doi_query_form'] = DOIToQueryForm()
         return context
 
+    def form_valid(self, form):
+        form.type = "published"
+        return super(RequestPublishedArticle, self).form_valid(form)
+
+
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def prefill_using_DOI(request):
     if request.method == "POST":
@@ -87,9 +92,8 @@ def prefill_using_DOI(request):
         # The form checks if doi is valid and commentary doesn't already exist.
         if doi_query_form.is_valid():
             doi = doi_query_form.cleaned_data['doi']
-            crossref_data = DOICaller(doi).data
             additional_form_data = {'type': 'published', 'pub_DOI': doi}
-            total_form_data = {**crossref_data, **additional_form_data}
+            total_form_data = {**doi_query_form.crossref_data, **additional_form_data}
             form = RequestPublishedArticleForm(initial=total_form_data)
         else:
             form = RequestPublishedArticleForm()

@@ -14,14 +14,20 @@ class DOICaller:
     def __init__(self, doi_string):
         self.doi_string = doi_string
         self._call_crosslink()
-        self._format_data()
+        if self.is_valid:
+            self._format_data()
 
     def _call_crosslink(self):
         url = 'http://api.crossref.org/works/%s' % self.doi_string
-        self.crossref_data = requests.get(url).json()['message']
+        request = requests.get(url)
+        if request.ok:
+            self.is_valid = True
+            self._crossref_data = requests.get(url).json()['message']
+        else:
+            self.is_valid = False
 
     def _format_data(self):
-        data = self.crossref_data
+        data = self._crossref_data
         pub_title = data['title'][0]
         authorlist = ['{} {}'.format(author['given'], author['family']) for author in data['author']]
         journal = data['container-title'][0]

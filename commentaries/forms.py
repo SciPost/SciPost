@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from .models import Commentary
 
+from scipost.services import DOICaller
 from scipost.models import Contributor
 
 
@@ -16,10 +17,22 @@ class DOIToQueryForm(forms.Form):
 
     def clean_doi(self):
         input_doi = self.cleaned_data['doi']
-        if Commentary.objects.filter(pub_DOI=input_doi).exists():
+
+        if self.commentary_exists(input_doi):
             error_message = 'There already exists a Commentary Page on this publication.'
             raise forms.ValidationError(error_message)
+
+        caller = DOICaller(input_doi)
+        if caller.is_valid:
+            self.crossref_data = DOICaller(input_doi).data
+        else:
+            error_message = 'Could not find a resource for that DOI.'
+            raise forms.ValidationError(error_message)
+
         return input_doi
+
+    def commentary_exists(self, input_doi):
+        return Commentary.objects.filter(pub_DOI=input_doi).exists()
 
 
 class IdentifierToQueryForm(forms.Form):
@@ -56,17 +69,22 @@ class RequestPublishedArticleForm(forms.ModelForm):
     class Meta:
         model = Commentary
         fields = [
-            'type', 'discipline', 'domain', 'subject_area', 'pub_title', 'author_list', 'metadata', 'journal', 'volume',
+            'discipline', 'domain', 'subject_area', 'pub_title', 'author_list', 'journal', 'volume',
             'pages', 'pub_date', 'pub_DOI', 'pub_abstract'
         ]
         widgets = {
             'metadata': forms.HiddenInput(),
-            'type': forms.HiddenInput(),
         }
         placeholders = {
             'pub_DOI': 'ex.: 10.21468/00.000.000000',
             'pub_date': 'Format: YYYY-MM-DD',
         }
+
+    def save(self, *args):
+        commentary = super().save(*args)
+        commentary.metadata = self.metadata
+        commentary.save()
+        return commentary
 
 
 class RequestCommentaryForm(forms.ModelForm):
