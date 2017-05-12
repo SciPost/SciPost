@@ -6,7 +6,7 @@ from common.helpers import model_form_data
 from scipost.factories import UserFactory
 
 from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory
-from .forms import RequestCommentaryForm, VetCommentaryForm, DOIToQueryForm
+from .forms import RequestCommentaryForm, RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm
 from .models import Commentary
 from common.helpers.test import add_groups_and_permissions
 
@@ -109,6 +109,32 @@ class TestVetCommentaryForm(TestCase):
         """Test response of form on processing before validation"""
         form = VetCommentaryForm(self.form_data, commentary_id=self.commentary.id, user=self.user)
         self.assertRaises(ValueError, form.process_commentary)
+
+
+class TestRequestPublishedArticleForm(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+        factory_instance = UnvettedCommentaryFactory.build()
+        self.user = UserFactory()
+        self.valid_form_data = model_form_data(factory_instance, RequestPublishedArticleForm)
+
+    def test_valid_data_is_valid(self):
+        """Test valid form for DOI"""
+        form = RequestPublishedArticleForm(self.valid_form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_doi_that_already_has_commentary_page_is_invalid(self):
+        unvetted_commentary = UnvettedCommentaryFactory()
+        invalid_data = {**self.valid_form_data, **{'pub_DOI': unvetted_commentary.pub_DOI}}
+        form = RequestPublishedArticleForm(invalid_data)
+        self.assertEqual(form.is_valid(), False)
+        error_message = form.errors['pub_DOI'][0]
+        self.assertRegexpMatches(error_message, re.compile('already exist'))
+
+    def test_commentary_without_pub_DOI_is_invalid(self):
+        invalid_data = {**self.valid_form_data, **{'pub_DOI': ''}}
+        form = RequestPublishedArticleForm(invalid_data)
+        self.assertEqual(form.is_valid(), False)
 
 
 class TestRequestCommentaryForm(TestCase):

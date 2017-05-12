@@ -9,6 +9,8 @@ from .models import Commentary
 from scipost.services import DOICaller
 from scipost.models import Contributor
 
+def commentary_exists(input_doi):
+    return Commentary.objects.filter(pub_DOI=input_doi).exists()
 
 class DOIToQueryForm(forms.Form):
     VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
@@ -18,7 +20,7 @@ class DOIToQueryForm(forms.Form):
     def clean_doi(self):
         input_doi = self.cleaned_data['doi']
 
-        if self.commentary_exists(input_doi):
+        if commentary_exists(input_doi):
             error_message = 'There already exists a Commentary Page on this publication.'
             raise forms.ValidationError(error_message)
 
@@ -31,11 +33,9 @@ class DOIToQueryForm(forms.Form):
 
         return input_doi
 
-    def commentary_exists(self, input_doi):
-        return Commentary.objects.filter(pub_DOI=input_doi).exists()
 
     def request_published_article_form_prefill_data(self):
-        additional_form_data = {'type': 'published', 'pub_DOI': self.cleaned_data['doi']}
+        additional_form_data = {'pub_DOI': self.cleaned_data['doi']}
         return {**self.crossref_data, **additional_form_data}
 
 
@@ -83,6 +83,22 @@ class RequestPublishedArticleForm(forms.ModelForm):
             'pub_DOI': 'ex.: 10.21468/00.000.000000',
             'pub_date': 'Format: YYYY-MM-DD',
         }
+
+
+    def __init__(self, *args, **kwargs):
+        super(RequestPublishedArticleForm, self).__init__(*args, **kwargs)
+        # We want pub_DOI to be a required field.
+        # Since it can be blank on the model, we have to override this property here.
+        self.fields['pub_DOI'].required = True
+
+    def clean_pub_DOI(self):
+        input_doi = self.cleaned_data['pub_DOI']
+
+        if commentary_exists(input_doi):
+            error_message = 'There already exists a Commentary Page on this publication.'
+            raise forms.ValidationError(error_message)
+
+        return input_doi
 
     def save(self, *args):
         commentary = super().save(*args)
