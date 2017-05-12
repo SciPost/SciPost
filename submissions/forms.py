@@ -2,7 +2,7 @@ from django import forms
 from django.core.validators import RegexValidator
 
 from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS,\
-                       REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, SUBMISSION_CYCLES
+                       REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES
 from .models import Submission, RefereeInvitation, Report, EICRecommendation
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
@@ -76,6 +76,16 @@ class SubmissionForm(forms.ModelForm):
         self.fields['referees_flagged'].widget.attrs.update({
             'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
             'rows': 3})
+
+    def check_user_may_submit(self, current_user):
+        """
+        Important check!
+
+        The submitting user must be an author of the submission.
+        Also possibly may be extended to check permissions and give ultimate submission
+        power to certain user groups.
+        """
+        return current_user.last_name in self.cleaned_data['author_list']
 
     def update_submission_data(self):
         """
