@@ -1,5 +1,7 @@
 {% extends 'scipost/base.html' %}
 
+{% load staticfiles %}
+
 {% block pagetitle %}: {{journal}}{% endblock pagetitle %}
 {% block body_class %}{{block.super}} journals{% endblock %}
 
@@ -48,9 +50,12 @@
         <div class="row my-1">
             <div class="col-12">
                 {% if journal.active %}
-                    {{journal}} is published by the SciPost Foundation under the journal doi: 10.21468/{{journal.name}} and ISSN {{journal.issn}}.
+                    <p>{{journal}} is published by the SciPost Foundation under the journal doi: 10.21468/{{journal.name}} and ISSN {{journal.issn}}.</p>
                 {% endif %}
-            </div>
+		{% if journal.doi_label == 'SciPostPhys' %}
+		<p>All content in {{ journal }} is deposited and permanently preserved in the CLOCKSS archive <a href="https://www.clockss.org/clockss/Home"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" alt="CLOCKSS logo" width="40"></a></p>
+		{% endif %}
+	    </div>
         </div>
     </footer>
 {% endblock %}
