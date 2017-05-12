@@ -6,7 +6,13 @@ from submissions.models import Submission
 
 
 class ArxivCallerTest(TestCase):
+    def setUp(self):
+        self.valid_arxiv_identifier = '1612.07611v1'
 
+    def test_collects_metadata(self):
+        raise NotImplementedError
+
+class ArxivCallerTestOld(TestCase):
     def test_correct_lookup(self):
         caller = ArxivCaller(Submission, '1611.09574v1')
 

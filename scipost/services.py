@@ -22,7 +22,7 @@ class DOICaller:
         request = requests.get(url)
         if request.ok:
             self.is_valid = True
-            self._crossref_data = requests.get(url).json()['message']
+            self._crossref_data = request.json()['message']
         else:
             self.is_valid = False
 
@@ -63,6 +63,48 @@ class DOICaller:
             pub_date = ''
 
         return pub_date
+
+
+class ArxivCaller:
+    query_base_url = 'http://export.arxiv.org/api/query?id_list=%s'
+
+    def __init__(self, identifier):
+        self.identifier = identifier
+        self._call_arxiv()
+        if self.is_valid:
+            self._format_data()
+
+    def _call_arxiv(self):
+        url = self.query_base_url % self.identifier
+        request = requests.get(url)
+        if request.ok:
+            self.is_valid = True
+            self._arxiv_data = feedparser.parse(request.content)
+        else:
+            self.is_valid = False
+
+    def _format_data(self):
+        raise NotImplementedError
+
+
+#             metadata = caller.metadata
+#             pub_title = metadata['entries'][0]['title']
+#             authorlist = metadata['entries'][0]['authors'][0]['name']
+#             for author in metadata['entries'][0]['authors'][1:]:
+#                 authorlist += ', ' + author['name']
+#             arxiv_link = metadata['entries'][0]['id']
+#             abstract = metadata['entries'][0]['summary']
+#
+#             initialdata = {
+#                 'type': 'preprint',
+#                 'metadata': metadata,
+#                 'pub_title': pub_title,
+#                 'author_list': authorlist,
+#                 'arxiv_identifier': identifierform.cleaned_data['identifier'],
+#                 'arxiv_link': arxiv_link,
+#                 'pub_abstract': abstract
+#             }
+
 
 
 
@@ -216,12 +258,8 @@ class BaseCaller(object):
         return t.render(Context(self.errorvariables))
 
 
-# class DOICaller(BaseCaller):
-#     """Perform a DOI lookup for a given identifier."""
-#     pass
 
-
-class ArxivCaller(BaseCaller):
+class ArxivCallerOld(BaseCaller):
     """ Performs an Arxiv article lookup for given identifier """
 
     # State of the caller
