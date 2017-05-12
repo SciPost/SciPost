@@ -79,33 +79,23 @@ class ArxivCaller:
         request = requests.get(url)
         if request.ok:
             self.is_valid = True
-            self._arxiv_data = feedparser.parse(request.content)
+            self._arxiv_data = feedparser.parse(request.content)['entries'][0]
         else:
             self.is_valid = False
 
     def _format_data(self):
-        raise NotImplementedError
+        data = self._arxiv_data
+        pub_title = data['title']
+        author_list = [author['name'] for author in data['authors']]
+        arxiv_link = data['id']
+        abstract = data['summary']
 
-
-#             metadata = caller.metadata
-#             pub_title = metadata['entries'][0]['title']
-#             authorlist = metadata['entries'][0]['authors'][0]['name']
-#             for author in metadata['entries'][0]['authors'][1:]:
-#                 authorlist += ', ' + author['name']
-#             arxiv_link = metadata['entries'][0]['id']
-#             abstract = metadata['entries'][0]['summary']
-#
-#             initialdata = {
-#                 'type': 'preprint',
-#                 'metadata': metadata,
-#                 'pub_title': pub_title,
-#                 'author_list': authorlist,
-#                 'arxiv_identifier': identifierform.cleaned_data['identifier'],
-#                 'arxiv_link': arxiv_link,
-#                 'pub_abstract': abstract
-#             }
-
-
+        self.data = {
+            'pub_title': pub_title,
+            'author_list': author_list,
+            'arxiv_link': arxiv_link,
+            'pub_abstract': abstract,
+        }
 
 
 # I'm going to revamp this whole thing...
