@@ -62,6 +62,23 @@ class PrefillUsingDOITest(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class RequestPublishedArticleTest(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+        self.target = reverse('commentaries:request_published_article')
+        self.commentary_instance = UnvettedCommentaryFactory.build()
+        self.valid_form_data = model_form_data(self.commentary_instance, RequestPublishedArticleForm)
+
+    def test_commentary_gets_created(self):
+        request = RequestFactory().post(self.target, self.valid_form_data)
+        request.user = UserFactory()
+
+        self.assertEqual(Commentary.objects.count(), 0)
+        response = RequestPublishedArticle.as_view()(request)
+        self.assertEqual(Commentary.objects.count(), 1)
+        self.assertEqual(Commentary.objects.first().pub_DOI, self.valid_form_data['pub_DOI'])
+
+
 class VetCommentaryRequestsTest(TestCase):
     """Test cases for `vet_commentary_requests` view method"""
 

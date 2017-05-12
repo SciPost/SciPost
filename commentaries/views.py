@@ -80,10 +80,6 @@ class RequestPublishedArticle(CreateView):
         context['doi_query_form'] = DOIToQueryForm()
         return context
 
-    def form_valid(self, form):
-        form.type = "published"
-        return super(RequestPublishedArticle, self).form_valid(form)
-
 
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def prefill_using_DOI(request):

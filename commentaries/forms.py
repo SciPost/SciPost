@@ -76,9 +76,6 @@ class RequestPublishedArticleForm(forms.ModelForm):
             'discipline', 'domain', 'subject_area', 'pub_title', 'author_list', 'journal', 'volume',
             'pages', 'pub_date', 'pub_DOI', 'pub_abstract'
         ]
-        widgets = {
-            'metadata': forms.HiddenInput(),
-        }
         placeholders = {
             'pub_DOI': 'ex.: 10.21468/00.000.000000',
             'pub_date': 'Format: YYYY-MM-DD',
@@ -99,12 +96,6 @@ class RequestPublishedArticleForm(forms.ModelForm):
             raise forms.ValidationError(error_message)
 
         return input_doi
-
-    def save(self, *args):
-        commentary = super().save(*args)
-        commentary.metadata = self.metadata
-        commentary.save()
-        return commentary
 
 
 class RequestCommentaryForm(forms.ModelForm):

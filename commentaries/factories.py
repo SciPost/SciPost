@@ -24,6 +24,7 @@ class CommentaryFactory(factory.django.DjangoModelFactory):
     arxiv_identifier = factory.Sequence(lambda n: random_arxiv_identifier_with_version_number())
     author_list = factory.Faker('name')
     pub_abstract = factory.Faker('text')
+    pub_date = factory.Faker('date')
 
     @factory.post_generation
     def create_urls(self, create, extracted, **kwargs):
