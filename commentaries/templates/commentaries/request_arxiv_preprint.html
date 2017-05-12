@@ -1,0 +1,25 @@
+{% extends 'scipost/base.html' %}
+{% load bootstrap %}
+{% load scipost_extras %}
+
+{% block pagetitle %}: request Commentary{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+    <form action="{% url 'commentaries:prefill_using_arxiv_identifier' %}" method="post">
+      {% csrf_token %}
+      {{ arxiv_query_form|bootstrap }}
+      <input class="btn btn-secondary" type="submit" value="Query arXiv"/>
+    </form>
+</div>
+
+<div class="row">
+    <form id="requestForm" action="{% url 'commentaries:request_published_article' %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input class="btn btn-primary" type="submit" value="Submit"/>
+    </form>
+</div>
+
+{% endblock content%}

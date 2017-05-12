@@ -16,8 +16,8 @@ from django.utils.decorators import method_decorator
 from django.http import Http404
 
 from .models import Commentary
-from .forms import RequestCommentaryForm, DOIToQueryForm, IdentifierToQueryForm, VetCommentaryForm, \
-    CommentarySearchForm, RequestPublishedArticleForm
+from .forms import DOIToQueryForm, ArxivQueryForm, VetCommentaryForm, \
+    CommentarySearchForm, RequestPublishedArticleForm, RequestArxivPreprintForm
 
 from comments.models import Comment
 from comments.forms import CommentForm
@@ -81,6 +81,19 @@ class RequestPublishedArticle(CreateView):
         return context
 
 
+@method_decorator(permission_required(
+    'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
+class RequestArxivPreprint(CreateView):
+    form_class = RequestArxivPreprintForm
+    template_name = 'commentaries/request_arxiv_preprint.html'
+    success_url = reverse_lazy('scipost:personal_page')
+
+    def get_context_data(self, **kwargs):
+        context = super(RequestArxivPreprint, self).get_context_data(**kwargs)
+        context['arxiv_query_form'] = ArxivQueryForm()
+        return context
+
+
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def prefill_using_DOI(request):
     if request.method == "POST":
@@ -100,40 +113,13 @@ def prefill_using_DOI(request):
     else:
         raise Http404
 
-# @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
-# def request_published_article(request):
-#     if request.method == "POST":
-#         doi_form = DOIToQueryForm(request.POST)
-#         identifier_form = IdentifierToQueryForm()
-#         # The form checks if doi is valid and commentary doesn't already exist.
-#         if doi_form.is_valid():
-#             doi = doi_form.cleaned_data['doi']
-#             crossref_data = DOICaller(doi).data
-#             additional_form_data = {'type': 'published', 'pub_DOI': doi}
-#             total_form_data = {**crossref_data, **additional_form_data}
-#             commentary_form = RequestCommentaryForm(initial=total_form_data)
-#             context = {
-#                 'request_commentary_form': commentary_form,
-#                 'doiform': doi_form,
-#                 'identifierform': identifier_form,
-#             }
-#             return render(request, 'commentaries/request_commentary.html', context)
-#         else:
-#             context = {
-#                 'request_commentary_form': RequestCommentaryForm(),
-#                 'doiform': doi_form,
-#                 'identifierform': identifier_form
-#             }
-#             return render(request, 'commentaries/request_commentary.html', context)
-#     elif request.method == "GET":
-#         context = { 'form': RequestCommentaryForm() }
-#         return render(request, 'commentaries/request_published_article.html', context)
-
 
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
-def request_arxiv_preprint(request):
-    return 1
-
+def prefill_using_arxiv_identifier(request):
+    if request.method == "POST":
+        return 1
+    else:
+        raise Http404
 
 
 # def prefill_using_DOI(request):
