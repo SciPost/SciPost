@@ -54,7 +54,6 @@ $(document).ready(function(){
 <div class="row mb-5">
     <div class="col-12">
         {% if perms.scipost.can_submit_manuscript %}
-
             {% if form.arxiv_link.value %}
                 <form id="full_submission_form" action="{% url 'submissions:submit_manuscript' %}" method="post">
                     {% csrf_token %}
@@ -64,6 +63,7 @@ $(document).ready(function(){
                     </p>
                     <input type="submit" class="btn btn-secondary"/>
                 </form>
+                {% else %}
             {% endif %}
 
         {% else %}
