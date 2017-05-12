@@ -25,10 +25,6 @@
         flex-direction: row;
     }
 
-    // .navbar-collapse.show .nav-item {
-    //     margin-bottom: .25rem;
-    // }
-
     .active > .nav-link {
         border-color: $scipost-darkblue;
     }
@@ -54,7 +50,7 @@
     }
 
     .form-inline {
-        min-width: 250px;
+        min-width: 280px;
 
         .form-control {
             width: auto !important;
