@@ -117,7 +117,17 @@ def prefill_using_DOI(request):
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def prefill_using_arxiv_identifier(request):
     if request.method == "POST":
-        return 1
+        arxiv_query_form = ArxivQueryForm(request.POST)
+        if arxiv_query_form.is_valid():
+            raise NotImplementedError
+        else:
+            form = RequestArxivPreprintForm()
+
+        context = {
+            'form': form,
+            'arxiv_query_form': arxiv_query_form,
+        }
+        return render(request, 'commentaries/request_arxiv_preprint.html', context)
     else:
         raise Http404
 

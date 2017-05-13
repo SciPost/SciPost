@@ -6,9 +6,36 @@ from common.helpers import model_form_data
 from scipost.factories import UserFactory
 
 from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory
-from .forms import RequestCommentaryForm, RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm
+from .forms import RequestCommentaryForm, RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm, ArxivQueryForm
 from .models import Commentary
 from common.helpers.test import add_groups_and_permissions
+
+
+class TestArxivQueryForm(TestCase):
+    def test_new_arxiv_identifier_is_valid(self):
+        new_identifier_data = {'identifier': '1612.07611v1'}
+        form = ArxivQueryForm(new_identifier_data)
+        self.assertTrue(form.is_valid())
+
+    def test_old_arxiv_identifier_is_valid(self):
+        old_identifier_data = {'identifier': 'cond-mat/0612480v1'}
+        form = ArxivQueryForm(old_identifier_data)
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_arxiv_identifier(self):
+        invalid_data = {'identifier': 'i am not valid'}
+        form = ArxivQueryForm(invalid_data)
+        self.assertFalse(form.is_valid())
+
+    def test_new_arxiv_identifier_without_version_number_is_invalid(self):
+        data = {'identifier': '1612.07611'}
+        form = ArxivQueryForm(data)
+        self.assertFalse(form.is_valid())
+
+    def test_old_arxiv_identifier_without_version_number_is_invalid(self):
+        data = {'identifier': 'cond-mat/0612480'}
+        form = ArxivQueryForm(data)
+        self.assertFalse(form.is_valid())
 
 
 class TestDOIToQueryForm(TestCase):

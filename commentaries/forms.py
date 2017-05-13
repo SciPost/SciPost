@@ -42,7 +42,11 @@ class DOIToQueryForm(forms.Form):
 
 
 class ArxivQueryForm(forms.Form):
-    identifier = forms.CharField()
+    IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$'
+    IDENTIFIER_PATTERN_OLD = r'^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$'
+    VALID_ARXIV_IDENTIFIER_REGEX = "(?:{})|(?:{})".format(IDENTIFIER_PATTERN_NEW, IDENTIFIER_PATTERN_OLD)
+
+    identifier = forms.RegexField(regex=VALID_ARXIV_IDENTIFIER_REGEX, strip=True)
 
 #         identifierpattern_new = re.compile("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$")
 #         identifierpattern_old = re.compile("^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$")
