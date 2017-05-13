@@ -6,6 +6,9 @@ STATUS_AWAITING_ED_REC = 'awaiting_ed_rec'
 STATUS_REVIEW_CLOSED = 'review_closed'
 STATUS_ACCEPTED = 'accepted'
 STATUS_PUBLISHED = 'published'
+STATUS_RESUBMITTED = 'resubmitted'
+STATUS_RESUBMITTED_REJECTED = 'resubmitted_and_rejected'
+STATUS_RESUBMITTED_REJECTED_VISIBLE = 'resubmitted_and_rejected_visible'
 SUBMISSION_STATUS = (
     (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
     (STATUS_RESUBMISSION_INCOMING, 'Resubmission incoming'),
@@ -14,9 +17,9 @@ SUBMISSION_STATUS = (
     (STATUS_REVIEW_CLOSED, 'Review period closed, editorial recommendation pending'),
     # If revisions required: resubmission creates a new Submission object
     (STATUS_REVISION_REQUESTED, 'Editor-in-charge has requested revision'),
-    ('resubmitted', 'Has been resubmitted'),
-    ('resubmitted_and_rejected', 'Has been resubmitted and subsequently rejected'),
-    ('resubmitted_and_rejected_visible',
+    (STATUS_RESUBMITTED, 'Has been resubmitted'),
+    (STATUS_RESUBMITTED_REJECTED, 'Has been resubmitted and subsequently rejected'),
+    (STATUS_RESUBMITTED_REJECTED_VISIBLE,
      'Has been resubmitted and subsequently rejected (still publicly visible)'),
     # If acceptance/rejection:
     ('voting_in_preparation', 'Voting in preparation (eligible Fellows being selected)'),

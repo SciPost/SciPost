@@ -109,28 +109,7 @@ class PrefillUsingIdentifierView(PermissionRequiredMixin, FormView):
 
 class SubmissionCreateView(PermissionRequiredMixin, CreateView):
     model = Submission
-    fields = [
-        'is_resubmission',
-        'discipline',
-        'submitted_to_journal',
-        'submission_type',
-        'domain',
-        'subject_area',
-        'secondary_areas',
-        'title',
-        'author_list',
-        'abstract',
-        'arxiv_identifier_w_vn_nr',
-        'arxiv_identifier_wo_vn_nr',
-        'arxiv_vn_nr',
-        'arxiv_link',
-        'metadata',
-        'author_comments',
-        'list_of_changes',
-        'remarks_for_editors',
-        'referees_suggested',
-        'referees_flagged'
-    ]
+    form_class = SubmissionForm
 
     template_name = 'submissions/new_submission.html'
     permission_required = 'scipost.can_submit_manuscript'
@@ -147,6 +126,15 @@ class SubmissionCreateView(PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         submitted_by = Contributor.objects.get(user=self.request.user)
         form.instance.submitted_by = submitted_by
+
+        # Temporary until moved to new Arxiv Caller
+        # Check submitting user for authorship !
+        # With the new Arxiv caller, this message should already be given in the prefil form!
+        if not form.check_user_may_submit(self.request.user):
+            msg = ('Your name does not match that of any of the authors. '
+                   'You are not authorized to submit this preprint.')
+            messages.error(self.request, msg)
+            return redirect('submissions:prefill_using_identifier')
 
         # Save all the information contained in the form
         submission = form.save()
@@ -203,7 +191,7 @@ class SubmissionListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Submission.objects.public_overcomplete().filter(is_current=True)
+        queryset = Submission.objects.public_overcomplete()
         if 'to_journal' in self.kwargs:
             queryset = queryset.filter(
                 latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),

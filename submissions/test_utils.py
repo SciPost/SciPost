@@ -9,7 +9,7 @@ from scipost.models import Contributor
 from .constants import STATUS_UNASSIGNED, STATUS_RESUBMISSION_INCOMING, STATUS_AWAITING_ED_REC,\
                        STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC
 from .exceptions import CycleUpdateDeadlineError
-from .factories import UnassignedSubmissionFactory, ResubmittedSubmissionFactory
+from .factories import UnassignedSubmissionFactory, ResubmissionFactory
 from .utils import GeneralSubmissionCycle
 
 
@@ -69,7 +69,7 @@ class TestResubmissionSubmissionCycle(TestCase):
         self.submission_date = datetime.date.today()
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
-        self.submission = ResubmittedSubmissionFactory(
+        self.submission = ResubmissionFactory(
             dates__submission=self.submission_date
         )
 
@@ -108,7 +108,7 @@ class TestResubmissionDirectSubmissionCycle(TestCase):
         self.submission_date = datetime.date.today()
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
-        self.submission = ResubmittedSubmissionFactory(
+        self.submission = ResubmissionFactory(
             dates__submission=self.submission_date,
             refereeing_cycle=CYCLE_DIRECT_REC
         )

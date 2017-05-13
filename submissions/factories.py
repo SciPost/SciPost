@@ -8,7 +8,7 @@ from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from common.helpers import random_arxiv_identifier_without_version_number, random_scipost_journal
 
 from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSION_INCOMING,\
-                       STATUS_PUBLISHED, SUBMISSION_TYPE
+                       STATUS_PUBLISHED, SUBMISSION_TYPE, STATUS_RESUBMITTED
 from .models import Submission
 
 from faker import Faker
@@ -38,7 +38,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
         '''Fill empty arxiv fields.'''
         self.arxiv_link = 'https://arxiv.org/abs/%s' % self.arxiv_identifier_wo_vn_nr
         self.arxiv_identifier_w_vn_nr = '%sv1' % self.arxiv_identifier_wo_vn_nr
-        self.arxiv_vn_nr = 1
+        self.arxiv_vn_nr = kwargs.get('arxiv_vn_nr', 1)
 
     @factory.post_generation
     def contributors(self, create, extracted, **kwargs):
@@ -71,9 +71,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
 
 
 class UnassignedSubmissionFactory(SubmissionFactory):
-    '''
-    This Submission is a 'new request' by a Contributor for its Submission.
-    '''
+    '''This Submission is a 'new request' by a Contributor for its Submission.'''
     status = STATUS_UNASSIGNED
 
 
@@ -92,18 +90,28 @@ class EICassignedSubmissionFactory(SubmissionFactory):
 
 
 class ResubmittedSubmissionFactory(SubmissionFactory):
-    '''
+    '''This Submission is a `resubmitted` version.'''
+    status = STATUS_RESUBMITTED
+    open_for_commenting = False
+    open_for_reporting = False
+    is_current = False
+    is_resubmission = False
+
+
+class ResubmissionFactory(SubmissionFactory):
+    """
     This Submission is a newer version of a Submission which is
     already known by the SciPost database.
-    '''
+    """
     status = STATUS_RESUBMISSION_INCOMING
     open_for_commenting = True
     open_for_reporting = True
     is_resubmission = True
 
     @factory.post_generation
-    def alter_arxiv_fields(self, create, extracted, **kwargs):
-        '''Alter arxiv fields to save as version 2.'''
+    def fill_arxiv_fields(self, create, extracted, **kwargs):
+        '''Fill empty arxiv fields.'''
+        self.arxiv_link = 'https://arxiv.org/abs/%s' % self.arxiv_identifier_wo_vn_nr
         self.arxiv_identifier_w_vn_nr = '%sv2' % self.arxiv_identifier_wo_vn_nr
         self.arxiv_vn_nr = 2
 

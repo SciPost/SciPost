@@ -8,6 +8,22 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
 
 
 class SubmissionManager(models.Manager):
+    def _newest_version_only(self, queryset):
+        """
+        The current Queryset should return only the latest version
+        of the Arxiv submissions known to SciPost.
+
+        Method only compatible with PostGresQL
+        """
+        # This method used a double query, which is a consequence of the complex distinct()
+        # filter combined with the PostGresQL engine. Without the double query, ordering
+        # on a specific field after filtering would be impossible.
+        ids = (queryset
+               .order_by('arxiv_identifier_wo_vn_nr', '-arxiv_vn_nr')
+               .distinct('arxiv_identifier_wo_vn_nr')
+               .values_list('id', flat=True))
+        return queryset.filter(id__in=ids)
+
     def user_filter(self, user):
         """
         Prevent conflic of interest by filtering submissions possible related to user.
@@ -54,7 +70,8 @@ class SubmissionManager(models.Manager):
         This query contains an overcomplete set of public submissions, i.e. also containing
         submissions with status "published" or "resubmitted".
         """
-        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE)
+        queryset = self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE)
+        return self._newest_version_only(queryset)
 
 
 class EditorialAssignmentManager(models.Manager):
