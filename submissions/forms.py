@@ -85,7 +85,7 @@ class SubmissionForm(forms.ModelForm):
         Also possibly may be extended to check permissions and give ultimate submission
         power to certain user groups.
         """
-        return current_user.last_name in self.cleaned_data['author_list']
+        return current_user.last_name.lower() in self.cleaned_data['author_list'].lower()
 
     def update_submission_data(self):
         """
