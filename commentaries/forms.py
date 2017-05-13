@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from .models import Commentary
 
-from scipost.services import DOICaller
+from scipost.services import DOICaller, ArxivCaller
 from scipost.models import Contributor
 
 
@@ -48,10 +48,21 @@ class ArxivQueryForm(forms.Form):
 
     identifier = forms.RegexField(regex=VALID_ARXIV_IDENTIFIER_REGEX, strip=True)
 
-#         identifierpattern_new = re.compile("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$")
-#         identifierpattern_old = re.compile("^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$")
+    def clean_identifier(self):
+        identifier = self.cleaned_data['identifier']
 
+        if Commentary.objects.filter(arxiv_identifier=identifier).exists():
+            error_message = 'There already exists a Commentary Page on this arXiv preprint.'
+            raise forms.ValidationError(error_message)
 
+        caller = ArxivCaller(identifier)
+        if caller.is_valid:
+            self.arxiv_data = ArxivCaller(identifier).data
+        else:
+            error_message = 'Could not find a resource for that arXiv identifier.'
+            raise forms.ValidationError(error_message)
+
+        return identifier
 
 
 # class IdentifierToQueryForm(forms.Form):

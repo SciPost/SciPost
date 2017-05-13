@@ -12,6 +12,9 @@ from common.helpers.test import add_groups_and_permissions
 
 
 class TestArxivQueryForm(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+
     def test_new_arxiv_identifier_is_valid(self):
         new_identifier_data = {'identifier': '1612.07611v1'}
         form = ArxivQueryForm(new_identifier_data)
@@ -35,6 +38,19 @@ class TestArxivQueryForm(TestCase):
     def test_old_arxiv_identifier_without_version_number_is_invalid(self):
         data = {'identifier': 'cond-mat/0612480'}
         form = ArxivQueryForm(data)
+        self.assertFalse(form.is_valid())
+
+    def test_arxiv_identifier_that_already_has_commentary_page_is_invalid(self):
+        unvetted_commentary = UnvettedCommentaryFactory()
+        invalid_data = {'identifier': unvetted_commentary.arxiv_identifier}
+        form = ArxivQueryForm(invalid_data)
+        self.assertFalse(form.is_valid())
+        error_message = form.errors['identifier'][0]
+        self.assertRegexpMatches(error_message, re.compile('already exist'))
+
+    def test_valid_but_non_existent_identifier_is_invalid(self):
+        invalid_data = {'identifier': '1613.07611v1'}
+        form = ArxivQueryForm(invalid_data)
         self.assertFalse(form.is_valid())
 
 

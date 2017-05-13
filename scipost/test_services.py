@@ -24,7 +24,7 @@ class ArxivCallerTest(TestCase):
 
     def valid_but_nonexistent_identifier(self):
         caller = ArxivCaller('1613.07611v1')
-        self.assertFalse(caller.is_valid)
+        self.assertEqual(caller.is_valid, False)
 
 
 class DOICallerTest(TestCase):

@@ -77,9 +77,10 @@ class ArxivCaller:
     def _call_arxiv(self):
         url = self.query_base_url % self.identifier
         request = requests.get(url)
-        if request.ok:
+        arxiv_data = feedparser.parse(request.content)['entries'][0]
+        if self._search_result_present(arxiv_data):
             self.is_valid = True
-            self._arxiv_data = feedparser.parse(request.content)['entries'][0]
+            self._arxiv_data = arxiv_data
         else:
             self.is_valid = False
 
@@ -96,6 +97,9 @@ class ArxivCaller:
             'arxiv_link': arxiv_link,
             'pub_abstract': abstract,
         }
+
+    def _search_result_present(self, data):
+        return 'title' in data
 
 
 # I'm going to revamp this whole thing...
