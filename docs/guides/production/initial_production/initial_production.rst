@@ -3,7 +3,7 @@
 Production of SciPost Publications
 ==================================
 
-This guide is meant for **Editorial Administrators** and **Production Officers**. It describes the post-acceptance workflow from paper acceptance to publication.
+This guide is meant for **Editorial Administrators**, **Production Supervisors** and **Production Officers**. It describes the post-acceptance workflow from paper acceptance to publication.
 
 Version: 2017-05-11.
 
@@ -37,7 +37,7 @@ Source retrieval and folder preparation
    #. Copy the paper’s sources one level down (so from ``####.#####v#`` to
       the current directory). BE CAREFUL: if the authors have included any of
       the SciPost style files (``SciPost.cls``, ``SciPost_bibstyle.bst``), DO NOT
-      copy those down. You can skip this step if the previous step immediately led 
+      copy those down. You can skip this step if the previous step immediately led
       to a ``.tex`` file.
    #. Copy the files in
       ``[Journal full name]/v##_production/FILES_TO_COPY_IN_PAPER_DIR``
@@ -216,7 +216,7 @@ Step-by-step procedure
 
       If a single horizontal line is pushed to the next page, correct by
       playing with negatime ``\vspace``.
-      
+
 
    #. TODO: COPYRIGHT
 
@@ -400,8 +400,8 @@ References formatting
       If not, use the format ``\href{https://arxiv.org/abs/####.#####}{arXiv:####.#####}``,
       and remove any ``(YEAR)``.
 
-      \J. Stat. Mech. is annoying (volume number is year). Manually remove volume nr for
-      these, so the format becomes ``A. Bee, \emp{Bee's nice paper}, J. Stat. Mech.: Th. Exp. [P,L]##### (20##), \doi{10...}.``
+      \J. Stat. Mech. and JHEP are annoying (because the volume number is the year).
+      Manually remove volume nr for these, so the format becomes ``A. Bee, \emp{Bee's nice paper}, J. Stat. Mech.: Th. Exp. [P,L]##### (20##), \doi{10...}.``
 
       \J. Phys. A is also annoying. Up to and including volume 39 (2006), it's
       \J. Phys. A: Math. Gen. Afterwards, volume 40 (2007) onwards, it's
@@ -413,7 +413,7 @@ References formatting
 
       Check that all DOIs work. Remove the ``\meta`` at the end of the bibitem
       if it is present.
-    
+
 
 Layout verification
 ~~~~~~~~~~~~~~~~~~~
@@ -423,163 +423,3 @@ Layout verification
 
    In particular, the punctuation of equations should be checked and corrected
    if necessary.
-
-
-Proofs
-------
-
-   * Once the paper has been properly formatted, the ``.tex`` and ``.pdf`` files
-     should be copied into new files carrying the ``_proofs_v[nr]`` suffix,
-     for example ``SciPost_Phys_1699_9999v9_Bee_proofs_v1.tex``.
-
-   * The ``.pdf`` proofs should be emailed to the authors for verification.
-     Authors should return either an annotated pdf or a list of corrections
-     by plain text email.
-
-   * Any modifications should be implemented directly in the main ``.tex`` file.
-
-   * If any further check by the authors are required, start this proofs
-     todo-list again, increasing the proofs version number.
-
-   * Once the authors have approved the proofs, the paper can be put forward
-     to online publication.
-
-
-Online publication
-------------------
-
-   These tasks must be performed by an **Editorial Administrator**.
-
-
-Preparation of final version of record
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   #. Copy the whole paper folder from folder [journal name]/IN\_PRODUCTION \\to [journal name]/Volume\_[volume nr].
-
-   #. Check online to see which paper number is next available.
-
-   #. Rename this folder using the convention [journal name]\_[volume number]([issue number])\_[paper nr].
-
-   #. Within this folder, take the author-accepted version tex file and rename it using the convention [journal name abbrev]\_[volume nr]\_[issue nr]\_[paper nr].tex.
-
-   #. In this tex source, replace the ??? with the 3-digit paper number (3 places: 2 in preamble, 1 in copyright statement).
-
-   #. Ensure that the author names are in format Abe Bee, Cee Dee and Elle Fine.
-
-   #. Insert the correct Received, Accepted and Published dates in copyright statement.
-
-   #. Make sure linenumbers are deactivated.
-
-   #. Does the table of contents (if present) look OK? (Beware of hanging closing
-      line pushed to top of second page). If needed, adjust the ``\vspace`` spacings
-      defined around the table of contents, and/or insert an additional ``vspace``
-      with negative spacing before the abstract.
-
-   #. If the author-accepted proofs version used BiBTeX, copy the contents of the bbl
-      file into the .tex file, so that BiBTeX is not needed anymore.
-
-   #. Verify each reference: authors, title, journal reference, doi link.
-      Manually correct any incorrect references.
-
-   #. Recompile the LaTeX, and CAREFULLY CHECK EVERYTHING.
-
-
-Uploading to ``scipost.org``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-   #. From the Submissions Pool, click on the link to initiate the publication process.
-
-   #. Fill in the initiate publication form (using the dates in format YYYY-MM-DD). Submit. You are now on the validate publication page.
-
-   #. Check that the paper number is correct. If not, modify the final tex source to account for this (see previous subsection).
-
-   #. Select who the first author is (if registered as a Contributor; if not, inform the EdAdmin, and choose another author who is registered).
-
-   #. Select the final version's pdf file.
-
-   #. Submit. The paper is now published online.
-
-
-Metadata preparation and DOI registration with Crossref
--------------------------------------------------------
-
-   These tasks must be performed by **Editorial Administrators**,
-   who have access to the Publication's editorial tools
-   by navigating to the Publication's page.
-
-
-Author listing
-~~~~~~~~~~~~~~
-
-   If not all authors appear in the list presented at the top of the EdAdmin tools,
-   these should be added by following the ``Add a missing author`` link.
-
-   The search form can be used to find missing authors who might be
-   Registered Contributors. If found, a one-click process adds them.
-
-   You can otherwise create an UnregisteredAuthor object instance and link
-   it to the publication, by simply filling in the first and last name fields
-   and clicking on ``Add``.
-
-
-Preparation of the citations list
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   Follow the ``Create/update citation list metadata`` link.
-
-   In the text area, paste the entire list of bibitems from the paper's
-   final ``.tex`` file. Upon clicking on ``Submit``, all DOI entires
-   are extracted and formatted into XML metadata which is saved in the
-   database.
-
-   Citations with no valid DOI (*e.g.* arXiv preprints, books, etc)
-   do not appear in the metadata.
-
-
-Funding info
-~~~~~~~~~~~~
-
-   Following the ``Create/update funding info metadata`` link leads to a
-   page where the funding statement of the Publication's ``.tex`` file
-   (found either as a separate subsection or in the Acknowledgements)
-   can be pasted.
-
-
-Preparation of the metadata XML
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   Following the ``Create/update metadata XML`` link auto-generates a
-   full XML text field containing all the provided information,
-   properly formatted for the upcoming submission to Crossref.
-
-   Verify that the first author is indeed enclosed in a
-   ``<person_name sequence='first' contributor_role='author'>`` tag,
-   and that subsequent authors (enclosed in
-   ``<person_name sequence='additional' contributor_role='author'>`` tags)
-   appear in the order of the Publication's author list.
-
-   Once the metadata is set, clicking on ``Accept the metadata``
-   saves the metadata to the database and returns one to the Publication's
-   page.
-
-
-Metadata testing and deposit
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   At this stage, the metadata is ready for uploading to Crossref.
-   This occurs via a POST query to either the test or live Crossref server.
-
-   Clicking on ``Test metadata deposit`` immediately posts the metadata
-   to the test server, and takes you to a page where the server's
-   response headers are displayed. The server also sends a more detailed
-   response via email
-   (to ``admin@scipost.org``; if you do not have access to this mailbox,
-   ask SciPost Administration) with the success status.
-
-   Similarly, the actual deposit is immediately performed upon clicking on the
-   ``Deposit the metadata to Crossref``. The response headers are displayed,
-   and a detailed email response is sent by Crossref to ``admin@scipost.org``.
-
-
-   **This completes the publication process.**
