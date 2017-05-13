@@ -223,6 +223,17 @@ class SubmissionListTest(BaseContributorTestCase):
         visible_submission_ids.append(EICassignedSubmissionFactory.create().id)
         visible_submission_ids.append(PublishedSubmissionFactory.create().id)
 
+        # Extra submission with multiple versions where the newest is publicly visible
+        # again. Earlier versions should therefore be invisible!
+        arxiv_id_resubmission = random_arxiv_identifier_without_version_number()
+        ResubmittedSubmissionFactory.create(arxiv_identifier_wo_vn_nr=arxiv_id_resubmission)
+        visible_submission_ids.append(
+            EICassignedSubmissionFactory.create(
+                arxiv_identifier_wo_vn_nr=arxiv_id_resubmission,
+                fill_arxiv_fields__arxiv_vn_nr=2
+            ).id
+        )
+
         # Check with hardcoded URL as this url shouldn't change!
         client = Client()
         response = client.get('/submissions/')

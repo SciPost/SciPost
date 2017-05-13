@@ -38,7 +38,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
         '''Fill empty arxiv fields.'''
         self.arxiv_link = 'https://arxiv.org/abs/%s' % self.arxiv_identifier_wo_vn_nr
         self.arxiv_identifier_w_vn_nr = '%sv1' % self.arxiv_identifier_wo_vn_nr
-        self.arxiv_vn_nr = 1
+        self.arxiv_vn_nr = kwargs.get('arxiv_vn_nr', 1)
 
     @factory.post_generation
     def contributors(self, create, extracted, **kwargs):
