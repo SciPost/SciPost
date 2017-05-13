@@ -46,3 +46,7 @@ class UnpublishedVettedCommentaryFactory(VettedCommentaryFactory):
 
 class UnvettedCommentaryFactory(CommentaryFactory):
     vetted = False
+
+class UnvettedArxivPreprintCommentaryFactory(CommentaryFactory):
+    vetted = False
+    pub_DOI = None

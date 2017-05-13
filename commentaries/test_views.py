@@ -4,10 +4,11 @@ from django.test import TestCase, Client, RequestFactory
 
 from scipost.factories import ContributorFactory, UserFactory
 
-from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory
+from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory, \
+    UnvettedArxivPreprintCommentaryFactory
 from .forms import CommentarySearchForm, RequestPublishedArticleForm
 from .models import Commentary
-from .views import RequestPublishedArticle, prefill_using_DOI
+from .views import RequestPublishedArticle, prefill_using_DOI, RequestArxivPreprint
 from common.helpers.test import add_groups_and_permissions
 from common.helpers import model_form_data
 
@@ -78,6 +79,25 @@ class RequestPublishedArticleTest(TestCase):
         self.assertEqual(Commentary.objects.count(), 1)
         self.assertEqual(Commentary.objects.first().pub_DOI, self.valid_form_data['pub_DOI'])
 
+
+class RequestArxivPreprintTest(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+        self.target = reverse('commentaries:request_arxiv_preprint')
+        self.commentary_instance = UnvettedArxivPreprintCommentaryFactory.build()
+        self.valid_form_data = model_form_data(self.commentary_instance, RequestPublishedArticleForm)
+        # The form field is called 'identifier', while the model field is called 'arxiv_identifier',
+        # so model_form_data doesn't include it.
+        self.valid_form_data['arxiv_identifier'] = self.commentary_instance.arxiv_identifier
+
+    def test_commentary_gets_created(self):
+        request = RequestFactory().post(self.target, self.valid_form_data)
+        request.user = UserFactory()
+
+        self.assertEqual(Commentary.objects.count(), 0)
+        response = RequestArxivPreprint.as_view()(request)
+        self.assertEqual(Commentary.objects.count(), 1)
+        self.assertEqual(Commentary.objects.first().arxiv_identifier, self.valid_form_data['arxiv_identifier'])
 
 class VetCommentaryRequestsTest(TestCase):
     """Test cases for `vet_commentary_requests` view method"""
