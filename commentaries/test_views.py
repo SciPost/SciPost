@@ -13,41 +13,6 @@ from common.helpers.test import add_groups_and_permissions
 from common.helpers import model_form_data
 
 
-class RequestCommentaryTest(TestCase):
-    """Test cases for `request_commentary` view method"""
-    def setUp(self):
-        add_groups_and_permissions()
-        self.view_url = reverse('commentaries:request_commentary')
-        self.login_url = reverse('scipost:login')
-        self.redirected_login_url = '%s?next=%s' % (self.login_url, self.view_url)
-
-    def test_redirects_if_not_logged_in(self):
-        request = self.client.get(self.view_url)
-        self.assertRedirects(request, self.redirected_login_url)
-
-    def test_valid_response_if_logged_in(self):
-        """Test different GET requests on view"""
-        request = RequestFactory().get(self.view_url)
-        request.user = UserFactory()
-        response = RequestCommentary.as_view()(request)
-        self.assertEqual(response.status_code, 200)
-
-    def test_post_invalid_forms(self):
-        """Test different kind of invalid RequestCommentaryForm submits"""
-        raise NotImplementedError
-
-    def test_saved_commentary_has_a_type(self):
-        self.assertEqual(Commentary.objects.count(), 0)
-        commentary = UnvettedCommentaryFactory.build()
-        valid_post_data = model_form_data(commentary, RequestPublishedArticleForm)
-        print(valid_post_data)
-        request = RequestFactory().post(reverse('commentaries:request_published_article'), valid_post_data)
-        request.user = UserFactory()
-        response = RequestPublishedArticle.as_view()(request)
-
-        self.assertEqual(Commentary.objects.count(), 1)
-
-
 class PrefillUsingDOITest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
@@ -70,14 +35,16 @@ class RequestPublishedArticleTest(TestCase):
         self.commentary_instance = UnvettedCommentaryFactory.build()
         self.valid_form_data = model_form_data(self.commentary_instance, RequestPublishedArticleForm)
 
-    def test_commentary_gets_created(self):
+    def test_commentary_gets_created_with_correct_type(self):
         request = RequestFactory().post(self.target, self.valid_form_data)
         request.user = UserFactory()
 
         self.assertEqual(Commentary.objects.count(), 0)
         response = RequestPublishedArticle.as_view()(request)
         self.assertEqual(Commentary.objects.count(), 1)
-        self.assertEqual(Commentary.objects.first().pub_DOI, self.valid_form_data['pub_DOI'])
+        commentary = Commentary.objects.first()
+        self.assertEqual(commentary.pub_DOI, self.valid_form_data['pub_DOI'])
+        self.assertEqual(commentary.type, 'published')
 
 
 class RequestArxivPreprintTest(TestCase):
@@ -90,14 +57,16 @@ class RequestArxivPreprintTest(TestCase):
         # so model_form_data doesn't include it.
         self.valid_form_data['arxiv_identifier'] = self.commentary_instance.arxiv_identifier
 
-    def test_commentary_gets_created(self):
+    def test_commentary_gets_created_with_correct_type(self):
         request = RequestFactory().post(self.target, self.valid_form_data)
         request.user = UserFactory()
 
         self.assertEqual(Commentary.objects.count(), 0)
         response = RequestArxivPreprint.as_view()(request)
         self.assertEqual(Commentary.objects.count(), 1)
-        self.assertEqual(Commentary.objects.first().arxiv_identifier, self.valid_form_data['arxiv_identifier'])
+        commentary = Commentary.objects.first()
+        self.assertEqual(commentary.arxiv_identifier, self.valid_form_data['arxiv_identifier'])
+        self.assertEqual(commentary.type, 'preprint')
 
 class VetCommentaryRequestsTest(TestCase):
     """Test cases for `vet_commentary_requests` view method"""
