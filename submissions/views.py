@@ -191,7 +191,7 @@ class SubmissionListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Submission.objects.public_overcomplete().filter(is_current=True)
+        queryset = Submission.objects.public_overcomplete()
         if 'to_journal' in self.kwargs:
             queryset = queryset.filter(
                 latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
