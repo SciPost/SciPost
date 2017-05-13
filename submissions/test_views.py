@@ -4,12 +4,15 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test import Client
 
+from common.helpers import random_arxiv_identifier_without_version_number
 from common.helpers.test import add_groups_and_permissions
 from scipost.factories import ContributorFactory
 # from scipost.models import Contributor
 
 from .constants import STATUS_UNASSIGNED
-from .factories import EICassignedSubmissionFactory
+from .factories import UnassignedSubmissionFactory, EICassignedSubmissionFactory,\
+                       ResubmittedSubmissionFactory, ResubmissionFactory,\
+                       PublishedSubmissionFactory
 from .forms import SubmissionForm, SubmissionIdentifierForm
 from .models import Submission
 
@@ -204,3 +207,31 @@ class SubmissionDetailTest(BaseContributorTestCase):
     def test_status_code_200(self):
         response = self.client.get(self.target)
         self.assertEqual(response.status_code, 200)
+
+
+class SubmissionListTest(BaseContributorTestCase):
+    def test_public_list_view(self):
+        # Create invisible Submissions.
+        arxiv_id_resubmission = random_arxiv_identifier_without_version_number()
+        UnassignedSubmissionFactory.create()
+        ResubmissionFactory.create(arxiv_identifier_wo_vn_nr=arxiv_id_resubmission)
+
+        # Create visible submissions
+        visible_submission_ids = []
+        visible_submission_ids.append(ResubmittedSubmissionFactory
+                                      .create(arxiv_identifier_wo_vn_nr=arxiv_id_resubmission).id)
+        visible_submission_ids.append(EICassignedSubmissionFactory.create().id)
+        visible_submission_ids.append(PublishedSubmissionFactory.create().id)
+
+        # Check with hardcoded URL as this url shouldn't change!
+        client = Client()
+        response = client.get('/submissions/')
+        self.assertEqual(response.status_code, 200)
+
+        # Check submissions returned
+        returned_submissions_ids = [sub.id for sub in response.context['object_list']]
+
+        # Check if submission lists are equal
+        returned_submissions_ids.sort()
+        visible_submission_ids.sort()
+        self.assertListEqual(returned_submissions_ids, visible_submission_ids)
