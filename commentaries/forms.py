@@ -64,6 +64,10 @@ class ArxivQueryForm(forms.Form):
 
         return identifier
 
+    def request_arxiv_preprint_form_prefill_data(self):
+        additional_form_data = {'arxiv_identifier': self.cleaned_data['identifier']}
+        return {**self.arxiv_data, **additional_form_data}
+
 
 # class IdentifierToQueryForm(forms.Form):
 #     identifier = forms.CharField(widget=forms.TextInput(
@@ -98,7 +102,7 @@ class RequestCommentaryForm(forms.ModelForm):
     class Meta:
         model = Commentary
         fields = [
-            'discipline', 'domain', 'subject_area', 'pub_title', 'author_list', 'pub_date', 'pub_DOI', 'pub_abstract'
+            'discipline', 'domain', 'subject_area', 'pub_title', 'author_list', 'pub_date', 'pub_abstract'
         ]
         placeholders = {
             'pub_date': 'Format: YYYY-MM-DD'

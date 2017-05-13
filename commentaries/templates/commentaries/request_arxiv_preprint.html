@@ -15,7 +15,7 @@
 </div>
 
 <div class="row">
-    <form id="requestForm" action="{% url 'commentaries:request_published_article' %}" method="post">
+    <form id="requestForm" action="{% url 'commentaries:request_arxiv_preprint' %}" method="post">
         {% csrf_token %}
         {{ form|bootstrap }}
         <input class="btn btn-primary" type="submit" value="Submit"/>

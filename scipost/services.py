@@ -3,6 +3,7 @@ import feedparser
 import requests
 import re
 import datetime
+import dateutil.parser
 
 from django.template import Template, Context
 from .behaviors import ArxivCallable
@@ -90,12 +91,14 @@ class ArxivCaller:
         author_list = [author['name'] for author in data['authors']]
         arxiv_link = data['id']
         abstract = data['summary']
+        pub_date = dateutil.parser.parse(data['published']).date()
 
         self.data = {
             'pub_title': pub_title,
             'author_list': author_list,
             'arxiv_link': arxiv_link,
             'pub_abstract': abstract,
+            'pub_date': pub_date,
         }
 
     def _search_result_present(self, data):

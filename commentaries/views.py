@@ -119,7 +119,8 @@ def prefill_using_arxiv_identifier(request):
     if request.method == "POST":
         arxiv_query_form = ArxivQueryForm(request.POST)
         if arxiv_query_form.is_valid():
-            raise NotImplementedError
+            prefill_data = arxiv_query_form.request_arxiv_preprint_form_prefill_data()
+            form = RequestArxivPreprintForm(initial=prefill_data)
         else:
             form = RequestArxivPreprintForm()
 
