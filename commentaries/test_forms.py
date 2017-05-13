@@ -5,8 +5,9 @@ from django.test import TestCase
 from common.helpers import model_form_data
 from scipost.factories import UserFactory
 
-from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory
-from .forms import RequestCommentaryForm, RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm, ArxivQueryForm
+from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory, UnvettedArxivPreprintCommentaryFactory
+from .forms import RequestCommentaryForm, RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm, \
+    ArxivQueryForm, RequestArxivPreprintForm
 from .models import Commentary
 from common.helpers.test import add_groups_and_permissions
 
@@ -177,4 +178,30 @@ class TestRequestPublishedArticleForm(TestCase):
     def test_commentary_without_pub_DOI_is_invalid(self):
         invalid_data = {**self.valid_form_data, **{'pub_DOI': ''}}
         form = RequestPublishedArticleForm(invalid_data)
+        self.assertEqual(form.is_valid(), False)
+
+
+class TestRequestArxivPreprintForm(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+        factory_instance = UnvettedArxivPreprintCommentaryFactory.build()
+        self.user = UserFactory()
+        self.valid_form_data = model_form_data(factory_instance, RequestPublishedArticleForm)
+        self.valid_form_data['arxiv_identifier'] = factory_instance.arxiv_identifier
+
+    def test_valid_data_is_valid(self):
+        form = RequestArxivPreprintForm(self.valid_form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_identifier_that_already_has_commentary_page_is_invalid(self):
+        commentary = UnvettedArxivPreprintCommentaryFactory()
+        invalid_data = {**self.valid_form_data, **{'arxiv_identifier': commentary.arxiv_identifier}}
+        form = RequestArxivPreprintForm(invalid_data)
+        self.assertEqual(form.is_valid(), False)
+        error_message = form.errors['arxiv_identifier'][0]
+        self.assertRegexpMatches(error_message, re.compile('already exist'))
+
+    def test_commentary_without_arxiv_identifier_is_invalid(self):
+        invalid_data = {**self.valid_form_data, **{'arxiv_identifier': ''}}
+        form = RequestArxivPreprintForm(invalid_data)
         self.assertEqual(form.is_valid(), False)
