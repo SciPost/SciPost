@@ -31,7 +31,6 @@ class DOIToQueryForm(forms.Form):
 
         return input_doi
 
-
     def request_published_article_form_prefill_data(self):
         additional_form_data = {'pub_DOI': self.cleaned_data['doi']}
         return {**self.crossref_data, **additional_form_data}

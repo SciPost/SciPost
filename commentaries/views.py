@@ -43,6 +43,10 @@ class RequestPublishedArticle(CreateView):
         context['doi_query_form'] = DOIToQueryForm()
         return context
 
+    def form_valid(self, form):
+        messages.success(self.request, strings.acknowledge_request_commentary)
+        return super(RequestArxivPreprint, self).form_valid(form)
+
 
 @method_decorator(permission_required(
     'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
@@ -56,6 +60,10 @@ class RequestArxivPreprint(CreateView):
         context['arxiv_query_form'] = ArxivQueryForm()
         return context
 
+    def form_valid(self, form):
+        messages.success(self.request, strings.acknowledge_request_commentary)
+        return super(RequestArxivPreprint, self).form_valid(form)
+
 
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def prefill_using_DOI(request):
@@ -65,6 +73,7 @@ def prefill_using_DOI(request):
         if doi_query_form.is_valid():
             prefill_data = doi_query_form.request_published_article_form_prefill_data()
             form = RequestPublishedArticleForm(initial=prefill_data)
+            messages.success(request, strings.acknowledge_doi_query)
         else:
             form = RequestPublishedArticleForm()
 
@@ -84,6 +93,7 @@ def prefill_using_arxiv_identifier(request):
         if arxiv_query_form.is_valid():
             prefill_data = arxiv_query_form.request_arxiv_preprint_form_prefill_data()
             form = RequestArxivPreprintForm(initial=prefill_data)
+            messages.success(request, strings.acknowledge_arxiv_query)
         else:
             form = RequestArxivPreprintForm()
 

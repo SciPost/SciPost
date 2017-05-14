@@ -10,6 +10,8 @@ acknowledge_request_commentary = (
 acknowledge_submit_comment = (
     "Thank you for contributing a Comment. It will soon be vetted by an Editor."
 )
+acknowledge_doi_query = "Crossref query by DOI successful."
+acknowledge_arxiv_query = "Arxiv query successful."
 
 # Arxiv response is not valid
 arxiv_caller_errormessages = {
