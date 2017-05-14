@@ -18,6 +18,10 @@ doi_query_help_text = (
     'For published papers, you can prefill the form (except for domain, subject area and abstract) using the DOI. '
     "(Give the DOI as 10.[4 to 9 digits]/[string], without prefix, as per the placeholder)."
 )
+doi_query_invalid = (
+    "DOI does not match the expression supplied by CrossRef. Either it is very old or you made a mistake. "
+    "If you are sure it is correct, please enter the metadata manually. Sorry for the inconvenience."
+)
 
 arxiv_query_placeholder = (
     "new style: YYMM.####(#)v#(#) or "
@@ -27,6 +31,7 @@ arxiv_query_help_text =  (
     "For preprints, you can prefill the form using the arXiv identifier. "
     "Give the identifier without prefix and do not forget the version number, as per the placeholder."
 )
+arxiv_query_invalid = 'ArXiv identifier is invalid. Did you include a version number?'
 
 # Arxiv response is not valid
 arxiv_caller_errormessages = {

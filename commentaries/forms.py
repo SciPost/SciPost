@@ -15,6 +15,7 @@ import strings
 class DOIToQueryForm(forms.Form):
     VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
     doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=True, help_text=strings.doi_query_help_text,
+        error_messages={'invalid': strings.doi_query_invalid},
         widget=forms.TextInput({'label': 'DOI', 'placeholder': strings.doi_query_placeholder}))
 
     def clean_doi(self):
@@ -44,8 +45,8 @@ class ArxivQueryForm(forms.Form):
     VALID_ARXIV_IDENTIFIER_REGEX = "(?:{})|(?:{})".format(IDENTIFIER_PATTERN_NEW, IDENTIFIER_PATTERN_OLD)
 
     identifier = forms.RegexField(regex=VALID_ARXIV_IDENTIFIER_REGEX, strip=True,
-        help_text=strings.arxiv_query_help_text, widget=forms.TextInput(
-        {'placeholder': strings.arxiv_query_placeholder}))
+        help_text=strings.arxiv_query_help_text, error_messages={'invalid': strings.arxiv_query_invalid},
+        widget=forms.TextInput( {'placeholder': strings.arxiv_query_placeholder}))
 
     def clean_identifier(self):
         identifier = self.cleaned_data['identifier']
