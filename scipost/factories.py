@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 from submissions.models import Submission
 
 from .models import Contributor, EditorialCollege, EditorialCollegeFellowship, Remark
-from .constants import TITLE_CHOICES
+from .constants import TITLE_CHOICES, SCIPOST_SUBJECT_AREAS
 
 from django_countries.data import COUNTRIES
 from faker import Faker
@@ -21,6 +21,7 @@ class ContributorFactory(factory.django.DjangoModelFactory):
     personalwebpage = factory.Faker('url')
     country_of_employment = factory.Iterator(list(COUNTRIES))
     affiliation = factory.Faker('company')
+    expertises = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: [c[0]])
 
     class Meta:
         model = Contributor

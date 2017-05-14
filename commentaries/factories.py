@@ -1,7 +1,6 @@
 import factory
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
-from scipost.factories import ContributorFactory
 from scipost.models import Contributor
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from common.helpers import random_arxiv_identifier_with_version_number, random_external_doi
@@ -16,7 +15,7 @@ class CommentaryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Commentary
 
-    requested_by = factory.SubFactory(ContributorFactory)
+    requested_by = factory.Iterator(Contributor.objects.all())
     type = factory.Iterator(COMMENTARY_TYPES, getter=lambda c: c[0])
     discipline = factory.Iterator(SCIPOST_DISCIPLINES, getter=lambda c: c[0])
     domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
@@ -48,7 +47,7 @@ class CommentaryFactory(factory.django.DjangoModelFactory):
 
 class VettedCommentaryFactory(CommentaryFactory):
     vetted = True
-    vetted_by = factory.SubFactory(ContributorFactory)
+    vetted_by = factory.Iterator(Contributor.objects.all())
 
 
 class UnpublishedVettedCommentaryFactory(VettedCommentaryFactory):

@@ -4,7 +4,7 @@ from commentaries.factories import VettedCommentaryFactory
 from comments.factories import CommentaryCommentFactory, SubmissionCommentFactory,\
                                ThesislinkCommentFactory
 from scipost.factories import SubmissionRemarkFactory
-from journals.factories import JournalFactory, IssueFactory, PublicationFactory
+from journals.factories import JournalFactory, VolumeFactory, IssueFactory, PublicationFactory
 from news.factories import NewsItemFactory
 from submissions.factories import EICassignedSubmissionFactory
 from theses.factories import VettedThesisLinkFactory
@@ -51,11 +51,18 @@ class Command(BaseCommand):
             help='Add 5 Editorial College and Fellows (Contributors required)',
         )
         parser.add_argument(
+            '--pubset',
+            action='store_true',
+            dest='pubset',
+            default=False,
+            help='Add 5 Issues, Volumes and Journals',
+        )
+        parser.add_argument(
             '--issues',
             action='store_true',
             dest='issues',
             default=False,
-            help='Add 5 sets of {Journal, Volume and Issue}',
+            help='Add 5 Issues',
         )
         parser.add_argument(
             '--submissions',
@@ -95,7 +102,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         if kwargs['contributor'] or kwargs['all']:
-            self.create_contributors()
+            n = 5
+            if kwargs['all']:
+                n += 10
+            self.create_contributors(n)
         if kwargs['commentaries'] or kwargs['all']:
             self.create_commentaries()
         if kwargs['comments'] or kwargs['all']:
@@ -107,6 +117,8 @@ class Command(BaseCommand):
             self.create_news_items()
         if kwargs['submissions'] or kwargs['all']:
             self.create_submissions()
+        if kwargs['pubset'] or kwargs['all']:
+            self.create_pubset()
         if kwargs['issues'] or kwargs['all']:
             self.create_issues()
         if kwargs['publications'] or kwargs['all']:
@@ -116,9 +128,9 @@ class Command(BaseCommand):
         if kwargs['theses'] or kwargs['all']:
             self.create_theses()
 
-    def create_contributors(self):
-        ContributorFactory.create_batch(5)
-        self.stdout.write(self.style.SUCCESS('Successfully created 5 Contributors.'))
+    def create_contributors(self, n=5):
+        ContributorFactory.create_batch(n)
+        self.stdout.write(self.style.SUCCESS('Successfully created %i Contributors.' % n))
 
     def create_commentaries(self):
         VettedCommentaryFactory.create_batch(5)
@@ -146,13 +158,18 @@ class Command(BaseCommand):
         EICassignedSubmissionFactory.create_batch(5)
         self.stdout.write(self.style.SUCCESS('Successfully created 5 Submissions.'))
 
-    def create_issues(self):
+    def create_pubset(self):
+        VolumeFactory.create_batch(5)
         IssueFactory.create_batch(5)
         self.stdout.write(self.style.SUCCESS(
                           'Successfully created 5x {Journal, Volume and Issue}.'))
 
+    def create_issues(self):
+        IssueFactory.create_batch(5)
+        self.stdout.write(self.style.SUCCESS(
+                          'Successfully created 5 Issue.'))
+
     def create_publications(self):
-        JournalFactory.create_batch(4)
         PublicationFactory.create_batch(5)
         self.stdout.write(self.style.SUCCESS('Successfully created 5 Publications.'))
 
