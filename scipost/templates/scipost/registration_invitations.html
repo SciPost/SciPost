@@ -95,7 +95,7 @@ $(document).ready(function(){
                         <ul>
                         {% for ac in draft|associated_contributors %}
                             <li>
-                                <a href="{% url 'scipost:map_draft_reg_inv_to_contributor' draft_id=draft.id contributor_id=ac.id %}">Map to {{ ac.user.first_name }} {{ ac.user.last_name }}</a>>
+                                <a href="{% url 'scipost:map_draft_reg_inv_to_contributor' draft_id=draft.id contributor_id=ac.id %}">Map to {{ ac.user.first_name }} {{ ac.user.last_name }}</a>
                             </li>
                         {% empty %}
                             <li>No associated contributors found.</li>
