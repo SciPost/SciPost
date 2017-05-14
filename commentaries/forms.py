@@ -9,11 +9,13 @@ from .models import Commentary, COMMENTARY_PUBLISHED, COMMENTARY_PREPRINT
 from scipost.services import DOICaller, ArxivCaller
 from scipost.models import Contributor
 
+import strings
+
 
 class DOIToQueryForm(forms.Form):
     VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
-    doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=False, widget=forms.TextInput(
-        {'label': 'DOI', 'placeholder': 'ex.: 10.21468/00.000.000000'}))
+    doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=True, help_text=strings.doi_query_help_text,
+        widget=forms.TextInput({'label': 'DOI', 'placeholder': strings.doi_query_placeholder}))
 
     def clean_doi(self):
         input_doi = self.cleaned_data['doi']
@@ -41,7 +43,9 @@ class ArxivQueryForm(forms.Form):
     IDENTIFIER_PATTERN_OLD = r'^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$'
     VALID_ARXIV_IDENTIFIER_REGEX = "(?:{})|(?:{})".format(IDENTIFIER_PATTERN_NEW, IDENTIFIER_PATTERN_OLD)
 
-    identifier = forms.RegexField(regex=VALID_ARXIV_IDENTIFIER_REGEX, strip=True)
+    identifier = forms.RegexField(regex=VALID_ARXIV_IDENTIFIER_REGEX, strip=True,
+        help_text=strings.arxiv_query_help_text, widget=forms.TextInput(
+        {'placeholder': strings.arxiv_query_placeholder}))
 
     def clean_identifier(self):
         identifier = self.cleaned_data['identifier']

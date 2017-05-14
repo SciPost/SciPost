@@ -13,6 +13,21 @@ acknowledge_submit_comment = (
 acknowledge_doi_query = "Crossref query by DOI successful."
 acknowledge_arxiv_query = "Arxiv query successful."
 
+doi_query_placeholder = 'ex.: 10.21468/00.000.000000'
+doi_query_help_text = (
+    'For published papers, you can prefill the form (except for domain, subject area and abstract) using the DOI. '
+    "(Give the DOI as 10.[4 to 9 digits]/[string], without prefix, as per the placeholder)."
+)
+
+arxiv_query_placeholder = (
+    "new style: YYMM.####(#)v#(#) or "
+    "old style: cond-mat/YYMM###v#(#)"
+)
+arxiv_query_help_text =  (
+    "For preprints, you can prefill the form using the arXiv identifier. "
+    "Give the identifier without prefix and do not forget the version number, as per the placeholder."
+)
+
 # Arxiv response is not valid
 arxiv_caller_errormessages = {
     'preprint_does_not_exist':
