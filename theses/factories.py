@@ -5,7 +5,7 @@ from django.utils import timezone
 from common.helpers.factories import FormFactory
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
-from scipost.factories import ContributorFactory
+from scipost.models import Contributor
 
 from .models import ThesisLink
 from .forms import VetThesisLinkForm
@@ -20,7 +20,7 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ThesisLink
 
-    requested_by = factory.SubFactory(ContributorFactory)
+    requested_by = factory.Iterator(Contributor.objects.all())
     type = factory.Iterator(THESIS_TYPES, getter=lambda c: c[0])
     domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
     discipline = factory.Iterator(SCIPOST_DISCIPLINES, getter=lambda c: c[0])
@@ -35,7 +35,7 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
 
 
 class VettedThesisLinkFactory(ThesisLinkFactory):
-    vetted_by = factory.SubFactory(ContributorFactory)
+    vetted_by = factory.Iterator(Contributor.objects.all())
     vetted = True
 
 

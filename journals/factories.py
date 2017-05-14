@@ -25,11 +25,12 @@ class JournalFactory(factory.django.DjangoModelFactory):
 
 class VolumeFactory(factory.django.DjangoModelFactory):
     in_journal = factory.SubFactory(JournalFactory)
-    number = factory.Sequence(lambda n: n + 1)
+    number = 9999
     doi_label = factory.Faker('md5')
 
     @factory.post_generation
     def doi(self, create, extracted, **kwargs):
+        self.number = self.in_journal.volume_set.count()
         self.doi_label = self.in_journal.doi_label + '.' + str(self.number)
 
     @factory.post_generation
@@ -45,12 +46,13 @@ class VolumeFactory(factory.django.DjangoModelFactory):
 
 
 class IssueFactory(factory.django.DjangoModelFactory):
-    in_volume = factory.SubFactory(VolumeFactory)
-    number = factory.Sequence(lambda n: n + 1)
+    in_volume = factory.Iterator(Volume.objects.all())
+    number = 9999
     doi_label = factory.Faker('md5')
 
     @factory.post_generation
     def doi(self, create, extracted, **kwargs):
+        self.number = self.in_volume.issue_set.count()
         self.doi_label = self.in_volume.doi_label + '.' + str(self.number)
 
     @factory.post_generation
@@ -68,9 +70,9 @@ class IssueFactory(factory.django.DjangoModelFactory):
 
 class PublicationFactory(factory.django.DjangoModelFactory):
     accepted_submission = factory.SubFactory(PublishedSubmissionFactory)
-    paper_nr = factory.Sequence(lambda n: n)
+    paper_nr = 9999
     pdf_file = Faker().file_name(extension='pdf')
-    in_issue = factory.SubFactory(IssueFactory)
+    in_issue = factory.Iterator(Issue.objects.all())
     submission_date = factory.Faker('date')
     acceptance_date = factory.Faker('date')
     publication_date = factory.Faker('date')
@@ -78,7 +80,7 @@ class PublicationFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def doi(self, create, extracted, **kwargs):
-        paper_nr = self.in_issue.publication_set.count() + 1
+        paper_nr = self.in_issue.publication_set.count()
         self.paper_nr = paper_nr
         self.doi_label = self.in_issue.doi_label + '.' + str(paper_nr).rjust(3, '0')
 
