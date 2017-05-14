@@ -344,7 +344,7 @@ class CitationNotification(models.Model):
     def __str__(self):
         text = str(self.contributor) + ', cited in '
         if self.cited_in_submission:
-            text += self.cited_in_submission.arxiv_nr_w_vn_nr
+            text += self.cited_in_submission.arxiv_identifier_w_vn_nr
         elif self.cited_in_publication:
             text += self.cited_in_publication.citation()
         if self.processed:
