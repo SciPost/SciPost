@@ -27,9 +27,9 @@ from .forms import SubmissionIdentifierForm, SubmissionForm, SubmissionSearchFor
                    SubmissionCycleChoiceForm
 from .utils import SubmissionUtils
 
+from journals.constants import SCIPOST_JOURNALS_SPECIALIZATIONS
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, Remark, RegistrationInvitation
-
 from scipost.services import ArxivCaller
 from scipost.utils import Utils
 from strings import arxiv_caller_errormessages_submissions
@@ -186,12 +186,13 @@ class SubmissionCreateView(PermissionRequiredMixin, CreateView):
 class SubmissionListView(ListView):
     model = Submission
     template_name = 'submissions/submissions.html'
-    form = SubmissionSearchForm()
+    form = SubmissionSearchForm
     submission_search_list = []
     paginate_by = 10
 
     def get_queryset(self):
         queryset = Submission.objects.public_overcomplete()
+        self.form = self.form(self.request.GET)
         if 'to_journal' in self.kwargs:
             queryset = queryset.filter(
                 latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
@@ -204,26 +205,17 @@ class SubmissionListView(ListView):
                 discipline=discipline,
                 latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
             )
-        elif 'Submit' in self.request.GET:
-            queryset = queryset.filter(
-                title__icontains=self.request.GET.get('title_keyword', ''),
-                author_list__icontains=self.request.GET.get('author', ''),
-                abstract__icontains=self.request.GET.get('abstract_keyword', '')
-            )
+        elif self.form.is_valid() and self.form.has_changed():
+            queryset = self.form.search_results()
 
         return queryset.order_by('-submission_date')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super(SubmissionListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
-        # Keep any search fields previously filled
-        initialdata = {
-            'author': self.request.GET.get('author', ''),
-            'title_keyword': self.request.GET.get('title_keyword', ''),
-            'abstract_keyword': self.request.GET.get('abstract_keyword', '')
-        }
-        context['form'] = SubmissionSearchForm(initial=initialdata)
+        # Form into the context!
+        context['form'] = self.form
 
         # To customize display in the template
         if 'to_journal' in self.kwargs:
@@ -232,7 +224,7 @@ class SubmissionListView(ListView):
             context['discipline'] = self.kwargs['discipline']
             context['nrweeksback'] = self.kwargs['nrweeksback']
             context['browse'] = True
-        elif 'Submit' not in self.request.GET:
+        elif not self.form.is_valid() or not self.form.has_changed():
             context['recent'] = True
 
         return context

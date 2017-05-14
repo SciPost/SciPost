@@ -14,8 +14,19 @@ from crispy_forms.layout import Layout, Div, Field, HTML, Submit
 
 class SubmissionSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
-    title_keyword = forms.CharField(max_length=100, label="Title", required=False)
-    abstract_keyword = forms.CharField(max_length=1000, required=False, label="Abstract")
+    title = forms.CharField(max_length=100, required=False)
+    abstract = forms.CharField(max_length=1000, required=False)
+    subject_area = forms.CharField(max_length=10, required=False, widget=forms.Select(
+                                   choices=((None, 'Show all'),) + SCIPOST_SUBJECT_AREAS[0][1]))
+
+    def search_results(self):
+        """Return all Submission objects according to search"""
+        return Submission.objects.public_overcomplete().filter(
+            title__icontains=self.cleaned_data.get('title', ''),
+            author_list__icontains=self.cleaned_data.get('author', ''),
+            abstract__icontains=self.cleaned_data.get('abstract', ''),
+            subject_area__icontains=self.cleaned_data.get('subject_area', '')
+        )
 
 
 ###############################
@@ -158,8 +169,7 @@ class ConsiderRefereeInvitationForm(forms.Form):
 
 
 class SetRefereeingDeadlineForm(forms.Form):
-    deadline = forms.DateField(required=False, label='',
-                               widget=forms.SelectDateWidget)
+    deadline = forms.DateField(required=False, label='', widget=forms.SelectDateWidget)
 
 
 class VotingEligibilityForm(forms.Form):
