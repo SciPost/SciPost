@@ -37,7 +37,7 @@ from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_
 
 from commentaries.models import Commentary
 from comments.models import Comment
-from journals.models import Publication
+from journals.models import Publication, Issue, Journal
 from news.models import NewsItem
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation,\
                                Report, EICRecommendation
@@ -173,8 +173,10 @@ def index(request):
     '''Main page.'''
     context = {
         'latest_newsitems': NewsItem.objects.all().order_by('-date')[:2],
-        'submissions': Submission.objects.public().order_by('-submission_date')[:4],
-        'publications': Publication.objects.published().order_by('-publication_date')[:4]
+        'submissions': Submission.objects.public().order_by('-submission_date')[:5],
+        'publications': Publication.objects.published().order_by('-publication_date')[:5],
+        'issues': Issue.objects.published().order_by('-start_date')[:4],
+        'journals': Journal.objects.active().order_by('name')
     }
     return render(request, 'scipost/index.html', context)
 

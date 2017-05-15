@@ -1,0 +1,12 @@
+<div class="card-block px-0 py-2 news-item">
+    <h3 class="card-title mb-0 pb-0">{{news.headline}}</h3>
+    <div>
+        <h4 class="text-muted font-weight-bold">{{news.date|date:'Y-n-j'}}</h4>
+        <div>
+            {{news.blurb|slice:":180"}} (...)
+
+            <br>
+            <a href="{% url 'news:news' %}#news_{{news.id}}" class="my-1 d-inline-block">Read more</a>
+        </div>
+    </div>
+</div>

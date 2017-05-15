@@ -6,3 +6,11 @@
         margin-bottom: 0;
     }
 }
+
+nav.as-submenu .breadcrumb-item + .breadcrumb-item::before {
+    content: '|';
+}
+
+.breadcrumb-item.no-divider::before {
+    content: none !important;
+}

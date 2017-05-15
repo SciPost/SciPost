@@ -9,7 +9,7 @@ from .behaviors import doi_journal_validator, doi_volume_validator,\
 from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
                        STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES
 from .helpers import paper_nr_string, journal_name_abbrev_citation
-from .managers import IssueManager, PublicationManager
+from .managers import IssueManager, PublicationManager, JournalManager
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
@@ -30,6 +30,8 @@ class Journal(models.Model):
                                  validators=[doi_journal_validator])
     issn = models.CharField(max_length=16, default='2542-4653')
     active = models.BooleanField(default=True)
+
+    objects = JournalManager()
 
     def __str__(self):
         return self.get_name_display()

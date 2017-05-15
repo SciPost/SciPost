@@ -20,7 +20,8 @@ $container-max-widths: (
 //
 $card-spacer-x: 0.75rem;
 $card-border-radius: 0.15rem;
-$card-border-color: rgba(238, 238, 238, 0.5);
+$card-border-color: #fff;
+$card-cap-bg: transparent;
 
 // Colors
 //
@@ -53,7 +54,7 @@ $input-padding-y: .25rem;
 $list-group-bg: transparent;
 $list-group-item-padding-x: 0;
 $list-group-item-padding-y: 0;
-$list-group-border-color: #f1f1f1;
+$list-group-border-color: #eee;
 
 // Fonts
 //

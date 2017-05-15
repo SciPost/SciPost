@@ -2,188 +2,173 @@
 
 {% load staticfiles %}
 
+{% block breadcrumb %}
+    {% if journals|length > 1 %}
+    <nav class="breadcrumb py-md-2 px-0 as-submenu">
+        <div class="container">
+            <span class="breadcrumb-item">Go direct to Journal:</span>
+            {% for journal in journals %}
+                <a href="{{journal.get_absolute_url}}" class="breadcrumb-item {% if forloop.counter == 1 %} ml-2 no-divider{% endif %}">{{journal}}</a>
+            {% endfor %}
+        </div>
+    </nav>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card-deck mb-2">
-                <!-- News -->
-                <div class="card card-grey card-news">
+    <div class="row pt-2">
+        <div class="col-md-7">
+            <!-- Latest publications -->
+            <div class="card card-grey">
+                <div class="card-header">
+                    <h1 class="card-title mb-0"><a href="{% url 'journals:journals' %}">Latest Publications</a></h1>
+                </div>
+                <div class="card-block pt-0">
+                  <ul class="list-group list-group-flush">
+                      {% for publication in publications %}
+                          <li class="list-group-item">
+                              <div class="card-block px-0">
+                                  {% include 'journals/_publication_details_small.html' with publication=publication %}
+                              </div>
+                          </li>
+                      {% endfor %}
+                  </ul>
+                  <p class="text-center mt-3 text-danger">If you support and believe in our mission, <br/>be a pioneer and submit a manuscript!</p>
+                </div>
+            </div><!-- End latest publications -->
+
+            <!-- Latest submissions -->
+            <div class="card card-grey">
+                <div class="card-header">
+                    <h1 class="card-title mb-0"><a href="{% url 'submissions:submissions' %}">Latest Submissions</a></h1>
+                </div>
+                <div class="card-block pt-0">
+                  <ul class="list-group list-group-flush">
+                      {% for submission in submissions %}
+                          <li class="list-group-item">
+                              {% include 'submissions/_submission_card_content_sparse.html' with submission=submission %}
+                          </li>
+                      {% endfor %}
+                  </ul>
+                </div>
+            </div><!-- End latest submissions -->
+        </div>
+
+        <div class="col-md-5">
+            <!-- Latest issues -->
+            <div class="card card-grey">
+                <div class="card-header border-0 pb-0">
+                    <h2 class="card-title mb-0"><a href="/issues/">Issues</a></h2>
+                </div>
+                <div class="card-block">
+                    <ul class="m-0">
+                        {% for issue in issues %}
+                            <li>
+                                <a href="{{issue.get_absolute_url}}">{{issue}}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'journal:issues' 'SciPostPhys' %}">All issues</a>
+                </div>
+            </div><!-- End latest issues -->
+
+            <!-- News -->
+            <div class="card card-grey">
+                <div class="card-header border-0">
+                    <h2 class="card-title mb-0">
+                        <a href="{% url 'news:news' %}">News</a>
+                        <a class="floating-rss-icon" href="{% url 'scipost:feeds' %}">
+                            <img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14">
+                        </a>
+                    </h2>
+                    <h4 class="card-subtitle pb-0 text-muted">Latest news and announcements.</h4>
+                </div>
+                <div class="card-block">
+                    <ul class="list-group list-group-flush">
+                        {% for item in latest_newsitems %}
+                            <li class="list-group-item">
+                                {% include 'news/news_card_content_short.html' with news=item %}
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">
+                                No current newsitems found.
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card-footer"><a href="{% url 'news:news' %}">More news</a></div>
+            </div><!-- End news -->
+
+            {% if not user.is_authenticated %}
+                <!-- Register -->
+                <div class="card card-grey">
                     <div class="card-block">
-                        <h1 class="card-title mb-0"><a href="{% url 'news:news' %}">News</a><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14"></a></h1>
-                        <h4 class="card-subtitle mb-0 pb-0 text-muted">Latest news and announcements.</h4>
-                        <ul class="list-group list-group-flush">
-                            {% for item in latest_newsitems %}
-                                <li class="list-group-item">
-                                    {% include 'news/news_card_content.html' with news=item %}
-                                </li>
-                            {% empty %}
-                                <li class="list-group-item">
-                                    No current newsitems found.
-                                </li>
-                            {% endfor %}
-                        <ul>
+                        <h2 class="card-title mb-0"><a href="{% url 'scipost:register' %}">Register</a></h2>
+                        <p class="m-0">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="/register">registration form</a>.</p>
                     </div>
-                </div><!-- End news -->
+                </div><!-- End Register -->
+            {% endif %}
 
-
-
-                {% if not user.is_authenticated %}
-                    <!-- Register -->
-                    <div class="card card-grey">
-                        <div class="card-block">
-                            <h1 class="card-title mb-0"><a href="{% url 'scipost:register' %}">Register</a></h1>
-                            <p>Professional scientists (PhD students and above) can become Contributors to SciPost by filling the
-                            <a href="{% url 'scipost:register' %}">registration form</a>.</p>
-                            <h4>Registered contributors can among others:</h4>
-                            <ul>
-                                <li>Submit manuscripts to SciPost Journals</li>
-                                <li>Post reports and comments</li>
-                                <li>Express opinions on contributions</li>
-                                <li>Subscribe to feeds</li>
-                                <li>Use productivity tools</li>
-                            </ul>
-                        </div>
-                    </div><!-- End register -->
-                {% else %}
-                    <!-- About -->
-                    <div class="card card-grey">
-                        <div class="card-block">
-                            <h1 class="card-title mb-0"><a href="{% url 'scipost:about' %}">About SciPost</a></h1>
-                            <h4 class="card-subtitle mb-2 text-muted">SciPost is a complete scientific publication portal managed by active professional scientists.</h4>
-                            <p>It is purely online-based and offers openly, globally and perpetually accessible science.</p>
-                            <h3><a href="{% url 'scipost:about' %}#advisory_board">Advisory Board</a></h3>
-                            <h3><a href="{% url 'scipost:call' %}">A call for openness</a></h3>
-                            <h3><a href="{% url 'scipost:quick_tour' %}">Quick Tour</a></h3>
-                            <h3><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h3>
-                            <h3><a href="{% url 'scipost:about' %}">Read more</a></h3>
-                            <h4><em>In the press:</em></h4>
-                            <ul>
-                                <li><a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016.pdf' %}">FOM expres 5/2016</a> (<a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016_eng.pdf' %}">English vn</a>)</li>
-                                <li><a href="http://www.uva.nl/en/news-events/news/uva-news/content/news/2016/10/open-access-platform-scipost-launches-inaugural-edition-of-first-journal.html">Inaugural issue 10/2016</a></li>
-                            </ul>
-                        </div>
-                    </div><!-- End about -->
-                {% endif %}
-
-                <!-- Latest submissions -->
-                <div class="card card-grey">
-                    <div class="card-block">
-                      <h1 class="card-title mb-0"><a href="{% url 'journals:journals' %}">Latest Submissions</a></h1>
-                      <ul class="list-group list-group-flush">
-                          {% for submission in submissions %}
-                              <li class="list-group-item">
-                                  {% include 'submissions/_submission_card_content_sparse.html' with submission=submission %}
-                              </li>
-                          {% endfor %}
-                      </ul>
-                    </div>
-                </div><!-- End latest submissions -->
-
-                <!-- Latest publications -->
-                <div class="card card-grey">
-                    <div class="card-block">
-                      <h1 class="card-title mb-0"><a href="{% url 'journals:journals' %}">Latest Publications</a></h1>
-                      <ul class="list-group list-group-flush">
-                          {% for publication in publications %}
-                              <li class="list-group-item">
-                                  <div class="card-block px-0">
-                                      {% include 'journals/_publication_single_short_summary.html' with publication=publication %}
-                                  </div>
-                              </li>
-                          {% endfor %}
-                      </ul>
-                      <p class="text-center mt-3" style="color: red;"><em>If you support and believe in our mission, <br/>be a pioneer and submit a manuscript!</em></p>
-                    </div>
-                </div><!-- End latest publications -->
-            </div><!-- End deck -->
-
-            <div class="card-deck">
-
-                <!-- Journals -->
-                <div class="card card-grey">
-                    <div class="card-block">
-                      <h1 class="card-title"><a href="{% url 'journals:journals' %}">Journals</a></h1>
-                      <h4 class="card-subtitle m text-muted">SciPost publishes a portfolio of high-quality two-way open access scientific journals.</h4>
-                      <p>All SciPost Journals implement the stringent <a href="/FAQ#pwr">peer-witnessed refereeing</a> principle.</p>
-                      <p>All Journals are fully managed by professional scientists.</p>
-                      <h3><a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a></h3>
-                      <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a></h3>
-
-                      <br/>
-
-                      <p>View and comment on (login required) recent <a href="{% url 'submissions:submissions' %}">Submissions</a></p>
-                  </div>
-                </div><!-- End journals -->
-
-
-                <div class="card card-grey">
-                    <div class="card-block">
-                        <h1 class="card-title"><a href="{% url 'commentaries:commentaries' %}">Commentaries</a></h1>
-                        <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
-                        <br/>
-                        <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
-                        <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
-                    </div>
-                </div><!-- End commentaries -->
-
-                <!-- Theses -->
-                <div class="card card-grey">
-                    <div class="card-block">
-                      <h1 class="card-title"><a href="{% url 'theses:theses' %}">Theses</a></h1>
-                      <p>SciPost Theses allow Contributors to find Master's, Ph.D. and Habilitation theses relevant to their work.</p>
-                      <br/>
-                      <h3><a href="{% url 'theses:request_thesislink' %}">Request a new Thesis Link</a></h3>
-                  </div>
-              </div><!-- End theses -->
-
-                {% if not user.is_authenticated %}
-                    <!-- About -->
-                    <div class="card card-grey">
-                        <div class="card-block">
-                            <h1 class="card-title mb-0"><a href="{% url 'scipost:about' %}">About SciPost</a></h1>
-                            <h4 class="card-subtitle mb-2 text-muted">SciPost is a complete scientific publication portal managed by active professional scientists.</h4>
-                            <p>It is purely online-based and offers openly, globally and perpetually accessible science.</p>
-                            <h3><a href="{% url 'scipost:about' %}#advisory_board">Advisory Board</a></h3>
-                            <h3><a href="{% url 'scipost:call' %}">A call for openness</a></h3>
-                            <h3><a href="{% url 'scipost:quick_tour' %}">Quick Tour</a></h3>
-                            <h3><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h3>
-                            <h3><a href="{% url 'scipost:about' %}">Read more</a></h3>
-                            <h4><em>In the press:</em></h4>
-                            <ul>
-                                <li><a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016.pdf' %}">FOM expres 5/2016</a> (<a href="{% static 'scipost/press/SciPost_in_FOM_expres_mei_2016_eng.pdf' %}">English vn</a>)</li>
-                                <li><a href="http://www.uva.nl/en/news-events/news/uva-news/content/news/2016/10/open-access-platform-scipost-launches-inaugural-edition-of-first-journal.html">Inaugural issue 10/2016</a></li>
-                            </ul>
-                        </div>
-                    </div><!-- End about -->
-                {% endif %}
-
-            </div><!-- End deck -->
+            <!-- Summarized -->
+            <div class="card card-grey">
+                <div class="card-block">
+                    <h2 class="card-title">
+                        <a href="{% url 'journals:journals' %}">Journals</a>
+                    </h2>
+                    <h4 class="card-subtitle pt-0 text-muted">SciPost publishes a portfolio of high-quality two-way open access scientific journals.</h4>
+                    <p>
+                        All SciPost Journals implement the stringent <a href="{% url 'scipost:FAQ' %}#pwr">peer-witnessed refereeing</a> principle.
+                        <br>
+                        All Journals are fully managed by professional scientists.
+                    </p>
+                    <p>
+                        <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a>
+                        <br>
+                        <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a>
+                    </p>
+                    <h2 class="card-title">
+                        <a href="{% url 'commentaries:commentaries' %}">Commentaries</a>
+                    </h2>
+                    <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
+                    <h2 class="card-title">
+                        <a href="{% url 'theses:theses' %}">Theses</a>
+                    </h2>
+                    <p>SciPost Theses allow Contributors to find Master's, Ph.D. and Habilitation theses relevant to their work.</p>
+                </div>
+            </div><!-- End Summarized -->
         </div>
     </div>
+</div>
 
-    <hr>
-    <div class="row">
-        <div class="col-md-6">
-            <h1>SciPost is endorsed by</h1>
-            <div class="row">
-                <div class="col-md-6">
-                    <a href="//www.nwo.nl/en" target="_blank"><img  style="max-height: 55px; width: auto;" src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo"></a>
-                    <p id="NWOOpenAccess" class="mt-1">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as
-                        stipulated on the NWO’s <a href="//www.nwo.nl/en/policies/open+science" target="_blank">Open Science page</a>.</p>
-                </div>
-                <div class="col-md-6">
-                    <a href="//www.fom.nl" target="_blank"><img style="max-height: 55px; width: auto;" src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo"></a>
-                    <p style="font-size: 80%" class="mt-1">FOM is part of NWO</p>
+{% endblock %}
+
+{% block secondary_footer %}
+<footer class="secondary pt-3">
+    <div class="container text-left">
+        <div class="row">
+            <div class="col-md-6">
+                <h1>SciPost is endorsed by</h1>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="//www.nwo.nl/en" target="_blank"><img  style="max-height: 55px; width: auto;" src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo"></a>
+                        <p id="NWOOpenAccess" class="mt-1">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as
+                            stipulated on the NWO’s <a href="//www.nwo.nl/en/policies/open+science" target="_blank">Open Science page</a>.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="//www.fom.nl" target="_blank"><img style="max-height: 55px; width: auto;" src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo"></a>
+                        <p style="font-size: 80%" class="mt-1">FOM is part of NWO</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <h1>SciPost is a member of</h1>
-            <br/>
-            <a href="//www.crossref.org" target="_blank"><img src="//assets.crossref.org/logo/crossref-logo-200.svg" width="100" alt="Crossref logo"></a>
+            <div class="col-md-6">
+                <h1>SciPost is a member of</h1>
+                <br/>
+                <a href="//www.crossref.org" target="_blank"><img src="//assets.crossref.org/logo/crossref-logo-200.svg" width="100" alt="Crossref logo"></a>
+            </div>
         </div>
     </div>
-
-
+</footer>
 {% endblock %}
