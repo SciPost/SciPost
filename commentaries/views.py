@@ -45,7 +45,7 @@ class RequestPublishedArticle(CreateView):
 
     def form_valid(self, form):
         messages.success(self.request, strings.acknowledge_request_commentary)
-        return super(RequestArxivPreprint, self).form_valid(form)
+        return super(RequestPublishedArticle, self).form_valid(form)
 
 
 @method_decorator(permission_required(

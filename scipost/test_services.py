@@ -49,8 +49,6 @@ class DOICallerTest(TestCase):
         correct_data = {
             'pub_date': '2017-04-04',
             'journal': 'SciPost Physics',
-            # Inexplicably, an extra space is added between 'inpenetrable' and 'bosons', but this is a
-            # Crossref error.
             'pub_title': 'One-particle density matrix of trapped one-dimensional impenetrable bosons from conformal invariance',
             'pages': '',
             'volume': '2',

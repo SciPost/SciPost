@@ -36,6 +36,7 @@ class DOIToQueryForm(forms.Form):
 
     def request_published_article_form_prefill_data(self):
         additional_form_data = {'pub_DOI': self.cleaned_data['doi']}
+        self.crossref_data['author_list'] = ", ".join(self.crossref_data['author_list'])
         return {**self.crossref_data, **additional_form_data}
 
 
@@ -66,6 +67,7 @@ class ArxivQueryForm(forms.Form):
 
     def request_arxiv_preprint_form_prefill_data(self):
         additional_form_data = {'arxiv_identifier': self.cleaned_data['identifier']}
+        self.arxiv_data['author_list'] = ", ".join(self.arxiv_data['author_list'])
         return {**self.arxiv_data, **additional_form_data}
 
 
