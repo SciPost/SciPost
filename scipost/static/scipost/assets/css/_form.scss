@@ -42,3 +42,25 @@ input[type="file"] {
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 0.15rem;
 }
+
+.search-nav-form {
+    input {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        margin-right: 0 !important;
+        border-right: 0;
+        border-color: #ddd;
+    }
+
+    button {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-color: #ddd !important;
+        outline: 0;
+
+        &:hover {
+            background-color: inherit;
+            box-shadow: inset 0px 0px 6px 1px #fff;
+        }
+    }
+}
