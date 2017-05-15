@@ -17,6 +17,7 @@ django-webpack-loader==0.4.1
 djangorestframework==3.5.3
 docutils==0.12
 factory-boy==2.7.0
+Faker==0.7.11
 fake-factory==0.7.2
 feedparser==5.2.1
 imagesize==0.7.1

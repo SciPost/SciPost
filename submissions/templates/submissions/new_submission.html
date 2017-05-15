@@ -55,7 +55,7 @@ $(document).ready(function(){
     <div class="col-12">
         {% if perms.scipost.can_submit_manuscript %}
 
-            {% if form.arxiv_link.value %}
+            {% if form.arxiv_link %}
                 <form id="full_submission_form" action="{% url 'submissions:submit_manuscript' %}" method="post">
                     {% csrf_token %}
                     {{form|bootstrap}}

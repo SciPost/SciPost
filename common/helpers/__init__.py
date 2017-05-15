@@ -1,6 +1,8 @@
 import random
 import string
 
+from journals.constants import SCIPOST_JOURNALS_SUBMIT
+
 
 def model_form_data(model, form_class, form_kwargs={}):
     '''
@@ -29,12 +31,41 @@ def model_form_data(model, form_class, form_kwargs={}):
     form_fields = list(form_class(**form_kwargs).fields.keys())
     return filter_keys(model_data, form_fields)
 
+
 def random_arxiv_identifier_with_version_number():
     return random_arxiv_identifier_without_version_number() + "v0"
 
 
 def random_arxiv_identifier_without_version_number():
     return random_digits(4) + "." + random_digits(5)
+
+
+def random_scipost_journal():
+    return random.choice(SCIPOST_JOURNALS_SUBMIT)[0]
+
+
+def random_external_journal():
+    return random.choice((
+        'PhysRevA.',
+        'PhysRevB.',
+        'PhysRevC.',
+        'nature.'
+        'S0550-3213(01)',
+        '1742-5468/',
+        '0550-3213(96)'
+    ))
+
+
+def random_pub_number():
+    return '%i.%i.%s' % (random.randint(1, 9), random.randint(1, 9), random_digits(3))
+
+
+def random_scipost_doi():
+    return '10.21468/%s.%s' % (random_scipost_journal(), random_pub_number())
+
+
+def random_external_doi():
+    return '10.%s/%s%s' % (random_digits(5), random_external_journal(), random_pub_number())
 
 
 def random_digits(n):

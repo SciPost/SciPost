@@ -129,6 +129,20 @@ Users of the portal are known as Contributors and are created through the regist
 
 You can create a number of users, and use the admin site to give them various permissions through memberships of certain groups. For example, you'll want members of the SciPost Administrators and Editorial Administrators groups in order to access the internal management and editorial tools.
 
+### Initial data
+If you're working on a (almost) empty database, one can easily fill its test database using one of the built-in commands. To create few instances for each available object, simply run:
+
+```shell
+(scipostenv) $ ./manage.py populate_db --all
+```
+
+Run the help argument to find arguments to create instances for individual models.
+
+```shell
+(scipostenv) $ ./manage.py populate_db --help
+```
+
+
 ## Maintaining database migratons
 Every time fields in any of the models change, a [database migration](https://docs.djangoproject.com/en/1.10/topics/migrations/)
 needs to be created and applied. The first documents a database change and its
@@ -143,7 +157,23 @@ can use them.
 ```
 
 ## Documentation
-Project documentation can be found in `docs` and can be rendered using
+All project documentation is gathered from `.rst` files and code-embedded docstrings.
+The documentation itself can be found in `docs`.
+
+### Sphinxdoc
+The documentation is saved in the local database as a Project with name `SciPost`
+(this project should be manually created in the admin under the `Sphinxdoc` app).
+
+To update the docs, simply run
+```shell
+(scipostenv) $ python3 ../manage.py updatedoc -b scipost
+```
+
+The documentation is then viewable by navigating to `docs/`.
+
+
+### Locally-served
+The documentation can be rendered using
 [Sphinx](http://www.sphinx-doc.org/). Note that rendering documentation is only
 available from the virtual environment - and only when the host settings have
 been configured.

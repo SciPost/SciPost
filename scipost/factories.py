@@ -4,16 +4,16 @@ import random
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
-from django_countries.data import COUNTRIES
+from submissions.models import Submission
 
-from .models import Contributor, EditorialCollege, EditorialCollegeFellowship
-from .constants import TITLE_CHOICES
+from .models import Contributor, EditorialCollege, EditorialCollegeFellowship, Remark
+from .constants import TITLE_CHOICES, SCIPOST_SUBJECT_AREAS
+
+from django_countries.data import COUNTRIES
+from faker import Faker
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Contributor
-
     title = random.choice(list(dict(TITLE_CHOICES).keys()))
     user = factory.SubFactory('scipost.factories.UserFactory', contributor=None)
     status = 1  # normal user
@@ -21,6 +21,11 @@ class ContributorFactory(factory.django.DjangoModelFactory):
     personalwebpage = factory.Faker('url')
     country_of_employment = factory.Iterator(list(COUNTRIES))
     affiliation = factory.Faker('company')
+    expertises = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: [c[0]])
+
+    class Meta:
+        model = Contributor
+        django_get_or_create = ('user',)
 
 
 class VettingEditorFactory(ContributorFactory):
@@ -32,9 +37,6 @@ class VettingEditorFactory(ContributorFactory):
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = get_user_model()
-
     username = factory.Faker('user_name')
     password = factory.PostGenerationMethodCall('set_password', 'adm1n')
     email = factory.Faker('safe_email')
@@ -43,6 +45,9 @@ class UserFactory(factory.django.DjangoModelFactory):
     is_active = True
     # When user object is created, associate new Contributor object to it.
     contributor = factory.RelatedFactory(ContributorFactory, 'user')
+
+    class Meta:
+        model = get_user_model()
 
     @factory.post_generation
     def groups(self, create, extracted, **kwargs):
@@ -58,17 +63,27 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 
 class EditorialCollegeFactory(factory.django.DjangoModelFactory):
+    discipline = random.choice(['Physics', 'Chemistry', 'Medicine'])
+
     class Meta:
         model = EditorialCollege
         django_get_or_create = ('discipline', )
 
-    discipline = random.choice(['Physics', 'Chemistry', 'Medicine'])
-
 
 class EditorialCollegeFellowshipFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = EditorialCollegeFellowship
-
     college = factory.Iterator(EditorialCollege.objects.all())
     contributor = factory.Iterator(Contributor.objects.exclude(
                                    user__username='deleted').order_by('?'))
+
+    class Meta:
+        model = EditorialCollegeFellowship
+
+
+class SubmissionRemarkFactory(factory.django.DjangoModelFactory):
+    contributor = factory.Iterator(Contributor.objects.all())
+    submission = factory.Iterator(Submission.objects.all())
+    date = factory.Faker('date_time_this_decade')
+    remark = factory.lazy_attribute(lambda x: Faker().paragraph())
+
+    class Meta:
+        model = Remark

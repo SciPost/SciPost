@@ -150,7 +150,7 @@ def vet_commentary_request_ack(request, commentary_id):
             email_args = (
                 'SciPost Commentary Page activated',
                 email_text,
-                [commentary.requested_by.user.email],
+                commentary.requested_by.user.email,
                 ['commentaries@scipost.org']
             )
             emailmessage = EmailMessage(*email_args, reply_to=['commentaries@scipost.org'])

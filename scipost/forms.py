@@ -82,7 +82,7 @@ class RegistrationForm(forms.Form):
             self.add_error('email', 'This email address is already in use')
         return self.cleaned_data.get('email', '')
 
-    def create_and_save_contributor(self, invitation_key=''):
+    def create_and_save_contributor(self):
         user = User.objects.create_user(**{
             'first_name': self.cleaned_data['first_name'],
             'last_name': self.cleaned_data['last_name'],
@@ -93,7 +93,7 @@ class RegistrationForm(forms.Form):
         })
         contributor, new = Contributor.objects.get_or_create(**{
             'user': user,
-            'invitation_key': invitation_key,
+            'invitation_key': self.cleaned_data.get('invitation_key', ''),
             'title': self.cleaned_data['title'],
             'orcid_id': self.cleaned_data['orcid_id'],
             'country_of_employment': self.cleaned_data['country_of_employment'],
@@ -102,7 +102,8 @@ class RegistrationForm(forms.Form):
             'personalwebpage': self.cleaned_data['personalwebpage'],
         })
 
-        if contributor.invitation_key == '':
+        if contributor.activation_key == '':
+            # Seems redundant?
             contributor.generate_key()
         contributor.save()
         return contributor
