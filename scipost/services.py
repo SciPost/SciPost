@@ -30,7 +30,7 @@ class DOICaller:
     def _format_data(self):
         data = self._crossref_data
         pub_title = data['title'][0]
-        authorlist = ['{} {}'.format(author['given'], author['family']) for author in data['author']]
+        author_list = ['{} {}'.format(author['given'], author['family']) for author in data['author']]
         journal = data['container-title'][0]
         volume = data.get('volume', '')
         pages = self._get_pages(data)
@@ -38,7 +38,7 @@ class DOICaller:
 
         self.data = {
             'pub_title': pub_title,
-            'authorlist': authorlist,
+            'author_list': author_list,
             'journal': journal,
             'volume': volume,
             'pages': pages,
