@@ -24,7 +24,7 @@
     {% endfor %}
     <meta name="citation_doi" content="{{ publication.doi_string }}"/>
     <meta name="citation_publication_date" content="{{ publication.publication_date|date:'Y/m/d' }}"/>
-    <meta name="citation_journal_title" content="{{ journal.name }}"/>
+    <meta name="citation_journal_title" content="{{ journal }}"/>
     <meta name="citation_issn" content="{{ journal.issn }}"/>
     <meta name="citation_volume" content="{{ publication.in_issue.in_volume.number }}"/>
     <meta name="citation_issue" content="{{ publication.in_issue.number }}"/>
