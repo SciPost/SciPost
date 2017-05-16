@@ -48,3 +48,20 @@
         }
     }
 }
+
+nav.submenu {
+    margin-top: -0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: #f9f9f9;
+    border-radius: 0;
+
+    .item {
+        padding: 0 0.5rem;
+        border-right: 2px solid #fff;
+    }
+    .item:first-child,
+    .item:last-child {
+        border-right: 0;
+    }
+}
