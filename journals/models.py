@@ -7,7 +7,8 @@ from django.urls import reverse
 from .behaviors import doi_journal_validator, doi_volume_validator,\
                        doi_issue_validator, doi_publication_validator
 from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
-                       STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES
+                       STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,\
+                       PRODUCTION_STREAM_STATUS, PRODUCTION_EVENTS
 from .helpers import paper_nr_string, journal_name_abbrev_citation
 from .managers import IssueManager, PublicationManager
 
@@ -15,6 +16,28 @@ from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 
+
+##############
+# Production #
+##############
+
+class ProductionStream(models.Model):
+    submission = models.OneToOneField('submissions.Submission', related_name='stream')
+    opened = models.DateTimeField()
+
+class ProductionEvent(models.Model):
+    stream = models.ForeignKey(ProductionStream, related_name='events')
+    event = models.CharField(max_length=64, choices=PRODUCTION_EVENTS)
+    comments = models.TextField()
+    noted_on = models.DateTimeField()
+    noted_by = models.ForeignKey(Contributor, related_name='event')
+    duration = models.DurationField(blank=True, null=True)
+
+
+
+################
+# Journals etc #
+################
 
 class UnregisteredAuthor(models.Model):
     first_name = models.CharField(max_length=100)

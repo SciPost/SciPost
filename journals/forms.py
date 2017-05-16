@@ -1,9 +1,16 @@
 from django import forms
 from django.utils import timezone
 
+from .models import ProductionEvent
 from .models import UnregisteredAuthor, Issue, Publication
 
 from submissions.models import Submission
+
+
+class ProductionEventForm(forms.ModelForm):
+    class Meta:
+        model = ProductionEvent
+        exclude = ['stream', 'noted_on', 'noted_by']
 
 
 class InitiatePublicationForm(forms.Form):

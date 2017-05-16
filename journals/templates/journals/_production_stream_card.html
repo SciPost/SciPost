@@ -1,0 +1,18 @@
+{% load bootstrap %}
+
+<div class="card-block">
+  {% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}
+  <h3>Events</h3>
+  <ul>
+    {% for event in stream.events_set.all %}
+    <li>{{ event.get_event_display }}</li>
+    {% empty %}
+    <li>No events were found.</li>
+    {% endfor %}
+  </ul>
+  <form action="{% url 'journals:add_production_event' stream_id=stream.id %}" method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input type="submit" name="submit" value="Submit">
+  </form>
+</div>
