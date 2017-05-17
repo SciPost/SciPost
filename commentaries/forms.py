@@ -4,7 +4,8 @@ from django import forms
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from .models import Commentary, COMMENTARY_PUBLISHED, COMMENTARY_PREPRINT
+from .models import Commentary
+from .constants import COMMENTARY_PUBLISHED, COMMENTARY_PREPRINT
 
 from scipost.services import DOICaller, ArxivCaller
 from scipost.models import Contributor

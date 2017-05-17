@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from django.test import TestCase, Client, RequestFactory
 
+from scipost.models import Contributor
 from scipost.factories import ContributorFactory, UserFactory
 
 from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory, \
@@ -32,7 +33,7 @@ class RequestPublishedArticleTest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.target = reverse('commentaries:request_published_article')
-        self.commentary_instance = UnvettedCommentaryFactory.build()
+        self.commentary_instance = UnvettedCommentaryFactory.build(requested_by=ContributorFactory())
         self.valid_form_data = model_form_data(self.commentary_instance, RequestPublishedArticleForm)
 
     def test_commentary_gets_created_with_correct_type(self):
@@ -51,7 +52,7 @@ class RequestArxivPreprintTest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.target = reverse('commentaries:request_arxiv_preprint')
-        self.commentary_instance = UnvettedArxivPreprintCommentaryFactory.build()
+        self.commentary_instance = UnvettedArxivPreprintCommentaryFactory.build(requested_by=ContributorFactory())
         self.valid_form_data = model_form_data(self.commentary_instance, RequestPublishedArticleForm)
         # The form field is called 'identifier', while the model field is called 'arxiv_identifier',
         # so model_form_data doesn't include it.
@@ -110,12 +111,13 @@ class VetCommentaryRequestsTest(TestCase):
         self.assertEquals(response.context['commentary_to_vet'], None)
 
         # Only vetted Commentaries exist!
-        VettedCommentaryFactory()
+        # ContributorFactory.create_batch(5)
+        VettedCommentaryFactory(requested_by=ContributorFactory())
         response = self.client.get(self.view_url)
         self.assertEquals(response.context['commentary_to_vet'], None)
 
         # Unvetted Commentaries do exist!
-        UnvettedCommentaryFactory()
+        UnvettedCommentaryFactory(requested_by=ContributorFactory())
         response = self.client.get(self.view_url)
         self.assertTrue(type(response.context['commentary_to_vet']) is Commentary)
 
@@ -125,7 +127,7 @@ class BrowseCommentariesTest(TestCase):
 
     def setUp(self):
         add_groups_and_permissions()
-        VettedCommentaryFactory(discipline='physics')
+        VettedCommentaryFactory(discipline='physics', requested_by=ContributorFactory())
         self.view_url = reverse('commentaries:browse', kwargs={
             'discipline': 'physics',
             'nrweeksback': '1'
@@ -137,7 +139,7 @@ class BrowseCommentariesTest(TestCase):
         self.assertEquals(response.status_code, 200)
 
         # The created vetted Commentary is found!
-        self.assertTrue(response.context['commentary_browse_list'].count() >= 1)
+        self.assertTrue(response.context['commentary_list'].count() >= 1)
         # The search form is passed trough the view...
         self.assertTrue(type(response.context['form']) is CommentarySearchForm)
 
@@ -146,6 +148,7 @@ class CommentaryDetailTest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.client = Client()
+        ContributorFactory()
         self.commentary = UnpublishedVettedCommentaryFactory()
         self.target = reverse(
             'commentaries:commentary',

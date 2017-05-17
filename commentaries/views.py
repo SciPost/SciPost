@@ -33,36 +33,36 @@ def request_commentary(request):
 
 @method_decorator(permission_required(
     'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
-class RequestPublishedArticle(CreateView):
-    form_class = RequestPublishedArticleForm
-    template_name = 'commentaries/request_published_article.html'
+class RequestCommentary(CreateView):
     success_url = reverse_lazy('scipost:personal_page')
 
-    def get_context_data(self, **kwargs):
-        context = super(RequestPublishedArticle, self).get_context_data(**kwargs)
-        context['doi_query_form'] = DOIToQueryForm()
-        return context
-
     def form_valid(self, form):
-        messages.success(self.request, strings.acknowledge_request_commentary)
-        return super(RequestPublishedArticle, self).form_valid(form)
+        messages.success(self.request, strings.acknowledge_request_commentary, fail_silently=True)
+        return super().form_valid(form)
 
 
 @method_decorator(permission_required(
     'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
-class RequestArxivPreprint(CreateView):
-    form_class = RequestArxivPreprintForm
-    template_name = 'commentaries/request_arxiv_preprint.html'
-    success_url = reverse_lazy('scipost:personal_page')
+class RequestPublishedArticle(RequestCommentary):
+    form_class = RequestPublishedArticleForm
+    template_name = 'commentaries/request_published_article.html'
 
     def get_context_data(self, **kwargs):
-        context = super(RequestArxivPreprint, self).get_context_data(**kwargs)
-        context['arxiv_query_form'] = ArxivQueryForm()
+        context = super().get_context_data(**kwargs)
+        context['query_form'] = DOIToQueryForm()
         return context
 
-    def form_valid(self, form):
-        messages.success(self.request, strings.acknowledge_request_commentary)
-        return super(RequestArxivPreprint, self).form_valid(form)
+
+@method_decorator(permission_required(
+    'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
+class RequestArxivPreprint(RequestCommentary):
+    form_class = RequestArxivPreprintForm
+    template_name = 'commentaries/request_arxiv_preprint.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query_form'] = ArxivQueryForm()
+        return context
 
 
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
@@ -73,7 +73,7 @@ def prefill_using_DOI(request):
         if doi_query_form.is_valid():
             prefill_data = doi_query_form.request_published_article_form_prefill_data()
             form = RequestPublishedArticleForm(initial=prefill_data)
-            messages.success(request, strings.acknowledge_doi_query)
+            messages.success(request, strings.acknowledge_doi_query, fail_silently=True)
         else:
             form = RequestPublishedArticleForm()
 
@@ -93,7 +93,7 @@ def prefill_using_arxiv_identifier(request):
         if arxiv_query_form.is_valid():
             prefill_data = arxiv_query_form.request_arxiv_preprint_form_prefill_data()
             form = RequestArxivPreprintForm(initial=prefill_data)
-            messages.success(request, strings.acknowledge_arxiv_query)
+            messages.success(request, strings.acknowledge_arxiv_query, fail_silently=True)
         else:
             form = RequestArxivPreprintForm()
 
@@ -173,6 +173,7 @@ class CommentaryListView(ListView):
     model = Commentary
     form = CommentarySearchForm
     paginate_by = 10
+    context_object_name = 'commentary_list'
 
     def get_queryset(self):
         '''Perform search form here already to get the right pagination numbers.'''
