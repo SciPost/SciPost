@@ -175,7 +175,7 @@ def index(request):
         'latest_newsitem': NewsItem.objects.all().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
         'publications': Publication.objects.published().order_by('-publication_date')[:3],
-        'issues': Issue.objects.published().order_by('-start_date')[:4],
+        'issues': Issue.objects.published().order_by('-start_date')[:3],
         'journals': Journal.objects.active().order_by('name')
     }
     return render(request, 'scipost/index.html', context)

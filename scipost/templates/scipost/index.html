@@ -86,24 +86,24 @@
                     <div class="card-footer"><a href="{% url 'news:news' %}">More news</a></div>
                 </div><!-- End news -->
 
-                {# <!-- Latest issues -->#}
-                {# <div class="card card-grey">#}
-                    {# <div class="card-header border-0 pb-0">#}
-                        {# <h2 class="card-title mb-0"><a href="/issues/" class="text-black">Issues</a></h2>#}
-                    {# </div>#}
-                    {# <div class="card-block">#}
-                        {# <ul class="m-0 pl-4">#}
-                            {# {% for issue in issues %}#}
-                                {# <li>#}
-                                    {# <a href="{{issue.get_absolute_url}}">{{issue}}</a>#}
-                                {# </li>#}
-                            {# {% endfor %}#}
-                        {# </ul>#}
-                    {# </div>#}
-                    {# <div class="card-footer">#}
-                        {# <a href="{% url 'journal:issues' 'SciPostPhys' %}">All issues</a>#}
-                    {# </div>#}
-                {# </div><!-- End latest issues -->#}
+                <!-- Latest issues -->
+                <div class="card card-grey">
+                    <div class="card-header border-0 pb-0">
+                        <h2 class="card-title mb-0"><a href="/issues/" class="text-black">Latest issues</a></h2>
+                    </div>
+                    <div class="card-block">
+                        <ul class="m-0 pl-4">
+                            {% for issue in issues %}
+                                <li>
+                                    <a href="{{issue.get_absolute_url}}">{{issue}}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'journal:issues' 'SciPostPhys' %}">All issues</a>
+                    </div>
+                </div><!-- End latest issues -->
 
                 {% if not user.is_authenticated %}
                     <!-- Register -->
