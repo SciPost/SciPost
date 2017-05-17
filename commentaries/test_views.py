@@ -112,7 +112,7 @@ class VetCommentaryRequestsTest(TestCase):
 
         # Only vetted Commentaries exist!
         # ContributorFactory.create_batch(5)
-        VettedCommentaryFactory(requested_by=ContributorFactory())
+        VettedCommentaryFactory(requested_by=ContributorFactory(), vetted_by=ContributorFactory())
         response = self.client.get(self.view_url)
         self.assertEquals(response.context['commentary_to_vet'], None)
 
@@ -148,8 +148,8 @@ class CommentaryDetailTest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.client = Client()
-        ContributorFactory()
-        self.commentary = UnpublishedVettedCommentaryFactory()
+        self.commentary = UnpublishedVettedCommentaryFactory(
+            requested_by=ContributorFactory(), vetted_by=ContributorFactory())
         self.target = reverse(
             'commentaries:commentary',
             kwargs={'arxiv_or_DOI_string': self.commentary.arxiv_or_DOI_string}
