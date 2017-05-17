@@ -172,9 +172,9 @@ def search(request):
 def index(request):
     '''Main page.'''
     context = {
-        'latest_newsitems': NewsItem.objects.all().order_by('-date')[:2],
-        'submissions': Submission.objects.public().order_by('-submission_date')[:5],
-        'publications': Publication.objects.published().order_by('-publication_date')[:5],
+        'latest_newsitem': NewsItem.objects.all().order_by('-date').first(),
+        'submissions': Submission.objects.public().order_by('-submission_date')[:3],
+        'publications': Publication.objects.published().order_by('-publication_date')[:3],
         'issues': Issue.objects.published().order_by('-start_date')[:4],
         'journals': Journal.objects.active().order_by('name')
     }

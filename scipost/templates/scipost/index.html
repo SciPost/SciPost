@@ -3,14 +3,12 @@
 {% load staticfiles %}
 
 {% block breadcrumb %}
-    {% if journals|length > 1 %}
     <nav class="submenu">
         <span class="item">Go directly to Journal:</span>
         {% for journal in journals %}
             <a href="{{journal.get_absolute_url}}" class="item">{{journal}}</a>
         {% endfor %}
     </nav>
-    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -32,7 +30,6 @@
                           </li>
                       {% endfor %}
                   </ul>
-                  <p class="text-center mt-3 text-danger">If you support and believe in our mission, <br/>be a pioneer and submit a manuscript!</p>
                 </div>
             </div><!-- End latest publications -->
 
@@ -94,15 +91,15 @@
                     </div>
                     <div class="card-block">
                         <ul class="list-group list-group-flush">
-                            {% for item in latest_newsitems %}
+                            {% if latest_newsitem %}
                                 <li class="list-group-item">
-                                    {% include 'news/news_card_content_short.html' with news=item %}
+                                    {% include 'news/news_card_content_short.html' with news=latest_newsitem %}
                                 </li>
-                            {% empty %}
+                            {% else %}
                                 <li class="list-group-item">
                                     No current newsitems found.
                                 </li>
-                            {% endfor %}
+                            {% endif %}
                         </ul>
                     </div>
                     <div class="card-footer"><a href="{% url 'news:news' %}">More news</a></div>
