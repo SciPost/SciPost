@@ -56,18 +56,3 @@ ISSUE_STATUSES = (
     (STATUS_DRAFT, 'Draft'),
     (STATUS_PUBLISHED, 'Published'),
 )
-
-PRODUCTION_STREAM_STATUS = (
-    ('ongoing', 'Ongoing'),
-    ('completed', 'Completed'),
-)
-
-PRODUCTION_EVENTS = (
-    ('assigned_to_supervisor', 'Assigned to Supervisor'),
-    ('officer_tasked_with_proof_production', 'Officer tasked with proofs production'),
-    ('proofs_produced', 'Proofs have been produced'),
-    ('proofs_sent_to_authors', 'Proofs sent to Authors'),
-    ('proofs_returned_by_authors', 'Proofs returned by Authors'),
-    ('corrections_implemented', 'Corrections implemented'),
-    ('authors_have_accepted_proofs', 'Authors have accepted proofs'),
-)

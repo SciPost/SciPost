@@ -1,13 +1,7 @@
 from django.contrib import admin, messages
 
-from journals.models import ProductionStream, ProductionEvent
 from journals.models import Journal, Volume, Issue, Publication, Deposit
 
-
-admin.site.register(ProductionStream)
-
-
-admin.site.register(ProductionEvent)
 
 
 class JournalAdmin(admin.ModelAdmin):

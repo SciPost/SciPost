@@ -35,6 +35,7 @@ from scipost.utils import Utils
 from strings import arxiv_caller_errormessages_submissions
 
 from comments.forms import CommentForm
+from production.models import ProductionStream
 
 from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
@@ -1290,6 +1291,10 @@ def fix_College_decision(request, rec_id):
     if recommendation.recommendation in [1, 2, 3]:
         # Publish as Tier I, II or III
         recommendation.submission.status = 'accepted'
+        # Create a ProductionStream object
+        prodstream = ProductionStream(submission=recommendation.submission,
+                                      opened=timezone.now())
+        prodstream.save()
     elif recommendation.recommendation == -3:
         # Reject
         recommendation.submission.status = 'rejected'

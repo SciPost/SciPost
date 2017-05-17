@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^thesis/', include('theses.urls', namespace="theses")),
     url(r'^meetings/', include('virtualmeetings.urls', namespace="virtualmeetings")),
     url(r'^news/', include('news.urls', namespace="news")),
+    url(r'^production/', include('production.urls', namespace="production")),
 ]
 
 if settings.DEBUG:
