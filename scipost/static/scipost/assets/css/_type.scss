@@ -16,7 +16,6 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0;
     padding: 5px 0;
     text-shadow: none;
-    font-weight: 500;
 }
 
 h1 > a {
@@ -31,6 +30,10 @@ h1 > a {
     line-height: 1.3;
     border-bottom: 2px solid $scipost-orange;
     padding-bottom: 0.75rem;
+}
+
+.font-weight-light {
+    font-weight: 300;
 }
 
 .highlight {
@@ -67,11 +70,9 @@ h3.highlight-empty {
     padding: 10px;
 }
 
-h4,
-.h4 {
-    font-size: 10px;
-    color: $scipost-lightblue;
-    text-transform: uppercase;
+h5,
+.h5 {
+    color: #636c72;
 }
 
 hr,
