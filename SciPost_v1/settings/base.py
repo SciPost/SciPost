@@ -93,6 +93,7 @@ INSTALLED_APPS = (
     'submissions',
     'theses',
     'virtualmeetings',
+    'production',
     'webpack_loader',
 )
 
