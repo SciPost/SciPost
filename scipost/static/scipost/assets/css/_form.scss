@@ -45,22 +45,25 @@ input[type="file"] {
 
 .search-nav-form {
     input {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
+        // border-top-right-radius: 0;
+        // border-bottom-right-radius: 0;
         margin-right: 0 !important;
         border-right: 0;
-        border-color: #ddd;
+        // border-color: #ddd;
+        min-width: 200px;
     }
 
-    button {
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
+    > * {
         border-color: #ddd !important;
         outline: 0;
+        line-height: 1.75;
 
         &:hover {
-            background-color: inherit;
-            box-shadow: inset 0px 0px 6px 1px #fff;
+            border-color: #d3e3f6 !important;
         }
+    }
+
+    button:hover {
+        background-color: #f0f0f0;
     }
 }

@@ -1,5 +1,5 @@
-
+<h4>{{publication.get_subject_area_display}}</h4>
 <h3><a href="{{publication.get_absolute_url}}">{{publication.title}}</a></h3>
 
-<p class="font-weight-bold mb-1">{{ publication.author_list }}</p>
-<p class="text-muted mb-2">{{ publication.citation }} | published {{ publication.publication_date|date:'j F Y' }}</p>
+<p class="font-weight-bold mb-4">{{ publication.author_list }}</p>
+<p class="text-muted mb-0">{{ publication.citation }} | published {{ publication.publication_date|date:'j F Y' }}</p>
