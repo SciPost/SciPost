@@ -9,5 +9,4 @@ urlpatterns = [
     url(r'^accepted$', journals_views.accepted, name='accepted'),
     url(r'^info_for_authors$', journals_views.info_for_authors, name='info_for_authors'),
     url(r'^about$', journals_views.about, name='about'),
-
 ]

@@ -15,6 +15,13 @@ register = template.Library()
 def sort_by(queryset, order):
     return queryset.order_by(order)
 
+@register.filter(name='duration')
+def duration(dur):
+    total_seconds = int(dur.total_seconds())
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    return '{}h {}m'.format(hours, minutes)
+
 
 #######################
 # For scipost objects #

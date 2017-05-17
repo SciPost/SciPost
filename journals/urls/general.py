@@ -12,6 +12,11 @@ urlpatterns = [
         TemplateView.as_view(template_name='journals/journals_terms_and_conditions.html'),
         name='journals_terms_and_conditions'),
 
+    # Production
+    url(r'^production$', journals_views.production, name='production'),
+    url(r'^add_production_event/(?P<stream_id>[0-9]+)$',
+        journals_views.add_production_event, name='add_production_event'),
+
     # Editorial and Administrative Workflow
     url(r'^initiate_publication$',
         journals_views.initiate_publication,

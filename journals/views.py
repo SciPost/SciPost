@@ -15,7 +15,9 @@ from django.http import HttpResponse
 
 from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string
+from .models import ProductionStream, ProductionEvent
 from .models import Journal, Issue, Publication, UnregisteredAuthor
+from .forms import ProductionEventForm
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
@@ -134,9 +136,52 @@ def issue_detail(request, doi_label):
     return render(request, 'journals/journal_issue_detail.html', context)
 
 
-#######################
-# Publication process #
-#######################
+######################
+# Production process #
+######################
+
+@permission_required('scipost.can_view_production', return_403=True)
+def production(request):
+    """
+    Overview page for the production process.
+    All papers with accepted but not yet published status are included here.
+    """
+    accepted_submissions = Submission.objects.filter(
+        status='accepted').order_by('latest_activity')
+    streams = ProductionStream.objects.all().order_by('opened')
+    prodevent_form = ProductionEventForm()
+    context = {
+        'accepted_submissions': accepted_submissions,
+        'streams': streams,
+        'prodevent_form': prodevent_form,
+    }
+    return render(request, 'journals/production.html', context)
+
+@permission_required('scipost.can_view_production', return_403=True)
+@transaction.atomic
+def add_production_event(request, stream_id):
+    stream = get_object_or_404(ProductionStream, pk=stream_id)
+    if request.method == 'POST':
+        prodevent_form = ProductionEventForm(request.POST)
+        if prodevent_form.is_valid():
+            prodevent = ProductionEvent(
+                stream=stream,
+                event=prodevent_form.cleaned_data['event'],
+                comments=prodevent_form.cleaned_data['comments'],
+                noted_on=timezone.now(),
+                noted_by=request.user.contributor,
+                duration=prodevent_form.cleaned_data['duration'],)
+            prodevent.save()
+            return redirect(reverse('journals:production'))
+        else:
+            errormessage = 'The form was invalidly filled.'
+            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    else:
+        errormessage = 'This view can only be posted to.'
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+
+
 
 def upload_proofs(request):
     """
@@ -146,6 +191,10 @@ def upload_proofs(request):
     """
     return render(request, 'journals/upload_proofs.html')
 
+
+#######################
+# Publication process #
+#######################
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
