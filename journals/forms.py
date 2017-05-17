@@ -12,6 +12,11 @@ class ProductionEventForm(forms.ModelForm):
         model = ProductionEvent
         exclude = ['stream', 'noted_on', 'noted_by']
 
+    def __init__(self, *args, **kwargs):
+        super(ProductionEventForm, self).__init__(*args, **kwargs)
+        self.fields['duration'].widget.attrs.update(
+            {'placeholder': 'HH:MM:SS'})
+
 
 class InitiatePublicationForm(forms.Form):
     accepted_submission = forms.ModelChoiceField(
