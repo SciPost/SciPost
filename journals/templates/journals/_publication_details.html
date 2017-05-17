@@ -4,8 +4,8 @@
     <div class="col-12">
         <h2 class="pb-1 text-blue">{{publication.title}}</h2>
 
-        <p class="font-weight-bold mb-1">{{ publication.author_list }}</p>
-        <p class="text-muted">{{ publication.citation }} | published {{ publication.publication_date|date:'j F Y' }}</p>
+        <p class="mb-1">{{ publication.author_list }}</p>
+        <p class="text-muted">{{ publication.citation }} &middot; published {{ publication.publication_date|date:'j F Y' }}</p>
 
         <ul class="publicationClickables">
             <li>doi:  {{publication.doi_string}}</li>
@@ -26,7 +26,7 @@
 
 
 <div class="modal" id="bibtextmodal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-body">
                 <div class="pb-4">
