@@ -2,6 +2,15 @@
 
 {% block pagetitle %}: Journals{% endblock pagetitle %}
 
+{% block breadcrumb %}
+    <nav class="submenu">
+        <span class="item">Go directly to Journal:</span>
+        {% for journal in journals %}
+            <a href="{{journal.get_absolute_url}}" class="item">{{journal}}</a>
+        {% endfor %}
+    </nav>
+{% endblock %}
+
 {% block content %}
 
 <div class="row">

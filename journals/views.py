@@ -30,6 +30,12 @@ from guardian.decorators import permission_required
 # Journals
 ############
 
+def journals(request):
+    '''Main landing page for Journals application.'''
+    context = {'journals': Journal.objects.active().order_by('name')}
+    return render(request, 'journals/journals.html', context)
+
+
 def landing_page(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
 
