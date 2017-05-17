@@ -7,7 +7,8 @@ from django.urls import reverse
 from .behaviors import doi_journal_validator, doi_volume_validator,\
                        doi_issue_validator, doi_publication_validator
 from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
-                       STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES
+                       STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,\
+                       PRODUCTION_STREAM_STATUS, PRODUCTION_EVENTS
 from .helpers import paper_nr_string, journal_name_abbrev_citation
 from .managers import IssueManager, PublicationManager, JournalManager
 
@@ -15,6 +16,38 @@ from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 
+
+##############
+# Production #
+##############
+
+class ProductionStream(models.Model):
+    submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE)
+    opened = models.DateTimeField()
+
+    def __str__(self):
+        return str(self.submission)
+
+    def total_duration(self):
+        totdur = self.productionevent_set.all().aggregate(models.Sum('duration'))
+        return totdur['duration__sum']
+
+
+class ProductionEvent(models.Model):
+    stream = models.ForeignKey(ProductionStream, on_delete=models.CASCADE)
+    event = models.CharField(max_length=64, choices=PRODUCTION_EVENTS)
+    comments = models.TextField(blank=True, null=True)
+    noted_on = models.DateTimeField(default=timezone.now)
+    noted_by = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    duration = models.DurationField(blank=True, null=True)
+
+    def __str__(self):
+        return '%s: %s' % (str(self.stream.submission), self.get_event_display())
+
+
+################
+# Journals etc #
+################
 
 class UnregisteredAuthor(models.Model):
     first_name = models.CharField(max_length=100)

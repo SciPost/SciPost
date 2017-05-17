@@ -148,6 +148,10 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Production
+        can_view_production, created = Permission.objects.get_or_create(
+            codename='can_view_production',
+            name='Can view production page',
+            content_type=content_type)
         can_publish_accepted_submission, created = Permission.objects.get_or_create(
             codename='can_publish_accepted_submission',
             name='Can publish accepted submission',
@@ -179,6 +183,7 @@ class Command(BaseCommand):
             can_assign_submissions,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
+            can_view_production,
             can_attend_VGMs,
             can_manage_mailchimp,
         )
@@ -192,6 +197,7 @@ class Command(BaseCommand):
             can_oversee_refereeing,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
+            can_view_production,
             can_publish_accepted_submission,
             can_attend_VGMs,
             )
@@ -227,6 +233,7 @@ class Command(BaseCommand):
         )
         ProductionOfficers.permissions.add(
             can_view_docs_scipost,
+            can_view_production,
         )
 
 

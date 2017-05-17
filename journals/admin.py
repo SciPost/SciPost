@@ -1,6 +1,13 @@
 from django.contrib import admin, messages
 
+from journals.models import ProductionStream, ProductionEvent
 from journals.models import Journal, Volume, Issue, Publication, Deposit
+
+
+admin.site.register(ProductionStream)
+
+
+admin.site.register(ProductionEvent)
 
 
 class JournalAdmin(admin.ModelAdmin):
@@ -41,7 +48,7 @@ class DepositAdmin(admin.ModelAdmin):
     actions = None
 
     def message_user(self, request, *args):
-        return messages.warning(request, 'Sorry, Deposit\'s are readonly.')
+        return messages.warning(request, 'Sorry, Deposits are readonly.')
 
     def has_add_permission(self, *args):
         return False
