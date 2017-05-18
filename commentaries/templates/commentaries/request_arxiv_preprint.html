@@ -16,7 +16,7 @@
     <div class="col-12 col-md-8">
         <form action="{% url 'commentaries:prefill_using_arxiv_identifier' %}" method="post">
           {% csrf_token %}
-          {{ arxiv_query_form|bootstrap }}
+          {{ query_form|bootstrap }}
           <input class="btn btn-secondary" type="submit" value="Query arXiv"/>
         </form>
     </div>
