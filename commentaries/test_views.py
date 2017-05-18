@@ -160,3 +160,9 @@ class CommentaryDetailTest(TestCase):
     def test_status_code_200(self):
         response = self.client.get(self.target)
         self.assertEqual(response.status_code, 200)
+
+    def test_unvetted_commentary(self):
+        commentary = UnvettedCommentaryFactory(requested_by=ContributorFactory())
+        target = reverse('commentaries:commentary', kwargs={'arxiv_or_DOI_string': commentary.arxiv_or_DOI_string})
+        response = self.client.get(target)
+        self.assertEqual(response.status_code, 404)
