@@ -3,6 +3,9 @@ import re
 from django import forms
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.safestring import mark_safe
+from django.template.loader import get_template
+from django.template import Context
 
 from .models import Commentary
 from .constants import COMMENTARY_PUBLISHED, COMMENTARY_PREPRINT
@@ -22,9 +25,12 @@ class DOIToQueryForm(forms.Form):
     def clean_doi(self):
         input_doi = self.cleaned_data['doi']
 
-        if Commentary.objects.filter(pub_DOI=input_doi).exists():
-            error_message = 'There already exists a Commentary Page on this publication.'
-            raise forms.ValidationError(error_message)
+        commentary = Commentary.objects.filter(pub_DOI=input_doi)
+        if commentary.exists():
+            error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
+                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+            )
+            raise forms.ValidationError(mark_safe(error_message))
 
         caller = DOICaller(input_doi)
         if caller.is_valid:
@@ -52,9 +58,12 @@ class ArxivQueryForm(forms.Form):
     def clean_identifier(self):
         identifier = self.cleaned_data['identifier']
 
-        if Commentary.objects.filter(arxiv_identifier=identifier).exists():
-            error_message = 'There already exists a Commentary Page on this arXiv preprint.'
-            raise forms.ValidationError(error_message)
+        commentary = Commentary.objects.filter(arxiv_identifier=identifier)
+        if commentary.exists():
+            error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
+                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+            )
+            raise forms.ValidationError(mark_safe(error_message))
 
         caller = ArxivCaller(identifier)
         if caller.is_valid:
@@ -80,6 +89,10 @@ class RequestCommentaryForm(forms.ModelForm):
             'pub_date': 'Format: YYYY-MM-DD'
         }
 
+    def save(self, *args, **kwargs):
+        self.instance.parse_links_into_urls()
+        return super().save(self, *args, **kwargs)
+
 
 class RequestArxivPreprintForm(RequestCommentaryForm):
     class Meta(RequestCommentaryForm.Meta):
@@ -96,15 +109,18 @@ class RequestArxivPreprintForm(RequestCommentaryForm):
     def clean_arxiv_identifier(self):
         arxiv_identifier = self.cleaned_data['arxiv_identifier']
 
-        if Commentary.objects.filter(arxiv_identifier=arxiv_identifier).exists():
-            error_message = 'There already exists a Commentary Page on this arXiv preprint.'
-            raise forms.ValidationError(error_message)
+        commentary = Commentary.objects.filter(arxiv_identifier=arxiv_identifier)
+        if commentary.exists():
+            error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
+                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+            )
+            raise forms.ValidationError(mark_safe(error_message))
 
         return arxiv_identifier
 
     def save(self, *args, **kwargs):
         self.instance.type = COMMENTARY_PREPRINT
-        return super(RequestArxivPreprintForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class RequestPublishedArticleForm(RequestCommentaryForm):
@@ -122,15 +138,18 @@ class RequestPublishedArticleForm(RequestCommentaryForm):
     def clean_pub_DOI(self):
         input_doi = self.cleaned_data['pub_DOI']
 
-        if Commentary.objects.filter(pub_DOI=input_doi).exists():
-            error_message = 'There already exists a Commentary Page on this publication.'
-            raise forms.ValidationError(error_message)
+        commentary = Commentary.objects.filter(pub_DOI=input_doi)
+        if commentary.exists():
+            error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
+                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+            )
+            raise forms.ValidationError(mark_safe(error_message))
 
         return input_doi
 
     def save(self, *args, **kwargs):
         self.instance.type = COMMENTARY_PUBLISHED
-        return super(RequestPublishedArticleForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class VetCommentaryForm(forms.Form):

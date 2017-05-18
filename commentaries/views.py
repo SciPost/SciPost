@@ -41,8 +41,6 @@ class RequestCommentary(CreateView):
         return super().form_valid(form)
 
 
-@method_decorator(permission_required(
-    'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
 class RequestPublishedArticle(RequestCommentary):
     form_class = RequestPublishedArticleForm
     template_name = 'commentaries/request_published_article.html'
@@ -53,8 +51,6 @@ class RequestPublishedArticle(RequestCommentary):
         return context
 
 
-@method_decorator(permission_required(
-    'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
 class RequestArxivPreprint(RequestCommentary):
     form_class = RequestArxivPreprintForm
     template_name = 'commentaries/request_arxiv_preprint.html'
@@ -68,10 +64,10 @@ class RequestArxivPreprint(RequestCommentary):
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def prefill_using_DOI(request):
     if request.method == "POST":
-        doi_query_form = DOIToQueryForm(request.POST)
+        query_form = DOIToQueryForm(request.POST)
         # The form checks if doi is valid and commentary doesn't already exist.
-        if doi_query_form.is_valid():
-            prefill_data = doi_query_form.request_published_article_form_prefill_data()
+        if query_form.is_valid():
+            prefill_data = query_form.request_published_article_form_prefill_data()
             form = RequestPublishedArticleForm(initial=prefill_data)
             messages.success(request, strings.acknowledge_doi_query, fail_silently=True)
         else:
@@ -79,7 +75,7 @@ def prefill_using_DOI(request):
 
         context = {
             'form': form,
-            'doi_query_form': doi_query_form,
+            'query_form': query_form,
         }
         return render(request, 'commentaries/request_published_article.html', context)
     else:
@@ -89,9 +85,9 @@ def prefill_using_DOI(request):
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def prefill_using_arxiv_identifier(request):
     if request.method == "POST":
-        arxiv_query_form = ArxivQueryForm(request.POST)
-        if arxiv_query_form.is_valid():
-            prefill_data = arxiv_query_form.request_arxiv_preprint_form_prefill_data()
+        query_form = ArxivQueryForm(request.POST)
+        if query_form.is_valid():
+            prefill_data = query_form.request_arxiv_preprint_form_prefill_data()
             form = RequestArxivPreprintForm(initial=prefill_data)
             messages.success(request, strings.acknowledge_arxiv_query, fail_silently=True)
         else:
@@ -99,7 +95,7 @@ def prefill_using_arxiv_identifier(request):
 
         context = {
             'form': form,
-            'arxiv_query_form': arxiv_query_form,
+            'query_form': query_form,
         }
         return render(request, 'commentaries/request_arxiv_preprint.html', context)
     else:
