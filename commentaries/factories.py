@@ -23,6 +23,9 @@ class CommentaryFactory(factory.django.DjangoModelFactory):
     pub_title = factory.Faker('text')
     pub_DOI = factory.Sequence(lambda n: random_external_doi())
     arxiv_identifier = factory.Sequence(lambda n: random_arxiv_identifier_with_version_number())
+    author_list = factory.Faker('name')
+    pub_abstract = factory.Faker('text')
+    pub_date = factory.Faker('date')
     arxiv_link = factory.Faker('uri')
     pub_abstract = factory.lazy_attribute(lambda x: Faker().paragraph())
 
@@ -56,3 +59,7 @@ class UnpublishedVettedCommentaryFactory(VettedCommentaryFactory):
 
 class UnvettedCommentaryFactory(CommentaryFactory):
     vetted = False
+
+class UnvettedArxivPreprintCommentaryFactory(CommentaryFactory):
+    vetted = False
+    pub_DOI = None

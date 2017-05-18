@@ -8,112 +8,21 @@
 
 {% block content %}
 
-  <script>
-  $(document).ready(function(){
-
-    var allToggableRows = $('#requestForm .form-group').slice(1)
-    var type_selector = $('select#id_type')
-
-    var preprint = [5,6,7,8,10]
-    var published = [9]
-
-    function show(indices){
-      allToggableRows.each(function(index){
-        if($.inArray( index, indices) != -1){
-          $(this).hide()
-        }else{
-          $(this).show()
-        }
-
-      })
-    }
-
-    switch (type_selector.val()) {
-     case "":
-       allToggableRows.hide()
-       $("#DOIprefill").hide();
-       $("#arXivprefill").hide();
-       break;
-     case "published":
-       show(published)
-       $("#DOIprefill").show()
-       $("#arXivprefill").hide();
-       break;
-     case "preprint":
-       show(preprint)
-       $("#DOIprefill").hide()
-       $("#arXivprefill").show();
-       break;
-     default:
-       allToggableRows.hide()
-       $("#DOIprefill").hide();
-       $("#arXivprefill").hide();
-    }
-
-    type_selector.on('change', function() {
-      var selection = $(this).val();
-      switch(selection){
-        case "published":
-          show(published)
-          $("#DOIprefill").show()
-          $("#arXivprefill").hide();
-          break;
-        case "preprint":
-          show(preprint)
-          $("#DOIprefill").hide()
-          $("#arXivprefill").show();
-          break;
-        default:
-          $("#DOIprefill").hide()
-          $("#arXivprefill").hide();
-          allToggableRows.hide()
-      }
-    });
-  });
-</script>
-
 <div class="row">
     <div class="col-12">
         <div class="panel">
             <h1>Request Activation of a Commentary Page:</h1>
         </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-    {% if errormessage %}
-        <h3 style="color: red;">Error: {{ errormessage }}</h3>
-        {% if existing_commentary %}
-            <ul>{% include 'commentaries/_commentary_card_content.html' with object=existing_commentary %}</ul>
-        {% endif %}
-        <br/>
-    {% endif %}
-
-  <div id="DOIprefill">
-    <h3><em>For published papers, you can prefill the form (except for domain, subject area and abstract) using the DOI:</em></h3>
-    <p><em>(give the DOI as 10.[4 to 9 digits]/[string], without prefix, as per the placeholder)</em></p>
-    <form action="{% url 'commentaries:prefill_using_DOI' %}" method="post">
-      {% csrf_token %}
-      {{ doiform|bootstrap }}
-      <input class="btn btn-secondary" type="submit" value="Query DOI"/>
-    </form>
-  </div>
-  <div id="arXivprefill">
-    <h3><em>For preprints, you can prefill the form using the arXiv identifier:</em></h3>
-    <p><em>(give the identifier without prefix, as per the placeholder)</em></p>
-    <form action="{% url 'commentaries:prefill_using_identifier' %}" method="post">
-      {% csrf_token %}
-      {{ identifierform|bootstrap }}
-      <input class="btn btn-secondary" type="submit" value="Query arXiv"/>
-    </form>
-  </div>
-  <br/>
-  <form id="requestForm" action="{% url 'commentaries:request_commentary' %}" method="post">
-    {% csrf_token %}
-      {{ request_commentary_form|bootstrap }}
-    <input class="btn btn-primary" type="submit" value="Submit"/>
-  </form>
-
+    <div class="col-12">
+        <ul>
+            <li>
+                <a href="{% url 'commentaries:request_published_article' %}">Click here to submit a published article</a>
+            </li>
+            <li>
+                <a href="{% url 'commentaries:request_arxiv_preprint' %}">Click here to submit an arXiv preprint</a>
+            </li>
+        </ul>
     </div>
 </div>
 

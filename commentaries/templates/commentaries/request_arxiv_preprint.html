@@ -1,0 +1,35 @@
+{% extends 'scipost/base.html' %}
+{% load bootstrap %}
+{% load scipost_extras %}
+
+{% block pagetitle %}: request Commentary{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+      <h1 class="page-header">Request Activation of a Commentary Page</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-md-8">
+        <form action="{% url 'commentaries:prefill_using_arxiv_identifier' %}" method="post">
+          {% csrf_token %}
+          {{ query_form|bootstrap }}
+          <input class="btn btn-secondary" type="submit" value="Query arXiv"/>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-md-8">
+        <form id="requestForm" action="{% url 'commentaries:request_arxiv_preprint' %}" method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <input class="btn btn-primary" type="submit" value="Submit"/>
+        </form>
+    </div>
+</div>
+
+{% endblock content%}

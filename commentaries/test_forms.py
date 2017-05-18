@@ -1,12 +1,96 @@
+import re
+
 from django.test import TestCase
 
 from common.helpers import model_form_data
 from scipost.factories import UserFactory
 
-from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory
-from .forms import RequestCommentaryForm, VetCommentaryForm
+from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory, UnvettedArxivPreprintCommentaryFactory
+from .forms import RequestCommentaryForm, RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm, \
+    ArxivQueryForm, RequestArxivPreprintForm
 from .models import Commentary
 from common.helpers.test import add_groups_and_permissions
+
+
+class TestArxivQueryForm(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+
+    def test_new_arxiv_identifier_is_valid(self):
+        new_identifier_data = {'identifier': '1612.07611v1'}
+        form = ArxivQueryForm(new_identifier_data)
+        self.assertTrue(form.is_valid())
+
+    def test_old_arxiv_identifier_is_valid(self):
+        old_identifier_data = {'identifier': 'cond-mat/0612480v1'}
+        form = ArxivQueryForm(old_identifier_data)
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_arxiv_identifier(self):
+        invalid_data = {'identifier': 'i am not valid'}
+        form = ArxivQueryForm(invalid_data)
+        self.assertFalse(form.is_valid())
+
+    def test_new_arxiv_identifier_without_version_number_is_invalid(self):
+        data = {'identifier': '1612.07611'}
+        form = ArxivQueryForm(data)
+        self.assertFalse(form.is_valid())
+
+    def test_old_arxiv_identifier_without_version_number_is_invalid(self):
+        data = {'identifier': 'cond-mat/0612480'}
+        form = ArxivQueryForm(data)
+        self.assertFalse(form.is_valid())
+
+    def test_arxiv_identifier_that_already_has_commentary_page_is_invalid(self):
+        unvetted_commentary = UnvettedCommentaryFactory()
+        invalid_data = {'identifier': unvetted_commentary.arxiv_identifier}
+        form = ArxivQueryForm(invalid_data)
+        self.assertFalse(form.is_valid())
+        error_message = form.errors['identifier'][0]
+        self.assertRegexpMatches(error_message, re.compile('already exist'))
+
+    def test_valid_but_non_existent_identifier_is_invalid(self):
+        invalid_data = {'identifier': '1613.07611v1'}
+        form = ArxivQueryForm(invalid_data)
+        self.assertFalse(form.is_valid())
+
+
+class TestDOIToQueryForm(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+
+    def test_invalid_doi_is_invalid(self):
+        invalid_data = {'doi': 'blablab'}
+        form = DOIToQueryForm(invalid_data)
+        self.assertFalse(form.is_valid())
+
+    def test_doi_that_already_has_commentary_page_is_invalid(self):
+        unvetted_commentary = UnvettedCommentaryFactory()
+        invalid_data = {'doi': unvetted_commentary.pub_DOI}
+        form = DOIToQueryForm(invalid_data)
+        self.assertFalse(form.is_valid())
+        error_message = form.errors['doi'][0]
+        self.assertRegexpMatches(error_message, re.compile('already exist'))
+
+    def test_physrev_doi_is_valid(self):
+        physrev_doi = "10.21468/SciPostPhys.2.2.010"
+        form = DOIToQueryForm({'doi': physrev_doi})
+        self.assertTrue(form.is_valid())
+
+    def test_scipost_doi_is_valid(self):
+        scipost_doi = "10.21468/SciPostPhys.2.2.010"
+        form = DOIToQueryForm({'doi': scipost_doi})
+        self.assertTrue(form.is_valid())
+
+    def test_old_doi_is_valid(self):
+        old_doi = "10.1088/0022-3719/7/6/005"
+        form = DOIToQueryForm({'doi': old_doi})
+        self.assertTrue(form.is_valid())
+
+    def test_valid_but_nonexistent_doi_is_invalid(self):
+        doi = "10.21468/NonExistentJournal.2.2.010"
+        form = DOIToQueryForm({'doi': doi})
+        self.assertEqual(form.is_valid(), False)
 
 
 class TestVetCommentaryForm(TestCase):
@@ -19,6 +103,7 @@ class TestVetCommentaryForm(TestCase):
             'refusal_reason': VetCommentaryForm.REFUSAL_EMPTY,
             'email_response_field': 'Lorem Ipsum'
         }
+
 
     def test_valid_accepted_form(self):
         """Test valid form data and return Commentary"""
@@ -70,71 +155,53 @@ class TestVetCommentaryForm(TestCase):
         self.assertRaises(ValueError, form.process_commentary)
 
 
-class TestRequestCommentaryForm(TestCase):
+class TestRequestPublishedArticleForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
-        factory_instance = VettedCommentaryFactory.build()
+        factory_instance = UnvettedCommentaryFactory.build()
         self.user = UserFactory()
-        self.valid_form_data = model_form_data(factory_instance, RequestCommentaryForm)
+        self.valid_form_data = model_form_data(factory_instance, RequestPublishedArticleForm)
 
-    def empty_and_return_form_data(self, key):
-        """Empty specific valid_form_data field and return"""
-        self.valid_form_data[key] = None
-        return self.valid_form_data
-
-    def test_valid_data_is_valid_for_arxiv(self):
-        """Test valid form for Arxiv identifier"""
-        form_data = self.valid_form_data
-        form_data['pub_DOI'] = ''
-        form = RequestCommentaryForm(form_data, user=self.user)
-        self.assertTrue(form.is_valid())
-
-        # Check if the user is properly saved to the new Commentary as `requested_by`
-        commentary = form.save()
-        self.assertTrue(commentary.requested_by)
-
-    def test_valid_data_is_valid_for_DOI(self):
+    def test_valid_data_is_valid(self):
         """Test valid form for DOI"""
-        form_data = self.valid_form_data
-        form_data['arxiv_identifier'] = ''
-        form = RequestCommentaryForm(form_data, user=self.user)
+        form = RequestPublishedArticleForm(self.valid_form_data)
         self.assertTrue(form.is_valid())
 
-    def test_form_has_no_identifiers(self):
-        """Test invalid form has no DOI nor Arxiv ID"""
-        form_data = self.valid_form_data
-        form_data['pub_DOI'] = ''
-        form_data['arxiv_identifier'] = ''
-        form = RequestCommentaryForm(form_data, user=self.user)
-        self.assertFalse(form.is_valid())
-        self.assertTrue('arxiv_identifier' in form.errors)
-        self.assertTrue('pub_DOI' in form.errors)
+    def test_doi_that_already_has_commentary_page_is_invalid(self):
+        unvetted_commentary = UnvettedCommentaryFactory()
+        invalid_data = {**self.valid_form_data, **{'pub_DOI': unvetted_commentary.pub_DOI}}
+        form = RequestPublishedArticleForm(invalid_data)
+        self.assertEqual(form.is_valid(), False)
+        error_message = form.errors['pub_DOI'][0]
+        self.assertRegexpMatches(error_message, re.compile('already exist'))
 
-    def test_form_with_duplicate_DOI(self):
-        """Test form response with already existing DOI"""
-        # Create a factory instance containing Arxiv ID and DOI
-        VettedCommentaryFactory.create()
+    def test_commentary_without_pub_DOI_is_invalid(self):
+        invalid_data = {**self.valid_form_data, **{'pub_DOI': ''}}
+        form = RequestPublishedArticleForm(invalid_data)
+        self.assertEqual(form.is_valid(), False)
 
-        # Test duplicate DOI entry
-        form_data = self.empty_and_return_form_data('arxiv_identifier')
-        form = RequestCommentaryForm(form_data, user=self.user)
-        self.assertTrue('pub_DOI' in form.errors)
-        self.assertFalse(form.is_valid())
 
-        # Check is existing commentary is valid
-        existing_commentary = form.get_existing_commentary()
-        self.assertEqual(existing_commentary.pub_DOI, form_data['pub_DOI'])
+class TestRequestArxivPreprintForm(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+        factory_instance = UnvettedArxivPreprintCommentaryFactory.build()
+        self.user = UserFactory()
+        self.valid_form_data = model_form_data(factory_instance, RequestPublishedArticleForm)
+        self.valid_form_data['arxiv_identifier'] = factory_instance.arxiv_identifier
 
-    def test_form_with_duplicate_arxiv_id(self):
-        """Test form response with already existing Arxiv ID"""
-        VettedCommentaryFactory.create()
+    def test_valid_data_is_valid(self):
+        form = RequestArxivPreprintForm(self.valid_form_data)
+        self.assertTrue(form.is_valid())
 
-        # Test duplicate Arxiv entry
-        form_data = self.empty_and_return_form_data('pub_DOI')
-        form = RequestCommentaryForm(form_data, user=self.user)
-        self.assertTrue('arxiv_identifier' in form.errors)
-        self.assertFalse(form.is_valid())
+    def test_identifier_that_already_has_commentary_page_is_invalid(self):
+        commentary = UnvettedArxivPreprintCommentaryFactory()
+        invalid_data = {**self.valid_form_data, **{'arxiv_identifier': commentary.arxiv_identifier}}
+        form = RequestArxivPreprintForm(invalid_data)
+        self.assertEqual(form.is_valid(), False)
+        error_message = form.errors['arxiv_identifier'][0]
+        self.assertRegexpMatches(error_message, re.compile('already exist'))
 
-        # Check is existing commentary is valid
-        existing_commentary = form.get_existing_commentary()
-        self.assertEqual(existing_commentary.arxiv_identifier, form_data['arxiv_identifier'])
+    def test_commentary_without_arxiv_identifier_is_invalid(self):
+        invalid_data = {**self.valid_form_data, **{'arxiv_identifier': ''}}
+        form = RequestArxivPreprintForm(invalid_data)
+        self.assertEqual(form.is_valid(), False)
