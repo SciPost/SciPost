@@ -108,64 +108,6 @@ class Contributor(models.Model):
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
         self.save()
 
-    def private_info_as_table(self):
-        template = Template('''
-            <table>
-            <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
-            <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
-            <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
-            <tr><td>Email: </td><td>&nbsp;</td><td>{{ email }}</td></tr>
-            <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
-            <tr><td>Country of employment: </td><td>&nbsp;</td>
-            <td>{{ country_of_employment }}</td></tr>
-            <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
-            <tr><td>Address: </td><td>&nbsp;</td><td>{{ address }}</td></tr>
-            <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
-            <tr><td>Accept SciPost emails: </td><td>&nbsp;</td><td>{{ accepts_SciPost_emails }}</td></tr>
-            </table>
-        ''')
-        context = Context({
-            'title': self.get_title_display(),
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
-            'email': self.user.email,
-            'orcid_id': self.orcid_id,
-            'country_of_employment': str(self.country_of_employment.name),
-            'affiliation': self.affiliation,
-            'address': self.address,
-            'personalwebpage': self.personalwebpage,
-            'accepts_SciPost_emails': self.accepts_SciPost_emails,
-        })
-        return template.render(context)
-
-    def public_info_as_table(self):
-        """Prints out all publicly-accessible info as a table."""
-
-        template = Template('''
-            <table>
-            <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
-            <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
-            <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
-            <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
-            <tr><td>Country of employment: </td><td>&nbsp;</td>
-            <td>{{ country_of_employment }}</td></tr>
-            <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
-            <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
-            </table>
-        ''')
-        context = Context({
-                'title': self.get_title_display(),
-                'first_name': self.user.first_name,
-                'last_name': self.user.last_name,
-                'email': self.user.email,
-                'orcid_id': self.orcid_id,
-                'country_of_employment': str(self.country_of_employment.name),
-                'affiliation': self.affiliation,
-                'address': self.address,
-                'personalwebpage': self.personalwebpage
-                })
-        return template.render(context)
-
     def discipline_as_string(self):
         # Redundant, to be removed in future
         return self.get_discipline_display()

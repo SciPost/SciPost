@@ -122,6 +122,7 @@ SHELL_PLUS_POST_IMPORTS = (
          'VettedCommentaryFactory',
          'UnvettedCommentaryFactory',
          'UnpublishedVettedCommentaryFactory',)),
+    ('scipost.factories', ('ContributorFactory')),
 )
 
 MATHJAX_ENABLED = True

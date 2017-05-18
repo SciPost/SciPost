@@ -22,6 +22,8 @@ class ContributorFactory(factory.django.DjangoModelFactory):
     country_of_employment = factory.Iterator(list(COUNTRIES))
     affiliation = factory.Faker('company')
     expertises = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: [c[0]])
+    personalwebpage = factory.Faker('domain_name')
+    address = factory.Faker('address')
 
     class Meta:
         model = Contributor
