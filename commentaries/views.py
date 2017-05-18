@@ -206,6 +206,9 @@ class CommentaryListView(ListView):
 
 def commentary_detail(request, arxiv_or_DOI_string):
     commentary = get_object_or_404(Commentary, arxiv_or_DOI_string=arxiv_or_DOI_string)
+    if not commentary.vetted:
+        raise Http404
+
     comments = commentary.comment_set.all()
     form = CommentForm()
     try:
