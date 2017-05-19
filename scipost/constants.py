@@ -1,4 +1,3 @@
-import datetime
 
 
 DISCIPLINE_PHYSICS = 'physics'

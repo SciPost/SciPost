@@ -1,0 +1,31 @@
+{% load bootstrap %}
+
+<div class="card-block">
+  <div class="row">
+    <div class="col-1">
+      <p>{{ partner.country }}</p>
+    </div>
+    <div class="col-4">
+      <h3>{{ partner.institution_name }}</h3>
+      <p>{{ partner.institution_acronym }}</p>
+      <p>({{ pp.get_partner_type_display }})</p>
+    </div>
+    <div class="col-4">
+      {% if partner.main_contact %}
+      <p>Main contact: {{ partner.main_contact..get_title_display }} {{ partner.main_contact.user.first_name }} {{ partner.main_contact.user.last_name }}</p>
+      <p>{{ partner.main_contact.user.email }}</p>
+      {% endif %}
+      {% if partner.financial_contact %}
+      <p>Financial contact: {{ partner.financial_contact..get_title_display }} {{ partner.financial_contact.user.first_name }} {{ partner.financial_contact.user.last_name }}</p>
+      <p>{{ partner.financial_contact.user.email }}</p>
+      {% endif %}
+      {% if partner.technical_contact %}
+      <p>Technical contact: {{ partner.technical_contact..get_title_display }} {{ partner.technical_contact.user.first_name }} {{ partner.technical_contact.user.last_name }}</p>
+      <p>{{ partner.technical_contact.user.email }}</p>
+      {% endif %}
+    </div>
+    <div class="col-3">
+      <p>Edit</p>
+    </div>
+  </div>
+</div>
