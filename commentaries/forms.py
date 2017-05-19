@@ -103,8 +103,9 @@ class RequestCommentaryForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.parse_links_into_urls()
-        self.instance.requested_by = self.requested_by
-        return super().save(self, *args, **kwargs)
+        if self.requested_by:
+            self.instance.requested_by = self.requested_by
+        return super().save(*args, **kwargs)
 
 
 class RequestArxivPreprintForm(RequestCommentaryForm):
@@ -240,6 +241,13 @@ class VetCommentaryForm(forms.Form):
             raise ValueError(('VetCommentaryForm could not be processed '
                               'because the data didn\'t validate'))
 
+    def clean_refusal_reason(self):
+        """`refusal_reason` field is required if action==refuse."""
+        if self.commentary_is_refused():
+            if int(self.cleaned_data['refusal_reason']) == self.REFUSAL_EMPTY:
+                self.add_error('refusal_reason', 'Please, choose a reason for rejection.')
+        return self.cleaned_data['refusal_reason']
+
     def get_commentary(self):
         """Return Commentary if available"""
         self._form_is_cleaned()
@@ -251,25 +259,23 @@ class VetCommentaryForm(forms.Form):
             return self.COMMENTARY_REFUSAL_DICT[int(self.cleaned_data['refusal_reason'])]
 
     def commentary_is_accepted(self):
-        self._form_is_cleaned()
         return int(self.cleaned_data['action_option']) == self.ACTION_ACCEPT
 
     def commentary_is_modified(self):
-        self._form_is_cleaned()
         return int(self.cleaned_data['action_option']) == self.ACTION_MODIFY
 
     def commentary_is_refused(self):
-        self._form_is_cleaned()
         return int(self.cleaned_data['action_option']) == self.ACTION_REFUSE
 
     def process_commentary(self):
         """Vet the commentary or delete it from the database"""
+        # Modified actions are not doing anything. Users are redirected to an edit page instead.
         if self.commentary_is_accepted():
             self.commentary.vetted = True
             self.commentary.vetted_by = Contributor.objects.get(user=self.user)
             self.commentary.save()
             return self.commentary
-        elif self.commentary_is_modified() or self.commentary_is_refused():
+        elif self.commentary_is_refused():
             self.commentary.delete()
             return None
 
