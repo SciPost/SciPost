@@ -170,9 +170,9 @@ def search(request):
 def index(request):
     '''Main page.'''
     context = {
-        'latest_newsitems': NewsItem.objects.all().order_by('-date')[:2],
-        'submissions': Submission.objects.public().order_by('-submission_date')[:4],
-        'publications': Publication.objects.published().order_by('-publication_date')[:4]
+        'latest_newsitems': NewsItem.objects.all().order_by('-date')[:1],
+        'submissions': Submission.objects.public().order_by('-submission_date')[:3],
+        'publications': Publication.objects.published().order_by('-publication_date')[:3]
     }
     return render(request, 'scipost/index.html', context)
 
