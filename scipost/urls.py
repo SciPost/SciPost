@@ -209,14 +209,4 @@ urlpatterns = [
         TemplateView.as_view(template_name='scipost/howto_production.html'),
         name='howto_production'),
 
-
-    #############################
-    # Supporting Partners Board #
-    #############################
-
-    url(r'^supporting_partners$', views.supporting_partners,
-        name='supporting_partners'),
-    url(r'^SPB_membership_request$', views.SPB_membership_request,
-        name='SPB_membership_request'),
-
 ]
