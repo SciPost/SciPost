@@ -1,12 +1,12 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, reverse, redirect
 from django.utils import timezone
 
 from guardian.decorators import permission_required
 
-from .models import Partner, Consortium, ProspectivePartner, MembershipAgreement
-from .forms import PartnerForm, ProspectivePartnerForm, MembershipQueryForm
+from .models import Partner, ProspectivePartner, MembershipAgreement
+from .forms import ProspectivePartnerForm, MembershipQueryForm
+
 
 def supporting_partners(request):
     prospective_agreements = MembershipAgreement.objects.filter(
@@ -34,7 +34,7 @@ def membership_request(request):
                        'with further details.')
         context = {'ack_message': ack_message, }
         return render(request, 'scipost/acknowledgement.html', context)
-    context = {'query_form': query_form,}
+    context = {'query_form': query_form}
     return render(request, 'partners/membership_request.html', context)
 
 
@@ -57,8 +57,8 @@ def manage(request):
 def add_prospective_partner(request):
     form = ProspectivePartnerForm(request.POST or None)
     if form.is_valid():
-        pros_partner = form.save()
+        form.save()
         messages.success(request, 'Prospective Partners successfully added')
         return redirect(reverse('partners:manage'))
-    context = {'form': form,}
+    context = {'form': form}
     return render(request, 'partners/add_prospective_partner.html', context)

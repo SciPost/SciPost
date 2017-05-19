@@ -9,7 +9,6 @@ from .models import ProductionStream, ProductionEvent
 from .forms import ProductionEventForm
 
 from submissions.models import Submission
-from scipost.models import Contributor
 
 
 ######################
@@ -33,6 +32,7 @@ def production(request):
     }
     return render(request, 'production/production.html', context)
 
+
 @permission_required('scipost.can_view_production', return_403=True)
 @transaction.atomic
 def add_event(request, stream_id):
@@ -55,8 +55,6 @@ def add_event(request, stream_id):
     else:
         errormessage = 'This view can only be posted to.'
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
-
-
 
 
 def upload_proofs(request):

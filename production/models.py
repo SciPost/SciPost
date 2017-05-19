@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_EVENTS
+from .constants import PRODUCTION_EVENTS
 
 from scipost.models import Contributor
 

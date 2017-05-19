@@ -1,5 +1,3 @@
-
-
 PRODUCTION_STREAM_STATUS = (
     ('ongoing', 'Ongoing'),
     ('completed', 'Completed'),

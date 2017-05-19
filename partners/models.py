@@ -8,7 +8,6 @@ from .constants import PARTNER_TYPES, PARTNER_STATUS, CONSORTIUM_STATUS,\
     MEMBERSHIP_AGREEMENT_STATUS, MEMBERSHIP_DURATION
 
 from scipost.constants import TITLE_CHOICES
-from scipost.models import Contributor
 
 
 class ContactPerson(models.Model):
@@ -60,7 +59,6 @@ class Consortium(models.Model):
 
     class Meta:
         verbose_name_plural = 'consortia'
-
 
 
 class ProspectivePartner(models.Model):

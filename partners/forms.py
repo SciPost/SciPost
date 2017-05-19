@@ -20,6 +20,7 @@ class PartnerForm(forms.ModelForm):
         super(PartnerForm, self).__init__(*args, **kwargs)
         self.fields['institution_address'].widget = forms.Textarea({'rows': 8, })
 
+
 class ProspectivePartnerForm(forms.ModelForm):
     class Meta:
         model = ProspectivePartner
