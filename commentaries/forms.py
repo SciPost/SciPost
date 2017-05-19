@@ -20,7 +20,7 @@ class DOIToQueryForm(forms.Form):
     VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
     doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=True,
                            help_text=strings.doi_query_help_text,
-                           error_messxages={'invalid': strings.doi_query_invalid},
+                           error_messages={'invalid': strings.doi_query_invalid},
                            widget=forms.TextInput({
                                 'label': 'DOI',
                                 'placeholder': strings.doi_query_placeholder

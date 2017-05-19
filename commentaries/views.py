@@ -1,28 +1,22 @@
-import re
-import requests
-
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
-from django.shortcuts import redirect
 from django.template.loader import render_to_string
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 from django.http import Http404
 
 from .models import Commentary
-from .forms import DOIToQueryForm, ArxivQueryForm, VetCommentaryForm, \
-    CommentarySearchForm, RequestPublishedArticleForm, RequestArxivPreprintForm
+from .forms import DOIToQueryForm, ArxivQueryForm, VetCommentaryForm, RequestCommentaryForm,\
+                   CommentarySearchForm, RequestPublishedArticleForm, RequestArxivPreprintForm
 
 from comments.models import Comment
 from comments.forms import CommentForm
 from scipost.models import Contributor
-from scipost.services import ArxivCaller
 
 import strings
 
@@ -30,6 +24,7 @@ import strings
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def request_commentary(request):
     return render(request, 'commentaries/request_commentary.html')
+
 
 @method_decorator(permission_required(
     'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
@@ -110,6 +105,7 @@ def vet_commentary_requests(request):
     form = VetCommentaryForm()
     context = {'contributor': contributor, 'commentary_to_vet': commentary_to_vet, 'form': form}
     return render(request, 'commentaries/vet_commentary_requests.html', context)
+
 
 @permission_required('scipost.can_vet_commentary_requests', raise_exception=True)
 def vet_commentary_request_ack(request, commentary_id):
