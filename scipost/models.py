@@ -112,14 +112,6 @@ class Contributor(models.Model):
         # Redundant, to be removed in future
         return self.get_discipline_display()
 
-    def expertises_as_ul(self):
-        output = '<ul>'
-        if self.expertises:
-            for exp in self.expertises:
-                output += '<li>%s</li>' % subject_areas_dict[exp]
-        output += '</ul>'
-        return mark_safe(output)
-
     def expertises_as_string(self):
         if self.expertises:
             return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
