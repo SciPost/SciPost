@@ -1,0 +1,22 @@
+{% load bootstrap %}
+
+<div class="card-block">
+  <div class="row">
+    <div class="col-1">
+      <p>{{ pp.country }}</p>
+    </div>
+    <div class="col-4">
+      <h3>{{ pp.institution_name }}</h3>
+      <p>({{ pp.get_partner_type_display }})</p>
+      <p>Received {{ pp.date_received }}</p>
+    </div>
+    <div class="col-4">
+      <p>Contact: {{ pp.get_title_display }} {{ pp.first_name }} {{ pp.last_name }}</p>
+      <p>(role: {{ pp.role }})</p>
+      <p>{{ pp.email }}</p>
+    </div>
+    <div class="col-3">
+      <p>Edit</p>
+    </div>
+  </div>
+</div>

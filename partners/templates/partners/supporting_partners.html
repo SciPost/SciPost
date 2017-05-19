@@ -8,13 +8,16 @@
 
 {% block bodysup %}
 
-
 <section>
   <div class="flex-container">
     <div class="flex-greybox">
       <h1>SciPost Supporting Partners</h1>
     </div>
   </div>
+
+  {% if perms.scipost.can_manage_SPB %}
+  <a href="{% url 'partners:manage' %}">Manage Partners</a>
+  {% endif %}
 
   <div class="flex-container">
     <div class="flex-whitebox">
@@ -41,7 +44,7 @@
 
   <p>We hereby cordially invite interested parties who are supportive of SciPost's mission to join the SciPost Supporting Partners Board by signing a <a href="{% static 'scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf' %}">Partner Agreement</a>.</p>
 
-  <p>Prospective partners can initiate the process leading to Membership by filling the <a href="{% url 'scipost:SPB_membership_request' %}">online request form</a>.</p>
+  <p>Prospective partners can query for more information about Membership by filling the <a href="{% url 'partners:membership_request' %}">online query form</a>.</p>
 
   <br/>
   <p>The <a href="{% static 'scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf' %}">Partner Agreement</a> itself contains a detailed presentation of the Foundation, its activities and financial aspects. What follows is a summary of the most important points.</p>
@@ -107,7 +110,7 @@
   <h3>Activation procedure</h3>
   <p>In order to become a Supporting Partner, one must:
     <ul>
-      <li>Fill in the online <a href="{% url 'scipost:SPB_membership_request' %}">membership request form</a> (the form must be filled in by a registered Contributor, employed by or associated to the prospective Partner and acting as an authorized agent for the latter; personal contact details of this person will be treated confidentially).</li>
+      <li>Fill in the online <a href="{% url 'partners:membership_request' %}">membership request form</a> (the form must be filled in by an authorized agent employed by or associated to the prospective Partner; personal contact details of this person will be treated confidentially).</li>
       <li>Wait for the email response from the SciPost administration, containing a Partnership Agreement offer including detailed terms (start date, duration, financial contribution).</li>
       <li>Email a scan of the signed copy of the Partnership Agreement to SciPost.</li>
       <li>Proceed with the payment of the financial contribution, following invoicing from the SciPost Foundation.</li>
