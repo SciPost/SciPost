@@ -27,7 +27,6 @@ from .forms import SubmissionIdentifierForm, SubmissionForm, SubmissionSearchFor
                    SubmissionCycleChoiceForm
 from .utils import SubmissionUtils
 
-from journals.constants import SCIPOST_JOURNALS_SPECIALIZATIONS
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, Remark, RegistrationInvitation
 from scipost.services import ArxivCaller
@@ -55,14 +54,62 @@ class PrefillUsingIdentifierView(PermissionRequiredMixin, FormView):
         identifierform = SubmissionIdentifierForm(request.POST)
         if identifierform.is_valid():
             # Use the ArxivCaller class to make the API calls
-            caller = ArxivCaller(Submission, identifierform.cleaned_data['identifier'])
-            caller.process()
+            caller = ArxivCaller(identifierform.cleaned_data['identifier'])
 
-            if caller.is_valid():
+            if caller.is_valid:
                 # Arxiv response is valid and can be shown
-
                 metadata = caller.metadata
-                is_resubmission = caller.resubmission
+
+                # BUG !!!
+                #
+                #
+                #
+                # OLD VARIABLES THAT WERE ACCESSIBLE ON THE OLD CALLER, BUT NOT ON THE NEW ONE:
+                #
+                # is_resubmission
+                # identifier_with_vn_nr
+                # identifier_without_vn_nr
+                # previous_submissions
+                # version_nr
+
+                # OLD CHECKS TO BE IMPLENTED BACK IN:
+                #
+                #
+                #     def _check_identifier(self):
+                # -        '''Split the given identifier in an article identifier and version number.'''
+                # -        if not self.caller_regex:
+                # -            raise NotImplementedError('No regex is set for this caller')
+                # -
+                # -        if re.match(self.caller_regex, self.identifier):
+                # -            self.identifier_without_vn_nr = self.identifier.rpartition('v')[0]
+                # -            self.identifier_with_vn_nr = self.identifier
+                # -            self.version_nr = int(self.identifier.rpartition('v')[2])
+                #
+                #
+                # -    def _precheck_duplicate(self):
+                # -        '''Check if identifier for object already exists.'''
+                # -        if self.target_object.same_version_exists(self.identifier_with_vn_nr):
+                # -            raise ValueError('preprint_already_submitted')
+                #
+                #
+                # -    def _precheck_previous_submissions_are_valid(self):
+                # -        '''Check if previous submitted versions have the appropriate status.'''
+                # -        try:
+                # -            self.previous_submissions = self.target_object.different_versions(
+                # -                                        self.identifier_without_vn_nr)
+                # -        except AttributeError:
+                # -            # Commentaries do not have previous version numbers?
+                # -            pass
+                # -
+                # -        if self.previous_submissions:
+                # -            for submission in [self.previous_submissions[0]]:
+                # -                if submission.status == 'revision_requested':
+                # -                    self.resubmission = True
+                # -                elif submission.status in ['rejected', 'rejected_visible']:
+                # -                    raise ValueError('previous_submissions_rejected')
+                # -                else:
+                # -                    raise ValueError('previous_submission_undergoing_refereeing')
+
                 title = metadata['entries'][0]['title']
                 authorlist = metadata['entries'][0]['authors'][0]['name']
                 for author in metadata['entries'][0]['authors'][1:]:
