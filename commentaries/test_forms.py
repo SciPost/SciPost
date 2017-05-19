@@ -3,7 +3,7 @@ import re
 from django.test import TestCase
 
 from common.helpers import model_form_data
-from scipost.factories import UserFactory
+from scipost.factories import UserFactory, ContributorFactory
 
 from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory, UnvettedArxivPreprintCommentaryFactory
 from .forms import RequestCommentaryForm, RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm, \
@@ -15,6 +15,7 @@ from common.helpers.test import add_groups_and_permissions
 class TestArxivQueryForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
+        ContributorFactory.create_batch(5)
 
     def test_new_arxiv_identifier_is_valid(self):
         new_identifier_data = {'identifier': '1612.07611v1'}
@@ -58,6 +59,7 @@ class TestArxivQueryForm(TestCase):
 class TestDOIToQueryForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
+        ContributorFactory.create_batch(5)
 
     def test_invalid_doi_is_invalid(self):
         invalid_data = {'doi': 'blablab'}
@@ -96,6 +98,7 @@ class TestDOIToQueryForm(TestCase):
 class TestVetCommentaryForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
+        ContributorFactory.create_batch(5)
         self.commentary = UnvettedCommentaryFactory.create()
         self.user = UserFactory()
         self.form_data = {
@@ -158,6 +161,7 @@ class TestVetCommentaryForm(TestCase):
 class TestRequestPublishedArticleForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
+        ContributorFactory.create_batch(5)
         factory_instance = UnvettedCommentaryFactory.build()
         self.user = UserFactory()
         self.valid_form_data = model_form_data(factory_instance, RequestPublishedArticleForm)
@@ -184,6 +188,7 @@ class TestRequestPublishedArticleForm(TestCase):
 class TestRequestArxivPreprintForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
+        ContributorFactory.create_batch(5)
         factory_instance = UnvettedArxivPreprintCommentaryFactory.build()
         self.user = UserFactory()
         self.valid_form_data = model_form_data(factory_instance, RequestPublishedArticleForm)

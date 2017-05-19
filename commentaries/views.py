@@ -31,6 +31,11 @@ def request_commentary(request):
 class RequestCommentary(CreateView):
     success_url = reverse_lazy('scipost:personal_page')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['requested_by'] = self.request.user.contributor
+        return kwargs
+
     def form_valid(self, form):
         messages.success(self.request, strings.acknowledge_request_commentary, fail_silently=True)
         return super().form_valid(form)

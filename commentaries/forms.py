@@ -97,8 +97,13 @@ class RequestCommentaryForm(forms.ModelForm):
             'pub_date': 'Format: YYYY-MM-DD'
         }
 
+    def __init__(self, *args, **kwargs):
+        self.requested_by = kwargs.pop('requested_by', None)
+        super().__init__(*args, **kwargs)
+
     def save(self, *args, **kwargs):
         self.instance.parse_links_into_urls()
+        self.instance.requested_by = self.requested_by
         return super().save(self, *args, **kwargs)
 
 
