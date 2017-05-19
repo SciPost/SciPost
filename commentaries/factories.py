@@ -39,10 +39,10 @@ class CommentaryFactory(factory.django.DjangoModelFactory):
     def add_authors(self, create, extracted, **kwargs):
         contributors = list(Contributor.objects.order_by('?')
                             .exclude(pk=self.requested_by.pk).all()[:4])
-        for contrib in contributors:
-            self.author_list += ', %s %s' % (contrib.user.first_name, contrib.user.last_name)
-            if create:
-                self.authors.add(contrib)
+        self.author_list = ', '.join(
+            ['%s %s' % (contrib.user.first_name,
+                        contrib.user.last_name) for contrib in contributors])
+        self.authors.add(*contributors)
 
 
 class VettedCommentaryFactory(CommentaryFactory):
