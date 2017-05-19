@@ -18,9 +18,13 @@ import strings
 
 class DOIToQueryForm(forms.Form):
     VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
-    doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=True, help_text=strings.doi_query_help_text,
-        error_messages={'invalid': strings.doi_query_invalid},
-        widget=forms.TextInput({'label': 'DOI', 'placeholder': strings.doi_query_placeholder}))
+    doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=True,
+                           help_text=strings.doi_query_help_text,
+                           error_messxages={'invalid': strings.doi_query_invalid},
+                           widget=forms.TextInput({
+                                'label': 'DOI',
+                                'placeholder': strings.doi_query_placeholder
+                                }))
 
     def clean_doi(self):
         input_doi = self.cleaned_data['doi']
@@ -51,9 +55,12 @@ class ArxivQueryForm(forms.Form):
     IDENTIFIER_PATTERN_OLD = r'^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$'
     VALID_ARXIV_IDENTIFIER_REGEX = "(?:{})|(?:{})".format(IDENTIFIER_PATTERN_NEW, IDENTIFIER_PATTERN_OLD)
 
-    identifier = forms.RegexField(regex=VALID_ARXIV_IDENTIFIER_REGEX, strip=True,
-        help_text=strings.arxiv_query_help_text, error_messages={'invalid': strings.arxiv_query_invalid},
-        widget=forms.TextInput( {'placeholder': strings.arxiv_query_placeholder}))
+    identifier = forms.RegexField(regex=VALID_ARXIV_IDENTIFIER_REGEX,
+                                  strip=True,
+                                  help_text=strings.arxiv_query_help_text,
+                                  error_messages={'invalid': strings.arxiv_query_invalid},
+                                  widget=forms.TextInput({
+                                        'placeholder': strings.arxiv_query_placeholder}))
 
     def clean_identifier(self):
         identifier = self.cleaned_data['identifier']
@@ -83,7 +90,8 @@ class RequestCommentaryForm(forms.ModelForm):
     class Meta:
         model = Commentary
         fields = [
-            'discipline', 'domain', 'subject_area', 'pub_title', 'author_list', 'pub_date', 'pub_abstract'
+            'discipline', 'domain', 'subject_area', 'pub_title',
+            'author_list', 'pub_date', 'pub_abstract'
         ]
         placeholders = {
             'pub_date': 'Format: YYYY-MM-DD'
@@ -126,8 +134,10 @@ class RequestArxivPreprintForm(RequestCommentaryForm):
 class RequestPublishedArticleForm(RequestCommentaryForm):
     class Meta(RequestCommentaryForm.Meta):
         fields = RequestCommentaryForm.Meta.fields + ['journal', 'volume', 'pages', 'pub_DOI']
-        placeholders = {**RequestCommentaryForm.Meta.placeholders,
-            **{'pub_DOI': 'ex.: 10.21468/00.000.000000'}}
+        placeholders = {
+            **RequestCommentaryForm.Meta.placeholders,
+            **{'pub_DOI': 'ex.: 10.21468/00.000.000000'}
+        }
 
     def __init__(self, *args, **kwargs):
         super(RequestPublishedArticleForm, self).__init__(*args, **kwargs)
