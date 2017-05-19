@@ -813,7 +813,8 @@ def personal_page(request):
     nr_thesislink_requests_to_vet = 0
     nr_authorship_claims_to_vet = 0
     if contributor.is_VE():
-        nr_commentary_page_requests_to_vet = Commentary.objects.filter(vetted=False).count()
+        nr_commentary_page_requests_to_vet = (Commentary.objects.awaiting_vetting()
+                                              .exclude(requested_by=contributor).count())
         nr_comments_to_vet = Comment.objects.filter(status=0).count()
         nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
         nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()

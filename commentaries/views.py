@@ -106,7 +106,8 @@ def prefill_using_arxiv_identifier(request):
 def vet_commentary_requests(request):
     """Show the first commentary thats awaiting vetting"""
     contributor = Contributor.objects.get(user=request.user)
-    commentary_to_vet = Commentary.objects.awaiting_vetting().first()  # only handle one at a time
+    commentary_to_vet = (Commentary.objects.awaiting_vetting()
+                         .exclude(requested_by=contributor).first())  # only handle one at a time
     form = VetCommentaryForm()
     context = {'contributor': contributor, 'commentary_to_vet': commentary_to_vet, 'form': form}
     return render(request, 'commentaries/vet_commentary_requests.html', context)
@@ -114,50 +115,54 @@ def vet_commentary_requests(request):
 
 @permission_required('scipost.can_vet_commentary_requests', raise_exception=True)
 def vet_commentary_request_ack(request, commentary_id):
-    if request.method == 'POST':
-        form = VetCommentaryForm(request.POST, user=request.user, commentary_id=commentary_id)
-        if form.is_valid():
-            # Get commentary
-            commentary = form.get_commentary()
-            email_context = {
-                'commentary': commentary
-            }
+    # Security fix: Smart asses can vet their own commentary without this line.
+    #               Commentary itself not really being used.
+    get_object_or_404((Commentary.objects.awaiting_vetting()
+                       .exclude(requested_by=request.user.contributor)), id=commentary_id)
 
-            # Retrieve email_template for action
-            if form.commentary_is_accepted():
-                email_template = 'commentaries/vet_commentary_email_accepted.html'
-            elif form.commentary_is_modified():
-                email_template = 'commentaries/vet_commentary_email_modified.html'
+    form = VetCommentaryForm(request.POST or None, user=request.user, commentary_id=commentary_id)
+    if form.is_valid():
+        # Get commentary
+        commentary = form.get_commentary()
+        email_context = {
+            'commentary': commentary
+        }
 
-                request_commentary_form = RequestCommentaryForm(initial={
-                    'pub_title': commentary.pub_title,
-                    'arxiv_link': commentary.arxiv_link,
-                    'pub_DOI_link': commentary.pub_DOI_link,
-                    'author_list': commentary.author_list,
-                    'pub_date': commentary.pub_date,
-                    'pub_abstract': commentary.pub_abstract
-                })
-            elif form.commentary_is_refused():
-                email_template = 'commentaries/vet_commentary_email_rejected.html'
-                email_context['refusal_reason'] = form.get_refusal_reason()
-                email_context['further_explanation'] = form.cleaned_data['email_response_field']
+        # Retrieve email_template for action
+        if form.commentary_is_accepted():
+            email_template = 'commentaries/vet_commentary_email_accepted.html'
+        elif form.commentary_is_modified():
+            email_template = 'commentaries/vet_commentary_email_modified.html'
 
-            # Send email and process form
-            email_text = render_to_string(email_template, email_context)
-            email_args = (
-                'SciPost Commentary Page activated',
-                email_text,
-                commentary.requested_by.user.email,
-                ['commentaries@scipost.org']
-            )
-            emailmessage = EmailMessage(*email_args, reply_to=['commentaries@scipost.org'])
-            emailmessage.send(fail_silently=False)
-            commentary = form.process_commentary()
+            request_commentary_form = RequestCommentaryForm(initial={
+                'pub_title': commentary.pub_title,
+                'arxiv_link': commentary.arxiv_link,
+                'pub_DOI_link': commentary.pub_DOI_link,
+                'author_list': commentary.author_list,
+                'pub_date': commentary.pub_date,
+                'pub_abstract': commentary.pub_abstract
+            })
+        elif form.commentary_is_refused():
+            email_template = 'commentaries/vet_commentary_email_rejected.html'
+            email_context['refusal_reason'] = form.get_refusal_reason()
+            email_context['further_explanation'] = form.cleaned_data['email_response_field']
 
-            # For a modified commentary, redirect to request_commentary_form
-            if form.commentary_is_modified():
-                context = {'form': request_commentary_form}
-                return render(request, 'commentaries/request_commentary.html', context)
+        # Send email and process form
+        email_text = render_to_string(email_template, email_context)
+        email_args = (
+            'SciPost Commentary Page activated',
+            email_text,
+            commentary.requested_by.user.email,
+            ['commentaries@scipost.org']
+        )
+        emailmessage = EmailMessage(*email_args, reply_to=['commentaries@scipost.org'])
+        emailmessage.send(fail_silently=False)
+        commentary = form.process_commentary()
+
+        # For a modified commentary, redirect to request_commentary_form
+        if form.commentary_is_modified():
+            context = {'form': request_commentary_form}
+            return render(request, 'commentaries/request_commentary.html', context)
 
     context = {'ack_header': 'SciPost Commentary request vetted.',
                'followup_message': 'Return to the ',
@@ -206,9 +211,8 @@ class CommentaryListView(ListView):
 
 
 def commentary_detail(request, arxiv_or_DOI_string):
-    commentary = get_object_or_404(Commentary, arxiv_or_DOI_string=arxiv_or_DOI_string)
-    if not commentary.vetted:
-        raise Http404
+    commentary = get_object_or_404(Commentary.objects.vetted(),
+                                   arxiv_or_DOI_string=arxiv_or_DOI_string)
 
     comments = commentary.comment_set.all()
     form = CommentForm()
