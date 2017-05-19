@@ -17,9 +17,7 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        subject_areas_dict, CONTRIBUTOR_STATUS, TITLE_CHOICES,\
                        INVITATION_STYLE, INVITATION_TYPE,\
                        INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
-                       AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS,\
-                       PARTNER_TYPES, PARTNER_STATUS,\
-                       SPB_MEMBERSHIP_AGREEMENT_STATUS, SPB_MEMBERSHIP_DURATION
+                       AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS
 from .fields import ChoiceArrayField
 from .managers import FellowManager, ContributorManager
 
@@ -341,43 +339,6 @@ class AffiliationObject(models.Model):
     institution = models.CharField(max_length=128)
     subunit = models.CharField(max_length=128)
 
-
-#############################
-# Supporting Partners Board #
-#############################
-
-class SupportingPartner(models.Model):
-    """
-    Supporting Partners.
-    """
-    partner_type = models.CharField(max_length=32, choices=PARTNER_TYPES)
-    status = models.CharField(max_length=16, choices=PARTNER_STATUS)
-    institution = models.CharField(max_length=256)
-    institution_acronym = models.CharField(max_length=10)
-    institution_address = models.CharField(max_length=1000)
-    consortium_members = models.TextField(blank=True, null=True)
-    contact_person = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.institution_acronym + ' (' + self.get_status_display() + ')'
-
-
-class SPBMembershipAgreement(models.Model):
-    """
-    Agreement for membership of the Supporting Partners Board.
-    A new instance is created each time an Agreement is made or renewed.
-    """
-    partner = models.ForeignKey(SupportingPartner, on_delete=models.CASCADE)
-    status = models.CharField(max_length=16, choices=SPB_MEMBERSHIP_AGREEMENT_STATUS)
-    date_requested = models.DateField()
-    start_date = models.DateField()
-    duration = models.DurationField(choices=SPB_MEMBERSHIP_DURATION)
-    offered_yearly_contribution = models.SmallIntegerField(default=0)
-
-    def __str__(self):
-        return (str(self.partner) +
-                ' [' + self.get_duration_display() +
-                ' from ' + self.start_date.strftime('%Y-%m-%d') + ']')
 
 
 ######################

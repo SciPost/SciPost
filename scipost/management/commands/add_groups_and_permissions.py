@@ -14,6 +14,7 @@ class Command(BaseCommand):
 
         # Create Groups
         SciPostAdmin, created = Group.objects.get_or_create(name='SciPost Administrators')
+        FinancialAdmin, created = Group.objects.get_or_create(name='Financial Administrators')
         AdvisoryBoard, created = Group.objects.get_or_create(name='Advisory Board')
         EditorialAdmin, created = Group.objects.get_or_create(name='Editorial Administrators')
         EditorialCollege, created = Group.objects.get_or_create(name='Editorial College')
@@ -28,6 +29,12 @@ class Command(BaseCommand):
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
+
+        # Supporting Partners
+        can_manage_SPB, created = Permission.objects.get_or_create(
+            codename='can_manage_SPB',
+            name='Can manage Supporting Partners Board',
+            content_type=content_type)
 
         # Registration and invitations
         can_vet_registration_requests, created = Permission.objects.get_or_create(

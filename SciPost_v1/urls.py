@@ -43,6 +43,8 @@ urlpatterns = [
     url(r'^meetings/', include('virtualmeetings.urls', namespace="virtualmeetings")),
     url(r'^news/', include('news.urls', namespace="news")),
     url(r'^production/', include('production.urls', namespace="production")),
+    url(r'^partners/', include('partners.urls', namespace="partners")),
+    url(r'^supporting_partners/', include('partners.urls', namespace="partners")), # Keep temporarily for historical reasons
 ]
 
 if settings.DEBUG:

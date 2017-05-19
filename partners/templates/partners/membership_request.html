@@ -37,27 +37,27 @@ $(document).ready(function(){
 
   <div class="flex-container">
     <div class="flex-whitebox">
-      <p>You can hereby initiate the process to become one of our Supporting Partners.</p>
+      <p>You can hereby request further details on the process to become one
+	of our Supporting Partners.</p>
       <p>Filling in this form does not yet constitute a binding agreement.</p>
       <p>It simply expresses your interest in considering joining our Supporting Partners Board.</p>
-      <p>After filling this form, SciPost Administration will contact you with a Partnership
-	Agreement offer.</p>
+      <p>After filling this form, SciPost Administration will contact you with more details on Partnership.</p>
       <p><em>Note: you will automatically be considered as the contact person for this Partner.</em></p>
 
       {% if errormessage %}
       <p style="color: red;">{{ errormessage }}</p>
       {% endif %}
 
-      <form action="{% url 'scipost:SPB_membership_request' %}" method="post">
+      <form action="{% url 'partners:membership_request' %}" method="post">
 	{% csrf_token %}
-	<h3>Partner details:</h3>
-	
-	{{ SP_form|bootstrap }}
-	<h3>Agreement terms:</h3>
-	{{ membership_form|bootstrap }}
-	<input class="btn btn-secondary" type="submit" value="Submit"/>
+	<h3>Please provide us the following relevant details:</h3>
+	{{ query_form|bootstrap }}
+	<input class="btn btn-primary" type="submit" value="Submit"/>
       </form>
 
+      {% if errormessage %}
+          <p class="text-danger">{{ errormessage }}</p>
+      {% endif %}
     </div>
   </div>
 
