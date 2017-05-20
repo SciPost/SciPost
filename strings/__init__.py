@@ -43,11 +43,11 @@ arxiv_caller_errormessages = {
     'paper_published_doi':
         ('This paper has been published under DOI {{ arxiv_doi }}'
          '. Please comment on the published version.'),
-    'arxiv_timeout': 'Arxiv did not respond in time. Please try again later',
-    'arxiv_bad_request':
-        ('There was an error with requesting identifier ' +
-         '{{ identifier_with_vn_nr }}'
-         ' from Arxiv. Please check the identifier and try again.'),
+    # 'arxiv_timeout': 'Arxiv did not respond in time. Please try again later',
+    # 'arxiv_bad_request':
+    #     ('There was an error with requesting identifier ' +
+    #      '{{ identifier_with_vn_nr }}'
+    #      ' from Arxiv. Please check the identifier and try again.'),
     'previous_submission_undergoing_refereeing':
         ('There exists a preprint with this arXiv identifier '
          'but an earlier version number, which is still undergoing '

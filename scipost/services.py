@@ -101,9 +101,11 @@ class ArxivCaller:
 
         self.data = {
             'pub_title': pub_title,
+            'title': pub_title,  # Duplicate for Commentary/Submission cross-compatibility
             'author_list': author_list,
             'arxiv_link': arxiv_link,
             'pub_abstract': abstract,
+            'abstract': abstract,  # Duplicate for Commentary/Submission cross-compatibility
             'pub_date': pub_date,
         }
 
