@@ -15,7 +15,8 @@
     </div>
 </div>
 
-{{ contributor.public_info_as_table }}
+{% include "scipost/_public_info_as_table.html" with contributor=contributor %}
+
 <br>
 {% if contributor_publications %}
     {# <hr>#}

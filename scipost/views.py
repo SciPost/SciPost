@@ -25,14 +25,12 @@ from guardian.decorators import permission_required
 from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict
 from .models import Contributor, CitationNotification, UnavailabilityPeriod,\
                     DraftInvitation, RegistrationInvitation,\
-                    AuthorshipClaim, SupportingPartner, SPBMembershipAgreement,\
-                    EditorialCollege, EditorialCollegeFellowship
+                    AuthorshipClaim, EditorialCollege, EditorialCollegeFellowship
 from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriodForm,\
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\
                    UpdatePersonalDataForm, UpdateUserDataForm, PasswordChangeForm,\
-                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm,\
-                   SupportingPartnerForm, SPBMembershipForm
+                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from commentaries.models import Commentary
@@ -815,7 +813,8 @@ def personal_page(request):
     nr_thesislink_requests_to_vet = 0
     nr_authorship_claims_to_vet = 0
     if contributor.is_VE():
-        nr_commentary_page_requests_to_vet = Commentary.objects.filter(vetted=False).count()
+        nr_commentary_page_requests_to_vet = (Commentary.objects.awaiting_vetting()
+                                              .exclude(requested_by=contributor).count())
         nr_comments_to_vet = Comment.objects.filter(status=0).count()
         nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
         nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
@@ -1271,58 +1270,6 @@ def Fellow_activity_overview(request, Fellow_id=None):
         context['assignments_completed'] = assignments_completed
     return render(request, 'scipost/Fellow_activity_overview.html', context)
 
-
-#############################
-# Supporting Partners Board #
-#############################
-
-def supporting_partners(request):
-    prospective_agreements = SPBMembershipAgreement.objects.filter(
-        status='Submitted').order_by('date_requested')
-    context = {'prospective_partners': prospective_agreements, }
-    return render(request, 'scipost/supporting_partners.html', context)
-
-
-@login_required
-def SPB_membership_request(request):
-    errormessage = ''
-    if request.method == 'POST':
-        SP_form = SupportingPartnerForm(request.POST)
-        membership_form = SPBMembershipForm(request.POST)
-        if SP_form.is_valid() and membership_form.is_valid():
-            partner = SupportingPartner(
-                partner_type=SP_form.cleaned_data['partner_type'],
-                status='Prospective',
-                institution=SP_form.cleaned_data['institution'],
-                institution_acronym=SP_form.cleaned_data['institution_acronym'],
-                institution_address=SP_form.cleaned_data['institution_address'],
-                contact_person=request.user.contributor,
-            )
-            partner.save()
-            agreement = SPBMembershipAgreement(
-                partner=partner,
-                status='Submitted',
-                date_requested=timezone.now().date(),
-                start_date=membership_form.cleaned_data['start_date'],
-                duration=membership_form.cleaned_data['duration'],
-                offered_yearly_contribution=membership_form.cleaned_data['offered_yearly_contribution'],
-            )
-            agreement.save()
-            ack_message = ('Thank you for your SPB Membership request. '
-                           'We will get back to you in the very near future '
-                           'with details of the proposed agreement.')
-            context = {'ack_message': ack_message, }
-            return render(request, 'scipost/acknowledgement.html', context)
-        else:
-            errormessage = 'The form was not filled properly.'
-
-    else:
-        SP_form = SupportingPartnerForm()
-        membership_form = SPBMembershipForm()
-    context = {'errormessage': errormessage,
-               'SP_form': SP_form,
-               'membership_form': membership_form, }
-    return render(request, 'scipost/SPB_membership_request.html', context)
 
 
 class AboutView(ListView):

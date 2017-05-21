@@ -4,7 +4,7 @@ import pytz
 from django.utils import timezone
 
 from commentaries.factories import VettedCommentaryFactory
-from scipost.factories import ContributorFactory
+from scipost.models import Contributor
 from submissions.factories import EICassignedSubmissionFactory
 from theses.factories import VettedThesisLinkFactory
 
@@ -17,12 +17,12 @@ timezone.now()
 
 
 class CommentFactory(factory.django.DjangoModelFactory):
-    author = factory.SubFactory(ContributorFactory)
+    author = factory.Iterator(Contributor.objects.all())
     comment_text = factory.lazy_attribute(lambda x: Faker().paragraph())
     remarks_for_editors = factory.lazy_attribute(lambda x: Faker().paragraph())
     file_attachment = Faker().file_name(extension='pdf')
     status = STATUS_VETTED  # All comments will have status vetted!
-    vetted_by = factory.SubFactory(ContributorFactory)
+    vetted_by = factory.Iterator(Contributor.objects.all())
     date_submitted = Faker().date_time_between(start_date="-3y", end_date="now", tzinfo=pytz.UTC)
 
     class Meta:

@@ -1,7 +1,6 @@
 import factory
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
-from scipost.factories import ContributorFactory
 from scipost.models import Contributor
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from common.helpers import random_arxiv_identifier_with_version_number, random_external_doi
@@ -16,7 +15,7 @@ class CommentaryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Commentary
 
-    requested_by = factory.SubFactory(ContributorFactory)
+    requested_by = factory.Iterator(Contributor.objects.all())
     type = factory.Iterator(COMMENTARY_TYPES, getter=lambda c: c[0])
     discipline = factory.Iterator(SCIPOST_DISCIPLINES, getter=lambda c: c[0])
     domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
@@ -24,6 +23,9 @@ class CommentaryFactory(factory.django.DjangoModelFactory):
     pub_title = factory.Faker('text')
     pub_DOI = factory.Sequence(lambda n: random_external_doi())
     arxiv_identifier = factory.Sequence(lambda n: random_arxiv_identifier_with_version_number())
+    author_list = factory.Faker('name')
+    pub_abstract = factory.Faker('text')
+    pub_date = factory.Faker('date')
     arxiv_link = factory.Faker('uri')
     pub_abstract = factory.lazy_attribute(lambda x: Faker().paragraph())
 
@@ -48,7 +50,7 @@ class CommentaryFactory(factory.django.DjangoModelFactory):
 
 class VettedCommentaryFactory(CommentaryFactory):
     vetted = True
-    vetted_by = factory.SubFactory(ContributorFactory)
+    vetted_by = factory.Iterator(Contributor.objects.all())
 
 
 class UnpublishedVettedCommentaryFactory(VettedCommentaryFactory):
@@ -57,3 +59,7 @@ class UnpublishedVettedCommentaryFactory(VettedCommentaryFactory):
 
 class UnvettedCommentaryFactory(CommentaryFactory):
     vetted = False
+
+class UnvettedArxivPreprintCommentaryFactory(CommentaryFactory):
+    vetted = False
+    pub_DOI = None

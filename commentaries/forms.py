@@ -2,107 +2,170 @@ import re
 
 from django import forms
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+from django.template.loader import get_template
+from django.template import Context
 
 from .models import Commentary
+from .constants import COMMENTARY_PUBLISHED, COMMENTARY_PREPRINT
 
+from scipost.services import DOICaller, ArxivCaller
 from scipost.models import Contributor
+
+import strings
 
 
 class DOIToQueryForm(forms.Form):
-    doi = forms.CharField(widget=forms.TextInput(
-        {'label': 'DOI', 'placeholder': 'ex.: 10.21468/00.000.000000'}))
+    VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
+    doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=True,
+                           help_text=strings.doi_query_help_text,
+                           error_messages={'invalid': strings.doi_query_invalid},
+                           widget=forms.TextInput({
+                                'label': 'DOI',
+                                'placeholder': strings.doi_query_placeholder
+                                }))
+
+    def clean_doi(self):
+        input_doi = self.cleaned_data['doi']
+
+        commentary = Commentary.objects.filter(pub_DOI=input_doi)
+        if commentary.exists():
+            error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
+                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+            )
+            raise forms.ValidationError(mark_safe(error_message))
+
+        caller = DOICaller(input_doi)
+        if caller.is_valid:
+            self.crossref_data = DOICaller(input_doi).data
+        else:
+            error_message = 'Could not find a resource for that DOI.'
+            raise forms.ValidationError(error_message)
+
+        return input_doi
+
+    def request_published_article_form_prefill_data(self):
+        additional_form_data = {'pub_DOI': self.cleaned_data['doi']}
+        return {**self.crossref_data, **additional_form_data}
 
 
-class IdentifierToQueryForm(forms.Form):
-    identifier = forms.CharField(widget=forms.TextInput(
-        {'label': 'arXiv identifier',
-         'placeholder': 'new style ####.####(#)v# or old-style e.g. cond-mat/#######'}))
+class ArxivQueryForm(forms.Form):
+    IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$'
+    IDENTIFIER_PATTERN_OLD = r'^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$'
+    VALID_ARXIV_IDENTIFIER_REGEX = "(?:{})|(?:{})".format(IDENTIFIER_PATTERN_NEW, IDENTIFIER_PATTERN_OLD)
 
-    def clean(self, *args, **kwargs):
-        cleaned_data = super(IdentifierToQueryForm, self).clean(*args, **kwargs)
+    identifier = forms.RegexField(regex=VALID_ARXIV_IDENTIFIER_REGEX,
+                                  strip=True,
+                                  help_text=strings.arxiv_query_help_text,
+                                  error_messages={'invalid': strings.arxiv_query_invalid},
+                                  widget=forms.TextInput({
+                                        'placeholder': strings.arxiv_query_placeholder}))
 
-        identifierpattern_new = re.compile("^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$")
-        identifierpattern_old = re.compile("^[-.a-z]+/[0-9]{7,}v[0-9]{1,2}$")
+    def clean_identifier(self):
+        identifier = self.cleaned_data['identifier']
 
-        if not (identifierpattern_new.match(cleaned_data['identifier']) or
-                identifierpattern_old.match(cleaned_data['identifier'])):
-                msg = ('The identifier you entered is improperly formatted '
-                       '(did you forget the version number?)')
-                self.add_error('identifier', msg)
+        commentary = Commentary.objects.filter(arxiv_identifier=identifier)
+        if commentary.exists():
+            error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
+                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+            )
+            raise forms.ValidationError(mark_safe(error_message))
 
-        try:
-            commentary = Commentary.objects.get(arxiv_identifier=cleaned_data['identifier'])
-        except (Commentary.DoesNotExist, KeyError):
-            # Commentary either does not exists or form is invalid
-            commentary = None
+        caller = ArxivCaller(identifier)
+        if caller.is_valid:
+            self.arxiv_data = ArxivCaller(identifier).data
+        else:
+            error_message = 'Could not find a resource for that arXiv identifier.'
+            raise forms.ValidationError(error_message)
 
-        if commentary:
-            msg = 'There already exists a Commentary Page on this preprint, see %s' % (
-                    commentary.title_label())
-            self.add_error('identifier', msg)
-        return cleaned_data
+        return identifier
+
+    def request_arxiv_preprint_form_prefill_data(self):
+        additional_form_data = {'arxiv_identifier': self.cleaned_data['identifier']}
+        return {**self.arxiv_data, **additional_form_data}
 
 
 class RequestCommentaryForm(forms.ModelForm):
-    """Create new valid Commetary by user request"""
-    existing_commentary = None
-
     class Meta:
         model = Commentary
-        fields = ['type', 'discipline', 'domain', 'subject_area',
-                  'pub_title', 'author_list',
-                  'metadata',
-                  'journal', 'volume', 'pages', 'pub_date',
-                  'arxiv_identifier',
-                  'pub_DOI', 'pub_abstract']
+        fields = [
+            'discipline', 'domain', 'subject_area', 'pub_title',
+            'author_list', 'pub_date', 'pub_abstract'
+        ]
+        placeholders = {
+            'pub_date': 'Format: YYYY-MM-DD'
+        }
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super(RequestCommentaryForm, self).__init__(*args, **kwargs)
-        self.fields['metadata'].widget = forms.HiddenInput()
-        self.fields['pub_date'].widget.attrs.update({'placeholder': 'Format: YYYY-MM-DD'})
-        self.fields['arxiv_identifier'].widget.attrs.update(
-            {'placeholder': 'ex.:  1234.56789v1 or cond-mat/1234567v1'})
-        self.fields['pub_DOI'].widget.attrs.update({'placeholder': 'ex.: 10.21468/00.000.000000'})
-        self.fields['pub_abstract'].widget.attrs.update({'cols': 100})
-
-    def clean(self, *args, **kwargs):
-        """Check if form is valid and contains an unique identifier"""
-        cleaned_data = super(RequestCommentaryForm, self).clean(*args, **kwargs)
-
-        # Either Arxiv-ID or DOI is given
-        if not cleaned_data['arxiv_identifier'] and not cleaned_data['pub_DOI']:
-            msg = ('You must provide either a DOI (for a published paper) '
-                   'or an arXiv identifier (for a preprint).')
-            self.add_error('arxiv_identifier', msg)
-            self.add_error('pub_DOI', msg)
-        elif (cleaned_data['arxiv_identifier'] and
-              (Commentary.objects
-               .filter(arxiv_identifier=cleaned_data['arxiv_identifier']).exists())):
-            msg = 'There already exists a Commentary Page on this preprint, see'
-            self.existing_commentary = get_object_or_404(
-                Commentary,
-                arxiv_identifier=cleaned_data['arxiv_identifier'])
-            self.add_error('arxiv_identifier', msg)
-        elif (cleaned_data['pub_DOI'] and
-              Commentary.objects.filter(pub_DOI=cleaned_data['pub_DOI']).exists()):
-            msg = 'There already exists a Commentary Page on this publication, see'
-            self.existing_commentary = get_object_or_404(
-                Commentary, pub_DOI=cleaned_data['pub_DOI'])
-            self.add_error('pub_DOI', msg)
-
-        # Current user is not known
-        if not self.user or not Contributor.objects.filter(user=self.user).exists():
-            self.add_error(None, 'Sorry, current user is not known to SciPost.')
+        self.requested_by = kwargs.pop('requested_by', None)
+        super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        """Prefill instance before save"""
-        self.instance.requested_by = Contributor.objects.get(user=self.user)
-        return super(RequestCommentaryForm, self).save(*args, **kwargs)
+        self.instance.parse_links_into_urls()
+        if self.requested_by:
+            self.instance.requested_by = self.requested_by
+        return super().save(*args, **kwargs)
 
-    def get_existing_commentary(self):
-        """Get Commentary if found after validation"""
-        return self.existing_commentary
+
+class RequestArxivPreprintForm(RequestCommentaryForm):
+    class Meta(RequestCommentaryForm.Meta):
+        model = Commentary
+        fields = RequestCommentaryForm.Meta.fields + ['arxiv_identifier']
+
+    def __init__(self, *args, **kwargs):
+        super(RequestArxivPreprintForm, self).__init__(*args, **kwargs)
+        # We want arxiv_identifier to be a required field.
+        # Since it can be blank on the model, we have to override this property here.
+        self.fields['arxiv_identifier'].required = True
+
+    # TODO: add regex here?
+    def clean_arxiv_identifier(self):
+        arxiv_identifier = self.cleaned_data['arxiv_identifier']
+
+        commentary = Commentary.objects.filter(arxiv_identifier=arxiv_identifier)
+        if commentary.exists():
+            error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
+                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+            )
+            raise forms.ValidationError(mark_safe(error_message))
+
+        return arxiv_identifier
+
+    def save(self, *args, **kwargs):
+        self.instance.type = COMMENTARY_PREPRINT
+        return super().save(*args, **kwargs)
+
+
+class RequestPublishedArticleForm(RequestCommentaryForm):
+    class Meta(RequestCommentaryForm.Meta):
+        fields = RequestCommentaryForm.Meta.fields + ['journal', 'volume', 'pages', 'pub_DOI']
+        placeholders = {
+            **RequestCommentaryForm.Meta.placeholders,
+            **{'pub_DOI': 'ex.: 10.21468/00.000.000000'}
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(RequestPublishedArticleForm, self).__init__(*args, **kwargs)
+        # We want pub_DOI to be a required field.
+        # Since it can be blank on the model, we have to override this property here.
+        self.fields['pub_DOI'].required = True
+
+    def clean_pub_DOI(self):
+        input_doi = self.cleaned_data['pub_DOI']
+
+        commentary = Commentary.objects.filter(pub_DOI=input_doi)
+        if commentary.exists():
+            error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
+                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+            )
+            raise forms.ValidationError(mark_safe(error_message))
+
+        return input_doi
+
+    def save(self, *args, **kwargs):
+        self.instance.type = COMMENTARY_PUBLISHED
+        return super().save(*args, **kwargs)
 
 
 class VetCommentaryForm(forms.Form):
@@ -178,6 +241,13 @@ class VetCommentaryForm(forms.Form):
             raise ValueError(('VetCommentaryForm could not be processed '
                               'because the data didn\'t validate'))
 
+    def clean_refusal_reason(self):
+        """`refusal_reason` field is required if action==refuse."""
+        if self.commentary_is_refused():
+            if int(self.cleaned_data['refusal_reason']) == self.REFUSAL_EMPTY:
+                self.add_error('refusal_reason', 'Please, choose a reason for rejection.')
+        return self.cleaned_data['refusal_reason']
+
     def get_commentary(self):
         """Return Commentary if available"""
         self._form_is_cleaned()
@@ -189,25 +259,23 @@ class VetCommentaryForm(forms.Form):
             return self.COMMENTARY_REFUSAL_DICT[int(self.cleaned_data['refusal_reason'])]
 
     def commentary_is_accepted(self):
-        self._form_is_cleaned()
         return int(self.cleaned_data['action_option']) == self.ACTION_ACCEPT
 
     def commentary_is_modified(self):
-        self._form_is_cleaned()
         return int(self.cleaned_data['action_option']) == self.ACTION_MODIFY
 
     def commentary_is_refused(self):
-        self._form_is_cleaned()
         return int(self.cleaned_data['action_option']) == self.ACTION_REFUSE
 
     def process_commentary(self):
         """Vet the commentary or delete it from the database"""
+        # Modified actions are not doing anything. Users are redirected to an edit page instead.
         if self.commentary_is_accepted():
             self.commentary.vetted = True
             self.commentary.vetted_by = Contributor.objects.get(user=self.user)
             self.commentary.save()
             return self.commentary
-        elif self.commentary_is_modified() or self.commentary_is_refused():
+        elif self.commentary_is_refused():
             self.commentary.delete()
             return None
 

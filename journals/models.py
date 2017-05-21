@@ -16,6 +16,10 @@ from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 
 
+################
+# Journals etc #
+################
+
 class UnregisteredAuthor(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

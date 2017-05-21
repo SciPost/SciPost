@@ -16,11 +16,11 @@ class Commentary(ArxivCallable, TimeStampedModel):
     """
     A Commentary contains all the contents of a SciPost Commentary page for a given publication.
     """
-    requested_by = models.ForeignKey(
-        Contributor, blank=True, null=True,
-        on_delete=models.CASCADE, related_name='requested_by')
+    requested_by = models.ForeignKey('scipost.Contributor', blank=True, null=True,
+                                     on_delete=models.CASCADE, related_name='requested_by')
     vetted = models.BooleanField(default=False)
-    vetted_by = models.ForeignKey(Contributor, blank=True, null=True, on_delete=models.CASCADE)
+    vetted_by = models.ForeignKey('scipost.Contributor', blank=True, null=True,
+                                  on_delete=models.CASCADE)
     type = models.CharField(max_length=9, choices=COMMENTARY_TYPES)
     discipline = models.CharField(max_length=20,
                                   choices=SCIPOST_DISCIPLINES, default=DISCIPLINE_PHYSICS)

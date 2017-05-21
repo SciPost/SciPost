@@ -1,0 +1,21 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h3>Manuscripts under production</h3>
+    <ul class="list-group list-group-flush">
+      {% for stream in streams %}
+      <li class="list-group-item">
+	{% include 'production/_production_stream_card.html' with stream=stream form=prodevent_form %}
+      </li>
+      <hr/>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% endblock content %}

@@ -6,6 +6,7 @@ from .models import UnregisteredAuthor, Issue, Publication
 from submissions.models import Submission
 
 
+
 class InitiatePublicationForm(forms.Form):
     accepted_submission = forms.ModelChoiceField(
         queryset=Submission.objects.filter(status='accepted'))

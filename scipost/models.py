@@ -17,9 +17,7 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        subject_areas_dict, CONTRIBUTOR_STATUS, TITLE_CHOICES,\
                        INVITATION_STYLE, INVITATION_TYPE,\
                        INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
-                       AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS,\
-                       PARTNER_TYPES, PARTNER_STATUS,\
-                       SPB_MEMBERSHIP_AGREEMENT_STATUS, SPB_MEMBERSHIP_DURATION
+                       AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS
 from .fields import ChoiceArrayField
 from .managers import FellowManager, ContributorManager
 
@@ -108,75 +106,9 @@ class Contributor(models.Model):
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
         self.save()
 
-    def private_info_as_table(self):
-        template = Template('''
-            <table>
-            <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
-            <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
-            <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
-            <tr><td>Email: </td><td>&nbsp;</td><td>{{ email }}</td></tr>
-            <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
-            <tr><td>Country of employment: </td><td>&nbsp;</td>
-            <td>{{ country_of_employment }}</td></tr>
-            <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
-            <tr><td>Address: </td><td>&nbsp;</td><td>{{ address }}</td></tr>
-            <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
-            <tr><td>Accept SciPost emails: </td><td>&nbsp;</td><td>{{ accepts_SciPost_emails }}</td></tr>
-            </table>
-        ''')
-        context = Context({
-            'title': self.get_title_display(),
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
-            'email': self.user.email,
-            'orcid_id': self.orcid_id,
-            'country_of_employment': str(self.country_of_employment.name),
-            'affiliation': self.affiliation,
-            'address': self.address,
-            'personalwebpage': self.personalwebpage,
-            'accepts_SciPost_emails': self.accepts_SciPost_emails,
-        })
-        return template.render(context)
-
-    def public_info_as_table(self):
-        """Prints out all publicly-accessible info as a table."""
-
-        template = Template('''
-            <table>
-            <tr><td>Title: </td><td>&nbsp;</td><td>{{ title }}</td></tr>
-            <tr><td>First name: </td><td>&nbsp;</td><td>{{ first_name }}</td></tr>
-            <tr><td>Last name: </td><td>&nbsp;</td><td>{{ last_name }}</td></tr>
-            <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ orcid_id }}</td></tr>
-            <tr><td>Country of employment: </td><td>&nbsp;</td>
-            <td>{{ country_of_employment }}</td></tr>
-            <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ affiliation }}</td></tr>
-            <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ personalwebpage }}</td></tr>
-            </table>
-        ''')
-        context = Context({
-                'title': self.get_title_display(),
-                'first_name': self.user.first_name,
-                'last_name': self.user.last_name,
-                'email': self.user.email,
-                'orcid_id': self.orcid_id,
-                'country_of_employment': str(self.country_of_employment.name),
-                'affiliation': self.affiliation,
-                'address': self.address,
-                'personalwebpage': self.personalwebpage
-                })
-        return template.render(context)
-
     def discipline_as_string(self):
         # Redundant, to be removed in future
         return self.get_discipline_display()
-
-    def expertises_as_ul(self):
-        output = '<ul>'
-        if self.expertises:
-            for exp in self.expertises:
-                output += '<li>%s</li>' % subject_areas_dict[exp]
-        output += '</ul>'
-        return mark_safe(output)
 
     def expertises_as_string(self):
         if self.expertises:
@@ -399,43 +331,6 @@ class AffiliationObject(models.Model):
     institution = models.CharField(max_length=128)
     subunit = models.CharField(max_length=128)
 
-
-#############################
-# Supporting Partners Board #
-#############################
-
-class SupportingPartner(models.Model):
-    """
-    Supporting Partners.
-    """
-    partner_type = models.CharField(max_length=32, choices=PARTNER_TYPES)
-    status = models.CharField(max_length=16, choices=PARTNER_STATUS)
-    institution = models.CharField(max_length=256)
-    institution_acronym = models.CharField(max_length=10)
-    institution_address = models.CharField(max_length=1000)
-    consortium_members = models.TextField(blank=True, null=True)
-    contact_person = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.institution_acronym + ' (' + self.get_status_display() + ')'
-
-
-class SPBMembershipAgreement(models.Model):
-    """
-    Agreement for membership of the Supporting Partners Board.
-    A new instance is created each time an Agreement is made or renewed.
-    """
-    partner = models.ForeignKey(SupportingPartner, on_delete=models.CASCADE)
-    status = models.CharField(max_length=16, choices=SPB_MEMBERSHIP_AGREEMENT_STATUS)
-    date_requested = models.DateField()
-    start_date = models.DateField()
-    duration = models.DurationField(choices=SPB_MEMBERSHIP_DURATION)
-    offered_yearly_contribution = models.SmallIntegerField(default=0)
-
-    def __str__(self):
-        return (str(self.partner) +
-                ' [' + self.get_duration_display() +
-                ' from ' + self.start_date.strftime('%Y-%m-%d') + ']')
 
 
 ######################

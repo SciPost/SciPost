@@ -3,6 +3,7 @@ import pytz
 
 from django.utils import timezone
 
+from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.models import Contributor
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from common.helpers import random_arxiv_identifier_without_version_number, random_scipost_journal
@@ -19,14 +20,15 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
         model = Submission
 
     author_list = factory.Faker('name')
-    submitted_by = Contributor.objects.first()
+    submitted_by = factory.Iterator(Contributor.objects.all())
     submitted_to_journal = factory.Sequence(lambda n: random_scipost_journal())
     title = factory.lazy_attribute(lambda x: Faker().sentence())
     abstract = factory.lazy_attribute(lambda x: Faker().paragraph())
     arxiv_link = factory.Faker('uri')
     arxiv_identifier_wo_vn_nr = factory.Sequence(
                                     lambda n: random_arxiv_identifier_without_version_number())
-    domain = SCIPOST_JOURNALS_DOMAINS[0][0]
+    subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
+    domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
     abstract = Faker().paragraph()
     author_comments = Faker().paragraph()
     remarks_for_editors = Faker().paragraph()

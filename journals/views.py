@@ -134,18 +134,10 @@ def issue_detail(request, doi_label):
     return render(request, 'journals/journal_issue_detail.html', context)
 
 
+
 #######################
 # Publication process #
 #######################
-
-def upload_proofs(request):
-    """
-    TODO
-    Called by a member of the Production Team.
-    Upload the production version .pdf of a submission.
-    """
-    return render(request, 'journals/upload_proofs.html')
-
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic

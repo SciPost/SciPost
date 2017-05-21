@@ -1,0 +1,29 @@
+{% load bootstrap %}
+{% load scipost_extras %}
+
+<div class="card-block">
+  {% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}
+  <div class="row">
+    <div class="col-7">
+      <h3>Events</h3>
+      <ul>
+	{% for event in stream.productionevent_set.all %}
+	{% include 'production/_production_event_li.html' with event=event %}
+	{% empty %}
+	<li>No events were found.</li>
+	{% endfor %}
+      </ul>
+      <br/>
+      {% if stream.total_duration %}
+      <h3>Total duration for this stream: {{ stream.total_duration|duration }}</h3>
+      {% endif %}
+    </div>
+    <div class="col-5">
+      <h3>Add an event to this production stream:</h3>
+      <form action="{% url 'production:add_event' stream_id=stream.id %}" method="post">
+	{% csrf_token %}
+	{{ form|bootstrap }}
+	<input type="submit" name="submit" value="Submit">
+      </form>
+    </div>
+</div>
