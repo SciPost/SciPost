@@ -65,13 +65,16 @@
             </div>
         </div><!-- end reinvite referees -->
     </div>
+    <p data-cycle="default" class="mt-4" style="display: none;">You will also be able to invite other referees from the Editorial Page.</p>
+    <p data-cycle="short" class="mt-4" style="display: none;">You can only consult those referees in this short cycle; if you want to invite new referees, choose the Default cycle.</p>
     <input type="submit" class="btn btn-primary" value="Confirm choice">
 </form>
 
 <script>
     $(function(){
         $('[name="{{form.refereeing_cycle.name}}"]').on('click change', function(){
-            var reinvite = $('[name="{{form.refereeing_cycle.name}}"]:checked').parents('.radio').attr('data-reinvite') == 1;
+            var element = $('[name="{{form.refereeing_cycle.name}}"]:checked');
+            var reinvite = element.parents('.radio').attr('data-reinvite') == 1;
 
             // Show/hide invitation block
             if(reinvite > 0) {
@@ -79,8 +82,17 @@
             } else {
                 $('#id_referees_reinvite_block').hide();
             }
+
+            // Show/hide help text
+            if(element.val() == 'default') {
+                $('[data-cycle="default"]').show();
+                $('[data-cycle="short"]').hide();
+            } else if(element.val() == 'short') {
+                $('[data-cycle="short"]').show();
+                $('[data-cycle="default"]').hide();
+            } else {
+                $('[data-cycle]').hide();
+            }
         }).trigger('change');
-
-
     });
 </script>
