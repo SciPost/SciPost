@@ -1,11 +1,14 @@
 from django import forms
+from django.contrib.auth.models import Group
 from django.core.validators import RegexValidator
 from django.db import models, transaction
+
+from guardian.shortcuts import assign_perm
 
 from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED,\
                        REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING
-from .models import Submission, RefereeInvitation, Report, EICRecommendation
+from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.services import ArxivCaller
@@ -261,6 +264,23 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         return submission
 
     @transaction.atomic
+    def reassign_eic_and_admins(self, submission):
+        # Assign permissions
+        assign_perm('can_take_editorial_actions', submission.editor_in_charge.user, submission)
+        ed_admins = Group.objects.get(name='Editorial Administrators')
+        assign_perm('can_take_editorial_actions', ed_admins, submission)
+
+        # Assign editor
+        assignment = EditorialAssignment(
+            submission=submission,
+            to=submission.editor_in_charge,
+            accepted=True
+        )
+        assignment.save()
+        submission.save()
+        return submission
+
+    @transaction.atomic
     def save(self):
         """
         Prefill instance before save.
@@ -284,6 +304,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         submission.save()
         if self.submission_is_resubmission():
             submission = self.copy_and_save_data_from_resubmission(submission)
+            submission = self.reassign_eic_and_admins(submission)
         submission.authors.add(self.requested_by.contributor)
         return submission
 

@@ -59,10 +59,22 @@ class RequestSubmission(CreateView):
         kwargs['requested_by'] = self.request.user
         return kwargs
 
+    @transaction.atomic
     def form_valid(self, form):
+        submission = form.save()
         text = ('<h3>Thank you for your Submission to SciPost</h3>'
                 'Your Submission will soon be handled by an Editor.')
         messages.success(self.request, text)
+
+        if form.submission_is_resubmission():
+            # Send emails
+            SubmissionUtils.load({'submission': submission}, self.request)
+            SubmissionUtils.send_authors_resubmission_ack_email()
+            SubmissionUtils.send_EIC_reappointment_email()
+        else:
+            # Send emails
+            SubmissionUtils.load({'submission': submission})
+            SubmissionUtils.send_authors_submission_ack_email()
         return super().form_valid(form)
 
 
