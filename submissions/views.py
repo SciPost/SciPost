@@ -567,7 +567,7 @@ def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def select_referee(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+    submission = get_object_or_404(Submission.objects.filter_editorial_page(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     context = {}
     queryresults = ''
@@ -614,7 +614,7 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
     The pending refereeing invitation is then recognized upon registration,
     using the invitation token.
     """
-    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+    submission = get_object_or_404(Submission.objects.filter_editorial_page(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if request.method == 'POST':
         ref_recruit_form = RefereeRecruitmentForm(request.POST)
