@@ -77,6 +77,12 @@ class RequestSubmission(CreateView):
             SubmissionUtils.send_authors_submission_ack_email()
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        # r = form.errors
+        for error_messages in form.errors.values():
+            messages.warning(self.request, *error_messages)
+        return super().form_invalid(form)
+
 
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
 def prefill_using_arxiv_identifier(request):
@@ -84,7 +90,16 @@ def prefill_using_arxiv_identifier(request):
     if query_form.is_valid():
         prefill_data = query_form.request_arxiv_preprint_form_prefill_data()
         form = RequestSubmissionForm(initial=prefill_data)
-        messages.success(request, strings.acknowledge_arxiv_query, fail_silently=True)
+
+        # Submit message to user
+        if query_form.submission_is_resubmission():
+            resubmessage = ('There already exists a preprint with this arXiv identifier '
+                            'but a different version number. \nYour Submission will be '
+                            'handled as a resubmission.')
+            messages.success(request, resubmessage, fail_silently=True)
+        else:
+            messages.success(request, strings.acknowledge_arxiv_query, fail_silently=True)
+
         context = {
             'form': form,
         }

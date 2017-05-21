@@ -88,9 +88,6 @@ class SubmissionChecks:
             self.last_submission = submission
             if submission.status == STATUS_REVISION_REQUESTED:
                 self.is_resubmission = True
-                # resubmessage = ('There already exists a preprint with this arXiv identifier '
-                #                 'but a different version number. \nYour Submission will be '
-                #                 'handled as a resubmission.')
             elif submission.status in [STATUS_REJECTED, STATUS_REJECTED_VISIBLE]:
                 error_message = ('This arXiv preprint has previously undergone refereeing '
                                  'and has been rejected. Resubmission is only possible '
@@ -100,7 +97,7 @@ class SubmissionChecks:
             else:
                 error_message = ('There exists a preprint with this arXiv identifier '
                                  'but an earlier version number, which is still undergoing '
-                                 'peer refereeing.'
+                                 'peer refereeing. '
                                  'A resubmission can only be performed after request '
                                  'from the Editor-in-charge. Please wait until the '
                                  'closing of the previous refereeing round and '

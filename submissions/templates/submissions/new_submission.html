@@ -34,7 +34,14 @@ $(document).ready(function(){
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Submit a manuscript to SciPost</h1>
+        <div class="card card-grey">
+            <div class="card-block">
+                <h1 class="card-title mb-0">Submit a manuscript to SciPost</h1>
+                {% if form.arxiv_identifier_w_vn_nr.value %}<h2 class="my-1 py-0 text-blue">{{form.arxiv_identifier_w_vn_nr.value}}{% if form.is_resubmission.value %} <small>(resubmission)</small>{% endif %}</h2>{% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
         <p class="mb-1">
             Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
         </p>
