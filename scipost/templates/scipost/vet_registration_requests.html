@@ -41,7 +41,7 @@ $(function() {
     {% if not forloop.first %}<hr class="small">{% endif %}
     <div class="row">
         <div class="col-md-4">
-            {% include "scipost/_private_info_as_table.html" with contributor=contributor %}
+            {% include "scipost/_private_info_as_table.html" with contributor=contributor_to_vet %}
         </div>
         <div class="col-md-8">
             <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">
