@@ -9,7 +9,10 @@
 
     {% if current_user and current_user.contributor == submission.submitted_by %}
         <p>
-            <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='AtoE' %}">Write to the Editor-in-charge</a>.
+            <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='AtoE' %}">Write to the Editor-in-charge</a>
+            {% if submission.status == 'revision_requested' %}
+            &middot; <a href="{% url 'submissions:prefill_using_identifier' %}?identifier={{submission.arxiv_identifier_wo_vn_nr}}">Resubmit this manuscript</a>
+            {% endif %}
         </p>
     {% endif %}
 {% endblock %}
