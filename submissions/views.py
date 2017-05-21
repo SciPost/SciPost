@@ -924,13 +924,15 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 @transaction.atomic
 def eic_recommendation(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+    submission = get_object_or_404(Submission.objects.filter_editorial_page(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if submission.eic_recommendation_required():
         messages.warning(request, ('<h3>An Editorial Recommendation is not required</h3>'
                                    'This submission\'s current status is: <em>%s</em>'
                                    % submission.get_status_display()))
-        return redirect(reverse('scipost:editorial_page',
+        r = submission.arxiv_identifier_w_vn_nr
+        t = reverse('submissions:editorial_page', args=[submission.arxiv_identifier_w_vn_nr])
+        return redirect(reverse('submissions:editorial_page',
                                 args=[submission.arxiv_identifier_w_vn_nr]))
 
     form = EICRecommendationForm(request.POST or None)
