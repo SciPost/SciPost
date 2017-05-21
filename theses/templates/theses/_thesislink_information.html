@@ -1,6 +1,6 @@
 {% load theses_extras %}
 
-<table>
+<table class="mb-3">
     <tr>
         <td>Title: </td><td>&nbsp;</td><td>{{ thesislink.title }}</td>
     </tr>
@@ -9,15 +9,13 @@
     </tr>
     <tr>
         <td>As Contributor: </td><td>&nbsp;</td>
-        {% if thesislink.author_as_cont.all %}
+        <td>
             {% for author in thesislink.author_as_cont.all %}
-                <td><a href= {% url 'scipost:contributor_info' author.id %}>
-                        {{ author.user.first_name }} {{ author.user.last_name }}
-                </a></td>
+                {% if not forloop.first %} &middot; {% endif %}<a href= {% url 'scipost:contributor_info' author.id %}>{{ author.user.first_name }} {{ author.user.last_name }}</a>
+            {% empty %}
+                (not claimed)
             {% endfor %}
-        {% else %}
-            <td>(not claimed)</td>
-        {% endif %}
+        </td>
     </tr>
     <tr>
         <td>Type: </td><td></td><td>  {{ thesislink|type }}</td>

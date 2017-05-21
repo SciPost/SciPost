@@ -6,7 +6,6 @@
 
 {% block content %}
 
-
 <script>
 $(document).ready(function(){
   $('select#id_submitted_to_journal').on('change', function (){
@@ -19,16 +18,6 @@ $(document).ready(function(){
           $("#id_submission_type").parents('.form-group').hide()
       }
   }).trigger('change');
-
-  var isresub = $("#id_is_resubmission").val();
-  switch(isresub){
-    case "True":
-      $("#id_author_comments, #id_list_of_changes").parents('.form-group').show();
-      break;
-    default:
-      $("#id_author_comments, #id_list_of_changes").parents('.form-group').hide();
-  }
-
 });
 </script>
 
@@ -37,7 +26,7 @@ $(document).ready(function(){
         <div class="card card-grey">
             <div class="card-block">
                 <h1 class="card-title mb-0">Submit a manuscript to SciPost</h1>
-                {% if form.arxiv_identifier_w_vn_nr.value %}<h2 class="my-1 py-0 text-blue">{{form.arxiv_identifier_w_vn_nr.value}}{% if form.is_resubmission.value %} <small>(resubmission)</small>{% endif %}</h2>{% endif %}
+                {% if form.arxiv_identifier_w_vn_nr.value %}<h2 class="my-1 py-0 text-blue">{{form.arxiv_identifier_w_vn_nr.value}}{% if form.submission_is_resubmission %} <small>(resubmission)</small>{% endif %}</h2>{% endif %}
             </div>
         </div>
     </div>

@@ -49,6 +49,13 @@ class SubmissionChecks:
     is_resubmission = False
     last_submission = None
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Prefill `is_resubmission` property if data is coming from initial data
+        if kwargs.get('initial', None):
+            if kwargs['initial'].get('is_resubmission', None):
+                self.is_resubmission = kwargs['initial']['is_resubmission'] in ('True', True)
+
     def _submission_already_exists(self, identifier):
         if Submission.objects.filter(arxiv_identifier_w_vn_nr=identifier).exists():
             error_message = 'This preprint version has already been submitted to SciPost.'
@@ -184,27 +191,38 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             'referees_suggested',
             'referees_flagged'
         ]
+        widgets = {
+            'is_resubmission': forms.HiddenInput(),
+            'arxiv_identifier_w_vn_nr': forms.HiddenInput(),
+            'secondary_areas': forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
+        }
 
     def __init__(self, *args, **kwargs):
         self.requested_by = kwargs.pop('requested_by', None)
         super().__init__(*args, **kwargs)
-        self.fields['is_resubmission'].widget = forms.HiddenInput()
-        self.fields['arxiv_identifier_w_vn_nr'].widget = forms.HiddenInput()
-        self.fields['arxiv_link'].widget.attrs.update(
-            {'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
-        self.fields['secondary_areas'].widget = forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
+
+        if not self.submission_is_resubmission():
+            # These fields are only available for resubmissions
+            del self.fields['author_comments']
+            del self.fields['list_of_changes']
+        else:
+            self.fields['author_comments'].widget.attrs.update({
+                'placeholder': 'Your resubmission letter (will be viewable online)', })
+            self.fields['list_of_changes'].widget.attrs.update({
+                'placeholder': 'Give a point-by-point list of changes (will be viewable online)'})
+
+        # Update placeholder for the other fields
+        self.fields['arxiv_link'].widget.attrs.update({
+            'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
         self.fields['abstract'].widget.attrs.update({'cols': 100})
-        self.fields['author_comments'].widget.attrs.update({
-            'placeholder': 'Your resubmission letter (will be viewable online)', })
-        self.fields['list_of_changes'].widget.attrs.update({
-            'placeholder': 'Give a point-by-point list of changes (will be viewable online)', })
         self.fields['remarks_for_editors'].widget.attrs.update({
             'placeholder': 'Any private remarks (for the editors only)', })
         self.fields['referees_suggested'].widget.attrs.update({
             'placeholder': 'Optional: names of suggested referees',
             'rows': 3})
         self.fields['referees_flagged'].widget.attrs.update({
-            'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)',
+            'placeholder': ('Optional: names of referees whose reports should'
+                            ' be treated with caution (+ short reason)'),
             'rows': 3})
 
     def clean(self, *args, **kwargs):
