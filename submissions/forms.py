@@ -200,7 +200,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         self.requested_by = kwargs.pop('requested_by', None)
         super().__init__(*args, **kwargs)
 
-        if self.submission_is_resubmission():
+        if not self.submission_is_resubmission():
             # These fields are only available for resubmissions
             del self.fields['author_comments']
             del self.fields['list_of_changes']
