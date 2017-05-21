@@ -80,10 +80,12 @@ class ArxivCaller:
     def _call_arxiv(self):
         url = self.query_base_url % self.identifier
         request = requests.get(url)
-        arxiv_data = feedparser.parse(request.content)['entries'][0]
+        response_content = feedparser.parse(request.content)
+        arxiv_data = response_content['entries'][0]
         if self._search_result_present(arxiv_data):
             self.is_valid = True
             self._arxiv_data = arxiv_data
+            self.metadata = response_content
         else:
             self.is_valid = False
 
@@ -99,9 +101,11 @@ class ArxivCaller:
 
         self.data = {
             'pub_title': pub_title,
+            'title': pub_title,  # Duplicate for Commentary/Submission cross-compatibility
             'author_list': author_list,
             'arxiv_link': arxiv_link,
             'pub_abstract': abstract,
+            'abstract': abstract,  # Duplicate for Commentary/Submission cross-compatibility
             'pub_date': pub_date,
         }
 

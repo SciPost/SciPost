@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import permission_required
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
@@ -103,22 +104,14 @@ def prefill_using_arxiv_identifier(request):
 
 
 @permission_required('scipost.can_vet_commentary_requests', raise_exception=True)
-def vet_commentary_requests(request):
+def vet_commentary_requests(request, commentary_id=None):
     """Show the first commentary thats awaiting vetting"""
-    contributor = Contributor.objects.get(user=request.user)
-    commentary_to_vet = (Commentary.objects.awaiting_vetting()
-                         .exclude(requested_by=contributor).first())  # only handle one at a time
-    form = VetCommentaryForm()
-    context = {'contributor': contributor, 'commentary_to_vet': commentary_to_vet, 'form': form}
-    return render(request, 'commentaries/vet_commentary_requests.html', context)
-
-
-@permission_required('scipost.can_vet_commentary_requests', raise_exception=True)
-def vet_commentary_request_ack(request, commentary_id):
-    # Security fix: Smart asses can vet their own commentary without this line.
-    #               Commentary itself not really being used.
-    get_object_or_404((Commentary.objects.awaiting_vetting()
-                       .exclude(requested_by=request.user.contributor)), id=commentary_id)
+    queryset = Commentary.objects.awaiting_vetting().exclude(requested_by=request.user.contributor)
+    if commentary_id:
+        # Security fix: Smart asses can vet their own commentary without this line.
+        commentary_to_vet = get_object_or_404(queryset, id=commentary_id)
+    else:
+        commentary_to_vet = queryset.first()
 
     form = VetCommentaryForm(request.POST or None, user=request.user, commentary_id=commentary_id)
     if form.is_valid():
@@ -131,21 +124,14 @@ def vet_commentary_request_ack(request, commentary_id):
         # Retrieve email_template for action
         if form.commentary_is_accepted():
             email_template = 'commentaries/vet_commentary_email_accepted.html'
-        elif form.commentary_is_modified():
-            email_template = 'commentaries/vet_commentary_email_modified.html'
-
-            request_commentary_form = RequestCommentaryForm(initial={
-                'pub_title': commentary.pub_title,
-                'arxiv_link': commentary.arxiv_link,
-                'pub_DOI_link': commentary.pub_DOI_link,
-                'author_list': commentary.author_list,
-                'pub_date': commentary.pub_date,
-                'pub_abstract': commentary.pub_abstract
-            })
         elif form.commentary_is_refused():
             email_template = 'commentaries/vet_commentary_email_rejected.html'
             email_context['refusal_reason'] = form.get_refusal_reason()
             email_context['further_explanation'] = form.cleaned_data['email_response_field']
+        elif form.commentary_is_modified():
+            # For a modified commentary, redirect to request_commentary_form
+            return redirect(reverse('commentaries:modify_commentary_request',
+                                    args=(commentary.id,)))
 
         # Send email and process form
         email_text = render_to_string(email_template, email_context)
@@ -159,16 +145,49 @@ def vet_commentary_request_ack(request, commentary_id):
         emailmessage.send(fail_silently=False)
         commentary = form.process_commentary()
 
-        # For a modified commentary, redirect to request_commentary_form
-        if form.commentary_is_modified():
-            context = {'form': request_commentary_form}
-            return render(request, 'commentaries/request_commentary.html', context)
+        messages.success(request, 'SciPost Commentary request vetted.')
+        return redirect(reverse('commentaries:vet_commentary_requests'))
 
-    context = {'ack_header': 'SciPost Commentary request vetted.',
-               'followup_message': 'Return to the ',
-               'followup_link': reverse('commentaries:vet_commentary_requests'),
-               'followup_link_label': 'Commentary requests page'}
-    return render(request, 'scipost/acknowledgement.html', context)
+    context = {
+        'commentary_to_vet': commentary_to_vet,
+        'form': form
+    }
+    return render(request, 'commentaries/vet_commentary_requests.html', context)
+
+
+@permission_required('scipost.can_vet_commentary_requests', raise_exception=True)
+def modify_commentary_request(request, commentary_id):
+    """Modify a commentary request after vetting with status 'modified'."""
+    commentary = get_object_or_404((Commentary.objects.awaiting_vetting()
+                                    .exclude(requested_by=request.user.contributor)),
+                                    id=commentary_id)
+    form = RequestCommentaryForm(request.POST or None, instance=commentary)
+    if form.is_valid():
+        # Process commentary data
+        commentary = form.save(commit=False)
+        commentary.vetted = True
+        commentary.save()
+
+        # Send email and process form
+        email_template = 'commentaries/vet_commentary_email_modified.html'
+        email_text = render_to_string(email_template, {'commentary': commentary})
+        email_args = (
+            'SciPost Commentary Page activated',
+            email_text,
+            commentary.requested_by.user.email,
+            ['commentaries@scipost.org']
+        )
+        emailmessage = EmailMessage(*email_args, reply_to=['commentaries@scipost.org'])
+        emailmessage.send(fail_silently=False)
+
+        messages.success(request, 'SciPost Commentary request modified and vetted.')
+        return redirect(reverse('commentaries:vet_commentary_requests'))
+
+    context = {
+        'commentary': commentary,
+        'form': form
+    }
+    return render(request, 'commentaries/modify_commentary_request.html', context)
 
 
 class CommentaryListView(ListView):

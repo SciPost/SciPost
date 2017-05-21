@@ -6,6 +6,8 @@ STATUS_AWAITING_ED_REC = 'awaiting_ed_rec'
 STATUS_REVIEW_CLOSED = 'review_closed'
 STATUS_ACCEPTED = 'accepted'
 STATUS_PUBLISHED = 'published'
+STATUS_REJECTED = 'rejected'
+STATUS_REJECTED_VISIBLE = 'rejected_visible'
 STATUS_RESUBMITTED = 'resubmitted'
 STATUS_RESUBMITTED_REJECTED = 'resubmitted_and_rejected'
 STATUS_RESUBMITTED_REJECTED_VISIBLE = 'resubmitted_and_rejected_visible'
@@ -27,8 +29,8 @@ SUBMISSION_STATUS = (
     (STATUS_AWAITING_ED_REC, 'Awaiting Editorial Recommendation'),
     ('EC_vote_completed', 'Editorial College voting rounded up'),
     (STATUS_ACCEPTED, 'Publication decision taken: accept'),
-    ('rejected', 'Publication decision taken: reject'),
-    ('rejected_visible', 'Publication decision taken: reject (still publicly visible)'),
+    (STATUS_REJECTED, 'Publication decision taken: reject'),
+    (STATUS_REJECTED_VISIBLE, 'Publication decision taken: reject (still publicly visible)'),
     (STATUS_PUBLISHED, 'Published'),
     # If withdrawn:
     ('withdrawn', 'Withdrawn by the Authors'),
