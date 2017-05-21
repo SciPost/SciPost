@@ -930,8 +930,6 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
         messages.warning(request, ('<h3>An Editorial Recommendation is not required</h3>'
                                    'This submission\'s current status is: <em>%s</em>'
                                    % submission.get_status_display()))
-        r = submission.arxiv_identifier_w_vn_nr
-        t = reverse('submissions:editorial_page', args=[submission.arxiv_identifier_w_vn_nr])
         return redirect(reverse('submissions:editorial_page',
                                 args=[submission.arxiv_identifier_w_vn_nr]))
 
