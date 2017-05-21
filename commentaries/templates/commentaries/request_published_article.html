@@ -6,14 +6,20 @@
 
 {% block content %}
 
+
 <div class="row">
     <div class="col-12">
-      <h1 class="page-header">Request Activation of a Commentary Page</h1>
+        <div class="card card-grey">
+            <div class="card-block">
+              <h1 class="card-title">Request Activation of a Commentary Page</h1>
+              <a href="{% url 'commentaries:request_arxiv_preprint' %}">Click here to request a Commentary Page on an arXiv preprint</a>
+          </div>
+        </div>
     </div>
 </div>
 
 <div class="row">
-    <div class='col-12 col-md-8'>
+    <div class='col-md-8 offset-md-2'>
         <form action="{% url 'commentaries:prefill_using_DOI' %}" method="post">
           {% csrf_token %}
           {{ query_form|bootstrap }}
@@ -23,7 +29,7 @@
 </div>
 
 <div class="row">
-    <div class='col-12 col-md-8'>
+    <div class='col-md-8 offset-md-2'>
         <form id="requestForm" action="{% url 'commentaries:request_published_article' %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap }}
