@@ -10,7 +10,7 @@
     <ul class="list-group list-group-flush">
       {% for stream in streams %}
       <li class="list-group-item">
-	{% include 'journals/_production_stream_card.html' with stream=stream form=prodevent_form %}
+	{% include 'production/_production_stream_card.html' with stream=stream form=prodevent_form %}
       </li>
       <hr/>
       {% endfor %}

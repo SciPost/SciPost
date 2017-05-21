@@ -4,22 +4,22 @@ import feedparser
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 
 from guardian.decorators import permission_required_or_403
-from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import assign_perm
 
 from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication
-from .forms import SubmissionIdentifierForm, SubmissionForm, SubmissionSearchForm,\
+from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm,\
                    RecommendationVoteForm, ConsiderAssignmentForm, AssignSubmissionForm,\
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
                    ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
@@ -27,135 +27,46 @@ from .forms import SubmissionIdentifierForm, SubmissionForm, SubmissionSearchFor
                    SubmissionCycleChoiceForm
 from .utils import SubmissionUtils
 
-from journals.constants import SCIPOST_JOURNALS_SPECIALIZATIONS
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, Remark, RegistrationInvitation
-from scipost.services import ArxivCaller
 from scipost.utils import Utils
-from strings import arxiv_caller_errormessages_submissions
 
 from comments.forms import CommentForm
+from production.models import ProductionStream
 
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
+
+import strings
 
 
 ###############
 # SUBMISSIONS:
 ###############
 
-class PrefillUsingIdentifierView(PermissionRequiredMixin, FormView):
-    form_class = SubmissionIdentifierForm
-    template_name = 'submissions/prefill_using_identifier.html'
-    permission_required = 'scipost.can_submit_manuscript'
-    raise_exception = True
-
-    def post(self, request):
-        identifierform = SubmissionIdentifierForm(request.POST)
-        if identifierform.is_valid():
-            # Use the ArxivCaller class to make the API calls
-            caller = ArxivCaller(Submission, identifierform.cleaned_data['identifier'])
-            caller.process()
-
-            if caller.is_valid():
-                # Arxiv response is valid and can be shown
-
-                metadata = caller.metadata
-                is_resubmission = caller.resubmission
-                title = metadata['entries'][0]['title']
-                authorlist = metadata['entries'][0]['authors'][0]['name']
-                for author in metadata['entries'][0]['authors'][1:]:
-                    authorlist += ', ' + author['name']
-                arxiv_link = metadata['entries'][0]['id']
-                abstract = metadata['entries'][0]['summary']
-                initialdata = {'is_resubmission': is_resubmission,
-                               'metadata': metadata,
-                               'title': title, 'author_list': authorlist,
-                               'arxiv_identifier_w_vn_nr': caller.identifier_with_vn_nr,
-                               'arxiv_identifier_wo_vn_nr': caller.identifier_without_vn_nr,
-                               'arxiv_vn_nr': caller.version_nr,
-                               'arxiv_link': arxiv_link, 'abstract': abstract}
-                if is_resubmission:
-                    previous_submissions = caller.previous_submissions
-                    resubmessage = ('There already exists a preprint with this arXiv identifier '
-                                    'but a different version number. \nYour Submission will be '
-                                    'handled as a resubmission.')
-                    initialdata['submitted_to_journal'] = previous_submissions[0].submitted_to_journal
-                    initialdata['submission_type'] = previous_submissions[0].submission_type
-                    initialdata['discipline'] = previous_submissions[0].discipline
-                    initialdata['domain'] = previous_submissions[0].domain
-                    initialdata['subject_area'] = previous_submissions[0].subject_area
-                    initialdata['secondary_areas'] = previous_submissions[0].secondary_areas
-                    initialdata['referees_suggested'] = previous_submissions[0].referees_suggested
-                    initialdata['referees_flagged'] = previous_submissions[0].referees_flagged
-                else:
-                    resubmessage = ''
-
-                form = SubmissionForm(initial=initialdata)
-                context = {'identifierform': identifierform,
-                           'form': form,
-                           'resubmessage': resubmessage}
-                return render(request, 'submissions/new_submission.html', context)
-
-            else:
-                msg = caller.get_error_message(arxiv_caller_errormessages_submissions)
-                identifierform.add_error(None, msg)
-                return render(request, 'submissions/prefill_using_identifier.html',
-                              {'form': identifierform})
-        else:
-            return render(request, 'submissions/prefill_using_identifier.html',
-                          {'form': identifierform})
-
-
-class SubmissionCreateView(PermissionRequiredMixin, CreateView):
-    model = Submission
-    form_class = SubmissionForm
-
+@method_decorator(permission_required('scipost.can_submit_manuscript', raise_exception=True),
+                  name='dispatch')
+class RequestSubmission(CreateView):
+    success_url = reverse_lazy('scipost:personal_page')
+    form_class = RequestSubmissionForm
     template_name = 'submissions/new_submission.html'
-    permission_required = 'scipost.can_submit_manuscript'
-    # Required to use Guardian's CBV PermissionRequiredMixin with a CreateView
-    # (see https://github.com/django-guardian/django-guardian/pull/433)
-    permission_object = None
-    raise_exception = True
 
     def get(self, request):
-        # Only use prefilled forms
         return redirect('submissions:prefill_using_identifier')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['requested_by'] = self.request.user
+        return kwargs
 
     @transaction.atomic
     def form_valid(self, form):
-        submitted_by = Contributor.objects.get(user=self.request.user)
-        form.instance.submitted_by = submitted_by
-
-        # Temporary until moved to new Arxiv Caller
-        # Check submitting user for authorship !
-        # With the new Arxiv caller, this message should already be given in the prefil form!
-        if not form.check_user_may_submit(self.request.user):
-            msg = ('Your name does not match that of any of the authors. '
-                   'You are not authorized to submit this preprint.')
-            messages.error(self.request, msg)
-            return redirect('submissions:prefill_using_identifier')
-
-        # Save all the information contained in the form
         submission = form.save()
+        text = ('<h3>Thank you for your Submission to SciPost</h3>'
+                'Your Submission will soon be handled by an Editor.')
+        messages.success(self.request, text)
 
-        # Perform all extra actions and set information not contained in the form
-        submission.finish_submission()
-
-        if submission.is_resubmission:
-            # Assign permissions
-            assign_perm('can_take_editorial_actions', submission.editor_in_charge.user, submission)
-            ed_admins = Group.objects.get(name='Editorial Administrators')
-            assign_perm('can_take_editorial_actions', ed_admins, submission)
-
-            # Assign editor
-            assignment = EditorialAssignment(
-                submission=submission,
-                to=submission.editor_in_charge,
-                accepted=True
-            )
-            assignment.save()
-
+        if form.submission_is_resubmission():
             # Send emails
             SubmissionUtils.load({'submission': submission}, self.request)
             SubmissionUtils.send_authors_resubmission_ack_email()
@@ -164,23 +75,40 @@ class SubmissionCreateView(PermissionRequiredMixin, CreateView):
             # Send emails
             SubmissionUtils.load({'submission': submission})
             SubmissionUtils.send_authors_submission_ack_email()
+        return super().form_valid(form)
 
-        text = ('<h3>Thank you for your Submission to SciPost</h3>'
-                'Your Submission will soon be handled by an Editor.')
-        messages.success(self.request, text)
-        return redirect(reverse('scipost:personal_page'))
+    def form_invalid(self, form):
+        # r = form.errors
+        for error_messages in form.errors.values():
+            messages.warning(self.request, *error_messages)
+        return super().form_invalid(form)
 
-    def mark_previous_submissions_as_deprecated(self, previous_submissions):
-        for sub in previous_submissions:
-            sub.is_current = False
-            sub.open_for_reporting = False
-            sub.status = 'resubmitted'
-            sub.save()
 
-    def previous_submissions(self, form):
-        return Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=form.cleaned_data['arxiv_identifier_wo_vn_nr']
-        )
+@permission_required('scipost.can_submit_manuscript', raise_exception=True)
+def prefill_using_arxiv_identifier(request):
+    query_form = SubmissionIdentifierForm(request.POST or None)
+    if query_form.is_valid():
+        prefill_data = query_form.request_arxiv_preprint_form_prefill_data()
+        form = RequestSubmissionForm(initial=prefill_data)
+
+        # Submit message to user
+        if query_form.submission_is_resubmission():
+            resubmessage = ('There already exists a preprint with this arXiv identifier '
+                            'but a different version number. \nYour Submission will be '
+                            'handled as a resubmission.')
+            messages.success(request, resubmessage, fail_silently=True)
+        else:
+            messages.success(request, strings.acknowledge_arxiv_query, fail_silently=True)
+
+        context = {
+            'form': form,
+        }
+        return render(request, 'submissions/new_submission.html', context)
+
+    context = {
+        'form': query_form,
+    }
+    return render(request, 'submissions/prefill_using_identifier.html', context)
 
 
 class SubmissionListView(ListView):
@@ -1290,6 +1218,10 @@ def fix_College_decision(request, rec_id):
     if recommendation.recommendation in [1, 2, 3]:
         # Publish as Tier I, II or III
         recommendation.submission.status = 'accepted'
+        # Create a ProductionStream object
+        prodstream = ProductionStream(submission=recommendation.submission,
+                                      opened=timezone.now())
+        prodstream.save()
     elif recommendation.recommendation == -3:
         # Reject
         recommendation.submission.status = 'rejected'

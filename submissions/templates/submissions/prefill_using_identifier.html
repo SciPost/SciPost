@@ -6,35 +6,6 @@
 
 {% block content %}
 
-<script>
-$(document).ready(function(){
-  $("#id_submission_type").closest('tr').hide()
-
-  $('select#id_submitted_to_journal').on('change', function (){
-  var selection = $(this).val();
-  switch(selection){
-    case "SciPost Physics":
-      $("#id_submission_type").closest('tr').show()
-      break;
-    default:
-      $("#id_submission_type").closest('tr').hide()
-  }
-});
-
-  var isresub = $("#id_is_resubmission").val();
-  switch(isresub){
-    case "True":
-      $("#id_author_comments").closest('tr').show()
-      $("#id_list_of_changes").closest('tr').show()
-      break;
-    default:
-      $("#id_author_comments").closest('tr').hide()
-      $("#id_list_of_changes").closest('tr').hide()
-  }
-
-});
-</script>
-
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Submit a manuscript to SciPost</h1>
@@ -70,11 +41,6 @@ $(document).ready(function(){
         </div>
     </div>
 </div>
-
-
-    {% if resubmessage %}
-      <h3 class="text-success">{{ resubmessage }}</h3>
-    {% endif %}
 
 {% else %}
   <h3>You are currently not allowed to submit a manuscript.</h3>

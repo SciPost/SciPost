@@ -1,0 +1,55 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Supporting Partners: manage{% endblock pagetitle %}
+
+
+{% block content %}
+
+<div class="flex-container">
+  <div class="flex-greybox">
+    <h1>Partners Management Page</h1>
+  </div>
+</div>
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h2>Partners</h2>
+    </div>
+  </div>
+  <ul class="list-group list-group-flush">
+    {% for partner in partners %}
+    <li class="list-group-item">{% include 'partners/_partner_card.html' with partner=partner %}</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h2>Prospective Partners (not yet processed)</h2>
+    </div>
+  </div>
+  <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
+  <br/>
+  <ul class="list-group list-group-flush">
+    {% for partner in prospective_partners %}
+    <li class="list-group-item">{% include 'partners/_prospective_partner_card.html' with pp=partner %}</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h2>Agreements</h2>
+    </div>
+  </div>
+  <ul>
+    {% for agreement in agreements %}
+    <li>{{ agreement }}</li>
+    {% endfor %}
+  </ul>
+</section>
+
+{% endblock content %}

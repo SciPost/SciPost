@@ -8,7 +8,7 @@ from django.contrib.auth.models import User, Permission
 from scipost.models import Contributor, Remark,\
                            DraftInvitation,\
                            AffiliationObject,\
-                           SupportingPartner, SPBMembershipAgreement, RegistrationInvitation,\
+                           RegistrationInvitation,\
                            AuthorshipClaim, PrecookedEmail,\
                            EditorialCollege, EditorialCollegeFellowship
 
@@ -125,20 +125,6 @@ class AffiliationObjectAdmin(admin.ModelAdmin):
 
 admin.site.register(AffiliationObject, AffiliationObjectAdmin)
 
-
-class SPBMembershipAgreementInline(admin.StackedInline):
-    model = SPBMembershipAgreement
-
-
-class SupportingPartnerAdmin(admin.ModelAdmin):
-    search_fields = ['institution', 'institution_acronym',
-                     'institution_address', 'contact_person']
-    inlines = [
-        SPBMembershipAgreementInline,
-    ]
-
-
-admin.site.register(SupportingPartner, SupportingPartnerAdmin)
 
 
 class EditorialCollegeAdmin(admin.ModelAdmin):

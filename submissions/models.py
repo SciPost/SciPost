@@ -132,69 +132,6 @@ class Submission(ArxivCallable, models.Model):
     def reporting_deadline_has_passed(self):
         return timezone.now() > self.reporting_deadline
 
-    @transaction.atomic
-    def finish_submission(self):
-        if self.is_resubmission:
-            # If submissions is a resubmission, the submission needs to be prescreened
-            # by the EIC to choose which of the available submission cycle to assign
-            self.mark_other_versions_as_deprecated()
-            self.copy_authors_from_previous_version()
-            self.copy_EIC_from_previous_version()
-            self.set_resubmission_defaults()
-            self.status = STATUS_RESUBMISSION_INCOMING
-        else:
-            self.authors.add(self.submitted_by)
-
-        self.save()
-
-    @classmethod
-    def same_version_exists(self, identifier):
-        return self.objects.filter(arxiv_identifier_w_vn_nr=identifier).exists()
-
-    @classmethod
-    def different_versions(self, identifier):
-        return self.objects.filter(arxiv_identifier_wo_vn_nr=identifier).order_by('-arxiv_vn_nr')
-
-    def make_assignment(self):
-        assignment = EditorialAssignment(
-            submission=self,
-            to=self.editor_in_charge,
-            accepted=True,
-            date_created=timezone.now(),
-            date_answered=timezone.now(),
-        )
-        assignment.save()
-
-    def set_resubmission_defaults(self):
-        self.open_for_reporting = True
-        self.open_for_commenting = True
-        if self.other_versions()[0].submitted_to_journal == 'SciPost Physics Lecture Notes':
-            self.reporting_deadline = timezone.now() + datetime.timedelta(days=56)
-        else:
-            self.reporting_deadline = timezone.now() + datetime.timedelta(days=28)
-
-    def copy_EIC_from_previous_version(self):
-        last_version = self.other_versions()[0]
-        self.editor_in_charge = last_version.editor_in_charge
-        self.status = 'EICassigned'
-
-    def copy_authors_from_previous_version(self):
-        last_version = self.other_versions()[0]
-
-        for author in last_version.authors.all():
-            self.authors.add(author)
-        for author in last_version.authors_claims.all():
-            self.authors_claims.add(author)
-        for author in last_version.authors_false_claims.all():
-            self.authors_false_claims.add(author)
-
-    def mark_other_versions_as_deprecated(self):
-        for sub in self.other_versions():
-            sub.is_current = False
-            sub.open_for_reporting = False
-            sub.status = 'resubmitted'
-            sub.save()
-
     def other_versions(self):
         return Submission.objects.filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr

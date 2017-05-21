@@ -11,7 +11,7 @@
         <td>As Contributors:</td>
         <td>
             {% for author in commentary.authors.all %}
-                <a href="{% url 'scipost:contributor_info' author.id %}">{{author.user.first_name}} {{author.user.last_name}}</a>
+                {% if not forloop.first %} &middot; {% endif %}<a href="{% url 'scipost:contributor_info' author.id %}">{{author.user.first_name}} {{author.user.last_name}}</a>
             {% empty %}
                 (none claimed)
             {% endfor %}

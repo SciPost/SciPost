@@ -2,38 +2,79 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from django.test import TestCase, Client, RequestFactory
 
+from scipost.models import Contributor
 from scipost.factories import ContributorFactory, UserFactory
 
-from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory
-from .forms import CommentarySearchForm
+from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory, \
+    UnvettedArxivPreprintCommentaryFactory
+from .forms import CommentarySearchForm, RequestPublishedArticleForm
 from .models import Commentary
-from .views import RequestCommentary
+from .views import RequestPublishedArticle, prefill_using_DOI, RequestArxivPreprint
 from common.helpers.test import add_groups_and_permissions
+from common.helpers import model_form_data
 
 
-class RequestCommentaryTest(TestCase):
-    """Test cases for `request_commentary` view method"""
+class PrefillUsingDOITest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
-        self.view_url = reverse('commentaries:request_commentary')
-        self.login_url = reverse('scipost:login')
-        self.redirected_login_url = '%s?next=%s' % (self.login_url, self.view_url)
+        self.target = reverse('commentaries:prefill_using_DOI')
+        self.physrev_doi = '10.1103/PhysRevB.92.214427'
 
-    def test_redirects_if_not_logged_in(self):
-        request = self.client.get(self.view_url)
-        self.assertRedirects(request, self.redirected_login_url)
-
-    def test_valid_response_if_logged_in(self):
-        """Test different GET requests on view"""
-        request = RequestFactory().get(self.view_url)
+    def test_submit_valid_physrev_doi(self):
+        post_data = {'doi': self.physrev_doi}
+        request = RequestFactory().post(self.target, post_data)
         request.user = UserFactory()
-        response = RequestCommentary.as_view()(request)
+
+        response = prefill_using_DOI(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_post_invalid_forms(self):
-        """Test different kind of invalid RequestCommentaryForm submits"""
-        raise NotImplementedError
 
+class RequestPublishedArticleTest(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+        self.target = reverse('commentaries:request_published_article')
+        self.contributor = ContributorFactory()
+        self.commentary_instance = UnvettedCommentaryFactory.build(requested_by=self.contributor)
+        self.valid_form_data = model_form_data(self.commentary_instance, RequestPublishedArticleForm)
+
+    def test_commentary_gets_created_with_correct_type_and_link(self):
+        request = RequestFactory().post(self.target, self.valid_form_data)
+        request.user = self.contributor.user
+
+        self.assertEqual(Commentary.objects.count(), 0)
+        response = RequestPublishedArticle.as_view()(request)
+        self.assertEqual(Commentary.objects.count(), 1)
+
+        commentary = Commentary.objects.first()
+        self.assertEqual(commentary.pub_DOI, self.valid_form_data['pub_DOI'])
+        self.assertEqual(commentary.type, 'published')
+        self.assertEqual(commentary.arxiv_or_DOI_string, commentary.pub_DOI)
+        self.assertEqual(commentary.requested_by, self.contributor)
+
+
+class RequestArxivPreprintTest(TestCase):
+    def setUp(self):
+        add_groups_and_permissions()
+        self.target = reverse('commentaries:request_arxiv_preprint')
+        self.contributor = ContributorFactory()
+        self.commentary_instance = UnvettedArxivPreprintCommentaryFactory.build(requested_by=self.contributor)
+        self.valid_form_data = model_form_data(self.commentary_instance, RequestPublishedArticleForm)
+        # The form field is called 'identifier', while the model field is called 'arxiv_identifier',
+        # so model_form_data doesn't include it.
+        self.valid_form_data['arxiv_identifier'] = self.commentary_instance.arxiv_identifier
+
+    def test_commentary_gets_created_with_correct_type_and_link_and_requested_by(self):
+        request = RequestFactory().post(self.target, self.valid_form_data)
+        request.user = self.contributor.user
+
+        self.assertEqual(Commentary.objects.count(), 0)
+        response = RequestArxivPreprint.as_view()(request)
+        self.assertEqual(Commentary.objects.count(), 1)
+        commentary = Commentary.objects.first()
+        self.assertEqual(commentary.arxiv_identifier, self.valid_form_data['arxiv_identifier'])
+        self.assertEqual(commentary.type, 'preprint')
+        self.assertEqual(commentary.arxiv_or_DOI_string, "arXiv:" + self.commentary_instance.arxiv_identifier)
+        self.assertEqual(commentary.requested_by, self.contributor)
 
 class VetCommentaryRequestsTest(TestCase):
     """Test cases for `vet_commentary_requests` view method"""
@@ -77,12 +118,13 @@ class VetCommentaryRequestsTest(TestCase):
         self.assertEquals(response.context['commentary_to_vet'], None)
 
         # Only vetted Commentaries exist!
-        VettedCommentaryFactory()
+        # ContributorFactory.create_batch(5)
+        VettedCommentaryFactory(requested_by=ContributorFactory(), vetted_by=ContributorFactory())
         response = self.client.get(self.view_url)
         self.assertEquals(response.context['commentary_to_vet'], None)
 
         # Unvetted Commentaries do exist!
-        UnvettedCommentaryFactory()
+        UnvettedCommentaryFactory(requested_by=ContributorFactory())
         response = self.client.get(self.view_url)
         self.assertTrue(type(response.context['commentary_to_vet']) is Commentary)
 
@@ -92,7 +134,7 @@ class BrowseCommentariesTest(TestCase):
 
     def setUp(self):
         add_groups_and_permissions()
-        VettedCommentaryFactory(discipline='physics')
+        VettedCommentaryFactory(discipline='physics', requested_by=ContributorFactory())
         self.view_url = reverse('commentaries:browse', kwargs={
             'discipline': 'physics',
             'nrweeksback': '1'
@@ -104,7 +146,7 @@ class BrowseCommentariesTest(TestCase):
         self.assertEquals(response.status_code, 200)
 
         # The created vetted Commentary is found!
-        self.assertTrue(response.context['commentary_browse_list'].count() >= 1)
+        self.assertTrue(response.context['commentary_list'].count() >= 1)
         # The search form is passed trough the view...
         self.assertTrue(type(response.context['form']) is CommentarySearchForm)
 
@@ -113,7 +155,8 @@ class CommentaryDetailTest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.client = Client()
-        self.commentary = UnpublishedVettedCommentaryFactory()
+        self.commentary = UnpublishedVettedCommentaryFactory(
+            requested_by=ContributorFactory(), vetted_by=ContributorFactory())
         self.target = reverse(
             'commentaries:commentary',
             kwargs={'arxiv_or_DOI_string': self.commentary.arxiv_or_DOI_string}
@@ -122,3 +165,9 @@ class CommentaryDetailTest(TestCase):
     def test_status_code_200(self):
         response = self.client.get(self.target)
         self.assertEqual(response.status_code, 200)
+
+    def test_unvetted_commentary(self):
+        commentary = UnvettedCommentaryFactory(requested_by=ContributorFactory())
+        target = reverse('commentaries:commentary', kwargs={'arxiv_or_DOI_string': commentary.arxiv_or_DOI_string})
+        response = self.client.get(target)
+        self.assertEqual(response.status_code, 404)
