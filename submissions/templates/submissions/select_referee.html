@@ -72,29 +72,34 @@
 </div>
 {% endif %}
 
-{% if contributors_found %}
-    <h3>Identified as contributor:</h3>
-    <table>
-    {% for contributor in contributors_found %}
-    <tr><td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td><td>&nbsp;</td>
-    <td><a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td></tr>
-    {% endfor %}
-    </table>
-    {% elif ref_search_form.has_changed %}
-    <p>No Contributor with this last name could be identified.</p>
-{% endif %}
-
-
 <div class="row">
     <div class="col-12">
-        <p>You can send a registration and refereeing invitation by filling this form:</p>
-        <form action="{% url 'submissions:recruit_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
-            {% csrf_token %}
-            {{ ref_recruit_form|bootstrap }}
-            <input type="submit" name="submit" value="Send invitation" class="btn btn-primary">
-        </form>
+        {% if contributors_found %}
+                <h3>Identified as contributor:</h3>
+                <table>
+                {% for contributor in contributors_found %}
+                <tr><td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td><td>&nbsp;</td>
+                <td><a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td></tr>
+                {% endfor %}
+                </table>
+        {% elif ref_search_form.has_changed %}
+            <p>No Contributor with this last name could be identified.</p>
+        {% endif %}
     </div>
 </div>
+
+{% if ref_recruit_form %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-2">If the referee you were looking for was not found by using the method above, you can send a registration and refereeing invitation by filling this form:</h3>
+            <form action="{% url 'submissions:recruit_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+                {% csrf_token %}
+                {{ ref_recruit_form|bootstrap }}
+                <input type="submit" name="submit" value="Send invitation" class="btn btn-primary">
+            </form>
+        </div>
+    </div>
+{% endif %}
 
 
 {% endblock %}
