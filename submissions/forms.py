@@ -52,8 +52,9 @@ class SubmissionChecks:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Prefill `is_resubmission` property if data is coming from initial data
-        if kwargs.get('initial', {}).get('is_resubmission', None):
-            self.is_resubmission = kwargs['initial']['is_resubmission'] in ('True', True)
+        if kwargs.get('initial', None):
+            if kwargs['initial'].get('is_resubmission', None):
+                self.is_resubmission = kwargs['initial']['is_resubmission'] in ('True', True)
 
     def _submission_already_exists(self, identifier):
         if Submission.objects.filter(arxiv_identifier_w_vn_nr=identifier).exists():
