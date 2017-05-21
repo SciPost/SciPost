@@ -6,41 +6,38 @@
 
 {% load scipost_extras %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>SciPost Supporting Partners</h1>
+<div class="row">
+  <div class="col-12">
+      <h1 class="highlight">SciPost Supporting Partners</h1>
+      {% if perms.scipost.can_manage_SPB %}
+          <a href="{% url 'partners:manage' %}">Manage Partners</a>
+      {% endif %}
     </div>
-  </div>
+</div>
 
-  {% if perms.scipost.can_manage_SPB %}
-  <a href="{% url 'partners:manage' %}">Manage Partners</a>
-  {% endif %}
+<div class="row">
+  <div class="col-12">
+      <h3>Openness at strictly minimal cost: the role of professional academics</h3>
+      <p>A fundamental principle underlining all of SciPost’s activities is openness. This means in particular that SciPost guarantees free online access to all publications in all its Journals (free for readers; all articles are published under the terms of a Creative Commons license (most commonly CC-BY)), and does not charge any article processing fees for publishing (free for authors). All editorial activities are performed by professional academics as part of their normal professional duties: contributors to SciPost are demonstrably dedicated to serving their community, and to realizing the dream of true openness in scientific publishing. SciPost thus achieves the highest possible standards of academic quality and open accessibility while maintaining costs at the lowest achievable level.</p>
 
-  <div class="flex-container">
-    <div class="flex-whitebox">
-
-  <h3>Openness at strictly minimal cost: the role of professional academics</h3>
-  <p>A fundamental principle underlining all of SciPost’s activities is openness. This means in particular that SciPost guarantees free online access to all publications in all its Journals (free for readers; all articles are published under the terms of a Creative Commons license (most commonly CC-BY)), and does not charge any article processing fees for publishing (free for authors). All editorial activities are performed by professional academics as part of their normal professional duties: contributors to SciPost are demonstrably dedicated to serving their community, and to realizing the dream of true openness in scientific publishing. SciPost thus achieves the highest possible standards of academic quality and open accessibility while maintaining costs at the lowest achievable level.</p>
-
-  <h3>Financing and sustainability: the role of institutional backers</h3>
-  <p>Besides relying on the dedicated service of professional scientists for many of its day-to-day operations, SciPost must additionally rely on institutional backers for sustaining its professional-level publishing facilities and other activities. This backing is sought primarily from the organizations which are positively impacted by its activities, directly or indirectly: (inter)national funding agencies, universities, national/university/research libraries, academic consortia, governments and ministries, foundations, benefactors and further interested parties. This financial backing cannot take the form of article processing charges or journal subscriptions, due to SciPost’s operating principles: rather, Supporting Partners provide operating funds to SciPost, these funds being pooled in order to cover maintenance and operation of the web infrastructure at SciPost.org, administration of all site-related activities, production of publications in SciPost Journals and development of new publishing-related services for the international scientific community.</p>
+      <h3>Financing and sustainability: the role of institutional backers</h3>
+      <p>Besides relying on the dedicated service of professional scientists for many of its day-to-day operations, SciPost must additionally rely on institutional backers for sustaining its professional-level publishing facilities and other activities. This backing is sought primarily from the organizations which are positively impacted by its activities, directly or indirectly: (inter)national funding agencies, universities, national/university/research libraries, academic consortia, governments and ministries, foundations, benefactors and further interested parties. This financial backing cannot take the form of article processing charges or journal subscriptions, due to SciPost’s operating principles: rather, Supporting Partners provide operating funds to SciPost, these funds being pooled in order to cover maintenance and operation of the web infrastructure at SciPost.org, administration of all site-related activities, production of publications in SciPost Journals and development of new publishing-related services for the international scientific community.</p>
 
     </div>
-  </div>
+</div>
 
 
 
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>Supporting Partners Board</h1>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Supporting Partners Board</h1>
     </div>
-  </div>
+</div>
 
-  <div class="flex-container">
-    <div class="flex-whitebox">
+<div class="row">
+    <div class="col-12">
 
   <p>We hereby cordially invite interested parties who are supportive of SciPost's mission to join the SciPost Supporting Partners Board by signing a <a href="{% static 'scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf' %}">Partner Agreement</a>.</p>
 
@@ -118,22 +115,23 @@
   </p>
 
     </div>
-  </div>
-</section>
+</div>
+
 
 {% if request.user|is_in_group:'Editorial Administrators' %}
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>Prospective Partners</h1>
-    </div>
-  </div>
+<div class="row">
+    <div class="col-12">
+      <h1 class="highglight">Prospective Partners</h1>
   <ul>
     {% for agreement in prospective_agreements %}
-    <li>{{ agreement }}</li>
+        <li>{{ agreement }}</li>
+    {% empty %}
+        <li>No agreements found</li>
     {% endfor %}
   </ul>
-</section>
+    </div>
+</div>
+
 {% endif %}
 
-{% endblock bodysup %}
+{% endblock %}
