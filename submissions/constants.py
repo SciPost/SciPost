@@ -60,6 +60,7 @@ SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [
 SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     STATUS_UNASSIGNED,
     STATUS_RESUBMISSION_INCOMING,
+    STATUS_RESUBMITTED_REJECTED,
     'assignment_failed',
     'resubmitted_rejected',
     'rejected',
@@ -68,6 +69,7 @@ SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
 
 # Submissions which should not appear in search lists
 SUBMISSION_STATUS_PUBLICLY_UNLISTED = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
+    STATUS_RESUBMITTED_REJECTED_VISIBLE,
     'resubmitted',
     'resubmitted_rejected_visible',
     'published'
