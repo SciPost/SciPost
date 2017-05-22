@@ -12,6 +12,7 @@ PRODUCTION_EVENTS = (
     ('message_supervisor_to_officer', 'Message from Supervisor to Officer'),
     ('message_officer_to_supervisor', 'Message from Officer to Supervisor'),
     ('proofs_produced', 'Proofs have been produced'),
+    ('proofs_checked_by_supervisor', 'Proofs have been checked by Supervisor'),
     ('proofs_sent_to_authors', 'Proofs sent to Authors'),
     ('proofs_returned_by_authors', 'Proofs returned by Authors'),
     ('corrections_implemented', 'Corrections implemented'),
