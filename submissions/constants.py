@@ -63,6 +63,7 @@ SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     STATUS_RESUBMITTED_REJECTED,
     'assignment_failed',
     'resubmitted_rejected',
+    STATUS_RESUBMITTED_REJECTED,
     'rejected',
     'withdrawn',
 ]
@@ -72,6 +73,7 @@ SUBMISSION_STATUS_PUBLICLY_UNLISTED = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
     STATUS_RESUBMITTED_REJECTED_VISIBLE,
     'resubmitted',
     'resubmitted_rejected_visible',
+    STATUS_RESUBMITTED_REJECTED_VISIBLE,
     'published'
 ]
 
