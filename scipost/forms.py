@@ -80,7 +80,7 @@ class RegistrationForm(forms.Form):
         if self.cleaned_data['password'] != self.cleaned_data['password_verif']:
             self.add_error('password', 'Your passwords must match')
             self.add_error('password_verif', 'Your passwords must match')
-        return self.cleaned_data.get('password', '')
+        return self.cleaned_data.get('password_verif', '')
 
     def clean_username(self):
         if User.objects.filter(username=self.cleaned_data['username']).exists():
