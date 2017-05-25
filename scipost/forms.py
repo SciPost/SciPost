@@ -4,6 +4,7 @@ import random
 from django import forms
 
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.password_validation import validate_password
 
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
@@ -67,9 +68,23 @@ class RegistrationForm(forms.Form):
     captcha = ReCaptchaField(attrs={'theme': 'clean'}, label='*Please verify to continue:')
 
     def clean_password_verif(self):
+        password = self.cleaned_data.get('password', '')
+        user = User(
+            username=self.cleaned_data['username'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            email=self.cleaned_data['email']
+        )
+        validate_password(password, user)
+        # raise
+        # return 'piemel'
+
+    # def clean_password_verif(self):
+    #     t = self.cleaned_data
         if self.cleaned_data['password'] != self.cleaned_data['password_verif']:
             self.add_error('password', 'Your passwords must match')
             self.add_error('password_verif', 'Your passwords must match')
+        return self.cleaned_data.get('password', '')
 
     def clean_username(self):
         if User.objects.filter(username=self.cleaned_data['username']).exists():
@@ -227,6 +242,15 @@ class PasswordChangeForm(forms.Form):
     password_prev = forms.CharField(label='Existing password', widget=forms.PasswordInput())
     password_new = forms.CharField(label='New password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
+
+    def __init__(self, *args, **kwargs):
+        self.current_user = kwargs.pop('current_user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean_password_new(self):
+        password = self.cleaned_data['password_new']
+        validate_password(password, self.current_user)
+        return password
 
 
 AUTHORSHIP_CLAIM_CHOICES = (

@@ -889,7 +889,7 @@ def personal_page(request):
 
 @login_required
 def change_password(request):
-    form = PasswordChangeForm(request.POST or None)
+    form = PasswordChangeForm(request.POST or None, current_user=request.user)
     ack = False
     if form.is_valid():
         if not request.user.check_password(form.cleaned_data['password_prev']):
