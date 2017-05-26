@@ -93,7 +93,7 @@ class SubmissionChecks:
         identifiers = self.identifier_into_parts(identifier)
         submission = (Submission.objects
                       .filter(arxiv_identifier_wo_vn_nr=identifiers['arxiv_identifier_wo_vn_nr'])
-                      .order_by('-arxiv_vn_nr').last())
+                      .order_by('arxiv_vn_nr').last())
 
         # If submissions are found; check their statuses
         if submission:
