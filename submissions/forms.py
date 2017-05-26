@@ -56,6 +56,11 @@ class SubmissionChecks:
             if kwargs['initial'].get('is_resubmission', None):
                 self.is_resubmission = kwargs['initial']['is_resubmission'] in ('True', True)
 
+        # `is_resubmission` property if data is coming from (POST) request
+        if kwargs.get('data', None):
+            if kwargs['data'].get('is_resubmission', None):
+                self.is_resubmission = kwargs['data']['is_resubmission'] in ('True', True)
+
     def _submission_already_exists(self, identifier):
         if Submission.objects.filter(arxiv_identifier_w_vn_nr=identifier).exists():
             error_message = 'This preprint version has already been submitted to SciPost.'
