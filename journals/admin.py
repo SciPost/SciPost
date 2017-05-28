@@ -1,7 +1,14 @@
 from django.contrib import admin, messages
 
-from journals.models import Journal, Volume, Issue, Publication, Deposit
+from journals.models import UnregisteredAuthor, Journal, Volume, Issue, Publication, Deposit
 
+
+
+class UnregisteredAuthorAdmin(admin.ModelAdmin):
+    search_fields = ['last_name']
+    ordering = ['last_name']
+
+admin.site.register(UnregisteredAuthor, UnregisteredAuthorAdmin)
 
 
 class JournalAdmin(admin.ModelAdmin):
