@@ -21,16 +21,23 @@ def production(request):
     Overview page for the production process.
     All papers with accepted but not yet published status are included here.
     """
-    accepted_submissions = Submission.objects.filter(
-        status='accepted').order_by('latest_activity')
-    streams = ProductionStream.objects.all().order_by('opened')
+    streams = ProductionStream.objects.filter(status='ongoing').order_by('opened')
     prodevent_form = ProductionEventForm()
     context = {
-        'accepted_submissions': accepted_submissions,
         'streams': streams,
         'prodevent_form': prodevent_form,
     }
     return render(request, 'production/production.html', context)
+
+
+@permission_required('scipost.can_view_production', return_403=True)
+def completed(request):
+    """
+    Overview page for closed production streams.
+    """
+    streams = ProductionStream.objects.filter(status='completed').order_by('-opened')
+    context = {'streams': streams,}
+    return render(request, 'production/completed.html', context)
 
 
 @permission_required('scipost.can_view_production', return_403=True)
@@ -55,6 +62,16 @@ def add_event(request, stream_id):
     else:
         errormessage = 'This view can only be posted to.'
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+
+@permission_required('scipost.can_view_production', return_403=True)
+@transaction.atomic
+def mark_as_completed(request, stream_id):
+    stream = get_object_or_404(ProductionStream, pk=stream_id)
+    stream.status = 'completed'
+    stream.closed = timezone.now()
+    stream.save()
+    return redirect(reverse('production:production'))
 
 
 def upload_proofs(request):
