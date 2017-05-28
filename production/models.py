@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-from .constants import PRODUCTION_EVENTS
+from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_EVENTS
 
 from scipost.models import Contributor
 
@@ -13,6 +13,9 @@ from scipost.models import Contributor
 class ProductionStream(models.Model):
     submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE)
     opened = models.DateTimeField()
+    closed = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=32,
+                              choices=PRODUCTION_STREAM_STATUS, default='ongoing')
 
     def __str__(self):
         return str(self.submission)

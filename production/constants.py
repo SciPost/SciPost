@@ -17,4 +17,5 @@ PRODUCTION_EVENTS = (
     ('proofs_returned_by_authors', 'Proofs returned by Authors'),
     ('corrections_implemented', 'Corrections implemented'),
     ('authors_have_accepted_proofs', 'Authors have accepted proofs'),
+    ('paper_published', 'Paper has been published'),
 )
