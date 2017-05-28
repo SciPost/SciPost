@@ -22,6 +22,8 @@ class JournalUtils(object):
                       + cls.publication.citation() + '.'
                       '\n\nThe publication page is located at the permanent link '
                       'https://scipost.org/' + cls.publication.doi_label + '.'
+                      '\n\nThe permanent DOI for your publication is 10.21468/'
+                      + cls.publication.doi_label + '.'
                       '\n\nTo facilitate dissemination of your paper, we greatly encourage '
                       'you to update the arXiv Journal-ref with this information.'
                       '\n\nWe warmly congratulate you on this achievement and thank you '
