@@ -14,10 +14,13 @@ def submission_short_title(obj):
 
 class SubmissionAdminForm(forms.ModelForm):
     authors = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
     authors_claims = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
     authors_false_claims = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
 
     class Meta:
@@ -102,18 +105,22 @@ class EICRecommendationAdminForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
         queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
     eligible_to_vote = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.filter(
             user__groups__name__in=['Editorial College'],
         ).order_by('user__last_name'))
     voted_for = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.filter(
             user__groups__name__in=['Editorial College'],
         ).order_by('user__last_name'))
     voted_against = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.filter(
             user__groups__name__in=['Editorial College'],
         ).order_by('user__last_name'))
     voted_abstain = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.filter(
             user__groups__name__in=['Editorial College'],
         ).order_by('user__last_name'))

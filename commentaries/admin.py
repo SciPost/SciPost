@@ -9,10 +9,13 @@ from scipost.models import Contributor
 
 class CommentaryAdminForm(forms.ModelForm):
     authors = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
     authors_claims = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
     authors_false_claims = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
 
     class Meta:
