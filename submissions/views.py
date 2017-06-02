@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
@@ -75,10 +75,9 @@ class RequestSubmission(CreateView):
             # Send emails
             SubmissionUtils.load({'submission': submission})
             SubmissionUtils.send_authors_submission_ack_email()
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.success_url)
 
     def form_invalid(self, form):
-        # r = form.errors
         for error_messages in form.errors.values():
             messages.warning(self.request, *error_messages)
         return super().form_invalid(form)

@@ -156,7 +156,7 @@ class Submission(ArxivCallable, models.Model):
     def count_obtained_reports(self):
         return self.reports.filter(status=1, invited__isnull=False).count()
 
-    def count_refused_resports(self):
+    def count_refused_reports(self):
         return self.reports.filter(status__lte=-1).count()
 
     def count_awaiting_vetting(self):
