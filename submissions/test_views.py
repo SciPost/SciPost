@@ -7,13 +7,12 @@ from django.test import Client
 from common.helpers import random_arxiv_identifier_without_version_number
 from common.helpers.test import add_groups_and_permissions
 from scipost.factories import ContributorFactory
-# from scipost.models import Contributor
 
 from .constants import STATUS_UNASSIGNED
 from .factories import UnassignedSubmissionFactory, EICassignedSubmissionFactory,\
                        ResubmittedSubmissionFactory, ResubmissionFactory,\
                        PublishedSubmissionFactory
-from .forms import SubmissionForm, SubmissionIdentifierForm
+from .forms import RequestSubmissionForm, SubmissionIdentifierForm
 from .models import Submission
 
 # This is content of a real arxiv submission. As long as it isn't published it should
@@ -87,7 +86,7 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
                                     {'identifier':
                                         TEST_SUBMISSION['arxiv_identifier_w_vn_nr']})
         self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.context['form'], SubmissionForm)
+        self.assertIsInstance(response.context['form'], RequestSubmissionForm)
         self.assertIsInstance(response.context['identifierform'], SubmissionIdentifierForm)
         self.assertTrue(response.context['identifierform'].is_valid())
 
@@ -138,7 +137,6 @@ class SubmitManuscriptTest(BaseContributorTestCase):
             'submission_type': 'Article',
             'domain': 'T'
         })
-        params['metadata'] = json.dumps(params['metadata'], separators=(',', ':'))
 
         # Submit new Submission form
         response = client.post(reverse('submissions:submit_manuscript'), params)
@@ -179,7 +177,6 @@ class SubmitManuscriptTest(BaseContributorTestCase):
             'submission_type': 'Article',
             'domain': 'T'
         })
-        params['metadata'] = json.dumps(params['metadata'], separators=(',', ':'))
 
         # Submit new Submission form
         response = client.post(reverse('submissions:submit_manuscript'), params)
@@ -246,3 +243,6 @@ class SubmissionListTest(BaseContributorTestCase):
         returned_submissions_ids.sort()
         visible_submission_ids.sort()
         self.assertListEqual(returned_submissions_ids, visible_submission_ids)
+
+
+# class SubmitReportTest
