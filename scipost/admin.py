@@ -86,6 +86,7 @@ def get_remark_type(remark):
 
 class RemarkAdminForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
+        required=False,
         queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
 
     class Meta:
@@ -104,8 +105,10 @@ admin.site.register(Remark, RemarkAdmin)
 
 class DraftInvitationAdminForm(forms.ModelForm):
     cited_in_submission = forms.ModelChoiceField(
+        required=False,
         queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
     cited_in_publication = forms.ModelChoiceField(
+        required=False,
         queryset=Publication.objects.order_by('-publication_date'))
 
     class Meta:
@@ -121,8 +124,10 @@ admin.site.register(DraftInvitation, DraftInvitationAdmin)
 
 class RegistrationInvitationAdminForm(forms.ModelForm):
     cited_in_submission = forms.ModelChoiceField(
+        required=False,
         queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
     cited_in_publication = forms.ModelChoiceField(
+        required=False,
         queryset=Publication.objects.order_by('-publication_date'))
 
     class Meta:

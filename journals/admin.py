@@ -42,8 +42,10 @@ class PublicationAdminForm(forms.ModelForm):
     authors = forms.ModelMultipleChoiceField(
         queryset=Contributor.objects.order_by('user__last_name'))
     authors_claims = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
     authors_false_claims = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
 
     class Meta:
