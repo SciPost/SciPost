@@ -23,14 +23,17 @@ admin.site.register(Feedback, FeedbackAdmin)
 
 class NominationAdminForm(forms.ModelForm):
     in_agreement = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.filter(
             user__groups__name__in=['Editorial College'],
         ).order_by('user__last_name'))
     in_notsure = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.filter(
             user__groups__name__in=['Editorial College'],
         ).order_by('user__last_name'))
     in_disagreement = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.filter(
             user__groups__name__in=['Editorial College'],
         ).order_by('user__last_name'))
@@ -48,14 +51,17 @@ admin.site.register(Nomination, NominationAdmin)
 
 class MotionAdminForm(forms.ModelForm):
     in_agreement = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.filter(
             user__groups__name__in=['Editorial College'],
         ).order_by('user__last_name'))
     in_notsure = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.filter(
             user__groups__name__in=['Editorial College'],
         ).order_by('user__last_name'))
     in_disagreement = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.filter(
             user__groups__name__in=['Editorial College'],
         ).order_by('user__last_name'))

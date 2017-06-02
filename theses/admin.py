@@ -9,10 +9,13 @@ from scipost.models import Contributor
 
 class ThesisLinkAdminForm(forms.ModelForm):
     author_claims = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
     author_false_claims = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
     supervisor_as_cont = forms.ModelMultipleChoiceField(
+        required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
 
     class Meta:
