@@ -12,137 +12,135 @@
 {% endblock %}
 
 {% block content %}
-<div class="inner-container-smaller">
-    <div class="row pt-4">
-        <div class="col-md-7">
-            <!-- Latest publications -->
-            <div class="card card-grey">
-                <div class="card-header">
-                    <h2 class="card-title mb-0"><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
-                </div>
-                <div class="card-block pt-0">
-                  <ul class="list-group list-group-flush">
-                      {% for publication in publications %}
-                          <li class="list-group-item">
-                              <div class="card-block px-0">
-                                  {% include 'journals/_publication_details_small.html' with publication=publication %}
-                              </div>
-                          </li>
-                      {% endfor %}
-                  </ul>
-                </div>
-            </div><!-- End latest publications -->
-
-            <!-- Latest submissions -->
-            <div class="card card-grey">
-                <div class="card-header">
-                    <h2 class="card-title mb-0"><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
-                </div>
-                <div class="card-block pt-0">
-                  <ul class="list-group list-group-flush">
-                      {% for submission in submissions %}
-                          <li class="list-group-item">
-                              {% include 'submissions/_submission_card_content_sparse.html' with submission=submission %}
-                          </li>
-                      {% endfor %}
-                  </ul>
-                </div>
-            </div><!-- End latest submissions -->
-        </div>
-
-        <div class="col-md-5">
-            <div class="pl-lg-5">
-                {# <!-- Info -->#}
-                {# <div class="card">#}
-                    {# <div class="card-block text-center pt-0">#}
-                        {# <h3 class="m-0 orange-underline" style="line-height: 1.3;">SciPost is a complete scientific publication portal managed by active professional scientists.</h3>#}
-                    {# </div>#}
-                {# </div><!-- End info -->#}
-
-                <!-- News -->
-                <div class="card card-grey">
-                    <div class="card-header border-0">
-                        <h2 class="card-title mb-0">
-                            <a href="{% url 'news:news' %}">News</a>
-                            <a class="floating-rss-icon" href="{% url 'scipost:feeds' %}">
-                                <img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14">
-                            </a>
-                        </h2>
-                        <h4 class="card-subtitle pb-0 text-muted">Latest news and announcements.</h4>
-                    </div>
-                    <div class="card-block">
-                        <ul class="list-group list-group-flush">
-                            {% if latest_newsitem %}
-                                <li class="list-group-item">
-                                    {% include 'news/news_card_content_short.html' with news=latest_newsitem %}
-                                </li>
-                            {% else %}
-                                <li class="list-group-item">
-                                    No current newsitems found.
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                    <div class="card-footer"><a href="{% url 'news:news' %}">More news</a></div>
-                </div><!-- End news -->
-
-                <!-- Latest issues -->
-                <div class="card card-grey">
-                    <div class="card-header border-0 pb-0">
-                        <h2 class="card-title mb-0"><a href="/issues/">Latest issues</a></h2>
-                    </div>
-                    <div class="card-block">
-                        <ul class="m-0 pl-4">
-                            {% for issue in issues %}
-                                <li>
-                                    <a href="{{issue.get_absolute_url}}">{{issue}}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="card-footer">
-                        <a href="{% url 'journal:issues' 'SciPostPhys' %}">All issues</a>
-                    </div>
-                </div><!-- End latest issues -->
-
-                {% if not user.is_authenticated %}
-                    <!-- Register -->
-                    <div class="card card-grey">
-                        <div class="card-block">
-                            <h2 class="card-title mb-0"><a href="{% url 'scipost:register' %}">Register</a></h2>
-                            <p class="m-0">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="/register">registration form</a>.</p>
-                        </div>
-                    </div><!-- End Register -->
-                {% endif %}
-
-                <!-- Summarized -->
-                <div class="card card-grey">
-                    <div class="card-block">
-                        <h2 class="card-title">
-                            <a href="{% url 'journals:journals' %}">Journals</a>
-                        </h2>
-                        <h4 class="card-subtitle pt-0 mb-2 text-muted">SciPost publishes a portfolio of high-quality two-way open access scientific journals.</h4>
-                        <p>
-                            All SciPost Journals implement the stringent <a href="{% url 'scipost:FAQ' %}#pwr">peer-witnessed refereeing</a> principle.
-                            <br>
-                            All Journals are fully managed by professional scientists.
-                        </p>
-                        <p>
-                            <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a>
-                            <br>
-                            <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a>
-                        </p>
-                        <h2 class="card-title">
-                            <a href="{% url 'commentaries:commentaries' %}">Commentaries</a>
-                        </h2>
-                        <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
-                        <h2 class="card-title">
-                            <a href="{% url 'theses:theses' %}">Theses</a>
-                        </h2>
-                        <p>SciPost Theses allow Contributors to find Master's, Ph.D. and Habilitation theses relevant to their work.</p>
-                    </div>
-                </div><!-- End Summarized -->
+<div class="row pt-3">
+    <div class="col-md-7">
+        <!-- Latest publications -->
+        <div class="card card-grey">
+            <div class="card-header">
+                <h2 class="card-title mb-0"><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
             </div>
+            <div class="card-block pt-0">
+              <ul class="list-group list-group-flush">
+                  {% for publication in publications %}
+                      <li class="list-group-item">
+                          <div class="card-block px-0">
+                              {% include 'journals/_publication_details_small.html' with publication=publication %}
+                          </div>
+                      </li>
+                  {% endfor %}
+              </ul>
+            </div>
+        </div><!-- End latest publications -->
+
+        <!-- Latest submissions -->
+        <div class="card card-grey">
+            <div class="card-header">
+                <h2 class="card-title mb-0"><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
+            </div>
+            <div class="card-block pt-0">
+              <ul class="list-group list-group-flush">
+                  {% for submission in submissions %}
+                      <li class="list-group-item">
+                          {% include 'submissions/_submission_card_content_sparse.html' with submission=submission %}
+                      </li>
+                  {% endfor %}
+              </ul>
+            </div>
+        </div><!-- End latest submissions -->
+    </div>
+
+    <div class="col-md-5">
+        <div class="pl-lg-5">
+            {# <!-- Info -->#}
+            {# <div class="card">#}
+                {# <div class="card-block text-center pt-0">#}
+                    {# <h3 class="m-0 orange-underline" style="line-height: 1.3;">SciPost is a complete scientific publication portal managed by active professional scientists.</h3>#}
+                {# </div>#}
+            {# </div><!-- End info -->#}
+
+            <!-- News -->
+            <div class="card card-grey">
+                <div class="card-header border-0">
+                    <h2 class="card-title mb-0">
+                        <a href="{% url 'news:news' %}">News</a>
+                        <a class="floating-rss-icon" href="{% url 'scipost:feeds' %}">
+                            <img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14">
+                        </a>
+                    </h2>
+                    <h4 class="card-subtitle pb-0 text-muted">Latest news and announcements.</h4>
+                </div>
+                <div class="card-block">
+                    <ul class="list-group list-group-flush">
+                        {% if latest_newsitem %}
+                            <li class="list-group-item">
+                                {% include 'news/news_card_content_short.html' with news=latest_newsitem %}
+                            </li>
+                        {% else %}
+                            <li class="list-group-item">
+                                No current newsitems found.
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="card-footer"><a href="{% url 'news:news' %}">More news</a></div>
+            </div><!-- End news -->
+
+            <!-- Latest issues -->
+            <div class="card card-grey">
+                <div class="card-header border-0 pb-0">
+                    <h2 class="card-title mb-0"><a href="/issues/">Latest issues</a></h2>
+                </div>
+                <div class="card-block">
+                    <ul class="m-0 pl-4">
+                        {% for issue in issues %}
+                            <li>
+                                <a href="{{issue.get_absolute_url}}">{{issue}}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'journal:issues' 'SciPostPhys' %}">All issues</a>
+                </div>
+            </div><!-- End latest issues -->
+
+            {% if not user.is_authenticated %}
+                <!-- Register -->
+                <div class="card card-grey">
+                    <div class="card-block">
+                        <h2 class="card-title mb-0"><a href="{% url 'scipost:register' %}">Register</a></h2>
+                        <p class="m-0">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="/register">registration form</a>.</p>
+                    </div>
+                </div><!-- End Register -->
+            {% endif %}
+
+            <!-- Summarized -->
+            <div class="card card-grey">
+                <div class="card-block">
+                    <h2 class="card-title">
+                        <a href="{% url 'journals:journals' %}">Journals</a>
+                    </h2>
+                    <h4 class="card-subtitle pt-0 mb-2 text-muted">SciPost publishes a portfolio of high-quality two-way open access scientific journals.</h4>
+                    <p>
+                        All SciPost Journals implement the stringent <a href="{% url 'scipost:FAQ' %}#pwr">peer-witnessed refereeing</a> principle.
+                        <br>
+                        All Journals are fully managed by professional scientists.
+                    </p>
+                    <p>
+                        <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a>
+                        <br>
+                        <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a>
+                    </p>
+                    <h2 class="card-title">
+                        <a href="{% url 'commentaries:commentaries' %}">Commentaries</a>
+                    </h2>
+                    <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
+                    <h2 class="card-title">
+                        <a href="{% url 'theses:theses' %}">Theses</a>
+                    </h2>
+                    <p>SciPost Theses allow Contributors to find Master's, Ph.D. and Habilitation theses relevant to their work.</p>
+                </div>
+            </div><!-- End Summarized -->
         </div>
     </div>
 </div>
