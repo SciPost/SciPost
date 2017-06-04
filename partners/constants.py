@@ -1,19 +1,37 @@
 import datetime
 
 
-PARTNER_TYPES = (
+PARTNER_KINDS = (
+    ('Res. Inst.', 'Research Institute'),
     ('Int. Fund. Agency', 'International Funding Agency'),
     ('Nat. Fund. Agency', 'National Funding Agency'),
+    ('Nat. Lab.', 'National Laboratory'),
     ('Nat. Library', 'National Library'),
-    ('Univ. Library', 'University Library'),
+    ('Nat. Acad.', 'National Academy'),
+    ('Univ. Library', 'University (and its Library)'),
     ('Res. Library', 'Research Library'),
+    ('Prof. Soc.', 'Professional Society'),
     ('Foundation', 'Foundation'),
     ('Individual', 'Individual'),
 )
 
+
+PROSPECTIVE_PARTNER_STATUS = (
+    ('requested', 'Requested (from online form)'),
+    ('added', 'Added internally'),
+    ('processed', 'Processed into Partner object'),
+)
+
+PROSPECTIVE_PARTNER_EVENTS = (
+    ('comment', 'Comment added'),
+)
+
+
 PARTNER_STATUS = (
-    ('Prospective', 'Prospective'),
+    ('Initiated', 'Initiated'),
+    ('Contacted', 'Contacted'),
     ('Negotiating', 'Negotiating'),
+    ('Uninterested', 'Uninterested'),
     ('Active', 'Active'),
     ('Inactive', 'Inactive'),
 )
@@ -23,6 +41,13 @@ CONSORTIUM_STATUS = (
     ('Prospective', 'Prospective'),
     ('Active', 'Active'),
     ('Inactive', 'Inactive'),
+)
+
+
+PARTNER_EVENTS = (
+    ('initial', 'Contacted (initial)'),
+    ('status_update', 'Status updated'),
+    ('comment', 'Comment added'),
 )
 
 

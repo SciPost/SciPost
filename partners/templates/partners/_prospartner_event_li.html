@@ -1,0 +1,7 @@
+<li id="{{ event.id }}">
+  <div class="font-weight-bold">{{ event.get_event_display }} <small class="text-muted">noted {{ event.noted_on }} by {{ event.noted_by }}</small>
+  </div>
+  {% if event.comments %}
+  <div>{{ event.comments|linebreaks }}</div>
+  {% endif %}
+</li>
