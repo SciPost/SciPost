@@ -52,8 +52,9 @@ def manage(request):
     """
     Lists relevant info regarding management of Supporting Partners Board.
     """
-    partners = Partner.objects.all().order_by('institution__country', 'institution__name')
-    prospective_partners = ProspectivePartner.objects.all().order_by('date_received')
+    partners = Partner.objects.all()
+    prospective_partners = ProspectivePartner.objects.all(
+    ).order_by('country', 'institution_name')
     ppevent_form = ProspectivePartnerEventForm()
     agreements = MembershipAgreement.objects.all().order_by('date_requested')
     context = {'partners': partners,
@@ -70,9 +71,11 @@ def add_prospective_partner(request):
                                   initial={'status': 'added',
                                            'kind': 'Univ. Library'})
     if form.is_valid():
-        form.save()
+        pp = form.save()
         messages.success(request, 'Prospective Partner successfully added')
-        return redirect(reverse('partners:manage'))
+#        return redirect(reverse('partners:manage'))
+        return redirect(reverse('partners:add_prospartner_contact',
+                                kwargs={'prospartner_id': pp.id}))
     context = {'form': form}
     return render(request, 'partners/add_prospective_partner.html', context)
 

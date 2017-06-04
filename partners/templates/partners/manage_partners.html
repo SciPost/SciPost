@@ -18,10 +18,10 @@
 	<div class="tab-nav-inner">
 	  <ul class="nav btn-group personal-page-nav" role="tablist">
 	    <li class="nav-item btn btn-secondary">
-	      <a href="#partners" class="nav-link" data-toggle="tab">Partners</a>
+	      <a href="#prospartners" class="nav-link active" data-toggle="tab">Prospective Partners</a>
 	    </li>
 	    <li class="nav-item btn btn-secondary">
-	      <a href="#prospartners" class="nav-link active" data-toggle="tab">Prospective Partners</a>
+	      <a href="#partners" class="nav-link" data-toggle="tab">Partners</a>
 	    </li>
 	    <li class="nav-item btn btn-secondary">
 	      <a href="#agreements" class="nav-link" data-toggle="tab">Agreements</a>
@@ -33,6 +33,47 @@
   </div>
 
   <div class="tab-content">
+    <div class="tab-pane active" id="prospartners" role="tabpanel">
+      <div class="row">
+	<div class="col-12">
+	  <h2 class="highlight">Prospective Partners</h2>
+	</div>
+      </div>
+      <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
+      <br/>
+
+      <div class="row">
+	<div class="col-2">Country</div>
+	<div class="col-3">Institution name</div>
+	<div class="col-3">Kind</div>
+	<div class="col-3">Status</div>
+	<div class="col-1">Date received</div>
+      </div>
+
+      <div id="accordion" role="tablist" aria-multiselectable="true">
+	{% for partner in prospective_partners %}
+	<div class="card">
+	  <div class="card-header" role="tab" id="heading{{ partner.id }}">
+	    <h4 class="mb-0">
+	      <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ partner.id }}" aria-expanded="true" aria-controls="collapse{{ partner.id }}">
+		<div class="row">
+		  <div class="col-2">{{ partner.get_country_display }}</div>
+		  <div class="col-3">{{ partner.institution_name }}</div>
+		  <div class="col-3">{{ partner.get_kind_display }}</div>
+		  <div class="col-3">{{ partner.get_status_display }}</div>
+		  <div class="col-1">{{ partner.date_received|date:"Y-m-d" }}</div>
+		</div>
+	      </a>
+	    </h4>
+	  </div>
+	  <div id="collapse{{ partner.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ partner.id}}">
+	    {% include 'partners/_prospective_partner_card.html' with pp=partner %}
+	  </div>
+	</div>
+	{% endfor %}
+      </div>
+    </div>
+
     <div class="tab-pane" id="partners" role="tabpanel">
       <div class="row">
 	<div class="col-12">
@@ -44,39 +85,6 @@
 	<li class="list-group-item">{% include 'partners/_partner_card.html' with partner=partner %}</li>
 	{% endfor %}
       </ul>
-    </div>
-
-    <div class="tab-pane active" id="prospartners" role="tabpanel">
-      <div class="row">
-	<div class="col-12">
-	  <h2 class="highlight">Prospective Partners (not yet processed)</h2>
-	</div>
-      </div>
-      <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
-      <br/>
-
-      <div id="accordion" role="tablist" aria-multiselectable="true">
-	{% for partner in prospective_partners %}
-	<div class="card">
-	  <div class="card-header" role="tab" id="heading{{ partner.id }}">
-	    <h4 class="mb-0">
-	      <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ partner.id }}" aria-expanded="true" aria-controls="collapse{{ partner.id }}">
-		<div class="row">
-		  <div class="col-1">{{ partner.country }}</div>
-		  <div class="col-4">{{ partner.institution_name }}</div>
-		  <div class="col-1"></div>
-		  <div class="col-4">{{ partner.get_status_display }}</div>
-		  <div class="col-2">{{ partner.date_received }}</div>
-		</div>
-	      </a>
-	    </h4>
-	  </div>
-	  <div id="collapse{{ partner.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ partner.id}}">
-	    {% include 'partners/_prospective_partner_card.html' with pp=partner %}
-	  </div>
-	</div>
-	{% endfor %}
-      </div>
     </div>
 
     <div class="tab-pane" id="agreements" role="tabpanel">
