@@ -3,12 +3,12 @@
 <div class="card-block">
   <div class="row">
     <div class="col-1">
-      <p>{{ partner.country }}</p>
+      <p>{{ partner.institution.country }}</p>
     </div>
     <div class="col-4">
-      <h3>{{ partner.institution_name }}</h3>
-      <p>{{ partner.institution_acronym }}</p>
-      <p>({{ pp.get_partner_type_display }})</p>
+      <h3>{{ partner.institution.name }}</h3>
+      <p>{{ partner.institution.acronym }}</p>
+      <p>({{ pp.get_kind_display }})</p>
     </div>
     <div class="col-4">
       {% if partner.main_contact %}

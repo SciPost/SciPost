@@ -1,15 +1,14 @@
 from django.contrib import admin
 
-from .models import ContactPerson, Partner, Consortium,\
+from .models import Contact, Partner, Consortium,\
     ProspectivePartner, MembershipAgreement
 
 
-admin.site.register(ContactPerson)
+admin.site.register(Contact)
 
 
 class PartnerAdmin(admin.ModelAdmin):
-    search_fields = ['institution', 'institution_acronym',
-                     'institution_address', 'contact_person']
+    search_fields = ['institution', ]
 
 
 admin.site.register(Partner, PartnerAdmin)

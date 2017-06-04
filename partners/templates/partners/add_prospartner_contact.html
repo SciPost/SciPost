@@ -1,0 +1,28 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Supporting Partners: add contact{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<section>
+  <div class="flex-container">
+    <div class="flex-greybox">
+      <h1>Add a Contact for a Prospective Partner</h1>
+    </div>
+  </div>
+
+    <form action="{% url 'partners:add_prospartner_contact' prospartner_id=prospartner.id %}" method="post">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+      <input class="btn btn-primary" type="submit" value="Submit"/>
+    </form>
+
+    {% if errormessage %}
+    <p class="text-danger">{{ errormessage }}</p>
+    {% endif %}
+
+</section>
+
+{% endblock content %}
