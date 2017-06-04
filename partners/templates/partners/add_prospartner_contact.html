@@ -6,25 +6,26 @@
 
 {% block content %}
 
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>Add a Contact for a Prospective Partner</h1>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Add a Contact for a Prospective Partner</h1>
     </div>
-  </div>
+</div>
 
-  <h3>Add a contact for {{ prospartner.institution_name }}:</h3>
-  <br/>
-  <form action="{% url 'partners:add_prospartner_contact' prospartner_id=prospartner.id %}" method="post">
-    {% csrf_token %}
-    {{ form|bootstrap }}
-    <input class="btn btn-primary" type="submit" value="Submit"/>
-  </form>
+<div class="row">
+    <div class="col-12">
+      <h3>Add a contact for {{ prospartner.institution_name }}:</h3>
 
-  {% if errormessage %}
-  <p class="text-danger">{{ errormessage }}</p>
-  {% endif %}
+      <form action="{% url 'partners:add_prospartner_contact' prospartner_id=prospartner.id %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input class="btn btn-primary" type="submit" value="Submit"/>
+      </form>
 
-</section>
+      {% if errormessage %}
+      <p class="text-danger">{{ errormessage }}</p>
+      {% endif %}
+    </div>
+</div>
 
 {% endblock content %}

@@ -2,10 +2,10 @@
 
 <div class="card-block">
   <div class="row">
-    <div class="col-1">
+    <div class="col-md-1">
       <p>{{ pp.country }}</p>
     </div>
-    <div class="col-4">
+    <div class="col-md-4">
       <h3>{{ pp.institution_name }}</h3>
       <p>({{ pp.get_kind_display }})</p>
       <p>Received {{ pp.date_received }}</p>
@@ -14,24 +14,29 @@
       {% endif %}
       <p>{{ pp.get_status_display }}</p>
     </div>
-    <div class="col-4">
+    <div class="col-md-7">
       <h3>Contacts:</h3>
-      <ul class="list-group list-group-flush">
-	{% for contact in pp.prospectivecontact_set.all %}
-	<li class="list-group-item flex-column align-items-start">
-	  <p>Role: {{ contact.role }}</p>
-	  <p>{{ contact.get_title_display }} {{ contact.first_name }} {{ contact.last_name }}</p>
-	  <p>{{ contact.email }}</p>
-	</li>
-	{% endfor %}
-      </ul>
-    </div>
-    <div class="col-3">
-      <ul class="list-group list-group-flush">
-	<li class="list-group-item">
-	  <a href="{% url 'partners:add_prospartner_contact' prospartner_id=pp.id %}">Add a contact</a>
-	</li>
-      </ul>
+      <a class="d-inline-block mb-2" href="{% url 'partners:add_prospartner_contact' prospartner_id=pp.id %}">Add a contact</a>
+        <table class="table">
+            <thead>
+                <th>Role</th>
+                <th>Contact</th>
+                <th>Email</th>
+            </thead>
+            <tbody>
+        	{% for contact in pp.prospectivecontact_set.all %}
+            	<tr>
+            	  <td>{{ contact.role }}</td>
+            	  <td>{{ contact.get_title_display }} {{ contact.first_name }} {{ contact.last_name }}</td>
+            	  <td>{{ contact.email }}</td>
+              </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No contacts found, <a href="{% url 'partners:add_prospartner_contact' prospartner_id=pp.id %}">add a contact</a>.</td>
+                </tr>
+        	{% endfor %}
+            </tbody>
+        </table>
     </div>
   </div>
 
@@ -52,7 +57,7 @@
       <form action="{% url 'partners:add_prospartner_event' prospartner_id=pp.id %}" method="post">
 	{% csrf_token %}
 	{{ ppevent_form|bootstrap }}
-	<input type="submit" name="submit" value="Submit">
+	<input type="submit" name="submit" value="Submit" class="btn btn-secondary">
       </form>
     </div>
   </div>

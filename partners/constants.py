@@ -1,6 +1,7 @@
 import datetime
 
 
+PARTNER_KIND_UNI_LIBRARY = 'Univ. Library'
 PARTNER_KINDS = (
     ('Res. Inst.', 'Research Institute'),
     ('Int. Fund. Agency', 'International Funding Agency'),
@@ -8,17 +9,18 @@ PARTNER_KINDS = (
     ('Nat. Lab.', 'National Laboratory'),
     ('Nat. Library', 'National Library'),
     ('Nat. Acad.', 'National Academy'),
-    ('Univ. Library', 'University (and its Library)'),
+    (PARTNER_KIND_UNI_LIBRARY, 'University (and its Library)'),
     ('Res. Library', 'Research Library'),
     ('Prof. Soc.', 'Professional Society'),
     ('Foundation', 'Foundation'),
     ('Individual', 'Individual'),
 )
 
-
+PROSPECTIVE_PARTNER_REQUESTED = 'requested'
+PROSPECTIVE_PARTNER_ADDED = 'added'
 PROSPECTIVE_PARTNER_STATUS = (
-    ('requested', 'Requested (from online form)'),
-    ('added', 'Added internally'),
+    (PROSPECTIVE_PARTNER_REQUESTED, 'Requested (from online form)'),
+    (PROSPECTIVE_PARTNER_ADDED, 'Added internally'),
     ('processed', 'Processed into Partner object'),
 )
 
@@ -50,9 +52,9 @@ PARTNER_EVENTS = (
     ('comment', 'Comment added'),
 )
 
-
+MEMBERSHIP_SUBMITTED = 'Submitted'
 MEMBERSHIP_AGREEMENT_STATUS = (
-    ('Submitted', 'Request submitted by Partner'),
+    (MEMBERSHIP_SUBMITTED, 'Request submitted by Partner'),
     ('Pending', 'Sent to Partner, response pending'),
     ('Signed', 'Signed by Partner'),
     ('Honoured', 'Honoured: payment of Partner received'),

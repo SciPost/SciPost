@@ -6,8 +6,7 @@ from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
 
 from .constants import PARTNER_KINDS
-from .models import Partner, ProspectivePartner, ProspectiveContact, \
-    ProspectivePartnerEvent, MembershipAgreement
+from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent
 
 from scipost.models import TITLE_CHOICES
 
@@ -30,8 +29,7 @@ class ProspectivePartnerForm(forms.ModelForm):
     """
     class Meta:
         model = ProspectivePartner
-        exclude = ['date_received', 'date_processed']
-        widgets = {'status': forms.HiddenInput()}
+        fields = ('kind', 'institution_name', 'country')
 
 
 class ProspectiveContactForm(forms.ModelForm):
@@ -44,7 +42,7 @@ class ProspectiveContactForm(forms.ModelForm):
 class ProspectivePartnerEventForm(forms.ModelForm):
     class Meta:
         model = ProspectivePartnerEvent
-        exclude = ['prospartner', 'noted_on', 'noted_by']
+        fields = ('event', 'comments')
         widgets = {
             'comments': forms.Textarea(attrs={'cols': 16, 'rows': 3}),
         }

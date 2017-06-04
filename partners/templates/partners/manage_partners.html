@@ -5,14 +5,14 @@
 
 {% block content %}
 
-  <div class="row">
+<div class="row">
     <div class="col-12">
       <h1 class="highlight">Partners Management Page</h1>
     </div>
-  </div>
+</div>
 
 
-  <div class="row">
+<div class="row">
     <div class="col-12">
       <div class="tab-nav-container">
 	<div class="tab-nav-inner">
@@ -30,48 +30,46 @@
 	</div>
       </div>
     </div>
-  </div>
+</div>
 
   <div class="tab-content">
     <div class="tab-pane active" id="prospartners" role="tabpanel">
-      <div class="row">
-	<div class="col-12">
-	  <h2 class="highlight">Prospective Partners</h2>
-	</div>
-      </div>
-      <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
-      <br/>
+          <div class="row">
+        	<div class="col-12">
+        	  <h2 class="highlight">Prospective Partners</h2>
+        	</div>
+          </div>
+          <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
+          <br/>
 
-      <div class="row">
-	<div class="col-2">Country</div>
-	<div class="col-3">Institution name</div>
-	<div class="col-3">Kind</div>
-	<div class="col-3">Status</div>
-	<div class="col-1">Date received</div>
-      </div>
+          <table class="table table-hover">
+              <thead class="thead-default">
+                  <tr>
+                	<th>Country</th>
+                	<th>Institution name</th>
+                	<th>Kind</th>
+                	<th>Status</th>
+                	<th>Date received</th>
+                </tr>
+              </thead>
 
-      <div id="accordion" role="tablist" aria-multiselectable="true">
-	{% for partner in prospective_partners %}
-	<div class="card">
-	  <div class="card-header" role="tab" id="heading{{ partner.id }}">
-	    <h4 class="mb-0">
-	      <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ partner.id }}" aria-expanded="true" aria-controls="collapse{{ partner.id }}">
-		<div class="row">
-		  <div class="col-2">{{ partner.get_country_display }}</div>
-		  <div class="col-3">{{ partner.institution_name }}</div>
-		  <div class="col-3">{{ partner.get_kind_display }}</div>
-		  <div class="col-3">{{ partner.get_status_display }}</div>
-		  <div class="col-1">{{ partner.date_received|date:"Y-m-d" }}</div>
-		</div>
-	      </a>
-	    </h4>
-	  </div>
-	  <div id="collapse{{ partner.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ partner.id}}">
-	    {% include 'partners/_prospective_partner_card.html' with pp=partner %}
-	  </div>
-	</div>
-	{% endfor %}
-      </div>
+              <tbody id="accordion" role="tablist" aria-multiselectable="true">
+                {% for partner in prospective_partners %}
+        	      <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ partner.id }}" aria-expanded="true" aria-controls="collapse{{ partner.id }}" style="cursor: pointer;">
+                		  <td>{{ partner.get_country_display }}</td>
+                		  <td>{{ partner.institution_name }}</td>
+                		  <td>{{ partner.get_kind_display }}</td>
+                		  <td>{{ partner.get_status_display }}</td>
+                		  <td>{{ partner.date_received|date:"Y-m-d" }}</td>
+                	</tr>
+                    <tr id="collapse{{ partner.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ partner.id}}" style="background-color: #fff;">
+                        <td colspan="5">
+                    	    {% include 'partners/_prospective_partner_card.html' with pp=partner %}
+                        </td>
+                    </tr>
+            	{% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <div class="tab-pane" id="partners" role="tabpanel">
