@@ -520,8 +520,8 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
                       .filter(arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr)
                       .exclude(pk=submission.id))
     ref_invitations = RefereeInvitation.objects.filter(submission=submission)
-    nr_reports_to_vet = (Report.objects
-                         .filter(status=0, submission=submission,
+    nr_reports_to_vet = (Report.objects.awaiting_vetting()
+                         .filter(submission=submission,
                                  submission__editor_in_charge=request.user.contributor)
                          .count())
     communications = (EditorialCommunication.objects
@@ -1050,8 +1050,8 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def vet_submitted_reports(request):
     contributor = Contributor.objects.get(user=request.user)
-    report_to_vet = Report.objects.filter(status=0,
-                                          submission__editor_in_charge=contributor).first()
+    report_to_vet = (Report.objects.awaiting_vetting()
+                     .filter(submission__editor_in_charge=contributor).first())
     form = VetReportForm()
     context = {'contributor': contributor, 'report_to_vet': report_to_vet, 'form': form}
     return(render(request, 'submissions/vet_submitted_reports.html', context))
@@ -1067,19 +1067,19 @@ def vet_submitted_report_ack(request, report_id):
         report.vetted_by = request.user.contributor
         if form.cleaned_data['action_option'] == '1':
             # accept the report as is
-            report.status = 1
+            report.status = STATUS_VETTED
             report.save()
             report.submission.latest_activity = timezone.now()
             report.submission.save()
         elif form.cleaned_data['action_option'] == '2':
             # the report is simply rejected
-            report.status = int(form.cleaned_data['refusal_reason'])
+            report.status = form.cleaned_data['refusal_reason']
             report.save()
         # email report author
         SubmissionUtils.load({'report': report,
                               'email_response': form.cleaned_data['email_response_field']})
         SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
-        if report.status == 1:
+        if report.status == STATUS_VETTED:
             SubmissionUtils.send_author_report_received_email()
         messages.success(request, 'Submitted Report vetted.')
         return redirect(reverse('submissions:editorial_page',

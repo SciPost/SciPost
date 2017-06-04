@@ -1,16 +1,15 @@
 import datetime
 
 from django.utils import timezone
-from django.db import models, transaction
+from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.urls import reverse
 
 from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
-                       REPORT_STATUSES, STATUS_UNVETTED, STATUS_RESUBMISSION_INCOMING,\
-                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
-                       SUBMISSION_EIC_RECOMMENDATION_REQUIRED
+                       REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
+                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC
 from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
                       ReportManager
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
@@ -148,19 +147,19 @@ class Submission(ArxivCallable, models.Model):
         return self.referee_invitations.filter(accepted=None).count()
 
     def count_invited_reports(self):
-        return self.reports.filter(status=1, invited=True).count()
+        return self.reports.accepted().filter(invited=True).count()
 
     def count_contrib_reports(self):
-        return self.reports.filter(status=1, invited=False).count()
+        return self.reports.accepted().filter(invited=False).count()
 
     def count_obtained_reports(self):
-        return self.reports.filter(status=1, invited__isnull=False).count()
+        return self.reports.accepted().filter(invited__isnull=False).count()
 
     def count_refused_reports(self):
-        return self.reports.filter(status__lte=-1).count()
+        return self.reports.rejected().count()
 
     def count_awaiting_vetting(self):
-        return self.reports.filter(status=0).count()
+        return self.reports.awaiting_vetting().count()
 
 
 ######################
@@ -236,7 +235,7 @@ class RefereeInvitation(models.Model):
 
 class Report(models.Model):
     """ Both types of reports, invited or contributed. """
-    status = models.SmallIntegerField(choices=REPORT_STATUSES, default=STATUS_UNVETTED)
+    status = models.CharField(max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED)
     submission = models.ForeignKey('submissions.Submission', related_name='reports',
                                    on_delete=models.CASCADE)
     vetted_by = models.ForeignKey('scipost.Contributor', related_name="report_vetted_by",

@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.models import Group
-from django.core.validators import RegexValidator
-from django.db import models, transaction
+from django.db import transaction
 
 from guardian.shortcuts import assign_perm
 
