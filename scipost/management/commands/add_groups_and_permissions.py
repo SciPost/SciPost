@@ -177,7 +177,7 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Assign permissions to groups
-        SciPostAdmin.permissions.add(
+        SciPostAdmin.permissions.set([
             can_manage_registration_invitations,
             can_email_group_members,
             can_email_particulars,
@@ -193,12 +193,12 @@ class Command(BaseCommand):
             can_view_production,
             can_attend_VGMs,
             can_manage_mailchimp,
-        )
-        AdvisoryBoard.permissions.add(
+        ])
+        AdvisoryBoard.permissions.set([
             can_manage_registration_invitations,
             can_attend_VGMs,
-        )
-        EditorialAdmin.permissions.add(
+        ])
+        EditorialAdmin.permissions.set([
             can_view_pool,
             can_assign_submissions,
             can_oversee_refereeing,
@@ -207,41 +207,41 @@ class Command(BaseCommand):
             can_view_production,
             can_publish_accepted_submission,
             can_attend_VGMs,
-            )
-        EditorialCollege.permissions.add(
+        ])
+        EditorialCollege.permissions.set([
             can_view_pool,
             can_take_charge_of_submissions,
             can_vet_submitted_reports,
             view_bylaws,
             can_attend_VGMs,
-        )
-        VettingEditors.permissions.add(
+        ])
+        VettingEditors.permissions.set([
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
             can_vet_authorship_claims,
             can_vet_comments,
-        )
-        RegisteredContributors.permissions.add(
+        ])
+        RegisteredContributors.permissions.set([
             can_submit_manuscript,
             can_submit_comments,
             can_express_opinion_on_comments,
             can_request_commentary_pages,
             can_request_thesislinks,
             can_referee,
-        )
-        Developers.permissions.add(
+        ])
+        Developers.permissions.set([
             can_view_docs_scipost,
-        )
-        Ambassadors.permissions.add(
+        ])
+        Ambassadors.permissions.set([
             can_manage_registration_invitations,
-        )
-        JuniorAmbassadors.permissions.add(
+        ])
+        JuniorAmbassadors.permissions.set([
             can_draft_registration_invitations,
-        )
-        ProductionOfficers.permissions.add(
+        ])
+        ProductionOfficers.permissions.set([
             can_view_docs_scipost,
             can_view_production,
-        )
+        ])
 
 
         if verbose:

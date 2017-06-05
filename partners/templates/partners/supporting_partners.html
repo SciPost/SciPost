@@ -118,17 +118,15 @@
 </div>
 
 
-{% if request.user|is_in_group:'Editorial Administrators' %}
+{% if prospective_partners %}
 <div class="row">
     <div class="col-12">
-      <h1 class="highglight">Prospective Partners</h1>
-  <ul>
-    {% for agreement in prospective_agreements %}
-        <li>{{ agreement }}</li>
-    {% empty %}
-        <li>No agreements found</li>
-    {% endfor %}
-  </ul>
+      <h1 class="highlight">Prospective Partners</h1>
+      <ul>
+        {% for agreement in prospective_agreements %}
+            <li>{{ agreement }}</li>
+        {% endfor %}
+      </ul>
     </div>
 </div>
 

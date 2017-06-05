@@ -33,35 +33,39 @@ class RequestPublishedArticleTest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.target = reverse('commentaries:request_published_article')
-        self.commentary_instance = UnvettedCommentaryFactory.build(requested_by=ContributorFactory())
+        self.contributor = ContributorFactory()
+        self.commentary_instance = UnvettedCommentaryFactory.build(requested_by=self.contributor)
         self.valid_form_data = model_form_data(self.commentary_instance, RequestPublishedArticleForm)
 
     def test_commentary_gets_created_with_correct_type_and_link(self):
         request = RequestFactory().post(self.target, self.valid_form_data)
-        request.user = UserFactory()
+        request.user = self.contributor.user
 
         self.assertEqual(Commentary.objects.count(), 0)
         response = RequestPublishedArticle.as_view()(request)
         self.assertEqual(Commentary.objects.count(), 1)
+
         commentary = Commentary.objects.first()
         self.assertEqual(commentary.pub_DOI, self.valid_form_data['pub_DOI'])
         self.assertEqual(commentary.type, 'published')
         self.assertEqual(commentary.arxiv_or_DOI_string, commentary.pub_DOI)
+        self.assertEqual(commentary.requested_by, self.contributor)
 
 
 class RequestArxivPreprintTest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.target = reverse('commentaries:request_arxiv_preprint')
-        self.commentary_instance = UnvettedArxivPreprintCommentaryFactory.build(requested_by=ContributorFactory())
+        self.contributor = ContributorFactory()
+        self.commentary_instance = UnvettedArxivPreprintCommentaryFactory.build(requested_by=self.contributor)
         self.valid_form_data = model_form_data(self.commentary_instance, RequestPublishedArticleForm)
         # The form field is called 'identifier', while the model field is called 'arxiv_identifier',
         # so model_form_data doesn't include it.
         self.valid_form_data['arxiv_identifier'] = self.commentary_instance.arxiv_identifier
 
-    def test_commentary_gets_created_with_correct_type_and_link(self):
+    def test_commentary_gets_created_with_correct_type_and_link_and_requested_by(self):
         request = RequestFactory().post(self.target, self.valid_form_data)
-        request.user = UserFactory()
+        request.user = self.contributor.user
 
         self.assertEqual(Commentary.objects.count(), 0)
         response = RequestArxivPreprint.as_view()(request)
@@ -70,6 +74,7 @@ class RequestArxivPreprintTest(TestCase):
         self.assertEqual(commentary.arxiv_identifier, self.valid_form_data['arxiv_identifier'])
         self.assertEqual(commentary.type, 'preprint')
         self.assertEqual(commentary.arxiv_or_DOI_string, "arXiv:" + self.commentary_instance.arxiv_identifier)
+        self.assertEqual(commentary.requested_by, self.contributor)
 
 class VetCommentaryRequestsTest(TestCase):
     """Test cases for `vet_commentary_requests` view method"""

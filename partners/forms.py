@@ -5,8 +5,8 @@ from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
 
-from .constants import PARTNER_TYPES
-from .models import ContactPerson, Partner, ProspectivePartner, MembershipAgreement
+from .constants import PARTNER_KINDS
+from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent
 
 from scipost.models import TITLE_CHOICES
 
@@ -22,9 +22,30 @@ class PartnerForm(forms.ModelForm):
 
 
 class ProspectivePartnerForm(forms.ModelForm):
+    """
+    This form is used to internally add a ProspectivePartner.
+    If an external agent requests membership of the SPB,
+    the MembershipQueryForm below is used instead.
+    """
     class Meta:
         model = ProspectivePartner
-        exclude = ['date_received', 'date_processed', 'processed']
+        fields = ('kind', 'institution_name', 'country')
+
+
+class ProspectiveContactForm(forms.ModelForm):
+    class Meta:
+        model = ProspectiveContact
+        fields = '__all__'
+        widgets = {'prospartner': forms.HiddenInput()}
+
+
+class ProspectivePartnerEventForm(forms.ModelForm):
+    class Meta:
+        model = ProspectivePartnerEvent
+        fields = ('event', 'comments')
+        widgets = {
+            'comments': forms.Textarea(attrs={'cols': 16, 'rows': 3}),
+        }
 
 
 class MembershipQueryForm(forms.Form):
@@ -37,7 +58,7 @@ class MembershipQueryForm(forms.Form):
     last_name = forms.CharField(label='* Your last name', max_length=100)
     email = forms.EmailField(label='* Your email address')
     role = forms.CharField(label='* Your role in your organization')
-    partner_type = forms.ChoiceField(choices=PARTNER_TYPES, label='* Partner type')
+    partner_kind = forms.ChoiceField(choices=PARTNER_KINDS, label='* Partner kind')
     institution_name = forms.CharField(label='* Name of your institution')
     country = LazyTypedChoiceField(
         choices=countries, label='* Country', initial='NL',
