@@ -38,16 +38,24 @@ SUBMISSION_STATUS = (
 
 SUBMISSION_HTTP404_ON_EDITORIAL_PAGE = [
     'assignment_failed',
-    'published',
+    STATUS_PUBLISHED,
     'withdrawn',
-    'rejected',
-    'rejected_visible',
+    STATUS_REJECTED,
+    STATUS_REJECTED_VISIBLE,
 ]
 
 SUBMISSION_STATUS_OUT_OF_POOL = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
     'resubmitted'
 ]
 
+SUBMISSION_EXCLUDE_FROM_REPORTING = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
+    STATUS_AWAITING_ED_REC,
+    # STATUS_REVIEW_CLOSED,
+    # STATUS_ACCEPTED,
+    # 'voting_in_preparation',
+    # 'put_to_EC_voting',
+    # 'withdrawn',
+]
 
 # Submissions which are allowed/required to submit a EIC Recommendation
 SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [

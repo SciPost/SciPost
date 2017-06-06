@@ -1000,7 +1000,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
     has the reporting deadline not been reached yet and does there exist any invitation
     for the current user on this submission.
     """
-    submission = get_object_or_404(Submission.objects.all(),
+    submission = get_object_or_404(Submission.objects.open_for_reporting(),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     # Check whether the user can submit a report:
     current_contributor = request.user.contributor
