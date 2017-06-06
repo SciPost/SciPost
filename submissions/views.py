@@ -1001,11 +1001,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
     is_author_unchecked = (not is_author and not
                            (request.user.contributor in submission.authors_false_claims.all()) and
                            (request.user.last_name in submission.author_list))
-    try:
-        invitation = RefereeInvitation.objects.get(submission=submission,
-                                                   referee=request.user.contributor)
-    except RefereeInvitation.DoesNotExist:
-        invitation = None
+    invitation = submission.referee_invitations.filter(referee=request.user.contributor).first()
 
     errormessage = None
     if not invitation and timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
@@ -1031,7 +1027,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         author = request.user.contributor
         newreport = form.save(commit=False)
         newreport.submission = submission
-        newreport.author = request.user.contributor
+        newreport.author = author
 
         newreport.date_submitted = timezone.now()
         newreport.save()
@@ -1052,8 +1048,6 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
                 newreport.flagged = True
 
         # Update user stats
-        author.nr_reports = Report.objects.filter(author=author).count()
-        author.save()
         SubmissionUtils.load({'report': newreport}, request)
         SubmissionUtils.email_EIC_report_delivered()
         SubmissionUtils.email_referee_report_delivered()

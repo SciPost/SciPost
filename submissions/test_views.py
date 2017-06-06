@@ -1,19 +1,20 @@
-import json
-
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.test import Client
 
 from common.helpers import random_arxiv_identifier_without_version_number
 from common.helpers.test import add_groups_and_permissions
 from scipost.factories import ContributorFactory
 
-from .constants import STATUS_UNASSIGNED
+from .constants import STATUS_UNASSIGNED, STATUS_DRAFT, STATUS_UNVETTED
 from .factories import UnassignedSubmissionFactory, EICassignedSubmissionFactory,\
                        ResubmittedSubmissionFactory, ResubmissionFactory,\
-                       PublishedSubmissionFactory
-from .forms import RequestSubmissionForm, SubmissionIdentifierForm
-from .models import Submission
+                       PublishedSubmissionFactory, DraftReportFactory
+from .forms import RequestSubmissionForm, SubmissionIdentifierForm, ReportForm
+from .models import Submission, Report
+
+from faker import Faker
+
 
 # This is content of a real arxiv submission. As long as it isn't published it should
 # be possible to run tests using this submission.
@@ -53,7 +54,7 @@ class BaseContributorTestCase(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
-        ContributorFactory.create(
+        self.current_contrib = ContributorFactory.create(
             user__last_name='Linder',  # To pass the author check in create submissions view
             user__username='Test',
             user__password='testpw'
@@ -252,12 +253,137 @@ class SubmitReportTest(BaseContributorTestCase):
     def setUp(self):
         super().setUp()
         self.client = Client()
-        self.submission = EICassignedSubmissionFactory()
-        self.target = reverse(
-            'submissions:submit_report',
-            kwargs={'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr}
-        )
+        report_deadline = Faker().date_time_between(start_date="now", end_date="+30d", tzinfo=None)
+        self.submission = EICassignedSubmissionFactory(reporting_deadline=report_deadline)
+        self.submission.authors.remove(self.current_contrib)
+        self.submission.authors_false_claims.add(self.current_contrib)
+        self.target = reverse('submissions:submit_report',
+                              args=(self.submission.arxiv_identifier_w_vn_nr,))
+        self.assertTrue(self.client.login(username="Test", password="testpw"))
 
-    def test_status_code_200(self):
-        response = self.client.get(self.target)
+    @tag('reports')
+    def test_status_code_200_no_report_set(self):
+        '''Test response for view if no report is submitted yet.'''
+        report_deadline = Faker().date_time_between(start_date="now", end_date="+30d", tzinfo=None)
+        submission = EICassignedSubmissionFactory(reporting_deadline=report_deadline)
+        submission.authors.remove(self.current_contrib)
+        submission.authors_false_claims.add(self.current_contrib)
+
+        target = reverse('submissions:submit_report', args=(submission.arxiv_identifier_w_vn_nr,))
+        client = Client()
+
+        # Login and call view
+        self.assertTrue(client.login(username="Test", password="testpw"))
+        response = client.get(target)
+
         self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.context['form'].instance.id)
+
+    @tag('reports')
+    def test_status_code_200_report_in_draft(self):
+        '''Test response for view if report in draft exists.'''
+        report = DraftReportFactory(submission=self.submission, author=self.current_contrib)
+        response = self.client.get(self.target)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.context['form'], ReportForm)
+        self.assertEqual(response.context['form'].instance, report)
+
+    @tag('reports')
+    def test_post_report_for_draft_status(self):
+        '''Test response of view if report is saved as draft.'''
+        TEST_DATA = {
+            'anonymous': 'on',
+            'clarity': '60',
+            'formatting': '4',
+            'grammar': '5',
+            'originality': '100',
+            'qualification': '3',
+            'recommendation': '3',
+            'remarks_for_editors': 'Lorem Ipsum1',
+            'report': 'Lorem Ipsum',
+            'requested_changes': 'Lorem Ipsum2',
+            'save_draft': 'Save your report as draft',
+            'significance': '0',
+            'strengths': 'Lorem Ipsum3',
+            'validity': '60',
+            'weaknesses': 'Lorem Ipsum4'
+        }
+        response = self.client.post(self.target, TEST_DATA)
+
+        # Check if form is returned with saved report as instance
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.context['form'], ReportForm)
+        self.assertIsInstance(response.context['form'].instance, Report)
+
+        # Briefly do cross checks if report submit is complete
+        report_db = Report.objects.last()
+        self.assertEqual(response.context['form'].instance, report_db)
+        self.assertTrue(report_db.anonymous)
+        self.assertEqual(report_db.status, STATUS_DRAFT)
+        self.assertFalse(report_db.invited)  # Set by view only if non-draft
+        self.assertFalse(report_db.flagged)  # Set by view only if non-draft
+
+        self.assertEqual(report_db.clarity, 60)
+        self.assertEqual(report_db.formatting, 4)
+        self.assertEqual(report_db.grammar, 5)
+        self.assertEqual(report_db.originality, 100)
+        self.assertEqual(report_db.qualification, 3)
+        self.assertEqual(report_db.significance, 0)
+        self.assertEqual(report_db.validity, 60)
+        self.assertEqual(report_db.remarks_for_editors, 'Lorem Ipsum1')
+        self.assertEqual(report_db.requested_changes, 'Lorem Ipsum2')
+        self.assertEqual(report_db.strengths, 'Lorem Ipsum3')
+        self.assertEqual(report_db.weaknesses, 'Lorem Ipsum4')
+
+    @tag('reports')
+    def test_post_report(self):
+        '''Test response of view if report submitted.'''
+        TEST_DATA = {
+            'anonymous': 'on',
+            'clarity': '60',
+            'formatting': '4',
+            'grammar': '5',
+            'originality': '100',
+            'qualification': '3',
+            'recommendation': '3',
+            'remarks_for_editors': 'Lorem Ipsum1',
+            'report': 'Lorem Ipsum',
+            'requested_changes': 'Lorem Ipsum2',
+            'save_submit': 'Submit your report',  # This dict-key makes the difference in the end
+            'significance': '0',
+            'strengths': 'Lorem Ipsum3',
+            'validity': '60',
+            'weaknesses': 'Lorem Ipsum4'
+        }
+        response = self.client.post(self.target, TEST_DATA)
+
+        # Check if user is redirected
+        self.assertEqual(response.status_code, 302)
+
+        # Briefly do cross checks if report submit is complete
+        report_db = Report.objects.last()
+        self.assertEqual(report_db.status, STATUS_UNVETTED)
+
+        # Check if invited value has only changed if valid to do so
+        self.assertIsNone(self.submission.referee_invitations
+                          .filter(referee=self.current_contrib).first())
+        self.assertFalse(report_db.invited)
+
+        # Cross-check if flagged can't be assigned, as this should only happen if author is
+        # flagged on the submission involved
+        self.assertIsNone(self.submission.referees_flagged)
+        self.assertFalse(report_db.flagged)
+
+        self.assertTrue(report_db.anonymous)
+        self.assertEqual(report_db.clarity, 60)
+        self.assertEqual(report_db.formatting, 4)
+        self.assertEqual(report_db.grammar, 5)
+        self.assertEqual(report_db.originality, 100)
+        self.assertEqual(report_db.qualification, 3)
+        self.assertEqual(report_db.significance, 0)
+        self.assertEqual(report_db.validity, 60)
+        self.assertEqual(report_db.remarks_for_editors, 'Lorem Ipsum1')
+        self.assertEqual(report_db.requested_changes, 'Lorem Ipsum2')
+        self.assertEqual(report_db.strengths, 'Lorem Ipsum3')
+        self.assertEqual(report_db.weaknesses, 'Lorem Ipsum4')

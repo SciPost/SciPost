@@ -11,7 +11,7 @@ from common.helpers import random_arxiv_identifier_without_version_number, rando
 from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSION_INCOMING,\
                        STATUS_PUBLISHED, SUBMISSION_TYPE, STATUS_RESUBMITTED, STATUS_VETTED,\
                        REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC, REPORT_REC,\
-                       REPORT_STATUSES, STATUS_UNVETTED
+                       REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT
 from .models import Submission, Report
 
 from faker import Faker
@@ -168,6 +168,11 @@ class ReportFactory(factory.django.DjangoModelFactory):
     grammar = factory.Iterator(QUALITY_SPEC, getter=lambda c: c[0])
     recommendation = factory.Iterator(REPORT_REC, getter=lambda c: c[0])
     remarks_for_editors = Faker().paragraph()
+
+
+class DraftReportFactory(ReportFactory):
+    status = STATUS_DRAFT
+    vetted_by = None
 
 
 class UnVettedReportFactory(ReportFactory):
