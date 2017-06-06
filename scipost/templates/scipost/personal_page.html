@@ -34,20 +34,18 @@
                         <a href="#account" class="nav-link active" data-toggle="tab">Account</a>
                       </li>
                       {% if 'SciPost Administrators' in user_groups or 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups or 'Advisory Board' in user_groups or 'Vetting Editors' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
-                      <li class="nav-item btn btn-secondary">
-                        <a href="#editorial-actions" class="nav-link" data-toggle="tab">Editorial Actions</a>
-                      </li>
-		      {% endif %}
-		      {% if perms.scipost.can_view_production %}
-		      <li class="nav-item btn btn-secondary">
-			<a href="#production" class="nav-link" data-toggle="tab">Production</a>
-		      </li>
-		      {% endif %}
+                          <li class="nav-item btn btn-secondary">
+                            <a href="#editorial-actions" class="nav-link" data-toggle="tab">Editorial Actions</a>
+                          </li>
+        		      {% endif %}
+        		      {% if perms.scipost.can_view_production %}
+            		      <li class="nav-item btn btn-secondary">
+                			<a href="#production" class="nav-link" data-toggle="tab">Production</a>
+            		      </li>
+        		      {% endif %}
                       {% if perms.scipost.can_referee %}
                           <li class="nav-item btn btn-secondary">
-                            {% with pending_count=pending_ref_tasks|length %}
-                                <a class="nav-link" data-toggle="tab" href="#refereeing">Refereeing {% if nr_ref_inv_to_consider|add:pending_count %}({{nr_ref_inv_to_consider|add:pending_count}}){% endif %}</a>
-                            {% endwith %}
+                            <a class="nav-link" data-toggle="tab" href="#refereeing">Refereeing {% if refereeing_tab_total_count %}({{refereeing_tab_total_count}}){% endif %}</a>
                           </li>
                       {% endif %}
                       <li class="nav-item btn btn-secondary">
@@ -371,6 +369,24 @@
                         </ul>
                     </div>
                 </div>
+
+                {% if unfinished_reports %}
+                    <div class="row">
+                        <div class="col-12">
+                            <h3>Unfinished reports:</h3>
+                        </div>
+                        <div class="col-12">
+                            <ul class="list-group list-group-flush">
+                            {% for report in unfinished_reports %}
+                                <li class="list-group-item">
+                                    <div class="w-100">{% include 'submissions/_submission_card_content.html' with submission=report.submission %}</div>
+                                    <div class="px-2"><a class="px-1" href="{% url 'submissions:submit_report' report.submission.arxiv_identifier_w_vn_nr %}">Finish report</a></div>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
             </div><!-- End tab -->
         {% endif %}
 

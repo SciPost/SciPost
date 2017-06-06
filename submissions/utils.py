@@ -4,7 +4,8 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 from django.utils import timezone
 
-from .constants import NO_REQUIRED_ACTION_STATUSES,\
+from .constants import NO_REQUIRED_ACTION_STATUSES, STATUS_VETTED, STATUS_UNCLEAR,\
+                       STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
                        STATUS_REVISION_REQUESTED, STATUS_EIC_ASSIGNED,\
                        STATUS_RESUBMISSION_INCOMING, STATUS_AWAITING_ED_REC
 from .exceptions import CycleUpdateDeadlineError
@@ -1023,7 +1024,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>Dear {{ ref_title }} {{ ref_last_name }},</p>'
             '<p>Many thanks for your Report on Submission</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')
-        if cls.report.status == 1:
+        if cls.report.status == STATUS_VETTED:
             email_text += ('\n\nYour Report has been vetted through and is viewable at '
                            'https://scipost.org/submissions/'
                            + cls.report.submission.arxiv_identifier_w_vn_nr + '.')
@@ -1047,7 +1048,7 @@ class SubmissionUtils(BaseMailUtil):
                        '\n\nThe SciPost Team.')
         email_text_html += ('<p>Many thanks for your collaboration,</p>'
                             '<p>The SciPost Team.</p>')
-        if cls.report.status != 1:
+        if cls.report.status != STATUS_VETTED:
             if cls.email_response is not None:
                 email_text += '\n\nAdditional info from the Editor-in-charge: \n'
                 email_text += cls.email_response
@@ -1078,7 +1079,8 @@ class SubmissionUtils(BaseMailUtil):
             'requested_changes': cls.report.requested_changes,
             'remarks_for_editors': cls.report.remarks_for_editors,
         })
-        if cls.report.status < 0:
+        if cls.report.status in [STATUS_UNCLEAR, STATUS_INCORRECT,
+                                 STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC]:
             email_context['refusal_reason'] = cls.report.get_status_display()
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
