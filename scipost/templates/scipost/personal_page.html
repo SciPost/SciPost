@@ -380,7 +380,7 @@
                             {% for report in unfinished_reports %}
                                 <li class="list-group-item">
                                     <div class="w-100">{% include 'submissions/_submission_card_content.html' with submission=report.submission %}</div>
-                                    <div class="px-2"><a class="px-1" href="{% url 'submissions:submit_report' report.submission.arxiv_identifier_w_vn_nr %}">Finish report</a></div>
+                                    <div class="px-2 mb-3"><a class="px-1" href="{% url 'submissions:submit_report' report.submission.arxiv_identifier_w_vn_nr %}">Finish report</a></div>
                                 </li>
                             {% endfor %}
                             </ul>
