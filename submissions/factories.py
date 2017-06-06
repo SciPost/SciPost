@@ -9,8 +9,10 @@ from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from common.helpers import random_arxiv_identifier_without_version_number, random_scipost_journal
 
 from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSION_INCOMING,\
-                       STATUS_PUBLISHED, SUBMISSION_TYPE, STATUS_RESUBMITTED
-from .models import Submission
+                       STATUS_PUBLISHED, SUBMISSION_TYPE, STATUS_RESUBMITTED, STATUS_VETTED,\
+                       REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC, REPORT_REC,\
+                       REPORT_STATUSES, STATUS_UNVETTED
+from .models import Submission, Report
 
 from faker import Faker
 
@@ -142,3 +144,36 @@ class PublishedSubmissionFactory(SubmissionFactory):
     status = STATUS_PUBLISHED
     open_for_commenting = False
     open_for_reporting = False
+
+
+class ReportFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Report
+
+    status = factory.Iterator(REPORT_STATUSES, getter=lambda c: c[0])
+    submission = factory.Iterator(Submission.objects.all())
+    date_submitted = Faker().date_time_between(start_date="-3y", end_date="now", tzinfo=pytz.UTC)
+    vetted_by = factory.Iterator(Contributor.objects.all())
+    author = factory.Iterator(Contributor.objects.all())
+    qualification = factory.Iterator(REFEREE_QUALIFICATION, getter=lambda c: c[0])
+    strengths = Faker().paragraph()
+    weaknesses = Faker().paragraph()
+    report = Faker().paragraph()
+    requested_changes = Faker().paragraph()
+    validity = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
+    significance = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
+    originality = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
+    clarity = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
+    formatting = factory.Iterator(QUALITY_SPEC, getter=lambda c: c[0])
+    grammar = factory.Iterator(QUALITY_SPEC, getter=lambda c: c[0])
+    recommendation = factory.Iterator(REPORT_REC, getter=lambda c: c[0])
+    remarks_for_editors = Faker().paragraph()
+
+
+class UnVettedReportFactory(ReportFactory):
+    status = STATUS_UNVETTED
+    vetted_by = None
+
+
+class VettedReportFactory(ReportFactory):
+    status = STATUS_VETTED
