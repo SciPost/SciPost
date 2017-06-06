@@ -1219,8 +1219,7 @@ def fix_College_decision(request, rec_id):
         # Publish as Tier I, II or III
         recommendation.submission.status = 'accepted'
         # Create a ProductionStream object
-        prodstream = ProductionStream(submission=recommendation.submission,
-                                      opened=timezone.now())
+        prodstream = ProductionStream(submission=recommendation.submission)
         prodstream.save()
     elif recommendation.recommendation == -3:
         # Reject
