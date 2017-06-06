@@ -51,7 +51,8 @@ class DOICaller:
         # For Physical Review
         pages = data.get('article-number', '')
         # For other journals?
-        pages = data.get('page', '')
+        if not pages:
+            pages = data.get('page', '')
         return pages
 
     def _get_pub_date(self, data):

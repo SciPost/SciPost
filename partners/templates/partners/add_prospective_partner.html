@@ -6,13 +6,15 @@
 
 {% block content %}
 
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>Add a Prospective Partner</h1>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Add a Prospective Partner</h1>
     </div>
-  </div>
-  <p>Please provide contact details of an appropriate representative, and details about the potential Partner.</p>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <p>Please provide contact details of an appropriate representative, and details about the potential Partner.</p>
 
     <form action="{% url 'partners:add_prospective_partner' %}" method="post">
       {% csrf_token %}
@@ -21,9 +23,10 @@
     </form>
 
     {% if errormessage %}
-    <p class="text-danger">{{ errormessage }}</p>
+        <p class="text-danger">{{ errormessage }}</p>
     {% endif %}
 
-</section>
+    </div>
+</div>
 
 {% endblock content %}

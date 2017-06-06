@@ -808,8 +808,8 @@ def personal_page(request):
                                       .count())
         active_assignments = EditorialAssignment.objects.filter(
             to=contributor, accepted=True, completed=False)
-        nr_reports_to_vet = Report.objects.filter(
-            status=0, submission__editor_in_charge=contributor).count()
+        nr_reports_to_vet = (Report.objects.awaiting_vetting()
+                             .filter(submission__editor_in_charge=contributor).count())
     nr_commentary_page_requests_to_vet = 0
     nr_comments_to_vet = 0
     nr_thesislink_requests_to_vet = 0
@@ -820,10 +820,16 @@ def personal_page(request):
         nr_comments_to_vet = Comment.objects.filter(status=0).count()
         nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
         nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
+
+    # Refereeing
     nr_ref_inv_to_consider = RefereeInvitation.objects.filter(
         referee=contributor, accepted=None, cancelled=False).count()
     pending_ref_tasks = RefereeInvitation.objects.filter(
         referee=contributor, accepted=True, fulfilled=False)
+    unfinished_reports = Report.objects.in_draft().filter(author=contributor)
+    refereeing_tab_total_count = nr_ref_inv_to_consider + len(pending_ref_tasks)
+    refereeing_tab_total_count += len(unfinished_reports)
+
     # Verify if there exist objects authored by this contributor,
     # whose authorship hasn't been claimed yet
     own_submissions = (Submission.objects
@@ -881,11 +887,14 @@ def personal_page(request):
         'nr_thesis_authorships_to_claim': nr_thesis_authorships_to_claim,
         'nr_ref_inv_to_consider': nr_ref_inv_to_consider,
         'pending_ref_tasks': pending_ref_tasks,
+        'refereeing_tab_total_count': refereeing_tab_total_count,
+        'unfinished_reports': unfinished_reports,
         'own_submissions': own_submissions,
         'own_commentaries': own_commentaries,
         'own_thesislinks': own_thesislinks,
         'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
     }
+
     return render(request, 'scipost/personal_page.html', context)
 
 
