@@ -446,7 +446,6 @@ class ReportForm(forms.ModelForm):
             report.status = STATUS_DRAFT
         elif 'save_submit' in self.data:
             report.status = STATUS_UNVETTED
-
         if commit:
             report.save()
         return report

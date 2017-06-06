@@ -1028,7 +1028,6 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         newreport = form.save(commit=False)
         newreport.submission = submission
         newreport.author = author
-
         newreport.date_submitted = timezone.now()
         newreport.save()
 
@@ -1040,12 +1039,14 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 
         if invitation:
             invitation.fulfilled = True
-            newreport.invited = True
             invitation.save()
+            newreport.invited = True
 
-        if submission.referees_flagged is not None:
+        # Check if author if the report is being flagged on the submission
+        if submission.referees_flagged:
             if author.user.last_name in submission.referees_flagged:
                 newreport.flagged = True
+        newreport.save()
 
         # Update user stats
         SubmissionUtils.load({'report': newreport}, request)

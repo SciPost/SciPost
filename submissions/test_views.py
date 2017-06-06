@@ -9,9 +9,10 @@ from scipost.factories import ContributorFactory
 from .constants import STATUS_UNASSIGNED, STATUS_DRAFT, STATUS_UNVETTED
 from .factories import UnassignedSubmissionFactory, EICassignedSubmissionFactory,\
                        ResubmittedSubmissionFactory, ResubmissionFactory,\
-                       PublishedSubmissionFactory, DraftReportFactory
+                       PublishedSubmissionFactory, DraftReportFactory,\
+                       AcceptedRefereeInvitationFactory
 from .forms import RequestSubmissionForm, SubmissionIdentifierForm, ReportForm
-from .models import Submission, Report
+from .models import Submission, Report, RefereeInvitation
 
 from faker import Faker
 
@@ -250,6 +251,23 @@ class SubmissionListTest(BaseContributorTestCase):
 
 
 class SubmitReportTest(BaseContributorTestCase):
+    TEST_DATA = {
+        'anonymous': 'on',
+        'clarity': '60',
+        'formatting': '4',
+        'grammar': '5',
+        'originality': '100',
+        'qualification': '3',
+        'recommendation': '3',
+        'remarks_for_editors': 'Lorem Ipsum1',
+        'report': 'Lorem Ipsum',
+        'requested_changes': 'Lorem Ipsum2',
+        'significance': '0',
+        'strengths': 'Lorem Ipsum3',
+        'validity': '60',
+        'weaknesses': 'Lorem Ipsum4'
+    }
+
     def setUp(self):
         super().setUp()
         self.client = Client()
@@ -292,24 +310,7 @@ class SubmitReportTest(BaseContributorTestCase):
     @tag('reports')
     def test_post_report_for_draft_status(self):
         '''Test response of view if report is saved as draft.'''
-        TEST_DATA = {
-            'anonymous': 'on',
-            'clarity': '60',
-            'formatting': '4',
-            'grammar': '5',
-            'originality': '100',
-            'qualification': '3',
-            'recommendation': '3',
-            'remarks_for_editors': 'Lorem Ipsum1',
-            'report': 'Lorem Ipsum',
-            'requested_changes': 'Lorem Ipsum2',
-            'save_draft': 'Save your report as draft',
-            'significance': '0',
-            'strengths': 'Lorem Ipsum3',
-            'validity': '60',
-            'weaknesses': 'Lorem Ipsum4'
-        }
-        response = self.client.post(self.target, TEST_DATA)
+        response = self.client.post(self.target, {**self.TEST_DATA, 'save_draft': 'True'})
 
         # Check if form is returned with saved report as instance
         self.assertEqual(response.status_code, 200)
@@ -339,24 +340,7 @@ class SubmitReportTest(BaseContributorTestCase):
     @tag('reports')
     def test_post_report(self):
         '''Test response of view if report submitted.'''
-        TEST_DATA = {
-            'anonymous': 'on',
-            'clarity': '60',
-            'formatting': '4',
-            'grammar': '5',
-            'originality': '100',
-            'qualification': '3',
-            'recommendation': '3',
-            'remarks_for_editors': 'Lorem Ipsum1',
-            'report': 'Lorem Ipsum',
-            'requested_changes': 'Lorem Ipsum2',
-            'save_submit': 'Submit your report',  # This dict-key makes the difference in the end
-            'significance': '0',
-            'strengths': 'Lorem Ipsum3',
-            'validity': '60',
-            'weaknesses': 'Lorem Ipsum4'
-        }
-        response = self.client.post(self.target, TEST_DATA)
+        response = self.client.post(self.target, {**self.TEST_DATA, 'save_submit': 'True'})
 
         # Check if user is redirected
         self.assertEqual(response.status_code, 302)
@@ -387,3 +371,46 @@ class SubmitReportTest(BaseContributorTestCase):
         self.assertEqual(report_db.requested_changes, 'Lorem Ipsum2')
         self.assertEqual(report_db.strengths, 'Lorem Ipsum3')
         self.assertEqual(report_db.weaknesses, 'Lorem Ipsum4')
+
+    @tag('reports')
+    def test_post_report_flagged_author(self):
+        '''Test if report is `flagged` if author is flagged on related submission.'''
+        report_deadline = Faker().date_time_between(start_date="now", end_date="+30d", tzinfo=None)
+        submission = EICassignedSubmissionFactory(reporting_deadline=report_deadline,
+                                                  referees_flagged=str(self.current_contrib))
+        submission.authors.remove(self.current_contrib)
+        submission.authors_false_claims.add(self.current_contrib)
+
+        target = reverse('submissions:submit_report', args=(submission.arxiv_identifier_w_vn_nr,))
+        client = Client()
+
+        # Login and call view
+        self.assertTrue(client.login(username="Test", password="testpw"))
+        self.TEST_DATA['save_submit'] = 'Submit your report'
+        response = client.post(target, self.TEST_DATA)
+        self.assertEqual(response.status_code, 302)
+
+        # Briefly checks if report is valid
+        report_db = Report.objects.last()
+        self.assertEqual(report_db.status, STATUS_UNVETTED)
+        self.assertTrue(report_db.flagged)
+
+    @tag('reports')
+    def test_post_report_with_invitation(self):
+        '''Test if report is submission is valid using invitation.'''
+        AcceptedRefereeInvitationFactory(submission=self.submission, referee=self.current_contrib)
+
+        # Post Data
+        response = self.client.post(self.target, {**self.TEST_DATA, 'save_submit': 'True'})
+        self.assertEqual(response.status_code, 302)
+
+        # Briefly checks if report is valid
+        report_db = Report.objects.last()
+        self.assertEqual(report_db.status, STATUS_UNVETTED)
+        self.assertTrue(report_db.invited)
+
+        # Check if Invitation has changed correctly
+        invitation = RefereeInvitation.objects.last()
+        self.assertEqual(invitation.referee, self.current_contrib)
+        self.assertEqual(invitation.submission, self.submission)
+        self.assertTrue(invitation.fulfilled)
