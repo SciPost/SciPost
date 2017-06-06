@@ -6,7 +6,8 @@ from guardian.shortcuts import assign_perm
 
 from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED,\
                        REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
-                       STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING
+                       STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
+                       STATUS_DRAFT, STATUS_UNVETTED
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
@@ -417,17 +418,38 @@ class ReportForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ReportForm, self).__init__(*args, **kwargs)
-        self.fields['strengths'].widget.attrs.update(
-            {'placeholder': 'Give a point-by-point (numbered 1-, 2-, ...) list of the paper\'s strengths',
-             'rows': 10, 'cols': 100})
-        self.fields['weaknesses'].widget.attrs.update(
-            {'placeholder': 'Give a point-by-point (numbered 1-, 2-, ...) list of the paper\'s weaknesses',
-             'rows': 10, 'cols': 100})
+        self.fields['strengths'].widget.attrs.update({
+            'placeholder': ('Give a point-by-point '
+                            '(numbered 1-, 2-, ...) list of the paper\'s strengths'),
+            'rows': 10,
+            'cols': 100
+        })
+        self.fields['weaknesses'].widget.attrs.update({
+            'placeholder': ('Give a point-by-point '
+                            '(numbered 1-, 2-, ...) list of the paper\'s weaknesses'),
+            'rows': 10,
+            'cols': 100
+        })
         self.fields['report'].widget.attrs.update({'placeholder': 'Your general remarks',
                                                    'rows': 10, 'cols': 100})
-        self.fields['requested_changes'].widget.attrs.update(
-            {'placeholder': 'Give a numbered (1-, 2-, ...) list of specifically requested changes',
-             'cols': 100})
+        self.fields['requested_changes'].widget.attrs.update({
+            'placeholder': 'Give a numbered (1-, 2-, ...) list of specifically requested changes',
+            'cols': 100
+        })
+
+    def save(self, commit=False):
+        """
+        Possibly overwrite the default status if user asks for saving as draft.
+        """
+        report = super().save(commit=False)
+        if 'save_draft' in self.data:
+            report.status = STATUS_DRAFT
+        elif 'save_submit' in self.data:
+            report.status = STATUS_UNVETTED
+
+        if commit:
+            report.save()
+        return report
 
 
 class VetReportForm(forms.Form):

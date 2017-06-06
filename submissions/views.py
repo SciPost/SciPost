@@ -16,7 +16,8 @@ from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
 
 from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATUS_EIC_ASSIGNED,\
-                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES
+                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES,\
+                       STATUS_DRAFT
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication
 from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm,\
@@ -167,12 +168,18 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     try:
         is_author = request.user.contributor in submission.authors.all()
-        is_author_unchecked = (not is_author and not
-                               (request.user.contributor in submission.authors_false_claims.all()) and
-                               (request.user.last_name in submission.author_list))
+        is_author_unchecked = (not is_author and
+                               request.user.contributor not in submission.authors_false_claims.all()
+                               and request.user.last_name in submission.author_list)
+        try:
+            unfinished_report_for_user = (submission.reports.in_draft()
+                                          .get(author=request.user.contributor))
+        except Report.DoesNotExist:
+            unfinished_report_for_user = None
     except AttributeError:
         is_author = False
         is_author_unchecked = False
+        unfinished_report_for_user = None
     if (submission.status in SUBMISSION_STATUS_PUBLICLY_INVISIBLE
             and not request.user.groups.filter(name__in=['SciPost Administrators',
                                                          'Editorial Administrators',
@@ -187,8 +194,10 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
 
     invited_reports = submission.reports.accepted().filter(invited=True)
     contributed_reports = submission.reports.accepted().filter(invited=False)
-    comments = submission.comments.vetted().filter(is_author_reply=False).order_by('-date_submitted')
-    author_replies = submission.comments.vetted().filter(is_author_reply=True).order_by('-date_submitted')
+    comments = (submission.comments.vetted()
+                .filter(is_author_reply=False).order_by('-date_submitted'))
+    author_replies = (submission.comments.vetted()
+                      .filter(is_author_reply=True).order_by('-date_submitted'))
 
     try:
         recommendation = (EICRecommendation.objects.filter_for_user(request.user)
@@ -202,6 +211,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                'comments': comments,
                'invited_reports': invited_reports,
                'contributed_reports': contributed_reports,
+               'unfinished_report_for_user': unfinished_report_for_user,
                'author_replies': author_replies,
                'form': form,
                'is_author': is_author,
@@ -1001,6 +1011,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
     if not invitation and timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
         errormessage = ('The reporting deadline has passed. You cannot submit'
                         ' a Report anymore.')
+        # Also, delete possible report in draft here?
     if is_author:
         errormessage = 'You are an author of this Submission and cannot submit a Report.'
     if is_author_unchecked:
@@ -1011,12 +1022,26 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         messages.warning(request, errormessage)
         return redirect(reverse('scipost:personal_page'))
 
-    form = ReportForm(request.POST or None)
+    try:
+        report_in_draft = submission.reports.in_draft().get(author=request.user.contributor)
+    except Report.DoesNotExist:
+        report_in_draft = None
+    form = ReportForm(request.POST or None, instance=report_in_draft)
     if form.is_valid():
         author = request.user.contributor
         newreport = form.save(commit=False)
         newreport.submission = submission
         newreport.author = request.user.contributor
+
+        newreport.date_submitted = timezone.now()
+        newreport.save()
+
+        if newreport.status == STATUS_DRAFT:
+            messages.success(request, ('Your Report has been saved. '
+                                       'You may leave the page and finish it later.'))
+            context = {'submission': submission, 'form': form}
+            return render(request, 'submissions/submit_report.html', context)
+
         if invitation:
             invitation.fulfilled = True
             newreport.invited = True
@@ -1025,9 +1050,6 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         if submission.referees_flagged is not None:
             if author.user.last_name in submission.referees_flagged:
                 newreport.flagged = True
-
-        newreport.date_submitted = timezone.now()
-        newreport.save()
 
         # Update user stats
         author.nr_reports = Report.objects.filter(author=author).count()
