@@ -1056,9 +1056,6 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         SubmissionUtils.email_EIC_report_delivered()
         SubmissionUtils.email_referee_report_delivered()
 
-        # Why is this session update?
-        request.session['arxiv_identifier_w_vn_nr'] = arxiv_identifier_w_vn_nr
-
         messages.success(request, 'Thank you for your Report')
         return redirect(reverse('scipost:personal_page'))
 
