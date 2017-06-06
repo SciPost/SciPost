@@ -72,10 +72,10 @@
             <h3>View more material from these authors:</h3>
             <p>
             {% for author in publication.authors.all %}
-              <a href="/contributor/{{ author.id }}">{{ author }}</a>&nbsp;&nbsp;
+              <a href="{{author.get_absolute_url}}">{{ author }}</a> {% if not forloop.last %}&nbsp;&middot;&nbsp;{% endif %}
             {% endfor %}
             {% for author in publication.authors_unregistered.all %}
-              {{ author }}&nbsp;&nbsp;
+              {{ author }} {% if not forloop.last %}&nbsp;&middot;&nbsp;{% endif %}
             {% endfor %}
             </p>
         </div>

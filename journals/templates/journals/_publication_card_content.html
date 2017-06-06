@@ -3,6 +3,12 @@
 </div>
 <div class="card-block publication-{{publication.id}}">
     <p class="card-text mb-2">{{ publication.author_list }}</p>
-    <p class="card-text text-muted">{{ publication.citation }} &middot; <span class="font-weight-light">published {{ publication.publication_date|date:'j F Y' }}</span> <span class="mx-1">|</span> <a href="javascript:;" data-toggle="toggle" data-target=".card-block.publication-{{publication.id}} .abstract">Toggle abstract</a> &middot; <a href="{{publication.get_absolute_url}}/pdf" target="_blank">pdf</a></p>
+    <p class="card-text text-muted">
+        {{ publication.citation }} &middot;
+        <span class="font-weight-light">published {{ publication.publication_date|date:'j F Y' }}</span>
+        <span class="mx-1">|</span>
+        <a href="javascript:;" data-toggle="toggle" data-target=".card-block.publication-{{publication.id}} .abstract">Toggle abstract</a>
+        &middot; <a href="{{publication.get_absolute_url}}/pdf" target="_blank">pdf</a>
+    </p>
     <p class="abstract mb-0 mt-2 py-2" style="display:none;">{{ publication.abstract }}</p>
 </div>

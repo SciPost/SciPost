@@ -2,29 +2,47 @@
 
 {% block pagetitle %}: metadata XML deposit{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+            <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
+            <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
+            <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+            <span class="breadcrumb-item active">Metadata XML deposit</span>
+        </div>
+    </nav>
+{% endblock %}
+
+{% block content %}
 
 
-<section>
-  <div class="flex-greybox">
-    <h1>Metadata deposit</h1>
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Metadata deposit <small>(using the {{ option }} server)</small></h1>
   </div>
+</div>
 
-  <h2>(using the {{ option }} server)</h2>
 
+<div class="row">
+  <div class="col-12">
   {% if errormessage %}
-    <h2 style="color: red;">{{ errormessage }}</h2>
+    <h2 class="text-danger">{{ errormessage }}</h2>
   {% endif %}
 
-  <h3>Response headers:</h3>
-  <p>{{ response_headers|linebreaks }}</p>
+  <h3 class="my-1">Response headers:</h3>
+  <div>
+      <pre><code>{{ response_headers|linebreaks }}</code></pre>
+  </div>
 
-  <h3>Response text:</h3>
+  <h3 class="mt-3">Response text:</h3>
   <p>{{ response_text|linebreaks }}</p>
 
   <h3><a href="{{publication.get_absolute_url}}">return to the publication's page</a></h3>
 
-</section>
+
+    </div>
+</div>
 
 
-{% endblock bodysup %}
+{% endblock %}

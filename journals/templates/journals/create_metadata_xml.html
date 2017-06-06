@@ -2,34 +2,55 @@
 
 {% block pagetitle %}: Create metadata xml{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+            <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
+            <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
+            <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+            <span class="breadcrumb-item active">Create metadata XML</span>
+        </div>
+    </nav>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Create metadata XML (for Crossref deposit)</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+      {% if errormessage %}
+          <h2 class="text-danger">{{ errormessage }}</h2>
+      {% endif %}
+
+      <form action="{% url 'journals:create_metadata_xml' publication.doi_label %}" method="post">
+        {% csrf_token %}
+        {{ create_metadata_xml_form|bootstrap }}
+        <input type="submit" class="btn btn-secondary" value="Accept the metadata">
+      </form>
+
+      <hr class="hr6"/>
+
+      <h3>Current metadata xml:</h3>
+      <div>
+          <pre><code>
+              {{ publication.metadata_xml|linebreaks }}
+          </code></pre>
+      </div>
+
+      <hr class="hr6"/>
+
+      <h3>Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a></h3>
+
+    </div>
+</div>
 
 
-<section>
-  <div class="flex-greybox">
-    <h1>Create metadata XML (for Crossref deposit)</h1>
-  </div>
-
-  {% if errormessage %}
-  <h2 style="color: red;">{{ errormessage }}</h2>
-  {% endif %}
-
-  <form action="{% url 'journals:create_metadata_xml' publication.doi_label %}" method="post">
-    {% csrf_token %}
-    {{ create_metadata_xml_form.as_p }}
-    <input type="submit" value="Accept the metadata">
-  </form>
-
-  <hr class="hr6"/>
-
-  <h3>Current metadata xml:</h3>
-  <p>{{ publication.metadata_xml|linebreaks }}</p>
-
-  <hr class="hr6"/>
-
-  <h3>Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a></h3>
-
-</section>
-
-
-{% endblock bodysup %}
+{% endblock content %}

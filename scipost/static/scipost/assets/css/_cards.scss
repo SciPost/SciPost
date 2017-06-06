@@ -3,11 +3,12 @@
 
     &.card-grey {
         background-color: #F4F4F4;
-        border-color: #ddd;
+        border-color: #ececec;
     }
 
     &.card-publication {
         box-shadow: 0 1px 0 0 #ddd;
+        border-color: #ddd;
 
         .card-header {
             background-color: #eee;

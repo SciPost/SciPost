@@ -1,9 +1,8 @@
-from django.shortcuts import render
+from django.views.generic.list import ListView
 
 from .models import NewsItem
 
 
-def news(request):
-    newsitems = NewsItem.objects.all().order_by('-date')
-    context = {'newsitems': newsitems}
-    return render(request, 'scipost/news.html', context)
+class NewsListView(ListView):
+    model = NewsItem
+    paginate_by = 10

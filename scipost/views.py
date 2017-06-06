@@ -1273,7 +1273,6 @@ def Fellow_activity_overview(request, Fellow_id=None):
     return render(request, 'scipost/Fellow_activity_overview.html', context)
 
 
-
 class AboutView(ListView):
     model = EditorialCollege
     template_name = 'scipost/about.html'

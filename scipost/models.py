@@ -3,12 +3,12 @@ import hashlib
 import random
 import string
 
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.template import Template, Context
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 
 from django_countries.fields import CountryField
 
@@ -68,6 +68,9 @@ class Contributor(models.Model):
 
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
+
+    def get_absolute_url(self):
+        return reverse('scipost:contributor_info', args=(self.id,))
 
     def get_formal_display(self):
         return '%s %s %s' % (self.get_title_display(), self.user.first_name, self.user.last_name)

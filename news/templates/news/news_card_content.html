@@ -1,7 +1,7 @@
-<div class="card-block px-0 pt-0 news-item" id="news_{{news.id}}">
+<div class="card-block news-item" id="news_{{news.id}}">
     <h3 class="card-title mb-0">{{news.headline}}</h3>
     <div class="px-1 mt-1">
-        <h4 class="text-muted font-weight-bold">{{news.date|date:'Y-n-j'}}</h4>
+        <h4 class="text-muted">{{news.date|date:'Y-n-j'}}</h4>
         <div>{{news.blurb|linebreaks}}</div>
 
         {% if news.followup_link %}
