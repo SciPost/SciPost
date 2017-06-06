@@ -12,7 +12,6 @@ class ProductionEventForm(forms.ModelForm):
             'duration'
         )
         widgets = {
-            'stream': forms.HiddenInput(),
             'comments': forms.Textarea(attrs={'rows': 4}),
             'duration': forms.TextInput(attrs={'placeholder': 'HH:MM:SS'})
         }
