@@ -15,7 +15,7 @@ from django.utils.decorators import method_decorator
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
 
-from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED,\
+from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATUS_EIC_ASSIGNED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication
@@ -861,9 +861,9 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
 
 @permission_required('scipost.can_oversee_refereeing', raise_exception=True)
 def refereeing_overview(request):
-    submissions_under_refereeing = Submission.objects.filter(
-        status='EICassigned').order_by('submission_date')
-    context= {'submissions_under_refereeing': submissions_under_refereeing,}
+    submissions_under_refereeing = (Submission.objects.filter(status=STATUS_EIC_ASSIGNED)
+                                    .order_by('submission_date'))
+    context = {'submissions_under_refereeing': submissions_under_refereeing}
     return render(request, 'submissions/refereeing_overview.html', context)
 
 
@@ -1060,7 +1060,7 @@ def vet_submitted_reports(request):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 @transaction.atomic
 def vet_submitted_report_ack(request, report_id):
-    report = get_object_or_404(Report, pk=report_id,
+    report = get_object_or_404(Report.objects.awaiting_vetting(), pk=report_id,
                                submission__editor_in_charge=request.user.contributor)
     form = VetReportForm(request.POST or None)
     if form.is_valid():

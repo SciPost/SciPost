@@ -263,7 +263,7 @@ class Report(models.Model):
                                           verbose_name="Quality of paper formatting")
     grammar = models.SmallIntegerField(choices=QUALITY_SPEC,
                                        verbose_name="Quality of English grammar")
-    #
+
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     remarks_for_editors = models.TextField(default='', blank=True,
                                            verbose_name='optional remarks for the Editors only')

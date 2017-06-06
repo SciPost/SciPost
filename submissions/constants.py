@@ -163,6 +163,7 @@ REPORT_ACTION_CHOICES = (
     (REPORT_ACTION_REFUSE, 'refuse'),
 )
 
+STATUS_DRAFT = 'draft'
 STATUS_VETTED = 'vetted'
 STATUS_UNVETTED = 'unvetted'
 STATUS_UNCLEAR = 'unclear'
@@ -179,6 +180,7 @@ REPORT_REFUSAL_CHOICES = (
 )
 
 REPORT_STATUSES = (
+    (STATUS_DRAFT, 'Draft'),
     (STATUS_VETTED, 'Vetted'),
     (STATUS_UNVETTED, 'Unvetted'),
     (STATUS_INCORRECT, 'Rejected (incorrect)'),
