@@ -183,7 +183,7 @@ class SubmitManuscriptTest(BaseContributorTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.context['form'], RequestSubmissionForm)
         self.assertFalse(response.context['form'].is_valid())
-        print(response.context['form'].errors.as_data())
+        self.assertIn('author_list', response.context['form'].errors.keys())
 
         # No real check is done here to see if submission submit is aborted.
         # To be implemented after Arxiv caller.
@@ -248,4 +248,16 @@ class SubmissionListTest(BaseContributorTestCase):
         self.assertListEqual(returned_submissions_ids, visible_submission_ids)
 
 
-# class SubmitReportTest
+class SubmitReportTest(BaseContributorTestCase):
+    def setUp(self):
+        super().setUp()
+        self.client = Client()
+        self.submission = EICassignedSubmissionFactory()
+        self.target = reverse(
+            'submissions:submit_report',
+            kwargs={'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr}
+        )
+
+    def test_status_code_200(self):
+        response = self.client.get(self.target)
+        self.assertEqual(response.status_code, 200)
