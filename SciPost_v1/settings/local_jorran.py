@@ -1,7 +1,7 @@
 from .base import *
 
 # THE MAIN THING HERE
-DEBUG = False
+DEBUG = True
 
 # Debug toolbar settings
 INSTALLED_APPS += (

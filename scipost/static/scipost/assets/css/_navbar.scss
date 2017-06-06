@@ -5,6 +5,10 @@
 .navbar {
     margin-bottom: 0.75rem;
 
+    &.main-nav {
+        border-bottom: 1px solid #ddd;
+    }
+
     .nav-link {
         padding-right: .5rem;
         padding-left: .5rem;
