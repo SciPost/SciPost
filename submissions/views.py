@@ -989,25 +989,42 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
 ###########
 # Reports
 ###########
-
 @login_required
 @permission_required('scipost.can_referee', raise_exception=True)
 @transaction.atomic
 def submit_report(request, arxiv_identifier_w_vn_nr):
+    """
+    A form to submit a report on a submission will be shown and processed here.
+
+    Important checks to be aware of include an author check for the submission,
+    has the reporting deadline not been reached yet and does there exist any invitation
+    for the current user on this submission.
+    """
     submission = get_object_or_404(Submission.objects.all(),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     # Check whether the user can submit a report:
-    is_author = request.user.contributor in submission.authors.all()
+    current_contributor = request.user.contributor
+    is_author = current_contributor in submission.authors.all()
     is_author_unchecked = (not is_author and not
-                           (request.user.contributor in submission.authors_false_claims.all()) and
+                           (current_contributor in submission.authors_false_claims.all()) and
                            (request.user.last_name in submission.author_list))
-    invitation = submission.referee_invitations.filter(referee=request.user.contributor).first()
+    invitation = submission.referee_invitations.filter(referee=current_contributor).first()
 
     errormessage = None
-    if not invitation and timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
-        errormessage = ('The reporting deadline has passed. You cannot submit'
-                        ' a Report anymore.')
-        # Also, delete possible report in draft here?
+    if not invitation:
+        if timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
+            errormessage = ('The reporting deadline has passed. You cannot submit'
+                            ' a Report anymore.')
+        elif not submission.open_for_reporting:
+            errormessage = ('Reporting for this submission has closed. You cannot submit'
+                            ' a Report anymore.')
+
+        if errormessage:
+            # Remove old drafts from the database
+            reports_in_draft_to_remove = (submission.reports.in_draft()
+                                          .filter(author=current_contributor))
+            if reports_in_draft_to_remove:
+                reports_in_draft_to_remove.delete()
     if is_author:
         errormessage = 'You are an author of this Submission and cannot submit a Report.'
     if is_author_unchecked:
@@ -1018,37 +1035,23 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         messages.warning(request, errormessage)
         return redirect(reverse('scipost:personal_page'))
 
+    # Find and fill earlier version of report
     try:
-        report_in_draft = submission.reports.in_draft().get(author=request.user.contributor)
+        report_in_draft = submission.reports.in_draft().get(author=current_contributor)
     except Report.DoesNotExist:
         report_in_draft = None
     form = ReportForm(request.POST or None, instance=report_in_draft)
-    if form.is_valid():
-        author = request.user.contributor
-        newreport = form.save(commit=False)
-        newreport.submission = submission
-        newreport.author = author
-        newreport.date_submitted = timezone.now()
-        newreport.save()
 
+    # Check if data sent is valid
+    if form.is_valid():
+        newreport = form.save(submission, current_contributor)
         if newreport.status == STATUS_DRAFT:
             messages.success(request, ('Your Report has been saved. '
                                        'You may leave the page and finish it later.'))
             context = {'submission': submission, 'form': form}
             return render(request, 'submissions/submit_report.html', context)
 
-        if invitation:
-            invitation.fulfilled = True
-            invitation.save()
-            newreport.invited = True
-
-        # Check if author if the report is being flagged on the submission
-        if submission.referees_flagged:
-            if author.user.last_name in submission.referees_flagged:
-                newreport.flagged = True
-        newreport.save()
-
-        # Update user stats
+        # Send mails if report is submitted
         SubmissionUtils.load({'report': newreport}, request)
         SubmissionUtils.email_EIC_report_delivered()
         SubmissionUtils.email_referee_report_delivered()
@@ -1066,42 +1069,39 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 @login_required
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def vet_submitted_reports(request):
+    """
+    Reports with status `unvetted` will be shown one-by-one. An user may only
+    vet reports of submissions he/she is EIC of.
+
+    After vetting an email is sent to the report author, bcc EIC. If report
+    has not been refused, the submission author is also mailed.
+    """
     contributor = Contributor.objects.get(user=request.user)
     report_to_vet = (Report.objects.awaiting_vetting()
+                     .select_related('submission')
                      .filter(submission__editor_in_charge=contributor).first())
-    form = VetReportForm()
-    context = {'contributor': contributor, 'report_to_vet': report_to_vet, 'form': form}
-    return(render(request, 'submissions/vet_submitted_reports.html', context))
 
-
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
-@transaction.atomic
-def vet_submitted_report_ack(request, report_id):
-    report = get_object_or_404(Report.objects.awaiting_vetting(), pk=report_id,
-                               submission__editor_in_charge=request.user.contributor)
-    form = VetReportForm(request.POST or None)
+    form = VetReportForm(request.POST or None, initial={'report': report_to_vet})
     if form.is_valid():
-        report.vetted_by = request.user.contributor
-        if form.cleaned_data['action_option'] == '1':
-            # accept the report as is
-            report.status = STATUS_VETTED
-            report.save()
-            report.submission.latest_activity = timezone.now()
-            report.submission.save()
-        elif form.cleaned_data['action_option'] == '2':
-            # the report is simply rejected
-            report.status = form.cleaned_data['refusal_reason']
-            report.save()
+        report = form.process_vetting(request.user.contributor)
+
         # email report author
         SubmissionUtils.load({'report': report,
                               'email_response': form.cleaned_data['email_response_field']})
         SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
         if report.status == STATUS_VETTED:
             SubmissionUtils.send_author_report_received_email()
-        messages.success(request, 'Submitted Report vetted.')
-        return redirect(reverse('submissions:editorial_page',
-                                args=[report.submission.arxiv_identifier_w_vn_nr]))
-    return redirect(reverse('submissions:vet_submitted_reports'))
+
+        message = 'Submitted Report vetted for <a href="%s">%s</a>.' % (
+            reverse('submissions:editorial_page',
+                    args=(report.submission.arxiv_identifier_w_vn_nr,)),
+            report.submission.arxiv_identifier_w_vn_nr
+        )
+        messages.success(request, message)
+        # Redirect instead of render to loose the POST call and make it a GET
+        return redirect(reverse('submissions:vet_submitted_reports'))
+    context = {'contributor': contributor, 'report_to_vet': report_to_vet, 'form': form}
+    return render(request, 'submissions/vet_submitted_reports.html', context)
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
