@@ -1,18 +1,32 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Completed production streams</span>
+{% endblock %}
 
 {% load bootstrap %}
 
 {% block content %}
 
 <div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Completed production streams</h1>
+    </div>
+</div>
+<div class="row">
   <div class="col-12">
-    <h3>Completed production streams</h3>
     <ul class="list-group list-group-flush">
       {% for stream in streams %}
-      <li class="list-group-item">
-	{% include 'production/_production_stream_card.html' with stream=stream %}
-      </li>
-      <hr/>
+        <li class="list-group-item">
+            <div class="w-100">{% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}</div>
+            <div class="card-block">
+                <h3>Events</h3>
+                {% include 'production/_production_events.html' with events=stream.productionevent_set.all %}
+            </div>
+        </li>
+      {% empty %}
+        <li class="list-group-item">No completed production streams found.</li>
       {% endfor %}
     </ul>
   </div>
