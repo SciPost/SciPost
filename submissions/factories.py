@@ -12,7 +12,7 @@ from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSI
                        STATUS_PUBLISHED, SUBMISSION_TYPE, STATUS_RESUBMITTED, STATUS_VETTED,\
                        REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC, REPORT_REC,\
                        REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT
-from .models import Submission, Report
+from .models import Submission, Report, RefereeInvitation
 
 from faker import Faker
 
@@ -182,3 +182,26 @@ class UnVettedReportFactory(ReportFactory):
 
 class VettedReportFactory(ReportFactory):
     status = STATUS_VETTED
+
+
+class RefereeInvitationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = RefereeInvitation
+
+    submission = factory.SubFactory('submissions.factories.SubmissionFactory')
+    referee = factory.Iterator(Contributor.objects.all())
+
+    invitation_key = factory.Faker('md5')
+    invited_by = factory.Iterator(Contributor.objects.all())
+
+    @factory.post_generation
+    def contributor_fields(self, create, extracted, **kwargs):
+        self.title = self.referee.title
+        self.first_name = self.referee.user.first_name
+        self.last_name = self.referee.user.last_name
+        self.email_address = self.referee.user.email
+
+
+class AcceptedRefereeInvitationFactory(RefereeInvitationFactory):
+    accepted = True
+    date_responded = Faker().date_time_between(start_date="-1y", end_date="now", tzinfo=pytz.UTC)
