@@ -156,8 +156,8 @@ REPORT_REC = (
 #
 # Reports
 #
-REPORT_ACTION_ACCEPT = 1
-REPORT_ACTION_REFUSE = 2
+REPORT_ACTION_ACCEPT = 'accept'
+REPORT_ACTION_REFUSE = 'refuse'
 REPORT_ACTION_CHOICES = (
     (REPORT_ACTION_ACCEPT, 'accept'),
     (REPORT_ACTION_REFUSE, 'refuse'),
@@ -172,7 +172,7 @@ STATUS_NOT_USEFUL = 'notuseful'
 STATUS_NOT_ACADEMIC = 'notacademic'
 
 REPORT_REFUSAL_CHOICES = (
-    (STATUS_UNVETTED, '-'),
+    (None, '-'),
     (STATUS_UNCLEAR, 'insufficiently clear'),
     (STATUS_INCORRECT, 'not fully factually correct'),
     (STATUS_NOT_USEFUL, 'not useful for the authors'),

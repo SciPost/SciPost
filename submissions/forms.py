@@ -1,13 +1,16 @@
 from django import forms
 from django.contrib.auth.models import Group
 from django.db import transaction
+from django.utils import timezone
 
 from guardian.shortcuts import assign_perm
 
 from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED,\
                        REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
-                       STATUS_DRAFT, STATUS_UNVETTED
+                       STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE,\
+                       STATUS_VETTED
+from .exceptions import InvalidReportVettingValue
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
@@ -437,17 +440,35 @@ class ReportForm(forms.ModelForm):
             'cols': 100
         })
 
-    def save(self, commit=False):
+    def save(self, submission, current_contributor):
         """
+        Update meta data if ModelForm is submitted (non-draft).
         Possibly overwrite the default status if user asks for saving as draft.
         """
         report = super().save(commit=False)
+
+        report.submission = submission
+        report.author = current_contributor
+        report.date_submitted = timezone.now()
+
+        # Save with right status asked by user
         if 'save_draft' in self.data:
             report.status = STATUS_DRAFT
         elif 'save_submit' in self.data:
             report.status = STATUS_UNVETTED
-        if commit:
-            report.save()
+
+            # Update invitation and report meta data if exist
+            invitation = submission.referee_invitations.filter(referee=current_contributor).first()
+            if invitation:
+                invitation.fulfilled = True
+                invitation.save()
+                report.invited = True
+
+            # Check if report author if the report is being flagged on the submission
+            if submission.referees_flagged:
+                if current_contributor.user.last_name in submission.referees_flagged:
+                    report.flagged = True
+        report.save()
         return report
 
 
@@ -458,12 +479,41 @@ class VetReportForm(forms.Form):
     refusal_reason = forms.ChoiceField(choices=REPORT_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(),
                                            label='Justification (optional)', required=False)
+    report = forms.ModelChoiceField(queryset=Report.objects.awaiting_vetting(), required=True,
+                                    widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super(VetReportForm, self).__init__(*args, **kwargs)
-        self.fields['email_response_field'].widget.attrs.update(
-            {'placeholder': 'Optional: give a textual justification (will be included in the email to the Report\'s author)',
-             'rows': 5})
+        self.fields['email_response_field'].widget.attrs.update({
+            'placeholder': ('Optional: give a textual justification '
+                            '(will be included in the email to the Report\'s author)'),
+            'rows': 5
+        })
+
+    def clean_refusal_reason(self):
+        '''Require a refusal reason if report is rejected.'''
+        reason = self.cleaned_data['refusal_reason']
+        if self.cleaned_data['action_option'] == REPORT_ACTION_REFUSE:
+            if not reason:
+                self.add_error('refusal_reason', 'A reason must be given to refuse a report.')
+        return reason
+
+    def process_vetting(self, current_contributor):
+        '''Set the right report status and update submission fields if needed.'''
+        report = self.cleaned_data['report']
+        report.vetted_by = current_contributor
+        if self.cleaned_data['action_option'] == REPORT_ACTION_ACCEPT:
+            # Accept the report as is
+            report.status = STATUS_VETTED
+            report.submission.latest_activity = timezone.now()
+            report.submission.save()
+        elif self.cleaned_data['action_option'] == REPORT_ACTION_REFUSE:
+            # The report is rejected
+            report.status = self.cleaned_data['refusal_reason']
+        else:
+            raise InvalidReportVettingValue(self.cleaned_data['action_option'])
+        report.save()
+        return report
 
 
 ###################
