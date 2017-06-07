@@ -3,7 +3,7 @@ import re
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
@@ -15,7 +15,6 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.template import Context, Template
-from django.utils.http import is_safe_url
 from django.views.generic.list import ListView
 
 from django.db.models import Prefetch
@@ -715,30 +714,47 @@ def mark_draft_inv_as_processed(request, draft_id):
 
 
 def login_view(request):
-    redirect_to = request.POST.get('next', reverse('scipost:personal_page'))
-    redirect_to = (redirect_to
-                   if is_safe_url(redirect_to, request.get_host())
-                   else reverse('scipost:personal_page'))
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=username, password=password)
-        if user is not None and is_registered(user):
-            if user.is_active:
-                login(request, user)
-                return redirect(redirect_to)
+    """
+    This view shows and processes a user's login session.
+
+    The function based method login() is deprecated from
+    Django 1.11 and replaced by Class Based Views.
+
+    See:
+    https://docs.djangoproject.com/en/1.11/releases/1.11/#django-contrib-auth
+    """
+    form = AuthenticationForm(request.POST or None, initial=request.GET)
+    if form.is_valid():
+        user = form.authenticate()
+        if user is not None:
+            if is_registered(user):
+                # This check seems redundant, however do not remove.
+                if user.is_active:
+                    login(request, user)
+                    redirect_to = form.get_redirect_url(request)
+                    return redirect(redirect_to)
+                else:
+                    form.add_error(None, 'Your account is disabled.')
             else:
-                return render(request, 'scipost/disabled_account.html')
+                form.add_error(None, ('Your account has not yet been vetted. '
+                                      '(our admins will verify your credentials very soon)'))
         else:
-            return render(request, 'scipost/login_error.html')
-    else:
-        form = AuthenticationForm()
-        return render(request, 'scipost/login.html', {'form': form, 'next': redirect_to})
+            form.add_error(None, 'Invalid username/password.')
+    context = {'form': form}
+    return render(request, 'scipost/login.html', context)
 
 
 def logout_view(request):
+    """
+    The function based method logout() is deprecated from
+    Django 1.11 and replaced by Class Based Views.
+
+    See:
+    https://docs.djangoproject.com/en/1.11/releases/1.11/#django-contrib-auth
+    """
     logout(request)
-    messages.success(request, '<h3>Keep contributing!</h3>You are now logged out of SciPost.')
+    messages.success(request, ('<h3>Keep contributing!</h3>'
+                               'You are now logged out of SciPost.'))
     return redirect(reverse('scipost:index'))
 
 
