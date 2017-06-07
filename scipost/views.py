@@ -736,7 +736,7 @@ def login_view(request):
                 else:
                     form.add_error(None, 'Your account is disabled.')
             else:
-                form.add_error(None, ('Your account has not yet been vetted.'
+                form.add_error(None, ('Your account has not yet been vetted. '
                                       '(our admins will verify your credentials very soon)'))
         else:
             form.add_error(None, 'Invalid username/password.')
