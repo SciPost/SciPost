@@ -2,8 +2,6 @@
 
 {% block pagetitle %}: login{% endblock pagetitle %}
 
-
-
 {% load bootstrap %}
 
 {% block content %}
@@ -13,14 +11,8 @@
       <h1 class="mb-md-2">Log in to SciPost</h1>
       <form action="{% url 'scipost:login' %}" method="post">
     	{% csrf_token %}
-
         {{ form|bootstrap }}
-
     	<input class="btn btn-primary" type="submit" value="Login" />
-
-    	{% if next %}
-        	<input type="hidden" name="next" value="{{ next }}"/>
-    	{% endif %}
       </form>
       <br/>
       <a href="{% url 'scipost:reset_password' %}">Forgot your password?</a>
