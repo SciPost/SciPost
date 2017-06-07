@@ -48,8 +48,15 @@ def syncronize_members(request, list_id):
     """
     _list = get_object_or_404(MailchimpList, mailchimp_list_id=list_id)
     form = MailchimpUpdateForm()
-    updated = form.sync_members(_list)
-    messages.success(request, '%i members have succesfully been updated.' % updated)
+    unsubscribed, subscribed = form.sync_members(_list)
+
+    # Let the user know
+    text = '<h3>Syncronize members complete.</h3>'
+    if unsubscribed:
+        text += '<br>%i members have succesfully been unsubscribed.' % unsubscribed
+    if subscribed:
+        text += '<br>%i members have succesfully been subscribed.' % subscribed
+    messages.success(request, text)
     return redirect(_list.get_absolute_url())
 
 
