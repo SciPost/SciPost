@@ -124,7 +124,7 @@ def issue_detail(request, doi_label):
     journal = issue.in_volume.in_journal
 
     papers = issue.publication_set.order_by('paper_nr')
-    next_issue = (Issue.objects.published(journal=journal,
+    next_issue = (Issue.objects.published(in_volume__in_journal=journal,
                                           start_date__gt=issue.start_date)
                                .order_by('start_date').first())
     prev_issue = (Issue.objects.published(in_volume__in_journal=journal,
