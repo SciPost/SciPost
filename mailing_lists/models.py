@@ -1,4 +1,5 @@
-from django.db import models
+from django.db import models, transaction
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.urls import reverse
@@ -10,6 +11,8 @@ from .constants import MAIL_LIST_STATUSES, MAIL_LIST_STATUS_ACTIVE,\
 from .managers import MailListManager
 
 from scipost.behaviors import TimeStampedModel
+from scipost.constants import CONTRIBUTOR_NORMAL
+from scipost.models import Contributor
 
 
 class MailchimpList(TimeStampedModel):
@@ -24,6 +27,7 @@ class MailchimpList(TimeStampedModel):
     mailchimp_list_id = models.CharField(max_length=255, unique=True)
     status = models.CharField(max_length=255, choices=MAIL_LIST_STATUSES,
                               default=MAIL_LIST_STATUS_ACTIVE)
+    subscriber_count = models.PositiveIntegerField(default=0)
     open_for_subscription = models.BooleanField(default=False)
     allowed_groups = models.ManyToManyField(Group, related_name='allowed_mailchimp_lists')
 
@@ -40,23 +44,79 @@ class MailchimpList(TimeStampedModel):
     def get_absolute_url(self):
         return reverse('mailing_lists:list_detail', args=[self.mailchimp_list_id])
 
-    def update_membership(self, contributors, status='subscribed'):
+    @transaction.atomic
+    def update_members(self, status='subscribed'):
+        """
+        Update the subscribers in the MailChimp account.
+        """
+        # Extreme timeset value (1 minute) to allow for huge maillist subscribes
         client = MailChimp(settings.MAILCHIMP_API_USER, settings.MAILCHIMP_API_KEY)
-        for contributor in contributors:
-            if self.allowed_groups.filter(user__contributor=contributor).exists():
-                payload = {
-                    'email_address': contributor.user.email,
+        try:
+            unsubscribe_emails = []
+            # Find all campaigns on the account
+            campaigns = client.campaigns.all(get_all=True)
+            for campaign in campaigns['campaigns']:
+
+                # All unsubscriptions are registered per campaign
+                # Should be improved later on
+                unsubscribers = client.reports.unsubscribes.all(campaign['id'], True)
+                for unsubscriber in unsubscribers['unsubscribes']:
+                    if unsubscriber['list_id'] == self.mailchimp_list_id:
+                        unsubscribe_emails.append(unsubscriber['email_address'])
+        except KeyError:
+            # Call with MailChimp went wrong, returned invalid data
+            return None
+
+        # Unsubscribe *all* Contributors in the database if asked for
+        updated_contributors = (Contributor.objects
+                                .filter(accepts_SciPost_emails=True,
+                                        user__email__in=unsubscribe_emails)
+                                .update(accepts_SciPost_emails=False))
+
+        # Check the current list of subscribers in MailChimp account
+        subscribers_list = client.lists.members.all(self.mailchimp_list_id, True,
+                                                    fields="members.email_address")
+        subscribers_list = [sub['email_address'] for sub in subscribers_list['members']]
+
+        # Retrieve *users* that are in the right group and didn't unsubscribe and
+        # are not in the list yet.
+        db_subscribers = (User.objects
+                          .filter(contributor__isnull=False)
+                          .filter(is_active=True, contributor__status=CONTRIBUTOR_NORMAL)
+                          .filter(contributor__accepts_SciPost_emails=True,
+                                  groups__in=self.allowed_groups.all(),
+                                  email__isnull=False,
+                                  first_name__isnull=False,
+                                  last_name__isnull=False)
+                          .exclude(email__in=subscribers_list))
+
+        # Build batch data
+        batch_data = {'operations': []}
+        add_member_path = 'lists/%s/members' % self.mailchimp_list_id
+        for user in db_subscribers:
+            batch_data['operations'].append({
+                'method': 'POST',
+                'path': add_member_path,
+                'data': {
                     'status': status,
                     'status_if_new': status,
+                    'email_address': user.email,
                     'merge_fields': {
-                        'FNAME': contributor.user.first_name,
-                        'LNAME': contributor.user.last_name,
+                        'FNAME': user.first_name,
+                        'LNAME': user.last_name,
                     },
                 }
-                client.lists.members.create_or_update(self.mailchimp_list_id,
-                                                      payload['email_address'],
-                                                      payload)
-        return True
+            })
+        # Make the subscribe call
+        client.batches.create(data=batch_data)
+
+        # No need to update Contributor field *yet*. MailChimp account is leading here.
+        # Contributor.objects.filter(user__in=db_subscribers).update(accepts_SciPost_emails=True)
+
+        list_data = client.lists.get(list_id=self.mailchimp_list_id)
+        self.subscriber_count = list_data['stats']['member_count']
+        self.save()
+        return (updated_contributors, len(db_subscribers),)
 
 
 class MailchimpSubscription(TimeStampedModel):
