@@ -715,7 +715,7 @@ def mark_draft_inv_as_processed(request, draft_id):
 
 def login_view(request):
     """
-    This view shows and processes an user its login session.
+    This view shows and processes a user's login session.
 
     The function based method login() is deprecated from
     Django 1.11 and replaced by Class Based Views.
@@ -738,7 +738,7 @@ def login_view(request):
             else:
                 form.add_error(None, 'Your account has not yet been vetted.')
         else:
-            form.add_error(None, 'Your username and/or password is invalid.')
+            form.add_error(None, 'Invalid username/password.')
     context = {'form': form}
     return render(request, 'scipost/login.html', context)
 
