@@ -46,8 +46,9 @@ h5, h6 {
 
 .highlight {
     background-color: #f4f4f4;
-    border-radius: 0;
-    border: 1px solid #f1f1f1;
+    border-radius: $card-border-radius;
+    border: 1px solid #ececec;
+    box-shadow: 0 1px 0 0 $card-shadow-color;
 
     &.tight {
         display: inline-block;
@@ -85,11 +86,12 @@ h5,
 
 hr,
 hr.hr12 {
-    height: 3px;
+    height: 2px;
     border: 0;
-    box-shadow: none !important;
-    background: rgba(0, 43, 73, 0.73);
+    background: rgb(0, 43, 73);
     margin-bottom: 1rem;
+    border-radius: 99px;
+    box-shadow: 0 1px 0 0 #d3e3f6;
 
     &.small {
         height: 1px;
@@ -98,4 +100,8 @@ hr.hr12 {
 
 .text-blue {
     color: $scipost-lightblue;
+}
+
+.blockquote > p:last-child {
+    margin-bottom: 0;
 }

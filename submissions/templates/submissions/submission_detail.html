@@ -11,9 +11,6 @@
 
   <script>
     $(document).ready(function(){
-    $("#invitedreportsbutton").click(function(){
-    $("#invitedreportslist").toggle();
-    });
 
     var comment_text_input = $("#id_comment_text");
 
@@ -61,7 +58,7 @@
 
         {% if unfinished_report_for_user %}
             <blockquote class="blockquote">
-              <p class="mb-0">You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here.</a></p>
+              <h3>You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here.</a></h3>
             </blockquote>
         {% endif %}
     </div>
@@ -77,12 +74,14 @@
         <br>
         {% if submission.author_comments %}
             <h3>Author comments upon resubmission</h3>
-            <div class="pl-md-4">{{ submission.author_comments|linebreaks }}</div>
+            <div class="blockquote">
+                {{ submission.author_comments|linebreaks }}
+            </div>
         {% endif %}
 
         {% if submission.list_of_changes %}
             <h3>List of changes</h3>
-            <div class="pl-md-4">{{ submission.list_of_changes|linebreaks }}</div>
+            <div class="blockquote">{{ submission.list_of_changes|linebreaks }}</div>
         {% endif %}
     </div>
 </div>
@@ -105,13 +104,7 @@
 {% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
 <div class="row">
     <div class="col-12">
-        <div class="panel">
-            <h2>Actions</h2>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12">
+        <h2 class="highlight">Actions</h2>
         <ul>
             {% if submission.open_for_reporting %}
                 {% if perms.scipost.can_referee and not is_author and not is_author_unchecked %}
@@ -149,8 +142,8 @@
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-block">
-                <h2 class="card-title">Invited Reports on this Submission</h2>
-                <button class="btn btn-secondary" data-toggle="toggle" data-target="#invitedreportslist">Toggle invited reports view</button>
+                <h2 class="card-title mb-0">Invited Reports on this Submission</h2>
+                <a href="javascript:;" data-toggle="toggle" data-target="#invitedreportslist">Toggle invited reports view</a>
             </div>
         </div>
     </div>
@@ -170,8 +163,8 @@
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-block">
-                <h2 class="card-title">Contributed Reports on this Submission</h2>
-                <button class="btn btn-secondary" data-toggle="toggle" data-target="#contributedreportslist">Toggle contributed reports view</button>
+                <h2 class="card-title mb-0">Contributed Reports on this Submission</h2>
+                <a href="javascript:;" data-toggle="toggle" data-target="#contributedreportslist">Toggle contributed reports view</a>
             </div>
         </div>
     </div>

@@ -13,7 +13,7 @@
         padding-right: .5rem;
         padding-left: .5rem;
         border: 1px solid transparent;
-        border-radius: 0.1rem;
+        border-radius: $card-border-radius;
         word-wrap: break-word;
         white-space: nowrap;
         -webkit-transition: all 0.1s ease-in-out;
@@ -31,6 +31,7 @@
 
     .active > .nav-link {
         border-color: $scipost-darkblue;
+        box-shadow: 0 1px 0 0 #ccc;
     }
 
     .highlighted > .nav-link {

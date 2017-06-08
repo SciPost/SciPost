@@ -19,10 +19,11 @@ $container-max-widths: (
 // Cards
 //
 $card-spacer-x: 0.75rem;
-$card-border-radius: 0;
+$card-border-radius: 1px;
 $card-border-color: #fff;
 $card-cap-bg: transparent;
 $btn-secondary-border-color: #f1f1f1;
+$card-shadow-color: #ccc;
 
 // Colors
 //
@@ -88,3 +89,11 @@ $navbar-light-hover-color: $scipost-darkblue !default;
 
 $input-border-radius: 0;
 $btn-border-radius: 0;
+$btn-border-radius-sm: 2px;
+$btn-border-radius-lg: 0;
+
+
+// Block quote
+//
+$blockquote-font-size: $font-size-base;
+$blockquote-border-color: #ececec;

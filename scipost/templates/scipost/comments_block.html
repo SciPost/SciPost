@@ -4,15 +4,15 @@
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-block">
-                <h2 class="card-title">Comments on this publication</h2>
-                <button class="btn btn-secondary" data-toggle="toggle" data-target="#commentslist">Toggle comments view</button>
+                <h2 class="card-title mb-0">Comments on this publication</h2>
+                <a href="javascript:;" data-toggle="toggle" data-target="#commentslist">Toggle comments view</a>
             </div>
         </div>
     </div>
 </div>
 
 <div id="commentslist">
-    {% for comment in comments %}s
+    {% for comment in comments %}
         {% include 'comments/_single_comment_with_link.html' with comment=comment perms=perms user=request.user %}
     {% endfor %}
 </div>
