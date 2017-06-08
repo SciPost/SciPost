@@ -51,18 +51,21 @@
 
     <div class="col-md-5">
         <div class="pl-lg-5">
-            {# <!-- Info -->#}
-            {# <div class="card">#}
-                {# <div class="card-block text-center pt-0">#}
-                    {# <h3 class="m-0 orange-underline" style="line-height: 1.3;">SciPost is a complete scientific publication portal managed by active professional scientists.</h3>#}
-                {# </div>#}
-            {# </div><!-- End info -->#}
+            {% if not user.is_authenticated %}
+                <!-- Register -->
+                <div class="card card-grey">
+                    <div class="card-block">
+                        <h2 class="card-title mb-0"><a href="{% url 'scipost:register' %}">Register</a></h2>
+                        <p class="m-0">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="/register">registration form</a>.</p>
+                    </div>
+                </div><!-- End Register -->
+            {% endif %}
 
             <!-- News -->
             <div class="card card-grey">
                 <div class="card-header border-0">
                     <h2 class="card-title mb-0">
-                        <a href="{% url 'news:news' %}">News</a>
+                        News
                         <a class="floating-rss-icon" href="{% url 'scipost:feeds' %}">
                             <img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14">
                         </a>
@@ -88,7 +91,7 @@
             <!-- Latest issues -->
             <div class="card card-grey">
                 <div class="card-header border-0 pb-0">
-                    <h2 class="card-title mb-0"><a href="/issues/">Latest issues</a></h2>
+                    <h2 class="card-title mb-0">Latest issues</h2>
                 </div>
                 <div class="card-block">
                     <ul class="m-0 pl-4">
@@ -103,16 +106,6 @@
                     <a href="{% url 'journal:issues' 'SciPostPhys' %}">All issues</a>
                 </div>
             </div><!-- End latest issues -->
-
-            {% if not user.is_authenticated %}
-                <!-- Register -->
-                <div class="card card-grey">
-                    <div class="card-block">
-                        <h2 class="card-title mb-0"><a href="{% url 'scipost:register' %}">Register</a></h2>
-                        <p class="m-0">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="/register">registration form</a>.</p>
-                    </div>
-                </div><!-- End Register -->
-            {% endif %}
 
             <!-- Summarized -->
             <div class="card card-grey">
