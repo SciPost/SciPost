@@ -8,6 +8,7 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
 
 from journals import views as journals_views
 from journals.constants import REGEX_CHOICES
+from submissions import views as submission_views
 
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
 
@@ -208,5 +209,9 @@ urlpatterns = [
     url(r'^howto/production$',
         TemplateView.as_view(template_name='scipost/howto_production.html'),
         name='howto_production'),
+
+    # Temporary fix, due to mails sent with wrong urls
+    url(r'^decline_ref_invitation/(?P<invitation_key>.+)$',
+        submission_views.decline_ref_invitation),
 
 ]
