@@ -99,7 +99,7 @@ def add_prospartner_contact(request, prospartner_id):
     return render(request, 'partners/add_prospartner_contact.html', context)
 
 
-@permission_required('scipost.can_manage_SPB', return_403=True)
+@permission_required('scipost.can_email_prospartner_contact', return_403=True)
 @transaction.atomic
 def email_prospartner_contact(request, contact_id):
     contact = get_object_or_404(ProspectiveContact, pk=contact_id)
@@ -141,6 +141,8 @@ def add_prospartner_event(request, prospartner_id):
             ppevent.prospartner = prospartner
             ppevent.noted_by = request.user.contributor
             ppevent.save()
+            prospartner.update_status_from_event(ppevent.event)
+            prospartner.save()
             return redirect(reverse('partners:manage'))
         else:
             errormessage = 'The form was invalidly filled.'

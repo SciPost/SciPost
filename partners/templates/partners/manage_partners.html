@@ -1,5 +1,7 @@
 {% extends 'scipost/base.html' %}
 
+{% load partners_extras %}
+
 {% block pagetitle %}: Supporting Partners: manage{% endblock pagetitle %}
 
 
@@ -59,7 +61,7 @@
                 		  <td>{{ partner.get_country_display }}</td>
                 		  <td>{{ partner.institution_name }}</td>
                 		  <td>{{ partner.get_kind_display }}</td>
-                		  <td>{{ partner.get_status_display }}</td>
+                		  <td style="background-color:{{ partner.status|partnerstatuscolor }}">{{ partner.get_status_display }}</td>
                 		  <td>{{ partner.date_received|date:"Y-m-d" }}</td>
                 	</tr>
                     <tr id="collapse{{ partner.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ partner.id}}" style="background-color: #fff;">
