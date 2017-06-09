@@ -1,0 +1,45 @@
+<p>Dear {{ contact.get_title_display }} {{ contact.last_name }},</p>
+
+{% if message %}
+<p>
+  {{ message|linebreaks }}
+</p>
+{% endif %}
+
+{% if include_SPB_summary %}
+<p>
+  You might by now have heard of SciPost, a recently-launched initiative aiming to bring disruptive change to current academic publishing practices.
+</p>
+<p>
+  In summary, SciPost.org is a publication portal managed by professional scientists, offering (among others) high-quality Open Access journals with innovative forms of refereeing, and a means of commenting on all existing literature. SciPost is established as a not-for-profit foundation devoted to serving the interests of the international scientific community.
+</p>
+<p>
+  The site is anchored at <a href="https://scipost.org">SciPost.org</a>. Many further details about SciPost, its principles, ideals and implementation can be found on the <a href="https://scipost.org/about">about</a> and <a href="https://scipost.org/FAQ">FAQ</a> pages.
+</p>
+<p>
+  Crucially, as explained on our <a href="https://scipost.org/partners">Partners page</a>, SciPost follows a completely different funding model than traditional publishers, and aims at providing a disruptive cost-slashing alternative to existing practises. SciPost charges neither subscription fees, nor article processing charges; its activities are instead to be financed through a Supporting Partners Board, formed by a worldwide collection of institutions and organizations which directly or indirectly benefit from SciPost’s activities.
+</p>
+<p>
+  Support takes the form of a small financial commitment, collectively pooled to enable SciPost to perform all its publication-related activities, maintain its online portal and implement its long-term development plan.
+</p>
+<p>
+  In the <a href="https://scipost.org/static/scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf">agreement template</a>, you will find many more specific details about our operations, requirements and funding strategy. I would greatly appreciate if you took a few minutes to read through this document.
+</p>
+<p>
+  It would be a privilege to welcome you as members of our Supporting Partners Board, and are hereby contacting you to enquire whether your institution would consider joining. Your support at this time is crucially required to make our initiative viable, and to help make it possible for the community to reap all the benefits deriving form its viable implementation.
+</p>
+<p>
+I will be happy to provide any required further details. In the meantime, I send you my best wishes and sincerely hope that SciPost will be able to count on your support.
+</p>
+<p>On behalf of the SciPost Foundation,</p>
+<br/>Prof. dr Jean-Sébastien Caux
+<br/>---------------------------------------------
+<br/>Institute for Theoretial Physics
+<br/>University of Amsterdam
+<br/>Science Park 904
+<br/>1098 XH Amsterdam
+<br/>The Netherlands
+<br/>---------------------------------------------
+<br/>tel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778
+<br/>---------------------------------------------
+{% endif %}
