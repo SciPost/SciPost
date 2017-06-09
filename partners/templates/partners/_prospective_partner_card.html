@@ -17,26 +17,28 @@
     <div class="col-md-7">
       <h3>Contacts:</h3>
       <a class="d-inline-block mb-2" href="{% url 'partners:add_prospartner_contact' prospartner_id=pp.id %}">Add a contact</a>
-        <table class="table">
-            <thead>
-                <th>Role</th>
-                <th>Contact</th>
-                <th>Email</th>
-            </thead>
-            <tbody>
-        	{% for contact in pp.prospectivecontact_set.all %}
-            	<tr>
-            	  <td>{{ contact.role }}</td>
-            	  <td>{{ contact.get_title_display }} {{ contact.first_name }} {{ contact.last_name }}</td>
-            	  <td>{{ contact.email }}</td>
-              </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="3">No contacts found, <a href="{% url 'partners:add_prospartner_contact' prospartner_id=pp.id %}">add a contact</a>.</td>
-                </tr>
-        	{% endfor %}
-            </tbody>
-        </table>
+      <table class="table">
+        <thead>
+          <th>Role</th>
+          <th>Name</th>
+          <th>Email</th>
+	  <th>Actions</th>
+        </thead>
+        <tbody>
+          {% for contact in pp.prospectivecontact_set.all %}
+          <tr>
+            <td>{{ contact.role }}</td>
+            <td>{{ contact.get_title_display }} {{ contact.first_name }} {{ contact.last_name }}</td>
+            <td>{{ contact.email }}</td>
+	    <td><a href="{% url 'partners:email_prospartner_contact' contact_id=contact.id %}">Compose email</a></td>
+	  </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3">No contacts found, <a href="{% url 'partners:add_prospartner_contact' prospartner_id=pp.id %}">add a contact</a>.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -53,7 +55,7 @@
       </ul>
     </div>
     <div class="col-5">
-      <h3>Add an event</h3>
+      <h3>Add an event for this Prospective Partner</h3>
       <form action="{% url 'partners:add_prospartner_event' prospartner_id=pp.id %}" method="post">
 	{% csrf_token %}
 	{{ ppevent_form|bootstrap }}

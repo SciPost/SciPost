@@ -5,11 +5,17 @@ from django.utils import timezone
 
 from guardian.decorators import permission_required
 
-from .constants import PROSPECTIVE_PARTNER_REQUESTED
-from .models import Partner, ProspectivePartner, ProspectiveContact, MembershipAgreement
+from .constants import PROSPECTIVE_PARTNER_REQUESTED, PROSPECTIVE_PARTNER_ADDED,\
+    PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
+    PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT
+from .models import Partner, ProspectivePartner, ProspectiveContact,\
+    ProspectivePartnerEvent, MembershipAgreement
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
-                   ProspectivePartnerEventForm, MembershipQueryForm
+    EmailProspectivePartnerContactForm,\
+    ProspectivePartnerEventForm, MembershipQueryForm
 
+from common.utils import BaseMailUtil
+from .utils import PartnerUtils
 
 def supporting_partners(request):
     context = {}
@@ -40,6 +46,10 @@ def membership_request(request):
             email=query_form.cleaned_data['email'],
         )
         contact.save()
+        prospartnerevent = ProspectivePartnerEvent(
+            prospartner = prospartner,
+            event = PROSPECTIVE_PARTNER_EVENT_REQUESTED,)
+        prospartnerevent.save()
         ack_message = ('Thank you for your SPB Membership query. '
                        'We will get back to you in the very near future '
                        'with further details.')
@@ -87,6 +97,37 @@ def add_prospartner_contact(request, prospartner_id):
         return redirect(reverse('partners:manage'))
     context = {'form': form, 'prospartner': prospartner}
     return render(request, 'partners/add_prospartner_contact.html', context)
+
+
+@permission_required('scipost.can_manage_SPB', return_403=True)
+@transaction.atomic
+def email_prospartner_contact(request, contact_id):
+    contact = get_object_or_404(ProspectiveContact, pk=contact_id)
+    form = EmailProspectivePartnerContactForm(request.POST or None)
+    if form.is_valid():
+        comments = 'Email sent to %s.' % str(contact)
+        prospartnerevent = ProspectivePartnerEvent(
+            prospartner = contact.prospartner,
+            event = PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,
+            comments = comments,
+            noted_on = timezone.now(),
+            noted_by = request.user.contributor)
+        prospartnerevent.save()
+        if contact.prospartner.status in [PROSPECTIVE_PARTNER_REQUESTED,
+                                          PROSPECTIVE_PARTNER_ADDED]:
+            contact.prospartner.status = PROSPECTIVE_PARTNER_APPROACHED
+            contact.prospartner.save()
+        PartnerUtils.load({'contact': contact,
+                           'email_subject': form.cleaned_data['email_subject'],
+                           'message': form.cleaned_data['message'],
+                           'include_SPB_summary': form.cleaned_data['include_SPB_summary']})
+
+        PartnerUtils.email_prospartner_contact()
+        messages.success(request, 'Email successfully sent')
+        return redirect(reverse('partners:manage'))
+    context = {'contact': contact, 'form': form}
+    return render(request, 'partners/email_prospartner_contact.html', context)
+
 
 
 @permission_required('scipost.can_manage_SPB', return_403=True)

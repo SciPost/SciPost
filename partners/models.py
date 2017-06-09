@@ -10,6 +10,7 @@ from .constants import PARTNER_KINDS, PARTNER_STATUS, CONSORTIUM_STATUS, MEMBERS
 from .managers import MembershipAgreementManager
 
 from scipost.constants import TITLE_CHOICES
+from scipost.models import get_sentinel_user
 
 
 ########################
@@ -48,13 +49,18 @@ class ProspectiveContact(models.Model):
     email = models.EmailField()
     role = models.CharField(max_length=128)
 
+    def __str__(self):
+        return "%s %s %s" % (self.get_title_display(), self.first_name, self.last_name)
+
 
 class ProspectivePartnerEvent(models.Model):
     prospartner = models.ForeignKey('partners.ProspectivePartner', on_delete=models.CASCADE)
     event = models.CharField(max_length=64, choices=PROSPECTIVE_PARTNER_EVENTS)
     comments = models.TextField(blank=True)
     noted_on = models.DateTimeField(auto_now_add=True)
-    noted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    noted_by = models.ForeignKey('scipost.Contributor',
+                                 on_delete=models.SET(get_sentinel_user),
+                                 blank=True, null=True)
 
     def __str__(self):
         return '%s: %s' % (str(self.prospective_partner), self.get_event_display())
