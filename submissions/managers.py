@@ -27,7 +27,7 @@ class SubmissionManager(models.Manager):
 
     def user_filter(self, user):
         """
-        Prevent conflic of interest by filtering submissions possible related to user.
+        Prevent conflict of interest by filtering submissions possibly related to user.
         This filter should be inherited by other filters.
         """
         try:
