@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
 from django.utils.http import is_safe_url
 
@@ -16,7 +18,7 @@ from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
 from journals.models import Publication
-from mailing_lists.models import MailchimpList, MailchimpSubscription
+# from mailing_lists.models import MailchimpList, MailchimpSubscription
 
 
 REGISTRATION_REFUSAL_CHOICES = (
@@ -60,13 +62,28 @@ class RegistrationForm(forms.Form):
         required=False)
     username = forms.CharField(label='* Username', max_length=100)
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
-    password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput())
+    password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput(),
+                                     help_text='Your password must contain at least 8 characters')
     captcha = ReCaptchaField(attrs={'theme': 'clean'}, label='*Please verify to continue:')
 
+    def clean_password(self):
+        password = self.cleaned_data.get('password', '')
+        user = User(
+            username=self.cleaned_data.get('username', ''),
+            first_name=self.cleaned_data.get('first_name', ''),
+            last_name=self.cleaned_data.get('last_name', ''),
+            email=self.cleaned_data.get('email', '')
+        )
+        try:
+            validate_password(password, user)
+        except ValidationError as error_message:
+            self.add_error('password', error_message)
+        return password
+
     def clean_password_verif(self):
-        if self.cleaned_data['password'] != self.cleaned_data['password_verif']:
-            self.add_error('password', 'Your passwords must match')
-            self.add_error('password_verif', 'Your passwords must match')
+        if self.cleaned_data.get('password', '') != self.cleaned_data.get('password_verif', ''):
+            self.add_error('password_verif', 'Your password entries must match')
+        return self.cleaned_data.get('password_verif', '')
 
     def clean_username(self):
         if User.objects.filter(username=self.cleaned_data['username']).exists():
@@ -244,6 +261,40 @@ class PasswordChangeForm(forms.Form):
     password_prev = forms.CharField(label='Existing password', widget=forms.PasswordInput())
     password_new = forms.CharField(label='New password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
+
+    def __init__(self, *args, **kwargs):
+        self.current_user = kwargs.pop('current_user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean_password_prev(self):
+        '''Check if old password is correct.'''
+        password_prev = self.cleaned_data['password_prev']
+        if not self.current_user.check_password(password_prev):
+            self.add_error('password_prev',
+                           'The currently existing password you entered is incorrect')
+        return password_prev
+
+    def clean_password_new(self):
+        '''Validate the newly chosen password using the validators as per the settingsfile.'''
+        password = self.cleaned_data['password_new']
+        try:
+            validate_password(password, self.current_user)
+        except ValidationError as error_message:
+            self.add_error('password_new', error_message)
+        return password
+
+    def clean_password_verif(self):
+        '''Check if the new password's match to ensure the user entered new password correctly.'''
+        password_verif = self.cleaned_data.get('password_verif', '')
+        if self.cleaned_data['password_new'] != password_verif:
+            self.add_error('password_verif', 'Your new password entries must match')
+        return password_verif
+
+    def save_new_password(self):
+        '''Save new password is form is valid.'''
+        if not self.errors:
+            self.current_user.set_password(self.cleaned_data['password_new'])
+            self.current_user.save()
 
 
 AUTHORSHIP_CLAIM_CHOICES = (
