@@ -2,14 +2,19 @@
 
 <ul>
   {% for event in events %}
-        <li id="{{ event.id }}">
-          <div class="font-weight-bold">{{ event.get_event_display }} <small class="text-muted">noted {{ event.noted_on }} by {{ event.noted_by }}</small>
-          </div>
+        <li id="event_{{ event.id }}">
+          <p class="mb-0 font-weight-bold">{{ event.get_event_display }}
+              {% if event.noted_by == request.user.contributor %}
+                  &middot; <a href="{% url 'production:update_event' event.id %}">Edit</a>
+                  &middot; <a class="text-danger" href="{% url 'production:delete_event' event.id %}">Delete</a>
+              {% endif %}
+          </p>
+          <p class="text-muted mb-1">noted {{ event.noted_on }} by {{ event.noted_by }}</p>
           {% if event.duration %}
-          <div><small>Duration: {{ event.duration|duration }}</small></div>
+              <div class="mb-2">Duration: {{ event.duration|duration }}</div>
           {% endif %}
           {% if event.comments %}
-          <div>{{ event.comments|linebreaks }}</div>
+              <div>{{ event.comments|linebreaks }}</div>
           {% endif %}
         </li>
     {% empty %}

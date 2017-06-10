@@ -1,8 +1,9 @@
 from django.db import models
 from django.utils import timezone
+from django.core.urlresolvers import reverse
 
 from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_STREAM_ONGOING, PRODUCTION_EVENTS
-from .managers import ProductionStreamManager
+from .managers import ProductionStreamManager, ProductionEventManager
 
 from scipost.models import Contributor
 
@@ -23,6 +24,11 @@ class ProductionStream(models.Model):
     def __str__(self):
         return str(self.submission)
 
+    def get_absolute_url(self):
+        if self.status == PRODUCTION_STREAM_ONGOING:
+            return reverse('production:production') + '#stream_' + str(self.id)
+        return reverse('production:completed') + '#stream_' + str(self.id)
+
     def total_duration(self):
         totdur = self.productionevent_set.aggregate(models.Sum('duration'))
         return totdur['duration__sum']
@@ -36,5 +42,10 @@ class ProductionEvent(models.Model):
     noted_by = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     duration = models.DurationField(blank=True, null=True)
 
+    objects = ProductionEventManager()
+
     def __str__(self):
         return '%s: %s' % (str(self.stream.submission), self.get_event_display())
+
+    def get_absolute_url(self):
+        return self.stream.get_absolute_url()

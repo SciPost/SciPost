@@ -1,0 +1,30 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{{object.get_absolute_url}}" class="breadcrumb-item">Production streams</a>
+    <span class="breadcrumb-item">Edit production event</span>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Edit production event</h1>
+        {% include 'submissions/_submission_card_content_sparse.html' with submission=object.stream.submission %}
+    </div>
+</div>
+<div class="row">
+  <div class="col-12">
+      <form method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input type="submit" class="btn btn-secondary" name="submit" value="Submit">
+      </form>
+    </ul>
+  </div>
+</div>
+
+{% endblock content %}

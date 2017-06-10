@@ -5,6 +5,8 @@
     <span class="breadcrumb-item">Completed production streams</span>
 {% endblock %}
 
+{% block pagetitle %}: Completed production streams{% endblock pagetitle %}
+
 {% load bootstrap %}
 
 {% block content %}
@@ -19,7 +21,7 @@
     <ul class="list-group list-group-flush">
       {% for stream in streams %}
         <li class="list-group-item">
-            <div class="w-100">{% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}</div>
+            <div class="w-100" id="stream_{{stream.id}}">{% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}</div>
             <div class="card-block">
                 <h3>Events</h3>
                 {% include 'production/_production_events.html' with events=stream.productionevent_set.all %}
