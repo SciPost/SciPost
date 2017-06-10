@@ -3,7 +3,7 @@ import re
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
@@ -15,7 +15,6 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.template import Context, Template
-from django.utils.http import is_safe_url
 from django.views.generic.list import ListView
 
 from django.db.models import Prefetch
@@ -715,30 +714,47 @@ def mark_draft_inv_as_processed(request, draft_id):
 
 
 def login_view(request):
-    redirect_to = request.POST.get('next', reverse('scipost:personal_page'))
-    redirect_to = (redirect_to
-                   if is_safe_url(redirect_to, request.get_host())
-                   else reverse('scipost:personal_page'))
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=username, password=password)
-        if user is not None and is_registered(user):
-            if user.is_active:
-                login(request, user)
-                return redirect(redirect_to)
+    """
+    This view shows and processes a user's login session.
+
+    The function based method login() is deprecated from
+    Django 1.11 and replaced by Class Based Views.
+
+    See:
+    https://docs.djangoproject.com/en/1.11/releases/1.11/#django-contrib-auth
+    """
+    form = AuthenticationForm(request.POST or None, initial=request.GET)
+    if form.is_valid():
+        user = form.authenticate()
+        if user is not None:
+            if is_registered(user):
+                # This check seems redundant, however do not remove.
+                if user.is_active:
+                    login(request, user)
+                    redirect_to = form.get_redirect_url(request)
+                    return redirect(redirect_to)
+                else:
+                    form.add_error(None, 'Your account is disabled.')
             else:
-                return render(request, 'scipost/disabled_account.html')
+                form.add_error(None, ('Your account has not yet been vetted. '
+                                      '(our admins will verify your credentials very soon)'))
         else:
-            return render(request, 'scipost/login_error.html')
-    else:
-        form = AuthenticationForm()
-        return render(request, 'scipost/login.html', {'form': form, 'next': redirect_to})
+            form.add_error(None, 'Invalid username/password.')
+    context = {'form': form}
+    return render(request, 'scipost/login.html', context)
 
 
 def logout_view(request):
+    """
+    The function based method logout() is deprecated from
+    Django 1.11 and replaced by Class Based Views.
+
+    See:
+    https://docs.djangoproject.com/en/1.11/releases/1.11/#django-contrib-auth
+    """
     logout(request)
-    messages.success(request, '<h3>Keep contributing!</h3>You are now logged out of SciPost.')
+    messages.success(request, ('<h3>Keep contributing!</h3>'
+                               'You are now logged out of SciPost.'))
     return redirect(reverse('scipost:index'))
 
 
@@ -806,8 +822,8 @@ def personal_page(request):
                                       .count())
         active_assignments = EditorialAssignment.objects.filter(
             to=contributor, accepted=True, completed=False)
-        nr_reports_to_vet = Report.objects.filter(
-            status=0, submission__editor_in_charge=contributor).count()
+        nr_reports_to_vet = (Report.objects.awaiting_vetting()
+                             .filter(submission__editor_in_charge=contributor).count())
     nr_commentary_page_requests_to_vet = 0
     nr_comments_to_vet = 0
     nr_thesislink_requests_to_vet = 0
@@ -818,10 +834,16 @@ def personal_page(request):
         nr_comments_to_vet = Comment.objects.filter(status=0).count()
         nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
         nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
+
+    # Refereeing
     nr_ref_inv_to_consider = RefereeInvitation.objects.filter(
         referee=contributor, accepted=None, cancelled=False).count()
     pending_ref_tasks = RefereeInvitation.objects.filter(
         referee=contributor, accepted=True, fulfilled=False)
+    unfinished_reports = Report.objects.in_draft().filter(author=contributor)
+    refereeing_tab_total_count = nr_ref_inv_to_consider + len(pending_ref_tasks)
+    refereeing_tab_total_count += len(unfinished_reports)
+
     # Verify if there exist objects authored by this contributor,
     # whose authorship hasn't been claimed yet
     own_submissions = (Submission.objects
@@ -879,11 +901,14 @@ def personal_page(request):
         'nr_thesis_authorships_to_claim': nr_thesis_authorships_to_claim,
         'nr_ref_inv_to_consider': nr_ref_inv_to_consider,
         'pending_ref_tasks': pending_ref_tasks,
+        'refereeing_tab_total_count': refereeing_tab_total_count,
+        'unfinished_reports': unfinished_reports,
         'own_submissions': own_submissions,
         'own_commentaries': own_commentaries,
         'own_thesislinks': own_thesislinks,
         'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
     }
+
     return render(request, 'scipost/personal_page.html', context)
 
 

@@ -1,55 +1,104 @@
 {% extends 'scipost/base.html' %}
 
+{% load partners_extras %}
+
 {% block pagetitle %}: Supporting Partners: manage{% endblock pagetitle %}
 
 
 {% block content %}
 
-<div class="flex-container">
-  <div class="flex-greybox">
-    <h1>Partners Management Page</h1>
-  </div>
+<div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Partners Management Page</h1>
+    </div>
 </div>
 
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>Partners</h2>
-    </div>
-  </div>
-  <ul class="list-group list-group-flush">
-    {% for partner in partners %}
-    <li class="list-group-item">{% include 'partners/_partner_card.html' with partner=partner %}</li>
-    {% endfor %}
-  </ul>
-</section>
 
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>Prospective Partners (not yet processed)</h2>
+<div class="row">
+    <div class="col-12">
+      <div class="tab-nav-container">
+	<div class="tab-nav-inner">
+	  <ul class="nav btn-group personal-page-nav" role="tablist">
+	    <li class="nav-item btn btn-secondary">
+	      <a href="#prospartners" class="nav-link active" data-toggle="tab">Prospective Partners</a>
+	    </li>
+	    <li class="nav-item btn btn-secondary">
+	      <a href="#partners" class="nav-link" data-toggle="tab">Partners</a>
+	    </li>
+	    <li class="nav-item btn btn-secondary">
+	      <a href="#agreements" class="nav-link" data-toggle="tab">Agreements</a>
+	    </li>
+	  </ul>
+	</div>
+      </div>
     </div>
-  </div>
-  <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
-  <br/>
-  <ul class="list-group list-group-flush">
-    {% for partner in prospective_partners %}
-    <li class="list-group-item">{% include 'partners/_prospective_partner_card.html' with pp=partner %}</li>
-    {% endfor %}
-  </ul>
-</section>
+</div>
 
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>Agreements</h2>
+  <div class="tab-content">
+    <div class="tab-pane active" id="prospartners" role="tabpanel">
+          <div class="row">
+        	<div class="col-12">
+        	  <h2 class="highlight">Prospective Partners</h2>
+        	</div>
+          </div>
+          <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
+          <br/>
+
+          <table class="table table-hover">
+              <thead class="thead-default">
+                  <tr>
+                	<th>Country</th>
+                	<th>Institution name</th>
+                	<th>Kind</th>
+                	<th>Status</th>
+                	<th>Date received</th>
+                </tr>
+              </thead>
+
+              <tbody id="accordion" role="tablist" aria-multiselectable="true">
+                {% for partner in prospective_partners %}
+        	      <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ partner.id }}" aria-expanded="true" aria-controls="collapse{{ partner.id }}" style="cursor: pointer;">
+                		  <td>{{ partner.get_country_display }}</td>
+                		  <td>{{ partner.institution_name }}</td>
+                		  <td>{{ partner.get_kind_display }}</td>
+                		  <td style="background-color:{{ partner.status|partnerstatuscolor }}">{{ partner.get_status_display }}</td>
+                		  <td>{{ partner.date_received|date:"Y-m-d" }}</td>
+                	</tr>
+                    <tr id="collapse{{ partner.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ partner.id}}" style="background-color: #fff;">
+                        <td colspan="5">
+                    	    {% include 'partners/_prospective_partner_card.html' with pp=partner %}
+                        </td>
+                    </tr>
+            	{% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="tab-pane" id="partners" role="tabpanel">
+      <div class="row">
+	<div class="col-12">
+	  <h2 class="highlight">Partners</h2>
+	</div>
+      </div>
+      <ul class="list-group list-group-flush">
+	{% for partner in partners %}
+	<li class="list-group-item">{% include 'partners/_partner_card.html' with partner=partner %}</li>
+	{% endfor %}
+      </ul>
+    </div>
+
+    <div class="tab-pane" id="agreements" role="tabpanel">
+      <div class="row">
+	<div class="col-12">
+	  <h2 class="highlight">Agreements</h2>
+	</div>
+      </div>
+      <ul>
+	{% for agreement in agreements %}
+	<li>{{ agreement }}</li>
+	{% endfor %}
+      </ul>
     </div>
   </div>
-  <ul>
-    {% for agreement in agreements %}
-    <li>{{ agreement }}</li>
-    {% endfor %}
-  </ul>
-</section>
 
 {% endblock content %}

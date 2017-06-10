@@ -107,9 +107,9 @@
   <h3>Activation procedure</h3>
   <p>In order to become a Supporting Partner, one must:
     <ul>
-      <li>Fill in the online <a href="{% url 'partners:membership_request' %}">membership request form</a> (the form must be filled in by an authorized agent employed by or associated to the prospective Partner; personal contact details of this person will be treated confidentially).</li>
-      <li>Wait for the email response from the SciPost administration, containing a Partnership Agreement offer including detailed terms (start date, duration, financial contribution).</li>
-      <li>Email a scan of the signed copy of the Partnership Agreement to SciPost.</li>
+      <li>Fill in the online <a href="{% url 'partners:membership_request' %}">membership request form</a> (the form must be filled in by an employee or associate of the prospective Partner acting as an authorized agent for the latter; personal contact details of this person will be treated confidentially).</li>
+      <li>Wait for the email response from the SciPost administration, containing a Partnership Agreement offer including suggested detailed terms (start date, duration, financial contribution).</li>
+      <li>After all detailed terms have been agreed upon, email a scan of the signed copy of the Partnership Agreement to SciPost.</li>
       <li>Proceed with the payment of the financial contribution, following invoicing from the SciPost Foundation.</li>
     </ul>
   </p>
@@ -118,20 +118,19 @@
 </div>
 
 
-{% if request.user|is_in_group:'Editorial Administrators' %}
+{% if perms.scipost.can_manage_SPB %}
+{% if prospective_partners %}
 <div class="row">
     <div class="col-12">
-      <h1 class="highglight">Prospective Partners</h1>
-  <ul>
-    {% for agreement in prospective_agreements %}
-        <li>{{ agreement }}</li>
-    {% empty %}
-        <li>No agreements found</li>
-    {% endfor %}
-  </ul>
+      <h1 class="highlight">Prospective Partners</h1>
+      <ul>
+        {% for agreement in prospective_agreements %}
+            <li>{{ agreement }}</li>
+        {% endfor %}
+      </ul>
     </div>
 </div>
-
+{% endif %}
 {% endif %}
 
 {% endblock %}

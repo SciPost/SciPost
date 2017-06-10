@@ -17,7 +17,11 @@
       {% if stream.total_duration %}
       <h3>Total duration for this stream: {{ stream.total_duration|duration }}</h3>
       {% endif %}
+      {% if perms.scipost.can_publish_accepted_submission %}
+      <h3><a href="{% url 'production:mark_as_completed' stream_id=stream.id %}">Mark this stream as completed</a></h3>
+      {% endif %}
     </div>
+    {% if form %}
     <div class="col-5">
       <h3>Add an event to this production stream:</h3>
       <form action="{% url 'production:add_event' stream_id=stream.id %}" method="post">
@@ -26,4 +30,6 @@
 	<input type="submit" name="submit" value="Submit">
       </form>
     </div>
+    {% endif %}
+  </div>
 </div>

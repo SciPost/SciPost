@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.conf.urls import url
 from django.views.generic import TemplateView
 
 from . import views
@@ -6,7 +6,8 @@ from . import views
 urlpatterns = [
     # Submissions
     url(r'^$', views.SubmissionListView.as_view(), name='submissions'),
-    url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]+)/$', views.SubmissionListView.as_view(), name='browse'),
+    url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]{1,3})/$',
+        views.SubmissionListView.as_view(), name='browse'),
     url(r'^sub_and_ref_procedure$',
         TemplateView.as_view(template_name='submissions/sub_and_ref_procedure.html'),
         name='sub_and_ref_procedure'),
@@ -69,17 +70,12 @@ urlpatterns = [
         views.communication, name='communication'),
     url(r'^eic_recommendation/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
         views.eic_recommendation, name='eic_recommendation'),
-    url(r'^cycle/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/submit$', views.cycle_form_submit,
-        name='cycle_confirmation'),
+    url(r'^cycle/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/submit$',
+        views.cycle_form_submit, name='cycle_confirmation'),
     # Reports
     url(r'^submit_report/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
         views.submit_report, name='submit_report'),
-    url(r'^submit_report_ack$',
-        TemplateView.as_view(template_name='submissions/submit_report_ack.html'), name='submit_report_ack'),
-    url(r'^vet_submitted_reports$',
-        views.vet_submitted_reports, name='vet_submitted_reports'),
-    url(r'^vet_submitted_report_ack/(?P<report_id>[0-9]+)$',
-        views.vet_submitted_report_ack, name='vet_submitted_report_ack'),
+    url(r'^vet_submitted_reports$', views.vet_submitted_reports, name='vet_submitted_reports'),
     # Voting
     url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting, name='prepare_for_voting'),
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),

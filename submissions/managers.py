@@ -4,7 +4,8 @@ from django.db.models import Q
 from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
                        STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
-                       SUBMISSION_HTTP404_ON_EDITORIAL_PAGE
+                       SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT,\
+                       SUBMISSION_EXCLUDE_FROM_REPORTING
 
 
 class SubmissionManager(models.Manager):
@@ -73,6 +74,13 @@ class SubmissionManager(models.Manager):
         queryset = self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE)
         return self._newest_version_only(queryset)
 
+    def open_for_reporting(self):
+        """
+        This query should filter submissions that do not have the right status to receive
+        a new report.
+        """
+        return self.exclude(status__in=SUBMISSION_EXCLUDE_FROM_REPORTING)
+
 
 class EditorialAssignmentManager(models.Manager):
     def get_for_user_in_pool(self, user):
@@ -110,7 +118,7 @@ class EICRecommendationManager(models.Manager):
 
 class ReportManager(models.Manager):
     def accepted(self):
-        return self.filter(status__gte=STATUS_VETTED)
+        return self.filter(status=STATUS_VETTED)
 
     def awaiting_vetting(self):
         return self.filter(status=STATUS_UNVETTED)
@@ -118,3 +126,6 @@ class ReportManager(models.Manager):
     def rejected(self):
         return self.filter(status__in=[STATUS_UNCLEAR, STATUS_INCORRECT,
                                        STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC])
+
+    def in_draft(self):
+        return self.filter(status=STATUS_DRAFT)

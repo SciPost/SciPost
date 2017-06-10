@@ -8,7 +8,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.template import Template, Context
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 
 from django_countries.fields import CountryField
 

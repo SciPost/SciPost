@@ -1,10 +1,9 @@
-import string
-import random
-
 from django import forms
-
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
+from django.core.urlresolvers import reverse_lazy
+from django.utils.http import is_safe_url
 
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
@@ -12,15 +11,13 @@ from django_countries.fields import LazyTypedChoiceField
 from captcha.fields import ReCaptchaField
 
 from ajax_select.fields import AutoCompleteSelectField
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, HTML
 
 from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES
 from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
 from journals.models import Publication
-from mailing_lists.models import MailchimpList, MailchimpSubscription
+# from mailing_lists.models import MailchimpList, MailchimpSubscription
 
 
 REGISTRATION_REFUSAL_CHOICES = (
@@ -154,7 +151,6 @@ class RegistrationInvitationForm(forms.ModelForm):
             {'placeholder': ('NOTE: a personal phrase or two.'
                              ' The bulk of the text will be auto-generated.')})
 
-
         self.fields['cited_in_publication'] = forms.ModelChoiceField(
             queryset=Publication.objects.all().order_by('-publication_date'),
             required=False)
@@ -232,6 +228,27 @@ class VetRegistrationForm(forms.Form):
 class AuthenticationForm(forms.Form):
     username = forms.CharField(label='Username', max_length=100)
     password = forms.CharField(label='Password', widget=forms.PasswordInput())
+    next = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def authenticate(self):
+        """
+        Authenticate will return an valid User if credentials are correct.
+        Else, None will be returned.
+        """
+        username = self.cleaned_data['username']
+        password = self.cleaned_data['password']
+        return authenticate(username=username, password=password)
+
+    def get_redirect_url(self, request):
+        """
+        Check the url being valid the current request, else return
+        to the default link (personal page).
+        """
+        personal_page_url = reverse_lazy('scipost:personal_page')
+        redirect_to = self.cleaned_data['next']
+        if not is_safe_url(redirect_to, request.get_host()) or not redirect_to:
+            return personal_page_url
+        return redirect_to
 
 
 class PasswordChangeForm(forms.Form):

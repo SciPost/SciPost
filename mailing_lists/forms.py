@@ -6,8 +6,6 @@ from mailchimp3 import MailChimp
 from .constants import MAIL_LIST_STATUS_ACTIVE, MAIL_LIST_STATUS_DEACTIVATED
 from .models import MailchimpList
 
-from scipost.models import Contributor
-
 
 class MailchimpUpdateForm(forms.Form):
     """
@@ -37,5 +35,4 @@ class MailchimpUpdateForm(forms.Form):
         return count
 
     def sync_members(self, _list):
-        contributors = Contributor.objects.active().filter(accepts_SciPost_emails=True)
-        return _list.update_membership(contributors)
+        return _list.update_members()
