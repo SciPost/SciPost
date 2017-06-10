@@ -27,6 +27,10 @@ class Command(BaseCommand):
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
         ProductionOfficers, created = Group.objects.get_or_create(name='Production Officers')
 
+        PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
+        PartnersOfficers, created = Group.objects.get_or_create(name='Partners Officers')
+
+
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
 
@@ -34,6 +38,10 @@ class Command(BaseCommand):
         can_manage_SPB, created = Permission.objects.get_or_create(
             codename='can_manage_SPB',
             name='Can manage Supporting Partners Board',
+            content_type=content_type)
+        can_email_prospartner_contact, created = Permission.objects.get_or_create(
+            codename='can_email_prospartner_contact',
+            name='Can email Prospective Partner Contact',
             content_type=content_type)
 
         # Registration and invitations
@@ -243,6 +251,13 @@ class Command(BaseCommand):
             can_view_production,
         ])
 
+        PartnersAdministrators.permissions.set([
+            can_manage_SPB,
+            can_email_prospartner_contact,
+        ])
+        PartnersOfficers.permissions.set([
+            can_manage_SPB,
+        ])
 
         if verbose:
             self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions.'))

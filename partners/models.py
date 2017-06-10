@@ -7,9 +7,19 @@ from .constants import PARTNER_KINDS, PARTNER_STATUS, CONSORTIUM_STATUS, MEMBERS
                        PROSPECTIVE_PARTNER_STATUS, PROSPECTIVE_PARTNER_EVENTS, PARTNER_EVENTS,\
                        MEMBERSHIP_AGREEMENT_STATUS, PROSPECTIVE_PARTNER_ADDED,\
                        PARTNER_KIND_UNI_LIBRARY
+from .constants import PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
+                       PROSPECTIVE_PARTNER_APPROACHED,\
+                       PROSPECTIVE_PARTNER_EVENT_INITIATE_NEGOTIATION,\
+                       PROSPECTIVE_PARTNER_NEGOTIATING,\
+                       PROSPECTIVE_PARTNER_EVENT_MARKED_AS_UNINTERESTED,\
+                       PROSPECTIVE_PARTNER_UNINTERESTED,\
+                       PROSPECTIVE_PARTNER_EVENT_PROMOTED,\
+                       PROSPECTIVE_PARTNER_PROCESSED
+
 from .managers import MembershipAgreementManager
 
 from scipost.constants import TITLE_CHOICES
+from scipost.models import get_sentinel_user
 
 
 ########################
@@ -33,6 +43,17 @@ class ProspectivePartner(models.Model):
                                          self.date_received.strftime("%Y-%m-%d"),
                                          self.get_status_display())
 
+    def update_status_from_event(self, event):
+        if event == PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT:
+            self.status = PROSPECTIVE_PARTNER_APPROACHED
+        elif event == PROSPECTIVE_PARTNER_EVENT_INITIATE_NEGOTIATION:
+            self.status = PROSPECTIVE_PARTNER_NEGOTIATING
+        elif event == PROSPECTIVE_PARTNER_EVENT_MARKED_AS_UNINTERESTED:
+            self.status = PROSPECTIVE_PARTNER_UNINTERESTED
+        elif event == PROSPECTIVE_PARTNER_EVENT_PROMOTED:
+            self.status = PROSPECTIVE_PARTNER_PROCESSED
+        self.save()
+
 
 class ProspectiveContact(models.Model):
     """
@@ -48,13 +69,18 @@ class ProspectiveContact(models.Model):
     email = models.EmailField()
     role = models.CharField(max_length=128)
 
+    def __str__(self):
+        return "%s %s %s" % (self.get_title_display(), self.first_name, self.last_name)
+
 
 class ProspectivePartnerEvent(models.Model):
     prospartner = models.ForeignKey('partners.ProspectivePartner', on_delete=models.CASCADE)
     event = models.CharField(max_length=64, choices=PROSPECTIVE_PARTNER_EVENTS)
     comments = models.TextField(blank=True)
     noted_on = models.DateTimeField(auto_now_add=True)
-    noted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    noted_by = models.ForeignKey('scipost.Contributor',
+                                 on_delete=models.SET(get_sentinel_user),
+                                 blank=True, null=True)
 
     def __str__(self):
         return '%s: %s' % (str(self.prospective_partner), self.get_event_display())

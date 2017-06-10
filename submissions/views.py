@@ -15,8 +15,9 @@ from django.utils.decorators import method_decorator
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
 
-from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED,\
-                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES
+from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATUS_EIC_ASSIGNED,\
+                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES,\
+                       STATUS_DRAFT
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication
 from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm,\
@@ -167,12 +168,18 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     try:
         is_author = request.user.contributor in submission.authors.all()
-        is_author_unchecked = (not is_author and not
-                               (request.user.contributor in submission.authors_false_claims.all()) and
-                               (request.user.last_name in submission.author_list))
+        is_author_unchecked = (not is_author and
+                               request.user.contributor not in submission.authors_false_claims.all()
+                               and request.user.last_name in submission.author_list)
+        try:
+            unfinished_report_for_user = (submission.reports.in_draft()
+                                          .get(author=request.user.contributor))
+        except Report.DoesNotExist:
+            unfinished_report_for_user = None
     except AttributeError:
         is_author = False
         is_author_unchecked = False
+        unfinished_report_for_user = None
     if (submission.status in SUBMISSION_STATUS_PUBLICLY_INVISIBLE
             and not request.user.groups.filter(name__in=['SciPost Administrators',
                                                          'Editorial Administrators',
@@ -187,8 +194,10 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
 
     invited_reports = submission.reports.accepted().filter(invited=True)
     contributed_reports = submission.reports.accepted().filter(invited=False)
-    comments = submission.comments.vetted().filter(is_author_reply=False).order_by('-date_submitted')
-    author_replies = submission.comments.vetted().filter(is_author_reply=True).order_by('-date_submitted')
+    comments = (submission.comments.vetted()
+                .filter(is_author_reply=False).order_by('-date_submitted'))
+    author_replies = (submission.comments.vetted()
+                      .filter(is_author_reply=True).order_by('-date_submitted'))
 
     try:
         recommendation = (EICRecommendation.objects.filter_for_user(request.user)
@@ -202,6 +211,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                'comments': comments,
                'invited_reports': invited_reports,
                'contributed_reports': contributed_reports,
+               'unfinished_report_for_user': unfinished_report_for_user,
                'author_replies': author_replies,
                'form': form,
                'is_author': is_author,
@@ -520,8 +530,8 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
                       .filter(arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr)
                       .exclude(pk=submission.id))
     ref_invitations = RefereeInvitation.objects.filter(submission=submission)
-    nr_reports_to_vet = (Report.objects
-                         .filter(status=0, submission=submission,
+    nr_reports_to_vet = (Report.objects.awaiting_vetting()
+                         .filter(submission=submission,
                                  submission__editor_in_charge=request.user.contributor)
                          .count())
     communications = (EditorialCommunication.objects
@@ -860,9 +870,9 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
 
 @permission_required('scipost.can_oversee_refereeing', raise_exception=True)
 def refereeing_overview(request):
-    submissions_under_refereeing = Submission.objects.filter(
-        status='EICassigned').order_by('submission_date')
-    context= {'submissions_under_refereeing': submissions_under_refereeing,}
+    submissions_under_refereeing = (Submission.objects.filter(status=STATUS_EIC_ASSIGNED)
+                                    .order_by('submission_date'))
+    context = {'submissions_under_refereeing': submissions_under_refereeing}
     return render(request, 'submissions/refereeing_overview.html', context)
 
 
@@ -978,28 +988,42 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
 ###########
 # Reports
 ###########
-
 @login_required
 @permission_required('scipost.can_referee', raise_exception=True)
 @transaction.atomic
 def submit_report(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.all(),
+    """
+    A form to submit a report on a submission will be shown and processed here.
+
+    Important checks to be aware of include an author check for the submission,
+    has the reporting deadline not been reached yet and does there exist any invitation
+    for the current user on this submission.
+    """
+    submission = get_object_or_404(Submission.objects.open_for_reporting(),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     # Check whether the user can submit a report:
-    is_author = request.user.contributor in submission.authors.all()
+    current_contributor = request.user.contributor
+    is_author = current_contributor in submission.authors.all()
     is_author_unchecked = (not is_author and not
-                           (request.user.contributor in submission.authors_false_claims.all()) and
+                           (current_contributor in submission.authors_false_claims.all()) and
                            (request.user.last_name in submission.author_list))
-    try:
-        invitation = RefereeInvitation.objects.get(submission=submission,
-                                                   referee=request.user.contributor)
-    except RefereeInvitation.DoesNotExist:
-        invitation = None
+    invitation = submission.referee_invitations.filter(referee=current_contributor).first()
 
     errormessage = None
-    if not invitation and timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
-        errormessage = ('The reporting deadline has passed. You cannot submit'
-                        ' a Report anymore.')
+    if not invitation:
+        if timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
+            errormessage = ('The reporting deadline has passed. You cannot submit'
+                            ' a Report anymore.')
+        elif not submission.open_for_reporting:
+            errormessage = ('Reporting for this submission has closed. You cannot submit'
+                            ' a Report anymore.')
+
+        if errormessage:
+            # Remove old drafts from the database
+            reports_in_draft_to_remove = (submission.reports.in_draft()
+                                          .filter(author=current_contributor))
+            if reports_in_draft_to_remove:
+                reports_in_draft_to_remove.delete()
     if is_author:
         errormessage = 'You are an author of this Submission and cannot submit a Report.'
     if is_author_unchecked:
@@ -1010,33 +1034,27 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         messages.warning(request, errormessage)
         return redirect(reverse('scipost:personal_page'))
 
-    form = ReportForm(request.POST or None)
+    # Find and fill earlier version of report
+    try:
+        report_in_draft = submission.reports.in_draft().get(author=current_contributor)
+    except Report.DoesNotExist:
+        report_in_draft = None
+    form = ReportForm(request.POST or None, instance=report_in_draft)
+
+    # Check if data sent is valid
     if form.is_valid():
-        author = request.user.contributor
-        newreport = form.save(commit=False)
-        newreport.submission = submission
-        newreport.author = request.user.contributor
-        if invitation:
-            invitation.fulfilled = True
-            newreport.invited = True
-            invitation.save()
+        newreport = form.save(submission, current_contributor)
+        if newreport.status == STATUS_DRAFT:
+            messages.success(request, ('Your Report has been saved. '
+                                       'You may carry on working on it,'
+                                       ' or leave the page and finish it later.'))
+            context = {'submission': submission, 'form': form}
+            return render(request, 'submissions/submit_report.html', context)
 
-        if submission.referees_flagged is not None:
-            if author.user.last_name in submission.referees_flagged:
-                newreport.flagged = True
-
-        newreport.date_submitted = timezone.now()
-        newreport.save()
-
-        # Update user stats
-        author.nr_reports = Report.objects.filter(author=author).count()
-        author.save()
+        # Send mails if report is submitted
         SubmissionUtils.load({'report': newreport}, request)
         SubmissionUtils.email_EIC_report_delivered()
         SubmissionUtils.email_referee_report_delivered()
-
-        # Why is this session update?
-        request.session['arxiv_identifier_w_vn_nr'] = arxiv_identifier_w_vn_nr
 
         messages.success(request, 'Thank you for your Report')
         return redirect(reverse('scipost:personal_page'))
@@ -1048,42 +1066,39 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 @login_required
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def vet_submitted_reports(request):
+    """
+    Reports with status `unvetted` will be shown one-by-one. A user may only
+    vet reports of submissions he/she is EIC of.
+
+    After vetting an email is sent to the report author, bcc EIC. If report
+    has not been refused, the submission author is also mailed.
+    """
     contributor = Contributor.objects.get(user=request.user)
-    report_to_vet = Report.objects.filter(status=0,
-                                          submission__editor_in_charge=contributor).first()
-    form = VetReportForm()
-    context = {'contributor': contributor, 'report_to_vet': report_to_vet, 'form': form}
-    return(render(request, 'submissions/vet_submitted_reports.html', context))
+    report_to_vet = (Report.objects.awaiting_vetting()
+                     .select_related('submission')
+                     .filter(submission__editor_in_charge=contributor).first())
 
-
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
-@transaction.atomic
-def vet_submitted_report_ack(request, report_id):
-    report = get_object_or_404(Report, pk=report_id,
-                               submission__editor_in_charge=request.user.contributor)
-    form = VetReportForm(request.POST or None)
+    form = VetReportForm(request.POST or None, initial={'report': report_to_vet})
     if form.is_valid():
-        report.vetted_by = request.user.contributor
-        if form.cleaned_data['action_option'] == '1':
-            # accept the report as is
-            report.status = 1
-            report.save()
-            report.submission.latest_activity = timezone.now()
-            report.submission.save()
-        elif form.cleaned_data['action_option'] == '2':
-            # the report is simply rejected
-            report.status = int(form.cleaned_data['refusal_reason'])
-            report.save()
+        report = form.process_vetting(request.user.contributor)
+
         # email report author
         SubmissionUtils.load({'report': report,
                               'email_response': form.cleaned_data['email_response_field']})
         SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
-        if report.status == 1:
+        if report.status == STATUS_VETTED:
             SubmissionUtils.send_author_report_received_email()
-        messages.success(request, 'Submitted Report vetted.')
-        return redirect(reverse('submissions:editorial_page',
-                                args=[report.submission.arxiv_identifier_w_vn_nr]))
-    return redirect(reverse('submissions:vet_submitted_reports'))
+
+        message = 'Submitted Report vetted for <a href="%s">%s</a>.' % (
+            reverse('submissions:editorial_page',
+                    args=(report.submission.arxiv_identifier_w_vn_nr,)),
+            report.submission.arxiv_identifier_w_vn_nr
+        )
+        messages.success(request, message)
+        # Redirect instead of render to loose the POST call and make it a GET
+        return redirect(reverse('submissions:vet_submitted_reports'))
+    context = {'contributor': contributor, 'report_to_vet': report_to_vet, 'form': form}
+    return render(request, 'submissions/vet_submitted_reports.html', context)
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
@@ -1218,8 +1233,7 @@ def fix_College_decision(request, rec_id):
         # Publish as Tier I, II or III
         recommendation.submission.status = 'accepted'
         # Create a ProductionStream object
-        prodstream = ProductionStream(submission=recommendation.submission,
-                                      opened=timezone.now())
+        prodstream = ProductionStream(submission=recommendation.submission)
         prodstream.save()
     elif recommendation.recommendation == -3:
         # Reject

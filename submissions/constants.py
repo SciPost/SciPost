@@ -38,16 +38,24 @@ SUBMISSION_STATUS = (
 
 SUBMISSION_HTTP404_ON_EDITORIAL_PAGE = [
     'assignment_failed',
-    'published',
+    STATUS_PUBLISHED,
     'withdrawn',
-    'rejected',
-    'rejected_visible',
+    STATUS_REJECTED,
+    STATUS_REJECTED_VISIBLE,
 ]
 
 SUBMISSION_STATUS_OUT_OF_POOL = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
     'resubmitted'
 ]
 
+SUBMISSION_EXCLUDE_FROM_REPORTING = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
+    STATUS_AWAITING_ED_REC,
+    STATUS_REVIEW_CLOSED,
+    STATUS_ACCEPTED,
+    'voting_in_preparation',
+    'put_to_EC_voting',
+    'withdrawn',
+]
 
 # Submissions which are allowed/required to submit a EIC Recommendation
 SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [
@@ -156,23 +164,23 @@ REPORT_REC = (
 #
 # Reports
 #
-REPORT_ACTION_ACCEPT = 1
-REPORT_ACTION_REFUSE = 2
+REPORT_ACTION_ACCEPT = 'accept'
+REPORT_ACTION_REFUSE = 'refuse'
 REPORT_ACTION_CHOICES = (
     (REPORT_ACTION_ACCEPT, 'accept'),
     (REPORT_ACTION_REFUSE, 'refuse'),
 )
 
-STATUS_VETTED = 1
-STATUS_UNVETTED = 0
-STATUS_UNCLEAR = -1
-STATUS_INCORRECT = -2
-STATUS_NOT_USEFUL = -3
-STATUS_NOT_ACADEMIC = -4
+STATUS_DRAFT = 'draft'
+STATUS_VETTED = 'vetted'
+STATUS_UNVETTED = 'unvetted'
+STATUS_UNCLEAR = 'unclear'
+STATUS_INCORRECT = 'incorrect'
+STATUS_NOT_USEFUL = 'notuseful'
+STATUS_NOT_ACADEMIC = 'notacademic'
 
-REPORT_REFUSAL_NONE = 0
 REPORT_REFUSAL_CHOICES = (
-    (STATUS_UNVETTED, '-'),
+    (None, '-'),
     (STATUS_UNCLEAR, 'insufficiently clear'),
     (STATUS_INCORRECT, 'not fully factually correct'),
     (STATUS_NOT_USEFUL, 'not useful for the authors'),
@@ -180,6 +188,7 @@ REPORT_REFUSAL_CHOICES = (
 )
 
 REPORT_STATUSES = (
+    (STATUS_DRAFT, 'Draft'),
     (STATUS_VETTED, 'Vetted'),
     (STATUS_UNVETTED, 'Unvetted'),
     (STATUS_INCORRECT, 'Rejected (incorrect)'),

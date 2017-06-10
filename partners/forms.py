@@ -39,6 +39,33 @@ class ProspectiveContactForm(forms.ModelForm):
         widgets = {'prospartner': forms.HiddenInput()}
 
 
+class EmailProspectivePartnerContactForm(forms.Form):
+    email_subject = forms.CharField(widget=forms.Textarea(),
+                                    initial='SciPost Supporting Partners Board')
+    message = forms.CharField(widget=forms.Textarea(), required=False)
+    include_SPB_summary = forms.BooleanField(
+        required=False, initial=False,
+        label='include SPB summary with message')
+
+    def __init__(self, *args, **kwargs):
+        super(EmailProspectivePartnerContactForm, self).__init__(*args, **kwargs)
+        self.fields['email_subject'].widget.attrs.update(
+            {'rows': 1})
+        self.fields['message'].widget.attrs.update(
+            {'placeholder': 'Write your message in this box (optional).'})
+
+
+# class ProspectivePartnerContactSelectForm(forms.Form):
+
+#     def __init__(self, *args, **kwargs):
+#         prospartner_id = kwargs.pop('prospartner.id')
+#         super(ProspectivePartnerContactSelectForm, self).__init(*args, **kwargs)
+#         self.fields['contact'] = forms.ModelChoiceField(
+#             queryset=ProspectiveContact.objects.filter(
+#                 prospartner__pk=prospartner_id).order_by('last_name'),
+#             required=True)
+
+
 class ProspectivePartnerEventForm(forms.ModelForm):
     class Meta:
         model = ProspectivePartnerEvent

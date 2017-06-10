@@ -8,18 +8,15 @@
 
 <script>
 $(document).ready(function(){
-
-  $('#refusal').hide();
-
   $('[name="action_option"]').on('change', function() {
-      if ($('#id_action_option_1').is(':checked')) {
+      if ($('[name="action_option"][value="refuse"]').is(':checked')) {
           $('#refusal').show();
       }
       else {
           $('#refusal').hide();
       }
-    });
-  });
+  }).trigger('change');
+});
 </script>
 
 {% endblock headsup %}
@@ -36,6 +33,7 @@ $(document).ready(function(){
     <div class="col-12">
         {% if not report_to_vet %}
             <h1>There are no Reports for you to vet.</h1>
+            <p>Go back to my <a href="{% url 'scipost:personal_page' %}">personal page</a>.</p>
         {% else %}
             <h1 class="highlight">SciPost Report to vet:</h1>
 
@@ -48,12 +46,13 @@ $(document).ready(function(){
 
             <h2 class="mb-2">Report to vet:</h2>
 
-            {% include 'submissions/_single_public_report_without_comments.html' with report=report_to_vet %}
+            {% include 'submissions/_single_public_report_without_comments.html' with submission=report_to_vet.submission report=report_to_vet %}
 
             <hr class="small">
             <h2>Please vet this Report:</h2>
-            <form action="{% url 'submissions:vet_submitted_report_ack' report_id=report_to_vet.id %}" method="post">
+            <form action="{% url 'submissions:vet_submitted_reports' %}" method="post">
                 {% csrf_token %}
+                {{ form.report }}
                 {{ form.action_option|bootstrap }}
                 <div class="col-md-6" id="refusal">
                     {{ form.refusal_reason|bootstrap }}

@@ -1,35 +1,32 @@
 {% load bootstrap %}
 {% load scipost_extras %}
 
+<div class="w-100" id="stream_{{stream.id}}">
+    {% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}
+</div>
 <div class="card-block">
-  {% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}
   <div class="row">
-    <div class="col-7">
+    <div class="{% if form %}col-lg-7{% else %}col-12{% endif %}">
       <h3>Events</h3>
-      <ul>
-	{% for event in stream.productionevent_set.all %}
-	{% include 'production/_production_event_li.html' with event=event %}
-	{% empty %}
-	<li>No events were found.</li>
-	{% endfor %}
-      </ul>
+      {% include 'production/_production_events.html' with events=stream.productionevent_set.all %}
       <br/>
+
       {% if stream.total_duration %}
-      <h3>Total duration for this stream: {{ stream.total_duration|duration }}</h3>
+          <h3>Total duration for this stream: {{ stream.total_duration|duration }}</h3>
       {% endif %}
       {% if perms.scipost.can_publish_accepted_submission %}
-      <h3><a href="{% url 'production:mark_as_completed' stream_id=stream.id %}">Mark this stream as completed</a></h3>
+          <h3><a href="{% url 'production:mark_as_completed' stream_id=stream.id %}">Mark this stream as completed</a></h3>
       {% endif %}
     </div>
     {% if form %}
-    <div class="col-5">
-      <h3>Add an event to this production stream:</h3>
-      <form action="{% url 'production:add_event' stream_id=stream.id %}" method="post">
-	{% csrf_token %}
-	{{ form|bootstrap }}
-	<input type="submit" name="submit" value="Submit">
-      </form>
-    </div>
+        <div class="col-lg-5 mt-4 mt-lg-0">
+          <h3>Add an event to this production stream:</h3>
+          <form action="{% url 'production:add_event' stream_id=stream.id %}" method="post">
+        	{% csrf_token %}
+        	{{ form|bootstrap }}
+        	<input type="submit" class="btn btn-secondary" name="submit" value="Submit">
+          </form>
+        </div>
     {% endif %}
   </div>
 </div>

@@ -1,8 +1,9 @@
+PRODUCTION_STREAM_ONGOING = 'ongoing'
+PRODUCTION_STREAM_COMPLETED = 'completed'
 PRODUCTION_STREAM_STATUS = (
-    ('ongoing', 'Ongoing'),
-    ('completed', 'Completed'),
+    (PRODUCTION_STREAM_ONGOING, 'Ongoing'),
+    (PRODUCTION_STREAM_COMPLETED, 'Completed'),
 )
-
 
 PRODUCTION_EVENTS = (
     ('assigned_to_supervisor', 'Assigned by EdAdmin to Supervisor'),

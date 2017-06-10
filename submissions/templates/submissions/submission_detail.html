@@ -58,6 +58,12 @@
                 {% endfor %}
             </div>
         {% endif %}
+
+        {% if unfinished_report_for_user %}
+            <blockquote class="blockquote">
+              <p class="mb-0">You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here.</a></p>
+            </blockquote>
+        {% endif %}
     </div>
 </div>
 
@@ -110,7 +116,8 @@
             {% if submission.open_for_reporting %}
                 {% if perms.scipost.can_referee and not is_author and not is_author_unchecked %}
                     <li>
-                        <h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Contribute a Report</a></h3>
+
+                        <h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">{% if unfinished_report_for_user %}Finish your report{% else %}Contribute a Report{% endif %}</a></h3>
                         <div class="text-danger">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
                     </li>
                 {% elif is_author_unchecked %}
