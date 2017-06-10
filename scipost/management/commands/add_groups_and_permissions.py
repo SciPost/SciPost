@@ -27,7 +27,7 @@ class Command(BaseCommand):
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
         ProductionOfficers, created = Group.objects.get_or_create(name='Production Officers')
 
-        PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
+        PartnersAdministrators, created = Group.objects.get_or_create(name='Partners Administrators')
         PartnersOfficers, created = Group.objects.get_or_create(name='Partners Officers')
 
 
