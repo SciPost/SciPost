@@ -1046,7 +1046,8 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         newreport = form.save(submission, current_contributor)
         if newreport.status == STATUS_DRAFT:
             messages.success(request, ('Your Report has been saved. '
-                                       'You may leave the page and finish it later.'))
+                                       'You may carry on working on it,'
+                                       ' or leave the page and finish your Report later.'))
             context = {'submission': submission, 'form': form}
             return render(request, 'submissions/submit_report.html', context)
 
