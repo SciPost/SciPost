@@ -1,14 +1,13 @@
+from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.db import transaction
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
 
 from guardian.decorators import permission_required
 
-from .models import ProductionStream, ProductionEvent
+from .constants import PRODUCTION_STREAM_COMPLETED
+from .models import ProductionStream
 from .forms import ProductionEventForm
-
-from submissions.models import Submission
 
 
 ######################
@@ -21,7 +20,7 @@ def production(request):
     Overview page for the production process.
     All papers with accepted but not yet published status are included here.
     """
-    streams = ProductionStream.objects.filter(status='ongoing').order_by('opened')
+    streams = ProductionStream.objects.ongoing().order_by('opened')
     prodevent_form = ProductionEventForm()
     context = {
         'streams': streams,
@@ -35,40 +34,29 @@ def completed(request):
     """
     Overview page for closed production streams.
     """
-    streams = ProductionStream.objects.filter(status='completed').order_by('-opened')
-    context = {'streams': streams,}
+    streams = ProductionStream.objects.completed().order_by('-opened')
+    context = {'streams': streams}
     return render(request, 'production/completed.html', context)
 
 
 @permission_required('scipost.can_view_production', return_403=True)
-@transaction.atomic
 def add_event(request, stream_id):
-    stream = get_object_or_404(ProductionStream, pk=stream_id)
-    if request.method == 'POST':
-        prodevent_form = ProductionEventForm(request.POST)
-        if prodevent_form.is_valid():
-            prodevent = ProductionEvent(
-                stream=stream,
-                event=prodevent_form.cleaned_data['event'],
-                comments=prodevent_form.cleaned_data['comments'],
-                noted_on=timezone.now(),
-                noted_by=request.user.contributor,
-                duration=prodevent_form.cleaned_data['duration'],)
-            prodevent.save()
-            return redirect(reverse('production:production'))
-        else:
-            errormessage = 'The form was invalidly filled.'
-            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    prodevent_form = ProductionEventForm(request.POST or None)
+    if prodevent_form.is_valid():
+        prodevent = prodevent_form.save(commit=False)
+        prodevent.stream = stream
+        prodevent.noted_by = request.user.contributor
+        prodevent.save()
     else:
-        errormessage = 'This view can only be posted to.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+        messages.warning(request, 'The form was invalidly filled.')
+    return redirect(reverse('production:production'))
 
 
-@permission_required('scipost.can_view_production', return_403=True)
-@transaction.atomic
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def mark_as_completed(request, stream_id):
-    stream = get_object_or_404(ProductionStream, pk=stream_id)
-    stream.status = 'completed'
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    stream.status = PRODUCTION_STREAM_COMPLETED
     stream.closed = timezone.now()
     stream.save()
     return redirect(reverse('production:production'))

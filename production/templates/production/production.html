@@ -1,18 +1,28 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Production page</span>
+{% endblock %}
 
 {% load bootstrap %}
 
 {% block content %}
 
 <div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Manuscripts under production</h1>
+    </div>
+</div>
+<div class="row">
   <div class="col-12">
-    <h3>Manuscripts under production</h3>
     <ul class="list-group list-group-flush">
       {% for stream in streams %}
-      <li class="list-group-item">
-	{% include 'production/_production_stream_card.html' with stream=stream form=prodevent_form %}
-      </li>
-      <hr/>
+          <li class="list-group-item{% if not forloop.first %} pt-3{% endif %}">
+        	{% include 'production/_production_stream_card.html' with stream=stream form=prodevent_form %}
+          </li>
+      {% empty %}
+            <li class="list-group-item">No production streams found.</li>
       {% endfor %}
     </ul>
   </div>

@@ -15,10 +15,12 @@ class ProductionStreamAdminForm(forms.ModelForm):
         model = ProductionStream
         fields = '__all__'
 
+
 class ProductionStreamAdmin(admin.ModelAdmin):
     search_fields = ['submission']
     list_display = ['submission', 'opened', 'status']
     form = ProductionStreamAdminForm
+
 
 admin.site.register(ProductionStream, ProductionStreamAdmin)
 
@@ -31,9 +33,11 @@ class ProductionEventAdminForm(forms.ModelForm):
         model = ProductionEvent
         fields = '__all__'
 
+
 class ProductionEventAdmin(admin.ModelAdmin):
     search_field = ['stream', 'event', 'comment', 'noted_by']
     list_display = ['stream', 'event', 'noted_on', 'noted_by']
     form = ProductionEventAdminForm
+
 
 admin.site.register(ProductionEvent, ProductionEventAdmin)
