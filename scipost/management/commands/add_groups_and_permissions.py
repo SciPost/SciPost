@@ -251,7 +251,7 @@ class Command(BaseCommand):
             can_view_production,
         ])
 
-        PartnersAdministrators.permissions.set([
+        PartnersAdmin.permissions.set([
             can_manage_SPB,
             can_email_prospartner_contact,
         ])

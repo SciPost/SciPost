@@ -1067,7 +1067,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def vet_submitted_reports(request):
     """
-    Reports with status `unvetted` will be shown one-by-one. An user may only
+    Reports with status `unvetted` will be shown one-by-one. A user may only
     vet reports of submissions he/she is EIC of.
 
     After vetting an email is sent to the report author, bcc EIC. If report
