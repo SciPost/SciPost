@@ -27,7 +27,7 @@ class Command(BaseCommand):
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
         ProductionOfficers, created = Group.objects.get_or_create(name='Production Officers')
 
-        PartnersAdministrators, created = Group.objects.get_or_create(name='Partners Administrators')
+        PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
         PartnersOfficers, created = Group.objects.get_or_create(name='Partners Officers')
 
 
@@ -251,7 +251,7 @@ class Command(BaseCommand):
             can_view_production,
         ])
 
-        PartnersAdministrators.permissions.set([
+        PartnersAdmin.permissions.set([
             can_manage_SPB,
             can_email_prospartner_contact,
         ])
