@@ -3,7 +3,7 @@ import re
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
@@ -915,22 +915,13 @@ def personal_page(request):
 @login_required
 def change_password(request):
     form = PasswordChangeForm(request.POST or None, current_user=request.user)
-    ack = False
     if form.is_valid():
-        if not request.user.check_password(form.cleaned_data['password_prev']):
-            return render(
-                request, 'scipost/change_password.html',
-                {'form': form,
-                 'errormessage': 'The currently existing password you entered is incorrect'})
-        if form.cleaned_data['password_new'] != form.cleaned_data['password_verif']:
-            return render(request, 'scipost/change_password.html', {
-                          'form': form,
-                          'errormessage': 'Your new password entries must match'})
-        request.user.set_password(form.cleaned_data['password_new'])
-        request.user.save()
-        ack = True
-
-    return render(request, 'scipost/change_password.html', {'ack': ack, 'form': form})
+        form.save_new_password()
+        # Update user's session hash to stay logged in.
+        update_session_auth_hash(request, request.user)
+        messages.success(request, 'Your SciPost password has been successfully changed')
+        return redirect(reverse('scipost:personal_page'))
+    return render(request, 'scipost/change_password.html', {'form': form})
 
 
 def reset_password_confirm(request, uidb64=None, token=None):
