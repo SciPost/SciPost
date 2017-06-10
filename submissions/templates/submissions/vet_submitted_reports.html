@@ -46,7 +46,7 @@ $(document).ready(function(){
 
             <h2 class="mb-2">Report to vet:</h2>
 
-            {% include 'submissions/_single_public_report_without_comments.html' with report=report_to_vet %}
+            {% include 'submissions/_single_public_report_without_comments.html' with submission=report_to_vet.submission report=report_to_vet %}
 
             <hr class="small">
             <h2>Please vet this Report:</h2>
