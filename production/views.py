@@ -2,11 +2,13 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.generic.edit import UpdateView, DeleteView
 
 from guardian.decorators import permission_required
 
 from .constants import PRODUCTION_STREAM_COMPLETED
-from .models import ProductionStream
+from .models import ProductionStream, ProductionEvent
 from .forms import ProductionEventForm
 
 
@@ -51,6 +53,40 @@ def add_event(request, stream_id):
     else:
         messages.warning(request, 'The form was invalidly filled.')
     return redirect(reverse('production:production'))
+
+
+@method_decorator(permission_required('scipost.can_view_production', raise_exception=True),
+                  name='dispatch')
+class UpdateEventView(UpdateView):
+    model = ProductionEvent
+    form_class = ProductionEventForm
+    slug_field = 'id'
+    slug_url_kwarg = 'event_id'
+
+    def get_queryset(self):
+        return self.model.objects.get_my_events(self.request.user.contributor)
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Event updated succesfully')
+        return super().form_valid(form)
+
+
+@method_decorator(permission_required('scipost.can_view_production', raise_exception=True),
+                  name='dispatch')
+class DeleteEventView(DeleteView):
+    model = ProductionEvent
+    slug_field = 'id'
+    slug_url_kwarg = 'event_id'
+
+    def get_queryset(self):
+        return self.model.objects.get_my_events(self.request.user.contributor)
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Event deleted succesfully')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
