@@ -83,7 +83,7 @@ class ProspectivePartnerEvent(models.Model):
                                  blank=True, null=True)
 
     def __str__(self):
-        return '%s: %s' % (str(self.prospective_partner), self.get_event_display())
+        return '%s: %s' % (str(self.prospartner), self.get_event_display())
 
 
 ###########################
