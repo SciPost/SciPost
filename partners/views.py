@@ -145,8 +145,6 @@ def add_prospartner_event(request, prospartner_id):
             prospartner.save()
             return redirect(reverse('partners:manage'))
         else:
-            t = ppevent_form.errors
-            raise
             errormessage = 'The form was invalidly filled.'
             return render(request, 'scipost/error.html', {'errormessage': errormessage})
     errormessage = 'This view can only be posted to.'
