@@ -8,8 +8,10 @@ urlpatterns = [
     url(r'^manage$', views.manage, name='manage'),
     url(r'^add_prospective_partner$', views.add_prospective_partner,
         name='add_prospective_partner'),
-    url(r'^add_prospective_contact/(?P<prospartner_id>[0-9]+)$',
+    url(r'^add_prospartner_contact/(?P<prospartner_id>[0-9]+)$',
         views.add_prospartner_contact, name='add_prospartner_contact'),
+    url(r'^email_prospartner_contact/(?P<contact_id>[0-9]+)$',
+        views.email_prospartner_contact, name='email_prospartner_contact'),
     url(r'^add_prospartner_event/(?P<prospartner_id>[0-9]+)$',
         views.add_prospartner_event, name='add_prospartner_event'),
 ]

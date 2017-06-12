@@ -765,19 +765,18 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
 
 
 def decline_ref_invitation(request, invitation_key):
-    invitation = get_object_or_404(RefereeInvitation, invitation_key=invitation_key)
-    if request.method == 'POST':
-        form = ConsiderRefereeInvitationForm(request.POST)
-        if form.is_valid():
-            invitation.accepted = False
-            invitation.refusal_reason = form.cleaned_data['refusal_reason']
-            invitation.save()
-            SubmissionUtils.load({'invitation': invitation}, request)
-            SubmissionUtils.email_referee_response_to_EIC()
-            messages.success(request, 'Thank you for informing us that you will not provide a Report.')
-            return redirect(reverse('scipost:index'))
-    else:
-        form = ConsiderRefereeInvitationForm(initial={'accept': False})
+    invitation = get_object_or_404(RefereeInvitation, invitation_key=invitation_key,
+                                   accepted__isnull=True)
+
+    form = ConsiderRefereeInvitationForm(request.POST or None, initial={'accept': False})
+    if form.is_valid():
+        invitation.accepted = False
+        invitation.refusal_reason = form.cleaned_data['refusal_reason']
+        invitation.save()
+        SubmissionUtils.load({'invitation': invitation}, request)
+        SubmissionUtils.email_referee_response_to_EIC()
+        messages.success(request, 'Thank you for informing us that you will not provide a Report.')
+        return redirect(reverse('scipost:index'))
     context = {'invitation': invitation, 'form': form}
     return render(request, 'submissions/decline_ref_invitation.html', context)
 
@@ -1048,7 +1047,8 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         newreport = form.save(submission, current_contributor)
         if newreport.status == STATUS_DRAFT:
             messages.success(request, ('Your Report has been saved. '
-                                       'You may leave the page and finish it later.'))
+                                       'You may carry on working on it,'
+                                       ' or leave the page and finish it later.'))
             context = {'submission': submission, 'form': form}
             return render(request, 'submissions/submit_report.html', context)
 
@@ -1068,7 +1068,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def vet_submitted_reports(request):
     """
-    Reports with status `unvetted` will be shown one-by-one. An user may only
+    Reports with status `unvetted` will be shown one-by-one. A user may only
     vet reports of submissions he/she is EIC of.
 
     After vetting an email is sent to the report author, bcc EIC. If report
@@ -1234,8 +1234,7 @@ def fix_College_decision(request, rec_id):
         # Publish as Tier I, II or III
         recommendation.submission.status = 'accepted'
         # Create a ProductionStream object
-        prodstream = ProductionStream(submission=recommendation.submission,
-                                      opened=timezone.now())
+        prodstream = ProductionStream(submission=recommendation.submission)
         prodstream.save()
     elif recommendation.recommendation == -3:
         # Reject
