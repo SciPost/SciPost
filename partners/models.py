@@ -85,6 +85,7 @@ class ProspectivePartnerEvent(models.Model):
     def __str__(self):
         return '%s: %s' % (self.prospartner, self.get_event_display())
 
+
 ###########################
 # Partner-related objects #
 ###########################
