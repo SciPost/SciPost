@@ -4,17 +4,15 @@
 
 {% load staticfiles %}
 
-{% block bodysup %}
+{% block content %}
 
-
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox320">
-      <h1><a href="{% url 'scipost:about' %}">A call for openness</a></h1>
+<div class="row">
+    <div class="col-12">
+      <h1 class="highlight"><a href="{% url 'scipost:about' %}">A call for openness</a></h1>
     </div>
-    <div class="row">
-      <div class="col-1"></div>
-      <div class="col-10">
+</div>
+<div class="row">
+    <div class="col-md-10 offset-md-1">
       <p>
 	Scientific publishing is currently making the news headlines.
 	With the recent <a href="http://english.eu2016.nl/documents/reports/2016/04/04/amsterdam-call-for-action-on-open-science">Amsterdam call for action on open science</a>
@@ -67,6 +65,7 @@
 
   </div>
 
-</section>
+    </div>
+</div>
 
-{% endblock bodysup %}
+{% endblock %}
