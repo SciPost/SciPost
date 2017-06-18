@@ -1124,60 +1124,55 @@ def email_group_members(request):
     """
     Method to send bulk emails to (members of) selected groups
     """
-    if request.method == 'POST':
-        form = EmailGroupMembersForm(request.POST)
-        if form.is_valid():
-            group_members = form.cleaned_data['group'].user_set.all()
-            p = Paginator(group_members, 32)
-            for pagenr in p.page_range:
-                page = p.page(pagenr)
-                with mail.get_connection() as connection:
-                    for member in page.object_list:
-                        if member.contributor.accepts_SciPost_emails:
-                            email_text = ''
-                            email_text_html = ''
-                            if form.cleaned_data['personalize']:
-                                email_text = ('Dear ' + member.contributor.get_title_display()
-                                              + ' ' + member.last_name + ', \n\n')
-                                email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
-                            email_text += form.cleaned_data['email_text']
-                            email_text_html += '{{ email_text|linebreaks }}'
-                            if form.cleaned_data['include_scipost_summary']:
-                                email_text += SCIPOST_SUMMARY_FOOTER
-                                email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
-                            email_text_html += EMAIL_FOOTER
-                            url_unsubscribe = reverse('scipost:unsubscribe',
-                                                      args=[contributor.id,
-                                                            contributor.activation_key])
-                            email_text += ('\n\nDon\'t want to receive such emails? '
-                                           'Unsubscribe by visiting %s.' % url_unsubscribe)
-                            email_text_html += (
-                                '<br/>\n<p style="font-size: 10px;">Don\'t want to receive such '
-                                'emails? <a href="%s">Unsubscribe</a>.</p>' % url_unsubscribe)
-                            email_context = Context({
-                                'title': member.contributor.get_title_display(),
-                                'last_name': member.last_name,
-                                'email_text': form.cleaned_data['email_text'],
-                                'key': member.contributor.activation_key,
-                            })
-                            html_template = Template(email_text_html)
-                            html_version = html_template.render(email_context)
-                            message = EmailMultiAlternatives(
-                                form.cleaned_data['email_subject'],
-                                email_text, 'SciPost Admin <admin@scipost.org>',
-                                [member.email], connection=connection)
-                            message.attach_alternative(html_version, 'text/html')
-                            message.send()
-            context = {'ack_header': 'The email has been sent.',
-                       'followup_message': 'Return to your ',
-                       'followup_link': reverse('scipost:personal_page'),
-                       'followup_link_label': 'personal page'}
-            return render(request, 'scipost/acknowledgement.html', context)
-        else:
-            errormessage = 'The form was invalidly filled.'
-            context = {'errormessage': errormessage, 'form': form}
-            return render(request, 'scipost/email_group_members.html', context)
-    form = EmailGroupMembersForm()
+    form = EmailGroupMembersForm(request.POST or None)
+    if form.is_valid():
+        group_members = form.cleaned_data['group'].user_set.all()
+        p = Paginator(group_members, 32)
+        for pagenr in p.page_range:
+            page = p.page(pagenr)
+            with mail.get_connection() as connection:
+                for member in page.object_list:
+                    if member.contributor.accepts_SciPost_emails:
+                        email_text = ''
+                        email_text_html = ''
+                        if form.cleaned_data['personalize']:
+                            email_text = ('Dear ' + member.contributor.get_title_display()
+                                          + ' ' + member.last_name + ', \n\n')
+                            email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
+                        email_text += form.cleaned_data['email_text']
+                        email_text_html += '{{ email_text|linebreaks }}'
+                        if form.cleaned_data['include_scipost_summary']:
+                            email_text += SCIPOST_SUMMARY_FOOTER
+                            email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
+                        email_text_html += EMAIL_FOOTER
+                        url_unsubscribe = reverse('scipost:unsubscribe',
+                                                  args=[member.contributor.id,
+                                                        member.contributor.activation_key])
+                        email_text += ('\n\nDon\'t want to receive such emails? '
+                                       'Unsubscribe by visiting %s.' % url_unsubscribe)
+                        email_text_html += (
+                            '<br/>\n<p style="font-size: 10px;">Don\'t want to receive such '
+                            'emails? <a href="%s">Unsubscribe</a>.</p>' % url_unsubscribe)
+                        email_context = Context({
+                            'title': member.contributor.get_title_display(),
+                            'last_name': member.last_name,
+                            'email_text': form.cleaned_data['email_text'],
+                            'key': member.contributor.activation_key,
+                        })
+                        html_template = Template(email_text_html)
+                        html_version = html_template.render(email_context)
+                        message = EmailMultiAlternatives(
+                            form.cleaned_data['email_subject'],
+                            email_text, 'SciPost Admin <admin@scipost.org>',
+                            [member.email], connection=connection)
+                        message.attach_alternative(html_version, 'text/html')
+                        message.send()
+        context = {'ack_header': 'The email has been sent.',
+                   'followup_message': 'Return to your ',
+                   'followup_link': reverse('scipost:personal_page'),
+                   'followup_link_label': 'personal page'}
+        return render(request, 'scipost/acknowledgement.html', context)
+
     context = {'form': form}
     return render(request, 'scipost/email_group_members.html', context)
 
@@ -1222,41 +1217,40 @@ def send_precooked_email(request):
     """
     Method to send precooked emails to individuals (registered or not)
     """
-    if request.method == 'POST':
-        form = SendPrecookedEmailForm(request.POST)
-        if form.is_valid():
-            precookedEmail = form.cleaned_data['email_option']
-            if form.cleaned_data['email_address'] in precookedEmail.emailed_to:
-                errormessage = 'This message has already been sent to this address'
-                return render(request, 'scipost/error.html',
-                              context={'errormessage': errormessage})
-            precookedEmail.emailed_to.append(form.cleaned_data['email_address'])
-            precookedEmail.date_last_used = timezone.now().date()
-            precookedEmail.save()
-            email_text = precookedEmail.email_text
-            email_text_html = '{{ email_text|linebreaks }}'
-            email_context = Context({'email_text': precookedEmail.email_text_html})
-            if form.cleaned_data['include_scipost_summary']:
-                email_text += SCIPOST_SUMMARY_FOOTER
-                email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
+    form = SendPrecookedEmailForm(request.POST or None)
+    if form.is_valid():
+        precookedEmail = form.cleaned_data['email_option']
+        if form.cleaned_data['email_address'] in precookedEmail.emailed_to:
+            errormessage = 'This message has already been sent to this address'
+            return render(request, 'scipost/error.html',
+                          context={'errormessage': errormessage})
+        precookedEmail.emailed_to.append(form.cleaned_data['email_address'])
+        precookedEmail.date_last_used = timezone.now().date()
+        precookedEmail.save()
+        email_text = precookedEmail.email_text
+        email_text_html = '{{ email_text|linebreaks }}'
+        email_context = Context({'email_text': precookedEmail.email_text_html})
+        if form.cleaned_data['include_scipost_summary']:
+            email_text += SCIPOST_SUMMARY_FOOTER
+            email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
 
-            email_text_html += '<br/>' + EMAIL_FOOTER
-            html_template = Template(email_text_html)
-            html_version = html_template.render(email_context)
-            message = EmailMultiAlternatives(
-                precookedEmail.email_subject,
-                email_text,
-                SciPost_from_addresses_dict[form.cleaned_data['from_address']],
-                [form.cleaned_data['email_address']],
-                bcc=['admin@scipost.org'])
-            message.attach_alternative(html_version, 'text/html')
-            message.send()
-            context = {'ack_header': 'The email has been sent.',
-                       'followup_message': 'Return to your ',
-                       'followup_link': reverse('scipost:personal_page'),
-                       'followup_link_label': 'personal page'}
-            return render(request, 'scipost/acknowledgement.html', context)
-    form = SendPrecookedEmailForm()
+        email_text_html += '<br/>' + EMAIL_FOOTER
+        html_template = Template(email_text_html)
+        html_version = html_template.render(email_context)
+        message = EmailMultiAlternatives(
+            precookedEmail.email_subject,
+            email_text,
+            SciPost_from_addresses_dict[form.cleaned_data['from_address']],
+            [form.cleaned_data['email_address']],
+            bcc=['admin@scipost.org'])
+        message.attach_alternative(html_version, 'text/html')
+        message.send()
+        context = {'ack_header': 'The email has been sent.',
+                   'followup_message': 'Return to your ',
+                   'followup_link': reverse('scipost:personal_page'),
+                   'followup_link_label': 'personal page'}
+        return render(request, 'scipost/acknowledgement.html', context)
+
     context = {'form': form}
     return render(request, 'scipost/send_precooked_email.html', context)
 
