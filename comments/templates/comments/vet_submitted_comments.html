@@ -1,4 +1,9 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Vet submitted Comments</span>
+{% endblock %}
 
 {% load bootstrap %}
 {% load filename %}
@@ -11,7 +16,8 @@
 {% if not comments_to_vet %}
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">There are no comments for you to vet.</h1>
+        <h1>There are no comments for you to vet.</h1>
+        <h3><a href="{% url 'scipost:personal_page' %}">Return to personal page</a></h3>
     </div>
 </div>
 {% else %}
