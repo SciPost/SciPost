@@ -1,14 +1,8 @@
 # Module for making external api calls as needed in the submissions cycle
 import feedparser
 import requests
-import re
 import datetime
 import dateutil.parser
-
-from django.template import Template, Context
-from .behaviors import ArxivCallable
-
-from strings import arxiv_caller_errormessages
 
 
 class DOICaller:

@@ -19,7 +19,7 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
                        AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS
 from .fields import ChoiceArrayField
-from .managers import FellowManager, ContributorManager
+from .managers import FellowManager, ContributorManager, RegistrationInvitationManager
 
 
 def get_sentinel_user():
@@ -184,7 +184,7 @@ class Remark(models.Model):
     recommendation = models.ForeignKey('submissions.EICRecommendation',
                                        on_delete=models.CASCADE,
                                        blank=True, null=True)
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now_add=True)
     remark = models.TextField()
 
     def __str__(self):
@@ -260,6 +260,11 @@ class RegistrationInvitation(models.Model):
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     responded = models.BooleanField(default=False)
     declined = models.BooleanField(default=False)
+
+    objects = RegistrationInvitationManager()
+
+    class Meta:
+        ordering = ['last_name']
 
     def __str__(self):
         return (self.first_name + ' ' + self.last_name

@@ -1,7 +1,6 @@
 from django import template
-from django.contrib.auth.models import Group
 
-from ..constants import subject_areas_dict
+from ..constants import subject_areas_dict, subject_areas_raw_dict
 from ..models import Contributor
 
 register = template.Library()
@@ -14,6 +13,7 @@ register = template.Library()
 @register.filter(name='sort_by')
 def sort_by(queryset, order):
     return queryset.order_by(order)
+
 
 @register.filter(name='duration')
 def duration(dur):
