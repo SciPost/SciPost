@@ -480,62 +480,38 @@ def map_draft_reg_inv_to_contributor(request, draft_id, contributor_id):
 def registration_invitations(request, draft_id=None):
     """ Overview and tools for administrators """
     # List invitations sent; send new ones
-    errormessage = ''
     associated_contributors = None
-    if request.method == 'POST':
-        # Send invitation from form information
-        reg_inv_form = RegistrationInvitationForm(request.POST)
-        Utils.load({'contributor': request.user.contributor, 'form': reg_inv_form})
-        if reg_inv_form.is_valid():
-            if Utils.email_already_invited():
-                errormessage = ('DUPLICATE ERROR: '
-                                'This email address has already been used for an invitation')
-            elif Utils.email_already_taken():
-                errormessage = ('DUPLICATE ERROR: '
-                                'This email address is already associated to a Contributor')
-            elif (reg_inv_form.cleaned_data['invitation_type'] == 'F'
-                  and not request.user.has_perm('scipost.can_invite_Fellows')):
-                errormessage = ('You do not have the authorization to send a Fellow-type '
-                                'invitation. Consider Contributor, or cited (sub/pub). ')
-            elif (reg_inv_form.cleaned_data['invitation_type'] == 'R'):
-                errormessage = ('Referee-type invitations must be made by the Editor-in-charge '
-                                'at the relevant Submission\'s Editorial Page. ')
-            else:
-                Utils.create_invitation()
-                Utils.send_registration_invitation_email()
-                try:
-                    draft = DraftInvitation.objects.get(
-                        email=reg_inv_form.cleaned_data['email'])
-                    draft.processed = True
-                    draft.save()
-                except ObjectDoesNotExist:
-                    pass
-                except MultipleObjectsReturned:
-                    # Delete the first invitation
-                    draft_to_delete = RegistrationInvitation.objects.filter(
-                        email=reg_inv_form.cleaned_data['email']).first()
-                    draft_to_delete.delete()
-                messages.success(request, 'Registration Invitation sent')
-                return redirect(reverse('scipost:registration_invitations'))
-        else:
-            errormessage = 'The form was not filled validly.'
+    initial = {}
+    if draft_id:
+        # Fill draft data if draft_id given
+        draft = get_object_or_404(DraftInvitation, id=draft_id)
+        associated_contributors = Contributor.objects.filter(
+            user__last_name__icontains=draft.last_name)
+        initial = {
+            'title': draft.title,
+            'first_name': draft.first_name,
+            'last_name': draft.last_name,
+            'email': draft.email,
+            'invitation_type': draft.invitation_type,
+            'cited_in_submission': draft.cited_in_submission,
+            'cited_in_publication': draft.cited_in_publication,
+        }
 
-    else:
-        initial = {}
-        if draft_id:
-            draft = get_object_or_404(DraftInvitation, id=draft_id)
-            associated_contributors = Contributor.objects.filter(
-                user__last_name__icontains=draft.last_name)
-            initial = {
-                'title': draft.title,
-                'first_name': draft.first_name,
-                'last_name': draft.last_name,
-                'email': draft.email,
-                'invitation_type': draft.invitation_type,
-                'cited_in_submission': draft.cited_in_submission,
-                'cited_in_publication': draft.cited_in_publication,
-            }
-        reg_inv_form = RegistrationInvitationForm(initial=initial)
+    # Send invitation from form information
+    reg_inv_form = RegistrationInvitationForm(request.POST or None, initial=initial,
+                                              current_user=request.user)
+    if reg_inv_form.is_valid():
+        invitation = reg_inv_form.save(commit=False)
+        invitation.invited_by = request.user.contributor
+        invitation.save()
+
+        Utils.load({'invitation': invitation})
+        Utils.send_registration_invitation_email()
+        (DraftInvitation.objects.filter(email=reg_inv_form.cleaned_data['email'])
+         .update(processed=True))
+
+        messages.success(request, 'Registration Invitation sent')
+        return redirect(reverse('scipost:registration_invitations'))
 
     sent_reg_inv = RegistrationInvitation.objects.filter(responded=False, declined=False)
     sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
@@ -559,7 +535,7 @@ def registration_invitations(request, draft_id=None):
     existing_drafts = DraftInvitation.objects.filter(processed=False).order_by('last_name')
 
     context = {
-        'reg_inv_form': reg_inv_form, 'errormessage': errormessage,
+        'reg_inv_form': reg_inv_form,
         'sent_reg_inv_fellows': sent_reg_inv_fellows,
         'sent_reg_inv_contrib': sent_reg_inv_contrib,
         'sent_reg_inv_ref': sent_reg_inv_ref,

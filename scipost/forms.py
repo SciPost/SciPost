@@ -184,12 +184,17 @@ class RegistrationInvitationForm(forms.ModelForm):
                   ]
 
     def __init__(self, *args, **kwargs):
+        '''
+        This form has a required keyword argument `current_user` which is used for validation of
+        the form fields.
+        '''
+        self.current_user = kwargs.pop('current_user')
         if kwargs.get('initial', {}).get('cited_in_submission', False):
             kwargs['initial']['cited_in_submission'] = kwargs['initial']['cited_in_submission'].id
         if kwargs.get('initial', {}).get('cited_in_publication', False):
             kwargs['initial']['cited_in_publication'] = kwargs['initial']['cited_in_publication'].id
 
-        super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['personal_message'].widget.attrs.update(
             {'placeholder': ('NOTE: a personal phrase or two.'
                              ' The bulk of the text will be auto-generated.')})
@@ -197,6 +202,28 @@ class RegistrationInvitationForm(forms.ModelForm):
         self.fields['cited_in_publication'] = forms.ModelChoiceField(
             queryset=Publication.objects.all().order_by('-publication_date'),
             required=False)
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if RegistrationInvitation.objects.filter(email=email).exists():
+            self.add_error('email', 'This email address has already been used for an invitation')
+
+        if User.objects.filter(email=email).exists():
+            self.add_error('email', 'This email address is already associated to a Contributor')
+
+        return email
+
+    def clean_invitation_type(self):
+        invitation_type = self.cleaned_data['invitation_type']
+        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_Fellows'):
+            self.add_error('invitation_type', ('You do not have the authorization'
+                                               ' to send a Fellow-type invitation.'
+                                               ' Consider Contributor, or cited (sub/pub).'))
+        if invitation_type == 'R':
+            self.add_error('invitation_type', ('Referee-type invitations must be made by the'
+                                               ' Editor-in-charge at the relevant Submission'
+                                               '\'s Editorial Page. '))
+        return invitation_type
 
 
 class ModifyPersonalMessageForm(forms.Form):
