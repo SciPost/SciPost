@@ -278,6 +278,7 @@ def request_new_activation_link(request, contributor_id, key):
     if request.GET.get('confirm', False):
         # Generate a new email activation key and link
         contributor.generate_key()
+        contributor.save()
         Utils.load({'contributor': contributor}, request)
         Utils.send_new_activation_link_email()
 
@@ -383,6 +384,36 @@ def vet_registration_request_ack(request, contributor_id):
 
     messages.success(request, 'SciPost Registration request vetted.')
     return redirect(reverse('scipost:vet_registration_requests'))
+
+
+@permission_required('scipost.can_resend_registration_requests', return_403=True)
+def registration_requests(request):
+    '''
+    List all inactive users. These are users that have filled the registration form,
+    but did not yet activate their account using the validation email.
+    '''
+    unactive_contributors = (Contributor.objects.awaiting_validation()
+                             .prefetch_related('user')
+                             .order_by('-key_expires'))
+    context = {
+        'unactive_contributors': unactive_contributors,
+        'now': timezone.now()
+    }
+    return render(request, 'scipost/registration_requests.html', context)
+
+
+@require_POST
+@permission_required('scipost.can_resend_registration_requests', return_403=True)
+def registration_requests_reset(request, contributor_id):
+    '''
+    Reset specific activation_key for Contributor and resend activation mail.
+    '''
+    contributor = get_object_or_404(Contributor.objects.awaiting_validation(), id=contributor_id)
+    contributor.generate_key()
+    contributor.save()
+    Utils.load({'contributor': contributor}, request)
+    Utils.send_new_activation_link_email()
+    return redirect(reverse('scipost:registration_requests'))
 
 
 @permission_required('scipost.can_draft_registration_invitations', return_403=True)
@@ -758,9 +789,9 @@ def personal_page(request):
 
         # count the number of pending registration requests
         nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, status=0).count()
-        nr_reg_awaiting_validation = Contributor.objects.filter(
-            user__is_active=False, key_expires__gte=now,
-            key_expires__lte=intwodays, status=0).count()
+        nr_reg_awaiting_validation = (Contributor.objects.awaiting_validation()
+                                    #   .filter(key_expires__gte=now, key_expires__lte=intwodays)
+                                      .count())
         nr_submissions_to_assign = Submission.objects.filter(status__in=['unassigned']).count()
         nr_recommendations_to_prepare_for_voting = EICRecommendation.objects.filter(
             submission__status__in=['voting_in_preparation']).count()

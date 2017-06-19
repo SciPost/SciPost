@@ -103,7 +103,6 @@ class Contributor(models.Model):
         salt = self.user.username.encode('utf8')
         self.activation_key = hashlib.sha1(salt+salt).hexdigest()
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
-        self.save()
 
     def discipline_as_string(self):
         # Redundant, to be removed in future
