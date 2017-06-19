@@ -1145,8 +1145,8 @@ def email_group_members(request):
                                 email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
                             email_text_html += EMAIL_FOOTER
                             url_unsubscribe = reverse('scipost:unsubscribe',
-                                                      args=[contributor.id,
-                                                            contributor.activation_key])
+                                                      args=[member.contributor.id,
+                                                            member.contributor.activation_key])
                             email_text += ('\n\nDon\'t want to receive such emails? '
                                            'Unsubscribe by visiting %s.' % url_unsubscribe)
                             email_text_html += (
@@ -1285,7 +1285,6 @@ def Fellow_activity_overview(request, Fellow_id=None):
                                  .filter(completed=True, to=fellow).order_by('-date_created'))
         context['assignments_completed'] = assignments_completed
     return render(request, 'scipost/Fellow_activity_overview.html', context)
-
 
 
 class AboutView(ListView):
