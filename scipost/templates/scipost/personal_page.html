@@ -158,16 +158,23 @@
                 </div>
                 <div class="col-md-4 offset-md-1">
                     {% if unavailabilities %}
-                        <h3>Your unavailability periods in our records (YYYY-DD-MM):</h3>
-                        <table class="availabilities">
+                        <h3>Your unavailability periods in our records</h3>
+                        <p class="text-muted">(YYYY-DD-MM)</p>
+                        <table class="table">
                             <tr>
                                 <th>Start</th>
-                                <th>End</th>
+                                <th colspan="2">End</th>
                             </tr>
                         {% for unav in unavailabilities %}
                             <tr>
                                 <td>{{ unav.start }}</td>
                                 <td>{{ unav.end }}</td>
+                                <td>
+                                    <form action="{% url 'scipost:delete_unavailable_period' unav.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input class="btn btn-danger" type="submit" value="Delete" />
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
                         </table>

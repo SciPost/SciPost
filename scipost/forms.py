@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
+from django.utils import timezone
 from django.utils.http import is_safe_url
 
 from django_countries import countries
@@ -378,9 +379,20 @@ class UnavailabilityPeriodForm(forms.ModelForm):
         fields = ['start', 'end']
 
     def __init__(self, *args, **kwargs):
-        super(UnavailabilityPeriodForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['start'].widget.attrs.update({'placeholder': 'YYYY-MM-DD'})
         self.fields['end'].widget.attrs.update({'placeholder': 'YYYY-MM-DD'})
+
+    def clean_end(self):
+        now = timezone.now()
+        start = self.cleaned_data['start']
+        end = self.cleaned_data['end']
+        if start > end:
+            self.add_error('end', 'The start date you have entered is later than the end date.')
+
+        if end < now.date():
+            self.add_error('end', 'You have entered an end date in the past.')
+        return end
 
 
 class RemarkForm(forms.Form):

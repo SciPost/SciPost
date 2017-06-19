@@ -161,7 +161,7 @@ class Contributor(models.Model):
 
 
 class UnavailabilityPeriod(models.Model):
-    contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     start = models.DateField()
     end = models.DateField()
 

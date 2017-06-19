@@ -133,11 +133,13 @@ urlpatterns = [
     url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
 
     # Unavailabilities
-    url(r'^mark_unavailable_period$', views.mark_unavailable_period,
-        name='mark_unavailable_period'),
+    url(r'^unavailable_period$', views.mark_unavailable_period, name='mark_unavailable_period'),
+    url(r'^unavailable_period/(?P<period_id>[0-9]+)/delete$', views.delete_unavailable_period,
+        name='delete_unavailable_period'),
 
     # Contributor info
-    url(r'^contributor/(?P<contributor_id>[0-9]+)$', views.contributor_info, name="contributor_info"),
+    url(r'^contributor/(?P<contributor_id>[0-9]+)$', views.contributor_info,
+        name="contributor_info"),
 
     # Authorship claims
     url(r'^claim_authorships$', views.claim_authorships, name="claim_authorships"),

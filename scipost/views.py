@@ -7,7 +7,6 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core import mail
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -15,6 +14,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.template import Context, Template
+from django.views.decorators.http import require_POST
 from django.views.generic.list import ListView
 
 from django.db.models import Prefetch
@@ -703,28 +703,34 @@ def logout_view(request):
     return redirect(reverse('scipost:index'))
 
 
+@login_required
 def mark_unavailable_period(request):
-    if request.method == 'POST':
-        unav_form = UnavailabilityPeriodForm(request.POST)
-        errormessage = None
-        if unav_form.is_valid():
-            now = timezone.now()
-            if unav_form.cleaned_data['start'] > unav_form.cleaned_data['end']:
-                errormessage = 'The start date you have entered is later than the end date.'
-            elif unav_form.cleaned_data['end'] < now.date():
-                errormessage = 'You have entered an end date in the past.'
-            if errormessage is not None:
-                return render(request, 'scipost/error.html',
-                              context={'errormessage': errormessage})
-            else:
-                unav = UnavailabilityPeriod(
-                    contributor=request.user.contributor,
-                    start=unav_form.cleaned_data['start'],
-                    end=unav_form.cleaned_data['end'])
-                unav.save()
-        else:
-            errormessage = 'Please enter valid dates (format: YYYY-MM-DD).'
-            return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+    '''
+    Mark period unavailable for Contributor using this view.
+    '''
+    unav_form = UnavailabilityPeriodForm(request.POST or None)
+    if unav_form.is_valid():
+        unav = unav_form.save(commit=False)
+        unav.contributor = request.user.contributor
+        unav.save()
+        messages.success(request, 'Unavailability period registered')
+        return redirect('scipost:personal_page')
+
+    # Template acts as a backup in case the form is invalid.
+    context = {'form': unav_form}
+    return render(request, 'scipost/unavailability_period_form.html', context)
+
+
+@require_POST
+@login_required
+def delete_unavailable_period(request, period_id):
+    '''
+    Delete period unavailable registered.
+    '''
+    unav = get_object_or_404(UnavailabilityPeriod,
+                             contributor=request.user.contributor, id=int(period_id))
+    unav.delete()
+    messages.success(request, 'Unavailability period deleted')
     return redirect('scipost:personal_page')
 
 
