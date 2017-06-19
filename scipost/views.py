@@ -443,23 +443,15 @@ def draft_registration_invitation(request):
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def edit_draft_reg_inv(request, draft_id):
     draft = get_object_or_404(DraftInvitation, id=draft_id)
-    errormessage = ''
-    if request.method == 'POST':
-        draft_inv_form = DraftInvitationForm(request.POST)
-        if draft_inv_form.is_valid():
-            draft.title = draft_inv_form.cleaned_data['title']
-            draft.first_name = draft_inv_form.cleaned_data['first_name']
-            draft.last_name = draft_inv_form.cleaned_data['last_name']
-            draft.email = draft_inv_form.cleaned_data['email']
-            draft.save()
-            return redirect(reverse('scipost:registration_invitations'))
-        else:
-            errormessage = 'The form is invalidly filled'
-    else:
-        draft_inv_form = DraftInvitationForm(instance=draft)
-    context = {'draft_inv_form': draft_inv_form,
-               'draft': draft,
-               'errormessage': errormessage, }
+
+    draft_inv_form = DraftInvitationForm(request.POST or None, current_user=request.user,
+                                         instance=draft)
+    if draft_inv_form.is_valid():
+        draft = draft_inv_form.save()
+        messages.success(request, 'Draft invitation saved.')
+        return redirect(reverse('scipost:registration_invitations'))
+
+    context = {'draft_inv_form': draft_inv_form}
     return render(request, 'scipost/edit_draft_reg_inv.html', context)
 
 

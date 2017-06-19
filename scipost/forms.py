@@ -143,6 +143,9 @@ class DraftInvitationForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data['email']
+        if self.instance.id:
+            return email
+
         if RegistrationInvitation.objects.filter(email=email).exists():
             self.add_error('email', 'This email address has already been used for an invitation')
 

@@ -36,10 +36,7 @@ $(document).ready(function(){
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Edit a draft registration invitation</h1>
-        {% if errormessage %}
-            <h3 class="text-danger">{{ errormessage }}</h3>
-        {% endif %}
-        <form action="{% url 'scipost:edit_draft_reg_inv' draft_id=draft.id %}" method="post">
+        <form action="{% url 'scipost:edit_draft_reg_inv' draft_id=draft_inv_form.instance.id %}" method="post">
             {% csrf_token %}
             {{draft_inv_form.media}}
             {{draft_inv_form|bootstrap}}
