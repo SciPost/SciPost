@@ -149,12 +149,10 @@ class DraftInvitationForm(forms.ModelForm):
 
         if RegistrationInvitation.objects.filter(email=email).exists():
             self.add_error('email', 'This email address has already been used for an invitation')
-
-        if DraftInvitation.objects.filter(email=email).exists():
+        elif DraftInvitation.objects.filter(email=email).exists():
             self.add_error('email', ('This email address has already been'
                                      ' used for a draft invitation'))
-
-        if User.objects.filter(email=email).exists():
+        elif User.objects.filter(email=email).exists():
             self.add_error('email', 'This email address is already associated to a Contributor')
 
         return email
@@ -208,8 +206,7 @@ class RegistrationInvitationForm(forms.ModelForm):
         email = self.cleaned_data['email']
         if RegistrationInvitation.objects.filter(email=email).exists():
             self.add_error('email', 'This email address has already been used for an invitation')
-
-        if User.objects.filter(email=email).exists():
+        elif User.objects.filter(email=email).exists():
             self.add_error('email', 'This email address is already associated to a Contributor')
 
         return email
