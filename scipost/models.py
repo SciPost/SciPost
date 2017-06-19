@@ -205,8 +205,8 @@ class DraftInvitation(models.Model):
     Draft of an invitation, filled in by an officer.
     """
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    first_name = models.CharField(max_length=30, default='')
-    last_name = models.CharField(max_length=30, default='')
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
     email = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE,
                                        default=INVITATION_CONTRIBUTOR)
@@ -216,10 +216,9 @@ class DraftInvitation(models.Model):
     cited_in_publication = models.ForeignKey('journals.Publication',
                                              on_delete=models.CASCADE,
                                              blank=True, null=True)
-    drafted_by = models.ForeignKey(Contributor,
-                                   on_delete=models.CASCADE,
+    drafted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                    blank=True, null=True)
-    date_drafted = models.DateTimeField(default=timezone.now)
+    date_drafted = models.DateTimeField(auto_now_add=True)
     processed = models.BooleanField(default=False)
 
     def __str__(self):

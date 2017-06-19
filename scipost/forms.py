@@ -133,6 +133,40 @@ class DraftInvitationForm(forms.ModelForm):
                   'cited_in_submission', 'cited_in_publication'
                   ]
 
+    def __init__(self, *args, **kwargs):
+        '''
+        This form has a required keyword argument `current_user` which is used for validation of
+        the form fields.
+        '''
+        self.current_user = kwargs.pop('current_user')
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if RegistrationInvitation.objects.filter(email=email).exists():
+            self.add_error('email', 'This email address has already been used for an invitation')
+
+        if DraftInvitation.objects.filter(email=email).exists():
+            self.add_error('email', ('This email address has already been'
+                                     ' used for a draft invitation'))
+
+        if User.objects.filter(email=email).exists():
+            self.add_error('email', 'This email address is already associated to a Contributor')
+
+        return email
+
+    def clean_invitation_type(self):
+        invitation_type = self.cleaned_data['invitation_type']
+        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_Fellows'):
+            self.add_error('invitation_type', ('You do not have the authorization'
+                                               ' to send a Fellow-type invitation.'
+                                               ' Consider Contributor, or cited (sub/pub).'))
+        if invitation_type == 'R':
+            self.add_error('invitation_type', ('Referee-type invitations must be made'
+                                               'by the Editor-in-charge at the relevant'
+                                               ' Submission\'s Editorial Page.'))
+        return invitation_type
+
 
 class RegistrationInvitationForm(forms.ModelForm):
     cited_in_submission = AutoCompleteSelectField('submissions_lookup', required=False)
