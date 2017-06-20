@@ -413,6 +413,8 @@ def registration_requests_reset(request, contributor_id):
     contributor.save()
     Utils.load({'contributor': contributor}, request)
     Utils.send_new_activation_link_email()
+    messages.success(request, ('New key successfully generated and sent to <i>%s</i>'
+                               % contributor.user.email))
     return redirect(reverse('scipost:registration_requests'))
 
 

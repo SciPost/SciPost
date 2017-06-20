@@ -205,13 +205,9 @@
                         <ul>
                             {% if perms.scipost.can_vet_registration_requests %}
                                 <li><a href="{% url 'scipost:vet_registration_requests' %}">Vet Registration requests</a> ({{ nr_reg_to_vet }})</li>
-                                <li>
-                                    {% if perms.scipost.can_resend_registration_requests %}
-                                        <a href="{% url 'scipost:registration_requests' %}">Awaiting validation</a> ({{ nr_reg_awaiting_validation }})
-                                    {% else %}
-                                        Awaiting validation ({{ nr_reg_awaiting_validation }})
-                                    {% endif %}
-                                </li>
+                            {% endif %}
+                            {% if perms.scipost.can_resend_registration_requests %}
+                                <li><a href="{% url 'scipost:registration_requests' %}">Awaiting validation</a> ({{ nr_reg_awaiting_validation }})</li>
                             {% endif %}
                             {% if perms.scipost.can_draft_registration_invitations %}
                                 <li><a href="{% url 'scipost:draft_registration_invitation' %}">Draft a Registration Invitation</a></li>
