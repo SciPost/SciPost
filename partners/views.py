@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from guardian.decorators import permission_required
 
-from .constants import PROSPECTIVE_PARTNER_REQUESTED, PROSPECTIVE_PARTNER_ADDED,\
+from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
     PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT
 from .models import Partner, ProspectivePartner, ProspectiveContact,\
@@ -14,8 +14,8 @@ from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
     EmailProspectivePartnerContactForm,\
     ProspectivePartnerEventForm, MembershipQueryForm
 
-from common.utils import BaseMailUtil
 from .utils import PartnerUtils
+
 
 def supporting_partners(request):
     context = {}
@@ -24,6 +24,16 @@ def supporting_partners(request):
         prospective_agreements = MembershipAgreement.objects.submitted().order_by('date_requested')
         context['prospective_partners'] = prospective_agreements
     return render(request, 'partners/supporting_partners.html', context)
+
+
+@permission_required('scipost.can_read_personal_page', return_403=True)
+def dashboard(request):
+    '''
+    This page is meant as a personal page for Partners, where they will for example be able
+    to read their personal data and agreements.
+    '''
+    context = {}
+    return render(request, 'partners/dashboard.html', context)
 
 
 @transaction.atomic
@@ -127,7 +137,6 @@ def email_prospartner_contact(request, contact_id):
         return redirect(reverse('partners:manage'))
     context = {'contact': contact, 'form': form}
     return render(request, 'partners/email_prospartner_contact.html', context)
-
 
 
 @permission_required('scipost.can_manage_SPB', return_403=True)

@@ -30,7 +30,6 @@ class Command(BaseCommand):
         PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
         PartnersOfficers, created = Group.objects.get_or_create(name='Partners Officers')
 
-
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
 

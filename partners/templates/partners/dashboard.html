@@ -1,0 +1,83 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: partner page{% endblock pagetitle %}
+
+{% block content %}
+
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Welcome to your SciPost Partner Page, {{ request.user }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="tab-nav-container">
+            <div class="tab-nav-inner">
+                <!-- Nav tabs -->
+                <ul class="nav btn-group personal-page-nav" role="tablist">
+                  <li class="nav-item btn btn-secondary">
+                    <a href="#account" class="nav-link active" data-toggle="tab">Account</a>
+                  </li>
+                  <li class="nav-item btn btn-secondary">
+                    <a href="#agreements" class="nav-link" data-toggle="tab">Membership Agreements</a>
+                  </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content">
+    <!-- Tab: Account -->
+    <div class="tab-pane active" id="account" role="tabpanel">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-grey">
+                    <div class="card-block">
+                        <h2 class="card-title mb-0">Your Account</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Your personal details:</h3>
+                {% include "scipost/_private_info_as_table.html" with contributor=request.user.contributor %}
+            </div>
+            <div class="col-md-6">
+                <h3>Update your personal data or password</h3>
+
+                <ul>
+                    <li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
+                    <li><a href="{% url 'scipost:change_password' %}">Change your password</a></li>
+                </ul>
+            </div>
+        </div>
+    </div><!-- End tab -->
+
+    <!-- Tab: Agreements -->
+    <div class="tab-pane" id="agreements" role="tabpanel">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-grey">
+                    <div class="card-block">
+                        <h2 class="card-title mb-0">Membership Agreements</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h3>Your registered agreements</h3>
+                <p>None found.</p>
+            </div>
+        </div>
+    </div><!-- End tab -->
+</div>
+
+
+{% endblock content %}
