@@ -61,6 +61,10 @@ class Command(BaseCommand):
             codename='can_invite_Fellows',
             name='Can invite Fellows',
             content_type=content_type)
+        can_resend_registration_requests, created = Permission.objects.get_or_create(
+            codename='can_resend_registration_requests',
+            name='Can resend registration activation emails',
+            content_type=content_type)
 
         # Communications
         can_email_group_members, created = Permission.objects.get_or_create(
@@ -189,6 +193,7 @@ class Command(BaseCommand):
             can_manage_registration_invitations,
             can_email_group_members,
             can_email_particulars,
+            can_resend_registration_requests,
             can_vet_registration_requests,
             can_vet_commentary_requests,
             can_vet_thesislink_requests,

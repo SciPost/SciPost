@@ -158,16 +158,23 @@
                 </div>
                 <div class="col-md-4 offset-md-1">
                     {% if unavailabilities %}
-                        <h3>Your unavailability periods in our records (YYYY-DD-MM):</h3>
-                        <table class="availabilities">
+                        <h3>Your unavailability periods in our records</h3>
+                        <p class="text-muted">(YYYY-DD-MM)</p>
+                        <table class="table">
                             <tr>
                                 <th>Start</th>
-                                <th>End</th>
+                                <th colspan="2">End</th>
                             </tr>
                         {% for unav in unavailabilities %}
                             <tr>
                                 <td>{{ unav.start }}</td>
                                 <td>{{ unav.end }}</td>
+                                <td>
+                                    <form action="{% url 'scipost:delete_unavailable_period' unav.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input class="btn btn-danger" type="submit" value="Delete" />
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
                         </table>
@@ -198,7 +205,9 @@
                         <ul>
                             {% if perms.scipost.can_vet_registration_requests %}
                                 <li><a href="{% url 'scipost:vet_registration_requests' %}">Vet Registration requests</a> ({{ nr_reg_to_vet }})</li>
-                                <li>Awaiting validation ({{ nr_reg_awaiting_validation }}) (no action necessary)</li>
+                            {% endif %}
+                            {% if perms.scipost.can_resend_registration_requests %}
+                                <li><a href="{% url 'scipost:registration_requests' %}">Awaiting validation</a> ({{ nr_reg_awaiting_validation }})</li>
                             {% endif %}
                             {% if perms.scipost.can_draft_registration_invitations %}
                                 <li><a href="{% url 'scipost:draft_registration_invitation' %}">Draft a Registration Invitation</a></li>
