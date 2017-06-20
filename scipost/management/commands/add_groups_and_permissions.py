@@ -193,6 +193,7 @@ class Command(BaseCommand):
             can_manage_registration_invitations,
             can_email_group_members,
             can_email_particulars,
+            can_resend_registration_requests,
             can_vet_registration_requests,
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
@@ -219,7 +220,6 @@ class Command(BaseCommand):
             can_view_production,
             can_publish_accepted_submission,
             can_attend_VGMs,
-            can_resend_registration_requests,
         ])
         EditorialCollege.permissions.set([
             can_view_pool,
