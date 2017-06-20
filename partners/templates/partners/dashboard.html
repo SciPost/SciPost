@@ -46,9 +46,27 @@
         <div class="row">
             <div class="col-md-6">
                 <h3>Your personal details:</h3>
-                {% include "scipost/_private_info_as_table.html" with contributor=request.user.contributor %}
+                {% include "partners/_contact_info_table.html" with contact=request.user.partner_contact %}
             </div>
             <div class="col-md-6">
+                <h3>Partners</h3>
+                <ul>
+                    {% for partner in request.user.partners.all %}
+                        <li>{{partner}}</li>
+                    {% empty %}
+                        <li>No partners found. Please contact the SciPost admin.</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Agreements</h3>
+                <ul>
+                    {% for partner in request.user.partners.agreements.all %}
+                        <li>{{partner}}</li>
+                    {% empty %}
+                        <li>No active agreements found.</li>
+                    {% endfor %}
+                </ul>
+
                 <h3>Update your personal data or password</h3>
 
                 <ul>

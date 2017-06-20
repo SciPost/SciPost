@@ -98,7 +98,7 @@ class Institution(models.Model):
     kind = models.CharField(max_length=32, choices=PARTNER_KINDS)
     name = models.CharField(max_length=256)
     acronym = models.CharField(max_length=16)
-    address = models.CharField(max_length=1000, blank=True)
+    address = models.TextField(blank=True)
     country = CountryField()
 
     def __str__(self):
@@ -112,13 +112,14 @@ class Contact(models.Model):
     (main contact, financial/technical contact etc).
     Contacts and Contributors have different rights.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True,
+                                related_name='partner_contact')
     kind = ChoiceArrayField(models.CharField(max_length=4, choices=CONTACT_TYPES))
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     partners = models.ManyToManyField('partners.Partner',
                                       help_text=('All Partners (+related Institutions)'
                                                  ' the Contact is related to.'))
-    consortia = models.ManyToManyField('partners.Consortium',
+    consortia = models.ManyToManyField('partners.Consortium', blank=True,
                                        help_text=('All Consortia for which the Contact has'
                                                   ' explicit permission to view/edit its data.'))
 
@@ -173,7 +174,7 @@ class MembershipAgreement(models.Model):
     A new instance is created each time an Agreement is made or renewed.
     """
     partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE,
-                                blank=True, null=True)
+                                blank=True, null=True, related_name='agreements')
     consortium = models.ForeignKey('partners.Consortium', on_delete=models.CASCADE,
                                    blank=True, null=True)
     status = models.CharField(max_length=16, choices=MEMBERSHIP_AGREEMENT_STATUS)

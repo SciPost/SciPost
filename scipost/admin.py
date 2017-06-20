@@ -14,16 +14,20 @@ from scipost.models import Contributor, Remark,\
                            EditorialCollege, EditorialCollegeFellowship
 
 from journals.models import Publication
+from partners.admin import ContactToUserInline
 from submissions.models import Submission
 
 
 class ContributorInline(admin.StackedInline):
     model = Contributor
+    extra = 0
+    min_num = 0
 
 
 class UserAdmin(UserAdmin):
     inlines = [
         ContributorInline,
+        ContactToUserInline,
         ]
     search_fields = ['last_name', 'email']
 
