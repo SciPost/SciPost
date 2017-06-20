@@ -16,15 +16,6 @@ $container-max-widths: (
     margin-bottom: 1rem;
 }
 
-// Cards
-//
-$card-spacer-x: 0.75rem;
-$card-border-radius: 1px;
-$card-border-color: #fff;
-$card-cap-bg: transparent;
-$btn-secondary-border-color: #f1f1f1;
-$card-shadow-color: #ccc;
-
 // Colors
 //
 $scipost-light: #C3D7EE;
@@ -35,6 +26,22 @@ $green: #6ebb6e;
 
 $blue: $scipost-lightblue !default;
 $body-color: $scipost-darkblue !default;
+
+// Alerts
+//
+$alert-success-text: $scipost-darkblue;
+$alert-warning-text: $scipost-darkblue;
+$alert-danger-text: $scipost-darkblue;
+$alert-border-radius: $border-radius-base;
+
+// Cards
+//
+$card-spacer-x: 0.75rem;
+$card-border-radius: 1px;
+$card-border-color: #fff;
+$card-cap-bg: transparent;
+$btn-secondary-border-color: #f1f1f1;
+$card-shadow-color: #ccc;
 
 // breadcrumb
 //
