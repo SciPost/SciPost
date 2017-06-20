@@ -14,11 +14,12 @@ from .constants import PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
                        PROSPECTIVE_PARTNER_EVENT_MARKED_AS_UNINTERESTED,\
                        PROSPECTIVE_PARTNER_UNINTERESTED,\
                        PROSPECTIVE_PARTNER_EVENT_PROMOTED,\
-                       PROSPECTIVE_PARTNER_PROCESSED
+                       PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES
 
 from .managers import MembershipAgreementManager
 
 from scipost.constants import TITLE_CHOICES
+from scipost.fields import ChoiceArrayField
 from scipost.models import get_sentinel_user
 
 
@@ -112,8 +113,14 @@ class Contact(models.Model):
     Contacts and Contributors have different rights.
     """
     user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
-    kind = models.CharField(max_length=128)
+    kind = ChoiceArrayField(models.CharField(max_length=4, choices=CONTACT_TYPES))
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    partners = models.ManyToManyField('partners.Partner',
+                                      help_text=('All Partners (+related Institutions)'
+                                                 ' the Contact is related to.'))
+    consortia = models.ManyToManyField('partners.Consortium',
+                                       help_text=('All Consortia for which the Contact has'
+                                                  ' explicit permission to view/edit its data.'))
 
     def __str__(self):
         return '%s %s, %s' % (self.get_title_display(), self.user.last_name, self.user.first_name)
@@ -130,12 +137,6 @@ class Partner(models.Model):
     main_contact = models.ForeignKey('partners.Contact', on_delete=models.CASCADE,
                                      blank=True, null=True,
                                      related_name='partner_main_contact')
-    financial_contact = models.ForeignKey('partners.Contact', on_delete=models.CASCADE,
-                                          blank=True, null=True,
-                                          related_name='partner_financial_contact')
-    technical_contact = models.ForeignKey('partners.Contact', on_delete=models.CASCADE,
-                                          blank=True, null=True,
-                                          related_name='partner_technical_contact')
 
     def __str__(self):
         if self.institution:

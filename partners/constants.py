@@ -70,6 +70,13 @@ PARTNER_EVENTS = (
     ('comment', 'Comment added'),
 )
 
+
+CONTACT_TYPES = (
+    ('tech', 'Technical Contact'),
+    ('fin', 'Financial Contact'),
+)
+
+
 MEMBERSHIP_SUBMITTED = 'Submitted'
 MEMBERSHIP_AGREEMENT_STATUS = (
     (MEMBERSHIP_SUBMITTED, 'Request submitted by Partner'),
