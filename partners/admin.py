@@ -26,6 +26,7 @@ class ProspectiveContactInline(admin.TabularInline):
 
 class ProspectivePartnerEventInline(admin.TabularInline):
     model = ProspectivePartnerEvent
+    extra = 0
 
 
 class ProspectivePartnerAdmin(admin.ModelAdmin):

@@ -10,6 +10,11 @@
     border-color: #d9534f;
 }
 
+.has-error .multiple-checkbox .help-block {
+    color: $brand-danger;
+    font-weight: 600;
+}
+
 .form-control + .help-block {
     margin-top: 3px;
     display: inline-block;

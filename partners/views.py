@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.db import transaction
+from django.forms import modelformset_factory, formset_factory
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.utils import timezone
 
@@ -11,8 +12,8 @@ from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
 from .models import Partner, ProspectivePartner, ProspectiveContact,\
     ProspectivePartnerEvent, MembershipAgreement
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
-    EmailProspectivePartnerContactForm,\
-    ProspectivePartnerEventForm, MembershipQueryForm
+    EmailProspectivePartnerContactForm, PromoteToPartnerForm,\
+    ProspectivePartnerEventForm, MembershipQueryForm, PromoteToContactForm, PromoteToContactFormset
 
 from .utils import PartnerUtils
 
@@ -57,8 +58,8 @@ def membership_request(request):
         )
         contact.save()
         prospartnerevent = ProspectivePartnerEvent(
-            prospartner = prospartner,
-            event = PROSPECTIVE_PARTNER_EVENT_REQUESTED,)
+            prospartner=prospartner,
+            event=PROSPECTIVE_PARTNER_EVENT_REQUESTED)
         prospartnerevent.save()
         ack_message = ('Thank you for your SPB Membership query. '
                        'We will get back to you in the very near future '
@@ -83,6 +84,24 @@ def manage(request):
                'ppevent_form': ppevent_form,
                'agreements': agreements, }
     return render(request, 'partners/manage_partners.html', context)
+
+
+@permission_required('scipost.can_manage_SPB', return_403=True)
+@transaction.atomic
+def promote_prospartner(request, prospartner_id):
+    prospartner = get_object_or_404(ProspectivePartner.objects.not_yet_partner(),
+                                    pk=prospartner_id)
+    form = PromoteToPartnerForm(request.POST or None, instance=prospartner)
+    ContactModelFormset = modelformset_factory(ProspectiveContact, PromoteToContactForm,
+                                               formset=PromoteToContactFormset)
+    contact_formset = ContactModelFormset(request.POST or None,
+                                          queryset=prospartner.prospective_contacts.all())
+    if form.is_valid() and contact_formset.is_valid():
+        partner, institution = form.promote_to_partner()
+        contact_formset.promote_contacts(partner)
+        raise NotImplemented
+    context = {'form': form, 'contact_formset': contact_formset}
+    return render(request, 'partners/promote_prospartner.html', context)
 
 
 @permission_required('scipost.can_manage_SPB', return_403=True)

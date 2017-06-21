@@ -1,0 +1,45 @@
+{% extends 'partners/_partners_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Promote Prospect</span>
+{% endblock %}
+
+{% block pagetitle %}{{block.super}} Promote Prospect{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Promote Prospect to Partner</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+      <form method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        {{ contact_formset.management_form }}
+
+        {% for form in contact_formset %}
+            <h3>Contact {{forloop.counter}}</h3>
+            {{ form|bootstrap }}
+        {% endfor %}
+
+        {% for error in contact_formset.non_form_errors %}
+            <div class="form-group row">
+                <div class="alert alert-danger show">
+                    <strong>Form error</strong> &middot; {{error}}
+                </div>
+            </div>
+        {% endfor %}
+
+        <input class="btn btn-primary" type="submit" value="Submit"/>
+      </form>
+    </div>
+</div>
+
+{% endblock content %}

@@ -47,8 +47,9 @@ PROSPECTIVE_PARTNER_EVENTS = (
 )
 
 
+PARTNER_INITIATED = 'Initiated'
 PARTNER_STATUS = (
-    ('Initiated', 'Initiated'),
+    (PARTNER_INITIATED, 'Initiated'),
     ('Contacted', 'Contacted'),
     ('Negotiating', 'Negotiating'),
     ('Uninterested', 'Uninterested'),

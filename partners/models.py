@@ -14,9 +14,10 @@ from .constants import PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
                        PROSPECTIVE_PARTNER_EVENT_MARKED_AS_UNINTERESTED,\
                        PROSPECTIVE_PARTNER_UNINTERESTED,\
                        PROSPECTIVE_PARTNER_EVENT_PROMOTED,\
-                       PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES
+                       PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
+                       PARTNER_INITIATED
 
-from .managers import MembershipAgreementManager
+from .managers import MembershipAgreementManager, ProspectivePartnerManager
 
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
@@ -38,6 +39,8 @@ class ProspectivePartner(models.Model):
     date_processed = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=32, choices=PROSPECTIVE_PARTNER_STATUS,
                               default=PROSPECTIVE_PARTNER_ADDED)
+
+    objects = ProspectivePartnerManager()
 
     def __str__(self):
         return '%s (received %s), %s' % (self.institution_name,
@@ -63,7 +66,8 @@ class ProspectiveContact(models.Model):
     It does not have a corresponding User object.
     It is meant to be used internally at SciPost, during Partner mining.
     """
-    prospartner = models.ForeignKey('partners.ProspectivePartner', on_delete=models.CASCADE)
+    prospartner = models.ForeignKey('partners.ProspectivePartner', on_delete=models.CASCADE,
+                                    related_name='prospective_contacts')
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
@@ -134,7 +138,7 @@ class Partner(models.Model):
     """
     institution = models.ForeignKey('partners.Institution', on_delete=models.CASCADE,
                                     blank=True, null=True)
-    status = models.CharField(max_length=16, choices=PARTNER_STATUS)
+    status = models.CharField(max_length=16, choices=PARTNER_STATUS, default=PARTNER_INITIATED)
     main_contact = models.ForeignKey('partners.Contact', on_delete=models.CASCADE,
                                      blank=True, null=True,
                                      related_name='partner_main_contact')

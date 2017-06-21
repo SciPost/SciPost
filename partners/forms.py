@@ -5,20 +5,109 @@ from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
 
-from .constants import PARTNER_KINDS
-from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent
+from .constants import PARTNER_KINDS, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES
+from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
+                    Institution, Contact
 
 from scipost.models import TITLE_CHOICES
 
 
-class PartnerForm(forms.ModelForm):
-    class Meta:
-        model = Partner
-        fields = '__all__'
+class PromoteToPartnerForm(forms.ModelForm):
+    address = forms.CharField(widget=forms.Textarea(), required=False)
+    acronym = forms.CharField()
 
-    def __init__(self, *args, **kwargs):
-        super(PartnerForm, self).__init__(*args, **kwargs)
-        self.fields['institution_address'].widget = forms.Textarea({'rows': 8, })
+    class Meta:
+        model = ProspectivePartner
+        fields = (
+            'kind',
+            'institution_name',
+            'country',
+        )
+
+    def promote_to_partner(self):
+        # Create new instances
+        institution = Institution(
+            kind=self.cleaned_data['kind'],
+            name=self.cleaned_data['institution_name'],
+            acronym=self.cleaned_data['acronym'],
+            address=self.cleaned_data['address'],
+            country=self.cleaned_data['country']
+        )
+        institution.save()
+        partner = Partner(
+            institution=institution,
+            main_contact=None
+        )
+        partner.save()
+
+        # Close Prospect
+        self.instance.status = PROSPECTIVE_PARTNER_PROCESSED
+        self.instance.save()
+        return (partner, institution,)
+
+
+class PromoteToContactForm(forms.ModelForm):
+    """
+    This form is used to create a new `partners.Contact`
+    """
+    contact_types = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                              choices=CONTACT_TYPES, required=False)
+
+    class Meta:
+        model = ProspectiveContact
+        fields = (
+            'title',
+            'first_name',
+            'last_name',
+            'email',
+        )
+
+    def promote_contacts(self, partner):
+        """
+        Promote ProspectiveContact's to Contact's related to a certain Partner.
+        """
+        raise NotImplemented
+
+
+class PromoteToContactFormset(forms.BaseModelFormSet):
+    """
+    This is a formset to process multiple `PromoteToContactForm`s at the same time
+    designed for the 'promote prospect to partner' action.
+    """
+    def clean(self):
+        """
+        Check if all CONTACT_TYPES are assigned to at least one contact.
+        """
+        contact_type_keys = list(dict(CONTACT_TYPES).keys())
+        for form in self.forms:
+            try:
+                contact_types = form.cleaned_data['contact_types']
+            except KeyError:
+                # Form invalid for `contact_types`
+                continue
+
+            for _type in contact_types:
+                try:
+                    contact_type_keys.remove(_type)
+                except ValueError:
+                    # Type-key already removed
+                    continue
+            if not contact_type_keys:
+                break
+        if contact_type_keys:
+            # Add error to all forms if not all CONTACT_TYPES are assigned
+            for form in self.forms:
+                form.add_error('contact_types', "Not all contact types have been selected yet.")
+
+    def save(self, *args, **kwargs):
+        raise DeprecationWarning(("This formset is not meant to used with the default"
+                                  " `save` method. User the `promote_contacts` instead."))
+
+    def promote_contacts(self, partner):
+        """
+        Promote ProspectiveContact's to Contact's related to a certain Partner.
+        """
+        raise NotImplemented
 
 
 class ProspectivePartnerForm(forms.ModelForm):
@@ -53,17 +142,6 @@ class EmailProspectivePartnerContactForm(forms.Form):
             {'rows': 1})
         self.fields['message'].widget.attrs.update(
             {'placeholder': 'Write your message in this box (optional).'})
-
-
-# class ProspectivePartnerContactSelectForm(forms.Form):
-
-#     def __init__(self, *args, **kwargs):
-#         prospartner_id = kwargs.pop('prospartner.id')
-#         super(ProspectivePartnerContactSelectForm, self).__init(*args, **kwargs)
-#         self.fields['contact'] = forms.ModelChoiceField(
-#             queryset=ProspectiveContact.objects.filter(
-#                 prospartner__pk=prospartner_id).order_by('last_name'),
-#             required=True)
 
 
 class ProspectivePartnerEventForm(forms.ModelForm):
