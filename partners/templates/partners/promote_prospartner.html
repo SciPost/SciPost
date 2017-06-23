@@ -29,14 +29,6 @@
             {{ form|bootstrap }}
         {% endfor %}
 
-        {% for error in contact_formset.non_form_errors %}
-            <div class="form-group row">
-                <div class="alert alert-danger show">
-                    <strong>Form error</strong> &middot; {{error}}
-                </div>
-            </div>
-        {% endfor %}
-
         <input class="btn btn-primary" type="submit" value="Submit"/>
       </form>
     </div>

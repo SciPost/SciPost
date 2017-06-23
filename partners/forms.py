@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth.models import User
+from django.db.models import Q
 
 from captcha.fields import ReCaptchaField
 from django_countries import countries
@@ -62,11 +64,41 @@ class PromoteToContactForm(forms.ModelForm):
             'email',
         )
 
-    def promote_contacts(self, partner):
+    def clean_email(self):
+        """
+        Check if email address is already used.
+        """
+        email = self.cleaned_data['email']
+        if User.objects.filter(Q(email=email) | Q(username=email)).exists():
+            self.add_error('email', 'This emailadres has already been used.')
+        return email
+
+    def promote_contact(self, partner):
         """
         Promote ProspectiveContact's to Contact's related to a certain Partner.
+        The status update after promotion is handled outside this method, in the Partner model.
         """
-        raise NotImplemented
+        # How to handle empty instances?
+
+        if self.errors:
+            return forms.ValidationError  # Is this a valid exception?
+
+        # Create a new User and Contact linked to the partner given
+        user = User(
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            email=self.cleaned_data['email'],
+            username=self.cleaned_data['email']
+        )
+        user.save()
+        contact = Contact(
+            user=user,
+            title=self.cleaned_data['title'],
+            kind=self.cleaned_data['contact_types']
+        )
+        contact.save()
+        contact.partners.add(partner)
+        return contact
 
 
 class PromoteToContactFormset(forms.BaseModelFormSet):
@@ -97,7 +129,8 @@ class PromoteToContactFormset(forms.BaseModelFormSet):
         if contact_type_keys:
             # Add error to all forms if not all CONTACT_TYPES are assigned
             for form in self.forms:
-                form.add_error('contact_types', "Not all contact types have been selected yet.")
+                form.add_error('contact_types', ("Not all contact types have been"
+                                                 " divided over the contacts yet."))
 
     def save(self, *args, **kwargs):
         raise DeprecationWarning(("This formset is not meant to used with the default"
@@ -107,7 +140,12 @@ class PromoteToContactFormset(forms.BaseModelFormSet):
         """
         Promote ProspectiveContact's to Contact's related to a certain Partner.
         """
-        raise NotImplemented
+        contacts = []
+        for form in self.forms:
+            contacts.append(form.promote_contact(partner))
+        partner.main_contact = contacts[0]
+        partner.save()
+        return contacts
 
 
 class ProspectivePartnerForm(forms.ModelForm):

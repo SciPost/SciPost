@@ -93,13 +93,19 @@ def promote_prospartner(request, prospartner_id):
                                     pk=prospartner_id)
     form = PromoteToPartnerForm(request.POST or None, instance=prospartner)
     ContactModelFormset = modelformset_factory(ProspectiveContact, PromoteToContactForm,
-                                               formset=PromoteToContactFormset)
+                                               formset=PromoteToContactFormset, extra=0)
     contact_formset = ContactModelFormset(request.POST or None,
                                           queryset=prospartner.prospective_contacts.all())
     if form.is_valid() and contact_formset.is_valid():
         partner, institution = form.promote_to_partner()
-        contact_formset.promote_contacts(partner)
-        raise NotImplemented
+        contacts = contact_formset.promote_contacts(partner)
+
+        # partner.send_mail()
+        # contacts.send_mail()
+        messages.success(request, ('<h3>Upgraded Partner %s</h3>'
+                                   '%i contacts have received a validation mail.') %
+                                  (str(partner), len(contacts)))
+        return redirect(reverse('partners:dashboard'))
     context = {'form': form, 'contact_formset': contact_formset}
     return render(request, 'partners/promote_prospartner.html', context)
 
