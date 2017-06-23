@@ -2,29 +2,32 @@
 
 <div class="card-block">
   <div class="row">
-    <div class="col-1">
+    <div class="col-md-1">
       <p>{{ partner.institution.country }}</p>
     </div>
-    <div class="col-4">
-      <h3>{{ partner.institution.name }}</h3>
-      <p>{{ partner.institution.acronym }}</p>
-      <p>({{ pp.get_kind_display }})</p>
+    <div class="col-md-4">
+      <address>
+        <h3>{{ partner.institution.name }}</h3>
+        <strong>{{ partner.institution.acronym }} ({{ partner.institution.get_kind_display }})</strong><br>
+        {{ partner.institution.address|linebreaks }}
+        {{ partner.institution.get_country_display }}<br>
+        Main contact: {{ partner.main_contact|default_if_none:'<em>Unknown</em>' }}
+      </address>
     </div>
-    <div class="col-4">
-      {% if partner.main_contact %}
-      <p>Main contact: {{ partner.main_contact..get_title_display }} {{ partner.main_contact.user.first_name }} {{ partner.main_contact.user.last_name }}</p>
-      <p>{{ partner.main_contact.user.email }}</p>
-      {% endif %}
-      {% if partner.financial_contact %}
-      <p>Financial contact: {{ partner.financial_contact..get_title_display }} {{ partner.financial_contact.user.first_name }} {{ partner.financial_contact.user.last_name }}</p>
-      <p>{{ partner.financial_contact.user.email }}</p>
-      {% endif %}
-      {% if partner.technical_contact %}
-      <p>Technical contact: {{ partner.technical_contact..get_title_display }} {{ partner.technical_contact.user.first_name }} {{ partner.technical_contact.user.last_name }}</p>
-      <p>{{ partner.technical_contact.user.email }}</p>
-      {% endif %}
+    <div class="col-md-4">
+
+      <h3>Contacts</h3>
+      <ul>
+          {% for contact in partner.contact_set.all %}
+              <li>
+                  <h4>{{ contact.get_title_display }} {{ contact.user.first_name }} {{ contact.user.last_name }}</h4>
+                  <div>({{ contact.kind_display }})</div>
+                  <div class="mb-2"><a href="mailto:{{ contact.user.email }}">{{ contact.user.email }}</a></div>
+              </li>
+          {% endfor %}
+      </ul>
     </div>
-    <div class="col-3">
+    <div class="col-md-3">
       <p>Edit</p>
     </div>
   </div>

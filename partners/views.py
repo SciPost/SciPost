@@ -34,6 +34,12 @@ def dashboard(request):
     to read their personal data and agreements.
     '''
     context = {}
+    if request.user.has_perm('scipost.can_manage_SPB'):
+        context['partners'] = Partner.objects.all()
+        context['prospective_partners'] = (ProspectivePartner.objects.not_yet_partner()
+                                           .order_by('country', 'institution_name'))
+        context['ppevent_form'] = ProspectivePartnerEventForm()
+        context['agreements'] = MembershipAgreement.objects.order_by('date_requested')
     return render(request, 'partners/dashboard.html', context)
 
 
@@ -70,23 +76,7 @@ def membership_request(request):
     return render(request, 'partners/membership_request.html', context)
 
 
-@permission_required('scipost.can_manage_SPB', return_403=True)
-def manage(request):
-    """
-    Lists relevant info regarding management of Supporting Partners Board.
-    """
-    partners = Partner.objects.all()
-    prospective_partners = ProspectivePartner.objects.order_by('country', 'institution_name')
-    ppevent_form = ProspectivePartnerEventForm()
-    agreements = MembershipAgreement.objects.order_by('date_requested')
-    context = {'partners': partners,
-               'prospective_partners': prospective_partners,
-               'ppevent_form': ppevent_form,
-               'agreements': agreements, }
-    return render(request, 'partners/manage_partners.html', context)
-
-
-@permission_required('scipost.can_manage_SPB', return_403=True)
+@permission_required('scipost.can_promote_prospect_to_partner', return_403=True)
 @transaction.atomic
 def promote_prospartner(request, prospartner_id):
     prospartner = get_object_or_404(ProspectivePartner.objects.not_yet_partner(),

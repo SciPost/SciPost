@@ -130,6 +130,15 @@ class Contact(models.Model):
     def __str__(self):
         return '%s %s, %s' % (self.get_title_display(), self.user.last_name, self.user.first_name)
 
+    @property
+    def kind_display(self):
+        """
+        Due to a lack of support of to use get_FOO_display in a ArrayField, one has to create
+        one 'manually'.
+        """
+        choices = dict(CONTACT_TYPES)
+        return ', '.join([choices[value] for index, value in enumerate(self.kind)])
+
 
 class Partner(models.Model):
     """

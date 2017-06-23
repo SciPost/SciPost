@@ -6,7 +6,6 @@ urlpatterns = [
     url(r'^$', views.supporting_partners, name='partners'),
     url(r'^dashboard$', views.dashboard, name='dashboard'),
     url(r'^membership_request$', views.membership_request, name='membership_request'),
-    url(r'^manage$', views.manage, name='manage'),
     url(r'^prospect_partners/add$', views.add_prospective_partner,
         name='add_prospective_partner'),
     url(r'^prospect_partners/contacts/(?P<contact_id>[0-9]+)/email$',

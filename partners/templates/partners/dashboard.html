@@ -1,5 +1,6 @@
 {% extends 'scipost/base.html' %}
 
+{% load partners_extras %}
 {% load bootstrap %}
 
 {% block pagetitle %}: partner page{% endblock pagetitle %}
@@ -25,6 +26,17 @@
                   <li class="nav-item btn btn-secondary">
                     <a href="#agreements" class="nav-link" data-toggle="tab">Membership Agreements</a>
                   </li>
+                  {% if perms.scipost.can_manage_SPB %}
+                    <li class="nav-item btn btn-secondary">
+                        <a href="#prospartners" class="nav-link" data-toggle="tab">Prospective Partners</a>
+                    </li>
+                    <li class="nav-item btn btn-secondary">
+                        <a href="#partners" class="nav-link" data-toggle="tab">Partners</a>
+                    </li>
+                    <li class="nav-item btn btn-secondary">
+                        <a href="#agreements" class="nav-link" data-toggle="tab">Agreements</a>
+                    </li>
+                  {% endif %}
                 </ul>
             </div>
         </div>
@@ -36,11 +48,7 @@
     <div class="tab-pane active" id="account" role="tabpanel">
         <div class="row">
             <div class="col-12">
-                <div class="card card-grey">
-                    <div class="card-block">
-                        <h2 class="card-title mb-0">Your Account</h2>
-                    </div>
-                </div>
+                <h2 class="highlight">Your Account</h2>
             </div>
         </div>
         <div class="row">
@@ -81,11 +89,7 @@
     <div class="tab-pane" id="agreements" role="tabpanel">
         <div class="row">
             <div class="col-12">
-                <div class="card card-grey">
-                    <div class="card-block">
-                        <h2 class="card-title mb-0">Membership Agreements</h2>
-                    </div>
-                </div>
+                <h2 class="highlight">Membership Agreements</h2>
             </div>
         </div>
         <div class="row">
@@ -95,6 +99,80 @@
             </div>
         </div>
     </div><!-- End tab -->
+
+    {% if perms.scipost.can_manage_SPB %}
+        <!-- Tab: prospective partners -->
+        <div class="tab-pane" id="prospartners" role="tabpanel">
+              <div class="row">
+            	<div class="col-12">
+            	  <h2 class="highlight">Prospective Partners</h2>
+            	</div>
+              </div>
+              <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
+              <br/>
+
+              <table class="table table-hover mb-5">
+                  <thead class="thead-default">
+                      <tr>
+                    	<th>Country</th>
+                    	<th>Institution name</th>
+                    	<th>Kind</th>
+                    	<th>Status</th>
+                    	<th>Date received</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="accordion" role="tablist" aria-multiselectable="true">
+                    {% for partner in prospective_partners %}
+            	      <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ partner.id }}" aria-expanded="true" aria-controls="collapse{{ partner.id }}" style="cursor: pointer;">
+                    		  <td>{{ partner.get_country_display }}</td>
+                    		  <td>{{ partner.institution_name }}</td>
+                    		  <td>{{ partner.get_kind_display }}</td>
+                    		  <td style="background-color:{{ partner.status|partnerstatuscolor }}">{{ partner.get_status_display }}</td>
+                    		  <td>{{ partner.date_received|date:"Y-m-d" }}</td>
+                    	</tr>
+                        <tr id="collapse{{ partner.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ partner.id}}" style="background-color: #fff;">
+                            <td colspan="5">
+                        	    {% include 'partners/_prospective_partner_card.html' with pp=partner %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">No prospects found.</td>
+                        </tr>
+                	{% endfor %}
+                </tbody>
+            </table>
+        </div><!-- End tab -->
+
+        <!-- Tab: Partners -->
+        <div class="tab-pane" id="partners" role="tabpanel">
+          <div class="row">
+        	<div class="col-12">
+        	  <h2 class="highlight">Partners</h2>
+        	</div>
+          </div>
+          <ul class="list-group list-group-flush">
+        	{% for partner in partners %}
+        	<li class="list-group-item">{% include 'partners/_partner_card.html' with partner=partner %}</li>
+        	{% endfor %}
+          </ul>
+      </div><!-- End tab -->
+
+      <!-- Tab: Agreements -->
+      <div class="tab-pane" id="agreements" role="tabpanel">
+          <div class="row">
+        	<div class="col-12">
+        	  <h2 class="highlight">Agreements</h2>
+        	</div>
+          </div>
+          <ul>
+        	{% for agreement in agreements %}
+            	<li>{{ agreement }}</li>
+        	{% endfor %}
+          </ul>
+      </div><!-- End tab -->
+    {% endif %}
 </div>
 
 

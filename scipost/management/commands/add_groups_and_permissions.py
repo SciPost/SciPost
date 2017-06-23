@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
+from partners.models import Contact
 from scipost.models import Contributor
 
 
@@ -32,6 +33,7 @@ class Command(BaseCommand):
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
+        content_type_contact = ContentType.objects.get_for_model(Contact)
 
         # Supporting Partners
         can_manage_SPB, created = Permission.objects.get_or_create(
@@ -42,6 +44,14 @@ class Command(BaseCommand):
             codename='can_email_prospartner_contact',
             name='Can email Prospective Partner Contact',
             content_type=content_type)
+        can_read_personal_page, created = Permission.objects.get_or_create(
+            codename='can_read_personal_page',
+            name='Can read Prospective Partner personal page',
+            content_type=content_type_contact)
+        can_promote_prospect_to_partner, created = Permission.objects.get_or_create(
+            codename='can_promote_prospect_to_partner',
+            name='Can promote Prospective Partner to Partner',
+            content_type=content_type_contact)
 
         # Registration and invitations
         can_vet_registration_requests, created = Permission.objects.get_or_create(
@@ -256,10 +266,13 @@ class Command(BaseCommand):
         ])
 
         PartnersAdmin.permissions.set([
+            can_read_personal_page,
             can_manage_SPB,
+            can_promote_prospect_to_partner,
             can_email_prospartner_contact,
         ])
         PartnersOfficers.permissions.set([
+            can_read_personal_page,
             can_manage_SPB,
         ])
 

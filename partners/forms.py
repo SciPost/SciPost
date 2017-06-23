@@ -88,7 +88,8 @@ class PromoteToContactForm(forms.ModelForm):
             first_name=self.cleaned_data['first_name'],
             last_name=self.cleaned_data['last_name'],
             email=self.cleaned_data['email'],
-            username=self.cleaned_data['email']
+            username=self.cleaned_data['email'],
+            is_active=False,
         )
         user.save()
         contact = Contact(
