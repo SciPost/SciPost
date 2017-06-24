@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'activate/(?P<activation_key>.+)$', views.activate_account, name='activate_account'),
 
     # Partners
+    url(r'(?P<partner_id>[0-9]+)$', views.partner_view, name='partner_view'),
     url(r'(?P<partner_id>[0-9]+)/edit$', views.partner_edit, name='partner_edit'),
     url(r'(?P<partner_id>[0-9]+)/contacts/add$', views.partner_add_contact,
         name='partner_add_contact'),

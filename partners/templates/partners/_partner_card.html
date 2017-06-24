@@ -7,7 +7,7 @@
     </div>
     <div class="col-md-4">
       <address>
-        <h3>{{ partner.institution.name }}</h3>
+        <h3><a href="{{partner.get_absolute_url}}">{{ partner.institution.name }}</a></h3>
         <strong>{{ partner.institution.acronym }} ({{ partner.institution.get_kind_display }})</strong><br>
         {{ partner.institution.address|linebreaks }}
         {{ partner.institution.get_country_display }}<br>
@@ -33,6 +33,7 @@
             <li><a href="{% url 'partners:partner_edit' partner.id %}">Edit Partner</a></li>
             <li><a href="{% url 'partners:institution_edit' partner.institution.id %}">Edit Institution</a></li>
             <li><a href="{% url 'partners:partner_add_contact' partner.id %}">Add Contact</a></li>
+            <li><a href="{{partner.get_absolute_url}}">View events ({{partner.events.count}})</a></li>
         </ul>
 
     </div>

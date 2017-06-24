@@ -9,9 +9,10 @@ from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
 
-from .constants import PARTNER_KINDS, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES
+from .constants import PARTNER_KINDS, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
+                       PARTNER_STATUS_UPDATE
 from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
-                    Institution, Contact
+                    Institution, Contact, PartnerEvent
 
 from scipost.models import TITLE_CHOICES
 
@@ -48,12 +49,25 @@ class ActivationForm(forms.ModelForm):
     def activate_user(self):
         if self.errors:
             return forms.ValidationError
+
+        # Activate account
         self.instance.is_active = True
         self.instance.set_password(self.cleaned_data['password_new'])
         self.instance.save()
+
+        # Add permission groups to user
         group = Group.objects.get(name='Partners Accounts')
         self.instance.groups.add(group)
         return self.instance
+
+
+class PartnerEventForm(forms.ModelForm):
+    class Meta:
+        model = PartnerEvent
+        fields = (
+            'event',
+            'comments',
+        )
 
 
 class InstitutionForm(forms.ModelForm):
@@ -193,7 +207,7 @@ class ContactFormset(forms.BaseModelFormSet):
 
 class PromoteToPartnerForm(forms.ModelForm):
     address = forms.CharField(widget=forms.Textarea(), required=False)
-    acronym = forms.CharField()
+    acronym = forms.CharField(max_length=16)
 
     class Meta:
         model = ProspectivePartner
@@ -203,7 +217,7 @@ class PromoteToPartnerForm(forms.ModelForm):
             'country',
         )
 
-    def promote_to_partner(self):
+    def promote_to_partner(self, current_user):
         # Create new instances
         institution = Institution(
             kind=self.cleaned_data['kind'],
@@ -218,6 +232,14 @@ class PromoteToPartnerForm(forms.ModelForm):
             main_contact=None
         )
         partner.save()
+        event = PartnerEvent(
+            partner=partner,
+            event=PARTNER_STATUS_UPDATE,
+            comments='ProspectivePartner has been upgraded to Partner by %s %s'
+                     % (current_user.first_name, current_user.last_name),
+            noted_by=current_user
+        )
+        event.save()
 
         # Close Prospect
         self.instance.status = PROSPECTIVE_PARTNER_PROCESSED

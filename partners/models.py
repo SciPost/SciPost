@@ -6,6 +6,7 @@ import string
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from django.urls import reverse
 
 from django_countries.fields import CountryField
 
@@ -27,7 +28,7 @@ from .managers import MembershipAgreementManager, ProspectivePartnerManager
 
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
-from scipost.models import get_sentinel_user
+from scipost.models import get_sentinel_user, Contributor
 
 
 ########################
@@ -157,7 +158,14 @@ class Contact(models.Model):
         self.partners.remove(partner)
         if self.partners.exists():
             return self
-        return super().delete(*args, **kwargs)
+        try:
+            # User also has a Contributor-side, do not remove complete User
+            self.user.contributor
+            return super().delete(*args, **kwargs)
+        except Contributor.DoesNotExist:
+            # Remove User; casade-remove this Contact
+            self.user.delete()
+            return self
 
     @property
     def kind_display(self):
@@ -186,13 +194,17 @@ class Partner(models.Model):
             return self.institution.acronym + ' (' + self.get_status_display() + ')'
         return self.get_status_display()
 
+    def get_absolute_url(self):
+        return reverse('partners:partner_view', args=(self.id,))
+
 
 class PartnerEvent(models.Model):
-    partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE)
+    partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE,
+                                related_name='events')
     event = models.CharField(max_length=64, choices=PARTNER_EVENTS)
     comments = models.TextField(blank=True)
     noted_on = models.DateTimeField(auto_now_add=True)
-    noted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    noted_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return '%s: %s' % (str(self.partner), self.get_event_display())

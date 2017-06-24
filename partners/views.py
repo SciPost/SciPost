@@ -16,7 +16,7 @@ from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
                    EmailProspectivePartnerContactForm, PromoteToPartnerForm,\
                    ProspectivePartnerEventForm, MembershipQueryForm, PromoteToContactForm,\
                    PromoteToContactFormset, PartnerForm, ContactForm, ContactFormset,\
-                   NewContactForm, InstitutionForm, ActivationForm
+                   NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm
 
 from .utils import PartnerUtils
 
@@ -91,7 +91,7 @@ def promote_prospartner(request, prospartner_id):
     contact_formset = ContactModelFormset(request.POST or None,
                                           queryset=prospartner.prospective_contacts.all())
     if form.is_valid() and contact_formset.is_valid():
-        partner, institution = form.promote_to_partner()
+        partner, institution = form.promote_to_partner(request.user)
         contacts = contact_formset.promote_contacts(partner)
 
         # partner.send_mail()
@@ -107,6 +107,24 @@ def promote_prospartner(request, prospartner_id):
 ###############
 # Partner views
 ###############
+@permission_required('scipost.can_view_partners', return_403=True)
+def partner_view(request, partner_id):
+    partner = get_object_or_404(Partner, id=partner_id)
+    form = PartnerEventForm(request.POST or None)
+    if form.is_valid():
+        event = form.save(commit=False)
+        event.partner = partner
+        event.noted_by = request.user
+        event.save()
+        messages.success(request, 'Added a new event to Partner.')
+        return redirect(partner.get_absolute_url())
+    context = {
+        'partner': partner,
+        'form': form
+    }
+    return render(request, 'partners/partners_detail.html', context)
+
+
 @permission_required('scipost.can_manage_SPB', return_403=True)
 @transaction.atomic
 def partner_edit(request, partner_id):
@@ -186,7 +204,7 @@ def add_prospartner_contact(request, prospartner_id):
     if form.is_valid():
         form.save()
         messages.success(request, 'Contact successfully added to Prospective Partner')
-        return redirect(reverse('partners:manage'))
+        return redirect(reverse('partners:dashboard'))
     context = {'form': form, 'prospartner': prospartner}
     return render(request, 'partners/add_prospartner_contact.html', context)
 
@@ -216,7 +234,7 @@ def email_prospartner_contact(request, contact_id):
 
         PartnerUtils.email_prospartner_contact()
         messages.success(request, 'Email successfully sent')
-        return redirect(reverse('partners:manage'))
+        return redirect(reverse('partners:dashboard'))
     context = {'contact': contact, 'form': form}
     return render(request, 'partners/email_prospartner_contact.html', context)
 
@@ -234,7 +252,7 @@ def add_prospartner_event(request, prospartner_id):
             ppevent.save()
             prospartner.update_status_from_event(ppevent.event)
             prospartner.save()
-            return redirect(reverse('partners:manage'))
+            return redirect(reverse('partners:dashboard'))
         else:
             errormessage = 'The form was invalidly filled.'
             return render(request, 'scipost/error.html', {'errormessage': errormessage})

@@ -53,6 +53,10 @@ class Command(BaseCommand):
             codename='can_promote_prospect_to_partner',
             name='Can promote Prospective Partner to Partner',
             content_type=content_type)
+        can_view_partners, created = Permission.objects.get_or_create(
+            codename='can_view_partners',
+            name='Can view Partner details',
+            content_type=content_type)
 
         # Registration and invitations
         can_vet_registration_requests, created = Permission.objects.get_or_create(
@@ -271,10 +275,12 @@ class Command(BaseCommand):
             can_manage_SPB,
             can_promote_prospect_to_partner,
             can_email_prospartner_contact,
+            can_view_partners
         ])
         PartnersOfficers.permissions.set([
             can_read_personal_page,
             can_manage_SPB,
+            can_view_partners,
         ])
         PartnerAccounts.permissions.set([
             can_read_personal_page

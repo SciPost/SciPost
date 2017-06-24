@@ -64,10 +64,10 @@ CONSORTIUM_STATUS = (
     ('Inactive', 'Inactive'),
 )
 
-
+PARTNER_STATUS_UPDATE = 'status_update'
 PARTNER_EVENTS = (
     ('initial', 'Contacted (initial)'),
-    ('status_update', 'Status updated'),
+    (PARTNER_STATUS_UPDATE, 'Status updated'),
     ('comment', 'Comment added'),
 )
 
