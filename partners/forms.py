@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from captcha.fields import ReCaptchaField
@@ -12,6 +14,37 @@ from .models import Partner, ProspectivePartner, ProspectiveContact, Prospective
                     Institution, Contact
 
 from scipost.models import TITLE_CHOICES
+
+
+class ActivationForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = []
+
+    password_new = forms.CharField(label='* Password', widget=forms.PasswordInput())
+    password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput(),
+                                     help_text='Your password must contain at least 8 characters')
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password_new', '')
+        try:
+            validate_password(password, self.instance)
+        except ValidationError as error_message:
+            self.add_error('password_new', error_message)
+        return password
+
+    def clean_password_verif(self):
+        if self.cleaned_data.get('password_new', '') != self.cleaned_data.get('password_verif', ''):
+            self.add_error('password_verif', 'Your password entries must match')
+        return self.cleaned_data.get('password_verif', '')
+
+    def activate_user(self):
+        if self.errors:
+            return forms.ValidationError
+        self.instance.is_active = True
+        self.instance.set_password(self.cleaned_data['password_new'])
+        self.instance.save()
+        return self.instance
 
 
 class InstitutionForm(forms.ModelForm):
@@ -123,6 +156,7 @@ class NewContactForm(ContactForm):
             title=self.cleaned_data['title'],
             kind=self.cleaned_data['kind']
         )
+        contact.generate_key()
         contact.save()
         contact.partners.add(self.partner)
         # TODO: Send mail to contact to let him/her activate account

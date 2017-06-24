@@ -46,7 +46,11 @@ from theses.models import ThesisLink
 ##############
 
 def is_registered(user):
-    return user.groups.filter(name='Registered Contributors').exists()
+    if user.groups.filter(name='Registered Contributors').exists():
+        return True
+    if user.partner_contact:
+        return True
+    return False
 
 
 # Global search

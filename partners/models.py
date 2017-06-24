@@ -1,5 +1,11 @@
+import datetime
+import hashlib
+import random
+import string
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 from django_countries.fields import CountryField
 
@@ -126,9 +132,22 @@ class Contact(models.Model):
     consortia = models.ManyToManyField('partners.Consortium', blank=True,
                                        help_text=('All Consortia for which the Contact has'
                                                   ' explicit permission to view/edit its data.'))
+    activation_key = models.CharField(max_length=40, blank=True)
+    key_expires = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return '%s %s, %s' % (self.get_title_display(), self.user.last_name, self.user.first_name)
+
+    def generate_key(self, feed=''):
+        """
+        Generate and save a new activation_key for the Contact, given a certain feed.
+        """
+        for i in range(5):
+            feed += random.choice(string.ascii_letters)
+        feed = feed.encode('utf8')
+        salt = self.user.username.encode('utf8')
+        self.activation_key = hashlib.sha1(salt+salt).hexdigest()
+        self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
 
     def delete_or_remove_partner(self, partner, *args, **kwargs):
         """

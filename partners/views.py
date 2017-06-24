@@ -15,7 +15,7 @@ from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
                    EmailProspectivePartnerContactForm, PromoteToPartnerForm,\
                    ProspectivePartnerEventForm, MembershipQueryForm, PromoteToContactForm,\
                    PromoteToContactFormset, PartnerForm, ContactForm, ContactFormset,\
-                   NewContactForm, InstitutionForm
+                   NewContactForm, InstitutionForm, ActivationForm
 
 from .utils import PartnerUtils
 
@@ -29,6 +29,7 @@ def supporting_partners(request):
     return render(request, 'partners/supporting_partners.html', context)
 
 
+# @login_required
 @permission_required('scipost.can_read_personal_page', return_403=True)
 def dashboard(request):
     '''
@@ -238,3 +239,24 @@ def add_prospartner_event(request, prospartner_id):
             return render(request, 'scipost/error.html', {'errormessage': errormessage})
     errormessage = 'This view can only be posted to.'
     return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+
+#########
+# Account
+#########
+def activate_account(request, activation_key):
+    contact = get_object_or_404(Contact, user__is_active=False,
+                                activation_key=activation_key,
+                                user__email__icontains=request.GET.get('email', None))
+
+    # TODO: Key Expires fallback
+    form = ActivationForm(request.POST or None, instance=contact.user)
+    if form.is_valid():
+        form.activate_user()
+        messages.success(request, '<h3>Thank you for registration</h3>.')
+        return redirect(reverse('partners:dashboard'))
+    context = {
+        'contact': contact,
+        'form': form
+    }
+    return render(request, 'partners/activate_account.html', context)
