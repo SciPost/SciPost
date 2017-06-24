@@ -55,6 +55,10 @@ class EmailProspectivePartnerContactForm(forms.Form):
             {'placeholder': 'Write your message in this box (optional).'})
 
 
+class EmailProspectivePartnerGenericForm(EmailProspectivePartnerContactForm):
+    email = forms.EmailField(label='Generic address for emailing')
+
+
 # class ProspectivePartnerContactSelectForm(forms.Form):
 
 #     def __init__(self, *args, **kwargs):

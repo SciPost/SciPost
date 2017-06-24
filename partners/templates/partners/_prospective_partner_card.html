@@ -15,6 +15,7 @@
       <p>{{ pp.get_status_display }}</p>
     </div>
     <div class="col-md-7">
+      <a href="{% url 'partners:email_prospartner_generic' prospartner_id=pp.id %}">Compose email to a generic address</a>
       <h3>Contacts:</h3>
       <a class="d-inline-block mb-2" href="{% url 'partners:add_prospartner_contact' prospartner_id=pp.id %}">Add a contact</a>
       <table class="table">

@@ -1,7 +1,9 @@
+{% if contact %}
 Dear {{ contact.get_title_display }} {{ contact.last_name }}, \n\n
-
+{% else %}
+Dear colleagues, \n\n
+{% endif %}
 {% if message %}{{ message }}{% endif %}
-
 {% if include_SPB_summary %}
 You might by now have heard of SciPost, a recently-launched initiative aiming to bring disruptive change to current academic publishing practices.
 \n\nIn summary, SciPost is a publication portal managed by professional scientists, offering (among others) high-quality Open Access journals with innovative forms of refereeing, and a means of commenting on all existing literature. SciPost is established as a not-for-profit foundation devoted to serving the interests of the international scientific community.
@@ -19,6 +21,7 @@ You might by now have heard of SciPost, a recently-launched initiative aiming to
 
 \n\nOn behalf of the SciPost Foundation,
 \nProf. dr Jean-Sébastien Caux
+\n\nJ.S.Caux@uva.nl
 \nhttp://jscaux.org
 \n---------------------------------------------
 \nInstitute for Theoretical Physics\nUniversity of Amsterdam
