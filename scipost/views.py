@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
 from django.contrib.auth import login, logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core import mail
@@ -22,6 +22,7 @@ from django.db.models import Prefetch
 from guardian.decorators import permission_required
 
 from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict
+from .decorators import has_contributor
 from .models import Contributor, CitationNotification, UnavailabilityPeriod,\
                     DraftInvitation, RegistrationInvitation,\
                     AuthorshipClaim, EditorialCollege, EditorialCollegeFellowship
@@ -46,11 +47,11 @@ from theses.models import ThesisLink
 ##############
 
 def is_registered(user):
-    if user.groups.filter(name='Registered Contributors').exists():
-        return True
-    if user.partner_contact:
-        return True
-    return False
+    """
+    This method checks if user is activated assuming an validated user
+    has at least one permission group (`Registered Contributor` or `Partner Accounts`).
+    """
+    return user.groups.exists()
 
 
 # Global search
@@ -741,6 +742,7 @@ def logout_view(request):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def mark_unavailable_period(request):
     '''
     Mark period unavailable for Contributor using this view.
@@ -760,6 +762,7 @@ def mark_unavailable_period(request):
 
 @require_POST
 @login_required
+@user_passes_test(has_contributor)
 def delete_unavailable_period(request, period_id):
     '''
     Delete period unavailable registered.
@@ -772,6 +775,7 @@ def delete_unavailable_period(request, period_id):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def personal_page(request):
     """
     The Personal Page is the main view for accessing user functions.
@@ -926,6 +930,7 @@ def reset_password(request):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def update_personal_data(request):
     contributor = Contributor.objects.get(user=request.user)
     user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
@@ -944,6 +949,7 @@ def update_personal_data(request):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def claim_authorships(request):
     """
     The system auto-detects potential authorships (of submissions,
@@ -983,6 +989,7 @@ def claim_authorships(request):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def claim_sub_authorship(request, submission_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -998,6 +1005,7 @@ def claim_sub_authorship(request, submission_id, claim):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def claim_com_authorship(request, commentary_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -1013,6 +1021,7 @@ def claim_com_authorship(request, commentary_id, claim):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def claim_thesis_authorship(request, thesis_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)

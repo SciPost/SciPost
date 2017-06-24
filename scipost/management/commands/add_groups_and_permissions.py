@@ -30,6 +30,7 @@ class Command(BaseCommand):
 
         PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
         PartnersOfficers, created = Group.objects.get_or_create(name='Partners Officers')
+        PartnerAccounts, created = Group.objects.get_or_create(name='Partners Accounts')
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
@@ -47,11 +48,11 @@ class Command(BaseCommand):
         can_read_personal_page, created = Permission.objects.get_or_create(
             codename='can_read_personal_page',
             name='Can read Prospective Partner personal page',
-            content_type=content_type_contact)
+            content_type=content_type)
         can_promote_prospect_to_partner, created = Permission.objects.get_or_create(
             codename='can_promote_prospect_to_partner',
             name='Can promote Prospective Partner to Partner',
-            content_type=content_type_contact)
+            content_type=content_type)
 
         # Registration and invitations
         can_vet_registration_requests, created = Permission.objects.get_or_create(
@@ -274,6 +275,9 @@ class Command(BaseCommand):
         PartnersOfficers.permissions.set([
             can_read_personal_page,
             can_manage_SPB,
+        ])
+        PartnerAccounts.permissions.set([
+            can_read_personal_page
         ])
 
         if verbose:

@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, render, reverse, redirect
@@ -29,7 +30,7 @@ def supporting_partners(request):
     return render(request, 'partners/supporting_partners.html', context)
 
 
-# @login_required
+@login_required
 @permission_required('scipost.can_read_personal_page', return_403=True)
 def dashboard(request):
     '''

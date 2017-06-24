@@ -57,7 +57,7 @@
                 {% include "partners/_contact_info_table.html" with contact=request.user.partner_contact %}
             </div>
             <div class="col-md-6">
-                <h3>Partners</h3>
+                <h3>My Partners</h3>
                 <ul>
                     {% for partner in request.user.partner_contact.partners.all %}
                         <li>{{partner.institution}}</li>
@@ -66,7 +66,7 @@
                     {% endfor %}
                 </ul>
 
-                <h3>Agreements</h3>
+                <h3>My Agreements</h3>
                 <ul>
                     {% for partner in request.user.partners.agreements.all %}
                         <li>{{partner}}</li>

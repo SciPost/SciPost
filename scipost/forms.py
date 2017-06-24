@@ -15,9 +15,11 @@ from captcha.fields import ReCaptchaField
 from ajax_select.fields import AutoCompleteSelectField
 
 from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES
+from .decorators import has_contributor
 from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
+from partners.decorators import has_contact
 from journals.models import Publication
 # from mailing_lists.models import MailchimpList, MailchimpSubscription
 
@@ -312,10 +314,14 @@ class AuthenticationForm(forms.Form):
         Check the url being valid the current request, else return
         to the default link (personal page).
         """
-        personal_page_url = reverse_lazy('scipost:personal_page')
         redirect_to = self.cleaned_data['next']
         if not is_safe_url(redirect_to, request.get_host()) or not redirect_to:
-            return personal_page_url
+            if has_contributor(request.user):
+                return reverse_lazy('scipost:personal_page')
+            elif has_contact(request.user):
+                return reverse_lazy('partners:dashboard')
+            else:
+                return reverse_lazy('scipost:index')
         return redirect_to
 
 

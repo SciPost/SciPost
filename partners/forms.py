@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -25,6 +25,13 @@ class ActivationForm(forms.ModelForm):
     password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput(),
                                      help_text='Your password must contain at least 8 characters')
 
+    def clean(self, *args, **kwargs):
+        try:
+            self.instance.partner_contact
+        except Contact.DoesNotExist:
+            self.add_error(None, 'Your account is invalid, please contact the administrator.')
+        return super().clean(*args, **kwargs)
+
     def clean_password(self):
         password = self.cleaned_data.get('password_new', '')
         try:
@@ -44,6 +51,8 @@ class ActivationForm(forms.ModelForm):
         self.instance.is_active = True
         self.instance.set_password(self.cleaned_data['password_new'])
         self.instance.save()
+        group = Group.objects.get(name='Partners Accounts')
+        self.instance.groups.add(group)
         return self.instance
 
 
