@@ -44,6 +44,9 @@ class ProductionEvent(models.Model):
 
     objects = ProductionEventManager()
 
+    class Meta:
+        ordering = ['noted_on']
+
     def __str__(self):
         return '%s: %s' % (str(self.stream.submission), self.get_event_display())
 

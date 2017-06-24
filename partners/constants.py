@@ -12,6 +12,7 @@ PARTNER_KINDS = (
     (PARTNER_KIND_UNI_LIBRARY, 'University (and its Library)'),
     ('Res. Library', 'Research Library'),
     ('Prof. Soc.', 'Professional Society'),
+    ('Nat. Consor.', 'National Consortium'),
     ('Foundation', 'Foundation'),
     ('Individual', 'Individual'),
 )

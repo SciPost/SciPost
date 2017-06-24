@@ -399,10 +399,10 @@ class ProspectiveContactForm(forms.ModelForm):
 
 class EmailProspectivePartnerContactForm(forms.Form):
     email_subject = forms.CharField(widget=forms.Textarea(),
-                                    initial='SciPost Supporting Partners Board')
+                                    initial='Supporting Partners Board')
     message = forms.CharField(widget=forms.Textarea(), required=False)
     include_SPB_summary = forms.BooleanField(
-        required=False, initial=False,
+        required=False, initial=True,
         label='include SPB summary with message')
 
     def __init__(self, *args, **kwargs):
