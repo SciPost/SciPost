@@ -912,7 +912,11 @@ def change_password(request):
         # Update user's session hash to stay logged in.
         update_session_auth_hash(request, request.user)
         messages.success(request, 'Your SciPost password has been successfully changed')
-        return redirect(reverse('scipost:personal_page'))
+        try:
+            request.user.contributor
+            return redirect(reverse('scipost:personal_page'))
+        except Contributor.DoesNotExist:
+            return redirect(reverse('partners:dashboard'))
     return render(request, 'scipost/change_password.html', {'form': form})
 
 
@@ -929,9 +933,19 @@ def reset_password(request):
                           post_reset_redirect=reverse('scipost:login'))
 
 
-@login_required
-@user_passes_test(has_contributor)
-def update_personal_data(request):
+def _update_personal_data_user_only(request):
+    user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
+    if user_form.is_valid():
+        user_form.save()
+        messages.success(request, 'Your personal data has been updated.')
+        return redirect(reverse('partners:dashboard'))
+    context = {
+        'user_form': user_form
+    }
+    return render(request, 'scipost/update_personal_data.html', context)
+
+
+def _update_personal_data_contributor(request):
     contributor = Contributor.objects.get(user=request.user)
     user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
     cont_form = UpdatePersonalDataForm(request.POST or None, instance=contributor)
@@ -946,6 +960,13 @@ def update_personal_data(request):
         cont_form = UpdatePersonalDataForm(instance=contributor)
     return render(request, 'scipost/update_personal_data.html',
                   {'user_form': user_form, 'cont_form': cont_form})
+
+
+@login_required
+def update_personal_data(request):
+    if has_contributor(request.user):
+        return _update_personal_data_contributor(request)
+    return _update_personal_data_user_only(request)
 
 
 @login_required

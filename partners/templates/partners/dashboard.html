@@ -88,6 +88,8 @@
                 <ul class="list-group list-group-flush">
                   {% for agreement in personal_agreements %}
                       <li class="list-group-item">{% include 'partners/_agreement_card.html' with agreement=agreement %}</li>
+                  {% empty %}
+                      <li class="list-group-item">No Membership Agreements found.</li>
                   {% endfor %}
                 </ul>
           </div>
