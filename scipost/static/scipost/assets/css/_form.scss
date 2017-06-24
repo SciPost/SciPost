@@ -47,3 +47,27 @@ input[type="file"] {
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 0.15rem;
 }
+
+// Formset
+//
+.delete-form-group {
+    > * {
+        opacity: 0.5;
+        color: $brand-danger;
+
+        &:last-child {
+            // The delete button should always be visible
+            opacity: 1.0;
+            color: inherit;
+        }
+    }
+
+    .form-group {
+        display: none;
+
+        &:last-child {
+            // The delete button should always be visible
+            display: block;
+        }
+    }
+}

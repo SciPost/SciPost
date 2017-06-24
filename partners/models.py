@@ -130,6 +130,16 @@ class Contact(models.Model):
     def __str__(self):
         return '%s %s, %s' % (self.get_title_display(), self.user.last_name, self.user.first_name)
 
+    def delete_or_remove_partner(self, partner, *args, **kwargs):
+        """
+        Custom `delete` method as the contact does not always need to be deleted,
+        but sometimes just the link with a specific partner needs to be removed.
+        """
+        self.partners.remove(partner)
+        if self.partners.exists():
+            return self
+        return super().delete(*args, **kwargs)
+
     @property
     def kind_display(self):
         """

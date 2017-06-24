@@ -20,7 +20,7 @@
       <ul>
           {% for contact in partner.contact_set.all %}
               <li>
-                  <h4>{{ contact.get_title_display }} {{ contact.user.first_name }} {{ contact.user.last_name }}</h4>
+                  <h4>{{ contact.get_title_display }} {{ contact.user.first_name }} {{ contact.user.last_name }} {% if not contact.user.is_active %}<span class="label label-sm label-warning">Inactive</span>{% endif %}</h4>
                   <div>({{ contact.kind_display }})</div>
                   <div class="mb-2"><a href="mailto:{{ contact.user.email }}">{{ contact.user.email }}</a></div>
               </li>
@@ -28,7 +28,13 @@
       </ul>
     </div>
     <div class="col-md-3">
-      <p>Edit</p>
+        <h3>Actions</h3>
+        <ul>
+            <li><a href="{% url 'partners:partner_edit' partner.id %}">Edit Partner</a></li>
+            <li><a href="{% url 'partners:institution_edit' partner.institution.id %}">Edit Institution</a></li>
+            <li><a href="{% url 'partners:partner_add_contact' partner.id %}">Add Contact</a></li>
+        </ul>
+
     </div>
   </div>
 </div>

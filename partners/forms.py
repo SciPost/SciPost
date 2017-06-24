@@ -14,6 +14,140 @@ from .models import Partner, ProspectivePartner, ProspectiveContact, Prospective
 from scipost.models import TITLE_CHOICES
 
 
+class InstitutionForm(forms.ModelForm):
+    class Meta:
+        model = Institution
+        fields = (
+            'kind',
+            'name',
+            'acronym',
+            'address',
+            'country'
+        )
+
+
+class PartnerForm(forms.ModelForm):
+    class Meta:
+        model = Partner
+        fields = (
+            'institution',
+            'status',
+            'main_contact'
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['main_contact'].queryset = self.instance.contact_set.all()
+
+
+class ContactForm(forms.ModelForm):
+    """
+    This Contact form is mainly used for editing Contact instances.
+    """
+    class Meta:
+        model = Contact
+        fields = (
+            'kind',
+        )
+
+
+class NewContactForm(ContactForm):
+    """
+    This Contact form is used to create new Contact instances, as it will also handle
+    possible sending and activation of User instances coming with the new Contact.
+    """
+    title = forms.ChoiceField(choices=TITLE_CHOICES, label='Title')
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+    email = forms.CharField()
+    existing_user = None
+
+    def __init__(self, *args, **kwargs):
+        """
+        Partner is a required argument to tell the formset which Partner the Contact
+        is being edited for in the current form.
+        """
+        self.partner = kwargs.pop('partner')
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        """
+        Check if User already is known in the system.
+        """
+        email = self.cleaned_data['email']
+        try:
+            self.existing_user = User.objects.get(email=email)
+            if not self.data.get('confirm_use_existing', '') == 'on':
+                # Do not give error if user wants to use existing User
+                self.add_error('email', 'This User is already registered.')
+            self.fields['confirm_use_existing'] = forms.BooleanField(
+                required=False, initial=False, label='Use the existing user instead: %s %s'
+                                                     % (self.existing_user.first_name,
+                                                        self.existing_user.last_name))
+        except User.DoesNotExist:
+            pass
+        return email
+
+    def save(self, commit=True):
+        """
+        If existing user is found, add it to the Partner.
+        """
+        if self.existing_user and self.data.get('confirm_use_existing', '') == 'on':
+            # Do not create new Contact
+            try:
+                # Link Contact to new Partner
+                contact = self.existing_user.partner_contact
+                contact.partners.add(self.partner)
+                # TODO: Send mail to contact informing him/her about the new Partner
+            except Contact.DoesNotExist:
+                # Not yet a 'Contact-User'
+                contact = super().save(commit=False)
+                contact.title = self.existing_user.contributor.title
+                contact.user = self.existing_user
+                contact.save()
+                contact.partners.add(self.partner)
+                # TODO: Send mail to contact informing him/her about the new Partner
+            return contact
+
+        # Create complete new Account (User + Contact)
+        user = User(
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            email=self.cleaned_data['email'],
+            username=self.cleaned_data['email'],
+            is_active=False,
+        )
+        user.save()
+        contact = Contact(
+            user=user,
+            title=self.cleaned_data['title'],
+            kind=self.cleaned_data['kind']
+        )
+        contact.save()
+        contact.partners.add(self.partner)
+        # TODO: Send mail to contact to let him/her activate account
+        return contact
+
+
+class ContactFormset(forms.BaseModelFormSet):
+    """
+    Use custom formset to make sure the delete action will not delete an entire Contact
+    if the Contact still has relations with other Partners.
+    """
+    def __init__(self, *args, **kwargs):
+        """
+        Partner is a required argument to tell the formset which Partner the Contact
+        is being edited for in the current form.
+        """
+        self.partner = kwargs.pop('partner')
+        super().__init__(*args, **kwargs)
+
+    def delete_existing(self, obj, commit=True):
+        '''Deletes an existing model instance.'''
+        if commit:
+            obj.delete_or_remove_partner(self.partner)
+
+
 class PromoteToPartnerForm(forms.ModelForm):
     address = forms.CharField(widget=forms.Textarea(), required=False)
     acronym = forms.CharField()

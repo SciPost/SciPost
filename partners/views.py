@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.db import transaction
-from django.forms import modelformset_factory, formset_factory
+from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.utils import timezone
 
@@ -10,10 +10,12 @@ from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
     PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT
 from .models import Partner, ProspectivePartner, ProspectiveContact,\
-    ProspectivePartnerEvent, MembershipAgreement
+                    ProspectivePartnerEvent, MembershipAgreement, Contact, Institution
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
-    EmailProspectivePartnerContactForm, PromoteToPartnerForm,\
-    ProspectivePartnerEventForm, MembershipQueryForm, PromoteToContactForm, PromoteToContactFormset
+                   EmailProspectivePartnerContactForm, PromoteToPartnerForm,\
+                   ProspectivePartnerEventForm, MembershipQueryForm, PromoteToContactForm,\
+                   PromoteToContactFormset, PartnerForm, ContactForm, ContactFormset,\
+                   NewContactForm, InstitutionForm
 
 from .utils import PartnerUtils
 
@@ -100,6 +102,69 @@ def promote_prospartner(request, prospartner_id):
     return render(request, 'partners/promote_prospartner.html', context)
 
 
+###############
+# Partner views
+###############
+@permission_required('scipost.can_manage_SPB', return_403=True)
+@transaction.atomic
+def partner_edit(request, partner_id):
+    partner = get_object_or_404(Partner, id=partner_id)
+
+    # Start/fill forms
+    form = PartnerForm(request.POST or None, instance=partner)
+    ContactModelFormset = modelformset_factory(Contact, ContactForm, can_delete=True, extra=0,
+                                               formset=ContactFormset)
+    contact_formset = ContactModelFormset(request.POST or None, partner=partner,
+                                          queryset=partner.contact_set.all())
+
+    # Validate forms for POST request
+    if form.is_valid() and contact_formset.is_valid():
+        form.save()
+        contact_formset.save()
+        messages.success(request, 'Partner saved')
+        return redirect(reverse('partners:partner_edit', args=(partner.id,)))
+    context = {
+        'form': form,
+        'contact_formset': contact_formset
+    }
+    return render(request, 'partners/partner_edit.html', context)
+
+
+@permission_required('scipost.can_manage_SPB', return_403=True)
+def partner_add_contact(request, partner_id):
+    partner = get_object_or_404(Partner, id=partner_id)
+    form = NewContactForm(request.POST or None, partner=partner)
+    if form.is_valid():
+        contact = form.save()
+        messages.success(request, '<h3>Created contact: %s</h3>Email has been sent.'
+                                  % str(contact))
+        return redirect(reverse('partners:dashboard'))
+    context = {
+        'partner': partner,
+        'form': form
+    }
+    return render(request, 'partners/partner_add_contact.html', context)
+
+
+###################
+# Institution Views
+###################
+@permission_required('scipost.can_manage_SPB', return_403=True)
+def institution_edit(request, institution_id):
+    institution = get_object_or_404(Institution, id=institution_id)
+    form = InstitutionForm(request.POST or None, instance=institution)
+    if form.is_valid():
+        form.save()
+        return redirect(reverse('partners:dashboard'))
+    context = {
+        'form': form
+    }
+    return render(request, 'partners/institution_edit.html', context)
+
+
+###########################
+# Prospective Partner Views
+###########################
 @permission_required('scipost.can_manage_SPB', return_403=True)
 def add_prospective_partner(request):
     form = ProspectivePartnerForm(request.POST or None)
@@ -132,11 +197,11 @@ def email_prospartner_contact(request, contact_id):
     if form.is_valid():
         comments = 'Email sent to %s.' % str(contact)
         prospartnerevent = ProspectivePartnerEvent(
-            prospartner = contact.prospartner,
-            event = PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,
-            comments = comments,
-            noted_on = timezone.now(),
-            noted_by = request.user.contributor)
+            prospartner=contact.prospartner,
+            event=PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,
+            comments=comments,
+            noted_on=timezone.now(),
+            noted_by=request.user.contributor)
         prospartnerevent.save()
         if contact.prospartner.status in [PROSPECTIVE_PARTNER_REQUESTED,
                                           PROSPECTIVE_PARTNER_ADDED]:

@@ -6,14 +6,25 @@ urlpatterns = [
     url(r'^$', views.supporting_partners, name='partners'),
     url(r'^dashboard$', views.dashboard, name='dashboard'),
     url(r'^membership_request$', views.membership_request, name='membership_request'),
-    url(r'^prospect_partners/add$', views.add_prospective_partner,
+
+    # Prospects
+    url(r'^prospects/add$', views.add_prospective_partner,
         name='add_prospective_partner'),
-    url(r'^prospect_partners/contacts/(?P<contact_id>[0-9]+)/email$',
+    url(r'^prospects/contacts/(?P<contact_id>[0-9]+)/email$',
         views.email_prospartner_contact, name='email_prospartner_contact'),
-    url(r'^prospect_partner/(?P<prospartner_id>[0-9]+)/contacts/add$',
+    url(r'^prospects/(?P<prospartner_id>[0-9]+)/contacts/add$',
         views.add_prospartner_contact, name='add_prospartner_contact'),
-    url(r'^prospect_partner/(?P<prospartner_id>[0-9]+)/promote$',
+    url(r'^prospects/(?P<prospartner_id>[0-9]+)/promote$',
         views.promote_prospartner, name='promote_prospartner'),
-    url(r'^prospect_partner/(?P<prospartner_id>[0-9]+)/events/add$',
+    url(r'^prospects/(?P<prospartner_id>[0-9]+)/events/add$',
         views.add_prospartner_event, name='add_prospartner_event'),
+
+    # Institutions
+    url(r'institutions/(?P<institution_id>[0-9]+)/edit$', views.institution_edit,
+        name='institution_edit'),
+
+    # Partners
+    url(r'(?P<partner_id>[0-9]+)/edit$', views.partner_edit, name='partner_edit'),
+    url(r'(?P<partner_id>[0-9]+)/contacts/add$', views.partner_add_contact,
+        name='partner_add_contact'),
 ]

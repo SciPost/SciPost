@@ -1,0 +1,64 @@
+{% extends 'partners/_partners_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Edit Partner</span>
+{% endblock %}
+
+{% block pagetitle %}{{block.super}} Edit Partner{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Edit Partner</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-5">
+            {{ form|bootstrap }}
+        </div>
+
+        <h2>Contacts</h2>
+        {{ contact_formset.management_form }}
+        {% for form in contact_formset %}
+            <div class="contact-form-group">
+                <h3>{{form.instance}}</h3>
+                <p>{{ form.instance.user.email }}</p>
+                <div class="mb-3">{{ form|bootstrap }}</div>
+            </div>
+        {% endfor %}
+
+        <input class="btn btn-primary" type="submit" value="Submit"/>
+      </form>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block footer_script %}
+<script>
+    function delete_hide_contact_groups(delete_input) {
+        input_el = $(delete_input);
+        if( input_el.prop('checked') ) {
+            input_el
+            .parents('.contact-form-group')
+            .addClass('delete-form-group');
+        } else {
+            input_el
+            .parents('.contact-form-group')
+            .removeClass('delete-form-group');
+        }
+    }
+
+    $('.contact-form-group [name$="DELETE"]').on('change click', function() {
+        delete_hide_contact_groups(this);
+    });
+</script>
+{% endblock %}

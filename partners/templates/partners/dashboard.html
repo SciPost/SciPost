@@ -59,8 +59,8 @@
             <div class="col-md-6">
                 <h3>Partners</h3>
                 <ul>
-                    {% for partner in request.user.partners.all %}
-                        <li>{{partner}}</li>
+                    {% for partner in request.user.partner_contact.partners.all %}
+                        <li>{{partner.institution}}</li>
                     {% empty %}
                         <li>No partners found. Please contact the SciPost admin.</li>
                     {% endfor %}
