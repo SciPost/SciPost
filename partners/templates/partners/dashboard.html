@@ -66,15 +66,6 @@
                     {% endfor %}
                 </ul>
 
-                <h3>My Agreements</h3>
-                <ul>
-                    {% for partner in request.user.partners.agreements.all %}
-                        <li>{{partner}}</li>
-                    {% empty %}
-                        <li>No active agreements found.</li>
-                    {% endfor %}
-                </ul>
-
                 <h3>Update your personal data or password</h3>
 
                 <ul>
@@ -93,10 +84,13 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-12">
-                <h3>Your registered agreements</h3>
-                <p>None found.</p>
-            </div>
+          <div class="col-12">
+                <ul class="list-group list-group-flush">
+                  {% for agreement in personal_agreements %}
+                      <li class="list-group-item">{% include 'partners/_agreement_card.html' with agreement=agreement %}</li>
+                  {% endfor %}
+                </ul>
+          </div>
         </div>
     </div><!-- End tab -->
 
@@ -151,30 +145,50 @@
         	  <h2 class="highlight">Partners</h2>
         	</div>
           </div>
-          <ul class="list-group list-group-flush">
-        	{% for partner in partners %}
-        	<li class="list-group-item">{% include 'partners/_partner_card.html' with partner=partner %}</li>
-        	{% endfor %}
-          </ul>
+          <div class="row">
+        	<div class="col-12">
+              <ul class="list-group list-group-flush">
+            	{% for partner in partners %}
+            	<li class="list-group-item">{% include 'partners/_partner_card.html' with partner=partner %}</li>
+            	{% endfor %}
+              </ul>
+            </div>
+          </div>
       </div><!-- End tab -->
 
       <!-- Tab: Agreements -->
       <div class="tab-pane" id="global_agreements" role="tabpanel">
           <div class="row">
         	<div class="col-12">
-        	  <h2 class="highlight">Membership Agreements</h2>
+        	  <h2 class="highlight">SciPost's Membership Agreements</h2>
               <h3><a href="{% url 'partners:add_agreement' %}">Add Membership Agreement</a></h3>
         	</div>
           </div>
 
-          <h3>SciPost's Registered Membership Agreements</h3>
-          <ul class="mb-5">
-        	{% for agreement in agreements %}
-            	<li><a href="{{agreement.get_absolute_url}}">{{ agreement }}</a></li>
-            {% empty %}
-                <li>No Agreements found.</li>
-        	{% endfor %}
-          </ul>
+          <table class="table">
+              <thead>
+                  <tr>
+                      <th>Partner</th>
+                      <th>Status</th>
+                      <th>Duration</th>
+                      <th>Start Date</th>
+                  </tr>
+              </thead>
+              <tbody>
+            	{% for agreement in agreements %}
+                    <tr>
+                    	<td><a href="{{agreement.get_absolute_url}}">{{ agreement.partner }}</a></td>
+                        <td>{{ agreement.get_status_display }}</td>
+                        <td>{{ agreement.get_duration_display }}</td>
+                        <td>{{ agreement.start_date }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">No Agreements found</td>
+                    </tr>
+            	{% endfor %}
+              </tbody>
+            </table>
       </div><!-- End tab -->
     {% endif %}
 </div>

@@ -38,7 +38,11 @@ def dashboard(request):
     This page is meant as a personal page for Partners, where they will for example be able
     to read their personal data and agreements.
     '''
-    context = {}
+    personal_agreements = (MembershipAgreement.objects.open_to_partner()
+                           .filter(partner__contact=request.user.partner_contact))
+    context = {
+        'personal_agreements': personal_agreements
+    }
     if request.user.has_perm('scipost.can_manage_SPB'):
         context['partners'] = Partner.objects.all()
         context['prospective_partners'] = (ProspectivePartner.objects.not_yet_partner()

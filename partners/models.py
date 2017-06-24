@@ -170,7 +170,7 @@ class Contact(models.Model):
     @property
     def kind_display(self):
         """
-        Due to a lack of support of to use get_FOO_display in a ArrayField, one has to create
+        Due to a lack of support to use get_FOO_display in a ArrayField, one has to create
         one 'manually'.
         """
         choices = dict(CONTACT_TYPES)

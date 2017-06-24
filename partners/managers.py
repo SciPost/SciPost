@@ -11,3 +11,6 @@ class ProspectivePartnerManager(models.Manager):
 class MembershipAgreementManager(models.Manager):
     def submitted(self):
         return self.filter(status=MEMBERSHIP_SUBMITTED)
+
+    def open_to_partner(self):
+        return self.exclude(status=MEMBERSHIP_SUBMITTED)
