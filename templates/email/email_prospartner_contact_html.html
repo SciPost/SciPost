@@ -1,12 +1,14 @@
 {% load staticfiles %}
+{% if contact %}
 <p>Dear {{ contact.get_title_display }} {{ contact.last_name }},</p>
-
+{% else %}
+<p>Dear colleagues,</p>
+{% endif %}
 {% if message %}
 <p>
   {{ message|linebreaks }}
 </p>
 {% endif %}
-
 {% if include_SPB_summary %}
 <p>
   You might by now have heard of SciPost, a recently-launched initiative aiming to bring disruptive change to current academic publishing practices.
@@ -34,6 +36,8 @@ I will be happy to provide any required further details. If you are interested, 
 </p>
 <p>On behalf of the SciPost Foundation,</p>
 Prof. dr Jean-S&eacute;bastien Caux
+<br/>
+<br/><a href="mailto:J.S.Caux@uva.nl">J.S.Caux@uva.nl</a>
 <br/><a href="http://jscaux.org">jscaux.org</a>
 <br/>---------------------------------------------
 <br/>Institute for Theoretical Physics

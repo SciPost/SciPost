@@ -12,6 +12,8 @@ urlpatterns = [
         views.add_prospartner_contact, name='add_prospartner_contact'),
     url(r'^email_prospartner_contact/(?P<contact_id>[0-9]+)$',
         views.email_prospartner_contact, name='email_prospartner_contact'),
+    url(r'^email_prospartner_generic/(?P<prospartner_id>[0-9]+)$',
+        views.email_prospartner_generic, name='email_prospartner_generic'),
     url(r'^add_prospartner_event/(?P<prospartner_id>[0-9]+)$',
         views.add_prospartner_event, name='add_prospartner_event'),
 ]
