@@ -19,6 +19,11 @@ urlpatterns = [
     url(r'^prospects/(?P<prospartner_id>[0-9]+)/events/add$',
         views.add_prospartner_event, name='add_prospartner_event'),
 
+    # Agreements
+    url(r'agreements/new$', views.add_agreement, name='add_agreement'),
+    url(r'agreements/(?P<agreement_id>[0-9]+)$', views.agreement_details,
+        name='agreement_details'),
+
     # Institutions
     url(r'institutions/(?P<institution_id>[0-9]+)/edit$', views.institution_edit,
         name='institution_edit'),

@@ -12,9 +12,40 @@ from django_countries.fields import LazyTypedChoiceField
 from .constants import PARTNER_KINDS, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
                        PARTNER_STATUS_UPDATE
 from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
-                    Institution, Contact, PartnerEvent
+                    Institution, Contact, PartnerEvent, MembershipAgreement
 
 from scipost.models import TITLE_CHOICES
+
+
+class MembershipAgreementForm(forms.ModelForm):
+    class Meta:
+        model = MembershipAgreement
+        fields = (
+            'partner',
+            # 'consortium',
+            'status',
+            'date_requested',
+            'start_date',
+            'duration',
+            'offered_yearly_contribution'
+        )
+        widgets = {
+            'start_date': forms.TextInput(attrs={'placeholder': 'YYYY-MM-DD'}),
+            'date_requested': forms.TextInput(attrs={'placeholder': 'YYYY-MM-DD'}),
+        }
+
+    def save(self, current_user, commit=True):
+        agreement = super().save(commit)
+        if commit and agreement.partner and not self.instance.id:
+            # Create PartnerEvent if Agreement is new
+            event = PartnerEvent(
+                partner=agreement.partner,
+                event=PARTNER_STATUS_UPDATE,
+                comments='Membership Agreement added with start date %s' % agreement.start_date,
+                noted_by=current_user
+            )
+            event.save()
+        return agreement
 
 
 class ActivationForm(forms.ModelForm):

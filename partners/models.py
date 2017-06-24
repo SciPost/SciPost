@@ -235,7 +235,7 @@ class MembershipAgreement(models.Model):
     date_requested = models.DateField()
     start_date = models.DateField()
     duration = models.DurationField(choices=MEMBERSHIP_DURATION)
-    offered_yearly_contribution = models.SmallIntegerField(default=0)
+    offered_yearly_contribution = models.SmallIntegerField(default=0, help_text="Yearly contribution in euro's (€)")
 
     objects = MembershipAgreementManager()
 
@@ -243,3 +243,6 @@ class MembershipAgreement(models.Model):
         return (str(self.partner) +
                 ' [' + self.get_duration_display() +
                 ' from ' + self.start_date.strftime('%Y-%m-%d') + ']')
+
+    def get_absolute_url(self):
+        return reverse('partners:agreement_details', args=(self.id,))

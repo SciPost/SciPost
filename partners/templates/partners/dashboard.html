@@ -34,7 +34,7 @@
                         <a href="#partners" class="nav-link" data-toggle="tab">Partners</a>
                     </li>
                     <li class="nav-item btn btn-secondary">
-                        <a href="#agreements" class="nav-link" data-toggle="tab">Agreements</a>
+                        <a href="#global_agreements" class="nav-link" data-toggle="tab">Agreements</a>
                     </li>
                   {% endif %}
                 </ul>
@@ -106,10 +106,9 @@
               <div class="row">
             	<div class="col-12">
             	  <h2 class="highlight">Prospective Partners</h2>
+                  <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
             	</div>
               </div>
-              <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
-              <br/>
 
               <table class="table table-hover mb-5">
                   <thead class="thead-default">
@@ -160,15 +159,20 @@
       </div><!-- End tab -->
 
       <!-- Tab: Agreements -->
-      <div class="tab-pane" id="agreements" role="tabpanel">
+      <div class="tab-pane" id="global_agreements" role="tabpanel">
           <div class="row">
         	<div class="col-12">
-        	  <h2 class="highlight">Agreements</h2>
+        	  <h2 class="highlight">Membership Agreements</h2>
+              <h3><a href="{% url 'partners:add_agreement' %}">Add Membership Agreement</a></h3>
         	</div>
           </div>
-          <ul>
+
+          <h3>SciPost's Registered Membership Agreements</h3>
+          <ul class="mb-5">
         	{% for agreement in agreements %}
-            	<li>{{ agreement }}</li>
+            	<li><a href="{{agreement.get_absolute_url}}">{{ agreement }}</a></li>
+            {% empty %}
+                <li>No Agreements found.</li>
         	{% endfor %}
           </ul>
       </div><!-- End tab -->

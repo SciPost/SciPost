@@ -28,7 +28,15 @@
             Main contact: {{ partner.main_contact|default_if_none:'<em>Unknown</em>' }}
         </address>
 
-        <hr>
+        <h3>Membership Agreements</h3>
+        <ul>
+            {% for agreement in partner.agreements.all %}
+                <li><a href="{{agreement.get_absolute_url}}">{{agreement}}</a></li>
+            {% empty %}
+                <li>No agreements found.</li>
+            {% endfor %}
+        </ul>
+
         <h3>Contacts</h3>
         <ul>
             {% for contact in partner.contact_set.all %}

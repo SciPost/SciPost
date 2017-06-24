@@ -16,7 +16,8 @@ from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
                    EmailProspectivePartnerContactForm, PromoteToPartnerForm,\
                    ProspectivePartnerEventForm, MembershipQueryForm, PromoteToContactForm,\
                    PromoteToContactFormset, PartnerForm, ContactForm, ContactFormset,\
-                   NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm
+                   NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
+                   MembershipAgreementForm
 
 from .utils import PartnerUtils
 
@@ -258,6 +259,37 @@ def add_prospartner_event(request, prospartner_id):
             return render(request, 'scipost/error.html', {'errormessage': errormessage})
     errormessage = 'This view can only be posted to.'
     return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+
+############
+# Agreements
+############
+@permission_required('scipost.can_manage_SPB', return_403=True)
+def add_agreement(request):
+    form = MembershipAgreementForm(request.POST or None, initial=request.GET)
+    if request.POST and form.is_valid():
+        agreement = form.save(request.user)
+        messages.success(request, 'Membership Agreement created.')
+        return redirect(agreement.get_absolute_url())
+    context = {
+        'form': form
+    }
+    return render(request, 'partners/agreements_add.html', context)
+
+
+@permission_required('scipost.can_manage_SPB', return_403=True)
+def agreement_details(request, agreement_id):
+    agreement = get_object_or_404(MembershipAgreement, id=agreement_id)
+    form = MembershipAgreementForm(request.POST or None, instance=agreement)
+    if form.is_valid():
+        agreement = form.save(request.user)
+        messages.success(request, 'Membership Agreement updated.')
+        return redirect(agreement.get_absolute_url())
+    context = {
+        'agreement': agreement,
+        'form': form
+    }
+    return render(request, 'partners/agreements_details.html', context)
 
 
 #########
