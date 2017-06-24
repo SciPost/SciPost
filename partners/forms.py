@@ -35,16 +35,19 @@ class MembershipAgreementForm(forms.ModelForm):
         }
 
     def save(self, current_user, commit=True):
-        agreement = super().save(commit)
-        if commit and agreement.partner and not self.instance.id:
-            # Create PartnerEvent if Agreement is new
-            event = PartnerEvent(
-                partner=agreement.partner,
-                event=PARTNER_STATUS_UPDATE,
-                comments='Membership Agreement added with start date %s' % agreement.start_date,
-                noted_by=current_user
-            )
-            event.save()
+        agreement = super().save(commit=False)
+        if commit:
+            if agreement.partner and not self.instance.id:
+                # Create PartnerEvent if Agreement is new
+                event = PartnerEvent(
+                    partner=agreement.partner,
+                    event=PARTNER_STATUS_UPDATE,
+                    comments='Membership Agreement added with start date %s' % agreement.start_date,
+                    noted_by=current_user
+                )
+                event.save()
+            # Save agreement afterwards to be able to detect edit/add difference
+            agreement.save()
         return agreement
 
 
