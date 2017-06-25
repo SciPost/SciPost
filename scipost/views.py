@@ -893,6 +893,11 @@ def personal_page(request):
         'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
     }
 
+    # Only add variables if user has right permission
+    if request.user.has_perm('scipost.can_manage_reports'):
+        context['nr_reports_without_pdf'] = (Report.objects.accepted()
+                                             .filter(pdf_report='').count())
+
     return render(request, 'scipost/personal_page.html', context)
 
 

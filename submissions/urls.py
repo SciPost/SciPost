@@ -75,9 +75,10 @@ urlpatterns = [
     url(r'^cycle/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/submit$',
         views.cycle_form_submit, name='cycle_confirmation'),
     # Reports
-    url(r'^submit_report/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
+    url(r'^(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/reports/submit$',
         views.submit_report, name='submit_report'),
-    url(r'^vet_submitted_reports$', views.vet_submitted_reports, name='vet_submitted_reports'),
+    url(r'^reports/vet_submitted$', views.vet_submitted_reports, name='vet_submitted_reports'),
+    url(r'^reports/list$', views.reports_accepted_list, name='reports_accepted_list'),
     # Voting
     url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting, name='prepare_for_voting'),
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),

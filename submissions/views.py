@@ -229,6 +229,16 @@ def report_detail_pdf(request, arxiv_identifier_w_vn_nr, report_nr):
     return response
 
 
+@permission_required('scipost.can_manage_reports', raise_exception=True)
+def reports_accepted_list(request):
+    reports = (Report.objects.accepted()
+               .order_by('pdf_report', 'submission').prefetch_related('submission'))
+    context = {
+        'reports': reports
+    }
+    return render(request, 'submissions/reports_accepted_list.html', context)
+
+
 ######################
 # Editorial workflow #
 ######################

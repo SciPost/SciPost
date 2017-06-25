@@ -260,6 +260,13 @@
                             {% endif %}
                         </ul>
 
+                        {% if perms.scipost.can_manage_reports %}
+                        <h3>Reports</h3>
+                        <ul>
+                            <li><a href="{% url 'submissions:reports_accepted_list' %}">Accepted Reports</a>{% if nr_reports_without_pdf %} ({{nr_reports_without_pdf}} unfinished){% endif %}</li>
+                        </ul>
+                        {% endif %}
+
                         {% if perms.scipost.can_attend_VGMs %}
                         <h3>Virtual General Meetings</h3>
                         <ul>

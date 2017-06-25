@@ -1,0 +1,60 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Accepted Reports</span>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Accepted Reports{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Accepted Reports</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Report nr. of Submission</th>
+                    <th>Submission</th>
+                    <th>Report author</th>
+                    <th>Has PDF</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                    <tr{% if not report.pdf_report %} class="table-danger"{% endif %}>
+                        <td>{{report.report_nr}}</td>
+                        <td><a href="{{report.submission.get_absolute_url}}">{{report.submission.arxiv_identifier_w_vn_nr}}</a></td>
+                        <td>{% if report.anonymous %}<em>Anonymous</em>{% else %}{{report.author}}{% endif %}</td>
+                        <td>{{report.pdf_report|yesno:"Yes,No"}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% comment %}
+<div class="row">
+    <div class="col-12">
+        <form method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <input class="btn btn-primary" type="submit" value="Submit"/>
+            <div class="my-4">
+                <em>By clicking on Submit, you state that you abide by the <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.</em>
+            </div>
+        </form>
+    </div>
+</div>
+{% endcomment %}
+
+{% endblock %}

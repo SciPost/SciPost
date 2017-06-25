@@ -156,6 +156,12 @@ class Command(BaseCommand):
             name='Can oversee refereeing',
             content_type=content_type)
 
+        # Reports
+        can_manage_reports, created = Permission.objects.get_or_create(
+            codename='can_manage_reports',
+            name='Can manage Reports',
+            content_type=content_type)
+
         # Voting
         can_prepare_recommendations_for_voting, created = Permission.objects.get_or_create(
             codename='can_prepare_recommendations_for_voting',
@@ -206,6 +212,7 @@ class Command(BaseCommand):
             can_view_production,
             can_attend_VGMs,
             can_manage_mailchimp,
+            can_manage_reports,
         ])
         AdvisoryBoard.permissions.set([
             can_manage_registration_invitations,
