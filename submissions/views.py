@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
@@ -217,6 +217,16 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                'is_author': is_author,
                'is_author_unchecked': is_author_unchecked}
     return render(request, 'submissions/submission_detail.html', context)
+
+
+def report_detail_pdf(request, arxiv_identifier_w_vn_nr, report_nr):
+    report = get_object_or_404(Report.objects.accepted(),
+                               submission__arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr,
+                               pdf_report__isnull=False, report_nr=report_nr)
+    response = HttpResponse(report.pdf_report.read(), content_type='application/pdf')
+    filename = '%s_report-%i.pdf' % (report.submission.arxiv_identifier_w_vn_nr, report.report_nr)
+    response['Content-Disposition'] = ('filename=' + filename)
+    return response
 
 
 ######################

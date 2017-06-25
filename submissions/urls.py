@@ -18,6 +18,8 @@ urlpatterns = [
         name='submission_wo_vn_nr'),
     url(r'^(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/$',
         views.submission_detail, name='submission'),
+    url(r'^(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/reports/(?P<report_nr>[0-9]+)/pdf$',
+        views.report_detail_pdf, name='report_detail_pdf'),
     url(r'^submit_manuscript$', views.RequestSubmission.as_view(), name='submit_manuscript'),
     url(r'^submit_manuscript/prefill$', views.prefill_using_arxiv_identifier,
         name='prefill_using_identifier'),
