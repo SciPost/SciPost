@@ -79,6 +79,8 @@ urlpatterns = [
         views.submit_report, name='submit_report'),
     url(r'^reports/vet_submitted$', views.vet_submitted_reports, name='vet_submitted_reports'),
     url(r'^reports/list$', views.reports_accepted_list, name='reports_accepted_list'),
+    url(r'^reports/(?P<report_id>[0-9]+)/compile$',
+        views.report_pdf_compile, name='report_pdf_compile'),
     # Voting
     url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting, name='prepare_for_voting'),
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),

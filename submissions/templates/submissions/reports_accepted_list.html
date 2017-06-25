@@ -26,35 +26,39 @@
                     <th>Submission</th>
                     <th>Report author</th>
                     <th>Has PDF</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for report in reports %}
                     <tr{% if not report.pdf_report %} class="table-danger"{% endif %}>
                         <td>{{report.report_nr}}</td>
-                        <td><a href="{{report.submission.get_absolute_url}}">{{report.submission.arxiv_identifier_w_vn_nr}}</a></td>
+                        <td><a href="{{report.get_absolute_url}}">{{report.submission.arxiv_identifier_w_vn_nr}}</a></td>
                         <td>{% if report.anonymous %}<em>Anonymous</em>{% else %}{{report.author}}{% endif %}</td>
-                        <td>{{report.pdf_report|yesno:"Yes,No"}}</td>
+                        <td>
+                            {{report.pdf_report|yesno:"Yes,No"}}
+                            {% if report.pdf_report %}
+                                &middot; <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{% url 'submissions:report_pdf_compile' report.id %}" method="POST" class="d-inline-block">
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-sm btn-secondary" value="{% if report.pdf_report %}Recompile{% else %}Compile{% endif %} report">
+                            </form>
+                            {% if report.pdf_report %}
+
+                                <form method="POST" class="d-inline-block">
+                                    {% csrf_token %}
+                                    <input type="submit" class="btn btn-sm btn-danger" value="Remove pdf">
+                                </form>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
-
-{% comment %}
-<div class="row">
-    <div class="col-12">
-        <form method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <input class="btn btn-primary" type="submit" value="Submit"/>
-            <div class="my-4">
-                <em>By clicking on Submit, you state that you abide by the <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.</em>
-            </div>
-        </form>
-    </div>
-</div>
-{% endcomment %}
 
 {% endblock %}

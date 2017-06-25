@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
 
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
@@ -239,6 +240,14 @@ def reports_accepted_list(request):
     return render(request, 'submissions/reports_accepted_list.html', context)
 
 
+@permission_required('scipost.can_manage_reports', raise_exception=True)
+@require_POST
+def report_pdf_compile(request, report_id):
+    report = get_object_or_404(Report.objects.accepted(), id=report_id)
+    # COMPILE PDF HERE
+    messages.success(request, '<h3>Compiling complete</h3>Please download and check the pdf.')
+    return redirect(reverse('submissions:reports_accepted_list'))
+
 ######################
 # Editorial workflow #
 ######################
@@ -429,7 +438,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
 
 
 @login_required
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@permission_required('sci.can_take_charge_of_submissions', raise_exception=True)
 @transaction.atomic
 def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     """
