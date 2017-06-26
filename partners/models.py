@@ -108,6 +108,7 @@ class Institution(models.Model):
     """
     kind = models.CharField(max_length=32, choices=PARTNER_KINDS)
     name = models.CharField(max_length=256)
+    logo = models.ImageField(upload_to='institutions/logo/%Y/', blank=True)
     acronym = models.CharField(max_length=16)
     address = models.TextField(blank=True)
     country = CountryField()

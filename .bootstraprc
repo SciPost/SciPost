@@ -23,6 +23,7 @@
         "grid": true,
         "input-group": true,
         "list-group": true,
+        "media": true,
         "modal": true,
         "mixins": true,
         "nav": true,

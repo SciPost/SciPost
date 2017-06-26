@@ -74,8 +74,10 @@ PARTNER_EVENTS = (
 
 
 CONTACT_TYPES = (
+    ('gen', 'General Contact'),
     ('tech', 'Technical Contact'),
     ('fin', 'Financial Contact'),
+    ('leg', 'Legal Contact')
 )
 
 

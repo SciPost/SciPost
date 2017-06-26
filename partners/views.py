@@ -177,9 +177,12 @@ def partner_add_contact(request, partner_id):
 @permission_required('scipost.can_manage_SPB', return_403=True)
 def institution_edit(request, institution_id):
     institution = get_object_or_404(Institution, id=institution_id)
-    form = InstitutionForm(request.POST or None, instance=institution)
+    form = InstitutionForm(request.POST or None, request.FILES or None, instance=institution)
+    r = request.FILES
+    # raise
     if form.is_valid():
         form.save()
+        messages.success(request, 'Institution has been updated.')
         return redirect(reverse('partners:dashboard'))
     context = {
         'form': form
