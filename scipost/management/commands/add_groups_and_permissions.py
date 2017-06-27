@@ -55,7 +55,11 @@ class Command(BaseCommand):
             content_type=content_type)
         can_view_partners, created = Permission.objects.get_or_create(
             codename='can_view_partners',
-            name='Can view Partner details',
+            name='Can view Partner details of all Partners',
+            content_type=content_type)
+        can_view_own_partner_details, created = Permission.objects.get_or_create(
+            codename='can_view_own_partner_details',
+            name='Can view (its own) partner details',
             content_type=content_type)
 
         # Registration and invitations
@@ -272,18 +276,21 @@ class Command(BaseCommand):
 
         PartnersAdmin.permissions.set([
             can_read_personal_page,
+            can_view_own_partner_details,
             can_manage_SPB,
             can_promote_prospect_to_partner,
             can_email_prospartner_contact,
-            can_view_partners
+            can_view_partners,
         ])
         PartnersOfficers.permissions.set([
             can_read_personal_page,
+            can_view_own_partner_details,
             can_manage_SPB,
             can_view_partners,
         ])
         PartnerAccounts.permissions.set([
-            can_read_personal_page
+            can_read_personal_page,
+            can_view_own_partner_details,
         ])
 
         if verbose:

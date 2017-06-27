@@ -2,11 +2,10 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{{form.instance.get_absolute_url}}" class="breadcrumb-item">Partner details</a>
-    <span class="breadcrumb-item">Edit Partner</span>
+    <span class="breadcrumb-item">Process Contact Requests</span>
 {% endblock %}
 
-{% block pagetitle %}{{block.super}} Edit Partner{% endblock pagetitle %}
+{% block pagetitle %}{{block.super}} Process Contact Requests{% endblock pagetitle %}
 
 {% load bootstrap %}
 
@@ -14,7 +13,7 @@
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Edit Partner</h1>
+        <h1 class="highlight">Process Contact Requests</h1>
     </div>
 </div>
 
@@ -22,13 +21,8 @@
     <div class="col-12">
       <form method="post">
         {% csrf_token %}
-        <div class="mb-5">
-            {{ form|bootstrap }}
-        </div>
-
-        <h2>Contacts</h2>
-        {{ contact_formset.management_form }}
-        {% for form in contact_formset %}
+        {{ formset.management_form }}
+        {% for form in formset %}
             <div class="contact-form-group">
                 <h3>{{form.instance}}</h3>
                 <p>{{ form.instance.user.email }}</p>

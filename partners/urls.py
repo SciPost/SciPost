@@ -6,6 +6,8 @@ urlpatterns = [
     url(r'^$', views.supporting_partners, name='partners'),
     url(r'^dashboard$', views.dashboard, name='dashboard'),
     url(r'^membership_request$', views.membership_request, name='membership_request'),
+    url(r'^process_contact_requests$', views.process_contact_requests, name='process_contact_requests'),
+
 
     # Prospects
     url(r'^prospects/add$', views.add_prospective_partner,
@@ -23,6 +25,8 @@ urlpatterns = [
     url(r'agreements/new$', views.add_agreement, name='add_agreement'),
     url(r'agreements/(?P<agreement_id>[0-9]+)$', views.agreement_details,
         name='agreement_details'),
+    url(r'agreements/(?P<agreement_id>[0-9]+)/attachments/(?P<attachment_id>[0-9]+)$',
+        views.agreement_attachments, name='agreement_attachments'),
 
     # Institutions
     url(r'institutions/(?P<institution_id>[0-9]+)/edit$', views.institution_edit,
@@ -36,4 +40,6 @@ urlpatterns = [
     url(r'(?P<partner_id>[0-9]+)/edit$', views.partner_edit, name='partner_edit'),
     url(r'(?P<partner_id>[0-9]+)/contacts/add$', views.partner_add_contact,
         name='partner_add_contact'),
+    url(r'(?P<partner_id>[0-9]+)/contacts/request$', views.partner_request_contact,
+        name='partner_request_contact'),
 ]

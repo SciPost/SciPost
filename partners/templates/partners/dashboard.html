@@ -55,6 +55,14 @@
             <div class="col-md-6">
                 <h3>Your personal details:</h3>
                 {% include "partners/_contact_info_table.html" with contact=request.user.partner_contact %}
+
+                {% if perms.scipost.can_manage_SPB %}
+                <h3 class="mt-4">Administrative actions</h3>
+                <ul>
+                    <li><a href="{% url 'partners:process_contact_requests' %}">Open Contact requests</a> ({{contact_requests_count}})</li>
+                    <li>Contacts awaiting validation ({{inactivate_contacts_count}})</a></li>
+                </ul>
+                {% endif %}
             </div>
             <div class="col-md-6">
                 <h3 class="mb-2">My Partners</h3>
@@ -63,8 +71,11 @@
                         <li class="media mb-2">
                             <img class="d-flex mr-3" width="64" src="{% if partner.institution.logo %}{{partner.institution.logo.url}}{% endif %}" alt="Partner Logo">
                             <div class="media-body">
-                                <h3 class="mt-0 mb-1"><strong>{{partner.institution.name}}</strong></h3>
-                                {{partner.institution.acronym}} ({{partner.institution.get_kind_display}})
+                                <h3 class="mt-0"><strong>{{partner.institution.name}}</strong></h3>
+                                <p>
+                                    {{partner.institution.acronym}} ({{partner.institution.get_kind_display}})<br>
+                                    <a href="{{partner.get_absolute_url}}">View/edit</a>
+                                </p>
                             </div>
                         </li>
                     {% empty %}

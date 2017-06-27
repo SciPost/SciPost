@@ -1,0 +1,5 @@
+<li>
+    <h4>{{ contact.get_title_display }} {{ contact.user.first_name }} {{ contact.user.last_name }} {% if not contact.user.is_active %}<span class="label label-sm label-warning">Inactive</span>{% endif %}</h4>
+    <div>({{ contact.kind_display }})</div>
+    <div class="mb-2"><a href="mailto:{{ contact.user.email }}">{{ contact.user.email }}</a></div>
+</li>

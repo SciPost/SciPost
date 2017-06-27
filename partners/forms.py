@@ -10,9 +10,10 @@ from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
 
 from .constants import PARTNER_KINDS, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
-                       PARTNER_STATUS_UPDATE
+                       PARTNER_STATUS_UPDATE, REQUEST_PROCESSED, REQUEST_DECLINED
 from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
-                    Institution, Contact, PartnerEvent, MembershipAgreement
+                    Institution, Contact, PartnerEvent, MembershipAgreement, ContactRequest,\
+                    PartnersAttachment
 
 from scipost.models import TITLE_CHOICES
 
@@ -22,7 +23,6 @@ class MembershipAgreementForm(forms.ModelForm):
         model = MembershipAgreement
         fields = (
             'partner',
-            # 'consortium',
             'status',
             'date_requested',
             'start_date',
@@ -56,9 +56,21 @@ class ActivationForm(forms.ModelForm):
         model = User
         fields = []
 
+    description = forms.CharField(max_length=256, label="Title", required=False,
+                                  widget=forms.TextInput(attrs={
+                                    'placeholder': 'E.g.: Legal Agent at Stanford University'}))
+    kind = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, label="Contact type",
+                                     choices=CONTACT_TYPES)
     password_new = forms.CharField(label='* Password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput(),
                                      help_text='Your password must contain at least 8 characters')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        try:
+            self.fields['kind'].initial = self.instance.partner_contact.kind
+        except Contact.DoesNotExist:
+            pass
 
     def clean(self, *args, **kwargs):
         try:
@@ -88,6 +100,11 @@ class ActivationForm(forms.ModelForm):
         self.instance.is_active = True
         self.instance.set_password(self.cleaned_data['password_new'])
         self.instance.save()
+
+        # Set fields for Contact
+        self.instance.partner_contact.description = self.cleaned_data['description']
+        self.instance.partner_contact.kind = self.cleaned_data['kind']
+        self.instance.partner_contact.save()
 
         # Add permission groups to user
         group = Group.objects.get(name='Partners Accounts')
@@ -129,6 +146,53 @@ class PartnerForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['main_contact'].queryset = self.instance.contact_set.all()
+
+
+class RequestContactForm(forms.ModelForm):
+    class Meta:
+        model = ContactRequest
+        fields = (
+            'email',
+            'title',
+            'first_name',
+            'last_name',
+            'kind',
+        )
+
+
+class ProcessRequestContactForm(RequestContactForm):
+    decision = forms.ChoiceField(choices=((None, 'No decision'), ('accept', 'Accept'), ('decline', 'Decline')),
+                                 widget=forms.RadioSelect, label='Accept or Decline')
+
+    class Meta:
+        model = ContactRequest
+        fields = RequestContactForm.Meta.fields + ('partner',)
+
+    def process_request(self):
+        if self.cleaned_data['decision'] == 'accept':
+            self.instance.status = REQUEST_PROCESSED
+            self.instance.save()
+            contactForm = NewContactForm({
+                'title': self.cleaned_data['title'],
+                'email': self.cleaned_data['email'],
+                'first_name': self.cleaned_data['first_name'],
+                'last_name': self.cleaned_data['last_name'],
+                'kind': self.cleaned_data['kind'],
+            }, partner=self.cleaned_data['partner'])
+            contactForm.is_valid()
+            contactForm.save()
+        elif self.cleaned_data['decision'] == 'decline':
+            self.instance.status = REQUEST_DECLINED
+            self.instance.save()
+
+
+class RequestContactFormSet(forms.BaseModelFormSet):
+    def process_requests(self):
+        """
+        Process all requests if status is eithter accept or decline.
+        """
+        for form in self.forms:
+            form.process_request()
 
 
 class ContactForm(forms.ModelForm):
@@ -444,3 +508,43 @@ class MembershipQueryForm(forms.Form):
             '{widget}<img class="country-select-flag" id="{flag_id}"'
             ' style="margin: 6px 4px 0" src="{country.flag}">')))
     captcha = ReCaptchaField(attrs={'theme': 'clean'}, label='*Please verify to continue:')
+
+
+class PartnersAttachmentForm(forms.ModelForm):
+    class Meta:
+        model = PartnersAttachment
+        fields = (
+            'name',
+            'attachment',
+        )
+
+    def save(self, to_object, commit=True):
+        """
+        This custom save method will automatically assign the file to the object
+        given when its a valid instance type.
+        """
+        attachment = super().save(commit=False)
+
+        # Formset's might save an empty Instance
+        if not attachment.name or not attachment.attachment:
+            return None
+
+        if isinstance(to_object, MembershipAgreement):
+            attachment.agreement = to_object
+        else:
+            raise forms.ValidationError('You cannot save Attachment to this type of object.')
+        if commit:
+            attachment.save()
+        return attachment
+
+
+class PartnersAttachmentFormSet(forms.BaseModelFormSet):
+    def save(self, to_object, commit=True):
+        """
+        This custom save method will automatically assign the file to the object
+        given when its a valid instance type.
+        """
+        returns = []
+        for form in self.forms:
+            returns.append(form.save(to_object))
+        return returns

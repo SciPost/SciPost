@@ -22,9 +22,10 @@ from .constants import PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
                        PROSPECTIVE_PARTNER_UNINTERESTED,\
                        PROSPECTIVE_PARTNER_EVENT_PROMOTED,\
                        PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
-                       PARTNER_INITIATED
+                       PARTNER_INITIATED, REQUEST_STATUSES, REQUEST_INITIATED
 
-from .managers import MembershipAgreementManager, ProspectivePartnerManager
+from .managers import MembershipAgreementManager, ProspectivePartnerManager, PartnerManager,\
+                      ContactRequestManager, PartnersAttachmentManager
 
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
@@ -117,6 +118,27 @@ class Institution(models.Model):
         return '%s (%s)' % (self.name, self.get_kind_display())
 
 
+class ContactRequest(models.Model):
+    """
+    A ContactRequest request for a new Contact usually made by another Contact.
+    The requests are saved to this separate model to also be able to request new
+    Contact links if a Contact is already registered, but not linked to a specific Partner.
+    """
+    email = models.EmailField()
+    kind = ChoiceArrayField(models.CharField(max_length=4, choices=CONTACT_TYPES))
+    first_name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=64)
+    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    description = models.CharField(max_length=256, blank=True)
+    partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE)
+    status = models.CharField(max_length=4, choices=REQUEST_STATUSES, default=REQUEST_INITIATED)
+
+    objects = ContactRequestManager()
+
+    def __str__(self):
+        return '%s %s %s' % (self.get_title_display(), self.first_name, self.last_name)
+
+
 class Contact(models.Model):
     """
     A Contact is a simple form of User which is meant
@@ -128,6 +150,7 @@ class Contact(models.Model):
                                 related_name='partner_contact')
     kind = ChoiceArrayField(models.CharField(max_length=4, choices=CONTACT_TYPES))
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    description = models.CharField(max_length=256, blank=True)
     partners = models.ManyToManyField('partners.Partner',
                                       help_text=('All Partners (+related Institutions)'
                                                  ' the Contact is related to.'))
@@ -189,6 +212,8 @@ class Partner(models.Model):
     main_contact = models.ForeignKey('partners.Contact', on_delete=models.SET_NULL,
                                      blank=True, null=True, related_name='partner_main_contact')
 
+    objects = PartnerManager()
+
     def __str__(self):
         if self.institution:
             return self.institution.acronym + ' (' + self.get_status_display() + ')'
@@ -196,6 +221,13 @@ class Partner(models.Model):
 
     def get_absolute_url(self):
         return reverse('partners:partner_view', args=(self.id,))
+
+    @property
+    def has_all_contacts(self):
+        """
+        Determine if Partner has all available Contact Types available.
+        """
+        raise NotImplemented
 
 
 class PartnerEvent(models.Model):
@@ -246,3 +278,20 @@ class MembershipAgreement(models.Model):
 
     def get_absolute_url(self):
         return reverse('partners:agreement_details', args=(self.id,))
+
+
+class PartnersAttachment(models.Model):
+    """
+    An Attachment which can (in the future) be related to a Partner, Contact, MembershipAgreement,
+    etc.
+    """
+    attachment = models.FileField(upload_to='UPLOADS/PARTNERS/ATTACHMENTS')
+    name = models.CharField(max_length=128)
+    agreement = models.ForeignKey('partners.MembershipAgreement', related_name='attachments',
+                                  blank=True)
+
+    objects = PartnersAttachmentManager()
+
+    def get_absolute_url(self):
+        if self.agreement:
+            return reverse('partners:agreement_attachments', args=(self.agreement.id, self.id))

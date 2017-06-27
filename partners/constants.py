@@ -58,6 +58,15 @@ PARTNER_STATUS = (
     ('Inactive', 'Inactive'),
 )
 
+REQUEST_INITIATED = 'init'
+REQUEST_PROCESSED = 'proc'
+REQUEST_DECLINED = 'decl'
+REQUEST_STATUSES = (
+    (REQUEST_INITIATED, 'Request submitted by Contact'),
+    (REQUEST_PROCESSED, 'Processed'),
+    (REQUEST_DECLINED, 'Declined'),
+)
+
 
 CONSORTIUM_STATUS = (
     ('Prospective', 'Prospective'),

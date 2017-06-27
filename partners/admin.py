@@ -2,7 +2,11 @@ from django.contrib import admin
 
 from .models import Contact, Partner, Consortium, Institution,\
                     ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
-                    MembershipAgreement
+                    MembershipAgreement, ContactRequest, PartnersAttachment
+
+
+class AttachmentInline(admin.TabularInline):
+    model = PartnersAttachment
 
 
 class ContactToPartnerInline(admin.TabularInline):
@@ -42,9 +46,16 @@ class PartnerAdmin(admin.ModelAdmin):
     )
 
 
+class MembershipAgreementAdmin(admin.ModelAdmin):
+    inlines = (
+        AttachmentInline,
+    )
+
+
 admin.site.register(Partner, PartnerAdmin)
 admin.site.register(Consortium)
 admin.site.register(Contact)
+admin.site.register(ContactRequest)
 admin.site.register(Institution)
 admin.site.register(ProspectivePartner, ProspectivePartnerAdmin)
-admin.site.register(MembershipAgreement)
+admin.site.register(MembershipAgreement, MembershipAgreementAdmin)
