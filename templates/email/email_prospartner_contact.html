@@ -1,7 +1,9 @@
+{% if contact %}
 Dear {{ contact.get_title_display }} {{ contact.last_name }}, \n\n
-
+{% else %}
+Dear colleagues, \n\n
+{% endif %}
 {% if message %}{{ message }}{% endif %}
-
 {% if include_SPB_summary %}
 You might by now have heard of SciPost, a recently-launched initiative aiming to bring disruptive change to current academic publishing practices.
 \n\nIn summary, SciPost is a publication portal managed by professional scientists, offering (among others) high-quality Open Access journals with innovative forms of refereeing, and a means of commenting on all existing literature. SciPost is established as a not-for-profit foundation devoted to serving the interests of the international scientific community.
@@ -15,13 +17,14 @@ You might by now have heard of SciPost, a recently-launched initiative aiming to
 
 \n\nIt would be a privilege to welcome you as members of our Supporting Partners Board. I am hereby contacting you to enquire whether your institution would consider joining. Your support at this time is crucially required to make our initiative sustainable, and to help make it possible for the community to reap all the benefits deriving form its viable implementation.
 
-\n\nI will be happy to provide any required further details. I sincerely hope that SciPost will be able to count on your support.
+\n\nI will be happy to provide any required further details. If you are interested, you can simply get in touch via this address (partners@scipost.org). I sincerely hope that SciPost will be able to count on your support.
 
 \n\nOn behalf of the SciPost Foundation,
 \nProf. dr Jean-Sébastien Caux
+\n\nJ.S.Caux@uva.nl
 \nhttp://jscaux.org
 \n---------------------------------------------
-\nInstitute for Theoretial Physics\nUniversity of Amsterdam
+\nInstitute for Theoretical Physics\nUniversity of Amsterdam
 \nScience Park 904\n1098 XH Amsterdam\nThe Netherlands
 \n---------------------------------------------
 \ntel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778

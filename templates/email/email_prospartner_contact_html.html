@@ -1,12 +1,14 @@
 {% load staticfiles %}
+{% if contact %}
 <p>Dear {{ contact.get_title_display }} {{ contact.last_name }},</p>
-
+{% else %}
+<p>Dear colleagues,</p>
+{% endif %}
 {% if message %}
 <p>
   {{ message|linebreaks }}
 </p>
 {% endif %}
-
 {% if include_SPB_summary %}
 <p>
   You might by now have heard of SciPost, a recently-launched initiative aiming to bring disruptive change to current academic publishing practices.
@@ -30,13 +32,15 @@
   It would be a privilege to welcome you as members of our Supporting Partners Board. I am hereby contacting you to enquire whether your institution would consider joining. Your support at this time is crucially required to make our initiative sustainable, and to help make it possible for the community to reap all the benefits deriving form its viable implementation.
 </p>
 <p>
-I will be happy to provide any required further details. I sincerely hope that SciPost will be able to count on your support.
+I will be happy to provide any required further details. If you are interested, you can simply get in touch via this address (<a href="mailto:partners@scipost.org">partners@scipost.org</a>). I sincerely hope that SciPost will be able to count on your support.
 </p>
 <p>On behalf of the SciPost Foundation,</p>
 Prof. dr Jean-S&eacute;bastien Caux
+<br/>
+<br/><a href="mailto:J.S.Caux@uva.nl">J.S.Caux@uva.nl</a>
 <br/><a href="http://jscaux.org">jscaux.org</a>
 <br/>---------------------------------------------
-<br/>Institute for Theoretial Physics
+<br/>Institute for Theoretical Physics
 <br/>University of Amsterdam
 <br/>Science Park 904
 <br/>1098 XH Amsterdam

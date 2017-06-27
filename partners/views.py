@@ -12,6 +12,7 @@ from .models import Partner, ProspectivePartner, ProspectiveContact,\
     ProspectivePartnerEvent, MembershipAgreement
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
     EmailProspectivePartnerContactForm,\
+    EmailProspectivePartnerGenericForm,\
     ProspectivePartnerEventForm, MembershipQueryForm
 
 from common.utils import BaseMailUtil
@@ -127,6 +128,37 @@ def email_prospartner_contact(request, contact_id):
         return redirect(reverse('partners:manage'))
     context = {'contact': contact, 'form': form}
     return render(request, 'partners/email_prospartner_contact.html', context)
+
+
+@permission_required('scipost.can_email_prospartner_contact', return_403=True)
+@transaction.atomic
+def email_prospartner_generic(request, prospartner_id):
+    prospartner = get_object_or_404(ProspectivePartner, pk=prospartner_id)
+    form = EmailProspectivePartnerGenericForm(request.POST or None)
+    if form.is_valid():
+        comments = 'Email sent to %s.' % form.cleaned_data['email']
+        prospartnerevent = ProspectivePartnerEvent(
+            prospartner = prospartner,
+            event = PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,
+            comments = comments,
+            noted_on = timezone.now(),
+            noted_by = request.user.contributor)
+        prospartnerevent.save()
+        if prospartner.status in [PROSPECTIVE_PARTNER_REQUESTED,
+                                  PROSPECTIVE_PARTNER_ADDED]:
+            prospartner.status = PROSPECTIVE_PARTNER_APPROACHED
+            prospartner.save()
+        PartnerUtils.load({'institution_name': prospartner.institution_name,
+                           'email': form.cleaned_data['email'],
+                           'email_subject': form.cleaned_data['email_subject'],
+                           'message': form.cleaned_data['message'],
+                           'include_SPB_summary': form.cleaned_data['include_SPB_summary']})
+
+        PartnerUtils.email_prospartner_generic()
+        messages.success(request, 'Email successfully sent')
+        return redirect(reverse('partners:manage'))
+    context = {'prospartner': prospartner, 'form': form}
+    return render(request, 'partners/email_prospartner_generic.html', context)
 
 
 

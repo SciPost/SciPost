@@ -41,10 +41,10 @@ class ProspectiveContactForm(forms.ModelForm):
 
 class EmailProspectivePartnerContactForm(forms.Form):
     email_subject = forms.CharField(widget=forms.Textarea(),
-                                    initial='SciPost Supporting Partners Board')
+                                    initial='Supporting Partners Board')
     message = forms.CharField(widget=forms.Textarea(), required=False)
     include_SPB_summary = forms.BooleanField(
-        required=False, initial=False,
+        required=False, initial=True,
         label='include SPB summary with message')
 
     def __init__(self, *args, **kwargs):
@@ -53,6 +53,10 @@ class EmailProspectivePartnerContactForm(forms.Form):
             {'rows': 1})
         self.fields['message'].widget.attrs.update(
             {'placeholder': 'Write your message in this box (optional).'})
+
+
+class EmailProspectivePartnerGenericForm(EmailProspectivePartnerContactForm):
+    email = forms.EmailField(label='Generic address for emailing')
 
 
 # class ProspectivePartnerContactSelectForm(forms.Form):

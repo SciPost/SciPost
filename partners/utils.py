@@ -16,3 +16,13 @@ class PartnerUtils(BaseMailUtil):
         cls._send_mail(cls, 'email_prospartner_contact',
                        [cls._context['contact'].email,],
                         cls._context['email_subject'])
+
+    @classmethod
+    def email_prospartner_generic(cls):
+        """
+        Email a generic address for a ProspectivePartner
+        for which no Contact could be defined.
+        """
+        cls._send_mail(cls, 'email_prospartner_contact',
+                       [cls._context['email'],],
+                       cls._context['email_subject'])
