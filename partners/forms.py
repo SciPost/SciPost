@@ -405,32 +405,6 @@ class PromoteToContactFormset(forms.BaseModelFormSet):
     This is a formset to process multiple `PromoteToContactForm`s at the same time
     designed for the 'promote prospect to partner' action.
     """
-    def clean(self):
-        """
-        Check if all CONTACT_TYPES are assigned to at least one contact.
-        """
-        contact_type_keys = list(dict(CONTACT_TYPES).keys())
-        for form in self.forms:
-            try:
-                contact_types = form.cleaned_data['contact_types']
-            except KeyError:
-                # Form invalid for `contact_types`
-                continue
-
-            for _type in contact_types:
-                try:
-                    contact_type_keys.remove(_type)
-                except ValueError:
-                    # Type-key already removed
-                    continue
-            if not contact_type_keys:
-                break
-        if contact_type_keys:
-            # Add error to all forms if not all CONTACT_TYPES are assigned
-            for form in self.forms:
-                form.add_error('contact_types', ("Not all contact types have been"
-                                                 " divided over the contacts yet."))
-
     def save(self, *args, **kwargs):
         raise DeprecationWarning(("This formset is not meant to used with the default"
                                   " `save` method. User the `promote_contacts` instead."))
