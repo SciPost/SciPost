@@ -78,6 +78,7 @@ class Submission(ArxivCallable, models.Model):
     # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
     submission_date = models.DateField(verbose_name='submission date', default=datetime.date.today)
+    acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
 
     objects = SubmissionManager()
