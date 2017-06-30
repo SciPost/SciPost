@@ -165,9 +165,10 @@ def partner_add_contact(request, partner_id):
     partner = get_object_or_404(Partner, id=partner_id)
     form = NewContactForm(request.POST or None, partner=partner)
     if form.is_valid():
-        contact = form.save()
+        contact = form.save(current_contact=request.user.partner_contact)
         messages.success(request, '<h3>Created contact: %s</h3>Email has been sent.'
                                   % str(contact))
+        # raise
         return redirect(reverse('partners:dashboard'))
     context = {
         'partner': partner,
@@ -203,7 +204,7 @@ def process_contact_requests(request):
     formset = RequestContactModelFormSet(request.POST or None,
                                          queryset=ContactRequest.objects.awaiting_processing())
     if formset.is_valid():
-        formset.process_requests()
+        formset.process_requests(current_contact=request.user.partner_contact)
         messages.success(request, 'Processing completed')
         return redirect(reverse('partners:process_contact_requests'))
     context = {

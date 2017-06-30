@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Q
 
 from captcha.fields import ReCaptchaField
@@ -14,6 +15,7 @@ from .constants import PARTNER_KINDS, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYP
 from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
                     Institution, Contact, PartnerEvent, MembershipAgreement, ContactRequest,\
                     PartnersAttachment
+from .utils import PartnerUtils
 
 from scipost.models import TITLE_CHOICES
 
@@ -92,6 +94,7 @@ class ActivationForm(forms.ModelForm):
             self.add_error('password_verif', 'Your password entries must match')
         return self.cleaned_data.get('password_verif', '')
 
+    @transaction.atomic
     def activate_user(self):
         if self.errors:
             return forms.ValidationError
@@ -168,7 +171,7 @@ class ProcessRequestContactForm(RequestContactForm):
         model = ContactRequest
         fields = RequestContactForm.Meta.fields + ('partner',)
 
-    def process_request(self):
+    def process_request(self, current_contact):
         if self.cleaned_data['decision'] == 'accept':
             self.instance.status = REQUEST_PROCESSED
             self.instance.save()
@@ -180,19 +183,19 @@ class ProcessRequestContactForm(RequestContactForm):
                 'kind': self.cleaned_data['kind'],
             }, partner=self.cleaned_data['partner'])
             contactForm.is_valid()
-            contactForm.save()
+            contactForm.save(current_contact=current_contact)
         elif self.cleaned_data['decision'] == 'decline':
             self.instance.status = REQUEST_DECLINED
             self.instance.save()
 
 
 class RequestContactFormSet(forms.BaseModelFormSet):
-    def process_requests(self):
+    def process_requests(self, current_contact):
         """
         Process all requests if status is eithter accept or decline.
         """
         for form in self.forms:
-            form.process_request()
+            form.process_request(current_contact=current_contact)
 
 
 class ContactForm(forms.ModelForm):
@@ -243,7 +246,8 @@ class NewContactForm(ContactForm):
             pass
         return email
 
-    def save(self, commit=True):
+    @transaction.atomic
+    def save(self, current_contact, commit=True):
         """
         If existing user is found, add it to the Partner.
         """
@@ -253,7 +257,6 @@ class NewContactForm(ContactForm):
                 # Link Contact to new Partner
                 contact = self.existing_user.partner_contact
                 contact.partners.add(self.partner)
-                # TODO: Send mail to contact informing him/her about the new Partner
             except Contact.DoesNotExist:
                 # Not yet a 'Contact-User'
                 contact = super().save(commit=False)
@@ -261,7 +264,6 @@ class NewContactForm(ContactForm):
                 contact.user = self.existing_user
                 contact.save()
                 contact.partners.add(self.partner)
-                # TODO: Send mail to contact informing him/her about the new Partner
             return contact
 
         # Create complete new Account (User + Contact)
@@ -281,7 +283,10 @@ class NewContactForm(ContactForm):
         contact.generate_key()
         contact.save()
         contact.partners.add(self.partner)
-        # TODO: Send mail to contact to let him/her activate account
+
+        # Send email for activation
+        PartnerUtils.load({'contact': contact})
+        PartnerUtils.email_contact_new_for_activation(current_contact=current_contact)
         return contact
 
 
@@ -371,6 +376,7 @@ class PromoteToContactForm(forms.ModelForm):
             self.add_error('email', 'This emailadres has already been used.')
         return email
 
+    @transaction.atomic
     def promote_contact(self, partner):
         """
         Promote ProspectiveContact's to Contact's related to a certain Partner.
