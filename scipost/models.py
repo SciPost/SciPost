@@ -164,6 +164,12 @@ class UnavailabilityPeriod(models.Model):
     start = models.DateField()
     end = models.DateField()
 
+    class Meta:
+        ordering = ['-start']
+
+    def __str__(self):
+        return '%s (%s to %s)' % (self.contributor, self.start, self.end)
+
 
 class Remark(models.Model):
     contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
