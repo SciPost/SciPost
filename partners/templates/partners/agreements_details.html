@@ -1,0 +1,51 @@
+{% extends 'partners/_partners_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Membership Agreement details</span>
+{% endblock %}
+
+{% block pagetitle %}{{block.super}} Membership Agreement details{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Membership Agreement details</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Membership Agreement</h2>
+        {% include 'partners/_agreement_table.html' with agreement=agreement %}
+
+        <h3>Attachments</h3>
+        <ul>
+            {% for file in agreement.attachments.all %}
+                <li><a href="{{file.get_absolute_url}}" target="_blank">{{file.name}}</a></li>
+            {% empty %}
+                <li>No Attachments found.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if perms.scipost.can_manage_SPB %}
+        <div class="col-12">
+            <h2>Update Agreement</h2>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+
+            <h3>Attachments</h3>
+            {{ attachment_formset|bootstrap }}
+
+            <input class="btn btn-primary" type="submit" value="Update"/>
+          </form>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock content %}

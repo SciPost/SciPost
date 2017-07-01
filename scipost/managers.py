@@ -3,7 +3,7 @@ import datetime
 from django.db import models
 from django.db.models import Q
 
-from .constants import CONTRIBUTOR_NORMAL
+from .constants import CONTRIBUTOR_NORMAL, CONTRIBUTOR_NEWLY_REGISTERED
 
 
 class FellowManager(models.Manager):
@@ -20,3 +20,6 @@ class FellowManager(models.Manager):
 class ContributorManager(models.Manager):
     def active(self):
         return self.filter(user__is_active=True, status=CONTRIBUTOR_NORMAL)
+
+    def awaiting_validation(self):
+        return self.filter(user__is_active=False, status=CONTRIBUTOR_NEWLY_REGISTERED)

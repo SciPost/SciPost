@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
+from partners.models import Contact
 from scipost.models import Contributor
 
 
@@ -29,10 +30,11 @@ class Command(BaseCommand):
 
         PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
         PartnersOfficers, created = Group.objects.get_or_create(name='Partners Officers')
-
+        PartnerAccounts, created = Group.objects.get_or_create(name='Partners Accounts')
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
+        content_type_contact = ContentType.objects.get_for_model(Contact)
 
         # Supporting Partners
         can_manage_SPB, created = Permission.objects.get_or_create(
@@ -42,6 +44,22 @@ class Command(BaseCommand):
         can_email_prospartner_contact, created = Permission.objects.get_or_create(
             codename='can_email_prospartner_contact',
             name='Can email Prospective Partner Contact',
+            content_type=content_type)
+        can_read_personal_page, created = Permission.objects.get_or_create(
+            codename='can_read_personal_page',
+            name='Can read Prospective Partner personal page',
+            content_type=content_type)
+        can_promote_prospect_to_partner, created = Permission.objects.get_or_create(
+            codename='can_promote_prospect_to_partner',
+            name='Can promote Prospective Partner to Partner',
+            content_type=content_type)
+        can_view_partners, created = Permission.objects.get_or_create(
+            codename='can_view_partners',
+            name='Can view Partner details of all Partners',
+            content_type=content_type)
+        can_view_own_partner_details, created = Permission.objects.get_or_create(
+            codename='can_view_own_partner_details',
+            name='Can view (its own) partner details',
             content_type=content_type)
 
         # Registration and invitations
@@ -60,6 +78,10 @@ class Command(BaseCommand):
         can_invite_Fellows, created = Permission.objects.get_or_create(
             codename='can_invite_Fellows',
             name='Can invite Fellows',
+            content_type=content_type)
+        can_resend_registration_requests, created = Permission.objects.get_or_create(
+            codename='can_resend_registration_requests',
+            name='Can resend registration activation emails',
             content_type=content_type)
 
         # Communications
@@ -189,6 +211,7 @@ class Command(BaseCommand):
             can_manage_registration_invitations,
             can_email_group_members,
             can_email_particulars,
+            can_resend_registration_requests,
             can_vet_registration_requests,
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
@@ -252,11 +275,22 @@ class Command(BaseCommand):
         ])
 
         PartnersAdmin.permissions.set([
+            can_read_personal_page,
+            can_view_own_partner_details,
             can_manage_SPB,
+            can_promote_prospect_to_partner,
             can_email_prospartner_contact,
+            can_view_partners,
         ])
         PartnersOfficers.permissions.set([
+            can_read_personal_page,
+            can_view_own_partner_details,
             can_manage_SPB,
+            can_view_partners,
+        ])
+        PartnerAccounts.permissions.set([
+            can_read_personal_page,
+            can_view_own_partner_details,
         ])
 
         if verbose:
