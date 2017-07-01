@@ -4,22 +4,23 @@ from django import forms
 
 from .models import ProductionStream, ProductionEvent
 
-from submissions.models import Submission
+
+def event_count(obj):
+    return obj.productionevent_set.count()
 
 
-class ProductionStreamAdminForm(forms.ModelForm):
-    submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
-
-    class Meta:
-        model = ProductionStream
-        fields = '__all__'
+class ProductionEventInline(admin.TabularInline):
+    model = ProductionEvent
+    extra = 1
 
 
 class ProductionStreamAdmin(admin.ModelAdmin):
     search_fields = ['submission']
-    list_display = ['submission', 'opened', 'status']
-    form = ProductionStreamAdminForm
+    list_filter = ['status']
+    list_display = ['submission', 'opened', 'status', event_count]
+    inlines = (
+        ProductionEventInline,
+    )
 
 
 admin.site.register(ProductionStream, ProductionStreamAdmin)
