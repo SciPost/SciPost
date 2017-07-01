@@ -38,7 +38,7 @@ class ProductionEvent(models.Model):
     stream = models.ForeignKey(ProductionStream, on_delete=models.CASCADE)
     event = models.CharField(max_length=64, choices=PRODUCTION_EVENTS)
     comments = models.TextField(blank=True, null=True)
-    noted_on = models.DateTimeField(auto_now_add=True)
+    noted_on = models.DateTimeField(default=timezone.now)
     noted_by = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     duration = models.DurationField(blank=True, null=True)
 

@@ -10,6 +10,7 @@ def event_count(obj):
 class ProductionEventInline(admin.TabularInline):
     model = ProductionEvent
     extra = 1
+    readonly_fields = ()
 
 
 class ProductionStreamAdmin(admin.ModelAdmin):
