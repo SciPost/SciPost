@@ -1,0 +1,22 @@
+Dear {{contact.get_title_display}} {{contact.user.first_name}} {{contact.user.last_name}},\n\n
+
+Many thanks for joining the SciPost Supporting Partners Board. We have now created an account for you on scipost.org, which will allow you to access all relevant information and functionalities related to the SPB.\n\n
+
+This is a personal account for you, which is linked to the Partner(s) representing your institution(s).\n\n
+
+In order to activate your account, please navigate to:\n\n
+
+https://scipost.org{% url 'partners:activate_account' contact.activation_key %}?email={{contact.user.email}} \n\n
+
+You will be asked to choose a password, after which you will be able to login.\n\n
+
+After logging in, you will find the main Partners page by clicking on the “Partner Page” link in the top menu on the site.\n\n
+
+The institution you represent will be listed under the “My Partners” column.  Basic information about your Membership is displayed on this page. You can add additional Contacts (legal, financial, technical etc) by following the “view/edit” and then “Request new Contact” links.\n\n
+
+We are very pleased to welcome you on Board, and will be happy to answer any questions you might have.\n\n
+
+Sincerely,\n\n
+
+By {{sent_by.get_title_display}} {{sent_by.user.last_name}}\n
+on behalf of SciPost and its Supporting Partners Board

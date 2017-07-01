@@ -1,0 +1,11 @@
+Dear {{ report.author.get_title_display }} {{ report.author.user.last_name }},\n\n
+
+We hereby confirm reception of your Report on Submission\n\n
+
+{{ report.submission.title }}\n
+by {{ report.submission.author_list }}.\n\n
+
+We are immensely grateful for your time and effort. Your Report will soon be vetted by the Submission's Editor-in-charge, at which point you will receive an email update from us.\n\n
+
+Many thanks again,\n
+The SciPost Team.

@@ -21,9 +21,16 @@
               <li class="nav-item highlighted">
                 <span class="nav-link">Logged in as {{ user.username }}</span>
               </li>
-              <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
-                <a class="nav-link" href="{% url 'scipost:personal_page' %}">Personal Page</a>
-              </li>
+              {% if user.contributor %}
+                  <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
+                    <a class="nav-link" href="{% url 'scipost:personal_page' %}">Personal Page</a>
+                  </li>
+              {% endif %}
+              {% if user.partner_contact %}
+                  <li class="nav-item{% if '/partners/dashboard' in request.path %} active{% endif %}">
+                    <a class="nav-link" href="{% url 'partners:dashboard' %}">Partner Page</a>
+                  </li>
+              {% endif %}
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'scipost:logout' %}">Logout</a>
               </li>

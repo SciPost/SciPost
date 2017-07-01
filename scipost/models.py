@@ -37,7 +37,7 @@ class Contributor(models.Model):
     Permissions determine the sub-types.
     username, password, email, first_name and last_name are inherited from User.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+    user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True)
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
@@ -163,6 +163,12 @@ class UnavailabilityPeriod(models.Model):
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     start = models.DateField()
     end = models.DateField()
+
+    class Meta:
+        ordering = ['-start']
+
+    def __str__(self):
+        return '%s (%s to %s)' % (self.contributor, self.start, self.end)
 
 
 class Remark(models.Model):

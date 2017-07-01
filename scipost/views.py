@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
 from django.contrib.auth import login, logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core import mail
@@ -22,6 +22,7 @@ from django.db.models import Prefetch
 from guardian.decorators import permission_required
 
 from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict
+from .decorators import has_contributor
 from .models import Contributor, CitationNotification, UnavailabilityPeriod,\
                     DraftInvitation, RegistrationInvitation,\
                     AuthorshipClaim, EditorialCollege, EditorialCollegeFellowship
@@ -46,7 +47,11 @@ from theses.models import ThesisLink
 ##############
 
 def is_registered(user):
-    return user.groups.filter(name='Registered Contributors').exists()
+    """
+    This method checks if user is activated assuming an validated user
+    has at least one permission group (`Registered Contributor` or `Partner Accounts`).
+    """
+    return user.groups.exists()
 
 
 # Global search
@@ -737,6 +742,7 @@ def logout_view(request):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def mark_unavailable_period(request):
     '''
     Mark period unavailable for Contributor using this view.
@@ -756,6 +762,7 @@ def mark_unavailable_period(request):
 
 @require_POST
 @login_required
+@user_passes_test(has_contributor)
 def delete_unavailable_period(request, period_id):
     '''
     Delete period unavailable registered.
@@ -768,6 +775,7 @@ def delete_unavailable_period(request, period_id):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def personal_page(request):
     """
     The Personal Page is the main view for accessing user functions.
@@ -904,7 +912,11 @@ def change_password(request):
         # Update user's session hash to stay logged in.
         update_session_auth_hash(request, request.user)
         messages.success(request, 'Your SciPost password has been successfully changed')
-        return redirect(reverse('scipost:personal_page'))
+        try:
+            request.user.contributor
+            return redirect(reverse('scipost:personal_page'))
+        except Contributor.DoesNotExist:
+            return redirect(reverse('partners:dashboard'))
     return render(request, 'scipost/change_password.html', {'form': form})
 
 
@@ -921,8 +933,19 @@ def reset_password(request):
                           post_reset_redirect=reverse('scipost:login'))
 
 
-@login_required
-def update_personal_data(request):
+def _update_personal_data_user_only(request):
+    user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
+    if user_form.is_valid():
+        user_form.save()
+        messages.success(request, 'Your personal data has been updated.')
+        return redirect(reverse('partners:dashboard'))
+    context = {
+        'user_form': user_form
+    }
+    return render(request, 'scipost/update_personal_data.html', context)
+
+
+def _update_personal_data_contributor(request):
     contributor = Contributor.objects.get(user=request.user)
     user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
     cont_form = UpdatePersonalDataForm(request.POST or None, instance=contributor)
@@ -940,6 +963,14 @@ def update_personal_data(request):
 
 
 @login_required
+def update_personal_data(request):
+    if has_contributor(request.user):
+        return _update_personal_data_contributor(request)
+    return _update_personal_data_user_only(request)
+
+
+@login_required
+@user_passes_test(has_contributor)
 def claim_authorships(request):
     """
     The system auto-detects potential authorships (of submissions,
@@ -979,6 +1010,7 @@ def claim_authorships(request):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def claim_sub_authorship(request, submission_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -994,6 +1026,7 @@ def claim_sub_authorship(request, submission_id, claim):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def claim_com_authorship(request, commentary_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -1009,6 +1042,7 @@ def claim_com_authorship(request, commentary_id, claim):
 
 
 @login_required
+@user_passes_test(has_contributor)
 def claim_thesis_authorship(request, thesis_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
