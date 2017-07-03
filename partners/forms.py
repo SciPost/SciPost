@@ -171,7 +171,7 @@ class ProcessRequestContactForm(RequestContactForm):
         model = ContactRequest
         fields = RequestContactForm.Meta.fields + ('partner',)
 
-    def process_request(self, current_contact):
+    def process_request(self, current_user):
         if self.cleaned_data['decision'] == 'accept':
             self.instance.status = REQUEST_PROCESSED
             self.instance.save()
@@ -183,19 +183,19 @@ class ProcessRequestContactForm(RequestContactForm):
                 'kind': self.cleaned_data['kind'],
             }, partner=self.cleaned_data['partner'])
             contactForm.is_valid()
-            contactForm.save(current_contact=current_contact)
+            contactForm.save(current_user=current_user)
         elif self.cleaned_data['decision'] == 'decline':
             self.instance.status = REQUEST_DECLINED
             self.instance.save()
 
 
 class RequestContactFormSet(forms.BaseModelFormSet):
-    def process_requests(self, current_contact):
+    def process_requests(self, current_user):
         """
         Process all requests if status is eithter accept or decline.
         """
         for form in self.forms:
-            form.process_request(current_contact=current_contact)
+            form.process_request(current_user=current_user)
 
 
 class ContactForm(forms.ModelForm):
@@ -247,7 +247,7 @@ class NewContactForm(ContactForm):
         return email
 
     @transaction.atomic
-    def save(self, current_contact, commit=True):
+    def save(self, current_user, commit=True):
         """
         If existing user is found, add it to the Partner.
         """
@@ -286,7 +286,7 @@ class NewContactForm(ContactForm):
 
         # Send email for activation
         PartnerUtils.load({'contact': contact})
-        PartnerUtils.email_contact_new_for_activation(current_contact=current_contact)
+        PartnerUtils.email_contact_new_for_activation(current_user=current_user)
         return contact
 
 
@@ -355,8 +355,8 @@ class PromoteToContactForm(forms.ModelForm):
     """
     This form is used to create a new `partners.Contact`
     """
-    contact_types = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
-                                              choices=CONTACT_TYPES, required=False)
+    kind = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                     label='Contact types', choices=CONTACT_TYPES, required=False)
 
     class Meta:
         model = ProspectiveContact
@@ -377,7 +377,7 @@ class PromoteToContactForm(forms.ModelForm):
         return email
 
     @transaction.atomic
-    def promote_contact(self, partner):
+    def promote_contact(self, partner, current_user):
         """
         Promote ProspectiveContact's to Contact's related to a certain Partner.
         The status update after promotion is handled outside this method, in the Partner model.
@@ -388,22 +388,11 @@ class PromoteToContactForm(forms.ModelForm):
             return forms.ValidationError  # Is this a valid exception?
 
         # Create a new User and Contact linked to the partner given
-        user = User(
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            email=self.cleaned_data['email'],
-            username=self.cleaned_data['email'],
-            is_active=False,
-        )
-        user.save()
-        contact = Contact(
-            user=user,
-            title=self.cleaned_data['title'],
-            kind=self.cleaned_data['contact_types']
-        )
-        contact.save()
-        contact.partners.add(partner)
-        return contact
+        contact_form = NewContactForm(self.cleaned_data, partner=partner)
+        if contact_form.is_valid():
+            return contact_form.save(current_user=current_user)
+        r = contact_form.errors
+        raise forms.ValidationError('NewContactForm invalid. Please contact Admin.')
 
 
 class PromoteToContactFormset(forms.BaseModelFormSet):
@@ -415,13 +404,14 @@ class PromoteToContactFormset(forms.BaseModelFormSet):
         raise DeprecationWarning(("This formset is not meant to used with the default"
                                   " `save` method. User the `promote_contacts` instead."))
 
-    def promote_contacts(self, partner):
+    @transaction.atomic
+    def promote_contacts(self, partner, current_user):
         """
         Promote ProspectiveContact's to Contact's related to a certain Partner.
         """
         contacts = []
         for form in self.forms:
-            contacts.append(form.promote_contact(partner))
+            contacts.append(form.promote_contact(partner, current_user))
         partner.main_contact = contacts[0]
         partner.save()
         return contacts
