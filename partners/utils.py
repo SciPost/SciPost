@@ -27,7 +27,7 @@ class PartnerUtils(BaseMailUtil):
                        cls._context['email_subject'])
 
     @classmethod
-    def email_contact_new_for_activation(cls, current_contact):
+    def email_contact_new_for_activation(cls, current_user):
         """
         Email a generic address for a Contact.
 
@@ -36,4 +36,4 @@ class PartnerUtils(BaseMailUtil):
         cls._send_mail(cls, 'email_contact_new_for_activation',
                        [cls._context['contact'].user.email],
                        'Welcome to the SciPost Supporting Partner Board',
-                       extra_context={'created_by': current_contact})
+                       extra_context={'sent_by': current_user})

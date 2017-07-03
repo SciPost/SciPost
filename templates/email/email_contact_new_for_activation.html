@@ -20,7 +20,7 @@
 </p>
 <p>
     Sincerely,<br><br>
-    By {{sent_by.get_title_display}} {{sent_by.user.last_name}}
+    By {% if sent_by.partner_contact %}{{sent_by.partner_contact.get_title_display}}{% elif sent_by.contributor %}{{sent_by.contributor.get_title_display}}{% else %}{{sent_by.first_name}}{% endif %} {{ sent_by.last_name }}
     on behalf of SciPost and its Supporting Partners Board
 </p>
 

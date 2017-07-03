@@ -35,17 +35,19 @@ def supporting_partners(request):
 
 
 @login_required
-@permission_required('scipost.can_read_personal_page', return_403=True)
+@permission_required('scipost.can_read_partner_page', return_403=True)
 def dashboard(request):
     '''
     This page is meant as a personal page for Partners, where they will for example be able
     to read their personal data and agreements.
     '''
-    personal_agreements = (MembershipAgreement.objects.open_to_partner()
-                           .filter(partner__contact=request.user.partner_contact))
-    context = {
-        'personal_agreements': personal_agreements
-    }
+    context = {}
+    try:
+        context['personal_agreements'] = (MembershipAgreement.objects.open_to_partner()
+                                          .filter(partner__contact=request.user.partner_contact))
+    except Contact.DoesNotExist:
+        pass
+
     if request.user.has_perm('scipost.can_manage_SPB'):
         context['contact_requests_count'] = ContactRequest.objects.awaiting_processing().count()
         context['inactivate_contacts_count'] = Contact.objects.filter(user__is_active=False).count()
@@ -102,10 +104,7 @@ def promote_prospartner(request, prospartner_id):
                                           queryset=prospartner.prospective_contacts.all())
     if form.is_valid() and contact_formset.is_valid():
         partner, institution = form.promote_to_partner(request.user)
-        contacts = contact_formset.promote_contacts(partner)
-
-        # partner.send_mail()
-        # contacts.send_mail()
+        contacts = contact_formset.promote_contacts(partner, request.user)
         messages.success(request, ('<h3>Upgraded Partner %s</h3>'
                                    '%i contacts have received a validation mail.') %
                                   (str(partner), len(contacts)))
@@ -165,10 +164,9 @@ def partner_add_contact(request, partner_id):
     partner = get_object_or_404(Partner, id=partner_id)
     form = NewContactForm(request.POST or None, partner=partner)
     if form.is_valid():
-        contact = form.save(current_contact=request.user.partner_contact)
+        contact = form.save(current_user=request.user)
         messages.success(request, '<h3>Created contact: %s</h3>Email has been sent.'
                                   % str(contact))
-        # raise
         return redirect(reverse('partners:dashboard'))
     context = {
         'partner': partner,
@@ -204,7 +202,7 @@ def process_contact_requests(request):
     formset = RequestContactModelFormSet(request.POST or None,
                                          queryset=ContactRequest.objects.awaiting_processing())
     if formset.is_valid():
-        formset.process_requests(current_contact=request.user.partner_contact)
+        formset.process_requests(current_user=request.user)
         messages.success(request, 'Processing completed')
         return redirect(reverse('partners:process_contact_requests'))
     context = {
@@ -404,7 +402,7 @@ def activate_account(request, activation_key):
     form = ActivationForm(request.POST or None, instance=contact.user)
     if form.is_valid():
         form.activate_user()
-        messages.success(request, '<h3>Thank you for registration</h3>.')
+        messages.success(request, '<h3>Thank you for registration</h3>')
         return redirect(reverse('partners:dashboard'))
     context = {
         'contact': contact,

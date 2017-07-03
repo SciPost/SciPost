@@ -18,8 +18,6 @@ urlpatterns = [
         views.add_prospartner_contact, name='add_prospartner_contact'),
     url(r'^prospects/(?P<prospartner_id>[0-9]+)/promote$',
         views.promote_prospartner, name='promote_prospartner'),
-    url(r'^prospects/(?P<prospartner_id>[0-9]+)/events/add$',
-        views.add_prospartner_contact, name='add_prospartner_contact'),
     url(r'^prospects/(?P<prospartner_id>[0-9]+)/email_generic',
         views.email_prospartner_generic, name='email_prospartner_generic'),
     url(r'^prospects/(?P<prospartner_id>[0-9]+)/events/add$',
