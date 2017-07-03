@@ -35,7 +35,7 @@ def supporting_partners(request):
 
 
 @login_required
-@permission_required('scipost.can_read_personal_page', return_403=True)
+@permission_required('scipost.can_read_partner_page', return_403=True)
 def dashboard(request):
     '''
     This page is meant as a personal page for Partners, where they will for example be able

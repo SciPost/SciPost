@@ -45,8 +45,8 @@ class Command(BaseCommand):
             codename='can_email_prospartner_contact',
             name='Can email Prospective Partner Contact',
             content_type=content_type)
-        can_read_personal_page, created = Permission.objects.get_or_create(
-            codename='can_read_personal_page',
+        can_read_partner_page, created = Permission.objects.get_or_create(
+            codename='can_read_partner_page',
             name='Can read Prospective Partner personal page',
             content_type=content_type)
         can_promote_prospect_to_partner, created = Permission.objects.get_or_create(
@@ -275,7 +275,7 @@ class Command(BaseCommand):
         ])
 
         PartnersAdmin.permissions.set([
-            can_read_personal_page,
+            can_read_partner_page,
             can_view_own_partner_details,
             can_manage_SPB,
             can_promote_prospect_to_partner,
@@ -283,13 +283,13 @@ class Command(BaseCommand):
             can_view_partners,
         ])
         PartnersOfficers.permissions.set([
-            can_read_personal_page,
+            can_read_partner_page,
             can_view_own_partner_details,
             can_manage_SPB,
             can_view_partners,
         ])
         PartnerAccounts.permissions.set([
-            can_read_personal_page,
+            can_read_partner_page,
             can_view_own_partner_details,
         ])
 
