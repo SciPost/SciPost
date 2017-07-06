@@ -26,7 +26,7 @@ from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSe
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
                    ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
                    EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
-                   SubmissionCycleChoiceForm
+                   SubmissionCycleChoiceForm, ReportPDFForm
 from .utils import SubmissionUtils
 
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
@@ -241,12 +241,19 @@ def reports_accepted_list(request):
 
 
 @permission_required('scipost.can_manage_reports', raise_exception=True)
-@require_POST
 def report_pdf_compile(request, report_id):
     report = get_object_or_404(Report.objects.accepted(), id=report_id)
-    # COMPILE PDF HERE
-    messages.success(request, '<h3>Compiling complete</h3>Please download and check the pdf.')
-    return redirect(reverse('submissions:reports_accepted_list'))
+    form = ReportPDFForm(request.POST or None, request.FILES or None, instance=report)
+    if form.is_valid():
+        report = form.save()
+        messages.success(request, 'Upload complete.')
+        return redirect(reverse('submissions:reports_accepted_list'))
+    context = {
+        'report': report,
+        'form': form
+    }
+    return render(request, 'submissions/reports_pdf_compile.html', context)
+
 
 ######################
 # Editorial workflow #

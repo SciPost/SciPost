@@ -412,6 +412,12 @@ class VotingEligibilityForm(forms.Form):
 # Reports:
 ############
 
+class ReportPDFForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['pdf_report']
+
+
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report

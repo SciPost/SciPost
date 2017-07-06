@@ -42,17 +42,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <form action="{% url 'submissions:report_pdf_compile' report.id %}" method="POST" class="d-inline-block">
-                                {% csrf_token %}
-                                <input type="submit" class="btn btn-sm btn-secondary" value="{% if report.pdf_report %}Recompile{% else %}Compile{% endif %} report">
-                            </form>
-                            {% if report.pdf_report %}
-
-                                <form method="POST" class="d-inline-block">
-                                    {% csrf_token %}
-                                    <input type="submit" class="btn btn-sm btn-danger" value="Remove pdf">
-                                </form>
-                            {% endif %}
+                            <a href="{% url 'submissions:report_pdf_compile' report.id %}">Compile/upload report</a>
                         </td>
                     </tr>
                 {% endfor %}

@@ -1,0 +1,41 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Upload Report PDF{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:reports_accepted_list' %}" class="breadcrumb-item">Accepted Reports</a>
+    <span class="breadcrumb-item">Upload Report PDF</span>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-12">
+            <h1 class="highlight">Upload Report PDF</h1>
+            <div class="card">
+                {% include 'submissions/_single_report_card_summary.html' with submission=report %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <h3>Please process this code in your Tex Compiler:</h3>
+            <pre><code>{% include 'submissions/_report_tex_template.html' with report=report %}</code></pre>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-12">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <input class="btn btn-secondary" type="submit" value="Upload"/>
+          </form>
+        </div>
+    </div>
+{% endblock %}
