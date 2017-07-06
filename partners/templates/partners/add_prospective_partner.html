@@ -1,4 +1,10 @@
-{% extends 'scipost/base.html' %}
+{% extends 'partners/_partners_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Add a Prospective Partner</span>
+{% endblock %}
+
 
 {% block pagetitle %}: Supporting Partners: add{% endblock pagetitle %}
 

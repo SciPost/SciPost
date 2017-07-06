@@ -149,6 +149,7 @@ TITLE_CHOICES = (
     ('DR', 'Dr'),
     ('MR', 'Mr'),
     ('MRS', 'Mrs'),
+    ('MS', 'Ms'),
 )
 
 INVITATION_EDITORIAL_FELLOW = 'F'

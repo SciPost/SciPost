@@ -11,6 +11,7 @@ MIDDLEWARE_CLASSES += (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 INTERNAL_IPS = ['127.0.0.1', '::1']
+DATABASES['default']['PORT'] = '5433'
 
 # Static and media
 STATIC_ROOT = '/Users/jorranwit/Develop/SciPost/scipost_v1/local_files/static/'

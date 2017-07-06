@@ -1,0 +1,14 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0">
+        <div class="container">
+            {% block breadcrumb_items %}
+                <a href="{% url 'partners:dashboard' %}" class="breadcrumb-item">Partner Page</a>
+            {% endblock %}
+        </div>
+    </nav>
+{% endblock %}
+
+
+{% block pagetitle %}: Supporting Partners:{% endblock pagetitle %}
