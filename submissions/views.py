@@ -240,8 +240,7 @@ def submission_refereeing_package_pdf(request, arxiv_identifier_w_vn_nr):
     The merging takes places every time its downloaded to make sure all available report PDF's
     are included and the EdColAdmin doesn't have to compile the package every time again.
     """
-    submission = get_object_or_404(Submission.objects.public(),
-                                   pdf_refereeing_pack__isnull=False,
+    submission = get_object_or_404(Submission.objects.public().exclude(pdf_refereeing_pack=''),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     response = HttpResponse(submission.pdf_refereeing_pack.read(), content_type='application/pdf')
     filename = '%s-refereeing-package.pdf' % submission.arxiv_identifier_w_vn_nr

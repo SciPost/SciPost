@@ -13,6 +13,9 @@
                     {% if report.pdf_report %}
                         <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download as PDF</a>
                     {% endif %}
+                    {% if perms.scipost.can_manage_reports %}
+                        {% if report.pdf_report %}&middot; {% endif %}<a href="{% url 'submissions:report_pdf_compile' report.id %}"{% if not report.pdf_report %}class="btn btn-warning btn-sm"{% endif %}>Update/Compile the Report pdf</a>
+                    {% endif %}
                 </div>
 
                 {% if report.flagged %}
@@ -47,6 +50,9 @@
                     </h3>
                     {% if report.pdf_report %}
                         <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download as PDF</a>
+                    {% endif %}
+                    {% if perms.scipost.can_manage_reports %}
+                        {% if report.pdf_report %}&middot; {% endif %}<a href="{% url 'submissions:report_pdf_compile' report.id %}"{% if not report.pdf_report %}class="btn btn-warning btn-sm"{% endif %}>Update/Compile the Report pdf</a>
                     {% endif %}
                 </div>
 
