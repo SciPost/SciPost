@@ -230,7 +230,6 @@ class Command(BaseCommand):
             can_view_production,
             can_attend_VGMs,
             can_manage_mailchimp,
-            can_manage_reports,
         ])
         AdvisoryBoard.permissions.set([
             can_manage_registration_invitations,
@@ -245,6 +244,7 @@ class Command(BaseCommand):
             can_view_production,
             can_publish_accepted_submission,
             can_attend_VGMs,
+            can_manage_reports,
         ])
         EditorialCollege.permissions.set([
             can_view_pool,

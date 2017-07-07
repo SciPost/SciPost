@@ -32,7 +32,7 @@ class SubmissionSearchForm(forms.Form):
 
     def search_results(self):
         """Return all Submission objects according to search"""
-        return Submission.objects.public_overcomplete().filter(
+        return Submission.objects.public_newest().filter(
             title__icontains=self.cleaned_data.get('title', ''),
             author_list__icontains=self.cleaned_data.get('author', ''),
             abstract__icontains=self.cleaned_data.get('abstract', ''),
@@ -330,6 +330,12 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             submission = self.reassign_eic_and_admins(submission)
         submission.authors.add(self.requested_by.contributor)
         return submission
+
+
+class SubmissionReportsForm(forms.ModelForm):
+    class Meta:
+        model = Submission
+        fields = ['pdf_refereeing_pack']
 
 
 ######################

@@ -1,6 +1,7 @@
 {% extends 'submissions/_submission_summary_short.html' %}
 
 {% block submission_summary_footer %}
+    <a href="{% url 'submissions:refereeing_package_pdf' submission.arxiv_identifier_w_vn_nr %}" target="_blank">Download pdf package</a>
     <h3 class="mt-3">Abstract</h3>
     <p>{{submission.abstract}}</p>
 {% endblock %}

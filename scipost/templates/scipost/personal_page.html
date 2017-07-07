@@ -261,9 +261,10 @@
                         </ul>
 
                         {% if perms.scipost.can_manage_reports %}
-                        <h3>Reports</h3>
+                        <h3>Refereeing</h3>
                         <ul>
                             <li><a href="{% url 'submissions:reports_accepted_list' %}">Accepted Reports</a>{% if nr_reports_without_pdf %} ({{nr_reports_without_pdf}} unfinished){% endif %}</li>
+                            <li><a href="{% url 'submissions:treated_submissions_list' %}">Fully treated Submissions</a>{% if nr_treated_submissions_without_pdf %} ({{nr_treated_submissions_without_pdf}} unfinished){% endif %}</li>
                         </ul>
                         {% endif %}
 
