@@ -73,7 +73,8 @@ def recent(request, doi_label):
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
     recent_papers = Publication.objects.published(
-        in_issue__in_volume__in_journal=journal).order_by('-publication_date')[:20]
+        in_issue__in_volume__in_journal=journal).order_by('-publication_date',
+                                                          '-paper_nr')[:20]
     context = {
         'recent_papers': recent_papers,
         'journal': journal,
