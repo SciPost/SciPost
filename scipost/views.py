@@ -176,7 +176,8 @@ def index(request):
     context = {
         'latest_newsitems': NewsItem.objects.all().order_by('-date')[:1],
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
-        'publications': Publication.objects.published().order_by('-publication_date')[:3]
+        'publications': Publication.objects.published().order_by('-publication_date',
+                                                                 '-paper_nr')[:3]
     }
     return render(request, 'scipost/index.html', context)
 
