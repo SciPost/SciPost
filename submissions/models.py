@@ -75,6 +75,9 @@ class Submission(ArxivCallable, models.Model):
     arxiv_vn_nr = models.PositiveSmallIntegerField(default=1)
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
 
+    pdf_refereeing_pack = models.FileField(upload_to='UPLOADS/REFEREE/%Y/%m/',
+                                           max_length=200, blank=True)
+
     # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
     submission_date = models.DateField(verbose_name='submission date', default=datetime.date.today)
@@ -272,6 +275,7 @@ class Report(models.Model):
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     remarks_for_editors = models.TextField(default='', blank=True,
                                            verbose_name='optional remarks for the Editors only')
+    doi_label = models.CharField(max_length=200, blank=True)
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
     pdf_report = models.FileField(upload_to='UPLOADS/REPORTS/%Y/%m/', max_length=200, blank=True)
 
@@ -279,6 +283,7 @@ class Report(models.Model):
 
     class Meta:
         unique_together = ('submission', 'report_nr')
+        ordering = ['report_nr']
 
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
@@ -286,6 +291,11 @@ class Report(models.Model):
 
     def get_absolute_url(self):
         return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
+
+    @property
+    def doi_string(self):
+        if self.doi_label:
+            return '10.21468/' + self.doi_label
 
     def save(self, *args, **kwargs):
         # Control Report count per Submission.

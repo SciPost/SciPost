@@ -4,8 +4,8 @@ from django.db.models import Q
 from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
                        STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
-                       SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT,\
-                       SUBMISSION_EXCLUDE_FROM_REPORTING
+                       SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT, STATUS_PUBLISHED,\
+                       SUBMISSION_EXCLUDE_FROM_REPORTING, STATUS_REJECTED_VISIBLE, STATUS_ACCEPTED
 
 
 class SubmissionManager(models.Manager):
@@ -58,6 +58,13 @@ class SubmissionManager(models.Manager):
 
     def public(self):
         """
+        This query contains set of public submissions, i.e. also containing
+        submissions with status "published" or "resubmitted".
+        """
+        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE)
+
+    def public_unlisted(self):
+        """
         List only all public submissions. Should be used as a default filter!
 
         Implement: Use this filter to also determine, using a optional user argument,
@@ -66,13 +73,12 @@ class SubmissionManager(models.Manager):
         """
         return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
 
-    def public_overcomplete(self):
+    def public_newest(self):
         """
-        This query contains an overcomplete set of public submissions, i.e. also containing
-        submissions with status "published" or "resubmitted".
+        This query contains set of public() submissions, filtered to only the newest available
+        version.
         """
-        queryset = self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE)
-        return self._newest_version_only(queryset)
+        return self._newest_version_only(self.public())
 
     def open_for_reporting(self):
         """
@@ -80,6 +86,12 @@ class SubmissionManager(models.Manager):
         a new report.
         """
         return self.exclude(status__in=SUBMISSION_EXCLUDE_FROM_REPORTING)
+
+    def treated(self):
+        """
+        This query returns all Submissions that are expected to be 'done'.
+        """
+        return self.filter(status__in=[STATUS_ACCEPTED, STATUS_REJECTED_VISIBLE, STATUS_PUBLISHED])
 
 
 class EditorialAssignmentManager(models.Manager):
