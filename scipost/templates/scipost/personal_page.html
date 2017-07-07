@@ -99,40 +99,43 @@
                     {% endif %}
                 </div>
                 <div class="col-md-6">
-                    {% if 'SciPost Administrators' in user_groups %}
-                        <h3>You are a SciPost Administrator.</h3>
-                    {% endif %}
-                    {% if 'Editorial Administrators' in user_groups %}
-                        <h3>You are a SciPost Editorial Administrator.</h3>
-                    {% endif %}
-                    {% if 'Advisory Board' in user_groups %}
-                        <h3>You are a member of the Advisory Board.</h3>
-                    {% endif %}
-                    {% if 'Editorial College' in user_groups %}
-                        <h3>You are a member of the Editorial College.</h3>
-                    {% endif %}
-                    {% if 'Vetting Editors' in user_groups %}
-                        <h3>You are a SciPost Vetting Editor.</h3>
-                    {% endif %}
-                    {% if 'Registered Contributors' in user_groups %}
-                        <h3>You are a Registered Contributor.</h3>
-                    {% endif %}
-                    {% if 'Testers' in user_groups %}
-                        <h3>You are a SciPost Tester.</h3>
-                    {% endif %}
-                    {% if 'Ambassadors' in user_groups %}
-                        <h3>You are a SciPost Ambassador.</h3>
-                    {% endif %}
-                    {% if 'Junior Ambassadors' in user_groups %}
-                        <h3>You are a SciPost Junior Ambassador.</h3>
-                    {% endif %}
+                  {% if 'SciPost Administrators' in user_groups %}
+                  <h3>You are a SciPost Administrator.</h3>
+                  {% endif %}
+                  {% if 'Editorial Administrators' in user_groups %}
+                  <h3>You are a SciPost Editorial Administrator.</h3>
+                  {% endif %}
+                  {% if 'Advisory Board' in user_groups %}
+                  <h3>You are a member of the Advisory Board.</h3>
+                  {% endif %}
+                  {% if 'Editorial College' in user_groups %}
+                  <h3>You are a member of the Editorial College.</h3>
+		  {% endif %}
+		  {% if 'Vetting Editors' in user_groups %}
+                  <h3>You are a SciPost Vetting Editor.</h3>
+		  {% endif %}
+		  {% if 'Registered Contributors' in user_groups %}
+                  <h3>You are a Registered Contributor.</h3>
+		  {% endif %}
+		  {% if 'Testers' in user_groups %}
+                  <h3>You are a SciPost Tester.</h3>
+		  {% endif %}
+		  {% if 'Ambassadors' in user_groups %}
+                  <h3>You are a SciPost Ambassador.</h3>
+		  {% endif %}
+		  {% if 'Junior Ambassadors' in user_groups %}
+                  <h3>You are a SciPost Junior Ambassador.</h3>
+		  {% endif %}
+		  {% if 'Production Officers' in user_groups %}
+		  <h3>You are a SciPost Production Officer.</h3>
+		  {% endif %}
 
-                    <h3 class="mt-3">Update your personal data or password</h3>
+                  <h3 class="mt-3">Update your personal data or password</h3>
 
-                    <ul>
-                        <li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
-                        <li><a href="{% url 'scipost:change_password' %}">Change your password</a></li>
-                    </ul>
+                  <ul>
+                    <li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
+                    <li><a href="{% url 'scipost:change_password' %}">Change your password</a></li>
+                  </ul>
                 </div>
             </div>
 

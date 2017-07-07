@@ -206,6 +206,12 @@ class Command(BaseCommand):
             name='Can view docs: scipost',
             content_type=content_type)
 
+        # Financial administration
+        can_view_timesheets, created = Permission.objects.get_or_create(
+            codename='can_view_timesheets',
+            name='Can view timesheets',
+            content_type=content_type)
+
         # Mailchimp
         can_manage_mailchimp, created = Permission.objects.get_or_create(
             codename='can_manage_mailchimp',
@@ -229,12 +235,19 @@ class Command(BaseCommand):
             can_fix_College_decision,
             can_view_production,
             can_attend_VGMs,
+            can_view_timesheets,
             can_manage_mailchimp,
         ])
+
+        FinancialAdmin.permissions.set([
+            can_view_timesheets,
+        ])
+
         AdvisoryBoard.permissions.set([
             can_manage_registration_invitations,
             can_attend_VGMs,
         ])
+
         EditorialAdmin.permissions.set([
             can_view_pool,
             can_assign_submissions,
@@ -242,10 +255,12 @@ class Command(BaseCommand):
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
             can_view_production,
+            can_view_timesheets,
             can_publish_accepted_submission,
             can_attend_VGMs,
             can_manage_reports,
         ])
+
         EditorialCollege.permissions.set([
             can_view_pool,
             can_take_charge_of_submissions,
@@ -253,12 +268,14 @@ class Command(BaseCommand):
             view_bylaws,
             can_attend_VGMs,
         ])
+
         VettingEditors.permissions.set([
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
             can_vet_authorship_claims,
             can_vet_comments,
         ])
+
         RegisteredContributors.permissions.set([
             can_submit_manuscript,
             can_submit_comments,
@@ -267,15 +284,19 @@ class Command(BaseCommand):
             can_request_thesislinks,
             can_referee,
         ])
+
         Developers.permissions.set([
             can_view_docs_scipost,
         ])
+
         Ambassadors.permissions.set([
             can_manage_registration_invitations,
         ])
+
         JuniorAmbassadors.permissions.set([
             can_draft_registration_invitations,
         ])
+
         ProductionOfficers.permissions.set([
             can_view_docs_scipost,
             can_view_production,
@@ -289,12 +310,14 @@ class Command(BaseCommand):
             can_email_prospartner_contact,
             can_view_partners,
         ])
+
         PartnersOfficers.permissions.set([
             can_read_partner_page,
             can_view_own_partner_details,
             can_manage_SPB,
             can_view_partners,
         ])
+
         PartnerAccounts.permissions.set([
             can_read_partner_page,
             can_view_own_partner_details,

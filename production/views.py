@@ -1,4 +1,7 @@
+import datetime
+
 from django.contrib import messages
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
@@ -10,6 +13,8 @@ from guardian.decorators import permission_required
 from .constants import PRODUCTION_STREAM_COMPLETED
 from .models import ProductionStream, ProductionEvent
 from .forms import ProductionEventForm
+
+from scipost.models import Contributor
 
 
 ######################
@@ -24,10 +29,17 @@ def production(request):
     """
     streams = ProductionStream.objects.ongoing().order_by('opened')
     prodevent_form = ProductionEventForm()
+    ownevents = ProductionEvent.objects.filter(
+        noted_by=request.user.contributor,
+        duration__gte=datetime.timedelta(minutes=1)).order_by('-noted_on')
     context = {
         'streams': streams,
         'prodevent_form': prodevent_form,
+        'ownevents': ownevents,
     }
+    if request.user.has_perm('scipost.can_view_timesheets'):
+        context['production_team'] = Contributor.objects.filter(
+            user__groups__name='Production Officers').order_by('user__last_name')
     return render(request, 'production/production.html', context)
 
 

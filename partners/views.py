@@ -312,7 +312,7 @@ def email_prospartner_generic(request, prospartner_id):
 
         PartnerUtils.email_prospartner_generic()
         messages.success(request, 'Email successfully sent')
-        return redirect(reverse('partners:manage'))
+        return redirect(reverse('partners:dashboard'))
     context = {'prospartner': prospartner, 'form': form}
     return render(request, 'partners/email_prospartner_generic.html', context)
 
