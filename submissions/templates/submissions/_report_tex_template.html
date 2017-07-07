@@ -17,11 +17,11 @@
 \fancypagestyle{SPstyle}{
 \fancyhf{}
 \lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
-%%%%%%%%%% TODO: PAPER CITATION
+
 {% if report.doi_string %}
-    \rhead{\small \href{https://scipost.org/{{report.doi_string}} }{ {{report.doi_string}} ({{report.date_submitted|date:'Y'}})}}
+    \rhead{\small \href{https://scipost.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
 {% endif %}
-%%%%%%%%%% END TODO: PAPER CITATION
+
 \renewcommand{\headrulewidth}{1pt}
 \fancyfoot[C]{\textbf{\thepage}}
 }
@@ -30,31 +30,23 @@
 
 \pagestyle{SPstyle}
 
-%\begin{center}{\Large{ \textbf{\color{scipostdeepblue}{
-%Report {{report.report_nr}}
-%}}}} \\
-%\end{center}
-
 \begin{center}
 \Large\color{scipostdeepblue}{\textbf{
-%%%%%%%%%% TODO: TITLE Paste title here
-% multiline titles: end with a \\ to regularize line spacing
-%%%%%%%%%% END TODO: TITLE
-Report {{report.report_nr}} on \href{https://scipost.org/submissions/1702.01010v1/}{\color{scipostdeepblue}{Variation along liquid isomorphs of the driving force for crystallization}} by Ulf R. Pedersen, Karolina Adrjanowicz, Kristine Niss, Nicholas P. Bailey
+%%%%%%%%%% TITLE
+Report {{report.report_nr}} on\href{https://scipost.org{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.submission.title}} }}by {{report.submission.author_list}}
 }}
 \end{center}
 
 \begin{center}
 \large\textbf{
-%%%%%%%%%% TODO: AUTHORS
+%%%%%%%%%% AUTHORS
 Report by {% if report.anonymous %}anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}\textsuperscript{1}{% endif %}
-%%%%%%%%%% END TODO: AUTHORS
 }
 \end{center}
 
 {% if not report.anonymous %}
     \begin{center}
-    %%%%%%%%%% TODO: AFFILIATIONS
+    %%%%%%%%%% AFFILIATIONS
     {\bf 1} {{report.author.affiliation}}\\
     \end{center}
 {% endif %}
@@ -68,10 +60,10 @@ Report by {% if report.anonymous %}anonymous{% else %}{{report.author.user.first
 \begin{minipage}{0.5\textwidth}
 \raisebox{-1mm}[0pt][0pt]{\includegraphics[width=12mm]{by.eps}}
 
-%%%%%%%%%% TODO: COPYRIGHT Include the first author's initials and last name
+%%%%%%%%%% COPYRIGHT
 
 {\small Copyright {% if report.anonymous %}anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}{% endif %}. \newline
-%%%%%%%%%% END TODO: COPYRIGHT
+
 This work is licensed under the Creative Commons \newline
 \href{http://creativecommons.org/licenses/by/4.0/}{Attribution 4.0 International License}. \newline
 Published by the SciPost Foundation.
@@ -79,15 +71,13 @@ Published by the SciPost Foundation.
 \end{minipage}
 &
 \begin{minipage}{0.5\textwidth}
-%%%%%%%%%% TODO: DATES
-{\small Received {{report.date_submitted}}
-%%%%%%%%%% END TODO: DATES
+%%%%%%%%%% DATES
+{\small Received {{report.date_submitted|date:'d-m-Y'}}
+
 
 {% if report.doi_string %}
-%%%%%%%%%% TODO: DOI
-
-\newline \doi{ {{report.doi_string}} }
-%%%%%%%%%% END TODO: DOI
+%%%%%%%%%% DOI
+\newline \doi{ {{report.doi_string|safe_tex_url}} }
 
 {% endif %}
 
@@ -96,15 +86,10 @@ Published by the SciPost Foundation.
 \end{tabular}
 \end{center}
 
-%%%%%%%%%% TODO: TOC include a table of contents (optional)
-% Guideline: if your paper is longer that 6 pages, include a TOC
-% To remove the TOC, simply cut the following block
 \vspace{10pt}
 \noindent\rule{\textwidth}{1pt}
-%%%%%%%%%% END TODO: TOC
 
-%%%%%%%%% TODO: CONTENTS Contents come here, starting from first \section
-%%%%%%%%%% TODO: LINENO Activate linenumbers during proofs stage
+%%%%%%%% CONTENTS
 
 \section*{Ratings}
 \begin{center}
@@ -114,8 +99,6 @@ Published by the SciPost Foundation.
 	{\bf Originality} & {{report.get_originality_display}} & {\bf Grammar} & {{report.get_grammar_display}}
 \end{tabular}
 \end{center}
-
-%\vspace{10pt}
 
 \section{Strengths}
 {{report.strengths|linebreaktex}}
@@ -129,8 +112,6 @@ Published by the SciPost Foundation.
 
 \section{Requested changes}
 {{report.requested_changes|linebreaktex}}
-
-%%%%%%%%% END TODO: CONTENTS
 
 
 \end{document}
