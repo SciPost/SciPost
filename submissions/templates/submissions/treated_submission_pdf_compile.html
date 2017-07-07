@@ -16,6 +16,7 @@
         <div class="col-12">
             <h1 class="highlight">Upload Submission Refereeing PDF</h1>
             {% include 'submissions/_submission_summary_short.html' with submission=submission %}
+            <p class="my-2"><a href="{{submission.get_absolute_url}}">Go to Submission page</a></p>
         </div>
     </div>
     <hr>
