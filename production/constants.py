@@ -19,4 +19,5 @@ PRODUCTION_EVENTS = (
     ('corrections_implemented', 'Corrections implemented'),
     ('authors_have_accepted_proofs', 'Authors have accepted proofs'),
     ('paper_published', 'Paper has been published'),
+    ('cited_notified', 'Cited people have been notified/invited to SciPost'),
 )
