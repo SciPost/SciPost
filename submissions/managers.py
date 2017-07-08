@@ -5,7 +5,8 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
                        STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
                        SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT, STATUS_PUBLISHED,\
-                       SUBMISSION_EXCLUDE_FROM_REPORTING, STATUS_REJECTED_VISIBLE, STATUS_ACCEPTED
+                       SUBMISSION_EXCLUDE_FROM_REPORTING, STATUS_REJECTED_VISIBLE,\
+                       STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE
 
 
 class SubmissionManager(models.Manager):
@@ -91,7 +92,8 @@ class SubmissionManager(models.Manager):
         """
         This query returns all Submissions that are expected to be 'done'.
         """
-        return self.filter(status__in=[STATUS_ACCEPTED, STATUS_REJECTED_VISIBLE, STATUS_PUBLISHED])
+        return self.filter(status__in=[STATUS_ACCEPTED, STATUS_REJECTED_VISIBLE, STATUS_PUBLISHED,
+                                       STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE])
 
 
 class EditorialAssignmentManager(models.Manager):
