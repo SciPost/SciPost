@@ -603,7 +603,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def harvest_all_publications(request):
-    publications = Publication.objects.order_by('-lastest_citedby_update', '-publication_date')
+    publications = Publication.objects.order_by('-latest_citedby_update', '-publication_date')
     context = {
         'publications': publications
     }
@@ -689,7 +689,7 @@ def harvest_citedby_links(request, doi_label):
                           'item_number': item_number,
                           'year': year, })
     publication.citedby = citations
-    publication.lastest_citedby_update = timezone.now()
+    publication.latest_citedby_update = timezone.now()
     publication.save()
     context = {
         'publication': publication,

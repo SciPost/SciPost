@@ -148,7 +148,7 @@ class Publication(models.Model):
     submission_date = models.DateField(verbose_name='submission date')
     acceptance_date = models.DateField(verbose_name='acceptance date')
     publication_date = models.DateField(verbose_name='publication date')
-    lastest_citedby_update = models.DateTimeField(null=True, blank=True)
+    latest_citedby_update = models.DateTimeField(null=True, blank=True)
     latest_activity = models.DateTimeField(default=timezone.now)
     citedby = JSONField(default={}, blank=True, null=True)
 

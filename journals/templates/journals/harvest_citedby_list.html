@@ -24,7 +24,7 @@
                 <tr>
                     <th>doi</th>
                     <th>Publication date</th>
-                    <th>Lastest Crossref update</th>
+                    <th>Latest Crossref update</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -34,8 +34,8 @@
                         <td><a href="{{publication.get_absolute_url}}">{{publication.doi_label}}</a></td>
                         <td>{{publication.publication_date}}</td>
                         <td>
-                            {% if publication.lastest_citedby_update %}
-                                {{publication.lastest_citedby_update|timesince}} ago
+                            {% if publication.latest_citedby_update %}
+                                {{publication.latest_citedby_update|timesince}} ago
                             {% else %}
                                 No information available
                             {% endif %}
