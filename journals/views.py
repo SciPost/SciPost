@@ -602,6 +602,15 @@ def metadata_xml_deposit(request, doi_label, option='test'):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def harvest_all_publications(request):
+    publications = Publication.objects.order_by('-lastest_citedby_update', '-publication_date')
+    context = {
+        'publications': publications
+    }
+    return render(request, 'journals/harvest_citedby_list.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
 def harvest_citedby_links(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
@@ -637,7 +646,7 @@ def harvest_citedby_links(request, doi_label):
     if r.status_code == 401:
         messages.warning(request, ('<h3>Crossref credentials are invalid.</h3>'
                                    'Please contact the SciPost Admin.'))
-        return redirect(publication.get_absolute_url())
+        return redirect(reverse('journals:harvest_all_publications'))
     response_headers = r.headers
     response_text = r.text
     response_deserialized = ET.fromstring(r.text)
@@ -680,6 +689,7 @@ def harvest_citedby_links(request, doi_label):
                           'item_number': item_number,
                           'year': year, })
     publication.citedby = citations
+    publication.lastest_citedby_update = timezone.now()
     publication.save()
     context = {
         'publication': publication,
