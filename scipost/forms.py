@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
+from django.utils import timezone
 from django.utils.http import is_safe_url
 
 from django_countries import countries
@@ -14,9 +15,11 @@ from captcha.fields import ReCaptchaField
 from ajax_select.fields import AutoCompleteSelectField
 
 from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES
+from .decorators import has_contributor
 from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
+from partners.decorators import has_contact
 from journals.models import Publication
 # from mailing_lists.models import MailchimpList, MailchimpSubscription
 
@@ -133,6 +136,41 @@ class DraftInvitationForm(forms.ModelForm):
                   'cited_in_submission', 'cited_in_publication'
                   ]
 
+    def __init__(self, *args, **kwargs):
+        '''
+        This form has a required keyword argument `current_user` which is used for validation of
+        the form fields.
+        '''
+        self.current_user = kwargs.pop('current_user')
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if self.instance.id:
+            return email
+
+        if RegistrationInvitation.objects.filter(email=email).exists():
+            self.add_error('email', 'This email address has already been used for an invitation')
+        elif DraftInvitation.objects.filter(email=email).exists():
+            self.add_error('email', ('This email address has already been'
+                                     ' used for a draft invitation'))
+        elif User.objects.filter(email=email).exists():
+            self.add_error('email', 'This email address is already associated to a Contributor')
+
+        return email
+
+    def clean_invitation_type(self):
+        invitation_type = self.cleaned_data['invitation_type']
+        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_Fellows'):
+            self.add_error('invitation_type', ('You do not have the authorization'
+                                               ' to send a Fellow-type invitation.'
+                                               ' Consider Contributor, or cited (sub/pub).'))
+        if invitation_type == 'R':
+            self.add_error('invitation_type', ('Referee-type invitations must be made'
+                                               'by the Editor-in-charge at the relevant'
+                                               ' Submission\'s Editorial Page.'))
+        return invitation_type
+
 
 class RegistrationInvitationForm(forms.ModelForm):
     cited_in_submission = AutoCompleteSelectField('submissions_lookup', required=False)
@@ -147,12 +185,17 @@ class RegistrationInvitationForm(forms.ModelForm):
                   ]
 
     def __init__(self, *args, **kwargs):
+        '''
+        This form has a required keyword argument `current_user` which is used for validation of
+        the form fields.
+        '''
+        self.current_user = kwargs.pop('current_user')
         if kwargs.get('initial', {}).get('cited_in_submission', False):
             kwargs['initial']['cited_in_submission'] = kwargs['initial']['cited_in_submission'].id
         if kwargs.get('initial', {}).get('cited_in_publication', False):
             kwargs['initial']['cited_in_publication'] = kwargs['initial']['cited_in_publication'].id
 
-        super(RegistrationInvitationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['personal_message'].widget.attrs.update(
             {'placeholder': ('NOTE: a personal phrase or two.'
                              ' The bulk of the text will be auto-generated.')})
@@ -160,6 +203,27 @@ class RegistrationInvitationForm(forms.ModelForm):
         self.fields['cited_in_publication'] = forms.ModelChoiceField(
             queryset=Publication.objects.all().order_by('-publication_date'),
             required=False)
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if RegistrationInvitation.objects.filter(email=email).exists():
+            self.add_error('email', 'This email address has already been used for an invitation')
+        elif User.objects.filter(email=email).exists():
+            self.add_error('email', 'This email address is already associated to a Contributor')
+
+        return email
+
+    def clean_invitation_type(self):
+        invitation_type = self.cleaned_data['invitation_type']
+        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_Fellows'):
+            self.add_error('invitation_type', ('You do not have the authorization'
+                                               ' to send a Fellow-type invitation.'
+                                               ' Consider Contributor, or cited (sub/pub).'))
+        if invitation_type == 'R':
+            self.add_error('invitation_type', ('Referee-type invitations must be made by the'
+                                               ' Editor-in-charge at the relevant Submission'
+                                               '\'s Editorial Page. '))
+        return invitation_type
 
 
 class ModifyPersonalMessageForm(forms.Form):
@@ -250,10 +314,14 @@ class AuthenticationForm(forms.Form):
         Check the url being valid the current request, else return
         to the default link (personal page).
         """
-        personal_page_url = reverse_lazy('scipost:personal_page')
         redirect_to = self.cleaned_data['next']
         if not is_safe_url(redirect_to, request.get_host()) or not redirect_to:
-            return personal_page_url
+            if has_contributor(request.user):
+                return reverse_lazy('scipost:personal_page')
+            elif has_contact(request.user):
+                return reverse_lazy('partners:dashboard')
+            else:
+                return reverse_lazy('scipost:index')
         return redirect_to
 
 
@@ -314,9 +382,20 @@ class UnavailabilityPeriodForm(forms.ModelForm):
         fields = ['start', 'end']
 
     def __init__(self, *args, **kwargs):
-        super(UnavailabilityPeriodForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['start'].widget.attrs.update({'placeholder': 'YYYY-MM-DD'})
         self.fields['end'].widget.attrs.update({'placeholder': 'YYYY-MM-DD'})
+
+    def clean_end(self):
+        now = timezone.now()
+        start = self.cleaned_data['start']
+        end = self.cleaned_data['end']
+        if start > end:
+            self.add_error('end', 'The start date you have entered is later than the end date.')
+
+        if end < now.date():
+            self.add_error('end', 'You have entered an end date in the past.')
+        return end
 
 
 class RemarkForm(forms.Form):

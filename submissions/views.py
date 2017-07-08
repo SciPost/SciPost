@@ -1233,6 +1233,7 @@ def fix_College_decision(request, rec_id):
     if recommendation.recommendation in [1, 2, 3]:
         # Publish as Tier I, II or III
         recommendation.submission.status = 'accepted'
+        recommendation.submission.acceptance_date = datetime.date.today()
         # Create a ProductionStream object
         prodstream = ProductionStream(submission=recommendation.submission)
         prodstream.save()

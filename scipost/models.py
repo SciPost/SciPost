@@ -38,7 +38,7 @@ class Contributor(models.Model):
     Permissions determine the sub-types.
     username, password, email, first_name and last_name are inherited from User.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
+    user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True)
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
@@ -107,7 +107,6 @@ class Contributor(models.Model):
         salt = self.user.username.encode('utf8')
         self.activation_key = hashlib.sha1(salt+salt).hexdigest()
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
-        self.save()
 
     def discipline_as_string(self):
         # Redundant, to be removed in future
@@ -165,9 +164,15 @@ class Contributor(models.Model):
 
 
 class UnavailabilityPeriod(models.Model):
-    contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     start = models.DateField()
     end = models.DateField()
+
+    class Meta:
+        ordering = ['-start']
+
+    def __str__(self):
+        return '%s (%s to %s)' % (self.contributor, self.start, self.end)
 
 
 class Remark(models.Model):
@@ -209,8 +214,8 @@ class DraftInvitation(models.Model):
     Draft of an invitation, filled in by an officer.
     """
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    first_name = models.CharField(max_length=30, default='')
-    last_name = models.CharField(max_length=30, default='')
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
     email = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE,
                                        default=INVITATION_CONTRIBUTOR)
@@ -220,10 +225,9 @@ class DraftInvitation(models.Model):
     cited_in_publication = models.ForeignKey('journals.Publication',
                                              on_delete=models.CASCADE,
                                              blank=True, null=True)
-    drafted_by = models.ForeignKey(Contributor,
-                                   on_delete=models.CASCADE,
+    drafted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                    blank=True, null=True)
-    date_drafted = models.DateTimeField(default=timezone.now)
+    date_drafted = models.DateTimeField(auto_now_add=True)
     processed = models.BooleanField(default=False)
 
     def __str__(self):

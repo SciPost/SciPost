@@ -79,7 +79,8 @@ def recent(request, doi_label):
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
     recent_papers = Publication.objects.published(
-        in_issue__in_volume__in_journal=journal).order_by('-publication_date')[:20]
+        in_issue__in_volume__in_journal=journal).order_by('-publication_date',
+                                                          '-paper_nr')[:20]
     context = {
         'recent_papers': recent_papers,
         'journal': journal,
@@ -377,15 +378,7 @@ def create_citation_list_metadata(request, doi_label):
     if request.method == 'POST':
         bibitems_form = CitationListBibitemsForm(request.POST, request.FILES)
         if bibitems_form.is_valid():
-            publication.metadata['citation_list'] = []
-            entries_list = bibitems_form.cleaned_data['latex_bibitems'].split('\doi{')
-            nentries = 1
-            for entry in entries_list[1:]:  # drop first bit before first \doi{
-                publication.metadata['citation_list'].append(
-                    {'key': 'ref' + str(nentries),
-                     'doi': entry.partition('}')[0], }
-                )
-                nentries += 1
+            publication.metadata['citation_list'] = bibitems_form.extract_dois()
             publication.save()
     bibitems_form = CitationListBibitemsForm()
     context = {

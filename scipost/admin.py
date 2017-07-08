@@ -1,5 +1,3 @@
-import datetime
-
 from django.contrib import admin
 from django import forms
 
@@ -11,19 +9,26 @@ from scipost.models import Contributor, Remark,\
                            AffiliationObject,\
                            RegistrationInvitation,\
                            AuthorshipClaim, PrecookedEmail,\
-                           EditorialCollege, EditorialCollegeFellowship
+                           EditorialCollege, EditorialCollegeFellowship, UnavailabilityPeriod
 
 from journals.models import Publication
+from partners.admin import ContactToUserInline
 from submissions.models import Submission
+
+
+admin.site.register(UnavailabilityPeriod)
 
 
 class ContributorInline(admin.StackedInline):
     model = Contributor
+    extra = 0
+    min_num = 0
 
 
 class UserAdmin(UserAdmin):
     inlines = [
         ContributorInline,
+        ContactToUserInline,
         ]
     search_fields = ['last_name', 'email']
 
@@ -84,6 +89,7 @@ def get_remark_type(remark):
         return 'Recommendation'
     return ''
 
+
 class RemarkAdminForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
         required=False,
@@ -93,12 +99,14 @@ class RemarkAdminForm(forms.ModelForm):
         model = Remark
         fields = '__all__'
 
+
 class RemarkAdmin(admin.ModelAdmin):
     search_fields = ['contributor', 'remark']
     list_display = [remark_text, 'contributor', 'date', get_remark_type]
     date_hierarchy = 'date'
     list_filter = [RemarkTypeListFilter]
     form = RemarkAdminForm
+
 
 admin.site.register(Remark, RemarkAdmin)
 
@@ -119,6 +127,7 @@ class DraftInvitationAdmin(admin.ModelAdmin):
     search_fields = ['first_name', 'last_name', 'email', 'processed']
     form = DraftInvitationAdminForm
 
+
 admin.site.register(DraftInvitation, DraftInvitationAdmin)
 
 
@@ -134,6 +143,7 @@ class RegistrationInvitationAdminForm(forms.ModelForm):
         model = RegistrationInvitation
         fields = '__all__'
 
+
 class RegistrationInvitationAdmin(admin.ModelAdmin):
     search_fields = ['first_name', 'last_name', 'email', 'invitation_key']
     list_display = ['__str__', 'invitation_type', 'invited_by', 'responded']
@@ -141,9 +151,8 @@ class RegistrationInvitationAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_sent'
     form = RegistrationInvitationAdminForm
 
+
 admin.site.register(RegistrationInvitation, RegistrationInvitationAdmin)
-
-
 admin.site.register(AuthorshipClaim)
 admin.site.register(Permission)
 
@@ -160,7 +169,6 @@ class AffiliationObjectAdmin(admin.ModelAdmin):
 
 
 admin.site.register(AffiliationObject, AffiliationObjectAdmin)
-
 
 
 class EditorialCollegeAdmin(admin.ModelAdmin):

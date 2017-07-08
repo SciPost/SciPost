@@ -1,0 +1,216 @@
+{% extends 'scipost/base.html' %}
+
+{% load partners_extras %}
+{% load bootstrap %}
+
+{% block pagetitle %}: partner page{% endblock pagetitle %}
+
+{% block content %}
+
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Welcome to your SciPost Partner Page, {{ request.user.first_name }} {{ request.user.last_name }}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="tab-nav-container">
+            <div class="tab-nav-inner">
+                <!-- Nav tabs -->
+                <ul class="nav btn-group personal-page-nav" role="tablist">
+                  <li class="nav-item btn btn-secondary">
+                    <a href="#account" class="nav-link active" data-toggle="tab">Account</a>
+                  </li>
+                  <li class="nav-item btn btn-secondary">
+                    <a href="#agreements" class="nav-link" data-toggle="tab">Membership Agreements</a>
+                  </li>
+                  {% if perms.scipost.can_manage_SPB %}
+                    <li class="nav-item btn btn-secondary">
+                        <a href="#prospartners" class="nav-link" data-toggle="tab">Prospective Partners</a>
+                    </li>
+                    <li class="nav-item btn btn-secondary">
+                        <a href="#partners" class="nav-link" data-toggle="tab">Partners</a>
+                    </li>
+                    <li class="nav-item btn btn-secondary">
+                        <a href="#global_agreements" class="nav-link" data-toggle="tab">Agreements</a>
+                    </li>
+                  {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content">
+    <!-- Tab: Account -->
+    <div class="tab-pane active" id="account" role="tabpanel">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="highlight">Your Account</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Your personal details:</h3>
+                {% include "partners/_contact_info_table.html" with contact=request.user.partner_contact %}
+
+                {% if perms.scipost.can_manage_SPB %}
+                <h3 class="mt-4">Administrative actions</h3>
+                <ul>
+                    <li><a href="{% url 'partners:process_contact_requests' %}">Open Contact requests</a> ({{contact_requests_count}})</li>
+                    <li>Contacts awaiting validation ({{inactivate_contacts_count}})</a></li>
+                </ul>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h3 class="mb-2">My Partners</h3>
+                <ul class="list-unstyled mb-5">
+                    {% for partner in request.user.partner_contact.partners.all %}
+                        <li class="media mb-2">
+                            <img class="d-flex mr-3" width="64" src="{% if partner.institution.logo %}{{partner.institution.logo.url}}{% endif %}" alt="Partner Logo">
+                            <div class="media-body">
+                                <h3 class="mt-0"><strong>{{partner.institution.name}}</strong></h3>
+                                <p>
+                                    {{partner.institution.acronym}} ({{partner.institution.get_kind_display}})<br>
+                                    <a href="{{partner.get_absolute_url}}">View/edit</a>
+                                </p>
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li>No partners found. Please contact the SciPost admin.</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Update your personal data or password</h3>
+
+                <ul>
+                    <li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
+                    <li><a href="{% url 'scipost:change_password' %}">Change your password</a></li>
+                </ul>
+            </div>
+        </div>
+    </div><!-- End tab -->
+
+    <!-- Tab: Agreements -->
+    <div class="tab-pane" id="agreements" role="tabpanel">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="highlight">Membership Agreements</h2>
+            </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+                <ul class="list-group list-group-flush">
+                  {% for agreement in personal_agreements %}
+                      <li class="list-group-item">{% include 'partners/_agreement_card.html' with agreement=agreement %}</li>
+                  {% empty %}
+                      <li class="list-group-item">No Membership Agreements found.</li>
+                  {% endfor %}
+                </ul>
+          </div>
+        </div>
+    </div><!-- End tab -->
+
+    {% if perms.scipost.can_manage_SPB %}
+        <!-- Tab: prospective partners -->
+        <div class="tab-pane" id="prospartners" role="tabpanel">
+              <div class="row">
+            	<div class="col-12">
+            	  <h2 class="highlight">Prospective Partners</h2>
+                  <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
+            	</div>
+              </div>
+
+              <table class="table table-hover mb-5">
+                  <thead class="thead-default">
+                      <tr>
+                    	<th>Country</th>
+                    	<th>Institution name</th>
+                    	<th>Kind</th>
+                    	<th>Status</th>
+                    	<th>Date received</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="accordion" role="tablist" aria-multiselectable="true">
+                    {% for partner in prospective_partners %}
+            	      <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ partner.id }}" aria-expanded="true" aria-controls="collapse{{ partner.id }}" style="cursor: pointer;">
+                    		  <td>{{ partner.get_country_display }}</td>
+                    		  <td>{{ partner.institution_name }}</td>
+                    		  <td>{{ partner.get_kind_display }}</td>
+                    		  <td style="background-color:{{ partner.status|partnerstatuscolor }}">{{ partner.get_status_display }}</td>
+                    		  <td>{{ partner.date_received|date:"Y-m-d" }}</td>
+                    	</tr>
+                        <tr id="collapse{{ partner.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ partner.id}}" style="background-color: #fff;">
+                            <td colspan="5">
+                        	    {% include 'partners/_prospective_partner_card.html' with pp=partner %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">No prospects found.</td>
+                        </tr>
+                	{% endfor %}
+                </tbody>
+            </table>
+        </div><!-- End tab -->
+
+        <!-- Tab: Partners -->
+        <div class="tab-pane" id="partners" role="tabpanel">
+          <div class="row">
+        	<div class="col-12">
+        	  <h2 class="highlight">Partners</h2>
+        	</div>
+          </div>
+          <div class="row">
+        	<div class="col-12">
+              <ul class="list-group list-group-flush">
+            	{% for partner in partners %}
+            	<li class="list-group-item">{% include 'partners/_partner_card.html' with partner=partner %}</li>
+            	{% endfor %}
+              </ul>
+            </div>
+          </div>
+      </div><!-- End tab -->
+
+      <!-- Tab: Agreements -->
+      <div class="tab-pane" id="global_agreements" role="tabpanel">
+          <div class="row">
+        	<div class="col-12">
+        	  <h2 class="highlight">SciPost's Membership Agreements</h2>
+              <h3><a href="{% url 'partners:add_agreement' %}">Add Membership Agreement</a></h3>
+        	</div>
+          </div>
+
+          <table class="table">
+              <thead>
+                  <tr>
+                      <th>Partner</th>
+                      <th>Status</th>
+                      <th>Duration</th>
+                      <th>Start Date</th>
+                  </tr>
+              </thead>
+              <tbody>
+            	{% for agreement in agreements %}
+                    <tr>
+                    	<td><a href="{{agreement.get_absolute_url}}">{{ agreement.partner }}</a></td>
+                        <td>{{ agreement.get_status_display }}</td>
+                        <td>{{ agreement.get_duration_display }}</td>
+                        <td>{{ agreement.start_date }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">No Agreements found</td>
+                    </tr>
+            	{% endfor %}
+              </tbody>
+            </table>
+      </div><!-- End tab -->
+    {% endif %}
+</div>
+
+
+{% endblock content %}

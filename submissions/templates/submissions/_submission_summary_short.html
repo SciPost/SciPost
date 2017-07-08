@@ -24,6 +24,12 @@
             <a href="{{submission.arxiv_link}}" target="_blank">{{submission.arxiv_link}}</a>
         </td>
     </tr>
+    {% if submission.acceptance_date %}
+        <tr>
+            <td>Date accepted:</td>
+            <td>{{submission.acceptance_date}}</td>
+        </tr>
+    {% endif %}
     <tr>
         <td>Date submitted:</td>
         <td>{{submission.submission_date}}</td>

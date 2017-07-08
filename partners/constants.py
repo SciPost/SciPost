@@ -12,6 +12,7 @@ PARTNER_KINDS = (
     (PARTNER_KIND_UNI_LIBRARY, 'University (and its Library)'),
     ('Res. Library', 'Research Library'),
     ('Prof. Soc.', 'Professional Society'),
+    ('Nat. Consor.', 'National Consortium'),
     ('Foundation', 'Foundation'),
     ('Individual', 'Individual'),
 )
@@ -47,13 +48,23 @@ PROSPECTIVE_PARTNER_EVENTS = (
 )
 
 
+PARTNER_INITIATED = 'Initiated'
 PARTNER_STATUS = (
-    ('Initiated', 'Initiated'),
+    (PARTNER_INITIATED, 'Initiated'),
     ('Contacted', 'Contacted'),
     ('Negotiating', 'Negotiating'),
     ('Uninterested', 'Uninterested'),
     ('Active', 'Active'),
     ('Inactive', 'Inactive'),
+)
+
+REQUEST_INITIATED = 'init'
+REQUEST_PROCESSED = 'proc'
+REQUEST_DECLINED = 'decl'
+REQUEST_STATUSES = (
+    (REQUEST_INITIATED, 'Request submitted by Contact'),
+    (REQUEST_PROCESSED, 'Processed'),
+    (REQUEST_DECLINED, 'Declined'),
 )
 
 
@@ -63,12 +74,21 @@ CONSORTIUM_STATUS = (
     ('Inactive', 'Inactive'),
 )
 
-
+PARTNER_STATUS_UPDATE = 'status_update'
 PARTNER_EVENTS = (
     ('initial', 'Contacted (initial)'),
-    ('status_update', 'Status updated'),
+    (PARTNER_STATUS_UPDATE, 'Status updated'),
     ('comment', 'Comment added'),
 )
+
+
+CONTACT_TYPES = (
+    ('gen', 'General Contact'),
+    ('tech', 'Technical Contact'),
+    ('fin', 'Financial Contact'),
+    ('leg', 'Legal Contact')
+)
+
 
 MEMBERSHIP_SUBMITTED = 'Submitted'
 MEMBERSHIP_AGREEMENT_STATUS = (

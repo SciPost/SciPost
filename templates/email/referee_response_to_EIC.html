@@ -1,12 +1,23 @@
-Dear {{ invitation.submission.editor_in_charge.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }},\n\n
+<p>Dear {{ invitation.submission.editor_in_charge.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }},</p>
 
-Referee {% if invitation.referee %}{{ invitation.referee.get_title_display }} {{ invitation.referee.user.last_name }}{% else %}{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}{% endif %} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission\n\n
-
-{{ invitation.submission.title }}\n by {{ invitation.submission.author_list }}\n\n
+<p>
+    Referee {% if invitation.referee %}{{ invitation.referee.get_title_display }} {{ invitation.referee.user.last_name }}{% else %}{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}{% endif %} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission
+</p>
+<p>
+  {{ invitation.submission.title }}
+  <br/>
+  by {{ invitation.submission.author_list }}.
+</p>
 
 {% if not invitation.accepted %}
-Please invite another referee from the Submission\'s editorial page at https://scipost.org{% url 'submissions:editorial_page' invitation.submission.arxiv_identifier_w_vn_nr %}.\n\n
+    <p>
+        Please invite another referee from the Submission's <a href="https://scipost.org{% url 'submissions:editorial_page' invitation.submission.arxiv_identifier_w_vn_nr %}">editorial page</a>.
+    </p>
 {% endif %}
 
-Many thanks for your collaboration,\n
-The SciPost Team.
+<p>
+    Many thanks for your collaboration,<br/>
+    The SciPost Team.
+</p>
+
+{% include 'email/_footer.html' %}

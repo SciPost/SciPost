@@ -124,6 +124,7 @@ subject_areas_dict = {}
 for k in subject_areas_raw_dict.keys():
     subject_areas_dict.update(dict(subject_areas_raw_dict[k]))
 
+CONTRIBUTOR_NEWLY_REGISTERED = 0
 CONTRIBUTOR_NORMAL = 1
 CONTRIBUTOR_STATUS = (
     # status determine the type of Contributor:
@@ -135,7 +136,7 @@ CONTRIBUTOR_STATUS = (
     # -2: other account already exists for this person
     # -3: barred from SciPost (abusive behaviour)
     # -4: disabled account (deceased)
-    (0, 'newly registered'),
+    (CONTRIBUTOR_NEWLY_REGISTERED, 'newly registered'),
     (CONTRIBUTOR_NORMAL, 'normal user'),
     (-1, 'not a professional scientist'),
     (-2, 'other account already exists'),
@@ -148,6 +149,7 @@ TITLE_CHOICES = (
     ('DR', 'Dr'),
     ('MR', 'Mr'),
     ('MRS', 'Mrs'),
+    ('MS', 'Ms'),
 )
 
 INVITATION_EDITORIAL_FELLOW = 'F'

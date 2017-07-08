@@ -84,6 +84,9 @@ urlpatterns = [
         views.vet_registration_requests, name='vet_registration_requests'),
     url(r'^vet_registration_request_ack/(?P<contributor_id>[0-9]+)$',
         views.vet_registration_request_ack, name='vet_registration_request_ack'),
+    url(r'^registration_requests$', views.registration_requests, name="registration_requests"),
+    url(r'^registration_requests/(?P<contributor_id>[0-9]+)/reset$',
+        views.registration_requests_reset, name="registration_requests_reset"),
     url(r'^registration_invitations/(?P<draft_id>[0-9]+)$',
         views.registration_invitations, name="registration_invitations_from_draft"),
     url(r'^registration_invitations$',
@@ -133,8 +136,9 @@ urlpatterns = [
     url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
 
     # Unavailabilities
-    url(r'^mark_unavailable_period$', views.mark_unavailable_period,
-        name='mark_unavailable_period'),
+    url(r'^unavailable_period$', views.mark_unavailable_period, name='mark_unavailable_period'),
+    url(r'^unavailable_period/(?P<period_id>[0-9]+)/delete$', views.delete_unavailable_period,
+        name='delete_unavailable_period'),
 
     # Contributor info
     url(r'^contributor/(?P<contributor_id>[0-9]+)$', views.contributor_info,

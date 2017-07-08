@@ -3,7 +3,8 @@ import datetime
 from django.db import models
 from django.db.models import Q
 
-from .constants import CONTRIBUTOR_NORMAL, INVITATION_EDITORIAL_FELLOW
+from .constants import CONTRIBUTOR_NORMAL, INVITATION_EDITORIAL_FELLOW,\
+                       CONTRIBUTOR_NEWLY_REGISTERED
 
 
 class FellowManager(models.Manager):
@@ -30,3 +31,6 @@ class RegistrationInvitationManager(models.Manager):
     def declined_invited_fellows(self):
         return self.filter(invitation_type=INVITATION_EDITORIAL_FELLOW,
                            responded=False, declined=True)
+
+    def awaiting_validation(self):
+        return self.filter(user__is_active=False, status=CONTRIBUTOR_NEWLY_REGISTERED)

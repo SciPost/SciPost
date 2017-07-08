@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
+from partners.models import Contact
 from scipost.models import Contributor
 
 
@@ -29,10 +30,11 @@ class Command(BaseCommand):
 
         PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
         PartnersOfficers, created = Group.objects.get_or_create(name='Partners Officers')
-
+        PartnerAccounts, created = Group.objects.get_or_create(name='Partners Accounts')
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
+        content_type_contact = ContentType.objects.get_for_model(Contact)
 
         # Supporting Partners
         can_manage_SPB, created = Permission.objects.get_or_create(
@@ -42,6 +44,22 @@ class Command(BaseCommand):
         can_email_prospartner_contact, created = Permission.objects.get_or_create(
             codename='can_email_prospartner_contact',
             name='Can email Prospective Partner Contact',
+            content_type=content_type)
+        can_read_partner_page, created = Permission.objects.get_or_create(
+            codename='can_read_partner_page',
+            name='Can read Prospective Partner personal page',
+            content_type=content_type)
+        can_promote_prospect_to_partner, created = Permission.objects.get_or_create(
+            codename='can_promote_prospect_to_partner',
+            name='Can promote Prospective Partner to Partner',
+            content_type=content_type)
+        can_view_partners, created = Permission.objects.get_or_create(
+            codename='can_view_partners',
+            name='Can view Partner details of all Partners',
+            content_type=content_type)
+        can_view_own_partner_details, created = Permission.objects.get_or_create(
+            codename='can_view_own_partner_details',
+            name='Can view (its own) partner details',
             content_type=content_type)
 
         # Registration and invitations
@@ -60,6 +78,10 @@ class Command(BaseCommand):
         can_invite_Fellows, created = Permission.objects.get_or_create(
             codename='can_invite_Fellows',
             name='Can invite Fellows',
+            content_type=content_type)
+        can_resend_registration_requests, created = Permission.objects.get_or_create(
+            codename='can_resend_registration_requests',
+            name='Can resend registration activation emails',
             content_type=content_type)
 
         # Communications
@@ -178,6 +200,12 @@ class Command(BaseCommand):
             name='Can view docs: scipost',
             content_type=content_type)
 
+        # Financial administration
+        can_view_timesheets, created = Permission.objects.get_or_create(
+            codename='can_view_timesheets',
+            name='Can view timesheets',
+            content_type=content_type)
+
         # Mailchimp
         can_manage_mailchimp, created = Permission.objects.get_or_create(
             codename='can_manage_mailchimp',
@@ -189,6 +217,7 @@ class Command(BaseCommand):
             can_manage_registration_invitations,
             can_email_group_members,
             can_email_particulars,
+            can_resend_registration_requests,
             can_vet_registration_requests,
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
@@ -200,12 +229,19 @@ class Command(BaseCommand):
             can_fix_College_decision,
             can_view_production,
             can_attend_VGMs,
+            can_view_timesheets,
             can_manage_mailchimp,
         ])
+
+        FinancialAdmin.permissions.set([
+            can_view_timesheets,
+        ])
+
         AdvisoryBoard.permissions.set([
             can_manage_registration_invitations,
             can_attend_VGMs,
         ])
+
         EditorialAdmin.permissions.set([
             can_view_pool,
             can_assign_submissions,
@@ -213,9 +249,11 @@ class Command(BaseCommand):
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
             can_view_production,
+            can_view_timesheets,
             can_publish_accepted_submission,
             can_attend_VGMs,
         ])
+
         EditorialCollege.permissions.set([
             can_view_pool,
             can_take_charge_of_submissions,
@@ -223,12 +261,14 @@ class Command(BaseCommand):
             view_bylaws,
             can_attend_VGMs,
         ])
+
         VettingEditors.permissions.set([
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
             can_vet_authorship_claims,
             can_vet_comments,
         ])
+
         RegisteredContributors.permissions.set([
             can_submit_manuscript,
             can_submit_comments,
@@ -237,26 +277,43 @@ class Command(BaseCommand):
             can_request_thesislinks,
             can_referee,
         ])
+
         Developers.permissions.set([
             can_view_docs_scipost,
         ])
+
         Ambassadors.permissions.set([
             can_manage_registration_invitations,
         ])
+
         JuniorAmbassadors.permissions.set([
             can_draft_registration_invitations,
         ])
+
         ProductionOfficers.permissions.set([
             can_view_docs_scipost,
             can_view_production,
         ])
 
         PartnersAdmin.permissions.set([
+            can_read_partner_page,
+            can_view_own_partner_details,
             can_manage_SPB,
+            can_promote_prospect_to_partner,
             can_email_prospartner_contact,
+            can_view_partners,
         ])
+
         PartnersOfficers.permissions.set([
+            can_read_partner_page,
+            can_view_own_partner_details,
             can_manage_SPB,
+            can_view_partners,
+        ])
+
+        PartnerAccounts.permissions.set([
+            can_read_partner_page,
+            can_view_own_partner_details,
         ])
 
         if verbose:

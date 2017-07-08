@@ -1,5 +1,12 @@
+import datetime
+import hashlib
+import random
+import string
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
+from django.urls import reverse
 
 from django_countries.fields import CountryField
 
@@ -14,12 +21,15 @@ from .constants import PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
                        PROSPECTIVE_PARTNER_EVENT_MARKED_AS_UNINTERESTED,\
                        PROSPECTIVE_PARTNER_UNINTERESTED,\
                        PROSPECTIVE_PARTNER_EVENT_PROMOTED,\
-                       PROSPECTIVE_PARTNER_PROCESSED
+                       PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
+                       PARTNER_INITIATED, REQUEST_STATUSES, REQUEST_INITIATED
 
-from .managers import MembershipAgreementManager
+from .managers import MembershipAgreementManager, ProspectivePartnerManager, PartnerManager,\
+                      ContactRequestManager, PartnersAttachmentManager
 
 from scipost.constants import TITLE_CHOICES
-from scipost.models import get_sentinel_user
+from scipost.fields import ChoiceArrayField
+from scipost.models import get_sentinel_user, Contributor
 
 
 ########################
@@ -37,6 +47,8 @@ class ProspectivePartner(models.Model):
     date_processed = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=32, choices=PROSPECTIVE_PARTNER_STATUS,
                               default=PROSPECTIVE_PARTNER_ADDED)
+
+    objects = ProspectivePartnerManager()
 
     def __str__(self):
         return '%s (received %s), %s' % (self.institution_name,
@@ -62,7 +74,8 @@ class ProspectiveContact(models.Model):
     It does not have a corresponding User object.
     It is meant to be used internally at SciPost, during Partner mining.
     """
-    prospartner = models.ForeignKey('partners.ProspectivePartner', on_delete=models.CASCADE)
+    prospartner = models.ForeignKey('partners.ProspectivePartner', on_delete=models.CASCADE,
+                                    related_name='prospective_contacts')
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
@@ -96,12 +109,34 @@ class Institution(models.Model):
     """
     kind = models.CharField(max_length=32, choices=PARTNER_KINDS)
     name = models.CharField(max_length=256)
+    logo = models.ImageField(upload_to='institutions/logo/%Y/', blank=True)
     acronym = models.CharField(max_length=16)
-    address = models.CharField(max_length=1000, blank=True)
+    address = models.TextField(blank=True)
     country = CountryField()
 
     def __str__(self):
         return '%s (%s)' % (self.name, self.get_kind_display())
+
+
+class ContactRequest(models.Model):
+    """
+    A ContactRequest request for a new Contact usually made by another Contact.
+    The requests are saved to this separate model to also be able to request new
+    Contact links if a Contact is already registered, but not linked to a specific Partner.
+    """
+    email = models.EmailField()
+    kind = ChoiceArrayField(models.CharField(max_length=4, choices=CONTACT_TYPES))
+    first_name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=64)
+    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    description = models.CharField(max_length=256, blank=True)
+    partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE)
+    status = models.CharField(max_length=4, choices=REQUEST_STATUSES, default=REQUEST_INITIATED)
+
+    objects = ContactRequestManager()
+
+    def __str__(self):
+        return '%s %s %s' % (self.get_title_display(), self.first_name, self.last_name)
 
 
 class Contact(models.Model):
@@ -111,12 +146,59 @@ class Contact(models.Model):
     (main contact, financial/technical contact etc).
     Contacts and Contributors have different rights.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True)
-    kind = models.CharField(max_length=128)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True,
+                                related_name='partner_contact')
+    kind = ChoiceArrayField(models.CharField(max_length=4, choices=CONTACT_TYPES))
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    description = models.CharField(max_length=256, blank=True)
+    partners = models.ManyToManyField('partners.Partner',
+                                      help_text=('All Partners (+related Institutions)'
+                                                 ' the Contact is related to.'))
+    consortia = models.ManyToManyField('partners.Consortium', blank=True,
+                                       help_text=('All Consortia for which the Contact has'
+                                                  ' explicit permission to view/edit its data.'))
+    activation_key = models.CharField(max_length=40, blank=True)
+    key_expires = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return '%s %s, %s' % (self.get_title_display(), self.user.last_name, self.user.first_name)
+
+    def generate_key(self, feed=''):
+        """
+        Generate and save a new activation_key for the Contact, given a certain feed.
+        """
+        for i in range(5):
+            feed += random.choice(string.ascii_letters)
+        feed = feed.encode('utf8')
+        salt = self.user.username.encode('utf8')
+        self.activation_key = hashlib.sha1(salt+salt).hexdigest()
+        self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
+
+    def delete_or_remove_partner(self, partner, *args, **kwargs):
+        """
+        Custom `delete` method as the contact does not always need to be deleted,
+        but sometimes just the link with a specific partner needs to be removed.
+        """
+        self.partners.remove(partner)
+        if self.partners.exists():
+            return self
+        try:
+            # User also has a Contributor-side, do not remove complete User
+            self.user.contributor
+            return super().delete(*args, **kwargs)
+        except Contributor.DoesNotExist:
+            # Remove User; casade-remove this Contact
+            self.user.delete()
+            return self
+
+    @property
+    def kind_display(self):
+        """
+        Due to a lack of support to use get_FOO_display in a ArrayField, one has to create
+        one 'manually'.
+        """
+        choices = dict(CONTACT_TYPES)
+        return ', '.join([choices[value] for index, value in enumerate(self.kind)])
 
 
 class Partner(models.Model):
@@ -126,29 +208,35 @@ class Partner(models.Model):
     """
     institution = models.ForeignKey('partners.Institution', on_delete=models.CASCADE,
                                     blank=True, null=True)
-    status = models.CharField(max_length=16, choices=PARTNER_STATUS)
-    main_contact = models.ForeignKey('partners.Contact', on_delete=models.CASCADE,
-                                     blank=True, null=True,
-                                     related_name='partner_main_contact')
-    financial_contact = models.ForeignKey('partners.Contact', on_delete=models.CASCADE,
-                                          blank=True, null=True,
-                                          related_name='partner_financial_contact')
-    technical_contact = models.ForeignKey('partners.Contact', on_delete=models.CASCADE,
-                                          blank=True, null=True,
-                                          related_name='partner_technical_contact')
+    status = models.CharField(max_length=16, choices=PARTNER_STATUS, default=PARTNER_INITIATED)
+    main_contact = models.ForeignKey('partners.Contact', on_delete=models.SET_NULL,
+                                     blank=True, null=True, related_name='partner_main_contact')
+
+    objects = PartnerManager()
 
     def __str__(self):
         if self.institution:
             return self.institution.acronym + ' (' + self.get_status_display() + ')'
         return self.get_status_display()
 
+    def get_absolute_url(self):
+        return reverse('partners:partner_view', args=(self.id,))
+
+    @property
+    def has_all_contacts(self):
+        """
+        Determine if Partner has all available Contact Types available.
+        """
+        raise NotImplemented
+
 
 class PartnerEvent(models.Model):
-    partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE)
+    partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE,
+                                related_name='events')
     event = models.CharField(max_length=64, choices=PARTNER_EVENTS)
     comments = models.TextField(blank=True)
     noted_on = models.DateTimeField(auto_now_add=True)
-    noted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    noted_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return '%s: %s' % (str(self.partner), self.get_event_display())
@@ -172,14 +260,14 @@ class MembershipAgreement(models.Model):
     A new instance is created each time an Agreement is made or renewed.
     """
     partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE,
-                                blank=True, null=True)
+                                blank=True, null=True, related_name='agreements')
     consortium = models.ForeignKey('partners.Consortium', on_delete=models.CASCADE,
                                    blank=True, null=True)
     status = models.CharField(max_length=16, choices=MEMBERSHIP_AGREEMENT_STATUS)
     date_requested = models.DateField()
     start_date = models.DateField()
     duration = models.DurationField(choices=MEMBERSHIP_DURATION)
-    offered_yearly_contribution = models.SmallIntegerField(default=0)
+    offered_yearly_contribution = models.SmallIntegerField(default=0, help_text="Yearly contribution in euro's (€)")
 
     objects = MembershipAgreementManager()
 
@@ -187,3 +275,23 @@ class MembershipAgreement(models.Model):
         return (str(self.partner) +
                 ' [' + self.get_duration_display() +
                 ' from ' + self.start_date.strftime('%Y-%m-%d') + ']')
+
+    def get_absolute_url(self):
+        return reverse('partners:agreement_details', args=(self.id,))
+
+
+class PartnersAttachment(models.Model):
+    """
+    An Attachment which can (in the future) be related to a Partner, Contact, MembershipAgreement,
+    etc.
+    """
+    attachment = models.FileField(upload_to='UPLOADS/PARTNERS/ATTACHMENTS')
+    name = models.CharField(max_length=128)
+    agreement = models.ForeignKey('partners.MembershipAgreement', related_name='attachments',
+                                  blank=True)
+
+    objects = PartnersAttachmentManager()
+
+    def get_absolute_url(self):
+        if self.agreement:
+            return reverse('partners:agreement_attachments', args=(self.agreement.id, self.id))

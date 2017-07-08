@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.utils import timezone
 
@@ -44,6 +46,20 @@ class CitationListBibitemsForm(forms.Form):
         super(CitationListBibitemsForm, self).__init__(*args, **kwargs)
         self.fields['latex_bibitems'].widget.attrs.update(
             {'rows': 30, 'cols': 50, 'placeholder': 'Paste the .tex bibitems here'})
+
+    def extract_dois(self):
+        entries_list = self.cleaned_data['latex_bibitems']
+        entries_list = re.sub(r'(?m)^\%.*\n?', '', entries_list)
+        entries_list = entries_list.split('\doi{')
+        dois = []
+        nentries = 1
+        for entry in entries_list[1:]:  # drop first bit before first \doi{
+            dois.append(
+                {'key': 'ref' + str(nentries),
+                 'doi': entry.partition('}')[0], }
+            )
+            nentries += 1
+        return dois
 
 
 class FundingInfoForm(forms.Form):

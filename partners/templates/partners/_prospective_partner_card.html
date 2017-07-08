@@ -15,6 +15,7 @@
       <p>{{ pp.get_status_display }}</p>
     </div>
     <div class="col-md-7">
+      <a href="{% url 'partners:email_prospartner_generic' prospartner_id=pp.id %}">Compose email to a generic address</a>
       <h3>Contacts:</h3>
       <a class="d-inline-block mb-2" href="{% url 'partners:add_prospartner_contact' prospartner_id=pp.id %}">Add a contact</a>
       <table class="table">
@@ -25,7 +26,7 @@
 	  <th>Actions</th>
         </thead>
         <tbody>
-          {% for contact in pp.prospectivecontact_set.all %}
+          {% for contact in pp.prospective_contacts.all %}
           <tr>
             <td>{{ contact.role }}</td>
             <td>{{ contact.get_title_display }} {{ contact.first_name }} {{ contact.last_name }}</td>
@@ -43,8 +44,7 @@
   </div>
 
   <div class="row">
-    <div class="col-1"></div>
-    <div class="col-6">
+    <div class="col-md-6 offset-md-1">
       <h3>Events</h3>
       <ul>
 	{% for event in pp.prospectivepartnerevent_set.all %}
@@ -54,13 +54,18 @@
 	{% endfor %}
       </ul>
     </div>
-    <div class="col-5">
+    <div class="col-md-5">
       <h3>Add an event for this Prospective Partner</h3>
-      <form action="{% url 'partners:add_prospartner_event' prospartner_id=pp.id %}" method="post">
-	{% csrf_token %}
-	{{ ppevent_form|bootstrap }}
-	<input type="submit" name="submit" value="Submit" class="btn btn-secondary">
+      <form class="d-block mt-2 mb-3" action="{% url 'partners:add_prospartner_event' prospartner_id=pp.id %}" method="post">
+        {% csrf_token %}
+        {{ ppevent_form|bootstrap }}
+        <input type="submit" name="submit" value="Submit" class="btn btn-secondary">
       </form>
+
+      <h3>Partner status</h3>
+      <ul>
+          <li><a href="{% url 'partners:promote_prospartner' pp.id %}">Upgrade prospect to partner</a></li>
+      </ul>
     </div>
   </div>
 </div>
