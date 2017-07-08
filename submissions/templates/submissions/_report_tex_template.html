@@ -73,8 +73,9 @@ Published by the SciPost Foundation.
 \begin{minipage}{0.5\textwidth}
 %%%%%%%%%% DATES
 {\small Received {{report.date_submitted|date:'d-m-Y'}}
-
-
+{% if report.doi_string %}
+    doi:\href{//dx.doi.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} }
+{% endif %}
 }
 \end{minipage}
 \end{tabular}
