@@ -905,7 +905,8 @@ def personal_page(request):
     if request.user.has_perm('scipost.can_manage_reports'):
         context['nr_reports_without_pdf'] = (Report.objects.accepted()
                                              .filter(pdf_report='').count())
-        context['nr_treated_submissions_without_pdf'] = Submission.objects.treated().count()
+        context['nr_treated_submissions_without_pdf'] = (Submission.objects.treated()
+                                                         .filter(pdf_refereeing_pack='').count())
 
     return render(request, 'scipost/personal_page.html', context)
 
