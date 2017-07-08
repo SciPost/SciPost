@@ -22,6 +22,9 @@ class ContributorManager(models.Manager):
     def active(self):
         return self.filter(user__is_active=True, status=CONTRIBUTOR_NORMAL)
 
+    def awaiting_validation(self):
+        return self.filter(user__is_active=False, status=CONTRIBUTOR_NEWLY_REGISTERED)
+
 
 class RegistrationInvitationManager(models.Manager):
     def pending_invited_fellows(self):
@@ -31,6 +34,3 @@ class RegistrationInvitationManager(models.Manager):
     def declined_invited_fellows(self):
         return self.filter(invitation_type=INVITATION_EDITORIAL_FELLOW,
                            responded=False, declined=True)
-
-    def awaiting_validation(self):
-        return self.filter(user__is_active=False, status=CONTRIBUTOR_NEWLY_REGISTERED)
