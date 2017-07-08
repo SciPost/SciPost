@@ -31,42 +31,31 @@
     <meta name="citation_firstpage" content="{{ publication.paper_nr|paper_nr_string_filter }}"/>
     <meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
 
-    <script>
-      $(document).ready(function(){
-        $("#citationslist").hide();
-
-        $("#citationslistbutton").click(function(){
-          $("#citationslist").toggle();
-        });
-      });
-    </script>
-
 {% endblock headsup %}
 
 {% block content %}
 
     {% include 'journals/_publication_details.html' with publication=publication %}
 
+    <hr>
     {% if publication.citedby|length >= 1 %}
-        <hr>
+
         <div class="row">
             <div class="col-6 col-md-2">
                 <h3 class="mb-2">Cited by {{ publication.citedby|length }}</h3>
-                <button class="btn btn-sm btn-secondary" id="citationslistbutton">Toggle view</button>
+                <a href="javascript:;" data-toggle="toggle" data-target="#citationslist">Toggle view</a>
             </div>
             <div class="col-6 col-md-2">
                 <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
             </div>
         </div>
-        <div class="row" id="citationslist">
+        <div class="row" id="citationslist" style="display: none;">
             <div class="col-12">
-                {# {% include 'journals/_publication_citations.html' with publication=publication %}#}
-                {{ publication.citations_as_ul }}
+                {% include 'journals/_publication_citations.html' with publication=publication %}
             </div>
         </div>
     {% endif %}
 
-    <hr>
     <div class="row">
         <div class="col-12">
             <h3>View more material from these authors:</h3>

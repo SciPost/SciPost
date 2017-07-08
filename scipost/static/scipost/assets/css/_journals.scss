@@ -60,6 +60,8 @@ ul.publicationClickables {
     list-style-type: none;
     margin: 0;
     padding: 2px 0;
+    border: 1px solid #eee;
+    border-bottom: 1px solid #ddd;
 
     li {
         display: inline-block;
