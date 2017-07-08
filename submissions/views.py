@@ -1,9 +1,6 @@
 import datetime
 import feedparser
 
-from PyPDF2 import PdfFileMerger, PdfFileReader
-
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
