@@ -225,7 +225,7 @@ class Deposit(models.Model):
     timestamp = models.CharField(max_length=40, default='')
     doi_batch_id = models.CharField(max_length=40, default='')
     metadata_xml = models.TextField(blank=True, null=True)
-    metadata_xml_file = models.FileField(blank=True, null=True)
+    metadata_xml_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)
     response_text = models.TextField(blank=True, null=True)
     deposit_successful = models.NullBooleanField(default=None)

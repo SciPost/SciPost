@@ -21,6 +21,7 @@ from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublication
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
 
+from journals.models import Publication, Deposit
 from submissions.models import Submission
 from scipost.models import Contributor
 
@@ -608,22 +609,21 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     response_text = r.text
 
     # Then, if deposit, create the associated Deposit object (saving the metadata to a file)
-    if option == 'deposit':
-        content = ContentFile(publication.metadata_xml)
-        timestamp = (publication.metadata_xml.partition(
-            '<timestamp>'))[2].partition('</timestamp>')[0]
-        doi_batch_id = (publication.metadata_xml.partition(
-            '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
-        path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-                + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-                + '_' + timestamp + '.xml')
-        deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
-                          metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
-        deposit.metadata_xml_file.save(path, content)
-        deposit.response_text = r.text
-        deposit.save()
-        publication.latest_crossref_deposit = timezone.now()
-        publication.save()
+    content = ContentFile(publication.metadata_xml)
+    timestamp = (publication.metadata_xml.partition(
+        '<timestamp>'))[2].partition('</timestamp>')[0]
+    doi_batch_id = (publication.metadata_xml.partition(
+        '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
+    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+            + '_' + timestamp + '.xml')
+    deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
+                      metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
+    deposit.metadata_xml_file.save(path, content)
+    deposit.response_text = r.text
+    deposit.save()
+    publication.latest_crossref_deposit = timezone.now()
+    publication.save()
 
     context = {
         'option': option,
@@ -635,7 +635,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def mark_deposit_success(deposit_id, success):
+def mark_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(Deposit, pk=deposit_id)
     if success == '1':
         deposit.deposit_successful = True

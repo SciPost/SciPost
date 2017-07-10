@@ -52,7 +52,7 @@ urlpatterns = [
     url(r'^metadata_xml_deposit/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/(?P<option>[a-z]+)$',
         journals_views.metadata_xml_deposit,
         name='metadata_xml_deposit'),
-    url(r'^mark_deposit_as_successful/(?P<deposit_id>[0-9]+)/(?P<success>[0-1])$',
+    url(r'^mark_deposit_success/(?P<deposit_id>[0-9]+)/(?P<success>[0-1])$',
         journals_views.mark_deposit_success,
         name='mark_deposit_success'),
     url(r'^harvest_citedby_list/$',

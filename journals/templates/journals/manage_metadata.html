@@ -54,6 +54,7 @@ event: "focusin"
     </tr>
     <tr id="collapse{{ publication.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ publication.id }}" style="background-color: #fff;">
       <td colspan="4">
+	<h3 class="ml-3">Actions</h3>
         <ul>
           <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }} {% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
 	    <div class="row">
@@ -87,24 +88,35 @@ event: "focusin"
           <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'test' %}">Test metadata deposit (via Crossref test server)</a></li>
           <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'deposit' %}">Deposit the metadata to Crossref</a></li>
         </ul>
-	<table>
-	  {% for deposit in publication.deposit_set.all %}
-	  <tr>
-	    <td>{{ deposit.timestamp }}</td>
-	    <td>{{ deposit.doi_batch_id }}</td>
-	    <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
-	    <td>Mark deposit as
-	      <ul>
-		<li><a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
-		<li><a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
-	      </ul>
-	    </td>
-	  </tr>
-	  {% empty %}
-	  <tr>
-	    <td colspan="4">No Deposits found for this publication</td>
-	  </tr>
-	  {% endfor %}
+	<h3 class="ml-3">Deposits</h3>
+	<table class="ml-5">
+	  <thead class="thead-default">
+	    <th>Timestamp</th>
+	    <th>batch id</th>
+	    <th>deposition date</th>
+	    <th>Successful?</th>
+	    <th>actions</th>
+	  </thead>
+	  <tbody>
+	    {% for deposit in publication.deposit_set.all %}
+	    <tr>
+	      <td>{{ deposit.timestamp }}</td>
+	      <td>{{ deposit.doi_batch_id }}</td>
+	      <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
+	      <td>{{ deposit.deposit_successful }}</td>
+	      <td>Mark deposit as
+		<ul>
+		  <li><a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
+		  <li><a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
+		</ul>
+	      </td>
+	    </tr>
+	    {% empty %}
+	    <tr>
+	      <td colspan="4">No Deposits found for this publication</td>
+	    </tr>
+	    {% endfor %}
+	  </tbody>
 	</table>
       </td>
     </tr>
