@@ -6,6 +6,7 @@ import string
 import xml.etree.ElementTree as ET
 
 from django.core.urlresolvers import reverse
+from django.core.files.base import ContentFile
 from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
@@ -20,6 +21,7 @@ from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublication
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
 
+from journals.models import Publication, Deposit
 from submissions.models import Submission
 from scipost.models import Contributor
 
@@ -267,6 +269,15 @@ def validate_publication(request):
 
     context['validate_publication_form'] = validate_publication_form
     return render(request, 'journals/validate_publication.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def manage_metadata(request):
+    publications = Publication.objects.order_by('-publication_date')
+    context = {
+        'publications': publications
+    }
+    return render(request, 'journals/manage_metadata.html', context)
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -555,6 +566,7 @@ def create_metadata_xml(request, doi_label):
         '</journal>\n'
     )
     initial['metadata_xml'] += '</body>\n</doi_batch>'
+    publication.latest_metadata_update = timezone.now()
     publication.save()
 
     context = {'publication': publication,
@@ -579,7 +591,10 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     else:
         errormessage = 'metadata_xml_deposit can only be called with options test or deposit'
         return render(request, 'scipost/error.html', context={'errormessage': errormessage})
-
+    if publication.metadata_xml is None:
+        errormessage = 'This publication has no metadata. Produce it first before saving it.'
+        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+    # First perform the actual deposit to Crossref
     params = {
         'operation': 'doMDUpload',
         'login_id': settings.CROSSREF_LOGIN_ID,
@@ -592,6 +607,24 @@ def metadata_xml_deposit(request, doi_label, option='test'):
                       )
     response_headers = r.headers
     response_text = r.text
+
+    # Then, if deposit, create the associated Deposit object (saving the metadata to a file)
+    content = ContentFile(publication.metadata_xml)
+    timestamp = (publication.metadata_xml.partition(
+        '<timestamp>'))[2].partition('</timestamp>')[0]
+    doi_batch_id = (publication.metadata_xml.partition(
+        '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
+    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+            + '_' + timestamp + '.xml')
+    deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
+                      metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
+    deposit.metadata_xml_file.save(path, content)
+    deposit.response_text = r.text
+    deposit.save()
+    publication.latest_crossref_deposit = timezone.now()
+    publication.save()
+
     context = {
         'option': option,
         'publication': publication,
@@ -599,6 +632,26 @@ def metadata_xml_deposit(request, doi_label, option='test'):
         'response_text': response_text,
     }
     return render(request, 'journals/metadata_xml_deposit.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def mark_deposit_success(request, deposit_id, success):
+    deposit = get_object_or_404(Deposit, pk=deposit_id)
+    if success == '1':
+        deposit.deposit_successful = True
+    elif success == '0':
+        deposit.deposit_successful = False
+    deposit.save()
+    return redirect(reverse('journals:manage_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def harvest_citedby_list(request):
+    publications = Publication.objects.order_by('-publication_date')
+    context = {
+        'publications': publications
+    }
+    return render(request, 'journals/harvest_citedby_list.html', context)
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -637,7 +690,7 @@ def harvest_citedby_links(request, doi_label):
     if r.status_code == 401:
         messages.warning(request, ('<h3>Crossref credentials are invalid.</h3>'
                                    'Please contact the SciPost Admin.'))
-        return redirect(publication.get_absolute_url())
+        return redirect(reverse('journals:harvest_all_publications'))
     response_headers = r.headers
     response_text = r.text
     response_deserialized = ET.fromstring(r.text)
@@ -680,6 +733,7 @@ def harvest_citedby_links(request, doi_label):
                           'item_number': item_number,
                           'year': year, })
     publication.citedby = citations
+    publication.latest_citedby_update = timezone.now()
     publication.save()
     context = {
         'publication': publication,

@@ -263,6 +263,16 @@
                             {% endif %}
                         </ul>
 
+                        {% if 'Editorial Administrators' in user_groups %}
+                            <h3>Editorial Admin actions</h3>
+                            <ul>
+                              {% if perms.scipost.can_publish_accepted_submission %}
+			      <li><a href="{% url 'journals:manage_metadata' %}">Manage metadata</a></li>
+                              <li><a href="{% url 'journals:harvest_citedby_list' %}">Harvest citedby data</a></li>
+                              {% endif %}
+                            </ul>
+                        {% endif %}
+
                         {% if perms.scipost.can_attend_VGMs %}
                         <h3>Virtual General Meetings</h3>
                         <ul>
