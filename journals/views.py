@@ -550,7 +550,6 @@ def create_metadata_xml(request, doi_label):
         + publication.doi_string + '/pdf</resource>\n'
         '</item></collection>\n'
         '</doi_data>\n'
-        '<pages><first_page>' + paper_nr_string(publication.paper_nr) + '</first_page></pages>\n'
     )
     try:
         if publication.metadata['citation_list']:
