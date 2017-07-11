@@ -11,6 +11,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
+from django.template import Template, Context
+from django.template.loader import get_template
 from django.db import transaction
 from django.http import HttpResponse
 
@@ -21,7 +23,7 @@ from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublication
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
 
-from journals.models import Publication, Deposit
+from journals.models import Publication, Deposit, CLOCKSSmetadata
 from submissions.models import Submission
 from scipost.models import Contributor
 
@@ -475,7 +477,7 @@ def create_metadata_xml(request, doi_label):
         '<abbrev_title>'
         + publication.in_issue.in_volume.in_journal.get_abbreviation_citation() +
         '</abbrev_title>\n'
-        '<issn>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
+        '<issn media_type=\'electronic\'>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
         '<doi_data>\n'
         '<doi>' + publication.in_issue.in_volume.in_journal.doi_string + '</doi>\n'
         '<resource>https://scipost.org/'
@@ -548,6 +550,7 @@ def create_metadata_xml(request, doi_label):
         + publication.doi_string + '/pdf</resource>\n'
         '</item></collection>\n'
         '</doi_data>\n'
+        '<pages><first_page>' + publication.paper_nr + '</first_page></pages>\n'
     )
     try:
         if publication.metadata['citation_list']:
@@ -608,22 +611,30 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     response_headers = r.headers
     response_text = r.text
 
-    # Then, if deposit, create the associated Deposit object (saving the metadata to a file)
-    content = ContentFile(publication.metadata_xml)
-    timestamp = (publication.metadata_xml.partition(
-        '<timestamp>'))[2].partition('</timestamp>')[0]
-    doi_batch_id = (publication.metadata_xml.partition(
-        '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
-    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-            + '_' + timestamp + '.xml')
-    deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
-                      metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
-    deposit.metadata_xml_file.save(path, content)
-    deposit.response_text = r.text
-    deposit.save()
-    publication.latest_crossref_deposit = timezone.now()
-    publication.save()
+    # Then create the associated Deposit object (saving the metadata to a file)
+    if option == 'deposit':
+        content = ContentFile(publication.metadata_xml)
+        timestamp = (publication.metadata_xml.partition(
+            '<timestamp>'))[2].partition('</timestamp>')[0]
+        doi_batch_id = (publication.metadata_xml.partition(
+            '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
+        path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+                + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+                + '_' + timestamp + '.xml')
+        deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
+                          metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
+        deposit.metadata_xml_file.save(path, content)
+        deposit.response_text = r.text
+        deposit.save()
+        publication.latest_crossref_deposit = timezone.now()
+        publication.save()
+        # Save a copy to the filename without timestamp
+        path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+                 + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+                 + '.xml')
+        f = open(path1, 'w')
+        f.write(xml)
+        f.close()
 
     context = {
         'option': option,
@@ -642,6 +653,33 @@ def mark_deposit_success(request, deposit_id, success):
     elif success == '0':
         deposit.deposit_successful = False
     deposit.save()
+    return redirect(reverse('journals:manage_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def produce_CLOCKSS_metadata_file(request, doi_label):
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    context = Context({'publication': publication,})
+    xml = get_template('journals/publication_metadata_jats.xml').render(context)
+    content = ContentFile(xml)
+    timestamp = (publication.metadata_xml.partition(
+        '<timestamp>'))[2].partition('</timestamp>')[0]
+    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+            + '_CLOCKSS_' + timestamp + '.xml')
+    if os.path.isfile(path):
+        errormessage = 'The CLOCKSS metadata file for this metadata timestamp already exists'
+        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+    clockssmeta = CLOCKSSmetadata(publication=publication)
+    clockssmeta.metadata_xml_file_CLOCKSS.save(path, content)
+    clockssmeta.save()
+    # Save a copy to the filename without timestamp
+    path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+            + '_CLOCKSS.xml')
+    f = open(path1, 'w')
+    f.write(xml)
+    f.close()
     return redirect(reverse('journals:manage_metadata'))
 
 
