@@ -686,6 +686,71 @@ def produce_CLOCKSS_metadata_file(request, doi_label):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def produce_metadata_DOAJ(request, doi_label):
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    JournalUtils.load({'request': request, 'publication': publication})
+    publication.metadata_DOAJ = JournalUtils.generate_metadata_DOAJ()
+    publication.save()
+    return redirect(reverse('journals:manage_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
+def metadata_DOAJ_deposit(request, doi_label):
+    """
+    DOAJ metadata deposit.
+    Makes use of the python requests module.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    timestamp = (publication.metadata_xml.partition(
+        '<timestamp>'))[2].partition('</timestamp>')[0]
+    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+            + '_DOAJ_' + timestamp + '.json')
+    if os.path.isfile(path):
+        errormessage = 'The metadata file for this metadata timestamp already exists'
+        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+    url = 'https://doaj.org/api/v1/articles'
+
+    params = {
+        'operation': 'doMDUpload',
+        'api_key': settings.DOAJ_API_KEY,
+        }
+    files = {'fname': ('metadata.json', publication.metadata_xml, 'application/json')}
+    r = requests.post(url,
+                      params=params,
+                      files=files,
+                      )
+    response_headers = r.headers
+    response_text = r.text
+
+    # Then create the associated Deposit object (saving the metadata to a file)
+    content = ContentFile(publication.metadata_xml)
+    deposit = DOAJDeposit(publication=publication, timestamp=timestamp,
+                      metadata_DOAJ=metadata_DOAJ, deposition_date=timezone.now())
+    deposit.metadata_xml_file.save(path, content)
+    deposit.response_text = r.text
+    deposit.save()
+    publication.latest_crossref_deposit = timezone.now()
+    publication.save()
+    # Save a copy to the filename without timestamp
+    path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+             + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+             + '_DOAJ.json')
+    f = open(path1, 'w')
+    f.write(metadata_DOAJ)
+    f.close()
+
+    context = {
+        'publication': publication,
+        'response_headers': response_headers,
+        'response_text': response_text,
+    }
+    return redirect(reverse('journals:manage_metadata'))
+
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def harvest_citedby_list(request):
     publications = Publication.objects.order_by('-publication_date')
     context = {
