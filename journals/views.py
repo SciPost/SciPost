@@ -587,6 +587,16 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     Makes use of the python requests module.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
+    timestamp = (publication.metadata_xml.partition(
+        '<timestamp>'))[2].partition('</timestamp>')[0]
+    doi_batch_id = (publication.metadata_xml.partition(
+        '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
+    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+            + '_' + timestamp + '.xml')
+    if os.path.isfile(path):
+        errormessage = 'The metadata file for this metadata timestamp already exists'
+        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
     if option == 'deposit':
         url = 'http://doi.crossref.org/servlet/deposit'
     elif option == 'test':
@@ -614,13 +624,6 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     # Then create the associated Deposit object (saving the metadata to a file)
     if option == 'deposit':
         content = ContentFile(publication.metadata_xml)
-        timestamp = (publication.metadata_xml.partition(
-            '<timestamp>'))[2].partition('</timestamp>')[0]
-        doi_batch_id = (publication.metadata_xml.partition(
-            '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
-        path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-                + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-                + '_' + timestamp + '.xml')
         deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
                           metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
         deposit.metadata_xml_file.save(path, content)
