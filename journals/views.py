@@ -593,7 +593,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
         '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
     path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
             + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-            + '_' + timestamp + '.xml')
+            + '_Crossref_' + timestamp + '.xml')
     if os.path.isfile(path):
         errormessage = 'The metadata file for this metadata timestamp already exists'
         return render(request, 'scipost/error.html', context={'errormessage': errormessage})
@@ -634,9 +634,9 @@ def metadata_xml_deposit(request, doi_label, option='test'):
         # Save a copy to the filename without timestamp
         path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
                  + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-                 + '.xml')
+                 + '_Crossref.xml')
         f = open(path1, 'w')
-        f.write(xml)
+        f.write(publication.metadata_xml)
         f.close()
 
     context = {
