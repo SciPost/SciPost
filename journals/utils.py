@@ -38,6 +38,41 @@ class JournalUtils(object):
             reply_to=['admin@scipost.org'])
         emailmessage.send(fail_silently=False)
 
+
     @classmethod
-    def generate_metadata_xml_file(cls):
+    def generate_metadata_DOAJ(cls):
         """ Requires loading 'publication' attribute. """
+        md = {
+            'bibjson': {
+                'author': [ { 'name': cls.publication.author_list,} ],
+                'title': cls.publication.title,
+                'abstract': cls.publication.abstract,
+                'year': cls.publication.publication_date.strftime('%Y'),
+                'month': cls.publication.publication_date.strftime('%m'),
+                'link': [
+                    {
+                        'url': cls.request.build_absolute_uri(cls.publication.get_absolute_url()),
+                        'type': 'fulltext',
+                        'content_type': 'application/pdf'
+                    }
+                ],
+                'identifier': [ {'type': 'eissn',
+                                 'id': str(cls.publication.in_issue.in_volume.in_journal.issn)}],
+                'journal': {
+                    'publisher': 'SciPost',
+                    'license': [
+                        {
+                            'url': cls.request.build_absolute_uri(
+                                cls.publication.in_issue.in_volume.in_journal.get_absolute_url()),
+                            'open_access': 'true',
+                            'type': 'CC BY',
+                            'title': 'CC BY'
+                        }
+                    ],
+                    'language': [ 'EN'],
+                    'title': cls.publication.in_issue.in_volume.in_journal.get_name_display(),
+                    'volume': str(cls.publication.in_issue.in_volume.number),
+                }
+            }
+        }
+        return md

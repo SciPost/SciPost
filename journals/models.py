@@ -143,6 +143,7 @@ class Publication(models.Model):
     metadata = JSONField(default={}, blank=True, null=True)
     metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
     latest_metadata_update = models.DateTimeField(blank=True, null=True)
+    metadata_DOAJ = JSONField(blank=True, null=True)
     BiBTeX_entry = models.TextField(blank=True, null=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_publication_validator])
@@ -235,7 +236,8 @@ class Deposit(models.Model):
 
     def __str__(self):
         return (self.deposition_date.strftime('%Y-%m-%D') +
-                ' for 10.21468/' + self.publication.doi_label)
+                ' for ' + self.publication.doi_label)
+
 
 class CLOCKSSmetadata(models.Model):
     """
@@ -248,4 +250,22 @@ class CLOCKSSmetadata(models.Model):
         verbose_name = 'CLOCKSS metadata'
 
     def __str__(self):
-        return ('CLOCKSS metadata for 10.21468/' + self.publication.doi_label)
+        return ('CLOCKSS metadata for ' + self.publication.doi_label)
+
+
+class DOAJDeposit(models.Model):
+    """
+    For the Directory of Open Access Journals.
+    """
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+    timestamp = models.CharField(max_length=40, default='')
+    metadata_DOAJ = JSONField()
+    deposition_date = models.DateTimeField(blank=True, null=True)
+    response_text = models.TextField(blank=True, null=True)
+    deposit_successful = models.NullBooleanField(default=None)
+
+    class Meta:
+        verbose_name = 'DOAJ deposit'
+
+    def __str__(self):
+        return ('DOAJ deposit for ' + self.publication.doi_label)
