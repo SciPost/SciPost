@@ -49,29 +49,39 @@ class JournalUtils(object):
                 'abstract': cls.publication.abstract,
                 'year': cls.publication.publication_date.strftime('%Y'),
                 'month': cls.publication.publication_date.strftime('%m'),
+                'start_page': cls.publication.get_paper_nr(),
+                'identifier': [
+                    {
+                        'type': 'doi',
+                        'id': cls.publication.doi_string()
+                    }
+                ],
                 'link': [
                     {
                         'url': cls.request.build_absolute_uri(cls.publication.get_absolute_url()),
                         'type': 'fulltext',
-                        'content_type': 'application/pdf'
                     }
                 ],
-                'identifier': [ {'type': 'eissn',
-                                 'id': str(cls.publication.in_issue.in_volume.in_journal.issn)}],
                 'journal': {
                     'publisher': 'SciPost',
+                    'volume': str(cls.publication.in_issue.in_volume.number),
+                    'number': str(cls.publication.in_issue.number),
+                    'identifier': [
+                        { 'type': 'eissn',
+                          'id': str(cls.publication.in_issue.in_volume.in_journal.issn)
+                        }
+                    ],
                     'license': [
                         {
                             'url': cls.request.build_absolute_uri(
                                 cls.publication.in_issue.in_volume.in_journal.get_absolute_url()),
                             'open_access': 'true',
-                            'type': 'CC BY',
-                            'title': 'CC BY'
+                            'type': cls.publication.get_cc_license_display(),
+                            'title': cls.publication.get_cc_license_display(),
                         }
                     ],
                     'language': [ 'EN'],
                     'title': cls.publication.in_issue.in_volume.in_journal.get_name_display(),
-                    'volume': str(cls.publication.in_issue.in_volume.number),
                 }
             }
         }

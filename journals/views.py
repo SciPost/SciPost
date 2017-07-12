@@ -275,7 +275,7 @@ def validate_publication(request):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def manage_metadata(request):
-    publications = Publication.objects.order_by('-publication_date')
+    publications = Publication.objects.order_by('-publication_date', '-paper_nr')
     context = {
         'publications': publications
     }
@@ -748,6 +748,16 @@ def metadata_DOAJ_deposit(request, doi_label):
     }
     return redirect(reverse('journals:manage_metadata'))
 
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def mark_doaj_deposit_success(request, deposit_id, success):
+    deposit = get_object_or_404(DOAJDeposit, pk=deposit_id)
+    if success == '1':
+        deposit.deposit_successful = True
+    elif success == '0':
+        deposit.deposit_successful = False
+    deposit.save()
+    return redirect(reverse('journals:manage_metadata'))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
