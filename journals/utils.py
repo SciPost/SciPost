@@ -52,7 +52,7 @@ class JournalUtils(object):
                 'identifier': [
                     {
                         'type': 'doi',
-                        'id': cls.publication.doi_string()
+                        'id': cls.publication.doi_string
                     }
                 ],
                 'link': [
