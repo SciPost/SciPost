@@ -139,7 +139,6 @@ def issue_detail(request, doi_label):
     return render(request, 'journals/journal_issue_detail.html', context)
 
 
-
 #######################
 # Publication process #
 #######################
@@ -473,11 +472,13 @@ def create_metadata_xml(request, doi_label):
         '<body>\n'
         '<journal>\n'
         '<journal_metadata>\n'
-        '<full_title>' + publication.in_issue.in_volume.in_journal.get_name_display() + '</full_title>\n'
+        '<full_title>' + publication.in_issue.in_volume.in_journal.get_name_display()
+        + '</full_title>\n'
         '<abbrev_title>'
         + publication.in_issue.in_volume.in_journal.get_abbreviation_citation() +
         '</abbrev_title>\n'
-        '<issn media_type=\'electronic\'>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
+        '<issn media_type=\'electronic\'>' + publication.in_issue.in_volume.in_journal.issn
+        + '</issn>\n'
         '<doi_data>\n'
         '<doi>' + publication.in_issue.in_volume.in_journal.doi_string + '</doi>\n'
         '<resource>https://scipost.org/'
@@ -661,7 +662,7 @@ def mark_deposit_success(request, deposit_id, success):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def produce_CLOCKSS_metadata_file(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    context = Context({'publication': publication,})
+    context = Context({'publication': publication})
     xml = get_template('journals/publication_metadata_jats.xml').render(context)
     content = ContentFile(xml)
     timestamp = (publication.metadata_xml.partition(
@@ -677,8 +678,8 @@ def produce_CLOCKSS_metadata_file(request, doi_label):
     clockssmeta.save()
     # Save a copy to the filename without timestamp
     path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-            + '_CLOCKSS.xml')
+             + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+             + '_CLOCKSS.xml')
     f = open(path1, 'w')
     f.write(xml)
     f.close()
