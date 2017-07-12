@@ -11,17 +11,19 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
+from django.template import Context
+from django.template.loader import get_template
 from django.db import transaction
 from django.http import HttpResponse
 
 from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string
-from .models import Journal, Issue, Publication, UnregisteredAuthor
+from .models import Journal, Issue, Publication, UnregisteredAuthor, DOAJDeposit
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
 
-from journals.models import Publication, Deposit
+from journals.models import Deposit, CLOCKSSmetadata
 from submissions.models import Submission
 from scipost.models import Contributor
 
@@ -135,7 +137,6 @@ def issue_detail(request, doi_label):
         'journal': journal
     }
     return render(request, 'journals/journal_issue_detail.html', context)
-
 
 
 #######################
@@ -273,7 +274,7 @@ def validate_publication(request):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def manage_metadata(request):
-    publications = Publication.objects.order_by('-publication_date')
+    publications = Publication.objects.order_by('-publication_date', '-paper_nr')
     context = {
         'publications': publications
     }
@@ -471,11 +472,13 @@ def create_metadata_xml(request, doi_label):
         '<body>\n'
         '<journal>\n'
         '<journal_metadata>\n'
-        '<full_title>' + publication.in_issue.in_volume.in_journal.get_name_display() + '</full_title>\n'
+        '<full_title>' + publication.in_issue.in_volume.in_journal.get_name_display()
+        + '</full_title>\n'
         '<abbrev_title>'
         + publication.in_issue.in_volume.in_journal.get_abbreviation_citation() +
         '</abbrev_title>\n'
-        '<issn>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
+        '<issn media_type=\'electronic\'>' + publication.in_issue.in_volume.in_journal.issn
+        + '</issn>\n'
         '<doi_data>\n'
         '<doi>' + publication.in_issue.in_volume.in_journal.doi_string + '</doi>\n'
         '<resource>https://scipost.org/'
@@ -584,6 +587,16 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     Makes use of the python requests module.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
+    timestamp = (publication.metadata_xml.partition(
+        '<timestamp>'))[2].partition('</timestamp>')[0]
+    doi_batch_id = (publication.metadata_xml.partition(
+        '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
+    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+            + '_Crossref_' + timestamp + '.xml')
+    if os.path.isfile(path):
+        errormessage = 'The metadata file for this metadata timestamp already exists'
+        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
     if option == 'deposit':
         url = 'http://doi.crossref.org/servlet/deposit'
     elif option == 'test':
@@ -608,22 +621,23 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     response_headers = r.headers
     response_text = r.text
 
-    # Then, if deposit, create the associated Deposit object (saving the metadata to a file)
-    content = ContentFile(publication.metadata_xml)
-    timestamp = (publication.metadata_xml.partition(
-        '<timestamp>'))[2].partition('</timestamp>')[0]
-    doi_batch_id = (publication.metadata_xml.partition(
-        '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
-    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-            + '_' + timestamp + '.xml')
-    deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
-                      metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
-    deposit.metadata_xml_file.save(path, content)
-    deposit.response_text = r.text
-    deposit.save()
-    publication.latest_crossref_deposit = timezone.now()
-    publication.save()
+    # Then create the associated Deposit object (saving the metadata to a file)
+    if option == 'deposit':
+        content = ContentFile(publication.metadata_xml)
+        deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
+                          metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
+        deposit.metadata_xml_file.save(path, content)
+        deposit.response_text = r.text
+        deposit.save()
+        publication.latest_crossref_deposit = timezone.now()
+        publication.save()
+        # Save a copy to the filename without timestamp
+        path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+                 + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+                 + '_Crossref.xml')
+        f = open(path1, 'w')
+        f.write(publication.metadata_xml)
+        f.close()
 
     context = {
         'option': option,
@@ -637,6 +651,121 @@ def metadata_xml_deposit(request, doi_label, option='test'):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def mark_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(Deposit, pk=deposit_id)
+    if success == '1':
+        deposit.deposit_successful = True
+    elif success == '0':
+        deposit.deposit_successful = False
+    deposit.save()
+    return redirect(reverse('journals:manage_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def produce_CLOCKSS_metadata_file(request, doi_label):
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    context = Context({'publication': publication})
+    xml = get_template('journals/publication_metadata_jats.xml').render(context)
+    content = ContentFile(xml)
+    timestamp = (publication.metadata_xml.partition(
+        '<timestamp>'))[2].partition('</timestamp>')[0]
+    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+            + '_CLOCKSS_' + timestamp + '.xml')
+    if os.path.isfile(path):
+        errormessage = 'The CLOCKSS metadata file for this metadata timestamp already exists'
+        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+    clockssmeta = CLOCKSSmetadata(publication=publication)
+    clockssmeta.metadata_xml_file_CLOCKSS.save(path, content)
+    clockssmeta.save()
+    # Save a copy to the filename without timestamp
+    path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+             + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+             + '_CLOCKSS.xml')
+    f = open(path1, 'w')
+    f.write(xml)
+    f.close()
+    return redirect(reverse('journals:manage_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def produce_metadata_DOAJ(request, doi_label):
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    JournalUtils.load({'request': request, 'publication': publication})
+    publication.metadata_DOAJ = JournalUtils.generate_metadata_DOAJ()
+    publication.save()
+    messages.success(request, '<h3>%s</h3>Successfully produced metadata DOAJ.'
+                              % publication.doi_label)
+    return redirect(reverse('journals:manage_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
+def metadata_DOAJ_deposit(request, doi_label):
+    """
+    DOAJ metadata deposit.
+    Makes use of the python requests module.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not publication.metadata_DOAJ:
+        messages.warning(request, '<h3>%s</h3>Failed: please first produce '
+                                  'DOAJ metadata before depositing.' % publication.doi_label)
+        return redirect(reverse('journals:manage_metadata'))
+
+    timestamp = (publication.metadata_xml.partition(
+        '<timestamp>'))[2].partition('</timestamp>')[0]
+    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+            + '_DOAJ_' + timestamp + '.json')
+    if os.path.isfile(path):
+        errormessage = 'The metadata file for this metadata timestamp already exists'
+        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+    url = 'https://doaj.org/api/v1/articles'
+
+    params = {
+        'operation': 'doMDUpload',
+        'api_key': settings.DOAJ_API_KEY,
+        }
+    files = {'fname': ('metadata.json', publication.metadata_xml, 'application/json')}
+    try:
+        r = requests.post(url, params=params, files=files)
+        r.raise_for_status()
+    except requests.exceptions.HTTPError:
+        messages.warning(request, '<h3>%s</h3>Failed: Post went wrong. Did you set the right '
+                                  'DOAJ API KEY?' % publication.doi_label)
+        return redirect(reverse('journals:manage_metadata'))
+
+    # Then create the associated Deposit object (saving the metadata to a file)
+    content = ContentFile(publication.metadata_xml)
+    deposit = DOAJDeposit(publication=publication, timestamp=timestamp,
+                          metadata_DOAJ=publication.metadata_DOAJ, deposition_date=timezone.now())
+    deposit.metadata_xml_file.save(path, content)
+    deposit.response_text = r.text
+    deposit.save()
+    publication.latest_crossref_deposit = timezone.now()
+    publication.save()
+
+    # Save a copy to the filename without timestamp
+    path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
+             + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+             + '_DOAJ.json')
+    f = open(path1, 'w')
+    f.write(publication.metadata_DOAJ)
+    f.close()
+
+    # response_headers = r.headers
+    # response_text = r.text
+    # context = {
+    #     'publication': publication,
+    #     'response_headers': response_headers,
+    #     'response_text': response_text,
+    # }
+    messages.success(request, '<h3>%s</h3>Successfull deposit of metadata DOAJ.'
+                              % publication.doi_label)
+    return redirect(reverse('journals:manage_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def mark_doaj_deposit_success(request, deposit_id, success):
+    deposit = get_object_or_404(DOAJDeposit, pk=deposit_id)
     if success == '1':
         deposit.deposit_successful = True
     elif success == '0':
