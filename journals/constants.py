@@ -56,3 +56,12 @@ ISSUE_STATUSES = (
     (STATUS_DRAFT, 'Draft'),
     (STATUS_PUBLISHED, 'Published'),
 )
+
+CCBY4 = 'CC BY 4.0'
+CCBYSA4 = 'CC BY-SA 4.0'
+CCBYNC4 = 'CC BY-NC 4.0'
+CC_LICENSES = (
+    (CCBY4, 'CC BY (4.0)'),
+    (CCBYSA4, 'CC BY-SA (4.0)'),
+    (CCBYNC4, 'CC BY-NC (4.0)'),
+)

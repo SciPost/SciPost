@@ -275,7 +275,7 @@ def validate_publication(request):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def manage_metadata(request):
-    publications = Publication.objects.order_by('-publication_date')
+    publications = Publication.objects.order_by('-publication_date', '-paper_nr')
     context = {
         'publications': publications
     }
