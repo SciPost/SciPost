@@ -11,19 +11,19 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template import Template, Context
+from django.template import Context
 from django.template.loader import get_template
 from django.db import transaction
 from django.http import HttpResponse
 
 from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string
-from .models import Journal, Issue, Publication, UnregisteredAuthor
+from .models import Journal, Issue, Publication, UnregisteredAuthor, DOAJDeposit
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
 
-from journals.models import Publication, Deposit, CLOCKSSmetadata
+from journals.models import Deposit, CLOCKSSmetadata
 from submissions.models import Submission
 from scipost.models import Contributor
 
@@ -137,7 +137,6 @@ def issue_detail(request, doi_label):
         'journal': journal
     }
     return render(request, 'journals/journal_issue_detail.html', context)
-
 
 
 #######################
@@ -473,11 +472,13 @@ def create_metadata_xml(request, doi_label):
         '<body>\n'
         '<journal>\n'
         '<journal_metadata>\n'
-        '<full_title>' + publication.in_issue.in_volume.in_journal.get_name_display() + '</full_title>\n'
+        '<full_title>' + publication.in_issue.in_volume.in_journal.get_name_display()
+        + '</full_title>\n'
         '<abbrev_title>'
         + publication.in_issue.in_volume.in_journal.get_abbreviation_citation() +
         '</abbrev_title>\n'
-        '<issn media_type=\'electronic\'>' + publication.in_issue.in_volume.in_journal.issn + '</issn>\n'
+        '<issn media_type=\'electronic\'>' + publication.in_issue.in_volume.in_journal.issn
+        + '</issn>\n'
         '<doi_data>\n'
         '<doi>' + publication.in_issue.in_volume.in_journal.doi_string + '</doi>\n'
         '<resource>https://scipost.org/'
@@ -661,7 +662,7 @@ def mark_deposit_success(request, deposit_id, success):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def produce_CLOCKSS_metadata_file(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    context = Context({'publication': publication,})
+    context = Context({'publication': publication})
     xml = get_template('journals/publication_metadata_jats.xml').render(context)
     content = ContentFile(xml)
     timestamp = (publication.metadata_xml.partition(
@@ -677,8 +678,8 @@ def produce_CLOCKSS_metadata_file(request, doi_label):
     clockssmeta.save()
     # Save a copy to the filename without timestamp
     path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-            + '_CLOCKSS.xml')
+             + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
+             + '_CLOCKSS.xml')
     f = open(path1, 'w')
     f.write(xml)
     f.close()
@@ -691,6 +692,8 @@ def produce_metadata_DOAJ(request, doi_label):
     JournalUtils.load({'request': request, 'publication': publication})
     publication.metadata_DOAJ = JournalUtils.generate_metadata_DOAJ()
     publication.save()
+    messages.success(request, '<h3>%s</h3>Successfully produced metadata DOAJ.'
+                              % publication.doi_label)
     return redirect(reverse('journals:manage_metadata'))
 
 
@@ -702,6 +705,11 @@ def metadata_DOAJ_deposit(request, doi_label):
     Makes use of the python requests module.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not publication.metadata_DOAJ:
+        messages.warning(request, '<h3>%s</h3>Failed: please first produce '
+                                  'DOAJ metadata before depositing.' % publication.doi_label)
+        return redirect(reverse('journals:manage_metadata'))
+
     timestamp = (publication.metadata_xml.partition(
         '<timestamp>'))[2].partition('</timestamp>')[0]
     path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
@@ -717,35 +725,41 @@ def metadata_DOAJ_deposit(request, doi_label):
         'api_key': settings.DOAJ_API_KEY,
         }
     files = {'fname': ('metadata.json', publication.metadata_xml, 'application/json')}
-    r = requests.post(url,
-                      params=params,
-                      files=files,
-                      )
-    response_headers = r.headers
-    response_text = r.text
+    try:
+        r = requests.post(url, params=params, files=files)
+        r.raise_for_status()
+    except requests.exceptions.HTTPError:
+        messages.warning(request, '<h3>%s</h3>Failed: Post went wrong. Did you set the right '
+                                  'DOAJ API KEY?' % publication.doi_label)
+        return redirect(reverse('journals:manage_metadata'))
 
     # Then create the associated Deposit object (saving the metadata to a file)
     content = ContentFile(publication.metadata_xml)
     deposit = DOAJDeposit(publication=publication, timestamp=timestamp,
-                      metadata_DOAJ=metadata_DOAJ, deposition_date=timezone.now())
+                          metadata_DOAJ=publication.metadata_DOAJ, deposition_date=timezone.now())
     deposit.metadata_xml_file.save(path, content)
     deposit.response_text = r.text
     deposit.save()
     publication.latest_crossref_deposit = timezone.now()
     publication.save()
+
     # Save a copy to the filename without timestamp
     path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
              + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
              + '_DOAJ.json')
     f = open(path1, 'w')
-    f.write(metadata_DOAJ)
+    f.write(publication.metadata_DOAJ)
     f.close()
 
-    context = {
-        'publication': publication,
-        'response_headers': response_headers,
-        'response_text': response_text,
-    }
+    # response_headers = r.headers
+    # response_text = r.text
+    # context = {
+    #     'publication': publication,
+    #     'response_headers': response_headers,
+    #     'response_text': response_text,
+    # }
+    messages.success(request, '<h3>%s</h3>Successfull deposit of metadata DOAJ.'
+                              % publication.doi_label)
     return redirect(reverse('journals:manage_metadata'))
 
 
