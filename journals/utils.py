@@ -38,13 +38,12 @@ class JournalUtils(object):
             reply_to=['admin@scipost.org'])
         emailmessage.send(fail_silently=False)
 
-
     @classmethod
     def generate_metadata_DOAJ(cls):
         """ Requires loading 'publication' attribute. """
         md = {
             'bibjson': {
-                'author': [ { 'name': cls.publication.author_list,} ],
+                'author': [{'name': cls.publication.author_list}],
                 'title': cls.publication.title,
                 'abstract': cls.publication.abstract,
                 'year': cls.publication.publication_date.strftime('%Y'),
@@ -66,11 +65,10 @@ class JournalUtils(object):
                     'publisher': 'SciPost',
                     'volume': str(cls.publication.in_issue.in_volume.number),
                     'number': str(cls.publication.in_issue.number),
-                    'identifier': [
-                        { 'type': 'eissn',
-                          'id': str(cls.publication.in_issue.in_volume.in_journal.issn)
-                        }
-                    ],
+                    'identifier': [{
+                        'type': 'eissn',
+                        'id': str(cls.publication.in_issue.in_volume.in_journal.issn)
+                    }],
                     'license': [
                         {
                             'url': cls.request.build_absolute_uri(
@@ -80,7 +78,7 @@ class JournalUtils(object):
                             'title': cls.publication.get_cc_license_display(),
                         }
                     ],
-                    'language': [ 'EN'],
+                    'language': ['EN'],
                     'title': cls.publication.in_issue.in_volume.in_journal.get_name_display(),
                 }
             }
