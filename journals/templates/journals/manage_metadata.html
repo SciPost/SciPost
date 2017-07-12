@@ -120,7 +120,7 @@ event: "focusin"
 	    </tr>
 	    {% empty %}
 	    <tr>
-	      <td colspan="4">No Deposits found for this publication</td>
+	      <td colspan="5">No Deposits found for this publication</td>
 	    </tr>
 	    {% endfor %}
 	  </tbody>
@@ -142,8 +142,8 @@ event: "focusin"
 	      <td>{{ deposit.deposit_successful }}</td>
 	      <td>Mark deposit as
 		<ul>
-		  <li><a href="{% url 'journals:mark_doajdeposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
-		  <li><a href="{% url 'journals:mark_doajdeposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
+		  <li><a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
+		  <li><a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
 		</ul>
 	      </td>
 	    </tr>
