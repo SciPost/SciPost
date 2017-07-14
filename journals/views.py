@@ -541,6 +541,7 @@ def create_metadata_xml(request, doi_label):
         '<publisher_item><item_number item_number_type="article_number">'
         + paper_nr_string(publication.paper_nr) +
         '</item_number></publisher_item>\n'
+        '<archive_locations><archive>CLOCKSS</archive></archive_locations>\n'
         '<doi_data>\n'
         '<doi>' + publication.doi_string + '</doi>\n'
         '<resource>https://scipost.org/' + publication.doi_string + '</resource>\n'
