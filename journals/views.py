@@ -18,12 +18,11 @@ from django.http import HttpResponse
 
 from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string
-from .models import Journal, Issue, Publication, UnregisteredAuthor, DOAJDeposit
+from .models import Journal, Issue, Publication, UnregisteredAuthor, Deposit, DOAJDeposit
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
 
-from journals.models import Deposit, CLOCKSSmetadata
 from submissions.models import Submission
 from scipost.models import Contributor
 
@@ -542,6 +541,7 @@ def create_metadata_xml(request, doi_label):
         '<publisher_item><item_number item_number_type="article_number">'
         + paper_nr_string(publication.paper_nr) +
         '</item_number></publisher_item>\n'
+        '<archive_locations><archive>CLOCKSS</archive></archive_locations>\n'
         '<doi_data>\n'
         '<doi>' + publication.doi_string + '</doi>\n'
         '<resource>https://scipost.org/' + publication.doi_string + '</resource>\n'
@@ -656,33 +656,6 @@ def mark_deposit_success(request, deposit_id, success):
     elif success == '0':
         deposit.deposit_successful = False
     deposit.save()
-    return redirect(reverse('journals:manage_metadata'))
-
-
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def produce_CLOCKSS_metadata_file(request, doi_label):
-    publication = get_object_or_404(Publication, doi_label=doi_label)
-    context = Context({'publication': publication})
-    xml = get_template('journals/publication_metadata_jats.xml').render(context)
-    content = ContentFile(xml)
-    timestamp = (publication.metadata_xml.partition(
-        '<timestamp>'))[2].partition('</timestamp>')[0]
-    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-            + '_CLOCKSS_' + timestamp + '.xml')
-    if os.path.isfile(path):
-        errormessage = 'The CLOCKSS metadata file for this metadata timestamp already exists'
-        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
-    clockssmeta = CLOCKSSmetadata(publication=publication)
-    clockssmeta.metadata_xml_file_CLOCKSS.save(path, content)
-    clockssmeta.save()
-    # Save a copy to the filename without timestamp
-    path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-             + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-             + '_CLOCKSS.xml')
-    f = open(path1, 'w')
-    f.write(xml)
-    f.close()
     return redirect(reverse('journals:manage_metadata'))
 
 

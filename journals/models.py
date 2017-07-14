@@ -241,20 +241,6 @@ class Deposit(models.Model):
                 ' for ' + self.publication.doi_label)
 
 
-class CLOCKSSmetadata(models.Model):
-    """
-    For the CLOCKSS archive, JATS formatted XML is produced.
-    """
-    publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
-    metadata_xml_file_CLOCKSS = models.FileField(blank=True, null=True, max_length=512)
-
-    class Meta:
-        verbose_name = 'CLOCKSS metadata'
-
-    def __str__(self):
-        return ('CLOCKSS metadata for ' + self.publication.doi_label)
-
-
 class DOAJDeposit(models.Model):
     """
     For the Directory of Open Access Journals.
