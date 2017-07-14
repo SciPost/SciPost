@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django import forms
 
 from journals.models import UnregisteredAuthor, Journal, Volume, Issue, Publication, \
-    Deposit, CLOCKSSmetadata, DOAJDeposit
+    Deposit, DOAJDeposit
 
 from scipost.models import Contributor
 from submissions.models import Submission
@@ -81,7 +81,5 @@ class DepositAdmin(admin.ModelAdmin):
 
 admin.site.register(Deposit, DepositAdmin)
 
-
-admin.site.register(CLOCKSSmetadata)
 
 admin.site.register(DOAJDeposit)
