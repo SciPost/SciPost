@@ -441,7 +441,7 @@ def create_metadata_xml(request, doi_label):
         if create_metadata_xml_form.is_valid():
             publication.metadata_xml = create_metadata_xml_form.cleaned_data['metadata_xml']
             publication.save()
-            return redirect(publication.get_absolute_url())
+            return redirect(reverse('journals:manage_metadata'))
 
     # create a doi_batch_id
     salt = ""
