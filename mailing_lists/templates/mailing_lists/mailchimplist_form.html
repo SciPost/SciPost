@@ -32,6 +32,15 @@
             {{form|bootstrap}}
             <input type="submit" value="Update" class="btn btn-secondary" />
         </form>
+        {% if request.GET.bulkid %}
+            <div class="mb-3 mt-5">
+                <hr>
+                <h2>Synchronizing done</h2>
+                <p>
+                    Response bulk ID: <code>{{request.GET.bulkid}}</code><br>
+                    Check <a href="//us1.api.mailchimp.com/playground" target="_blank">MailChimp's Playground</a> to see the response status.
+            </div>
+        {% endif %}
     </div>
 </div>
 
