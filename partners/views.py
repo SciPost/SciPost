@@ -16,8 +16,8 @@ from .models import Partner, ProspectivePartner, ProspectiveContact, ContactRequ
                     PartnersAttachment
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
                    EmailProspectivePartnerContactForm, PromoteToPartnerForm,\
-                   ProspectivePartnerEventForm, MembershipQueryForm, PromoteToContactForm,\
-                   PromoteToContactFormset, PartnerForm, ContactForm, ContactFormset,\
+                   ProspectivePartnerEventForm, MembershipQueryForm,\
+                   PartnerForm, ContactForm, ContactFormset, ContactModelFormset,\
                    NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
                    MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
                    ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm,\
@@ -98,8 +98,6 @@ def promote_prospartner(request, prospartner_id):
     prospartner = get_object_or_404(ProspectivePartner.objects.not_yet_partner(),
                                     pk=prospartner_id)
     form = PromoteToPartnerForm(request.POST or None, instance=prospartner)
-    ContactModelFormset = modelformset_factory(ProspectiveContact, PromoteToContactForm,
-                                               formset=PromoteToContactFormset, extra=0)
     contact_formset = ContactModelFormset(request.POST or None,
                                           queryset=prospartner.prospective_contacts.all())
     if form.is_valid() and contact_formset.is_valid():
