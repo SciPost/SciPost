@@ -81,9 +81,9 @@ PARTNER_EVENTS = (
     ('comment', 'Comment added'),
 )
 
-
+CONTACT_GENERAL = 'gen'
 CONTACT_TYPES = (
-    ('gen', 'General Contact'),
+    (CONTACT_GENERAL, 'General Contact'),
     ('tech', 'Technical Contact'),
     ('fin', 'Financial Contact'),
     ('leg', 'Legal Contact')
