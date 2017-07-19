@@ -26,7 +26,10 @@ from .utils import PartnerUtils
 
 
 def supporting_partners(request):
-    context = {}
+    current_agreements = MembershipAgreement.objects.now_active()
+    context = {
+        'current_agreements': current_agreements
+    }
     if request.user.groups.filter(name='Editorial Administrators').exists():
         # Show Agreements to Administrators only!
         prospective_agreements = MembershipAgreement.objects.submitted().order_by('date_requested')

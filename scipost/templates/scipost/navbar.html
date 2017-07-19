@@ -16,6 +16,9 @@
           <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
             <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
           </li>
+          <li class="nav-item{% if '/partners/' in request.path %} active{% endif %}">
+              <a class="nav-link" href="{% url 'partners:partners' %}">Partners</a>
+          </li>
 
           {% if user.is_authenticated %}
               <li class="nav-item highlighted">
