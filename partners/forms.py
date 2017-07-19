@@ -28,11 +28,13 @@ class MembershipAgreementForm(forms.ModelForm):
             'status',
             'date_requested',
             'start_date',
+            'end_date',
             'duration',
             'offered_yearly_contribution'
         )
         widgets = {
             'start_date': forms.TextInput(attrs={'placeholder': 'YYYY-MM-DD'}),
+            'end_date': forms.TextInput(attrs={'placeholder': 'YYYY-MM-DD'}),
             'date_requested': forms.TextInput(attrs={'placeholder': 'YYYY-MM-DD'}),
         }
 

@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import F
+from django.utils import timezone
 
 from .constants import MEMBERSHIP_SUBMITTED, PROSPECTIVE_PARTNER_PROCESSED, REQUEST_INITIATED
 
@@ -29,6 +31,12 @@ class MembershipAgreementManager(models.Manager):
 
     def open_to_partner(self):
         return self.exclude(status=MEMBERSHIP_SUBMITTED)
+
+    def now_active(self):
+        return self.filter(start_date__lte=timezone.now().date(),
+                           end_date__gte=timezone.now().date())
+        # start_date = models.DateField()
+        # duration = models.DurationField(choices=MEMBERSHIP_DURATION)
 
 
 class PartnersAttachmentManager(models.Manager):
