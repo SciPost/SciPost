@@ -117,6 +117,26 @@
     </div>
 </div>
 
+{% if current_agreements %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Partners</h1>
+        <ul class="list-unstyled mb-5">
+            {% for agreement in current_agreements %}
+                <li class="media mb-2">
+                    <img class="d-flex mr-3" width="192" src="{% if agreement.partner.institution.logo %}{{agreement.partner.institution.logo.url}}{% endif %}" alt="Partner Logo">
+                    <div class="media-body">
+                        <p>
+                            <strong>{{agreement.partner.institution.name}}</strong><br>
+                            {{agreement.partner.institution.get_country_display}}
+                        </p>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
 
 {% if perms.scipost.can_manage_SPB %}
 {% if prospective_partners %}

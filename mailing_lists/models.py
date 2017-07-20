@@ -1,3 +1,5 @@
+import json
+
 from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -97,7 +99,7 @@ class MailchimpList(TimeStampedModel):
             batch_data['operations'].append({
                 'method': 'POST',
                 'path': add_member_path,
-                'data': {
+                'body': json.dumps({
                     'status': status,
                     'status_if_new': status,
                     'email_address': user.email,
@@ -105,10 +107,10 @@ class MailchimpList(TimeStampedModel):
                         'FNAME': user.first_name,
                         'LNAME': user.last_name,
                     },
-                }
+                })
             })
         # Make the subscribe call
-        client.batches.create(data=batch_data)
+        post_response = client.batches.create(data=batch_data)
 
         # No need to update Contributor field *yet*. MailChimp account is leading here.
         # Contributor.objects.filter(user__in=db_subscribers).update(accepts_SciPost_emails=True)
@@ -116,7 +118,7 @@ class MailchimpList(TimeStampedModel):
         list_data = client.lists.get(list_id=self.mailchimp_list_id)
         self.subscriber_count = list_data['stats']['member_count']
         self.save()
-        return (updated_contributors, len(db_subscribers),)
+        return (updated_contributors, len(db_subscribers), post_response)
 
 
 class MailchimpSubscription(TimeStampedModel):

@@ -733,7 +733,9 @@ def accept_or_decline_ref_invitations(request):
     RefereeInvitations need to be either accepted or declined by the invited user
     using this view. The decision will be taken one invitation at a time.
     """
-    invitation = RefereeInvitation.objects.filter(referee__user=request.user, accepted=None).first()
+    invitation = RefereeInvitation.objects.filter(referee__user=request.user,
+                                                  accepted=None,
+                                                  cancelled=False).first()
     if not invitation:
         messages.success(request, 'There are no Refereeing Invitations for you to consider.')
         return redirect(reverse('scipost:personal_page'))

@@ -35,7 +35,6 @@ event: "focusin"
       <th>Publication date</th>
       <th>Latest metadata update</th>
       <th>Latest successful Crossref deposit</th>
-      <th>CLOCKSS</th>
       <th>DOAJ</th>
     </tr>
   </thead>
@@ -53,7 +52,6 @@ event: "focusin"
       <td>No info available</td>
       {% endif %}
       <td>{{ publication|latest_successful_crossref_deposit }}</td>
-      <td>{% if publication.clockssmetadata_set.all.exists %}File exists{% else %}File does not exist{% endif %}</td>
       <td>{{ publication|latest_successful_DOAJ_deposit }}</td>
     </tr>
     <tr id="collapse{{ publication.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ publication.id }}" style="background-color: #fff;">
@@ -91,7 +89,6 @@ event: "focusin"
           <li><a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">(re)create metadata</a></li>
           <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'test' %}">Test metadata deposit (via Crossref test server)</a></li>
           <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'deposit' %}">Deposit the metadata to Crossref</a></li>
-	  <li><a href="{% url 'journals:produce_CLOCKSS_metadata_file' doi_label=publication.doi_label %}">Produce CLOCKSS metadata file</a></li>
 	  <li><a href="{% url 'journals:produce_metadata_DOAJ' doi_label=publication.doi_label %}">Produce DOAJ metadata</a></li>
 	  <li><a href="{% url 'journals:metadata_DOAJ_deposit' doi_label=publication.doi_label %}">Deposit the metadata to DOAJ</a></li>
         </ul>
