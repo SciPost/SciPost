@@ -81,13 +81,20 @@
         <div class="col-12">
             <div class="card card-grey">
                 <div class="card-block">
-                    <h1>Your report:</h1>
-                    <p class="mb-0">A preview of text areas will appear below as you type (you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
+                    <h1>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h1>
+                    <p>A preview of text areas will appear below as you type (you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
+                    <p class="mb-0">Any fields with an asterisk (*) are required.</p>
+                    {% if form.instance.is_followup_report %}
+                        <p class="mb-0">
+                            Because you have already submitted a Report for this Submission series, not all fields are required.
+                        </p>
+                    {% endif %}
                 </div>
             </div>
             <form action="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
                 {% csrf_token %}
                 {{ form|bootstrap:'3,9' }}
+                <p>Any fields with an asterisk (*) are required.</p>
                 <input class="btn btn-primary" type="submit" name="save_submit" value="Submit your report"/>
                 <input class="btn btn-secondary ml-2" type="submit" name="save_draft" value="Save your report as draft"/>
                 <div class="my-4">

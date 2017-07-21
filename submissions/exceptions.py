@@ -1,4 +1,4 @@
-class CycleUpdateDeadlineError(Exception):
+class BaseCustomException(Exception):
     def __init__(self, name):
         self.name = name
 
@@ -6,9 +6,9 @@ class CycleUpdateDeadlineError(Exception):
         return self.name
 
 
-class InvalidReportVettingValue(Exception):
-    def __init__(self, name):
-        self.name = name
+class CycleUpdateDeadlineError(BaseCustomException):
+    pass
 
-    def __str__(self):
-        return self.name
+
+class InvalidReportVettingValue(BaseCustomException):
+    pass

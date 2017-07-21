@@ -1032,6 +1032,10 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         errormessage = ('The system flagged you as a potential author of this Submission. '
                         'Please go to your personal page under the Submissions tab'
                         ' to clarify this.')
+    # if submission.reports.non_draft().filter(author=current_contributor).exists():
+    #     errormessage = ('You have already submitted a Report for this Submission. You cannot'
+    #                     ' submit an additional Report.')
+
     if errormessage:
         messages.warning(request, errormessage)
         return redirect(reverse('scipost:personal_page'))
@@ -1040,12 +1044,12 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
     try:
         report_in_draft = submission.reports.in_draft().get(author=current_contributor)
     except Report.DoesNotExist:
-        report_in_draft = None
+        report_in_draft = Report(author=current_contributor, submission=submission)
     form = ReportForm(request.POST or None, instance=report_in_draft)
 
     # Check if data sent is valid
     if form.is_valid():
-        newreport = form.save(submission, current_contributor)
+        newreport = form.save(submission)
         if newreport.status == STATUS_DRAFT:
             messages.success(request, ('Your Report has been saved. '
                                        'You may carry on working on it,'
