@@ -1,27 +1,36 @@
-<div class="row">
-    <div class="col-12">
-        <h3 class="highlight tight">Strengths</h3>
-        <div class="pl-md-4">{{ report.strengths|linebreaks }}</div>
+{% if report.strengths %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="highlight tight">Strengths</h3>
+            <div class="pl-md-4">{{ report.strengths|linebreaks }}</div>
+        </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-12">
-        <h3 class="highlight tight">Weaknesses</h3>
-        <div class="pl-md-4">{{ report.weaknesses|linebreaks }}</div>
+{% endif %}
+
+{% if report.weaknesses %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="highlight tight">Weaknesses</h3>
+            <div class="pl-md-4">{{ report.weaknesses|linebreaks }}</div>
+        </div>
     </div>
-</div>
+{% endif %}
+
 <div class="row">
     <div class="col-12">
         <h3 class="highlight tight">Report</h3>
         <div class="pl-md-4">{{ report.report|linebreaks }}</div>
     </div>
 </div>
-<div class="row">
-    <div class="col-12">
-        <h3 class="highlight tight">Requested changes</h3>
-        <div class="pl-md-4">
-            <p>{{ report.requested_changes|linebreaks }}</p>
-      </div>
-      {% include 'submissions/_single_report_ratings.html' with report=report %}
-  </div>
-</div>
+
+{% if report.requested_changes %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="highlight tight">Requested changes</h3>
+            <div class="pl-md-4">
+                <p>{{ report.requested_changes|linebreaksbr }}</p>
+                {% include 'submissions/_single_report_ratings.html' with report=report %}
+            </div>
+        </div>
+    </div>
+{% endif %}

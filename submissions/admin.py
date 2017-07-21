@@ -63,6 +63,9 @@ admin.site.register(EditorialAssignment, EditorialAssignmentAdmin)
 class RefereeInvitationAdminForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
         queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
+    referee = forms.ModelChoiceField(
+        required=False,
+        queryset=Contributor.objects.order_by('user__last_name'))
 
     class Meta:
         model = RefereeInvitation

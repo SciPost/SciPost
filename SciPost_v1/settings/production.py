@@ -38,6 +38,7 @@ SERVER_EMAIL = get_secret("SERVER_EMAIL")
 # Other
 CROSSREF_LOGIN_ID = get_secret("CROSSREF_LOGIN_ID")
 CROSSREF_LOGIN_PASSWORD = get_secret("CROSSREF_LOGIN_PASSWORD")
+DOAJ_API_KEY = get_secret("DOAJ_API_KEY")
 HAYSTACK_CONNECTIONS['default']['PATH'] = '/home/jscaux/webapps/scipost/SciPost_v1/whoosh_index'
 MAILCHIMP_API_USER = get_secret("MAILCHIMP_API_USER")
 MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")

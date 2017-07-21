@@ -7,7 +7,8 @@ from django.urls import reverse
 from .behaviors import doi_journal_validator, doi_volume_validator,\
                        doi_issue_validator, doi_publication_validator
 from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
-                       STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES
+                       STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,\
+                       CCBY4, CC_LICENSES
 from .helpers import paper_nr_string, journal_name_abbrev_citation
 from .managers import IssueManager, PublicationManager, JournalManager
 
@@ -142,14 +143,18 @@ class Publication(models.Model):
                                                   related_name='authors_pub_false_claims')
     abstract = models.TextField()
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
+    cc_license = models.CharField(max_length=32, choices=CC_LICENSES, default=CCBY4)
     metadata = JSONField(default={}, blank=True, null=True)
     metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
+    latest_metadata_update = models.DateTimeField(blank=True, null=True)
+    metadata_DOAJ = JSONField(blank=True, null=True)
     BiBTeX_entry = models.TextField(blank=True, null=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_publication_validator])
     submission_date = models.DateField(verbose_name='submission date')
     acceptance_date = models.DateField(verbose_name='acceptance date')
     publication_date = models.DateField(verbose_name='publication date')
+    latest_citedby_update = models.DateTimeField(null=True, blank=True)
     latest_activity = models.DateTimeField(default=timezone.now)
     citedby = JSONField(default={}, blank=True, null=True)
 
@@ -178,6 +183,7 @@ class Publication(models.Model):
                 + ' (' + self.publication_date.strftime('%Y') + ')')
 
 
+
 class Deposit(models.Model):
     """
     Each time a Crossref deposit is made for a Publication,
@@ -186,10 +192,35 @@ class Deposit(models.Model):
     All deposit history is thus contained here.
     """
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+    timestamp = models.CharField(max_length=40, default='')
     doi_batch_id = models.CharField(max_length=40, default='')
     metadata_xml = models.TextField(blank=True, null=True)
-    deposition_date = models.DateTimeField(default=timezone.now)
+    metadata_xml_file = models.FileField(blank=True, null=True, max_length=512)
+    deposition_date = models.DateTimeField(blank=True, null=True)
+    response_text = models.TextField(blank=True, null=True)
+    deposit_successful = models.NullBooleanField(default=None)
+
+    class Meta:
+        ordering = ['-timestamp']
 
     def __str__(self):
         return (self.deposition_date.strftime('%Y-%m-%D') +
-                ' for 10.21468/' + self.publication.doi_label)
+                ' for ' + self.publication.doi_label)
+
+
+class DOAJDeposit(models.Model):
+    """
+    For the Directory of Open Access Journals.
+    """
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+    timestamp = models.CharField(max_length=40, default='')
+    metadata_DOAJ = JSONField()
+    deposition_date = models.DateTimeField(blank=True, null=True)
+    response_text = models.TextField(blank=True, null=True)
+    deposit_successful = models.NullBooleanField(default=None)
+
+    class Meta:
+        verbose_name = 'DOAJ deposit'
+
+    def __str__(self):
+        return ('DOAJ deposit for ' + self.publication.doi_label)

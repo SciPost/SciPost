@@ -1,0 +1,166 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Manage metadata{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% load journals_extras %}
+
+<script>
+$(function() {
+$( "#accordion" ).accordion({
+event: "focusin"
+});
+});
+</script>
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Manage metadata</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Manage Publications Metadata</h1>
+    </div>
+</div>
+
+
+<table class="table table-hover mb-5">
+  <thead class="thead-default">
+    <tr>
+      <th>doi</th>
+      <th>Publication date</th>
+      <th>Latest metadata update</th>
+      <th>Latest successful Crossref deposit</th>
+      <th>DOAJ</th>
+    </tr>
+  </thead>
+
+  <tbody id="accordion" role="tablist" aria-multiselectable="true">
+    {% for publication in publications %}
+    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ publication.id }}" aria-expanded="true" aria-controls="collapse{{ publication.id }}" style="cursor: pointer;">
+      <td><a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></td>
+      <td>{{ publication.publication_date }}</td>
+      {% if publication.latest_metadata_update %}
+      <td>
+        {{ publication.latest_metadata_update }}
+      </td>
+      {% else %}
+      <td>No info available</td>
+      {% endif %}
+      <td>{{ publication|latest_successful_crossref_deposit }}</td>
+      <td>{{ publication|latest_successful_DOAJ_deposit }}</td>
+    </tr>
+    <tr id="collapse{{ publication.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ publication.id }}" style="background-color: #fff;">
+      <td colspan="5">
+	<h3 class="ml-3">Actions</h3>
+        <ul>
+          <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }} {% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
+	    <div class="row">
+              <div class="col-md-5">
+                <p>registered authors:</p>
+                <ul>
+                  {% for author in publication.authors.all %}
+                  <li>
+                    <a href="{% url 'journals:mark_first_author' publication_id=publication.id contributor_id=author.id %}">{{ author }}</a>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+              <div class="col-md-5">
+                <p>unregistered authors:</p>
+                <ul>
+                  {% for author_unreg in publication.authors_unregistered.all %}
+                  <li>
+                    <a href="{% url 'journals:mark_first_author_unregistered' publication_id=publication.id unregistered_author_id=author_unreg.id %}">{{ author_unreg }}</a>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+	    </div>
+          </li>
+          <li><a href="{% url 'journals:add_author' publication.id %}">Add a missing author</a></li>
+          <li><a href="{% url 'journals:create_citation_list_metadata' publication.doi_label %}">Create/update citation list metadata</a></li>
+          <li><a href="{% url 'journals:create_funding_info_metadata' publication.doi_label %}">Create/update funding info metadata</a></li>
+
+          <li><a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">(re)create metadata</a></li>
+          <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'test' %}">Test metadata deposit (via Crossref test server)</a></li>
+          <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'deposit' %}">Deposit the metadata to Crossref</a></li>
+	  <li><a href="{% url 'journals:produce_metadata_DOAJ' doi_label=publication.doi_label %}">Produce DOAJ metadata</a></li>
+	  <li><a href="{% url 'journals:metadata_DOAJ_deposit' doi_label=publication.doi_label %}">Deposit the metadata to DOAJ</a></li>
+        </ul>
+	<h3 class="ml-3">Crossref Deposits</h3>
+	<table class="ml-5">
+	  <thead class="thead-default">
+	    <th>Timestamp</th>
+	    <th>batch id</th>
+	    <th>deposition date</th>
+	    <th>Successful?</th>
+	    <th>actions</th>
+	  </thead>
+	  <tbody>
+	    {% for deposit in publication.deposit_set.all %}
+	    <tr>
+	      <td>{{ deposit.timestamp }}</td>
+	      <td>{{ deposit.doi_batch_id }}</td>
+	      <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
+	      <td>{{ deposit.deposit_successful }}</td>
+	      <td>Mark deposit as
+		<ul>
+		  <li><a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
+		  <li><a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
+		</ul>
+	      </td>
+	    </tr>
+	    {% empty %}
+	    <tr>
+	      <td colspan="5">No Deposits found for this publication</td>
+	    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+
+	<h3 class="ml-3">DOAJ Deposits</h3>
+	<table class="ml-5">
+	  <thead class="thead-default">
+	    <th>Timestamp</th>
+	    <th>deposition date</th>
+	    <th>Successful?</th>
+	    <th>actions</th>
+	  </thead>
+	  <tbody>
+	    {% for deposit in publication.doajdeposit_set.all %}
+	    <tr>
+	      <td>{{ deposit.timestamp }}</td>
+	      <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
+	      <td>{{ deposit.deposit_successful }}</td>
+	      <td>Mark deposit as
+		<ul>
+		  <li><a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
+		  <li><a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
+		</ul>
+	      </td>
+	    </tr>
+	    {% empty %}
+	    <tr>
+	      <td colspan="4">No Deposits found for this publication</td>
+	    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4">No publications found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+{% endblock content %}

@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.urls import reverse
+from django.utils.functional import cached_property
 
 from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
@@ -235,46 +236,85 @@ class RefereeInvitation(models.Model):
 ###########
 
 class Report(models.Model):
-    """ Both types of reports, invited or contributed. """
+    """
+    Both types of reports, invited or contributed.
+
+    This Report model acts as both a regular `Report` and a `FollowupReport`; A normal Report
+    should have all fields required, whereas a FollowupReport only has the `report` field as
+    a required field.
+
+    Important note!
+    Due to the construction of the two different types within a single model, it is important
+    to explicitly implement the perticular differences in for example the form used.
+    """
     status = models.CharField(max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED)
-    submission = models.ForeignKey('submissions.Submission', related_name='reports',
-                                   on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
     vetted_by = models.ForeignKey('scipost.Contributor', related_name="report_vetted_by",
                                   blank=True, null=True, on_delete=models.CASCADE)
+
     # `invited' filled from RefereeInvitation objects at moment of report submission
     invited = models.BooleanField(default=False)
+
     # `flagged' if author of report has been flagged by submission authors (surname check only)
     flagged = models.BooleanField(default=False)
     date_submitted = models.DateTimeField('date submitted')
     author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     qualification = models.PositiveSmallIntegerField(
         choices=REFEREE_QUALIFICATION,
-        verbose_name="Qualification to referee this: I am ")
+        verbose_name="Qualification to referee this: I am")
+
     # Text-based reporting
-    strengths = models.TextField()
-    weaknesses = models.TextField()
+    strengths = models.TextField(blank=True)
+    weaknesses = models.TextField(blank=True)
     report = models.TextField()
-    requested_changes = models.TextField(verbose_name="requested changes")
+    requested_changes = models.TextField(verbose_name="requested changes", blank=True)
+
     # Qualities:
-    validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
-    significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
-    originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
-    clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
-    formatting = models.SmallIntegerField(choices=QUALITY_SPEC,
+    validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
+                                                null=True, blank=True)
+    significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
+                                                    null=True, blank=True)
+    originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
+                                                   null=True, blank=True)
+    clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
+                                               null=True, blank=True)
+    formatting = models.SmallIntegerField(choices=QUALITY_SPEC, null=True, blank=True,
                                           verbose_name="Quality of paper formatting")
-    grammar = models.SmallIntegerField(choices=QUALITY_SPEC,
+    grammar = models.SmallIntegerField(choices=QUALITY_SPEC, null=True, blank=True,
                                        verbose_name="Quality of English grammar")
 
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
-    remarks_for_editors = models.TextField(default='', blank=True,
+    remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
 
     objects = ReportManager()
 
+    class Meta:
+        default_related_name = 'reports'
+        ordering = ['-date_submitted']
+
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
+
+    @cached_property
+    def is_followup_report(self):
+        """
+        Check if current Report is a `FollowupReport`. A Report is a `FollowupReport` if the
+        author of the report already has a vetted report in the series of the specific Submission.
+        """
+        return (self.author.reports.accepted()
+                .filter(submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+                .exists())
+
+    def latest_report_from_series(self):
+        """
+        Get latest Report from the same author for the Submission series.
+        """
+        return (self.author.reports.accepted()
+                .filter(submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+                .order_by('submission__arxiv_identifier_wo_vn_nr').last())
 
 
 ##########################

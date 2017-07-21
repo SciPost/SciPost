@@ -11,7 +11,7 @@ from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
 
 from .constants import PARTNER_KINDS, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
-                       PARTNER_STATUS_UPDATE, REQUEST_PROCESSED, REQUEST_DECLINED
+                       PARTNER_STATUS_UPDATE, REQUEST_PROCESSED, REQUEST_DECLINED, CONTACT_GENERAL
 from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
                     Institution, Contact, PartnerEvent, MembershipAgreement, ContactRequest,\
                     PartnersAttachment
@@ -28,11 +28,13 @@ class MembershipAgreementForm(forms.ModelForm):
             'status',
             'date_requested',
             'start_date',
+            'end_date',
             'duration',
             'offered_yearly_contribution'
         )
         widgets = {
             'start_date': forms.TextInput(attrs={'placeholder': 'YYYY-MM-DD'}),
+            'end_date': forms.TextInput(attrs={'placeholder': 'YYYY-MM-DD'}),
             'date_requested': forms.TextInput(attrs={'placeholder': 'YYYY-MM-DD'}),
         }
 
@@ -208,6 +210,10 @@ class ContactForm(forms.ModelForm):
             'kind',
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['kind'].required = False
+
 
 class NewContactForm(ContactForm):
     """
@@ -355,7 +361,9 @@ class PromoteToContactForm(forms.ModelForm):
     """
     This form is used to create a new `partners.Contact`
     """
-    kind = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+    promote = forms.BooleanField(label='Activate/Promote this contact', initial=True,
+                                 required=False)
+    kind = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, initial=[CONTACT_GENERAL],
                                      label='Contact types', choices=CONTACT_TYPES, required=False)
 
     class Meta:
@@ -372,6 +380,9 @@ class PromoteToContactForm(forms.ModelForm):
         Check if email address is already used.
         """
         email = self.cleaned_data['email']
+        if not self.cleaned_data.get('promote', False):
+            # Don't promote the Contact
+            return email
         if User.objects.filter(Q(email=email) | Q(username=email)).exists():
             self.add_error('email', 'This emailadres has already been used.')
         return email
@@ -382,8 +393,11 @@ class PromoteToContactForm(forms.ModelForm):
         Promote ProspectiveContact's to Contact's related to a certain Partner.
         The status update after promotion is handled outside this method, in the Partner model.
         """
-        # How to handle empty instances?
+        if not self.cleaned_data.get('promote', False):
+            # Don't promote the Contact
+            return
 
+        # How to handle empty instances?
         if self.errors:
             return forms.ValidationError  # Is this a valid exception?
 
@@ -391,7 +405,6 @@ class PromoteToContactForm(forms.ModelForm):
         contact_form = NewContactForm(self.cleaned_data, partner=partner)
         if contact_form.is_valid():
             return contact_form.save(current_user=current_user)
-        r = contact_form.errors
         raise forms.ValidationError('NewContactForm invalid. Please contact Admin.')
 
 
@@ -411,10 +424,20 @@ class PromoteToContactFormset(forms.BaseModelFormSet):
         """
         contacts = []
         for form in self.forms:
-            contacts.append(form.promote_contact(partner, current_user))
-        partner.main_contact = contacts[0]
+            new_contact = form.promote_contact(partner, current_user)
+            if new_contact:
+                contacts.append(new_contact)
+        try:
+            partner.main_contact = contacts[0]
+        except IndexError:
+            # No contacts at all means no main-contact as well...
+            pass
         partner.save()
         return contacts
+
+
+ContactModelFormset = forms.modelformset_factory(ProspectiveContact, PromoteToContactForm,
+                                                 formset=PromoteToContactFormset, extra=0)
 
 
 class ProspectivePartnerForm(forms.ModelForm):

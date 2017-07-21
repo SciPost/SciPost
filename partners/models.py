@@ -266,6 +266,7 @@ class MembershipAgreement(models.Model):
     status = models.CharField(max_length=16, choices=MEMBERSHIP_AGREEMENT_STATUS)
     date_requested = models.DateField()
     start_date = models.DateField()
+    end_date = models.DateField()
     duration = models.DurationField(choices=MEMBERSHIP_DURATION)
     offered_yearly_contribution = models.SmallIntegerField(default=0, help_text="Yearly contribution in euro's (€)")
 
