@@ -12,9 +12,6 @@ $container-max-widths: (
     lg: 1160px,
     xl: 1200px
 );
-.row {
-    margin-bottom: 1rem;
-}
 
 // Colors
 //
@@ -22,7 +19,9 @@ $scipost-light: #C3D7EE;
 $scipost-lightblue: #6884C2;
 $scipost-darkblue: #002b49;
 $scipost-orange: #FFA300;
+$scipost-white: #f9f9f9;
 $green: #6ebb6e;
+$sidebar-border-color: #dfe0e4;
 
 $blue: $scipost-lightblue !default;
 $body-color: $scipost-darkblue !default;
@@ -37,11 +36,13 @@ $alert-border-radius: $border-radius-base;
 // Cards
 //
 $card-spacer-x: 0.75rem;
-$card-border-radius: 1px;
+$card-border-radius: 3px;
 $card-border-color: #fff;
 $card-cap-bg: transparent;
 $btn-secondary-border-color: #f1f1f1;
 $card-shadow-color: #ccc;
+$card-grey-border-bottom-color: #d0d1d5;
+$card-grey-border-color: #e5e6e9 #dfe0e4 $card-grey-border-bottom-color;
 
 // breadcrumb
 //

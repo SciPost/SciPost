@@ -1,40 +1,7 @@
-{% load render_bundle from webpack_loader %}
+{% extends 'scipost/bare_base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-
-    {% load staticfiles %}
-
-    <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
-
-    {% render_bundle 'bootstrap' 'css' %}
-    {% render_bundle 'main' 'css' %}
-
-    <link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
-
-    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-
-    {% block headsup %}
-    {% endblock headsup %}
-  </head>
-
-  <body class="{% block body_class %}{% endblock %}">
-    {% include 'scipost/header.html' %}
-    {% include 'scipost/navbar.html' %}
-    {% block breadcrumb %}{% endblock breadcrumb %}
-    {% block secondary_navbar %}{% endblock secondary_navbar %}
-    {% include 'scipost/messages.html' %}
-
-
-    <div class="container">
+{% block base %}
+    <div class="{% block container_class %}container{% endblock %}">
         {% block page_header %}{% endblock page_header %}
 
         {% block content %}{% endblock content %}
@@ -49,20 +16,4 @@
 
     {% include 'scipost/footer.html' %}
 
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-      tex2jax: {
-      inlineMath: [['$','$'], ['\\(','\\)']],
-      processEscapes: true
-      }});
-    </script>
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-
-    {% render_bundle 'main' 'js' %}
-    {% render_bundle 'bootstrap' 'js' %}
-
-    {% block footer_script %}
-    {% endblock footer_script %}
-</body>
-
-</html>
+{% endblock base %}

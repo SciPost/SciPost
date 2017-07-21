@@ -3,7 +3,7 @@
 
     &.card-grey {
         background-color: #F4F4F4;
-        border-color: #ececec;
+        border-color: $card-grey-border-color;
         box-shadow: 0 1px 0 0 $card-shadow-color;
     }
 

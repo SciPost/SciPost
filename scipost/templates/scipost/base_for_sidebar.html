@@ -1,0 +1,28 @@
+{% extends 'scipost/bare_base.html' %}
+
+{% block base %}
+    <div class="content-wrapper">
+        <div class="main-panel">
+            <div class="{% block container_class %}container-fluid{% endblock %}">
+                {% block page_header %}{% endblock page_header %}
+
+                {% block content %}{% endblock content %}
+
+                {% block content_footer %}{% endblock content_footer %}
+            </div>
+
+            {% block bodysup %}
+            {% endblock bodysup %}
+
+            {% block secondary_footer %}{% endblock secondary_footer %}
+
+        </div>
+
+        <div class="sidebar">
+            {% block sidebar %}{% endblock %}
+        </div>
+    </div>
+
+    {% include 'scipost/footer.html' %}
+
+{% endblock base %}
