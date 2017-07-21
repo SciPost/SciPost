@@ -271,13 +271,13 @@ class Report(models.Model):
     requested_changes = models.TextField(verbose_name="requested changes", blank=True)
 
     # Qualities:
-    validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101,
+    validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
                                                 null=True, blank=True)
-    significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101,
+    significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
                                                     null=True, blank=True)
-    originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101,
+    originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
                                                    null=True, blank=True)
-    clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101,
+    clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
                                                null=True, blank=True)
     formatting = models.SmallIntegerField(choices=QUALITY_SPEC, null=True, blank=True,
                                           verbose_name="Quality of paper formatting")
