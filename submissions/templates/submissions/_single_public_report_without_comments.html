@@ -28,9 +28,10 @@
                 <div class="row">
                     <div class="col-12">
                         <h3>Remarks for editors</h3>
-                        <div class="pl-md-4">{{ report.remarks_for_editors }}</div>
+                        <div class="pl-md-4">{{ report.remarks_for_editors|default:'-' }}</div>
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-12">
                         <h3>Recommendation</h3>

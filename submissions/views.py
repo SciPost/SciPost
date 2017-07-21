@@ -1032,6 +1032,10 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         errormessage = ('The system flagged you as a potential author of this Submission. '
                         'Please go to your personal page under the Submissions tab'
                         ' to clarify this.')
+    # if submission.reports.non_draft().filter(author=current_contributor).exists():
+    #     errormessage = ('You have already submitted a Report for this Submission. You cannot'
+    #                     ' submit an additional Report.')
+
     if errormessage:
         messages.warning(request, errormessage)
         return redirect(reverse('scipost:personal_page'))
@@ -1040,12 +1044,12 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
     try:
         report_in_draft = submission.reports.in_draft().get(author=current_contributor)
     except Report.DoesNotExist:
-        report_in_draft = None
+        report_in_draft = Report(author=current_contributor, submission=submission)
     form = ReportForm(request.POST or None, instance=report_in_draft)
 
     # Check if data sent is valid
     if form.is_valid():
-        newreport = form.save(submission, current_contributor)
+        newreport = form.save(submission)
         if newreport.status == STATUS_DRAFT:
             messages.success(request, ('Your Report has been saved. '
                                        'You may carry on working on it,'
@@ -1069,16 +1073,17 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 def vet_submitted_reports(request):
     """
-    Reports with status `unvetted` will be shown one-by-one. A user may only
+    Reports with status `unvetted` will be shown one-by-one (oldest first). A user may only
     vet reports of submissions he/she is EIC of.
 
     After vetting an email is sent to the report author, bcc EIC. If report
     has not been refused, the submission author is also mailed.
     """
-    contributor = Contributor.objects.get(user=request.user)
+    contributor = request.user.contributor
     report_to_vet = (Report.objects.awaiting_vetting()
                      .select_related('submission')
-                     .filter(submission__editor_in_charge=contributor).first())
+                     .filter(submission__editor_in_charge=contributor)
+                     .order_by('date_submitted').first())
 
     form = VetReportForm(request.POST or None, initial={'report': report_to_vet})
     if form.is_valid():
