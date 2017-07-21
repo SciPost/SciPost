@@ -235,14 +235,26 @@ class RefereeInvitation(models.Model):
 ###########
 
 class Report(models.Model):
-    """ Both types of reports, invited or contributed. """
+    """
+    Both types of reports, invited or contributed.
+
+    This Report model acts as both a regular `Report` and a `FollowupReport`; A normal Report
+    should have all fields required, whereas a FollowupReport only has the `report` field as
+    a required field.
+
+    Important note!
+    Due to the construction of the two different types within a single model, it is important
+    to explicitly implement the perticular differences in for example the form used.
+    """
     status = models.CharField(max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED)
     submission = models.ForeignKey('submissions.Submission', related_name='reports',
                                    on_delete=models.CASCADE)
     vetted_by = models.ForeignKey('scipost.Contributor', related_name="report_vetted_by",
                                   blank=True, null=True, on_delete=models.CASCADE)
+
     # `invited' filled from RefereeInvitation objects at moment of report submission
     invited = models.BooleanField(default=False)
+
     # `flagged' if author of report has been flagged by submission authors (surname check only)
     flagged = models.BooleanField(default=False)
     date_submitted = models.DateTimeField('date submitted')
@@ -250,11 +262,13 @@ class Report(models.Model):
     qualification = models.PositiveSmallIntegerField(
         choices=REFEREE_QUALIFICATION,
         verbose_name="Qualification to referee this: I am ")
+
     # Text-based reporting
-    strengths = models.TextField()
-    weaknesses = models.TextField()
+    strengths = models.TextField(blank=True)
+    weaknesses = models.TextField(blank=True)
     report = models.TextField()
-    requested_changes = models.TextField(verbose_name="requested changes")
+    requested_changes = models.TextField(verbose_name="requested changes", blank=True)
+
     # Qualities:
     validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
     significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
@@ -275,6 +289,13 @@ class Report(models.Model):
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
+
+    def is_followup_report(self, kip=None):
+        """
+        Check if current Report is a `FollowupReport`. A Report is a `FollowupReport` if the
+        author of the report already has a vetted report in the series of the specific Submission.
+        """
+        return self.author.report_set.accepted().filter(submission=self.submission).exists()
 
 
 ##########################
