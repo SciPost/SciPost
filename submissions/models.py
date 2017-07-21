@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.urls import reverse
+from django.utils.functional import cached_property
 
 from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
@@ -261,7 +262,7 @@ class Report(models.Model):
     author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     qualification = models.PositiveSmallIntegerField(
         choices=REFEREE_QUALIFICATION,
-        verbose_name="Qualification to referee this: I am ")
+        verbose_name="Qualification to referee this: I am")
 
     # Text-based reporting
     strengths = models.TextField(blank=True)
@@ -270,32 +271,52 @@ class Report(models.Model):
     requested_changes = models.TextField(verbose_name="requested changes", blank=True)
 
     # Qualities:
-    validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
-    significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
-    originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
-    clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101)
-    formatting = models.SmallIntegerField(choices=QUALITY_SPEC,
+    validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101,
+                                                null=True, blank=True)
+    significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101,
+                                                    null=True, blank=True)
+    originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101,
+                                                   null=True, blank=True)
+    clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES, default=101,
+                                               null=True, blank=True)
+    formatting = models.SmallIntegerField(choices=QUALITY_SPEC, null=True, blank=True,
                                           verbose_name="Quality of paper formatting")
-    grammar = models.SmallIntegerField(choices=QUALITY_SPEC,
+    grammar = models.SmallIntegerField(choices=QUALITY_SPEC, null=True, blank=True,
                                        verbose_name="Quality of English grammar")
 
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
-    remarks_for_editors = models.TextField(default='', blank=True,
+    remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
-
+# 'validity',
+# 'significance',
+# 'originality',
+# 'clarity',
+# 'formatting',
+# 'grammar',
     objects = ReportManager()
 
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
 
-    def is_followup_report(self, kip=None):
+    @cached_property
+    def is_followup_report(self):
         """
         Check if current Report is a `FollowupReport`. A Report is a `FollowupReport` if the
         author of the report already has a vetted report in the series of the specific Submission.
         """
-        return self.author.report_set.accepted().filter(submission=self.submission).exists()
+        return (self.author.report_set.accepted()
+                .filter(submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+                .exists())
+
+    def latest_report_from_series(self):
+        """
+        Get latest Report from the same author for the Submission series.
+        """
+        return (self.author.report_set.accepted()
+                .filter(submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+                .order_by('submission__arxiv_identifier_wo_vn_nr').last())
 
 
 ##########################
