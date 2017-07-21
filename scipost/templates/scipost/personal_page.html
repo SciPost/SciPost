@@ -429,7 +429,7 @@
                                                 <th style='min-width: 100px;'>Received:</th><td>{{ report.date_submitted|date:'Y-n-j' }}<td>
                                             </tr>
                                             <tr>
-                                                <th>Status:</th><td>{{report.get_status_display}}</td>
+                                                <th>Status:</th><td {% if report.status == 'vetted' %}class="text-success"{% elif report.status == 'unvetted' %}class="text-danger"{% endif %}>{{report.get_status_display}}</td>
                                             </tr>
                                             <tr>
                                                 <th>Anonymous:</th><td>{{report.anonymous|yesno:'Yes,No'}}</td>
