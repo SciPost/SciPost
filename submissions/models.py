@@ -294,7 +294,6 @@ class Report(models.Model):
         default_related_name = 'reports'
         ordering = ['-date_submitted']
 
-
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
