@@ -288,12 +288,7 @@ class Report(models.Model):
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
-# 'validity',
-# 'significance',
-# 'originality',
-# 'clarity',
-# 'formatting',
-# 'grammar',
+
     objects = ReportManager()
 
     def __str__(self):
