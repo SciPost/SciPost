@@ -248,8 +248,7 @@ class Report(models.Model):
     to explicitly implement the perticular differences in for example the form used.
     """
     status = models.CharField(max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED)
-    submission = models.ForeignKey('submissions.Submission', related_name='reports',
-                                   on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
     vetted_by = models.ForeignKey('scipost.Contributor', related_name="report_vetted_by",
                                   blank=True, null=True, on_delete=models.CASCADE)
 
@@ -291,6 +290,9 @@ class Report(models.Model):
 
     objects = ReportManager()
 
+    class Meta:
+        default_related_name = 'reports'
+
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
@@ -301,7 +303,7 @@ class Report(models.Model):
         Check if current Report is a `FollowupReport`. A Report is a `FollowupReport` if the
         author of the report already has a vetted report in the series of the specific Submission.
         """
-        return (self.author.report_set.accepted()
+        return (self.author.reports.accepted()
                 .filter(submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
                 .exists())
 
@@ -309,7 +311,7 @@ class Report(models.Model):
         """
         Get latest Report from the same author for the Submission series.
         """
-        return (self.author.report_set.accepted()
+        return (self.author.reports.accepted()
                 .filter(submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
                 .order_by('submission__arxiv_identifier_wo_vn_nr').last())
 
