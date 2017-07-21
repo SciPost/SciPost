@@ -30,6 +30,11 @@
                               </div>
                           </li>
                       {% endfor %}
+                      <li class="list-group-item">
+                          <div class="card-block pt-3">
+                              <a href="{% url 'journals:journals' %}">All Journals</a>
+                          </div>
+                      </li>
                   </ul>
                 </div>
             </div><!-- End latest publications -->
@@ -48,6 +53,11 @@
                               {% include 'submissions/_submission_card_content_sparse.html' with submission=submission %}
                           </li>
                       {% endfor %}
+                      <li class="list-group-item">
+                          <div class="card-block pt-3">
+                              <a href="{% url 'submissions:submissions' %}">All submissions</a>
+                          </div>
+                      </li>
                   </ul>
                 </div>
             </div><!-- End latest submissions -->
