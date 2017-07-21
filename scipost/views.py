@@ -833,9 +833,8 @@ def personal_page(request):
         referee=contributor, accepted=None, cancelled=False).count()
     pending_ref_tasks = RefereeInvitation.objects.filter(
         referee=contributor, accepted=True, fulfilled=False)
-    unfinished_reports = Report.objects.in_draft().filter(author=contributor)
     refereeing_tab_total_count = nr_ref_inv_to_consider + len(pending_ref_tasks)
-    refereeing_tab_total_count += len(unfinished_reports)
+    refereeing_tab_total_count += Report.objects.in_draft().filter(author=contributor).count()
 
     # Verify if there exist objects authored by this contributor,
     # whose authorship hasn't been claimed yet
@@ -895,7 +894,6 @@ def personal_page(request):
         'nr_ref_inv_to_consider': nr_ref_inv_to_consider,
         'pending_ref_tasks': pending_ref_tasks,
         'refereeing_tab_total_count': refereeing_tab_total_count,
-        'unfinished_reports': unfinished_reports,
         'own_submissions': own_submissions,
         'own_commentaries': own_commentaries,
         'own_thesislinks': own_thesislinks,
