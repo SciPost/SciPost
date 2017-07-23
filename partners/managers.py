@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import F
 from django.utils import timezone
 
 from .constants import MEMBERSHIP_SUBMITTED, PROSPECTIVE_PARTNER_PROCESSED, REQUEST_INITIATED
