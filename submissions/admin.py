@@ -4,7 +4,7 @@ from django import forms
 from guardian.admin import GuardedModelAdmin
 
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report,\
-                               EditorialCommunication, EICRecommendation
+                               EditorialCommunication, EICRecommendation, SubmissionEvent
 
 from scipost.models import Contributor
 
@@ -149,3 +149,5 @@ class EICRecommendationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(EICRecommendation, EICRecommendationAdmin)
+
+admin.site.register(SubmissionEvent)
