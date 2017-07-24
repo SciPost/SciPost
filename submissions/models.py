@@ -11,7 +11,7 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
-                       EVENT_GENERAL, EVENT_TYPES
+                       EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
 from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
                       ReportManager, SubmissionEventQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
@@ -134,6 +134,7 @@ class Submission(models.Model):
     def reporting_deadline_has_passed(self):
         return timezone.now() > self.reporting_deadline
 
+    @cached_property
     def other_versions(self):
         return Submission.objects.filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
@@ -158,11 +159,29 @@ class Submission(models.Model):
     def count_obtained_reports(self):
         return self.reports.accepted().filter(invited__isnull=False).count()
 
-    def count_refused_reports(self):
-        return self.reports.rejected().count()
+    def add_general_event(self, message):
+        event = SubmissionEvent(
+            submission=self,
+            event=EVENT_GENERAL,
+            text=message,
+        )
+        event.save()
 
-    def count_awaiting_vetting(self):
-        return self.reports.awaiting_vetting().count()
+    def add_event_for_author(self, message):
+        event = SubmissionEvent(
+            submission=self,
+            event=EVENT_FOR_AUTHOR,
+            text=message,
+        )
+        event.save()
+
+    def add_event_for_eic(self, message):
+        event = SubmissionEvent(
+            submission=self,
+            event=EVENT_FOR_EIC,
+            text=message,
+        )
+        event.save()
 
 
 class SubmissionEvent(TimeStampedModel):
@@ -179,7 +198,7 @@ class SubmissionEvent(TimeStampedModel):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='events')
     event = models.CharField(max_length=4, choices=EVENT_TYPES, default=EVENT_GENERAL)
-    blub = models.TextField()
+    text = models.TextField()
 
     objects = SubmissionEventQuerySet.as_manager()
 
