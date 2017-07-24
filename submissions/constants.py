@@ -122,6 +122,7 @@ ASSIGNMENT_REFUSAL_REASONS = (
 )
 
 REFEREE_QUALIFICATION = (
+    (None, '-'),
     (4, 'expert in this subject'),
     (3, 'very knowledgeable in this subject'),
     (2, 'knowledgeable in this subject'),
@@ -130,6 +131,7 @@ REFEREE_QUALIFICATION = (
 )
 
 QUALITY_SPEC = (
+    (None, '-'),
     (6, 'perfect'),
     (5, 'excellent'),
     (4, 'good'),
@@ -141,7 +143,7 @@ QUALITY_SPEC = (
 
 # Only values between 0 and 100 are kept, anything outside those limits is discarded.
 RANKING_CHOICES = (
-    (101, '-'),
+    (None, '-'),
     (100, 'top'),
     (80, 'high'),
     (60, 'good'),
@@ -151,6 +153,7 @@ RANKING_CHOICES = (
 )
 
 REPORT_REC = (
+    (None, '-'),
     (1, 'Publish as Tier I (top 10% of papers in this journal, qualifies as Select) NOTE: SELECT NOT YET OPEN, STARTS EARLY 2017'),
     (2, 'Publish as Tier II (top 50% of papers in this journal)'),
     (3, 'Publish as Tier III (meets the criteria of this journal)'),

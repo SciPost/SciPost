@@ -1,7 +1,8 @@
 from django.contrib import admin, messages
 from django import forms
 
-from journals.models import UnregisteredAuthor, Journal, Volume, Issue, Publication, Deposit
+from journals.models import UnregisteredAuthor, Journal, Volume, Issue, Publication, \
+    Deposit, DOAJDeposit
 
 from scipost.models import Contributor
 from submissions.models import Submission
@@ -64,7 +65,7 @@ admin.site.register(Publication, PublicationAdmin)
 
 
 class DepositAdmin(admin.ModelAdmin):
-    list_display = ('doi_batch_id', 'publication', 'deposition_date',)
+    list_display = ('publication', 'timestamp', 'doi_batch_id', 'deposition_date',)
     readonly_fields = ('publication', 'doi_batch_id', 'metadata_xml', 'deposition_date',)
     actions = None
 
@@ -79,3 +80,6 @@ class DepositAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Deposit, DepositAdmin)
+
+
+admin.site.register(DOAJDeposit)

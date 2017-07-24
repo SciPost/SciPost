@@ -126,7 +126,6 @@ class BaseSubmissionCycle:
         self.submission.reporting_deadline = deadline
         self.submission.save()
 
-
     def get_required_actions(self):
         '''Return list of the submission its required actions'''
         if not self.updated_action:

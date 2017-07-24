@@ -81,9 +81,9 @@ PARTNER_EVENTS = (
     ('comment', 'Comment added'),
 )
 
-
+CONTACT_GENERAL = 'gen'
 CONTACT_TYPES = (
-    ('gen', 'General Contact'),
+    (CONTACT_GENERAL, 'General Contact'),
     ('tech', 'Technical Contact'),
     ('fin', 'Financial Contact'),
     ('leg', 'Legal Contact')
@@ -91,12 +91,15 @@ CONTACT_TYPES = (
 
 
 MEMBERSHIP_SUBMITTED = 'Submitted'
+MEMBERSHIP_SIGNED = 'Signed'
+MEMBERSHIP_HONOURED = 'Honoured'
+MEMBERSHIP_COMPLETED = 'Completed'
 MEMBERSHIP_AGREEMENT_STATUS = (
     (MEMBERSHIP_SUBMITTED, 'Request submitted by Partner'),
     ('Pending', 'Sent to Partner, response pending'),
-    ('Signed', 'Signed by Partner'),
-    ('Honoured', 'Honoured: payment of Partner received'),
-    ('Completed', 'Completed: agreement has been fulfilled'),
+    (MEMBERSHIP_SIGNED, 'Signed by Partner'),
+    (MEMBERSHIP_HONOURED, 'Honoured: payment of Partner received'),
+    (MEMBERSHIP_COMPLETED, 'Completed: agreement has been fulfilled'),
 )
 
 MEMBERSHIP_DURATION = (

@@ -143,3 +143,6 @@ class ReportManager(models.Manager):
 
     def in_draft(self):
         return self.filter(status=STATUS_DRAFT)
+
+    def non_draft(self):
+        return self.exclude(status=STATUS_DRAFT)
