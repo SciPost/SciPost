@@ -77,6 +77,9 @@ class Submission(models.Model):
     arxiv_vn_nr = models.PositiveSmallIntegerField(default=1)
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
 
+    pdf_refereeing_pack = models.FileField(upload_to='UPLOADS/REFEREE/%Y/%m/',
+                                           max_length=200, blank=True)
+
     # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
     submission_date = models.DateField(verbose_name='submission date', default=datetime.date.today)
@@ -290,7 +293,12 @@ class Report(models.Model):
     to explicitly implement the perticular differences in for example the form used.
     """
     status = models.CharField(max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED)
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', related_name='reports',
+                                   on_delete=models.CASCADE)
+    report_nr = models.PositiveSmallIntegerField(default=0,
+                                                 help_text='This number is a unique number '
+                                                           'refeering to the Report nr. of '
+                                                           'the Submission')
     vetted_by = models.ForeignKey('scipost.Contributor', related_name="report_vetted_by",
                                   blank=True, null=True, on_delete=models.CASCADE)
 
@@ -328,17 +336,34 @@ class Report(models.Model):
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
+    doi_label = models.CharField(max_length=200, blank=True)
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
+    pdf_report = models.FileField(upload_to='UPLOADS/REPORTS/%Y/%m/', max_length=200, blank=True)
 
     objects = ReportManager()
 
     class Meta:
+        unique_together = ('submission', 'report_nr')
         default_related_name = 'reports'
         ordering = ['-date_submitted']
 
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
+
+    def get_absolute_url(self):
+        return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
+
+    @property
+    def doi_string(self):
+        if self.doi_label:
+            return '10.21468/' + self.doi_label
+
+    def save(self, *args, **kwargs):
+        # Control Report count per Submission.
+        if not self.report_nr:
+            self.report_nr = self.submission.reports.count() + 1
+        return super().save(*args, **kwargs)
 
     @cached_property
     def is_followup_report(self):

@@ -139,6 +139,14 @@
                 <li>Commenting on this Submission is closed.</li>
             {% endif %}
         </ul>
+        {% if perms.scipost.can_manage_reports %}
+            <h3>Admin Actions</h3>
+            <ul>
+                <li>
+                    <a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
+                </li>
+            <ul>
+        {% endif %}
     </div>
 </div>
 {% endif %}

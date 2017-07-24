@@ -8,7 +8,7 @@ class SubmissionLookup(LookupChannel):
 
     def get_query(self, q, request):
         return (self.model.objects
-                .public()
+                .public_unlisted()
                 .order_by('-submission_date')
                 .filter(title__icontains=q)
                 .prefetch_related('publication')[:10])

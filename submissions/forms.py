@@ -32,7 +32,7 @@ class SubmissionSearchForm(forms.Form):
 
     def search_results(self):
         """Return all Submission objects according to search"""
-        return Submission.objects.public_overcomplete().filter(
+        return Submission.objects.public_newest().filter(
             title__icontains=self.cleaned_data.get('title', ''),
             author_list__icontains=self.cleaned_data.get('author', ''),
             abstract__icontains=self.cleaned_data.get('abstract', ''),
@@ -332,6 +332,12 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         return submission
 
 
+class SubmissionReportsForm(forms.ModelForm):
+    class Meta:
+        model = Submission
+        fields = ['pdf_refereeing_pack']
+
+
 ######################
 # Editorial workflow #
 ######################
@@ -411,6 +417,12 @@ class VotingEligibilityForm(forms.Form):
 ############
 # Reports:
 ############
+
+class ReportPDFForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['pdf_report']
+
 
 class ReportForm(forms.ModelForm):
     class Meta:

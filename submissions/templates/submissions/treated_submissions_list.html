@@ -1,0 +1,56 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Treated Submissions</span>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Treated Submissions{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Treated Submissions</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Submission</th>
+                    <th>Status</th>
+                    <th>Accepted</th>
+                    <th>Number of Reports</th>
+                    <th>Has PDF</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                    <tr{% if not submission.pdf_refereeing_pack %} class="table-danger"{% endif %}>
+                        <td><a href="{{submission.get_absolute_url}}">{{submission.arxiv_identifier_w_vn_nr}}</a></td>
+                        <td>{{submission.get_status_display}}</td>
+                        <td>{{submission.acceptance_date|default_if_none:'Date unknown'}}</td>
+                        <td>{{submission.reports.accepted.count}}</td>
+                        <td>
+                            {{submission.pdf_refereeing_pack|yesno:"Yes,No"}}
+                            {% if submission.pdf_refereeing_pack %}
+                                &middot; <a href="{% url 'submissions:refereeing_package_pdf' submission.arxiv_identifier_w_vn_nr %}" target="_blank">Download</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Compile/upload Refereeing Package</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

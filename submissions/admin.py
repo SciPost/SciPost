@@ -100,6 +100,7 @@ class ReportAdmin(admin.ModelAdmin):
     list_display_links = ('author',)
     date_hierarchy = 'date_submitted'
     list_filter = ('status',)
+    readonly_fields = ('report_nr',)
     form = ReportAdminForm
 
 

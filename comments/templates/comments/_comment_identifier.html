@@ -16,7 +16,7 @@
             {% if comment.in_reply_to_comment %}
                 (in reply to <a href="#comment_id{{comment.in_reply_to_comment.id}}">{{comment.in_reply_to_comment.comment.get_author_str}}</a> on {{comment.in_reply_to_comment.date_submitted|date:'Y-m-d'}})
             {% elif comment.in_reply_to_report %}
-                (in reply to <a href="#report_id{{comment.in_reply_to_report.id}}">
+                (in reply to <a href="#report_{{comment.in_reply_to_report.report_nr}}">
 
                 {% if not comment.in_reply_to_report.anonymous %}
                     {{comment.in_reply_to_report.get_author_str}}
