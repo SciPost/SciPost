@@ -529,27 +529,12 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
     other_versions = (Submission.objects
                       .filter(arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr)
                       .exclude(pk=submission.id))
-    ref_invitations = RefereeInvitation.objects.filter(submission=submission)
-    nr_reports_to_vet = (Report.objects.awaiting_vetting()
-                         .filter(submission=submission,
-                                 submission__editor_in_charge=request.user.contributor)
-                         .count())
-    communications = (EditorialCommunication.objects
-                      .filter(submission=submission).order_by('timestamp'))
-    try:
-        recommendation = (EICRecommendation.objects.get_for_user_in_pool(request.user)
-                          .get(submission=submission))
-    except EICRecommendation.DoesNotExist:
-        recommendation = None
+
     context = {
         'submission': submission,
         'other_versions': other_versions,
-        'recommendation': recommendation,
         'set_deadline_form': SetRefereeingDeadlineForm(),
         'cycle_choice_form': SubmissionCycleChoiceForm(instance=submission),
-        'ref_invitations': ref_invitations,
-        'nr_reports_to_vet': nr_reports_to_vet,
-        'communications': communications
     }
     return render(request, 'submissions/editorial_page.html', context)
 

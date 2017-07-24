@@ -71,15 +71,17 @@
     </div>
 </div>
 
-{% if recommendation %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card card-outline-secondary">
-                {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
+{% with recommendation as submission.eicrecommendations.first %}
+    {% if recommendation %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-outline-secondary">
+                    {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
+                </div>
             </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
+{% endwith %}
 
 <div class="row">
     <div class="col-12">
@@ -123,7 +125,7 @@
         <div class="row">
             <div class="col-12">
                 <h3 class="mb-2">Detail of refereeing invitations:</h3>
-                {% include 'submissions/_submission_refereeing_invitations.html' with submission=submission invitations=ref_invitations %}
+                {% include 'submissions/_submission_refereeing_invitations.html' with submission=submission invitations=submission.referee_invitations.all %}
             </div>
         </div>
     {% endif %}
@@ -173,7 +175,7 @@
                                 </div>
                             </form>
                         </li>
-                        <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+                        <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ submission.reports.awaiting_vetting.count }})</li>
                         {% if not submission.reporting_deadline_has_passed %}
                             <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
                         {% endif %}
@@ -201,7 +203,7 @@
 <div class="row">
     <div class="col-12">
         <ul class="list-group list-group-flush">
-            {% for comm in communications %}
+            {% for comm in submission.editorial_communications.all %}
                 <li class="list-group-item">
                     {% include 'submissions/_editorial_communication_content.html' with communication=comm %}
                 </li>
