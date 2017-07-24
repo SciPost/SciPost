@@ -10,12 +10,14 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
-                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC
+                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
+                       EVENT_GENERAL, EVENT_TYPES
 from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
-                      ReportManager
+                      ReportManager, SubmissionEventQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
+from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
@@ -163,17 +165,26 @@ class Submission(models.Model):
         return self.reports.awaiting_vetting().count()
 
 
-class SubmissionEvent(models.Model):
-    partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE,
-                                related_name='events')
-    event = models.CharField(max_length=64, choices=PARTNER_EVENTS)
-    comments = models.TextField(blank=True)
-    noted_on = models.DateTimeField(auto_now_add=True)
-    noted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+class SubmissionEvent(TimeStampedModel):
+    """
+    The SubmissionEvent's goal is to act as a messaging/logging model
+    for the Submission cycle. Its main audience will be the author(s) and
+    the Editor-in-charge of a Submission.
+
+    Be aware!
+    Both the author and editor-in-charge will read the submission event.
+    Make sure the right text is given to the right event-type, to protect
+    the fellow's identity.
+    """
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='events')
+    event = models.CharField(max_length=4, choices=EVENT_TYPES, default=EVENT_GENERAL)
+    blub = models.TextField()
+
+    objects = SubmissionEventQuerySet.as_manager()
 
     def __str__(self):
         return '%s: %s' % (str(self.partner), self.get_event_display())
-
 
 
 ######################
@@ -338,12 +349,16 @@ class EditorialCommunication(models.Model):
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
     """
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='editorial_communications')
     referee = models.ForeignKey('scipost.Contributor', related_name='referee_in_correspondence',
                                 blank=True, null=True, on_delete=models.CASCADE)
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
+
+    class Meta:
+        ordering = ['timestamp']
 
     def __str__(self):
         output = self.comtype
