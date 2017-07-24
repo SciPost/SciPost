@@ -16,7 +16,6 @@ from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommen
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
-from scipost.behaviors import ArxivCallable
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
@@ -28,7 +27,7 @@ from journals.models import Publication
 ###############
 # Submissions:
 ###############
-class Submission(ArxivCallable, models.Model):
+class Submission(models.Model):
     # Main submission fields
     author_comments = models.TextField(blank=True, null=True)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
@@ -162,6 +161,19 @@ class Submission(ArxivCallable, models.Model):
 
     def count_awaiting_vetting(self):
         return self.reports.awaiting_vetting().count()
+
+
+class SubmissionEvent(models.Model):
+    partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE,
+                                related_name='events')
+    event = models.CharField(max_length=64, choices=PARTNER_EVENTS)
+    comments = models.TextField(blank=True)
+    noted_on = models.DateTimeField(auto_now_add=True)
+    noted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '%s: %s' % (str(self.partner), self.get_event_display())
+
 
 
 ######################
