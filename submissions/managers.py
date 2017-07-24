@@ -82,6 +82,10 @@ class SubmissionManager(models.Manager):
         return self.exclude(status__in=SUBMISSION_EXCLUDE_FROM_REPORTING)
 
 
+class SubmissionEventQuerySet(models.QuerySet):
+    pass
+
+
 class EditorialAssignmentManager(models.Manager):
     def get_for_user_in_pool(self, user):
         return self.exclude(submission__authors=user.contributor)\
