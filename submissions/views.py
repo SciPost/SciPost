@@ -63,7 +63,7 @@ class RequestSubmission(CreateView):
     def form_valid(self, form):
         submission = form.save()
         submission.add_general_event('The manuscript has been submitted to %s.'
-                                     % submission.submitted_to_journal)
+                                     % submission.get_submitted_to_journal_display())
 
         text = ('<h3>Thank you for your Submission to SciPost</h3>'
                 'Your Submission will soon be handled by an Editor.')
@@ -480,6 +480,9 @@ def accept_or_decline_assignment_ack(request, assignment_id):
                 assign_perm('can_take_editorial_actions', ed_admins, assignment.submission)
                 SubmissionUtils.send_EIC_appointment_email()
                 SubmissionUtils.send_author_prescreening_passed_email()
+
+                # Add SubmissionEvent's
+                assignment.submission.add_general_event('The Editor-in-charge has been assigned.')
             else:
                 assignment.accepted = False
                 assignment.refusal_reason = form.cleaned_data['refusal_reason']
@@ -492,7 +495,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
 
 
 @login_required
-@permission_required('sci.can_take_charge_of_submissions', raise_exception=True)
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 @transaction.atomic
 def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     """
@@ -539,6 +542,9 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     assign_perm('can_take_editorial_actions', ed_admins, submission)
     SubmissionUtils.send_EIC_appointment_email()
     SubmissionUtils.send_author_prescreening_passed_email()
+
+    # Add SubmissionEvent's
+    submission.add_general_event('The Editor-in-charge has been assigned.')
 
     messages.success(request, 'Thank you for becoming Editor-in-charge of this submission.')
     return redirect(reverse('submissions:editorial_page',
@@ -725,6 +731,9 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
             reg_invitation.save()
             Utils.load({'invitation': reg_invitation})
             Utils.send_registration_invitation_email()
+            submission.add_event_for_author('A referee has been invited.')
+            submission.add_event_for_eic('%s has been recruited and invited as a referee.'
+                                         % ref_recruit_form.cleaned_data['last_name'])
             # Copy the key to the refereeing invitation:
             ref_invitation.invitation_key = reg_invitation.invitation_key
             ref_invitation.save()
@@ -764,6 +773,9 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
     invitation.save()
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_refereeing_invitation_email()
+    submission.add_event_for_author('A referee has been invited.')
+    submission.add_event_for_eic('Referee %s has been invited.' % contributor.user.last_name)
+    messages.success(request, 'Invitation sent')
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
@@ -876,6 +888,8 @@ def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
     submission.status = 'EICassigned'
     submission.latest_activity = timezone.now()
     submission.save()
+
+    submission.add_general_event('A new refereeing deadline is set.')
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
@@ -896,6 +910,7 @@ def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
             submission.status = 'EICassigned'
             submission.latest_activity = timezone.now()
             submission.save()
+            submission.add_general_event('A new refereeing deadline is set.')
             context = {'ack_header': 'New reporting deadline set.',
                        'followup_message': 'Return to the ',
                        'followup_link': reverse('submissions:editorial_page',
@@ -1096,9 +1111,6 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         errormessage = ('The system flagged you as a potential author of this Submission. '
                         'Please go to your personal page under the Submissions tab'
                         ' to clarify this.')
-    # if submission.reports.non_draft().filter(author=current_contributor).exists():
-    #     errormessage = ('You have already submitted a Report for this Submission. You cannot'
-    #                     ' submit an additional Report.')
 
     if errormessage:
         messages.warning(request, errormessage)
@@ -1125,6 +1137,10 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         SubmissionUtils.load({'report': newreport}, request)
         SubmissionUtils.email_EIC_report_delivered()
         SubmissionUtils.email_referee_report_delivered()
+
+        # Add SubmissionEvents for the EIC only, as it can also be rejected still
+        submission.add_event_for_eic('%s has submitted a new Report.'
+                                     % request.user.last_name)
 
         messages.success(request, 'Thank you for your Report')
         return redirect(reverse('scipost:personal_page'))
@@ -1157,8 +1173,16 @@ def vet_submitted_reports(request):
         SubmissionUtils.load({'report': report,
                               'email_response': form.cleaned_data['email_response_field']})
         SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
+
+        # Add SubmissionEvent for the EIC
+        report.submission.add_event_for_eic('The Report by %s is vetted.'
+                                            % report.author.user.last_name)
+
         if report.status == STATUS_VETTED:
             SubmissionUtils.send_author_report_received_email()
+
+            # Add SubmissionEvent to tell the author about the new report
+            report.submission.add_event_for_author('A new Report has been submitted.')
 
         message = 'Submitted Report vetted for <a href="%s">%s</a>.' % (
             reverse('submissions:editorial_page',
