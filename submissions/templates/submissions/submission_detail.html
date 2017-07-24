@@ -50,10 +50,10 @@
             </div>
         </div>
 
-        {% if other_versions %}
+        {% if submission.other_versions %}
             <h3>Other versions of this Submission (with Reports) exist:</h3>
             <div class="pl-4">
-                {% for vn in other_versions %}
+                {% for vn in submission.other_versions %}
                     {% include 'submissions/_submission_version.html' with submission=vn %}
                 {% endfor %}
             </div>

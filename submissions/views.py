@@ -63,6 +63,9 @@ class RequestSubmission(CreateView):
     @transaction.atomic
     def form_valid(self, form):
         submission = form.save()
+        submission.add_general_event('The manuscript has been submitted to %s.'
+                                     % submission.submitted_to_journal)
+
         text = ('<h3>Thank you for your Submission to SciPost</h3>'
                 'Your Submission will soon be handled by an Editor.')
         messages.success(self.request, text)
@@ -186,9 +189,6 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                                                          'Editorial College']).exists()
             and not is_author):
         raise Http404
-    other_versions = Submission.objects.filter(
-        arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
-    ).exclude(pk=submission.id)
 
     form = CommentForm()
 
@@ -206,7 +206,6 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         recommendation = None
 
     context = {'submission': submission,
-               'other_versions': other_versions,
                'recommendation': recommendation,
                'comments': comments,
                'invited_reports': invited_reports,
@@ -526,13 +525,9 @@ def assignments(request):
 def editorial_page(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_editorial_page(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    other_versions = (Submission.objects
-                      .filter(arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr)
-                      .exclude(pk=submission.id))
 
     context = {
         'submission': submission,
-        'other_versions': other_versions,
         'set_deadline_form': SetRefereeingDeadlineForm(),
         'cycle_choice_form': SubmissionCycleChoiceForm(instance=submission),
     }
