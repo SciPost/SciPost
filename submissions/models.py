@@ -206,7 +206,7 @@ class SubmissionEvent(TimeStampedModel):
     objects = SubmissionEventQuerySet.as_manager()
 
     def __str__(self):
-        return '%s: %s' % (str(self.partner), self.get_event_display())
+        return '%s: %s' % (str(self.submission), self.get_event_display())
 
 
 ######################
