@@ -174,6 +174,12 @@ class Command(BaseCommand):
             name='Can oversee refereeing',
             content_type=content_type)
 
+        # Reports
+        can_manage_reports, created = Permission.objects.get_or_create(
+            codename='can_manage_reports',
+            name='Can manage Reports',
+            content_type=content_type)
+
         # Voting
         can_prepare_recommendations_for_voting, created = Permission.objects.get_or_create(
             codename='can_prepare_recommendations_for_voting',
@@ -252,6 +258,7 @@ class Command(BaseCommand):
             can_view_timesheets,
             can_publish_accepted_submission,
             can_attend_VGMs,
+            can_manage_reports,
         ])
 
         EditorialCollege.permissions.set([

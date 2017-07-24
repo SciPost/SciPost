@@ -267,8 +267,12 @@
                             <h3>Editorial Admin actions</h3>
                             <ul>
                               {% if perms.scipost.can_publish_accepted_submission %}
-			      <li><a href="{% url 'journals:manage_metadata' %}">Manage metadata</a></li>
-                              <li><a href="{% url 'journals:harvest_citedby_list' %}">Harvest citedby data</a></li>
+                			      <li><a href="{% url 'journals:manage_metadata' %}">Manage metadata</a></li>
+                                  <li><a href="{% url 'journals:harvest_citedby_list' %}">Harvest citedby data</a></li>
+                              {% endif %}
+                              {% if perms.scipost.can_manage_reports %}
+                                  <li><a href="{% url 'submissions:reports_accepted_list' %}">Accepted Reports</a>{% if nr_reports_without_pdf %} ({{nr_reports_without_pdf}} unfinished){% endif %}</li>
+                                  <li><a href="{% url 'submissions:treated_submissions_list' %}">Fully treated Submissions</a>{% if nr_treated_submissions_without_pdf %} ({{nr_treated_submissions_without_pdf}} unfinished){% endif %}</li>
                               {% endif %}
                             </ul>
                         {% endif %}

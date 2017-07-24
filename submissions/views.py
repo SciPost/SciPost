@@ -6,11 +6,13 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.generic.edit import CreateView
+from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm
@@ -25,7 +27,7 @@ from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSe
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
                    ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
                    EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
-                   SubmissionCycleChoiceForm
+                   SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm
 from .utils import SubmissionUtils
 
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
@@ -34,9 +36,6 @@ from scipost.utils import Utils
 
 from comments.forms import CommentForm
 from production.models import ProductionStream
-
-from django.views.generic.edit import CreateView
-from django.views.generic.list import ListView
 
 import strings
 
@@ -119,7 +118,7 @@ class SubmissionListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Submission.objects.public_overcomplete()
+        queryset = Submission.objects.public_newest()
         self.form = self.form(self.request.GET)
         if 'to_journal' in self.kwargs:
             queryset = queryset.filter(
@@ -217,6 +216,91 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                'is_author': is_author,
                'is_author_unchecked': is_author_unchecked}
     return render(request, 'submissions/submission_detail.html', context)
+
+
+def report_detail_pdf(request, arxiv_identifier_w_vn_nr, report_nr):
+    """
+    Download the PDF of a Report if available.
+    """
+    report = get_object_or_404(Report.objects.accepted(),
+                               submission__arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr,
+                               pdf_report__isnull=False, report_nr=report_nr)
+    response = HttpResponse(report.pdf_report.read(), content_type='application/pdf')
+    filename = '%s_report-%i.pdf' % (report.submission.arxiv_identifier_w_vn_nr, report.report_nr)
+    response['Content-Disposition'] = ('filename=' + filename)
+    return response
+
+
+def submission_refereeing_package_pdf(request, arxiv_identifier_w_vn_nr):
+    """
+    This view let's the user download all Report PDF's in a single merged PDF.
+    The merging takes places every time its downloaded to make sure all available report PDF's
+    are included and the EdColAdmin doesn't have to compile the package every time again.
+    """
+    submission = get_object_or_404(Submission.objects.public().exclude(pdf_refereeing_pack=''),
+                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    response = HttpResponse(submission.pdf_refereeing_pack.read(), content_type='application/pdf')
+    filename = '%s-refereeing-package.pdf' % submission.arxiv_identifier_w_vn_nr
+    response['Content-Disposition'] = ('filename=' + filename)
+    return response
+
+
+@permission_required('scipost.can_manage_reports', raise_exception=True)
+def reports_accepted_list(request):
+    """
+    This view lists all accepted Reports. This shows if Report needs a PDF update/compile
+    in a convenient way.
+    """
+    reports = (Report.objects.accepted()
+               .order_by('pdf_report', 'submission').prefetch_related('submission'))
+    context = {
+        'reports': reports
+    }
+    return render(request, 'submissions/reports_accepted_list.html', context)
+
+
+@permission_required('scipost.can_manage_reports', raise_exception=True)
+def report_pdf_compile(request, report_id):
+    report = get_object_or_404(Report.objects.accepted(), id=report_id)
+    form = ReportPDFForm(request.POST or None, request.FILES or None, instance=report)
+    if form.is_valid():
+        report = form.save()
+        messages.success(request, 'Upload complete.')
+        return redirect(reverse('submissions:reports_accepted_list'))
+    context = {
+        'report': report,
+        'form': form
+    }
+    return render(request, 'submissions/reports_pdf_compile.html', context)
+
+
+@permission_required('scipost.can_manage_reports', raise_exception=True)
+def treated_submissions_list(request):
+    """
+    This view lists all accepted Reports. This shows if Report needs a PDF update/compile
+    in a convenient way.
+    """
+    submissions = Submission.objects.treated().order_by('pdf_refereeing_pack', '-acceptance_date')
+    context = {
+        'submissions': submissions
+    }
+    return render(request, 'submissions/treated_submissions_list.html', context)
+
+
+@permission_required('scipost.can_manage_reports', raise_exception=True)
+def treated_submission_pdf_compile(request, arxiv_identifier_w_vn_nr):
+    submission = get_object_or_404(Submission.objects.treated(),
+                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    form = SubmissionReportsForm(request.POST or None, request.FILES or None, instance=submission)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Upload complete.')
+        return redirect(reverse('submissions:treated_submissions_list'))
+    context = {
+        'submission': submission,
+        'form': form
+    }
+    return render(request, 'submissions/treated_submission_pdf_compile.html', context)
 
 
 ######################
@@ -409,7 +493,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
 
 
 @login_required
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@permission_required('sci.can_take_charge_of_submissions', raise_exception=True)
 @transaction.atomic
 def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     """
