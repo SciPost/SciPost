@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.contrib import messages
+from django.http import Http404
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
 from django.db import transaction
@@ -356,14 +357,10 @@ def add_new_unreg_author(request, publication_id):
     if request.method == 'POST':
         new_unreg_author_form = UnregisteredAuthorForm(request.POST)
         if new_unreg_author_form.is_valid():
-            new_unreg_author = UnregisteredAuthor(
-                first_name=new_unreg_author_form.cleaned_data['first_name'],
-                last_name=new_unreg_author_form.cleaned_data['last_name'],)
-            new_unreg_author.save()
+            new_unreg_author = new_unreg_author_form.save()
             publication.authors_unregistered.add(new_unreg_author)
             return redirect(publication.get_absolute_url())
-    errormessage = 'Method add_new_unreg_author can only be called with POST.'
-    return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+    raise Http404
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -399,23 +396,23 @@ def create_funding_info_metadata(request, doi_label):
     in the metadata field in a Publication instance.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if request.method == 'POST':
-        funding_info_form = FundingInfoForm(request.POST)
-        if funding_info_form.is_valid():
-            publication.metadata['funding_statement'] = funding_info_form.cleaned_data[
-                                                            'funding_statement']
-            publication.save()
 
-    initial = {'funding_statement': '', }
-    funding_statement = ''
+    funding_info_form = FundingInfoForm(request.POST or None)
+    if funding_info_form.is_valid():
+        publication.metadata['funding_statement'] = funding_info_form.cleaned_data[
+                                                        'funding_statement']
+        publication.save()
+
     try:
-        initial['funding_statement'] = publication.metadata['funding_statement']
+        initial = {'funding_statement': publication.metadata['funding_statement']}
         funding_statement = initial['funding_statement']
     except KeyError:
-        pass
+        initial = {'funding_statement': ''}
+        funding_statement = ''
+
     context = {'publication': publication,
                'funding_info_form': FundingInfoForm(initial=initial),
-               'funding_statement': funding_statement, }
+               'funding_statement': funding_statement}
 
     return render(request, 'journals/create_funding_info_metadata.html', context)
 
@@ -431,12 +428,11 @@ def create_metadata_xml(request, doi_label):
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
 
-    if request.method == 'POST':
-        create_metadata_xml_form = CreateMetadataXMLForm(request.POST)
-        if create_metadata_xml_form.is_valid():
-            publication.metadata_xml = create_metadata_xml_form.cleaned_data['metadata_xml']
-            publication.save()
-            return redirect(reverse('journals:manage_metadata'))
+    create_metadata_xml_form = CreateMetadataXMLForm(request.POST or None, instance=publication)
+    if create_metadata_xml_form.is_valid():
+        create_metadata_xml_form.save()
+        messages.success(request, 'Metadata XML saved')
+        return redirect(reverse('journals:manage_metadata'))
 
     # create a doi_batch_id
     salt = ""
@@ -492,6 +488,7 @@ def create_metadata_xml(request, doi_label):
         '<titles><title>' + publication.title + '</title></titles>\n'
         '<contributors>\n'
     )
+
     # Precondition: all authors MUST be listed in authors field of publication instance,
     # this to be checked by EdAdmin before publishing.
     for author in publication.authors.all():
@@ -564,12 +561,13 @@ def create_metadata_xml(request, doi_label):
         '</journal>\n'
     )
     initial['metadata_xml'] += '</body>\n</doi_batch>'
+
     publication.latest_metadata_update = timezone.now()
     publication.save()
-
-    context = {'publication': publication,
-               'create_metadata_xml_form': CreateMetadataXMLForm(initial=initial),
-               }
+    context = {
+        'publication': publication,
+        'create_metadata_xml_form': CreateMetadataXMLForm(initial=initial, instance=publication),
+    }
     return render(request, 'journals/create_metadata_xml.html', context)
 
 
@@ -609,10 +607,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
         'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
         }
     files = {'fname': ('metadata.xml', publication.metadata_xml, 'multipart/form-data')}
-    r = requests.post(url,
-                      params=params,
-                      files=files,
-                      )
+    r = requests.post(url, params=params, files=files)
     response_headers = r.headers
     response_text = r.text
 
@@ -719,13 +714,6 @@ def metadata_DOAJ_deposit(request, doi_label):
     f.write(publication.metadata_DOAJ)
     f.close()
 
-    # response_headers = r.headers
-    # response_text = r.text
-    # context = {
-    #     'publication': publication,
-    #     'response_headers': response_headers,
-    #     'response_text': response_text,
-    # }
     messages.success(request, '<h3>%s</h3>Successfull deposit of metadata DOAJ.'
                               % publication.doi_label)
     return redirect(reverse('journals:manage_metadata'))
@@ -783,7 +771,7 @@ def harvest_citedby_links(request, doi_label):
               'pwd': settings.CROSSREF_LOGIN_PASSWORD,
               'qdata': query_xml,
               'doi': publication.doi_string, }
-    r = requests.post(url, params=params,)
+    r = requests.post(url, params=params)
     if r.status_code == 401:
         messages.warning(request, ('<h3>Crossref credentials are invalid.</h3>'
                                    'Please contact the SciPost Admin.'))

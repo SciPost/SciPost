@@ -58,16 +58,22 @@ class FundingInfoForm(forms.Form):
     funding_statement = forms.CharField(widget=forms.Textarea())
 
     def __init__(self, *args, **kwargs):
-        super(FundingInfoForm, self).__init__(*args, **kwargs)
-        self.fields['funding_statement'].widget.attrs.update(
-            {'rows': 10, 'cols': 50,
-             'placeholder': 'Paste the funding info statement here'})
+        super().__init__(*args, **kwargs)
+        self.fields['funding_statement'].widget.attrs.update({
+            'rows': 10,
+            'cols': 50,
+            'placeholder': 'Paste the funding info statement here'
+        })
 
 
-class CreateMetadataXMLForm(forms.Form):
-    metadata_xml = forms.CharField(widget=forms.Textarea())
+class CreateMetadataXMLForm(forms.ModelForm):
+    class Meta:
+        model = Publication
+        fields = ['metadata_xml']
 
     def __init__(self, *args, **kwargs):
-        super(CreateMetadataXMLForm, self).__init__(*args, **kwargs)
-        self.fields['metadata_xml'].widget.attrs.update(
-            {'rows': 50, 'cols': 50, })
+        super().__init__(*args, **kwargs)
+        self.fields['metadata_xml'].widget.attrs.update({
+            'rows': 50,
+            'cols': 50
+        })
