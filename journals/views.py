@@ -11,8 +11,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template import Context
-from django.template.loader import get_template
 from django.db import transaction
 from django.http import HttpResponse
 
@@ -151,72 +149,61 @@ def initiate_publication(request):
     This method prefills a ValidatePublicationForm for further
     processing (verification in validate_publication method).
     """
-    if request.method == 'POST':
-        initiate_publication_form = InitiatePublicationForm(request.POST)
-        if initiate_publication_form.is_valid():
-            submission = get_object_or_404(Submission, pk=initiate_publication_form.cleaned_data[
-                                                'accepted_submission'].id)
-            current_issue = get_object_or_404(Issue, pk=initiate_publication_form.cleaned_data[
-                                                'to_be_issued_in'].id)
+    initiate_publication_form = InitiatePublicationForm(request.POST or None)
+    if initiate_publication_form.is_valid():
+        submission = initiate_publication_form.cleaned_data['accepted_submission']
+        current_issue = initiate_publication_form.cleaned_data['to_be_issued_in']
 
-            # Determine next available paper number:
-            papers_in_current_volume = Publication.objects.filter(
-                in_issue__in_volume=current_issue.in_volume)
-            paper_nr = 1
-            while papers_in_current_volume.filter(paper_nr=paper_nr).exists():
-                paper_nr += 1
-                if paper_nr > 999:
-                    raise PaperNumberingError(paper_nr)
-            doi_label = (
-                current_issue.in_volume.in_journal.name
-                + '.' + str(current_issue.in_volume.number)
-                + '.' + str(current_issue.number) + '.' + paper_nr_string(paper_nr)
-            )
-            doi_string = '10.21468/' + doi_label
-            BiBTeX_entry = (
-                '@Article{' + doi_label + ',\n'
-                '\ttitle={{' + submission.title + '}},\n'
-                '\tauthor={' + submission.author_list.replace(',', ' and') + '},\n'
-                '\tjournal={'
-                + current_issue.in_volume.in_journal.get_abbreviation_citation()
-                + '},\n'
-                '\tvolume={' + str(current_issue.in_volume.number) + '},\n'
-                '\tissue={' + str(current_issue.number) + '},\n'
-                '\tpages={' + paper_nr_string(paper_nr) + '},\n'
-                '\tyear={' + current_issue.until_date.strftime('%Y') + '},\n'
-                '\tpublisher={SciPost},\n'
-                '\tdoi={' + doi_string + '},\n'
-                '\turl={https://scipost.org/' + doi_string + '},\n'
-                '}\n'
-            )
-            initial = {
-                'accepted_submission': submission,
-                'in_issue': current_issue,
-                'paper_nr': paper_nr,
-                'discipline': submission.discipline,
-                'domain': submission.domain,
-                'subject_area': submission.subject_area,
-                'secondary_areas': submission.secondary_areas,
-                'title': submission.title,
-                'author_list': submission.author_list,
-                'abstract': submission.abstract,
-                'BiBTeX_entry': BiBTeX_entry,
-                'doi_label': doi_label,
-                'submission_date': initiate_publication_form.cleaned_data['original_submission_date'],
-                'acceptance_date': initiate_publication_form.cleaned_data['acceptance_date'],
-                'publication_date': timezone.now(),
-                'latest_activity': timezone.now(),
-            }
-            validate_publication_form = ValidatePublicationForm(initial=initial)
-            context = {'validate_publication_form': validate_publication_form, }
-            return render(request, 'journals/validate_publication.html', context)
-        else:
-            errormessage = 'The form was not filled validly.'
-            context = {'initiate_publication_form': initiate_publication_form,
-                       'errormessage': errormessage}
-            return render(request, 'journals/initiate_publication.html', context)
-    else:
-        initiate_publication_form = InitiatePublicationForm()
+        # Determine next available paper number:
+        paper_nr = Publication.objects.filter(in_issue__in_volume=current_issue.in_volume).count()
+        paper_nr += 1
+        if paper_nr > 999:
+            raise PaperNumberingError(paper_nr)
+
+        # Build form data
+        doi_label = (
+            current_issue.in_volume.in_journal.name
+            + '.' + str(current_issue.in_volume.number)
+            + '.' + str(current_issue.number) + '.' + paper_nr_string(paper_nr)
+        )
+        doi_string = '10.21468/' + doi_label
+        BiBTeX_entry = (
+            '@Article{' + doi_label + ',\n'
+            '\ttitle={{' + submission.title + '}},\n'
+            '\tauthor={' + submission.author_list.replace(',', ' and') + '},\n'
+            '\tjournal={'
+            + current_issue.in_volume.in_journal.get_abbreviation_citation()
+            + '},\n'
+            '\tvolume={' + str(current_issue.in_volume.number) + '},\n'
+            '\tissue={' + str(current_issue.number) + '},\n'
+            '\tpages={' + paper_nr_string(paper_nr) + '},\n'
+            '\tyear={' + current_issue.until_date.strftime('%Y') + '},\n'
+            '\tpublisher={SciPost},\n'
+            '\tdoi={' + doi_string + '},\n'
+            '\turl={https://scipost.org/' + doi_string + '},\n'
+            '}\n'
+        )
+        initial = {
+            'accepted_submission': submission,
+            'in_issue': current_issue,
+            'paper_nr': paper_nr,
+            'discipline': submission.discipline,
+            'domain': submission.domain,
+            'subject_area': submission.subject_area,
+            'secondary_areas': submission.secondary_areas,
+            'title': submission.title,
+            'author_list': submission.author_list,
+            'abstract': submission.abstract,
+            'BiBTeX_entry': BiBTeX_entry,
+            'doi_label': doi_label,
+            'acceptance_date': submission.acceptance_date,
+            'submission_date': submission.submission_date,
+            'publication_date': timezone.now(),
+        }
+        validate_publication_form = ValidatePublicationForm(initial=initial)
+        context = {'validate_publication_form': validate_publication_form}
+        return render(request, 'journals/validate_publication.html', context)
+
     context = {'initiate_publication_form': initiate_publication_form}
     return render(request, 'journals/initiate_publication.html', context)
 
@@ -237,6 +224,7 @@ def validate_publication(request):
                                                         request.FILES or None)
     if validate_publication_form.is_valid():
         publication = validate_publication_form.save()
+
         # Fill in remaining data
         publication.pdf_file = request.FILES['pdf_file']
         submission = publication.accepted_submission
@@ -244,6 +232,7 @@ def validate_publication(request):
         publication.authors_claims.add(*submission.authors_claims.all())
         publication.authors_false_claims.add(*submission.authors_false_claims.all())
         publication.save()
+
         # Move file to final location
         initial_path = publication.pdf_file.path
         new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
@@ -253,17 +242,23 @@ def validate_publication(request):
         os.rename(initial_path, new_path)
         publication.pdf_file.name = new_path
         publication.save()
+
         # Mark the submission as having been published:
-        publication.accepted_submission.published_as = publication
-        publication.accepted_submission.status = 'published'
-        publication.accepted_submission.save()
+        submission.published_as = publication
+        submission.status = 'published'
+        submission.save()
+
         # TODO: Create a Commentary Page
         # Email authors
         JournalUtils.load({'publication': publication})
         JournalUtils.send_authors_paper_published_email()
-        ack_header = 'The publication has been validated.'
-        context['ack_header'] = ack_header
-        return render(request, 'scipost/acknowledgement.html', context)
+
+        # Add SubmissionEvents
+        submission.add_general_event('The Submission has been published as %s.'
+                                     % publication.doi_label)
+
+        messages.success(request, 'The publication has been validated.')
+        return redirect(publication.get_absolute_url())
     else:
         context['errormessage'] = 'The form was invalid.'
 
