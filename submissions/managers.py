@@ -6,7 +6,8 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
                        SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT, STATUS_PUBLISHED,\
                        SUBMISSION_EXCLUDE_FROM_REPORTING, STATUS_REJECTED_VISIBLE,\
-                       STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE
+                       STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE,\
+                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR
 
 
 class SubmissionManager(models.Manager):
@@ -94,6 +95,23 @@ class SubmissionManager(models.Manager):
         """
         return self.filter(status__in=[STATUS_ACCEPTED, STATUS_REJECTED_VISIBLE, STATUS_PUBLISHED,
                                        STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE])
+
+    def accepted(self):
+        return self.filter(status=STATUS_ACCEPTED)
+
+
+class SubmissionEventQuerySet(models.QuerySet):
+    def for_author(self):
+        """
+        Return all events that are meant to be for the author(s) of a submission.
+        """
+        return self.filter(event__in=[EVENT_FOR_AUTHOR, EVENT_GENERAL])
+
+    def for_eic(self):
+        """
+        Return all events that are meant to be for the Editor-in-charge of a submission.
+        """
+        return self.filter(event__in=[EVENT_FOR_EIC, EVENT_GENERAL])
 
 
 class EditorialAssignmentManager(models.Manager):

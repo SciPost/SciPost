@@ -4,16 +4,6 @@ from django.utils import timezone
 from .db.fields import AutoDateTimeField
 
 
-class ArxivCallable(object):
-    '''Models that contain a Arxiv identification should contain these
-    methods to be compatible with the ArxivCaller().
-    '''
-    @classmethod
-    def same_version_exists(self, identifier):
-        '''Check if the given identifier already is present in the database.'''
-        raise NotImplementedError
-
-
 class TimeStampedModel(models.Model):
     """
     All objects should inherit from this abstract model.

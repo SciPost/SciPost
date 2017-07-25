@@ -62,6 +62,9 @@ class RequestSubmission(CreateView):
     @transaction.atomic
     def form_valid(self, form):
         submission = form.save()
+        submission.add_general_event('The manuscript has been submitted to %s.'
+                                     % submission.get_submitted_to_journal_display())
+
         text = ('<h3>Thank you for your Submission to SciPost</h3>'
                 'Your Submission will soon be handled by an Editor.')
         messages.success(self.request, text)
@@ -185,9 +188,6 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                                                          'Editorial College']).exists()
             and not is_author):
         raise Http404
-    other_versions = Submission.objects.filter(
-        arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr
-    ).exclude(pk=submission.id)
 
     form = CommentForm()
 
@@ -205,7 +205,6 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         recommendation = None
 
     context = {'submission': submission,
-               'other_versions': other_versions,
                'recommendation': recommendation,
                'comments': comments,
                'invited_reports': invited_reports,
@@ -481,6 +480,9 @@ def accept_or_decline_assignment_ack(request, assignment_id):
                 assign_perm('can_take_editorial_actions', ed_admins, assignment.submission)
                 SubmissionUtils.send_EIC_appointment_email()
                 SubmissionUtils.send_author_prescreening_passed_email()
+
+                # Add SubmissionEvents
+                assignment.submission.add_general_event('The Editor-in-charge has been assigned.')
             else:
                 assignment.accepted = False
                 assignment.refusal_reason = form.cleaned_data['refusal_reason']
@@ -493,7 +495,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
 
 
 @login_required
-@permission_required('sci.can_take_charge_of_submissions', raise_exception=True)
+@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 @transaction.atomic
 def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     """
@@ -540,6 +542,9 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     assign_perm('can_take_editorial_actions', ed_admins, submission)
     SubmissionUtils.send_EIC_appointment_email()
     SubmissionUtils.send_author_prescreening_passed_email()
+
+    # Add SubmissionEvents
+    submission.add_general_event('The Editor-in-charge has been assigned.')
 
     messages.success(request, 'Thank you for becoming Editor-in-charge of this submission.')
     return redirect(reverse('submissions:editorial_page',
@@ -610,30 +615,11 @@ def assignments(request):
 def editorial_page(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_editorial_page(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    other_versions = (Submission.objects
-                      .filter(arxiv_identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr)
-                      .exclude(pk=submission.id))
-    ref_invitations = RefereeInvitation.objects.filter(submission=submission)
-    nr_reports_to_vet = (Report.objects.awaiting_vetting()
-                         .filter(submission=submission,
-                                 submission__editor_in_charge=request.user.contributor)
-                         .count())
-    communications = (EditorialCommunication.objects
-                      .filter(submission=submission).order_by('timestamp'))
-    try:
-        recommendation = (EICRecommendation.objects.get_for_user_in_pool(request.user)
-                          .get(submission=submission))
-    except EICRecommendation.DoesNotExist:
-        recommendation = None
+
     context = {
         'submission': submission,
-        'other_versions': other_versions,
-        'recommendation': recommendation,
         'set_deadline_form': SetRefereeingDeadlineForm(),
         'cycle_choice_form': SubmissionCycleChoiceForm(instance=submission),
-        'ref_invitations': ref_invitations,
-        'nr_reports_to_vet': nr_reports_to_vet,
-        'communications': communications
     }
     return render(request, 'submissions/editorial_page.html', context)
 
@@ -745,6 +731,9 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
             reg_invitation.save()
             Utils.load({'invitation': reg_invitation})
             Utils.send_registration_invitation_email()
+            submission.add_event_for_author('A referee has been invited.')
+            submission.add_event_for_eic('%s has been recruited and invited as a referee.'
+                                         % ref_recruit_form.cleaned_data['last_name'])
             # Copy the key to the refereeing invitation:
             ref_invitation.invitation_key = reg_invitation.invitation_key
             ref_invitation.save()
@@ -784,6 +773,9 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
     invitation.save()
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_refereeing_invitation_email()
+    submission.add_event_for_author('A referee has been invited.')
+    submission.add_event_for_eic('Referee %s has been invited.' % contributor.user.last_name)
+    messages.success(request, 'Invitation sent')
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
@@ -837,13 +829,22 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
         invitation.date_responded = timezone.now()
         if form.cleaned_data['accept'] == 'True':
             invitation.accepted = True
+            decision_string = 'accepted'
         else:
             invitation.accepted = False
+            decision_string = 'declined'
             invitation.refusal_reason = form.cleaned_data['refusal_reason']
         invitation.save()
         SubmissionUtils.load({'invitation': invitation}, request)
         SubmissionUtils.email_referee_response_to_EIC()
         SubmissionUtils.email_referee_in_response_to_decision()
+
+        # Add SubmissionEvents
+        invitation.submission.add_event_for_author('A referee has %s the refereeing invitation.'
+                                                   % decision_string)
+        invitation.submission.add_event_for_eic('Referee %s has %s the refereeing invitation.'
+                                                % (invitation.referee.user.last_name,
+                                                   decision_string))
 
     context = {'invitation': invitation}
     return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)
@@ -860,6 +861,13 @@ def decline_ref_invitation(request, invitation_key):
         invitation.save()
         SubmissionUtils.load({'invitation': invitation}, request)
         SubmissionUtils.email_referee_response_to_EIC()
+
+        # Add SubmissionEvents
+        invitation.submission.add_event_for_author('A referee has declined the'
+                                                   ' refereeing invitation.')
+        invitation.submission.add_event_for_eic('Referee %s has declined the refereeing '
+                                                'invitation.' % invitation.referee.user.last_name)
+
         messages.success(request, 'Thank you for informing us that you will not provide a Report.')
         return redirect(reverse('scipost:index'))
     context = {'invitation': invitation, 'form': form}
@@ -880,6 +888,12 @@ def cancel_ref_invitation(request, arxiv_identifier_w_vn_nr, invitation_id):
     invitation.save()
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_ref_cancellation_email()
+
+    # Add SubmissionEvents
+    invitation.submission.add_event_for_author('A referee invitation has been cancelled.')
+    invitation.submission.add_event_for_eic('Referee invitation for %s has been cancelled.'
+                                            % invitation.last_name)
+
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
@@ -896,6 +910,8 @@ def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
     submission.status = 'EICassigned'
     submission.latest_activity = timezone.now()
     submission.save()
+
+    submission.add_general_event('A new refereeing deadline is set.')
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
@@ -916,6 +932,7 @@ def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
             submission.status = 'EICassigned'
             submission.latest_activity = timezone.now()
             submission.save()
+            submission.add_general_event('A new refereeing deadline is set.')
             context = {'ack_header': 'New reporting deadline set.',
                        'followup_message': 'Return to the ',
                        'followup_link': reverse('submissions:editorial_page',
@@ -950,6 +967,8 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
     submission.reporting_deadline = timezone.now()
     submission.latest_activity = timezone.now()
     submission.save()
+    submission.add_general_event('Refereeing round has been closed.')
+
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
@@ -1029,16 +1048,12 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
 
     form = EICRecommendationForm(request.POST or None)
     if form.is_valid():
-        recommendation = EICRecommendation(
-            submission=submission,
-            date_submitted=timezone.now(),
-            remarks_for_authors=form.cleaned_data['remarks_for_authors'],
-            requested_changes=form.cleaned_data['requested_changes'],
-            remarks_for_editorial_college=form.cleaned_data['remarks_for_editorial_college'],
-            recommendation=form.cleaned_data['recommendation'],
-            voting_deadline=timezone.now() + datetime.timedelta(days=7),
-        )
+        # Create new EICRecommendation
+        recommendation = form.save(commit=False)
+        recommendation.submission = submission
+        recommendation.voting_deadline = timezone.now() + datetime.timedelta(days=7)
         recommendation.save()
+
         # If recommendation is to accept or reject,
         # it is forwarded to the Editorial College for voting
         # If it is to carry out minor or major revisions,
@@ -1048,12 +1063,21 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
                 recommendation.recommendation == 3 or
                 recommendation.recommendation == -3):
             submission.status = 'voting_in_preparation'
+
+            # Add SubmissionEvent for EIC
+            submission.add_event_for_eic('An Editorial Recommendation has been formulated: %s.'
+                                         % recommendation.get_recommendation_display())
+
         elif (recommendation.recommendation == -1 or
               recommendation.recommendation == -2):
             submission.status = 'revision_requested'
             SubmissionUtils.load({'submission': submission,
                                   'recommendation': recommendation})
             SubmissionUtils.send_author_revision_requested_email()
+
+            # Add SubmissionEvents
+            submission.add_general_event('An Editorial Recommendation has been formulated: %s.'
+                                         % recommendation.get_recommendation_display())
         submission.open_for_reporting = False
         submission.save()
 
@@ -1116,9 +1140,6 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         errormessage = ('The system flagged you as a potential author of this Submission. '
                         'Please go to your personal page under the Submissions tab'
                         ' to clarify this.')
-    # if submission.reports.non_draft().filter(author=current_contributor).exists():
-    #     errormessage = ('You have already submitted a Report for this Submission. You cannot'
-    #                     ' submit an additional Report.')
 
     if errormessage:
         messages.warning(request, errormessage)
@@ -1145,6 +1166,10 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         SubmissionUtils.load({'report': newreport}, request)
         SubmissionUtils.email_EIC_report_delivered()
         SubmissionUtils.email_referee_report_delivered()
+
+        # Add SubmissionEvents for the EIC only, as it can also be rejected still
+        submission.add_event_for_eic('%s has submitted a new Report.'
+                                     % request.user.last_name)
 
         messages.success(request, 'Thank you for your Report')
         return redirect(reverse('scipost:personal_page'))
@@ -1177,8 +1202,16 @@ def vet_submitted_reports(request):
         SubmissionUtils.load({'report': report,
                               'email_response': form.cleaned_data['email_response_field']})
         SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
+
+        # Add SubmissionEvent for the EIC
+        report.submission.add_event_for_eic('The Report by %s is vetted.'
+                                            % report.author.user.last_name)
+
         if report.status == STATUS_VETTED:
             SubmissionUtils.send_author_report_received_email()
+
+            # Add SubmissionEvent to tell the author about the new report
+            report.submission.add_event_for_author('A new Report has been submitted.')
 
         message = 'Submitted Report vetted for <a href="%s">%s</a>.' % (
             reverse('submissions:editorial_page',
@@ -1214,6 +1247,11 @@ def prepare_for_voting(request, rec_id):
             recommendation.submission.status = 'put_to_EC_voting'
             recommendation.submission.save()
             messages.success(request, 'We have registered your selection.')
+
+            # Add SubmissionEvents
+            recommendation.submission.add_event_for_eic('The Editorial Recommendation has been '
+                                                        'put forward to the College for voting.')
+
             return redirect(reverse('submissions:editorial_page',
                                     args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
@@ -1320,27 +1358,40 @@ def fix_College_decision(request, rec_id):
     """
     recommendation = get_object_or_404((EICRecommendation.objects
                                         .get_for_user_in_pool(request.user)), pk=rec_id)
+    submission = recommendation.submission
     if recommendation.recommendation in [1, 2, 3]:
         # Publish as Tier I, II or III
-        recommendation.submission.status = 'accepted'
-        recommendation.submission.acceptance_date = datetime.date.today()
+        submission.status = 'accepted'
+        submission.acceptance_date = datetime.date.today()
+
         # Create a ProductionStream object
-        prodstream = ProductionStream(submission=recommendation.submission)
+        prodstream = ProductionStream(submission=submission)
         prodstream.save()
+
+        # Add SubmissionEvent for authors
+        # Do not write a new event for minor/major modification: already done at moment of
+        # creation.
+        submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
+                                        % recommendation.get_recommendation_display())
     elif recommendation.recommendation == -3:
-        # Reject
-        recommendation.submission.status = 'rejected'
-        previous_submissions = Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=recommendation.submission.arxiv_identifier_wo_vn_nr
-        ).exclude(pk=recommendation.submission.id)
-        for sub in previous_submissions:
+        # Reject + update-reject other versions of submission
+        submission.status = 'rejected'
+        for sub in submission.other_versions:
             sub.status = 'resubmitted_rejected'
             sub.save()
 
-    recommendation.submission.save()
-    SubmissionUtils.load({'submission': recommendation.submission,
-                          'recommendation': recommendation})
+        # Add SubmissionEvent for authors
+        # Do not write a new event for minor/major modification: already done at moment of
+        # creation.
+        submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
+                                        % recommendation.get_recommendation_display())
+
+    # Add SubmissionEvent for EIC
+    submission.add_event_for_eic('The Editorial College\'s decision has been fixed: %s.'
+                                 % recommendation.get_recommendation_display())
+
+    submission.save()
+    SubmissionUtils.load({'submission': submission, 'recommendation': recommendation})
     SubmissionUtils.send_author_College_decision_email()
-    ack_message = 'The Editorial College\'s decision has been fixed.'
-    return render(request, 'scipost/acknowledgement.html',
-                  context={'ack_message': ack_message})
+    messages.success(request, 'The Editorial College\'s decision has been fixed.')
+    return redirect(reverse('submissions:pool'))

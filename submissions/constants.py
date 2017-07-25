@@ -206,3 +206,12 @@ SUBMISSION_CYCLES = (
     (CYCLE_SHORT, 'Short cycle'),
     (CYCLE_DIRECT_REC, 'Direct editorial recommendation'),
 )
+
+EVENT_GENERAL = 'gen'
+EVENT_FOR_EIC = 'eic'
+EVENT_FOR_AUTHOR = 'auth'
+EVENT_TYPES = (
+    (EVENT_GENERAL, 'General comment'),
+    (EVENT_FOR_EIC, 'Comment for Editor-in-charge'),
+    (EVENT_FOR_AUTHOR, 'Comment for author'),
+)

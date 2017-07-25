@@ -10,13 +10,14 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
-                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC
+                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
+                       EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
 from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
-                      ReportManager
+                      ReportManager, SubmissionEventQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
-from scipost.behaviors import ArxivCallable
+from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
@@ -28,7 +29,7 @@ from journals.models import Publication
 ###############
 # Submissions:
 ###############
-class Submission(ArxivCallable, models.Model):
+class Submission(models.Model):
     # Main submission fields
     author_comments = models.TextField(blank=True, null=True)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
@@ -136,6 +137,7 @@ class Submission(ArxivCallable, models.Model):
     def reporting_deadline_has_passed(self):
         return timezone.now() > self.reporting_deadline
 
+    @cached_property
     def other_versions(self):
         return Submission.objects.filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
@@ -160,11 +162,54 @@ class Submission(ArxivCallable, models.Model):
     def count_obtained_reports(self):
         return self.reports.accepted().filter(invited__isnull=False).count()
 
-    def count_refused_reports(self):
-        return self.reports.rejected().count()
+    def add_general_event(self, message):
+        event = SubmissionEvent(
+            submission=self,
+            event=EVENT_GENERAL,
+            text=message,
+        )
+        event.save()
 
-    def count_awaiting_vetting(self):
-        return self.reports.awaiting_vetting().count()
+    def add_event_for_author(self, message):
+        event = SubmissionEvent(
+            submission=self,
+            event=EVENT_FOR_AUTHOR,
+            text=message,
+        )
+        event.save()
+
+    def add_event_for_eic(self, message):
+        event = SubmissionEvent(
+            submission=self,
+            event=EVENT_FOR_EIC,
+            text=message,
+        )
+        event.save()
+
+
+class SubmissionEvent(TimeStampedModel):
+    """
+    The SubmissionEvent's goal is to act as a messaging/logging model
+    for the Submission cycle. Its main audience will be the author(s) and
+    the Editor-in-charge of a Submission.
+
+    Be aware!
+    Both the author and editor-in-charge will read the submission event.
+    Make sure the right text is given to the right event-type, to protect
+    the fellow's identity.
+    """
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='events')
+    event = models.CharField(max_length=4, choices=EVENT_TYPES, default=EVENT_GENERAL)
+    text = models.TextField()
+
+    objects = SubmissionEventQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['-created']
+
+    def __str__(self):
+        return '%s: %s' % (str(self.submission), self.get_event_display())
 
 
 ######################
@@ -351,12 +396,16 @@ class EditorialCommunication(models.Model):
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
     """
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='editorial_communications')
     referee = models.ForeignKey('scipost.Contributor', related_name='referee_in_correspondence',
                                 blank=True, null=True, on_delete=models.CASCADE)
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
+
+    class Meta:
+        ordering = ['timestamp']
 
     def __str__(self):
         output = self.comtype
@@ -378,10 +427,11 @@ class EICRecommendation(models.Model):
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
     remarks_for_authors = models.TextField(blank=True, null=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True, null=True)
-    remarks_for_editorial_college = models.TextField(
-        default='', blank=True, null=True,
-        verbose_name='optional remarks for the Editorial College')
+    remarks_for_editorial_college = models.TextField(blank=True,
+                                                     verbose_name='optional remarks for the'
+                                                                  ' Editorial College')
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
+
     # Editorial Fellows who have assessed this recommendation:
     eligible_to_vote = models.ManyToManyField(Contributor, blank=True,
                                               related_name='eligible_to_vote')

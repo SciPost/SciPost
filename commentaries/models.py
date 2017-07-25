@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.template import Template, Context
 
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
-from scipost.behaviors import ArxivCallable, TimeStampedModel
+from scipost.behaviors import TimeStampedModel
 from scipost.models import Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
 
@@ -12,7 +12,7 @@ from .constants import COMMENTARY_TYPES
 from .managers import CommentaryManager
 
 
-class Commentary(ArxivCallable, TimeStampedModel):
+class Commentary(TimeStampedModel):
     """
     A Commentary contains all the contents of a SciPost Commentary page for a given publication.
     """
@@ -71,10 +71,6 @@ class Commentary(ArxivCallable, TimeStampedModel):
 
     def __str__(self):
         return self.pub_title
-
-    @classmethod
-    def same_version_exists(self, identifier):
-        return self.objects.filter(arxiv_identifier=identifier).exists()
 
     def title_label(self):
         context = Context({
