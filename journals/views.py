@@ -89,9 +89,9 @@ def accepted(request, doi_label):
     have been accepted but are not yet published.
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    accepted_SP_submissions = Submission.objects.filter(
-        submitted_to_journal=journal.name, status='accepted'
-    ).order_by('-latest_activity')
+    accepted_SP_submissions = (Submission.objects.accepted()
+                               .filter(submitted_to_journal=journal.name)
+                               .order_by('-latest_activity'))
     context = {
         'accepted_SP_submissions': accepted_SP_submissions,
         'journal': journal

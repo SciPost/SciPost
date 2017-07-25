@@ -96,6 +96,9 @@ class SubmissionManager(models.Manager):
         return self.filter(status__in=[STATUS_ACCEPTED, STATUS_REJECTED_VISIBLE, STATUS_PUBLISHED,
                                        STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE])
 
+    def accepted(self):
+        return self.filter(status=STATUS_ACCEPTED)
+
 
 class SubmissionEventQuerySet(models.QuerySet):
     def for_author(self):
