@@ -12,6 +12,9 @@ urlpatterns = [
     url(r'^journals_terms_and_conditions$',
         TemplateView.as_view(template_name='journals/journals_terms_and_conditions.html'),
         name='journals_terms_and_conditions'),
+    url(r'^crossmark_policy$',
+        TemplateView.as_view(template_name='journals/crossmark_policy.html'),
+        name='crossmark_policy'),
 
     # Editorial and Administrative Workflow
     url(r'^initiate_publication$',
