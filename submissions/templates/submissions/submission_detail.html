@@ -99,6 +99,14 @@
             </div>
         {% endif %}
     {% endif %}
+
+    <div class="mb-4">
+        <h2>Events</h2>
+        <a href="javascript:;" data-toggle="toggle" data-target="#eventslist">Show/hide events</a>
+        <div id="eventslist">
+            {% include 'submissions/submission_event_list.html' with events=submission.events.for_author %}
+        </div>
+    </div>
 {% endif %}
 
 
