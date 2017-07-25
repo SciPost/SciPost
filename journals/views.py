@@ -553,6 +553,10 @@ def create_metadata_xml(request, doi_label):
         '</doi_data>\n'
         '<crossmark>\n'
         '<crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>\n'
+        '<crossmark_domains>\n'
+        '<crossmark_domain>https://scipost.org/</crossmark_domain>\n'
+        '</crossmark_domains>\n'
+        '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
         '</crossmark>\n'
     )
     try:
