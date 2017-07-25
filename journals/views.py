@@ -455,10 +455,10 @@ def create_metadata_xml(request, doi_label):
     initial = {'metadata_xml': ''}
     initial['metadata_xml'] += (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<doi_batch version="4.3.7" xmlns="http://www.crossref.org/schema/4.3.7" '
+        '<doi_batch version="4.4.0" xmlns="http://www.crossref.org/schema/4.4.0" '
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        'xsi:schemaLocation="http://www.crossref.org/schema/4.3.7 '
-        'http://www.crossref.org/shema/deposit/crossref4.3.7.xsd">\n'
+        'xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 '
+        'http://www.crossref.org/shema/deposit/crossref4.4.0.xsd">\n'
         '<head>\n'
         '<doi_batch_id>' + str(doi_batch_id) + '</doi_batch_id>\n'
         '<timestamp>' + timezone.now().strftime('%Y%m%d%H%M%S') + '</timestamp>\n'
@@ -551,6 +551,9 @@ def create_metadata_xml(request, doi_label):
         + publication.doi_string + '/pdf</resource>\n'
         '</item></collection>\n'
         '</doi_data>\n'
+        '<crossmark>\n'
+        '<crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>\n'
+        '</crossmark>\n'
     )
     try:
         if publication.metadata['citation_list']:
