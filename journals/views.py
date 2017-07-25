@@ -551,13 +551,6 @@ def create_metadata_xml(request, doi_label):
         + publication.doi_string + '/pdf</resource>\n'
         '</item></collection>\n'
         '</doi_data>\n'
-        '<crossmark>\n'
-        '<crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>\n'
-        '<crossmark_domains>\n'
-        '<crossmark_domain>https://scipost.org/</crossmark_domain>\n'
-        '</crossmark_domains>\n'
-        '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
-        '</crossmark>\n'
     )
     try:
         if publication.metadata['citation_list']:
@@ -572,6 +565,13 @@ def create_metadata_xml(request, doi_label):
     except KeyError:
         pass
     initial['metadata_xml'] += (
+        '<crossmark>\n'
+        '<crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>\n'
+        '<crossmark_domains>\n'
+        '<crossmark_domain><domain>scipost.org</domain></crossmark_domain>\n'
+        '</crossmark_domains>\n'
+        '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
+        '</crossmark>\n'
         '</journal_article>\n'
         '</journal>\n'
     )
