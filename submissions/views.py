@@ -1067,18 +1067,24 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
                 recommendation.recommendation == 3 or
                 recommendation.recommendation == -3):
             submission.status = 'voting_in_preparation'
+
+            # Add SubmissionEvent for EIC
+            submission.add_event_for_eic('An Editorial Recommendation decision has been'
+                                         ' formulated: %s.'
+                                         % recommendation.get_recommendation_display())
+
         elif (recommendation.recommendation == -1 or
               recommendation.recommendation == -2):
             submission.status = 'revision_requested'
             SubmissionUtils.load({'submission': submission,
                                   'recommendation': recommendation})
             SubmissionUtils.send_author_revision_requested_email()
+
+            # Add SubmissionEvents
+            submission.add_general_event('An Editorial Recommendation has been formulated: %s.'
+                                         % recommendation.get_recommendation_display())
         submission.open_for_reporting = False
         submission.save()
-
-        # Add SubmissionEvents
-        submission.add_general_event('An Editorial Recommendation has been formulated: %s.'
-                                     % recommendation.get_recommendation_display())
 
         # The EIC has fulfilled this editorial assignment.
         assignment = get_object_or_404(EditorialAssignment,
@@ -1357,27 +1363,40 @@ def fix_College_decision(request, rec_id):
     """
     recommendation = get_object_or_404((EICRecommendation.objects
                                         .get_for_user_in_pool(request.user)), pk=rec_id)
+    submission = recommendation.submission
     if recommendation.recommendation in [1, 2, 3]:
         # Publish as Tier I, II or III
-        recommendation.submission.status = 'accepted'
-        recommendation.submission.acceptance_date = datetime.date.today()
+        submission.status = 'accepted'
+        submission.acceptance_date = datetime.date.today()
+
         # Create a ProductionStream object
-        prodstream = ProductionStream(submission=recommendation.submission)
+        prodstream = ProductionStream(submission=submission)
         prodstream.save()
+
+        # Add SubmissionEvent for authors
+        # Do not write a new event for minor/major modification: already done at moment of
+        # creation.
+        submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
+                                        % recommendation.get_recommendation_display())
     elif recommendation.recommendation == -3:
-        # Reject
-        recommendation.submission.status = 'rejected'
-        previous_submissions = Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=recommendation.submission.arxiv_identifier_wo_vn_nr
-        ).exclude(pk=recommendation.submission.id)
-        for sub in previous_submissions:
+        # Reject + update-reject other versions of submission
+        submission.status = 'rejected'
+        for sub in submission.other_versions:
             sub.status = 'resubmitted_rejected'
             sub.save()
 
-    recommendation.submission.save()
-    SubmissionUtils.load({'submission': recommendation.submission,
-                          'recommendation': recommendation})
+        # Add SubmissionEvent for authors
+        # Do not write a new event for minor/major modification: already done at moment of
+        # creation.
+        submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
+                                        % recommendation.get_recommendation_display())
+
+    # Add SubmissionEvent for EIC
+    submission.add_event_for_eic('The Editorial College\'s decision has been fixed: %s.'
+                                 % recommendation.get_recommendation_display())
+
+    submission.save()
+    SubmissionUtils.load({'submission': submission, 'recommendation': recommendation})
     SubmissionUtils.send_author_College_decision_email()
-    ack_message = 'The Editorial College\'s decision has been fixed.'
-    return render(request, 'scipost/acknowledgement.html',
-                  context={'ack_message': ack_message})
+    messages.success(request, 'The Editorial College\'s decision has been fixed.')
+    return redirect(reverse('submissions:pool'))
