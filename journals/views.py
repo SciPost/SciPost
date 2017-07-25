@@ -541,6 +541,13 @@ def create_metadata_xml(request, doi_label):
         '<publisher_item><item_number item_number_type="article_number">'
         + paper_nr_string(publication.paper_nr) +
         '</item_number></publisher_item>\n'
+        '<crossmark>\n'
+        '<crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>\n'
+        '<crossmark_domains>\n'
+        '<crossmark_domain><domain>scipost.org</domain></crossmark_domain>\n'
+        '</crossmark_domains>\n'
+        '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
+        '</crossmark>\n'
         '<archive_locations><archive name="CLOCKSS"></archive></archive_locations>\n'
         '<doi_data>\n'
         '<doi>' + publication.doi_string + '</doi>\n'
@@ -565,13 +572,6 @@ def create_metadata_xml(request, doi_label):
     except KeyError:
         pass
     initial['metadata_xml'] += (
-        '<crossmark>\n'
-        '<crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>\n'
-        '<crossmark_domains>\n'
-        '<crossmark_domain><domain>scipost.org</domain></crossmark_domain>\n'
-        '</crossmark_domains>\n'
-        '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
-        '</crossmark>\n'
         '</journal_article>\n'
         '</journal>\n'
     )
