@@ -427,10 +427,11 @@ class EICRecommendation(models.Model):
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
     remarks_for_authors = models.TextField(blank=True, null=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True, null=True)
-    remarks_for_editorial_college = models.TextField(
-        default='', blank=True, null=True,
-        verbose_name='optional remarks for the Editorial College')
+    remarks_for_editorial_college = models.TextField(blank=True,
+                                                     verbose_name='optional remarks for the'
+                                                                  ' Editorial College')
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
+
     # Editorial Fellows who have assessed this recommendation:
     eligible_to_vote = models.ManyToManyField(Contributor, blank=True,
                                               related_name='eligible_to_vote')
