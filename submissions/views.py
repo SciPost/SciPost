@@ -481,7 +481,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
                 SubmissionUtils.send_EIC_appointment_email()
                 SubmissionUtils.send_author_prescreening_passed_email()
 
-                # Add SubmissionEvent's
+                # Add SubmissionEvents
                 assignment.submission.add_general_event('The Editor-in-charge has been assigned.')
             else:
                 assignment.accepted = False
@@ -543,7 +543,7 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     SubmissionUtils.send_EIC_appointment_email()
     SubmissionUtils.send_author_prescreening_passed_email()
 
-    # Add SubmissionEvent's
+    # Add SubmissionEvents
     submission.add_general_event('The Editor-in-charge has been assigned.')
 
     messages.success(request, 'Thank you for becoming Editor-in-charge of this submission.')
@@ -839,7 +839,7 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
         SubmissionUtils.email_referee_response_to_EIC()
         SubmissionUtils.email_referee_in_response_to_decision()
 
-        # Add SubmissionEvent's
+        # Add SubmissionEvents
         invitation.submission.add_event_for_author('A referee has %s the refereeing invitation.'
                                                    % decision_string)
         invitation.submission.add_event_for_eic('Referee %s has %s the refereeing invitation.'
@@ -862,7 +862,7 @@ def decline_ref_invitation(request, invitation_key):
         SubmissionUtils.load({'invitation': invitation}, request)
         SubmissionUtils.email_referee_response_to_EIC()
 
-        # Add SubmissionEvent's
+        # Add SubmissionEvents
         invitation.submission.add_event_for_author('A referee has declined the'
                                                    ' refereeing invitation.')
         invitation.submission.add_event_for_eic('Referee %s has declined the refereeing '
@@ -967,7 +967,7 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
     submission.reporting_deadline = timezone.now()
     submission.latest_activity = timezone.now()
     submission.save()
-    submission.add_general_event('Refereeing round is closed.')
+    submission.add_general_event('Refereeing round has been closed.')
 
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
@@ -1248,8 +1248,8 @@ def prepare_for_voting(request, rec_id):
             messages.success(request, 'We have registered your selection.')
 
             # Add SubmissionEvents
-            recommendation.submission.add_general_event('The Editorial Recommendation is '
-                                                        'put to vote.')
+            recommendation.submission.add_general_event('The Editorial Recommendation has been'
+                                                        ' put forward to the College for voting.')
 
             return redirect(reverse('submissions:editorial_page',
                                     args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
