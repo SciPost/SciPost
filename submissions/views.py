@@ -829,13 +829,22 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
         invitation.date_responded = timezone.now()
         if form.cleaned_data['accept'] == 'True':
             invitation.accepted = True
+            decision_string = 'accepted'
         else:
             invitation.accepted = False
+            decision_string = 'declined'
             invitation.refusal_reason = form.cleaned_data['refusal_reason']
         invitation.save()
         SubmissionUtils.load({'invitation': invitation}, request)
         SubmissionUtils.email_referee_response_to_EIC()
         SubmissionUtils.email_referee_in_response_to_decision()
+
+        # Add SubmissionEvent's
+        invitation.submission.add_event_for_author('A referee has %s the refereeing invitation.'
+                                                   % decision_string)
+        invitation.submission.add_event_for_eic('Referee %s has %s the refereeing invitation.'
+                                                % (invitation.referee.user.last_name,
+                                                   decision_string))
 
     context = {'invitation': invitation}
     return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)
@@ -852,6 +861,13 @@ def decline_ref_invitation(request, invitation_key):
         invitation.save()
         SubmissionUtils.load({'invitation': invitation}, request)
         SubmissionUtils.email_referee_response_to_EIC()
+
+        # Add SubmissionEvent's
+        invitation.submission.add_event_for_author('A referee has declined the'
+                                                   ' refereeing invitation.')
+        invitation.submission.add_event_for_eic('Referee %s has declined the refereeing '
+                                                'invitation.' % invitation.referee.user.last_name)
+
         messages.success(request, 'Thank you for informing us that you will not provide a Report.')
         return redirect(reverse('scipost:index'))
     context = {'invitation': invitation, 'form': form}
@@ -872,6 +888,12 @@ def cancel_ref_invitation(request, arxiv_identifier_w_vn_nr, invitation_id):
     invitation.save()
     SubmissionUtils.load({'invitation': invitation})
     SubmissionUtils.send_ref_cancellation_email()
+
+    # Add SubmissionEvents
+    invitation.submission.add_event_for_author('A referee invitation has been cancelled.')
+    invitation.submission.add_event_for_eic('Referee invitation for %s has been cancelled.'
+                                            % invitation.last_name)
+
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
@@ -945,6 +967,8 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
     submission.reporting_deadline = timezone.now()
     submission.latest_activity = timezone.now()
     submission.save()
+    submission.add_general_event('Refereeing round is closed.')
+
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
@@ -1051,6 +1075,10 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
             SubmissionUtils.send_author_revision_requested_email()
         submission.open_for_reporting = False
         submission.save()
+
+        # Add SubmissionEvents
+        submission.add_general_event('An Editorial Recommendation has been formulated: %s.'
+                                     % recommendation.get_recommendation_display())
 
         # The EIC has fulfilled this editorial assignment.
         assignment = get_object_or_404(EditorialAssignment,
@@ -1218,6 +1246,11 @@ def prepare_for_voting(request, rec_id):
             recommendation.submission.status = 'put_to_EC_voting'
             recommendation.submission.save()
             messages.success(request, 'We have registered your selection.')
+
+            # Add SubmissionEvents
+            recommendation.submission.add_general_event('The Editorial Recommendation is '
+                                                        'put to vote.')
+
             return redirect(reverse('submissions:editorial_page',
                                     args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
