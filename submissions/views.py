@@ -1048,16 +1048,12 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
 
     form = EICRecommendationForm(request.POST or None)
     if form.is_valid():
-        recommendation = EICRecommendation(
-            submission=submission,
-            date_submitted=timezone.now(),
-            remarks_for_authors=form.cleaned_data['remarks_for_authors'],
-            requested_changes=form.cleaned_data['requested_changes'],
-            remarks_for_editorial_college=form.cleaned_data['remarks_for_editorial_college'],
-            recommendation=form.cleaned_data['recommendation'],
-            voting_deadline=timezone.now() + datetime.timedelta(days=7),
-        )
+        # Create new EICRecommendation
+        recommendation = form.save(commit=False)
+        recommendation.submission = submission
+        recommendation.voting_deadline = timezone.now() + datetime.timedelta(days=7)
         recommendation.save()
+
         # If recommendation is to accept or reject,
         # it is forwarded to the Editorial College for voting
         # If it is to carry out minor or major revisions,
@@ -1069,8 +1065,7 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
             submission.status = 'voting_in_preparation'
 
             # Add SubmissionEvent for EIC
-            submission.add_event_for_eic('An Editorial Recommendation decision has been'
-                                         ' formulated: %s.'
+            submission.add_event_for_eic('An Editorial Recommendation has been formulated: %s.'
                                          % recommendation.get_recommendation_display())
 
         elif (recommendation.recommendation == -1 or
@@ -1254,8 +1249,8 @@ def prepare_for_voting(request, rec_id):
             messages.success(request, 'We have registered your selection.')
 
             # Add SubmissionEvents
-            recommendation.submission.add_general_event('The Editorial Recommendation has been'
-                                                        ' put forward to the College for voting.')
+            recommendation.submission.add_event_for_eic('The Editorial Recommendation has been '
+                                                        'put forward to the College for voting.')
 
             return redirect(reverse('submissions:editorial_page',
                                     args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
