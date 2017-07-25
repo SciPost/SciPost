@@ -446,10 +446,10 @@ def create_metadata_xml(request, doi_label):
     initial = {'metadata_xml': ''}
     initial['metadata_xml'] += (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<doi_batch version="4.3.7" xmlns="http://www.crossref.org/schema/4.3.7" '
+        '<doi_batch version="4.4.0" xmlns="http://www.crossref.org/schema/4.4.0" '
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        'xsi:schemaLocation="http://www.crossref.org/schema/4.3.7 '
-        'http://www.crossref.org/shema/deposit/crossref4.3.7.xsd">\n'
+        'xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 '
+        'http://www.crossref.org/shema/deposit/crossref4.4.0.xsd">\n'
         '<head>\n'
         '<doi_batch_id>' + str(doi_batch_id) + '</doi_batch_id>\n'
         '<timestamp>' + timezone.now().strftime('%Y%m%d%H%M%S') + '</timestamp>\n'
@@ -533,6 +533,13 @@ def create_metadata_xml(request, doi_label):
         '<publisher_item><item_number item_number_type="article_number">'
         + paper_nr_string(publication.paper_nr) +
         '</item_number></publisher_item>\n'
+        '<crossmark>\n'
+        '<crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>\n'
+        '<crossmark_domains>\n'
+        '<crossmark_domain><domain>scipost.org</domain></crossmark_domain>\n'
+        '</crossmark_domains>\n'
+        '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
+        '</crossmark>\n'
         '<archive_locations><archive name="CLOCKSS"></archive></archive_locations>\n'
         '<doi_data>\n'
         '<doi>' + publication.doi_string + '</doi>\n'
