@@ -23,8 +23,11 @@ from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublication
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
 
+from funders.models import Funder
 from submissions.models import Submission
 from scipost.models import Contributor
+
+from funders.forms import GrantSelectForm
 
 from guardian.decorators import permission_required
 
@@ -274,8 +277,10 @@ def validate_publication(request):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def manage_metadata(request):
     publications = Publication.objects.order_by('-publication_date', '-paper_nr')
+    associate_grant_form = GrantSelectForm()
     context = {
-        'publications': publications
+        'publications': publications,
+        'associate_grant_form': associate_grant_form,
     }
     return render(request, 'journals/manage_metadata.html', context)
 
@@ -427,6 +432,22 @@ def create_funding_info_metadata(request, doi_label):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
+def add_associated_grant(request, doi_label):
+    """
+    Called by an Editorial Administrator.
+    This associates a grant from the database to this publication.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    grant_select_form = GrantSelectForm(request.POST or None)
+    if grant_select_form.is_valid():
+        publication.grants.add(grant_select_form.cleaned_data['grant'])
+        publication.save()
+        messages.success(request, 'Grant added to publication %s' % str(publication))
+    return redirect(reverse('journals:manage_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
 def create_metadata_xml(request, doi_label):
     """
     To be called by an EdAdmin after the citation_list,
@@ -457,6 +478,7 @@ def create_metadata_xml(request, doi_label):
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<doi_batch version="4.4.0" xmlns="http://www.crossref.org/schema/4.4.0" '
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'xmlns:fr="http://www.crossref.org/fundref.xsd" '
         'xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 '
         'http://www.crossref.org/shema/deposit/crossref4.4.0.xsd">\n'
         '<head>\n'
@@ -547,6 +569,31 @@ def create_metadata_xml(request, doi_label):
         '<crossmark_domain><domain>scipost.org</domain></crossmark_domain>\n'
         '</crossmark_domains>\n'
         '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
+        '<custom_metadata>\n'
+        )
+    funders = Funder.objects.filter(grant__in=publication.grants.all()).distinct()
+    nr_funders = funders.count()
+    if nr_funders > 0:
+        initial['metadata_xml'] += '<fr:program name="fundref">\n'
+        for funder in funders:
+            if nr_funders > 1:
+                initial['metadata_xml'] += '<fr:assertion name="fundgroup">\n'
+            initial['metadata_xml'] += (
+                '<fr:assertion name="funder_name">' + funder.name + '\n'
+                '<fr:assertion name="funder_identifier">'
+                + funder.identifier + '</fr:assertion>\n'
+                '</fr:assertion>\n')
+            for grant in publication.grants.all():
+                if grant.funder == funder:
+                    initial['metadata_xml'] += (
+                        '<fr:assertion name="award_number">'
+                        + grant.number + '</fr:assertion>\n')
+            if nr_funders > 1:
+                initial['metadata_xml'] += '</fr:assertion>\n'
+        initial['metadata_xml'] += '</fr:program>\n'
+
+    initial['metadata_xml'] += (
+        '</custom_metadata>\n'
         '</crossmark>\n'
         '<archive_locations><archive name="CLOCKSS"></archive></archive_locations>\n'
         '<doi_data>\n'

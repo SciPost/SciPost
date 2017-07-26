@@ -64,6 +64,7 @@ class PublicationAdmin(admin.ModelAdmin):
 admin.site.register(Publication, PublicationAdmin)
 
 
+
 class DepositAdmin(admin.ModelAdmin):
     list_display = ('publication', 'timestamp', 'doi_batch_id', 'deposition_date',)
     readonly_fields = ('publication', 'doi_batch_id', 'metadata_xml', 'deposition_date',)

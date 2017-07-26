@@ -95,6 +95,7 @@ INSTALLED_APPS = (
     'virtualmeetings',
     'production',
     'partners',
+    'funders',
     'webpack_loader',
 )
 
