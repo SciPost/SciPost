@@ -20,6 +20,7 @@ from django.views.generic.list import ListView
 from django.db.models import Prefetch
 
 from guardian.decorators import permission_required
+from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict
 from .decorators import has_contributor
@@ -435,6 +436,9 @@ def draft_registration_invitation(request):
         invitation = draft_inv_form.save(commit=False)
         invitation.drafted_by = request.user.contributor
         invitation.save()
+
+        # Assign permission to 'drafter' to edit the draft afterwards
+        assign_perm('comments.change_draftinvitation', request.user, invitation)
         messages.success(request, 'Draft invitation saved.')
         return redirect(reverse('scipost:draft_registration_invitation'))
 
@@ -478,9 +482,11 @@ def draft_registration_invitation(request):
     return render(request, 'scipost/draft_registration_invitation.html', context)
 
 
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+@login_required
 def edit_draft_reg_inv(request, draft_id):
-    draft = get_object_or_404(DraftInvitation, id=draft_id)
+    draft = get_object_or_404((get_objects_for_user(request.user, 'scipost.change_draftinvitation')
+                               .filter(processed=False)),
+                              id=draft_id)
 
     draft_inv_form = DraftInvitationForm(request.POST or None, current_user=request.user,
                                          instance=draft)

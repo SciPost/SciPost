@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
 from partners.models import Contact
-from scipost.models import Contributor
+from scipost.models import Contributor, DraftInvitation
 
 
 class Command(BaseCommand):
@@ -35,6 +35,7 @@ class Command(BaseCommand):
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
         content_type_contact = ContentType.objects.get_for_model(Contact)
+        content_type_draft_invitation = ContentType.objects.get_for_model(DraftInvitation)
 
         # Supporting Partners
         can_manage_SPB, created = Permission.objects.get_or_create(
@@ -63,6 +64,13 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Registration and invitations
+        change_draft_invitation, created = Permission.objects.get_or_create(
+            codename='change_draftinvitation',
+            defaults={
+                'name': 'Can vet registration requests',
+                'content_type': content_type_draft_invitation
+            }
+        )
         can_vet_registration_requests, created = Permission.objects.get_or_create(
             codename='can_vet_registration_requests',
             name='Can vet registration requests',
@@ -225,6 +233,7 @@ class Command(BaseCommand):
         # Assign permissions to groups
         SciPostAdmin.permissions.set([
             can_manage_registration_invitations,
+            change_draft_invitation,
             can_email_group_members,
             can_email_particulars,
             can_resend_registration_requests,
@@ -249,6 +258,7 @@ class Command(BaseCommand):
 
         AdvisoryBoard.permissions.set([
             can_manage_registration_invitations,
+            change_draft_invitation,
             can_attend_VGMs,
         ])
 
@@ -296,6 +306,7 @@ class Command(BaseCommand):
 
         Ambassadors.permissions.set([
             can_manage_registration_invitations,
+            change_draft_invitation,
         ])
 
         JuniorAmbassadors.permissions.set([
