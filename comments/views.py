@@ -277,7 +277,6 @@ def reply_to_report(request, report_id):
                 date_submitted=timezone.now(),
                 )
             newcomment.save()
-            # return HttpResponseRedirect(reverse('comments:comment_submission_ack'))
             context = {
                 'ack_header': 'Thank you for contributing a Reply.',
                 'ack_message': 'It will soon be vetted by an Editor.',

@@ -91,7 +91,7 @@ class Submission(models.Model):
     class Meta:
         permissions = (
             ('can_take_editorial_actions', 'Can take editorial actions'),
-            )
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

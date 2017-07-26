@@ -63,6 +63,11 @@ class Comment(TimeStampedModel):
 
     objects = CommentManager()
 
+    class Meta:
+        permissions = (
+            ('can_vet_comments', 'Can vet submitted Comments'),
+        )
+
     def __str__(self):
         return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name +
                 ' on ' + self.date_submitted.strftime('%Y-%m-%d') + ', ' + self.comment_text[:30])
