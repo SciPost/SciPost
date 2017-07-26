@@ -99,6 +99,9 @@ class SubmissionManager(models.Manager):
     def accepted(self):
         return self.filter(status=STATUS_ACCEPTED)
 
+    def open_for_commenting(self):
+        return self.filter(open_for_commenting=True)
+
 
 class SubmissionEventQuerySet(models.QuerySet):
     def for_author(self):

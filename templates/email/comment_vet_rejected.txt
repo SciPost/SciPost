@@ -1,0 +1,28 @@
+Dear {{comment.author.get_title_display}} {{comment.author.user.last_name}}
+\n\n
+
+The Comment you have submitted, concerning publication with title
+
+{% if comment.commentary %}
+    {{comment.commentary.pub_title}} by {{comment.commentary.author_list}} at Commentary Page https://scipost.org{{comment.commentary.get_absolute_url}}
+{% elif comment.submission %}
+    {{comment.submission.title}} by {{comment.submission.author_list}} at Submission page https://scipost.org{{comment.submission.get_absolute_url}}
+{% elif comment.thesislink %}
+    {{comment.thesislink.title}} by {{comment.thesislink.author}} at Thesis Link https://scipost.org{{comment.thesislink.get_absolute_url}}
+{% endif %}
+
+has been rejected for the following reason: {{comment.get_status_display}}.
+
+\n\nWe copy it below for your convenience.
+
+\n\nThank you for your contribution,
+
+\n\nThe SciPost Team.
+
+{% if email_response %}
+    \n\nFurther explanations: {{email_response}}
+{% endif %}
+
+\n\n
+Comment:\n
+{{comment.comment_text}}

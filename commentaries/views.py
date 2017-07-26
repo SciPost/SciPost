@@ -17,7 +17,6 @@ from .forms import DOIToQueryForm, ArxivQueryForm, VetCommentaryForm, RequestCom
 
 from comments.models import Comment
 from comments.forms import CommentForm
-from scipost.models import Contributor
 
 import strings
 

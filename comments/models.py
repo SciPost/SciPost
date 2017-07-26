@@ -1,12 +1,13 @@
 from django.db import models
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from scipost.behaviors import TimeStampedModel
 from scipost.models import Contributor
 
 from .behaviors import validate_file_extension, validate_max_file_size
 from .constants import COMMENT_STATUS, STATUS_PENDING
-from .managers import CommentManager
+from .managers import CommentQuerySet
 
 
 class Comment(TimeStampedModel):
@@ -16,10 +17,9 @@ class Comment(TimeStampedModel):
     status = models.SmallIntegerField(default=STATUS_PENDING, choices=COMMENT_STATUS)
     vetted_by = models.ForeignKey('scipost.Contributor', blank=True, null=True,
                                   on_delete=models.CASCADE, related_name='comment_vetted_by')
-    file_attachment = models.FileField(
-        upload_to='uploads/comments/%Y/%m/%d/', blank=True,
-        validators=[validate_file_extension, validate_max_file_size]
-    )
+    file_attachment = models.FileField(upload_to='uploads/comments/%Y/%m/%d/', blank=True,
+                                       validators=[validate_file_extension, validate_max_file_size]
+                                       )
     # a Comment is either for a Commentary or Submission or a ThesisLink.
     commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True,
                                    on_delete=models.CASCADE)
@@ -35,6 +35,7 @@ class Comment(TimeStampedModel):
                                            on_delete=models.CASCADE)
     author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
+
     # Categories:
     is_cor = models.BooleanField(default=False, verbose_name='correction/erratum')
     is_rem = models.BooleanField(default=False, verbose_name='remark')
@@ -46,22 +47,26 @@ class Comment(TimeStampedModel):
     is_lit = models.BooleanField(default=False, verbose_name='pointer to related literature')
     is_sug = models.BooleanField(default=False, verbose_name='suggestion for further work')
     comment_text = models.TextField()
-    remarks_for_editors = models.TextField(default='', blank=True,
+    remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
-    date_submitted = models.DateTimeField('date submitted')
+    date_submitted = models.DateTimeField('date submitted', default=timezone.now)
     # Opinions
     nr_A = models.PositiveIntegerField(default=0)
-    in_agreement = models.ManyToManyField(Contributor, related_name='in_agreement', blank=True)
+    in_agreement = models.ManyToManyField('scipost.Contributor', related_name='in_agreement',
+                                          blank=True)
     nr_N = models.PositiveIntegerField(default=0)
-    in_notsure = models.ManyToManyField(Contributor, related_name='in_notsure', blank=True)
+    in_notsure = models.ManyToManyField('scipost.Contributor', related_name='in_notsure',
+                                        blank=True)
     nr_D = models.PositiveIntegerField(default=0)
-    in_disagreement = models.ManyToManyField(
-        Contributor,
-        related_name='in_disagreement',
-        blank=True
-    )
+    in_disagreement = models.ManyToManyField('scipost.Contributor', related_name='in_disagreement',
+                                             blank=True)
 
-    objects = CommentManager()
+    objects = CommentQuerySet.as_manager()
+
+    class Meta:
+        permissions = (
+            ('can_vet_comments', 'Can vet submitted Comments'),
+        )
 
     def __str__(self):
         return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name +
