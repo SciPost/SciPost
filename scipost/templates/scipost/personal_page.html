@@ -227,23 +227,26 @@
                         </ul>
                         {% endif %}
 
-                        <h3>Email communications</h3>
-                        <ul>
-                            {% if perms.scipost.can_email_group_members %}
-                                <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
-                            {% endif %}
-                            {% if perms.scipost.can_email_particulars %}
-                                <li><a href="{% url 'scipost:send_precooked_email' %}">Send a precooked email</a></li>
-                                <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
-                            {% endif %}
-                            {% if perms.scipost.can_manage_mailchimp %}
-                                <li><a href="{% url 'mailing_lists:overview' %}">Manage mailing lists</a></li>
-                            {% endif %}
-                        </ul>
+                        {% if 'SciPost Administrators' in user_groups %}
+                            <h3>Email communications</h3>
+                            <ul>
+                                {% if perms.scipost.can_email_group_members %}
+                                    <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
+                                {% endif %}
+                                {% if perms.scipost.can_email_particulars %}
+                                    <li><a href="{% url 'scipost:send_precooked_email' %}">Send a precooked email</a></li>
+                                    <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
+                                {% endif %}
+                                {% if perms.scipost.can_manage_mailchimp %}
+                                    <li><a href="{% url 'mailing_lists:overview' %}">Manage mailing lists</a></li>
+                                {% endif %}
+                            </ul>
+                        {% endif %}
                     </div>
                     {% endif %}
 
                     <div class="col-md-4">
+                        {% if 'Vetting Editors' in user_groups or perms.scipost.can_vet_submitted_reports %}
                         <h3>Vetting actions</h3>
                         <ul>
                             {% if perms.scipost.can_vet_commentary_requests %}
@@ -262,6 +265,7 @@
                                 <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
                             {% endif %}
                         </ul>
+                        {% endif %}
 
                         {% if 'Editorial Administrators' in user_groups %}
                             <h3>Editorial Admin actions</h3>
