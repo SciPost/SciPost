@@ -250,7 +250,7 @@
                                 <li><a href="{% url 'commentaries:vet_commentary_requests' %}">Vet Commentary Page requests</a> ({{ nr_commentary_page_requests_to_vet }})</li>
                             {% endif %}
                             {% if perms.scipost.can_vet_comments %}
-                                <li><a href="{% url 'comments:vet_submitted_comments' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
+                                <li><a href="{% url 'comments:vet_submitted_comments_list' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
                             {% endif %}
                             {% if perms.scipost.can_vet_thesislink_requests %}
                                 <li><a href="{% url 'theses:unvetted_thesislinks' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>

@@ -1,0 +1,62 @@
+{% load bootstrap %}
+{% load filename %}
+{% load file_extentions %}
+
+<div class="card card-vetting">
+    <div class="card-header">
+
+        {% if comment.commentary %}
+            <h2>From Commentary (<a href="{{comment.commentary.get_absolute_url}}">link</a>)</h2>
+            {% include 'commentaries/_commentary_summary.html' with commentary=comment.commentary %}
+        {% endif %}
+
+        {% if comment.submission %}
+            <h2>From Submission (<a href="{{comment.submission.get_absolute_url}}">link</a>)</h2>
+            {% include 'submissions/_submission_summary_short.html' with submission=comment.submission %}
+        {% endif %}
+
+        {% if comment.thesislink %}
+            <h2>From Thesis Link (<a href="{{comment.thesislink.get_absolute_url}}">link</a>)</h2>
+            {% include 'theses/_thesislink_information.html' with thesislink=comment.thesislink %}
+        {% endif %}
+    </div>
+    <div class="card-block">
+
+        <h2 class="card-title">The Comment to be vetted:</h2>
+
+        <div class="row">
+            <div class="col-md-6">
+                {% include 'comments/_comment_identifier_vetting.html' with comment=comment %}
+                <hr class="small">
+
+                <h3>Comment text:</h3>
+                <p>{{ comment.comment_text }}</p>
+
+                {% if comment.file_attachment %}
+                    <h3>Attachment:</h3>
+                    <p>
+                        <a target="_blank" href="{{ comment.file_attachment.url }}">
+                            {% if comment.file_attachment|is_image %}
+                                <img class="attachment attachment-comment" src="{{ comment.file_attachment.url }}">
+                            {% else %}
+                                {{ comment.file_attachment|filename }}<br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
+                            {% endif %}
+                        </a>
+                    </p>
+                {% endif %}
+
+                {% if comment.remarks_for_editors %}
+                    <h3>Remarks for Editors only:</h3>
+                    <p>{{ comment.remarks_for_editors }}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <form action="{% url 'comments:vet_submitted_comment' comment_id=comment.id %}" method="post">
+                    {% csrf_token %}
+                    {{ form|bootstrap }}
+                    <input class="btn btn-primary" type="submit" value="Submit" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

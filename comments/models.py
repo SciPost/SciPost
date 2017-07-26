@@ -61,7 +61,7 @@ class Comment(TimeStampedModel):
     in_disagreement = models.ManyToManyField('scipost.Contributor', related_name='in_disagreement',
                                              blank=True)
 
-    objects = CommentManager()
+    objects = CommentManager.as_manager()
 
     class Meta:
         permissions = (

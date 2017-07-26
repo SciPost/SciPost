@@ -1,11 +1,13 @@
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib import messages
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.db import transaction
 
+from guardian.shortcuts import assign_perm, get_objects_for_user
 import strings
 
 from .models import Comment
@@ -30,122 +32,139 @@ def new_comment(request, **kwargs):
         if type_of_object == "thesislink":
             _object = get_object_or_404(ThesisLink.objects.open_for_commenting(), id=object_id)
             new_comment.thesislink = _object
+            new_comment.save()
         elif type_of_object == "submission":
             _object = get_object_or_404(Submission.objects.open_for_commenting(), id=object_id)
             new_comment.submission = _object
-            new_comment.submission.add_event_for_eic('A new comment has been added.')
+            new_comment.save()
+            _object.add_event_for_eic('A new comment has been added.')
+
+            # Add permissions for EIC only, the Vetting-group already has it!
+            assign_perm('comments.can_vet_comments', _object.editor_in_charge.user, new_comment)
         elif type_of_object == "commentary":
             _object = get_object_or_404(Commentary.objects.open_for_commenting(), id=object_id)
             new_comment.commentary = _object
+            new_comment.save()
 
-        new_comment.save()
         messages.success(request, strings.acknowledge_submit_comment)
         return redirect(_object.get_absolute_url())
 
 
 @permission_required('scipost.can_vet_comments', raise_exception=True)
-def vet_submitted_comments(request):
+def vet_submitted_comments_list(request):
     comments_to_vet = Comment.objects.awaiting_vetting().order_by('date_submitted')
     form = VetCommentForm()
     context = {'comments_to_vet': comments_to_vet, 'form': form}
-    return(render(request, 'comments/vet_submitted_comments.html', context))
+    return(render(request, 'comments/vet_submitted_comments_list.html', context))
 
 
-@permission_required('scipost.can_vet_comments', raise_exception=True)
-def vet_submitted_comment_ack(request, comment_id):
-    if request.method == 'POST':
-        form = VetCommentForm(request.POST)
-        comment = Comment.objects.get(pk=comment_id)
-        if form.is_valid():
-            if form.cleaned_data['action_option'] == '1':
-                # accept the comment as is
-                comment.status = 1
-                comment.vetted_by = request.user.contributor
-                comment.save()
+@login_required
+@transaction.atomic
+def vet_submitted_comment(request, comment_id):
+    # Method `get_objects_for_user` gets all Comments that are assigned to the user
+    # or *all* comments if user has the `scipost.can_vet_comments` permission.
+    comment = get_object_or_404((get_objects_for_user(request.user, 'comments.can_vet_comments')
+                                 .awaiting_vetting()),
+                                id=comment_id)
+    form = VetCommentForm(request.POST or None)
+    if form.is_valid():
+        if form.cleaned_data['action_option'] == '1':
+            # accept the comment as is
+            comment.status = 1
+            comment.vetted_by = request.user.contributor
+            comment.save()
 
-                new_comment.submission.add_event_for_eic('A Comment has been accepted.')
-                new_comment.submission.add_event_for_author('A new comment has been added.')
+            comment.submission.add_event_for_eic('A Comment has been accepted.')
+            comment.submission.add_event_for_author('A new Comment has been added.')
 
-                email_text = ('Dear ' + comment.author.get_title_display() + ' '
-                              + comment.author.user.last_name +
-                              ', \n\nThe Comment you have submitted, '
-                              'concerning publication with title ')
-                if comment.commentary is not None:
-                    email_text += (comment.commentary.pub_title + ' by '
-                                   + comment.commentary.author_list
-                                   + ' at Commentary Page https://scipost.org/commentary/'
-                                   + comment.commentary.arxiv_or_DOI_string)
-                    comment.commentary.latest_activity = timezone.now()
-                    comment.commentary.save()
-                elif comment.submission is not None:
-                    email_text += (comment.submission.title + ' by '
-                                   + comment.submission.author_list
-                                   + ' at Submission page https://scipost.org/submission/'
-                                   + comment.submission.arxiv_identifier_w_vn_nr)
-                    comment.submission.latest_activity = timezone.now()
-                    comment.submission.save()
-                    if not comment.is_author_reply:
-                        SubmissionUtils.load({'submission': comment.submission})
-                        SubmissionUtils.send_author_comment_received_email()
-                elif comment.thesislink is not None:
-                    email_text += (comment.thesislink.title + ' by ' + comment.thesislink.author +
-                                   ' at Thesis Link https://scipost.org/thesis/'
-                                   + str(comment.thesislink.id))
-                    comment.thesislink.latest_activity = timezone.now()
-                    comment.thesislink.save()
-                email_text += (', has been accepted and published online.' +
-                               '\n\nWe copy it below for your convenience.' +
-                               '\n\nThank you for your contribution, \nThe SciPost Team.' +
-                               '\n\n' + comment.comment_text)
-                emailmessage = EmailMessage('SciPost Comment published', email_text,
-                                            'comments@scipost.org',
-                                            [comment.author.user.email],
-                                            ['comments@scipost.org'],
-                                            reply_to=['comments@scipost.org'])
-                emailmessage.send(fail_silently=False)
-            elif form.cleaned_data['action_option'] == '2':
-                # the comment request is simply rejected
-                comment.status = int(form.cleaned_data['refusal_reason'])
-                if comment.status == 0:
-                    comment.status == -1
-                comment.save()
+            email_text = ('Dear ' + comment.author.get_title_display() + ' '
+                          + comment.author.user.last_name +
+                          ', \n\nThe Comment you have submitted, '
+                          'concerning publication with title ')
+            if comment.commentary is not None:
+                email_text += (comment.commentary.pub_title + ' by '
+                               + comment.commentary.author_list
+                               + ' at Commentary Page https://scipost.org/commentary/'
+                               + comment.commentary.arxiv_or_DOI_string)
+                comment.commentary.latest_activity = timezone.now()
+                comment.commentary.save()
+            elif comment.submission is not None:
+                email_text += (comment.submission.title + ' by '
+                               + comment.submission.author_list
+                               + ' at Submission page https://scipost.org/submission/'
+                               + comment.submission.arxiv_identifier_w_vn_nr)
+                comment.submission.latest_activity = timezone.now()
+                comment.submission.save()
+                if not comment.is_author_reply:
+                    SubmissionUtils.load({'submission': comment.submission})
+                    SubmissionUtils.send_author_comment_received_email()
+            elif comment.thesislink is not None:
+                email_text += (comment.thesislink.title + ' by ' + comment.thesislink.author +
+                               ' at Thesis Link https://scipost.org/thesis/'
+                               + str(comment.thesislink.id))
+                comment.thesislink.latest_activity = timezone.now()
+                comment.thesislink.save()
+            email_text += (', has been accepted and published online.' +
+                           '\n\nWe copy it below for your convenience.' +
+                           '\n\nThank you for your contribution, \nThe SciPost Team.' +
+                           '\n\n' + comment.comment_text)
+            emailmessage = EmailMessage('SciPost Comment published', email_text,
+                                        'comments@scipost.org',
+                                        [comment.author.user.email],
+                                        ['comments@scipost.org'],
+                                        reply_to=['comments@scipost.org'])
+            emailmessage.send(fail_silently=False)
+        elif form.cleaned_data['action_option'] == '2':
+            # the comment request is simply rejected
+            comment.status = int(form.cleaned_data['refusal_reason'])
+            if comment.status == 0:
+                comment.status == -1
+            comment.save()
 
-                new_comment.submission.add_event_for_eic('A Comment has been rejected.')
+            comment.submission.add_event_for_eic('A Comment has been rejected.')
 
-                email_text = ('Dear ' + comment.author.get_title_display() + ' '
-                              + comment.author.user.last_name
-                              + ', \n\nThe Comment you have submitted, '
-                              'concerning publication with title ')
-                if comment.commentary is not None:
-                    email_text += comment.commentary.pub_title + ' by ' +\
-                                                            comment.commentary.author_list
-                elif comment.submission is not None:
-                    email_text += comment.submission.title + ' by ' +\
-                                                            comment.submission.author_list
-                elif comment.thesislink is not None:
-                    email_text += comment.thesislink.title + ' by ' + comment.thesislink.author
-                email_text += (', has been rejected for the following reason: '
-                               + comment.get_status_display() + '.' +
-                               '\n\nWe copy it below for your convenience.' +
-                               '\n\nThank you for your contribution, \n\nThe SciPost Team.')
-                if form.cleaned_data['email_response_field']:
-                    email_text += '\n\nFurther explanations: ' +\
-                                                        form.cleaned_data['email_response_field']
-                email_text += '\n\n' + comment.comment_text
-                emailmessage = EmailMessage('SciPost Comment rejected', email_text,
-                                            'comments@scipost.org',
-                                            [comment.author.user.email],
-                                            ['comments@scipost.org'],
-                                            reply_to=['comments@scipost.org'])
-                emailmessage.send(fail_silently=False)
+            email_text = ('Dear ' + comment.author.get_title_display() + ' '
+                          + comment.author.user.last_name
+                          + ', \n\nThe Comment you have submitted, '
+                          'concerning publication with title ')
+            if comment.commentary is not None:
+                email_text += comment.commentary.pub_title + ' by ' +\
+                                                        comment.commentary.author_list
+            elif comment.submission is not None:
+                email_text += comment.submission.title + ' by ' +\
+                                                        comment.submission.author_list
+            elif comment.thesislink is not None:
+                email_text += comment.thesislink.title + ' by ' + comment.thesislink.author
+            email_text += (', has been rejected for the following reason: '
+                           + comment.get_status_display() + '.' +
+                           '\n\nWe copy it below for your convenience.' +
+                           '\n\nThank you for your contribution, \n\nThe SciPost Team.')
+            if form.cleaned_data['email_response_field']:
+                email_text += '\n\nFurther explanations: ' +\
+                                                    form.cleaned_data['email_response_field']
+            email_text += '\n\n' + comment.comment_text
+            emailmessage = EmailMessage('SciPost Comment rejected', email_text,
+                                        'comments@scipost.org',
+                                        [comment.author.user.email],
+                                        ['comments@scipost.org'],
+                                        reply_to=['comments@scipost.org'])
+            emailmessage.send(fail_silently=False)
 
-    # context = {}
-    # return render(request, 'comments/vet_submitted_comment_ack.html', context)
-    context = {'ack_header': 'Submitted Comment vetted.',
-               'followup_message': 'Back to ',
-               'followup_link': reverse('comments:vet_submitted_comments'),
-               'followup_link_label': 'submitted Comments page'}
-    return render(request, 'scipost/acknowledgement.html', context)
+        messages.success(request, 'Submitted Comment vetted.')
+        if comment.submission and comment.submission.editor_in_charge == request.user.contributor:
+            # Redirect a EIC back to the Editorial Page!
+            return redirect(reverse('submissions:editorial_page',
+                                    args=(comment.submission.arxiv_identifier_w_vn_nr,)))
+        elif request.user.has_perm('scipost.can_vet_comments'):
+            # Redirect vetters back to check for other unvetted comments!
+            return redirect(reverse('comments:vet_submitted_comments_list'))
+        return redirect(comment.get_absolute_url())
+
+    context = {
+        'comment': comment,
+        'form': form
+    }
+    return(render(request, 'comments/vet_submitted_comment.html', context))
 
 
 @permission_required('scipost.can_submit_comments', raise_exception=True)
