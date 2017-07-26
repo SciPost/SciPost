@@ -3,7 +3,7 @@ from django.db import models
 from .constants import STATUS_PENDING
 
 
-class CommentManager(models.QuerySet):
+class CommentQuerySet(models.QuerySet):
     def vetted(self):
         return self.filter(status__gte=1)
 

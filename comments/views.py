@@ -2,7 +2,6 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib import messages
-from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.db import transaction

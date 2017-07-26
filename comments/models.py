@@ -7,7 +7,7 @@ from scipost.models import Contributor
 
 from .behaviors import validate_file_extension, validate_max_file_size
 from .constants import COMMENT_STATUS, STATUS_PENDING
-from .managers import CommentManager
+from .managers import CommentQuerySet
 
 
 class Comment(TimeStampedModel):
@@ -61,7 +61,7 @@ class Comment(TimeStampedModel):
     in_disagreement = models.ManyToManyField('scipost.Contributor', related_name='in_disagreement',
                                              blank=True)
 
-    objects = CommentManager.as_manager()
+    objects = CommentQuerySet.as_manager()
 
     class Meta:
         permissions = (
