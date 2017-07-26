@@ -1,0 +1,34 @@
+<p>Dear {{comment.author.get_title_display}} {{comment.author.user.last_name}},</p>
+
+<p>
+    The Comment you have submitted, concerning publication with title
+
+    {% if comment.commentary %}
+        {{comment.commentary.pub_title}} by {{comment.commentary.author_list}} (<a href="https://scipost.org{{comment.commentary.get_absolute_url}}">see Commentary Page on SciPost.org</a>)
+    {% elif comment.submission %}
+        {{comment.submission.title}} by {{comment.submission.author_list}} (<a href="https://scipost.org{{comment.submission.get_absolute_url}}">see Submission Page on SciPost.org</a>)
+    {% elif comment.thesislink %}
+        {{comment.thesislink.title}} by {{comment.thesislink.author}} (<a href="https://scipost.org{{comment.thesislink.get_absolute_url}}">see Thesis Link on SciPost.org</a>)
+    {% endif %}
+    has been rejected for the following reason: {{comment.get_status_display}}.
+</p>
+<p>
+    We copy it below for your convenience.
+</p>
+<p>
+    Thank you for your contribution,<br><br>
+    The SciPost Team.
+</p>
+
+{% if email_response %}
+    <p>Further explanations: {{email_response}}</p>
+{% endif %}
+
+<p>
+    <br>
+    Comment:
+    <br>
+    {{comment.comment_text|linebreaksbr}}
+</p>
+
+{% include 'email/_footer.html' %}

@@ -12,6 +12,7 @@ import strings
 
 from .models import Comment
 from .forms import CommentForm, VetCommentForm
+from .utils import CommentUtils
 
 from theses.models import ThesisLink
 from submissions.utils import SubmissionUtils
@@ -69,86 +70,46 @@ def vet_submitted_comment(request, comment_id):
     form = VetCommentForm(request.POST or None)
     if form.is_valid():
         if form.cleaned_data['action_option'] == '1':
-            # accept the comment as is
+            # Accept the comment as is
             comment.status = 1
             comment.vetted_by = request.user.contributor
             comment.save()
 
-            comment.submission.add_event_for_eic('A Comment has been accepted.')
-            comment.submission.add_event_for_author('A new Comment has been added.')
+            # Send emails
+            CommentUtils.load({'comment': comment})
+            CommentUtils.email_comment_vet_accepted_to_author()
 
-            email_text = ('Dear ' + comment.author.get_title_display() + ' '
-                          + comment.author.user.last_name +
-                          ', \n\nThe Comment you have submitted, '
-                          'concerning publication with title ')
-            if comment.commentary is not None:
-                email_text += (comment.commentary.pub_title + ' by '
-                               + comment.commentary.author_list
-                               + ' at Commentary Page https://scipost.org/commentary/'
-                               + comment.commentary.arxiv_or_DOI_string)
+            # Update `latest_activity` fields
+            if comment.commentary:
                 comment.commentary.latest_activity = timezone.now()
                 comment.commentary.save()
-            elif comment.submission is not None:
-                email_text += (comment.submission.title + ' by '
-                               + comment.submission.author_list
-                               + ' at Submission page https://scipost.org/submission/'
-                               + comment.submission.arxiv_identifier_w_vn_nr)
+            elif comment.submission:
                 comment.submission.latest_activity = timezone.now()
                 comment.submission.save()
+
+                # Add events to Submission and send mail to author of the Submission
+                comment.submission.add_event_for_eic('A Comment has been accepted.')
+                comment.submission.add_event_for_author('A new Comment has been added.')
                 if not comment.is_author_reply:
                     SubmissionUtils.load({'submission': comment.submission})
                     SubmissionUtils.send_author_comment_received_email()
-            elif comment.thesislink is not None:
-                email_text += (comment.thesislink.title + ' by ' + comment.thesislink.author +
-                               ' at Thesis Link https://scipost.org/thesis/'
-                               + str(comment.thesislink.id))
+            elif comment.thesislink:
                 comment.thesislink.latest_activity = timezone.now()
                 comment.thesislink.save()
-            email_text += (', has been accepted and published online.' +
-                           '\n\nWe copy it below for your convenience.' +
-                           '\n\nThank you for your contribution, \nThe SciPost Team.' +
-                           '\n\n' + comment.comment_text)
-            emailmessage = EmailMessage('SciPost Comment published', email_text,
-                                        'comments@scipost.org',
-                                        [comment.author.user.email],
-                                        ['comments@scipost.org'],
-                                        reply_to=['comments@scipost.org'])
-            emailmessage.send(fail_silently=False)
         elif form.cleaned_data['action_option'] == '2':
-            # the comment request is simply rejected
+            # The comment request is simply rejected
             comment.status = int(form.cleaned_data['refusal_reason'])
             if comment.status == 0:
-                comment.status == -1
+                comment.status = -1
             comment.save()
 
-            comment.submission.add_event_for_eic('A Comment has been rejected.')
+            # Send emails
+            CommentUtils.load({'comment': comment})
+            CommentUtils.email_comment_vet_rejected_to_author(
+                email_response=form.cleaned_data['email_response_field'])
 
-            email_text = ('Dear ' + comment.author.get_title_display() + ' '
-                          + comment.author.user.last_name
-                          + ', \n\nThe Comment you have submitted, '
-                          'concerning publication with title ')
-            if comment.commentary is not None:
-                email_text += comment.commentary.pub_title + ' by ' +\
-                                                        comment.commentary.author_list
-            elif comment.submission is not None:
-                email_text += comment.submission.title + ' by ' +\
-                                                        comment.submission.author_list
-            elif comment.thesislink is not None:
-                email_text += comment.thesislink.title + ' by ' + comment.thesislink.author
-            email_text += (', has been rejected for the following reason: '
-                           + comment.get_status_display() + '.' +
-                           '\n\nWe copy it below for your convenience.' +
-                           '\n\nThank you for your contribution, \n\nThe SciPost Team.')
-            if form.cleaned_data['email_response_field']:
-                email_text += '\n\nFurther explanations: ' +\
-                                                    form.cleaned_data['email_response_field']
-            email_text += '\n\n' + comment.comment_text
-            emailmessage = EmailMessage('SciPost Comment rejected', email_text,
-                                        'comments@scipost.org',
-                                        [comment.author.user.email],
-                                        ['comments@scipost.org'],
-                                        reply_to=['comments@scipost.org'])
-            emailmessage.send(fail_silently=False)
+            if comment.submission:
+                comment.submission.add_event_for_eic('A Comment has been rejected.')
 
         messages.success(request, 'Submitted Comment vetted.')
         if comment.submission and comment.submission.editor_in_charge == request.user.contributor:
