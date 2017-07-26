@@ -145,6 +145,10 @@ class Command(BaseCommand):
             codename='can_submit_manuscript',
             name='Can submit manuscript',
             content_type=content_type)
+        can_read_all_eic_events, created = Permission.objects.get_or_create(
+            codename='can_read_all_eic_events',
+            name='Can read all Editor-in-charge events',
+            content_type=content_type)
 
         # Submission handling
         can_view_pool, created = Permission.objects.get_or_create(
@@ -259,6 +263,7 @@ class Command(BaseCommand):
             can_publish_accepted_submission,
             can_attend_VGMs,
             can_manage_reports,
+            can_read_all_eic_events,
         ])
 
         EditorialCollege.permissions.set([
