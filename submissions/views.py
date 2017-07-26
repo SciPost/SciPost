@@ -304,8 +304,10 @@ def treated_submission_pdf_compile(request, arxiv_identifier_w_vn_nr):
 
 @permission_required('scipost.can_read_all_eic_events', raise_exception=True)
 def latest_events(request):
+    events = (SubmissionEvent.objects.for_eic()
+              .filter(created__gte=timezone.now() - datetime.timedelta(hours=24)))
     context = {
-        'events': SubmissionEvent.objects.for_eic()
+        'events': events
     }
     return render(request, 'submissions/latest_events.html', context)
 
