@@ -21,7 +21,7 @@ from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATU
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES,\
                        STATUS_DRAFT
 from .models import Submission, EICRecommendation, EditorialAssignment,\
-                    RefereeInvitation, Report, EditorialCommunication
+                    RefereeInvitation, Report, EditorialCommunication, SubmissionEvent
 from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm,\
                    RecommendationVoteForm, ConsiderAssignmentForm, AssignSubmissionForm,\
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
@@ -300,6 +300,14 @@ def treated_submission_pdf_compile(request, arxiv_identifier_w_vn_nr):
         'form': form
     }
     return render(request, 'submissions/treated_submission_pdf_compile.html', context)
+
+
+@permission_required('scipost.can_read_all_eic_events', raise_exception=True)
+def latest_events(request):
+    context = {
+        'events': SubmissionEvent.objects.for_eic()
+    }
+    return render(request, 'submissions/latest_events.html', context)
 
 
 ######################
