@@ -1,5 +1,3 @@
-
-
 DISCIPLINE_PHYSICS = 'physics'
 DISCIPLINE_ASTROPHYSICS = 'astrophysics'
 DISCIPLINE_MATH = 'mathematics'

@@ -32,7 +32,7 @@ class SubmissionSearchForm(forms.Form):
 
     def search_results(self):
         """Return all Submission objects according to search"""
-        return Submission.objects.public_overcomplete().filter(
+        return Submission.objects.public_newest().filter(
             title__icontains=self.cleaned_data.get('title', ''),
             author_list__icontains=self.cleaned_data.get('author', ''),
             abstract__icontains=self.cleaned_data.get('abstract', ''),
@@ -332,6 +332,12 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         return submission
 
 
+class SubmissionReportsForm(forms.ModelForm):
+    class Meta:
+        model = Submission
+        fields = ['pdf_refereeing_pack']
+
+
 ######################
 # Editorial workflow #
 ######################
@@ -412,6 +418,12 @@ class VotingEligibilityForm(forms.Form):
 # Reports:
 ############
 
+class ReportPDFForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['pdf_report']
+
+
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
@@ -420,6 +432,17 @@ class ReportForm(forms.ModelForm):
                   'recommendation', 'remarks_for_editors', 'anonymous']
 
     def __init__(self, *args, **kwargs):
+        if kwargs.get('instance'):
+            if kwargs['instance'].is_followup_report:
+                # Prefill data from latest report in the series
+                latest_report = kwargs['instance'].latest_report_from_series()
+                kwargs.update({
+                    'initial': {
+                        'qualification': latest_report.qualification,
+                        'anonymous': latest_report.anonymous
+                    }
+                })
+
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields['strengths'].widget.attrs.update({
             'placeholder': ('Give a point-by-point '
@@ -440,7 +463,28 @@ class ReportForm(forms.ModelForm):
             'cols': 100
         })
 
-    def save(self, submission, current_contributor):
+        # If the Report is not a followup: Explicitly assign more fields as being required!
+        if not self.instance.is_followup_report:
+            required_fields = [
+                'strengths',
+                'weaknesses',
+                'requested_changes',
+                'validity',
+                'significance',
+                'originality',
+                'clarity',
+                'formatting',
+                'grammar'
+            ]
+            for field in required_fields:
+                self.fields[field].required = True
+
+        # Let user know the field is required!
+        for field in self.fields:
+            if self.fields[field].required:
+                self.fields[field].label += ' *'
+
+    def save(self, submission):
         """
         Update meta data if ModelForm is submitted (non-draft).
         Possibly overwrite the default status if user asks for saving as draft.
@@ -448,7 +492,6 @@ class ReportForm(forms.ModelForm):
         report = super().save(commit=False)
 
         report.submission = submission
-        report.author = current_contributor
         report.date_submitted = timezone.now()
 
         # Save with right status asked by user
@@ -458,7 +501,7 @@ class ReportForm(forms.ModelForm):
             report.status = STATUS_UNVETTED
 
             # Update invitation and report meta data if exist
-            invitation = submission.referee_invitations.filter(referee=current_contributor).first()
+            invitation = submission.referee_invitations.filter(referee=report.author).first()
             if invitation:
                 invitation.fulfilled = True
                 invitation.save()
@@ -466,7 +509,7 @@ class ReportForm(forms.ModelForm):
 
             # Check if report author if the report is being flagged on the submission
             if submission.referees_flagged:
-                if current_contributor.user.last_name in submission.referees_flagged:
+                if report.author.user.last_name in submission.referees_flagged:
                     report.flagged = True
         report.save()
         return report
@@ -597,6 +640,6 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['refereeing_cycle'].default = None
-        other_submission = self.instance.other_versions().first()
+        other_submission = self.instance.other_versions.first()
         if other_submission:
             self.fields['referees_reinvite'].queryset = other_submission.referee_invitations.all()

@@ -1,8 +1,10 @@
 {% extends 'submissions/_single_public_report_without_comments.html' %}
 
 {% block single_report_footer %}
-    <hr class="small">
-    <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
+    {% if user.is_authenticated and perms.scipost.can_submit_comments %}
+        <hr class="small">
+        <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
+    {% endif %}
 
     {% for reply in report.comment_set.vetted %}
         {% include 'comments/_single_comment_with_link.html' with comment=reply perms=perms user=user %}

@@ -50,10 +50,10 @@
             </div>
         </div>
 
-        {% if other_versions %}
+        {% if submission.other_versions %}
             <h3>Other versions of this Submission (with Reports) exist:</h3>
             <div class="pl-4">
-                {% for vn in other_versions %}
+                {% for vn in submission.other_versions %}
                     {% include 'submissions/_submission_version.html' with submission=vn %}
                 {% endfor %}
             </div>
@@ -99,6 +99,14 @@
             </div>
         {% endif %}
     {% endif %}
+
+    <div class="mb-4">
+        <h2>Events</h2>
+        <a href="javascript:;" data-toggle="toggle" data-target="#eventslist">Show/hide events</a>
+        <div id="eventslist">
+            {% include 'submissions/submission_event_list.html' with events=submission.events.for_author %}
+        </div>
+    </div>
 {% endif %}
 
 
@@ -139,6 +147,14 @@
                 <li>Commenting on this Submission is closed.</li>
             {% endif %}
         </ul>
+        {% if perms.scipost.can_manage_reports %}
+            <h3>Admin Actions</h3>
+            <ul>
+                <li>
+                    <a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
+                </li>
+            <ul>
+        {% endif %}
     </div>
 </div>
 {% endif %}

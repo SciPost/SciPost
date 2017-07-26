@@ -18,6 +18,13 @@ urlpatterns = [
         name='submission_wo_vn_nr'),
     url(r'^(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/$',
         views.submission_detail, name='submission'),
+    url(r'^(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/reports/(?P<report_nr>[0-9]+)/pdf$',
+        views.report_detail_pdf, name='report_detail_pdf'),
+    url(r'^(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/reports/pdf$',
+        views.submission_refereeing_package_pdf, name='refereeing_package_pdf'),
+    url(r'^treated_submissions$', views.treated_submissions_list, name='treated_submissions_list'),
+    url(r'^(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/reports/compile$',
+        views.treated_submission_pdf_compile, name='treated_submission_pdf_compile'),
     url(r'^submit_manuscript$', views.RequestSubmission.as_view(), name='submit_manuscript'),
     url(r'^submit_manuscript/prefill$', views.prefill_using_arxiv_identifier,
         name='prefill_using_identifier'),
@@ -26,6 +33,7 @@ urlpatterns = [
         views.submissions_by_status, name='submissions_by_status'),
     url(r'^add_remark/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
         views.add_remark, name='add_remark'),
+
     # Assignment of Editor-in-charge
     url(r'^assign_submission/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
         views.assign_submission, name='assign_submission'),
@@ -73,9 +81,13 @@ urlpatterns = [
     url(r'^cycle/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/submit$',
         views.cycle_form_submit, name='cycle_confirmation'),
     # Reports
-    url(r'^submit_report/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})$',
+    url(r'^(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/reports/submit$',
         views.submit_report, name='submit_report'),
-    url(r'^vet_submitted_reports$', views.vet_submitted_reports, name='vet_submitted_reports'),
+    url(r'^reports/vet_submitted$', views.vet_submitted_reports, name='vet_submitted_reports'),
+    url(r'^reports/list$', views.reports_accepted_list, name='reports_accepted_list'),
+    url(r'^reports/(?P<report_id>[0-9]+)/compile$',
+        views.report_pdf_compile, name='report_pdf_compile'),
+
     # Voting
     url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting, name='prepare_for_voting'),
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),

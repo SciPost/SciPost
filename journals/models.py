@@ -142,10 +142,11 @@ class Publication(models.Model):
     abstract = models.TextField()
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
     cc_license = models.CharField(max_length=32, choices=CC_LICENSES, default=CCBY4)
+    grants = models.ManyToManyField('funders.Grant', blank=True)
     metadata = JSONField(default={}, blank=True, null=True)
     metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
     latest_metadata_update = models.DateTimeField(blank=True, null=True)
-    metadata_DOAJ = JSONField(blank=True, null=True)
+    metadata_DOAJ = JSONField(default={}, blank=True, null=True)
     BiBTeX_entry = models.TextField(blank=True, null=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_publication_validator])
@@ -214,7 +215,6 @@ class Publication(models.Model):
         output += '</ul>'
         template = Template(output)
         return template.render(context)
-
 
 
 class Deposit(models.Model):

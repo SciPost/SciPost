@@ -98,7 +98,7 @@ def documentsSearchResults(query):
                                    .filter(publication_query).order_by('-publication_date'))
     commentary_search_queryset = (Commentary.objects.vetted()
                                   .filter(commentary_query).order_by('-pub_date'))
-    submission_search_queryset = (Submission.objects.public()
+    submission_search_queryset = (Submission.objects.public_unlisted()
                                   .filter(submission_query).order_by('-submission_date'))
     thesislink_search_list = (ThesisLink.objects.vetted()
                               .filter(thesislink_query).order_by('-defense_date'))
@@ -175,9 +175,8 @@ def index(request):
     '''Main page.'''
     context = {
         'latest_newsitems': NewsItem.objects.all().order_by('-date')[:1],
-        'submissions': Submission.objects.public().order_by('-submission_date')[:3],
-        'publications': Publication.objects.published().order_by('-publication_date',
-                                                                 '-paper_nr')[:3]
+        'submissions': Submission.objects.public_unlisted().order_by('-submission_date')[:3],
+        'publications': Publication.objects.published().order_by('-publication_date')[:3]
     }
     return render(request, 'scipost/index.html', context)
 
@@ -796,8 +795,6 @@ def personal_page(request):
     nr_submissions_to_assign = 0
     nr_recommendations_to_prepare_for_voting = 0
     if contributor.is_SP_Admin():
-        intwodays = now + timezone.timedelta(days=2)
-
         # count the number of pending registration requests
         nr_reg_to_vet = Contributor.objects.filter(user__is_active=True, status=0).count()
         nr_reg_awaiting_validation = (Contributor.objects.awaiting_validation()
@@ -806,6 +803,7 @@ def personal_page(request):
         nr_submissions_to_assign = Submission.objects.filter(status__in=['unassigned']).count()
         nr_recommendations_to_prepare_for_voting = EICRecommendation.objects.filter(
             submission__status__in=['voting_in_preparation']).count()
+
     nr_assignments_to_consider = 0
     active_assignments = None
     nr_reports_to_vet = 0
@@ -833,9 +831,8 @@ def personal_page(request):
         referee=contributor, accepted=None, cancelled=False).count()
     pending_ref_tasks = RefereeInvitation.objects.filter(
         referee=contributor, accepted=True, fulfilled=False)
-    unfinished_reports = Report.objects.in_draft().filter(author=contributor)
     refereeing_tab_total_count = nr_ref_inv_to_consider + len(pending_ref_tasks)
-    refereeing_tab_total_count += len(unfinished_reports)
+    refereeing_tab_total_count += Report.objects.in_draft().filter(author=contributor).count()
 
     # Verify if there exist objects authored by this contributor,
     # whose authorship hasn't been claimed yet
@@ -895,12 +892,19 @@ def personal_page(request):
         'nr_ref_inv_to_consider': nr_ref_inv_to_consider,
         'pending_ref_tasks': pending_ref_tasks,
         'refereeing_tab_total_count': refereeing_tab_total_count,
-        'unfinished_reports': unfinished_reports,
         'own_submissions': own_submissions,
         'own_commentaries': own_commentaries,
         'own_thesislinks': own_thesislinks,
-        'own_comments': own_comments, 'own_authorreplies': own_authorreplies,
+        'own_comments': own_comments,
+        'own_authorreplies': own_authorreplies,
     }
+
+    # Only add variables if user has right permission
+    if request.user.has_perm('scipost.can_manage_reports'):
+        context['nr_reports_without_pdf'] = (Report.objects.accepted()
+                                             .filter(pdf_report='').count())
+        context['nr_treated_submissions_without_pdf'] = (Submission.objects.treated()
+                                                         .filter(pdf_refereeing_pack='').count())
 
     return render(request, 'scipost/personal_page.html', context)
 
@@ -1112,7 +1116,7 @@ def contributor_info(request, contributor_id):
     """
     contributor = get_object_or_404(Contributor, pk=contributor_id)
     contributor_publications = Publication.objects.published().filter(authors=contributor)
-    contributor_submissions = Submission.objects.public().filter(authors=contributor)
+    contributor_submissions = Submission.objects.public_unlisted().filter(authors=contributor)
     contributor_commentaries = Commentary.objects.filter(authors=contributor)
     contributor_theses = ThesisLink.objects.vetted().filter(author_as_cont=contributor)
     contributor_comments = (Comment.objects.vetted()
