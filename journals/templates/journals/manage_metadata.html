@@ -92,11 +92,11 @@ event: "focusin"
           </div>
 
           <div class="col-md-5">
-	    <h2>Funding info for this publication:</h2>
-	    {% if publication.funding_info %}
-	    <p>{{ publication.funding_info }}</p>
+	    <h2>Funding statement for this publication:</h2>
+	    {% if publication.metadata.funding_statement %}
+	    <p>{{ publication.metadata.funding_statement }}</p>
 	    {% else %}
-	    <p>No funding info was found</p>
+	    <p>No funding statement was found</p>
 	    {% endif %}
 	    <h2>Grants associated to this publication:</h2>
 	    <ul>
