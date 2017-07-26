@@ -865,7 +865,14 @@ def decline_ref_invitation(request, invitation_key):
                                    accepted__isnull=True)
 
     form = ConsiderRefereeInvitationForm(request.POST or None, initial={'accept': False})
+    context = {'invitation': invitation, 'form': form}
     if form.is_valid():
+        if form.cleaned_data['accept'] == 'True':
+            # User filled in: Accept
+            messages.warning(request, 'Please login and go to your personal page if you'
+                                      ' want to accept the invitation.')
+            return render(request, 'submissions/decline_ref_invitation.html', context)
+
         invitation.accepted = False
         invitation.refusal_reason = form.cleaned_data['refusal_reason']
         invitation.save()
@@ -880,7 +887,6 @@ def decline_ref_invitation(request, invitation_key):
 
         messages.success(request, 'Thank you for informing us that you will not provide a Report.')
         return redirect(reverse('scipost:index'))
-    context = {'invitation': invitation, 'form': form}
     return render(request, 'submissions/decline_ref_invitation.html', context)
 
 
