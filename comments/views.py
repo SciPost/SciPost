@@ -33,6 +33,7 @@ def new_comment(request, **kwargs):
         elif type_of_object == "submission":
             _object = get_object_or_404(Submission.objects.open_for_commenting(), id=object_id)
             new_comment.submission = _object
+            new_comment.submission.add_event_for_eic('A new comment has been added.')
         elif type_of_object == "commentary":
             _object = get_object_or_404(Commentary.objects.open_for_commenting(), id=object_id)
             new_comment.commentary = _object
@@ -61,6 +62,10 @@ def vet_submitted_comment_ack(request, comment_id):
                 comment.status = 1
                 comment.vetted_by = request.user.contributor
                 comment.save()
+
+                new_comment.submission.add_event_for_eic('A Comment has been accepted.')
+                new_comment.submission.add_event_for_author('A new comment has been added.')
+
                 email_text = ('Dear ' + comment.author.get_title_display() + ' '
                               + comment.author.user.last_name +
                               ', \n\nThe Comment you have submitted, '
@@ -104,6 +109,9 @@ def vet_submitted_comment_ack(request, comment_id):
                 if comment.status == 0:
                     comment.status == -1
                 comment.save()
+
+                new_comment.submission.add_event_for_eic('A Comment has been rejected.')
+
                 email_text = ('Dear ' + comment.author.get_title_display() + ' '
                               + comment.author.user.last_name
                               + ', \n\nThe Comment you have submitted, '
