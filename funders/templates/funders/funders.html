@@ -57,6 +57,7 @@
 	  <thead class="thead-default">
 	    <tr>
 	      <th>Name</th>
+	      <th>Acronym</th>
 	      <th>Identifier</th>
 	    </tr>
 	  </thead>
@@ -64,6 +65,7 @@
 	    {% for funder in funders %}
 	    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ funder.id }}" aria-expanded="true" aria-controls="collapse{{ funder.id }}" style="cursor: pointer;">
 	      <td>{{ funder.name }}</td>
+	      <td>{{ funder.acronym }}</td>
 	      <td>{{ funder.identifier }}</td>
 	    </tr>
             {% empty %}

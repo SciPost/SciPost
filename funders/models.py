@@ -7,13 +7,17 @@ class Funder(models.Model):
     Fundref registry.
     """
     name = models.CharField(max_length=256)
+    acronym = models.CharField(max_length=32, blank=True, null=True)
     identifier = models.CharField(max_length=200, unique=True)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['name', 'acronym']
 
     def __str__(self):
-        return self.name
+        result = self.name
+        if self.acronym:
+            result += ' (%s)' % self.acronym
+        return result
 
 
 class Grant(models.Model):
