@@ -4,15 +4,13 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect
 
 import strings
 
 from .models import Comment
 from .forms import CommentForm, VetCommentForm
 
-from scipost.models import Contributor
 from theses.models import ThesisLink
 from submissions.utils import SubmissionUtils
 from submissions.models import Submission, Report
@@ -21,69 +19,34 @@ from commentaries.models import Commentary
 
 @permission_required('scipost.can_submit_comments', raise_exception=True)
 def new_comment(request, **kwargs):
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            author = Contributor.objects.get(user=request.user)
-            object_id = int(kwargs["object_id"])
-            type_of_object = kwargs["type_of_object"]
-            new_comment = Comment(
-                author=author,
-                is_rem=form.cleaned_data['is_rem'],
-                is_que=form.cleaned_data['is_que'],
-                is_ans=form.cleaned_data['is_ans'],
-                is_obj=form.cleaned_data['is_obj'],
-                is_rep=form.cleaned_data['is_rep'],
-                is_val=form.cleaned_data['is_val'],
-                is_lit=form.cleaned_data['is_lit'],
-                is_sug=form.cleaned_data['is_sug'],
-                file_attachment=form.cleaned_data['file_attachment'],
-                comment_text=form.cleaned_data['comment_text'],
-                remarks_for_editors=form.cleaned_data['remarks_for_editors'],
-                date_submitted=timezone.now(),
-            )
-            if type_of_object == "thesislink":
-                thesislink = ThesisLink.objects.get(id=object_id)
-                if not thesislink.open_for_commenting:
-                    raise PermissionDenied
-                new_comment.thesislink = thesislink
-                redirect_link = reverse('theses:thesis', kwargs={"thesislink_id": thesislink.id})
-            elif type_of_object == "submission":
-                submission = Submission.objects.get(id=object_id)
-                if not submission.open_for_commenting:
-                    raise PermissionDenied
-                new_comment.submission = submission
-                redirect_link = reverse(
-                    'submissions:submission',
-                    kwargs={"arxiv_identifier_w_vn_nr": submission.arxiv_identifier_w_vn_nr}
-                )
-            elif type_of_object == "commentary":
-                commentary = Commentary.objects.get(id=object_id)
-                if not commentary.open_for_commenting:
-                    raise PermissionDenied
-                new_comment.commentary = commentary
-                redirect_link = reverse(
-                    'commentaries:commentary',
-                    kwargs={'arxiv_or_DOI_string': commentary.arxiv_or_DOI_string}
-                )
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        object_id = int(kwargs["object_id"])
+        type_of_object = kwargs["type_of_object"]
 
-            new_comment.save()
-            author.nr_comments = Comment.objects.filter(author=author).count()
-            author.save()
-            messages.add_message(
-                request, messages.SUCCESS, strings.acknowledge_submit_comment)
-            return redirect(redirect_link)
-    else:
-        # This view is only accessible by POST request
-        raise Http404
+        new_comment = form.save(commit=False)
+        new_comment.author = request.user.contributor
+
+        if type_of_object == "thesislink":
+            _object = get_object_or_404(ThesisLink.objects.open_for_commenting(), id=object_id)
+            new_comment.thesislink = _object
+        elif type_of_object == "submission":
+            _object = get_object_or_404(Submission.objects.open_for_commenting(), id=object_id)
+            new_comment.submission = _object
+        elif type_of_object == "commentary":
+            _object = get_object_or_404(Commentary.objects.open_for_commenting(), id=object_id)
+            new_comment.commentary = _object
+
+        new_comment.save()
+        messages.success(request, strings.acknowledge_submit_comment)
+        return redirect(_object.get_absolute_url())
 
 
 @permission_required('scipost.can_vet_comments', raise_exception=True)
 def vet_submitted_comments(request):
-    contributor = Contributor.objects.get(user=request.user)
-    comments_to_vet = Comment.objects.filter(status=0).order_by('date_submitted')
+    comments_to_vet = Comment.objects.awaiting_vetting().order_by('date_submitted')
     form = VetCommentForm()
-    context = {'contributor': contributor, 'comments_to_vet': comments_to_vet, 'form': form}
+    context = {'comments_to_vet': comments_to_vet, 'form': form}
     return(render(request, 'comments/vet_submitted_comments.html', context))
 
 
@@ -180,68 +143,38 @@ def vet_submitted_comment_ack(request, comment_id):
 @permission_required('scipost.can_submit_comments', raise_exception=True)
 def reply_to_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
+
     # Verify if this is from an author:
     is_author = False
-    if comment.submission is not None:
-        if comment.submission.authors.filter(id=request.user.contributor.id).exists():
-            is_author = True
-    elif comment.commentary is not None:
-        if comment.commentary.authors.filter(id=request.user.contributor.id).exists():
-            is_author = True
-    elif comment.thesislink is not None:
-        if comment.thesislink.author == request.user.contributor:
-            is_author = True
+    if comment.submission and not is_author:
+        is_author = comment.submission.authors.filter(id=request.user.contributor.id).exists()
+    elif comment.commentary and not is_author:
+        is_author = comment.commentary.authors.filter(id=request.user.contributor.id).exists()
+    elif comment.thesislink and not is_author:
+        is_author = comment.thesislink.author == request.user.contributor
 
-    if request.method == 'POST':
-        form = CommentForm(request.POST, request.FILES)
-        if form.is_valid():
-            newcomment = Comment(
-                commentary=comment.commentary,  # one of commentary, submission or thesislink will be not Null
-                submission=comment.submission,
-                thesislink=comment.thesislink,
-                is_author_reply=is_author,
-                in_reply_to_comment=comment,
-                author=Contributor.objects.get(user=request.user),
-                is_rem=form.cleaned_data['is_rem'],
-                is_que=form.cleaned_data['is_que'],
-                is_ans=form.cleaned_data['is_ans'],
-                is_obj=form.cleaned_data['is_obj'],
-                is_rep=form.cleaned_data['is_rep'],
-                is_cor=form.cleaned_data['is_cor'],
-                is_val=form.cleaned_data['is_val'],
-                is_lit=form.cleaned_data['is_lit'],
-                is_sug=form.cleaned_data['is_sug'],
-                file_attachment=form.cleaned_data['file_attachment'],
-                comment_text=form.cleaned_data['comment_text'],
-                remarks_for_editors=form.cleaned_data['remarks_for_editors'],
-                date_submitted=timezone.now(),
-                )
-            newcomment.save()
+    form = CommentForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        newcomment = form.save(commit=False)
+        # Either one of commentary, submission or thesislink will be not Null
+        newcomment.commentary = comment.commentary
+        newcomment.submission = comment.submission
+        newcomment.thesislink = comment.thesislink
+        newcomment.is_author_reply = is_author
+        newcomment.in_reply_to_comment = comment
+        newcomment.author = request.user.contributor
+        newcomment.save()
 
-            context = {'ack_header': 'Thank you for contributing a Reply.',
-                       'ack_message': 'It will soon be vetted by an Editor.',
-                       'followup_message': 'Back to the ', }
-            if newcomment.submission is not None:
-                context['followup_link'] = reverse(
-                    'submissions:submission',
-                    kwargs={
-                        'arxiv_identifier_w_vn_nr': newcomment.submission.arxiv_identifier_w_vn_nr
-                    }
-                )
-                context['followup_link_label'] = ' Submission page you came from'
-            elif newcomment.commentary is not None:
-                context['followup_link'] = reverse(
-                    'commentaries:commentary',
-                    kwargs={'arxiv_or_DOI_string': newcomment.commentary.arxiv_or_DOI_string})
-                context['followup_link_label'] = ' Commentary page you came from'
-            elif newcomment.thesislink is not None:
-                context['followup_link'] = reverse(
-                    'theses:thesis',
-                    kwargs={'thesislink_id': newcomment.thesislink.id})
-                context['followup_link_label'] = ' Thesis Link page you came from'
-            return render(request, 'scipost/acknowledgement.html', context)
-    else:
-        form = CommentForm()
+        messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
+                                  'It will soon be vetted by an Editor.')
+
+        if newcomment.submission:
+            return redirect(newcomment.submission.get_absolute_url())
+        elif newcomment.commentary:
+            return redirect(newcomment.commentary.get_absolute_url())
+        elif newcomment.thesislink:
+            return redirect(newcomment.thesislink.get_absolute_url())
+        return redirect(reverse('scipost:index'))
 
     context = {'comment': comment, 'is_author': is_author, 'form': form}
     return render(request, 'comments/reply_to_comment.html', context)
@@ -250,48 +183,23 @@ def reply_to_comment(request, comment_id):
 @permission_required('scipost.can_submit_comments', raise_exception=True)
 def reply_to_report(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
+
     # Verify if this is from an author:
-    is_author = False
-    if report.submission.authors.filter(id=request.user.contributor.id).exists():
-        is_author = True
-    if is_author and request.method == 'POST':
-        form = CommentForm(request.POST, request.FILES)
-        if form.is_valid():
-            newcomment = Comment(
-                submission=report.submission,
-                is_author_reply=is_author,
-                in_reply_to_report=report,
-                author=Contributor.objects.get(user=request.user),
-                is_rem=form.cleaned_data['is_rem'],
-                is_que=form.cleaned_data['is_que'],
-                is_ans=form.cleaned_data['is_ans'],
-                is_obj=form.cleaned_data['is_obj'],
-                is_rep=form.cleaned_data['is_rep'],
-                is_cor=form.cleaned_data['is_cor'],
-                is_val=form.cleaned_data['is_val'],
-                is_lit=form.cleaned_data['is_lit'],
-                is_sug=form.cleaned_data['is_sug'],
-                file_attachment=form.cleaned_data['file_attachment'],
-                comment_text=form.cleaned_data['comment_text'],
-                remarks_for_editors=form.cleaned_data['remarks_for_editors'],
-                date_submitted=timezone.now(),
-                )
-            newcomment.save()
-            context = {
-                'ack_header': 'Thank you for contributing a Reply.',
-                'ack_message': 'It will soon be vetted by an Editor.',
-                'followup_message': 'Back to the ',
-                'followup_link': reverse(
-                    'submissions:submission',
-                    kwargs={
-                        'arxiv_identifier_w_vn_nr': newcomment.submission.arxiv_identifier_w_vn_nr
-                    }
-                ),
-                'followup_link_label': ' Submission page you came from'
-            }
-            return render(request, 'scipost/acknowledgement.html', context)
-    else:
-        form = CommentForm()
+    is_author = report.submission.authors.filter(user=request.user).exists()
+
+    form = CommentForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        newcomment = form.save(commit=False)
+        newcomment.submission = report.submission
+        newcomment.is_author_reply = is_author
+        newcomment.in_reply_to_report = report
+        newcomment.author = request.user.contributor
+        newcomment.save()
+
+        messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
+                                  'It will soon be vetted by an Editor.')
+        return redirect(newcomment.submission.get_absolute_url())
+
     context = {'report': report, 'is_author': is_author, 'form': form}
     return render(request, 'comments/reply_to_report.html', context)
 

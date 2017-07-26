@@ -25,43 +25,36 @@ class Commentary(TimeStampedModel):
     discipline = models.CharField(max_length=20,
                                   choices=SCIPOST_DISCIPLINES, default=DISCIPLINE_PHYSICS)
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
-    subject_area = models.CharField(
-        max_length=10, choices=SCIPOST_SUBJECT_AREAS,
-        default='Phys:QP')
+    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
+                                    default='Phys:QP')
     open_for_commenting = models.BooleanField(default=True)
     pub_title = models.CharField(max_length=300, verbose_name='title')
-    arxiv_identifier = models.CharField(
-        max_length=100, verbose_name="arXiv identifier (including version nr)",
-        blank=True, null=True)
+    arxiv_identifier = models.CharField(max_length=100, blank=True,
+                                        verbose_name="arXiv identifier (including version nr)")
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)
-    pub_DOI = models.CharField(
-        max_length=200, verbose_name='DOI of the original publication',
-        blank=True, null=True)
+    pub_DOI = models.CharField(max_length=200, verbose_name='DOI of the original publication',
+                               blank=True)
     pub_DOI_link = models.URLField(
         verbose_name='DOI link to the original publication',
         blank=True)
     metadata = JSONField(default={}, blank=True, null=True)
-    arxiv_or_DOI_string = models.CharField(
-        max_length=100, default='',
-        verbose_name='string form of arxiv nr or DOI for commentary url')
+    arxiv_or_DOI_string = models.CharField(max_length=100,
+                                           verbose_name='string form of arxiv nr or'
+                                                        ' DOI for commentary url')
     author_list = models.CharField(max_length=1000)
 
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField(
-        Contributor, blank=True,
-        related_name='authors_com')
-    authors_claims = models.ManyToManyField(
-        Contributor, blank=True,
-        related_name='authors_com_claims')
-    authors_false_claims = models.ManyToManyField(
-        Contributor, blank=True,
-        related_name='authors_com_false_claims')
-    journal = models.CharField(max_length=300, blank=True, null=True)
-    volume = models.CharField(max_length=50, blank=True, null=True)
-    pages = models.CharField(max_length=50, blank=True, null=True)
-    pub_date = models.DateField(
-        verbose_name='date of original publication',
-        blank=True, null=True)
+    authors = models.ManyToManyField('scipost.Contributor', blank=True,
+                                     related_name='authors_com')
+    authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
+                                            related_name='authors_com_claims')
+    authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,
+                                                  related_name='authors_com_false_claims')
+    journal = models.CharField(max_length=300, blank=True)
+    volume = models.CharField(max_length=50, blank=True)
+    pages = models.CharField(max_length=50, blank=True)
+    pub_date = models.DateField(verbose_name='date of original publication',
+                                blank=True, null=True)
     pub_abstract = models.TextField(verbose_name='abstract')
 
     objects = CommentaryManager()
@@ -71,6 +64,9 @@ class Commentary(TimeStampedModel):
 
     def __str__(self):
         return self.pub_title
+
+    def get_absolute_url(self):
+        return reverse('commentaries:commentary', args=(self.arxiv_or_DOI_string,))
 
     def title_label(self):
         context = Context({

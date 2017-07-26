@@ -7,3 +7,6 @@ class CommentaryManager(models.Manager):
 
     def awaiting_vetting(self, **kwargs):
         return self.filter(vetted=False, **kwargs)
+
+    def open_for_commenting(self):
+        return self.filter(open_for_commenting=True)
