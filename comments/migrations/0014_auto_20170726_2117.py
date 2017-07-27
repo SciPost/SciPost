@@ -6,7 +6,7 @@ from django.db import migrations
 
 from guardian.shortcuts import assign_perm
 
-from ..constants import STATUS_PENDING
+from ..models import Comment
 
 
 def do_nothing(apps, schema_editor):
@@ -18,9 +18,9 @@ def update_eic_permissions(apps, schema_editor):
     Grant EIC of submission related to unvetted comment
     permission to vet his submission's comment.
     """
-    Comment = apps.get_model('comments', 'Comment')
+    # Comment = apps.get_model('comments', 'Comment')  -- This doesn't work...
     count = 0
-    for comment in Comment.objects.filter(status=STATUS_PENDING):
+    for comment in Comment.objects.filter(status=0):
         if comment.submission:
             eic_user = comment.submission.editor_in_charge.user
             assign_perm('comments.can_vet_comments', eic_user, comment)
