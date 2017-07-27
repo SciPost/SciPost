@@ -588,11 +588,13 @@ def create_metadata_xml(request, doi_label):
         '<crossmark_domain><domain>scipost.org</domain></crossmark_domain>\n'
         '</crossmark_domains>\n'
         '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
-        '<custom_metadata>\n'
         )
     funders = (Funder.objects.filter(grant__in=publication.grants.all())
                | publication.funders_generic.all()).distinct()
     nr_funders = funders.count()
+    need_custom_metadata = nr_funders > 0 # JSC: more conditions to follow later
+    if need_custom_metadata:
+        initial['metadata_xml'] += '<custom_metadata>\n'
     if nr_funders > 0:
         initial['metadata_xml'] += '<fr:program name="fundref">\n'
         for funder in funders:
@@ -611,9 +613,9 @@ def create_metadata_xml(request, doi_label):
             if nr_funders > 1:
                 initial['metadata_xml'] += '</fr:assertion>\n'
         initial['metadata_xml'] += '</fr:program>\n'
-
+    if need_custom_metadata:
+        initial['metadata_xml'] += '</custom_metadata>\n'
     initial['metadata_xml'] += (
-        '</custom_metadata>\n'
         '</crossmark>\n'
         '<archive_locations><archive name="CLOCKSS"></archive></archive_locations>\n'
         '<doi_data>\n'
