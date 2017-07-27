@@ -15,10 +15,14 @@ class FunderForm(forms.ModelForm):
         fields = ['name', 'acronym', 'identifier',]
 
 
+class FunderSelectForm(forms.Form):
+    funder = forms.ModelChoiceField(queryset=Funder.objects.all())
+
+
 class GrantForm(forms.ModelForm):
     class Meta:
         model = Grant
-        fields = ['funder', 'number', 'recipient_name', 'recipient',]
+        fields = ['funder', 'number', 'recipient_name', 'recipient', 'further_details']
 
     def __init__(self, *args, **kwargs):
         super(GrantForm, self).__init__(*args, **kwargs)

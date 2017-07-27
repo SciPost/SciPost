@@ -101,7 +101,7 @@ event: "focusin"
 	    <h2>Grants associated to this publication:</h2>
 	    <ul>
 	      {% for grant in publication.grants.all %}
-	      <li> {{ grant }}</li>
+	      <li>{{ grant }}</li>
 	      {% empty %}
 	      <li>no associated grants found</li>
 	      {% endfor %}
@@ -113,7 +113,23 @@ event: "focusin"
 	      {{associate_grant_form|bootstrap}}
 	      <input class="btn btn-secondary" type="submit" value="Add">
 	    </form>
-	    <h3>Other grant-related actions:</h3>
+	    <br/>
+	    <h2>Generic (not via grant) funders associated to this publication:</h2>
+	    <ul>
+	      {% for funder in publication.funders_generic.all %}
+	      <li>{{ funder }}</li>
+	      {% empty %}
+	      <li>No generic funder found</li>
+	      {% endfor %}
+	    </ul>
+	    <h3>Associate a generic funder to this publication:</h3>
+	    <form action="{% url 'journals:add_generic_funder' publication.doi_label %}" method="post">
+	      {% csrf_token %}
+	      {{associate_generic_funder_form|bootstrap}}
+	      <input class="btn btn-secondary" type="submit" value="Add">
+	    </form>
+	    <br/>
+	    <h3>Other funding-related actions:</h3>
 	    <ul>
 	      <li><a href="{% url 'funders:funders' %}" target="_blank">go to the Funders page to add a Funder and/or Grant instance</a></li>
 	    </ul>
