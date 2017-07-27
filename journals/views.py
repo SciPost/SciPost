@@ -480,7 +480,8 @@ def create_metadata_xml(request, doi_label):
     if create_metadata_xml_form.is_valid():
         create_metadata_xml_form.save()
         messages.success(request, 'Metadata XML saved')
-        return redirect(reverse('journals:manage_metadata'))
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': doi_label}))
 
     # create a doi_batch_id
     salt = ""
