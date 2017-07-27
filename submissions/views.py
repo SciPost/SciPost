@@ -1195,7 +1195,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@permission_required('scipost.can_vet_submitted_reports', raise_exception=True)
 def vet_submitted_reports(request):
     """
     Reports with status `unvetted` will be shown one-by-one (oldest first). A user may only
