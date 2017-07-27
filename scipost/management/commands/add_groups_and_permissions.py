@@ -290,7 +290,7 @@ class Command(BaseCommand):
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
             can_vet_authorship_claims,
-            can_vet_submitted_reports.
+            can_vet_submitted_reports,
             can_vet_comments,
         ])
 
