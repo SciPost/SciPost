@@ -1195,7 +1195,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
-@permission_required('scipost.can_vet_submitted_reports', raise_exception=True)
+@permission_required('submissions.can_vet_submitted_reports', raise_exception=True)
 def vet_submitted_reports_list(request):
     """
     Reports with status `unvetted` will be shown one-by-one (oldest first). A user may only
@@ -1245,7 +1245,7 @@ def vet_submitted_reports_list(request):
 @transaction.atomic
 def vet_submitted_report(request, report_id):
     # Method `get_objects_for_user` gets all Reports that are assigned to the user
-    # or *all* comments if user has the `submissions.can_vet_submitted_reports` permission.
+    # or *all* Reports if user is SciPost Admin or Vetting Editor.
     report = get_object_or_404((get_objects_for_user(request.user,
                                                      'submissions.can_vet_submitted_reports')
                                 .awaiting_vetting()), id=report_id)
