@@ -15,7 +15,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATUS_EIC_ASSIGNED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES,\
@@ -1241,7 +1241,15 @@ def vet_submitted_reports_list(request):
     return render(request, 'submissions/vet_submitted_reports_list.html', context)
 
 
-def vet_submitted_report(request):
+@login_required
+@transaction.atomic
+def vet_submitted_report(request, report_id):
+    # Method `get_objects_for_user` gets all Reports that are assigned to the user
+    # or *all* comments if user has the `submissions.can_vet_submitted_reports` permission.
+    report = get_object_or_404((get_objects_for_user(request.user,
+                                                     'submissions.can_vet_submitted_reports')
+                                .awaiting_vetting()), id=report_id)
+
     raise NotImplemented
 
 
