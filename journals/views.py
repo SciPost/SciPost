@@ -278,7 +278,7 @@ def manage_metadata(request, issue_doi_label=None, doi_label=None):
         issue_doi_label = issue_doi_label_from_doi_label(doi_label)
     if issue_doi_label:
         publications = publications.filter(in_issue__doi_label=issue_doi_label)
-    publications.order_by('-publication_date', '-paper_nr')
+    publications = publications.order_by('-publication_date', '-paper_nr')
     associate_grant_form = GrantSelectForm()
     associate_generic_funder_form = FunderSelectForm()
     context = {
