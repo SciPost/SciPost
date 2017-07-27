@@ -16,7 +16,7 @@ from django.db import transaction
 from django.http import HttpResponse
 
 from .exceptions import PaperNumberingError
-from .helpers import paper_nr_string
+from .helpers import paper_nr_string, issue_doi_label_from_doi_label
 from .models import Journal, Issue, Publication, UnregisteredAuthor, Deposit, DOAJDeposit
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
@@ -271,11 +271,19 @@ def validate_publication(request):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def manage_metadata(request):
-    publications = Publication.objects.order_by('-publication_date', '-paper_nr')
+def manage_metadata(request, issue_doi_label=None, doi_label=None):
+    issues = Issue.objects.all().order_by('-until_date')
+    publications = Publication.objects.all()
+    if doi_label:
+        issue_doi_label = issue_doi_label_from_doi_label(doi_label)
+    if issue_doi_label:
+        publications = publications.filter(in_issue__doi_label=issue_doi_label)
+    publications.order_by('-publication_date', '-paper_nr')
     associate_grant_form = GrantSelectForm()
     associate_generic_funder_form = FunderSelectForm()
     context = {
+        'issues': issues,
+        'issue_doi_label': issue_doi_label,
         'publications': publications,
         'associate_grant_form': associate_grant_form,
         'associate_generic_funder_form': associate_generic_funder_form,
@@ -437,7 +445,8 @@ def add_associated_grant(request, doi_label):
         publication.grants.add(grant_select_form.cleaned_data['grant'])
         publication.save()
         messages.success(request, 'Grant added to publication %s' % str(publication))
-    return redirect(reverse('journals:manage_metadata'))
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
