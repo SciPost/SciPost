@@ -170,7 +170,7 @@
                                 </div>
                             </form>
                         </li>
-                        <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ submission.reports.awaiting_vetting.count }})</li>
+                        <li><a href="{% url 'submissions:vet_submitted_reports_list' %}">Vet submitted Reports</a> ({{ submission.reports.awaiting_vetting.count }})</li>
                         {% with submission.comments.awaiting_vetting as comments %}
                             {% if comments %}
                                 <li>

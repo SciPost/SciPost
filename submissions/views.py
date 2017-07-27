@@ -1196,7 +1196,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_vet_submitted_reports', raise_exception=True)
-def vet_submitted_reports(request):
+def vet_submitted_reports_list(request):
     """
     Reports with status `unvetted` will be shown one-by-one (oldest first). A user may only
     vet reports of submissions he/she is EIC of.
@@ -1236,9 +1236,13 @@ def vet_submitted_reports(request):
         )
         messages.success(request, message)
         # Redirect instead of render to loose the POST call and make it a GET
-        return redirect(reverse('submissions:vet_submitted_reports'))
+        return redirect(reverse('submissions:vet_submitted_reports_list'))
     context = {'contributor': contributor, 'report_to_vet': report_to_vet, 'form': form}
-    return render(request, 'submissions/vet_submitted_reports.html', context)
+    return render(request, 'submissions/vet_submitted_reports_list.html', context)
+
+
+def vet_submitted_report(request):
+    raise NotImplemented
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)

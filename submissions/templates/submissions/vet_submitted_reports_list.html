@@ -50,7 +50,7 @@ $(document).ready(function(){
 
             <hr class="small">
             <h2>Please vet this Report:</h2>
-            <form action="{% url 'submissions:vet_submitted_reports' %}" method="post">
+            <form action="{% url 'submissions:vet_submitted_reports_list' %}" method="post">
                 {% csrf_token %}
                 {{ form.report }}
                 {{ form.action_option|bootstrap }}

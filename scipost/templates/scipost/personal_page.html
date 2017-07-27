@@ -262,7 +262,7 @@
                                 <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
                             {% endif %}
                             {% if perms.scipost.can_vet_submitted_reports %}
-                                <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+                                <li><a href="{% url 'submissions:vet_submitted_reports_list' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
                             {% endif %}
                         </ul>
                         {% endif %}
