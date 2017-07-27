@@ -299,7 +299,8 @@ def mark_first_author(request, publication_id, contributor_id):
     publication.first_author = contributor
     publication.first_author_unregistered = None
     publication.save()
-    return redirect(publication.get_absolute_url())
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -310,7 +311,8 @@ def mark_first_author_unregistered(request, publication_id, unregistered_author_
     publication.first_author = None
     publication.first_author_unregistered = unregistered_author
     publication.save()
-    return redirect(publication.get_absolute_url())
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -327,7 +329,8 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
         contributor = get_object_or_404(Contributor, id=contributor_id)
         publication.authors.add(contributor)
         publication.save()
-        return redirect(publication.get_absolute_url())
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': publication.doi_label}))
 
     if request.method == 'POST':
         form = UnregisteredAuthorForm(request.POST)
@@ -362,7 +365,8 @@ def add_unregistered_author(request, publication_id, unregistered_author_id):
     unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
     publication.unregistered_authors.add(unregistered_author)
     publication.save()
-    return redirect(publication.get_absolute_url())
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -374,7 +378,8 @@ def add_new_unreg_author(request, publication_id):
         if new_unreg_author_form.is_valid():
             new_unreg_author = new_unreg_author_form.save()
             publication.authors_unregistered.add(new_unreg_author)
-            return redirect(publication.get_absolute_url())
+            return redirect(reverse('journals:manage_metadata',
+                                    kwargs={'doi_label': publication.doi_label}))
     raise Http404
 
 
@@ -462,7 +467,8 @@ def add_generic_funder(request, doi_label):
         publication.funders_generic.add(funder_select_form.cleaned_data['funder'])
         publication.save()
         messages.success(request, 'Generic funder added to publication %s' % str(publication))
-    return redirect(reverse('journals:manage_metadata'))
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
