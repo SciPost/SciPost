@@ -23,7 +23,18 @@ event: "focusin"
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Manage Publications Metadata</h1>
+        <h1 class="highlight">Manage Publications Metadata{% if issue_doi_label %} for issue {{ issue_doi_label }}{% endif %}</h1>
+	{% if issue_doi_label %}
+	<h3>Return to the <a href="{% url 'journals:manage_metadata' %}">Main manage metadata page</a></h3>
+	{% endif %}
+	<h3>Manage metadata per issue:</h3>
+        <ul>
+          {% for issue in issues %}
+          <li>
+            <a href="{% url 'journals:manage_metadata' issue_doi_label=issue.doi_label %}">{{ issue }}</a>
+          </li>
+          {% endfor %}
+        </ul>
     </div>
 </div>
 
