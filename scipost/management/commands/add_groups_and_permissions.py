@@ -241,6 +241,7 @@ class Command(BaseCommand):
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
             can_vet_authorship_claims,
+            can_vet_submitted_reports,
             can_vet_comments,
             can_view_pool,
             can_assign_submissions,
@@ -279,7 +280,6 @@ class Command(BaseCommand):
         EditorialCollege.permissions.set([
             can_view_pool,
             can_take_charge_of_submissions,
-            can_vet_submitted_reports,
             view_bylaws,
             can_attend_VGMs,
         ])
@@ -288,6 +288,7 @@ class Command(BaseCommand):
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
             can_vet_authorship_claims,
+            can_vet_submitted_reports.
             can_vet_comments,
         ])
 
