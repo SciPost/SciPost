@@ -1248,7 +1248,11 @@ def vet_submitted_report(request, report_id):
                     report.submission.get_absolute_url(),
                     report.submission.arxiv_identifier_w_vn_nr)
         messages.success(request, message)
-        # ??????????????????
+
+        if report.submission.editor_in_charge == request.user.contributor:
+            # Redirect a EIC back to the Editorial Page!
+            return redirect(reverse('submissions:editorial_page',
+                                    args=(report.submission.arxiv_identifier_w_vn_nr,)))
         return redirect(reverse('submissions:vet_submitted_reports_list'))
     context = {'report_to_vet': report, 'form': form}
     return render(request, 'submissions/vet_submitted_report.html', context)
