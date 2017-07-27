@@ -170,11 +170,24 @@
                                 </div>
                             </form>
                         </li>
-                        <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ submission.reports.awaiting_vetting.count }})</li>
+                        {% with submission.reports.awaiting_vetting as reports %}
+                            {% if reports %}
+                                <li>
+                                    Vet submitted Report{{reports|pluralize}}:
+                                    <ul class="mb-1">
+                                        {% for report in reports %}
+                                            <li><a href="{% url 'submissions:vet_submitted_report' report.id %}">{{report}}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li>All Reports have been vetted.</li>
+                            {% endif %}
+                        {% endwith %}
                         {% with submission.comments.awaiting_vetting as comments %}
                             {% if comments %}
                                 <li>
-                                    Vet submitted Comments:
+                                    Vet submitted Comment{{comments|pluralize}}:
                                     <ul class="mb-1">
                                         {% for comment in comments %}
                                             <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{comment}}</a></li>

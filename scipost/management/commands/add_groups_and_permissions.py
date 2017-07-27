@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from partners.models import Contact
 from scipost.models import Contributor, DraftInvitation
+from submissions.models import Report
 
 
 class Command(BaseCommand):
@@ -36,6 +37,7 @@ class Command(BaseCommand):
         content_type = ContentType.objects.get_for_model(Contributor)
         content_type_contact = ContentType.objects.get_for_model(Contact)
         content_type_draft_invitation = ContentType.objects.get_for_model(DraftInvitation)
+        content_type_report = ContentType.objects.get_for_model(Report)
 
         # Supporting Partners
         can_manage_SPB, created = Permission.objects.get_or_create(
@@ -130,7 +132,7 @@ class Command(BaseCommand):
             name='Can request Thesis Links',
             content_type=content_type)
 
-        # Vetting of simple objects
+        # Vetting of objects
         can_vet_commentary_requests, created = Permission.objects.get_or_create(
             codename='can_vet_commentary_requests',
             name='Can vet Commentary page requests',
@@ -147,6 +149,10 @@ class Command(BaseCommand):
             codename='can_vet_comments',
             name='Can vet submitted Comments',
             content_type=content_type)
+        can_vet_submitted_reports, created = Permission.objects.get_or_create(
+            codename='can_vet_submitted_reports',
+            name='Can vet submitted Reports',
+            content_type=content_type_report)
 
         # Submissions
         can_submit_manuscript, created = Permission.objects.get_or_create(
@@ -170,10 +176,6 @@ class Command(BaseCommand):
         can_take_charge_of_submissions, created = Permission.objects.get_or_create(
             codename='can_take_charge_of_submissions',
             name='Can take charge (become Editor-in-charge) of submissions',
-            content_type=content_type)
-        can_vet_submitted_reports, created = Permission.objects.get_or_create(
-            codename='can_vet_submitted_reports',
-            name='Can vet submitted Reports',
             content_type=content_type)
 
         # Refereeing
@@ -241,6 +243,7 @@ class Command(BaseCommand):
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
             can_vet_authorship_claims,
+            can_vet_submitted_reports,
             can_vet_comments,
             can_view_pool,
             can_assign_submissions,
@@ -279,7 +282,6 @@ class Command(BaseCommand):
         EditorialCollege.permissions.set([
             can_view_pool,
             can_take_charge_of_submissions,
-            can_vet_submitted_reports,
             view_bylaws,
             can_attend_VGMs,
         ])
@@ -288,6 +290,7 @@ class Command(BaseCommand):
             can_vet_commentary_requests,
             can_vet_thesislink_requests,
             can_vet_authorship_claims,
+            can_vet_submitted_reports,
             can_vet_comments,
         ])
 

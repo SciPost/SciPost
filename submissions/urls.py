@@ -91,7 +91,9 @@ urlpatterns = [
     # Reports
     url(r'^(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/reports/submit$',
         views.submit_report, name='submit_report'),
-    url(r'^reports/vet_submitted$', views.vet_submitted_reports, name='vet_submitted_reports'),
+    url(r'^reports/vet$', views.vet_submitted_reports_list, name='vet_submitted_reports_list'),
+    url(r'^reports/(?P<report_id>[0-9]+)/vet$', views.vet_submitted_report,
+        name='vet_submitted_report'),
 
     # Voting
     url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting, name='prepare_for_voting'),

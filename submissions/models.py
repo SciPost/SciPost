@@ -13,7 +13,7 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
                        EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
 from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
-                      ReportManager, SubmissionEventQuerySet
+                      ReportQuerySet, SubmissionEventQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
@@ -343,12 +343,15 @@ class Report(models.Model):
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
     pdf_report = models.FileField(upload_to='UPLOADS/REPORTS/%Y/%m/', max_length=200, blank=True)
 
-    objects = ReportManager()
+    objects = ReportQuerySet.as_manager()
 
     class Meta:
         unique_together = ('submission', 'report_nr')
         default_related_name = 'reports'
         ordering = ['-date_submitted']
+        permissions = (
+            ('can_vet_submitted_reports', 'Can vet submitted Reports'),
+        )
 
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +

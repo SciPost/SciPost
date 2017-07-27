@@ -151,7 +151,7 @@ class EICRecommendationManager(models.Manager):
             return self.none()
 
 
-class ReportManager(models.Manager):
+class ReportQuerySet(models.QuerySet):
     def accepted(self):
         return self.filter(status=STATUS_VETTED)
 
