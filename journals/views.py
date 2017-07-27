@@ -730,7 +730,8 @@ def mark_deposit_success(request, deposit_id, success):
     elif success == '0':
         deposit.deposit_successful = False
     deposit.save()
-    return redirect(reverse('journals:manage_metadata'))
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': deposit.publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
