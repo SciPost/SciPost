@@ -135,9 +135,9 @@ def reply_to_comment(request, comment_id):
     is_author = False
     if comment.submission and not is_author:
         is_author = comment.submission.authors.filter(id=request.user.contributor.id).exists()
-    elif comment.commentary and not is_author:
+    if comment.commentary and not is_author:
         is_author = comment.commentary.authors.filter(id=request.user.contributor.id).exists()
-    elif comment.thesislink and not is_author:
+    if comment.thesislink and not is_author:
         is_author = comment.thesislink.author == request.user.contributor
 
     form = CommentForm(request.POST or None, request.FILES or None)
@@ -156,6 +156,10 @@ def reply_to_comment(request, comment_id):
                                   'It will soon be vetted by an Editor.')
 
         if newcomment.submission:
+            # Add permissions for EIC only, the Vetting-group already has it!
+            assign_perm('comments.can_vet_comments', newcomment.submission.editor_in_charge.user,
+                        newcomment)
+
             return redirect(newcomment.submission.get_absolute_url())
         elif newcomment.commentary:
             return redirect(newcomment.commentary.get_absolute_url())
@@ -182,6 +186,10 @@ def reply_to_report(request, report_id):
         newcomment.in_reply_to_report = report
         newcomment.author = request.user.contributor
         newcomment.save()
+
+        # Add permissions for EIC only, the Vetting-group already has it!
+        assign_perm('comments.can_vet_comments', newcomment.submission.editor_in_charge.user,
+                    newcomment)
 
         messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
                                   'It will soon be vetted by an Editor.')
