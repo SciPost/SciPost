@@ -23,7 +23,8 @@ class GrantForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(GrantForm, self).__init__(*args, **kwargs)
         self.fields['recipient'] = forms.ModelChoiceField(
-            queryset=Contributor.objects.all().order_by('user__last_name'))
+            queryset=Contributor.objects.all().order_by('user__last_name'),
+            required=False)
 
 
 class GrantSelectForm(forms.Form):
