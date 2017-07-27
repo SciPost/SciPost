@@ -1183,6 +1183,10 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         SubmissionUtils.email_EIC_report_delivered()
         SubmissionUtils.email_referee_report_delivered()
 
+        # Assign explicit permission to EIC to vet this report
+        assign_perm('submissions.can_vet_submitted_reports', submission.editor_in_charge.user,
+                    newreport)
+
         # Add SubmissionEvents for the EIC only, as it can also be rejected still
         submission.add_event_for_eic('%s has submitted a new Report.'
                                      % request.user.last_name)
@@ -1198,19 +1202,30 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 @permission_required('submissions.can_vet_submitted_reports', raise_exception=True)
 def vet_submitted_reports_list(request):
     """
-    Reports with status `unvetted` will be shown one-by-one (oldest first). A user may only
-    vet reports of submissions he/she is EIC of.
+    Reports with status `unvetted` will be shown (oldest first).
+    """
+    reports_to_vet = Report.objects.awaiting_vetting().order_by('date_submitted')
+    context = {'reports_to_vet': reports_to_vet}
+    return render(request, 'submissions/vet_submitted_reports_list.html', context)
+
+
+@login_required
+@transaction.atomic
+def vet_submitted_report(request, report_id):
+    """
+    Report with status `unvetted` will be shown. A user may only vet reports of submissions
+    he/she is EIC of or if he/she is SciPost Admin or Vetting Editor.
 
     After vetting an email is sent to the report author, bcc EIC. If report
     has not been refused, the submission author is also mailed.
     """
-    contributor = request.user.contributor
-    report_to_vet = (Report.objects.awaiting_vetting()
-                     .select_related('submission')
-                     .filter(submission__editor_in_charge=contributor)
-                     .order_by('date_submitted').first())
+    # Method `get_objects_for_user` gets all Reports that are assigned to the user
+    # or *all* Reports if user is SciPost Admin or Vetting Editor.
+    report = get_object_or_404((get_objects_for_user(request.user,
+                                                     'submissions.can_vet_submitted_reports')
+                                .awaiting_vetting()), id=report_id)
 
-    form = VetReportForm(request.POST or None, initial={'report': report_to_vet})
+    form = VetReportForm(request.POST or None, initial={'report': report})
     if form.is_valid():
         report = form.process_vetting(request.user.contributor)
 
@@ -1230,27 +1245,13 @@ def vet_submitted_reports_list(request):
             report.submission.add_event_for_author('A new Report has been submitted.')
 
         message = 'Submitted Report vetted for <a href="%s">%s</a>.' % (
-            reverse('submissions:editorial_page',
-                    args=(report.submission.arxiv_identifier_w_vn_nr,)),
-            report.submission.arxiv_identifier_w_vn_nr
-        )
+                    report.submission.get_absolute_url(),
+                    report.submission.arxiv_identifier_w_vn_nr)
         messages.success(request, message)
-        # Redirect instead of render to loose the POST call and make it a GET
+        # ??????????????????
         return redirect(reverse('submissions:vet_submitted_reports_list'))
-    context = {'contributor': contributor, 'report_to_vet': report_to_vet, 'form': form}
-    return render(request, 'submissions/vet_submitted_reports_list.html', context)
-
-
-@login_required
-@transaction.atomic
-def vet_submitted_report(request, report_id):
-    # Method `get_objects_for_user` gets all Reports that are assigned to the user
-    # or *all* Reports if user is SciPost Admin or Vetting Editor.
-    report = get_object_or_404((get_objects_for_user(request.user,
-                                                     'submissions.can_vet_submitted_reports')
-                                .awaiting_vetting()), id=report_id)
-
-    raise NotImplemented
+    context = {'report_to_vet': report, 'form': form}
+    return render(request, 'submissions/vet_submitted_report.html', context)
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)

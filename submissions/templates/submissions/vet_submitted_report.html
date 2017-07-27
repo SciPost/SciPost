@@ -1,0 +1,67 @@
+{% extends 'submissions/_pool_base.html' %}
+
+{% block pagetitle %}: vet reports{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block headsup %}
+
+<script>
+$(document).ready(function(){
+  $('[name="action_option"]').on('change', function() {
+      if ($('[name="action_option"][value="refuse"]').is(':checked')) {
+          $('#refusal').show();
+      }
+      else {
+          $('#refusal').hide();
+      }
+  }).trigger('change');
+});
+</script>
+
+{% endblock headsup %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Vet Report {{report.report_nr}}</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        {% if not report_to_vet %}
+            <h1>There are no Reports for you to vet.</h1>
+            <p>Go back to my <a href="{% url 'scipost:personal_page' %}">personal page</a>.</p>
+        {% else %}
+            <h1 class="highlight">SciPost Report to vet:</h1>
+
+            <h2 class="mb-2">Submission associated to Report:</h2>
+            <div class="row">
+                <div class="col-12">
+                    {% include 'submissions/_submission_summary_short.html' with submission=report_to_vet.submission %}
+                </div>
+            </div>
+
+            <h2 class="mb-2">Report to vet:</h2>
+
+            {% include 'submissions/_single_public_report_without_comments.html' with submission=report_to_vet.submission report=report_to_vet %}
+
+            <hr class="small">
+            <h2>Please vet this Report:</h2>
+            <form action="{% url 'submissions:vet_submitted_reports_list' %}" method="post">
+                {% csrf_token %}
+                {{ form.report }}
+                {{ form.action_option|bootstrap }}
+                <div class="col-md-6" id="refusal">
+                    {{ form.refusal_reason|bootstrap }}
+                    {{ form.email_response_field|bootstrap }}
+                </div>
+                <input class="btn btn-secondary" type="submit" value="Submit" />
+            </form>
+
+        {% endif %}
+    </div>
+</div>
+
+{% endblock content %}
