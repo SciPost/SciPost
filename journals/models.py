@@ -143,6 +143,7 @@ class Publication(models.Model):
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
     cc_license = models.CharField(max_length=32, choices=CC_LICENSES, default=CCBY4)
     grants = models.ManyToManyField('funders.Grant', blank=True)
+    funders_generic = models.ManyToManyField('funders.Funder', blank=True) # not linked to a grant
     metadata = JSONField(default={}, blank=True, null=True)
     metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
     latest_metadata_update = models.DateTimeField(blank=True, null=True)

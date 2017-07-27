@@ -31,6 +31,7 @@ class Grant(models.Model):
     recipient_name = models.CharField(max_length=64, blank=True, null=True)
     recipient = models.ForeignKey('scipost.Contributor', blank=True, null=True,
                                   on_delete=models.CASCADE)
+    further_details = models.CharField(max_length=256, blank=True, null=True)
 
     class Meta:
         ordering = ['funder', 'recipient', 'recipient_name', 'number']
@@ -42,4 +43,6 @@ class Grant(models.Model):
             grantstring += ' (%s)' % str(self.recipient)
         elif self.recipient_name:
             grantstring += ' (%s)' % self.recipient_name
+        if self.further_details:
+            grantstring += ' [%s]' % self.further_details
         return grantstring

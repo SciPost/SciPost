@@ -26,7 +26,7 @@ from funders.models import Funder
 from submissions.models import Submission
 from scipost.models import Contributor
 
-from funders.forms import GrantSelectForm
+from funders.forms import FunderSelectForm, GrantSelectForm
 
 from guardian.decorators import permission_required
 
@@ -274,9 +274,11 @@ def validate_publication(request):
 def manage_metadata(request):
     publications = Publication.objects.order_by('-publication_date', '-paper_nr')
     associate_grant_form = GrantSelectForm()
+    associate_generic_funder_form = FunderSelectForm()
     context = {
         'publications': publications,
         'associate_grant_form': associate_grant_form,
+        'associate_generic_funder_form': associate_generic_funder_form,
     }
     return render(request, 'journals/manage_metadata.html', context)
 
@@ -440,6 +442,22 @@ def add_associated_grant(request, doi_label):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
+def add_generic_funder(request, doi_label):
+    """
+    Called by an Editorial Administrator.
+    This associates a funder (generic, not via grant) from the database to this publication.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    funder_select_form = FunderSelectForm(request.POST or None)
+    if funder_select_form.is_valid():
+        publication.funders_generic.add(funder_select_form.cleaned_data['funder'])
+        publication.save()
+        messages.success(request, 'Generic funder added to publication %s' % str(publication))
+    return redirect(reverse('journals:manage_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
 def create_metadata_xml(request, doi_label):
     """
     To be called by an EdAdmin after the citation_list,
@@ -563,7 +581,8 @@ def create_metadata_xml(request, doi_label):
         '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
         '<custom_metadata>\n'
         )
-    funders = Funder.objects.filter(grant__in=publication.grants.all()).distinct()
+    funders = (Funder.objects.filter(grant__in=publication.grants.all())
+               | publication.funders_generic.all()).distinct()
     nr_funders = funders.count()
     if nr_funders > 0:
         initial['metadata_xml'] += '<fr:program name="fundref">\n'
