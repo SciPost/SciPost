@@ -182,6 +182,14 @@ def college_fellow_is_active(fellow):
     '''Check if fellow is currently active.'''
     return fellow.is_active()
 
+class EditorialCollegeFellowshipAdminForm(forms.ModelForm):
+    contributor = forms.ModelChoiceField(
+        queryset=Contributor.objects.order_by('user__last_name'))
+
+    class Meta:
+        model = EditorialCollegeFellowship
+        fields = '__all__'
+
 
 class EditorialCollegeFellowshipAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'college', college_fellow_is_active)
@@ -191,6 +199,7 @@ class EditorialCollegeFellowshipAdmin(admin.ModelAdmin):
     fields = ('contributor', 'college', 'start_date', 'until_date', 'affiliation', )
 
     college_fellow_is_active.boolean = True
+    form = EditorialCollegeFellowshipAdminForm
 
 
 admin.site.register(EditorialCollegeFellowship, EditorialCollegeFellowshipAdmin)
