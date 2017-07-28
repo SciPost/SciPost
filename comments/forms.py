@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 
 from .constants import COMMENT_ACTION_CHOICES, COMMENT_REFUSAL_CHOICES
 from .models import Comment
@@ -48,6 +49,15 @@ class CommentForm(forms.ModelForm):
                     css_class="col-md-3"),
                 css_class="row"),
             )
+
+    # def save(self, commit=True, to_object=None):
+    #     comment = super().save(commit=False)
+    #     if to_object:
+    #         comment.content_type = ContentType.objects.get_for_model(to_object)
+    #         comment.object_id = to_object.id
+    #     if commit:
+    #         comment.save()
+    #     return comment
 
 
 class VetCommentForm(forms.Form):

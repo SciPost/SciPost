@@ -1,5 +1,3 @@
-{% load theses_extras %}
-
 <table class="mb-3">
     <tr>
         <td>Title: </td><td>&nbsp;</td><td>{{ thesislink.title }}</td>
@@ -18,16 +16,16 @@
         </td>
     </tr>
     <tr>
-        <td>Type: </td><td></td><td>  {{ thesislink|type }}</td>
+        <td>Type: </td><td></td><td>  {{ thesislink.get_type_display }}</td>
     </tr>
     <tr>
-        <td>Discipline: </td><td></td><td>{{ thesislink|discipline }}</td>
+        <td>Discipline: </td><td></td><td>{{ thesislink.get_discipline_display }}</td>
     </tr>
     <tr>
-        <td>Domain: </td><td></td><td>{{ thesislink|domain }}</td>
+        <td>Domain: </td><td></td><td>{{ thesislink.get_domain_display }}</td>
     </tr>
     <tr>
-        <td>Subject area: </td><td></td><td> {{ thesislink|subject_area }} </td>
+        <td>Subject area: </td><td></td><td> {{ thesislink.get_subject_area_display }} </td>
     </tr>
     <tr>
         <td>URL: </td><td>&nbsp;</td><td><a href="{{ thesislink.pub_link }}" target="_blank">{{ thesislink.pub_link }}</a></td>

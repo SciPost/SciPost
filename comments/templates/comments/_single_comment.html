@@ -2,53 +2,49 @@
 {% load filename %}
 {% load file_extentions %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="comment" id="comment_id{{comment.id}}">
+<div class="comment" id="comment_id{{comment.id}}">
 
-            <div class="row">
-                <div class="col-12">
-                    {% include 'comments/_comment_identifier.html' with comment=comment %}
+    <div class="row">
+        <div class="col-12">
+            {% include 'comments/_comment_identifier.html' with comment=comment %}
 
-                    {% include 'comments/_comment_categories.html' with comment=comment class='mr-2' %}
+            {% include 'comments/_comment_categories.html' with comment=comment class='mr-2' %}
 
-                    {% include 'comments/_comment_voting_form.html' with comment=comment perms=perms user=user %}
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col-12">
-                    <p>
-                        {{ comment.comment_text|linebreaks }}
-
-                        {% if comment.file_attachment %}
-                            <h3>Attachment:</h3>
-                            <p>
-                                <a target="_blank" href="{{ comment.file_attachment.url }}">
-                                    {% if comment.file_attachment|is_image %}
-                                        <img class="attachment attachment-comment" src="{{ comment.file_attachment.url }}">
-                                    {% else %}
-                                        {{ comment.file_attachment|filename }}<br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
-                                    {% endif %}
-                                </a>
-                            </p>
-                        {% endif %}
-                    </p>
-                    {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
-                        {% if comment.remarks_for_editors %}
-                            <h3>Remarks for editors:</h3>
-                            <p>{{ comment.remarks_for_editors|linebreaks }}</p>
-                        {% endif %}
-                    {% endif %}
-                </div>
-            </div>
-
-            {% for reply in comment.nested_comments.vetted %}
-                {% include 'comments/_single_comment.html' with comment=reply perms=perms user=user %}
-            {% endfor %}
-
-            {% block comment_footer %}{% endblock %}
+            {% include 'comments/_comment_voting_form.html' with comment=comment perms=perms user=user %}
         </div>
     </div>
+
+
+    <div class="row">
+        <div class="col-12">
+            <p>
+                {{ comment.comment_text|linebreaks }}
+
+                {% if comment.file_attachment %}
+                    <h3>Attachment:</h3>
+                    <p>
+                        <a target="_blank" href="{{ comment.file_attachment.url }}">
+                            {% if comment.file_attachment|is_image %}
+                                <img class="attachment attachment-comment" src="{{ comment.file_attachment.url }}">
+                            {% else %}
+                                {{ comment.file_attachment|filename }}<br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
+                            {% endif %}
+                        </a>
+                    </p>
+                {% endif %}
+            </p>
+            {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
+                {% if comment.remarks_for_editors %}
+                    <h3>Remarks for editors:</h3>
+                    <p>{{ comment.remarks_for_editors|linebreaks }}</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    {% for reply in comment.nested_comments.vetted %}
+        {% include 'comments/_single_comment.html' with comment=reply perms=perms user=user %}
+    {% endfor %}
+
+    {% block comment_footer %}{% endblock %}
 </div>

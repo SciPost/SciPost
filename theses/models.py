@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericRelation
 from django.urls import reverse
 from django.utils import timezone
 
@@ -55,6 +56,9 @@ class ThesisLink(models.Model):
     defense_date = models.DateField(verbose_name='date of thesis defense')
     abstract = models.TextField(verbose_name='abstract, outline or summary')
     latest_activity = models.DateTimeField(default=timezone.now)
+
+    # Comments can be added to a ThesisLink
+    comments = GenericRelation('comments.Comment', related_query_name='theses')
 
     objects = ThesisLinkManager()
 

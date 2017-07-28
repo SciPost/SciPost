@@ -1,8 +1,10 @@
 import datetime
 
+from django.contrib.postgres.fields import JSONField
+from django.contrib.contenttypes.fields import GenericRelation
 from django.utils import timezone
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.functional import cached_property
 
@@ -17,6 +19,7 @@ from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommen
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
+from comments.models import Comment
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
@@ -49,6 +52,7 @@ class Submission(models.Model):
     secondary_areas = ChoiceArrayField(
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
+
     # Status set by Editors
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_UNASSIGNED)
     refereeing_cycle = models.CharField(max_length=30, choices=SUBMISSION_CYCLES,
@@ -58,6 +62,7 @@ class Submission(models.Model):
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
                                        blank=True, null=True, default=None)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+
     # Replace this by foreignkey?
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
                                             verbose_name="Journal to be submitted to")
@@ -70,6 +75,9 @@ class Submission(models.Model):
     authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,
                                                   related_name='authors_sub_false_claims')
     abstract = models.TextField()
+
+    # Comments can be added to a Submission
+    comments = GenericRelation('comments.Comment', related_query_name='submissions')
 
     # Arxiv identifiers with/without version number
     arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
@@ -114,6 +122,16 @@ class Submission(models.Model):
         except Publication.DoesNotExist:
             pass
         return header
+
+    def comments_set_complete(self):
+        """
+        Return comments to Submission, comments on Reports of Submission and
+        nested comments related to this Submission.
+        """
+        return Comment.objects.filter(Q(submissions=self) |
+                                      Q(reports__submission=self) |
+                                      Q(comments__reports__submission=self) |
+                                      Q(comments__submissions=self)).distinct()
 
     def _update_cycle(self):
         """
@@ -322,6 +340,9 @@ class Report(models.Model):
     report = models.TextField()
     requested_changes = models.TextField(verbose_name="requested changes", blank=True)
 
+    # Comments can be added to a Submission
+    comments = GenericRelation('comments.Comment', related_query_name='reports')
+
     # Qualities:
     validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
                                                 null=True, blank=True)
@@ -357,6 +378,12 @@ class Report(models.Model):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
 
+    def save(self, *args, **kwargs):
+        # Control Report count per Submission.
+        if not self.report_nr:
+            self.report_nr = self.submission.reports.count() + 1
+        return super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
 
@@ -365,11 +392,13 @@ class Report(models.Model):
         if self.doi_label:
             return '10.21468/' + self.doi_label
 
-    def save(self, *args, **kwargs):
-        # Control Report count per Submission.
-        if not self.report_nr:
-            self.report_nr = self.submission.reports.count() + 1
-        return super().save(*args, **kwargs)
+    @cached_property
+    def title(self):
+        """
+        This property is (mainly) used to let Comments get the title of the Submission without
+        annoying logic.
+        """
+        return self.submission.title
 
     @cached_property
     def is_followup_report(self):

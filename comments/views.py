@@ -3,10 +3,9 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
 from django.db import transaction
 
-from guardian.shortcuts import assign_perm, get_objects_for_user
+from guardian.shortcuts import get_objects_for_user
 import strings
 
 from .models import Comment
@@ -26,25 +25,19 @@ def new_comment(request, **kwargs):
         object_id = int(kwargs["object_id"])
         type_of_object = kwargs["type_of_object"]
 
-        new_comment = form.save(commit=False)
-        new_comment.author = request.user.contributor
-
         if type_of_object == "thesislink":
             _object = get_object_or_404(ThesisLink.objects.open_for_commenting(), id=object_id)
-            new_comment.thesislink = _object
-            new_comment.save()
         elif type_of_object == "submission":
             _object = get_object_or_404(Submission.objects.open_for_commenting(), id=object_id)
-            new_comment.submission = _object
-            new_comment.save()
             _object.add_event_for_eic('A new comment has been added.')
-
-            # Add permissions for EIC only, the Vetting-group already has it!
-            assign_perm('comments.can_vet_comments', _object.editor_in_charge.user, new_comment)
         elif type_of_object == "commentary":
             _object = get_object_or_404(Commentary.objects.open_for_commenting(), id=object_id)
-            new_comment.commentary = _object
-            new_comment.save()
+
+        new_comment = form.save(commit=False)
+        new_comment.author = request.user.contributor
+        new_comment.content_object = _object
+        new_comment.save()
+        new_comment.grant_permissions()
 
         messages.success(request, strings.acknowledge_submit_comment)
         return redirect(_object.get_absolute_url())
@@ -79,27 +72,23 @@ def vet_submitted_comment(request, comment_id):
             CommentUtils.email_comment_vet_accepted_to_author()
 
             # Update `latest_activity` fields
-            if comment.commentary:
-                comment.commentary.latest_activity = timezone.now()
-                comment.commentary.save()
-            elif comment.submission:
-                comment.submission.latest_activity = timezone.now()
-                comment.submission.save()
+            content_object = comment.content_object
+            content_object.latest_activity = timezone.now()
+            content_object.save()
 
+            if isinstance(content_object, Submission):
                 # Add events to Submission and send mail to author of the Submission
-                comment.submission.add_event_for_eic('A Comment has been accepted.')
-                comment.submission.add_event_for_author('A new Comment has been added.')
+                content_object.add_event_for_eic('A Comment has been accepted.')
+                content_object.add_event_for_author('A new Comment has been added.')
                 if not comment.is_author_reply:
-                    SubmissionUtils.load({'submission': comment.submission})
+                    SubmissionUtils.load({'submission': content_object})
                     SubmissionUtils.send_author_comment_received_email()
-            elif comment.thesislink:
-                comment.thesislink.latest_activity = timezone.now()
-                comment.thesislink.save()
+
         elif form.cleaned_data['action_option'] == '2':
             # The comment request is simply rejected
             comment.status = int(form.cleaned_data['refusal_reason'])
             if comment.status == 0:
-                comment.status = -1
+                comment.status = -1  # Why's this here??
             comment.save()
 
             # Send emails
@@ -107,14 +96,17 @@ def vet_submitted_comment(request, comment_id):
             CommentUtils.email_comment_vet_rejected_to_author(
                 email_response=form.cleaned_data['email_response_field'])
 
-            if comment.submission:
-                comment.submission.add_event_for_eic('A Comment has been rejected.')
+            if isinstance(comment.content_object, Submission):
+                # Add event if commented to Submission
+                comment.content_object.add_event_for_eic('A Comment has been rejected.')
 
         messages.success(request, 'Submitted Comment vetted.')
-        if comment.submission and comment.submission.editor_in_charge == request.user.contributor:
-            # Redirect a EIC back to the Editorial Page!
-            return redirect(reverse('submissions:editorial_page',
-                                    args=(comment.submission.arxiv_identifier_w_vn_nr,)))
+        if isinstance(comment.content_object, Submission):
+            submission = comment.content_object
+            if submission.editor_in_charge == request.user.contributor:
+                # Redirect a EIC back to the Editorial Page!
+                return redirect(reverse('submissions:editorial_page',
+                                        args=(submission.arxiv_identifier_w_vn_nr,)))
         elif request.user.has_perm('scipost.can_vet_comments'):
             # Redirect vetters back to check for other unvetted comments!
             return redirect(reverse('comments:vet_submitted_comments_list'))
@@ -132,40 +124,32 @@ def reply_to_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
 
     # Verify if this is from an author:
-    is_author = False
-    if comment.submission and not is_author:
-        is_author = comment.submission.authors.filter(id=request.user.contributor.id).exists()
-    if comment.commentary and not is_author:
-        is_author = comment.commentary.authors.filter(id=request.user.contributor.id).exists()
-    if comment.thesislink and not is_author:
-        is_author = comment.thesislink.author == request.user.contributor
+    try:
+        # Submission/Commentary
+        is_author = comment.content_object.authors.filter(id=request.user.contributor.id).exists()
+    except AttributeError:
+        # ThesisLink
+        is_author = comment.content_object.author == request.user.contributor
+
+    # if comment.submission and not is_author:
+    #     is_author = comment.submission.authors.filter(id=request.user.contributor.id).exists()
+    # if comment.commentary and not is_author:
+    #     is_author = comment.commentary.authors.filter(id=request.user.contributor.id).exists()
+    # if comment.thesislink and not is_author:
+    #     is_author = comment.thesislink.author == request.user.contributor
 
     form = CommentForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         newcomment = form.save(commit=False)
-        # Either one of commentary, submission or thesislink will be not Null
-        newcomment.commentary = comment.commentary
-        newcomment.submission = comment.submission
-        newcomment.thesislink = comment.thesislink
+        newcomment.content_object = comment
         newcomment.is_author_reply = is_author
-        newcomment.in_reply_to_comment = comment
         newcomment.author = request.user.contributor
         newcomment.save()
+        newcomment.grant_permissions()
 
         messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
                                   'It will soon be vetted by an Editor.')
-
-        if newcomment.submission:
-            # Add permissions for EIC only, the Vetting-group already has it!
-            assign_perm('comments.can_vet_comments', newcomment.submission.editor_in_charge.user,
-                        newcomment)
-
-            return redirect(newcomment.submission.get_absolute_url())
-        elif newcomment.commentary:
-            return redirect(newcomment.commentary.get_absolute_url())
-        elif newcomment.thesislink:
-            return redirect(newcomment.thesislink.get_absolute_url())
-        return redirect(reverse('scipost:index'))
+        return redirect(newcomment.content_object.get_absolute_url())
 
     context = {'comment': comment, 'is_author': is_author, 'form': form}
     return render(request, 'comments/reply_to_comment.html', context)
@@ -181,15 +165,11 @@ def reply_to_report(request, report_id):
     form = CommentForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         newcomment = form.save(commit=False)
-        newcomment.submission = report.submission
+        newcomment.content_object = report
         newcomment.is_author_reply = is_author
-        newcomment.in_reply_to_report = report
         newcomment.author = request.user.contributor
         newcomment.save()
-
-        # Add permissions for EIC only, the Vetting-group already has it!
-        assign_perm('comments.can_vet_comments', newcomment.submission.editor_in_charge.user,
-                    newcomment)
+        newcomment.grant_permissions()
 
         messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
                                   'It will soon be vetted by an Editor.')
@@ -202,18 +182,6 @@ def reply_to_report(request, report_id):
 @permission_required('scipost.can_express_opinion_on_comments', raise_exception=True)
 def express_opinion(request, comment_id, opinion):
     # A contributor has expressed an opinion on a comment
-    contributor = request.user.contributor
     comment = get_object_or_404(Comment, pk=comment_id)
-    comment.update_opinions(contributor.id, opinion)
-    if comment.submission is not None:
-        return HttpResponseRedirect('/submission/' + comment.submission.arxiv_identifier_w_vn_nr +
-                                    '/#comment_id' + str(comment.id))
-    if comment.commentary is not None:
-        return HttpResponseRedirect('/commentary/' + str(comment.commentary.arxiv_or_DOI_string) +
-                                    '/#comment_id' + str(comment.id))
-    if comment.thesislink is not None:
-        return HttpResponseRedirect('/thesis/' + str(comment.thesislink.id) +
-                                    '/#comment_id' + str(comment.id))
-    else:
-        # will never call this
-        return(render(request, 'scipost/index.html'))
+    comment.update_opinions(request.user.contributor.id, opinion)
+    return redirect(comment.get_absolute_url())

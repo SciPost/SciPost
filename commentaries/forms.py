@@ -90,7 +90,7 @@ class RequestCommentaryForm(forms.ModelForm):
     class Meta:
         model = Commentary
         fields = [
-            'discipline', 'domain', 'subject_area', 'pub_title',
+            'discipline', 'domain', 'subject_area', 'title',
             'author_list', 'pub_date', 'pub_abstract'
         ]
         placeholders = {
@@ -289,6 +289,6 @@ class CommentarySearchForm(forms.Form):
     def search_results(self):
         """Return all Commentary objects according to search"""
         return Commentary.objects.vetted(
-            pub_title__icontains=self.cleaned_data['title'],
+            title__icontains=self.cleaned_data['title'],
             pub_abstract__icontains=self.cleaned_data['abstract'],
             author_list__icontains=self.cleaned_data['author']).order_by('-pub_date')

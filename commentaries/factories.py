@@ -20,7 +20,7 @@ class CommentaryFactory(factory.django.DjangoModelFactory):
     discipline = factory.Iterator(SCIPOST_DISCIPLINES, getter=lambda c: c[0])
     domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
     subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
-    pub_title = factory.Faker('text')
+    title = factory.Faker('text')
     pub_DOI = factory.Sequence(lambda n: random_external_doi())
     arxiv_identifier = factory.Sequence(lambda n: random_arxiv_identifier_with_version_number())
     author_list = factory.Faker('name')

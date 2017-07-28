@@ -3,13 +3,7 @@ Dear {{comment.author.get_title_display}} {{comment.author.user.last_name}}
 
 The Comment you have submitted, concerning publication with title
 
-{% if comment.commentary %}
-    {{comment.commentary.pub_title}} by {{comment.commentary.author_list}} at Commentary Page https://scipost.org{{comment.commentary.get_absolute_url}}
-{% elif comment.submission %}
-    {{comment.submission.title}} by {{comment.submission.author_list}} at Submission page https://scipost.org{{comment.submission.get_absolute_url}}
-{% elif comment.thesislink %}
-    {{comment.thesislink.title}} by {{comment.thesislink.author}} at Thesis Link https://scipost.org{{comment.thesislink.get_absolute_url}}
-{% endif %}
+{{comment.core_content_object.title}} by {% if comment.core_content_object.author_list %}{{comment.core_content_object.author_list}}{% elif comment.core_content_object.author %}{{comment.core_content_object.author}}{% endif %} at https://scipost.org{{comment.get_absolute_url}}
 
 has been rejected for the following reason: {{comment.get_status_display}}.
 

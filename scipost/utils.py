@@ -403,13 +403,13 @@ class Utils(BaseMailUtil):
                 'Contributor to the site.')
             email_text_html += (
                 '<p>Your work has been cited in a paper published by SciPost,</p>'
-                '<p>{{ pub_title }}</p> <p>by {{ pub_author_list }}</p>'
+                '<p>{{ title }}</p> <p>by {{ pub_author_list }}</p>'
                 '(published as <a href="https://scipost.org/{{ doi_label }}">{{ citation }}</a>).'
                 '</p>'
                 '\n<p>I would hereby like to use this opportunity to quickly introduce '
                 'you to the SciPost initiative, and to invite you to become an active '
                 'Contributor to the site.</p>')
-            email_context['pub_title'] = cls.invitation.cited_in_publication.title
+            email_context['title'] = cls.invitation.cited_in_publication.title
             email_context['pub_author_list'] = cls.invitation.cited_in_publication.author_list
             email_context['doi_label'] = cls.invitation.cited_in_publication.doi_label
             email_context['citation'] = cls.invitation.cited_in_publication.citation()
@@ -640,7 +640,7 @@ class Utils(BaseMailUtil):
             email_text_html += (
                 '<p>We would like to notify you that '
                 'your work has been cited in a paper published by SciPost,</p>'
-                '<p>{{ pub_title }}</p><p>by {{ pub_author_list }}</p>'
+                '<p>{{ title }}</p><p>by {{ pub_author_list }}</p>'
                 '<p>(published as <a href="https://scipost.org/{{ doi_label }}">'
                 '{{ citation }}</a>).</p>'
                 '<p>We hope you will find this paper of interest to your own research.</p>'
@@ -648,7 +648,7 @@ class Utils(BaseMailUtil):
                 + EMAIL_FOOTER + '<br/>'
                 '\n<p style="font-size: 10px;">Don\'t want to receive such emails? '
                 '<a href="%s">Unsubscribe</a>.</p>' % url_unsubscribe)
-            email_context['pub_title'] = cls.notification.cited_in_publication.title
+            email_context['title'] = cls.notification.cited_in_publication.title
             email_context['pub_author_list'] = cls.notification.cited_in_publication.author_list
             email_context['doi_label'] = cls.notification.cited_in_publication.doi_label
             email_context['citation'] = cls.notification.cited_in_publication.citation()

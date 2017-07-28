@@ -120,10 +120,8 @@ def thesis_detail(request, thesislink_id):
     thesislink = get_object_or_404(ThesisLink, pk=thesislink_id)
     form = CommentForm()
 
-    comments = thesislink.comment_set
     author_replies = comments.filter(is_author_reply=True)
 
     context = {'thesislink': thesislink,
-               'comments': comments.vetted().order_by('date_submitted'),
                'author_replies': author_replies, 'form': form}
     return render(request, 'theses/thesis_detail.html', context)
