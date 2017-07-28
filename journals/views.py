@@ -619,12 +619,12 @@ def create_metadata_xml(request, doi_label):
             if nr_funders > 1:
                 initial['metadata_xml'] += '</fr:assertion>\n'
         initial['metadata_xml'] += '</fr:program>\n'
-        initial['metadata_xml'] += (
-            '<ai:program name="AccessIndicators">\n'
-            '<ai:license_ref>' + publication.get_cc_license_URI() +
-            '</ai:license_ref>\n'
-            '</ai:program>\n'
-        )
+    initial['metadata_xml'] += (
+        '<ai:program name="AccessIndicators">\n'
+        '<ai:license_ref>' + publication.get_cc_license_URI() +
+        '</ai:license_ref>\n'
+        '</ai:program>\n'
+    )
     initial['metadata_xml'] += '</custom_metadata>\n'
     initial['metadata_xml'] += (
         '</crossmark>\n'
