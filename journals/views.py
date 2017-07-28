@@ -505,7 +505,8 @@ def create_metadata_xml(request, doi_label):
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         'xmlns:fr="http://www.crossref.org/fundref.xsd" '
         'xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 '
-        'http://www.crossref.org/shema/deposit/crossref4.4.0.xsd">\n'
+        'http://www.crossref.org/shema/deposit/crossref4.4.0.xsd" '
+        'xmlns:ai="http://www.crossref.org/AccessIndicators.xsd">\n'
         '<head>\n'
         '<doi_batch_id>' + str(doi_batch_id) + '</doi_batch_id>\n'
         '<timestamp>' + timezone.now().strftime('%Y%m%d%H%M%S') + '</timestamp>\n'
@@ -599,9 +600,7 @@ def create_metadata_xml(request, doi_label):
     funders = (Funder.objects.filter(grant__in=publication.grants.all())
                | publication.funders_generic.all()).distinct()
     nr_funders = funders.count()
-    need_custom_metadata = nr_funders > 0 # JSC: more conditions to follow later
-    if need_custom_metadata:
-        initial['metadata_xml'] += '<custom_metadata>\n'
+    initial['metadata_xml'] += '<custom_metadata>\n'
     if nr_funders > 0:
         initial['metadata_xml'] += '<fr:program name="fundref">\n'
         for funder in funders:
@@ -620,8 +619,13 @@ def create_metadata_xml(request, doi_label):
             if nr_funders > 1:
                 initial['metadata_xml'] += '</fr:assertion>\n'
         initial['metadata_xml'] += '</fr:program>\n'
-    if need_custom_metadata:
-        initial['metadata_xml'] += '</custom_metadata>\n'
+        initial['metadata_xml'] += (
+            '<ai:program name="AccessIndicators">\n'
+            '<ai:license_ref>' + publication.get_cc_license_URI() +
+            '</ai:license_ref>\n'
+            '</ai:program>\n'
+        )
+    initial['metadata_xml'] += '</custom_metadata>\n'
     initial['metadata_xml'] += (
         '</crossmark>\n'
         '<archive_locations><archive name="CLOCKSS"></archive></archive_locations>\n'
@@ -633,6 +637,10 @@ def create_metadata_xml(request, doi_label):
         '<resource>https://scipost.org/'
         + publication.doi_string + '/pdf</resource>\n'
         '</item></collection>\n'
+        '<collection property="text-mining">\n'
+        '<item><resource mime_type="application/pdf">'
+        'https://scipost.org/' + publication.doi_string + '/pdf</resource></item>\n'
+        '</collection>'
         '</doi_data>\n'
     )
     try:

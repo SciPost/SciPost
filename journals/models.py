@@ -8,7 +8,7 @@ from .behaviors import doi_journal_validator, doi_volume_validator,\
                        doi_issue_validator, doi_publication_validator
 from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
                        STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,\
-                       CCBY4, CC_LICENSES
+                       CCBY4, CC_LICENSES, CC_LICENSES_URI
 from .helpers import paper_nr_string, journal_name_abbrev_citation
 from .managers import IssueManager, PublicationManager
 
@@ -168,6 +168,12 @@ class Publication(models.Model):
 
     def get_absolute_url(self):
         return reverse('scipost:publication_detail', args=[self.doi_label])
+
+    def get_cc_license_URI(self):
+        for (key, val) in CC_LICENSES_URI:
+            if key == self.cc_license:
+                return val
+        raise KeyError
 
     @property
     def doi_string(self):

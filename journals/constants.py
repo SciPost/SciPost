@@ -65,3 +65,9 @@ CC_LICENSES = (
     (CCBYSA4, 'CC BY-SA (4.0)'),
     (CCBYNC4, 'CC BY-NC (4.0)'),
 )
+
+CC_LICENSES_URI = (
+    (CCBY4, 'https://creativecommons.org/licenses/by/4.0'),
+    (CCBYSA4, 'https://creativecommons.org/licenses/by-sa/4.0'),
+    (CCBYNC4, 'https://creativecommons.org/licenses/by-nc/4.0'),
+    )
