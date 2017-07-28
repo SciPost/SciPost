@@ -875,7 +875,8 @@ def harvest_citedby_links(request, doi_label):
     if r.status_code == 401:
         messages.warning(request, ('<h3>Crossref credentials are invalid.</h3>'
                                    'Please contact the SciPost Admin.'))
-        return redirect(reverse('journals:harvest_all_publications'))
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': doi_label}))
     response_headers = r.headers
     response_text = r.text
     response_deserialized = ET.fromstring(r.text)
