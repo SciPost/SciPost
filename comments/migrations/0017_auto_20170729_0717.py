@@ -76,10 +76,6 @@ def migrate_comments_to_generic_relations(apps, schema_editor):
     """
     forward()
     Comment = apps.get_model('comments', 'Comment')
-    # Report = apps.get_model('submissions', 'Report')
-    # Submission = apps.get_model('submissions', 'Submission')
-    # Commentary = apps.get_model('commentaries', 'Commentary')
-    # ThesisLink = apps.get_model('theses', 'ThesisLink')
     User = get_user_model()
 
     all_comments = Comment.objects.all()
