@@ -22,7 +22,6 @@ def create_all_permissions(**kwargs):
     from django.apps import apps
 
     for app_config in apps.get_app_configs():
-        print(app_config)
         create_permissions(app_config, **kwargs)
 
 
@@ -84,27 +83,22 @@ def migrate_comments_to_generic_relations(apps, schema_editor):
             _object = comment.in_reply_to_comment
             _object_id = comment.in_reply_to_comment.id
             _object_type = ContentType.objects.get(app_label="comments", model="comment").id
-            print('comment', comment.id, comment.in_reply_to_comment.id)
         elif comment.in_reply_to_report:
             _object = comment.in_reply_to_report
             _object_id = comment.in_reply_to_report.id
             _object_type = ContentType.objects.get(app_label="submissions", model="report").id
-            print('report', comment.id, comment.in_reply_to_report.id)
         elif comment.thesislink:
             _object = comment.thesislink
             _object_id = comment.thesislink.id
             _object_type = ContentType.objects.get(app_label="theses", model="thesislink").id
-            print('thesis', comment.id, comment.thesislink.id)
         elif comment.submission:
             _object = comment.submission
             _object_id = comment.submission.id
             _object_type = ContentType.objects.get(app_label="submissions", model="submission").id
-            print('submission', comment.id, comment.submission.id)
         elif comment.commentary:
             _object = comment.commentary
             _object_id = comment.commentary.id
             _object_type = ContentType.objects.get(app_label="commentaries", model="commentary").id
-            print('commentary', comment.id, comment.commentary.id)
         else:
             print('\nNo valid relation for Comment: ', comment.id,)
         comment.content_object = _object

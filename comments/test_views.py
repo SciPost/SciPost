@@ -1,8 +1,7 @@
 from django.test import TestCase, RequestFactory, Client
-from django.urls import reverse, reverse_lazy
-from django.contrib.auth.models import Group
+from django.urls import reverse
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.core.exceptions import PermissionDenied
+from django.http import Http404
 
 from scipost.factories import ContributorFactory
 from theses.factories import ThesisLinkFactory
@@ -20,6 +19,7 @@ from common.helpers.test import add_groups_and_permissions
 class TestNewComment(TestCase):
     def setUp(self):
         add_groups_and_permissions()
+        ContributorFactory.create_batch(5)
 
     def install_messages_middleware(self, request):
         # I don't know what the following three lines do, but they help make a RequestFactory
@@ -33,7 +33,7 @@ class TestNewComment(TestCase):
 
         contributor = ContributorFactory()
         thesislink = ThesisLinkFactory()
-        valid_comment_data = model_form_data(CommentFactory.build(), CommentForm)
+        valid_comment_data = model_form_data(CommentFactory, CommentForm)
         target = reverse('comments:new_comment', kwargs={'object_id': thesislink.id, 'type_of_object': 'thesislink'})
 
         comment_count = Comment.objects.filter(author=contributor).count()
@@ -56,7 +56,7 @@ class TestNewComment(TestCase):
         submission = EICassignedSubmissionFactory()
         submission.open_for_commenting = True
         submission.save()
-        valid_comment_data = model_form_data(CommentFactory.build(), CommentForm)
+        valid_comment_data = model_form_data(CommentFactory, CommentForm)
         target = reverse(
             'comments:new_comment',
             kwargs={'object_id': submission.id, 'type_of_object': 'submission'},
@@ -80,13 +80,12 @@ class TestNewComment(TestCase):
         )
         self.assertRedirects(response, expected_redirect_link)
 
-
     def test_submitting_comment_on_commentary_creates_comment_and_redirects(self):
         """ Valid Comment gets saved """
 
         contributor = ContributorFactory()
         commentary = UnpublishedVettedCommentaryFactory()
-        valid_comment_data = model_form_data(CommentFactory.build(), CommentForm)
+        valid_comment_data = model_form_data(CommentFactory, CommentForm)
         target = reverse('comments:new_comment', kwargs={'object_id': commentary.id, 'type_of_object': 'commentary'})
 
         comment_count = Comment.objects.filter(author=contributor).count()
@@ -97,7 +96,7 @@ class TestNewComment(TestCase):
         request.user = contributor.user
         response = new_comment(request, object_id=commentary.id, type_of_object='commentary')
 
-        comment_count = commentary.comment_set.count()
+        comment_count = commentary.comments.count()
         self.assertEqual(comment_count, 1)
 
         response.client = Client()
@@ -105,13 +104,12 @@ class TestNewComment(TestCase):
             'commentaries:commentary', kwargs={'arxiv_or_DOI_string': commentary.arxiv_or_DOI_string})
         self.assertRedirects(response, expected_redirect_link)
 
-
     def test_submitting_comment_on_submission_that_is_not_open_for_commenting_should_be_impossible(self):
         contributor = ContributorFactory()
         submission = EICassignedSubmissionFactory()
         submission.open_for_commenting = False
         submission.save()
-        valid_comment_data = model_form_data(CommentFactory.build(), CommentForm)
+        valid_comment_data = model_form_data(CommentFactory, CommentForm)
         target = reverse(
             'comments:new_comment',
             kwargs={'object_id': submission.id, 'type_of_object': 'submission'},
@@ -123,5 +121,5 @@ class TestNewComment(TestCase):
         request = RequestFactory().post(target, valid_comment_data)
         self.install_messages_middleware(request)
         request.user = contributor.user
-        with self.assertRaises(PermissionDenied):
-            response = new_comment(request, object_id=submission.id, type_of_object='submission')
+        with self.assertRaises(Http404):
+            new_comment(request, object_id=submission.id, type_of_object='submission')
