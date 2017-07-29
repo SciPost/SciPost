@@ -1,3 +1,4 @@
+
 {% if user.is_authenticated and perms.scipost.can_express_opinion_on_comments %}
     {% if user.contributor != comment.author %}
     <div class="btn-group voting-group {{class}}">

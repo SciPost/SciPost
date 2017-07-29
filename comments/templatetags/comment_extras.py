@@ -67,3 +67,26 @@ def is_reply_to_comment(comment):
 @register.filter
 def is_reply_to_report(comment):
     return isinstance(comment.content_object, Report)
+
+
+@register.filter
+def has_category(comment):
+    if comment.is_cor:
+        return True
+    elif comment.is_rem:
+        return True
+    elif comment.is_que:
+        return True
+    elif comment.is_ans:
+        return True
+    elif comment.is_obj:
+        return True
+    elif comment.is_rep:
+        return True
+    elif comment.is_val:
+        return True
+    elif comment.is_lit:
+        return True
+    elif comment.is_sug:
+        return True
+    return False
