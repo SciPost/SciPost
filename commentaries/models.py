@@ -58,7 +58,7 @@ class Commentary(TimeStampedModel):
     pub_abstract = models.TextField(verbose_name='abstract')
 
     # Comments can be added to a Commentary
-    comments = GenericRelation('comments.Comment', related_query_name='theses')
+    comments = GenericRelation('comments.Comment', related_query_name='commentaries')
 
     objects = CommentaryManager()
 

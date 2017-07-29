@@ -15,6 +15,10 @@ from .constants import COMMENT_STATUS, STATUS_PENDING
 from .managers import CommentQuerySet
 
 
+WARNING_TEXT = 'Warning: Rather use/edit `content_object` instead or be 100% sure you know what you are doing!'
+US_NOTICE = 'Warning: This field is out of service and will be removed in the future.'
+
+
 class Comment(TimeStampedModel):
     """ A Comment is an unsollicited note, submitted by a Contributor,
     on a particular publication or in reply to an earlier Comment. """
@@ -28,24 +32,25 @@ class Comment(TimeStampedModel):
 
     # A Comment is always related to another model
     # This construction implicitly has property: `on_delete=models.CASCADE`
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, help_text=WARNING_TEXT)
+    object_id = models.PositiveIntegerField(help_text=WARNING_TEXT)
     content_object = GenericForeignKey()
 
     nested_comments = GenericRelation('comments.Comment', related_query_name='comments')
 
     commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True,
-                                   on_delete=models.CASCADE)
+                                   on_delete=models.CASCADE, help_text=US_NOTICE)
     submission = models.ForeignKey('submissions.Submission', blank=True, null=True,
-                                   on_delete=models.CASCADE, related_name='comments_old')
+                                   on_delete=models.CASCADE, related_name='comments_old',
+                                   help_text=US_NOTICE)
     thesislink = models.ForeignKey('theses.ThesisLink', blank=True, null=True,
-                                   on_delete=models.CASCADE)
+                                   on_delete=models.CASCADE, help_text=US_NOTICE)
     is_author_reply = models.BooleanField(default=False)
     in_reply_to_comment = models.ForeignKey('self', blank=True, null=True,
                                             related_name="nested_comments_old",
-                                            on_delete=models.CASCADE)
+                                            on_delete=models.CASCADE, help_text=US_NOTICE)
     in_reply_to_report = models.ForeignKey('submissions.Report', blank=True, null=True,
-                                           on_delete=models.CASCADE)
+                                           on_delete=models.CASCADE, help_text=US_NOTICE)
     author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
 
