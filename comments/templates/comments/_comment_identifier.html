@@ -8,20 +8,16 @@
         on {{comment.date_submitted|date:'Y-m-d'}}
     </h3>
 
-    {% if comment|is_reply_to_comment or comment|is_reply_to_report %}
-        <h4>
-            {% if comment|is_reply_to_comment %}
-                (in reply to <a href="{{comment.get_absolute_url}}">{{comment.content_object.author.user.first_name}} {{comment.content_object.author.user.last_name}}</a> on {{comment.content_object.date_submitted|date:'Y-m-d'}})
-            {% elif comment|is_reply_to_report %}
-                (in reply to <a href="{{comment.get_absolute_url}}">
+    {% if comment|is_reply_to_comment %}
+        (in reply to <a href="{{comment.get_absolute_url}}">{{comment.content_object.author.user.first_name}} {{comment.content_object.author.user.last_name}}</a> on {{comment.content_object.date_submitted|date:'Y-m-d'}})
+    {% elif comment|is_reply_to_report %}
+        (in reply to <a href="{{comment.get_absolute_url}}">
 
-                Report {{comment.content_object.report_nr}}
-                {% if not comment.content_object.anonymous %}
-                    by {{comment.content_object.author.user.first_name}} {{comment.content_object.author.user.last_name}}
-                {% endif %}
+        Report {{comment.content_object.report_nr}}
+        {% if not comment.content_object.anonymous %}
+            by {{comment.content_object.author.user.first_name}} {{comment.content_object.author.user.last_name}}
+        {% endif %}
 
-                </a> on {{comment.content_object.date_submitted|date:'Y-m-d'}})
-            {% endif %}
-        </h4>
+        </a> on {{comment.content_object.date_submitted|date:'Y-m-d'}})
     {% endif %}
 </div>
