@@ -131,13 +131,6 @@ def reply_to_comment(request, comment_id):
         # ThesisLink
         is_author = comment.content_object.author == request.user.contributor
 
-    # if comment.submission and not is_author:
-    #     is_author = comment.submission.authors.filter(id=request.user.contributor.id).exists()
-    # if comment.commentary and not is_author:
-    #     is_author = comment.commentary.authors.filter(id=request.user.contributor.id).exists()
-    # if comment.thesislink and not is_author:
-    #     is_author = comment.thesislink.author == request.user.contributor
-
     form = CommentForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         newcomment = form.save(commit=False)

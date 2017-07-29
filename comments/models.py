@@ -38,6 +38,9 @@ class Comment(TimeStampedModel):
 
     nested_comments = GenericRelation('comments.Comment', related_query_name='comments')
 
+    # -- U/S
+    # These fields will be removed in the future.
+    # They still exists only to prevent possible data loss.
     commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True,
                                    on_delete=models.CASCADE, help_text=US_NOTICE)
     submission = models.ForeignKey('submissions.Submission', blank=True, null=True,
@@ -45,12 +48,15 @@ class Comment(TimeStampedModel):
                                    help_text=US_NOTICE)
     thesislink = models.ForeignKey('theses.ThesisLink', blank=True, null=True,
                                    on_delete=models.CASCADE, help_text=US_NOTICE)
-    is_author_reply = models.BooleanField(default=False)
     in_reply_to_comment = models.ForeignKey('self', blank=True, null=True,
                                             related_name="nested_comments_old",
                                             on_delete=models.CASCADE, help_text=US_NOTICE)
     in_reply_to_report = models.ForeignKey('submissions.Report', blank=True, null=True,
                                            on_delete=models.CASCADE, help_text=US_NOTICE)
+    # -- End U/S
+
+    # Author info
+    is_author_reply = models.BooleanField(default=False)
     author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
 
