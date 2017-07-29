@@ -58,10 +58,14 @@
                         <a class="nav-link" data-toggle="tab" href="#theses">Theses</a>
                       </li>
                       <li class="nav-item btn btn-secondary">
-                        <a class="nav-link" data-toggle="tab" href="#comments">Comments</a>
+                          {% with request.user.contributor.comments.regular_comments.awaiting_vetting.count as count %}
+                            <a class="nav-link" data-toggle="tab" href="#comments">Comments{% if count %} ({{count}} unvetted){% endif %}</a>
+                          {% endwith %}
                       </li>
                       <li class="nav-item btn btn-secondary">
-                        <a class="nav-link" data-toggle="tab" href="#author-replies">Author Replies</a>
+                          {% with request.user.contributor.comments.author_replies.awaiting_vetting.count as count %}
+                            <a class="nav-link" data-toggle="tab" href="#author-replies">Author Replies{% if count %} ({{count}} unvetted){% endif %}</a>
+                          {% endwith %}
                       </li>
                     </ul>
                 </div>
@@ -580,7 +584,7 @@
                     <ul class="list-group list-group-flush">
                         {% for own_comment in own_comments %}
                             <li class="list-group-item">
-                                {% include 'comments/_comment_card_extended_content.html' with comment=own_comment %}
+                                {% include 'comments/_comment_card_extended_for_author.html' with comment=own_comment %}
                             </li>
                         {% empty %}
                             <li class="list-group-item"><em>You have not commented yet.</em></li>
@@ -607,7 +611,7 @@
                     <ul class="list-group list-group-flush">
                       {% for own_reply in own_authorreplies %}
                           <li class="list-group-item">
-                              {% include 'comments/_comment_card_extended_content.html' with comment=own_reply %}
+                              {% include 'comments/_comment_card_extended_for_author.html' with comment=own_reply %}
                           </li>
                       {% empty %}
                           <li class="list-group-item"><em>You do not have Author Replies yet.</em></li>

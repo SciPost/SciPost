@@ -1,9 +1,7 @@
 <div class="card-block card-comment">
     {% block card_block_header %}{% endblock %}
     <p class="card-text">
-        <span class="text-blue">
-            <a href="{{comment.author.get_absolute_url}}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a>:
-        </span>
+        <a href="{{comment.author.get_absolute_url}}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a>:
 
         <a href="{{comment.get_absolute_url}">
             "{{comment.comment_text|slice:'30'}}{% if comment.comment_text|length > 30 %}...{% endif %}"

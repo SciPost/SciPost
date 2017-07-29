@@ -57,7 +57,8 @@ class Comment(TimeStampedModel):
 
     # Author info
     is_author_reply = models.BooleanField(default=False)
-    author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                               related_name='comments')
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
 
     # Categories:
