@@ -15,3 +15,6 @@ class ThesisLinkManager(models.Manager):
 
     def vetted(self):
         return self.filter(vetted=True)
+
+    def open_for_commenting(self):
+        return self.filter(open_for_commenting=True)

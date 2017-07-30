@@ -298,7 +298,6 @@ class SubmissionUtils(BaseMailUtil):
                        'Invitation on resubmission',
                        extra_bcc=extra_bcc_list)
 
-
     @classmethod
     def send_authors_submission_ack_email(cls):
         """ Requires loading 'submission' attribute. """
@@ -625,7 +624,6 @@ class SubmissionUtils(BaseMailUtil):
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
-
     @classmethod
     def send_refereeing_invitation_email(cls):
         """
@@ -819,7 +817,6 @@ class SubmissionUtils(BaseMailUtil):
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
-
     @classmethod
     def send_ref_reminder_email(cls):
         """
@@ -905,7 +902,6 @@ class SubmissionUtils(BaseMailUtil):
             reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
 
     @classmethod
     def send_ref_cancellation_email(cls):

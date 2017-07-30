@@ -3,7 +3,51 @@
      border: 0;
  }
 
+
 .list-group-item {
     margin-bottom: 0;
     border-top-color: #f9f9f9;
+}
+ul.events-list {
+    padding-left: 30px;
+
+    &:before {
+        content: '';
+        width: 3px;
+        height: calc(100% - 16px);
+        position: absolute;
+        left: 20px;
+        background: $scipost-darkblue;
+        top: 16px;
+        z-index: 97;
+    }
+
+    li {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+
+        &:before {
+            content: '';
+            width: 13px;
+            height: 13px;
+            left: -25px;
+            border-radius: 99px;
+            position: absolute;
+            top: 11px;
+            background: #fff;
+            border: 3px solid $scipost-darkblue;
+            z-index: 99;
+        }
+
+        &:last-child:after {
+            content: '';
+            width: 3px;
+            height: calc(100% - 16px);
+            position: absolute;
+            left: -20px;
+            background: #fff;
+            bottom: 0;
+            z-index: 98;
+        }
+    }
 }

@@ -1,0 +1,50 @@
+{% load bootstrap %}
+{% load filename %}
+{% load file_extentions %}
+{% load comment_extras %}
+
+<div class="card card-vetting">
+    <div class="card-header">
+        <h2>From {{comment.core_content_object|get_core_content_type|capfirst}} (<a href="{{comment.get_absolute_url}}" target="_blank">link</a>)</h2>
+        {% get_summary_template comment.core_content_object %}
+    </div>
+    <div class="card-block">
+
+        <h2 class="card-title">The Comment to be vetted:</h2>
+
+        <div class="row">
+            <div class="col-md-6">
+                {% include 'comments/_comment_identifier.html' with comment=comment %}
+                <hr class="small">
+
+                <h3>Comment text:</h3>
+                <p>{{ comment.comment_text }}</p>
+
+                {% if comment.file_attachment %}
+                    <h3>Attachment:</h3>
+                    <p>
+                        <a target="_blank" href="{{ comment.file_attachment.url }}">
+                            {% if comment.file_attachment|is_image %}
+                                <img class="attachment attachment-comment" src="{{ comment.file_attachment.url }}">
+                            {% else %}
+                                {{ comment.file_attachment|filename }}<br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
+                            {% endif %}
+                        </a>
+                    </p>
+                {% endif %}
+
+                {% if comment.remarks_for_editors %}
+                    <h3>Remarks for Editors only:</h3>
+                    <p>{{ comment.remarks_for_editors }}</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <form action="{% url 'comments:vet_submitted_comment' comment_id=comment.id %}" method="post">
+                    {% csrf_token %}
+                    {{ form|bootstrap }}
+                    <input class="btn btn-primary" type="submit" value="Submit" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

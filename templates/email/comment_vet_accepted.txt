@@ -1,0 +1,16 @@
+Dear {{comment.author.get_title_display}} {{comment.author.user.last_name}}
+\n\n
+
+The Comment you have submitted, concerning publication with title
+
+{{comment.core_content_object.title}} by {% if comment.core_content_object.author_list %}{{comment.core_content_object.author_list}}{% elif comment.core_content_object.author %}{{comment.core_content_object.author}}{% endif %} at https://scipost.org{{comment.get_absolute_url}}
+
+has been accepted and published online.
+\n\nWe copy it below for your convenience.
+
+\n\nThank you for your contribution,
+\nThe SciPost Team.
+
+'\n\n'
+Comment:\n
+{{comment.comment_text}}

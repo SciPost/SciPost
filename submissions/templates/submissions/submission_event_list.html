@@ -1,0 +1,16 @@
+<div class="row">
+    <div class="col-12">
+            <ul class="list-group list-group-flush events-list">
+                {% for event in events %}
+                    <li class="list-group-item">
+                        <div>
+                            {{event.text}}<br>
+                            <span class="text-muted">{{event.created}}</span>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">There have been no events for this Submission.</li>
+                {% endfor %}
+            </ul>
+    </div>
+</div>

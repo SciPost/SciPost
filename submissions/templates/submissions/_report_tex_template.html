@@ -1,0 +1,112 @@
+{% load texfilters %}\documentclass{SciPost}
+
+% Prevent all line breaks in inline equations.
+\binoppenalty=10000
+\relpenalty=10000
+
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+
+\usepackage[bitstream-charter]{mathdesign}
+\urlstyle{sf}
+
+\fancypagestyle{SPstyle}{
+\fancyhf{}
+\lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
+
+{% if report.doi_string %}
+    \rhead{\small \href{https://scipost.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
+{% endif %}
+
+\renewcommand{\headrulewidth}{1pt}
+\fancyfoot[C]{\textbf{\thepage}}
+}
+
+\begin{document}
+
+\pagestyle{SPstyle}
+
+\begin{center}
+\Large\color{scipostdeepblue}{\textbf{
+%%%%%%%%%% TITLE
+Report {{report.report_nr}} on\href{https://scipost.org{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.submission.title}} }}by {{report.submission.author_list}}
+}}
+\end{center}
+
+\begin{center}
+\large\textbf{
+%%%%%%%%%% AUTHORS
+Report by {% if report.anonymous %}anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}\textsuperscript{1}{% endif %}
+}
+\end{center}
+
+{% if not report.anonymous %}
+    \begin{center}
+    %%%%%%%%%% AFFILIATIONS
+    {\bf 1} {{report.author.affiliation}}\\
+    \end{center}
+{% endif %}
+
+
+\vspace{10pt}
+
+
+\begin{center}
+\begin{tabular}{lr}
+\begin{minipage}{0.5\textwidth}
+\raisebox{-1mm}[0pt][0pt]{\includegraphics[width=12mm]{by.eps}}
+
+%%%%%%%%%% COPYRIGHT
+
+{\small Copyright {% if report.anonymous %}anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}{% endif %}. \newline
+
+This work is licensed under the Creative Commons \newline
+\href{http://creativecommons.org/licenses/by/4.0/}{Attribution 4.0 International License}. \newline
+Published by the SciPost Foundation.
+}
+\end{minipage}
+&
+\begin{minipage}{0.5\textwidth}
+%%%%%%%%%% DATES
+{\small Received {{report.date_submitted|date:'d-m-Y'}}
+{% if report.doi_string %}
+    doi:\href{//dx.doi.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} }
+{% endif %}
+}
+\end{minipage}
+\end{tabular}
+\end{center}
+
+\vspace{10pt}
+\noindent\rule{\textwidth}{1pt}
+
+%%%%%%%% CONTENTS
+
+\section*{Ratings}
+\begin{center}
+\begin{tabular}{r p{0.15\columnwidth} r l}
+	{\bf Validity} & {{report.get_validity_display}} & {\bf Clarity} & {{report.get_clarity_display}} \\
+	{\bf Significance} & {{report.get_significance_display}} & {\bf Formatting} & {{report.get_formatting_display}} \\
+	{\bf Originality} & {{report.get_originality_display}} & {\bf Grammar} & {{report.get_grammar_display}}
+\end{tabular}
+\end{center}
+
+\section{Strengths}
+{{report.strengths|linebreaktex}}
+
+\section{Weaknesses}
+{{report.weaknesses|linebreaktex}}
+
+\section{Report}
+{{report.report|linebreaktex}}
+
+
+\section{Requested changes}
+{{report.requested_changes|linebreaktex}}
+
+
+\end{document}

@@ -12,6 +12,9 @@ urlpatterns = [
     url(r'^journals_terms_and_conditions$',
         TemplateView.as_view(template_name='journals/journals_terms_and_conditions.html'),
         name='journals_terms_and_conditions'),
+    url(r'^crossmark_policy$',
+        TemplateView.as_view(template_name='journals/crossmark_policy.html'),
+        name='crossmark_policy'),
 
     # Editorial and Administrative Workflow
     url(r'^initiate_publication$',
@@ -47,6 +50,9 @@ urlpatterns = [
     url(r'^create_funding_info_metadata/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.create_funding_info_metadata,
         name='create_funding_info_metadata'),
+    url(r'^add_associated_grant/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+        journals_views.add_associated_grant,
+        name='add_associated_grant'),
     url(r'^create_metadata_xml/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.create_metadata_xml,
         name='create_metadata_xml'),

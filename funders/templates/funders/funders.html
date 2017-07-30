@@ -1,0 +1,133 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Funders{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+        <h1 class="highlight">Funders (and associated grants)</h1>
+  </div>
+</div>
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="tab-nav-container">
+            <div class="tab-nav-inner">
+                <!-- Nav tabs -->
+                <ul class="nav btn-group personal-page-nav" role="tablist">
+                  <li class="nav-item btn btn-secondary">
+                    <a href="#funders" class="nav-link active" data-toggle="tab">Funders</a>
+                  </li>
+                  <li class="nav-item btn btn-secondary">
+                    <a href="#grants" class="nav-link" data-toggle="tab">Grants</a>
+                  </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="tab-content">
+
+  <!-- Tab: Funders -->
+  <div class="tab-pane active" id="funders" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+        <h2 class="highlight">Funders</h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+	<h2>Find a new funder in the Fundref registry</h2>
+        <form action="{% url 'funders:query_crossref_for_funder' %}" method="post">
+          {% csrf_token %}
+          {{form|bootstrap}}
+          <input class="btn btn-secondary" type="submit" value="Search">
+        </form>
+	<br/>
+	<h2>Funders in the SciPost database</h2>
+	<table class="table table-hover mb-5">
+	  <thead class="thead-default">
+	    <tr>
+	      <th>Name</th>
+	      <th>Identifier</th>
+	    </tr>
+	  </thead>
+	  <tbody id="accordion" role="tablist" aria-multiselectable="true">
+	    {% for funder in funders %}
+	    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ funder.id }}" aria-expanded="true" aria-controls="collapse{{ funder.id }}" style="cursor: pointer;">
+	      <td>{{ funder.name }}</td>
+	      <td>{{ funder.identifier }}</td>
+	    </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3">No funders found</td>
+            </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Tab: Grants -->
+  <div class="tab-pane" id="grants" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+        <h2 class="highlight">Grants</h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+	<h2>Add a grant</h2>
+        <form action="{% url 'funders:add_grant' %}" method="post">
+          {% csrf_token %}
+          {{grant_form|bootstrap}}
+          <input class="btn btn-secondary" type="submit" value="Add">
+        </form>
+	<br/>
+	<h2>Grants in the SciPost database</h2>
+	<table class="table table-hover mb-5">
+	  <thead class="thead-default">
+	    <tr>
+	      <th>Funder Name</th>
+	      <th>Recipient</th>
+	      <th>Number</th>
+	    </tr>
+	  </thead>
+	  <tbody id="accordion" role="tablist" aria-multiselectable="true">
+	    {% for grant in grants %}
+	    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ grant.id }}" aria-expanded="true" aria-controls="collapse{{ grant.id }}" style="cursor: pointer;">
+	      <td>{{ grant.funder.name }}</td>
+	      {% if grant.recipient %}
+	      <td>{{ grant.recipient }}</td>
+	      {% elif grant.recipient_name %}
+	      <td>{{ grant.recipient_name }}</td>
+	      {% else %}
+	      <td></td>
+	      {% endif %}
+	      <td>{{ grant.number }}</td>
+	    </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3">No grants found</td>
+            </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock content %}

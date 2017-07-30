@@ -58,10 +58,14 @@
                         <a class="nav-link" data-toggle="tab" href="#theses">Theses</a>
                       </li>
                       <li class="nav-item btn btn-secondary">
-                        <a class="nav-link" data-toggle="tab" href="#comments">Comments</a>
+                          {% with request.user.contributor.comments.regular_comments.awaiting_vetting.count as count %}
+                            <a class="nav-link" data-toggle="tab" href="#comments">Comments{% if count %} ({{count}} unvetted){% endif %}</a>
+                          {% endwith %}
                       </li>
                       <li class="nav-item btn btn-secondary">
-                        <a class="nav-link" data-toggle="tab" href="#author-replies">Author Replies</a>
+                          {% with request.user.contributor.comments.author_replies.awaiting_vetting.count as count %}
+                            <a class="nav-link" data-toggle="tab" href="#author-replies">Author Replies{% if count %} ({{count}} unvetted){% endif %}</a>
+                          {% endwith %}
                       </li>
                     </ul>
                 </div>
@@ -227,30 +231,33 @@
                         </ul>
                         {% endif %}
 
-                        <h3>Email communications</h3>
-                        <ul>
-                            {% if perms.scipost.can_email_group_members %}
-                                <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
-                            {% endif %}
-                            {% if perms.scipost.can_email_particulars %}
-                                <li><a href="{% url 'scipost:send_precooked_email' %}">Send a precooked email</a></li>
-                                <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
-                            {% endif %}
-                            {% if perms.scipost.can_manage_mailchimp %}
-                                <li><a href="{% url 'mailing_lists:overview' %}">Manage mailing lists</a></li>
-                            {% endif %}
-                        </ul>
+                        {% if 'SciPost Administrators' in user_groups %}
+                            <h3>Email communications</h3>
+                            <ul>
+                                {% if perms.scipost.can_email_group_members %}
+                                    <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
+                                {% endif %}
+                                {% if perms.scipost.can_email_particulars %}
+                                    <li><a href="{% url 'scipost:send_precooked_email' %}">Send a precooked email</a></li>
+                                    <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
+                                {% endif %}
+                                {% if perms.scipost.can_manage_mailchimp %}
+                                    <li><a href="{% url 'mailing_lists:overview' %}">Manage mailing lists</a></li>
+                                {% endif %}
+                            </ul>
+                        {% endif %}
                     </div>
                     {% endif %}
 
                     <div class="col-md-4">
+                        {% if 'Vetting Editors' in user_groups or perms.scipost.can_vet_submitted_reports %}
                         <h3>Vetting actions</h3>
                         <ul>
                             {% if perms.scipost.can_vet_commentary_requests %}
                                 <li><a href="{% url 'commentaries:vet_commentary_requests' %}">Vet Commentary Page requests</a> ({{ nr_commentary_page_requests_to_vet }})</li>
                             {% endif %}
                             {% if perms.scipost.can_vet_comments %}
-                                <li><a href="{% url 'comments:vet_submitted_comments' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
+                                <li><a href="{% url 'comments:vet_submitted_comments_list' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
                             {% endif %}
                             {% if perms.scipost.can_vet_thesislink_requests %}
                                 <li><a href="{% url 'theses:unvetted_thesislinks' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
@@ -259,17 +266,19 @@
                                 <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
                             {% endif %}
                             {% if perms.scipost.can_vet_submitted_reports %}
-                                <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+                                <li><a href="{% url 'submissions:vet_submitted_reports_list' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
                             {% endif %}
                         </ul>
+                        {% endif %}
 
                         {% if 'Editorial Administrators' in user_groups %}
                             <h3>Editorial Admin actions</h3>
                             <ul>
-                              {% if perms.scipost.can_publish_accepted_submission %}
-			      <li><a href="{% url 'journals:manage_metadata' %}">Manage metadata</a></li>
+                              <li><a href="{% url 'submissions:reports_accepted_list' %}">Accepted Reports</a>{% if nr_reports_without_pdf %} ({{nr_reports_without_pdf}} unfinished){% endif %}</li>
+                              <li><a href="{% url 'submissions:latest_events' %}">All events in the last 24 hours</a></li>
+                              <li><a href="{% url 'submissions:treated_submissions_list' %}">Fully treated Submissions</a>{% if nr_treated_submissions_without_pdf %} ({{nr_treated_submissions_without_pdf}} unfinished){% endif %}</li>
                               <li><a href="{% url 'journals:harvest_citedby_list' %}">Harvest citedby data</a></li>
-                              {% endif %}
+                              <li><a href="{% url 'journals:manage_metadata' %}">Manage metadata</a></li>
                             </ul>
                         {% endif %}
 
@@ -573,9 +582,9 @@
             <div class="row" id="mycommentslist">
                 <div class="col-12">
                     <ul class="list-group list-group-flush">
-                        {% for own_comment in own_commentsx %}
+                        {% for own_comment in own_comments %}
                             <li class="list-group-item">
-                                {% include 'comments/_comment_card_extended_content.html' with comment=own_comment %}
+                                {% include 'comments/_comment_card_extended_for_author.html' with comment=own_comment %}
                             </li>
                         {% empty %}
                             <li class="list-group-item"><em>You have not commented yet.</em></li>
@@ -602,7 +611,7 @@
                     <ul class="list-group list-group-flush">
                       {% for own_reply in own_authorreplies %}
                           <li class="list-group-item">
-                              {% include 'comments/_comment_card_extended_content.html' with comment=own_reply %}
+                              {% include 'comments/_comment_card_extended_for_author.html' with comment=own_reply %}
                           </li>
                       {% empty %}
                           <li class="list-group-item"><em>You do not have Author Replies yet.</em></li>

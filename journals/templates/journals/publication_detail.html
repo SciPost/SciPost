@@ -31,6 +31,18 @@
     <meta name="citation_firstpage" content="{{ publication.paper_nr|paper_nr_string_filter }}"/>
     <meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
 
+    <meta name="dc.identifier" content="doi:{{ publication.doi_string }}"/>
+
+    <script>
+      $(document).ready(function(){
+        $("#citationslist").hide();
+
+        $("#citationslistbutton").click(function(){
+          $("#citationslist").toggle();
+        });
+      });
+    </script>
+
 {% endblock headsup %}
 
 {% block content %}

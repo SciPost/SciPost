@@ -45,7 +45,7 @@ SUBMISSION_HTTP404_ON_EDITORIAL_PAGE = [
 ]
 
 SUBMISSION_STATUS_OUT_OF_POOL = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
-    'resubmitted'
+    STATUS_RESUBMITTED
 ]
 
 SUBMISSION_EXCLUDE_FROM_REPORTING = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
@@ -69,24 +69,22 @@ SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     STATUS_UNASSIGNED,
     STATUS_RESUBMISSION_INCOMING,
     'assignment_failed',
-    'resubmitted_rejected',
     STATUS_RESUBMITTED_REJECTED,
-    'rejected',
+    STATUS_REJECTED,
     'withdrawn',
 ]
 
 # Submissions which should not appear in search lists
 SUBMISSION_STATUS_PUBLICLY_UNLISTED = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
-    'resubmitted',
-    'resubmitted_rejected_visible',
+    STATUS_RESUBMITTED,
     STATUS_RESUBMITTED_REJECTED_VISIBLE,
-    'published'
+    STATUS_PUBLISHED
 ]
 
 # Submissions for which voting on a related recommendation is deprecated:
 SUBMISSION_STATUS_VOTING_DEPRECATED = [
-    'rejected',
-    'published',
+    STATUS_REJECTED,
+    STATUS_PUBLISHED,
     'withdrawn',
 ]
 
@@ -207,4 +205,13 @@ SUBMISSION_CYCLES = (
     (CYCLE_DEFAULT, 'Default cycle'),
     (CYCLE_SHORT, 'Short cycle'),
     (CYCLE_DIRECT_REC, 'Direct editorial recommendation'),
+)
+
+EVENT_GENERAL = 'gen'
+EVENT_FOR_EIC = 'eic'
+EVENT_FOR_AUTHOR = 'auth'
+EVENT_TYPES = (
+    (EVENT_GENERAL, 'General comment'),
+    (EVENT_FOR_EIC, 'Comment for Editor-in-charge'),
+    (EVENT_FOR_AUTHOR, 'Comment for author'),
 )

@@ -1,0 +1,11 @@
+{% spaceless %}
+Received {{comment.date_submitted|date:'d-m-Y'}}\ \\
+{% if comment.file_attachment %}- \textit{This {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} has an Attachment, please download it online.}\ \\{% endif %}\ \\{{comment.comment_text}}
+{% endspaceless %}
+
+{% for subcomment in comment.nested_comments.vetted %}
+    \addcontentsline{toc}{subsection}{\protect\numberline{}{% if subcomment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} by {{subcomment.author.user.first_name}} {{subcomment.author.user.last_name}} }
+
+    \subsection*{ {% if subcomment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.parentloop.counter}}.{{forloop.counter}} by {{subcomment.author.user.first_name}} {{subcomment.author.user.last_name}} }
+    {% include 'comments/_comment_tex_template.html' with comment=subcomment %}
+{% endfor %}

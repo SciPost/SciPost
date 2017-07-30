@@ -1,0 +1,19 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+{% load filename %}
+{% load file_extentions %}
+
+{% block pagetitle %}: vet comments{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">SciPost Comment to vet:</h1>
+    </div>
+</div>
+
+{% include 'comments/_vet_comment_form.html' with comment=comment form=form %}
+
+{% endblock content %}

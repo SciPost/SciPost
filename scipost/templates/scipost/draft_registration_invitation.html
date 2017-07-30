@@ -66,6 +66,7 @@ $(document).ready(function(){
                     <th>Date drafted</th>
                     <th>Type</th>
                     <th>Drafted by</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -77,10 +78,14 @@ $(document).ready(function(){
                     <td>{{ draft.date_drafted }} </td>
                     <td>{{ draft.get_invitation_type_display }}</td>
                     <td>{{ draft.drafted_by.user.first_name }} {{ draft.drafted_by.user.last_name }}</td>
+                    <td>
+                        {% if draft.drafted_by.user == request.user %}
+                            <a href="{% url 'scipost:edit_draft_reg_inv' draft.id %}">Edit</a>
+                        {% endif %}</td>
                   </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="6">No drafts found.</td>
+                        <td colspan="7">No drafts found.</td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -6,24 +6,12 @@
 
 {% load scipost_extras %}
 {% load submissions_extras %}
-{% load filename %}
-{% load file_extentions %}
 
   <script>
     $(document).ready(function(){
-
-    var comment_text_input = $("#id_comment_text");
-
-    function set_comment_text(value) {
-      $("#preview-comment_text").text(value)
-    }
-    set_comment_text(comment_text_input.val())
-
-    comment_text_input.keyup(function(){
-      var new_text = $(this).val()
-      set_comment_text(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
+        $("#invitedreportsbutton").click(function(){
+            $("#invitedreportslist").toggle();
+        });
 
     });
   </script>
@@ -47,10 +35,10 @@
             </div>
         </div>
 
-        {% if other_versions %}
+        {% if submission.other_versions %}
             <h3>Other versions of this Submission (with Reports) exist:</h3>
             <div class="pl-4">
-                {% for vn in other_versions %}
+                {% for vn in submission.other_versions %}
                     {% include 'submissions/_submission_version.html' with submission=vn %}
                 {% endfor %}
             </div>
@@ -98,6 +86,14 @@
             </div>
         {% endif %}
     {% endif %}
+
+    <div class="mb-4">
+        <h2>Events</h2>
+        <a href="javascript:;" data-toggle="toggle" data-target="#eventslist">Show/hide events</a>
+        <div id="eventslist">
+            {% include 'submissions/submission_event_list.html' with events=submission.events.for_author %}
+        </div>
+    </div>
 {% endif %}
 
 
@@ -132,6 +128,14 @@
                 <li>Commenting on this Submission is closed.</li>
             {% endif %}
         </ul>
+        {% if perms.scipost.can_manage_reports %}
+            <h3>Admin Actions</h3>
+            <ul>
+                <li>
+                    <a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
+                </li>
+            <ul>
+        {% endif %}
     </div>
 </div>
 {% endif %}
@@ -178,7 +182,7 @@
 
 {% endif %}
 
-{% include 'scipost/comments_block.html' %}
+{% include 'scipost/comments_block.html' with comments=submission.comments.vetted %}
 
 {% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting %}
 

@@ -1,0 +1,23 @@
+<p>Dear {{comment.author.get_title_display}} {{comment.author.user.last_name}},</p>
+
+<p>
+    The Comment you have submitted, concerning publication with title
+
+    {{comment.core_content_object.title}} by {% if comment.core_content_object.author_list %}{{comment.core_content_object.author_list}}{% elif comment.core_content_object.author %}{{comment.core_content_object.author}}{% endif %} (<a href="https://scipost.org{{comment.get_absolute_url}}">see on SciPost.org</a>)
+    has been accepted and published online.
+</p>
+<p>
+    We copy it below for your convenience.
+</p>
+<p>
+    Thank you for your contribution,<br><br>
+    The SciPost Team.
+</p>
+<p>
+    <br>
+    Comment:
+    <br>
+    {{comment.comment_text|linebreaksbr}}
+</p>
+
+{% include 'email/_footer.html' %}

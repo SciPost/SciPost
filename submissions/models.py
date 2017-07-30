@@ -1,8 +1,10 @@
 import datetime
 
+from django.contrib.postgres.fields import JSONField
+from django.contrib.contenttypes.fields import GenericRelation
 from django.utils import timezone
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.functional import cached_property
 
@@ -10,13 +12,15 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
-                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC
+                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
+                       EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
 from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
-                      ReportManager
+                      ReportQuerySet, SubmissionEventQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
-from scipost.behaviors import ArxivCallable
+from comments.models import Comment
+from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
@@ -28,7 +32,7 @@ from journals.models import Publication
 ###############
 # Submissions:
 ###############
-class Submission(ArxivCallable, models.Model):
+class Submission(models.Model):
     # Main submission fields
     author_comments = models.TextField(blank=True, null=True)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
@@ -48,6 +52,7 @@ class Submission(ArxivCallable, models.Model):
     secondary_areas = ChoiceArrayField(
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
+
     # Status set by Editors
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_UNASSIGNED)
     refereeing_cycle = models.CharField(max_length=30, choices=SUBMISSION_CYCLES,
@@ -57,6 +62,7 @@ class Submission(ArxivCallable, models.Model):
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
                                        blank=True, null=True, default=None)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+
     # Replace this by foreignkey?
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
                                             verbose_name="Journal to be submitted to")
@@ -70,11 +76,17 @@ class Submission(ArxivCallable, models.Model):
                                                   related_name='authors_sub_false_claims')
     abstract = models.TextField()
 
+    # Comments can be added to a Submission
+    comments = GenericRelation('comments.Comment', related_query_name='submissions')
+
     # Arxiv identifiers with/without version number
     arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
     arxiv_identifier_wo_vn_nr = models.CharField(max_length=10, default='0000.00000')
     arxiv_vn_nr = models.PositiveSmallIntegerField(default=1)
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
+
+    pdf_refereeing_pack = models.FileField(upload_to='UPLOADS/REFEREE/%Y/%m/',
+                                           max_length=200, blank=True)
 
     # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
@@ -87,7 +99,7 @@ class Submission(ArxivCallable, models.Model):
     class Meta:
         permissions = (
             ('can_take_editorial_actions', 'Can take editorial actions'),
-            )
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -111,6 +123,16 @@ class Submission(ArxivCallable, models.Model):
             pass
         return header
 
+    def comments_set_complete(self):
+        """
+        Return comments to Submission, comments on Reports of Submission and
+        nested comments related to this Submission.
+        """
+        return Comment.objects.filter(Q(submissions=self) |
+                                      Q(reports__submission=self) |
+                                      Q(comments__reports__submission=self) |
+                                      Q(comments__submissions=self)).distinct()
+
     def _update_cycle(self):
         """
         Append the specific submission cycle to the instance to eventually handle the
@@ -133,6 +155,7 @@ class Submission(ArxivCallable, models.Model):
     def reporting_deadline_has_passed(self):
         return timezone.now() > self.reporting_deadline
 
+    @cached_property
     def other_versions(self):
         return Submission.objects.filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
@@ -157,11 +180,54 @@ class Submission(ArxivCallable, models.Model):
     def count_obtained_reports(self):
         return self.reports.accepted().filter(invited__isnull=False).count()
 
-    def count_refused_reports(self):
-        return self.reports.rejected().count()
+    def add_general_event(self, message):
+        event = SubmissionEvent(
+            submission=self,
+            event=EVENT_GENERAL,
+            text=message,
+        )
+        event.save()
 
-    def count_awaiting_vetting(self):
-        return self.reports.awaiting_vetting().count()
+    def add_event_for_author(self, message):
+        event = SubmissionEvent(
+            submission=self,
+            event=EVENT_FOR_AUTHOR,
+            text=message,
+        )
+        event.save()
+
+    def add_event_for_eic(self, message):
+        event = SubmissionEvent(
+            submission=self,
+            event=EVENT_FOR_EIC,
+            text=message,
+        )
+        event.save()
+
+
+class SubmissionEvent(TimeStampedModel):
+    """
+    The SubmissionEvent's goal is to act as a messaging/logging model
+    for the Submission cycle. Its main audience will be the author(s) and
+    the Editor-in-charge of a Submission.
+
+    Be aware!
+    Both the author and editor-in-charge will read the submission event.
+    Make sure the right text is given to the right event-type, to protect
+    the fellow's identity.
+    """
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='events')
+    event = models.CharField(max_length=4, choices=EVENT_TYPES, default=EVENT_GENERAL)
+    text = models.TextField()
+
+    objects = SubmissionEventQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['-created']
+
+    def __str__(self):
+        return '%s: %s' % (str(self.submission), self.get_event_display())
 
 
 ######################
@@ -248,7 +314,12 @@ class Report(models.Model):
     to explicitly implement the perticular differences in for example the form used.
     """
     status = models.CharField(max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED)
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', related_name='reports',
+                                   on_delete=models.CASCADE)
+    report_nr = models.PositiveSmallIntegerField(default=0,
+                                                 help_text='This number is a unique number '
+                                                           'refeering to the Report nr. of '
+                                                           'the Submission')
     vetted_by = models.ForeignKey('scipost.Contributor', related_name="report_vetted_by",
                                   blank=True, null=True, on_delete=models.CASCADE)
 
@@ -269,6 +340,9 @@ class Report(models.Model):
     report = models.TextField()
     requested_changes = models.TextField(verbose_name="requested changes", blank=True)
 
+    # Comments can be added to a Submission
+    comments = GenericRelation('comments.Comment', related_query_name='reports')
+
     # Qualities:
     validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
                                                 null=True, blank=True)
@@ -286,17 +360,45 @@ class Report(models.Model):
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
+    doi_label = models.CharField(max_length=200, blank=True)
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
+    pdf_report = models.FileField(upload_to='UPLOADS/REPORTS/%Y/%m/', max_length=200, blank=True)
 
-    objects = ReportManager()
+    objects = ReportQuerySet.as_manager()
 
     class Meta:
+        unique_together = ('submission', 'report_nr')
         default_related_name = 'reports'
         ordering = ['-date_submitted']
+        permissions = (
+            ('can_vet_submitted_reports', 'Can vet submitted Reports'),
+        )
 
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
+
+    def save(self, *args, **kwargs):
+        # Control Report count per Submission.
+        if not self.report_nr:
+            self.report_nr = self.submission.reports.count() + 1
+        return super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
+
+    @property
+    def doi_string(self):
+        if self.doi_label:
+            return '10.21468/' + self.doi_label
+
+    @cached_property
+    def title(self):
+        """
+        This property is (mainly) used to let Comments get the title of the Submission without
+        annoying logic.
+        """
+        return self.submission.title
 
     @cached_property
     def is_followup_report(self):
@@ -326,12 +428,16 @@ class EditorialCommunication(models.Model):
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
     """
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='editorial_communications')
     referee = models.ForeignKey('scipost.Contributor', related_name='referee_in_correspondence',
                                 blank=True, null=True, on_delete=models.CASCADE)
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
+
+    class Meta:
+        ordering = ['timestamp']
 
     def __str__(self):
         output = self.comtype
@@ -353,10 +459,11 @@ class EICRecommendation(models.Model):
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
     remarks_for_authors = models.TextField(blank=True, null=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True, null=True)
-    remarks_for_editorial_college = models.TextField(
-        default='', blank=True, null=True,
-        verbose_name='optional remarks for the Editorial College')
+    remarks_for_editorial_college = models.TextField(blank=True,
+                                                     verbose_name='optional remarks for the'
+                                                                  ' Editorial College')
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
+
     # Editorial Fellows who have assessed this recommendation:
     eligible_to_vote = models.ManyToManyField(Contributor, blank=True,
                                               related_name='eligible_to_vote')
