@@ -272,7 +272,7 @@ class VetCommentaryForm(forms.Form):
         # Modified actions are not doing anything. Users are redirected to an edit page instead.
         if self.commentary_is_accepted():
             self.commentary.vetted = True
-            self.commentary.vetted_by = Contributor.objects.get(user=self.user)
+            self.commentary.vetted_by = self.user.contributor
             self.commentary.save()
             return self.commentary
         elif self.commentary_is_refused():

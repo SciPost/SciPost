@@ -63,4 +63,4 @@ class UnvettedCommentaryFactory(CommentaryFactory):
 
 class UnvettedArxivPreprintCommentaryFactory(CommentaryFactory):
     vetted = False
-    pub_DOI = None
+    pub_DOI = ''
