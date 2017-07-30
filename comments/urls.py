@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^vet_submitted$', views.vet_submitted_comments_list, name='vet_submitted_comments_list'),
     url(r'^new/(?P<type_of_object>[a-z]+)/(?P<object_id>[0-9]+)$', views.new_comment,
         name='new_comment'),
+    url(r'^(?P<comment_id>[0-9]+)/attachment$', views.attachment, name='attachment'),
     url(r'^(?P<comment_id>[0-9]+)/reply$', views.reply_to_comment, name='reply_to_comment'),
     url(r'^(?P<comment_id>[0-9]+)/vet$', views.vet_submitted_comment,
         name='vet_submitted_comment'),

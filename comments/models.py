@@ -4,6 +4,7 @@ from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.urls import reverse
 
 from guardian.shortcuts import assign_perm
 
@@ -130,6 +131,9 @@ class Comment(TimeStampedModel):
 
     def get_absolute_url(self):
         return self.content_object.get_absolute_url().split('#')[0] + '#comment_id' + str(self.id)
+
+    def get_attachment_url(self):
+        return reverse('comments:attachment', args=(self.id,))
 
     def grant_permissions(self):
         # Import here due to circular import errors
