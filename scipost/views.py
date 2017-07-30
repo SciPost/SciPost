@@ -20,6 +20,7 @@ from django.views.generic.list import ListView
 from django.db.models import Prefetch
 
 from guardian.decorators import permission_required
+from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict
 from .decorators import has_contributor
@@ -89,7 +90,7 @@ def documentsSearchResults(query):
     NEEDS UPDATING with e.g. Haystack.
     """
     publication_query = get_query(query, ['title', 'author_list', 'abstract', 'doi_label'])
-    commentary_query = get_query(query, ['pub_title', 'author_list', 'pub_abstract'])
+    commentary_query = get_query(query, ['title', 'author_list', 'pub_abstract'])
     submission_query = get_query(query, ['title', 'author_list', 'abstract'])
     thesislink_query = get_query(query, ['title', 'author', 'abstract', 'supervisor'])
     comment_query = get_query(query, ['comment_text'])
@@ -435,6 +436,9 @@ def draft_registration_invitation(request):
         invitation = draft_inv_form.save(commit=False)
         invitation.drafted_by = request.user.contributor
         invitation.save()
+
+        # Assign permission to 'drafter' to edit the draft afterwards
+        assign_perm('comments.change_draftinvitation', request.user, invitation)
         messages.success(request, 'Draft invitation saved.')
         return redirect(reverse('scipost:draft_registration_invitation'))
 
@@ -478,9 +482,11 @@ def draft_registration_invitation(request):
     return render(request, 'scipost/draft_registration_invitation.html', context)
 
 
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+@login_required
 def edit_draft_reg_inv(request, draft_id):
-    draft = get_object_or_404(DraftInvitation, id=draft_id)
+    draft = get_object_or_404((get_objects_for_user(request.user, 'scipost.change_draftinvitation')
+                               .filter(processed=False)),
+                              id=draft_id)
 
     draft_inv_form = DraftInvitationForm(request.POST or None, current_user=request.user,
                                          instance=draft)
@@ -822,7 +828,7 @@ def personal_page(request):
     if contributor.is_VE():
         nr_commentary_page_requests_to_vet = (Commentary.objects.awaiting_vetting()
                                               .exclude(requested_by=contributor).count())
-        nr_comments_to_vet = Comment.objects.filter(status=0).count()
+        nr_comments_to_vet = Comment.objects.awaiting_vetting().count()
         nr_thesislink_requests_to_vet = ThesisLink.objects.filter(vetted=False).count()
         nr_authorship_claims_to_vet = AuthorshipClaim.objects.filter(status='0').count()
 
@@ -839,9 +845,7 @@ def personal_page(request):
     own_submissions = (Submission.objects
                        .filter(authors__in=[contributor], is_current=True)
                        .order_by('-submission_date'))
-    own_commentaries = (Commentary.objects
-                        .filter(authors__in=[contributor])
-                        .order_by('-latest_activity'))
+    own_commentaries = Commentary.objects.filter(authors=contributor).order_by('-latest_activity')
     own_thesislinks = ThesisLink.objects.filter(author_as_cont__in=[contributor])
     nr_submission_authorships_to_claim = (Submission.objects.filter(
         author_list__contains=contributor.user.last_name)
@@ -861,11 +865,10 @@ def personal_page(request):
                                       .exclude(author_claims__in=[contributor])
                                       .exclude(author_false_claims__in=[contributor])
                                       .count())
-    own_comments = (Comment.objects.select_related('author', 'submission')
-                    .filter(author=contributor, is_author_reply=False)
+    own_comments = (Comment.objects.filter(author=contributor, is_author_reply=False)
+                    .select_related('author', 'submission')
                     .order_by('-date_submitted'))
-    own_authorreplies = (Comment.objects
-                         .filter(author=contributor, is_author_reply=True)
+    own_authorreplies = (Comment.objects.filter(author=contributor, is_author_reply=True)
                          .order_by('-date_submitted'))
 
     appellation = contributor.get_title_display() + ' ' + contributor.user.last_name

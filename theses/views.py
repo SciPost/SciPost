@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
@@ -86,24 +86,24 @@ class ThesisListView(ListView):
         # Context is not saved to View object by default
         self.pre_context = self.kwargs
 
-        # Browse is discipline is given
+        # Browse if discipline is given
         if 'discipline' in self.kwargs:
             self.pre_context['browse'] = True
 
         # Queryset for browsing
         if self.kwargs.get('browse', False):
-            return self.model.objects.vetted().filter(
-                discipline=self.kwargs['discipline'],
-                latest_activity__gte=timezone.now() + datetime.timedelta(
-                                        weeks=-int(self.kwargs['nrweeksback'])),
-            )
+            return (self.model.objects.vetted()
+                    .filter(discipline=self.kwargs['discipline'],
+                            latest_activity__gte=timezone.now() + datetime.timedelta(
+                                        weeks=-int(self.kwargs['nrweeksback'])))
+                    .order_by('-latest_activity'))
 
         # Queryset for searchform is processed by managers
         form = self.form(self.request.GET)
         if form.is_valid() and form.has_changed():
-            return self.model.objects.search_results(form)
+            return self.model.objects.search_results(form).order_by('-latest_activity')
         self.pre_context['recent'] = True
-        return self.model.objects.vetted()
+        return self.model.objects.vetted().order_by('-latest_activity')
 
     def get_context_data(self, **kwargs):
         # Update the context data from `get_queryset`
@@ -120,10 +120,5 @@ def thesis_detail(request, thesislink_id):
     thesislink = get_object_or_404(ThesisLink, pk=thesislink_id)
     form = CommentForm()
 
-    comments = thesislink.comment_set
-    author_replies = comments.filter(is_author_reply=True)
-
-    context = {'thesislink': thesislink,
-               'comments': comments.vetted().order_by('date_submitted'),
-               'author_replies': author_replies, 'form': form}
+    context = {'thesislink': thesislink, 'form': form}
     return render(request, 'theses/thesis_detail.html', context)

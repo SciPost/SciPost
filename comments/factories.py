@@ -31,16 +31,16 @@ class CommentFactory(factory.django.DjangoModelFactory):
 
 
 class CommentaryCommentFactory(CommentFactory):
-    commentary = factory.SubFactory(VettedCommentaryFactory)
+    content_object = factory.SubFactory(VettedCommentaryFactory)
 
 
 class SubmissionCommentFactory(CommentFactory):
-    submission = factory.SubFactory(EICassignedSubmissionFactory)
+    content_object = factory.SubFactory(EICassignedSubmissionFactory)
 
 
 class ThesislinkCommentFactory(CommentFactory):
-    thesislink = factory.SubFactory(VettedThesisLinkFactory)
+    content_object = factory.SubFactory(VettedThesisLinkFactory)
 
 
 class ReplyCommentFactory(CommentFactory):
-    in_reply_to_comment = factory.SubFactory(SubmissionCommentFactory)
+    content_object = factory.SubFactory(SubmissionCommentFactory)

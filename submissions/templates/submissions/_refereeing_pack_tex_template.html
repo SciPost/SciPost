@@ -169,12 +169,12 @@ Submitted to {{submission.get_submitted_to_journal_display}}
     {{report.requested_changes|linebreaktex}}
 
 
-    {% if report.comment_set.vetted %}
+    {% if report.comments.vetted %}
         \newpage
         \pagestyle{SPstyle}
         \section*{Comments and Author Replies to this Report}
 
-        {% for comment in report.comment_set.vetted %}
+        {% for comment in report.comments.vetted %}
             \addcontentsline{toc}{subsection}{\protect\numberline{}{% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} to Report by {% if comment.anonymous %}anonymous{% else %}{{comment.author.user.first_name}} {{comment.author.user.last_name}}{% endif %} }
 
             \subsection*{ {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} to Report by {% if comment.anonymous %}anonymous{% else %}{{comment.author.user.first_name}} {{comment.author.user.last_name}}{% endif %} }

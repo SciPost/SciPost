@@ -170,7 +170,36 @@
                                 </div>
                             </form>
                         </li>
-                        <li><a href="{% url 'submissions:vet_submitted_reports' %}">Vet submitted Reports</a> ({{ submission.reports.awaiting_vetting.count }})</li>
+                        {% with submission.reports.awaiting_vetting as reports %}
+                            {% if reports %}
+                                <li>
+                                    Vet submitted Report{{reports|pluralize}}:
+                                    <ul class="mb-1">
+                                        {% for report in reports %}
+                                            <li><a href="{% url 'submissions:vet_submitted_report' report.id %}">{{report}}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li>All Reports have been vetted.</li>
+                            {% endif %}
+                        {% endwith %}
+
+                        {% with submission.comments_set_complete.awaiting_vetting as comments %}
+                            {% if comments %}
+                                <li>
+                                    Vet submitted Comment{{comments|pluralize}}:
+                                    <ul class="mb-1">
+                                        {% for comment in comments %}
+                                            <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{comment}}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li>All Comments have been vetted.</li>
+                            {% endif %}
+                        {% endwith %}
+
                         {% if not submission.reporting_deadline_has_passed %}
                             <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
                         {% endif %}

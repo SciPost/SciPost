@@ -99,6 +99,9 @@ class SubmissionManager(models.Manager):
     def accepted(self):
         return self.filter(status=STATUS_ACCEPTED)
 
+    def open_for_commenting(self):
+        return self.filter(open_for_commenting=True)
+
 
 class SubmissionEventQuerySet(models.QuerySet):
     def for_author(self):
@@ -148,7 +151,7 @@ class EICRecommendationManager(models.Manager):
             return self.none()
 
 
-class ReportManager(models.Manager):
+class ReportQuerySet(models.QuerySet):
     def accepted(self):
         return self.filter(status=STATUS_VETTED)
 

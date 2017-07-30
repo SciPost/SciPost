@@ -23,7 +23,7 @@ class DOICaller:
 
     def _format_data(self):
         data = self._crossref_data
-        pub_title = data['title'][0]
+        title = data['title'][0]
         author_list = ['{} {}'.format(author['given'], author['family']) for author in data['author']]
         # author_list is given as a comma separated list of names on the relevant models (Commentary, Submission)
         author_list = ", ".join(author_list)
@@ -33,7 +33,7 @@ class DOICaller:
         pub_date = self._get_pub_date(data)
 
         self.data = {
-            'pub_title': pub_title,
+            'title': title,
             'author_list': author_list,
             'journal': journal,
             'volume': volume,
@@ -86,7 +86,7 @@ class ArxivCaller:
 
     def _format_data(self):
         data = self._arxiv_data
-        pub_title = data['title']
+        title = data['title']
         author_list = [author['name'] for author in data['authors']]
         # author_list is given as a comma separated list of names on the relevant models (Commentary, Submission)
         author_list = ", ".join(author_list)
@@ -95,8 +95,7 @@ class ArxivCaller:
         pub_date = dateutil.parser.parse(data['published']).date()
 
         self.data = {
-            'pub_title': pub_title,
-            'title': pub_title,  # Duplicate for Commentary/Submission cross-compatibility
+            'title': title,
             'author_list': author_list,
             'arxiv_link': arxiv_link,
             'pub_abstract': abstract,

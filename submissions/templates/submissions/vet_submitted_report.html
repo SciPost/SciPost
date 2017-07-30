@@ -23,8 +23,7 @@ $(document).ready(function(){
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
-    <span class="breadcrumb-item">Vet Reports</span>
+    <span class="breadcrumb-item">Vet Report {{report.report_nr}}</span>
 {% endblock %}
 
 {% block content %}
@@ -50,7 +49,7 @@ $(document).ready(function(){
 
             <hr class="small">
             <h2>Please vet this Report:</h2>
-            <form action="{% url 'submissions:vet_submitted_reports' %}" method="post">
+            <form action="{% url 'submissions:vet_submitted_report' report_to_vet.id %}" method="post">
                 {% csrf_token %}
                 {{ form.report }}
                 {{ form.action_option|bootstrap }}

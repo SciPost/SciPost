@@ -1,12 +1,17 @@
 from django.contrib import admin
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django import forms
 
 from guardian.admin import GuardedModelAdmin
 
+from comments.models import Comment
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report,\
                                EditorialCommunication, EICRecommendation, SubmissionEvent
-
 from scipost.models import Contributor
+
+
+class CommentsGenericInline(GenericTabularInline):
+    model = Comment
 
 
 def submission_short_title(obj):
@@ -33,8 +38,10 @@ class SubmissionAdmin(GuardedModelAdmin):
     search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
     list_display = ('title', 'author_list', 'status', 'submission_date', 'publication',)
     date_hierarchy = 'submission_date'
-    list_filter = ('status', 'discipline', 'submission_type', )
+    list_filter = ('status', 'discipline', 'submission_type',)
     form = SubmissionAdminForm
+    # inlines = (CommentsGenericInline,)
+    exclude = ('comments', 'comments_old')
 
 
 admin.site.register(Submission, SubmissionAdmin)

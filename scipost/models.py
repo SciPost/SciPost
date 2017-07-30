@@ -8,6 +8,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.template import Template, Context
 from django.utils import timezone
+from django.urls import reverse
 
 from django_countries.fields import CountryField
 
@@ -53,7 +54,7 @@ class Contributor(models.Model):
     country_of_employment = CountryField()
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
     address = models.CharField(max_length=1000, verbose_name="address",
-                               default='', blank=True)
+                               blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page',
                                       blank=True)
     vetted_by = models.ForeignKey('self', on_delete=models.SET(get_sentinel_user),
@@ -67,6 +68,9 @@ class Contributor(models.Model):
 
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
+
+    def get_absolute_url(self):
+        return reverse('scipost:contributor_info', args=(self.id,))
 
     def get_formal_display(self):
         return '%s %s %s' % (self.get_title_display(), self.user.first_name, self.user.last_name)
