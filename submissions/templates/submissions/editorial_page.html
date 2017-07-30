@@ -184,7 +184,8 @@
                                 <li>All Reports have been vetted.</li>
                             {% endif %}
                         {% endwith %}
-                        {% with submission.comments.awaiting_vetting as comments %}
+
+                        {% with submission.comments_set_complete.awaiting_vetting as comments %}
                             {% if comments %}
                                 <li>
                                     Vet submitted Comment{{comments|pluralize}}:
@@ -198,6 +199,7 @@
                                 <li>All Comments have been vetted.</li>
                             {% endif %}
                         {% endwith %}
+
                         {% if not submission.reporting_deadline_has_passed %}
                             <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
                         {% endif %}

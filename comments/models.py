@@ -1,6 +1,11 @@
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.functional import cached_property
+
+from guardian.shortcuts import assign_perm
 
 from scipost.behaviors import TimeStampedModel
 from scipost.models import Contributor
@@ -8,6 +13,10 @@ from scipost.models import Contributor
 from .behaviors import validate_file_extension, validate_max_file_size
 from .constants import COMMENT_STATUS, STATUS_PENDING
 from .managers import CommentQuerySet
+
+
+WARNING_TEXT = 'Warning: Rather use/edit `content_object` instead or be 100% sure you know what you are doing!'
+US_NOTICE = 'Warning: This field is out of service and will be removed in the future.'
 
 
 class Comment(TimeStampedModel):
@@ -20,20 +29,36 @@ class Comment(TimeStampedModel):
     file_attachment = models.FileField(upload_to='uploads/comments/%Y/%m/%d/', blank=True,
                                        validators=[validate_file_extension, validate_max_file_size]
                                        )
-    # a Comment is either for a Commentary or Submission or a ThesisLink.
+
+    # A Comment is always related to another model
+    # This construction implicitly has property: `on_delete=models.CASCADE`
+    content_type = models.ForeignKey(ContentType, help_text=WARNING_TEXT)
+    object_id = models.PositiveIntegerField(help_text=WARNING_TEXT)
+    content_object = GenericForeignKey()
+
+    nested_comments = GenericRelation('comments.Comment', related_query_name='comments')
+
+    # -- U/S
+    # These fields will be removed in the future.
+    # They still exists only to prevent possible data loss.
     commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True,
-                                   on_delete=models.CASCADE)
+                                   on_delete=models.CASCADE, help_text=US_NOTICE)
     submission = models.ForeignKey('submissions.Submission', blank=True, null=True,
-                                   on_delete=models.CASCADE, related_name='comments')
+                                   on_delete=models.CASCADE, related_name='comments_old',
+                                   help_text=US_NOTICE)
     thesislink = models.ForeignKey('theses.ThesisLink', blank=True, null=True,
-                                   on_delete=models.CASCADE)
-    is_author_reply = models.BooleanField(default=False)
+                                   on_delete=models.CASCADE, help_text=US_NOTICE)
     in_reply_to_comment = models.ForeignKey('self', blank=True, null=True,
-                                            related_name="nested_comments",
-                                            on_delete=models.CASCADE)
+                                            related_name="nested_comments_old",
+                                            on_delete=models.CASCADE, help_text=US_NOTICE)
     in_reply_to_report = models.ForeignKey('submissions.Report', blank=True, null=True,
-                                           on_delete=models.CASCADE)
-    author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+                                           on_delete=models.CASCADE, help_text=US_NOTICE)
+    # -- End U/S
+
+    # Author info
+    is_author_reply = models.BooleanField(default=False)
+    author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                               related_name='comments')
     anonymous = models.BooleanField(default=False, verbose_name='Publish anonymously')
 
     # Categories:
@@ -71,6 +96,49 @@ class Comment(TimeStampedModel):
     def __str__(self):
         return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name +
                 ' on ' + self.date_submitted.strftime('%Y-%m-%d') + ', ' + self.comment_text[:30])
+
+    @property
+    def title(self):
+        """
+        This property is (mainly) used to let Comments get the title of the Submission without
+        annoying logic.
+        """
+        try:
+            return self.content_object.title
+        except:
+            return self.content_type
+
+    @cached_property
+    def core_content_object(self):
+        # Import here due to circular import errors
+        from commentaries.models import Commentary
+        from submissions.models import Submission, Report
+        from theses.models import ThesisLink
+
+        to_object = self.content_object
+        while True:
+            if (isinstance(to_object, Submission) or isinstance(to_object, Commentary) or
+               isinstance(to_object, ThesisLink)):
+                return to_object
+            elif isinstance(to_object, Report):
+                return to_object.submission
+            elif isinstance(to_object, Comment):
+                # Nested Comment.
+                to_object = to_object.content_object
+            else:
+                raise Exception
+
+    def get_absolute_url(self):
+        return self.content_object.get_absolute_url().split('#')[0] + '#comment_id' + str(self.id)
+
+    def grant_permissions(self):
+        # Import here due to circular import errors
+        from submissions.models import Submission
+
+        to_object = self.core_content_object
+        if isinstance(to_object, Submission):
+            # Add permissions for EIC only, the Vetting-group already has it!
+            assign_perm('comments.can_vet_comments', to_object.editor_in_charge.user, self)
 
     def get_author(self):
         '''Get author, if and only if comment is not anonymous!!!'''

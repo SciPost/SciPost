@@ -1,11 +1,11 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
 from django.template import Template, Context
 
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.behaviors import TimeStampedModel
-from scipost.models import Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
 
 from .constants import COMMENTARY_TYPES
@@ -28,7 +28,7 @@ class Commentary(TimeStampedModel):
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     default='Phys:QP')
     open_for_commenting = models.BooleanField(default=True)
-    pub_title = models.CharField(max_length=300, verbose_name='title')
+    title = models.CharField(max_length=300, verbose_name='title')
     arxiv_identifier = models.CharField(max_length=100, blank=True,
                                         verbose_name="arXiv identifier (including version nr)")
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)
@@ -57,13 +57,16 @@ class Commentary(TimeStampedModel):
                                 blank=True, null=True)
     pub_abstract = models.TextField(verbose_name='abstract')
 
+    # Comments can be added to a Commentary
+    comments = GenericRelation('comments.Comment', related_query_name='commentaries')
+
     objects = CommentaryManager()
 
     class Meta:
         verbose_name_plural = 'Commentaries'
 
     def __str__(self):
-        return self.pub_title
+        return self.title
 
     def get_absolute_url(self):
         return reverse('commentaries:commentary', args=(self.arxiv_or_DOI_string,))
@@ -71,9 +74,9 @@ class Commentary(TimeStampedModel):
     def title_label(self):
         context = Context({
             'scipost_url': reverse('commentaries:commentary', args=(self.arxiv_or_DOI_string,)),
-            'pub_title': self.pub_title
+            'title': self.title
         })
-        template = Template('<a href="{{scipost_url}}" class="pubtitleli">{{pub_title}}</a>')
+        template = Template('<a href="{{scipost_url}}" class="pubtitleli">{{title}}</a>')
         return template.render(context)
 
     def parse_links_into_urls(self, commit=False):

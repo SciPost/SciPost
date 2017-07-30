@@ -6,7 +6,7 @@
         <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
     {% endif %}
 
-    {% for reply in report.comment_set.vetted %}
+    {% for reply in report.comments.vetted %}
         {% include 'comments/_single_comment_with_link.html' with comment=reply perms=perms user=user %}
     {% endfor %}
 {% endblock %}

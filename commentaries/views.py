@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db.models import Q
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views.generic.edit import CreateView
@@ -207,12 +206,7 @@ class CommentaryListView(ListView):
         context = super().get_context_data(**kwargs)
 
         # Get newest comments
-        context['comment_list'] = (Comment.objects.vetted()
-                                   .filter(Q(commentary__isnull=False) |
-                                           Q(submission__isnull=False) |
-                                           Q(thesislink__isnull=False))
-                                   .select_related('author__user', 'submission', 'commentary')
-                                   .order_by('-date_submitted')[:10])
+        context['comment_list'] = Comment.objects.vetted().order_by('-date_submitted')[:10]
 
         # Form into the context!
         context['form'] = self.form
@@ -232,7 +226,6 @@ def commentary_detail(request, arxiv_or_DOI_string):
     commentary = get_object_or_404(Commentary.objects.vetted(),
                                    arxiv_or_DOI_string=arxiv_or_DOI_string)
 
-    comments = commentary.comment_set.all()
     form = CommentForm()
     try:
         author_replies = Comment.objects.filter(
@@ -240,6 +233,5 @@ def commentary_detail(request, arxiv_or_DOI_string):
     except Comment.DoesNotExist:
         author_replies = ()
     context = {'commentary': commentary,
-               'comments': comments.filter(status__gte=1).order_by('-date_submitted'),
                'author_replies': author_replies, 'form': form}
     return render(request, 'commentaries/commentary_detail.html', context)

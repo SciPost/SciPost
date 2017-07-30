@@ -4,7 +4,7 @@
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-block">
-                <h2 class="card-title">Comments on this publication</h2>
+                <h2 class="card-title">Comments{% if type_of_object %} on this {{type_of_object}}{% endif %}</h2>
                 <button class="btn btn-secondary" data-toggle="toggle" data-target="#commentslist">Toggle comments view</button>
             </div>
         </div>

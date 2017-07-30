@@ -9,3 +9,9 @@ class CommentQuerySet(models.QuerySet):
 
     def awaiting_vetting(self):
         return self.filter(status=STATUS_PENDING)
+
+    def regular_comments(self):
+        return self.filter(is_author_reply=False)
+
+    def author_replies(self):
+        return self.filter(is_author_reply=True)

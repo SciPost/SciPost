@@ -101,13 +101,12 @@ class TestVetCommentaryForm(TestCase):
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
         self.commentary = UnvettedCommentaryFactory.create()
-        self.user = UserFactory()
+        self.user = UserFactory.create()
         self.form_data = {
             'action_option': VetCommentaryForm.ACTION_ACCEPT,
             'refusal_reason': VetCommentaryForm.REFUSAL_EMPTY,
             'email_response_field': 'Lorem Ipsum'
         }
-
 
     def test_valid_accepted_form(self):
         """Test valid form data and return Commentary"""
@@ -127,7 +126,7 @@ class TestVetCommentaryForm(TestCase):
         form = VetCommentaryForm(self.form_data, commentary_id=self.commentary.id, user=self.user)
         self.assertTrue(form.is_valid())
         self.assertFalse(Commentary.objects.vetted().exists())
-        self.assertTrue(Commentary.objects.awaiting_vetting().exists())
+        self.assertTrue(Commentary.objects.awaiting_vetting().count() == 1)
 
         # Delete the Commentary
         form.process_commentary()
@@ -156,7 +155,7 @@ class TestVetCommentaryForm(TestCase):
     def test_process_before_validation(self):
         """Test response of form on processing before validation"""
         form = VetCommentaryForm(self.form_data, commentary_id=self.commentary.id, user=self.user)
-        self.assertRaises(ValueError, form.process_commentary)
+        self.assertRaises(AttributeError, form.process_commentary)
 
 
 class TestRequestPublishedArticleForm(TestCase):

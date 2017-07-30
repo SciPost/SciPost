@@ -1,24 +1,12 @@
 {% load bootstrap %}
 {% load filename %}
 {% load file_extentions %}
+{% load comment_extras %}
 
 <div class="card card-vetting">
     <div class="card-header">
-
-        {% if comment.commentary %}
-            <h2>From Commentary (<a href="{{comment.commentary.get_absolute_url}}">link</a>)</h2>
-            {% include 'commentaries/_commentary_summary.html' with commentary=comment.commentary %}
-        {% endif %}
-
-        {% if comment.submission %}
-            <h2>From Submission (<a href="{{comment.submission.get_absolute_url}}">link</a>)</h2>
-            {% include 'submissions/_submission_summary_short.html' with submission=comment.submission %}
-        {% endif %}
-
-        {% if comment.thesislink %}
-            <h2>From Thesis Link (<a href="{{comment.thesislink.get_absolute_url}}">link</a>)</h2>
-            {% include 'theses/_thesislink_information.html' with thesislink=comment.thesislink %}
-        {% endif %}
+        <h2>From {{comment.core_content_object|get_core_content_type|capfirst}} (<a href="{{comment.get_absolute_url}}" target="_blank">link</a>)</h2>
+        {% get_summary_template comment.core_content_object %}
     </div>
     <div class="card-block">
 
@@ -26,7 +14,7 @@
 
         <div class="row">
             <div class="col-md-6">
-                {% include 'comments/_comment_identifier_vetting.html' with comment=comment %}
+                {% include 'comments/_comment_identifier.html' with comment=comment %}
                 <hr class="small">
 
                 <h3>Comment text:</h3>

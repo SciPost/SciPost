@@ -1,41 +1,12 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: Thesis Link detail{% endblock pagetitle %}
-
-{% block headsup %}
-
 {% load scipost_extras %}
 
-<script>
-  $(document).ready(function(){
-
-    var comment_text_input = $("#id_comment_text");
-
-    function set_comment_text(value) {
-      $("#preview-comment_text").text(value)
-    }
-    set_comment_text(comment_text_input.val())
-
-    comment_text_input.keyup(function(){
-      var new_text = $(this).val()
-      set_comment_text(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
-
-  });
-</script>
-
-{% endblock headsup %}
+{% block pagetitle %}: Thesis Link detail{% endblock pagetitle %}
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        <h1 class="highlight">SciPost Thesis Link</h1>
-    </div>
-</div>
-
-<hr />
+<h1 class="highlight">SciPost Thesis Link</h1>
 
 <div class="row">
     <div class="col-12">
@@ -43,7 +14,7 @@
     </div>
 </div>
 
-{% include 'scipost/comments_block.html' %}
+{% include 'scipost/comments_block.html' with comments=thesislink.comments.vetted type_of_object='ThesisLink' %}
 
 {% include 'comments/new_comment.html' with object_id=thesislink.id type_of_object='thesislink' open_for_commenting=thesislink.open_for_commenting %}
 

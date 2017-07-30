@@ -1,5 +1,7 @@
 {% extends 'scipost/base.html' %}
 
+{% load comment_extras %}
+
 {% block pagetitle %}: reply to comment{% endblock pagetitle %}
 
 {% block content %}
@@ -13,25 +15,8 @@
 
     <div class="row">
         <div class="col-12">
-            {% if comment.commentary %}
-                <h2>The Commentary concerned:</h2>
-                {% include 'commentaries/_commentary_summary.html' with commentary=comment.commentary %}
-
-                <h3 class="mt-3">Abstract:</h3>
-                <p>{{ comment.commentary.pub_abstract }}</p>
-            {% endif %}
-
-            {% if comment.submission %}
-                <h2>The Submission concerned:</h2>
-
-                {% include 'submissions/_submission_summary.html' with submission=comment.submission %}
-
-            {% endif %}
-
-            {% if comment.thesislink %}
-                <h2>The Thesis concerned:</h2>
-                {% include "theses/_thesislink_information.html" with thesislink=comment.thesislink %}
-            {% endif %}
+            <h2>The {{comment.core_content_object|get_core_content_type|capfirst}} concerned:</h2>
+            {% get_summary_template comment.core_content_object %}
         </div>
     </div>
 
@@ -49,7 +34,7 @@
 
                 {% include 'comments/_comment_voting_summary.html' with comment=comment %}
 
-                <p>{{ comment.comment_text|linebreaks }}</p>
+                <p>{{ comment.comment_text|linebreaksbr }}</p>
             </div>
         </div>
     </div>

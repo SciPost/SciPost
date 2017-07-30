@@ -1,31 +1,23 @@
+{% load comment_extras %}
+
 <div class="commentid" id="comment_id{{comment.id}}">
     <h3>
         {% if comment.is_author_reply %}Author{% endif %}
 
-        {% block comment_author %}
-            {% if not comment.anonymous %}
-                <a href="{% url 'scipost:contributor_info' comment.get_author.id  %}">{{comment.get_author_str}}</a>
-            {% else %}
-                Anonymous
-            {% endif %}
-        {% endblock comment_author %}
+        <a href="{{comment.author.get_absolute_url}}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a>
         on {{comment.date_submitted|date:'Y-m-d'}}
     </h3>
-    {% if comment.in_reply_to_comment or comment.in_reply_to_report %}
-        <h4>
-            {% if comment.in_reply_to_comment %}
-                (in reply to <a href="#comment_id{{comment.in_reply_to_comment.id}}">{{comment.in_reply_to_comment.comment.get_author_str}}</a> on {{comment.in_reply_to_comment.date_submitted|date:'Y-m-d'}})
-            {% elif comment.in_reply_to_report %}
-                (in reply to <a href="#report_{{comment.in_reply_to_report.report_nr}}">
 
-                {% if not comment.in_reply_to_report.anonymous %}
-                    {{comment.in_reply_to_report.get_author_str}}
-                {% else %}
-                    Report {{comment.in_reply_to_report.id}}
-                {% endif %}
+    {% if comment|is_reply_to_comment %}
+        (in reply to <a href="{{comment.get_absolute_url}}">{{comment.content_object.author.user.first_name}} {{comment.content_object.author.user.last_name}}</a> on {{comment.content_object.date_submitted|date:'Y-m-d'}})
+    {% elif comment|is_reply_to_report %}
+        (in reply to <a href="{{comment.get_absolute_url}}">
 
-                </a> on {{comment.in_reply_to_report.date_submitted|date:'Y-m-d'}})
-            {% endif %}
-        </h4>
+        Report {{comment.content_object.report_nr}}
+        {% if not comment.content_object.anonymous %}
+            by {{comment.content_object.author.user.first_name}} {{comment.content_object.author.user.last_name}}
+        {% endif %}
+
+        </a> on {{comment.content_object.date_submitted|date:'Y-m-d'}})
     {% endif %}
 </div>
