@@ -1,4 +1,16 @@
+import re
+
 from .exceptions import JournalNameError, PaperNumberError
+
+
+def issue_doi_label_from_doi_label(doi_label):
+    """
+    Strip the last digits block from the label.
+    """
+    m = re.match(r'[a-zA-Z]+.[0-9]+.[0-9]+', doi_label)
+    s = m.start()
+    e = m.end()
+    return doi_label[s:e]
 
 
 def journal_name_abbrev_citation(journal_name):

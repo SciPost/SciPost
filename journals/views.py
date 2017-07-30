@@ -16,7 +16,7 @@ from django.db import transaction
 from django.http import HttpResponse
 
 from .exceptions import PaperNumberingError
-from .helpers import paper_nr_string
+from .helpers import paper_nr_string, issue_doi_label_from_doi_label
 from .models import Journal, Issue, Publication, UnregisteredAuthor, Deposit, DOAJDeposit
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
@@ -26,7 +26,7 @@ from funders.models import Funder
 from submissions.models import Submission
 from scipost.models import Contributor
 
-from funders.forms import GrantSelectForm
+from funders.forms import FunderSelectForm, GrantSelectForm
 
 from guardian.decorators import permission_required
 
@@ -271,12 +271,22 @@ def validate_publication(request):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def manage_metadata(request):
-    publications = Publication.objects.order_by('-publication_date', '-paper_nr')
+def manage_metadata(request, issue_doi_label=None, doi_label=None):
+    issues = Issue.objects.all().order_by('-until_date')
+    publications = Publication.objects.all()
+    if doi_label:
+        issue_doi_label = issue_doi_label_from_doi_label(doi_label)
+    if issue_doi_label:
+        publications = publications.filter(in_issue__doi_label=issue_doi_label)
+    publications = publications.order_by('-publication_date', '-paper_nr')
     associate_grant_form = GrantSelectForm()
+    associate_generic_funder_form = FunderSelectForm()
     context = {
+        'issues': issues,
+        'issue_doi_label': issue_doi_label,
         'publications': publications,
         'associate_grant_form': associate_grant_form,
+        'associate_generic_funder_form': associate_generic_funder_form,
     }
     return render(request, 'journals/manage_metadata.html', context)
 
@@ -289,7 +299,8 @@ def mark_first_author(request, publication_id, contributor_id):
     publication.first_author = contributor
     publication.first_author_unregistered = None
     publication.save()
-    return redirect(publication.get_absolute_url())
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -300,7 +311,8 @@ def mark_first_author_unregistered(request, publication_id, unregistered_author_
     publication.first_author = None
     publication.first_author_unregistered = unregistered_author
     publication.save()
-    return redirect(publication.get_absolute_url())
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -317,7 +329,8 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
         contributor = get_object_or_404(Contributor, id=contributor_id)
         publication.authors.add(contributor)
         publication.save()
-        return redirect(publication.get_absolute_url())
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': publication.doi_label}))
 
     if request.method == 'POST':
         form = UnregisteredAuthorForm(request.POST)
@@ -352,7 +365,8 @@ def add_unregistered_author(request, publication_id, unregistered_author_id):
     unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
     publication.unregistered_authors.add(unregistered_author)
     publication.save()
-    return redirect(publication.get_absolute_url())
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -364,7 +378,8 @@ def add_new_unreg_author(request, publication_id):
         if new_unreg_author_form.is_valid():
             new_unreg_author = new_unreg_author_form.save()
             publication.authors_unregistered.add(new_unreg_author)
-            return redirect(publication.get_absolute_url())
+            return redirect(reverse('journals:manage_metadata',
+                                    kwargs={'doi_label': publication.doi_label}))
     raise Http404
 
 
@@ -435,7 +450,25 @@ def add_associated_grant(request, doi_label):
         publication.grants.add(grant_select_form.cleaned_data['grant'])
         publication.save()
         messages.success(request, 'Grant added to publication %s' % str(publication))
-    return redirect(reverse('journals:manage_metadata'))
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': publication.doi_label}))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
+def add_generic_funder(request, doi_label):
+    """
+    Called by an Editorial Administrator.
+    This associates a funder (generic, not via grant) from the database to this publication.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    funder_select_form = FunderSelectForm(request.POST or None)
+    if funder_select_form.is_valid():
+        publication.funders_generic.add(funder_select_form.cleaned_data['funder'])
+        publication.save()
+        messages.success(request, 'Generic funder added to publication %s' % str(publication))
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -453,7 +486,8 @@ def create_metadata_xml(request, doi_label):
     if create_metadata_xml_form.is_valid():
         create_metadata_xml_form.save()
         messages.success(request, 'Metadata XML saved')
-        return redirect(reverse('journals:manage_metadata'))
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': doi_label}))
 
     # create a doi_batch_id
     salt = ""
@@ -471,7 +505,8 @@ def create_metadata_xml(request, doi_label):
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         'xmlns:fr="http://www.crossref.org/fundref.xsd" '
         'xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 '
-        'http://www.crossref.org/shema/deposit/crossref4.4.0.xsd">\n'
+        'http://www.crossref.org/shema/deposit/crossref4.4.0.xsd" '
+        'xmlns:ai="http://www.crossref.org/AccessIndicators.xsd">\n'
         '<head>\n'
         '<doi_batch_id>' + str(doi_batch_id) + '</doi_batch_id>\n'
         '<timestamp>' + timezone.now().strftime('%Y%m%d%H%M%S') + '</timestamp>\n'
@@ -561,10 +596,11 @@ def create_metadata_xml(request, doi_label):
         '<crossmark_domain><domain>scipost.org</domain></crossmark_domain>\n'
         '</crossmark_domains>\n'
         '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
-        '<custom_metadata>\n'
         )
-    funders = Funder.objects.filter(grant__in=publication.grants.all()).distinct()
+    funders = (Funder.objects.filter(grant__in=publication.grants.all())
+               | publication.funders_generic.all()).distinct()
     nr_funders = funders.count()
+    initial['metadata_xml'] += '<custom_metadata>\n'
     if nr_funders > 0:
         initial['metadata_xml'] += '<fr:program name="fundref">\n'
         for funder in funders:
@@ -583,9 +619,14 @@ def create_metadata_xml(request, doi_label):
             if nr_funders > 1:
                 initial['metadata_xml'] += '</fr:assertion>\n'
         initial['metadata_xml'] += '</fr:program>\n'
-
     initial['metadata_xml'] += (
-        '</custom_metadata>\n'
+        '<ai:program name="AccessIndicators">\n'
+        '<ai:license_ref>' + publication.get_cc_license_URI() +
+        '</ai:license_ref>\n'
+        '</ai:program>\n'
+    )
+    initial['metadata_xml'] += '</custom_metadata>\n'
+    initial['metadata_xml'] += (
         '</crossmark>\n'
         '<archive_locations><archive name="CLOCKSS"></archive></archive_locations>\n'
         '<doi_data>\n'
@@ -596,6 +637,10 @@ def create_metadata_xml(request, doi_label):
         '<resource>https://scipost.org/'
         + publication.doi_string + '/pdf</resource>\n'
         '</item></collection>\n'
+        '<collection property="text-mining">\n'
+        '<item><resource mime_type="application/pdf">'
+        'https://scipost.org/' + publication.doi_string + '/pdf</resource></item>\n'
+        '</collection>'
         '</doi_data>\n'
     )
     try:
@@ -700,7 +745,8 @@ def mark_deposit_success(request, deposit_id, success):
     elif success == '0':
         deposit.deposit_successful = False
     deposit.save()
-    return redirect(reverse('journals:manage_metadata'))
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': deposit.publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -829,7 +875,8 @@ def harvest_citedby_links(request, doi_label):
     if r.status_code == 401:
         messages.warning(request, ('<h3>Crossref credentials are invalid.</h3>'
                                    'Please contact the SciPost Admin.'))
-        return redirect(reverse('journals:harvest_all_publications'))
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': doi_label}))
     response_headers = r.headers
     response_text = r.text
     response_deserialized = ET.fromstring(r.text)

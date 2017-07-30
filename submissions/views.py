@@ -883,7 +883,7 @@ def decline_ref_invitation(request, invitation_key):
         invitation.submission.add_event_for_author('A referee has declined the'
                                                    ' refereeing invitation.')
         invitation.submission.add_event_for_eic('Referee %s has declined the refereeing '
-                                                'invitation.' % invitation.referee.user.last_name)
+                                                'invitation.' % invitation.last_name)
 
         messages.success(request, 'Thank you for informing us that you will not provide a Report.')
         return redirect(reverse('scipost:index'))
