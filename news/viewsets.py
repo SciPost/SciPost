@@ -11,7 +11,7 @@ class NewsItemViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = NewsItem.objects.all().order_by('-date')
     serializer_class = NewsItemSerializer
     template_name = 'news/news_card_content_for_api.html'
-    renderer_classes = (renderers.BrowsableAPIRenderer, renderers.TemplateHTMLRenderer, renderers.JSONRenderer)
+    renderer_classes = (renderers.TemplateHTMLRenderer, renderers.JSONRenderer)
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
