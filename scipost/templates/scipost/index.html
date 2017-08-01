@@ -1,5 +1,6 @@
 {% extends 'scipost/base_for_sidebar.html' %}
 
+{% load render_bundle from webpack_loader %}
 {% load staticfiles %}
 
 {% block body_class %}{{block.super}} has-sidebar has-breadcrumb-submenu homepage{% endblock %}
@@ -11,6 +12,10 @@
             <a href="{{journal.get_absolute_url}}" class="item">{{journal}}</a>
         {% endfor %}
     </nav>
+{% endblock %}
+
+{% block footer_script %}
+    {% render_bundle 'homepage' 'js' %}
 {% endblock %}
 
 {% block content %}
@@ -77,7 +82,7 @@
     {% endif %}
 
     <!-- News -->
-    <div class="card card-grey">
+    <div class="card card-grey" id="news">
         <div class="card-header border-0">
             <h2 class="card-title mb-0">
                 News

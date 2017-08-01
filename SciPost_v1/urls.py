@@ -4,15 +4,27 @@ from django.conf.urls.static import static
 from django.contrib import admin
 
 from ajax_select import urls as ajax_select_urls
+from rest_framework import routers
 
+from news.viewsets import NewsItemViewSet
 from journals.constants import REGEX_CHOICES
 
+# Journal URL Regex
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
 
+
+# API Routing
+router = routers.SimpleRouter()
+router.register(r'news', NewsItemViewSet)
+urlpatterns = router.urls
+
+
+# Base URLs
 urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ajax_select/', include(ajax_select_urls)),
+    url(r'^api/', include(router.urls, namespace='api')),
     url(r'^docs/', include('sphinxdoc.urls')),
     url(r'^10.21468/%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
     url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
