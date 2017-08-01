@@ -9,6 +9,8 @@ var NewsTicker;
 NewsTicker = (function() {
     NewsTicker.prototype.items = [];
 
+    NewsTicker.prototype.cached_items = [];
+
     NewsTicker.prototype.defaults = {
         url: '/api',
         interval: 10000,
@@ -22,15 +24,26 @@ NewsTicker = (function() {
         this.start_ticker()
     };
 
+    NewsTicker.prototype.set_item = function(item_id) {
+        var self = this
+
+        this.element.fadeOut(function() {
+            self.element.html(self.cached_items[item_id]).fadeIn()
+        })
+    };
+
     NewsTicker.prototype.get_item = function(item) {
         var self = this
 
-        $.get(this.options.url + '/' + item.id + '/?format=html')
-        .done(function(data) {
-            self.element.fadeOut(function() {
-                self.element.html(data).fadeIn()
+        if(typeof(this.cached_items[item.id]) == 'undefined') {
+            $.get(this.options.url + '/' + item.id + '/?format=html')
+            .done(function(data) {
+                self.cached_items[item.id] = data
+                self.set_item(item.id)
             })
-        })
+        } else {
+            self.set_item(item.id)
+        }
     };
 
     NewsTicker.prototype.start_ticker = function() {
@@ -39,11 +52,14 @@ NewsTicker = (function() {
 
         $.get(this.options.url + '?format=json')
         .done(function(data) {
-            $.each(data, function(index, item) {
-                setTimeout( function(){ self.get_item(item); }, time)
-                time += self.options.interval;
-            })
-        });
+            var counter = 1
+            var total = data.length
+
+            setInterval(function(){
+                self.get_item(data[counter % total]);
+                counter += 1
+            }, self.options.interval);
+        })
     };
 
     return NewsTicker;
