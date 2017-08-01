@@ -1,9 +1,8 @@
 /*!
-Werkplaats Planner v0.1
-(c) 2017 Jorran de Wit
+    SciPost NewsTicker
+
  */
 
-// var $ = require('jQuery');
 var NewsTicker;
 
 
@@ -12,7 +11,7 @@ NewsTicker = (function() {
 
     NewsTicker.prototype.defaults = {
         url: '/api',
-        interval: 8000,
+        interval: 10000,
     };
 
     function NewsTicker(element, options) {
