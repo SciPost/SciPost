@@ -1,14 +1,13 @@
 {% extends 'submissions/_submission_card_base.html' %}
 
 {% block cardblock_class_block %}px-0{% endblock %}
-{% block title_class_block %}pb-0 mb-0{% endblock %}
+
 
 {% block card_block_footer %}
     {{block.super}}
-
-    <div class="text-muted mb-1">
+    <div class="mt-0 mb-3">by {{submission.author_list}}</div>
+    <div class="text-muted">
         <span class="d-inline-block">Submitted {{submission.submission_date}}</span>
         <span class="d-inline-block">to {{submission.get_submitted_to_journal_display}}</span>
     </div>
-    <div>by {{submission.author_list}}</div>
 {% endblock %}

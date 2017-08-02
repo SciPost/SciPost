@@ -2,13 +2,14 @@
 
 {% block pagetitle %}: Howto: Production{% endblock pagetitle %}
 
-{% block bodysup %}
-
 {% load scipost_extras %}
 
+{% block content %}
 
-<section>
-  <h1>SciPost Publications: Production</h1>
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">SciPost Publications: Production</h1>
   <ul><li>Go back to the <a href="{% url 'scipost:howto' %}">Howto Guides</a> Page</li></ul>
 
   <p>This guide is meant for <strong>Editorial Administrators</strong> and <strong>Production Officers</strong>. It describes the post-acceptance workflow from paper acceptance to publication.</p>
@@ -70,7 +71,7 @@
 	<li>
 	  <h4>Implementing the SciPost style</h4>
 	  <ol>
-	    <li>
+	    <li><br>
 	      <pre><code>
 %%%%%%%% Begin SciPost Production addition
 
@@ -128,8 +129,7 @@ urlcolor={blue!80!black}
 
   </ol>
 
+    </div>
+</div>
 
-</section>
-
-
-{% endblock bodysup %}
+{% endblock %}

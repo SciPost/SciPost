@@ -6,7 +6,7 @@
 {% block body_class %}{{block.super}} journals{% endblock %}
 
 {% block breadcrumb %}
-    <nav class="breadcrumb py-md-2 px-0">
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
         <div class="container">
             {% block breadcrumb_items %}
                 <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
@@ -17,7 +17,7 @@
 
 {% block secondary_navbar %}
 <div class="container my-2">
-    <nav class="navbar navbar-secondary px-0">
+    <nav class="navbar navbar-secondary px-0 pt-3">
         <div>
             <h2 class="banner d-inline-block mr-2"><a href="{% url 'scipost:landing_page' journal.doi_label %}">{{journal}}</a></h2>
             <ul class="links">

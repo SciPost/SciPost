@@ -15,6 +15,9 @@ module.exports = {
         bootstrap: [
             'bootstrap-loader'
         ],
+        homepage: [
+            "./scipost/static/scipost/assets/js/newsticker.js",
+        ],
         tooltip: "./scipost/static/scipost/assets/js/tooltip.js",
         modal: "./scipost/static/scipost/assets/js/modal.js",
     },

@@ -9,25 +9,31 @@
 
 .category-group,
 .voting-group {
-    border-radius: 0.05rem;
+    border-radius: $card-border-radius;
+    background-color: #ddd;
+    color: $scipost-darkblue;
+    box-shadow: 0 1px 0 0 #ccc;
 
     .btn {
-        color: #fff;
-        box-shadow: 0 1px 1px 0 #ccc;
-        border-color: #ccc;
         margin: 0;
-        font-size: 0.7rem;
-        border-radius: 0.05rem;
         cursor: default;
+
+        &.name {
+            background-color: #ddd;
+            color: #002b49;
+        }
 
         &.agree {
             background-color: $scipost-darkblue;
+            color: #fff;
         }
         &.neutral {
             background-color: $scipost-lightblue;
+            color: #fff;
         }
         &.disagree {
             background-color: $red;
+            color: #fff;
         }
     }
 
@@ -47,15 +53,5 @@
         &.disagree:hover {
             background-color: #c9302c;
         }
-    }
-}
-
-.category-group .btn {
-    color: #333;
-    background-color: #fafafa;
-
-    &.name {
-        background-color: #ddd;
-        color: #002b49;
     }
 }

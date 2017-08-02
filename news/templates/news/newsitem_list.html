@@ -1,0 +1,54 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: News{% endblock pagetitle %}
+
+{% load request_filters %}
+{% load staticfiles %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">SciPost News</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if is_paginated %}
+              <p>
+              {% if page_obj.has_previous %}
+                <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
+              {% endif %}
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+              {% if page_obj.has_next %}
+                <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
+              {% endif %}
+              <span class="float-right"><a href="{% url 'scipost:index' %}">Go back to the homepage.</a></span>
+              </p>
+          {% endif %}
+
+        {% for item in object_list %}
+            <div class="card card-grey card-news">
+                {% include 'news/news_card_content.html' with news=item %}
+            </div>
+        {% empty %}
+            <div>No news found.</div>
+        {% endfor %}
+
+        {% if is_paginated %}
+              <p class="mt-4">
+              {% if page_obj.has_previous %}
+                <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
+              {% endif %}
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+              {% if page_obj.has_next %}
+                <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
+              {% endif %}
+              <span class="float-right"><a href="{% url 'scipost:index' %}">Go back to the homepage.</a></span>
+              </p>
+          {% endif %}
+    </div>
+</div>
+
+{% endblock content %}

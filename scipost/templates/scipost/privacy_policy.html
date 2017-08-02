@@ -4,20 +4,16 @@
 
 {% load staticfiles %}
 
-{% block bodysup %}
+{% block content %}
 
-
-
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>SciPost Privacy Policy</h1>
+<div class="row">
+    <div class="col-12">
+      <h1 class="highlight">SciPost Privacy Policy</h1>
     </div>
-  </div>
+</div>
 
-  <div class="row">
-    <div class="col-1"></div>
-    <div class="col-10">
+<div class="row">
+    <div class="col-12">
 
       <p>If you have questions about deleting or correcting your personal data please contact us. Stichting SciPost, Ltd. (“SciPost”) operates a Website at scipost.org. It is SciPost’s policy to respect your privacy regarding any information we may collect while operating our Web sites.</p>
 
@@ -41,8 +37,8 @@
 
       <p> First published March 30, 2016.</p>
 
+      <a href="{% url 'scipost:FAQ' %}">Return to frequently asked questions</a>
     </div>
-</section>
+</div>
 
-
-{% endblock bodysup %}
+{% endblock %}

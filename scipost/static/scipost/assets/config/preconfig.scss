@@ -1,6 +1,7 @@
 // General variable structure
 //
 //
+$border-radius-base: 0;
 
 // Grid
 //
@@ -12,26 +13,36 @@ $container-max-widths: (
     xl: 1200px
 );
 
-.row {
-    margin-bottom: 1rem;
-}
-
-// Cards
-//
-$card-spacer-x: 0.75rem;
-$card-border-radius: 0.15rem;
-$card-border-color: rgba(238, 238, 238, 0.5);
-
 // Colors
 //
 $scipost-light: #C3D7EE;
 $scipost-lightblue: #6884C2;
 $scipost-darkblue: #002b49;
 $scipost-orange: #FFA300;
+$scipost-white: #f9f9f9;
 $green: #6ebb6e;
+$sidebar-border-color: #dfe0e4;
 
 $blue: $scipost-lightblue !default;
 $body-color: $scipost-darkblue !default;
+
+// Alerts
+//
+$alert-success-text: $scipost-darkblue;
+$alert-warning-text: $scipost-darkblue;
+$alert-danger-text: $scipost-darkblue;
+$alert-border-radius: $border-radius-base;
+
+// Cards
+//
+$card-spacer-x: 0.75rem;
+$card-border-radius: 2px;
+$card-border-color: #fff;
+$card-cap-bg: transparent;
+$btn-secondary-border-color: #f1f1f1;
+$card-shadow-color: #ccc;
+$card-grey-border-bottom-color: #d0d1d5;
+$card-grey-border-color: #e5e6e9 #dfe0e4 $card-grey-border-bottom-color;
 
 // breadcrumb
 //
@@ -53,7 +64,7 @@ $input-padding-y: .25rem;
 $list-group-bg: transparent;
 $list-group-item-padding-x: 0;
 $list-group-item-padding-y: 0;
-$list-group-border-color: #f1f1f1;
+$list-group-border-color: #ddd;
 
 // Fonts
 //
@@ -67,7 +78,7 @@ $font-size-sm: 0.75rem;
 
 $font-size-h1: 2.0em;
 $font-size-h2: 1.5em;
-$font-size-h3: 1.17em;
+$font-size-h3: 1.25em;
 $font-size-h4: 0.8rem;
 $font-size-h5: 0.8rem;
 $font-size-h6: 0.8rem;
@@ -84,5 +95,13 @@ $table-cell-padding: 0.25rem 0.5rem;
 $navbar-light-color: $scipost-darkblue !default;
 $navbar-light-hover-color: $scipost-darkblue !default;
 
-$input-border-radius: 2px !default;
-$btn-border-radius: 2px !default;
+$input-border-radius: 0;
+$btn-border-radius: 0;
+$btn-border-radius-sm: 2px;
+$btn-border-radius-lg: 0;
+
+
+// Block quote
+//
+$blockquote-font-size: $font-size-base;
+$blockquote-border-color: #ececec;

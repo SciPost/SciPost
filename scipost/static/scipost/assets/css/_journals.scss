@@ -52,3 +52,25 @@
     padding: 0.75rem;
     margin-bottom: .5rem;
 }
+
+
+ul.publicationClickables {
+    background-color: #f9f9f9;
+    display: inline-block;
+    list-style-type: none;
+    margin: 0;
+    padding: 2px 0;
+    border: 1px solid #eee;
+    border-bottom: 1px solid #ddd;
+
+    li {
+        display: inline-block;
+        margin: 0 10px;
+        padding: 5px;
+
+        &.publicationPDF {
+            font-size: 130%;
+            font-weight: 600;
+        }
+    }
+}

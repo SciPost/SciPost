@@ -1,29 +1,27 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Email group members</span>
+{% endblock %}
 
 {% block pagetitle %}: email group members{% endblock pagetitle %}
 
-{% block headsup %}
+{% load bootstrap %}
 
-{% load scipost_extras %}
+{% block content %}
 
-{% endblock headsup %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Email a Group of Contributors</h1>
 
-{% block bodysup %}
+      <form action="{% url 'scipost:email_group_members' %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input type="submit" class="btn btn-secondary" value="Send email"/>
+      </form>
 
-<section>
-  {% if errormessage %}
-    <p>{{ errormessage }}</p>
-  {% endif %}
-  <div class="flex-greybox">
-    <h1>Email a Group of Contributors</h1>
-  </div>
+    </div>
+</div>
 
-  <form action="{% url 'scipost:email_group_members' %}" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Send email"/>
-  </form>
-
-</section>
-
-{% endblock bodysup %}
+{% endblock %}

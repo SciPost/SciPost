@@ -11,7 +11,6 @@ MIDDLEWARE_CLASSES += (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 INTERNAL_IPS = ['127.0.0.1', '::1']
-DATABASES['default']['PORT'] = '5433'
 
 # Static and media
 STATIC_ROOT = '/Users/jorranwit/Develop/SciPost/scipost_v1/local_files/static/'
@@ -21,3 +20,5 @@ WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] =\
 
 MAILCHIMP_API_USER = get_secret("MAILCHIMP_API_USER")
 MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")
+
+DATABASES['default']['PORT'] = '5433'

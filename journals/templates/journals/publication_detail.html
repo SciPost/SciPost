@@ -49,49 +49,79 @@
 
     {% include 'journals/_publication_details.html' with publication=publication %}
 
+    <hr>
     {% if publication.citedby|length >= 1 %}
-        <hr>
+
         <div class="row">
             <div class="col-6 col-md-2">
                 <h3 class="mb-2">Cited by {{ publication.citedby|length }}</h3>
-                <button class="btn btn-sm btn-secondary" id="citationslistbutton">Toggle view</button>
+                <a href="javascript:;" data-toggle="toggle" data-target="#citationslist">Toggle view</a>
             </div>
             <div class="col-6 col-md-2">
                 <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
             </div>
         </div>
-        <div class="row" id="citationslist">
+        <div class="row" id="citationslist" style="display: none;">
             <div class="col-12">
-                {# {% include 'journals/_publication_citations.html' with publication=publication %}#}
-                {{ publication.citations_as_ul }}
+                {% include 'journals/_publication_citations.html' with publication=publication %}
             </div>
         </div>
     {% endif %}
 
     <div class="row">
         <div class="col-12">
-            <hr>
             <h3>View more material from these authors:</h3>
             <p>
             {% for author in publication.authors.all %}
-              <a href="/contributor/{{ author.id }}">{{ author }}</a>&nbsp;&nbsp;
+              <a href="{{author.get_absolute_url}}">{{ author }}</a> {% if not forloop.last %}&nbsp;&middot;&nbsp;{% endif %}
             {% endfor %}
             {% for author in publication.authors_unregistered.all %}
-              {{ author }}&nbsp;&nbsp;
+              {{ author }} {% if not forloop.last %}&nbsp;&middot;&nbsp;{% endif %}
             {% endfor %}
             </p>
         </div>
     </div>
 
     {% if request.user|is_in_group:'Editorial Administrators' %}
+    <hr>
     <div class="row">
         <div class="col-12">
-            <hr>
-	    <h3>Editorial Administration tools: </h3>
-	    <ul>
-	      <li><a href="{% url 'journals:manage_metadata' %}">metadata management page</a></li>
-	      <li><a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></li>
-	    </ul>
+            <h3>Editorial Administration tools: </h3>
+            <ul>
+              <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }} {% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
+                <div class="row">
+                    <div class="col-md-5">
+                      <p>registered authors:</p>
+                      <ul>
+                        {% for author in publication.authors.all %}
+                          <li>
+                            <a href="{% url 'journals:mark_first_author' publication_id=publication.id contributor_id=author.id %}">{{ author }}</a>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                    <div class="col-md-5">
+                      <p>unregistered authors:</p>
+                      <ul>
+                        {% for author_unreg in publication.authors_unregistered.all %}
+                          <li>
+                            <a href="{% url 'journals:mark_first_author_unregistered' publication_id=publication.id unregistered_author_id=author_unreg.id %}">{{ author_unreg }}</a>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                </div>
+              </li>
+              <li><a href="{% url 'journals:add_author' publication.id %}">Add a missing author</a></li>
+              <li><a href="{% url 'journals:create_citation_list_metadata' publication.doi_label %}">Create/update citation list metadata</a></li>
+              <li><a href="{% url 'journals:create_funding_info_metadata' publication.doi_label %}">Create/update funding info metadata</a></li>
+              <li><a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">Create/update the XML metadata</a></li>
+              <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'test' %}">Test metadata deposit (via Crossref test server)</a></li>
+              <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'deposit' %}">Deposit the metadata to Crossref</a></li>
+              <li><a href="{% url 'journals:harvest_citedby_links' publication.doi_label %}">Update Crossref cited-by links</a></li>
+              <li><a href="{% url 'journals:manage_metadata' %}">Metadata management page</a></li>
+    	      <li><a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">This publication's metadata management page</a></li>
+            </ul>
         </div>
     </div>
     {% endif %}

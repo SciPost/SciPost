@@ -1,8 +1,18 @@
 .breadcrumb {
     margin-top: -0.75rem;
     margin-bottom: 0.75rem;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #ddd;
 
     .breadcrumb-item {
         margin-bottom: 0;
     }
+}
+
+nav.as-submenu .breadcrumb-item + .breadcrumb-item::before {
+    content: '|';
+}
+
+.breadcrumb-item.no-divider::before {
+    content: none !important;
 }

@@ -1,4 +1,9 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Editorial Workflow Summary</span>
+{% endblock %}
 
 {% block pagetitle %}: Editorial Workflow Summary{% endblock pagetitle %}
 

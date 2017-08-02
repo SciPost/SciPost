@@ -4,18 +4,20 @@
 
 {% block headsup %} {% load staticfiles %} {% endblock headsup %}
 
-{% block bodysup %}
+{% block content %}
 
-
-<section>
-
-  <div class="flex-greybox">
-    <h1>Author Guidelines</h1>
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Author Guidelines</h1>
   </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
   <p>Before submitting to SciPost, you should familiarize yourself with the
     <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
 
-  <hr class="hr12"/>
+  <hr>
   <h2>Manuscript preparation</h2>
 
   <p>We prefer authors to prepare their manuscript using the SciPost LaTeX2e style, which you can download
@@ -39,52 +41,52 @@
     <p>Including the DOI is particularly important: the paper can only be published if references are externally linked.</p>
   </p>
 
-  <h3>The article should contain the following elements:</h3>
-  <ul>
-    <li>Title
-      <p>The title should ideally fit in two lines (approximately 150 characters) or less,
-	and be descriptive of the research reported.</p>
-    </li>
-    <li>Authors
-      <p>Authors should be listed by initials and last name, with superscript reference to their affiliation.
-	The corresponding author should be indicated with a superscript asterisk.</p>
-    <li>Abstract
-      <p>The abstract should fit within 8 lines of the template.</p>
-    </li>
-    <li>Bulk Sections
-      <p>The bulk of the paper should be clearly divided into sections with short descriptive titles, including an introduction and a conclusion.</p>
-    </li>
-    <li>Figures
-      <p>If figures are included, they should only occupy the strictly necessary space, in any case individually fitting on a single page.
+  <h3 class="mb-2">The article should contain the following elements:</h3>
+  <dl class="row">
+    <dt class="col-sm-3 col-md-2">Title</dt>
+    <dd class="col-sm-9 col-md-10">The title should ideally fit in two lines (approximately 150 characters) or less,
+	and be descriptive of the research reported.</dd>
+
+    <dt class="col-sm-3 col-md-2">Authors</dt>
+    <dd class="col-sm-9 col-md-10">Authors should be listed by initials and last name, with superscript reference to their affiliation.
+	The corresponding author should be indicated with a superscript asterisk.</dd>
+
+    <dt class="col-sm-3 col-md-2">Abstract</dt>
+    <dd class="col-sm-9 col-md-10">The abstract should fit within 8 lines of the template.</dd>
+
+    <dt class="col-sm-3 col-md-2">Bulk Sections</dt>
+    <dd class="col-sm-9 col-md-10">The bulk of the paper should be clearly divided into sections with short descriptive titles, including an introduction and a conclusion.</dd>
+
+    <dt class="col-sm-3 col-md-2">Figures</dt>
+    <dd class="col-sm-9 col-md-10">If figures are included, they should only occupy the strictly necessary space, in any case individually fitting on a single page.
 	Each figure item should be appropriately labeled and accompanied by a descriptive caption.
 	SciPost does not accept creative figures or artist's impressions;
-	on the other hand, technical drawings and scientifically accurate representations are encouraged.</p>
-    </li>
-    <li>Acknowledgements
-      <p>Acknowledgements should follow immediately after the conclusion.</p>
-    </li>
-    <li>Author contributions
-      <p>This is optional. If desired, contributions should be succinctly described using author initials.</p>
-    </li>
-    <li>Funding information
-      <p>Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.</p>
-    </li>
-    <li>Appendices
-      <p>Supplementary material which goes beyond the paper's bulk contents can be provided in appendices, which should be
-	labeled using capital letters.</p>
-    </li>
-    <li>References
-      <p>Items in the list of references should include authors, title, journal reference and most importantly
-	<b>** include the DOI link **</b> (see the template above for an example).</p>
-    </li>
-  </ul>
+	on the other hand, technical drawings and scientifically accurate representations are encouraged.</dd>
+
+    <dt class="col-sm-3 col-md-2">Acknowledgements</dt>
+    <dd class="col-sm-9 col-md-10">Acknowledgements should follow immediately after the conclusion.</dd>
+
+    <dt class="col-sm-3 col-md-2">Author contributions</dt>
+    <dd class="col-sm-9 col-md-10">This is optional. If desired, contributions should be succinctly described using author initials.</dd>
+
+    <dt class="col-sm-3 col-md-2">Funding information</dt>
+    <dd class="col-sm-9 col-md-10">Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.</dd>
+
+    <dt class="col-sm-3 col-md-2">Appendices</dt>
+    <dd class="col-sm-9 col-md-10">Supplementary material which goes beyond the paper's bulk contents can be provided in appendices, which should be
+	labeled using capital letters.</dd>
+
+    <dt class="col-sm-3 col-md-2">References</dt>
+    <dd class="col-sm-9 col-md-10">Items in the list of references should include authors, title, journal reference and most importantly
+	<b>** include the DOI link **</b> (see the template above for an example).</dd>
+  </dl>
 
   <p>All equations and references should be hyperlinked to ensure ease of navigation.</p>
   <p>There is no strict length limitation, but the authors are strongly encouraged to keep contents to the
     strict minimum necessary for peers to reproduce the research described in the paper.</p>
 
 
-  <hr class="hr12"/>
+  <hr>
   <h2>Manuscript submission</h2>
   <p>Submitting your manuscript to SciPost is extremely easy. You should:</p>
   <ul>
@@ -100,8 +102,8 @@
     make every reasonable effort to implement such requests, except in cases where this is interpreted as
     interfering with a rigorous assessment of the work.</p>
 
+    </div>
+</div>
 
-</section>
 
-
-{% endblock bodysup %}
+{% endblock content %}

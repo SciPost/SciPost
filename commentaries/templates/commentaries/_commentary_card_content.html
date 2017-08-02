@@ -2,10 +2,10 @@
     <h3 class="card-title">
         <a href="{% url 'commentaries:commentary' commentary.arxiv_or_DOI_string %}">{{ commentary.title }}</a>
     </h3>
-    <p class="card-text">
-        by {{ commentary.author_list }}{% if commentary.type == 'published' %}, {{ commentary.journal }} {{ commentary.volume }}, {{ commentary.pages }}{% elif commentary.type == 'preprint' %} - <a href="{{ commentary.arxiv_link }}">{{ commentary.arxiv_link }}</a>{% endif %}
+    <p class="mt-0 mb-3">
+        by {{ commentary.author_list }}{% if commentary.type == 'published' %}, {{ commentary.journal }} {{ commentary.volume }}, {{ commentary.pages }}{% elif commentary.type == 'preprint' %} &middot; <a href="{{ commentary.arxiv_link }}">{{ commentary.arxiv_link }}</a>{% endif %}
     </p>
     <p class="card-text text-muted">
-        {% if commentary.pub_date %}(published {{ commentary.pub_date }}) - {% endif %}latest activity: {{ commentary.latest_activity }}
+        {% if commentary.pub_date %}(published {{ commentary.pub_date }}) &middot; {% endif %}latest activity: {{ commentary.latest_activity }}
     </p>
 </div>

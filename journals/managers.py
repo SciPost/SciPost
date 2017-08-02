@@ -5,6 +5,11 @@ from django.utils import timezone
 from .constants import STATUS_PUBLISHED, STATUS_DRAFT
 
 
+class JournalManager(models.Manager):
+    def active(self):
+        return self.filter(active=True)
+
+
 class IssueManager(models.Manager):
     def get_published(self, *args, **kwargs):
         try:

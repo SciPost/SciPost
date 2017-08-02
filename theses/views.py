@@ -2,7 +2,7 @@ import datetime
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseRedirect
@@ -22,6 +22,7 @@ import strings
 # Theses
 ################
 
+@method_decorator(login_required, name='dispatch')
 @method_decorator(permission_required(
     'scipost.can_request_thesislinks', raise_exception=True), name='dispatch')
 class RequestThesisLink(CreateView):

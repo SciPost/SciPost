@@ -2,34 +2,52 @@
 
 {% block pagetitle %}: Create funding info metadata{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+            <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
+            <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
+            <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+            <span class="breadcrumb-item active">Create funding info metadata</span>
+        </div>
+    </nav>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Create funding info metadata page</h1>
+    </div>
+</div>
 
 
-<section>
-  <div class="flex-greybox">
-    <h1>Create funding info metadata page</h1>
-  </div>
+<div class="row">
+    <div class="col-12">
 
-  {% if errormessage %}
-    <h2 style="color: red;">{{ errormessage }}</h2>
-  {% endif %}
+      {% if errormessage %}
+        <h2 class="text-danger">{{ errormessage }}</h2>
+      {% endif %}
 
-  <form action="{% url 'journals:create_funding_info_metadata' publication.doi_label %}" method="post">
-    {% csrf_token %}
-    {{ funding_info_form.as_p }}
-    <input type="submit" value="Submit">
-  </form>
+      <form action="{% url 'journals:create_funding_info_metadata' publication.doi_label %}" method="post">
+        {% csrf_token %}
+        {{ funding_info_form|bootstrap }}
+        <input type="submit" class="btn btn-secondary" value="Submit">
+      </form>
 
-  <hr class="hr6"/>
+     <hr>
+        <h3 class="mt-3">Current funding info metadata:</h3>
+        <p>{{funding_statement|linebreaks}}</p>
 
-  <h3>Current funding info metadata:</h3>
-  <p>{{ funding_statement }}</p>
+      <hr>
 
-  <hr class="hr6"/>
+      <h3>Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></h3>
 
-  <h3>Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></h3>
-
-</section>
+    </div>
+</div>
 
 
-{% endblock bodysup %}
+{% endblock %}

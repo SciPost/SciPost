@@ -10,7 +10,7 @@ from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
                        STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,\
                        CCBY4, CC_LICENSES, CC_LICENSES_URI
 from .helpers import paper_nr_string, journal_name_abbrev_citation
-from .managers import IssueManager, PublicationManager
+from .managers import IssueManager, PublicationManager, JournalManager
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
@@ -35,6 +35,8 @@ class Journal(models.Model):
                                  validators=[doi_journal_validator])
     issn = models.CharField(max_length=16, default='2542-4653')
     active = models.BooleanField(default=True)
+
+    objects = JournalManager()
 
     def __str__(self):
         return self.get_name_display()
@@ -187,41 +189,6 @@ class Publication(models.Model):
                 + ' ' + str(self.in_issue.in_volume.number)
                 + ', ' + self.get_paper_nr()
                 + ' (' + self.publication_date.strftime('%Y') + ')')
-
-    def citations_as_ul(self):
-        output = '<ul>'
-        context = Context({})
-        nr = 0
-        for cit in self.citedby:
-            output += '<li>{{ auth_' + str(nr) + ' }}'
-            context['auth_' + str(nr)] = (cit['first_author_given_name']
-                                          + ' ' + cit['first_author_surname'])
-            if cit['multiauthors']:
-                output += ' <em>et al.</em>'
-            output += (', <em>{{ title_' + str(nr) + ' }}</em>, <br/>'
-                       '{{ journal_abbrev_' + str(nr) + ' }}')
-            context['title_' + str(nr)] = cit['article_title']
-            context['journal_abbrev_' + str(nr)] = cit['journal_abbreviation']
-            if cit['volume']:
-                context['volume_' + str(nr)] = cit['volume']
-                output += ' <strong>{{ volume_' + str(nr) + ' }}</strong>'
-            output += ', '
-            if cit['first_page']:
-                output += '{{ first_page_' + str(nr) + ' }}'
-                context['first_page_' + str(nr)] = cit['first_page']
-            elif cit['item_number']:
-                output += '{{ item_number_' + str(nr) + ' }}'
-                context['item_number_' + str(nr)] = cit['item_number']
-            output += (' ({{ year_' + str(nr) + ' }}) '
-                       '<a href="https://doi.org/{{ doi_' + str(nr) + ' }}" '
-                       'target="_blank">[Crossref]</a>')
-            context['year_' + str(nr)] = cit['year']
-            context['doi_' + str(nr)] = cit['doi']
-            output += '</li>'
-            nr += 1
-        output += '</ul>'
-        template = Template(output)
-        return template.render(context)
 
 
 class Deposit(models.Model):
