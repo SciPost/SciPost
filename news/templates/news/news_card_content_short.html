@@ -3,7 +3,7 @@
     <div>
         <h5 class="text-muted mb-2">{{news.date|date:'j F Y'}}</h5>
         <div>
-            {{news.blurb|slice:":90"}} (...)
+            {{news.blurb|truncatechars_html:90|safe}}
 
             <br>
             <a href="{% url 'news:news' %}#news_{{news.id}}" class="my-1 d-inline-block">Read more</a>

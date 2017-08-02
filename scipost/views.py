@@ -40,6 +40,7 @@ from journals.models import Publication, Issue, Journal
 from news.models import NewsItem
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation,\
                                Report, EICRecommendation
+from partners.models import MembershipAgreement
 from theses.models import ThesisLink
 
 
@@ -177,11 +178,10 @@ def index(request):
     context = {
         'latest_newsitem': NewsItem.objects.all().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
-        'issues': Issue.objects.published().order_by('-start_date')[:3],
-        'journals': Journal.objects.active().order_by('name'),
+        'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
-                                                                 '-paper_nr')[:3]
-
+                                                                 '-paper_nr')[:3],
+        'current_agreements': MembershipAgreement.objects.now_active()[:2],
     }
     return render(request, 'scipost/index.html', context)
 

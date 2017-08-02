@@ -37,7 +37,7 @@ from guardian.decorators import permission_required
 
 def journals(request):
     '''Main landing page for Journals application.'''
-    context = {'journals': Journal.objects.active().order_by('name')}
+    context = {'journals': Journal.objects.order_by('name')}
     return render(request, 'journals/journals.html', context)
 
 
