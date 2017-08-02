@@ -178,7 +178,7 @@ def index(request):
     context = {
         'latest_newsitem': NewsItem.objects.all().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
-        'journals': Journal.objects.active().order_by('name'),
+        'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
         'current_agreements': MembershipAgreement.objects.now_active()[:2],
