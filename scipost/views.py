@@ -36,7 +36,7 @@ from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_
 
 from commentaries.models import Commentary
 from comments.models import Comment
-from journals.models import Publication, Issue, Journal
+from journals.models import Publication, Journal
 from news.models import NewsItem
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation,\
                                Report, EICRecommendation

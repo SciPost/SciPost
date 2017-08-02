@@ -8,7 +8,7 @@ from .serializers import NewsItemSerializer
 
 
 class NewsItemViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = NewsItem.objects.all().order_by('-date')
+    queryset = NewsItem.objects.homepage().order_by('-date')
     serializer_class = NewsItemSerializer
     template_name = 'news/news_card_content_for_api.html'
     renderer_classes = (renderers.TemplateHTMLRenderer, renderers.JSONRenderer)
