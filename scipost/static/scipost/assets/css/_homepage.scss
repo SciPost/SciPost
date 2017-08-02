@@ -6,6 +6,7 @@
     .content-wrapper {
         display: flex;
         flex-wrap: wrap;
+        position: relative;
     }
 
     .container {
@@ -36,11 +37,14 @@
 
     .sidebar {
         width: 100%;
-        border-top: 1px solid $card-grey-border-bottom-color;
+        border-top: 2px solid $card-grey-border-bottom-color;
         background-size: cover;
         background-position: center center;
-        background-color: $scipost-white;
-        border-left: 1px solid $sidebar-border-color;
+        background-color: $white;
+        border-left: 1px solid #ddd;
+        position: relative;
+        padding-top: 0.25rem;
+        margin-top: 2rem;
 
         .card {
             padding-top: 1rem;
@@ -69,19 +73,40 @@
 
     @media (min-width: 768px) {
         .main-panel {
-            width: calc(100% - 400px);
+            width: calc(100% - 350px);
         }
         .sidebar {
-            width: 400px;
+            width: 350px;
             border-top: 0;
             padding-bottom: 3rem;
-            // box-shadow: 0px 1px 1px 0 #d0d1d5 inset;
+            padding-left: 40px;
+            margin-top: 0;
+
+            height: 100%;
+            position: absolute;
+            right: 0;
+            top: 0;
+
+            &:before {
+                content: '';
+                left: 0;
+                top: 0;
+                position: absolute;
+                height: 100%;
+                width: 20px;
+                background: $scipost-white;
+            }
         }
     }
 
     @media (min-width: 1280px) {
+        .main-panel {
+            width: calc(100% - 400px);
+        }
+
         .sidebar {
-            padding-left: 2rem;
+            width: 400px;
+            padding-left: 3rem;
             padding-right: 2rem;
         }
     }
