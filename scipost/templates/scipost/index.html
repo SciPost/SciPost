@@ -9,7 +9,11 @@
     <nav class="submenu">
         <span class="item">Our Journals:</span>
         {% for journal in journals %}
-            <a href="{{journal.get_absolute_url}}" class="item">{{journal}}</a>
+            {% if journal.active %}
+                <a href="{{journal.get_absolute_url}}" class="item">{{journal}}</a>
+            {% else %}
+                <a href="{% url 'journal:about' journal.name %}" class="item">{{journal}}</a>
+            {% endif %}
         {% endfor %}
     </nav>
 {% endblock %}

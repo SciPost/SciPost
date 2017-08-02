@@ -15,6 +15,7 @@ class NewsItem(models.Model):
 
     class Meta:
         db_table = 'scipost_newsitem'
+        ordering = ['-date']
 
     def __str__(self):
         return self.date.strftime('%Y-%m-%d') + ', ' + self.headline
