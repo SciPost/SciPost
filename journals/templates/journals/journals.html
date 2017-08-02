@@ -4,7 +4,7 @@
 
 {% block breadcrumb %}
     <nav class="submenu">
-        <span class="item">Go directly to Journal:</span>
+        <span class="item">Our Journals:</span>
         {% for journal in journals %}
             <a href="{{journal.get_absolute_url}}" class="item">{{journal}}</a>
         {% endfor %}
