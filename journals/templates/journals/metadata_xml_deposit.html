@@ -38,7 +38,7 @@
   <h3 class="mt-3">Response text:</h3>
   <p>{{ response_text|linebreaks }}</p>
 
-  <h3><a href="{{publication.get_absolute_url}}">return to the publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a></h3>
+  <h3><a href="{{publication.get_absolute_url}}">return to the publication's page</a>, to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></h3>
 
 
     </div>

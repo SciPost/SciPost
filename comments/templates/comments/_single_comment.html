@@ -3,7 +3,6 @@
 {% load file_extentions %}
 
 <div class="comment">
-
     {% include 'comments/_comment_identifier.html' with comment=comment %}
 
     {% include 'comments/_comment_categories.html' with comment=comment %}
@@ -16,9 +15,9 @@
         {% if comment.file_attachment %}
             <h3>Attachment:</h3>
             <p>
-                <a target="_blank" href="{{ comment.file_attachment.url }}">
+                <a target="_blank" href="{{ comment.get_attachment_url }}">
                     {% if comment.file_attachment|is_image %}
-                        <img class="attachment attachment-comment" src="{{ comment.file_attachment.url }}">
+                        <img class="attachment attachment-comment" src="{{ comment.get_attachment_url }}">
                     {% else %}
                         {{ comment.file_attachment|filename }}<br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
                     {% endif %}

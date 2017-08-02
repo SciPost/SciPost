@@ -2,6 +2,9 @@ from django import forms
 
 from .models import Funder, Grant
 
+from scipost.models import Contributor
+
+
 class FunderRegistrySearchForm(forms.Form):
     name = forms.CharField(max_length=128)
 
@@ -9,13 +12,23 @@ class FunderRegistrySearchForm(forms.Form):
 class FunderForm(forms.ModelForm):
     class Meta:
         model = Funder
-        fields = ['name', 'identifier',]
+        fields = ['name', 'acronym', 'identifier',]
+
+
+class FunderSelectForm(forms.Form):
+    funder = forms.ModelChoiceField(queryset=Funder.objects.all())
 
 
 class GrantForm(forms.ModelForm):
     class Meta:
         model = Grant
-        fields = ['funder', 'number', 'recipient_name', 'recipient',]
+        fields = ['funder', 'number', 'recipient_name', 'recipient', 'further_details']
+
+    def __init__(self, *args, **kwargs):
+        super(GrantForm, self).__init__(*args, **kwargs)
+        self.fields['recipient'] = forms.ModelChoiceField(
+            queryset=Contributor.objects.all().order_by('user__last_name'),
+            required=False)
 
 
 class GrantSelectForm(forms.Form):

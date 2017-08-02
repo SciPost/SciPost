@@ -23,7 +23,18 @@ event: "focusin"
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Manage Publications Metadata</h1>
+        <h1 class="highlight">Manage Publications Metadata{% if issue_doi_label %} for issue {{ issue_doi_label }}{% endif %}</h1>
+	{% if issue_doi_label %}
+	<h3>Return to the <a href="{% url 'journals:manage_metadata' %}">Main manage metadata page</a></h3>
+	{% endif %}
+	<h3>Manage metadata per issue:</h3>
+        <ul>
+          {% for issue in issues %}
+          <li>
+            <a href="{% url 'journals:manage_metadata' issue_doi_label=issue.doi_label %}">{{ issue }}</a>
+          </li>
+          {% endfor %}
+        </ul>
     </div>
 </div>
 
@@ -88,20 +99,21 @@ event: "focusin"
               <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'deposit' %}">Deposit the metadata to Crossref</a></li>
 	      <li><a href="{% url 'journals:produce_metadata_DOAJ' doi_label=publication.doi_label %}">Produce DOAJ metadata</a></li>
 	      <li><a href="{% url 'journals:metadata_DOAJ_deposit' doi_label=publication.doi_label %}">Deposit the metadata to DOAJ</a></li>
+              <li><a href="{% url 'journals:harvest_citedby_links' publication.doi_label %}">Update Crossref cited-by links</a></li>
             </ul>
           </div>
 
           <div class="col-md-5">
-	    <h2>Funding info for this publication:</h2>
-	    {% if publication.funding_info %}
-	    <p>{{ publication.funding_info }}</p>
+	    <h2>Funding statement for this publication:</h2>
+	    {% if publication.metadata.funding_statement %}
+	    <p>{{ publication.metadata.funding_statement }}</p>
 	    {% else %}
-	    <p>No funding info was found</p>
+	    <p>No funding statement was found</p>
 	    {% endif %}
 	    <h2>Grants associated to this publication:</h2>
 	    <ul>
 	      {% for grant in publication.grants.all %}
-	      <li> {{ grant }}</li>
+	      <li>{{ grant }}</li>
 	      {% empty %}
 	      <li>no associated grants found</li>
 	      {% endfor %}
@@ -113,7 +125,23 @@ event: "focusin"
 	      {{associate_grant_form|bootstrap}}
 	      <input class="btn btn-secondary" type="submit" value="Add">
 	    </form>
-	    <h3>Other grant-related actions:</h3>
+	    <br/>
+	    <h2>Generic (not via grant) funders associated to this publication:</h2>
+	    <ul>
+	      {% for funder in publication.funders_generic.all %}
+	      <li>{{ funder }}</li>
+	      {% empty %}
+	      <li>No generic funder found</li>
+	      {% endfor %}
+	    </ul>
+	    <h3>Associate a generic funder to this publication:</h3>
+	    <form action="{% url 'journals:add_generic_funder' publication.doi_label %}" method="post">
+	      {% csrf_token %}
+	      {{associate_generic_funder_form|bootstrap}}
+	      <input class="btn btn-secondary" type="submit" value="Add">
+	    </form>
+	    <br/>
+	    <h3>Other funding-related actions:</h3>
 	    <ul>
 	      <li><a href="{% url 'funders:funders' %}" target="_blank">go to the Funders page to add a Funder and/or Grant instance</a></li>
 	    </ul>

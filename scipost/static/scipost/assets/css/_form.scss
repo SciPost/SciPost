@@ -10,6 +10,10 @@
     border-color: #d9534f;
 }
 
+.has-error .help-block {
+    color: $brand-danger;
+}
+
 .has-error .multiple-checkbox .help-block {
     color: $brand-danger;
     font-weight: 600;
