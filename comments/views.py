@@ -1,16 +1,18 @@
-from django.utils import timezone
-from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.http import HttpResponse, Http404
+from django.utils import timezone
+from django.shortcuts import get_object_or_404, render, redirect
 
 from guardian.shortcuts import get_objects_for_user
 import strings
 
+from .constants import EXTENTIONS_IMAGES, EXTENTIONS_PDF
 from .models import Comment
 from .forms import CommentForm, VetCommentForm
-from .utils import CommentUtils
+from .utils import CommentUtils, validate_file_extention
 
 from theses.models import ThesisLink
 from submissions.utils import SubmissionUtils
@@ -20,7 +22,7 @@ from commentaries.models import Commentary
 
 @permission_required('scipost.can_submit_comments', raise_exception=True)
 def new_comment(request, **kwargs):
-    form = CommentForm(request.POST or None)
+    form = CommentForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         object_id = int(kwargs["object_id"])
         type_of_object = kwargs["type_of_object"]
@@ -41,6 +43,8 @@ def new_comment(request, **kwargs):
 
         messages.success(request, strings.acknowledge_submit_comment)
         return redirect(_object.get_absolute_url())
+    context = {'form': form}
+    return(render(request, 'comments/add_comment.html', context))
 
 
 @permission_required('scipost.can_vet_comments', raise_exception=True)
@@ -178,3 +182,21 @@ def express_opinion(request, comment_id, opinion):
     comment = get_object_or_404(Comment, pk=comment_id)
     comment.update_opinions(request.user.contributor.id, opinion)
     return redirect(comment.get_absolute_url())
+
+
+def attachment(request, comment_id):
+    """
+    Open/read attachment of Comment if available.
+    """
+    comment = get_object_or_404(Comment.objects.exclude(file_attachment=''), pk=comment_id)
+    if validate_file_extention(comment.file_attachment, EXTENTIONS_IMAGES):
+        content_type = 'image/jpeg'
+    elif validate_file_extention(comment.file_attachment, EXTENTIONS_PDF):
+        content_type = 'application/pdf'
+    else:
+        raise Http404
+
+    response = HttpResponse(comment.file_attachment.read(), content_type=content_type)
+    filename = 'comment-attachment-%s' % comment.file_attachment.name
+    response['Content-Disposition'] = ('filename=' + filename)
+    return response

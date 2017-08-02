@@ -1,0 +1,22 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Add Comment{% endblock pagetitle %}
+
+{% block content %}
+
+    <h1 class="highlight">Add Comment</h1>
+
+
+    {% if user.is_authenticated and perms.scipost.can_submit_comments %}
+
+        <hr>
+
+        <h2 class="highlight" id="contribute_comment">Contribute a Comment:</h2>
+
+        {% include 'comments/_add_comment_form.html' with form=form url='' %}
+
+    {% endif %}
+
+{% endblock content %}
