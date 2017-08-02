@@ -2,44 +2,22 @@
 
 {% block pagetitle %}: Editorial College By-laws{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
 {% load scipost_extras %}
 
-<script>
-  $(document).ready(function(){
-
-  $("#Composition").hide();
-  $("#Meetings").hide();
-  $("#SubmissionsProcessing").hide();
-  $("#Amendments").hide();
-
-  $("#CompositionButton").click(function(){
-  $("#Composition").toggle();
-  });
-  $("#MeetingsButton").click(function(){
-  $("#Meetings").toggle();
-  });
-  $("#SubmissionsProcessingButton").click(function(){
-  $("#SubmissionsProcessing").toggle();
-  });
-  $("#AmendmentsButton").click(function(){
-  $("#Amendments").toggle();
-  });
-
-});
-</script>
 
 
-<section>
-  <h1>SciPost Editorial College By-laws</h1>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">SciPost Editorial College By-laws</h1>
 
   <p>Functioning of the SciPost Editorial College is governed by the following set of by-laws.</p>
   <p>These complement and are subsidiary to the legal statutes of Stichting SciPost (hereafter: the Foundation).</p>
   <ol>
-    <hr class="hr6"/>
-    <li>Composition of the Editorial College <button id="CompositionButton">(view/hide)</button>
-      <div id="Composition">
+    <hr>
+    <li>Composition of the Editorial College <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#Composition">view/hide</a>
+      <div id="Composition" class="py-2" style="display: none;">
 	<ol>
 	  <li>Eligibility
 	    <p>Fellows of the Editorial College must be professionally active academics
@@ -105,9 +83,9 @@
       </div>
     </li>
 
-    <hr class="hr6"/>
-    <li>Meetings <button id="MeetingsButton">(view/hide)</button>
-      <div id="Meetings">
+    <hr>
+    <li>Meetings <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#Meetings">view/hide</a>
+      <div id="Meetings" class="py-2" style="display: none;">
 	<p>The Editorial College, consisting of internationally-renowned scientists with a broad
 	  geographic distribution, does not physically meet. Meetings are instead organized
 	  using online facilities.</p>
@@ -141,9 +119,9 @@
       </div>
     </li>
 
-    <hr class="hr6"/>
-    <li>Submissions processing <button id="SubmissionsProcessingButton">(view/hide)</button>
-      <div id="SubmissionsProcessing">
+    <hr>
+    <li>Submissions processing <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#SubmissionsProcessing">view/hide</a>
+      <div id="SubmissionsProcessing" class="py-2" style="display: none;">
 	<p>The primary responsibility of the Editorial College is to run the editorial process
 	  for all SciPost Journals. The College shall strive for the very highest standards of
 	  professionalism achievable in the refereeing process.</p>
@@ -349,9 +327,9 @@
       </div>
     </li>
 
-    <hr class="hr6"/>
-    <li>Amendments <button id="AmendmentsButton">(view/hide)</button>
-      <div id="Amendments">
+    <hr>
+    <li>Amendments <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#Amendments">view/hide</a>
+      <div id="Amendments" class="py-2" style="display: none;">
 	<p>The present By-laws can be amended by:
 	  <ul>
 	    <li>the Foundation, with veto right (by majority vote) from the Advisory Board</li>
@@ -363,7 +341,7 @@
     </li>
   </ol>
 
-</section>
+    </div>
+</div>
 
-
-{% endblock bodysup %}
+{% endblock %}

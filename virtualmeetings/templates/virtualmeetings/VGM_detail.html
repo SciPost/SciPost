@@ -1,51 +1,21 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'virtualmeetings:VGMs' %}" class="breadcrumb-item">Virtual General Meetings</a>
+    <span class="breadcrumb-item">{{VGM}}</span>
+{% endblock %}
 
 {% block pagetitle %}: VGM detail{% endblock pagetitle %}
 
 {% load staticfiles %}
+{% load bootstrap %}
 
-{% block bodysup %}
+{% block content %}
 
-<script>
-$(document).ready(function(){
-
-  $("#submitFeedbackForm").hide();
-  $("#submitFeedbackButton").click( function() {
-     $(this).next("form").toggle();
-  });
-
-  $("#FellowshipListing").hide();
-  $("#FellowshipListingButton").click( function() {
-      $("#FellowshipListing").toggle();
-  });
-
-  $("#submitNominationForm").hide();
-  $("#submitNominationButton").click( function() {
-     $(this).next("form").toggle();
-  });
-
-  $("#submitMotionForm").hide();
-  $("#submitMotionButton").click( function() {
-     $(this).next("form").toggle();
-  });
-
-  $(".submitRemarkForm").hide();
-
-  $(".submitRemarkButton").click( function() {
-     $(this).next("div").toggle();
-  });
-  });
-
-</script>
-
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>SciPost Virtual General Meeting</h1>
-    </div>
-  </div>
-  <div class="flex-container">
-    <div class="flex-whitebox">
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">SciPost Virtual General Meeting</h1>
       <h2>On this page:</h2>
       <ul>
 	<li><a href="#Information">Information message</a></li>
@@ -54,299 +24,275 @@ $(document).ready(function(){
 	<li><a href="#Motions">Motions</a></li>
       </ul>
     </div>
-  </div>
-  <hr class="hr12"/>
-</section>
+</div>
 
+<hr>
 
-<section id="Information">
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>Information message from SciPost Administration</h2>
+<div class="row" id="Information">
+    <div class="col-12">
+          <h2 class="highlight">Information message from SciPost Administration</h2>
+          <div class="mb-3">{{ VGM_information }}</div>
+
+        <h3>Quick bullet points:</h3>
+        <ul>
+          <li>This VGM is scheduled from {{ VGM.start_date|date:'Y-m-d' }} to {{ VGM.end_date|date:'Y-m-d' }}.</li>
+          <li>Your feedback/suggestions/criticisms on any aspect of SciPost are greatly valued. Provide them by filling the <a href="#FeedbackBox">feedback form</a>.</li>
+          <li>Your nominations to the Editorial College are welcome. Simply fill the <a href="#NominationBox">nomination form</a>, and cast your vote on current nominations.</li>
+          <li>For substantial changes, for example to the by-laws, new Motions can be put forward until the end of the meeting using the <a href="#MotionBox">form</a>.</li>
+          <li>Voting on Motions is open until one week after the meeting.</li>
+          <li>You a referred to the <a href="{% url 'scipost:EdCol_by-laws' %}">by-laws</a>, section 2 for further details about the procedures.</li>
+        </ul>
+    </div>
+</div>
+
+<hr>
+
+<div class="row" id="Feedback">
+  <div class="col-12">
+    <div id="FeedbackBox">
+      <div class="card card-grey my-2">
+          <div class="card-header">
+              <h2>Feedback on SciPost</h2>
+              <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#submitFeedback">Provide feedback</a>
+          </div>
+          <div class="card-block" style="display: none;" id="submitFeedback">
+              <form action="{% url 'virtualmeetings:feedback' VGM_id=VGM.id %}" method="post">
+            	{% csrf_token %}
+            	{{ feedback_form|bootstrap }}
+            	<input class="btn btn-secondary" type="submit" value="Submit"/>
+              </form>
+          </div>
+      </div>
     </div>
   </div>
-  <div class="flex-whitebox">
-    {{ VGM_information }}
+  <div class="col-12">
+      <h2 class="highlight">General Feedback provided</h2>
   </div>
-  <br/>
-  <div class="flex-whitebox">
-    <h3>Quick bullet points:</h3>
-    <ul>
-      <li>This VGM is scheduled from {{ VGM.start_date|date:'Y-m-d' }} to {{ VGM.end_date|date:'Y-m-d' }}.</li>
-      <li>Your feedback/suggestions/criticisms on any aspect of SciPost are greatly valued. Provide them by filling the <a href="#FeedbackBox">feedback form</a>.</li>
-      <li>Your nominations to the Editorial College are welcome. Simply fill the <a href="#NominationBox">nomination form</a>, and cast your vote on current nominations.</li>
-      <li>For substantial changes, for example to the by-laws, new Motions can be put forward until the end of the meeting using the <a href="#MotionBox">form</a>.</li>
-      <li>Voting on Motions is open until one week after the meeting.</li>
-      <li>You a referred to the <a href="{% url 'scipost:EdCol_by-laws' %}">by-laws</a>, section 2 for further details about the procedures.</li>
-    </ul>
-  </div>
-  <br/>
-  <hr class="hr12"/>
-</section>
-
-<section id="Feedback">
-  <div class="flex-container">
-    <div class="flex-greybox" id="FeedbackBox">
-      <h2>Feedback on SciPost</h2>
-      <button id="submitFeedbackButton">Provide feedback</button>
-      <form id="submitFeedbackForm" action="{% url 'virtualmeetings:feedback' VGM_id=VGM.id %}" method="post">
-	{% csrf_token %}
-	{{ feedback_form.as_p }}
-	<input type="submit" value="Submit"/>
-      </form>
-    </div>
-  </div>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h2>General Feedback provided</h2>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-1"></div>
-    <div class="col-10">
+  <div class="col-12">
       <ul>
-	{% for feedback in feedback_received %}
-	<li>{{ feedback.as_li }}</li>
-	<button class="submitRemarkButton" id="remarkButton{{ nomination.id }}">Add a remark on this Feedback</button>
-	<div class="submitRemarkForm" id="remarkForm{{ feedback.id }}">
-	  <form action="{% url 'virtualmeetings:add_remark_on_feedback' VGM_id=VGM.id feedback_id=feedback.id %}" method="post">
-	    {% csrf_token %}
-	    {{ remark_form.as_p }}
-	    <input type="submit" value="Submit" />
-	  </form>
-	</div>
-	{% if feedback.remark_set.all %}
-	<h3>Remarks on this feedback:</h3>
-	<ul>
-	  {% for rem in feedback.remark_set.all %}
-	  {{ rem.as_li }}
-	  {% endfor %}
-	</ul>
-	{% endif %}
-	{% endfor %}
-      </ul>
+          {% for feedback in feedback_received %}
+          	<li id="feedback{{feedback.id}}">
+                {% include 'virtualmeetings/feedback_content.html' with feedback=feedback %}
+            </li>
+              	<a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#remarkfeedbackForm{{ feedback.id }}">Add a remark on this Feedback</a>
+              	<div class="py-2" id="remarkfeedbackForm{{ feedback.id }}">
+              	  <form action="{% url 'virtualmeetings:add_remark_on_feedback' VGM_id=VGM.id feedback_id=feedback.id %}" method="post">
+              	    {% csrf_token %}
+              	    {{ remark_form|bootstrap:'0,12' }}
+              	    <input class="btn btn-secondary" type="submit" value="Submit" />
+              	  </form>
+              	</div>
+              	{% if feedback.remark_set.all %}
+              	<h3>Remarks on this feedback:</h3>
+              	<ul>
+              	  {% for rem in feedback.remark_set.all %}
+                  	  {% include 'scipost/_remark_li.html' with remark=rem %}
+              	  {% endfor %}
+              	</ul>
+              	{% endif %}
+          	{% endfor %}
+        </ul>
     </div>
-  </div>
-  <hr class="hr12"/>
-</section>
+</div>
 
-<section id="Nominations">
-  <div class="flex-container">
-    <div class="flex-greybox" id="NominationBox">
-      <h2>Nominations to the Editorial College</h2>
-      <button id="submitNominationButton">Nominate an Editorial Fellow candidate</button>
-      <form id="submitNominationForm" action="{% url 'virtualmeetings:nominate_Fellow' VGM_id=VGM.id %}" method="post">
-	{% csrf_token %}
-	{{ nomination_form.as_p }}
-        <input type="submit" value="Submit"/>
-      </form>
-    </div>
-  </div>
-  <button id="FellowshipListingButton">View/hide Fellows and Invitations listings</button>
-  <div class="row" id="FellowshipListing">
-    <div class="col-6">
-      <div class="flex-container">
-	<div class="flex-greybox">
-	  <h3>Current Fellows</h3>
-	</div>
-      </div>
-      <div class="flex-container">
-	<div class="flex-whitebox">
-	  <table class="tableofInviteesResponded">
-	    {% for Fellow in current_Fellows %}
-	    <tr><td>{{ Fellow }}</td><td>{{ Fellow.discipline_as_string }}</td>
-	      <td>{{ Fellow.expertises_as_string }}</td></tr>
-	    {% endfor %}
-	  </table>
-	</div>
-      </div>
-    </div>
-    <div class="col-6">
-      <div class="flex-container">
-	<div class="flex-greybox">
-	  <h3>Invitations currently outstanding</h3>
-	</div>
-      </div>
-      <div class="flex-container">
-	<div class="flex-whitebox">
-	  <table class="tableofInvitees">
-	    {% for invitee in pending_inv_Fellows %}
-	    <tr><td>{{ invitee.first_name }} {{ invitee.last_name }}</td></tr>
-	    {% endfor %}
-	  </table>
-	</div>
-      </div>
-      <div class="flex-container">
-	<div class="flex-greybox">
-	  <h3>Invitations which have been turned down</h3>
-	</div>
-      </div>
-      <div class="flex-container">
-	<div class="flex-whitebox">
-	  <table class="tableofInviteesDeclined">
-	    {% for invitee in declined_inv_Fellows %}
-	    <tr><td>{{ invitee.first_name }} {{ invitee.last_name }}</td></tr>
-	    {% endfor %}
-	  </table>
-	</div>
-      </div>
-    </div>
-  </div>
+<hr>
 
-  {% if nominations %}
-  <div class="row">
-    <div class="flex-container">
-      <div class="flex-greybox">
-	<h2>Nominations under consideration</h2>
-      </div>
+<div class="row" id="Nominations">
+    <div class="col-12">
+        <div id="NominationBox">
+          <div class="card card-grey my-2">
+              <div class="card-header">
+                  <h2>Nominations to the Editorial College</h2>
+                  <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#submitNominationForm">Nominate an Editorial Fellow candidate</a>
+              </div>
+              <div class="card-block" style="display: none;" id="submitNominationForm">
+                  <form action="{% url 'virtualmeetings:nominate_Fellow' VGM_id=VGM.id %}" method="post">
+                	{% csrf_token %}
+                	{{ nomination_form|bootstrap }}
+                	<input class="btn btn-secondary" type="submit" value="Submit"/>
+                  </form>
+              </div>
+          </div>
+        </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-1"></div>
-    <div class="col-10">
-    <ul style="list-style-type: none;">
-      {% for nomination in nominations %}
-      <li>
-	{{ nomination.as_li }}
-	<br/>
-	<div class="opinionsDisplay">
-	  <h4>Your opinion on this Nomination (voting deadline: {{ nomination.voting_deadline|date:'y-m-d' }}):</h4>
-	  <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='A' %}" method="post">
-            {% csrf_token %}
-            <input type="submit" class="agree" value="Agree {{ nomination.nr_A }} "/>
-	  </form>
-	  <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='N' %}" method="post">
-            {% csrf_token %}
-            <input type="submit" class="notsure" value="Not sure {{ nomination.nr_N }}"/>
-	  </form>
-	  <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='D'%}" method="post">
-            {% csrf_token %}
-            <input type="submit" class="disagree" value="Disagree {{ nomination.nr_D }}"/>
-	  </form>
-	  {% if request.user.contributor in nomination.in_agreement.all %}
-	  <strong>(you have voted: Agreed)</strong>
-	  {% elif request.user.contributor in nomination.in_notsure.all %}
-	  <strong>(you have voted: Not sure)</strong>
-	  {% elif request.user.contributor in nomination.in_disagreement.all %}
-	  <strong>(you have voted: Disagree)</strong>
-	  {% endif %}
-	</div>
-	<br/><br/>
-	<button class="submitRemarkButton" id="remarkButton{{ nomination.id }}">Add a remark on this Nomination</button>
-	<div class="submitRemarkForm" id="remarkForm{{ nomination.id }}">
-	  <form action="{% url 'virtualmeetings:add_remark_on_nomination' VGM_id=VGM.id nomination_id=nomination.id %}" method="post">
-	    {% csrf_token %}
-	    {{ remark_form.as_p }}
-	    <input type="submit" value="Submit" />
-	  </form>
-	</div>
-	{% if nomination.remark_set.all %}
-	<h3>Remarks on this nomination:</h3>
-	<ul>
-	  {% for rem in nomination.remark_set.all %}
-	  {{ rem.as_li }}
-	  {% endfor %}
-	</ul>
-	{% endif %}
-	<hr class="hr6"/>
-	<br/>
-      </li>
-      {% endfor %}
-    </ul>
-    </div>
-  </div>
-  {% endif %}
 
-  <hr class="hr12"/>
+    <div class="col-12">
+        <h2 class="highlight">Current Fellow nominations</h2>
+        <div id="FellowshipListing">
+            <h3>Current Fellows ({{current_Fellows|length}}) &middot; <a href="javascript:;" data-toggle="toggle" data-target="#current_fellows_list">view/hide</a></h3>
+            <ul id="current_fellows_list" style="display: none;">
+                {% for Fellow in current_Fellows %}
+                <li>
+                    <span class="font-weight-bold">{{Fellow}}</span><br>
+                    {{ Fellow.discipline_as_string }} &middot; {{ Fellow.expertises_as_string }}
+                </li>
+        	    {% endfor %}
+              </ul>
 
-</section>
+          <h3>Invitations currently outstanding ({{pending_inv_Fellows|length}}) &middot; <a href="javascript:;" data-toggle="toggle" data-target="#pending_invitations_list">view/hide</a></h3>
+            <ul id="pending_invitations_list" style="display: none;">
+                {% for invitee in pending_inv_Fellows %}
+                  <li>{{ invitee.first_name }} {{ invitee.last_name }}</li>
+                  {% empty %}
+                  <li>No outstanding invitations found</li>
+                {% endfor %}
+            </ul>
 
-<section id="Motions">
-  <div class="flex-container">
-    <div class="flex-greybox" id="MotionBox">
-      <h2>Submit a new Motion</h2>
-      <button id="submitMotionButton">Put a new Motion forward</button>
-      <form id="submitMotionForm" action="{% url 'virtualmeetings:put_motion_forward' VGM_id=VGM.id %}" method="post">
-	{% csrf_token %}
-	{% load crispy_forms_tags %}
-	{% crispy motion_form %}
-      </form>
-    </div>
-  </div>
 
-  <div class="row">
-    <div class="flex-container">
-      <div class="flex-greybox">
-	<h2>Motions under consideration</h2>
-      </div>
+            <h3>Invitations which have been turned down  ({{declined_inv_Fellows|length}}) &middot; <a href="javascript:;" data-toggle="toggle" data-target="#declined_invitations_list">view/hide</a></h3>
+            <ul id="declined_invitations_list" style="display: none;">
+                {% for invitee in declined_inv_Fellows %}
+            	    <li>{{ invitee.first_name }} {{ invitee.last_name }}</li>
+                    {% empty %}
+                    <li>No declined invitations found</li>
+        	    {% endfor %}
+              </ul>
+        </div>
     </div>
-  </div>
-  {% for key, val in motion_categories_dict.items %}
-  <div class="row">
-    <div class="col-1"></div>
-    <div class="flex-container">
-      <div class="flex-greybox">
-	<h3>{{ val }}:</h3>
-      </div>
+</div>
+
+{% if nominations %}
+    <div class="row">
+        <div class="col-12">
+        	<h2 class="highlight">Nominations under consideration ({{nominations|length}})</h2>
+        </div>
     </div>
-    <div class="col-1"></div>
-    <div class="col-10">
-    <ul>
-      {% for motion in VGM.motion_set.all %}
-      {% if motion.category == key %}
-      <li>
-	{{ motion.as_li }}
-	<br/>
-	<div class="opinionsDisplay">
-	  <h4>Your opinion on this Motion (voting deadline: {{ motion.voting_deadline|date:'y-m-d' }}):</h4>
-	  <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='A' %}" method="post">
-            {% csrf_token %}
-            <input type="submit" class="agree" value="Agree {{ motion.nr_A }} "/>
-	  </form>
-	  <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='N' %}" method="post">
-            {% csrf_token %}
-            <input type="submit" class="notsure" value="Not sure {{ motion.nr_N }}"/>
-	  </form>
-	  <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='D'%}" method="post">
-            {% csrf_token %}
-            <input type="submit" class="disagree" value="Disagree {{ motion.nr_D }}"/>
-	  </form>
-	  {% if request.user.contributor in motion.in_agreement.all %}
-	  <strong>(you have voted: Agreed)</strong>
-	  {% elif request.user.contributor in motion.in_notsure.all %}
-	  <strong>(you have voted: Not sure)</strong>
-	  {% elif request.user.contributor in motion.in_disagreement.all %}
-	  <strong>(you have voted: Disagree)</strong>
-	  {% endif %}
-	</div>
-	<br/><br/>
-	<button class="submitRemarkButton" id="remarkButton{{ motion.id }}">Add a remark on this Motion</button>
-	<div class="submitRemarkForm" id="remarkForm{{ motion.id }}">
-	  <form action="{% url 'virtualmeetings:add_remark_on_motion' motion_id=motion.id %}" method="post">
-	    {% csrf_token %}
-	    {{ remark_form.as_p }}
-	    <input type="submit" value="Submit" />
-	  </form>
-	</div>
-	{% if motion.remark_set.all %}
-	<h3>Remarks on this motion:</h3>
-	<ul>
-	  {% for rem in motion.remark_set.all %}
-	  {{ rem.as_li }}
-	  {% endfor %}
-	</ul>
-	{% endif %}
-	<hr class="hr6"/>
-	<br/>
-      </li>
-      {% endif %}
-      {% endfor %}
-    </ul>
+    <div class="row">
+        <div class="col-12">
+            <ul class="list-group list-group-flush">
+                {% for nomination in nominations %}
+                    <li class="list-group-item border-0">
+                        <div class="card-block">
+                            {% include 'virtualmeetings/nomination_content.html' with nomination=nomination %}
+                            <br/>
+                            <div class="opinionsDisplay  mb-3">
+                                <h4>Your opinion on this Nomination (voting deadline: {{ nomination.voting_deadline|date:'y-m-d' }}):</h4>
+                                <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='A' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="agree" value="Agree {{ nomination.nr_A }} "/>
+                                </form>
+                                <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='N' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="notsure" value="Not sure {{ nomination.nr_N }}"/>
+                                </form>
+                                <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='D'%}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="disagree" value="Disagree {{ nomination.nr_D }}"/>
+                                </form>
+                                {% if request.user.contributor in nomination.in_agreement.all %}
+                                    <strong>(you have voted: Agreed)</strong>
+                                {% elif request.user.contributor in nomination.in_notsure.all %}
+                                    <strong>(you have voted: Not sure)</strong>
+                                {% elif request.user.contributor in nomination.in_disagreement.all %}
+                                    <strong>(you have voted: Disagree)</strong>
+                                {% endif %}
+                            </div>
+                            <br>
+                            <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#remarkForm{{ nomination.id }}">Add a remark on this Nomination</a>
+                            <div class="submitRemarkForm mt-3 mb-4" id="remarkForm{{ nomination.id }}" style="display: none;">
+                                <form action="{% url 'virtualmeetings:add_remark_on_nomination' VGM_id=VGM.id nomination_id=nomination.id %}" method="post">
+                                {% csrf_token %}
+                                {{ remark_form|bootstrap:'0,12' }}
+                                <input type="submit" class="btn btn-secondary" value="Submit" />
+                                </form>
+                            </div>
+                            {% if nomination.remark_set.all %}
+                                <h3>Remarks on this nomination:</h3>
+                                <ul>
+                                    {% for rem in nomination.remark_set.all %}
+                                        {% include 'scipost/_remark_li.html' with remark=rem %}
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    </li>
+                    <hr>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endif %}
+
+
+<!-- Motions -->
+<div class="row" id="Motions">
+    <div class="col-12">
+        <div class="card card-grey my-2">
+            <div class="card-header">
+                <h2>Submit a new Motion</h2>
+                <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#submitMotionForm">Put a new Motion forward</a>
+            </div>
+            <div class="card-block" style="display: none;" id="submitMotionForm">
+                <form action="{% url 'virtualmeetings:put_motion_forward' VGM_id=VGM.id %}" method="post">
+                  {% csrf_token %}
+                  {{ motion_form|bootstrap }}
+                  <input class="btn btn-secondary" type="submit" value="Submit"/>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+    	<h2 class="highlight">Motions under consideration</h2>
+    </div>
+</div>
+
+{% for key, val in motion_categories_dict.items %}
+    <div class="row">
+        <div class="col-12"><h2>{{ val }}:</h2></div>
+        <div class="col-md-11 offset-md-1">
+            <ul>
+            {% for motion in VGM.motion_set.all %}
+                {% if motion.category == key %}
+                    <li>
+                        {% include 'virtualmeetings/motion_content.html' with motion=motion %}
+                        <div class="d-block mb-3 opinionsDisplay">
+                            <h4>Your opinion on this Motion (voting deadline: {{ motion.voting_deadline|date:'y-m-d' }}):</h4>
+                            <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='A' %}" method="post">
+                                {% csrf_token %}
+                                <input type="submit" class="agree" value="Agree {{ motion.nr_A }} "/>
+                            </form>
+                            <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='N' %}" method="post">
+                                {% csrf_token %}
+                                <input type="submit" class="notsure" value="Not sure {{ motion.nr_N }}"/>
+                            </form>
+                            <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='D'%}" method="post">
+                                {% csrf_token %}
+                                <input type="submit" class="disagree" value="Disagree {{ motion.nr_D }}"/>
+                            </form>
+                            {% if request.user.contributor in motion.in_agreement.all %}
+                                <strong>(you have voted: Agreed)</strong>
+                            {% elif request.user.contributor in motion.in_notsure.all %}
+                                <strong>(you have voted: Not sure)</strong>
+                            {% elif request.user.contributor in motion.in_disagreement.all %}
+                                <strong>(you have voted: Disagree)</strong>
+                            {% endif %}
+                        </div>
+                        <a class="btn btn-secondary" href="javascript:;" data-toggle="toggle" data-target="#remarkForm{{ motion.id }}">Add a remark on this Motion</a>
+                        <div class="submitRemarkForm mt-3" id="remarkForm{{ motion.id }}" style="display: none;">
+                            <form action="{% url 'virtualmeetings:add_remark_on_motion' motion_id=motion.id %}" method="post">
+                                {% csrf_token %}
+                                {{ remark_form|bootstrap:"0,12" }}
+                                <input type="submit" class="btn btn-secondary" value="Submit" />
+                            </form>
+                        </div>
+                        {% if motion.remark_set.all %}
+                        <h3>Remarks on this motion:</h3>
+                            <ul>
+                                {% for rem in motion.remark_set.all %}
+                                    {% include 'scipost/_remark_li.html' with remark=rem %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        <hr>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            </ul>
     </div>
   </div>
   {% endfor %}
 
-</section>
-
-
-{% endblock bodysup %}
+{% endblock %}

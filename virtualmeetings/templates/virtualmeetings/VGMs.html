@@ -1,26 +1,28 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Virtual General Meetings</span>
+{% endblock %}
 
 {% block pagetitle %}: VGMs{% endblock pagetitle %}
 
 {% load staticfiles %}
 
-{% block bodysup %}
+{% block content %}
 
-
-<section>
-  <div class="flex-container">
-    <div class="flex-greybox">
-      <h1>SciPost Virtual General Meetings</h1>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">SciPost Virtual General Meetings</h1>
+        <ul>
+            {% for VGM in VGM_list %}
+                <li><a href="{% url 'virtualmeetings:VGM_detail' VGM_id=VGM.id %}">{{ VGM }}</a></li>
+            {% empty %}
+                <li>You are not registered for a Virtual General Meeting</a>
+            {% endfor %}
+        </ul>
     </div>
-  </div>
-
-  <ul>
-    {% for VGM in VGM_list %}
-    <li><a href="{% url 'virtualmeetings:VGM_detail' VGM_id=VGM.id %}">{{ VGM }}</a></li>
-    {% endfor %}
-  </ul>
-
-</section>
+</div>
 
 
-{% endblock bodysup %}
+{% endblock %}

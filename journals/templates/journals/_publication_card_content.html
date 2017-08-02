@@ -1,6 +1,14 @@
+<div class="card-header mx-0 px-2">
+    <h3 class="card-title mb-0 "><a href="{{publication.get_absolute_url}}">{{ publication.title }}</a></h3>
+</div>
 <div class="card-block publication-{{publication.id}}">
-    <h3 class="card-title"><a href="{{publication.get_absolute_url}}">{{ publication.title }}</a></h3>
-    <p class="card-text">{{ publication.author_list }}</p>
-    <p class="card-text text-muted">{{ publication.citation }} - published {{ publication.publication_date|date:'j F Y' }} | <a href="javascript:;" class="mx-2" data-toggle="toggle" data-target=".card-block.publication-{{publication.id}} .abstract">Toggle abstract</a> <a href="{{publication.get_absolute_url}}/pdf" target="_blank">pdf</a></p>
-    <p class="abstract mb-0 py-2" style="display:none;">{{ publication.abstract }}</p>
+    <p class="card-text mb-2">{{ publication.author_list }}</p>
+    <p class="card-text text-muted">
+        {{ publication.citation }} &middot;
+        <span class="font-weight-light">published {{ publication.publication_date|date:'j F Y' }}</span>
+        <span class="mx-1">|</span>
+        <a href="javascript:;" data-toggle="toggle" data-target=".card-block.publication-{{publication.id}} .abstract">Toggle abstract</a>
+        &middot; <a href="{{publication.get_absolute_url}}/pdf" target="_blank">pdf</a>
+    </p>
+    <p class="abstract mb-0 mt-2 py-2" style="display:none;">{{ publication.abstract }}</p>
 </div>

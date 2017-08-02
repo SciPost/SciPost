@@ -1,9 +1,10 @@
 .journals .navbar-secondary ul.links {
-    background-color: #dddddd;
+    background-color: #ddd;
     display: inline-block;
     font-size: 16px;
     padding: 0;
-    border-radius: 1.4px;
+    border-radius: $card-border-radius;
+    border: 1px solid #c5c5c5;
     margin: 0;
 
     > li {
@@ -13,12 +14,13 @@
 
         a {
             padding: 0.25rem 0.75rem;
-            border-radius: 1.4px;
+            border-radius: $card-border-radius;
             display: block;
 
             &.active {
                 color: #002b49;
                 background: rgba(255, 255, 255, 0.5);
+                box-shadow: 0 1px 0 0 #ccc;
             }
         }
     }

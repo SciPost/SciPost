@@ -2,6 +2,18 @@
 
 {% block pagetitle %}: add author to publication{% endblock pagetitle %}
 
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+            <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
+            <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
+            <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+            <span class="breadcrumb-item active">Add author to publication</span>
+        </div>
+    </nav>
+{% endblock %}
+
 {% load scipost_extras %}
 {% load bootstrap %}
 

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-scroll navbar-light">
+<nav class="navbar navbar-scroll navbar-light main-nav">
     <div class="navbar-scroll-inner">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item{% if request.path == '/' %} active{% endif %}">
@@ -16,8 +16,8 @@
           <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
             <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
           </li>
-          <li class="nav-item{% if '/partners/' in request.path %} active{% endif %}">
-              <a class="nav-link" href="{% url 'partners:partners' %}">Partners</a>
+          <li class="nav-item{% if '/about' in request.path %} active{% endif %}">
+            <a class="nav-link" href="{% url 'scipost:about' %}">About SciPost</a>
           </li>
 
           {% if user.is_authenticated %}
@@ -44,7 +44,7 @@
           {% endif %}
 
         </ul>
-        <form action="{% url 'scipost:search' %}" method="get" class="form-inline">
+        <form action="{% url 'scipost:search' %}" method="get" class="form-inline search-nav-form">
             <input class="form-control mr-2 mb-0" id="id_q" maxlength="100" name="q" type="text" required="">
           <button class="btn btn-outline-secondary text-muted" type="submit">Search</button>
         </form>

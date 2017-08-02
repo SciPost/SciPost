@@ -3,18 +3,38 @@
 
     &.card-grey {
         background-color: #F4F4F4;
-        border-color: #f1f1f1;
+        border-color: $card-grey-border-color;
+        box-shadow: 0 1px 0 0 $card-shadow-color;
     }
 
     &.card-publication {
+        box-shadow: 0 1px 0 0 #ddd;
+        border-color: #ddd;
+
         .card-header {
             background-color: #eee;
+            border-bottom: 1px solid #ddd;
         }
 
         .card-block {
+            border-top: 1px solid #fff;
             background-color: #f8f8f8;
         }
     }
+}
+
+.card-outline-secondary {
+    border-color: #f1f1f1;
+}
+
+.card-header {
+    padding: 0.5rem 0;
+    margin: 0 0.75rem 0 0.75rem;
+}
+
+.card-footer {
+    padding: 0.75rem 0 0 0;
+    margin: 0 0.75rem 0.75rem 0.75rem;
 }
 
 .list-group-item > .card-block {
@@ -35,7 +55,6 @@
         background-color: $scipost-darkblue;
         color: $scipost-light;
         padding: 0.5rem;
-        border-radius: 1.4px;
     }
 }
 

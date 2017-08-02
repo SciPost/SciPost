@@ -19,7 +19,7 @@
 
         <div class="row">
             <div class="col-12">
-                <ul class="list-group list-group-flush">
+                <ul class="list-group list-group-flush list-group-noborder">
                     {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
                         <li class="list-group-item">
                             <div class="card card-grey card-publication">
@@ -44,7 +44,7 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <ul class="list-group list-group-flush">
+                <ul class="list-group list-group-flush list-group-noborder">
                     {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
                         <li class="list-group-item">
                             <div class="card card-grey card-publication">

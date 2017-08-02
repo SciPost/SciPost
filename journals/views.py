@@ -35,6 +35,12 @@ from guardian.decorators import permission_required
 # Journals
 ############
 
+def journals(request):
+    '''Main landing page for Journals application.'''
+    context = {'journals': Journal.objects.active().order_by('name')}
+    return render(request, 'journals/journals.html', context)
+
+
 def landing_page(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
 
@@ -124,7 +130,7 @@ def issue_detail(request, doi_label):
     journal = issue.in_volume.in_journal
 
     papers = issue.publication_set.order_by('paper_nr')
-    next_issue = (Issue.objects.published(journal=journal,
+    next_issue = (Issue.objects.published(in_volume__in_journal=journal,
                                           start_date__gt=issue.start_date)
                                .order_by('start_date').first())
     prev_issue = (Issue.objects.published(in_volume__in_journal=journal,

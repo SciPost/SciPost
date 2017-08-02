@@ -1,4 +1,9 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Vet authorship claims</span>
+{% endblock %}
 
 {% block pagetitle %}: vet authorship claims{% endblock pagetitle %}
 
@@ -8,19 +13,22 @@
 
 {% block content %}
 
+
+
+{% if not claims_to_vet %}
+    <div class="row">
+        <div class="col-12">
+            <h1>There are no Authorship Claims for you to vet.</h1>
+            <h3><a href="{% url 'scipost:personal_page' %}">Return to personal page</a></h3>
+        </div>
+    </div>
+{% else %}
+
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Vet Authorship Claims</h1>
   </div>
 </div>
-
-{% if not claims_to_vet %}
-    <div class="row">
-        <div class="col-12">
-            <h3>There are no authorship claims to vet</h3>
-      </div>
-    </div>
-{% else %}
 
   <ul class="list-group list-group-flush">
     {% for claim in claims_to_vet %}
@@ -56,6 +64,7 @@
         </li>
     {% endfor %}
   </ul>
-  {% endif %}
+
+{% endif %}
 
 {% endblock content %}

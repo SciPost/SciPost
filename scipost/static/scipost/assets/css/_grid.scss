@@ -3,6 +3,10 @@
     min-height: 190px;
 }
 
+.row {
+    margin-bottom: 1rem;
+}
+
 .panel {
     padding: 0.75rem;
     height: 100%;
@@ -21,6 +25,10 @@ img {
 footer.secondary {
     color: $scipost-darkblue;
     background: transparent;
-    border-top: 1px solid $scipost-darkblue;
+    border-top: 2px solid $scipost-darkblue;
     text-align: center;
+
+    a {
+        color: $scipost-lightblue;
+    }
 }

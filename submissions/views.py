@@ -44,6 +44,7 @@ import strings
 # SUBMISSIONS:
 ###############
 
+@method_decorator(login_required, name='dispatch')
 @method_decorator(permission_required('scipost.can_submit_manuscript', raise_exception=True),
                   name='dispatch')
 class RequestSubmission(CreateView):
@@ -85,7 +86,7 @@ class RequestSubmission(CreateView):
             messages.warning(self.request, *error_messages)
         return super().form_invalid(form)
 
-
+@login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
 def prefill_using_arxiv_identifier(request):
     query_form = SubmissionIdentifierForm(request.POST or None, initial=request.GET or None)

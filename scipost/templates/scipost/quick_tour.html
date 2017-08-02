@@ -4,19 +4,18 @@
 
 {% load staticfiles %}
 
-{% block bodysup %}
+{% block content %}
 
 
-<section>
-  <div class="flex-greybox">
-    <h1>SciPost: Quick Tour</h1>
-  </div>
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">SciPost: Quick Tour</h1>
+    </div>
+</div>
 
-  <div class="row">
-    <div class="col-5">
-      <div class="flex-greybox">
-	<h2>SciPost in bullet points</h2>
-      </div>
+<div class="row">
+    <div class="col-md-6">
+    	<h2 class="highlight">SciPost in bullet points</h2>
       <ul>
 	<li>Share on <a href="http://www.arxiv.org">arXiv</a>,
 	  publish in <a href="https://scipost.org">SciPost</a></li>
@@ -25,14 +24,13 @@
 	<li>links to theses, with searchable abstracts database</li>
       </ul>
 
-      <div class="flex-greybox">
-	<h2>Where should I start?</h2>
-      </div>
+	<h2 class="highlight mt-md-4">Where should I start?</h2>
       <ul>
 	<li>See what it's <a href="{% url 'scipost:about' %}">about</a></li>
 	<li>Read the <a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
 	<li>Pro academic? <a href="{% url 'scipost:register' %}">Register</a></li>
 	</ul>
+
       <h4>After registration,</h4>
       <ul>
 	<li><a href="{% url 'theses:request_thesislink' %}">Link</a> your theses</li>
@@ -41,38 +39,33 @@
       </ul>
       <p>For example, you might have some corrections to point out on your or others' existing papers.
 	Simply request a Commentary page, wait for activation, and then post a Comment.</p>
+
     </div>
 
-
-    <div class="col-1"></div>
-    <div class="col-5">
-      <div class="flex-greybox">
-	<h2>Commentaries</h2>
-      </div>
+    <div class="col-md-6">
+    	<h2 class="highlight">Commentaries</h2>
       <h3>Want to comment on a paper (<em>any</em> published paper)?</h3>
       <ul>
-	<li><a href="{% url 'commentaries:commentaries' %}">Check</a> if a Commentary Page already exists.</li>
-	<li>No? <a href="{% url 'commentaries:request_commentary' %}">Request</a> one.</li>
-	<li>Wait for email confirmation of page activation.</li>
-	<li>Go to the page, write (remembering: no anonymity for Comments) your Comment in the box and submit it.</li>
-	<li>After an Editorial Fellow vets it, it will appear online.</li>
+    	<li><a href="{% url 'commentaries:commentaries' %}">Check</a> if a Commentary Page already exists.</li>
+    	<li>No? <a href="{% url 'commentaries:request_commentary' %}">Request</a> one.</li>
+    	<li>Wait for email confirmation of page activation.</li>
+    	<li>Go to the page, write (remembering: no anonymity for Comments) your Comment in the box and submit it.</li>
+    	<li>After an Editorial Fellow vets it, it will appear online.</li>
       </ul>
       <p>For more details, visit the <a href="{% url 'commentaries:howto' %}">Commentaries how-to</a>.</p>
-      <br/>
+
       <h3>Want to reply (as an author) to a Comment?</h3>
       <p>First, make sure the system has recognized you as an Author: go to your Personal Page and look at the Commentaries section; potential authorships are auto-detected, but you need to claim them by following the Claim Authorships link. After verification by an Editor, you will be enabled to reply as as Author for this and all other Comments on that particular page.</p>
-      <br/>
+
       <h3>Want to give your opinion on a Comment?</h3>
       <p>If you are registered as a Contributor, you can express your opinion by clicking on one of the coloured boxes next to the Comment (Agree, Not sure, Disagree). Any earlier opinion you had expressed gets erased. Aggregated opinions are given, and you cannot give an opinion on your own Comments.</p>
 
-      <div class="flex-greybox">
-	<h2>Theses</h2>
-      </div>
+        <h2 class="highlight mt-md-4">Theses</h2>
+
       <p>Similar to Commentaries, Theses is a searchable repository of links to Master's, PhD and Habilitation theses (often held in a local institutional repository).</p>
       <p>After <a href="{% url 'theses:request_thesislink' %}">requesting the Thesis Link</a>, a page will be opened with the summary and external link, and the possibility to post Comments.</p>
     </div>
-  </div>
-</section>
+</div>
 
 
-{% endblock bodysup %}
+{% endblock %}

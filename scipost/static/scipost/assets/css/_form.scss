@@ -52,6 +52,30 @@ input[type="file"] {
     border-radius: 0.15rem;
 }
 
+.search-nav-form {
+    input {
+        // border-top-right-radius: 0;
+        // border-bottom-right-radius: 0;
+        margin-right: 0 !important;
+        border-right: 0;
+        // border-color: #ddd;
+        min-width: 200px;
+    }
+
+    > * {
+        border-color: #ddd !important;
+        outline: 0;
+        line-height: 1.75;
+
+        &:hover {
+            border-color: #ccc !important;
+        }
+    }
+
+    button:hover {
+        background-color: #f0f0f0;
+    }
+}
 // Formset
 //
 .delete-form-group {

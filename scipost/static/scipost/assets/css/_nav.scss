@@ -7,15 +7,29 @@
 }
 
 .tab-nav-container {
-    border-bottom: 3px solid $scipost-darkblue;
     text-align: center;
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
+    position: relative;
     -webkit-overflow-scrolling: touch;
+
+    &:after {
+        content: "";
+        display: block;
+        height: 3px;
+        width: 100%;
+        position: absolute;
+        background-color: $scipost-darkblue;
+        z-index: 1;
+        bottom: 1px;
+        border-radius: 99px;
+        box-shadow: 0 1px 0 0 $scipost-lightblue;
+    }
 
     .tab-nav-inner {
         display: inline-block;
+        padding-bottom: 2px;
     }
 }
 
@@ -46,5 +60,24 @@
             padding-top: 0.5rem;
             padding-bottom: 1.5rem;
         }
+    }
+}
+
+nav.submenu {
+    margin-top: -0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: $scipost-white;
+    border-radius: 0;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #ddd;
+
+    .item {
+        padding: 0 0.5rem;
+        border-right: 2px solid #fff;
+    }
+    .item:first-child,
+    .item:last-child {
+        border-right: 0;
     }
 }

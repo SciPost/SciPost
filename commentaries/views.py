@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import redirect
@@ -20,11 +20,13 @@ from comments.forms import CommentForm
 import strings
 
 
+@login_required
 @permission_required('scipost.can_request_commentary_pages', raise_exception=True)
 def request_commentary(request):
     return render(request, 'commentaries/request_commentary.html')
 
 
+@method_decorator(login_required, name='dispatch')
 @method_decorator(permission_required(
     'scipost.can_request_commentary_pages', raise_exception=True), name='dispatch')
 class RequestCommentary(CreateView):
