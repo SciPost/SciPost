@@ -3,6 +3,7 @@ __pycache__
 
 *.json
 !package.json
+!**/templates/**/*.json
 !**/fixtures/*.json
 *.log
 
