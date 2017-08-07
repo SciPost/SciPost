@@ -33,19 +33,24 @@
         }
     }
 
+    *,
     > form {
         border-radius: 0;
         display: inline-block;
+        margin-bottom: 0;
 
-        .agree {
+        .agree,
+        &.agree {
             background-color: $scipost-darkblue;
             color: #fff;
         }
-        .neutral {
+        .neutral,
+        &.neutral {
             background-color: $scipost-lightblue;
             color: #fff;
         }
-        .disagree {
+        .disagree,
+        &.disagree {
             background-color: $red;
             color: #fff;
         }
