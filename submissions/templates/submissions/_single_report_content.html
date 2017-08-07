@@ -29,8 +29,9 @@
             <h3 class="highlight tight">Requested changes</h3>
             <div class="pl-md-4">
                 <p>{{ report.requested_changes|linebreaksbr }}</p>
-                {% include 'submissions/_single_report_ratings.html' with report=report %}
             </div>
         </div>
     </div>
 {% endif %}
+
+{% include 'submissions/_single_report_ratings.html' with report=report %}

@@ -10,28 +10,42 @@
 .category-group,
 .voting-group {
     border-radius: $card-border-radius;
-    background-color: #ddd;
     color: $scipost-darkblue;
     box-shadow: 0 1px 0 0 #ccc;
+    border: 1px solid;
+    border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+    display: inline-block;
+    margin-right: 0.5rem;
 
-    .btn {
+    > div {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        border-radius: 0;
+        line-height: 1.25;
         margin: 0;
-        cursor: default;
+        display: inline-block;
+        color: #002b49;
+        background: #fff;
 
         &.name {
-            background-color: #ddd;
-            color: #002b49;
+            background-color: #f4f4f4;
+            border-right: 1px solid #dfe0e4;
         }
+    }
 
-        &.agree {
+    > form {
+        border-radius: 0;
+        display: inline-block;
+
+        .agree {
             background-color: $scipost-darkblue;
             color: #fff;
         }
-        &.neutral {
+        .neutral {
             background-color: $scipost-lightblue;
             color: #fff;
         }
-        &.disagree {
+        .disagree {
             background-color: $red;
             color: #fff;
         }

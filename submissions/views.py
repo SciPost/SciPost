@@ -802,7 +802,6 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
         return mail_request.return_render()
 
 
-
 @login_required
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))

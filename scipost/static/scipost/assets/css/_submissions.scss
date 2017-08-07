@@ -4,23 +4,67 @@ table.submission_header {
 
 .report,
 .comment {
-    border-left: 4px solid #f4f4f4;
     padding-left: 1rem;
+    position: relative;
+
+    &:before {
+        content: '';
+        width: 0.3rem;
+        height: 100%;
+        background: #f4f4f4;
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: $border-radius;
+        border-top-right-radius: 0;
+        border: 1px solid;
+        border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+        z-index: -10;
+    }
 
     .reportid,
     .commentid {
-        box-shadow: none;
         display: block;
         margin-bottom: 1rem;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 1rem 0.5rem 0.75rem;
         background: #f4f4f4;
-        margin-left: -1rem;
-        border-bottom: 1px solid #ccc;
+        margin-left: -0.75rem;
+        border: 1px solid;
+        border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+        box-shadow: 0 1px 0 0 #ccc;
+        border-radius: $border-radius;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left-color: #f4f4f4;
     }
 }
 
 .reportRatings {
-    margin: 0 0 1rem;
+    font-size: 10px;
+    margin: 0.5rem 0 1rem;
+    padding: 0.3rem 0.5rem 0.4rem;
+    display: inline-block;
+    box-shadow: 0 1px 0 0 #ccc;
+    background: #f9f9f9;
+    border: 1px solid;
+    border-color: #ececec #ececec #d0d1d5;
+    border-radius: 2px;
+
+    ul {
+        margin: 0;
+        padding: 0;
+
+        li {
+            border: 1px solid;
+            display: inline-block;
+            margin: 0.1rem;
+            padding: 0.25rem 0.5rem;
+            border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+            border-radius: 2px;
+            background: #fff;
+            box-shadow: 0 1px 0 0 #ccc;
+        }
+    }
 }
 
 .required-actions {
