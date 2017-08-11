@@ -25,8 +25,6 @@ class SubmissionAdminViewMixin(FriendlyPermissionMixin):
     This mixin will provide all basic methods and checks required for Submission
     administrational actions regarding Submissions.
 
-    It assumes being mixed with either one of the `django.views.generic.detail` views.
-
     :editorial_page: Submission is element of the set pool() if False,
                      else Submission is element of the subset editorial_page()
     """
@@ -35,10 +33,12 @@ class SubmissionAdminViewMixin(FriendlyPermissionMixin):
     slug_url_kwarg = 'arxiv_identifier_w_vn_nr'
     queryset = Submission.objects.all()
 
+    @property
+    def pool(self):
+        return not self.editorial_page
+
     def get_queryset(self):
         qs = super().get_queryset()
-        if self.editorial_page:
-            qs = qs.filter_editorial_page(self.request.user)
-        else:
-            qs = qs.get_pool(self.request.user)
-        return qs
+        if self.pool:
+            return qs.get_pool(self.request.user)
+        return qs.filter_editorial_page(self.request.user)

@@ -1,0 +1,39 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Editorial Administration{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Editorial Administration</span>
+{% endblock %}
+
+{% block content %}
+    <h1>Summary for Editorial Administrators</h1>
+
+    <h3>Submissions currently in pre-screening</h3>
+    <ul class="unstyled-list">
+        {% for submission in submission_list.prescreening %}
+            <li>{{submission}}</li>
+        {% empty %}
+            <li>No Submissions are currently in pre-screening</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Submissions currently in refereeing round</h3>
+    <ul class="unstyled-list">
+        {% for submission in submission_list.actively_refereeing %}
+            <li>{{submission}}<br>{{submission.get_status_display}}</li>
+        {% empty %}
+            <li>No Submissions are currently in refereeing round</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Submissions accepted</h3>
+    <ul class="unstyled-list">
+        {% for submission in submission_list.accepted %}
+            <li>{{submission}}</li>
+        {% empty %}
+            <li>All accepted Submissions are published</li>
+        {% endfor %}
+    </ul>
+{% endblock content %}

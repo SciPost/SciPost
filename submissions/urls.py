@@ -24,6 +24,7 @@ urlpatterns = [
         views.submission_refereeing_package_pdf, name='refereeing_package_pdf'),
 
     # Editorial Administration
+    url(r'^admin$', views.EditorialSummaryView.as_view(), name='admin_summary'),
     url(r'^admin/treated$', views.treated_submissions_list, name='treated_submissions_list'),
     url(r'^admin/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/reports/compile$',
         views.treated_submission_pdf_compile, name='treated_submission_pdf_compile'),

@@ -79,6 +79,12 @@ class Submission(models.Model):
     # Comments can be added to a Submission
     comments = GenericRelation('comments.Comment', related_query_name='submissions')
 
+    # iThenticate Reports
+    plagiarism_report = models.OneToOneField('submissions.iThenticateReport',
+                                             on_delete=models.SET_NULL,
+                                             null=True, blank=True,
+                                             related_name='to_submission')
+
     # Arxiv identifiers with/without version number
     arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
     arxiv_identifier_wo_vn_nr = models.CharField(max_length=10, default='0000.00000')
@@ -489,3 +495,11 @@ class EICRecommendation(models.Model):
     @property
     def nr_abstained(self):
         return self.voted_abstain.count()
+
+
+class iThenticateReport(TimeStampedModel):
+    # is_pending = models.BooleanField(default=True)
+    uploaded_time = models.DateTimeField(null=True, blank=True)
+    processed_time = models.DateTimeField(null=True, blank=True)
+    doc_id = models.IntegerField(primary_key=True)
+    percent_match = models.IntegerField(null=True, blank=True)

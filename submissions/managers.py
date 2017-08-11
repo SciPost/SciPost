@@ -7,7 +7,7 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT, STATUS_PUBLISHED,\
                        SUBMISSION_EXCLUDE_FROM_REPORTING, STATUS_REJECTED_VISIBLE,\
                        STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE,\
-                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR
+                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR, STATUS_UNASSIGNED
 
 
 class SubmissionQuerySet(models.QuerySet):
@@ -41,7 +41,7 @@ class SubmissionQuerySet(models.QuerySet):
 
     def get_pool(self, user):
         """
-        This filter will return submission currently in an active submission cycle.
+        Return subset of active and newest 'alive' submissions.
         """
         return (self.user_filter(user)
                 .exclude(is_current=False)
@@ -50,13 +50,29 @@ class SubmissionQuerySet(models.QuerySet):
 
     def filter_editorial_page(self, user):
         """
-        This filter returns a subgroup of the `get_pool` filter, to allow opening and editing
-        certain submissions that are officially out of the submission cycle i.e. due
-        to resubmission, but should still have the possibility to be opened by the EIC.
+        Return Submissions currently 'alive' (being refereed, not published).
+
+        It is meant to allow opening and editing certain submissions that are officially
+        out of the submission cycle i.e. due to resubmission, but should still have the
+        possibility to be opened by the EIC.
         """
         return (self.user_filter(user)
                 .exclude(status__in=SUBMISSION_HTTP404_ON_EDITORIAL_PAGE)
                 .order_by('-submission_date'))
+
+    def prescreening(self):
+        """
+        Return submissions just coming in and going through pre-screening.
+        """
+        return self.filter(status=STATUS_UNASSIGNED)
+
+    def actively_refereeing(self):
+        """
+        Return submission currently in some point of the refereeing round.
+        """
+        return (self.exclude(is_current=False)
+                    .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
+                    .exclude(status=STATUS_UNASSIGNED))
 
     def public(self):
         """
@@ -82,13 +98,6 @@ class SubmissionQuerySet(models.QuerySet):
         """
         return self._newest_version_only(self.public())
 
-    def open_for_reporting(self):
-        """
-        This query should filter submissions that do not have the right status to receive
-        a new report.
-        """
-        return self.exclude(status__in=SUBMISSION_EXCLUDE_FROM_REPORTING)
-
     def treated(self):
         """
         This query returns all Submissions that are expected to be 'done'.
@@ -99,7 +108,16 @@ class SubmissionQuerySet(models.QuerySet):
     def accepted(self):
         return self.filter(status=STATUS_ACCEPTED)
 
+    def open_for_reporting(self):
+        """
+        Return Submissions that have appriopriate status for reporting.
+        The `open_for_reporting` property is not filtered as some invited visitors
+        still need to have access.
+        """
+        return self.exclude(status__in=SUBMISSION_EXCLUDE_FROM_REPORTING)
+
     def open_for_commenting(self):
+        """ Return Submission that allow for commenting. """
         return self.filter(open_for_commenting=True)
 
 

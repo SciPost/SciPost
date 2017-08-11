@@ -345,7 +345,6 @@ class AffiliationObject(models.Model):
     subunit = models.CharField(max_length=128)
 
 
-
 ######################
 # Static info models #
 ######################

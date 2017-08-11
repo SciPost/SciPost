@@ -1,6 +1,7 @@
 import datetime
 import feedparser
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
@@ -1434,5 +1435,23 @@ def fix_College_decision(request, rec_id):
     return redirect(reverse('submissions:pool'))
 
 
+class EditorialSummaryView(SubmissionAdminViewMixin, ListView):
+    permission_required = 'scipost.can_oversee_refereeing'
+    template_name = 'submissions/editorial_admin_summary.html'
+
+
 class PlagiarismView(SubmissionAdminViewMixin, DetailView):
-    template_name = '500.html'
+    permission_required = 'scipost.can_do_plagiarism_checks'
+    template_name = 'submissions/editorial_admin_plagiarism.html'
+
+    def post(self, request, *args, **kwargs):
+        client = iThenticate.API.Client(settings.ITHENTICATE_USERNAME,
+                                        settings.ITHENTICATE_PASSWORD)
+        submission = self.get_object()
+        if submission.plagiarism_report:
+            # Plagiarism Report needs an update
+            client.documents.get()
+        else:
+            # Plagiarism Report needs to be uploaded still
+            client.folders.all()
+        raise NotImplementedError
