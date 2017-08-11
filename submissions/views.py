@@ -11,17 +11,20 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm, get_objects_for_user
+import iThenticate
 
 from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATUS_EIC_ASSIGNED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES,\
                        STATUS_DRAFT
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication, SubmissionEvent
+from .mixins import SubmissionAdminViewMixin
 from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm,\
                    RecommendationVoteForm, ConsiderAssignmentForm, AssignSubmissionForm,\
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
@@ -1429,3 +1432,7 @@ def fix_College_decision(request, rec_id):
     SubmissionUtils.send_author_College_decision_email()
     messages.success(request, 'The Editorial College\'s decision has been fixed.')
     return redirect(reverse('submissions:pool'))
+
+
+class PlagiarismView(SubmissionAdminViewMixin, DetailView):
+    template_name = '500.html'

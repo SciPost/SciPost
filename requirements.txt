@@ -21,6 +21,7 @@ factory-boy==2.7.0
 Faker==0.7.11
 fake-factory==0.7.2
 feedparser==5.2.1
+ithenticate-api-python
 imagesize==0.7.1
 Jinja2==2.8
 mailchimp3==2.0.11

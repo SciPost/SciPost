@@ -27,6 +27,8 @@ urlpatterns = [
     url(r'^admin/treated$', views.treated_submissions_list, name='treated_submissions_list'),
     url(r'^admin/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/reports/compile$',
         views.treated_submission_pdf_compile, name='treated_submission_pdf_compile'),
+    url(r'^admin/(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})/plagiarism$',
+        views.PlagiarismView.as_view(), name='plagiarism'),
     url(r'^admin/events/latest$', views.latest_events, name='latest_events'),
     url(r'^admin/reports$', views.reports_accepted_list, name='reports_accepted_list'),
     url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',

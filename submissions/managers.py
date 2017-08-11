@@ -10,7 +10,7 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR
 
 
-class SubmissionManager(models.Manager):
+class SubmissionQuerySet(models.QuerySet):
     def _newest_version_only(self, queryset):
         """
         The current Queryset should return only the latest version

@@ -14,7 +14,7 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
                        EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
-from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
+from .managers import SubmissionQuerySet, EditorialAssignmentManager, EICRecommendationManager,\
                       ReportQuerySet, SubmissionEventQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
@@ -94,7 +94,7 @@ class Submission(models.Model):
     acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
 
-    objects = SubmissionManager()
+    objects = SubmissionQuerySet.as_manager()
 
     class Meta:
         permissions = (

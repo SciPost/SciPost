@@ -236,6 +236,12 @@ MAILCHIMP_DATABASE_CODE = 'us6'
 MAILCHIMP_API_USER = 'test_API-user'
 MAILCHIMP_API_KEY = 'test_API-key'
 
+
+# iThenticate
+ITHENTICATE_USERNAME = 'test_ithenticate_username'
+ITHENTICATE_PASSWORD = 'test_ithenticate_password'
+
+
 # Own settings
 JOURNALS_DIR = 'journals'
 
