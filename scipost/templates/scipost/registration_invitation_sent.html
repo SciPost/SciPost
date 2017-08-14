@@ -2,13 +2,9 @@
 
 {% block pagetitle %}: registration invitation sent{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
-  <h1>Registration Invitation sent</h1>
+<h1>Registration Invitation sent</h1>
+<p>Return to the <a href="{% url 'scipost:registration_invitations' %}">registration invitations page</a>.</p>
 
-  <p>Return to the <a href="{% url 'scipost:registration_invitations' %}">registration invitations page</a>.</p>
-
-</section>
-
-{% endblock bodysup %}
+{% endblock content %}

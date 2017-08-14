@@ -1,26 +1,21 @@
 {% extends 'scipost/base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: Initiate publication{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
 
-<section>
-  <div class="flex-greybox">
-    <h1>Initiate publication page</h1>
-  </div>
+<h1>Initiate publication page</h1>
 
-  {% if errormessage %}
-    <h2 style="color: red;">{{ errormessage }}</h2>
-  {% endif %}
-
-  <form action="{% url 'journals:initiate_publication' %}" method="post" enctype="multipart/form-data">
+<form action="{% url 'journals:initiate_publication' %}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ initiate_publication_form.as_p }}
-    <input type="submit" value="Submit">
-  </form>
-
-</section>
+    {{ initiate_publication_form|bootstrap }}
+    <input type="submit" class="btn btn-primary" value="Submit">
+</form>
 
 
-{% endblock bodysup %}
+
+
+{% endblock %}
