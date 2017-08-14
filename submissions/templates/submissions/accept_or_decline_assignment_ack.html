@@ -2,20 +2,19 @@
 
 {% block pagetitle %}: accept or decline assignment (ack){% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
+
   {% if errormessage %}
-  <p>{{ errormessage }}</p>
-  <p>Return to the <a href="{% url 'submissions:pool' %}">Submissions Pool</a>.</p>
+      <p>{{ errormessage }}</p>
+      <p>Return to the <a href="{% url 'submissions:pool' %}">Submissions Pool</a>.</p>
 
   {% elif assignment.accepted %}
-  <h1>Thank you for becoming Editor-in-charge of this submission.</h1>
-  <p>Please go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=assignment.submission.arxiv_identifier_w_vn_nr %}">Submission's editorial page</a> and select referees now.</p>
+      <h1>Thank you for becoming Editor-in-charge of this submission.</h1>
+      <p>Please go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=assignment.submission.arxiv_identifier_w_vn_nr %}">Submission's editorial page</a> and select referees now.</p>
   {% else %}
-  <h1>Thank you for considering.</h1>
-  <p>Return to the <a href="{% url 'submissions:pool' %}">Submissions Pool</a>.</p>
+      <h1>Thank you for considering.</h1>
+      <p>Return to the <a href="{% url 'submissions:pool' %}">Submissions Pool</a>.</p>
   {% endif %}
-</section>
 
-{% endblock bodysup %}
+{% endblock content %}

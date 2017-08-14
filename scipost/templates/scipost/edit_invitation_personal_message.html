@@ -1,23 +1,21 @@
 {% extends 'scipost/base.html' %}
 
+{% load scipost_extras %}
+{% load bootstrap %}
+
 {% block pagetitle %}: registration invitation: edit personal message{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
-{% load scipost_extras %}
+<h2>Edit invitation's personal message: for {{ invitation.first_name }} {{ invitation.last_name }}</h2>
 
-<section>
-  <div class="flex-greybox">
-    <h2>Edit invitation's personal message: for {{ invitation.first_name }} {{ invitation.last_name }}</h2>
-  </div>
-  {% if errormessage %}
-    <h3 style="color: red;">{{ errormessage }}</h3>
-  {% endif %}
-  <form action="{% url 'scipost:edit_invitation_personal_message' invitation_id=invitation.id %}" method="post">
+{% if errormessage %}
+    <h3 class="text-danger">{{ errormessage }}</h3>
+{% endif %}
+<form action="{% url 'scipost:edit_invitation_personal_message' invitation_id=invitation.id %}" method="post">
     {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Submit">
-  </form>
-</section>
+    {{ form|bootstrap }}
+    <input type="submit" value="Submit" class="btn btn-primary">
+</form>
 
-{% endblock bodysup %}
+{% endblock %}

@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db import transaction
 from django.utils import timezone
@@ -10,17 +11,18 @@ from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUB
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
                        STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE,\
                        STATUS_VETTED
-from .exceptions import InvalidReportVettingValue
-from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment
+from . import exceptions, helpers
+from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
+                    iThenticateReport
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.services import ArxivCaller
 from scipost.models import Contributor
+import strings
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML, Submit
-
-import strings
+import iThenticate
 
 
 class SubmissionSearchForm(forms.Form):
@@ -554,7 +556,7 @@ class VetReportForm(forms.Form):
             # The report is rejected
             report.status = self.cleaned_data['refusal_reason']
         else:
-            raise InvalidReportVettingValue(self.cleaned_data['action_option'])
+            raise exceptions.InvalidReportVettingValue(self.cleaned_data['action_option'])
         report.save()
         return report
 
@@ -643,3 +645,116 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
         other_submission = self.instance.other_versions.first()
         if other_submission:
             self.fields['referees_reinvite'].queryset = other_submission.referee_invitations.all()
+
+
+class iThenticateReportForm(forms.ModelForm):
+    class Meta:
+        model = iThenticateReport
+        fields = []
+
+    def __init__(self, submission, *args, **kwargs):
+        self.submission = submission
+        super().__init__(*args, **kwargs)
+
+        if kwargs.get('files', {}).get('file'):
+            # Add file field if file data is coming in!
+            self.fields['file'] = forms.FileField()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        doc_id = self.instance.doc_id
+        if not doc_id and not self.fields.get('file'):
+            try:
+                cleaned_data['document'] = helpers.retrieve_pdf_from_arxiv(
+                                        self.submission.arxiv_identifier_w_vn_nr)
+            except exceptions.ArxivPDFNotFound:
+                self.add_error(None, ('The pdf could not be found at arXiv.'
+                                      ' Please upload the pdf manually.'))
+                self.fields['file'] = forms.FileField()
+        elif not doc_id and cleaned_data.get('file'):
+            cleaned_data['document'] = cleaned_data['file'].read()
+        elif doc_id:
+            self.document_id = doc_id
+
+        # Login client to append login-check to form
+        self.client = self.get_client()
+
+        # Document (id) is found
+        if cleaned_data.get('document'):
+            self.document = cleaned_data['document']
+            self.response = self.call_ithenticate()
+        elif hasattr(self, 'document_id'):
+            self.response = self.call_ithenticate()
+
+        if self.response:
+            return cleaned_data
+        # Don't return anything as someone submitted invalid data for the form at this point!
+        return None
+
+    def save(self, *args, **kwargs):
+        if self.instance:
+            report = self.instance
+        else:
+            report = iThenticateReport.objects.get_or_create(doc_id=self.response['data']['id'])
+        report.submission = self.submission
+        report.uploaded_time = data['uploaded_time']
+        report.processed_time = data['processed_time']
+        report.percent_match = data['percent_match']
+        report.save()
+        return report
+
+    def call_ithenticate(self):
+        if hasattr(self, 'document_id'):
+            # Update iThenticate status
+            return self.update_status()
+        elif hasattr(self, 'document'):
+            # Upload iThenticate document first time
+            return self.upload_document()
+
+    def get_client(self):
+        client = iThenticate.API.Client(settings.ITHENTICATE_USERNAME,
+                                        settings.ITHENTICATE_PASSWORD)
+        if client.login():
+            return client
+        self.add_error(None, "Failed to login to iThenticate.")
+        return None
+
+    def update_status(self):
+        client = self.client
+        response = client.documents.get(self.document_id)
+        if response['status'] == 200:
+            return response['data']
+        self.add_error(None, "Updating failed. iThenticate didn't return valid data [1]")
+        self.add_error(None, client.messages[0])
+        return None
+
+    def upload_document(self):
+        client = self.client
+
+        # Get first folder available
+        # TODO: Fix this ugly piece of crap
+        folders = client.folders.all()
+        if folders['status'] == 200:
+            folder_id = folders['data'][0]['id']
+        else:
+            self.add_error(None, "Uploading failed. iThenticate didn't return valid data [2]")
+            self.add_error(None, client.messages[0])
+
+        # Finally, upload the file
+        author = self.submission.authors.first()
+        response = client.documents.add(
+            self.document,
+            folder_id,
+            author.user.first_name,
+            author.user.last_name,
+            self.submission.title,
+        )
+
+        if response['status'] == 200:
+            self.submission.add_general_event(('The document has been submitted '
+                                               'for a plagiarism check.'))
+            return response['data']
+
+        self.add_error(None, "Updating failed. iThenticate didn't return valid data [3]")
+        self.add_error(None, client.messages[0])
+        return None

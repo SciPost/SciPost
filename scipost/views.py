@@ -627,6 +627,13 @@ def remove_registration_invitation(request, invitation_id):
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def edit_invitation_personal_message(request, invitation_id):
+    """
+
+    DOES THIS THING STILL WORK? OR CAN IT BE REMOVED?
+
+    -- JdW (August 14th, 2017)
+
+    """
     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
     errormessage = None
     if request.method == 'POST':

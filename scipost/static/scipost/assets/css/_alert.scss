@@ -5,6 +5,11 @@
     clear: both;
     float: left;
 
+    form &,
+    .form & {
+        float: none;
+    }
+
     &:last-child {
         margin-bottom: 1rem;
     }

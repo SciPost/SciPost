@@ -11,7 +11,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic.edit import CreateView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required_or_403
@@ -22,12 +23,14 @@ from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATU
                        STATUS_DRAFT
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication, SubmissionEvent
+from .mixins import SubmissionAdminViewMixin
 from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm,\
                    RecommendationVoteForm, ConsiderAssignmentForm, AssignSubmissionForm,\
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
                    ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
                    EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
-                   SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm
+                   SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm,\
+                   iThenticateReportForm
 from .utils import SubmissionUtils
 
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
@@ -85,6 +88,7 @@ class RequestSubmission(CreateView):
         for error_messages in form.errors.values():
             messages.warning(self.request, *error_messages)
         return super().form_invalid(form)
+
 
 @login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
@@ -253,6 +257,9 @@ def reports_accepted_list(request):
     """
     reports = (Report.objects.accepted()
                .order_by('pdf_report', 'submission').prefetch_related('submission'))
+
+    if request.GET.get('submission'):
+        reports = reports.filter(submission__arxiv_identifier_w_vn_nr=request.GET.get('submission'))
     context = {
         'reports': reports
     }
@@ -1389,6 +1396,8 @@ def fix_College_decision(request, rec_id):
     """
     Terminates the voting on a Recommendation.
     Called by an Editorial Administrator.
+
+    TO FIX: If multiple recommendations are submitted; decisions may be overruled unexpectedly.
     """
     recommendation = get_object_or_404((EICRecommendation.objects
                                         .get_for_user_in_pool(request.user)), pk=rec_id)
@@ -1429,3 +1438,51 @@ def fix_College_decision(request, rec_id):
     SubmissionUtils.send_author_College_decision_email()
     messages.success(request, 'The Editorial College\'s decision has been fixed.')
     return redirect(reverse('submissions:pool'))
+
+
+class EICRecommendationView(SubmissionAdminViewMixin, DetailView):
+    permission_required = 'scipost.can_fix_College_decision'
+    template_name = 'submissions/admin/eic_recommendation_detail.html'
+    editorial_page = True
+
+    def get_context_data(self, *args, **kwargs):
+        """ Get the EICRecommendation as a submission-related instance. """
+        ctx = super().get_context_data(*args, **kwargs)
+        ctx['object'] = get_object_or_404(ctx['submission'].eicrecommendations.all(),
+                                          id=self.kwargs['rec_id'])
+        return ctx
+
+
+class EditorialSummaryView(SubmissionAdminViewMixin, ListView):
+    """
+    Show all submission currently active in a refereeing process.
+    In addition show all EIC events of the last 24 hours.
+    """
+    permission_required = 'scipost.can_oversee_refereeing'
+    template_name = 'submissions/admin/editorial_admin.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        # Pick submission from `submission_list` to include proper filters such as author filters.
+        try:
+            arxiv_id = self.request.GET.get('submission')
+            assert arxiv_id
+            context['submission'] = (context['submission_list']
+                                     .get(arxiv_identifier_w_vn_nr=arxiv_id))
+        except (AssertionError, Submission.DoesNotExist):
+            context['submission'] = None
+            context['latest_events'] = SubmissionEvent.objects.for_eic().last_hours()
+        return context
+
+
+class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
+    permission_required = 'scipost.can_do_plagiarism_checks'
+    template_name = 'submissions/admin/plagiarism_report.html'
+    editorial_page = True
+    success_url = reverse_lazy('submissions:plagiarism')
+    form_class = iThenticateReportForm
+
+    def get_object(self):
+        submission = super().get_object()
+        return submission.plagiarism_report

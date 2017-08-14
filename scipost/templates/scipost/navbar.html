@@ -24,6 +24,11 @@
               <li class="nav-item highlighted">
                 <span class="nav-link">Logged in as {{ user.username }}</span>
               </li>
+              {% if perms.scipost.can_oversee_refereeing %}
+                  <li class="nav-item{% if '/submissions/admin' in request.path %} active{% endif %}">
+                    <a class="nav-link" href="{% url 'submissions:admin' %}">Editorial Administration</a>
+                  </li>
+              {% endif %}
               {% if user.contributor %}
                   <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
                     <a class="nav-link" href="{% url 'scipost:personal_page' %}">Personal Page</a>
