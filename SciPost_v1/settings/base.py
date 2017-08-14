@@ -79,7 +79,6 @@ INSTALLED_APPS = (
     'django_mathjax',
     'ajax_select',
     'captcha',
-    'crispy_forms',
     'guardian',
     'haystack',
     'rest_framework',

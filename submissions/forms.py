@@ -20,8 +20,6 @@ from scipost.services import ArxivCaller
 from scipost.models import Contributor
 import strings
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, HTML, Submit
 import iThenticate
 
 
@@ -380,13 +378,6 @@ class RefereeRecruitmentForm(forms.ModelForm):
         super(RefereeRecruitmentForm, self).__init__(*args, **kwargs)
         self.fields['first_name'].widget.attrs.update({'size': 20})
         self.fields['last_name'].widget.attrs.update({'size': 20})
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Div(Field('title'), Field('first_name'), Field('last_name'),
-                Field('email_address'),
-                Submit('submit', 'Send invitation', css_class="submitButton"),
-                css_class="flex-whitebox320")
-        )
 
 
 class ConsiderRefereeInvitationForm(forms.Form):
@@ -614,18 +605,6 @@ class RecommendationVoteForm(forms.Form):
         super(RecommendationVoteForm, self).__init__(*args, **kwargs)
         self.fields['remark'].widget.attrs.update(
             {'rows': 3, 'cols': 30, 'placeholder': 'Your remarks (optional)'})
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Div(
-                Div(
-                    HTML('<h3>Your position on this recommendation:</h3>'),
-                    Field('vote'),
-                    css_class='flex-Fellowactionbox'),
-                Div(Field('remark'), css_class='flex-Fellowactionbox'),
-                Div(Submit('submit', 'Cast your vote', css_class='submitButton'),
-                    css_class='flex-Fellowactionbox'),
-                css_class='flex-container')
-        )
 
 
 class SubmissionCycleChoiceForm(forms.ModelForm):
@@ -692,10 +671,11 @@ class iThenticateReportForm(forms.ModelForm):
         return None
 
     def save(self, *args, **kwargs):
+        data = self.response['data']
         if self.instance:
             report = self.instance
         else:
-            report = iThenticateReport.objects.get_or_create(doc_id=self.response['data']['id'])
+            report = iThenticateReport.objects.get_or_create(doc_id=data['id'])
         report.submission = self.submission
         report.uploaded_time = data['uploaded_time']
         report.processed_time = data['processed_time']

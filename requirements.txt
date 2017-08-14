@@ -1,22 +1,24 @@
-alabaster==0.7.9
+alabaster==0.7.10
 argon2-cffi==16.3.0
-Babel==2.3.4
+Babel==2.4
 Django==1.11.4
-django_ajax_selects==1.5.2
-django-countries==4.0
-django-crispy-forms==1.6.1
-django-debug-toolbar==1.7
+django_ajax_selects==1.6
+django-countries==4.6.1
+django-debug-toolbar==1.8
 django-extensions==1.7.6
-django-filter==1.0.0
-django-guardian==1.4.6
-django-haystack==2.5.1
-django-mathjax==0.0.5
-django-mptt==0.8.6
+django-filter==1.0.4
+django-guardian==1.4.9
+django-haystack==2.5.1  # Check if this is really used. Package is not up-to-date
+django-mathjax==0.0.5  # This thing looks dead as well
+django-mptt==0.8.6  # Dead
 django-sphinxdoc==1.5.1
-django-recaptcha==1.2.1
-django-webpack-loader==0.4.1
-djangorestframework==3.5.3
-docutils==0.12
+django-recaptcha==1.3.1
+django-webpack-loader==0.5
+djangorestframework==3.6.3  # Check 3.6 release notes again
+docutils==0.12  # What's this thing?
+
+# Checked until here -- JdW
+
 factory-boy==2.7.0
 Faker==0.7.11
 fake-factory==0.7.2
