@@ -1,5 +1,7 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: plagiarism report ({{ submission.arxiv_identifier_w_vn_nr }}){% endblock pagetitle %}
 
 {% block breadcrumb_items %}
@@ -18,8 +20,9 @@
         No Plagiarism Report found.
     {% endif %}
 
-    <form method="post" class="mt-3">
+    <form method="post" class="mt-3" enctype="multipart/form-data">
         {% csrf_token %}
+        {{form|bootstrap}}
         <input type="submit" class="btn btn-primary" value="{% if submission.plagiarism_report %}Update report status{% else %}Submit submission for plagiarism check{% endif %}">
     </form>
 

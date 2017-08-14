@@ -1,7 +1,6 @@
 import datetime
 import feedparser
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
@@ -13,12 +12,11 @@ from django.template import Template, Context
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm, get_objects_for_user
-import iThenticate
 
 from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATUS_EIC_ASSIGNED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES,\
@@ -31,7 +29,8 @@ from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSe
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
                    ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
                    EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
-                   SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm
+                   SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm,\
+                   iThenticateReportForm
 from .utils import SubmissionUtils
 
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
@@ -89,6 +88,7 @@ class RequestSubmission(CreateView):
         for error_messages in form.errors.values():
             messages.warning(self.request, *error_messages)
         return super().form_invalid(form)
+
 
 @login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
@@ -1472,23 +1472,20 @@ class EditorialSummaryView(SubmissionAdminViewMixin, ListView):
                                      .get(arxiv_identifier_w_vn_nr=arxiv_id))
         except (AssertionError, Submission.DoesNotExist):
             context['submission'] = None
-            context['latest_events'] = SubmissionEvent.objects.for_eic()#.last_hours()
+            context['latest_events'] = SubmissionEvent.objects.for_eic().last_hours()
         return context
 
 
-class PlagiarismView(SubmissionAdminViewMixin, DetailView):
+class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
     permission_required = 'scipost.can_do_plagiarism_checks'
     template_name = 'submissions/admin/plagiarism_report.html'
     editorial_page = True
+    success_url = reverse_lazy('submissions:plagiarism')
+    form_class = iThenticateReportForm
 
-    def post(self, request, *args, **kwargs):
-        client = iThenticate.API.Client(settings.ITHENTICATE_USERNAME,
-                                        settings.ITHENTICATE_PASSWORD)
-        submission = self.get_object()
-        if submission.plagiarism_report:
-            # Plagiarism Report needs an update
-            client.documents.get()
-        else:
-            # Plagiarism Report needs to be uploaded still
-            client.folders.all()
-        raise NotImplementedError
+    def get_object(self):
+        submission = super().get_object()
+        return submission.plagiarism_report
+
+    # def post(self, request, *args, **kwargs):
+    #     raise NotImplementedError

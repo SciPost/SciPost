@@ -506,6 +506,11 @@ class iThenticateReport(TimeStampedModel):
     doc_id = models.IntegerField(primary_key=True)
     percent_match = models.IntegerField(null=True, blank=True)
 
+    def get_absolute_url(self):
+        return reverse('submissions:plagiarism', kwargs={
+                        'arxiv_identifier_w_vn_nr':
+                        self.to_submission.arxiv_identifier_w_vn_nr})
+
     @property
     def score(self):
         return self.percent_match
