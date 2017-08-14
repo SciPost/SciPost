@@ -1,4 +1,3 @@
-from django.urls import NoReverseMatch
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic.list import ListView
 

@@ -751,6 +751,8 @@ class iThenticateReportForm(forms.ModelForm):
         )
 
         if response['status'] == 200:
+            self.submission.add_general_event(('The document has been submitted '
+                                               'for a plagiarism check.'))
             return response['data']
 
         self.add_error(None, "Updating failed. iThenticate didn't return valid data [3]")

@@ -27,11 +27,11 @@
                     {% if sub == submission %}
                         <strong>
                             <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            Latest activity: {{sub.latest_activity|timesince}} ago
+                            &middot; latest activity: {{sub.latest_activity|timesince}} ago
                         </strong>
                     {% else %}
                         <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        Latest activity: {{sub.latest_activity|timesince}} ago
+                        &middot; latest activity: {{sub.latest_activity|timesince}} ago
                     {% endif %}
                 </li>
             {% empty %}
@@ -47,11 +47,11 @@
                     {% if sub == submission %}
                         <strong>
                             <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            Latest activity: {{sub.latest_activity|timesince}} ago
+                            &middot; latest activity: {{sub.latest_activity|timesince}} ago
                         </strong>
                     {% else %}
                         <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        Latest activity: {{sub.latest_activity|timesince}} ago
+                        &middot; latest activity: {{sub.latest_activity|timesince}} ago
                     {% endif %}
                 </li>
             {% empty %}
@@ -67,11 +67,11 @@
                     {% if sub == submission %}
                         <strong>
                             <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            Latest activity: {{sub.latest_activity|timesince}} ago
+                            &middot; latest activity: {{sub.latest_activity|timesince}} ago
                         </strong>
                     {% else %}
                         <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        Latest activity: {{sub.latest_activity|timesince}} ago
+                        &middot; latest activity: {{sub.latest_activity|timesince}} ago
                     {% endif %}
                 </li>
             {% empty %}
