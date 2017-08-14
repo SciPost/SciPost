@@ -672,7 +672,7 @@ class iThenticateReportForm(forms.ModelForm):
                                       ' Please upload the pdf manually.'))
                 self.fields['file'] = forms.FileField()
         elif not doc_id and cleaned_data.get('file'):
-            cleaned_data['document'] = cleaned_data['file']
+            cleaned_data['document'] = cleaned_data['file'].read()
         elif doc_id:
             self.document_id = doc_id
 
@@ -743,7 +743,7 @@ class iThenticateReportForm(forms.ModelForm):
         # Finally, upload the file
         author = self.submission.authors.first()
         response = client.documents.add(
-            self.document.read(),
+            self.document,
             folder_id,
             author.user.first_name,
             author.user.last_name,
