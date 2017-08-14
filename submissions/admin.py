@@ -6,7 +6,8 @@ from guardian.admin import GuardedModelAdmin
 
 from comments.models import Comment
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report,\
-                               EditorialCommunication, EICRecommendation, SubmissionEvent
+                               EditorialCommunication, EICRecommendation, SubmissionEvent,\
+                               iThenticateReport
 from scipost.models import Contributor
 
 
@@ -16,6 +17,17 @@ class CommentsGenericInline(GenericTabularInline):
 
 def submission_short_title(obj):
     return obj.submission.title[:30]
+
+
+class iThenticateReportAdmin(admin.ModelAdmin):
+    readonly_fields = ['doc_id']
+
+    def has_add_permission(self, request):
+        """ Don't add manually. This will gives conflict with the iThenticate db. """
+        return False
+
+
+admin.site.register(iThenticateReport, iThenticateReportAdmin)
 
 
 class SubmissionAdminForm(forms.ModelForm):

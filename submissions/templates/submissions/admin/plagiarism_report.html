@@ -15,7 +15,28 @@
     <h2>{{submission.title}}</h2>
     <h3 class="mb-4">by {{submission.author_list}}</h3>
     {% if submission.plagiarism_report %}
-        {{submission.plagiarism_report}}
+        <table>
+            <tr>
+                <td style="min-width: 150px;">iThenticate document</td>
+                <td>{{submission.plagiarism_report.doc_id}}</td>
+            </tr>
+            <tr>
+                <td>Percent match</td>
+                <td>{{submission.plagiarism_report.percent_match}}</td>
+            </tr>
+            <tr>
+                <td>Processed</td>
+                <td>{{submission.plagiarism_report.processed_time}}</td>
+            </tr>
+            <tr>
+                <td>Uploaded</td>
+                <td>{{submission.plagiarism_report.uploaded_time}}</td>
+            </tr>
+            <tr>
+                <td>Latest update</td>
+                <td>{{submission.plagiarism_report.latest_activity}}</td>
+            </tr>
+        </table>
     {% else %}
         No Plagiarism Report found.
     {% endif %}
