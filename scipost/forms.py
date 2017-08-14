@@ -307,7 +307,17 @@ class AuthenticationForm(forms.Form):
         """
         username = self.cleaned_data['username']
         password = self.cleaned_data['password']
-        return authenticate(username=username, password=password)
+        user = authenticate(username=username, password=password)
+        if user:
+            return user
+
+        try:
+            _user = User.objects.get(email=username)
+            return authenticate(username=_user.username, password=password)
+        except:
+            # Catch all exceptions. This method should be upgraded in the next Django
+            # update anyway and not a single exception should propagate to the user, never!
+            return None
 
     def get_redirect_url(self, request):
         """
