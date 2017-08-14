@@ -1,5 +1,8 @@
+import datetime
+
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
@@ -72,7 +75,7 @@ class SubmissionQuerySet(models.QuerySet):
         """
         return (self.exclude(is_current=False)
                     .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
-                    .exclude(status=STATUS_UNASSIGNED))
+                    .exclude(status__in=[STATUS_UNASSIGNED, STATUS_ACCEPTED]))
 
     def public(self):
         """
@@ -134,6 +137,12 @@ class SubmissionEventQuerySet(models.QuerySet):
         """
         return self.filter(event__in=[EVENT_FOR_EIC, EVENT_GENERAL])
 
+    def last_hours(self, hours=24):
+        """
+        Return all events of the last `hours` hours.
+        """
+        return self.filter(created__gte=timezone.now() - datetime.timedelta(hours=hours))
+
 
 class EditorialAssignmentManager(models.Manager):
     def get_for_user_in_pool(self, user):
@@ -185,3 +194,20 @@ class ReportQuerySet(models.QuerySet):
 
     def non_draft(self):
         return self.exclude(status=STATUS_DRAFT)
+
+    def contributed(self):
+        return self.filter(invited=False)
+
+    def invited(self):
+        return self.filter(invited=True)
+
+
+class RefereeInvitationQuerySet(models.QuerySet):
+    def pending(self):
+        return self.filter(accepted=None)
+
+    def accepted(self):
+        return self.filter(accepted=True)
+
+    def declined(self):
+        return self.filter(accepted=False)

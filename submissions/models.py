@@ -15,7 +15,7 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
                        EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
 from .managers import SubmissionQuerySet, EditorialAssignmentManager, EICRecommendationManager,\
-                      ReportQuerySet, SubmissionEventQuerySet
+                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
@@ -283,6 +283,8 @@ class RefereeInvitation(models.Model):
     fulfilled = models.BooleanField(default=False)  # True if a Report has been submitted
     cancelled = models.BooleanField(default=False)  # True if EIC has deactivated invitation
 
+    objects = RefereeInvitationQuerySet.as_manager()
+
     def __str__(self):
         return (self.first_name + ' ' + self.last_name + ' to referee ' +
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
@@ -471,7 +473,7 @@ class EICRecommendation(models.Model):
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
 
     # Editorial Fellows who have assessed this recommendation:
-    eligible_to_vote = models.ManyToManyField(Contributor, blank=True,
+    eligible_to_vote = models.ManyToManyField('scipost.Contributor', blank=True,
                                               related_name='eligible_to_vote')
     voted_for = models.ManyToManyField(Contributor, blank=True, related_name='voted_for')
     voted_against = models.ManyToManyField(Contributor, blank=True, related_name='voted_against')
@@ -503,3 +505,7 @@ class iThenticateReport(TimeStampedModel):
     processed_time = models.DateTimeField(null=True, blank=True)
     doc_id = models.IntegerField(primary_key=True)
     percent_match = models.IntegerField(null=True, blank=True)
+
+    @property
+    def score(self):
+        return self.percent_match

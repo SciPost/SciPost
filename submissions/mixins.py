@@ -26,7 +26,7 @@ class SubmissionAdminViewMixin(FriendlyPermissionMixin):
     administrational actions regarding Submissions.
 
     :editorial_page: Submission is element of the set pool() if False,
-                     else Submission is element of the subset editorial_page()
+                     else Submission is element of the subset: editorial_page()
     """
     editorial_page = False
     slug_field = 'arxiv_identifier_w_vn_nr'
