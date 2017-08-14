@@ -4,12 +4,14 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:admin_summary' %}" class="breadcrumb-item">Editorial Administration</a>
+    <a href="{% url 'submissions:admin_summary' %}?submission={{submission.arxiv_identifier_w_vn_nr}}" class="breadcrumb-item">Editorial Administration</a>
     <span class="breadcrumb-item">Plagiarism Report ({{ submission.arxiv_identifier_w_vn_nr }})</span>
 {% endblock %}
 
 {% block content %}
     <h1>Plagiarism Report for <a href="{{submission.get_absolute_url}}">{{submission.arxiv_identifier_w_vn_nr}}</a></h1>
+    <h2>{{submission.title}}</h2>
+    <h3 class="mb-4">by {{submission.author_list}}</h3>
     {% if submission.plagiarism_report %}
         {{submission.plagiarism_report}}
     {% else %}

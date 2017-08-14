@@ -257,6 +257,9 @@ def reports_accepted_list(request):
     """
     reports = (Report.objects.accepted()
                .order_by('pdf_report', 'submission').prefetch_related('submission'))
+
+    if request.GET.get('submission'):
+        reports = reports.filter(submission__arxiv_identifier_w_vn_nr=request.GET.get('submission'))
     context = {
         'reports': reports
     }
@@ -1393,6 +1396,8 @@ def fix_College_decision(request, rec_id):
     """
     Terminates the voting on a Recommendation.
     Called by an Editorial Administrator.
+
+    TO FIX: If multiple recommendations are submitted; decisions may be overruled unexpectedly.
     """
     recommendation = get_object_or_404((EICRecommendation.objects
                                         .get_for_user_in_pool(request.user)), pk=rec_id)
@@ -1435,14 +1440,46 @@ def fix_College_decision(request, rec_id):
     return redirect(reverse('submissions:pool'))
 
 
+class EICRecommendationView(SubmissionAdminViewMixin, DetailView):
+    permission_required = 'scipost.can_fix_College_decision'
+    template_name = 'submissions/admin/eic_recommendation_detail.html'
+    editorial_page = True
+
+    def get_context_data(self, *args, **kwargs):
+        """ Get the EICRecommendation as a submission-related instance. """
+        ctx = super().get_context_data(*args, **kwargs)
+        ctx['object'] = get_object_or_404(ctx['submission'].eicrecommendations.all(),
+                                          id=self.kwargs['rec_id'])
+        return ctx
+
+
 class EditorialSummaryView(SubmissionAdminViewMixin, ListView):
+    """
+    Show all submission currently active in a refereeing process.
+    In addition show all EIC events of the last 24 hours.
+    """
     permission_required = 'scipost.can_oversee_refereeing'
     template_name = 'submissions/editorial_admin_summary.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        # Pick submission from `submission_list` to include proper filters such as author filters.
+        try:
+            arxiv_id = self.request.GET.get('submission')
+            assert arxiv_id
+            context['submission'] = (context['submission_list']
+                                     .get(arxiv_identifier_w_vn_nr=arxiv_id))
+        except (AssertionError, Submission.DoesNotExist):
+            context['submission'] = None
+            context['latest_events'] = SubmissionEvent.objects.for_eic()#.last_hours()
+        return context
 
 
 class PlagiarismView(SubmissionAdminViewMixin, DetailView):
     permission_required = 'scipost.can_do_plagiarism_checks'
-    template_name = 'submissions/editorial_admin_plagiarism.html'
+    template_name = 'submissions/admin/plagiarism_report.html'
+    editorial_page = True
 
     def post(self, request, *args, **kwargs):
         client = iThenticate.API.Client(settings.ITHENTICATE_USERNAME,

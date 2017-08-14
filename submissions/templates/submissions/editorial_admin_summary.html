@@ -8,32 +8,70 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Summary for Editorial Administrators</h1>
+<div class="row">
+    <div class="col-md-7">
+        <h1>Editorial Administration Page</h1>
 
-    <h3>Submissions currently in pre-screening</h3>
-    <ul class="unstyled-list">
-        {% for submission in submission_list.prescreening %}
-            <li>{{submission}}</li>
-        {% empty %}
-            <li>No Submissions are currently in pre-screening</li>
-        {% endfor %}
-    </ul>
+        <h3>Submissions currently in pre-screening</h3>
+        <ul class="unstyled-list">
+            {% for sub in submission_list.prescreening %}
+                <li>
+                    {% if sub == submission %}
+                        <strong><a href="?submission={{sub.arxiv_identifier_w_vn_nr}}" class="text-black">{{sub}}</a></strong>
+                    {% else %}
+                        <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub}}</a>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>No Submissions are currently in pre-screening</li>
+            {% endfor %}
+        </ul>
 
-    <h3>Submissions currently in refereeing round</h3>
-    <ul class="unstyled-list">
-        {% for submission in submission_list.actively_refereeing %}
-            <li>{{submission}}<br>{{submission.get_status_display}}</li>
-        {% empty %}
-            <li>No Submissions are currently in refereeing round</li>
-        {% endfor %}
-    </ul>
+        <h3>Submissions currently in refereeing round</h3>
+        <ul class="unstyled-list">
+            {% for sub in submission_list.actively_refereeing %}
+                <li>
+                    {% if sub == submission %}
+                        <strong><a href="?submission={{sub.arxiv_identifier_w_vn_nr}}" class="text-black">{{sub}}</a></strong>
+                    {% else %}
+                        <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub}}</a>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>No Submissions are currently in refereeing round</li>
+            {% endfor %}
+        </ul>
 
-    <h3>Submissions accepted</h3>
-    <ul class="unstyled-list">
-        {% for submission in submission_list.accepted %}
-            <li>{{submission}}</li>
-        {% empty %}
-            <li>All accepted Submissions are published</li>
-        {% endfor %}
-    </ul>
+        <h3>Submissions accepted</h3>
+        <ul class="unstyled-list">
+            {% for sub in submission_list.accepted %}
+                <li>
+                    {% if sub == submission %}
+                        <strong><a href="?submission={{sub.arxiv_identifier_w_vn_nr}}" class="text-black">{{sub}}</a></strong>
+                    {% else %}
+                        <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub}}</a>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>All accepted Submissions are published</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="col-md-5">
+        {% if submission %}
+            <div class="card card-outline-secondary">
+                <div class="card-block">
+                    {% include 'partials/submissions/admin/editorial_admin_summary.html' with submission=submission %}
+                </div>
+            </div>
+        {% else %}
+            <h3><em>Click on a submission to see its summary and actions</em></h3>
+            <h2>All events in the last 24 hours</h2>
+            <div id="eventslist" class="">
+                {% include 'submissions/submission_event_list_general.html' with events=latest_events %}
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock content %}
