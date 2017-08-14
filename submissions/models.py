@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils.functional import cached_property
 
+from .behaviors import SubmissionRelatedObjectMixin
 from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
@@ -129,6 +130,11 @@ class Submission(models.Model):
             pass
         return header
 
+    def touch(self):
+        """ Update latest activity as a service """
+        self.latest_activity = timezone.now()
+        self.save()
+
     def comments_set_complete(self):
         """
         Return comments to Submission, comments on Reports of Submission and
@@ -211,7 +217,7 @@ class Submission(models.Model):
         event.save()
 
 
-class SubmissionEvent(TimeStampedModel):
+class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
     """
     The SubmissionEvent's goal is to act as a messaging/logging model
     for the Submission cycle. Its main audience will be the author(s) and
@@ -240,7 +246,7 @@ class SubmissionEvent(TimeStampedModel):
 # Editorial workflow #
 ######################
 
-class EditorialAssignment(models.Model):
+class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
     to = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
@@ -260,7 +266,7 @@ class EditorialAssignment(models.Model):
                 ', requested on ' + self.date_created.strftime('%Y-%m-%d'))
 
 
-class RefereeInvitation(models.Model):
+class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='referee_invitations')
     referee = models.ForeignKey('scipost.Contributor', related_name='referee', blank=True,
@@ -309,7 +315,7 @@ class RefereeInvitation(models.Model):
 # Reports:
 ###########
 
-class Report(models.Model):
+class Report(SubmissionRelatedObjectMixin, models.Model):
     """
     Both types of reports, invited or contributed.
 
@@ -431,7 +437,7 @@ class Report(models.Model):
 # EditorialCommunication #
 ##########################
 
-class EditorialCommunication(models.Model):
+class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     """
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
@@ -461,7 +467,7 @@ class EditorialCommunication(models.Model):
 ############################
 
 # From the Editor-in-charge of a Submission
-class EICRecommendation(models.Model):
+class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='eicrecommendations')
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
@@ -523,6 +529,12 @@ class iThenticateReport(TimeStampedModel):
             _str += ' on Submission {arxiv}'.format(
                         arxiv=self.to_submission.arxiv_identifier_w_vn_nr)
         return _str
+
+    def save(self, commit=True, **kwargs):
+        obj = super().save(commit, **kwargs)
+        if hasattr(self, 'to_submission') and commit:
+            self.to_submission.touch()
+        return obj
 
     @property
     def score(self):
