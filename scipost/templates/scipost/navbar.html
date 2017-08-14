@@ -26,7 +26,7 @@
               </li>
               {% if perms.scipost.can_oversee_refereeing %}
                   <li class="nav-item{% if '/submissions/admin' in request.path %} active{% endif %}">
-                    <a class="nav-link" href="{% url 'submissions:admin_summary' %}">Editorial Administration</a>
+                    <a class="nav-link" href="{% url 'submissions:admin' %}">Editorial Administration</a>
                   </li>
               {% endif %}
               {% if user.contributor %}

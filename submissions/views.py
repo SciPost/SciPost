@@ -1459,7 +1459,7 @@ class EditorialSummaryView(SubmissionAdminViewMixin, ListView):
     In addition show all EIC events of the last 24 hours.
     """
     permission_required = 'scipost.can_oversee_refereeing'
-    template_name = 'submissions/editorial_admin_summary.html'
+    template_name = 'submissions/admin/editorial_admin.html'
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)

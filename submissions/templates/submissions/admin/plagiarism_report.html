@@ -6,7 +6,7 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:admin_summary' %}?submission={{submission.arxiv_identifier_w_vn_nr}}" class="breadcrumb-item">Editorial Administration</a>
+    <a href="{% url 'submissions:admin' %}?submission={{submission.arxiv_identifier_w_vn_nr}}" class="breadcrumb-item">Editorial Administration</a>
     <span class="breadcrumb-item">Plagiarism Report ({{ submission.arxiv_identifier_w_vn_nr }})</span>
 {% endblock %}
 
