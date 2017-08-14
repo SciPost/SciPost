@@ -1486,6 +1486,3 @@ class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
     def get_object(self):
         submission = super().get_object()
         return submission.plagiarism_report
-
-    # def post(self, request, *args, **kwargs):
-    #     raise NotImplementedError
