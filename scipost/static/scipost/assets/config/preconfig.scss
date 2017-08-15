@@ -45,21 +45,17 @@ $gray-600: #ccc;
 
 // Alerts
 //
-// $alert-success-text: $scipost-darkblue;
-// $alert-warning-text: $scipost-darkblue;
-// $alert-danger-text: $scipost-darkblue;
 $alert-border-radius: $base-border-radius;
 
 // Cards
 //
-$card-spacer-x: 0.75rem;
+
 $card-border-radius: $base-border-radius;
-$card-border-color: $white;
-$card-cap-bg: transparent;
-// $btn-secondary-border-color: #f1f1f1;  --- CHECK
-$card-shadow-color: #ccc;     // --- CHECK
-$card-grey-border-bottom-color: #d0d1d5;   // --- CHECK
-$card-grey-border-color: #e5e6e9 #dfe0e4 $card-grey-border-bottom-color;   // --- CHECK
+$card-spacer-x: 0.75rem;
+$card-spacer-y: 0.5rem;
+$card-shadow-color: #ccc;
+$card-grey-border-bottom-color: #d0d1d5;
+$card-grey-border-color: #e5e6e9 #dfe0e4 $card-grey-border-bottom-color;
 
 // breadcrumb
 //
@@ -73,8 +69,6 @@ $input-btn-padding-x: .5rem;
 $input-btn-padding-y: .25rem;
 $input-btn-padding-y-sm: .15rem;
 $btn-transition: none;
-// $input-padding-x: .5rem;
-// $input-padding-y: .25rem;
 
 $input-height: calc(1.5rem + 2px);
 $input-height-lg: calc(1.5rem + 2px);

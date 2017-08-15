@@ -26,11 +26,11 @@
     <div class="row">
         <div class="col-lg-6">
             <!-- Latest publications -->
-            <div class="card card-grey px-3">
-                <div class="card-header">
-                    <h2 class="card-title mb-0"><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
+            <div class="card card-grey px-4">
+                <div class="card-header px-0">
+                    <h2><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
                 </div>
-                <div class="card-body pt-0">
+                <div class="card-body p-0">
                   <ul class="list-group list-group-flush">
                       {% for publication in publications %}
                           <li class="list-group-item">
@@ -40,7 +40,7 @@
                           </li>
                       {% endfor %}
                       <li class="list-group-item">
-                          <div class="card-body pt-3">
+                          <div class="card-body pt-3 mb-2">
                               <a href="{% url 'journals:journals' %}">All Journals</a>
                           </div>
                       </li>
@@ -51,11 +51,11 @@
 
         <div class="col-lg-6">
             <!-- Latest submissions -->
-            <div class="card card-grey px-3">
-                <div class="card-header">
-                    <h2 class="card-title mb-0"><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
+            <div class="card card-grey px-4">
+                <div class="card-header px-0">
+                    <h2><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
                 </div>
-                <div class="card-body pt-0">
+                <div class="card-body p-0">
                   <ul class="list-group list-group-flush">
                       {% for submission in submissions %}
                           <li class="list-group-item">
@@ -63,7 +63,7 @@
                           </li>
                       {% endfor %}
                       <li class="list-group-item">
-                          <div class="card-body pt-3">
+                          <div class="card-body pt-3 mb-2">
                               <a href="{% url 'submissions:submissions' %}">All submissions</a>
                           </div>
                       </li>

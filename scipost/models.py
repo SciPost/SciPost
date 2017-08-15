@@ -154,6 +154,7 @@ class Remark(models.Model):
                 + self.contributor.user.last_name + ' on '
                 + self.date.strftime("%Y-%m-%d"))
 
+
 ###############
 # Invitations #
 ###############
