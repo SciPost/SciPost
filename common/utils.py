@@ -1,5 +1,5 @@
 from django.core.mail import EmailMultiAlternatives
-from django.template import loader, Context
+from django.template import loader
 
 
 class BaseMailUtil(object):
@@ -29,8 +29,8 @@ class BaseMailUtil(object):
         template = loader.get_template('email/%s.txt' % template_name)
         html_template = loader.get_template('email/%s.html' % template_name)
         cls._context.update(extra_context)
-        message = template.render(Context(cls._context))
-        html_message = html_template.render(Context(cls._context))
+        message = template.render(cls._context)
+        html_message = html_template.render(cls._context)
         bcc_list = [cls.mail_sender]
         if extra_bcc:
             bcc_list += extra_bcc

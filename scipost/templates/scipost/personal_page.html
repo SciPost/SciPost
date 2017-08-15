@@ -91,7 +91,7 @@
                     {% include "scipost/_private_info_as_table.html" with contributor=contributor %}
 
                     <h3 class="mt-3">Your main discipline:</h3>
-                    <ul><li>{{ contributor.discipline_as_string }}</li></ul>
+                    <ul><li>{{ contributor.get_discipline_display }}</li></ul>
 
                     <h3 class="mt-3">Your expertises:</h3>
                     {% if contributor.expertises %}

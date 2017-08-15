@@ -1161,7 +1161,7 @@ def email_group_members(request):
     """
     form = EmailGroupMembersForm(request.POST or None)
     if form.is_valid():
-        group_members = form.cleaned_data['group'].user_set.all()
+        group_members = form.cleaned_data['group'].user_set.filter(contributor__isnull=False)
         p = Paginator(group_members, 32)
         for pagenr in p.page_range:
             page = p.page(pagenr)

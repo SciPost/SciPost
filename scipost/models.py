@@ -41,7 +41,7 @@ class Contributor(models.Model):
     """
     user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True)
     invitation_key = models.CharField(max_length=40, blank=True)
-    activation_key = models.CharField(max_length=40, blank=True)
+    _activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
@@ -76,10 +76,6 @@ class Contributor(models.Model):
     def get_formal_display(self):
         return '%s %s %s' % (self.get_title_display(), self.user.first_name, self.user.last_name)
 
-    def get_title(self):
-        # Please use get_title_display(). To be removed in future
-        return self.get_title_display()
-
     def is_SP_Admin(self):
         return self.user.groups.filter(name='SciPost Administrators').exists()
 
@@ -98,6 +94,13 @@ class Contributor(models.Model):
                 return False
         return True
 
+    def get_activation_key(self):
+        if not self._activation_key:
+            self.generate_key()
+        return self._activation_key
+
+    activation_key = property(get_activation_key, _activation_key)
+
     def generate_key(self, feed=''):
         """
         Generate and save a new activation_key for the contributor, given a certain feed.
@@ -106,12 +109,8 @@ class Contributor(models.Model):
             feed += random.choice(string.ascii_letters)
         feed = feed.encode('utf8')
         salt = self.user.username.encode('utf8')
-        self.activation_key = hashlib.sha1(salt+salt).hexdigest()
+        self._activation_key = hashlib.sha1(salt+salt).hexdigest()
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
-
-    def discipline_as_string(self):
-        # Redundant, to be removed in future
-        return self.get_discipline_display()
 
     def expertises_as_string(self):
         if self.expertises:

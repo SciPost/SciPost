@@ -124,7 +124,7 @@
                 {% for Fellow in current_Fellows %}
                 <li>
                     <span class="font-weight-bold">{{Fellow}}</span><br>
-                    {{ Fellow.discipline_as_string }} &middot; {{ Fellow.expertises_as_string }}
+                    {{ Fellow.get_discipline_display }} &middot; {{ Fellow.expertises_as_string }}
                 </li>
         	    {% endfor %}
               </ul>
