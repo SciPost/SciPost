@@ -9,7 +9,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.template import Template, Context
 from django.utils import timezone
-from django.urls import reverse
 
 from django_countries.fields import CountryField
 
@@ -20,7 +19,8 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
                        AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS
 from .fields import ChoiceArrayField
-from .managers import FellowManager, ContributorManager, RegistrationInvitationManager
+from .managers import FellowManager, ContributorManager, RegistrationInvitationManager,\
+                      UnavailabilityPeriodManager
 
 
 def get_sentinel_user():
@@ -73,8 +73,13 @@ class Contributor(models.Model):
     def get_absolute_url(self):
         return reverse('scipost:contributor_info', args=(self.id,))
 
+    @property
     def get_formal_display(self):
         return '%s %s %s' % (self.get_title_display(), self.user.first_name, self.user.last_name)
+
+    @property
+    def is_currently_available(self):
+        return not self.unavailability_periods.today().exists()
 
     def is_SP_Admin(self):
         return self.user.groups.filter(name='SciPost Administrators').exists()
@@ -84,15 +89,6 @@ class Contributor(models.Model):
 
     def is_VE(self):
         return self.user.groups.filter(name='Vetting Editors').exists()
-
-    def is_currently_available(self):
-        unav_periods = UnavailabilityPeriod.objects.filter(contributor=self)
-
-        today = datetime.date.today()
-        for unav in unav_periods:
-            if unav.start < today and unav.end > today:
-                return False
-        return True
 
     def get_activation_key(self):
         if not self._activation_key:
@@ -117,56 +113,14 @@ class Contributor(models.Model):
             return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
         return ''
 
-    def assignments_summary_as_td(self):
-        assignments = self.editorialassignment_set.all()
-        nr_ongoing = assignments.filter(accepted=True, completed=False).count()
-        nr_last_12mo = assignments.filter(
-            date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-        nr_accepted = assignments.filter(accepted=True).count()
-        nr_accepted_last_12mo = assignments.filter(
-            accepted=True, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-        nr_refused = assignments.filter(accepted=False).count()
-        nr_refused_last_12mo = assignments.filter(
-            accepted=False, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-        nr_ignored = assignments.filter(accepted=None).count()
-        nr_ignored_last_12mo = assignments.filter(
-            accepted=None, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-        nr_completed = assignments.filter(completed=True).count()
-        nr_completed_last_12mo = assignments.filter(
-            completed=True, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-
-        context = Context({
-            'nr_ongoing': nr_ongoing,
-            'nr_total': assignments.count(),
-            'nr_last_12mo': nr_last_12mo,
-            'nr_accepted': nr_accepted,
-            'nr_accepted_last_12mo': nr_accepted_last_12mo,
-            'nr_refused': nr_refused,
-            'nr_refused_last_12mo': nr_refused_last_12mo,
-            'nr_ignored': nr_ignored,
-            'nr_ignored_last_12mo': nr_ignored_last_12mo,
-            'nr_completed': nr_completed,
-            'nr_completed_last_12mo': nr_completed_last_12mo,
-        })
-        output = '<td>'
-        if self.expertises:
-            for expertise in self.expertises:
-                output += subject_areas_dict[expertise] + '<br/>'
-        output += ('</td>'
-                   '<td>{{ nr_ongoing }}</td>'
-                   '<td>{{ nr_last_12mo }} / {{ nr_total }}</td>'
-                   '<td>{{ nr_accepted_last_12mo }} / {{ nr_accepted }}</td>'
-                   '<td>{{ nr_refused_last_12mo }} / {{ nr_refused }}</td>'
-                   '<td>{{ nr_ignored_last_12mo }} / {{ nr_ignored }}</td>'
-                   '<td>{{ nr_completed_last_12mo }} / {{ nr_completed }}</td>\n')
-        template = Template(output)
-        return template.render(context)
-
 
 class UnavailabilityPeriod(models.Model):
-    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                                    related_name='unavailability_periods')
     start = models.DateField()
     end = models.DateField()
+
+    objects = UnavailabilityPeriodManager()
 
     class Meta:
         ordering = ['-start']

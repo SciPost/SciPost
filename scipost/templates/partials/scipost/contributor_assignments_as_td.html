@@ -1,0 +1,14 @@
+{% load scipost_extras %}
+
+<td>
+    {% for expertise in contributor.expertises %}
+        {{expertise|get_specialization_display}}<br>
+    {% endfor %}
+</td>
+
+<td>{{contributor.editorial_assignments.ongoing.count}}</td>
+<td>{{contributor.editorial_assignments.last_year.count}} / {{contributor.editorial_assignments.count}}</td>
+<td>{{contributor.editorial_assignments.last_year.accepted.count}} / {{contributor.editorial_assignments.accepted.count}}</td>
+<td>{{contributor.editorial_assignments.last_year.refused.count}} / {{contributor.editorial_assignments.refused.count}}</td>
+<td>{{contributor.editorial_assignments.last_year.ignored.count}} / {{contributor.editorial_assignments.ignored.count}}</td>
+<td>{{contributor.editorial_assignments.last_year.completed.count}} / {{contributor.editorial_assignments.completed.count}}</td>

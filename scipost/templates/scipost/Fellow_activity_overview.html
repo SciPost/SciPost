@@ -1,9 +1,14 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
 
 {% block pagetitle %}: Overview{% endblock pagetitle %}
 
 {% load scipost_extras %}
 {% load submissions_extras %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Overview of Fellow's activities</span>
+{% endblock %}
 
 {% block content %}
 
@@ -29,10 +34,12 @@
         </thead>
         <tbody>
           {% for fellow in fellows %}
-          <tr>
-    	<td><a href="{% url 'scipost:Fellow_activity_overview' Fellow_id=fellow.id %}">{{ fellow.user.last_name }}, {{ fellow.user.first_name }}</a></td>
-    	{{ fellow.assignments_summary_as_td }}
-          </tr>
+            <tr>
+                <td>
+                    <a href="{% url 'scipost:Fellow_activity_overview' %}?fellow={{fellow.id}}">{{ fellow.user.last_name }}, {{ fellow.user.first_name }}</a>
+                </td>
+                {% include 'partials/scipost/contributor_assignments_as_td.html' with contributor=fellow %}
+            </tr>
           {% endfor %}
         </tbody>
       </table>
@@ -56,12 +63,14 @@
                   <li class="list-group-item">
                       {% include 'submissions/_submission_card_contributor_content.html' with submission=assignment.submission %}
                   </li>
+              {% empty %}
+                  <li class="list-group-item">No completed assignments</li>
               {% endfor %}
             </ul>
         </div>
 
-        <div class="col-12">
-            <h3>Completed:</h3>
+        <div class="col-12 mt-4">
+            <h3>Completed</h3>
         </div>
 
         <div class="col-12">
@@ -70,6 +79,8 @@
                 <li class="list-group-item">
                     {% include 'submissions/_submission_card_contributor_content.html' with submission=assignment.submission %}
                 </li>
+            {% empty %}
+                <li class="list-group-item">No completed assignments</li>
             {% endfor %}
           </ul>
         </div>

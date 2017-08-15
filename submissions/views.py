@@ -439,7 +439,7 @@ def assign_submission_ack(request, arxiv_identifier_w_vn_nr):
         if form.is_valid():
             suggested_editor_in_charge = form.cleaned_data['editor_in_charge']
             # TODO: check for possible co-authorships, disqualifying this suggested EIC
-            if not suggested_editor_in_charge.is_currently_available():
+            if not suggested_editor_in_charge.is_currently_available:
                 errormessage = ('This Fellow is marked as currently unavailable. '
                                 'Please go back and select another one.')
                 return render(request, 'scipost/error.html', {'errormessage': errormessage})
@@ -774,7 +774,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
     submission = get_object_or_404(Submission.objects.get_pool(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     contributor = get_object_or_404(Contributor, pk=contributor_id)
-    if not contributor.is_currently_available():
+    if not contributor.is_currently_available:
         errormessage = ('This Contributor is marked as currently unavailable. '
                         'Please go back and select another referee.')
         return render(request, 'scipost/error.html', {'errormessage': errormessage})

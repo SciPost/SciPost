@@ -28,10 +28,10 @@
     {% endif %}
 
     {% if perms.scipost.can_assign_submissions %}
-        {% if submission.editorialassignment_set.all %}
+        {% if submission.editorial_assignments.exists %}
             <h4>EIC Assignment requests:</h4>
             <ul>
-              {% for assignment in submission.editorialassignment_set.all %}
+              {% for assignment in submission.editorial_assignments.all %}
                   {% include 'submissions/_assignment_info.html' with assignment=assignment %}
               {% endfor %}
             </ul>
