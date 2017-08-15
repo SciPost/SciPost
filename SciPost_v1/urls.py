@@ -27,23 +27,25 @@ urlpatterns = [
     url(r'^api/', include(router.urls, namespace='api')),
     url(r'^docs/', include('sphinxdoc.urls')),
     url(r'^10.21468/%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
-    url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
+    url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="_journal")),
     url(r'^', include('scipost.urls', namespace="scipost")),
     url(r'^commentaries/', include('commentaries.urls', namespace="commentaries")),
-    url(r'^commentary/', include('commentaries.urls', namespace="commentaries")),
+    url(r'^commentary/', include('commentaries.urls', namespace="_commentaries")),
     url(r'^comments/', include('comments.urls', namespace="comments")),
     url(r'^funders/', include('funders.urls', namespace="funders")),
     url(r'^journals/', include('journals.urls.general', namespace="journals")),
     url(r'^mailing_list/', include('mailing_lists.urls', namespace="mailing_lists")),
     url(r'^submissions/', include('submissions.urls', namespace="submissions")),
-    url(r'^submission/', include('submissions.urls', namespace="submissions")),
+    url(r'^submission/', include('submissions.urls', namespace="_submissions")),
     url(r'^theses/', include('theses.urls', namespace="theses")),
-    url(r'^thesis/', include('theses.urls', namespace="theses")),
+    url(r'^thesis/', include('theses.urls', namespace="_theses")),
     url(r'^meetings/', include('virtualmeetings.urls', namespace="virtualmeetings")),
     url(r'^news/', include('news.urls', namespace="news")),
     url(r'^production/', include('production.urls', namespace="production")),
     url(r'^partners/', include('partners.urls', namespace="partners")),
-    url(r'^supporting_partners/', include('partners.urls', namespace="partners")), # Keep temporarily for historical reasons
+
+    # Keep temporarily for historical reasons
+    url(r'^supporting_partners/', include('partners.urls', namespace="_partners")),
 ]
 
 if settings.DEBUG:
