@@ -19,6 +19,15 @@ from submissions.models import Submission
 admin.site.register(UnavailabilityPeriod)
 
 
+class ContributorAdmin(admin.ModelAdmin):
+    search_fields = [
+        'user__first_name',
+        'user__last_name',
+        'user__email',
+        'orcid_id',
+        'affiliation']
+
+
 class ContributorInline(admin.StackedInline):
     model = Contributor
     extra = 0
@@ -34,6 +43,7 @@ class UserAdmin(UserAdmin):
 
 
 admin.site.unregister(User)
+admin.site.register(Contributor, ContributorAdmin)
 admin.site.register(User, UserAdmin)
 
 

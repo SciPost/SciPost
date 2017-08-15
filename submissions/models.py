@@ -113,6 +113,12 @@ class Submission(models.Model):
         self._update_cycle()
 
     def save(self, *args, **kwargs):
+        # Fill `arxiv_identifier_w_vn_nr` as a dummy field for convenience
+        arxiv_w_vn = '{arxiv}v{version}'.format(
+            arxiv=self.arxiv_identifier_wo_vn_nr,
+            version=self.arxiv_vn_nr)
+        self.arxiv_identifier_w_vn_nr = arxiv_w_vn
+
         super().save(*args, **kwargs)
         self._update_cycle()
 
