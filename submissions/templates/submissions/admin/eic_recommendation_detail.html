@@ -33,11 +33,11 @@
 <div class="card card-outline-secondary">
     {% include 'submissions/_recommendation_fellow_content.html' with recommendation=object %}
     <div class="card-body">
-        {% if object.remark_set.all %}
+        {% if object.remarks.all %}
             <h3 class="card-title">Remarks by Fellows:</h3>
             <ul>
-              {% for remark in object.remark_set.all|sort_by:'date' %}
-                  {{ remark.as_li }}
+              {% for remark in object.remarks.all|sort_by:'date' %}
+                  {% include 'partials/submissions/remark_as_li.html' with remark=remark %}
               {% endfor %}
             </ul>
         {% endif %}
@@ -73,10 +73,10 @@
             </li>
         </ul>
 
-        {% if object.remark_set %}
+        {% if object.remarks %}
             <h3 class="card-title">Remarks:</h3>
             <ul>
-              {% for rem in object.remark_set.all %}
+              {% for rem in object.remarks.all %}
                   <li>{{ rem }}</li>
              {% empty %}
                  <li><em>No remarks</em></li>

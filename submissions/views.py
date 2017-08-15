@@ -344,7 +344,7 @@ def pool(request):
     All members of the Editorial College have access.
     """
     submissions_in_pool = (Submission.objects.get_pool(request.user)
-                           .prefetch_related('referee_invitations', 'remark_set', 'comments'))
+                           .prefetch_related('referee_invitations', 'remarks', 'comments'))
     recommendations_undergoing_voting = (EICRecommendation.objects
                                          .get_for_user_in_pool(request.user)
                                          .filter(submission__status__in=['put_to_EC_voting']))

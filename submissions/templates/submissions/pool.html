@@ -51,11 +51,11 @@
                             <div class="card card-outline-secondary">
                                 {% include 'submissions/_recommendation_fellow_content.html' with recommendation=rec %}
                                 <div class="card-body">
-                                    {% if rec.remark_set.all %}
+                                    {% if rec.remarks.all %}
                                         <h3 class="card-title">Remarks by Fellows:</h3>
                                         <ul>
-                                          {% for remark in rec.remark_set.all|sort_by:'date' %}
-                                              {{ remark.as_li }}
+                                          {% for remark in rec.remarks.all|sort_by:'date' %}
+                                              {% include 'partials/submissions/remark_as_li.html' with remark=remark %}
                                           {% endfor %}
                                         </ul>
                                     {% endif %}
@@ -91,10 +91,10 @@
                                         </li>
                                     </ul>
 
-                                    {% if rec.remark_set %}
+                                    {% if rec.remarks %}
                                         <h3 class="card-title">Remarks:</h3>
                                         <ul>
-                                          {% for rem in rec.remark_set.all %}
+                                          {% for rem in rec.remarks.all %}
                                               <li>{{ rem }}</li>
                                          {% empty %}
                                              <li><em>No remarks</em></li>

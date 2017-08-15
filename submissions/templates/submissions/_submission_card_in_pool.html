@@ -6,10 +6,10 @@
 {% include 'submissions/_submission_card_fellow_content.html' with submission=submission %}
 
 <div class="card-body">
-    {% if submission.remark_set.all %}
+    {% if submission.remarks.all %}
         <h4>Remarks on this submission:</h4>
         <ul>
-          {% for rem in submission.remark_set.all %}
+          {% for rem in submission.remarks.all %}
               {% include 'scipost/_remark_li.html' with remark=rem %}
           {% endfor %}
         </ul>

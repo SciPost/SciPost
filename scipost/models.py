@@ -146,18 +146,13 @@ class Remark(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     remark = models.TextField()
 
+    class Meta:
+        default_related_name = 'remarks'
+
     def __str__(self):
         return (self.contributor.user.first_name + ' '
                 + self.contributor.user.last_name + ' on '
                 + self.date.strftime("%Y-%m-%d"))
-
-    def as_li(self):
-        output = '<li><em>{{ by }}</em><p>{{ remark }}</p>'
-        context = Context({'by': str(self),
-                           'remark': self.remark})
-        template = Template(output)
-        return template.render(context)
-
 
 ###############
 # Invitations #

@@ -82,10 +82,10 @@
               	    <input class="btn btn-secondary" type="submit" value="Submit" />
               	  </form>
               	</div>
-              	{% if feedback.remark_set.all %}
+              	{% if feedback.remarks.all %}
               	<h3>Remarks on this feedback:</h3>
               	<ul>
-              	  {% for rem in feedback.remark_set.all %}
+              	  {% for rem in feedback.remarks.all %}
                   	  {% include 'scipost/_remark_li.html' with remark=rem %}
               	  {% endfor %}
               	</ul>
@@ -196,10 +196,10 @@
                                 <input type="submit" class="btn btn-secondary" value="Submit" />
                                 </form>
                             </div>
-                            {% if nomination.remark_set.all %}
+                            {% if nomination.remarks.all %}
                                 <h3>Remarks on this nomination:</h3>
                                 <ul>
-                                    {% for rem in nomination.remark_set.all %}
+                                    {% for rem in nomination.remarks.all %}
                                         {% include 'scipost/_remark_li.html' with remark=rem %}
                                     {% endfor %}
                                 </ul>
@@ -278,10 +278,10 @@
                                 <input type="submit" class="btn btn-secondary" value="Submit" />
                             </form>
                         </div>
-                        {% if motion.remark_set.all %}
+                        {% if motion.remarks.all %}
                         <h3>Remarks on this motion:</h3>
                             <ul>
-                                {% for rem in motion.remark_set.all %}
+                                {% for rem in motion.remarks.all %}
                                     {% include 'scipost/_remark_li.html' with remark=rem %}
                                 {% endfor %}
                             </ul>
