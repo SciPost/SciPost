@@ -242,7 +242,7 @@
 {% for key, val in motion_categories_dict.items %}
     <div class="row">
         <div class="col-12"><h2>{{ val }}:</h2></div>
-        <div class="col-md-11 offset-md-1">
+        <div class="col-md-11 ml-auto">
             <ul>
             {% for motion in VGM.motion_set.all %}
                 {% if motion.category == key %}
