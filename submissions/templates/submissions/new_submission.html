@@ -24,7 +24,7 @@ $(document).ready(function(){
 <div class="row">
     <div class="col-12">
         <div class="card card-grey">
-            <div class="card-block">
+            <div class="card-body">
                 <h1 class="card-title mb-0">Submit a manuscript to SciPost</h1>
                 {% if form.arxiv_identifier_w_vn_nr.value %}<h2 class="my-1 py-0 text-blue">{{form.arxiv_identifier_w_vn_nr.value}}{% if form.submission_is_resubmission %} <small>(resubmission)</small>{% endif %}</h2>{% endif %}
             </div>

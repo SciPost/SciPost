@@ -13,7 +13,7 @@
 <div class="row">
     <div class="col-md-4">
         <div class="card card-grey">
-            <div class="card-block min-height-190">
+            <div class="card-body min-height-190">
                 <h1 class="card-title">SciPost Commentaries</h1>
                 <h3><a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a></h3>
                 <h3><a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a></h3>
@@ -22,7 +22,7 @@
     </div>
     <div class="col-md-4">
         <div class="card card-grey">
-            <div class="card-block min-height-190">
+            <div class="card-body min-height-190">
                 <h2 class="card-title">Search SciPost Commentaries:</h2>
                 <form action="{% url 'commentaries:commentaries' %}" class="small" method="get">
                     {{ form|bootstrap:'4,8,sm' }}
@@ -33,7 +33,7 @@
     </div>
     <div class="col-md-4">
         <div class="card card-grey">
-            <div class="card-block min-height-190">
+            <div class="card-body min-height-190">
                 <h2 class="card-title">View SciPost Commentaries</h2>
                 <ul>
                     <li>Physics: last <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>

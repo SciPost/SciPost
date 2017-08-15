@@ -79,7 +79,6 @@ INSTALLED_APPS = (
     'django_mathjax',
     'ajax_select',
     'captcha',
-    'crispy_forms',
     'guardian',
     'haystack',
     'rest_framework',
@@ -175,7 +174,7 @@ WSGI_APPLICATION = 'SciPost_v1.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': get_secret("DB_NAME"),
         'USER': get_secret("DB_USER"),
         'PASSWORD': get_secret("DB_PWD"),

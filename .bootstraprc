@@ -1,6 +1,8 @@
 {
     "bootstrapVersion": 4,
+    "bootstrapCustomizations": "./scipost/static/scipost/assets/config/config.scss",
     "preBootstrapCustomizations": "./scipost/static/scipost/assets/config/preconfig.scss",
+    "appStyles": "./scipost/static/scipost/assets/css/style.scss",
     "useFlexbox": true,
     "styleLoaders": [
         "style",
@@ -28,9 +30,7 @@
         "mixins": true,
         "nav": true,
         "navbar": true,
-        "normalize": true,
         "reboot": true,
-        "responsive-embed": true,
         "transitions": true,
         "type": true,
         "tooltip": true,

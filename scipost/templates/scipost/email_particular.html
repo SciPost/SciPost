@@ -13,14 +13,16 @@
 {% block content %}
 
 <div class="row">
-    <div class="col-12">
+    <div class="col">
         <h1 class="highlight">Email a particular</h1>
     </div>
-    <div class="col-md-8 offset-md-2">
+</div>
+<div class="row justify-content-center">
+    <div class="col-md-8">
         <form action="{% url 'scipost:email_particular' %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap:'0,12' }}
-            <input type="submit" class="btn btn-secondary" value="Send email"/>
+            <input type="submit" class="btn btn-primary" value="Send email"/>
         </form>
 
     </div>

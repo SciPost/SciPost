@@ -47,13 +47,78 @@ class SubmissionAdminForm(forms.ModelForm):
 
 
 class SubmissionAdmin(GuardedModelAdmin):
-    search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
-    list_display = ('title', 'author_list', 'status', 'submission_date', 'publication',)
     date_hierarchy = 'submission_date'
-    list_filter = ('status', 'discipline', 'submission_type',)
     form = SubmissionAdminForm
-    # inlines = (CommentsGenericInline,)
-    exclude = ('comments', 'comments_old')
+    list_display = ('title', 'author_list', 'status', 'submission_date', 'publication',)
+    list_filter = ('status', 'discipline', 'submission_type',)
+    search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
+    raw_id_fields = ('editor_in_charge', 'submitted_by')
+    readonly_fields = ('arxiv_identifier_w_vn_nr', 'publication')
+
+    # Admin fields should be added in the fieldsets
+    radio_fields = {
+        "discipline": admin.VERTICAL,
+        "submitted_to_journal": admin.VERTICAL,
+        "refereeing_cycle": admin.HORIZONTAL,
+        "submission_type": admin.VERTICAL
+    }
+    fieldsets = (
+        (None, {
+            'fields': (
+                'publication',
+                'title',
+                'abstract',
+                'submission_type',
+                ('arxiv_identifier_wo_vn_nr', 'arxiv_vn_nr', 'arxiv_identifier_w_vn_nr'),
+                'arxiv_link'
+                ),
+        }),
+        ('Versioning', {
+            'fields': (
+                'is_current',
+                'is_resubmission',
+                'list_of_changes'),
+        }),
+        ('Submission details', {
+            'classes': ('collapse',),
+            'fields': (
+                'author_comments',
+                'discipline',
+                'domain',
+                'subject_area',
+                'secondary_areas'),
+        }),
+        ('Authors', {
+            'classes': ('collapse',),
+            'fields': (
+                'submitted_by',
+                'author_list',
+                'authors',
+                'authors_claims',
+                'authors_false_claims'),
+        }),
+        ('Refereeing', {
+            'classes': ('collapse',),
+            'fields': (
+                'editor_in_charge',
+                'status',
+                'refereeing_cycle',
+                ('open_for_commenting', 'open_for_reporting'),
+                'reporting_deadline',
+                'acceptance_date',
+                'referees_flagged',
+                'referees_suggested',
+                'remarks_for_editors',
+                'submitted_to_journal',
+                'pdf_refereeing_pack',
+                'plagiarism_report'),
+        }),
+        ('Meta', {
+            'classes': ('collapse',),
+            'fields': ('metadata', 'submission_date'),
+        }),
+
+    )
 
 
 admin.site.register(Submission, SubmissionAdmin)

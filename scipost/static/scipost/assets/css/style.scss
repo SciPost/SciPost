@@ -1,7 +1,5 @@
-@import "node_modules/bootstrap/scss/_variables";
-@import "node_modules/bootstrap/scss/_mixins";
 @import "./../config/preconfig.scss";
-
+@import "node_modules/bootstrap/scss/variables";
 /**
  * Make variables defined in preconfig.scss accessable in this file,
  *  plus default variables and mixins of Bootstrap@4

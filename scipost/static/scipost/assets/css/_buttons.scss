@@ -7,12 +7,18 @@
     font-family: inherit;
 }
 
+.btn-secondary {
+    color: $scipost-darkblue;
+    background-color: $white;
+    border-color: $gray-600;
+}
+
 .category-group,
 .voting-group {
     border-radius: $card-border-radius;
     background-color: #ddd;
     color: $scipost-darkblue;
-    box-shadow: 0 1px 0 0 #ccc;
+    box-shadow: 0 1px 0 0 $gray-600;
 
     .btn {
         margin: 0;

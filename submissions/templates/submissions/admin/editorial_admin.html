@@ -20,18 +20,18 @@
         </p>
 
         <h3>Submissions currently in pre-screening</h3>
-        <ul class="unstyled-list">
+        <ul class="list-unstyled">
             {% for sub in submission_list.prescreening %}
                 <li>
                     {% include 'partials/submissions/admin/submission_tooltip.html' with submission=sub %}
                     {% if sub == submission %}
                         <strong>
                             <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            <br>latest activity: {{sub.latest_activity|timesince}} ago
+                            <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
                         </strong>
                     {% else %}
                         <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        <br>latest activity: {{sub.latest_activity|timesince}} ago
+                        <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
                     {% endif %}
                 </li>
             {% empty %}
@@ -40,18 +40,18 @@
         </ul>
 
         <h3>Submissions currently in refereeing round</h3>
-        <ul class="unstyled-list">
+        <ul class="list-unstyled">
             {% for sub in submission_list.actively_refereeing %}
                 <li>
                     {% include 'partials/submissions/admin/submission_tooltip.html' with submission=sub %}
                     {% if sub == submission %}
                         <strong>
                             <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            <br>latest activity: {{sub.latest_activity|timesince}} ago
+                            <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
                         </strong>
                     {% else %}
                         <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        <br>latest activity: {{sub.latest_activity|timesince}} ago
+                        <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
                     {% endif %}
                 </li>
             {% empty %}
@@ -60,18 +60,18 @@
         </ul>
 
         <h3>Submissions accepted</h3>
-        <ul class="unstyled-list">
+        <ul class="list-unstyled">
             {% for sub in submission_list.accepted %}
                 <li>
                     {% include 'partials/submissions/admin/submission_tooltip.html' with submission=sub %}
                     {% if sub == submission %}
                         <strong>
                             <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            <br>latest activity: {{sub.latest_activity|timesince}} ago
+                            <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
                         </strong>
                     {% else %}
                         <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        <br>latest activity: {{sub.latest_activity|timesince}} ago
+                        <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
                     {% endif %}
                 </li>
             {% empty %}
@@ -82,8 +82,8 @@
 
     <div class="col-md-5">
         {% if submission %}
-            <div class="card card-outline-secondary mt-2">
-                <div class="card-block">
+            <div class="card border-secondary mt-2">
+                <div class="card-body">
                     {% include 'partials/submissions/admin/editorial_admin_summary.html' with submission=submission %}
                 </div>
             </div>

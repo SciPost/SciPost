@@ -1,8 +1,5 @@
 from django import forms
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, HTML, Submit
-
 from .models import Feedback, Nomination, Motion
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
@@ -40,22 +37,3 @@ class MotionForm(forms.ModelForm):
         self.fields['motion'].widget.attrs.update(
             {'rows': 8, 'cols': 100,
              'placeholder': 'Phrase your Motion as clearly and succinctly as possible.'})
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Field('category'),
-            Div(
-                Div(HTML('<p>Background:</p>'),
-                    css_class="col-2"),
-                Div(
-                    Field('background'),
-                    css_class="col-10"),
-                css_class="row"),
-            Div(
-                Div(HTML('<p>Motion:</p>'),
-                    css_class="col-2"),
-                Div(
-                    Field('motion'),
-                    css_class="col-10"),
-                css_class="row"),
-            Submit('submit', 'Submit'),
-        )

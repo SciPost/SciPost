@@ -15,7 +15,7 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
                        EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
-from .managers import SubmissionQuerySet, EditorialAssignmentManager, EICRecommendationManager,\
+from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationManager,\
                       ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
@@ -113,6 +113,12 @@ class Submission(models.Model):
         self._update_cycle()
 
     def save(self, *args, **kwargs):
+        # Fill `arxiv_identifier_w_vn_nr` as a dummy field for convenience
+        arxiv_w_vn = '{arxiv}v{version}'.format(
+            arxiv=self.arxiv_identifier_wo_vn_nr,
+            version=self.arxiv_vn_nr)
+        self.arxiv_identifier_w_vn_nr = arxiv_w_vn
+
         super().save(*args, **kwargs)
         self._update_cycle()
 
@@ -258,7 +264,11 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     date_answered = models.DateTimeField(blank=True, null=True)
 
-    objects = EditorialAssignmentManager()
+    objects = EditorialAssignmentQuerySet.as_manager()
+
+    class Meta:
+        default_related_name = 'editorial_assignments'
+        ordering = ['-date_created']
 
     def __str__(self):
         return (self.to.user.first_name + ' ' + self.to.user.last_name + ' to become EIC of ' +

@@ -9,7 +9,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.template import Template, Context
 from django.utils import timezone
-from django.urls import reverse
 
 from django_countries.fields import CountryField
 
@@ -20,7 +19,8 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
                        AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS
 from .fields import ChoiceArrayField
-from .managers import FellowManager, ContributorManager, RegistrationInvitationManager
+from .managers import FellowManager, ContributorManager, RegistrationInvitationManager,\
+                      UnavailabilityPeriodManager
 
 
 def get_sentinel_user():
@@ -41,7 +41,7 @@ class Contributor(models.Model):
     """
     user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True)
     invitation_key = models.CharField(max_length=40, blank=True)
-    activation_key = models.CharField(max_length=40, blank=True)
+    _activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
@@ -73,12 +73,13 @@ class Contributor(models.Model):
     def get_absolute_url(self):
         return reverse('scipost:contributor_info', args=(self.id,))
 
+    @property
     def get_formal_display(self):
         return '%s %s %s' % (self.get_title_display(), self.user.first_name, self.user.last_name)
 
-    def get_title(self):
-        # Please use get_title_display(). To be removed in future
-        return self.get_title_display()
+    @property
+    def is_currently_available(self):
+        return not self.unavailability_periods.today().exists()
 
     def is_SP_Admin(self):
         return self.user.groups.filter(name='SciPost Administrators').exists()
@@ -89,14 +90,12 @@ class Contributor(models.Model):
     def is_VE(self):
         return self.user.groups.filter(name='Vetting Editors').exists()
 
-    def is_currently_available(self):
-        unav_periods = UnavailabilityPeriod.objects.filter(contributor=self)
+    def get_activation_key(self):
+        if not self._activation_key:
+            self.generate_key()
+        return self._activation_key
 
-        today = datetime.date.today()
-        for unav in unav_periods:
-            if unav.start < today and unav.end > today:
-                return False
-        return True
+    activation_key = property(get_activation_key, _activation_key)
 
     def generate_key(self, feed=''):
         """
@@ -106,68 +105,22 @@ class Contributor(models.Model):
             feed += random.choice(string.ascii_letters)
         feed = feed.encode('utf8')
         salt = self.user.username.encode('utf8')
-        self.activation_key = hashlib.sha1(salt+salt).hexdigest()
+        self._activation_key = hashlib.sha1(salt+salt).hexdigest()
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
-
-    def discipline_as_string(self):
-        # Redundant, to be removed in future
-        return self.get_discipline_display()
 
     def expertises_as_string(self):
         if self.expertises:
             return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
         return ''
 
-    def assignments_summary_as_td(self):
-        assignments = self.editorialassignment_set.all()
-        nr_ongoing = assignments.filter(accepted=True, completed=False).count()
-        nr_last_12mo = assignments.filter(
-            date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-        nr_accepted = assignments.filter(accepted=True).count()
-        nr_accepted_last_12mo = assignments.filter(
-            accepted=True, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-        nr_refused = assignments.filter(accepted=False).count()
-        nr_refused_last_12mo = assignments.filter(
-            accepted=False, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-        nr_ignored = assignments.filter(accepted=None).count()
-        nr_ignored_last_12mo = assignments.filter(
-            accepted=None, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-        nr_completed = assignments.filter(completed=True).count()
-        nr_completed_last_12mo = assignments.filter(
-            completed=True, date_created__gt=timezone.now() - timezone.timedelta(days=365)).count()
-
-        context = Context({
-            'nr_ongoing': nr_ongoing,
-            'nr_total': assignments.count(),
-            'nr_last_12mo': nr_last_12mo,
-            'nr_accepted': nr_accepted,
-            'nr_accepted_last_12mo': nr_accepted_last_12mo,
-            'nr_refused': nr_refused,
-            'nr_refused_last_12mo': nr_refused_last_12mo,
-            'nr_ignored': nr_ignored,
-            'nr_ignored_last_12mo': nr_ignored_last_12mo,
-            'nr_completed': nr_completed,
-            'nr_completed_last_12mo': nr_completed_last_12mo,
-        })
-        output = '<td>'
-        if self.expertises:
-            for expertise in self.expertises:
-                output += subject_areas_dict[expertise] + '<br/>'
-        output += ('</td>'
-                   '<td>{{ nr_ongoing }}</td>'
-                   '<td>{{ nr_last_12mo }} / {{ nr_total }}</td>'
-                   '<td>{{ nr_accepted_last_12mo }} / {{ nr_accepted }}</td>'
-                   '<td>{{ nr_refused_last_12mo }} / {{ nr_refused }}</td>'
-                   '<td>{{ nr_ignored_last_12mo }} / {{ nr_ignored }}</td>'
-                   '<td>{{ nr_completed_last_12mo }} / {{ nr_completed }}</td>\n')
-        template = Template(output)
-        return template.render(context)
-
 
 class UnavailabilityPeriod(models.Model):
-    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                                    related_name='unavailability_periods')
     start = models.DateField()
     end = models.DateField()
+
+    objects = UnavailabilityPeriodManager()
 
     class Meta:
         ordering = ['-start']
@@ -193,17 +146,13 @@ class Remark(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     remark = models.TextField()
 
+    class Meta:
+        default_related_name = 'remarks'
+
     def __str__(self):
         return (self.contributor.user.first_name + ' '
                 + self.contributor.user.last_name + ' on '
                 + self.date.strftime("%Y-%m-%d"))
-
-    def as_li(self):
-        output = '<li><em>{{ by }}</em><p>{{ remark }}</p>'
-        context = Context({'by': str(self),
-                           'remark': self.remark})
-        template = Template(output)
-        return template.render(context)
 
 
 ###############

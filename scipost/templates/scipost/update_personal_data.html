@@ -1,8 +1,13 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
 
 {% block pagetitle %}: update personal data{% endblock pagetitle %}
 
 {% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Update personal data</span>
+{% endblock %}
 
 {% block content %}
 
@@ -86,8 +91,8 @@
 {% endif %}
 
 
-<div class="row">
-    <div class="col-lg-10 offset-lg-1">
+<div class="row justify-content-center">
+    <div class="col-lg-10">
         <h1 class="highlight">Update your personal data</h1>
         <form action="{% url 'scipost:update_personal_data' %}" method="post">
             {% csrf_token %}
@@ -95,7 +100,7 @@
             {% if cont_form %}
             	{{cont_form|bootstrap}}
             {% endif %}
-            <input type="submit" class="btn btn-secondary" value="Update" />
+            <input type="submit" class="btn btn-primary" value="Update" />
         </form>
     </div>
 </div>

@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
-from django.template import Template, Context
 
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.behaviors import TimeStampedModel
@@ -70,14 +69,6 @@ class Commentary(TimeStampedModel):
 
     def get_absolute_url(self):
         return reverse('commentaries:commentary', args=(self.arxiv_or_DOI_string,))
-
-    def title_label(self):
-        context = Context({
-            'scipost_url': reverse('commentaries:commentary', args=(self.arxiv_or_DOI_string,)),
-            'title': self.title
-        })
-        template = Template('<a href="{{scipost_url}}" class="pubtitleli">{{title}}</a>')
-        return template.render(context)
 
     def parse_links_into_urls(self, commit=False):
         """ Takes the arXiv nr or DOI and turns it into the urls """

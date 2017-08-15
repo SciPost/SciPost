@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,700" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
 
-    {% render_bundle 'bootstrap' 'css' %}
     {% render_bundle 'main' 'css' %}
 
     <link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
@@ -46,7 +45,6 @@
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
     {% render_bundle 'main' 'js' %}
-    {% render_bundle 'bootstrap' 'js' %}
 
     {% block footer_script %}
     {% endblock footer_script %}

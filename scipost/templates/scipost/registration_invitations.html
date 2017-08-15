@@ -36,7 +36,7 @@ $(document).ready(function(){
 <div class="row">
     <div class="col-12">
         <div class="card card-grey">
-            <div class="card-block">
+            <div class="card-body">
                 <h1 class="card-title">Registration Invitations</h1>
                 {% if request.user|is_in_group:'SciPost Administrators' %}
                     <h3>Perform a <a href="{% url 'scipost:registration_invitations_cleanup' %}">cleanup</a> of existing invitations.</h3>
