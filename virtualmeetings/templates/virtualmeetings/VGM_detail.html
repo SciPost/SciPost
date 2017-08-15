@@ -55,7 +55,7 @@
               <h2>Feedback on SciPost</h2>
               <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#submitFeedback">Provide feedback</a>
           </div>
-          <div class="card-block" style="display: none;" id="submitFeedback">
+          <div class="card-body" style="display: none;" id="submitFeedback">
               <form action="{% url 'virtualmeetings:feedback' VGM_id=VGM.id %}" method="post">
             	{% csrf_token %}
             	{{ feedback_form|bootstrap }}
@@ -82,10 +82,10 @@
               	    <input class="btn btn-secondary" type="submit" value="Submit" />
               	  </form>
               	</div>
-              	{% if feedback.remark_set.all %}
+              	{% if feedback.remarks.all %}
               	<h3>Remarks on this feedback:</h3>
               	<ul>
-              	  {% for rem in feedback.remark_set.all %}
+              	  {% for rem in feedback.remarks.all %}
                   	  {% include 'scipost/_remark_li.html' with remark=rem %}
               	  {% endfor %}
               	</ul>
@@ -105,7 +105,7 @@
                   <h2>Nominations to the Editorial College</h2>
                   <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#submitNominationForm">Nominate an Editorial Fellow candidate</a>
               </div>
-              <div class="card-block" style="display: none;" id="submitNominationForm">
+              <div class="card-body" style="display: none;" id="submitNominationForm">
                   <form action="{% url 'virtualmeetings:nominate_Fellow' VGM_id=VGM.id %}" method="post">
                 	{% csrf_token %}
                 	{{ nomination_form|bootstrap }}
@@ -162,7 +162,7 @@
             <ul class="list-group list-group-flush">
                 {% for nomination in nominations %}
                     <li class="list-group-item border-0">
-                        <div class="card-block">
+                        <div class="card-body">
                             {% include 'virtualmeetings/nomination_content.html' with nomination=nomination %}
                             <br/>
                             <div class="opinionsDisplay  mb-3">
@@ -196,10 +196,10 @@
                                 <input type="submit" class="btn btn-secondary" value="Submit" />
                                 </form>
                             </div>
-                            {% if nomination.remark_set.all %}
+                            {% if nomination.remarks.all %}
                                 <h3>Remarks on this nomination:</h3>
                                 <ul>
-                                    {% for rem in nomination.remark_set.all %}
+                                    {% for rem in nomination.remarks.all %}
                                         {% include 'scipost/_remark_li.html' with remark=rem %}
                                     {% endfor %}
                                 </ul>
@@ -222,7 +222,7 @@
                 <h2>Submit a new Motion</h2>
                 <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#submitMotionForm">Put a new Motion forward</a>
             </div>
-            <div class="card-block" style="display: none;" id="submitMotionForm">
+            <div class="card-body" style="display: none;" id="submitMotionForm">
                 <form action="{% url 'virtualmeetings:put_motion_forward' VGM_id=VGM.id %}" method="post">
                   {% csrf_token %}
                   {{ motion_form|bootstrap }}
@@ -242,7 +242,7 @@
 {% for key, val in motion_categories_dict.items %}
     <div class="row">
         <div class="col-12"><h2>{{ val }}:</h2></div>
-        <div class="col-md-11 offset-md-1">
+        <div class="col-md-11 ml-auto">
             <ul>
             {% for motion in VGM.motion_set.all %}
                 {% if motion.category == key %}
@@ -278,10 +278,10 @@
                                 <input type="submit" class="btn btn-secondary" value="Submit" />
                             </form>
                         </div>
-                        {% if motion.remark_set.all %}
+                        {% if motion.remarks.all %}
                         <h3>Remarks on this motion:</h3>
                             <ul>
-                                {% for rem in motion.remark_set.all %}
+                                {% for rem in motion.remarks.all %}
                                     {% include 'scipost/_remark_li.html' with remark=rem %}
                                 {% endfor %}
                             </ul>

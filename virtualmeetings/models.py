@@ -44,9 +44,6 @@ class Feedback(models.Model):
     def get_absolute_url(self):
         return self.VGM.get_absolute_url() + '#feedback' + str(self.id)
 
-    def as_li(self):
-        raise DeprecationWarning
-
 
 class Nomination(models.Model):
     """
@@ -83,12 +80,6 @@ class Nomination(models.Model):
 
     def get_absolute_url(self):
         return self.VGM.get_absolute_url() + '#nomination_' + str(self.id)
-
-    def as_li(self):
-        raise DeprecationWarning
-
-    def votes_as_ul(self):
-        raise DeprecationWarning
 
     def update_votes(self, contributor_id, vote):
         contributor = get_object_or_404(Contributor, pk=contributor_id)
@@ -137,12 +128,6 @@ class Motion(models.Model):
 
     def get_absolute_url(self):
         return self.VGM.get_absolute_url() + '#motion_' + str(self.id)
-
-    def as_li(self):
-        raise DeprecationWarning
-
-    def votes_as_ul(self):
-        raise DeprecationWarning
 
     def update_votes(self, contributor_id, vote):
         contributor = get_object_or_404(Contributor, pk=contributor_id)

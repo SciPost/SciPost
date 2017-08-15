@@ -144,11 +144,29 @@ class SubmissionEventQuerySet(models.QuerySet):
         return self.filter(created__gte=timezone.now() - datetime.timedelta(hours=hours))
 
 
-class EditorialAssignmentManager(models.Manager):
+class EditorialAssignmentQuerySet(models.QuerySet):
     def get_for_user_in_pool(self, user):
         return self.exclude(submission__authors=user.contributor)\
                 .exclude(Q(submission__author_list__icontains=user.last_name),
                          ~Q(submission__authors_false_claims=user.contributor))
+
+    def last_year(self):
+        return self.filter(date_created__gt=timezone.now() - timezone.timedelta(days=365))
+
+    def accepted(self):
+        return self.filter(accepted=True)
+
+    def refused(self):
+        return self.filter(accepted=False)
+
+    def ignored(self):
+        return self.filter(accepted=None)
+
+    def completed(self):
+        return self.filter(completed=True)
+
+    def ongoing(self):
+        return self.filter(completed=False).accepted()
 
 
 class EICRecommendationManager(models.Manager):

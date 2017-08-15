@@ -272,7 +272,7 @@ class Command(BaseCommand):
         EditorialAdmin.permissions.set([
             can_view_pool,
             can_assign_submissions,
-            can_do_plagiarism_checks
+            can_do_plagiarism_checks,
             can_oversee_refereeing,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,

@@ -398,8 +398,11 @@ class UnavailabilityPeriodForm(forms.ModelForm):
 
     def clean_end(self):
         now = timezone.now()
-        start = self.cleaned_data['start']
-        end = self.cleaned_data['end']
+        start = self.cleaned_data.get('start')
+        end = self.cleaned_data.get('end')
+        if not start or not end:
+            return end
+
         if start > end:
             self.add_error('end', 'The start date you have entered is later than the end date.')
 

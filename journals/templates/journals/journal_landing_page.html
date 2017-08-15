@@ -19,15 +19,13 @@
 
         <div class="row">
             <div class="col-12">
-                <ul class="list-group list-group-flush list-group-noborder">
+                <ul class="list-unstyled">
                     {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
-                        <li class="list-group-item">
-                            <div class="card card-grey card-publication">
-                                {% include 'journals/_publication_card_content.html' with publication=paper %}
-                            </div>
+                        <li>
+                            {% include 'partials/journals/publication_card.html' with publication=paper %}
                         </li>
                     {% empty %}
-                        <li class="list-group-item">
+                        <li>
                             <h3>No publications found for this issue</h3>
                         </li>
                     {% endfor %}
@@ -44,15 +42,13 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <ul class="list-group list-group-flush list-group-noborder">
+                <ul class="list-unstyled">
                     {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
-                        <li class="list-group-item">
-                            <div class="card card-grey card-publication">
-                                {% include 'journals/_publication_card_content.html' with publication=paper %}
-                            </div>
+                        <li>
+                            {% include 'partials/journals/publication_card.html' with publication=paper %}
                         </li>
                     {% empty %}
-                        <li class="list-group-item">
+                        <li>
                             <h3>No publications found for this issue</h3>
                         </li>
                     {% endfor %}

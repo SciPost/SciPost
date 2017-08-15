@@ -1299,22 +1299,27 @@ def EdCol_bylaws(request):
 
 
 @permission_required('scipost.can_view_pool', return_403=True)
-def Fellow_activity_overview(request, Fellow_id=None):
-    fellows = Contributor.objects.filter(
-        user__groups__name='Editorial College').order_by('user__last_name')
-    context = {'fellows': fellows}
-    if Fellow_id:
-        fellow = get_object_or_404(Contributor, pk=Fellow_id)
-        context['fellow'] = fellow
+def Fellow_activity_overview(request):
+    fellows = (Contributor.objects.fellows()
+               .prefetch_related('editorial_assignments')
+               .order_by('user__last_name'))
+    context = {
+        'fellows': fellows
+    }
 
-        assignments_ongoing = (EditorialAssignment.objects.get_for_user_in_pool(request.user)
-                               .filter(accepted=True, completed=False, to=fellow)
-                               .order_by('-date_created'))
-        context['assignments_ongoing'] = assignments_ongoing
+    if request.GET.get('fellow'):
+        try:
+            fellow = fellows.get(pk=request.GET['fellow'])
+            context['fellow'] = fellow
 
-        assignments_completed = (EditorialAssignment.objects.get_for_user_in_pool(request.user)
-                                 .filter(completed=True, to=fellow).order_by('-date_created'))
-        context['assignments_completed'] = assignments_completed
+            context['assignments_ongoing'] = (fellow.editorial_assignments
+                                              .ongoing()
+                                              .get_for_user_in_pool(request.user))
+            context['assignments_completed'] = (fellow.editorial_assignments
+                                                .completed()
+                                                .get_for_user_in_pool(request.user))
+        except Contributor.DoesNotExist:
+            pass
     return render(request, 'scipost/Fellow_activity_overview.html', context)
 
 
