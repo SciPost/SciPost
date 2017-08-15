@@ -4,18 +4,36 @@ table.submission_header {
 
 .report,
 .comment {
-    border-left: 4px solid #f4f4f4;
     padding-left: 1rem;
+    position: relative;
+
+    &:before {
+        content: '';
+        width: 4px;
+        height: 100%;
+        background: #f4f4f4;
+        position: absolute;
+        left: 0;
+        box-shadow: 0 1px 0 0 $card-shadow-color;
+        border: 1px solid;
+        border-color: $card-grey-border-color;
+        z-index: -1;
+        border-radius: $border-radius 0 $border-radius $border-radius;
+    }
 
     .reportid,
     .commentid {
-        box-shadow: none;
         display: block;
         margin-bottom: 1rem;
-        padding: 0.5rem 1rem;
+        margin-left: calc(-1rem + 3px);
+        padding: 0.5rem calc(1rem - 3px);
         background: #f4f4f4;
-        margin-left: -1rem;
-        border-bottom: 1px solid #ccc;
+        border: 1px solid;
+        border-color: $card-grey-border-color;
+        border-radius: 0 $border-radius $border-radius 0;
+        box-shadow: 0 1px 0 0 $card-shadow-color;
+        border-left: 0;
+        z-index: 99;
     }
 }
 
@@ -25,11 +43,11 @@ table.submission_header {
 
 .required-actions {
     padding: 0.5rem;
-    background-color: $brand-danger;
+    background-color: $red;
     color: $white;
     border-radius: $card-border-radius;
 
     &.no-actions {
-        background-color: $brand-success;
+        background-color: $green;
     }
 }

@@ -16,7 +16,7 @@
             border-bottom: 1px solid #ddd;
         }
 
-        .card-block {
+        .card-body {
             border-top: 1px solid #fff;
             background-color: #f8f8f8;
         }
@@ -29,7 +29,7 @@
 
 .card-header {
     padding: 0.5rem 0;
-    margin: 0 0.75rem 0 0.75rem;
+    margin: 0 0.75rem;
 }
 
 .card-footer {
@@ -37,7 +37,7 @@
     margin: 0 0.75rem 0.75rem 0.75rem;
 }
 
-.list-group-item > .card-block {
+.list-group-item > .card-body {
     padding: 0.5rem;
 }
 
@@ -75,7 +75,7 @@
         background-color: #f8f8f8;
     }
 
-    .card-block {
+    .card-body {
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
 

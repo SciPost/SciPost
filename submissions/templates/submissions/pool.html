@@ -50,7 +50,7 @@
 
                             <div class="card card-outline-secondary">
                                 {% include 'submissions/_recommendation_fellow_content.html' with recommendation=rec %}
-                                <div class="card-block">
+                                <div class="card-body">
                                     {% if rec.remark_set.all %}
                                         <h3 class="card-title">Remarks by Fellows:</h3>
                                         <ul>
@@ -241,7 +241,7 @@
     <!-- Sidebar -->
     <div class="col-lg-4 hidden-md-down">
         <div class="card card-outline-secondary">
-            <div class="card-block">
+            <div class="card-body">
                 <h2 class="card-title">Pool</h2>
                 <!-- Status -->
                 <a href="#pool_filter_status" data-toggle="collapse" class="collapsed">
@@ -267,7 +267,7 @@
                             <ul class="list-group list-group-flush">
                                 {% for recommendation in recommendations_undergoing_voting %}
                                     <li class="list-group-item">
-                                        <div class="card-block">
+                                        <div class="card-body">
                                             <a href="#undergoing_rec_{{recommendation.id}}">{{recommendation.submission.title}}</a>
                                             <p class="text-muted my-0">{{recommendation.submission.author_list}}</p>
                                             <p class="my-0">Formulated on {{recommendation.date_submitted}}</p>
@@ -287,7 +287,7 @@
                             <ul class="list-group list-group-flush">
                                 {% for recommendation in recommendations_to_prepare_for_voting %}
                                     <li class="list-group-item">
-                                        <div class="card-block">
+                                        <div class="card-body">
                                             <a href="#prepare_rec_{{recommendation.id}}">{{recommendation.submission.title}}</a>
                                             <p class="text-muted my-0">{{recommendation.submission.author_list}}</p>
                                             <p class="my-0">Formulated on {{recommendation.date_submitted}}</p>
@@ -307,7 +307,7 @@
                     <ul class="list-group list-group-flush">
                         {% for submission in submissions_in_pool %}
                             <li class="list-group-item">
-                                <div class="card-block" style="overflow: auto;">
+                                <div class="card-body" style="overflow: auto;">
                                     <a href="#pool_submission_{{submission.id}}">{{submission.title}}</a>
                                     <p class="text-muted mb-1">{{submission.author_list}}</p>
                                     <p class="label label-secondary label-sm my-2">{{submission.get_status_display}}</p>

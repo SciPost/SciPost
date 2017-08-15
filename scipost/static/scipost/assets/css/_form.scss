@@ -11,11 +11,11 @@
 }
 
 .has-error .help-block {
-    color: $brand-danger;
+    color: $red;
 }
 
 .has-error .multiple-checkbox .help-block {
-    color: $brand-danger;
+    color: $red;
     font-weight: 600;
 }
 
@@ -81,7 +81,7 @@ input[type="file"] {
 .delete-form-group {
     > * {
         opacity: 0.5;
-        color: $brand-danger;
+        color: $red;
 
         &:last-child {
             // The delete button should always be visible

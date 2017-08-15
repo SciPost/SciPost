@@ -16,7 +16,7 @@
 <div class="row">
     <div class="col-12">
         <div class="card card-grey">
-            <div class="card-block">
+            <div class="card-body">
                 <h1 class="card-title">Editorial Recommendation for Submission</h1>
                 <p class="card-text">
                     Go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">
@@ -32,7 +32,7 @@
 
 <div class="card card-outline-secondary">
     {% include 'submissions/_recommendation_fellow_content.html' with recommendation=object %}
-    <div class="card-block">
+    <div class="card-body">
         {% if object.remark_set.all %}
             <h3 class="card-title">Remarks by Fellows:</h3>
             <ul>

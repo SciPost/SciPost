@@ -1,6 +1,6 @@
 {% if submission.cycle.has_required_actions %}
     <div class="card {% if submission.cycle.get_required_actions %}card-danger text-white{% else %}card-outline-success text-success{% endif %}">
-        <div class="card-block">
+        <div class="card-body">
             <h3 class="card-title pt-0">Required actions:</h3>
             <ul class="mb-0">
                 {% for action in submission.cycle.get_required_actions %}

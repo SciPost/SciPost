@@ -79,7 +79,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card card-grey">
-                        <div class="card-block">
+                        <div class="card-body">
                             <h2 class="card-title mb-0">Your Account</h2>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card card-grey">
-                        <div class="card-block">
+                        <div class="card-body">
                             <h2 class="card-title mb-0">Your Availability</h2>
                         </div>
                     </div>
@@ -198,7 +198,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="card card-grey">
-                            <div class="card-block">
+                            <div class="card-body">
                                 <h2 class="card-title mb-0">Pending Editorial Actions</h2>
                             </div>
                         </div>
@@ -350,7 +350,7 @@
 	      <div class="row">
 		<div class="col-12">
 		  <div class="card card-grey">
-		    <div class="card-block">
+		    <div class="card-body">
 		      <h2 class="card-title mb-0">Production Tasks</h2>
 		    </div>
 		  </div>
@@ -374,7 +374,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="card card-grey">
-                            <div class="card-block">
+                            <div class="card-body">
                                 <h2 class="card-title">Refereeing Tasks</h2>
                                 <ul class="mb-0">
                                     <li><a href="{% url 'submissions:accept_or_decline_ref_invitations' %}">Accept/decline refereeing invitations</a> ({{ nr_ref_inv_to_consider }})</li>
@@ -431,7 +431,7 @@
                                     {% comment %}
                                         Temporary: There is already a template for a "Report summary" in a parallel (unmerged) branch. Awaiting merge to use that template.
                                     {% endcomment %}
-                                    <div class="card-block {% block cardblock_class_block %}{% endblock %}">
+                                    <div class="card-body {% block cardblock_class_block %}{% endblock %}">
                                         <h3>Report on Submission <a href="{{report.submission.get_absolute_url}}">{{report.submission.title}}</a></h3>
                                         <table>
                                             <tr>
@@ -459,7 +459,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card card-grey">
-                        <div class="card-block">
+                        <div class="card-body">
                             <h2 class="card-title">Submissions</h2>
                             <ul class="mb-0">
                                 {% if nr_submission_authorships_to_claim > 0 %}
@@ -499,7 +499,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card card-grey">
-                        <div class="card-block">
+                        <div class="card-body">
                             <h2 class="card-title">Commentaries</h2>
                             <ul class="mb-0">
                                 {% if nr_commentary_authorships_to_claim > 0 %}
@@ -535,7 +535,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card card-grey">
-                        <div class="card-block">
+                        <div class="card-body">
                             <h2 class="card-title">Theses</h2>
                             <ul class="mb-0">
                                 {% if nr_thesis_authorships_to_claim > 0 %}
@@ -572,7 +572,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card card-grey">
-                        <div class="card-block">
+                        <div class="card-body">
                             <h2 class="card-title mb-0">Your Comments</h2>
                         </div>
                     </div>
@@ -599,7 +599,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card card-grey">
-                        <div class="card-block">
+                        <div class="card-body">
                             <h2 class="card-title mb-0">Your Author Replies</h2>
                         </div>
                     </div>
