@@ -1,11 +1,18 @@
 {% load render_bundle from webpack_loader %}
 
+{% render_bundle 'modal' 'js' %}
+
 <div class="row">
     <div class="col-12">
         <h2 class="pb-1 text-blue">{{publication.title}}</h2>
 
         <p class="mb-1">{{ publication.author_list }}</p>
-        <p class="text-muted">{{ publication.citation }} &middot; published {{ publication.publication_date|date:'j F Y' }}</p>
+        <p class="text-muted">
+            {{ publication.citation }} &middot; published {{ publication.publication_date|date:'j F Y' }}
+            {% if publication.cc_license != 'CC BY 4.0' %}
+                &middot; licensed under {{publication.get_cc_license_display}}
+            {% endif %}
+        </p>
 
         <ul class="publicationClickables">
             <li>doi:  {{publication.doi_string}}</li>
@@ -14,12 +21,12 @@
             </li>
             <li><a href="javascript:;" data-toggle="modal" data-target="#bibtextmodal">BiBTeX</a></li>
             <li><a href="{% url 'submissions:submission' publication.accepted_submission.arxiv_identifier_w_vn_nr %}">Submissions/Reports</a></li>
-	    <li>
-	      <!-- Start Crossmark Snippet v2.0 -->
-	      <script src="https://crossmark-cdn.crossref.org/widget/v2.0/widget.js"></script>
-	      <a data-target="crossmark"><img src="https://crossmark-cdn.crossref.org/widget/v2.0/logos/CROSSMARK_BW_horizontal.svg" width="120" /></a>
-	      <!-- End Crossmark Snippet -->
-	    </li>
+    	    <li>
+    	      <!-- Start Crossmark Snippet v2.0 -->
+    	      <script src="https://crossmark-cdn.crossref.org/widget/v2.0/widget.js"></script>
+    	      <a data-target="crossmark"><img src="https://crossmark-cdn.crossref.org/widget/v2.0/logos/CROSSMARK_BW_horizontal.svg" width="120" /></a>
+    	      <!-- End Crossmark Snippet -->
+    	    </li>
         </ul>
     </div>
 </div>
@@ -49,5 +56,3 @@
         </div>
     </div>
 </div>
-
-{% render_bundle 'modal' 'js' %}
