@@ -1,7 +1,6 @@
 {% load guardian_tags %}
 {% load scipost_extras %}
 {% load submissions_extras %}
-{% load render_bundle from webpack_loader %}
 
 
 <h5 class="pb-0">{{submission.get_subject_area_display}}</h5>
@@ -143,7 +142,3 @@
 <div id="eventslist">
     {% include 'submissions/submission_event_list.html' with events=submission.events.for_eic %}
 </div>
-
-{% block footer_script %}
-    {% render_bundle 'tooltip' 'js' %}
-{% endblock %}
