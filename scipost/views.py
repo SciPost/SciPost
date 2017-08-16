@@ -166,6 +166,7 @@ def search(request):
                 submission_search_list_paginator.num_pages)
         context['submission_search_list'] = submission_search_list
 
+    context['search_query'] = request.GET.get('q')
     return render(request, 'scipost/search.html', context)
 
 
