@@ -1,5 +1,5 @@
 {% extends 'scipost/base.html' %}
-{% load render_bundle from webpack_loader %}
+
 {% block pagetitle %}: About{% endblock pagetitle %}
 
 {% load staticfiles %}
@@ -185,7 +185,6 @@
 {% endblock content %}
 
 {% block footer_script %}
-{{block.super}}
-    {% render_bundle 'tooltip' 'js' %}
+    {{block.super}}
     <script src="{% static 'scipost/about.js' %}"></script>
 {% endblock %}

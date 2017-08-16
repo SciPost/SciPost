@@ -15,8 +15,6 @@ module.exports = {
         homepage: [
             "./scipost/static/scipost/assets/js/newsticker.js",
         ],
-        tooltip: "./scipost/static/scipost/assets/js/tooltip.js",
-        modal: "./scipost/static/scipost/assets/js/modal.js",
     },
     output: {
         path: path_bundles,
@@ -53,10 +51,10 @@ module.exports = {
             $: "jquery",
             jQuery: "jquery",
             "window.jQuery": "jquery",
-            Tether: "tether",
-            "window.Tether": "tether",
-            Alert: "exports-loader?Alert!bootstrap/js/dist/alert",
-            Collapse: "exports-loader?Collapse!bootstrap/js/dist/collapse",
+            // Tether: "tether",
+            // "window.Tether": "tether",
+            // Alert: "exports-loader?Alert!bootstrap/js/dist/alert",
+            // Collapse: "exports-loader?Collapse!bootstrap/js/dist/collapse",
             Util: "exports-loader?Util!bootstrap/js/dist/util",
             Popper: ['popper.js', 'default'],
         }),
@@ -69,6 +67,9 @@ module.exports = {
             verbose: true,
             dry: false,
             exclude: []
-        })
+        }),
+        new webpack.optimize.UglifyJsPlugin(),
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.optimize.AggressiveMergingPlugin()
     ],
 }

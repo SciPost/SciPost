@@ -1,7 +1,5 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
-{% load render_bundle from webpack_loader %}
-
 {% block pagetitle %}: Editorial Administration{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
@@ -9,9 +7,6 @@
     <span class="breadcrumb-item">Editorial Administration</span>
 {% endblock %}
 
-{% block footer_script %}
-    {% render_bundle 'tooltip' 'js' %}
-{% endblock %}
 
 {% block content %}
 <div class="row">

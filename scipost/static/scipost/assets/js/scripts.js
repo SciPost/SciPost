@@ -1,3 +1,5 @@
+import tooltip from './tooltip.js';
+
 function hide_all_alerts() {
     $(".alert").fadeOut(300);
 }
