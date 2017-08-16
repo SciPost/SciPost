@@ -318,7 +318,7 @@ def latest_events(request):
 ######################
 
 @login_required
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@permission_required('scipost.can_view_pool', raise_exception=True)
 def editorial_workflow(request):
     """
     Summary page for Editorial Fellows, containing a digest
