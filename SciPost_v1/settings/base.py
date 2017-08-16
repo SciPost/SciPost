@@ -80,7 +80,7 @@ INSTALLED_APPS = (
     'ajax_select',
     'captcha',
     'guardian',
-    'haystack',
+    # 'haystack',
     'rest_framework',
     'sphinxdoc',
     'commentaries',
@@ -98,12 +98,12 @@ INSTALLED_APPS = (
     'webpack_loader',
 )
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': 'local_files/haystack/',
-    },
-}
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+#         'PATH': 'local_files/haystack/',
+#     },
+# }
 
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
 SPHINXDOC_PROTECTED_PROJECTS = {

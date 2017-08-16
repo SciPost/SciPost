@@ -63,7 +63,6 @@ urlpatterns = [
 
     # Search
     url(r'^search$', views.search, name='search'),
-    url(r'^search/', include('haystack.urls')),
 
     ################
     # Contributors:
