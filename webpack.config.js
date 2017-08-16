@@ -15,8 +15,6 @@ module.exports = {
         homepage: [
             "./scipost/static/scipost/assets/js/newsticker.js",
         ],
-        tooltip: "./scipost/static/scipost/assets/js/tooltip.js",
-        modal: "./scipost/static/scipost/assets/js/modal.js",
     },
     output: {
         path: path_bundles,
@@ -29,7 +27,7 @@ module.exports = {
                 test: /\.css$/,
                 loader: ExtractTextPlugin.extract({
                     fallback: "style-loader",
-                    use: "css-loader"
+                    use: "css-loader",
                 })
             },
             {
@@ -43,7 +41,7 @@ module.exports = {
                 test: /\.scss$/,
                 loader: ExtractTextPlugin.extract({
                     fallback: "style-loader",
-                    use: "css-loader!sass-loader",
+                    use: "css-loader!sass-loader"
                 })
             }
         ]
@@ -53,22 +51,22 @@ module.exports = {
             $: "jquery",
             jQuery: "jquery",
             "window.jQuery": "jquery",
-            Tether: "tether",
-            "window.Tether": "tether",
-            Alert: "exports-loader?Alert!bootstrap/js/dist/alert",
-            Collapse: "exports-loader?Collapse!bootstrap/js/dist/collapse",
             Util: "exports-loader?Util!bootstrap/js/dist/util",
             Popper: ['popper.js', 'default'],
         }),
         new BundleTracker({
             filename: './webpack-stats.json'
         }),
-        new ExtractTextPlugin('css/[name]-[hash].css'),
+        new ExtractTextPlugin({
+            filename: 'css/[name]-[hash].css',
+        }),
         new CleanWebpackPlugin(['css', 'js'], {
             root: path_bundles,
-            verbose: true,
             dry: false,
             exclude: []
-        })
+        }),
+        new webpack.optimize.UglifyJsPlugin(),
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.optimize.AggressiveMergingPlugin()
     ],
 }
