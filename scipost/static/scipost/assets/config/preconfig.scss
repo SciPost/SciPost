@@ -8,6 +8,11 @@
 $base-border-radius: 2px;
 $border-radius: 2px;
 
+// Alert
+//
+$alert-padding-y: 0;
+$alert-padding-x: 0.75rem;
+
 // Grid
 //
 $grid-gutter-width: 20px;
@@ -69,6 +74,9 @@ $breadcrumb-divider-color: $scipost-orange;
 $input-btn-padding-x: .5rem;
 $input-btn-padding-y: .25rem;
 $input-btn-padding-y-sm: .15rem;
+$input-border-radius-sm: $base-border-radius;
+$input-border-radius: $base-border-radius;
+$input-border-radius-lg: $base-border-radius;
 $btn-transition: none;
 
 $input-height: calc(1.5rem + 2px);

@@ -5,12 +5,30 @@
 .btn {
     cursor: pointer;
     font-family: inherit;
+
+    &:focus,
+    &.focus {
+        box-shadow: 0 0 0 3px rgba(104, 133, 195, 0.3);
+    }
 }
 
 .btn-secondary {
     color: $scipost-darkblue;
     background-color: $white;
     border-color: $gray-600;
+
+    &:hover,
+    &.hover {
+        color: $scipost-darkblue;
+        background-color: #ddd;
+        border-color: $gray-600;
+    }
+
+    &:active,
+    &.active {
+        background-color: #d4d4d4;
+        border-color: $gray-600;
+    }
 }
 
 .category-group,
