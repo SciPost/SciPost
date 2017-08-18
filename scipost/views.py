@@ -9,9 +9,9 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core import mail
 from django.core.mail import EmailMessage, EmailMultiAlternatives
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
-from django.db.models import Q, Prefetch
+from django.db.models import Prefetch
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.views.decorators.http import require_POST
@@ -70,10 +70,11 @@ class SearchView(SearchView):
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
         # Add context variable to fill navbar form
-        ctx['suggestion'] = kwargs['object_list'].spelling_suggestion()
+        # ctx['suggestion'] = kwargs['object_list'].spelling_suggestion()
         ctx['search_query'] = self.request.GET.get('q')
-        ctx['stats_results'] = kwargs['object_list'].stats_results()
+        # ctx['stats_results'] = kwargs['object_list'].stats_results()
         ctx['results_count'] = kwargs['object_list'].count()
+        # ctx['facet_counts'] = kwargs['object_list'].facet('text').facet_counts()
         # raise
         return ctx
 

@@ -23,14 +23,9 @@ from .decorators import has_contributor
 from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
-from commentaries.models import Commentary
-from comments.models import Comment
-from submissions.models import Submission
-from theses.models import ThesisLink
 from common.forms import MonthYearWidget
 from partners.decorators import has_contact
 from journals.models import Publication
-# from mailing_lists.models import MailchimpList, MailchimpSubscription
 
 
 REGISTRATION_REFUSAL_CHOICES = (
@@ -440,9 +435,9 @@ def get_date_filter_choices():
 
 class SearchForm(HayStackSearchForm):
     # The date filters doesn't function well...
-    # start_1 = forms.DateField(widget=MonthYearWidget(years=False), required=False)  # Month
+    start = forms.DateField(widget=MonthYearWidget(), required=False)  # Month
     # start_2 = forms.DateField(widget=MonthYearWidget(months=False), required=False)  # Year
-    # end_1 = forms.DateField(widget=MonthYearWidget(years=False), required=False)  # Month
+    end = forms.DateField(widget=MonthYearWidget(end=True), required=False)  # Month
     # end_2 = forms.DateField(widget=MonthYearWidget(months=False), required=False)  # Years
 
     def __init__(self, *args, **kwargs):
@@ -452,7 +447,16 @@ class SearchForm(HayStackSearchForm):
         self.fields['models'].choices = models
 
     def search(self):
-        return super().search().using('base_search')
+        sqs = super().search()#.using('base_search')
+        c = self.cleaned_data
+
+        if self.cleaned_data['start']:
+            sqs = sqs.filter(date__gte=self.cleaned_data['start'])
+
+        if self.cleaned_data['end']:
+            sqs = sqs.filter(date__lte=self.cleaned_data['end'])
+        l = list(sqs)
+        return sqs
 
 
 class EmailGroupMembersForm(forms.Form):

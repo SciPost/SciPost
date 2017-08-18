@@ -8,7 +8,7 @@ from .models import Commentary
 class CommentaryIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, model_attr='title', use_template=True)
     authors = indexes.CharField(model_attr='author_list')
-    date = indexes.DateTimeField(model_attr='pub_date')
+    date = indexes.DateTimeField(model_attr='pub_date', null=True)
     abstract = indexes.CharField(model_attr='pub_abstract')
 
     def get_model(self):

@@ -1,3 +1,4 @@
+import calendar
 import datetime
 import re
 
@@ -25,22 +26,29 @@ class MonthYearWidget(Widget):
     month_field = '%s_month'
     year_field = '%s_year'
 
-    def __init__(self, attrs=None, years=True, months=True, required=False):
+    def __init__(self, attrs=None, end=False, required=False):
         self.attrs = attrs or {}
         self.required = required
         self.today = datetime.date.today()
-        if years:
-            this_year = self.today.year
-            self.year_choices = [(i, i) for i in range(this_year - 4, this_year + 1)]
-            if not self.required:
-                self.year_choices.insert(0, self.none_value)
-        if months:
-            self.month_choices = dict(MONTHS.items())
-            if not self.required:
-                self.month_choices[self.none_value[0]] = self.none_value[1]
-            self.month_choices = sorted(self.month_choices.items())
+        self.round_to_end = end
+
+        # Years
+        this_year = self.today.year
+        self.year_choices = [(i, i) for i in range(this_year - 4, this_year + 1)]
+        if not self.required:
+            self.year_choices.insert(0, self.none_value)
+
+        # Month
+        self.month_choices = dict(MONTHS.items())
+        if not self.required:
+            self.month_choices[self.none_value[0]] = self.none_value[1]
+        self.month_choices = sorted(self.month_choices.items())
+
+    def sqeeze_form_group(self, html, width=6):
+        return '<div class="form-group col-md-{width}">{html}</div>'.format(width=width, html=html)
 
     def render(self, name, value, attrs=None):
+        print('>>>> render', name, value, attrs)
         try:
             year_val, month_val = value.year, value.month
         except AttributeError:
@@ -61,13 +69,13 @@ class MonthYearWidget(Widget):
             local_attrs = self.build_attrs(id=self.month_field % id_)
             s = Select(choices=self.month_choices, attrs={'class': 'form-control'})
             select_html = s.render(self.month_field % name, month_val, local_attrs)
-            output.append(select_html)
+            output.append(self.sqeeze_form_group(select_html))
 
         if hasattr(self, 'year_choices'):
             local_attrs = self.build_attrs(id=self.year_field % id_)
             s = Select(choices=self.year_choices, attrs={'class': 'form-control'})
             select_html = s.render(self.year_field % name, year_val, local_attrs)
-            output.append(select_html)
+            output.append(self.sqeeze_form_group(select_html))
 
         return mark_safe(u'\n'.join(output))
 
@@ -76,18 +84,31 @@ class MonthYearWidget(Widget):
         return '%s_month' % id_
 
     def value_from_datadict(self, data, files, name):
-        if hasattr(self, 'year_choices'):
-            y = data.get(self.year_field % name)
-        else:
-            y = self.today.year
+        y = data.get(self.year_field % name)
+        m = data.get(self.month_field % name)
 
-        if hasattr(self, 'month_choices'):
-            m = data.get(self.month_field % name)
-        else:
-            m = self.today.month
-
-        if y == "0" or m == "0":
+        if y == m == "0":
             return None
+
+        # Defaults for `month`
+        if m == "0":
+            m = "12" if self.round_to_end else "1"
+
+        if y == "0":
+            if self.round_to_end:
+                y = self.year_choices[-1][0]
+            else:
+                index = 0
+                if not self.required:
+                    index += 1
+                y = self.year_choices[index][0]
+
         if y and m:
-            return '%s-%s-%s' % (y, m, 1)
+            # Days are used for filtering, but not communicated to the user
+            if self.round_to_end:
+                d = calendar.monthrange(int(y), int(m))[1]
+            else:
+                d = 1
+
+            return '%s-%s-%s' % (y, m, d)
         return data.get(name, None)

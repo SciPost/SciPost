@@ -31,28 +31,28 @@
                 {% endfor %}
             </div>
 
-            {% comment %}
+            {# {% comment %}#}
                 {# DISABLED DATE SEARCH: DOES NOT WORK OK #}
             <label>Date from</label>
             <div class="form-row">
-                <div class="form-group col-md-6">
-                    {{form.start_1}}
-                </div>
-                <div class="form-group col-md-6">
-                    {{form.start_2}}
-                </div>
+                {# <div class="form-group col-md-6">#}
+                    {{form.start}}
+                {# </div>#}
+                {# <div class="form-group col-md-6">#}
+                    {# {{form.start_2}}#}
+                {# </div>#}
             </div>
 
             <label>Date until</label>
             <div class="form-row">
-                <div class="form-group col-md-6">
-                    {{form.end_1}}
-                </div>
-                <div class="form-group col-md-6">
-                    {{form.end_2}}
-                </div>
+                {# <div class="form-group col-md-6">#}
+                    {{form.end}}
+                {# </div>#}
+                {# <div class="form-group col-md-6">#}
+                    {# {{form.end_2}}#}
+                {# </div>#}
             </div>
-            {% endcomment %}
+            {# {% endcomment %}#}
 
             <div class="form-group">
                 {# <input type="reset" class="btn btn-danger" value="Reset">#}
@@ -63,7 +63,7 @@
     <div class="col-md-8">
 
         {% if query %}
-            <h1 class="mb-3">Search results</h1>
+            <h1 class="my-3 mt-md-0">Search results{% if results_count %} ({{results_count}} found){% endif %}</h1>
             <ul class="list-group list-group-flush">
                 {% for result in object_list %}
                     <li class="list-group-item{% if result.content_type == 'journals.publication' %} border-0{% endif %}">
