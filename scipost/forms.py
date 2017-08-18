@@ -430,10 +430,6 @@ class RemarkForm(forms.Form):
              'placeholder': 'Enter your remarks here. You can use LaTeX in $...$ or \[ \].'})
 
 
-class SearchForm(forms.Form):
-    q = forms.CharField(max_length=100)
-
-
 def get_date_filter_choices():
     today = datetime.date.today()
     empty = [(0, '---')]
@@ -442,7 +438,7 @@ def get_date_filter_choices():
     return months, years
 
 
-class Search2Form(HayStackSearchForm):
+class SearchForm(HayStackSearchForm):
     # The date filters doesn't function well...
     # start_1 = forms.DateField(widget=MonthYearWidget(years=False), required=False)  # Month
     # start_2 = forms.DateField(widget=MonthYearWidget(months=False), required=False)  # Year

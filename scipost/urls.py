@@ -62,9 +62,7 @@ urlpatterns = [
         name='pub_feed_spec_atom'),
 
     # Search
-    url(r'^search$', views.search, name='search'),
-    url(r'^search2', views.SearchView.as_view(), name='search2'),
-    url(r'^search3', include('haystack.urls')),
+    url(r'^search', views.SearchView.as_view(), name='search'),
 
     ################
     # Contributors:

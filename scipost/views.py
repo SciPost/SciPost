@@ -30,8 +30,7 @@ from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriod
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\
                    UpdatePersonalDataForm, UpdateUserDataForm, PasswordChangeForm,\
-                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm,\
-                   Search2Form
+                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from commentaries.models import Commentary
@@ -64,60 +63,9 @@ def normalize_query(query_string,
     return [normspace(' ', (t[0] or t[1]).strip()) for t in findterms(query_string)]
 
 
-def get_query(query_string, search_fields):
-    """ Returns a query, namely a combination of Q objects. """
-    query = None
-    terms = normalize_query(query_string)
-    for term in terms:
-        or_query = None
-        for field_name in search_fields:
-            q = Q(**{"%s__icontains" % field_name: term})
-            if or_query is None:
-                or_query = q
-            else:
-                or_query = or_query | q
-        if query is None:
-            query = or_query
-        else:
-            query = query & or_query
-    return query
-
-
-def documentsSearchResults(query):
-    """
-    Searches through commentaries, submissions and thesislinks.
-    Returns a Context object which can be further used in templates.
-    Naive implementation based on exact match of query.
-    NEEDS UPDATING with e.g. Haystack.
-    """
-    publication_query = get_query(query, ['title', 'author_list', 'abstract', 'doi_label'])
-    commentary_query = get_query(query, ['title', 'author_list', 'pub_abstract'])
-    submission_query = get_query(query, ['title', 'author_list', 'abstract'])
-    thesislink_query = get_query(query, ['title', 'author', 'abstract', 'supervisor'])
-    comment_query = get_query(query, ['comment_text'])
-
-    publication_search_queryset = (Publication.objects.published()
-                                   .filter(publication_query).order_by('-publication_date'))
-    commentary_search_queryset = (Commentary.objects.vetted()
-                                  .filter(commentary_query).order_by('-pub_date'))
-    submission_search_queryset = (Submission.objects.public_unlisted()
-                                  .filter(submission_query).order_by('-submission_date'))
-    thesislink_search_list = (ThesisLink.objects.vetted()
-                              .filter(thesislink_query).order_by('-defense_date'))
-    comment_search_list = (Comment.objects.vetted()
-                           .filter(comment_query).order_by('-date_submitted'))
-
-    context = {'publication_search_queryset': publication_search_queryset,
-               'commentary_search_queryset': commentary_search_queryset,
-               'submission_search_queryset': submission_search_queryset,
-               'thesislink_search_list': thesislink_search_list,
-               'comment_search_list': comment_search_list}
-    return context
-
-
 class SearchView(SearchView):
     template_name = 'search/search.html'
-    form_class = Search2Form
+    form_class = SearchForm
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
@@ -128,61 +76,6 @@ class SearchView(SearchView):
         ctx['results_count'] = kwargs['object_list'].count()
         # raise
         return ctx
-
-
-def search(request):
-    """ For the global search form in navbar """
-    form = SearchForm(request.GET or None)
-    context = {}
-    if form.is_valid():
-        context = documentsSearchResults(form.cleaned_data['q'])
-        request.session['query'] = form.cleaned_data['q']
-        context['search_term'] = form.cleaned_data['q']
-    elif 'query' in request.session:
-        context = documentsSearchResults(request.session['query'])
-        context['search_term'] = request.session['query']
-
-    if 'publication_search_queryset' in context:
-        publication_search_list_paginator = Paginator(context['publication_search_queryset'], 10)
-        publication_search_list_page = request.GET.get('publication_search_list_page')
-        try:
-            publication_search_list = publication_search_list_paginator.page(
-                publication_search_list_page)
-        except PageNotAnInteger:
-            publication_search_list = publication_search_list_paginator.page(1)
-        except EmptyPage:
-            publication_search_list = publication_search_list_paginator.page(
-                publication_search_list_paginator.num_pages)
-        context['publication_search_list'] = publication_search_list
-
-    if 'commentary_search_queryset' in context:
-        commentary_search_list_paginator = Paginator(context['commentary_search_queryset'], 10)
-        commentary_search_list_page = request.GET.get('commentary_search_list_page')
-        try:
-            commentary_search_list = commentary_search_list_paginator.page(
-                commentary_search_list_page)
-        except PageNotAnInteger:
-            commentary_search_list = commentary_search_list_paginator.page(1)
-        except EmptyPage:
-            commentary_search_list = commentary_search_list_paginator.page(
-                commentary_search_list_paginator.num_pages)
-        context['commentary_search_list'] = commentary_search_list
-
-    if 'submission_search_queryset' in context:
-        submission_search_list_paginator = Paginator(context['submission_search_queryset'], 10)
-        submission_search_list_page = request.GET.get('submission_search_list_page')
-        try:
-            submission_search_list = submission_search_list_paginator.page(
-                submission_search_list_page)
-        except PageNotAnInteger:
-            submission_search_list = submission_search_list_paginator.page(1)
-        except EmptyPage:
-            submission_search_list = submission_search_list_paginator.page(
-                submission_search_list_paginator.num_pages)
-        context['submission_search_list'] = submission_search_list
-
-    context['search_query'] = request.GET.get('q')
-    return render(request, 'scipost/search.html', context)
 
 
 #############
