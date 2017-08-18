@@ -4,39 +4,6 @@ General style sheet for SciPost
 
 @import url(//fonts.googleapis.com/css?family=Merriweather+Sans);
 
-* {
-    box-sizing: border-box;
-}
-
-.row:after {
-    content: "";
-    clear: both;
-    display: block;
-}
-
-[class*="col-"] {
-    /*float: left;
-    padding: 5px;*/
-}
-/* For desktop: */
-.col-1 {width: 8.33%;}
-.col-2 {width: 16.66%;}
-.col-3 {width: 25%;}
-.col-4 {width: 33.33%;}
-.col-5 {width: 41.66%;}
-.col-6 {width: 50%;}
-.col-7 {width: 58.33%;}
-.col-8 {width: 66.66%;}
-.col-9 {width: 75%;}
-.col-10 {width: 83.33%;}
-.col-11 {width: 91.66%;}
-.col-12 {width: 100%;}
-@media only screen and (max-width: 768px) {
-    /* For mobile phones: */
-    [class*="col-"] {
-        width: 100%;
-    }
-}
 
 hr.hr6 {
     height: 6px;
@@ -307,16 +274,6 @@ ul.personalTabMenu li a.inactive {
   padding: 0px 4px;
 }
 
-body {
-/*  font-family: Merriweather, sans-serif; */
-  font-family: 'Merriweather Sans';
-  font-weight: lighter;
-  font-size: 0.8rem;
-  margin: 0px;
-  padding: 0px;
-  background-color: #ffffff;
-}
-
 body section div.sectionbox {
   width: 300px;
   background-color: #f4f4f4;
@@ -324,16 +281,6 @@ body section div.sectionbox {
   padding: 10px;
   display: inline-block;
   vertical-align: top;
-}
-
-a {
-  color: #eeeeee;
-/*  text-decoration: underline; */
-  target: _parent;
-}
-a:hover {
-  color: #ffffff;
-  text-decoration: underline;
 }
 
 .submitButton {
@@ -371,19 +318,6 @@ header p {
   border: 0px solid white;
   margin: 25px;
 }
-
-nav {
-  background-color: #f0f0f0;
-  /*color: #002B49;
-  margin:0px;
-  padding:0px;
-  float:center;
-  clear:both;*/
-  /*font-size: 12px;*/
-  /*font-weight: 500;*/
-}
-
-
 
 ol {
   list-style-type: none;

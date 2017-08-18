@@ -11,16 +11,15 @@ from django.core import mail
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.views.decorators.http import require_POST
 from django.views.generic.list import ListView
 
-from django.db.models import Prefetch
-
 from guardian.decorators import permission_required
 from guardian.shortcuts import assign_perm, get_objects_for_user
+from haystack.generic_views import SearchView
 
 from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict
 from .decorators import has_contributor
@@ -31,7 +30,8 @@ from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriod
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\
                    UpdatePersonalDataForm, UpdateUserDataForm, PasswordChangeForm,\
-                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm
+                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm,\
+                   Search2Form
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from commentaries.models import Commentary
@@ -113,6 +113,21 @@ def documentsSearchResults(query):
                'thesislink_search_list': thesislink_search_list,
                'comment_search_list': comment_search_list}
     return context
+
+
+class SearchView(SearchView):
+    template_name = 'search/search.html'
+    form_class = Search2Form
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+        # Add context variable to fill navbar form
+        ctx['suggestion'] = kwargs['object_list'].spelling_suggestion()
+        ctx['search_query'] = self.request.GET.get('q')
+        ctx['stats_results'] = kwargs['object_list'].stats_results()
+        ctx['results_count'] = kwargs['object_list'].count()
+        # raise
+        return ctx
 
 
 def search(request):

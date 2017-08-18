@@ -63,6 +63,8 @@ urlpatterns = [
 
     # Search
     url(r'^search$', views.search, name='search'),
+    url(r'^search2', views.SearchView.as_view(), name='search2'),
+    url(r'^search3', include('haystack.urls')),
 
     ################
     # Contributors:

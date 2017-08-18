@@ -50,7 +50,7 @@
 
         </ul>
         <form action="{% url 'scipost:search' %}" method="get" class="form-inline search-nav-form">
-            <input class="form-control" id="id_q" maxlength="100" name="q" type="text" required="required" value="{{search_query}}">
+            <input class="form-control" id="id_q" maxlength="100" name="q" type="text" required="required" value="{{search_query|default:''}}">
             <input class="btn btn-secondary" type="submit" value="Search">
         </form>
     </div>

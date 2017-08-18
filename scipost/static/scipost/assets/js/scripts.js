@@ -39,4 +39,8 @@ $(function(){
         var tab_name = e.target.hash.substring(1)
         window.history.replaceState({}, null, '?tab=' + tab_name);
     });
+
+    // $('footer').each(function () {
+      var $spy = $('body').scrollspy({ target: '.footer' })
+    // })
 });

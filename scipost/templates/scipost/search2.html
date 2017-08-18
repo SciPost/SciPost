@@ -1,18 +1,28 @@
 {% extends 'scipost/base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: list{% endblock pagetitle %}
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        <h1>Search results: <span class="text-muted">{{ search_term|default:'' }}</span></h1>
-        <h1>Search results{% if search_term %}: <small><i>{{ search_term }}</i></small>{% endif %}</h1>
-        {% if not publication_search_list and not commentary_search_list and not submission_search_list and not thesislink_search_list and not comment_search_link and not comment_search_list %}
-            <p>Your search query did not return any result.</p>
-        {% endif %}
+
+<h1>Search results</h1>
+<form method="get" class="my-2">
+    <div class="form-group row">
+        <div class="col-md-5 col-lg-3 mb-2 mb-md-0 pr-md-1">
+            <input class="form-control" id="{{form.q.auto_id}}" maxlength="100" name="{{form.q.name}}" type="text" value="{{form.q.value}}" required="required">
+        </div>
+        <div class="col-md-7 col-lg-9 pl-md-1">
+            <input class="btn btn-primary" type="submit" value="Search">
+        </div>
     </div>
-</div>
+</form>
+
+
+{% if not publication_search_list and not commentary_search_list and not submission_search_list and not thesislink_search_list and not comment_search_link and not comment_search_list %}
+    <p>Your search query did not return any result.</p>
+{% endif %}
 
 {% if publication_search_list %}
 <hr>

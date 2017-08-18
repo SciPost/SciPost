@@ -98,12 +98,17 @@ INSTALLED_APPS = (
     'webpack_loader',
 )
 
+
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': 'local_files/haystack/',
     },
+    'base_search': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+    }
 }
+
 
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
 SPHINXDOC_PROTECTED_PROJECTS = {
