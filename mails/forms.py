@@ -33,36 +33,6 @@ class EmailTemplateForm(forms.Form):
         self.fields['recipient'].initial = recipient
         self.fields['subject'].initial = self.mail_data['subject']
 
-# kwargs['invitation'].submission.editor_in_charge.user.email
-# initial={'text': mail_template, 'receiver': self.mail_data['to_address'], 'subject': self.mail_data['subject']}
-#
-#         raise NotImplementedError
-#
-# class BaseMailUtil(object):
-#     mail_sender = 'no-reply@scipost.org'
-#     mail_sender_title = ''
-#
-#     @classmethod
-#     def load(cls, _dict, request=None):
-#         cls._context = _dict
-#         cls._context['request'] = request
-#         for var_name in _dict:
-#             setattr(cls, var_name, _dict[var_name])
-#
-#     def _send_mail(cls, template_name, recipients, subject, extra_bcc=None, extra_context={}):
-#         """
-#         Call this method from a classmethod to send emails.
-#         The template will have context variables defined appended from the `load` method.
-#
-#         Arguments:
-#         template_name -- The .html template to use in the mail. The name be used to get the
-#                          following two templates:
-#                             `email/<template_name>.txt` (non-HTML)
-#                             `email/<template_name>.html`
-#         recipients -- List of mailaddresses to send to mail to.
-#         subject -- The subject of the mail.
-#         """
-
     def send(self):
         # Get text and html
         message = self.cleaned_data['text']
@@ -84,7 +54,7 @@ class EmailTemplateForm(forms.Form):
             message,
             '%s <%s>' % (self.mail_data.get('from_address_name', 'SciPost'),
                          self.mail_data.get('from_address', 'no-reply@scipost.org')),  # From
-            [self.mail_data.get('from_address', 'no-reply@scipost.org')],  # To
+            [self.mail_data.get('to_server_address', 'no-reply@scipost.org')],  # To
             bcc=bcc_list,
             reply_to=[self.mail_data.get('from_address', 'no-reply@scipost.org')])
         email.attach_alternative(html_message, 'text/html')

@@ -633,7 +633,8 @@ class SubmissionUtils(BaseMailUtil):
         instead, which calls the send_registration_email method in scipost/utils.
         Requires loading 'invitation' attribute.
         """
-        raise DeprecationWarning
+        raise DeprecationWarning(('Use new mails.views.MailEditingSubView() with code'
+                                  ' `submission_referee_invite` instead'))
 
     @classmethod
     def send_unreg_ref_reminder_email(cls):

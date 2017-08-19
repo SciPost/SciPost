@@ -4,6 +4,7 @@ __pycache__
 *.json
 
 !**/templates/**/*.json
+!**/templates/**/*.json
 !**/fixtures/*.json
 *.log
 
