@@ -14,6 +14,7 @@
         # First tables, due to self dependencies
         "tables": true,
         "alert": true,
+        "badge": true,
         "button-group": true,
         "buttons": true,
         "breadcrumb": true,
@@ -40,6 +41,7 @@
         "alert": true,
         "collapse": true,
         "modal": true,
+        "scrollspy": true,
         "tab": true,
         "tooltip": true,
         "util": true,

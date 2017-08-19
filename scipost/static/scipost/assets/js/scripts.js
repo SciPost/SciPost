@@ -39,4 +39,9 @@ $(function(){
         var tab_name = e.target.hash.substring(1)
         window.history.replaceState({}, null, '?tab=' + tab_name);
     });
+
+    // Auto-submit hook for general form elements
+    $("form .auto-submit input").on('change', function(){
+        $(this).parents('form').submit()
+    })
 });

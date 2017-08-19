@@ -4,6 +4,7 @@
  */
 .form-control {
     font-family: inherit;
+    border-radius: $base-border-radius;
 }
 
 .has-error .form-control {
@@ -53,6 +54,8 @@ input[type="file"] {
 }
 
 .search-nav-form {
+    min-width: 260px;
+
     input {
         margin-right: 0 !important;
         outline: 0;
@@ -61,17 +64,37 @@ input[type="file"] {
 
     input[name="q"] {
         border-right: 0;
-        min-width: 200px;
+        width: 200px;
         border-radius: $base-border-radius 0 0 $base-border-radius;
     }
 
     input[type="submit"] {
         background: #f4f4f4;
+        width: 60px;
+        text-align: center;
         border-radius: 0 $base-border-radius $base-border-radius 0;
 
         &:hover {
             background: #ddd;
         }
+    }
+}
+
+.form-group.checkboxes {
+    [type="checkbox"] {
+        display: none;
+    }
+
+    [type="checkbox"]:checked + .btn-info {
+        color: $white;
+        background-color: $scipost-lightblue;
+        border-color: $scipost-lightblue;
+
+    }
+
+    [type="checkbox"]:checked + .btn-primary {
+        background-color: $scipost-darkblue;
+        border-color: $scipost-darkblue;
     }
 }
 

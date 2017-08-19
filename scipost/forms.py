@@ -1,3 +1,5 @@
+import datetime
+
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
@@ -5,6 +7,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
 from django.utils import timezone
+from django.utils.dates import MONTHS
 from django.utils.http import is_safe_url
 
 from django_countries import countries
@@ -13,15 +16,16 @@ from django_countries.fields import LazyTypedChoiceField
 from captcha.fields import ReCaptchaField
 
 from ajax_select.fields import AutoCompleteSelectField
+from haystack.forms import ModelSearchForm as HayStackSearchForm
 
 from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES
 from .decorators import has_contributor
 from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
+from common.forms import MonthYearWidget
 from partners.decorators import has_contact
 from journals.models import Publication
-# from mailing_lists.models import MailchimpList, MailchimpSubscription
 
 
 REGISTRATION_REFUSAL_CHOICES = (
@@ -421,8 +425,38 @@ class RemarkForm(forms.Form):
              'placeholder': 'Enter your remarks here. You can use LaTeX in $...$ or \[ \].'})
 
 
-class SearchForm(forms.Form):
-    q = forms.CharField(max_length=100)
+def get_date_filter_choices():
+    today = datetime.date.today()
+    empty = [(0, '---')]
+    months = empty + list(MONTHS.items())
+    years = empty + [(i, i) for i in range(today.year - 4, today.year + 1)]
+    return months, years
+
+
+class SearchForm(HayStackSearchForm):
+    # The date filters doesn't function well...
+    start = forms.DateField(widget=MonthYearWidget(), required=False)  # Month
+    # start_2 = forms.DateField(widget=MonthYearWidget(months=False), required=False)  # Year
+    end = forms.DateField(widget=MonthYearWidget(end=True), required=False)  # Month
+    # end_2 = forms.DateField(widget=MonthYearWidget(months=False), required=False)  # Years
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        models = self.fields['models'].choices
+        models = filter(lambda x: x[0] != 'sphinxdoc.document', models)
+        self.fields['models'].choices = models
+
+    def search(self):
+        sqs = super().search()#.using('base_search')
+        c = self.cleaned_data
+
+        if self.cleaned_data['start']:
+            sqs = sqs.filter(date__gte=self.cleaned_data['start'])
+
+        if self.cleaned_data['end']:
+            sqs = sqs.filter(date__lte=self.cleaned_data['end'])
+        l = list(sqs)
+        return sqs
 
 
 class EmailGroupMembersForm(forms.Form):
