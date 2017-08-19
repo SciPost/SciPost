@@ -55,27 +55,18 @@ def is_registered(user):
     return user.groups.exists()
 
 
-# Global search
-def normalize_query(query_string,
-                    findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
-                    normspace=re.compile(r'\s{2,}').sub):
-    """ Splits a query string in individual keywords, keeping quoted words together. """
-    return [normspace(' ', (t[0] or t[1]).strip()) for t in findterms(query_string)]
-
-
 class SearchView(SearchView):
     template_name = 'search/search.html'
     form_class = SearchForm
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
-        # Add context variable to fill navbar form
-        # ctx['suggestion'] = kwargs['object_list'].spelling_suggestion()
         ctx['search_query'] = self.request.GET.get('q')
-        # ctx['stats_results'] = kwargs['object_list'].stats_results()
         ctx['results_count'] = kwargs['object_list'].count()
+
+        # Methods not supported by Whoosh engine
+        # ctx['stats_results'] = kwargs['object_list'].stats_results()
         # ctx['facet_counts'] = kwargs['object_list'].facet('text').facet_counts()
-        # raise
         return ctx
 
 
