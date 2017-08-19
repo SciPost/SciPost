@@ -14,14 +14,14 @@
         <form method="get">
             <div class="form-group">
                 <label for="{{form.q.auto_id}}">{{form.q.label}}</label>
-                <input type="text" name="{{form.q.name}}" class="form-control form-control-lg" id="{{form.q.auto_id}}" aria-describedby="search_help" placeholder="Search term" value="{{form.q.value}}" required="required">
+                <input type="text" name="{{form.q.name}}" class="form-control form-control-lg" id="{{form.q.auto_id}}" aria-describedby="search_help" placeholder="Search term" value="{{form.q.value|default:''}}" required="required">
                 <small id="search_help" class="form-text text-muted">{{form.q.help_text}}</small>
             </div>
 
             <div class="form-group">
                 <label>Type</label>
             </div>
-            <div class="form-group checkboxes">
+            <div class="form-group checkboxes auto-submit">
                 {% for field in form.models %}
                     <input type="checkbox" name="{{field.name}}" id="{{field.id_for_label}}" value="{{field.choice_value|stringformat:'s'}}" {% if field.choice_value in form.models.value %}checked="checked"{% endif %}>
                     <label class="btn btn-info" for="{{field.id_for_label}}">
@@ -31,28 +31,15 @@
                 {% endfor %}
             </div>
 
-            {# {% comment %}#}
-                {# DISABLED DATE SEARCH: DOES NOT WORK OK #}
             <label>Date from</label>
             <div class="form-row">
-                {# <div class="form-group col-md-6">#}
                     {{form.start}}
-                {# </div>#}
-                {# <div class="form-group col-md-6">#}
-                    {# {{form.start_2}}#}
-                {# </div>#}
             </div>
 
             <label>Date until</label>
             <div class="form-row">
-                {# <div class="form-group col-md-6">#}
                     {{form.end}}
-                {# </div>#}
-                {# <div class="form-group col-md-6">#}
-                    {# {{form.end_2}}#}
-                {# </div>#}
             </div>
-            {# {% endcomment %}#}
 
             <div class="form-group">
                 {# <input type="reset" class="btn btn-danger" value="Reset">#}
@@ -61,9 +48,10 @@
         </form>
     </div>
     <div class="col-md-8">
+        <h1 class="my-3 mt-md-0">Search results{% if results_count and query %} ({{results_count}} found){% endif %}</h1>
 
+        {# without this logic, an request without GET parameters would return *all* objects indexed by Haystack #}
         {% if query %}
-            <h1 class="my-3 mt-md-0">Search results{% if results_count %} ({{results_count}} found){% endif %}</h1>
             <ul class="list-group list-group-flush">
                 {% for result in object_list %}
                     <li class="list-group-item{% if result.content_type == 'journals.publication' %} border-0{% endif %}">
@@ -101,6 +89,8 @@
                     </p>
                 {% endif %}
             </ul>
+        {% else %}
+            <p>Your search query did not return any result.</p>
         {% endif %}
     </div>
 </div>

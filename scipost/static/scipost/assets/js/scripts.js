@@ -40,7 +40,8 @@ $(function(){
         window.history.replaceState({}, null, '?tab=' + tab_name);
     });
 
-    // $('footer').each(function () {
-      var $spy = $('body').scrollspy({ target: '.footer' })
-    // })
+    // Auto-submit hook for general form elements
+    $("form .auto-submit input").on('change', function(){
+        $(this).parents('form').submit()
+    })
 });
