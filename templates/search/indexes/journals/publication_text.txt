@@ -1,0 +1,6 @@
+{{object.title}}
+{{object.author_list}}
+{{object.publication_date}}
+{{object.abstract}}
+{{object.doi_string}}
+{{object.citation}}

@@ -98,12 +98,24 @@ INSTALLED_APPS = (
     'webpack_loader',
 )
 
+
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': 'local_files/haystack/',
     },
+    # SimpleEngine doesn't need indexing, and could be useful for debugging, however
+    # does not fully support all haystack features
+    # 'base_search': {
+    #     'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+    # }
 }
+
+# Brute force automatically re-index Haystack using post_save signals on all models.
+# When write-traffic increases, a custom processor is preferred which only connects
+# signals to eg. `vet-accepted` signals possibly using cron jobs instead of realtime updates.
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
 
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
 SPHINXDOC_PROTECTED_PROJECTS = {

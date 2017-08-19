@@ -44,7 +44,7 @@ class ThesisLink(models.Model):
     author_false_claims = models.ManyToManyField(
         'scipost.Contributor', blank=True,
         related_name='authors_thesis_false_claims')
-    supervisor = models.CharField(max_length=1000, default='')
+    supervisor = models.CharField(max_length=1000)
     supervisor_as_cont = models.ManyToManyField(
         'scipost.Contributor', blank=True,
         verbose_name='supervisor(s)',

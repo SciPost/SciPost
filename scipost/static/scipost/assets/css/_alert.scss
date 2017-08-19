@@ -4,6 +4,7 @@
     position: relative;
     clear: both;
     float: left;
+    min-width: 20%;
 
     form &,
     .form & {
@@ -17,10 +18,12 @@
 
 .alert-dismissable, // The misspelled .alert-dismissable was deprecated in 3.2.0.
 .alert-dismissible {
-  // Adjust close link position
-  .close {
-      position: absolute;
-    top: 0;
-    right: 0;
-  }
+    // Adjust close link position
+    .close {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        cursor: pointer;
+    }
 }
