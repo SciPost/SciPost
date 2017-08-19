@@ -5,7 +5,12 @@
     <p class="card-text mb-2">{{ publication.author_list }}</p>
     <p class="card-text text-muted">
         {{ publication.citation }} &middot;
-        <span class="font-weight-light">published {{ publication.publication_date|date:'j F Y' }}</span>
+        <span class="font-weight-light">
+            published {{ publication.publication_date|date:'j F Y' }}
+            {% if publication.cc_license != 'CC BY 4.0' %}
+                &middot; licensed under {{publication.get_cc_license_display}}
+            {% endif %}
+        </span>
         <span class="mx-1">|</span>
         <a href="javascript:;" data-toggle="toggle" data-target=".card-body.publication-{{publication.id}} .abstract">Toggle abstract</a>
         &middot; <a href="{{publication.get_absolute_url}}/pdf" target="_blank">pdf</a>
