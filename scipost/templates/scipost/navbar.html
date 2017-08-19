@@ -24,6 +24,11 @@
               <li class="nav-item highlighted">
                 <span class="nav-link">Logged in as {{ user.username }}</span>
               </li>
+              {% if perms.scipost.can_oversee_refereeing %}
+                  <li class="nav-item{% if '/submissions/admin' in request.path %} active{% endif %}">
+                    <a class="nav-link" href="{% url 'submissions:admin' %}">Editorial Administration</a>
+                  </li>
+              {% endif %}
               {% if user.contributor %}
                   <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
                     <a class="nav-link" href="{% url 'scipost:personal_page' %}">Personal Page</a>
@@ -45,8 +50,8 @@
 
         </ul>
         <form action="{% url 'scipost:search' %}" method="get" class="form-inline search-nav-form">
-            <input class="form-control mr-2 mb-0" id="id_q" maxlength="100" name="q" type="text" required="">
-          <button class="btn btn-outline-secondary text-muted" type="submit">Search</button>
+            <input class="form-control" id="id_q" maxlength="100" name="q" type="text" required="required" value="{{search_query|default:''}}">
+            <input class="btn btn-secondary" type="submit" value="Search">
         </form>
     </div>
 </nav>

@@ -170,7 +170,7 @@ def reply_to_report(request, report_id):
 
         messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
                                   'It will soon be vetted by an Editor.')
-        return redirect(newcomment.submission.get_absolute_url())
+        return redirect(newcomment.content_object.get_absolute_url())
 
     context = {'report': report, 'is_author': is_author, 'form': form}
     return render(request, 'comments/reply_to_report.html', context)

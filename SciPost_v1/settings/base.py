@@ -79,7 +79,6 @@ INSTALLED_APPS = (
     'django_mathjax',
     'ajax_select',
     'captcha',
-    'crispy_forms',
     'guardian',
     'haystack',
     'rest_framework',
@@ -100,12 +99,24 @@ INSTALLED_APPS = (
     'webpack_loader',
 )
 
+
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': 'local_files/haystack/',
     },
+    # SimpleEngine doesn't need indexing, and could be useful for debugging, however
+    # does not fully support all haystack features
+    # 'base_search': {
+    #     'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+    # }
 }
+
+# Brute force automatically re-index Haystack using post_save signals on all models.
+# When write-traffic increases, a custom processor is preferred which only connects
+# signals to eg. `vet-accepted` signals possibly using cron jobs instead of realtime updates.
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
 
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
 SPHINXDOC_PROTECTED_PROJECTS = {
@@ -176,7 +187,7 @@ WSGI_APPLICATION = 'SciPost_v1.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': get_secret("DB_NAME"),
         'USER': get_secret("DB_USER"),
         'PASSWORD': get_secret("DB_PWD"),
@@ -236,6 +247,12 @@ EMAIL_FILE_PATH = 'local_files/email/'
 MAILCHIMP_DATABASE_CODE = 'us6'
 MAILCHIMP_API_USER = 'test_API-user'
 MAILCHIMP_API_KEY = 'test_API-key'
+
+
+# iThenticate
+ITHENTICATE_USERNAME = 'test_ithenticate_username'
+ITHENTICATE_PASSWORD = 'test_ithenticate_password'
+
 
 # Own settings
 JOURNALS_DIR = 'journals'

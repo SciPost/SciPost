@@ -8,4 +8,11 @@
 
 .tooltip-inner {
     border-radius: 0.15rem;
+    max-width: none;
+
+    hr {
+        background-color: #fff;
+        margin: 0.25rem 0;
+        box-shadow: none;
+    }
 }

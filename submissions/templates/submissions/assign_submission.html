@@ -39,11 +39,11 @@
 
 <div class="row">
     <div class="col-12">
-      {% if submission_to_assign.editorialassignment_set.all %}
+      {% if submission_to_assign.editorial_assignments.exists %}
           <h4>EIC Assignment requests already sent:</h4>
           <h3>If more than 5 Fellows have declined an assignment for a red-marked reason, the Submission should be rejected.</h3>
           <ul>
-            {% for assignment in sub.editorialassignment_set.all %}
+            {% for assignment in sub.editorial_assignments.all %}
                 {% include 'submissions/_assignment_info.html' with assignment=assignment %}
             {% endfor %}
           </ul>

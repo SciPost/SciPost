@@ -1,18 +1,18 @@
 {% extends 'scipost/base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: assignment failed (ack){% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
-  <h1>Assignment has failed for Submission</h1>
-  <p>{{ submission.title }} by {{ submission.author_list }}.</p>
-  <p>Please add comments on the Submission in this box.</p>
-  <form action="{% url 'submissions:assignment_failed' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="POST">
+<h1>Assignment has failed for Submission</h1>
+<p>{{ submission.title }} by {{ submission.author_list }}.</p>
+<p>Please add comments on the Submission in this box.</p>
+<form action="{% url 'submissions:assignment_failed' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="POST">
     {% csrf_token %}
-    {{ form }}
-    <input type="submit" name="Submit" />
-  </form>
-</section>
+    {{ form|bootstrap }}
+    <input type="submit" name="Submit" class="btn btn-primary" />
+</form>
 
-{% endblock bodysup %}
+{% endblock content %}

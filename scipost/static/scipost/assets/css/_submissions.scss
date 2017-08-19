@@ -9,33 +9,31 @@ table.submission_header {
 
     &:before {
         content: '';
-        width: 0.3rem;
+        width: 4px;
         height: 100%;
         background: #f4f4f4;
         position: absolute;
-        top: 0;
         left: 0;
-        border-radius: $border-radius;
-        border-top-right-radius: 0;
+        box-shadow: 0 1px 0 0 $card-shadow-color;
         border: 1px solid;
-        border-color: #e5e6e9 #dfe0e4 #d0d1d5;
-        z-index: -10;
+        border-color: $card-grey-border-color;
+        z-index: -1;
+        border-radius: $border-radius 0 $border-radius $border-radius;
     }
 
     .reportid,
     .commentid {
         display: block;
         margin-bottom: 1rem;
-        padding: 0.5rem 1rem 0.5rem 0.75rem;
+        margin-left: calc(-1rem + 3px);
+        padding: 0.5rem calc(1rem - 3px);
         background: #f4f4f4;
-        margin-left: -0.75rem;
         border: 1px solid;
-        border-color: #e5e6e9 #dfe0e4 #d0d1d5;
-        box-shadow: 0 1px 0 0 #ccc;
-        border-radius: $border-radius;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-left-color: #f4f4f4;
+        border-color: $card-grey-border-color;
+        border-radius: 0 $border-radius $border-radius 0;
+        box-shadow: 0 1px 0 0 $card-shadow-color;
+        border-left: 0;
+        z-index: 99;
     }
 }
 
@@ -69,11 +67,11 @@ table.submission_header {
 
 .required-actions {
     padding: 0.5rem;
-    background-color: $brand-danger;
+    background-color: $red;
     color: $white;
     border-radius: $card-border-radius;
 
     &.no-actions {
-        background-color: $brand-success;
+        background-color: $green;
     }
 }

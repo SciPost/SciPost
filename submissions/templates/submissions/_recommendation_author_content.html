@@ -1,4 +1,4 @@
-<div class="card-block">
+<div class="card-body">
     <h2 class="pb-0 mb-0">Editorial Recommendation</h2>
 
     {% block recommendation_header %}
@@ -6,10 +6,10 @@
     {% endblock %}
 
     <h3 class="pb-0">Remarks for authors</h3>
-    <p class="pl-md-3">{{recommendation.remarks_for_authors}}</p>
+    <p class="pl-md-3">{{recommendation.remarks_for_authors|default:'-'}}</p>
 
     <h3 class="pb-0">Requested changes</h3>
-    <p class="pl-md-3">{{recommendation.requested_changes}}</p>
+    <p class="pl-md-3">{{recommendation.requested_changes|default:'-'}}</p>
 
     {% block recommendation_before_recommendation %}{% endblock %}
 

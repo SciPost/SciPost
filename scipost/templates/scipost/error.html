@@ -2,11 +2,9 @@
 
 {% block pagetitle %}: error{% endblock pagetitle %}
 
-{% block bodysup %}
+{% block content %}
 
-<section>
-  <h3 style="color: red;">Error</h3>
-  <p>{{ errormessage }}</p>
-</section>
+<h3 class="text-danger">Error</h3>
+<p>{{ errormessage }}</p>
 
-{% endblock bodysup %}
+{% endblock %}

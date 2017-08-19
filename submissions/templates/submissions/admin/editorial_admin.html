@@ -1,0 +1,100 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Editorial Administration{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Editorial Administration</span>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-md-7">
+        <h1>Editorial Administration Page</h1>
+
+        <p>
+            {% if submission %}
+                <a href="{% url 'submissions:admin' %}">All events in the last 24 hours</a><br>
+            {% endif %}
+            <a href="{% url 'submissions:pool' %}">Go to the pool</a>
+        </p>
+
+        <h3>Submissions currently in pre-screening</h3>
+        <ul class="list-unstyled">
+            {% for sub in submission_list.prescreening %}
+                <li>
+                    {% include 'partials/submissions/admin/submission_tooltip.html' with submission=sub %}
+                    {% if sub == submission %}
+                        <strong>
+                            <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
+                            <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                        </strong>
+                    {% else %}
+                        <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
+                        <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>No Submissions are currently in pre-screening</li>
+            {% endfor %}
+        </ul>
+
+        <h3>Submissions currently in refereeing round</h3>
+        <ul class="list-unstyled">
+            {% for sub in submission_list.actively_refereeing %}
+                <li>
+                    {% include 'partials/submissions/admin/submission_tooltip.html' with submission=sub %}
+                    {% if sub == submission %}
+                        <strong>
+                            <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
+                            <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                        </strong>
+                    {% else %}
+                        <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
+                        <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>No Submissions are currently in refereeing round</li>
+            {% endfor %}
+        </ul>
+
+        <h3>Submissions accepted</h3>
+        <ul class="list-unstyled">
+            {% for sub in submission_list.accepted %}
+                <li>
+                    {% include 'partials/submissions/admin/submission_tooltip.html' with submission=sub %}
+                    {% if sub == submission %}
+                        <strong>
+                            <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
+                            <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                        </strong>
+                    {% else %}
+                        <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
+                        <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>All accepted Submissions are published</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="col-md-5">
+        {% if submission %}
+            <div class="card border-secondary mt-2">
+                <div class="card-body">
+                    {% include 'partials/submissions/admin/editorial_admin_summary.html' with submission=submission %}
+                </div>
+            </div>
+        {% else %}
+            <h3><em>Click on a submission to see its summary and actions</em></h3>
+            <h2>All events in the last 24 hours</h2>
+            <div id="eventslist" class="">
+                {% include 'submissions/submission_event_list_general.html' with events=latest_events %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

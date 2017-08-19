@@ -1,5 +1,4 @@
 from django import forms
-from django.template import Context
 from django.template.loader import get_template
 from django import template
 
@@ -66,7 +65,7 @@ def render(element, markup_classes):
     if element_type == 'boundfield':
         add_input_classes(element, markup_classes['form_control'])
         template = get_template("tags/bootstrap/field.html")
-        context = Context({'field': element, 'classes': markup_classes, 'form': element.form})
+        context = {'field': element, 'classes': markup_classes, 'form': element.form}
     else:
         has_management = getattr(element, 'management_form', None)
         if has_management:
@@ -75,13 +74,13 @@ def render(element, markup_classes):
                     add_input_classes(field, markup_classes['form_control'])
 
             template = get_template("tags/bootstrap/formset.html")
-            context = Context({'formset': element, 'classes': markup_classes})
+            context = {'formset': element, 'classes': markup_classes}
         else:
             for field in element.visible_fields():
                 add_input_classes(field, markup_classes['form_control'])
 
             template = get_template("tags/bootstrap/form.html")
-            context = Context({'form': element, 'classes': markup_classes})
+            context = {'form': element, 'classes': markup_classes}
 
     return template.render(context)
 

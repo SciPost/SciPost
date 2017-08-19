@@ -1,6 +1,7 @@
 {% if submission.refereeing_cycle != 'direct_rec' %}
-    <div class="card-block">
-        <p class="card-text">Nr referees invited: {{submission.referee_invitations.count}} <span>[{{submission.count_accepted_invitations}} acccepted / {{submission.count_declined_invitations}} declined / {{submission.count_pending_invitations}} response pending]</span></p>
-        <p class="card-text">Nr reports obtained: {{submission.count_obtained_reports}} [{{submission.count_invited_reports}} invited / {{submission.count_contrib_reports}} contributed], nr refused: {{submission.reports.rejected.count}}, nr awaiting vetting: {{submission.reports.awaiting_vetting.count}}</p>
-    </div>
+<p>
+    Nr referees invited: {{submission.referee_invitations.count}} <span>[{{submission.count_accepted_invitations}} acccepted / {{submission.count_declined_invitations}} declined / {{submission.count_pending_invitations}} response pending]</span>
+    <br>
+    Nr reports obtained: {{submission.count_obtained_reports}} [{{submission.count_invited_reports}} invited / {{submission.count_contrib_reports}} contributed], nr refused: {{submission.reports.rejected.count}}, nr awaiting vetting: {{submission.reports.awaiting_vetting.count}}
+</p>
 {% endif %}

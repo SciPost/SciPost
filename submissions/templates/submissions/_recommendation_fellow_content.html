@@ -6,5 +6,5 @@
 
 {% block recommendation_before_recommendation %}
     <h3 class="pb-0">Remarks for Editorial College</h3>
-    <p class="pl-md-3">{{recommendation.remarks_for_editorial_college}}</p>
+    <p class="pl-md-3">{{recommendation.remarks_for_editorial_college|default:'-'}}</p>
 {% endblock %}

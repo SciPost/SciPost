@@ -41,50 +41,12 @@
 
       <h3>Current metadata xml:</h3>
       <div>
-          <pre><code>
-              {{ publication.metadata_xml|linebreaks }}
-          </code></pre>
+          <pre><code>{{ publication.metadata_xml|linebreaksbr }}</code></pre>
       </div>
-
-      <hr class="hr6"/>
 
       <h3>Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a></h3>
 
     </div>
 </div>
 
-
 {% endblock content %}
-=======
-{% block bodysup %}
-
-
-<section>
-  <div class="flex-greybox">
-    <h1>Create metadata XML (for Crossref deposit)</h1>
-  </div>
-
-  {% if errormessage %}
-  <h2 style="color: red;">{{ errormessage }}</h2>
-  {% endif %}
-
-  <form action="{% url 'journals:create_metadata_xml' publication.doi_label %}" method="post">
-    {% csrf_token %}
-    {{ create_metadata_xml_form.as_p }}
-    <input type="submit" value="Accept the metadata">
-  </form>
-
-  <hr class="hr6"/>
-
-  <h3>Current metadata xml:</h3>
-  <p>{{ publication.metadata_xml|linebreaks }}</p>
-
-  <hr class="hr6"/>
-
-  <h3>Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></h3>
-
-</section>
-
-
-{% endblock bodysup %}
->>>>>>> development

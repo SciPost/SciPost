@@ -106,3 +106,23 @@ hr.hr12 {
 .blockquote > p:last-child {
     margin-bottom: 0;
 }
+
+.circle-clickable {
+    display: inline-block;
+    cursor: pointer;
+    background: #fff;
+    border: 2px solid #bbb;
+    border-radius: 100%;
+    color: #bbb;
+    width: 17px;
+    height: 17px;
+    line-height: 16px;
+    text-align: center;
+    font-size: 9px;
+    transition: 0.1s;
+
+    &:hover {
+        border-color: #333;
+        color: #333;
+    }
+}

@@ -25,6 +25,9 @@ class ContributorManager(models.Manager):
     def awaiting_validation(self):
         return self.filter(user__is_active=False, status=CONTRIBUTOR_NEWLY_REGISTERED)
 
+    def fellows(self):
+        return self.filter(user__groups__name='Editorial College')
+
 
 class RegistrationInvitationManager(models.Manager):
     def pending_invited_fellows(self):
@@ -34,3 +37,9 @@ class RegistrationInvitationManager(models.Manager):
     def declined_invited_fellows(self):
         return self.filter(invitation_type=INVITATION_EDITORIAL_FELLOW,
                            responded=False, declined=True)
+
+
+class UnavailabilityPeriodManager(models.Manager):
+    def today(self):
+        today = datetime.date.today()
+        return self.filter(start__lte=today, end__gte=today)

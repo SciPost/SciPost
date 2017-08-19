@@ -44,9 +44,6 @@ class Feedback(models.Model):
     def get_absolute_url(self):
         return self.VGM.get_absolute_url() + '#feedback' + str(self.id)
 
-    def as_li(self):
-        raise DeprecationWarning
-
 
 class Nomination(models.Model):
     """
@@ -83,20 +80,6 @@ class Nomination(models.Model):
 
     def get_absolute_url(self):
         return self.VGM.get_absolute_url() + '#nomination_' + str(self.id)
-
-    def as_li(self):
-        raise DeprecationWarning
-
-    def votes_as_ul(self):
-        template = Template('''
-        <ul class="opinionsDisplay">
-        <li style="background-color: #000099">Agree {{ nr_A }}</li>
-        <li style="background-color: #555555">Abstain {{ nr_N }}</li>
-        <li style="background-color: #990000">Disagree {{ nr_D }}</li>
-        </ul>
-        ''')
-        context = Context({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
-        return template.render(context)
 
     def update_votes(self, contributor_id, vote):
         contributor = get_object_or_404(Contributor, pk=contributor_id)
@@ -145,20 +128,6 @@ class Motion(models.Model):
 
     def get_absolute_url(self):
         return self.VGM.get_absolute_url() + '#motion_' + str(self.id)
-
-    def as_li(self):
-        raise DeprecationWarning
-
-    def votes_as_ul(self):
-        template = Template('''
-        <ul class="opinionsDisplay">
-        <li style="background-color: #000099">Agree {{ nr_A }}</li>
-        <li style="background-color: #555555">Abstain {{ nr_N }}</li>
-        <li style="background-color: #990000">Disagree {{ nr_D }}</li>
-        </ul>
-        ''')
-        context = Context({'nr_A': self.nr_A, 'nr_N': self.nr_N, 'nr_D': self.nr_D})
-        return template.render(context)
 
     def update_votes(self, contributor_id, vote):
         contributor = get_object_or_404(Contributor, pk=contributor_id)

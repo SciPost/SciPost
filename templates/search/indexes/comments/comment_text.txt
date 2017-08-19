@@ -1,0 +1,2 @@
+{{object.comment_text}}
+{{object.date_submitted}}

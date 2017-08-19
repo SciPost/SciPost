@@ -163,6 +163,10 @@ class Command(BaseCommand):
             codename='can_read_all_eic_events',
             name='Can read all Editor-in-charge events',
             content_type=content_type)
+        can_do_plagiarism_checks, created = Permission.objects.get_or_create(
+            codename='can_do_plagiarism_checks',
+            name='Can do plagiarism checks on submissions',
+            content_type=content_type)
 
         # Submission handling
         can_view_pool, created = Permission.objects.get_or_create(
@@ -268,6 +272,7 @@ class Command(BaseCommand):
         EditorialAdmin.permissions.set([
             can_view_pool,
             can_assign_submissions,
+            can_do_plagiarism_checks,
             can_oversee_refereeing,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,

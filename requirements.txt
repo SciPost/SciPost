@@ -1,40 +1,59 @@
-alabaster==0.7.9
-argon2-cffi==16.3.0
-Babel==2.3.4
-Django==1.10.3
-django_ajax_selects==1.5.2
-django-countries==4.0
-django-crispy-forms==1.6.1
-django-debug-toolbar==1.7
+# Core
+argon2-cffi==16.3.0  # Password hashing algorithm
+Babel==2.4
+Django==1.11.4
+feedparser==5.2.1   # Check: not updated since 2016
+psycopg2==2.7.3  # PostgreSQL engine
+pytz==2017.2  # Timezone package
+djangorestframework==3.6.3
+requests==2.18.3
+
+
+# Django packages
+django_ajax_selects==1.6
+django-countries==4.6.1
+django-debug-toolbar==1.8
 django-extensions==1.7.6
-django-filter==1.0.0
-django-guardian==1.4.6
-django-haystack==2.5.1
-django-mathjax==0.0.5
-django-mptt==0.8.6
+django-filter==1.0.4
+django-guardian==1.4.9
+django-mathjax==0.0.5  # This thing looks dead as well
+django-mptt==0.8.6  # Dead
 django-sphinxdoc==1.5.1
-django-recaptcha==1.2.1
-django-webpack-loader==0.4.1
-djangorestframework==3.5.3
-docutils==0.12
-factory-boy==2.7.0
-Faker==0.7.11
-fake-factory==0.7.2
-feedparser==5.2.1
+django-recaptcha==1.3.1
+django-webpack-loader==0.5
+
+
+# Documentation Packages
+alabaster==0.7.10  # Sphinx theme
+docutils==0.12  # What's this thing?
+Pygments==2.2.0  # Syntax highlighter
+Sphinx==1.4.9
+sphinx-rtd-theme==0.1.9  # Sphinx theme
+
+
+# Testing
+factory-boy==2.9.2
+Faker==0.7.18
+fake-factory==0.7.2  # Old version of Faker package
+
+
+# Django Utils
+django-haystack==2.5.1  # Check if this is really used. Package is not up-to-date
+Whoosh==2.7.4  # Directly related to Haystack.
+
+
+# Python Utils
+ithenticate-api-python==0.4
+mailchimp3==2.0.15
+python-dateutil==2.6.0  # Doesn't Django have this functionality built-in?  -- JdW
+Pillow==3.4.2  # Latest version is v4.2.1; need to know about usage before upgrade. -- JdW
+
+
+# Possibly dead (most probably not used anymore and possibly not up-to-date packages)  -- JdW (August 15th, 2017)
 imagesize==0.7.1
 Jinja2==2.8
-mailchimp3==2.0.11
 Markdown==2.6.7
 MarkupSafe==0.23
-pep8==1.7.0
-Pillow==3.4.2
-psycopg2==2.6.2
-Pygments==2.1.3
-python-dateutil==2.6.0
-pytz==2016.7
-requests==2.12.1
+pep8==1.7.0  # Is someone using this?
 six==1.10.0
 snowballstemmer==1.2.1
-Sphinx==1.4.9
-sphinx-rtd-theme==0.1.9
-Whoosh==2.7.4
