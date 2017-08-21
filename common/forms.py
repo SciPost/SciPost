@@ -65,13 +65,13 @@ class MonthYearWidget(Widget):
             id_ = 'id_%s' % name
 
         if hasattr(self, 'month_choices'):
-            local_attrs = self.build_attrs(id=self.month_field % id_)
+            local_attrs = self.build_attrs({'id': self.month_field % id_})
             s = Select(choices=self.month_choices, attrs={'class': 'form-control'})
             select_html = s.render(self.month_field % name, month_val, local_attrs)
             output.append(self.sqeeze_form_group(select_html))
 
         if hasattr(self, 'year_choices'):
-            local_attrs = self.build_attrs(id=self.year_field % id_)
+            local_attrs = self.build_attrs({'id': self.year_field % id_})
             s = Select(choices=self.year_choices, attrs={'class': 'form-control'})
             select_html = s.render(self.year_field % name, year_val, local_attrs)
             output.append(self.sqeeze_form_group(select_html))
