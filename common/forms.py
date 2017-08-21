@@ -48,7 +48,6 @@ class MonthYearWidget(Widget):
         return '<div class="form-group col-md-{width}">{html}</div>'.format(width=width, html=html)
 
     def render(self, name, value, attrs=None):
-        print('>>>> render', name, value, attrs)
         try:
             year_val, month_val = value.year, value.month
         except AttributeError:
