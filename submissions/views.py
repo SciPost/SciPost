@@ -939,26 +939,25 @@ def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
 def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.get_pool(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if request.method == 'POST':
-        form = SetRefereeingDeadlineForm(request.POST)
-        if form.is_valid():
-            submission.reporting_deadline = form.cleaned_data['deadline']
-            if form.cleaned_data['deadline'] > timezone.now().date():
-                submission.open_for_reporting = True
-                submission.open_for_commenting = True
-            submission.status = 'EICassigned'
-            submission.latest_activity = timezone.now()
-            submission.save()
-            submission.add_general_event('A new refereeing deadline is set.')
-            context = {'ack_header': 'New reporting deadline set.',
-                       'followup_message': 'Return to the ',
-                       'followup_link': reverse('submissions:editorial_page',
-                                                kwargs={'arxiv_identifier_w_vn_nr': submission.arxiv_identifier_w_vn_nr}),
-                       'followup_link_label': 'Submission\'s Editorial Page'}
-            return render(request, 'scipost/acknowledgement.html', context)
-        else:
-            errormessage = 'The set reporting deadline form was improperly filled'
-            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+    form = SetRefereeingDeadlineForm(request.POST or None)
+    if form.is_valid():
+        submission.reporting_deadline = form.cleaned_data['deadline']
+        if form.cleaned_data['deadline'] > timezone.now().date():
+            submission.open_for_reporting = True
+            submission.open_for_commenting = True
+        submission.status = 'EICassigned'
+        submission.latest_activity = timezone.now()
+        submission.save()
+        submission.add_general_event('A new refereeing deadline is set.')
+        context = {'ack_header': 'New reporting deadline set.',
+                   'followup_message': 'Return to the ',
+                   'followup_link': reverse('submissions:editorial_page',
+                                            kwargs={'arxiv_identifier_w_vn_nr': submission.arxiv_identifier_w_vn_nr}),
+                   'followup_link_label': 'Submission\'s Editorial Page'}
+        return render(request, 'scipost/acknowledgement.html', context)
+    else:
+        messages.error(request, 'The deadline has not been set. Please try again.')
 
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
