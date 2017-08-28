@@ -3,13 +3,13 @@ import json
 from django import forms
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
-from django.template import loader, Context
+from django.template import loader
 
 
 class EmailTemplateForm(forms.Form):
-    recipient = forms.EmailField()
-    subject = forms.CharField(max_length=250)
-    text = forms.CharField(widget=forms.Textarea(attrs={'rows': 25}))
+    extra_recipient = forms.EmailField(label="Also bbc email to", required=False)
+    subject = forms.CharField(max_length=250, label="Subject*")
+    text = forms.CharField(widget=forms.Textarea(attrs={'rows': 25}), label="Text*")
 
     def __init__(self, *args, **kwargs):
         self.mail_code = kwargs.pop('mail_code')
@@ -17,7 +17,7 @@ class EmailTemplateForm(forms.Form):
 
         # Gather data
         mail_template = loader.get_template('mail_templates/%s.txt' % self.mail_code)
-        self.mail_template = mail_template.render(Context(kwargs))
+        self.mail_template = mail_template.render(kwargs)
         json_location = '%s/mails/templates/mail_templates/%s.json' % (settings.BASE_DIR,
                                                                        self.mail_code)
         self.mail_data = json.loads(open(json_location).read())
@@ -27,17 +27,17 @@ class EmailTemplateForm(forms.Form):
         recipient = self.object
         for attr in self.mail_data.get('to_address').split('.'):
             recipient = getattr(recipient, attr)
+        self.recipient = recipient
 
         # Set the data as initials
         self.fields['text'].initial = self.mail_template
-        self.fields['recipient'].initial = recipient
         self.fields['subject'].initial = self.mail_data['subject']
 
     def send(self):
         # Get text and html
         message = self.cleaned_data['text']
         html_template = loader.get_template('email/general.html')
-        html_message = html_template.render(Context({'text': message}))
+        html_message = html_template.render({'text': message})
 
         # Get recipients list. Always send through BCC to prevent privacy issues!
         bcc_to = self.object
@@ -46,6 +46,8 @@ class EmailTemplateForm(forms.Form):
         bcc_list = [
             bcc_to,
         ]
+        if self.cleaned_data.get('additional_bcc'):
+            bcc_list.append(self.cleaned_data.get('additional_bcc'))
 
         # Send the mail
         email = EmailMultiAlternatives(
@@ -53,7 +55,7 @@ class EmailTemplateForm(forms.Form):
             message,
             '%s <%s>' % (self.mail_data.get('from_address_name', 'SciPost'),
                          self.mail_data.get('from_address', 'no-reply@scipost.org')),  # From
-            [self.cleaned_data['recipient']],  # To
+            [self.recipient],  # To
             bcc=bcc_list,
             reply_to=[self.mail_data.get('from_address', 'no-reply@scipost.org')])
         email.attach_alternative(html_message, 'text/html')
