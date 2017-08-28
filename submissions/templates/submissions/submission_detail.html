@@ -148,6 +148,8 @@
         {% endif %}
     </div>
 </div>
+{% elif not user.is_authenticated %}
+    <div class="text-center"><a class="btn btn-primary btn-sm px-3" href="{% url 'scipost:login' %}?next={{request.path}}">Login to report</a></div>
 {% endif %}
 
 {% if invited_reports %}
