@@ -667,6 +667,7 @@ class iThenticateReportForm(forms.ModelForm):
 
         if hasattr(self, 'response') and self.response:
             return cleaned_data
+
         # Don't return anything as someone submitted invalid data for the form at this point!
         return None
 
