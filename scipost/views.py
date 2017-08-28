@@ -1087,12 +1087,12 @@ def email_group_members(request):
                         email_text_html += (
                             '<br/>\n<p style="font-size: 10px;">Don\'t want to receive such '
                             'emails? <a href="%s">Unsubscribe</a>.</p>' % url_unsubscribe)
-                        email_context = Context({
+                        email_context = {
                             'title': member.contributor.get_title_display(),
                             'last_name': member.last_name,
                             'email_text': form.cleaned_data['email_text'],
                             'key': member.contributor.activation_key,
-                        })
+                        }
                         html_template = Template(email_text_html)
                         html_version = html_template.render(email_context)
                         message = EmailMultiAlternatives(
@@ -1121,7 +1121,7 @@ def email_particular(request):
         if form.is_valid():
             email_text = form.cleaned_data['email_text']
             email_text_html = '{{ email_text|linebreaks }}'
-            email_context = Context({'email_text': form.cleaned_data['email_text']})
+            email_context = {'email_text': form.cleaned_data['email_text']}
             if form.cleaned_data['include_scipost_summary']:
                 email_text += SCIPOST_SUMMARY_FOOTER
                 email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
@@ -1163,7 +1163,7 @@ def send_precooked_email(request):
         precookedEmail.save()
         email_text = precookedEmail.email_text
         email_text_html = '{{ email_text|linebreaks }}'
-        email_context = Context({'email_text': precookedEmail.email_text_html})
+        email_context = {'email_text': precookedEmail.email_text_html}
         if form.cleaned_data['include_scipost_summary']:
             email_text += SCIPOST_SUMMARY_FOOTER
             email_text_html += SCIPOST_SUMMARY_FOOTER_HTML

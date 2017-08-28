@@ -1389,7 +1389,7 @@ def remind_Fellows_to_vote(request):
     for name in sorted(Fellow_names):
         ack_message += '<li>' + name + '</li>'
     ack_message += '</ul>'
-    context = {'ack_message': Template(ack_message).render(Context({})),
+    context = {'ack_message': Template(ack_message).render({}),
                'followup_message': 'Return to the ',
                'followup_link': reverse('submissions:pool'),
                'followup_link_label': 'Submissions pool'}

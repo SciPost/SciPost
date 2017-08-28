@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.template.loader import get_template
-from django.template import Context
 
 from .models import Commentary
 from .constants import COMMENTARY_PUBLISHED, COMMENTARY_PREPRINT
@@ -32,7 +31,7 @@ class DOIToQueryForm(forms.Form):
         commentary = Commentary.objects.filter(pub_DOI=input_doi)
         if commentary.exists():
             error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
-                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+                {'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string}
             )
             raise forms.ValidationError(mark_safe(error_message))
 
@@ -68,7 +67,7 @@ class ArxivQueryForm(forms.Form):
         commentary = Commentary.objects.filter(arxiv_identifier=identifier)
         if commentary.exists():
             error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
-                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+                {'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string}
             )
             raise forms.ValidationError(mark_safe(error_message))
 
@@ -126,7 +125,7 @@ class RequestArxivPreprintForm(RequestCommentaryForm):
         commentary = Commentary.objects.filter(arxiv_identifier=arxiv_identifier)
         if commentary.exists():
             error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
-                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+                {'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string}
             )
             raise forms.ValidationError(mark_safe(error_message))
 
@@ -157,7 +156,7 @@ class RequestPublishedArticleForm(RequestCommentaryForm):
         commentary = Commentary.objects.filter(pub_DOI=input_doi)
         if commentary.exists():
             error_message = get_template('commentaries/_doi_query_commentary_exists.html').render(
-                Context({'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string})
+                {'arxiv_or_DOI_string': commentary[0].arxiv_or_DOI_string}
             )
             raise forms.ValidationError(mark_safe(error_message))
 

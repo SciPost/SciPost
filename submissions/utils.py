@@ -322,12 +322,12 @@ class SubmissionUtils(BaseMailUtil):
             'from your <a href="https://scipost.org/personal_page">personal page</a>.</p>'
             '<p>With many thanks,</p>'
             '<p>The SciPost Team.</p>')
-        email_context = Context({
+        email_context = {
             'title': cls.submission.submitted_by.get_title_display(),
             'last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -361,12 +361,12 @@ class SubmissionUtils(BaseMailUtil):
             'from your <a href="https://scipost.org/personal_page">personal page</a>.</p>'
             '<p>With many thanks,</p>'
             '<p>The SciPost Team</p>')
-        email_context = Context({
+        email_context = {
             'title': cls.submission.submitted_by.get_title_display(),
             'last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -414,12 +414,12 @@ class SubmissionUtils(BaseMailUtil):
             'fails in the meantime.</p>'
             '\n<p>Many thanks in advance for your collaboration,</p>'
             '<p>The SciPost Team.</p>')
-        email_context = Context({
+        email_context = {
             'title': cls.assignment.to.get_title_display(),
             'last_name': cls.assignment.to.user.last_name,
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -470,13 +470,13 @@ class SubmissionUtils(BaseMailUtil):
             '<a href="https://scipost.org/EdCol_by-laws">Editorial College by-laws</a>.</p>'
             '<p>Many thanks in advance for your collaboration,</p>'
             '<p>The SciPost Team.</p>')
-        email_context = Context({
+        email_context = {
             'title': cls.assignment.to.get_title_display(),
             'last_name': cls.assignment.to.user.last_name,
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.assignment.submission.arxiv_identifier_w_vn_nr,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -553,7 +553,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>We thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
-        email_context = Context({
+        email_context = {
             'title': cls.assignment.submission.submitted_by.get_title_display(),
             'last_name': cls.assignment.submission.submitted_by.user.last_name,
             'sub_title': cls.assignment.submission.title,
@@ -561,7 +561,7 @@ class SubmissionUtils(BaseMailUtil):
             'arxiv_identifier_w_vn_nr': cls.assignment.submission.arxiv_identifier_w_vn_nr,
             'deadline': datetime.datetime.strftime(cls.assignment.submission.reporting_deadline,
                                                    "%Y-%m-%d"),
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -605,13 +605,13 @@ class SubmissionUtils(BaseMailUtil):
             '<p>We nonetheless thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
-        email_context = Context({
+        email_context = {
             'title': cls.submission.submitted_by.get_title_display(),
             'last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
             'personal_message': cls.personal_message,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -719,7 +719,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>We very much hope we can count on your expertise,</p>'
             '<p>Many thanks in advance,</p>'
             '<p>The SciPost Team</p>')
-        email_context = Context({
+        email_context = {
             'title': cls.invitation.get_title_display(),
             'last_name': cls.invitation.last_name,
             'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
@@ -730,7 +730,7 @@ class SubmissionUtils(BaseMailUtil):
             'deadline': datetime.datetime.strftime(cls.invitation.submission.reporting_deadline,
                                                    "%Y-%m-%d"),
             'invitation_key': cls.invitation.invitation_key,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -805,7 +805,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>We very much hope we can count on your expertise,</p>'
             '<p>Many thanks in advance,</p>'
             '<p>The SciPost Team</p>')
-        email_context = Context({
+        email_context = {
             'title': cls.invitation.get_title_display(),
             'last_name': cls.invitation.last_name,
             'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
@@ -816,7 +816,7 @@ class SubmissionUtils(BaseMailUtil):
             'deadline': datetime.datetime.strftime(cls.invitation.submission.reporting_deadline,
                                                    "%Y-%m-%d"),
             'invitation_key': cls.invitation.invitation_key,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -876,7 +876,7 @@ class SubmissionUtils(BaseMailUtil):
                 'registration form</a> is still available '
                 'after which your registration will be activated, giving you full access to '
                 'the portal\'s facilities (in particular allowing you to provide referee reports).</p>')
-        email_context = Context({
+        email_context = {
             'title': cls.invitation.get_title_display(),
             'last_name': cls.invitation.last_name,
             'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
@@ -884,7 +884,7 @@ class SubmissionUtils(BaseMailUtil):
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
             'invitation_key': cls.invitation.invitation_key,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -989,7 +989,7 @@ class SubmissionUtils(BaseMailUtil):
                 '\n<strong>Report</strong>: <br/><p>{{ report|linebreaks }}</p>'
                 '\n<strong>Requested changes</strong>: <br/><p>{{ requested_changes|linebreaks }}</p>'
                 '\n<strong>Remarks for Editors</strong>: <br/><p>{{ remarks_for_editors|linebreaks }}</p>')
-        email_context = Context({
+        email_context = {
             'ref_title': cls.report.author.get_title_display(),
             'ref_last_name': cls.report.author.user.last_name,
             'sub_title': cls.report.submission.title,
@@ -1000,7 +1000,7 @@ class SubmissionUtils(BaseMailUtil):
             'report': cls.report.report,
             'requested_changes': cls.report.requested_changes,
             'remarks_for_editors': cls.report.remarks_for_editors,
-        })
+        }
         if cls.report.status in [STATUS_UNCLEAR, STATUS_INCORRECT,
                                  STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC]:
             email_context['refusal_reason'] = cls.report.get_status_display()
@@ -1050,13 +1050,13 @@ class SubmissionUtils(BaseMailUtil):
             '\n<p>We thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
-        email_context = Context({
+        email_context = {
             'auth_title': cls.report.submission.submitted_by.get_title_display(),
             'auth_last_name': cls.report.submission.submitted_by.user.last_name,
             'sub_title': cls.report.submission.title,
             'author_list': cls.report.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.report.submission.arxiv_identifier_w_vn_nr,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -1092,13 +1092,13 @@ class SubmissionUtils(BaseMailUtil):
             '\n<p>We thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
-        email_context = Context({
+        email_context = {
             'auth_title': cls.submission.submitted_by.get_title_display(),
             'auth_last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -1223,13 +1223,13 @@ class SubmissionUtils(BaseMailUtil):
             '\n<p>We thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
-        email_context = Context({
+        email_context = {
             'auth_title': cls.submission.submitted_by.get_title_display(),
             'auth_last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -1312,14 +1312,14 @@ class SubmissionUtils(BaseMailUtil):
         email_text_html += ('\n<p>We thank you very much for your contribution.</p>'
                             '<p>Sincerely,</p>'
                             '<p>The SciPost Team.</p>')
-        email_context = Context({
+        email_context = {
             'auth_title': cls.submission.submitted_by.get_title_display(),
             'auth_last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
             'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
             'journal': cls.submission.get_submitted_to_journal_display(),
-        })
+        }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
@@ -1357,7 +1357,7 @@ class SubmissionUtils(BaseMailUtil):
             'so we can finish processing these submissions?</p>'
             '<p>Many thanks in advance,</p>'
             '<p>The SciPost Team.</p><br/>' + EMAIL_FOOTER)
-        email_context = Context({})
+        email_context = {}
         html_template = Template(email_text_html)
         html_version = html_template.render(email_context)
         emailmessage = EmailMultiAlternatives(

@@ -1,7 +1,8 @@
 {% load bootstrap %}
 
+{% block footer_script %}
 <script>
-    $(document).ready(function(){
+    $(function(){
         var comment_text_input = $("#id_comment_text");
 
         comment_text_input.on('keyup', function(){
@@ -11,6 +12,7 @@
         }).trigger('keyup')
     });
 </script>
+{% endblock %}
 
 <form enctype="multipart/form-data" action="{{url}}" method="post">
       {% csrf_token %}
