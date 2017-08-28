@@ -436,26 +436,22 @@ def get_date_filter_choices():
 class SearchForm(HayStackSearchForm):
     # The date filters doesn't function well...
     start = forms.DateField(widget=MonthYearWidget(), required=False)  # Month
-    # start_2 = forms.DateField(widget=MonthYearWidget(months=False), required=False)  # Year
     end = forms.DateField(widget=MonthYearWidget(end=True), required=False)  # Month
-    # end_2 = forms.DateField(widget=MonthYearWidget(months=False), required=False)  # Years
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        models = self.fields['models'].choices
-        models = filter(lambda x: x[0] != 'sphinxdoc.document', models)
-        self.fields['models'].choices = models
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     models = self.fields['models'].choices
+    #     models = filter(lambda x: x[0] != 'sphinxdoc.document', models)
+    #     self.fields['models'].choices = models
 
     def search(self):
-        sqs = super().search()#.using('base_search')
-        c = self.cleaned_data
+        sqs = super().search()
 
         if self.cleaned_data['start']:
             sqs = sqs.filter(date__gte=self.cleaned_data['start'])
 
         if self.cleaned_data['end']:
             sqs = sqs.filter(date__lte=self.cleaned_data['end'])
-        l = list(sqs)
         return sqs
 
 
