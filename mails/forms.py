@@ -7,9 +7,9 @@ from django.template import loader
 
 
 class EmailTemplateForm(forms.Form):
-    extra_recipient = forms.EmailField(label="Also bbc email to", required=False)
     subject = forms.CharField(max_length=250, label="Subject*")
     text = forms.CharField(widget=forms.Textarea(attrs={'rows': 25}), label="Text*")
+    extra_recipient = forms.EmailField(label="Optional: bcc this email to", required=False)
 
     def __init__(self, *args, **kwargs):
         self.mail_code = kwargs.pop('mail_code')
