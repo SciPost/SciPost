@@ -1,11 +1,21 @@
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/variables";
+@import "node_modules/bootstrap/scss/mixins";
+
 // General variable structure
 //
 //
-$border-radius-base: 0;
+$base-border-radius: 2px;
+$border-radius: 2px;
+
+// Alert
+//
+$alert-padding-y: 0;
+$alert-padding-x: 0.75rem;
 
 // Grid
 //
-$grid-gutter-width-base: 20px;
+$grid-gutter-width: 20px;
 $container-max-widths: (
     sm: 728px,
     md: 952px,
@@ -16,30 +26,40 @@ $container-max-widths: (
 // Colors
 //
 $scipost-light: #C3D7EE;
-$scipost-lightblue: #6884C2;
+$scipost-lightblue: #6885c3;
+$scipost-lightestblue: #d3e3f6;
 $scipost-darkblue: #002b49;
-$scipost-orange: #FFA300;
+$scipost-orange: #f6a11a;
 $scipost-white: #f9f9f9;
-$green: #6ebb6e;
 $sidebar-border-color: #dfe0e4;
 
-$blue: $scipost-lightblue !default;
-$body-color: $scipost-darkblue !default;
+$body-color: $scipost-darkblue;
+
+// -- Bootstrap color codes
+$white: #fff;
+$blue: $scipost-lightblue;  // Primary
+$green: #6ebb6e;
+$cyan: $scipost-lightestblue;
+$yellow: $scipost-orange;
+$gray-600: #ccc;
+$text-muted: #636c72;
+// Others, now as default
+// $red: $red;
+// $gray-100: $gray-100;
+// $gray-600: $gray-600;  // Secondary
+// $gray-800: $gray-800;
+
 
 // Alerts
 //
-$alert-success-text: $scipost-darkblue;
-$alert-warning-text: $scipost-darkblue;
-$alert-danger-text: $scipost-darkblue;
-$alert-border-radius: $border-radius-base;
+$alert-border-radius: $base-border-radius;
 
 // Cards
 //
+
+$card-border-radius: $base-border-radius;
 $card-spacer-x: 0.75rem;
-$card-border-radius: 2px;
-$card-border-color: #fff;
-$card-cap-bg: transparent;
-$btn-secondary-border-color: #f1f1f1;
+$card-spacer-y: 0.5rem;
 $card-shadow-color: #ccc;
 $card-grey-border-bottom-color: #d0d1d5;
 $card-grey-border-color: #e5e6e9 #dfe0e4 $card-grey-border-bottom-color;
@@ -52,12 +72,20 @@ $breadcrumb-divider-color: $scipost-orange;
 
 // Forms
 //
-$btn-padding-x: .5rem;
-$btn-padding-y: .25rem;
-$btn-padding-y-sm: .15rem;
+$input-btn-padding-y-sm: 0.1rem;
+$input-btn-padding-x: 0.5rem;
+$input-btn-padding-y: 0.25rem;
+$input-btn-padding-y-lg: 0.25rem;
+$input-btn-padding-x-lg: 0.75rem;
+$input-btn-line-height-lg: 1.4;
+$input-border-radius-sm: $base-border-radius;
+$input-border-radius: $base-border-radius;
+$input-border-radius-lg: $base-border-radius;
+$enable-rounded: true !important;
 $btn-transition: none;
-$input-padding-x: .5rem;
-$input-padding-y: .25rem;
+
+$input-height: calc(1.5rem + 2px);
+$input-height-lg: calc(1.5rem + 2px);
 
 // Lists
 //
@@ -68,20 +96,21 @@ $list-group-border-color: #ddd;
 
 // Fonts
 //
-$font-family-sans-serif: 'Merriweather Sans', "Helvetica Neue", Arial, sans-serif !default;
-$font-family-serif:      $font-family-sans-serif !default;
-$font-family-monospace:  $font-family-sans-serif !default;
-$font-family-base:       $font-family-sans-serif !default;
+$font-family-sans-serif: 'Merriweather Sans', "Helvetica Neue", Arial, sans-serif;
+$headings-font-family: $font-family-sans-serif;
+$font-family-serif:      $font-family-sans-serif;
+$font-family-monospace:  $font-family-sans-serif;
+$font-family-base:       $font-family-sans-serif;
 
-$font-size-base: 0.8rem !default;
+$font-size-base: 0.8rem;
 $font-size-sm: 0.75rem;
 
-$font-size-h1: 2.0em;
-$font-size-h2: 1.5em;
-$font-size-h3: 1.25em;
-$font-size-h4: 0.8rem;
-$font-size-h5: 0.8rem;
-$font-size-h6: 0.8rem;
+$h1-font-size: 2.0em;
+$h2-font-size: 1.5em;
+$h3-font-size: 1.25em;
+$h4-font-size: 0.8rem;
+$h5-font-size: 0.8rem;
+$h6-font-size: 0.8rem;
 
 $close-font-weight: 100;
 
@@ -92,16 +121,34 @@ $table-cell-padding: 0.25rem 0.5rem;
 
 // Navbar
 //
-$navbar-light-color: $scipost-darkblue !default;
-$navbar-light-hover-color: $scipost-darkblue !default;
+$navbar-light-color: $scipost-darkblue;
+$navbar-light-hover-color: $scipost-darkblue;
+$nav-link-padding-y: 0.4rem;
 
 $input-border-radius: 0;
-$btn-border-radius: 0;
-$btn-border-radius-sm: 2px;
+$btn-border-radius: $base-border-radius;
+$btn-border-radius-sm: $base-border-radius;
 $btn-border-radius-lg: 0;
 
 
 // Block quote
 //
 $blockquote-font-size: $font-size-base;
-$blockquote-border-color: #ececec;
+// $blockquote-border-color: #ececec;
+
+
+
+
+//  ---
+//
+// Reset $theme-colors variable
+$theme-colors: (
+  primary: $blue,
+  secondary: $gray-600,
+  success: $green,
+  info: $cyan,
+  warning: $yellow,
+  danger: $red,
+  light: $gray-100,
+  dark: $gray-800
+);

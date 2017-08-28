@@ -16,7 +16,7 @@
 <div class="row">
     <div class="col-12">
         <div class="card card-grey">
-            <div class="card-block">
+            <div class="card-body">
                 <h1>Editorial Page for Submission</h1>
                 {% if not submission.is_current %}
                     <h3 class="text-danger">This is not the editorial page for the current version.</h3>
@@ -84,7 +84,7 @@
 {% endwith %}
 
 <div class="card card-grey my-4">
-    <div class="card-block">
+    <div class="card-body">
         <h2 class="card-title">Editorial Workflow</h2>
         <a href="{% url 'submissions:editorial_workflow' %}">How-to guide: summary of the editorial workflow</a>
     </div>
@@ -131,7 +131,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card card-outline-warning">
-                <div class="card-block">
+                <div class="card-body">
                     <h3 class="mb-3 font-weight-bold">BEWARE: This is not the editorial page for the current version!</h3>
                     <p class="mb-0">
                         The tools here are thus available only for exceptional circumstances (e.g. vetting a late report on a deprecated version).

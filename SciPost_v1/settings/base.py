@@ -80,7 +80,6 @@ INSTALLED_APPS = (
     'django_mathjax',
     'ajax_select',
     'captcha',
-    'crispy_forms',
     'guardian',
     'haystack',
     'rest_framework',
@@ -88,6 +87,7 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'journals',
+    'mails',
     'mailing_lists',
     'news',
     'scipost',
@@ -100,12 +100,25 @@ INSTALLED_APPS = (
     'webpack_loader',
 )
 
+
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': 'local_files/haystack/',
+        'EXCLUDED_INDEXES': ['sphinxdoc.search_indexes.DocumentIndex'],
     },
+    # 'scipost': {
+    #     'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+    #     'PATH': 'local_files/haystack_scipost/',
+    #     'EXCLUDED_INDEXES': ['sphinxdoc.search_indexes.DocumentIndex'],
+    # },
 }
+
+# Brute force automatically re-index Haystack using post_save signals on all models.
+# When write-traffic increases, a custom processor is preferred which only connects
+# signals to eg. `vet-accepted` signals possibly using cron jobs instead of realtime updates.
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
 
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
 SPHINXDOC_PROTECTED_PROJECTS = {
@@ -185,7 +198,7 @@ MESSAGE_TAGS = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': get_secret("DB_NAME"),
         'USER': get_secret("DB_USER"),
         'PASSWORD': get_secret("DB_PWD"),
@@ -240,11 +253,18 @@ WEBPACK_LOADER = {
 }
 
 # Email
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_BACKEND = 'mails.backends.extendedfilebased.EmailBackend'
 EMAIL_FILE_PATH = 'local_files/email/'
 MAILCHIMP_DATABASE_CODE = 'us6'
 MAILCHIMP_API_USER = 'test_API-user'
 MAILCHIMP_API_KEY = 'test_API-key'
+
+
+# iThenticate
+ITHENTICATE_USERNAME = 'test_ithenticate_username'
+ITHENTICATE_PASSWORD = 'test_ithenticate_password'
+# # Default folder to upload to, else uses the first folder of your account.
+ITHENTICATE_DEFAULT_FOLDER_ID = None
 
 # Own settings
 JOURNALS_DIR = 'journals'

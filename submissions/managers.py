@@ -1,5 +1,8 @@
+import datetime
+
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
@@ -7,10 +10,10 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT, STATUS_PUBLISHED,\
                        SUBMISSION_EXCLUDE_FROM_REPORTING, STATUS_REJECTED_VISIBLE,\
                        STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE,\
-                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR
+                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR, STATUS_UNASSIGNED
 
 
-class SubmissionManager(models.Manager):
+class SubmissionQuerySet(models.QuerySet):
     def _newest_version_only(self, queryset):
         """
         The current Queryset should return only the latest version
@@ -41,7 +44,7 @@ class SubmissionManager(models.Manager):
 
     def get_pool(self, user):
         """
-        This filter will return submission currently in an active submission cycle.
+        Return subset of active and newest 'alive' submissions.
         """
         return (self.user_filter(user)
                 .exclude(is_current=False)
@@ -50,13 +53,29 @@ class SubmissionManager(models.Manager):
 
     def filter_editorial_page(self, user):
         """
-        This filter returns a subgroup of the `get_pool` filter, to allow opening and editing
-        certain submissions that are officially out of the submission cycle i.e. due
-        to resubmission, but should still have the possibility to be opened by the EIC.
+        Return Submissions currently 'alive' (being refereed, not published).
+
+        It is meant to allow opening and editing certain submissions that are officially
+        out of the submission cycle i.e. due to resubmission, but should still have the
+        possibility to be opened by the EIC.
         """
         return (self.user_filter(user)
                 .exclude(status__in=SUBMISSION_HTTP404_ON_EDITORIAL_PAGE)
                 .order_by('-submission_date'))
+
+    def prescreening(self):
+        """
+        Return submissions just coming in and going through pre-screening.
+        """
+        return self.filter(status=STATUS_UNASSIGNED)
+
+    def actively_refereeing(self):
+        """
+        Return submission currently in some point of the refereeing round.
+        """
+        return (self.exclude(is_current=False)
+                    .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
+                    .exclude(status__in=[STATUS_UNASSIGNED, STATUS_ACCEPTED]))
 
     def public(self):
         """
@@ -82,13 +101,6 @@ class SubmissionManager(models.Manager):
         """
         return self._newest_version_only(self.public())
 
-    def open_for_reporting(self):
-        """
-        This query should filter submissions that do not have the right status to receive
-        a new report.
-        """
-        return self.exclude(status__in=SUBMISSION_EXCLUDE_FROM_REPORTING)
-
     def treated(self):
         """
         This query returns all Submissions that are expected to be 'done'.
@@ -99,7 +111,16 @@ class SubmissionManager(models.Manager):
     def accepted(self):
         return self.filter(status=STATUS_ACCEPTED)
 
+    def open_for_reporting(self):
+        """
+        Return Submissions that have appriopriate status for reporting.
+        The `open_for_reporting` property is not filtered as some invited visitors
+        still need to have access.
+        """
+        return self.exclude(status__in=SUBMISSION_EXCLUDE_FROM_REPORTING)
+
     def open_for_commenting(self):
+        """ Return Submission that allow for commenting. """
         return self.filter(open_for_commenting=True)
 
 
@@ -116,12 +137,36 @@ class SubmissionEventQuerySet(models.QuerySet):
         """
         return self.filter(event__in=[EVENT_FOR_EIC, EVENT_GENERAL])
 
+    def last_hours(self, hours=24):
+        """
+        Return all events of the last `hours` hours.
+        """
+        return self.filter(created__gte=timezone.now() - datetime.timedelta(hours=hours))
 
-class EditorialAssignmentManager(models.Manager):
+
+class EditorialAssignmentQuerySet(models.QuerySet):
     def get_for_user_in_pool(self, user):
         return self.exclude(submission__authors=user.contributor)\
                 .exclude(Q(submission__author_list__icontains=user.last_name),
                          ~Q(submission__authors_false_claims=user.contributor))
+
+    def last_year(self):
+        return self.filter(date_created__gt=timezone.now() - timezone.timedelta(days=365))
+
+    def accepted(self):
+        return self.filter(accepted=True)
+
+    def refused(self):
+        return self.filter(accepted=False)
+
+    def ignored(self):
+        return self.filter(accepted=None)
+
+    def completed(self):
+        return self.filter(completed=True)
+
+    def ongoing(self):
+        return self.filter(completed=False).accepted()
 
 
 class EICRecommendationManager(models.Manager):
@@ -167,3 +212,20 @@ class ReportQuerySet(models.QuerySet):
 
     def non_draft(self):
         return self.exclude(status=STATUS_DRAFT)
+
+    def contributed(self):
+        return self.filter(invited=False)
+
+    def invited(self):
+        return self.filter(invited=True)
+
+
+class RefereeInvitationQuerySet(models.QuerySet):
+    def pending(self):
+        return self.filter(accepted=None)
+
+    def accepted(self):
+        return self.filter(accepted=True)
+
+    def declined(self):
+        return self.filter(accepted=False)

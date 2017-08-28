@@ -1,5 +1,5 @@
 {% extends 'scipost/base.html' %}
-{% load render_bundle from webpack_loader %}
+
 {% block pagetitle %}: About{% endblock pagetitle %}
 
 {% load staticfiles %}
@@ -25,13 +25,9 @@
         <h2>SciPost is endorsed by</h2>
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-12">
               <a target="_blank" href="http://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width='300px' /></a>
               <p id="NWOOpenAccess" class="mt-3">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as stipulated on the NWO’s <a href="http://www.nwo.nl/en/policies/open+science">Open Science page</a>.</p>
-            </div>
-            <div class="col-md-6">
-                <a target="_blank" href="http://www.fom.nl/live/english/home.pag"><img src="{% static 'scipost/images/FOMlogo_fc.jpg' %}" alt="FOM logo" width='100px' /></a>
-                <p style="font-size: 50%">FOM is part of NWO</p>
             </div>
         </div>
     </div>
@@ -72,16 +68,16 @@
       <h2 class="highlight">The SciPost Team</h2>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-3 offset-md-1">
+<div class="row justify-content-center">
+    <div class="col-md-4 col-lg-3">
       <h3><a href="{% url 'scipost:foundation' %}">The SciPost Foundation</a></h3>
       <ul>
-    	<li>Chairman: Prof. <a href="http://jscaux.org">J.-S. Caux</a></li>
+    	<li>Chairman: Prof. <a href="http://jscaux.org" target="_blank">J.-S. Caux</a></li>
     	<li>Secretary: Dr J. van Mameren</li>
     	<li>Treasurer: Dr J. van Wezel</li>
       </ul>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-7 col-lg-6">
       <h3>Code Development and Server Maintenance</h3>
       <ul>
     	<li>Lead programmer: J.-S. Caux</li>
@@ -92,27 +88,27 @@
 
 <hr>
 <div class="row">
-  <div class="col-12">
+  <div class="col">
       <h2 class="highlight" id="advisory_board">Advisory Board</h2>
   </div>
 </div>
 
-<div class="row">
-    <div class="col-md-3 offset-md-1">
+<div class="row justify-content-center">
+    <div class="col-lg-3 col-md-4">
       <ul>
 	<li>Prof. <a target="_blank" href="http://www.nikhef.nl/~h02/">J. J. Engelen</a><br/>(U. van Amsterdam)</li>
 	<li>Prof. <a target="_blank" href="https://www.asc.ox.ac.uk/person/18">P. Fendley</a><br/>(Oxford; <a href="https://www.asc.ox.ac.uk/all-souls-college-oxford">All Souls College</a>)</li>
 	<li>Prof. <a target="_blank" href="http://www.ru.nl/highenergyphysics/ehep/persons/sijbrand_de_jong/">S. J. de Jong</a><br/>(Radboud Univ. Nijmegen,<br/>President CERN Council)</li>
       </ul>
     </div>
-    <div class="col-md-3">
+    <div class="col-lg-3 col-md-4">
       <ul>
 	<li>Prof. <a target="_blank" href="http://www.ens-lyon.fr/PHYSIQUE/presentation/annuaire/maillet-jean-michel">J. M. Maillet</a><br/>(ENS Lyon)</li>
 	<li>Prof. <a target="_blank" href="http://www.ru.nl/ssi/members/theo_rasing/">T. Rasing</a><br/>(Radboud Univ. Nijmegen)</li>
 	<li>Prof. <a target="_blank" href="http://atomchip.org/general-information/people/schmiedmayer/">J. Schmiedmayer</a><br/>(TU Vienna)</li>
       </ul>
     </div>
-    <div class="col-md-3">
+    <div class="col-lg-3 col-md-4">
       <ul>
 	<li>Prof. <a target="_blank" href="http://www.professoren.tum.de/en/spohn-herbert/">H. Spohn</a><br/>(TU Munich)</li>
 	<li>Prof. <a target="_blank" href="http://www.comp.phys.ethz.ch/people/troyer.html">M. Troyer</a><br/>(ETH Zurich)</li>
@@ -185,7 +181,6 @@
 {% endblock content %}
 
 {% block footer_script %}
-{{block.super}}
-    {% render_bundle 'tooltip' 'js' %}
+    {{block.super}}
     <script src="{% static 'scipost/about.js' %}"></script>
 {% endblock %}

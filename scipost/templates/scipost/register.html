@@ -16,9 +16,9 @@
 </div>
 
 <div class="row">
-    <div class="col-md-4 mb-3">
+    <div class="col-md-4 mb-md-2">
         <div class="card card-outline-secondary">
-            <div class="card-block">
+            <div class="card-body">
                 <h3>Notes:</h3>
                 <p class="text-danger"><em>Only professional academics (staff members, postdocs, PhD students) can register!</em></p>
                 <p>Required fields are marked with a *.</p>
@@ -28,11 +28,11 @@
             </div>
         </div>
     </div>
-    <div class="offset-md-1 col-md-7">
+    <div class="col-md-8 col-lg-7 ml-lg-auto">
 
       <form action="{% url 'scipost:register' %}" method="post">
         {% csrf_token %}
-        {{ form|bootstrap }}
+        {{ form|bootstrap:'3,9' }}
         <input class="btn btn-primary" type="submit" value="Submit" />
       </form>
 

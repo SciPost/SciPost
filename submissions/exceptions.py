@@ -12,3 +12,7 @@ class CycleUpdateDeadlineError(BaseCustomException):
 
 class InvalidReportVettingValue(BaseCustomException):
     pass
+
+
+class ArxivPDFNotFound(Exception):
+    pass

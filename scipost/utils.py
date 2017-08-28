@@ -194,7 +194,7 @@ class Utils(BaseMailUtil):
         cls.invitation.save()
         email_text = ''
         email_text_html = ''
-        email_context = Context({})
+        email_context = {}
         if renew:
             email_text += ('Reminder: Invitation to SciPost\n'
                            '-------------------------------\n\n')
@@ -615,7 +615,7 @@ class Utils(BaseMailUtil):
         """
         Requires loading the 'notification' attribute.
         """
-        email_context = Context({})
+        email_context = {}
         email_text = ('Dear ' + cls.notification.contributor.get_title_display() +
                       ' ' + cls.notification.contributor.user.last_name)
         email_text_html = 'Dear {{ title }} {{ last_name }}'

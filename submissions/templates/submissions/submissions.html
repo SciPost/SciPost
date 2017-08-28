@@ -10,7 +10,7 @@
 <div class="row">
     <div class="col-md-4">
         <div class="card card-grey">
-            <div class="card-block min-height-190">
+            <div class="card-body min-height-190">
               <h1 class="card-title">SciPost Submissions</h1>
               <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a></h3>
               <h3><a href="{% url 'submissions:submit_manuscript' %}">Submit a manuscript to SciPost</a></h3>
@@ -19,7 +19,7 @@
     </div>
     <div class="col-md-4">
         <div class="card card-grey">
-            <div class="card-block min-height-190">
+            <div class="card-body min-height-190">
               <h2 class="card-title">Search SciPost Submissions:</h2>
               <form action="{% url 'submissions:submissions' %}" class="small" method="get">
                 {{ form|bootstrap:'4,8,sm' }}
@@ -30,7 +30,7 @@
     </div>
     <div class="col-md-4">
         <div class="card card-grey">
-            <div class="card-block min-height-190">
+            <div class="card-body min-height-190">
                 <h2>View SciPost Submissions</h2>
                 <ul>
                     <li>Physics: last <a href="{% url 'submissions:browse' discipline='physics' nrweeksback=1 %}">week</a> <a href="{% url 'submissions:browse' discipline='physics' nrweeksback=4 %}">month</a> <a href="{% url 'submissions:browse' discipline='physics' nrweeksback=52 %}">year</a></li>

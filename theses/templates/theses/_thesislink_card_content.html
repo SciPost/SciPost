@@ -1,4 +1,4 @@
-<div class="card-block">
+<div class="card-body">
     <h5 class="pb-0">{{ thesislink.get_discipline_display }} &middot; {{ thesislink.get_domain_display }} &middot; {{ thesislink.get_subject_area_display }}</h5>
     <h3>
         <a href="{% url 'theses:thesis' thesislink_id=thesislink.id %}">{{ thesislink.title }}</a>

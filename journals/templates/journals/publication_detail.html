@@ -74,6 +74,12 @@
             <p>
             {% for author in publication.authors.all %}
               <a href="{{author.get_absolute_url}}">{{ author }}</a> {% if not forloop.last %}&nbsp;&middot;&nbsp;{% endif %}
+
+              {% if forloop.last %}
+                {% if publication.authors_unregistered.exists %}
+                    &nbsp;&middot;&nbsp;
+                {% endif %}
+              {% endif %}
             {% endfor %}
             {% for author in publication.authors_unregistered.all %}
               {{ author }} {% if not forloop.last %}&nbsp;&middot;&nbsp;{% endif %}

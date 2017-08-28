@@ -3,7 +3,7 @@
  *
  */
 .navbar {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
 
     &.main-nav {
         border-bottom: 1px solid #ddd;
@@ -52,14 +52,6 @@
     .navbar-scroll-inner {
         display: flex !important;
         width: 100%;
-    }
-
-    .form-inline {
-        min-width: 280px;
-
-        .form-control {
-            width: auto !important;
-        }
     }
 }
 

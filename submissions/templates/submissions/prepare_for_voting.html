@@ -17,7 +17,7 @@
 <div class="row">
     <div class="col-12">
         <div class="card card-grey">
-            <div class="card-block">
+            <div class="card-body">
                 <h1 class="card-title">Prepare Editorial Recommendation for Voting</h1>
                 <p class="card-text">(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=recommendation.submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</p>
                 <p class="card-text">(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=recommendation.submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</p>
@@ -75,11 +75,11 @@
     <div class="col-12">
         {% if coauthorships %}
             <div class="card card-outline-danger">
-                <div class="card-block">
+                <div class="card-body">
                     <h3 class="card-title text-danger">The system identified the following potential coauthorships (from arXiv database)</h3>
                     <p class="card-text text-danger">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
                 </div>
-                <div class="card-block">
+                <div class="card-body">
                     <ul class="list-group list-group-flush">
                         {% for key, value in coauthorships.items %}
                             <li class="list-group-item pt-3">

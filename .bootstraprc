@@ -1,6 +1,8 @@
 {
     "bootstrapVersion": 4,
+    "bootstrapCustomizations": "./scipost/static/scipost/assets/config/config.scss",
     "preBootstrapCustomizations": "./scipost/static/scipost/assets/config/preconfig.scss",
+    "appStyles": "./scipost/static/scipost/assets/css/style.scss",
     "useFlexbox": true,
     "styleLoaders": [
         "style",
@@ -12,6 +14,7 @@
         # First tables, due to self dependencies
         "tables": true,
         "alert": true,
+        "badge": true,
         "button-group": true,
         "buttons": true,
         "breadcrumb": true,
@@ -28,9 +31,7 @@
         "mixins": true,
         "nav": true,
         "navbar": true,
-        "normalize": true,
         "reboot": true,
-        "responsive-embed": true,
         "transitions": true,
         "type": true,
         "tooltip": true,
@@ -40,6 +41,7 @@
         "alert": true,
         "collapse": true,
         "modal": true,
+        "scrollspy": true,
         "tab": true,
         "tooltip": true,
         "util": true,

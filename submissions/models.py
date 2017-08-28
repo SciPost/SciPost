@@ -8,14 +8,15 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils.functional import cached_property
 
+from .behaviors import SubmissionRelatedObjectMixin
 from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
                        EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
-from .managers import SubmissionManager, EditorialAssignmentManager, EICRecommendationManager,\
-                      ReportQuerySet, SubmissionEventQuerySet
+from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationManager,\
+                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
@@ -79,6 +80,12 @@ class Submission(models.Model):
     # Comments can be added to a Submission
     comments = GenericRelation('comments.Comment', related_query_name='submissions')
 
+    # iThenticate Reports
+    plagiarism_report = models.OneToOneField('submissions.iThenticateReport',
+                                             on_delete=models.SET_NULL,
+                                             null=True, blank=True,
+                                             related_name='to_submission')
+
     # Arxiv identifiers with/without version number
     arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
     arxiv_identifier_wo_vn_nr = models.CharField(max_length=10, default='0000.00000')
@@ -94,7 +101,7 @@ class Submission(models.Model):
     acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
 
-    objects = SubmissionManager()
+    objects = SubmissionQuerySet.as_manager()
 
     class Meta:
         permissions = (
@@ -106,6 +113,12 @@ class Submission(models.Model):
         self._update_cycle()
 
     def save(self, *args, **kwargs):
+        # Fill `arxiv_identifier_w_vn_nr` as a dummy field for convenience
+        arxiv_w_vn = '{arxiv}v{version}'.format(
+            arxiv=self.arxiv_identifier_wo_vn_nr,
+            version=self.arxiv_vn_nr)
+        self.arxiv_identifier_w_vn_nr = arxiv_w_vn
+
         super().save(*args, **kwargs)
         self._update_cycle()
 
@@ -122,6 +135,11 @@ class Submission(models.Model):
         except Publication.DoesNotExist:
             pass
         return header
+
+    def touch(self):
+        """ Update latest activity as a service """
+        self.latest_activity = timezone.now()
+        self.save()
 
     def comments_set_complete(self):
         """
@@ -205,7 +223,7 @@ class Submission(models.Model):
         event.save()
 
 
-class SubmissionEvent(TimeStampedModel):
+class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
     """
     The SubmissionEvent's goal is to act as a messaging/logging model
     for the Submission cycle. Its main audience will be the author(s) and
@@ -234,7 +252,7 @@ class SubmissionEvent(TimeStampedModel):
 # Editorial workflow #
 ######################
 
-class EditorialAssignment(models.Model):
+class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
     to = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
@@ -246,7 +264,11 @@ class EditorialAssignment(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     date_answered = models.DateTimeField(blank=True, null=True)
 
-    objects = EditorialAssignmentManager()
+    objects = EditorialAssignmentQuerySet.as_manager()
+
+    class Meta:
+        default_related_name = 'editorial_assignments'
+        ordering = ['-date_created']
 
     def __str__(self):
         return (self.to.user.first_name + ' ' + self.to.user.last_name + ' to become EIC of ' +
@@ -254,7 +276,7 @@ class EditorialAssignment(models.Model):
                 ', requested on ' + self.date_created.strftime('%Y-%m-%d'))
 
 
-class RefereeInvitation(models.Model):
+class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='referee_invitations')
     referee = models.ForeignKey('scipost.Contributor', related_name='referee', blank=True,
@@ -276,6 +298,8 @@ class RefereeInvitation(models.Model):
                                       blank=True, null=True)
     fulfilled = models.BooleanField(default=False)  # True if a Report has been submitted
     cancelled = models.BooleanField(default=False)  # True if EIC has deactivated invitation
+
+    objects = RefereeInvitationQuerySet.as_manager()
 
     def __str__(self):
         return (self.first_name + ' ' + self.last_name + ' to referee ' +
@@ -301,7 +325,7 @@ class RefereeInvitation(models.Model):
 # Reports:
 ###########
 
-class Report(models.Model):
+class Report(SubmissionRelatedObjectMixin, models.Model):
     """
     Both types of reports, invited or contributed.
 
@@ -423,7 +447,7 @@ class Report(models.Model):
 # EditorialCommunication #
 ##########################
 
-class EditorialCommunication(models.Model):
+class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     """
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
@@ -453,7 +477,7 @@ class EditorialCommunication(models.Model):
 ############################
 
 # From the Editor-in-charge of a Submission
-class EICRecommendation(models.Model):
+class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='eicrecommendations')
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
@@ -465,7 +489,7 @@ class EICRecommendation(models.Model):
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
 
     # Editorial Fellows who have assessed this recommendation:
-    eligible_to_vote = models.ManyToManyField(Contributor, blank=True,
+    eligible_to_vote = models.ManyToManyField('scipost.Contributor', blank=True,
                                               related_name='eligible_to_vote')
     voted_for = models.ManyToManyField(Contributor, blank=True, related_name='voted_for')
     voted_against = models.ManyToManyField(Contributor, blank=True, related_name='voted_against')
@@ -489,3 +513,39 @@ class EICRecommendation(models.Model):
     @property
     def nr_abstained(self):
         return self.voted_abstain.count()
+
+
+class iThenticateReport(TimeStampedModel):
+    # is_pending = models.BooleanField(default=True)
+    uploaded_time = models.DateTimeField(null=True, blank=True)
+    processed_time = models.DateTimeField(null=True, blank=True)
+    doc_id = models.IntegerField(primary_key=True)
+    percent_match = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'iThenticate Report'
+        verbose_name_plural = 'iThenticate Reports'
+
+    def get_absolute_url(self):
+        if hasattr(self, 'to_submission'):
+            return reverse('submissions:plagiarism', kwargs={
+                            'arxiv_identifier_w_vn_nr':
+                            self.to_submission.arxiv_identifier_w_vn_nr})
+        return None
+
+    def __str__(self):
+        _str = 'Report {doc_id}'.format(doc_id=self.doc_id)
+        if hasattr(self, 'to_submission'):
+            _str += ' on Submission {arxiv}'.format(
+                        arxiv=self.to_submission.arxiv_identifier_w_vn_nr)
+        return _str
+
+    def save(self, commit=True, **kwargs):
+        obj = super().save(commit, **kwargs)
+        if hasattr(self, 'to_submission') and commit:
+            self.to_submission.touch()
+        return obj
+
+    @property
+    def score(self):
+        return self.percent_match

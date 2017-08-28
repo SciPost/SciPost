@@ -5,6 +5,15 @@
         background-color: #F4F4F4;
         border-color: $card-grey-border-color;
         box-shadow: 0 1px 0 0 $card-shadow-color;
+
+        .card-header {
+            background: transparent;
+            border-bottom-color: #fff;
+        }
+
+        .card-footer {
+            background: transparent;
+        }
     }
 
     &.card-publication {
@@ -16,7 +25,7 @@
             border-bottom: 1px solid #ddd;
         }
 
-        .card-block {
+        .card-body {
             border-top: 1px solid #fff;
             background-color: #f8f8f8;
         }
@@ -27,17 +36,17 @@
     border-color: #f1f1f1;
 }
 
-.card-header {
-    padding: 0.5rem 0;
-    margin: 0 0.75rem 0 0.75rem;
-}
+// .card-header {
+//     padding: 0.5rem 0;
+//     margin: 0 0.75rem;
+// }
 
-.card-footer {
-    padding: 0.75rem 0 0 0;
-    margin: 0 0.75rem 0.75rem 0.75rem;
-}
+// .card-footer {
+//     padding: 0.75rem 0 0 0;
+//     margin: 0 0.75rem 0.75rem 0.75rem;
+// }
 
-.list-group-item > .card-block {
+.list-group-item > .card-body {
     padding: 0.5rem;
 }
 
@@ -52,9 +61,6 @@
 
 .card-news {
     .news-item .card-title {
-        // background-color: $scipost-darkblue;
-        // color: $scipost-light;
-        // padding: 0.5rem;
         color: $scipost-darkblue;
         padding: 0.5rem 0 0.25rem 0;
         border-bottom: 3px solid $scipost-light;
@@ -75,7 +81,7 @@
         background-color: #f8f8f8;
     }
 
-    .card-block {
+    .card-body {
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
 

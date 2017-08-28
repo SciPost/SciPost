@@ -1,5 +1,3 @@
-import re
-
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
@@ -9,18 +7,17 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core import mail
 from django.core.mail import EmailMessage, EmailMultiAlternatives
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import Prefetch
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.views.decorators.http import require_POST
 from django.views.generic.list import ListView
 
-from django.db.models import Prefetch
-
 from guardian.decorators import permission_required
 from guardian.shortcuts import assign_perm, get_objects_for_user
+from haystack.generic_views import SearchView
 
 from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict
 from .decorators import has_contributor
@@ -56,117 +53,19 @@ def is_registered(user):
     return user.groups.exists()
 
 
-# Global search
-def normalize_query(query_string,
-                    findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
-                    normspace=re.compile(r'\s{2,}').sub):
-    """ Splits a query string in individual keywords, keeping quoted words together. """
-    return [normspace(' ', (t[0] or t[1]).strip()) for t in findterms(query_string)]
+class SearchView(SearchView):
+    template_name = 'search/search.html'
+    form_class = SearchForm
 
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+        ctx['search_query'] = self.request.GET.get('q')
+        ctx['results_count'] = kwargs['object_list'].count()
 
-def get_query(query_string, search_fields):
-    """ Returns a query, namely a combination of Q objects. """
-    query = None
-    terms = normalize_query(query_string)
-    for term in terms:
-        or_query = None
-        for field_name in search_fields:
-            q = Q(**{"%s__icontains" % field_name: term})
-            if or_query is None:
-                or_query = q
-            else:
-                or_query = or_query | q
-        if query is None:
-            query = or_query
-        else:
-            query = query & or_query
-    return query
-
-
-def documentsSearchResults(query):
-    """
-    Searches through commentaries, submissions and thesislinks.
-    Returns a Context object which can be further used in templates.
-    Naive implementation based on exact match of query.
-    NEEDS UPDATING with e.g. Haystack.
-    """
-    publication_query = get_query(query, ['title', 'author_list', 'abstract', 'doi_label'])
-    commentary_query = get_query(query, ['title', 'author_list', 'pub_abstract'])
-    submission_query = get_query(query, ['title', 'author_list', 'abstract'])
-    thesislink_query = get_query(query, ['title', 'author', 'abstract', 'supervisor'])
-    comment_query = get_query(query, ['comment_text'])
-
-    publication_search_queryset = (Publication.objects.published()
-                                   .filter(publication_query).order_by('-publication_date'))
-    commentary_search_queryset = (Commentary.objects.vetted()
-                                  .filter(commentary_query).order_by('-pub_date'))
-    submission_search_queryset = (Submission.objects.public_unlisted()
-                                  .filter(submission_query).order_by('-submission_date'))
-    thesislink_search_list = (ThesisLink.objects.vetted()
-                              .filter(thesislink_query).order_by('-defense_date'))
-    comment_search_list = (Comment.objects.vetted()
-                           .filter(comment_query).order_by('-date_submitted'))
-
-    context = {'publication_search_queryset': publication_search_queryset,
-               'commentary_search_queryset': commentary_search_queryset,
-               'submission_search_queryset': submission_search_queryset,
-               'thesislink_search_list': thesislink_search_list,
-               'comment_search_list': comment_search_list}
-    return context
-
-
-def search(request):
-    """ For the global search form in navbar """
-    form = SearchForm(request.GET or None)
-    context = {}
-    if form.is_valid():
-        context = documentsSearchResults(form.cleaned_data['q'])
-        request.session['query'] = form.cleaned_data['q']
-        context['search_term'] = form.cleaned_data['q']
-    elif 'query' in request.session:
-        context = documentsSearchResults(request.session['query'])
-        context['search_term'] = request.session['query']
-
-    if 'publication_search_queryset' in context:
-        publication_search_list_paginator = Paginator(context['publication_search_queryset'], 10)
-        publication_search_list_page = request.GET.get('publication_search_list_page')
-        try:
-            publication_search_list = publication_search_list_paginator.page(
-                publication_search_list_page)
-        except PageNotAnInteger:
-            publication_search_list = publication_search_list_paginator.page(1)
-        except EmptyPage:
-            publication_search_list = publication_search_list_paginator.page(
-                publication_search_list_paginator.num_pages)
-        context['publication_search_list'] = publication_search_list
-
-    if 'commentary_search_queryset' in context:
-        commentary_search_list_paginator = Paginator(context['commentary_search_queryset'], 10)
-        commentary_search_list_page = request.GET.get('commentary_search_list_page')
-        try:
-            commentary_search_list = commentary_search_list_paginator.page(
-                commentary_search_list_page)
-        except PageNotAnInteger:
-            commentary_search_list = commentary_search_list_paginator.page(1)
-        except EmptyPage:
-            commentary_search_list = commentary_search_list_paginator.page(
-                commentary_search_list_paginator.num_pages)
-        context['commentary_search_list'] = commentary_search_list
-
-    if 'submission_search_queryset' in context:
-        submission_search_list_paginator = Paginator(context['submission_search_queryset'], 10)
-        submission_search_list_page = request.GET.get('submission_search_list_page')
-        try:
-            submission_search_list = submission_search_list_paginator.page(
-                submission_search_list_page)
-        except PageNotAnInteger:
-            submission_search_list = submission_search_list_paginator.page(1)
-        except EmptyPage:
-            submission_search_list = submission_search_list_paginator.page(
-                submission_search_list_paginator.num_pages)
-        context['submission_search_list'] = submission_search_list
-
-    return render(request, 'scipost/search.html', context)
+        # Methods not supported by Whoosh engine
+        # ctx['stats_results'] = kwargs['object_list'].stats_results()
+        # ctx['facet_counts'] = kwargs['object_list'].facet('text').facet_counts()
+        return ctx
 
 
 #############
@@ -627,6 +526,13 @@ def remove_registration_invitation(request, invitation_id):
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)
 def edit_invitation_personal_message(request, invitation_id):
+    """
+
+    DOES THIS THING STILL WORK? OR CAN IT BE REMOVED?
+
+    -- JdW (August 14th, 2017)
+
+    """
     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
     errormessage = None
     if request.method == 'POST':
@@ -1154,7 +1060,7 @@ def email_group_members(request):
     """
     form = EmailGroupMembersForm(request.POST or None)
     if form.is_valid():
-        group_members = form.cleaned_data['group'].user_set.all()
+        group_members = form.cleaned_data['group'].user_set.filter(contributor__isnull=False)
         p = Paginator(group_members, 32)
         for pagenr in p.page_range:
             page = p.page(pagenr)
@@ -1181,12 +1087,12 @@ def email_group_members(request):
                         email_text_html += (
                             '<br/>\n<p style="font-size: 10px;">Don\'t want to receive such '
                             'emails? <a href="%s">Unsubscribe</a>.</p>' % url_unsubscribe)
-                        email_context = Context({
+                        email_context = {
                             'title': member.contributor.get_title_display(),
                             'last_name': member.last_name,
                             'email_text': form.cleaned_data['email_text'],
                             'key': member.contributor.activation_key,
-                        })
+                        }
                         html_template = Template(email_text_html)
                         html_version = html_template.render(email_context)
                         message = EmailMultiAlternatives(
@@ -1215,7 +1121,7 @@ def email_particular(request):
         if form.is_valid():
             email_text = form.cleaned_data['email_text']
             email_text_html = '{{ email_text|linebreaks }}'
-            email_context = Context({'email_text': form.cleaned_data['email_text']})
+            email_context = {'email_text': form.cleaned_data['email_text']}
             if form.cleaned_data['include_scipost_summary']:
                 email_text += SCIPOST_SUMMARY_FOOTER
                 email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
@@ -1257,7 +1163,7 @@ def send_precooked_email(request):
         precookedEmail.save()
         email_text = precookedEmail.email_text
         email_text_html = '{{ email_text|linebreaks }}'
-        email_context = Context({'email_text': precookedEmail.email_text_html})
+        email_context = {'email_text': precookedEmail.email_text_html}
         if form.cleaned_data['include_scipost_summary']:
             email_text += SCIPOST_SUMMARY_FOOTER
             email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
@@ -1292,22 +1198,27 @@ def EdCol_bylaws(request):
 
 
 @permission_required('scipost.can_view_pool', return_403=True)
-def Fellow_activity_overview(request, Fellow_id=None):
-    fellows = Contributor.objects.filter(
-        user__groups__name='Editorial College').order_by('user__last_name')
-    context = {'fellows': fellows}
-    if Fellow_id:
-        fellow = get_object_or_404(Contributor, pk=Fellow_id)
-        context['fellow'] = fellow
+def Fellow_activity_overview(request):
+    fellows = (Contributor.objects.fellows()
+               .prefetch_related('editorial_assignments')
+               .order_by('user__last_name'))
+    context = {
+        'fellows': fellows
+    }
 
-        assignments_ongoing = (EditorialAssignment.objects.get_for_user_in_pool(request.user)
-                               .filter(accepted=True, completed=False, to=fellow)
-                               .order_by('-date_created'))
-        context['assignments_ongoing'] = assignments_ongoing
+    if request.GET.get('fellow'):
+        try:
+            fellow = fellows.get(pk=request.GET['fellow'])
+            context['fellow'] = fellow
 
-        assignments_completed = (EditorialAssignment.objects.get_for_user_in_pool(request.user)
-                                 .filter(completed=True, to=fellow).order_by('-date_created'))
-        context['assignments_completed'] = assignments_completed
+            context['assignments_ongoing'] = (fellow.editorial_assignments
+                                              .ongoing()
+                                              .get_for_user_in_pool(request.user))
+            context['assignments_completed'] = (fellow.editorial_assignments
+                                                .completed()
+                                                .get_for_user_in_pool(request.user))
+        except Contributor.DoesNotExist:
+            pass
     return render(request, 'scipost/Fellow_activity_overview.html', context)
 
 

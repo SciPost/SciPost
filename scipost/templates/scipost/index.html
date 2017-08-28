@@ -26,21 +26,21 @@
     <div class="row">
         <div class="col-lg-6">
             <!-- Latest publications -->
-            <div class="card card-grey px-3">
-                <div class="card-header">
-                    <h2 class="card-title mb-0"><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
+            <div class="card card-grey px-4">
+                <div class="card-header px-0">
+                    <h2><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
                 </div>
-                <div class="card-block pt-0">
+                <div class="card-body p-0">
                   <ul class="list-group list-group-flush">
                       {% for publication in publications %}
                           <li class="list-group-item">
-                              <div class="card-block px-0">
+                              <div class="card-body px-0">
                                   {% include 'journals/_publication_details_small.html' with publication=publication %}
                               </div>
                           </li>
                       {% endfor %}
                       <li class="list-group-item">
-                          <div class="card-block pt-3">
+                          <div class="card-body pt-3 mb-2">
                               <a href="{% url 'journals:journals' %}">All Journals</a>
                           </div>
                       </li>
@@ -51,11 +51,11 @@
 
         <div class="col-lg-6">
             <!-- Latest submissions -->
-            <div class="card card-grey px-3">
-                <div class="card-header">
-                    <h2 class="card-title mb-0"><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
+            <div class="card card-grey px-4">
+                <div class="card-header px-0">
+                    <h2><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
                 </div>
-                <div class="card-block pt-0">
+                <div class="card-body p-0">
                   <ul class="list-group list-group-flush">
                       {% for submission in submissions %}
                           <li class="list-group-item">
@@ -63,7 +63,7 @@
                           </li>
                       {% endfor %}
                       <li class="list-group-item">
-                          <div class="card-block pt-3">
+                          <div class="card-body pt-3 mb-2">
                               <a href="{% url 'submissions:submissions' %}">All submissions</a>
                           </div>
                       </li>
@@ -78,7 +78,7 @@
     {% if not user.is_authenticated %}
         <!-- Register -->
         <div class="card card-grey">
-            <div class="card-block">
+            <div class="card-body">
                 <h2 class="card-title mb-0">Register</h2>
                 <p class="m-0">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="{% url 'scipost:register' %}">registration form</a>.</p>
             </div>
@@ -96,7 +96,7 @@
             </h2>
             <h4 class="card-subtitle pb-0 text-muted">Latest news and announcements.</h4>
         </div>
-        <div class="card-block">
+        <div class="card-body">
             <ul class="list-group list-group-flush">
                 {% if latest_newsitem %}
                     <li class="list-group-item">
@@ -112,9 +112,10 @@
         <div class="card-footer"><a href="{% url 'news:news' %}">More news</a></div>
     </div><!-- End news -->
 
-    <!-- Partners --><!-- Disabled
+    {% comment %}
+    <!-- Partners -->
     <div class="card card-grey">
-        <div class="card-block">
+        <div class="card-body">
             <h2 class="card-title">
                 <a href="{% url 'partners:partners' %}">Partners</a>
             </h2>
@@ -132,11 +133,12 @@
 
             </div>
         </div>
-    </div>--><!-- End Partners -->
+    </div><!-- End Partners -->
+    {% endcomment %}
 
     <!-- Summarized -->
     <div class="card card-grey">
-        <div class="card-block">
+        <div class="card-body">
             <h2 class="card-title">
                 <a href="{% url 'journals:journals' %}">Journals</a>
             </h2>

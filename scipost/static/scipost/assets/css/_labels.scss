@@ -11,10 +11,10 @@ $label-box-shadow:                 none;
 $label-font-size:                  inherit;
 
 $label-primary-color:              $white !default;
-$label-primary-bg:                 $brand-primary !default;
-$label-primary-border:             $btn-primary-bg !default;
+$label-primary-bg:                 $blue !default;
+$label-primary-border:             $blue !default;
 
-$label-secondary-color:            $gray-dark !default;
+$label-secondary-color:            $gray-800 !default;
 $label-secondary-bg:               $white !default;
 $label-secondary-border:           #ccc !default;
 
@@ -23,20 +23,20 @@ $label-default-bg:                 #ccc;
 $label-default-border:             #ccc;
 
 $label-info-color:                 $white !default;
-$label-info-bg:                    $brand-info !default;
-$label-info-border:                $btn-info-bg !default;
+$label-info-bg:                    $cyan !default;
+$label-info-border:                $cyan !default;
 
 $label-success-color:              $white !default;
-$label-success-bg:                 $brand-success !default;
-$label-success-border:             $btn-success-bg !default;
+$label-success-bg:                 $green !default;
+$label-success-border:             $green !default;
 
 $label-warning-color:              $white !default;
-$label-warning-bg:                 $brand-warning !default;
-$label-warning-border:             $btn-warning-bg !default;
+$label-warning-bg:                 $yellow !default;
+$label-warning-border:             $yellow !default;
 
 $label-danger-color:               $white;
-$label-danger-bg:                  $brand-danger !default;
-$label-danger-border:              $btn-danger-bg !default;
+$label-danger-bg:                  $red !default;
+$label-danger-border:              $red !default;
 
 $label-padding-x-sm:               .5rem;
 $label-padding-y-sm:               .1rem;
@@ -66,7 +66,7 @@ $label-transition:                 all .2s ease-in-out !default;
     border: $label-border-width solid transparent;
     box-shadow: $label-box-shadow;
 
-    @include button-size($label-padding-y, $label-padding-x, $label-font-size, $label-border-radius);
+    @include button-size($label-padding-y, $label-padding-x, $label-font-size, $label-border-radius, $btn-border-radius);
     @include transition($label-transition);
 }
 
@@ -149,11 +149,11 @@ a.label-danger,
 
 .label-lg {
   // line-height: ensure even-numbered height of button next to large input
-  @include button-size($label-padding-y-lg, $label-padding-x-lg, $font-size-lg, $label-border-radius-lg);
+  @include button-size($label-padding-y-lg, $label-padding-x-lg, $font-size-lg, $label-border-radius-lg, $btn-border-radius-lg);
 }
 .label-sm {
   // line-height: ensure proper height of button next to small input
-  @include button-size($label-padding-y-sm, $label-padding-x-sm, $font-size-sm, $label-border-radius-sm);
+  @include button-size($label-padding-y-sm, $label-padding-x-sm, $font-size-sm, $label-border-radius-sm, $btn-border-radius-sm);
 }
 
 

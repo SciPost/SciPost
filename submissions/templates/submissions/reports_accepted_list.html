@@ -11,44 +11,40 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        <h1 class="highlight">Accepted Reports</h1>
-    </div>
-</div>
+<h1 class="highlight">Accepted Reports{% if request.GET.submission %}<small> for submission {{request.GET.submission}}</small>{% endif %}</h1>
 
-<div class="row">
-    <div class="col-12">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Report nr. of Submission</th>
-                    <th>Submission</th>
-                    <th>Report author</th>
-                    <th>Has PDF</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for report in reports %}
-                    <tr{% if not report.pdf_report %} class="table-danger"{% endif %}>
-                        <td>{{report.report_nr}}</td>
-                        <td><a href="{{report.get_absolute_url}}">{{report.submission.arxiv_identifier_w_vn_nr}}</a></td>
-                        <td>{% if report.anonymous %}<em>Anonymous</em>{% else %}{{report.author}}{% endif %}</td>
-                        <td>
-                            {{report.pdf_report|yesno:"Yes,No"}}
-                            {% if report.pdf_report %}
-                                &middot; <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download</a>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="{% url 'submissions:report_pdf_compile' report.id %}">Compile/upload report</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Report nr. of Submission</th>
+            <th>Submission</th>
+            <th>Report author</th>
+            <th>Has PDF</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for report in reports %}
+            <tr{% if not report.pdf_report %} class="table-danger"{% endif %}>
+                <td>{{report.report_nr}}</td>
+                <td><a href="{{report.get_absolute_url}}">{{report.submission.arxiv_identifier_w_vn_nr}}</a></td>
+                <td>{% if report.anonymous %}<em>Anonymous</em>{% else %}{{report.author}}{% endif %}</td>
+                <td>
+                    {{report.pdf_report|yesno:"Yes,No"}}
+                    {% if report.pdf_report %}
+                        &middot; <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download</a>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'submissions:report_pdf_compile' report.id %}">Compile/upload report</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">No Reports found</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}
