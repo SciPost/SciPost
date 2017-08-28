@@ -199,14 +199,10 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     author_replies = (submission.comments.vetted()
                       .filter(is_author_reply=True).order_by('-date_submitted'))
 
-    try:
-        recommendation = (EICRecommendation.objects.filter_for_user(request.user)
-                          .get(submission=submission))
-    except EICRecommendation.DoesNotExist:
-        recommendation = None
+    recommendations = submission.eicrecommendations.all()
 
     context = {'submission': submission,
-               'recommendation': recommendation,
+               'recommendations': recommendations,
                'comments': comments,
                'invited_reports': invited_reports,
                'contributed_reports': contributed_reports,
