@@ -104,12 +104,13 @@ HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': 'local_files/haystack/',
+        'EXCLUDED_INDEXES': ['sphinxdoc.search_indexes.DocumentIndex'],
     },
-    # SimpleEngine doesn't need indexing, and could be useful for debugging, however
-    # does not fully support all haystack features
-    # 'base_search': {
-    #     'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-    # }
+    # 'scipost': {
+    #     'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+    #     'PATH': 'local_files/haystack_scipost/',
+    #     'EXCLUDED_INDEXES': ['sphinxdoc.search_indexes.DocumentIndex'],
+    # },
 }
 
 # Brute force automatically re-index Haystack using post_save signals on all models.
@@ -252,7 +253,8 @@ MAILCHIMP_API_KEY = 'test_API-key'
 # iThenticate
 ITHENTICATE_USERNAME = 'test_ithenticate_username'
 ITHENTICATE_PASSWORD = 'test_ithenticate_password'
-
+# # Default folder to upload to, else uses the first folder of your account.
+ITHENTICATE_DEFAULT_FOLDER_ID = None
 
 # Own settings
 JOURNALS_DIR = 'journals'

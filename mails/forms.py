@@ -45,7 +45,6 @@ class EmailTemplateForm(forms.Form):
             bcc_to = getattr(bcc_to, attr)
         bcc_list = [
             bcc_to,
-            self.cleaned_data['recipient']
         ]
 
         # Send the mail
@@ -54,7 +53,7 @@ class EmailTemplateForm(forms.Form):
             message,
             '%s <%s>' % (self.mail_data.get('from_address_name', 'SciPost'),
                          self.mail_data.get('from_address', 'no-reply@scipost.org')),  # From
-            [self.mail_data.get('to_server_address', 'no-reply@scipost.org')],  # To
+            [self.cleaned_data['recipient']],  # To
             bcc=bcc_list,
             reply_to=[self.mail_data.get('from_address', 'no-reply@scipost.org')])
         email.attach_alternative(html_message, 'text/html')

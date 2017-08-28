@@ -665,8 +665,9 @@ class iThenticateReportForm(forms.ModelForm):
         elif hasattr(self, 'document_id'):
             self.response = self.call_ithenticate()
 
-        if self.response:
+        if hasattr(self, 'response') and self.response:
             return cleaned_data
+
         # Don't return anything as someone submitted invalid data for the form at this point!
         return None
 
@@ -713,12 +714,15 @@ class iThenticateReportForm(forms.ModelForm):
 
         # Get first folder available
         # TODO: Fix this ugly piece of crap
-        folders = client.folders.all()
-        if folders['status'] == 200:
-            folder_id = folders['data'][0]['id']
+        if settings.ITHENTICATE_DEFAULT_FOLDER_ID:
+            folder_id = settings.ITHENTICATE_DEFAULT_FOLDER_ID
         else:
-            self.add_error(None, "Uploading failed. iThenticate didn't return valid data [2]")
-            self.add_error(None, client.messages[0])
+            folders = client.folders.all()
+            if folders['status'] == 200:
+                folder_id = folders['data'][0]['id']
+            else:
+                self.add_error(None, "Uploading failed. iThenticate didn't return valid data [2]")
+                self.add_error(None, client.messages[0])
 
         # Finally, upload the file
         author = self.submission.authors.first()
