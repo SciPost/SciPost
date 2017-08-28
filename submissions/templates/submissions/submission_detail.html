@@ -75,7 +75,7 @@
 </div>
 
 {% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
-    {% if recommendation %}
+    {% for recommendation in recommendations %}
         {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' or recommendation|is_viewable_by_authors %}
             <div class="row">
                 <div class="col-12">
@@ -85,7 +85,7 @@
                 </div>
             </div>
         {% endif %}
-    {% endif %}
+    {% endfor %}
 
     <div class="mb-4">
         <h2>Events</h2>

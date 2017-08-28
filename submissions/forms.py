@@ -389,6 +389,11 @@ class ConsiderRefereeInvitationForm(forms.Form):
 class SetRefereeingDeadlineForm(forms.Form):
     deadline = forms.DateField(required=False, label='', widget=forms.SelectDateWidget)
 
+    def clean_deadline(self):
+        if not self.cleaned_data.get('deadline'):
+            self.add_error('deadline', 'Please use a valid date.')
+        return self.cleaned_data.get('deadline')
+
 
 class VotingEligibilityForm(forms.Form):
 

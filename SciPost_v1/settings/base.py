@@ -18,6 +18,7 @@ import json
 from django.utils.translation import ugettext_lazy as _
 
 from django.core.exceptions import ImproperlyConfigured
+from django.contrib.messages import constants as message_constants
 
 # Build paths inside the project
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -181,6 +182,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'SciPost_v1.wsgi.application'
+
+# Messages
+MESSAGE_TAGS = {
+    message_constants.DEBUG: 'debug',
+    message_constants.INFO: 'info',
+    message_constants.SUCCESS: 'success',
+    message_constants.WARNING: 'warning',
+    message_constants.ERROR: 'danger',
+}
 
 
 # Database
