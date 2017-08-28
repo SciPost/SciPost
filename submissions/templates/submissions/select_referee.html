@@ -76,11 +76,13 @@
     <div class="col-12">
         {% if contributors_found %}
                 <h3>Identified as contributor:</h3>
-                <table>
-                {% for contributor in contributors_found %}
-                <tr><td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td><td>&nbsp;</td>
-                <td><a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td></tr>
-                {% endfor %}
+                <table class="table">
+                    {% for contributor in contributors_found %}
+                        <tr>
+                            <td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td>
+                            <td><a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td>
+                        </tr>
+                    {% endfor %}
                 </table>
         {% elif ref_search_form.has_changed %}
             <p>No Contributor with this last name could be identified.</p>

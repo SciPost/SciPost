@@ -86,6 +86,7 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'journals',
+    'mails',
     'mailing_lists',
     'news',
     'scipost',
@@ -241,7 +242,7 @@ WEBPACK_LOADER = {
 }
 
 # Email
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_BACKEND = 'mails.backends.extendedfilebased.EmailBackend'
 EMAIL_FILE_PATH = 'local_files/email/'
 MAILCHIMP_DATABASE_CODE = 'us6'
 MAILCHIMP_API_USER = 'test_API-user'

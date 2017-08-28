@@ -1,7 +1,7 @@
 
 {% if user.is_authenticated and perms.scipost.can_express_opinion_on_comments %}
     {% if user.contributor != comment.author %}
-    <div class="btn-group voting-group {{class}}">
+    <div class="voting-group {{class}}">
         <form action="{% url 'comments:express_opinion' comment_id=comment.id opinion='A' %}" method="post">
             {% csrf_token %}
             <input type="submit" class="btn agree" value="Agree {{ comment.nr_A }}"/>

@@ -33,6 +33,7 @@ from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSe
                    iThenticateReportForm
 from .utils import SubmissionUtils
 
+from mails.views import MailEditingSubView
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, Remark, RegistrationInvitation
 from scipost.utils import Utils
@@ -674,8 +675,9 @@ def select_referee(request, arxiv_identifier_w_vn_nr):
         contributors_found = Contributor.objects.filter(
             user__last_name__icontains=ref_search_form.cleaned_data['last_name'])
         context['contributors_found'] = contributors_found
+
         # Check for recent co-authorship (thus referee disqualification)
-        if submission.metadata is not None:
+        try:
             sub_auth_boolean_str = '((' + (submission
                                            .metadata['entries'][0]['authors'][0]['name']
                                            .split()[-1])
@@ -688,6 +690,8 @@ def select_referee(request, arxiv_identifier_w_vn_nr):
                         '&max_results=5')
             arxivquery = feedparser.parse(queryurl)
             queryresults = arxivquery
+        except KeyError:
+            pass
         context['ref_recruit_form'] = RefereeRecruitmentForm()
 
     context.update({
@@ -788,14 +792,21 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
                                    invitation_key='notused',
                                    date_invited=timezone.now(),
                                    invited_by=request.user.contributor)
-    invitation.save()
-    SubmissionUtils.load({'invitation': invitation})
-    SubmissionUtils.send_refereeing_invitation_email()
-    submission.add_event_for_author('A referee has been invited.')
-    submission.add_event_for_eic('Referee %s has been invited.' % contributor.user.last_name)
-    messages.success(request, 'Invitation sent')
-    return redirect(reverse('submissions:editorial_page',
-                            kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
+
+    mail_request = MailEditingSubView(request, mail_code='submissions_referee_invite',
+                                      invitation=invitation)
+    if mail_request.is_valid():
+        invitation.save()
+        # SubmissionUtils.load({'invitation': invitation})
+        # SubmissionUtils.send_refereeing_invitation_email()
+        submission.add_event_for_author('A referee has been invited.')
+        submission.add_event_for_eic('Referee %s has been invited.' % contributor.user.last_name)
+        messages.success(request, 'Invitation sent')
+        mail_request.send()
+        return redirect(reverse('submissions:editorial_page',
+                                kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
+    else:
+        return mail_request.return_render()
 
 
 @login_required

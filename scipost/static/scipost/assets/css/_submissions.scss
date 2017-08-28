@@ -38,7 +38,31 @@ table.submission_header {
 }
 
 .reportRatings {
-    margin: 0 0 1rem;
+    font-size: 10px;
+    margin: 0.5rem 0 1rem;
+    padding: 0.3rem 0.5rem 0.4rem;
+    display: inline-block;
+    box-shadow: 0 1px 0 0 #ccc;
+    background: #f9f9f9;
+    border: 1px solid;
+    border-color: #ececec #ececec #d0d1d5;
+    border-radius: 2px;
+
+    ul {
+        margin: 0;
+        padding: 0;
+
+        li {
+            border: 1px solid;
+            display: inline-block;
+            margin: 0.1rem;
+            padding: 0.25rem 0.5rem;
+            border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+            border-radius: 2px;
+            background: #fff;
+            box-shadow: 0 1px 0 0 #ccc;
+        }
+    }
 }
 
 .required-actions {

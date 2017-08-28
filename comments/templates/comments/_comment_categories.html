@@ -1,34 +1,34 @@
 {% load comment_extras %}
 
 {% if comment|has_category %}
-    <div class="btn-group category-group mr-2">
-        <label class="btn btn-secondary name">Category:</label>
+    <div class="category-group">
+        <div class="name">Category:</div>
         {% if comment.is_rem %}
-            <label class="btn btn-secondary"><span class="inner">remark</spin></label>
+            <div>remark</div>
         {% endif %}
         {% if comment.is_que %}
-            <label class="btn btn-secondary"><span class="inner">question</spin></label>
+            <div>question</div>
         {% endif %}
         {% if comment.is_ans %}
-            <label class="btn btn-secondary"><span class="inner">answer to question</spin></label>
+            <div>answer to question</div>
         {% endif %}
         {% if comment.is_obj %}
-            <label class="btn btn-secondary"><span class="inner">objection</spin></label>
+            <div>objection</div>
         {% endif %}
         {% if comment.is_rep %}
-            <label class="btn btn-secondary"><span class="inner">reply to objection</spin></label>
+            <div>reply to objection</div>
         {% endif %}
         {% if comment.is_cor %}
-            <label class="btn btn-secondary"><span class="inner">correction</spin></label>
+            <div>correction</div>
         {% endif %}
         {% if comment.is_val %}
-            <label class="btn btn-secondary"><span class="inner">validation or rederivation</spin></label>
+            <div>validation or rederivation</div>
         {% endif %}
         {% if comment.is_lit %}
-            <label class="btn btn-secondary"><span class="inner">pointer to related literature</spin></label>
+            <div>pointer to related literature</div>
         {% endif %}
         {% if comment.is_sug %}
-            <label class="btn btn-secondary"><span class="inner">suggestion for further work</spin></label>
+            <div>suggestion for further work</div>
         {% endif %}
     </div>
 {% endif %}
