@@ -1,7 +1,7 @@
 {% extends 'scipost/base.html' %}
 
 {% load bootstrap %}
-{# {% load highlight %}#}
+{% load extra_form_widgets %}
 
 {% block pagetitle %}: list{% endblock pagetitle %}
 
@@ -22,13 +22,7 @@
                 <label>Type</label>
             </div>
             <div class="form-group checkboxes auto-submit">
-                {% for field in form.models %}
-                    <input type="checkbox" name="{{field.name}}" id="{{field.id_for_label}}" value="{{field.choice_value|stringformat:'s'}}" {% if field.choice_value in form.models.value %}checked="checked"{% endif %}>
-                    <label class="btn btn-info" for="{{field.id_for_label}}">
-                        {{field.choice_label}}
-                    </label>
-
-                {% endfor %}
+                {{form.models|checkboxes_as_btn}}
             </div>
 
             <label>Date from</label>

@@ -1,0 +1,4 @@
+
+{% include "django/forms/widgets/input.html" %}
+<label{% if widget.attrs.id %} class="btn btn-info" for="{{ widget.attrs.id }}"{% endif %}>
+{{ widget.label }}</label>
