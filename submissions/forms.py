@@ -665,7 +665,7 @@ class iThenticateReportForm(forms.ModelForm):
         elif hasattr(self, 'document_id'):
             self.response = self.call_ithenticate()
 
-        if self.response:
+        if hasattr(self, 'response') and self.response:
             return cleaned_data
         # Don't return anything as someone submitted invalid data for the form at this point!
         return None
