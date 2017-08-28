@@ -253,7 +253,8 @@ MAILCHIMP_API_KEY = 'test_API-key'
 # iThenticate
 ITHENTICATE_USERNAME = 'test_ithenticate_username'
 ITHENTICATE_PASSWORD = 'test_ithenticate_password'
-
+# # Default folder to upload to, else uses the first folder of your account.
+ITHENTICATE_DEFAULT_FOLDER_ID = None
 
 # Own settings
 JOURNALS_DIR = 'journals'
