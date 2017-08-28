@@ -13,35 +13,31 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="card card-grey">
-            <div class="card-body">
-                <h1>Editorial Page for Submission</h1>
-                {% if not submission.is_current %}
-                    <h3 class="text-danger">This is not the editorial page for the current version.</h3>
-                    <p>Please go to the current version's page.</p>
-                {% endif %}
+<h2>Editorial Page for Submission</h2>
+<h1 class="text-primary">{{submission.title}}</h1>
+<h3>by {{submission.author_list}}</h3>
 
-                <p class="card-text">(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</h3>
-            </div>
-        </div>
-        {% if submission.other_versions %}
-            <h3>Other versions of this Submission exist:</h3>
-            <div class="pl-4">
-                {% for vn in submission.other_versions %}
-                    {% include 'submissions/_submission_version.html' with submission=vn %}
-                {% endfor %}
-            </div>
-        {% endif %}
+{% if not submission.is_current %}
+    <h4 class="text-danger"><b>This is not the editorial page for the current version.</b></h4>
+    <p>Please go to the current version's page.</p>
+{% endif %}
+
+<p class="card-text">(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</p>
+
+{% if submission.other_versions %}
+    <h4>Other versions of this Submission exist:</h4>
+    <div>
+        {% for vn in submission.other_versions %}
+            {% include 'submissions/_submission_version.html' with submission=vn %}
+        {% endfor %}
     </div>
-</div>
+{% endif %}
 
 
 <div class="row">
     <div class="col-12">
-        <h2>Submission</h2>
-        {% include 'submissions/_submission_summary_short.html' with submission=submission %}
+        <h3 class="mt-4">Submission summary</h3>
+        {% include 'submissions/_submission_summary_short.html' with submission=submission hide_title=1 %}
 
         <br>
         {% if submission.author_comments %}

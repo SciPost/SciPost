@@ -20,6 +20,7 @@ from submissions.models import Submission, Report
 from commentaries.models import Commentary
 
 
+@login_required
 @permission_required('scipost.can_submit_comments', raise_exception=True)
 def new_comment(request, **kwargs):
     form = CommentForm(request.POST or None, request.FILES or None)
