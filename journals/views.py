@@ -791,18 +791,15 @@ def metadata_DOAJ_deposit(request, doi_label):
     url = 'https://doaj.org/api/v1/articles'
 
     params = {
-        'operation': 'doMDUpload',
         'api_key': settings.DOAJ_API_KEY,
-        }
-    files = {'fname': ('metadata.json', json.dumps(publication.metadata_DOAJ), 'application/json')}
+        'article_json': json.dumps(publication.metadata_DOAJ),
+    }
     try:
-        r = requests.post(url, params=params, files=files)
+        r = requests.post(url, params=params)
         r.raise_for_status()
     except requests.exceptions.HTTPError:
         messages.warning(request, '<h3>%s</h3>Failed: Post went wrong, response text: %s' % (
             publication.doi_label, r.text))
-        return redirect(reverse('journals:manage_metadata',
-                                kwargs={'doi_label': publication.doi_label}))
 
     # Then create the associated Deposit object (saving the metadata to a file)
     content = ContentFile(publication.metadata_DOAJ)
@@ -822,7 +819,8 @@ def metadata_DOAJ_deposit(request, doi_label):
 
     messages.success(request, '<h3>%s</h3>Successfull deposit of metadata DOAJ.'
                               % publication.doi_label)
-    return redirect(reverse('journals:manage_metadata'))
+    return redirect(reverse('journals:manage_metadata',
+                            kwargs={'doi_label': publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -833,7 +831,8 @@ def mark_doaj_deposit_success(request, deposit_id, success):
     elif success == '0':
         deposit.deposit_successful = False
     deposit.save()
-    return redirect(reverse('journals:manage_metadata'))
+    return redirect(reverse('journals:manage_metadata',
+                                    kwargs={'doi_label': deposit.publication.doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
