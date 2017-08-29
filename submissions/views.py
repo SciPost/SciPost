@@ -1486,7 +1486,6 @@ class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
     permission_required = 'scipost.can_do_plagiarism_checks'
     template_name = 'submissions/admin/plagiarism_report.html'
     editorial_page = True
-    success_url = reverse_lazy('submissions:plagiarism')
     form_class = iThenticateReportForm
 
     def get_object(self):
