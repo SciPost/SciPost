@@ -799,9 +799,10 @@ def metadata_DOAJ_deposit(request, doi_label):
         r = requests.post(url, params=params, files=files)
         r.raise_for_status()
     except requests.exceptions.HTTPError:
-        messages.warning(request, '<h3>%s</h3>Failed: Post went wrong. Did you set the right '
-                                  'DOAJ API KEY?' % publication.doi_label)
-        return redirect(reverse('journals:manage_metadata'))
+        messages.warning(request, '<h3>%s</h3>Failed: Post went wrong, response text: %s' % (
+            publication.doi_label, r.text))
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': publication.doi_label}))
 
     # Then create the associated Deposit object (saving the metadata to a file)
     content = ContentFile(publication.metadata_DOAJ)
