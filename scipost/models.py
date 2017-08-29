@@ -41,7 +41,7 @@ class Contributor(models.Model):
     """
     user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True)
     invitation_key = models.CharField(max_length=40, blank=True)
-    _activation_key = models.CharField(max_length=40, blank=True)
+    activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
     status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
@@ -70,6 +70,11 @@ class Contributor(models.Model):
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
 
+    def save(self, *args, **kwargs):
+        if not self.activation_key:
+            self.generate_key()
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('scipost:contributor_info', args=(self.id,))
 
@@ -90,13 +95,6 @@ class Contributor(models.Model):
     def is_VE(self):
         return self.user.groups.filter(name='Vetting Editors').exists()
 
-    def get_activation_key(self):
-        if not self._activation_key:
-            self.generate_key()
-        return self._activation_key
-
-    activation_key = property(get_activation_key, _activation_key)
-
     def generate_key(self, feed=''):
         """
         Generate and save a new activation_key for the contributor, given a certain feed.
@@ -105,7 +103,7 @@ class Contributor(models.Model):
             feed += random.choice(string.ascii_letters)
         feed = feed.encode('utf8')
         salt = self.user.username.encode('utf8')
-        self._activation_key = hashlib.sha1(salt+salt).hexdigest()
+        self.activation_key = hashlib.sha1(salt+salt).hexdigest()
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
 
     def expertises_as_string(self):
