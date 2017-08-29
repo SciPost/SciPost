@@ -679,17 +679,21 @@ class iThenticateReportForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         data = self.response['data'][0]
 
-        report, __ = iThenticateReport.objects.get_or_create(doc_id=data['id'])
+        report, created = iThenticateReport.objects.get_or_create(doc_id=data['id'])
 
-        try:
-            report.uploaded_time = data['uploaded_time']
-            report.processed_time = data['processed_time']
-            report.percent_match = data['percent_match']
-        except KeyError:
-            pass
-        report.save()
-        self.submission.plagiarism_report = report
-        self.submission.save()
+        if not created:
+            try:
+                iThenticateReport.objects.filter(doc_id=data['id']).update(
+                    uploaded_time=data['uploaded_time'],
+                    processed_time=data['processed_time'],
+                    percent_match=data['percent_match']
+                )
+            except KeyError:
+                pass
+        else:
+            report.save()
+            self.submission.plagiarism_report = report
+            self.submission.save()
         return report
 
     def call_ithenticate(self):
