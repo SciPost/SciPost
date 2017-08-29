@@ -678,8 +678,8 @@ class iThenticateReportForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         data = self.response['data'][0]
-        
-        report = iThenticateReport.objects.get_or_create(doc_id=data['id'])
+
+        report, __ = iThenticateReport.objects.get_or_create(doc_id=data['id'])
 
         try:
             report.uploaded_time = data['uploaded_time']
