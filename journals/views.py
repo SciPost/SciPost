@@ -793,7 +793,7 @@ def metadata_DOAJ_deposit(request, doi_label):
         'operation': 'doMDUpload',
         'api_key': settings.DOAJ_API_KEY,
         }
-    files = {'fname': ('metadata.json', publication.metadata_xml, 'application/json')}
+    files = {'fname': ('metadata.json', publication.metadata_DOAJ, 'application/json')}
     try:
         r = requests.post(url, params=params, files=files)
         r.raise_for_status()
@@ -803,14 +803,12 @@ def metadata_DOAJ_deposit(request, doi_label):
         return redirect(reverse('journals:manage_metadata'))
 
     # Then create the associated Deposit object (saving the metadata to a file)
-    content = ContentFile(publication.metadata_xml)
+    content = ContentFile(publication.metadata_DOAJ)
     deposit = DOAJDeposit(publication=publication, timestamp=timestamp,
                           metadata_DOAJ=publication.metadata_DOAJ, deposition_date=timezone.now())
-    deposit.metadata_xml_file.save(path, content)
+    deposit.metadata_DOAJ_file.save(path, content)
     deposit.response_text = r.text
     deposit.save()
-    publication.latest_crossref_deposit = timezone.now()
-    publication.save()
 
     # Save a copy to the filename without timestamp
     path1 = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
