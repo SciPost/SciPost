@@ -342,7 +342,7 @@ class Utils(BaseMailUtil):
             email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
-            html_version = html_template.render(email_context)
+            html_version = html_template.render(Context(email_context))
             emailmessage = EmailMultiAlternatives(
                 'SciPost: refereeing request (and registration invitation)', email_text,
                 'SciPost Refereeing <refereeing@scipost.org>',
@@ -380,7 +380,7 @@ class Utils(BaseMailUtil):
             email_text_html += summary_text_html
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
-            html_version = html_template.render(email_context)
+            html_version = html_template.render(Context(email_context))
             emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
                 'SciPost registration <registration@scipost.org>',
@@ -417,7 +417,7 @@ class Utils(BaseMailUtil):
             email_text_html += summary_text_html
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
-            html_version = html_template.render(email_context)
+            html_version = html_template.render(Context(email_context))
             emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
                 'SciPost registration <registration@scipost.org>',
@@ -438,7 +438,7 @@ class Utils(BaseMailUtil):
                 'called SciPost, and to invite you to become an active Contributor.</p>')
             email_text_html += summary_text_html + '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
-            html_version = html_template.render(email_context)
+            html_version = html_template.render(Context(email_context))
             emailmessage = EmailMultiAlternatives(
                 'SciPost: invitation', email_text,
                 'SciPost registration <registration@scipost.org>',
@@ -597,7 +597,7 @@ class Utils(BaseMailUtil):
 
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
-            html_version = html_template.render(email_context)
+            html_version = html_template.render(Context(email_context))
             emailmessage = EmailMultiAlternatives(
                 'SciPost registration invitation', email_text,
                 'J-S Caux <jscaux@scipost.org>',
@@ -654,7 +654,7 @@ class Utils(BaseMailUtil):
             email_context['citation'] = cls.notification.cited_in_publication.citation()
             email_context['key'] = cls.notification.contributor.activation_key
             html_template = Template(email_text_html)
-            html_version = html_template.render(email_context)
+            html_version = html_template.render(Context(email_context))
         elif cls.notification.cited_in_submission:
             url_unsubscribe = reverse('scipost:unsubscribe',
                                       args=[cls.notification.contributor.id,

@@ -1094,7 +1094,7 @@ def email_group_members(request):
                             'key': member.contributor.activation_key,
                         }
                         html_template = Template(email_text_html)
-                        html_version = html_template.render(email_context)
+                        html_version = html_template.render(Context(email_context))
                         message = EmailMultiAlternatives(
                             form.cleaned_data['email_subject'],
                             email_text, 'SciPost Admin <admin@scipost.org>',
@@ -1128,7 +1128,7 @@ def email_particular(request):
 
             email_text_html += '<br/>' + EMAIL_FOOTER
             html_template = Template(email_text_html)
-            html_version = html_template.render(email_context)
+            html_version = html_template.render(Context(email_context))
             message = EmailMultiAlternatives(
                 form.cleaned_data['email_subject'],
                 email_text, 'SciPost Admin <admin@scipost.org>',
@@ -1170,7 +1170,7 @@ def send_precooked_email(request):
 
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         message = EmailMultiAlternatives(
             precookedEmail.email_subject,
             email_text,
