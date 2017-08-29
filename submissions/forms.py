@@ -677,15 +677,18 @@ class iThenticateReportForm(forms.ModelForm):
         return None
 
     def save(self, *args, **kwargs):
-        data = self.response['data']
+        data = self.response['data'][0]
         if self.instance:
             report = self.instance
         else:
             report = iThenticateReport.objects.get_or_create(doc_id=data['id'])
         report.submission = self.submission
-        report.uploaded_time = data['uploaded_time']
-        report.processed_time = data['processed_time']
-        report.percent_match = data['percent_match']
+        try:
+            report.uploaded_time = data['uploaded_time']
+            report.processed_time = data['processed_time']
+            report.percent_match = data['percent_match']
+        except KeyError:
+            pass
         report.save()
         return report
 
@@ -709,7 +712,7 @@ class iThenticateReportForm(forms.ModelForm):
         client = self.client
         response = client.documents.get(self.document_id)
         if response['status'] == 200:
-            return response['data']
+            return response
         self.add_error(None, "Updating failed. iThenticate didn't return valid data [1]")
         self.add_error(None, client.messages[0])
         return None
@@ -742,7 +745,7 @@ class iThenticateReportForm(forms.ModelForm):
         if response['status'] == 200:
             self.submission.add_general_event(('The document has been submitted '
                                                'for a plagiarism check.'))
-            return response['data']
+            return response
 
         self.add_error(None, "Updating failed. iThenticate didn't return valid data [3]")
         self.add_error(None, client.messages[0])
