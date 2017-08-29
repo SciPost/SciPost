@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import random
 import requests
@@ -793,7 +794,7 @@ def metadata_DOAJ_deposit(request, doi_label):
         'operation': 'doMDUpload',
         'api_key': settings.DOAJ_API_KEY,
         }
-    files = {'fname': ('metadata.json', publication.metadata_DOAJ, 'application/json')}
+    files = {'fname': ('metadata.json', json.dumps(publication.metadata_DOAJ), 'application/json')}
     try:
         r = requests.post(url, params=params, files=files)
         r.raise_for_status()
