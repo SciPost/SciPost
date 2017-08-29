@@ -692,6 +692,7 @@ class iThenticateReportForm(forms.ModelForm):
             pass
         report.save()
         self.submission.plagiarism_report = report
+        self.submission.save()
         return report
 
     def call_ithenticate(self):
