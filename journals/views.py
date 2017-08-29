@@ -792,7 +792,7 @@ def metadata_DOAJ_deposit(request, doi_label):
 
     params = {
         'api_key': settings.DOAJ_API_KEY,
-        'article_json': json.dumps(publication.metadata_DOAJ),
+        'article_json': publication.metadata_DOAJ,
     }
     try:
         r = requests.post(url, params=params)
