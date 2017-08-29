@@ -680,6 +680,7 @@ class iThenticateReportForm(forms.ModelForm):
         data = self.response['data'][0]
         if self.instance:
             report = self.instance
+            report.doc_id = data['id']
         else:
             report = iThenticateReport.objects.get_or_create(doc_id=data['id'])
         report.submission = self.submission
