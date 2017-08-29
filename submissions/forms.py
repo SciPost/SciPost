@@ -683,7 +683,7 @@ class iThenticateReportForm(forms.ModelForm):
             report.doc_id = data['id']
         else:
             report = iThenticateReport.objects.get_or_create(doc_id=data['id'])
-        report.submission = self.submission
+
         try:
             report.uploaded_time = data['uploaded_time']
             report.processed_time = data['processed_time']
@@ -691,6 +691,7 @@ class iThenticateReportForm(forms.ModelForm):
         except KeyError:
             pass
         report.save()
+        self.submission.plagiarism_report = report
         return report
 
     def call_ithenticate(self):
