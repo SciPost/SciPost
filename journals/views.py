@@ -802,7 +802,7 @@ def metadata_DOAJ_deposit(request, doi_label):
             publication.doi_label, r.text))
 
     # Then create the associated Deposit object (saving the metadata to a file)
-    content = ContentFile(publication.metadata_DOAJ)
+    content = ContentFile(json.dumps(publication.metadata_DOAJ))
     deposit = DOAJDeposit(publication=publication, timestamp=timestamp,
                           metadata_DOAJ=publication.metadata_DOAJ, deposition_date=timezone.now())
     deposit.metadata_DOAJ_file.save(path, content)
@@ -814,7 +814,7 @@ def metadata_DOAJ_deposit(request, doi_label):
              + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
              + '_DOAJ.json')
     f = open(path1, 'w')
-    f.write(publication.metadata_DOAJ)
+    f.write(json.dumps(publication.metadata_DOAJ))
     f.close()
 
     messages.success(request, '<h3>%s</h3>Successfull deposit of metadata DOAJ.'
