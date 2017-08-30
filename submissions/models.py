@@ -540,9 +540,9 @@ class iThenticateReport(TimeStampedModel):
                         arxiv=self.to_submission.arxiv_identifier_w_vn_nr)
         return _str
 
-    def save(self, commit=True, **kwargs):
-        obj = super().save(commit, **kwargs)
-        if hasattr(self, 'to_submission') and commit:
+    def save(self, *args, **kwargs):
+        obj = super().save(*args, **kwargs)
+        if hasattr(self, 'to_submission') and kwargs.get('commit', True):
             self.to_submission.touch()
         return obj
 

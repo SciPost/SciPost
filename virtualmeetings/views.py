@@ -27,7 +27,7 @@ def VGMs(request):
 @permission_required('scipost.can_attend_VGMs')
 def VGM_detail(request, VGM_id):
     VGM_instance = get_object_or_404(VGM, id=VGM_id)
-    VGM_information = Template(VGM_instance.information).render({})
+    VGM_information = Template(VGM_instance.information).render(Context({}))
     feedback_received = Feedback.objects.filter(VGM=VGM_instance).order_by('date')
     feedback_form = FeedbackForm()
     current_Fellows = Contributor.objects.filter(

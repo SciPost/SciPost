@@ -1,3 +1,4 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic.list import ListView
 
@@ -22,6 +23,16 @@ class FriendlyPermissionMixin(PermissionRequiredMixin):
 
 
 class SubmissionFormViewMixin:
+    def get_success_url(self):
+        if not self.success_url:
+            try:
+                return str(self.get_object().get_absolute_url())
+            except:
+                raise ImproperlyConfigured("No URL to redirect to. Provide a success_url.")
+
+        return str(self.success_url)  # success_url may be lazy
+
+
     def get_form_kwargs(self):
         """
         Ideally all ModelForms on Submission-related objects have a required argument `submission`.

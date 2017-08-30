@@ -330,7 +330,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: Submission received', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -369,7 +369,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: Resubmission received', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -422,7 +422,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: potential Submission assignment', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -479,7 +479,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: assignment as EIC', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -564,7 +564,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: pre-screening passed', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -614,7 +614,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: pre-screening not passed', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -733,7 +733,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: reminder (refereeing request and registration invitation)', email_text,
             'SciPost Refereeing <refereeing@scipost.org>',
@@ -819,7 +819,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: reminder (refereeing request and registration invitation)', email_text,
             'SciPost Refereeing <refereeing@scipost.org>',
@@ -887,7 +887,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: report no longer needed', email_text,
             'SciPost Refereeing <refereeing@scipost.org>',
@@ -1006,7 +1006,7 @@ class SubmissionUtils(BaseMailUtil):
             email_context['refusal_reason'] = cls.report.get_status_display()
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: Report acknowledgement', email_text,
             'SciPost Refereeing <refereeing@scipost.org>',
@@ -1059,7 +1059,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: Report received on your Submission', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -1101,7 +1101,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: Comment received on your Submission', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -1232,7 +1232,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: revision requested', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -1322,7 +1322,7 @@ class SubmissionUtils(BaseMailUtil):
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: College decision', email_text,
             'SciPost Editorial Admin <submissions@scipost.org>',
@@ -1359,7 +1359,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>The SciPost Team.</p><br/>' + EMAIL_FOOTER)
         email_context = {}
         html_template = Template(email_text_html)
-        html_version = html_template.render(email_context)
+        html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: voting duties', email_text,
             'SciPost Editorial Admin <admin@scipost.org>',

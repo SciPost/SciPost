@@ -222,6 +222,7 @@ class DOAJDeposit(models.Model):
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
     timestamp = models.CharField(max_length=40, default='')
     metadata_DOAJ = JSONField()
+    metadata_DOAJ_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)
     response_text = models.TextField(blank=True, null=True)
     deposit_successful = models.NullBooleanField(default=None)

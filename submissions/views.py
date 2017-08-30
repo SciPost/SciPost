@@ -1389,7 +1389,7 @@ def remind_Fellows_to_vote(request):
     for name in sorted(Fellow_names):
         ack_message += '<li>' + name + '</li>'
     ack_message += '</ul>'
-    context = {'ack_message': Template(ack_message).render({}),
+    context = {'ack_message': Template(ack_message).render(Context({})),
                'followup_message': 'Return to the ',
                'followup_link': reverse('submissions:pool'),
                'followup_link_label': 'Submissions pool'}
@@ -1486,7 +1486,6 @@ class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
     permission_required = 'scipost.can_do_plagiarism_checks'
     template_name = 'submissions/admin/plagiarism_report.html'
     editorial_page = True
-    success_url = reverse_lazy('submissions:plagiarism')
     form_class = iThenticateReportForm
 
     def get_object(self):

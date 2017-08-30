@@ -1,7 +1,7 @@
 <div class="card-body {% block cardblock_class_block %}{% endblock %}">
     <h5 class="pb-0">{{submission.get_subject_area_display}}</h5>
     <h3 class="card-title {% block title_class_block %}{% endblock %}">
-        <a href="{% url 'submissions:submission' submission.arxiv_identifier_w_vn_nr %}">{{submission.title}}</a>
+        <a href="{{submission.get_absolute_url}}">{{submission.title}}</a>
     </h3>
 
     {% block card_block_footer %}{% endblock %}

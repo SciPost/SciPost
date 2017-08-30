@@ -157,7 +157,7 @@ class Contact(models.Model):
     consortia = models.ManyToManyField('partners.Consortium', blank=True,
                                        help_text=('All Consortia for which the Contact has'
                                                   ' explicit permission to view/edit its data.'))
-    _activation_key = models.CharField(max_length=40, blank=True)
+    activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -171,15 +171,13 @@ class Contact(models.Model):
             feed += random.choice(string.ascii_letters)
         feed = feed.encode('utf8')
         salt = self.user.username.encode('utf8')
-        self._activation_key = hashlib.sha1(salt+salt).hexdigest()
+        self.activation_key = hashlib.sha1(salt+salt).hexdigest()
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
 
-    def get_activation_key(self):
-        if not self._activation_key:
+    def save(self, *args, **kwargs):
+        if not self.activation_key:
             self.generate_key()
-        return self._activation_key
-
-    activation_key = property(get_activation_key, _activation_key)
+        super().save(*args, **kwargs)
 
     def delete_or_remove_partner(self, partner, *args, **kwargs):
         """
