@@ -2,7 +2,15 @@
 
 {% block pagetitle %}: privacy policy{% endblock pagetitle %}
 
-{% load staticfiles %}
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
+            <a  href="{% url 'scipost:FAQ' %}" class="breadcrumb-item">Frequently asked questions</a>
+            <span class="breadcrumb-item">Privacy Policy</span>
+        </div>
+    </nav>
+{% endblock %}
 
 {% block content %}
 
