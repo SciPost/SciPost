@@ -34,36 +34,46 @@
     <div class="col-12">
         <h2>SciPost Submission Page</h2>
         <h1 class="text-primary">{{submission.title}}</h1>
-        <h3>by {{submission.author_list}}</h3>
+        <h3 class="mb-3">by {{submission.author_list}}</h3>
 
-        {% if not submission.is_current %}
-            <h4 class="text-danger"><b>This is not the current version.</b></h4>
-        {% endif %}
+        <div class="pl-2">
+            {% if submission.publication %}
+                <h3>- Published as <a href="{{submission.publication.get_absolute_url}}">{{submission.publication.in_issue.in_volume.in_journal.get_abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}} ({{submission.publication.publication_date|date:'Y'}})</a></h3>
+            {% endif %}
 
-        {% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
-            <h4>(You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</h4>
-        {% endif %}
 
-        {% if submission.other_versions %}
-            <h4>Other versions of this Submission (with Reports) exist:</h4>
-            <div>
-                {% for vn in submission.other_versions %}
-                    {% include 'submissions/_submission_version.html' with submission=vn %}
-                {% endfor %}
-            </div>
-        {% endif %}
+            {% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
+                <h3>- You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions</h3>
+            {% endif %}
 
-        {% if unfinished_report_for_user %}
-            <blockquote class="blockquote">
-              <h4>You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here.</a></h4>
-            </blockquote>
-        {% endif %}
+            {% if unfinished_report_for_user %}
+                <h3 class="mt-0">- <span class="circle text-danger border-danger">!</span> You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here.</a></h3>
+            {% endif %}
+
+            {% if submission.other_versions or not submission.is_current %}
+                <ul class="mt-3 mb-1 list-unstyled pl-4">
+                    {% if not submission.is_current %}
+                        <li><h3 class="text-danger">This is not the current version.</h3></li>
+                    {% endif %}
+
+                    {% if submission.other_versions %}
+                        <li>Other versions of this Submission (with Reports) exist:</li>
+                        <ul class="list-unstyled">
+                            {% for vn in submission.other_versions %}
+                                <li>{% include 'submissions/_submission_version.html' with submission=vn %}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </ul>
+            {% endif %}
+        </div>
+
     </div>
 </div>
 
 <div class="row">
     <div class="col-12">
-        <h3 class="mt-3">Submission summary</h3>
+        <h3>Submission summary</h3>
         {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 %}
 
         {% include 'submissions/_submission_status_block.html' with submission=submission %}
@@ -148,13 +158,11 @@
         {% endif %}
     </div>
 </div>
-{% elif not user.is_authenticated %}
-    <h3  class="text-center"><a href="{% url 'scipost:login' %}?next={{request.path}}" class="btns btxn-info mt-3 px-4">Login to report</a></h3>
 {% endif %}
 
 {% if invited_reports %}
-<hr>
-<div class="row">
+{# <hr>#}
+<div class="row mt-4">
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-body">
@@ -174,8 +182,8 @@
 {% endif %}
 
 {% if contributed_reports %}
-<hr>
-<div class="row">
+{# <hr>#}
+<div class="row mt-4">
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-body">
@@ -194,8 +202,22 @@
 
 {% endif %}
 
+{% if not user.is_authenticated %}
+    {% if submission.comments.vetted.exists %}
+        <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{request.path}}">Login to report</a></h3>
+    {% else %}
+        <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{request.path}}">Login to report or comment</a></h3>
+    {% endif %}
+{% endif %}
+
 {% include 'scipost/comments_block.html' with comments=submission.comments.vetted %}
 
-{% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting %}
+
+{# This is an apparent redundant logic block; however, it makes sure the "login to ..." links wouldn't be shown twice! #}
+{% if not user.is_authenticated and submission.comments.vetted.exists %}
+    {% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting %}
+{% elif user.is_authenticated %}
+    {% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting %}
+{% endif %}
 
 {% endblock content %}
