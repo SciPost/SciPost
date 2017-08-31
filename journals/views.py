@@ -795,7 +795,7 @@ def metadata_DOAJ_deposit(request, doi_label):
         'article_json': publication.metadata_DOAJ,
     }
     try:
-        r = requests.post(url, params=params)
+        r = requests.post(url, json=params)
         r.raise_for_status()
     except requests.exceptions.HTTPError:
         messages.warning(request, '<h3>%s</h3>Failed: Post went wrong, response text: %s' % (
