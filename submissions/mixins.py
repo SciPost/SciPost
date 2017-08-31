@@ -32,7 +32,6 @@ class SubmissionFormViewMixin:
 
         return str(self.success_url)  # success_url may be lazy
 
-
     def get_form_kwargs(self):
         """
         Ideally all ModelForms on Submission-related objects have a required argument `submission`.

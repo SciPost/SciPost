@@ -533,6 +533,11 @@ class iThenticateReport(TimeStampedModel):
                             self.to_submission.arxiv_identifier_w_vn_nr})
         return None
 
+    def get_report_url(self):
+        from .plagiarism import iThenticate
+        plagiarism = iThenticate()
+        return plagiarism.get_url(self.doc_id)
+
     def __str__(self):
         _str = 'Report {doc_id}'.format(doc_id=self.doc_id)
         if hasattr(self, 'to_submission'):

@@ -91,5 +91,14 @@ class iThenticate:
             return response
         return None
 
+    def get_url(self, document_id):
+        """
+        Return report url for given document
+        """
+        response = self.client.reports.get(document_id)
+        if response['status'] == 200:
+            return response['data'][0]
+        return None
+
     def get_messages(self):
         return self.client.messages
