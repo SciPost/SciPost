@@ -23,7 +23,7 @@ class iThenticate:
             raise InvalidDocumentError("Uploading failed. iThenticate didn't return"
                                        " valid data [4]: %s" % self.client.messages[0])
 
-        for group in groups['data'][0]['groups']:
+        for group in groups['data']:
             # Found the group
             if group.get('name', '') == group_re:
                 return group['id']
@@ -53,7 +53,7 @@ class iThenticate:
                                        " valid data [2]: %s" % self.client.messages[0])
 
         # Iterate folders as the api doesn't allow for a search
-        for folder in all_folders['data'][0]['folders']:
+        for folder in all_folders['data']:
             # Found right folder!
             if folder.get('name', '') == folder_re and folder.get('group', {}).get('name'):
                 return folder['id']
