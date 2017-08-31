@@ -51,6 +51,10 @@ class JournalUtils(object):
                 'start_page': cls.publication.get_paper_nr(),
                 'identifier': [
                     {
+                        'type': 'eissn',
+                        'id': str(cls.publication.in_issue.in_volume.in_journal.issn)
+                    },
+                    {
                         'type': 'doi',
                         'id': cls.publication.doi_string
                     }
