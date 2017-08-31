@@ -16,3 +16,7 @@ class InvalidReportVettingValue(BaseCustomException):
 
 class ArxivPDFNotFound(Exception):
     pass
+
+
+class InvalidDocumentError(Exception):
+    pass

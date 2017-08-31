@@ -722,35 +722,14 @@ class iThenticateReportForm(forms.ModelForm):
         return None
 
     def upload_document(self):
-        client = self.client
+        from .plagiarism import iThenticate
+        plagiarism = iThenticate()
+        response = plagiarism.upload_submission(self.document, self.submission)
 
-        # Get first folder available
-        # TODO: Fix this ugly piece of crap
-        if settings.ITHENTICATE_DEFAULT_FOLDER_ID:
-            folder_id = settings.ITHENTICATE_DEFAULT_FOLDER_ID
-        else:
-            folders = client.folders.all()
-            if folders['status'] == 200:
-                folder_id = folders['data'][0]['id']
-            else:
-                self.add_error(None, "Uploading failed. iThenticate didn't return valid data [2]")
-                self.add_error(None, client.messages[0])
-
-        # Finally, upload the file
-        author = self.submission.authors.first()
-        response = client.documents.add(
-            self.document,
-            folder_id,
-            author.user.first_name,
-            author.user.last_name,
-            self.submission.title,
-        )
-
-        if response['status'] == 200:
-            self.submission.add_general_event(('The document has been submitted '
-                                               'for a plagiarism check.'))
-            return response
-
-        self.add_error(None, "Updating failed. iThenticate didn't return valid data [3]")
-        self.add_error(None, client.messages[0])
-        return None
+        # Give feedback to the user
+        if not response:
+            self.add_error(None, "Updating failed. iThenticate didn't return valid data [3]")
+            for msg in plagiarism.get_messages():
+                self.add_error(None, msg)
+            return None
+        return response
