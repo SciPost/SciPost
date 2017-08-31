@@ -2,168 +2,294 @@
 
 {% block pagetitle %}: Frequently asked questions{% endblock pagetitle %}
 
-{% load staticfiles %}
+
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
+            <span class="breadcrumb-item">Frequently asked questions</span>
+        </div>
+    </nav>
+{% endblock %}
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        <h1 class="highlight">Frequently asked questions</h1>
+<h1 class="highlight-x">Frequently asked questions</h1>
+
+<!-- SciPost -->
+<h2 class="highlight">SciPost</h2>
+<h3>What is SciPost?</h3>
+<p>SciPost is a complete online publication portal managed by and for scientists.</p>
+<p>
+    Preprint handling and circulation occurs through the well-established arXiv;
+    the rest of the publication process, from peer refereeing through publication
+    all the way to post-publication commenting, is offered by SciPost.
+</p>
+<p>
+    Thus, simply stated: share your preprint on <a target="_blank" href="http://www.arxiv.org">arXiv</a>, publish it in <a href="https://scipost.org">SciPost</a>.
+</p><!-- End SciPost -->
+
+<!-- SciPost Journals -->
+<h2 class="highlight">SciPost Journals</h2>
+<div id="journals" data-children=".item">
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#journals" href="#journals_journals" aria-expanded="true" aria-controls="journals_journals">
+            <h3>Which Journals does SciPost publish?</h3>
+        </a>
+        <div id="journals_journals" class="collapse" role="tabpanel">
+            <p>In the startup phase, two Journals are being offered:</p>
+              <ul>
+                <li>SciPost Physics</li>
+                <li>SciPost Physics Lecture Notes</li>
+              </ul>
+            <p>Both Journals cover all domains and subject areas within the field of Physics.</p>
+            <p>SciPost Physics Select, the editorially-selected highlights Journal, will be introduced in the near future.</p>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#journals" href="#journals_distinguish" aria-expanded="true" aria-controls="journals_distinguish">
+            <h3>What are the distinguishing features of SciPost Journals?</h3>
+        </a>
+        <div id="journals_distinguish" class="collapse" role="tabpanel">
+            <p>All SciPost Journals are subscription-free, two-way open access (free for readers, free for authors) online journals.</p>
+            <p>Manuscripts submitted to SciPost undergo the extremely stringent <a href="#pwr">peer-witnessed refereeing</a> process, guaranteeing that papers published in SciPost Journals meet the highest possible academic standards.</p>
+
+        </div>
+    </div>
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#journals" href="#journals_why_submit" aria-expanded="true" aria-controls="journals_why_submit">
+            <h3>Why should I submit my manuscripts to SciPost?</h3>
+        </a>
+        <div id="journals_why_submit" class="collapse" role="tabpanel">
+            <p>Because:</p>
+            <ul>
+                <li>you think your work can withstand the strictest form of pre-publication scrutiny: <a href="#pwr">peer-witnessed refereeing</a></li>
+                <li>you want your referees to have to adhere to the same standards of professionalism which are expected of you as an author</li>
+                <li>you want the editorial process to be handled by professional scientists</li>
+                <li>you think that copyright should be held by authors, not publishers</li>
+                <li>you want your published work to be openly accessible and not hidden behind a paywall</li>
+                <li>you do not think publishers should exploit your work for profit-making</li>
+                <li>you do not think that author(s) should be paying publication costs</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#journals" href="#journals_how_submit" aria-expanded="true" aria-controls="journals_how_submit">
+            <h3>How do I submit my manuscript to SciPost?</h3>
+        </a>
+        <div id="journals_how_submit" class="collapse" role="tabpanel">
+            <p>After registering as a Contributor, simply follow the <a href="{% url 'submissions:sub_and_ref_procedure' %}">submission procedure</a>.</p>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#journals" href="#journals_refereeing" aria-expanded="true" aria-controls="journals_refereeing">
+            <h3 id="pwr">How does peer-witnessed refereeing work?</h3>
+        </a>
+        <div id="journals_refereeing" class="collapse" role="journals_refereeing">
+            <p>This is a short summary; for a more detailed description, see our <a href="{% url 'submissions:sub_and_ref_procedure' %}">submission and refereeing procedure</a>.</p>
+            <ul>
+                <li>Reports are gathered from editorially-invited referees, but can also be volunteered by registered SciPost Contributors during refereeing rounds.</li>
+                <li>Reports are posted online (after rapid editorial vetting) on the Submission's Page, and can be replied to (privilege of Authors only) or commented on by all Contributors.</li>
+                <li>Anonymity can be preserved at all meaningful stages if desired (as a referee, you can choose to remain anonymous on a particular Report, but named on another).</li>
+            </ul>
+            <p>Contributors thus have additional incentives to actively participate and provide not only high-quality Submissions,
+            but also Reports and Comments of the highest achievable professional caliber.
+            Quality is moreover promoted by Editorial vetting of all Reports, Replies and Comments before public posting.</p>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#journals" href="#journals_citable" aria-expanded="true" aria-controls="journals_citable">
+            <h3>Will my SciPost publications be citable?</h3>
+        </a>
+        <div id="journals_citable" class="collapse" role="journals_citable">
+            <p>Yes. All SciPost publications will obtain a unique DOI, enabling citations and metrics as per other journals.
+            Membership of <a target="_blank" href="//crossref.org">Crossref</a> means that SciPost papers directly benefit from a set of citation metrics.</p>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#journals" href="#journals_cite_db" aria-expanded="true" aria-controls="journals_cite_db">
+            <h3>Will SciPost papers be listed in citation databases?</h3>
+        </a>
+        <div id="journals_cite_db" class="collapse" role="journals_cite_db">
+            <p>Inclusion in standard citation databases can be applied for once the Journals have been operating for a short while (at least 3 months). Past experience with other new journals shows that listing typically occurs within a year of launch. Search engine-based listings are expected to pick our Journals up on a shorter timescale.</p>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#journals" href="#journals_else" aria-expanded="true" aria-controls="journals_else">
+            <h3>Can I also submit my papers somewhere else?</h3>
+        </a>
+        <div id="journals_else" class="collapse" role="journals_else">
+            <p>No. SciPost publications or submissions under consideration for publication in SciPost Journals must not be submitted elsewhere.</p>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#journals" href="#journals_license" aria-expanded="true" aria-controls="journals_license">
+            <h3>Under what license do SciPost Journals publish articles?</h3>
+        </a>
+        <div id="journals_license" class="collapse" role="journals_license">
+            <p>All SciPost contents are licensed under the <a target="_blank" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a>. Under this license, the copyright remains the property of the authors, who then agree to make their articles available for reuse without permission or fees, for virtually any purpose. Anyone may copy, distribute or reuse these articles as long as the author(s) and original source are properly cited. This is the standard license used worldwide in open access journals. You can read more about the details in the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#journals" href="#journals_availability" aria-expanded="true" aria-controls="journals_availability">
+            <h3>Will my papers always be available?</h3>
+        </a>
+        <div id="journals_availability" class="collapse" role="journals_availability">
+            <p>Yes. SciPost is here to stay, and authors should not worry that their SciPost publications could potentially disappear.
+            SciPost has institutional backing guaranteeing perpetuity of access to its journals database.</p>
+        </div>
+    </div>
+
+</div>
+
+<h2 class="highlight">SciPost Commentaries</h2>
+
+<div id="commentaries" data-children=".item">
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#commentaries" href="#commentaries_commentaries" aria-expanded="true" aria-controls="commentaries_commentaries">
+            <h3>What are Commentaries?</h3>
+        </a>
+        <div id="commentaries_commentaries" class="collapse" role="tabpanel">
+            <p>SciPost Commentaries is a searchable repository of Commentary Pages on scientific publications. Each Commentary Page contains some relevant summary info about the publication (such as Title, Author(s), DOI link to published version, abstract, ...), followed by Comments from Contributors and Author and Contributor Replies. </p>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#commentaries" href="#commentaries_activation" aria-expanded="true" aria-controls="commentaries_activation">
+            <h3>How are Commentary Pages activated?</h3>
+        </a>
+        <div id="commentaries_activation" class="collapse" role="tabpanel">
+            <p>Any registered Contributor can request the activation of a Commentary Page by filling in the <a href="{% url 'commentaries:request_commentary' %}">Commentary request page</a>.</p>
+        </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-    	<h2 class="highlight">SciPost</h2>
-        <h3>What is SciPost?</h3>
-        <p>SciPost is a complete online publication portal managed by and for scientists.</p>
-        <p>
-            Preprint handling and circulation occurs through the well-established arXiv;
-            the rest of the publication process, from peer refereeing through publication
-            all the way to post-publication commenting, is offered by SciPost.
-        </p>
-        <p>
-            Thus, simply stated: share your preprint on <a target="_blank" href="http://www.arxiv.org">arXiv</a>, publish it in <a href="https://scipost.org">SciPost</a>.
-        </p>
+<h2 class="highlight">SciPost Theses</h2>
 
-        <!-- SciPost Journals -->
-        <h2 class="highlight">SciPost Journals</h2>
-        <h3>Which Journals does SciPost publish?</h3>
-        <p>In the startup phase, two Journals are being offered:</p>
-          <ul>
-    	<li>SciPost Physics</li>
-    	<li>SciPost Physics Lecture Notes</li>
-          </ul>
-        <p>Both Journals cover all domains and subject areas within the field of Physics.</p>
-        <p>SciPost Physics Select, the editorially-selected highlights Journal, will be introduced
-        in the near future.</p>
-
-        <hr>
-        <h3>What are the distinguishing features of SciPost Journals?</h3>
-        <p>All SciPost Journals are subscription-free, two-way open access (free for readers, free for authors) online journals.</p>
-        <p>Manuscripts submitted to SciPost undergo the extremely stringent <a href="#pwr">peer-witnessed refereeing</a> process, guaranteeing that papers published in SciPost Journals meet the highest possible academic standards.</p>
-
-        <hr>
-        <h3>Why should I submit my manuscripts to SciPost?</h3>
-        <p>Because:</p>
-        <ul>
-            <li>you think your work can withstand the strictest form of pre-publication scrutiny: <a href="#pwr">peer-witnessed refereeing</a></li>
-            <li>you want your referees to have to adhere to the same standards of professionalism which are expected of you as an author</li>
-            <li>you want the editorial process to be handled by professional scientists</li>
-            <li>you think that copyright should be held by authors, not publishers</li>
-            <li>you want your published work to be openly accessible and not hidden behind a paywall</li>
-            <li>you do not think publishers should exploit your work for profit-making</li>
-            <li>you do not think that author(s) should be paying publication costs</li>
-        </ul>
-
-        <hr>
-        <h3>How do I submit my manuscript to SciPost?</h3>
-        <p>After registering as a Contributor, simply follow the <a href="{% url 'submissions:sub_and_ref_procedure' %}">submission procedure</a>.</p>
-
-        <hr>
-        <h3 id="pwr">How does peer-witnessed refereeing work?</h3>
-        <p>This is a short summary; for a more detailed description, see our <a href="{% url 'submissions:sub_and_ref_procedure' %}">submission and refereeing procedure</a>.</p>
-        <ul>
-            <li>Reports are gathered from editorially-invited referees, but can also be volunteered by registered SciPost Contributors during refereeing rounds.</li>
-            <li>Reports are posted online (after rapid editorial vetting) on the Submission's Page, and can be replied to (privilege of Authors only) or commented on by all Contributors.</li>
-            <li>Anonymity can be preserved at all meaningful stages if desired (as a referee, you can choose to remain anonymous on a particular Report, but named on another).</li>
-        </ul>
-        <p>Contributors thus have additional incentives to actively participate and provide not only high-quality Submissions,
-        but also Reports and Comments of the highest achievable professional caliber.
-        Quality is moreover promoted by Editorial vetting of all Reports, Replies and Comments before public posting.</p>
-
-        <hr>
-        <h3>Will my SciPost publications be citable?</h3>
-        <p>Yes. All SciPost publications will obtain a unique DOI, enabling citations and metrics as per other journals.
-        Membership of <a target="_blank" href="http://crossref.org">Crossref</a> means that SciPost papers directly benefit from a set of citation metrics.</p>
-
-        <hr>
-        <h3>Will SciPost papers be listed in citation databases?</h3>
-        <p>
-        Inclusion in standard citation databases can be applied for once the Journals have been operating for a short while (at least 3 months). Past experience with other new journals shows that listing typically occurs within a year of launch. Search engine-based listings are expected to pick our Journals up on a shorter timescale.
-        </p>
-
-        <hr>
-        <h3>Can I also submit my papers somewhere else?</h3>
-        <p>No. SciPost publications or submissions under consideration for publication in SciPost Journals must not be submitted elsewhere.</p>
-
-        <hr>
-        <h3>Under what license do SciPost Journals publish articles?</h3>
-        <p>All SciPost contents are licensed under the <a target="_blank" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a>. Under this license, the copyright remains the property of the authors, who then agree to make their articles available for reuse without permission or fees, for virtually any purpose. Anyone may copy, distribute or reuse these articles as long as the author(s) and original source are properly cited. This is the standard license used worldwide in open access journals. You can read more about the details in the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
-
-        <hr>
-        <h3>Will my papers always be available?</h3>
-        <p>Yes. SciPost is here to stay, and authors should not worry that their SciPost publications could potentially disappear.
-        SciPost has institutional backing guaranteeing perpetuity of access to its journals database.
-        </p>
-
-    </div>
-    <div class="col-md-6">
-    	<h2 class="highlight">SciPost Commentaries</h2>
-
-        <h3>What are Commentaries?</h3>
-        <p>SciPost Commentaries is a searchable repository of Commentary Pages on scientific publications. Each Commentary Page contains some relevant summary info about the publication (such as Title, Author(s), DOI link to published version, abstract, ...), followed by Comments from Contributors and Author and Contributor Replies. </p>
-
-        <hr>
-        <h3>How are Commentary Pages activated?</h3>
-        <p>Any registered Contributor can request the activation of a Commentary Page by filling in the <a href="{% url 'commentaries:request_commentary' %}">Commentary request page</a>.</p>
-
-        <h2 class="highlight">SciPost Theses</h2>
+<div id="theses" data-children=".item">
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#theses" href="#theses_theses" aria-expanded="true" aria-controls="theses_theses">
             <h3>What are Theses?</h3>
+        </a>
+        <div id="theses_theses" class="collapse" role="tabpanel">
             <p>SciPost Theses is a searchable repository of external links to Master's, Ph.D. and Habilitation theses. Besides a validated URL pointing to the original document, each Thesis Link page contains some relevant summary info (such as title, author, degree granting institution, abstract, ...), followed by Comments from Contributors and Author and Contributor Replies. </p>
+        </div>
+    </div>
 
-            <hr>
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#theses" href="#theses_activation" aria-expanded="true" aria-controls="theses_activation">
             <h3>How are Thesis Link pages activated?</h3>
+        </a>
+        <div id="theses_activation" class="collapse" role="tabpanel">
             <p>As a registered Contributor, the author of the thesis (or, if unavailable, the supervisor or a colleague) can request the activation of a Thesis Link by filling in the <a href="{% url 'theses:request_thesislink' %}">Thesis Link request page</a>.</p>
+        </div>
+    </div>
+</div>
 
-        <h2 class="highlight">SciPost Contributors</h2>
+<h2 class="highlight">SciPost Contributors</h2>
 
-            <h3>Why should I become an active Contributor?</h3>
-            <p>Because:</p>
-            <ul>
-                <li>you subscribe to the values underlining SciPost's <a href="{% url 'scipost:about' %}">guiding principles</a></li>
-                <li>you would like the quantity and quality of your refereeing and commenting work to be recognized and credited</li>
-                <li>you would like to be entitled to report on submissions, even if you haven't been explicitly invited to do so by an editor</li>
-                <li>you are interested in building useful extra content (comments, rederivations, etc) on existing literature</li>
-                <li>you are willing to make your contributions as author and (anonymously) as reviewer and commenter openly accessible</li>
-            </ul>
+<h3>Why should I become an active Contributor?</h3>
+<p>Because:</p>
+<ul>
+    <li>you subscribe to the values underlining SciPost's <a href="{% url 'scipost:about' %}">guiding principles</a></li>
+    <li>you would like the quantity and quality of your refereeing and commenting work to be recognized and credited</li>
+    <li>you would like to be entitled to report on submissions, even if you haven't been explicitly invited to do so by an editor</li>
+    <li>you are interested in building useful extra content (comments, rederivations, etc) on existing literature</li>
+    <li>you are willing to make your contributions as author and (anonymously) as reviewer and commenter openly accessible</li>
+</ul>
 
-        <h2 class="highlight">SciPost Comments</h2>
+<h2 class="highlight">SciPost Comments</h2>
 
+<div id="comments" data-children=".item">
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#comments" href="#comments_comments" aria-expanded="true" aria-controls="comments_comments">
             <h3>What can be commented on?</h3>
+        </a>
+        <div id="comments_comments" class="collapse" role="tabpanel">
             <p>All categories of contents can be commented on: Publications, Submissions, Commentaries and Thesis Links. In addition, Comments themselves can be replied to.</p>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#comments" href="#commentaries_who" aria-expanded="true" aria-controls="commentaries_who">
             <h3>Who can submit Comments?</h3>
+        </a>
+        <div id="commentaries_who" class="collapse" role="tabpanel">
             <p>Only registered Contributors can submit Comments.</p>
+        </div>
+    </div>
+
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#comments" href="#commentaries_privacy" aria-expanded="true" aria-controls="commentaries_privacy">
             <h3>What about privacy?</h3>
+        </a>
+        <div id="commentaries_privacy" class="collapse" role="tabpanel">
             <p>Comments posted on SciPost carry an identifier including the Contributor's full name.</p>
             <p>Reports on Submissions are anonymous by default. If the Contributor providing the Report wishes it, anonymity can be waived.</p>
             <p>More details can be found in our <a href="{% url 'scipost:privacy_policy' %}">Privacy Policy</a>.</p>
+        </div>
+    </div>
+</div>
 
-        <h2 class="highlight">About SciPost</h2>
+<h2 class="highlight">About SciPost</h2>
 
+<div id="scipost" data-children=".item">
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#scipost" href="#scipost_who" aria-expanded="true" aria-controls="scipost_who">
             <h3>Who is behind SciPost?</h3>
+        </a>
+        <div id="scipost_who" class="collapse" role="tabpanel">
             <ul>
                 <li>SciPost was founded by <a target="_blank" href="//jscaux.org/">J.-S. Caux</a>, Professor of Theoretical Physics at the University of Amsterdam.</li>
                 <li>The legal entity behind SciPost is <a href="{% url 'scipost:foundation' %}">Stichting SciPost</a>, a not-for-profit Foundation established in Amsterdam. Its (non-remunerated) personnel consists in Prof. J.-S. Caux (chairman), Dr J. van Mameren (secretary) and Dr J. van Wezel (treasurer). The portal is run by a team of volunteer officers coordinated by the Foundation.</li>
             </ul>
+        </div>
+    </div>
 
-            <hr>
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#scipost" href="#scipost_why" aria-expanded="true" aria-controls="scipost_why">
             <h3>Why was SciPost started?</h3>
+        </a>
+        <div id="scipost_why" class="collapse" role="tabpanel">
             <p>The publishing landscape is evolving rapidly, and it is not clear that the best interests of science and scientists are being represented. SciPost offers a grassroots solution to the problem of scientific publishing, designed and implemented by scientists in the best interests of science itself.</p>
+        </div>
+    </div>
 
-            <hr>
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#scipost" href="#scipost_fields" aria-expanded="true" aria-controls="scipost_fields">
             <h3>Which fields of science does SciPost cater to?</h3>
+        </a>
+        <div id="scipost_fields" class="collapse" role="tabpanel">
             <p>The initial rollout of SciPost offers a Physics portal.</p>
             <p>Portals in other disciplines will be opened if the SciPost model proves to be successful.</p>
+        </div>
+    </div>
 
-            <hr>
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#scipost" href="#scipost_moderation" aria-expanded="true" aria-controls="scipost_moderation">
             <h3>Is SciPost moderated?</h3>
+        </a>
+        <div id="scipost_moderation" class="collapse" role="tabpanel">
             <p>Yes. All content is vetted by the editorial team before being made public. Only meaningful, professional-level scientific content is accepted. SciPost does not take any responsibility for the actual contents of postings.</p>
+        </div>
+    </div>
 
-            <hr>
+    <div class="item">
+        <a data-toggle="collapse" data-parent="#scipost" href="#scipost_funded" aria-expanded="true" aria-controls="scipost_funded">
             <h3>How is SciPost funded?</h3>
+        </a>
+        <div id="scipost_funded" class="collapse" role="tabpanel">
             <p>SciPost operates non-commercially, incurring minimal costs. Contributors, who are by definition all academically employed, provide all the content and perform all editorial tasks as part of their normal institutional academic duties. Operations are kept running by a team of volunteer officers, themselves academically employed.</p>
             <p>Support for operational costs is initially provided by the <a target="_blank" href="http://www.nwo.nl/en">NWO</a> in the Netherlands. Long-term operations will be financed by donations from national funding agencies, universities, societies, foundations and individuals. If you are interested in financially supporting SciPost, <a href="mailto:jscaux@scipost.org">contact us</a>.</p>
+        </div>
     </div>
 </div>
 

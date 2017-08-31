@@ -1496,7 +1496,6 @@ class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
 
 class PlagiarismReportPDFView(SubmissionAdminViewMixin, SingleObjectMixin, RedirectView):
     permission_required = 'scipost.can_do_plagiarism_checks'
-    template_name = 'submissions/admin/eic_recommendation_detail.html'
     editorial_page = True
 
     def get_redirect_url(self, *args, **kwargs):

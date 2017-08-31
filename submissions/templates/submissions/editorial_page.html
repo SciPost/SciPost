@@ -17,21 +17,28 @@
 <h1 class="text-primary">{{submission.title}}</h1>
 <h3>by {{submission.author_list}}</h3>
 
-{% if not submission.is_current %}
-    <h4 class="text-danger"><b>This is not the editorial page for the current version.</b></h4>
-    <p>Please go to the current version's page.</p>
-{% endif %}
+<div class="ml-2 mt-2">
+    <h3>- Go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments</h3>
 
-<p class="card-text">(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</p>
+    {% if submission.other_versions or not submission.is_current %}
+        <ul class="mt-3 mb-1 list-unstyled pl-4">
+            {% if not submission.is_current %}
+                <li>
+                    <h4><span class="text-danger"><b>This is not the editorial page for the current version.</b> Please go to the current version's page.</span></h4>
+                </li>
+            {% endif %}
 
-{% if submission.other_versions %}
-    <h4>Other versions of this Submission exist:</h4>
-    <div>
-        {% for vn in submission.other_versions %}
-            {% include 'submissions/_submission_version.html' with submission=vn %}
-        {% endfor %}
-    </div>
-{% endif %}
+            {% if submission.other_versions %}
+                <li>Other versions of this Submission exist:</li>
+                <ul class="list-unstyled">
+                    {% for vn in submission.other_versions %}
+                        <li>{% include 'submissions/_submission_version.html' with submission=vn editorial_page=1 %}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </ul>
+    {% endif %}
+</div>
 
 
 <div class="row">
@@ -89,6 +96,9 @@
 <div class="row"><!-- Status -->
     <div class="col-md-12">
         {% include 'submissions/_submission_status_block.html' with submission=submission %}
+        {% if submission.plagiarism_report %}
+            <h4>Plagiarism report status: {% if submission.plagiarism_report.percent_match %}<b>{{submission.plagiarism_report.percent_match}}%</b>{% else %}<em>Scan in progress</em>{% endif %}</h4>
+        {% endif %}
     </div>
 </div><!-- End status -->
 
@@ -126,9 +136,9 @@
     {% if not submission.is_current %}
     <div class="row">
         <div class="col-12">
-            <div class="card card-outline-warning">
+            <div class="card mt-3 border-warning bg-light">
                 <div class="card-body">
-                    <h3 class="mb-3 font-weight-bold">BEWARE: This is not the editorial page for the current version!</h3>
+                    <h3 class="mb-3"><strong>BEWARE: This is not the editorial page for the current version!</strong></h3>
                     <p class="mb-0">
                         The tools here are thus available only for exceptional circumstances (e.g. vetting a late report on a deprecated version).
                         <br>Please go to the current version's page using the link at the top.
