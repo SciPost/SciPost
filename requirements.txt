@@ -43,7 +43,7 @@ Whoosh==2.7.4  # Directly related to Haystack.
 
 
 # Python Utils
-ithenticate-api-python==0.6.1
+ithenticate-api-python==0.6.2
 mailchimp3==2.0.15
 python-dateutil==2.6.0  # Doesn't Django have this functionality built-in?  -- JdW
 Pillow==3.4.2  # Latest version is v4.2.1; need to know about usage before upgrade. -- JdW
