@@ -23,7 +23,7 @@ class iThenticate:
             raise InvalidDocumentError("Uploading failed. iThenticate didn't return"
                                        " valid data [4]: %s" % self.client.messages[0])
 
-        for group in groups['data']:
+        for group in groups['data'][0].get('groups'):
             # Found the group
             if group.get('name', '') == group_re:
                 return group['id']
@@ -53,7 +53,7 @@ class iThenticate:
                                        " valid data [2]: %s" % self.client.messages[0])
 
         # Iterate folders as the api doesn't allow for a search
-        for folder in all_folders['data']:
+        for folder in all_folders['data'][0].get('folders'):
             # Found right folder!
             if folder.get('name', '') == folder_re and folder.get('group', {}).get('name'):
                 return folder['id']
@@ -88,7 +88,7 @@ class iThenticate:
 
         if response['status'] == 200:
             submission.add_general_event('The document has been submitted for a plagiarism check.')
-            return response
+            return response.get('data', [{}])[0].get('uploaded')
         return None
 
     def get_url(self, document_id):
@@ -98,7 +98,7 @@ class iThenticate:
         response = self.client.reports.get(document_id)
 
         if response['status'] == 200:
-            return response['data'][0]
+            return response['data'][0].get('view_only_url')
         return None
 
     def get_messages(self):
