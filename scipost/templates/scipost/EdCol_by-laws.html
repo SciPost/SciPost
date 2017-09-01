@@ -2,11 +2,18 @@
 
 {% block pagetitle %}: Editorial College By-laws{% endblock pagetitle %}
 
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
+            <span class="breadcrumb-item">Editorial College By-laws</span>
+        </div>
+    </nav>
+{% endblock %}
+
 {% block content %}
 
 {% load scipost_extras %}
-
-
 
 <div class="row">
     <div class="col-12">
@@ -16,7 +23,7 @@
   <p>These complement and are subsidiary to the legal statutes of Stichting SciPost (hereafter: the Foundation).</p>
   <ol>
     <hr>
-    <li>Composition of the Editorial College <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#Composition">view/hide</a>
+    <li>Composition of the Editorial College <a href="javascript:;" class="btn btn-default" data-toggle="toggle" data-target="#Composition">view/hide</a>
       <div id="Composition" class="py-2" style="display: none;">
 	<ol>
 	  <li>Eligibility
@@ -84,7 +91,7 @@
     </li>
 
     <hr>
-    <li>Meetings <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#Meetings">view/hide</a>
+    <li>Meetings <a href="javascript:;" class="btn btn-default" data-toggle="toggle" data-target="#Meetings">view/hide</a>
       <div id="Meetings" class="py-2" style="display: none;">
 	<p>The Editorial College, consisting of internationally-renowned scientists with a broad
 	  geographic distribution, does not physically meet. Meetings are instead organized
@@ -120,7 +127,7 @@
     </li>
 
     <hr>
-    <li>Submissions processing <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#SubmissionsProcessing">view/hide</a>
+    <li>Submissions processing <a href="javascript:;" class="btn btn-default" data-toggle="toggle" data-target="#SubmissionsProcessing">view/hide</a>
       <div id="SubmissionsProcessing" class="py-2" style="display: none;">
 	<p>The primary responsibility of the Editorial College is to run the editorial process
 	  for all SciPost Journals. The College shall strive for the very highest standards of
@@ -328,7 +335,7 @@
     </li>
 
     <hr>
-    <li>Amendments <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#Amendments">view/hide</a>
+    <li>Amendments <a href="javascript:;" class="btn btn-default" data-toggle="toggle" data-target="#Amendments">view/hide</a>
       <div id="Amendments" class="py-2" style="display: none;">
 	<p>The present By-laws can be amended by:
 	  <ul>

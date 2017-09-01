@@ -2,7 +2,14 @@
 
 {% block pagetitle %}: submission and refereeing procedure{% endblock pagetitle %}
 
-{% load staticfiles %}
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
+            <span class="breadcrumb-item">Submission and refereeing procedure</span>
+        </div>
+    </nav>
+{% endblock %}
 
 {% block content %}
 

@@ -1,5 +1,9 @@
 <div class="py-1">
-    <a href="{% url 'submissions:submission' submission.arxiv_identifier_w_vn_nr %}" class="pubtitleli">version {{submission.arxiv_vn_nr}}</a>
+    {% if editorial_page %}
+        <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}" class="pubtitleli">version {{submission.arxiv_vn_nr}}</a>
+    {% else %}
+        <a href="{{submission.get_absolute_url}}" class="pubtitleli">version {{submission.arxiv_vn_nr}}</a>
+    {% endif %}
     <span class="version-suffix">
         {% if submission.is_current %}
             (current version)

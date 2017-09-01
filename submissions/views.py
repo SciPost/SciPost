@@ -11,7 +11,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic.detail import DetailView
+from django.views.generic.base import RedirectView
+from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
@@ -1491,3 +1492,18 @@ class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
     def get_object(self):
         submission = super().get_object()
         return submission.plagiarism_report
+
+
+class PlagiarismReportPDFView(SubmissionAdminViewMixin, SingleObjectMixin, RedirectView):
+    permission_required = 'scipost.can_do_plagiarism_checks'
+    editorial_page = True
+
+    def get_redirect_url(self, *args, **kwargs):
+        submission = self.get_object()
+        if not submission.plagiarism_report:
+            raise Http404
+        url = submission.plagiarism_report.get_report_url()
+
+        if not url:
+            raise Http404
+        return url

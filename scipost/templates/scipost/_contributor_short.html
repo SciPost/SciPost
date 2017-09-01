@@ -2,7 +2,7 @@
 
 {% load static %}
 
-<h3 class="mb-0 pb-0 d-block">
+<p class="mb-0 pb-0">
     {% if fellowship.contributor.personalwebpage %}
         <a target="_blank" href="{{fellowship.contributor.personalwebpage}}">
     {% endif %}
@@ -10,12 +10,12 @@
     {% if fellowship.contributor.personalwebpage %}
         </a>
     {% endif %}
-</h3>
+</p>
 
 {% if fellowship.affiliation %}
     <span class="text-muted">({{fellowship.affiliation}})</span>
 {% endif %}
-<div class="d-block">
+<div>
     {% for expertise in fellowship.contributor.expertises %}
         <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
     {% endfor %}

@@ -12,12 +12,13 @@
 <div class="row">
     <div class="col-md-6">
         <h2 class="highlight">About SciPost</h2>
-        <a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a>
+
 
         <p>SciPost is a complete scientific publication portal.</p>
         <p>It is purely online-based, and offers freely, openly, globally and perpetually accessible science.</p>
         <p>Being managed by professional scientists, and making use of editor-solicited and contributed reviews, its Journals aim at the highest achievable standards of refereeing.</p>
         <p>SciPost Commentaries allow Contributors to seamlessly comment on all existing literature.</p>
+        <h4><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h4>
     </div>
     <div class="col-md-6">
         <h2 class="highlight">Acknowledgements</h2>
@@ -121,62 +122,53 @@
 <hr>
 
 {% for college, codes in object_list %}
+    <h2 class="highlight" id="editorial_college_{{ college|lower }}">Editorial College ({{ college }})</h2>
 
+    {% if codes %}
     <div class="row">
         <div class="col-12">
-              <h2 class="highlight" id="editorial_college_{{ college|lower }}">Editorial College ({{ college }})</h2>
-        </div>
-    </div>
+            <a href="#editorial_college_{{ college|lower }}" class="mx-2" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show Fellows by specialization</a>
+            <a href="#editorial_college_{{ college|lower }}" class="mx-2" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show full list of Fellows</a>
+            <div id="specializations-{{college|lower}}" class="card border-default all-specializations mt-2" style="display: none">
+                <div class="card-body">
+                    <p class="text-muted mt-2">Hover to highlight or click to select</p>
 
-
-{% if codes %}
-<div class="row">
-    <div class="col-12">
-        <a href="#editorial_college_{{ college|lower }}" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show Fellows by specialization</a>
-        <a href="#editorial_college_{{ college|lower }}" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show full list of Fellows</a>
-        <div id="specializations-{{college|lower}}" class="all-specializations mt-2" style="border: 1px solid; display: none;">
-            <div class="row">
-                <div class="col-12">
-                    <p class="text-muted">Hover to highlight or click to select</p>
-                </div>
-                <div class="col-md-6">
-                    {% with total_count=codes|length %}
-                        {% for code in codes %}
-                            <div class="specialization" data-specialization="{{code.0|lower}}">{{code.0}} - {{code.1}}</div>
-                            {% if forloop.counter|is_modulo_one_half:total_count %}
-                                </div>
-                                <div class="col-md-6">
-                            {% endif %}
-                        {% endfor %}
-                    {% endwith %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% with total_count=codes|length %}
+                                {% for code in codes %}
+                                    <div class="specialization" data-specialization="{{code.0|lower}}">{{code.0}} - {{code.1}}</div>
+                                    {% if forloop.counter|is_modulo_one_half:total_count %}
+                                        </div>
+                                        <div class="col-md-6">
+                                    {% endif %}
+                                {% endfor %}
+                            {% endwith %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-{% endif %}
+    {% endif %}
 
-<div class="row search-contributors" data-contributors="{{ college|lower }}">
-    <div class="col-12">
-        <div class="card-columns">
-            {% for fellowship in college.current_fellows %}
-                <div class="card contributor">
-                    {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
-                </div>
-            {% endfor %}
+    <div class="row search-contributors" data-contributors="{{ college|lower }}">
+        <div class="col-12">
+            <div class="card-columns">
+                {% for fellowship in college.current_fellows %}
+                    <div class="card contributor mb-1">
+                        {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
-</div>
 
 {% endfor %}
 
 <br/>
-<div class="row">
-    <div class="col-12">
-        <h2 style="color: red">We are currently building our Editorial College</h2>
-        <h3 style="color: red">We welcome your nominations for Editorial Fellows in all fields of Physics</h3>
-    </div>
-</div>
+<h2 class="text-danger">We are currently building our Editorial College</h2>
+<h3 class="text-danger">We welcome your nominations for Editorial Fellows in all fields of Physics</h3>
 
 {% endblock content %}
 

@@ -2,7 +2,14 @@
 
 {% block pagetitle %}: terms and conditions{% endblock pagetitle %}
 
-{% load staticfiles %}
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
+            <span class="breadcrumb-item">Terms and Conditions</span>
+        </div>
+    </nav>
+{% endblock %}
 
 {% block content %}
 

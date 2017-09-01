@@ -107,19 +107,25 @@ hr.hr12 {
     margin-bottom: 0;
 }
 
+.circle,
 .circle-clickable {
     display: inline-block;
-    cursor: pointer;
     background: #fff;
-    border: 2px solid #bbb;
+    border: 2px solid #333;
+    color: #333;
     border-radius: 100%;
-    color: #bbb;
     width: 17px;
     height: 17px;
     line-height: 16px;
     text-align: center;
     font-size: 9px;
     transition: 0.1s;
+}
+
+.circle-clickable {
+    cursor: pointer;
+    color: #bbb;
+    border-color: #bbb;
 
     &:hover {
         border-color: #333;

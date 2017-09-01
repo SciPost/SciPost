@@ -9,4 +9,8 @@
 {% url 'comments:new_comment' object_id=object_id type_of_object=type_of_object as url %}
 {% include 'comments/_add_comment_form.html' with form=form url=url %}
 
+{% elif not user.is_authenticated %}
+
+    <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{request.path}}">Login to comment</a></h3>
+
 {% endif %}

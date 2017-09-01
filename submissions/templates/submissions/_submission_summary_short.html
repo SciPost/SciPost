@@ -1,12 +1,14 @@
 <table class="submission summary">
-    <tr>
-        <td>Title:</td>
-        <td>{{submission.title}}</td>
-    </tr>
-    <tr>
-        <td>Author(s):</td>
-        <td>{{submission.author_list}}</td>
-    </tr>
+    {% if not hide_title %}
+        <tr>
+            <td>Title:</td>
+            <td>{{submission.title}}</td>
+        </tr>
+        <tr>
+            <td>Author(s):</td>
+            <td>{{submission.author_list}}</td>
+        </tr>
+    {% endif %}
     <tr>
         <td>As Contributors:</td>
         <td>

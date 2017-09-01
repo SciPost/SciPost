@@ -22,7 +22,7 @@
             </tr>
             <tr>
                 <td>Percent match</td>
-                <td>{{submission.plagiarism_report.percent_match}}</td>
+                <td>{{submission.plagiarism_report.percent_match}}%</td>
             </tr>
             <tr>
                 <td>Processed</td>
@@ -45,6 +45,9 @@
         {% csrf_token %}
         {{form|bootstrap}}
         <input type="submit" class="btn btn-primary" value="{% if submission.plagiarism_report %}Update report status{% else %}Submit submission for plagiarism check{% endif %}">
+        {% if submission.plagiarism_report %}
+            <a href="{% url 'submissions:plagiarism_report' submission.arxiv_identifier_w_vn_nr %}" class="ml-2 btn btn-default">Download report pdf</a>
+        {% endif %}
     </form>
 
 {% endblock content %}

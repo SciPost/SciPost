@@ -2,7 +2,16 @@
 
 {% block pagetitle %}: author guidelines{% endblock pagetitle %}
 
-{% block headsup %} {% load staticfiles %} {% endblock headsup %}
+{% load staticfiles %}
+
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
+            <span class="breadcrumb-item">Author guidelines</span>
+        </div>
+    </nav>
+{% endblock %}
 
 {% block content %}
 
