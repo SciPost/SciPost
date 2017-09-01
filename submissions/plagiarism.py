@@ -96,7 +96,7 @@ class iThenticate:
         Return report url for given document
         """
         response = self.client.reports.get(document_id)
-        raise Exception(response)
+
         if response['status'] == 200:
             return response['data'][0]
         return None
