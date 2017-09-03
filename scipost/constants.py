@@ -19,7 +19,7 @@ SCIPOST_SUBJECT_AREAS = (
         ('Phys:FD', 'Fluid Dynamics'),
         ('Phys:GR', 'Gravitation, Cosmology and Astroparticle Physics'),
         ('Phys:HE', 'High-Energy Physics - Experiment'),
-        ('Phys:HT', 'High-Energy Physics- Theory'),
+        ('Phys:HT', 'High-Energy Physics - Theory'),
         ('Phys:HP', 'High-Energy Physics - Phenomenology'),
         ('Phys:MP', 'Mathematical Physics'),
         ('Phys:NE', 'Nuclear Physics - Experiment'),
