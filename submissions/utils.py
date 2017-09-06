@@ -579,7 +579,7 @@ class SubmissionUtils(BaseMailUtil):
         """ Requires loading 'submission' attribute. """
         email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' '
                       + cls.submission.submitted_by.user.last_name
-                      + ', \n\nYou recent Submission to SciPost,\n\n'
+                      + ', \n\nYour recent Submission to SciPost,\n\n'
                       + cls.submission.title + ' by ' + cls.submission.author_list
                       + '\n\nhas unfortunately not passed the pre-screening stage. '
                       'We therefore regret to inform you that we will not '
