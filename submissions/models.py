@@ -520,6 +520,7 @@ class iThenticateReport(TimeStampedModel):
     uploaded_time = models.DateTimeField(null=True, blank=True)
     processed_time = models.DateTimeField(null=True, blank=True)
     doc_id = models.IntegerField(primary_key=True)
+    part_id = models.IntegerField(null=True, blank=True)
     percent_match = models.IntegerField(null=True, blank=True)
 
     class Meta:
@@ -534,9 +535,17 @@ class iThenticateReport(TimeStampedModel):
         return None
 
     def get_report_url(self):
+        """
+        Request new read-only url from iThenticate and return.
+
+        Note: The read-only link is valid for only 15 minutes, saving may be worthless
+        """
+        if not self.part_id:
+            return ''
+
         from .plagiarism import iThenticate
         plagiarism = iThenticate()
-        return plagiarism.get_url(self.doc_id)
+        return plagiarism.get_url(self.part_id)
 
     def __str__(self):
         _str = 'Report {doc_id}'.format(doc_id=self.doc_id)

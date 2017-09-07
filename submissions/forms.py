@@ -663,6 +663,10 @@ class iThenticateReportForm(forms.ModelForm):
         # Login client to append login-check to form
         self.client = self.get_client()
 
+        if not self.client:
+            self.add_error(None, "Failed to login to iThenticate.")
+            return None
+
         # Document (id) is found
         if cleaned_data.get('document'):
             self.document = cleaned_data['document']
@@ -677,7 +681,7 @@ class iThenticateReportForm(forms.ModelForm):
         return None
 
     def save(self, *args, **kwargs):
-        data = self.response['data'][0]
+        data = self.response
 
         report, created = iThenticateReport.objects.get_or_create(doc_id=data['id'])
 
@@ -686,7 +690,8 @@ class iThenticateReportForm(forms.ModelForm):
                 iThenticateReport.objects.filter(doc_id=data['id']).update(
                     uploaded_time=data['uploaded_time'],
                     processed_time=data['processed_time'],
-                    percent_match=data['percent_match']
+                    percent_match=data['percent_match'],
+                    part_id=data.get('parts', [{}])[0].get('id')
                 )
             except KeyError:
                 pass
@@ -716,20 +721,22 @@ class iThenticateReportForm(forms.ModelForm):
         client = self.client
         response = client.documents.get(self.document_id)
         if response['status'] == 200:
-            return response
+            return response.get('data')[0].get('documents')
         self.add_error(None, "Updating failed. iThenticate didn't return valid data [1]")
-        self.add_error(None, client.messages[0])
+
+        for msg in client.messages:
+            self.add_error(None, msg)
         return None
 
     def upload_document(self):
         from .plagiarism import iThenticate
         plagiarism = iThenticate()
-        response = plagiarism.upload_submission(self.document, self.submission)
+        data = plagiarism.upload_submission(self.document, self.submission)
 
         # Give feedback to the user
-        if not response:
+        if not data:
             self.add_error(None, "Updating failed. iThenticate didn't return valid data [3]")
             for msg in plagiarism.get_messages():
                 self.add_error(None, msg)
             return None
-        return response
+        return data

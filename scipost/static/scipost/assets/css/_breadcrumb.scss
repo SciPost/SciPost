@@ -3,6 +3,13 @@
     margin-bottom: 1.5rem;
     border-top: 1px solid #fff;
     border-bottom: 1px solid #ddd;
+    white-space: nowrap;
+    overflow: auto;
+
+    .container {
+        width: 100%;
+        display: flex;
+    }
 
     .breadcrumb-item {
         margin-bottom: 0;

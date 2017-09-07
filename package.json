@@ -10,7 +10,7 @@
     "webpack": "./node_modules/.bin/webpack",
     "webpack-live": "./node_modules/.bin/webpack --watch"
   },
-  "license": "-",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://scipostdev@bitbucket.org/scipostdev/scipost_v1.git"
