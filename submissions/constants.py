@@ -117,6 +117,7 @@ ASSIGNMENT_REFUSAL_REASONS = (
     ('COI', 'Conflict of interest: coauthor in last 5 years'),
     ('CCC', 'Conflict of interest: close colleague'),
     ('NIR', 'Cannot give an impartial assessment'),
+    ('OFE', 'Outside of my field of expertise'),
     ('NIE', 'Not interested enough'),
     ('DNP', 'SciPost should not even consider this paper'),
 )
