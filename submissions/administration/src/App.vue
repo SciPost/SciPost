@@ -1,29 +1,18 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <router-view></router-view>
-    <hello></hello>
+    <submission-list></submission-list>
+    <user-input></user-input>
   </div>
 </template>
 
 <script>
-import Hello from './components/Hello';
+import SubmissionList from './components/SubmissionList.vue'
+import UserInput from './components/UserInput.vue'
 
 export default {
-  name: 'app',
   components: {
-    Hello,
-  },
-};
-</script>
-
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+    SubmissionList,
+    UserInput
+  }
 }
-</style>
+</script>

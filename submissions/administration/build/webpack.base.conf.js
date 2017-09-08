@@ -1,11 +1,7 @@
 var path = require('path')
-var utils = require('./utils')
 var config = require('../config')
-var vueLoaderConfig = require('./vue-loader.conf')
-
-function resolve (dir) {
-  return path.join(__dirname, '..', dir)
-}
+var cssLoaders = require('./css-loaders')
+var projectRoot = path.resolve(__dirname, '../')
 
 module.exports = {
   entry: {
@@ -13,63 +9,69 @@ module.exports = {
   },
   output: {
     path: config.build.assetsRoot,
-    filename: '[name].js',
-    publicPath: process.env.NODE_ENV === 'production'
-      ? config.build.assetsPublicPath
-      : config.dev.assetsPublicPath
+    publicPath: config.build.assetsPublicPath,
+    filename: '[name].js'
   },
   resolve: {
-    extensions: ['.js', '.vue', '.json'],
+    extensions: ['', '.js', '.vue'],
+    fallback: [path.join(__dirname, '../node_modules')],
     alias: {
-      'vue$': 'vue/dist/vue.esm.js',
-      '@': resolve('src'),
+      'src': path.resolve(__dirname, '../src'),
+      'assets': path.resolve(__dirname, '../src/assets'),
+      'components': path.resolve(__dirname, '../src/components')
     }
   },
+  resolveLoader: {
+    fallback: [path.join(__dirname, '../node_modules')]
+  },
   module: {
-    rules: [
-      {
-        test: /\.(js|vue)$/,
-        loader: 'eslint-loader',
-        enforce: 'pre',
-        include: [resolve('src'), resolve('test')],
-        options: {
-          formatter: require('eslint-friendly-formatter')
-        }
-      },
+    preLoaders: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader',
-        options: vueLoaderConfig
+        loader: 'eslint',
+        include: projectRoot,
+        exclude: /node_modules/
       },
       {
         test: /\.js$/,
-        loader: 'babel-loader',
-        include: [resolve('src'), resolve('test')]
+        loader: 'eslint',
+        include: projectRoot,
+        exclude: /node_modules/
+      }
+    ],
+    loaders: [
+      {
+        test: /\.vue$/,
+        loader: 'vue'
       },
       {
-        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: utils.assetsPath('img/[name].[hash:7].[ext]')
-        }
+        test: /\.js$/,
+        loader: 'babel',
+        include: projectRoot,
+        exclude: /node_modules/
       },
       {
-        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: utils.assetsPath('media/[name].[hash:7].[ext]')
-        }
+        test: /\.json$/,
+        loader: 'json'
       },
       {
-        test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        loader: 'url-loader',
-        options: {
+        test: /\.html$/,
+        loader: 'vue-html'
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg|woff2?|eot|ttf|otf)(\?.*)?$/,
+        loader: 'url',
+        query: {
           limit: 10000,
-          name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
+          name: path.join(config.build.assetsSubDirectory, '[name].[hash:7].[ext]')
         }
       }
     ]
+  },
+  vue: {
+    loaders: cssLoaders()
+  },
+  eslint: {
+    formatter: require('eslint-friendly-formatter')
   }
 }

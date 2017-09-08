@@ -1,11 +1,17 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.views.generic import TemplateView
 
-from . import views
+from rest_framework import routers
+
+from . import views, viewsets
+
+router = routers.DefaultRouter()
+router.register(r'admin', viewsets.SubmissionAdminViewSet, base_name='submission')
 
 urlpatterns = [
     # Submissions
     url(r'^$', views.SubmissionListView.as_view(), name='submissions'),
+    url(r'^api/', include(router.urls)),
     url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]{1,3})/$',
         views.SubmissionListView.as_view(), name='browse'),
     url(r'^sub_and_ref_procedure$',
