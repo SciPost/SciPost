@@ -8,4 +8,6 @@ urlpatterns = [
     url(r'^sync$', views.syncronize_lists, name='sync_lists'),
     url(r'^sync/(?P<list_id>[0-9a-zA-Z]+)/members$', views.syncronize_members, name='sync_members'),
     url(r'^(?P<list_id>[0-9a-zA-Z]+)/$', views.ListDetailView.as_view(), name='list_detail'),
+    url(r'^non_registered/export$', views.export_non_registered_invitations,
+        name='export_non_registered_invitations'),
 ]

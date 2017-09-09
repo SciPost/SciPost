@@ -38,6 +38,9 @@ class RegistrationInvitationManager(models.Manager):
         return self.filter(invitation_type=INVITATION_EDITORIAL_FELLOW,
                            responded=False, declined=True)
 
+    def declined(self):
+        return self.filter(responded=True, declined=True)
+
 
 class UnavailabilityPeriodManager(models.Manager):
     def today(self):
