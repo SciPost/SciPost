@@ -1,10 +1,15 @@
+import csv
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.http import HttpResponse
 from django.views.generic import UpdateView
 from django.views.generic.list import ListView
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
+
+from scipost.models import RegistrationInvitation
 
 from .forms import MailchimpUpdateForm
 from .models import MailchimpList
@@ -37,6 +42,26 @@ def syncronize_lists(request):
     updated = form.sync()
     messages.success(request, '%i mailing lists have succesfully been updated.' % updated)
     return redirect(reverse('mailing_lists:overview'))
+
+
+@login_required
+@permission_required('scipost.can_read_all_privacy_sensitive_data', raise_exception=True)
+def export_non_registered_invitations(request):
+    """
+    Syncronize the Mailchimp lists in the database with the lists known in
+    the mailchimp account which is related to the API_KEY.
+    """
+    invitations = RegistrationInvitation.objects.declined()
+
+    response = HttpResponse(content_type='text/csv')
+    filename = "export_{timestamp}_non_registered_invitations.csv".format(timestamp='')
+    response['Content-Disposition'] = 'attachment; filename={filename}'.format(filename=filename)
+
+    writer = csv.writer(response)
+    writer.writerow(['Email address', 'First Name', 'Last Name'])
+    for invitation in invitations:
+        writer.writerow([invitation.email, invitation.first_name, invitation.last_name])
+    return response
 
 
 @login_required

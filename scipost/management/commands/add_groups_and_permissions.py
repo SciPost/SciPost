@@ -93,6 +93,10 @@ class Command(BaseCommand):
             codename='can_resend_registration_requests',
             name='Can resend registration activation emails',
             content_type=content_type)
+        can_read_all_privacy_sensitive_data, created = Permission.objects.get_or_create(
+            codename='can_read_all_privacy_sensitive_data',
+            name='Can read all privacy sensitive data',
+            content_type=content_type)
 
         # Communications
         can_email_group_members, created = Permission.objects.get_or_create(
@@ -230,6 +234,7 @@ class Command(BaseCommand):
 
         # Assign permissions to groups
         SciPostAdmin.permissions.set([
+            can_read_all_privacy_sensitive_data,
             can_manage_registration_invitations,
             change_draft_invitation,
             can_email_group_members,
