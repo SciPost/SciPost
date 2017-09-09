@@ -105,10 +105,6 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Editorial College
-        view_bylaws, created = Permission.objects.get_or_create(
-            codename='view_bylaws',
-            name='Can view By-laws of Editorial College',
-            content_type=content_type)
         can_attend_VGMs, created = Permission.objects.get_or_create(
             codename='can_attend_VGMs',
             name='Can attend Virtual General Meetings',
@@ -158,10 +154,6 @@ class Command(BaseCommand):
         can_submit_manuscript, created = Permission.objects.get_or_create(
             codename='can_submit_manuscript',
             name='Can submit manuscript',
-            content_type=content_type)
-        can_read_all_eic_events, created = Permission.objects.get_or_create(
-            codename='can_read_all_eic_events',
-            name='Can read all Editor-in-charge events',
             content_type=content_type)
         can_do_plagiarism_checks, created = Permission.objects.get_or_create(
             codename='can_do_plagiarism_checks',
@@ -281,13 +273,11 @@ class Command(BaseCommand):
             can_publish_accepted_submission,
             can_attend_VGMs,
             can_manage_reports,
-            can_read_all_eic_events,
         ])
 
         EditorialCollege.permissions.set([
             can_view_pool,
             can_take_charge_of_submissions,
-            view_bylaws,
             can_attend_VGMs,
         ])
 
