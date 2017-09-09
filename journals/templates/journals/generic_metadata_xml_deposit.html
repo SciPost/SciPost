@@ -1,4 +1,10 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'journals:manage_report_metadata' %}" class="breadcrumb-item">Manage metadata</a>
+    <span class="breadcrumb-item">Generic metadata XML deposit</span>
+{% endblock %}
 
 {% block pagetitle %}: Generic metadata XML deposit{% endblock pagetitle %}
 
