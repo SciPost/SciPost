@@ -1,0 +1,88 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Manage Comment metadata{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% load journals_extras %}
+
+<script>
+$(function() {
+$( "#accordion" ).accordion({
+event: "focusin"
+});
+});
+</script>
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Manage Comment metadata</span>
+{% endblock %}
+
+{% block content %}
+
+
+<table class="table table-hover mb-5">
+  <thead class="thead-default">
+    <tr>
+      <th>Comment</th>
+      <th>Needs doi</th>
+      <th>Latest successful Crossref deposit</th>
+    </tr>
+  </thead>
+
+  <tbody id="accordion" role="tablist" aria-multiselectable="true">
+    {% for comment in comments %}
+    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ comment.id }}" aria-expanded="true" aria-controls="collapse{{ comment.id }}" style="cursor: pointer;">
+      <td>{{ comment }}</td>
+      <td>{{ comment.needs_doi }}</td>
+      <td>{{ comment|latest_successful_crossref_deposit_comment }}</td>
+    </tr>
+    <tr id="collapse{{ comment.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ comment.id }}" style="background-color: #fff;">
+      <td colspan="5">
+	<p><a href="{{ comment.get_absolute_url }}">{{ comment }}</a></p>
+
+	<h2 class="ml-3">Actions</h2>
+        <ul>
+	  <li>Mark DOI as <a href="{% url 'journals:mark_comment_doi_needed' comment_id=comment.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_comment_doi_needed' comment_id=comment.id needed=0 %}">not needed</a></li>
+          <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='comment' object_id=comment.id %}">Create the metadata and deposit it to Crossref</a></li>
+	</ul>
+
+	<h2 class="ml-3">Crossref Deposits</h2>
+	<table class="ml-5">
+	  <thead class="thead-default">
+	    <th>Timestamp</th>
+	    <th>batch id</th>
+	    <th>deposition date</th>
+	    <th>Successful?</th>
+	    <th>actions</th>
+	  </thead>
+	  <tbody>
+	    {% for deposit in comment.genericdoideposit.all %}
+	    <tr>
+	      <td>{{ deposit.timestamp }}</td>
+	      <td>{{ deposit.doi_batch_id }}</td>
+	      <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
+	      <td>{{ deposit.deposit_successful }}</td>
+	      <td>Mark deposit as
+		<ul>
+		  <li><a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
+		  <li><a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
+		</ul>
+	      </td>
+	    </tr>
+	    {% empty %}
+	    <tr>
+	      <td colspan="5">No Deposits found for this Comment</td>
+	    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock content %}

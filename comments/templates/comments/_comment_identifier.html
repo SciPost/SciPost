@@ -6,7 +6,9 @@
 
         <a href="{{comment.author.get_absolute_url}}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a>
         on {{comment.date_submitted|date:'Y-m-d'}}
+	{% if comment.doi_string %}&nbsp; <small>doi:  {{ comment.doi_string }}</small>{% endif %}
     </h3>
+
 
     {% if comment|is_reply_to_comment %}
         (in reply to <a href="{{comment.get_absolute_url}}">{{comment.content_object.author.user.first_name}} {{comment.content_object.author.user.last_name}}</a> on {{comment.content_object.date_submitted|date:'Y-m-d'}})

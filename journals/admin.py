@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django import forms
 
 from journals.models import UnregisteredAuthor, Journal, Volume, Issue, Publication, \
-    Deposit, DOAJDeposit
+    Deposit, DOAJDeposit, GenericDOIDeposit
 
 from scipost.models import Contributor
 from submissions.models import Submission
@@ -84,3 +84,6 @@ admin.site.register(Deposit, DepositAdmin)
 
 
 admin.site.register(DOAJDeposit)
+
+
+admin.site.register(GenericDOIDeposit)

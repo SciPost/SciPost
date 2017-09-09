@@ -384,6 +384,9 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
+    needs_doi = models.NullBooleanField(default=None)
+    genericdoideposit = GenericRelation('journals.GenericDOIDeposit',
+                                        related_query_name='genericdoideposit')
     doi_label = models.CharField(max_length=200, blank=True)
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
     pdf_report = models.FileField(upload_to='UPLOADS/REPORTS/%Y/%m/', max_length=200, blank=True)
@@ -408,6 +411,10 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             self.report_nr = self.submission.reports.count() + 1
         return super().save(*args, **kwargs)
 
+    def create_doi_label(self):
+        self.doi_label = 'SciPost.Report.' + str(self.id)
+        self.save()
+
     def get_absolute_url(self):
         return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
 
@@ -415,6 +422,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def doi_string(self):
         if self.doi_label:
             return '10.21468/' + self.doi_label
+        else:
+            return None
 
     @cached_property
     def title(self):

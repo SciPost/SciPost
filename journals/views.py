@@ -6,6 +6,7 @@ import requests
 import string
 import xml.etree.ElementTree as ET
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.conf import settings
@@ -18,13 +19,15 @@ from django.http import HttpResponse
 
 from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string, issue_doi_label_from_doi_label
-from .models import Journal, Issue, Publication, UnregisteredAuthor, Deposit, DOAJDeposit
+from .models import Journal, Issue, Publication, UnregisteredAuthor, Deposit, DOAJDeposit,\
+                    GenericDOIDeposit
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
 from .utils import JournalUtils
 
+from comments.models import Comment
 from funders.models import Funder
-from submissions.models import Submission
+from submissions.models import Submission, Report
 from scipost.models import Contributor
 
 from funders.forms import FunderSelectForm, GrantSelectForm
@@ -933,6 +936,144 @@ def harvest_citedby_links(request, doi_label):
         'citations': citations,
     }
     return render(request, 'journals/harvest_citedby_links.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def manage_report_metadata(request):
+    """
+    This page offers Editorial Administrators tools for managing
+    the metadata of Reports.
+    """
+    reports = Report.objects.all()
+    context = {
+        'reports': reports,
+    }
+    return render(request, 'journals/manage_report_metadata.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def manage_comment_metadata(request):
+    """
+    This page offers Editorial Administrators tools for managing
+    the metadata of Comments.
+    """
+    comments = Comment.objects.all()
+    context = {
+        'comments': comments,
+    }
+    return render(request, 'journals/manage_comment_metadata.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def mark_report_doi_needed(request, report_id, needed):
+    report = get_object_or_404(Report, pk=report_id)
+    if needed == '1':
+        report.needs_doi = True
+    elif needed == '0':
+        report.needs_doi = False
+    report.save()
+    return redirect(reverse('journals:manage_report_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def mark_comment_doi_needed(request, comment_id, needed):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if needed == '1':
+        comment.needs_doi = True
+    elif needed == '0':
+        comment.needs_doi = False
+    comment.save()
+    return redirect(reverse('journals:manage_comment_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@transaction.atomic
+def generic_metadata_xml_deposit(request, **kwargs):
+    """
+    This method creates the metadata for non-Publication objects
+    such as Reports and Comments, and deposits the metadata to
+    Crossref.
+    """
+    type_of_object = kwargs['type_of_object']
+    object_id = int(kwargs['object_id'])
+    if type_of_object == 'report':
+        _object = get_object_or_404(Report, id=object_id)
+    elif type_of_object == 'comment':
+        _object = get_object_or_404(Comment, id=object_id)
+
+    if not _object.doi_label:
+        _object.create_doi_label()
+
+    # create a doi_batch_id
+    salt = ""
+    for i in range(5):
+        salt = salt + random.choice(string.ascii_letters)
+    salt = salt.encode('utf8')
+    idsalt = str(_object)[:10]
+    idsalt = idsalt.encode('utf8')
+    timestamp=timezone.now().strftime('%Y%m%d%H%M%S')
+    doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
+    metadata_xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<doi_batch version="4.4.0" xmlns="http://www.crossref.org/schema/4.4.0" '
+        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'xmlns:fr="http://www.crossref.org/fundref.xsd" '
+        'xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 '
+        'http://www.crossref.org/shema/deposit/crossref4.4.0.xsd" '
+        'xmlns:ai="http://www.crossref.org/AccessIndicators.xsd">\n'
+        '<head>\n'
+        '<doi_batch_id>' + str(doi_batch_id) + '</doi_batch_id>\n'
+        '<timestamp>' + timestamp + '</timestamp>\n'
+        '<depositor>\n'
+        '<depositor_name>scipost</depositor_name>\n'
+        '<email_address>admin@scipost.org</email_address>\n'
+        '</depositor>\n'
+        '<registrant>scipost</registrant>\n'
+        '</head>\n'
+        '<body>\n'
+        '<database><dataset>\n'
+        '<dataset_type>component<\dataset_type>\n'
+        '<doi_data><doi>' + _object.doi_string + '</doi>\n'
+        '<resource>' + _object.get_absolute_url() + '</resource>\n'
+        '</dataset></database>\n'
+        '</body></doi_batch>'
+        )
+    url = 'http://doi.crossref.org/servlet/deposit'
+    params = {
+        'operation': 'doMDUpload',
+        'login_id': settings.CROSSREF_LOGIN_ID,
+        'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
+        }
+    files = {'fname': ('metadata.xml', metadata_xml, 'multipart/form-data')}
+    r = requests.post(url, params=params, files=files)
+    deposit = GenericDOIDeposit(content_type=ContentType.objects.get_for_model(_object),
+                                object_id=object_id,
+                                content_object=_object,
+                                timestamp=timestamp,
+                                doi_batch_id=doi_batch_id,
+                                metadata_xml=metadata_xml,
+                                deposition_date=timezone.now(),
+                                response=r.text)
+    deposit.save()
+    context = {
+        'response_headers': r.headers,
+        'response_text': r.text,
+    }
+    return render(request, 'journals/generic_metadata_xml_deposit.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def mark_generic_deposit_success(request, deposit_id, success):
+    deposit = get_object_or_404(GenericDOIDeposit, pk=deposit_id)
+    if success == '1':
+        deposit.deposit_successful = True
+    elif success == '0':
+        deposit.deposit_successful = False
+    deposit.save()
+    if deposit.content_type.name == 'report':
+        return redirect(reverse('journals:manage_report_metadata'))
+    else:
+        return redirect(reverse('journals:manage_comment_metadata'))
 
 
 ###########

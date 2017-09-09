@@ -38,6 +38,8 @@ class Comment(TimeStampedModel):
     content_object = GenericForeignKey()
 
     nested_comments = GenericRelation('comments.Comment', related_query_name='comments')
+    genericdoideposit = GenericRelation('journals.GenericDOIDeposit',
+                                        related_query_name='genericdoideposit')
 
     # -- U/S
     # These fields will be removed in the future.
@@ -87,6 +89,8 @@ class Comment(TimeStampedModel):
     in_disagreement = models.ManyToManyField('scipost.Contributor', related_name='in_disagreement',
                                              blank=True)
 
+    needs_doi = models.NullBooleanField(default=None)
+    doi_label = models.CharField(max_length=200, blank=True)
     objects = CommentQuerySet.as_manager()
 
     class Meta:
@@ -128,6 +132,17 @@ class Comment(TimeStampedModel):
                 to_object = to_object.content_object
             else:
                 raise Exception
+
+    def create_doi_label(self):
+        self.doi_label = 'SciPost.Comment.' + str(self.id)
+        self.save()
+
+    @property
+    def doi_string(self):
+        if self.doi_label:
+            return '10.21468/' + self.doi_label
+        else:
+            return None
 
     def get_absolute_url(self):
         return self.content_object.get_absolute_url().split('#')[0] + '#comment_id' + str(self.id)
