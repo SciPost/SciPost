@@ -431,7 +431,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         author of the report already has a vetted report in the series of the specific Submission.
         """
         return (self.author.reports.accepted()
-                .filter(submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+                .filter(submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr,
+                        submission__arxiv_vn_nr__lt=self.submission.arxiv_vn_nr)
                 .exists())
 
     def latest_report_from_series(self):

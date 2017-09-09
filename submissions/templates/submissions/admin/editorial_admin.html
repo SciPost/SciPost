@@ -28,11 +28,17 @@
                     {% if sub == submission %}
                         <strong>
                             <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                            <div class="pl-md-4">
+                                <em>by {{sub.author_list}}</em><br>
+                                latest activity: {{sub.latest_activity|timesince}} ago
+                            </div>
                         </strong>
                     {% else %}
                         <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                        <div class="pl-md-4">
+                            <em>by {{sub.author_list}}</em><br>
+                            latest activity: {{sub.latest_activity|timesince}} ago
+                        </div>
                     {% endif %}
                 </li>
             {% empty %}
@@ -48,11 +54,17 @@
                     {% if sub == submission %}
                         <strong>
                             <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                            <div class="pl-md-4">
+                                <em>by {{sub.author_list}}</em><br>
+                                latest activity: {{sub.latest_activity|timesince}} ago
+                            </div>
                         </strong>
                     {% else %}
                         <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                        <div class="pl-md-4">
+                            <em>by {{sub.author_list}}</em><br>
+                            latest activity: {{sub.latest_activity|timesince}} ago
+                        </div>
                     {% endif %}
                 </li>
             {% empty %}
@@ -68,11 +80,17 @@
                     {% if sub == submission %}
                         <strong>
                             <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                            <div class="pl-md-4">
+                                <em>by {{sub.author_list}}</em><br>
+                                latest activity: {{sub.latest_activity|timesince}} ago
+                            </div>
                         </strong>
                     {% else %}
                         <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        <div class="pl-md-4">latest activity: {{sub.latest_activity|timesince}} ago</div>
+                        <div class="pl-md-4">
+                            <em>by {{sub.author_list}}</em><br>
+                            latest activity: {{sub.latest_activity|timesince}} ago
+                        </div>
                     {% endif %}
                 </li>
             {% empty %}
