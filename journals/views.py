@@ -699,13 +699,12 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     if os.path.isfile(path):
         errormessage = 'The metadata file for this metadata timestamp already exists'
         return render(request, 'scipost/error.html', context={'errormessage': errormessage})
-    if option == 'deposit':
+    if option == 'deposit' and not settings.DEBUG:
+        # CAUTION: Real deposit only on production (non-debug-mode)
         url = 'http://doi.crossref.org/servlet/deposit'
-    elif option == 'test':
-        url = 'http://test.crossref.org/servlet/deposit'
     else:
-        errormessage = 'metadata_xml_deposit can only be called with options test or deposit'
-        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+        url = 'http://test.crossref.org/servlet/deposit'
+
     if publication.metadata_xml is None:
         errormessage = 'This publication has no metadata. Produce it first before saving it.'
         return render(request, 'scipost/error.html', context={'errormessage': errormessage})
@@ -1038,7 +1037,11 @@ def generic_metadata_xml_deposit(request, **kwargs):
         '</dataset></database>\n'
         '</body></doi_batch>'
         )
-    url = 'http://doi.crossref.org/servlet/deposit'
+    if not settings.DEBUG:
+        # CAUTION: Debug is False, production goes for real deposit!!!
+        url = 'http://doi.crossref.org/servlet/deposit'
+    else:
+        url = 'http://test.crossref.org/servlet/deposit'
     params = {
         'operation': 'doMDUpload',
         'login_id': settings.CROSSREF_LOGIN_ID,
