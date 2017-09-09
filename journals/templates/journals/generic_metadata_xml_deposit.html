@@ -1,0 +1,35 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Generic metadata XML deposit{% endblock pagetitle %}
+
+{% block content %}
+
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Generic metadata deposit</small></h1>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-12">
+  {% if errormessage %}
+    <h2 class="text-danger">{{ errormessage }}</h2>
+  {% endif %}
+
+  <h3 class="my-1">Response headers:</h3>
+  <div>
+      <pre><code>{{ response_headers|linebreaks }}</code></pre>
+  </div>
+
+  <h3 class="mt-3">Response text:</h3>
+  <p>{{ response_text|linebreaks }}</p>
+
+  <h3>Return to the <a href="{% url 'journals:manage_report_metadata' %}">report</a> or to the <a href="{% url 'journals:manage_comment_metadata' %}">commentt</a> metadata management page</h3>
+
+  </div>
+</div>
+
+
+{% endblock %}

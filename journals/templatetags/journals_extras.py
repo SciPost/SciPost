@@ -26,3 +26,21 @@ def latest_successful_DOAJ_deposit(publication):
         return latest.deposition_date.strftime('%Y-%m-%d')
     else:
         return "No successful deposit found"
+
+@register.filter(name='latest_successful_crossref_deposit_report')
+def latest_successful_crossref_deposit(report):
+    latest = report.genericdoideposit.filter(
+        deposit_successful=True).order_by('-deposition_date').first()
+    if latest:
+        return latest.deposition_date.strftime('%Y-%m-%d')
+    else:
+        return "No successful deposit found"
+
+@register.filter(name='latest_successful_crossref_deposit_comment')
+def latest_successful_crossref_deposit(comment):
+    latest = comment.genericdoideposit.filter(
+        deposit_successful=True).order_by('-deposition_date').first()
+    if latest:
+        return latest.deposition_date.strftime('%Y-%m-%d')
+    else:
+        return "No successful deposit found"

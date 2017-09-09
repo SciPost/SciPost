@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.template import Template, Context
@@ -232,3 +234,25 @@ class DOAJDeposit(models.Model):
 
     def __str__(self):
         return ('DOAJ deposit for ' + self.publication.doi_label)
+
+
+class GenericDOIDeposit(models.Model):
+    """
+    Instances of this class represent Crossref deposits for non-publication
+    objects such as Reports, Comments etc.
+    """
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey()
+    timestamp = models.CharField(max_length=40, default='')
+    doi_batch_id = models.CharField(max_length=40, default='')
+    metadata_xml = models.TextField(blank=True, null=True)
+    deposition_date = models.DateTimeField(blank=True, null=True)
+    response = models.TextField(blank=True, null=True)
+    deposit_successful = models.NullBooleanField(default=None)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return 'GenericDOIDeposit for %s %s' % (self.content_type, str(self.content_object))

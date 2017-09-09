@@ -1,0 +1,90 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Manage Report metadata{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% load journals_extras %}
+
+<script>
+$(function() {
+$( "#accordion" ).accordion({
+event: "focusin"
+});
+});
+</script>
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Manage Report metadata</span>
+{% endblock %}
+
+{% block content %}
+
+
+<table class="table table-hover mb-5">
+  <thead class="thead-default">
+    <tr>
+      <th>Submission</th>
+      <th>Report nr</th>
+      <th>Needs doi</th>
+      <th>Latest successful Crossref deposit</th>
+    </tr>
+  </thead>
+
+  <tbody id="accordion" role="tablist" aria-multiselectable="true">
+    {% for report in reports %}
+    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ report.id }}" aria-expanded="true" aria-controls="collapse{{ report.id }}" style="cursor: pointer;">
+      <td>{{ report.submission.arxiv_identifier_w_vn_nr }}</td>
+      <td>{{ report.report_nr }}</td>
+      <td>{{ report.needs_doi }}</td>
+      <td>{{ report|latest_successful_crossref_deposit_report }}</td>
+    </tr>
+    <tr id="collapse{{ report.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ report.id }}" style="background-color: #fff;">
+      <td colspan="5">
+	<p><a href="{{ report.submission.get_absolute_url }}">{{ report.submission.arxiv_identifier_w_vn_nr }}</a>, <a href="{{ report.get_absolute_url }}">{{ report.report_nr }}</a></p>
+
+	<h2 class="ml-3">Actions</h2>
+        <ul>
+	  <li><a href="{% url 'journals:mark_report_doi_not_needed' report.id %}">Mark DOI not needed</a></li>
+          <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
+	</ul>
+
+	<h2 class="ml-3">Crossref Deposits</h2>
+	<table class="ml-5">
+	  <thead class="thead-default">
+	    <th>Timestamp</th>
+	    <th>batch id</th>
+	    <th>deposition date</th>
+	    <th>Successful?</th>
+	    <th>actions</th>
+	  </thead>
+	  <tbody>
+	    {% for deposit in report.genericdoideposit.all %}
+	    <tr>
+	      <td>{{ deposit.timestamp }}</td>
+	      <td>{{ deposit.doi_batch_id }}</td>
+	      <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
+	      <td>{{ deposit.deposit_successful }}</td>
+	      <td>Mark deposit as
+		<ul>
+		  <li><a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
+		  <li><a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
+		</ul>
+	      </td>
+	    </tr>
+	    {% empty %}
+	    <tr>
+	      <td colspan="5">No Deposits found for this Report</td>
+	    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock content %}
