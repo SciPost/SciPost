@@ -965,17 +965,23 @@ def manage_comment_metadata(request):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def mark_report_doi_not_needed(request, report_id):
+def mark_report_doi_needed(request, report_id, needed):
     report = get_object_or_404(Report, pk=report_id)
-    report.needs_doi = False
+    if needed == '1':
+        report.needs_doi = True
+    elif needed == '0':
+        report.needs_doi = False
     report.save()
     return redirect(reverse('journals:manage_report_metadata'))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def mark_comment_doi_not_needed(request, comment_id):
+def mark_comment_doi_needed(request, comment_id, needed):
     comment = get_object_or_404(Comment, pk=comment_id)
-    comment.needs_doi = False
+    if needed == '1':
+        comment.needs_doi = True
+    elif needed == '0':
+        comment.needs_doi = False
     comment.save()
     return redirect(reverse('journals:manage_comment_metadata'))
 
