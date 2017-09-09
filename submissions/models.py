@@ -422,6 +422,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def doi_string(self):
         if self.doi_label:
             return '10.21468/' + self.doi_label
+        else:
+            return None
 
     @cached_property
     def title(self):

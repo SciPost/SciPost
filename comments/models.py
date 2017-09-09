@@ -137,6 +137,13 @@ class Comment(TimeStampedModel):
         self.doi_label = 'SciPost.Comment.' + str(self.id)
         self.save()
 
+    @property
+    def doi_string(self):
+        if self.doi_label:
+            return '10.21468/' + self.doi_label
+        else:
+            return None
+
     def get_absolute_url(self):
         return self.content_object.get_absolute_url().split('#')[0] + '#comment_id' + str(self.id)
 
