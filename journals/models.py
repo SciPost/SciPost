@@ -155,6 +155,7 @@ class Publication(models.Model):
     BiBTeX_entry = models.TextField(blank=True, null=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_publication_validator])
+    doideposit_needs_updating = models.BooleanField(default=False)
     submission_date = models.DateField(verbose_name='submission date')
     acceptance_date = models.DateField(verbose_name='acceptance date')
     publication_date = models.DateField(verbose_name='publication date')
