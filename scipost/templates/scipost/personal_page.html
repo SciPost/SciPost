@@ -395,16 +395,18 @@
             {# {% if own_publications %}#}
             <div class="row" id="mypublicationslist">
                 <div class="col-12">
-                    <h3>Publications for which you are identified as an author:</h3>
+                    <h3 class="mb-3">Publications for which you are identified as an author:</h3>
                 </div>
                 <div class="col-12">
-                    <ul class="list-group list-group-flush">
+                    <ul class="list-unstyled">
                         {% for pub in own_publications %}
-                            <li class="list-group-item">
-                                {% include 'journals/_publication_card_content.html' with publication=pub current_user=request.user %}
+                            <li>
+                                <div class="card card-grey card-publication" id="{{pub.doi_label}}">
+                                    {% include 'journals/_publication_card_content.html' with publication=pub current_user=request.user %}
+                                </div>
                             </li>
                         {% empty %}
-                            <li class="list-group-item">
+                            <li>
                                 <em>No Publications found</em>
                             </li>
                         {% endfor %}
