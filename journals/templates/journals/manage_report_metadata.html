@@ -29,6 +29,7 @@ event: "focusin"
       <th>Report nr</th>
       <th>Needs doi</th>
       <th>Latest successful Crossref deposit</th>
+      <th>Deposit needs updating?</th>
     </tr>
   </thead>
 
@@ -39,6 +40,7 @@ event: "focusin"
       <td>{{ report.report_nr }}</td>
       <td>{{ report.needs_doi }}</td>
       <td>{{ report|latest_successful_crossref_deposit_report }}</td>
+      <td>{{ report.doideposit_needs_updating }}</td>
     </tr>
     <tr id="collapse{{ report.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ report.id }}" style="background-color: #fff;">
       <td colspan="5">

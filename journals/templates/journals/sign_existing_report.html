@@ -1,0 +1,33 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: sign existing Report{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <hr class="hr12">
+    <div class="row">
+      <div class="col-6">
+	<h2>Confirmation page: do you wish to sign this Report?</h2>
+	<h3>(your Report is reproduced below for your convenience)</h3>
+      </div>
+      <div class="col-6">
+	<form action="{% url 'journals:sign_existing_report' report_id=report.id %}" method="post">
+	  {% csrf_token %}
+	  {{ form|bootstrap }}
+	  <input class="btn btn-secondary" type="submit" value="Submit" />
+	</form>
+      </div>
+    </div>
+
+    <h3>Report on Submission <a href="{{report.submission.get_absolute_url}}">{{report.submission.title}}</a></h3>
+
+    {% include 'submissions/_single_public_report_without_comments.html' with report=report user=request.user perms=perms %}
+
+  </div>
+</div>
+
+{% endblock %}

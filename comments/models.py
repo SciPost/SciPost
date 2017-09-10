@@ -38,8 +38,6 @@ class Comment(TimeStampedModel):
     content_object = GenericForeignKey()
 
     nested_comments = GenericRelation('comments.Comment', related_query_name='comments')
-    genericdoideposit = GenericRelation('journals.GenericDOIDeposit',
-                                        related_query_name='genericdoideposit')
 
     # -- U/S
     # These fields will be removed in the future.
@@ -90,6 +88,9 @@ class Comment(TimeStampedModel):
                                              blank=True)
 
     needs_doi = models.NullBooleanField(default=None)
+    doideposit_needs_updating = models.BooleanField(default=False)
+    genericdoideposit = GenericRelation('journals.GenericDOIDeposit',
+                                        related_query_name='genericdoideposit')
     doi_label = models.CharField(max_length=200, blank=True)
     objects = CommentQuerySet.as_manager()
 

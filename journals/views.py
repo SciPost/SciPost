@@ -6,6 +6,7 @@ import requests
 import string
 import xml.etree.ElementTree as ET
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
@@ -31,6 +32,7 @@ from submissions.models import Submission, Report
 from scipost.models import Contributor
 
 from funders.forms import FunderSelectForm, GrantSelectForm
+from scipost.forms import ConfirmationForm
 
 from guardian.decorators import permission_required
 
@@ -937,6 +939,30 @@ def harvest_citedby_links(request, doi_label):
     return render(request, 'journals/harvest_citedby_links.html', context)
 
 
+@login_required
+def sign_existing_report(request, report_id):
+    """
+    Allows the author of a Report, originally submitted anonymously,
+    to sign the Report.
+    """
+    report = get_object_or_404(Report, pk=report_id)
+    if report.author != request.user.contributor:
+        errormessage = 'Only the author of this Report can change its anonymity status'
+        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+    form = ConfirmationForm(request.POST or None)
+    if form.is_valid():
+        if form.cleaned_data['confirm'] == 'True':
+            report.anonymous = False
+            report.doideposit_needs_updating = True
+            report.save()
+            messages.success(request, 'Your Report is now publicly signed.')
+        else:
+            messages.error(request, 'Report signing operation cancelled.')
+        return redirect(reverse('scipost:personal_page'))
+    context = {'report': report, 'form': form}
+    return render(request, 'journals/sign_existing_report.html', context)
+
+
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def manage_report_metadata(request):
     """
@@ -1073,6 +1099,8 @@ def mark_generic_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(GenericDOIDeposit, pk=deposit_id)
     if success == '1':
         deposit.deposit_successful = True
+        deposit.content_object.doideposit_needs_updating = False
+        deposit.content_object.save()
     elif success == '0':
         deposit.deposit_successful = False
     deposit.save()
