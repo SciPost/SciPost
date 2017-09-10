@@ -1034,7 +1034,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
         '<database_metadata language="en">\n'
         '<titles><title>SciPost Reports and Comments</title></titles>\n'
         '</database_metadata>\n'
-        '<dataset dataset_type="component">\n'
+        '<dataset dataset_type="collection">\n'
         '<doi_data><doi>' + _object.doi_string + '</doi>\n'
         '<resource>https://scipost.org' + _object.get_absolute_url() + '</resource></doi_data>\n'
         '</dataset></database>\n'
