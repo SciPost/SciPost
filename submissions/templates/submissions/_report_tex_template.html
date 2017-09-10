@@ -72,7 +72,7 @@ Published by the SciPost Foundation.
 %%%%%%%%%% DATES
 {\small Received {{report.date_submitted|date:'d-m-Y'}}
 {% if report.doi_string %}
-{% verbatim %}\doi{{% endverbatim %}{{report.doi_string|safe_tex_url}}}
+\doi&#123;{{report.doi_string|safe_tex_url}}&#125;
 {% endif %}
 }
 \end{minipage}
