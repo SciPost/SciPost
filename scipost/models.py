@@ -248,6 +248,9 @@ class AuthorshipClaim(models.Model):
     claimant = models.ForeignKey(Contributor,
                                  on_delete=models.CASCADE,
                                  related_name='claimant')
+    publication = models.ForeignKey('journals.Publication',
+                                    on_delete=models.CASCADE,
+                                    blank=True, null=True)
     submission = models.ForeignKey('submissions.Submission',
                                    on_delete=models.CASCADE,
                                    blank=True, null=True)

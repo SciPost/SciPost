@@ -49,6 +49,9 @@
                           </li>
                       {% endif %}
                       <li class="nav-item btn btn-secondary">
+                        <a class="nav-link" data-toggle="tab" href="#publications">Publications</a>
+                      </li>
+                      <li class="nav-item btn btn-secondary">
                         <a class="nav-link" data-toggle="tab" href="#submissions">Submissions</a>
                       </li>
                       <li class="nav-item btn btn-secondary">
@@ -372,7 +375,47 @@
 	    </div>
 	    {% endif %}
 
-        {% if perms.scipost.can_referee %}
+        <!-- Tab: Publications -->
+        <div class="tab-pane" id="publications" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-grey">
+                        <div class="card-body">
+                            <h2 class="card-title">Publications</h2>
+                            <ul class="mb-0">
+                                {% if nr_publication_authorships_to_claim > 0 %}
+                                    <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_publication_authorships_to_claim}})</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# {% if own_publications %}#}
+            <div class="row" id="mypublicationslist">
+                <div class="col-12">
+                    <h3>Publications for which you are identified as an author:</h3>
+                </div>
+                <div class="col-12">
+                    <ul class="list-group list-group-flush">
+                        {% for pub in own_publications %}
+                            <li class="list-group-item">
+                                {% include 'journals/_publication_card_content.html' with publication=pub current_user=request.user %}
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">
+                                <em>No Publications found</em>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {# {% endif %}#}
+        </div><!-- End tab -->
+
+
+            {% if perms.scipost.can_referee %}
             <!-- Tab: Refereeing -->
             <div class="tab-pane" id="refereeing" role="tabpanel">
                 <div class="row">

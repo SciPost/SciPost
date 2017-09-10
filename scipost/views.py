@@ -752,11 +752,20 @@ def personal_page(request):
 
     # Verify if there exist objects authored by this contributor,
     # whose authorship hasn't been claimed yet
+    own_publications = (Publication.objects
+                       .filter(authors__in=[contributor])
+                       .order_by('-publication_date'))
     own_submissions = (Submission.objects
                        .filter(authors__in=[contributor], is_current=True)
                        .order_by('-submission_date'))
     own_commentaries = Commentary.objects.filter(authors=contributor).order_by('-latest_activity')
     own_thesislinks = ThesisLink.objects.filter(author_as_cont__in=[contributor])
+    nr_publication_authorships_to_claim = (Publication.objects.filter(
+        author_list__contains=contributor.user.last_name)
+                                          .exclude(authors__in=[contributor])
+                                          .exclude(authors_claims__in=[contributor])
+                                          .exclude(authors_false_claims__in=[contributor])
+                                          .count())
     nr_submission_authorships_to_claim = (Submission.objects.filter(
         author_list__contains=contributor.user.last_name)
                                           .exclude(authors__in=[contributor])
@@ -799,12 +808,14 @@ def personal_page(request):
         'nr_recommendations_to_prepare_for_voting': nr_recommendations_to_prepare_for_voting,
         'nr_assignments_to_consider': nr_assignments_to_consider,
         'active_assignments': active_assignments,
+        'nr_publication_authorships_to_claim': nr_publication_authorships_to_claim,
         'nr_submission_authorships_to_claim': nr_submission_authorships_to_claim,
         'nr_commentary_authorships_to_claim': nr_commentary_authorships_to_claim,
         'nr_thesis_authorships_to_claim': nr_thesis_authorships_to_claim,
         'nr_ref_inv_to_consider': nr_ref_inv_to_consider,
         'pending_ref_tasks': pending_ref_tasks,
         'refereeing_tab_total_count': refereeing_tab_total_count,
+        'own_publications': own_publications,
         'own_submissions': own_submissions,
         'own_commentaries': own_commentaries,
         'own_thesislinks': own_thesislinks,
@@ -900,6 +911,12 @@ def claim_authorships(request):
     """
     contributor = Contributor.objects.get(user=request.user)
 
+    publication_authorships_to_claim = (Publication.objects
+                                       .filter(author_list__contains=contributor.user.last_name)
+                                       .exclude(authors__in=[contributor])
+                                       .exclude(authors_claims__in=[contributor])
+                                       .exclude(authors_false_claims__in=[contributor]))
+    pub_auth_claim_form = AuthorshipClaimForm()
     submission_authorships_to_claim = (Submission.objects
                                        .filter(author_list__contains=contributor.user.last_name)
                                        .exclude(authors__in=[contributor])
@@ -919,14 +936,33 @@ def claim_authorships(request):
                                    .exclude(author_false_claims__in=[contributor]))
     thesis_auth_claim_form = AuthorshipClaimForm()
 
-    context = {'submission_authorships_to_claim': submission_authorships_to_claim,
-               'sub_auth_claim_form': sub_auth_claim_form,
-               'commentary_authorships_to_claim': commentary_authorships_to_claim,
-               'com_auth_claim_form': com_auth_claim_form,
-               'thesis_authorships_to_claim': thesis_authorships_to_claim,
-               'thesis_auth_claim_form': thesis_auth_claim_form,
-               }
+    context = {
+        'publication_authorships_to_claim': publication_authorships_to_claim,
+        'pub_auth_claim_form': pub_auth_claim_form,
+        'submission_authorships_to_claim': submission_authorships_to_claim,
+        'sub_auth_claim_form': sub_auth_claim_form,
+        'commentary_authorships_to_claim': commentary_authorships_to_claim,
+        'com_auth_claim_form': com_auth_claim_form,
+        'thesis_authorships_to_claim': thesis_authorships_to_claim,
+        'thesis_auth_claim_form': thesis_auth_claim_form,
+    }
     return render(request, 'scipost/claim_authorships.html', context)
+
+
+@login_required
+@user_passes_test(has_contributor)
+def claim_pub_authorship(request, publication_id, claim):
+    if request.method == 'POST':
+        contributor = Contributor.objects.get(user=request.user)
+        publication = get_object_or_404(Publication, pk=publication_id)
+        if claim == '1':
+            publication.authors_claims.add(contributor)
+            newclaim = AuthorshipClaim(claimant=contributor, publication=publication)
+            newclaim.save()
+        elif claim == '0':
+            publication.authors_false_claims.add(contributor)
+        publication.save()
+    return redirect('scipost:claim_authorships')
 
 
 @login_required
@@ -990,6 +1026,15 @@ def vet_authorship_claim(request, claim_id, claim):
         vetting_contributor = Contributor.objects.get(user=request.user)
         claim_to_vet = AuthorshipClaim.objects.get(pk=claim_id)
 
+        if claim_to_vet.publication is not None:
+            claim_to_vet.publication.authors_claims.remove(claim_to_vet.claimant)
+            if claim == '1':
+                claim_to_vet.publication.authors.add(claim_to_vet.claimant)
+                claim_to_vet.status = '1'
+            elif claim == '0':
+                claim_to_vet.publication.authors_false_claims.add(claim_to_vet.claimant)
+                claim_to_vet.status = '-1'
+            claim_to_vet.publication.save()
         if claim_to_vet.submission is not None:
             claim_to_vet.submission.authors_claims.remove(claim_to_vet.claimant)
             if claim == '1':
@@ -998,7 +1043,7 @@ def vet_authorship_claim(request, claim_id, claim):
             elif claim == '0':
                 claim_to_vet.submission.authors_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
-                claim_to_vet.submission.save()
+            claim_to_vet.submission.save()
         if claim_to_vet.commentary is not None:
             claim_to_vet.commentary.authors_claims.remove(claim_to_vet.claimant)
             if claim == '1':
@@ -1007,7 +1052,7 @@ def vet_authorship_claim(request, claim_id, claim):
             elif claim == '0':
                 claim_to_vet.commentary.authors_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
-                claim_to_vet.commentary.save()
+            claim_to_vet.commentary.save()
         if claim_to_vet.thesislink is not None:
             claim_to_vet.thesislink.author_claims.remove(claim_to_vet.claimant)
             if claim == '1':
@@ -1016,7 +1061,7 @@ def vet_authorship_claim(request, claim_id, claim):
             elif claim == '0':
                 claim_to_vet.thesislink.author_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
-                claim_to_vet.thesislink.save()
+            claim_to_vet.thesislink.save()
 
         claim_to_vet.vetted_by = vetting_contributor
         claim_to_vet.save()
