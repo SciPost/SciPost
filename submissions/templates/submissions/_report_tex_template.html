@@ -17,8 +17,8 @@
 \fancypagestyle{SPstyle}{
 \fancyhf{}
 \lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
-
 {% if report.doi_string %}
+
     \rhead{\small \href{https://scipost.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
 {% endif %}
 
@@ -44,17 +44,15 @@ Report nr {{report.report_nr}} on Submission {{ report.submission.arxiv_identifi
 Report by {% if report.anonymous %}Anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}\textsuperscript{1}{% endif %}
 }
 \end{center}
-
 {% if not report.anonymous %}
-    \begin{center}
-    %%%%%%%%%% AFFILIATIONS
-    {\bf 1} {{report.author.affiliation}}\\
-    \end{center}
+
+\begin{center}
+%%%%%%%%%% AFFILIATIONS
+{\bf 1} {{report.author.affiliation}}\\
+\end{center}
 {% endif %}
 
-
 \vspace{10pt}
-
 
 \begin{center}
 \begin{tabular}{lr}
@@ -74,7 +72,7 @@ Published by the SciPost Foundation.
 %%%%%%%%%% DATES
 {\small Received {{report.date_submitted|date:'d-m-Y'}}
 {% if report.doi_string %}
-    \doi{{{report.doi_string|safe_tex_url}}}
+    \doi{ {{report.doi_string|safe_tex_url}} }
 {% endif %}
 }
 \end{minipage}
