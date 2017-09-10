@@ -1,5 +1,7 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
+{% load bootstrap %}
+
 {% block breadcrumb_items %}
     {{block.super}}
     <span class="breadcrumb-item">Vet authorship claims</span>
@@ -34,7 +36,12 @@
     {% for claim in claims_to_vet %}
         <li class="list-group-item">
             <div class="card w-100">
-                {% if claim.submission %}
+                {% if claim.publication %}
+                    <div class="card-header">
+                        <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Publication:</h4>
+                    </div>
+                    {% include 'journals/_publication_card_content.html' with publication=claim.publication %}
+                {% elif claim.submission %}
                     <div class="card-header">
                         <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
                     </div>
