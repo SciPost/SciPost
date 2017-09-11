@@ -22,7 +22,13 @@
 
           {% if user.is_authenticated %}
               <li class="nav-item highlighted">
-                <span class="nav-link">Logged in as {{ user.username }}</span>
+                <div class="d-s nav-link">
+                    Logged in as {{ user.username }}
+                    <a class="d-inline nav-link navbar-counter" href="{% url 'notifications:all' %}">
+                        <i class="fa fa-bell-o" aria-hidden="true"></i>
+                        <span class="badge badge-pill badge-primary">2</span>
+                    </a>
+                </div>
               </li>
               {% if perms.scipost.can_oversee_refereeing %}
                   <li class="nav-item{% if '/submissions/admin' in request.path %} active{% endif %}">
