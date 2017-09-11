@@ -17,8 +17,8 @@
 \fancypagestyle{SPstyle}{
 \fancyhf{}
 \lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
-
 {% if report.doi_string %}
+
     \rhead{\small \href{https://scipost.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
 {% endif %}
 
@@ -33,27 +33,26 @@
 \begin{center}
 \Large\color{scipostdeepblue}{\textbf{
 %%%%%%%%%% TITLE
-Report {{report.report_nr}} on\href{https://scipost.org{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.submission.title}} }}by {{report.submission.author_list}}
+Report nr {{report.report_nr}} on Submission {{ report.submission.arxiv_identifier_w_vn_nr }},\\
+\href{https://scipost.org{{report.submission.get_absolute_url|safe_tex_url}}}{\color{scipostdeepblue}{ {{report.submission.title}} }}by {{report.submission.author_list}}
 }}
 \end{center}
 
 \begin{center}
 \large\textbf{
 %%%%%%%%%% AUTHORS
-Report by {% if report.anonymous %}anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}\textsuperscript{1}{% endif %}
+Report by {% if report.anonymous %}Anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}\textsuperscript{1}{% endif %}
 }
 \end{center}
-
 {% if not report.anonymous %}
-    \begin{center}
-    %%%%%%%%%% AFFILIATIONS
-    {\bf 1} {{report.author.affiliation}}\\
-    \end{center}
+
+\begin{center}
+%%%%%%%%%% AFFILIATIONS
+{\bf 1} {{report.author.affiliation}}\\
+\end{center}
 {% endif %}
 
-
 \vspace{10pt}
-
 
 \begin{center}
 \begin{tabular}{lr}
@@ -62,7 +61,7 @@ Report by {% if report.anonymous %}anonymous{% else %}{{report.author.user.first
 
 %%%%%%%%%% COPYRIGHT
 
-{\small Copyright {% if report.anonymous %}anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}{% endif %}. \newline
+{\small Copyright {% if report.anonymous %}Anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}{% endif %}. \newline
 This work is licensed under the Creative Commons \newline
 \href{http://creativecommons.org/licenses/by/4.0/}{Attribution 4.0 International License}. \newline
 Published by the SciPost Foundation.
@@ -73,7 +72,7 @@ Published by the SciPost Foundation.
 %%%%%%%%%% DATES
 {\small Received {{report.date_submitted|date:'d-m-Y'}}
 {% if report.doi_string %}
-    doi:\href{//dx.doi.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} }
+\doi&#123;{{report.doi_string|safe_tex_url}}&#125;
 {% endif %}
 }
 \end{minipage}

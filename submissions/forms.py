@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -10,7 +12,7 @@ from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUB
                        REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
                        STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE,\
-                       STATUS_VETTED
+                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS
 from . import exceptions, helpers
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
                     iThenticateReport
@@ -119,6 +121,20 @@ class SubmissionChecks:
                                  'formulation of the Editorial Recommendation '
                                  'before proceeding with a resubmission.')
                 raise forms.ValidationError(error_message)
+
+    def arxiv_meets_regex(self, identifier, journal_code):
+        if journal_code in EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS.keys():
+            regex = EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS[journal_code]
+        else:
+            regex = EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS['default']
+
+        pattern = re.compile(regex)
+        if not pattern.match(identifier):
+            # No match object returned, identifier is invalid
+            error_message = ('The journal you want to submit to does not allow for this'
+                             ' arXiv identifier. Please contact SciPost if you have'
+                             ' any further questions.')
+            raise forms.ValidationError(error_message, code='submitted_to_journal')
 
     def submission_is_resubmission(self):
         return self.is_resubmission
@@ -239,6 +255,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         """
         cleaned_data = super().clean(*args, **kwargs)
         self.do_pre_checks(cleaned_data['arxiv_identifier_w_vn_nr'])
+        self.arxiv_meets_regex(cleaned_data['arxiv_identifier_w_vn_nr'],
+                               cleaned_data['submitted_to_journal'])
         return cleaned_data
 
     def clean_author_list(self):
