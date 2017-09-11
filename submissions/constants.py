@@ -1,3 +1,6 @@
+from journals.constants import SCIPOST_JOURNAL_PHYSICS
+
+
 STATUS_UNASSIGNED = 'unassigned'
 STATUS_RESUBMISSION_INCOMING = 'resubmitted_incoming'
 STATUS_REVISION_REQUESTED = 'revision_requested'
@@ -216,3 +219,19 @@ EVENT_TYPES = (
     (EVENT_FOR_EIC, 'Comment for Editor-in-charge'),
     (EVENT_FOR_AUTHOR, 'Comment for author'),
 )
+
+# Use `.format()` https://docs.python.org/3.5/library/string.html#format-string-syntax
+# In your regex multiple brackets may occur;
+# Please make sure to double them in that case as per instructions in the reference!
+SUBMISSIONS_NO_VN_REGEX = '(?P<arxiv_identifier_wo_vn_nr>[0-9]{4,}.[0-9]{4,})'
+SUBMISSIONS_COMPLETE_REGEX = '(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[0-9]{1,2})'
+
+
+# `EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS` tracks the regex rules for the manuscripts
+# submitted per journal.
+#
+# CAUTION: *triple* check whether the `default` regex also meets any other explicit journal regex!
+EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS = {
+    SCIPOST_JOURNAL_PHYSICS: '(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})',
+    'default': SUBMISSIONS_COMPLETE_REGEX
+}
