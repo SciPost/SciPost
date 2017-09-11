@@ -90,6 +90,7 @@ INSTALLED_APPS = (
     'mails',
     'mailing_lists',
     'news',
+    'notifications',
     'scipost',
     'submissions',
     'theses',
@@ -107,11 +108,6 @@ HAYSTACK_CONNECTIONS = {
         'PATH': 'local_files/haystack/',
         'EXCLUDED_INDEXES': ['sphinxdoc.search_indexes.DocumentIndex'],
     },
-    # 'scipost': {
-    #     'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-    #     'PATH': 'local_files/haystack_scipost/',
-    #     'EXCLUDED_INDEXES': ['sphinxdoc.search_indexes.DocumentIndex'],
-    # },
 }
 
 # Brute force automatically re-index Haystack using post_save signals on all models.

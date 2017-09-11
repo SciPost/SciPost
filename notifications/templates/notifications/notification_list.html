@@ -1,0 +1,16 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">My notifications ({{notifications|length}})</span>
+{% endblock %}
+
+{% block pagetitle %}: My notifications ({{notifications|length}}){% endblock pagetitle %}
+
+{% block content %}
+    <ul class="list-group notifications">
+        {% for notice in notifications %}
+            {% include 'notifications/partials/notice.html' %}
+        {% endfor %}
+    </ul>
+{% endblock %}

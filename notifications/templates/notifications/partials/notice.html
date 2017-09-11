@@ -1,0 +1,18 @@
+<div class="list-group-item list-group-item-action flex-column align-items-start{% if notice.unread %} active{% endif %} px-3 py-2">
+    <div class="">
+        <a href="{% url 'notifications:mark_as_read' notice.slug %}" class="close" aria-hidden="true">&times;</a>
+        <h4 class="mb-1x">
+            <strong>{{ notice.actor }}</strong>
+            {{ notice.verb }}
+            {% if notice.target %}
+                {{ notice.target }}
+            {% endif %}
+        </h4>
+        <div class="text-muted">{{ notice.created|timesince }} ago</div>
+
+    </div>
+    <p class="mb-1">{{ notice.description|linebreaksbr }}</p>
+    {% if notice.target %}
+        <a href="{{notice.target.get_absolute_url}}">Go to {{notice.target_content_type}}</a>
+    {% endif %}
+</div>
