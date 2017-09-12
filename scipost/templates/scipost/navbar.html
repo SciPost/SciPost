@@ -1,4 +1,4 @@
-<nav class="navbar navbar-scroll navbar-light main-nav">
+<nav class="navbar navbar-scroll navbar-light main-nav navbar-expand-lg">
     <div class="navbar-scroll-inner">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item{% if request.path == '/' %} active{% endif %}">
@@ -21,13 +21,18 @@
           </li>
 
           {% if user.is_authenticated %}
-              <li class="nav-item highlighted">
-                <div class="d-s nav-link">
+              <li class="nav-item highlighted dropdown navbar-counter">
+                <a href="{% url 'notifications:all' %}" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Logged in as {{ user.username }}
-                    <a class="d-inline nav-link navbar-counter" href="{% url 'notifications:all' %}">
-                        <i class="fa fa-bell-o" aria-hidden="true"></i>
-                        <span class="badge badge-pill badge-primary">2</span>
-                    </a>
+                    <i class="fa fa-bell-o" aria-hidden="true"></i>
+                    {% if notifications_unread %}
+                        <span class="badge badge-pill badge-primary">{{notifications_unread}}</span>
+                    {% endif %}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    {% for note in notifications %}
+                        <a class="dropdown-item" href="#">Action</a>
+                    {% endfor %}
                 </div>
               </li>
               {% if perms.scipost.can_oversee_refereeing %}

@@ -40,6 +40,7 @@
     "scripts": {
         "alert": true,
         "collapse": true,
+        "dropdown": true,
         "modal": true,
         "scrollspy": true,
         "tab": true,
