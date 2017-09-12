@@ -245,9 +245,12 @@ class CitationNotification(models.Model):
 
 
 class AuthorshipClaim(models.Model):
-    claimant = models.ForeignKey(Contributor,
+    claimant = models.ForeignKey('scipost.Contributor',
                                  on_delete=models.CASCADE,
                                  related_name='claimant')
+    publication = models.ForeignKey('journals.Publication',
+                                    on_delete=models.CASCADE,
+                                    blank=True, null=True)
     submission = models.ForeignKey('submissions.Submission',
                                    on_delete=models.CASCADE,
                                    blank=True, null=True)
@@ -257,7 +260,7 @@ class AuthorshipClaim(models.Model):
     thesislink = models.ForeignKey('theses.ThesisLink',
                                    on_delete=models.CASCADE,
                                    blank=True, null=True)
-    vetted_by = models.ForeignKey(Contributor,
+    vetted_by = models.ForeignKey('scipost.Contributor',
                                   on_delete=models.CASCADE,
                                   blank=True, null=True)
     status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS,

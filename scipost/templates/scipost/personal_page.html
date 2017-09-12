@@ -49,6 +49,9 @@
                           </li>
                       {% endif %}
                       <li class="nav-item btn btn-secondary">
+                        <a class="nav-link" data-toggle="tab" href="#publications">Publications</a>
+                      </li>
+                      <li class="nav-item btn btn-secondary">
                         <a class="nav-link" data-toggle="tab" href="#submissions">Submissions</a>
                       </li>
                       <li class="nav-item btn btn-secondary">
@@ -372,7 +375,49 @@
 	    </div>
 	    {% endif %}
 
-        {% if perms.scipost.can_referee %}
+        <!-- Tab: Publications -->
+        <div class="tab-pane" id="publications" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-grey">
+                        <div class="card-body">
+                            <h2 class="card-title">Publications</h2>
+                            <ul class="mb-0">
+                                {% if nr_publication_authorships_to_claim > 0 %}
+                                    <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_publication_authorships_to_claim}})</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# {% if own_publications %}#}
+            <div class="row" id="mypublicationslist">
+                <div class="col-12">
+                    <h3 class="mb-3">Publications for which you are identified as an author:</h3>
+                </div>
+                <div class="col-12">
+                    <ul class="list-unstyled">
+                        {% for pub in own_publications %}
+                            <li>
+                                <div class="card card-grey card-publication" id="{{pub.doi_label}}">
+                                    {% include 'journals/_publication_card_content.html' with publication=pub current_user=request.user %}
+                                </div>
+                            </li>
+                        {% empty %}
+                            <li>
+                                <em>No Publications found</em>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {# {% endif %}#}
+        </div><!-- End tab -->
+
+
+            {% if perms.scipost.can_referee %}
             <!-- Tab: Refereeing -->
             <div class="tab-pane" id="refereeing" role="tabpanel">
                 <div class="row">
@@ -444,8 +489,12 @@
                                             <tr>
                                                 <th>Status:</th><td {% if report.status == 'vetted' %}class="text-success"{% elif report.status == 'unvetted' %}class="text-danger"{% endif %}>{{report.get_status_display}}</td>
                                             </tr>
+					    {% if report.doi_label %}
+					    <tr>
+					      <th>DOI:</th><td>{{ report.doi_string }}</td></th>
+{% endif %}
                                             <tr>
-                                                <th>Anonymous:</th><td>{{report.anonymous|yesno:'Yes,No'}}</td>
+                                                <th>Anonymous:</th><td>{{report.anonymous|yesno:'Yes,No'}}</td>{% if report.anonymous %}<td>You can <a href="{% url 'journals:sign_existing_report' report_id=report.id %}">click here to sign this Report</a> (leads to confirmation page){% endif %}</td>
                                             </tr>
                                         </table>
                                     </div>
