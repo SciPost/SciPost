@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^news/', include('news.urls', namespace="news")),
     url(r'^production/', include('production.urls', namespace="production")),
     url(r'^partners/', include('partners.urls', namespace="partners")),
-
+    url(r'^stats/', include('stats.urls', namespace="stats")),
     # Keep temporarily for historical reasons
     url(r'^supporting_partners/', include('partners.urls', namespace="_partners")),
 ]

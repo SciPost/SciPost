@@ -97,6 +97,7 @@ INSTALLED_APPS = (
     'production',
     'partners',
     'funders',
+    'stats',
     'webpack_loader',
 )
 
