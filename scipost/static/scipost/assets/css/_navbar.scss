@@ -77,6 +77,12 @@
 .navbar-counter {
     position: relative;
 
+    &:hover {        
+        .fa-bell-o:before {
+            content: "\f0f3";
+        }
+    }
+
     .badge {
         position: absolute;
         right: -3px;
