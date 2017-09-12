@@ -14,81 +14,65 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="card card-grey">
-            <div class="card-body">
-                <h1>Statistics</h1>
-	    </div>
-	</div>
-    </div>
-</div>
+<h1 class="highlight">Statistics</h1>
 
-<div class="row">
-  <div class="col-12">
-    <h2>Aggregate statistics</h2>
-    <p>For each Journal, clicking on a year gives aggregate statistics for submissions (so including rejections). Clicking on a Journal/Volume/Issue gives aggregates for publications in this object.</p>
-    <ul>
-      {% for journal in journals %}
-      <li><a href="{% url 'submissions:statistics' journal_doi_label=journal.doi_label %}">{{ journal }}</a></li>
-      <ul>
-      {% for year in journal|journal_publication_years %}
-      <li><a href="{% url 'submissions:statistics' journal_doi_label=journal.doi_label year=year %}">{{ year }}</a></li>
-      {% endfor %}
-      </ul>
-      <ul>
-	{% for volume in journal.volume_set.all %}
-	<li><a href="{% url 'submissions:statistics' journal_doi_label=journal.doi_label volume_nr=volume.number %}">{{ volume }}</a></li>
-	<ul>
-	  {% for issue in volume.issue_set.all %}
-	  <li><a href="{% url 'submissions:statistics' journal_doi_label=journal.doi_label volume_nr=volume.number issue_nr=issue.number %}">{{ issue }}</a></li>
-	  {% endfor %}
-	</ul>
-	{% endfor %}
-      </ul>
-      {% endfor %}
-    </ul>
-  </div>
-</div>
+<h2>Aggregate statistics</h2>
+<p>For each Journal, clicking on a year gives aggregate statistics for submissions (so including rejections). Clicking on a Journal/Volume/Issue gives aggregates for publications in this object.</p>
+<ul>
+  {% for journal in journals %}
+  <li><a href="{% url 'submissions:statistics' journal_doi_label=journal.doi_label %}">{{ journal }}</a></li>
+  <ul>
+  {% for year in journal|journal_publication_years %}
+  <li><a href="{% url 'submissions:statistics' journal_doi_label=journal.doi_label year=year %}">{{ year }}</a></li>
+  {% endfor %}
+  </ul>
+  <ul>
+{% for volume in journal.volume_set.all %}
+<li><a href="{% url 'submissions:statistics' journal_doi_label=journal.doi_label volume_nr=volume.number %}">{{ volume }}</a></li>
+<ul>
+  {% for issue in volume.issue_set.all %}
+  <li><a href="{% url 'submissions:statistics' journal_doi_label=journal.doi_label volume_nr=volume.number issue_nr=issue.number %}">{{ issue }}</a></li>
+  {% endfor %}
+</ul>
+{% endfor %}
+  </ul>
+  {% endfor %}
+</ul>
 
 {% if journal %}
-<div class="row">
-  <div class="col-12">
     <h2>Results:</h2>
-    <table class="w-50">
+    <table class="table">
       <tr>
-	<th>DOI label</th>
-	{% if year %}
-	<th>Year</th>
-	<th>Nr submissions</th>
-	<th>Nr distinct submissions</th>
-	{% endif %}
-	<th>Nr publications</th>
-	<th>Duration average</th>
-      </tr>
-      <tr>
-	{% if issue %}
-	<td>{{ issue.doi_label }}</td>
-	<td>{{ issue|issue_nr_publications }}</td>
-	<td>{{ issue|issue_avg_processing_duration|floatformat:2 }}</td>
-	{% elif volume %}
-	<td>{{ volume.doi_label }}</td>
-	<td>{{ volume|volume_nr_publications }}</td>
-	<td>{{ volume|volume_avg_processing_duration|floatformat:2 }}</td>
-	{% else %}
-	<td>{{ journal.doi_label }}</td>
-	{% if year %}
-	<td>{{ year }}</td>
-	<td>{{ submissions|length }}</td>
-	<td>{{ submissions|submissions_count_distinct }}</td>
-	{% endif %}
-	<td>{{ journal|journal_nr_publications }}</td>
-	<td>{{ journal|journal_avg_processing_duration|floatformat:2 }}</td>
-	{% endif %}
+    	<th>DOI label</th>
+    	{% if year %}
+    	<th>Year</th>
+    	<th>Nr submissions</th>
+    	<th>Nr distinct submissions</th>
+    	{% endif %}
+    	<th>Nr publications</th>
+    	<th>Duration average</th>
+          </tr>
+          <tr>
+    	{% if issue %}
+    	<td>{{ issue.doi_label }}</td>
+    	<td>{{ issue|issue_nr_publications }}</td>
+    	<td>{{ issue|issue_avg_processing_duration|floatformat:2 }} days</td>
+    	{% elif volume %}
+    	<td>{{ volume.doi_label }}</td>
+    	<td>{{ volume|volume_nr_publications }}</td>
+    	<td>{{ volume|volume_avg_processing_duration|floatformat:2 }} days</td>
+    	{% else %}
+    	<td>{{ journal.doi_label }}</td>
+    	{% if year %}
+    	<td>{{ year }}</td>
+    	<td>{{ submissions|length }}</td>
+    	<td>{{ submissions|submissions_count_distinct }}</td>
+    	{% endif %}
+    	<td>{{ journal|journal_nr_publications }}</td>
+    	<td>{{ journal|journal_avg_processing_duration|floatformat:2 }} days</td>
+    	{% endif %}
       </tr>
     </table>
-  </div>
-</div>
 {% endif %}
 
 {% endblock content %}
