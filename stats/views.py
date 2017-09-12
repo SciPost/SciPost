@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render
 
+from journals.constants import SCIPOST_JOURNALS_SUBMIT
 from journals.models import Journal, Volume, Issue, Publication
 from submissions.models import Submission
 
@@ -17,10 +18,34 @@ def statistics(request, journal_doi_label=None, volume_nr=None, issue_nr=None, y
         if year:
             context['year'] = year
             submissions = Submission.objects.filter(
-                submitted_to_journal=journal,
-                submission_date__year=int(year),
+                submitted_to_journal=journal_doi_label,
+                submission_date__year=year,
             )
             context['submissions'] = submissions
+            nr_ref_inv = 0
+            nr_acc = 0
+            nr_dec = 0
+            nr_pen = 0
+            nr_rep_obt = 0
+            nr_rep_obt_inv = 0
+            nr_rep_obt_con = 0
+            nr_rep_ref = 0
+            nr_aw_vet = 0
+            for submission in submissions:
+                nr_ref_inv += submission.referee_invitations.count()
+                nr_acc += submission.count_accepted_invitations()
+                nr_dec += submission.count_declined_invitations()
+                nr_pen += submission.count_pending_invitations()
+                nr_rep_obt += submission.count_obtained_reports()
+                nr_rep_obt_inv += submission.count_invited_reports()
+                nr_rep_obt_con += submission.count_contrib_reports()
+            context['nr_ref_inv'] = nr_ref_inv
+            context['nr_acc'] = nr_acc
+            context['nr_dec'] = nr_dec
+            context['nr_pen'] = nr_pen
+            context['nr_rep_obt'] = nr_rep_obt
+            context['nr_rep_obt_inv'] = nr_rep_obt_inv
+            context['nr_rep_obt_con'] = nr_rep_obt_con
         if volume_nr:
             volume = get_object_or_404(Volume, in_journal=journal,
                                        number=volume_nr)

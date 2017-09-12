@@ -46,13 +46,18 @@
     	<th>DOI label</th>
     	{% if year %}
     	<th>Year</th>
-    	<th>Nr submissions</th>
-    	<th>Nr distinct submissions</th>
-    	{% endif %}
+    	<th>Nr submissions<br/>(distinct)</th>
+	<th>Nr submissions<br/>(including resubmissions)</th>
+	<th>Nr assignment failed</th>
+	<th>Nr accepted</th>
+	<th>Nr rejected</th>
+	<th>Nr withdrawn</th>
+    	{% else %}
     	<th>Nr publications</th>
     	<th>Duration average</th>
-          </tr>
-          <tr>
+	{% endif %}
+      </tr>
+      <tr>
     	{% if issue %}
     	<td>{{ issue.doi_label }}</td>
     	<td>{{ issue|issue_nr_publications }}</td>
@@ -65,14 +70,44 @@
     	<td>{{ journal.doi_label }}</td>
     	{% if year %}
     	<td>{{ year }}</td>
-    	<td>{{ submissions|length }}</td>
     	<td>{{ submissions|submissions_count_distinct }}</td>
-    	{% endif %}
+    	<td>{{ submissions|length }}</td>
+	<td>{{ submissions.assignment_failed.count }}</td>
+	<td>{{ submissions.accepted.count }}</td>
+	<td>{{ submissions.rejected.count }}</td>
+	<td>{{ submissions.withdrawn.count }}</td>
+    	{% else %}
     	<td>{{ journal|journal_nr_publications }}</td>
     	<td>{{ journal|journal_avg_processing_duration|floatformat:2 }} days</td>
+	{% endif %}
     	{% endif %}
       </tr>
     </table>
-{% endif %}
+    {% endif %}
+
+    {% if year %}
+    <h2>Refereeing stats for {{ year }}</h2>
+    <table class="table">
+      <tr>
+	<th>Nr refereeing<br/>invitations</th>
+	<th>Nr accepted</th>
+	<th>Nr declined</th>
+	<th>Nr pending</th>
+	<th>Nr reports<br/>obtained</th>
+	<th>Nr obtained<br/>(invited)</th>
+	<th>Nr obtained<br/>(contributed)</th>
+      </tr>
+      <tr>
+	<td>{{ nr_ref_inv }}</td>
+	<td>{{ nr_acc }} ({% widthratio nr_acc nr_ref_inv 100 %}&#37;)</td>
+	<td>{{ nr_dec }} ({% widthratio nr_dec nr_ref_inv 100 %}&#37;)</td>
+	<td>{{ nr_pen }} ({% widthratio nr_pen nr_ref_inv 100 %}&#37;)</td>
+	<td>{{ nr_rep_obt }}</td>
+	<td>{{ nr_rep_obt_inv }} ({% widthratio nr_rep_obt_inv nr_rep_obt 100 %}&#37;)</td>
+	<td>{{ nr_rep_obt_con }} ({% widthratio nr_rep_obt_con nr_rep_obt 100 %}&#37;)</td>
+      </tr>
+    </table>
+    {% endif %}
+
 
 {% endblock content %}

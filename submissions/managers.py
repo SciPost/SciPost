@@ -8,9 +8,11 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
                        STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
                        SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT, STATUS_PUBLISHED,\
-                       SUBMISSION_EXCLUDE_FROM_REPORTING, STATUS_REJECTED_VISIBLE,\
+                       SUBMISSION_EXCLUDE_FROM_REPORTING,\
+                       STATUS_REJECTED, STATUS_REJECTED_VISIBLE,\
                        STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE,\
-                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR, STATUS_UNASSIGNED
+                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR,\
+                       STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED, STATUS_WITHDRAWN
 
 
 class SubmissionQuerySet(models.QuerySet):
@@ -110,6 +112,19 @@ class SubmissionQuerySet(models.QuerySet):
 
     def accepted(self):
         return self.filter(status=STATUS_ACCEPTED)
+
+
+    def assignment_failed(self):
+        return self.filter(status=STATUS_ASSIGNMENT_FAILED)
+
+
+    def rejected(self):
+        return self._newest_version_only(self.filter(status__in=[STATUS_REJECTED,
+                                                                 STATUS_REJECTED_VISIBLE]))
+
+    def withdrawn(self):
+        return self._newest_version_only(self.filter(status=STATUS_WITHDRAWN))
+
 
     def open_for_reporting(self):
         """
