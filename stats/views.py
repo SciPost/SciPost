@@ -18,7 +18,7 @@ def statistics(request, journal_doi_label=None, volume_nr=None, issue_nr=None, y
             context['year'] = year
             submissions = Submission.objects.filter(
                 submitted_to_journal=journal,
-                submission_date__year=year,
+                submission_date__year=int(year),
             )
             context['submissions'] = submissions
         if volume_nr:

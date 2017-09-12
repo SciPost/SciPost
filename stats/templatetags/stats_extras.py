@@ -13,7 +13,8 @@ register = template.Library()
 def submissions_count_distinct(submissions):
     identifiers_wo_vn_nr = []
     for submission in submissions:
-        identifiers_wo_vn_nr.append(submission.arxiv_identifier_wo_vn_nr)
+        if submission.arxiv_identifier_wo_vn_nr not in identifiers_wo_vn_nr:
+            identifiers_wo_vn_nr.append(submission.arxiv_identifier_wo_vn_nr)
     return len(identifiers_wo_vn_nr)
 
 
@@ -23,11 +24,13 @@ def journal_publication_years(journal):
     for volume in journal.volume_set.all():
         if volume.until_date.year not in years:
             years.append(volume.until_date.year)
-    return years
+    return sorted(years)
+
 
 @register.filter(name='journal_nr_publications')
 def journal_nr_publications(journal):
     return Publication.objects.filter(in_issue__in_volume__in_journal=journal).count()
+
 
 @register.filter(name='journal_avg_processing_duration')
 def journal_avg_processing_duration(journal):
@@ -37,9 +40,11 @@ def journal_avg_processing_duration(journal):
     if not duration: return 0
     return duration.days + duration.seconds/86400
 
+
 @register.filter(name='volume_nr_publications')
 def volume_nr_publications(volume):
     return Publication.objects.filter(in_issue__in_volume=volume).count()
+
 
 @register.filter(name='volume_avg_processing_duration')
 def volume_avg_processing_duration(volume):
@@ -49,9 +54,11 @@ def volume_avg_processing_duration(volume):
     if not duration: return 0
     return duration.days + duration.seconds/86400
 
+
 @register.filter(name='issue_nr_publications')
 def issue_nr_publications(issue):
     return Publication.objects.filter(in_issue=issue).count()
+
 
 @register.filter(name='issue_avg_processing_duration')
 def issue_avg_processing_duration(issue):

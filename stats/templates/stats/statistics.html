@@ -19,7 +19,7 @@
 <h2>Aggregate statistics</h2>
 <p>For each Journal, clicking on a year gives aggregate statistics for submissions (so including rejections). Clicking on a Journal/Volume/Issue gives aggregates for publications in this object.</p>
 <ul>
-  {% for journal in journals %}
+  {% for journal in journals|dictsort:"doi_label" %}
   <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label %}">{{ journal }}</a></li>
   <ul>
   {% for year in journal|journal_publication_years %}
@@ -27,10 +27,10 @@
   {% endfor %}
   </ul>
   <ul>
-{% for volume in journal.volume_set.all %}
+{% for volume in journal.volume_set.all|dictsort:"number" %}
 <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label volume_nr=volume.number %}">{{ volume }}</a></li>
 <ul>
-  {% for issue in volume.issue_set.all %}
+  {% for issue in volume.issue_set.all|dictsort:"number" %}
   <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label volume_nr=volume.number issue_nr=issue.number %}">{{ issue }}</a></li>
   {% endfor %}
 </ul>
