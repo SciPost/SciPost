@@ -39,7 +39,8 @@ def submissions_count_distinct(submissions):
 def journal_publication_years(journal):
     years = []
     for volume in journal.volume_set.all():
-        years.append(volume.until_date.year)
+        if volume.until_date.year not in years:
+            years.append(volume.until_date.year)
     return years
 
 @register.filter(name='journal_nr_publications')

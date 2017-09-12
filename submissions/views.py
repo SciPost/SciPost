@@ -1019,12 +1019,14 @@ def statistics(request, journal_doi_label=None, volume_nr=None, issue_nr=None, y
                 submission_date__year=year,
             )
             context['submissions'] = submissions
-    if volume_nr:
-        volume = get_object_or_404(Volume, number=volume_nr)
-        context['volume'] = volume
-    if issue_nr:
-        issue = get_object_or_404(Issue, number=issue_nr)
-        context['issue'] = issue
+        if volume_nr:
+            volume = get_object_or_404(Volume, in_journal=journal,
+                                       number=volume_nr)
+            context['volume'] = volume
+            if issue_nr:
+                issue = get_object_or_404(Issue, in_volume=volume,
+                                          number=issue_nr)
+                context['issue'] = issue
     return render(request, 'submissions/statistics.html', context)
 
 @login_required
