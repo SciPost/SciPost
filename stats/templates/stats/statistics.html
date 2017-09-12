@@ -49,7 +49,7 @@
     	<th>Nr submissions<br/>(distinct)</th>
 	<th>Nr submissions<br/>(including resubmissions)</th>
 	<th>Nr assignment failed</th>
-	<th>Nr accepted</th>
+	<th>Nr accepted/<br/>published</th>
 	<th>Nr rejected</th>
 	<th>Nr withdrawn</th>
     	{% else %}
@@ -73,7 +73,7 @@
     	<td>{{ submissions|submissions_count_distinct }}</td>
     	<td>{{ submissions|length }}</td>
 	<td>{{ submissions.assignment_failed.count }}</td>
-	<td>{{ submissions.accepted.count }}</td>
+	<td>{{ submissions.accepted.count|add:submissions.published.count }}</td>
 	<td>{{ submissions.rejected.count }}</td>
 	<td>{{ submissions.withdrawn.count }}</td>
     	{% else %}

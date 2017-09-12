@@ -114,6 +114,10 @@ class SubmissionQuerySet(models.QuerySet):
         return self.filter(status=STATUS_ACCEPTED)
 
 
+    def published(self):
+        return self.filter(status=STATUS_PUBLISHED)
+
+
     def assignment_failed(self):
         return self.filter(status=STATUS_ASSIGNMENT_FAILED)
 
