@@ -13,7 +13,7 @@ function initiate_popover(reinitiate=false) {
     var notification_template = '<div class="popover notifications" role="tooltip"><div class="arrow"></div><h3 class="popover-header h2"></h3><div class="popover-body"></div></div>';
 
     var get_notifications_title = function() {
-        return 'New notifications <div class="badge badge-warning live_notify_badge"></div><div class="mt-1"><small><a href="/notifications">See all my notifications</a></small></div>';
+        return 'Latest notifications <div class="badge badge-warning badge-pill live_notify_badge"></div><div class="mt-1"><small><a href="/notifications">See all my notifications</a></small></div>';
     }
 
     var get_notifications = function() {
