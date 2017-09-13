@@ -1,8 +1,6 @@
 {% load staticfiles %}
 {% load notifications_tags %}
-
-{# <script src="{% static 'notifications/notify.js' %}" type="text/javascript"></script>#}
-{# {% register_notify_callbacks callbacks='fill_notification_list,fill_notification_badge' %}#}
+{% load scipost_extras %}
 
 
 <nav class="navbar navbar-scroll navbar-light main-nav navbar-expand-lg">
@@ -28,8 +26,9 @@
           </li>
 
           {% if user.is_authenticated %}
+            {% if request.user|is_in_group:'Testers' %}
               <li class="nav-item highlighted dropdown navbar-counter">
-                <div class="nav-link">{# href="{% url 'notifications:all' %}" #}
+                <div class="nav-link">
                     <span class="user">{% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</span>
                     <a href="javascript:;" class="d-inline-block ml-1 dropdown-toggle" id="notifications_badge">
                         <i class="fa fa-bell-o" aria-hidden="true"></i>
@@ -39,6 +38,11 @@
                 </div>
 
               </li>
+          {% else %}
+              <li class="nav-item highlighted">
+                <span class="nav-link">Logged in as {{ user.username }}</span>
+              </li>
+          {% endif %}
               <li class="nav-item">
                   <a class="nav-link" href="{% url 'scipost:logout' %}">Logout</a>
               </li>
