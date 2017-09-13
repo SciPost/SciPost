@@ -2,10 +2,67 @@ var notify_badge_class = 'live_notify_badge';
 var notify_menu_class = 'live_notify_list';
 var notify_api_url_count = '/notifications/api/unread_count/';
 var notify_api_url_list = '/notifications/api/list/';
+var notify_api_url_toggle_read = '/notifications/mark-toggle';
 var notify_fetch_count = '5';
 var notify_refresh_period = 15000;
 var consecutive_misfires = 0;
 var registered_functions = [fill_notification_badge];
+
+
+function initiate_popover(reinitiate=false) {
+    var notification_template = '<div class="popover notifications" role="tooltip"><div class="arrow"></div><h3 class="popover-header h2"></h3><div class="popover-body"></div></div>';
+
+    var get_notifications_title = function() {
+        return 'New notifications <div class="badge badge-warning live_notify_badge"></div><div class="mt-1"><small><a href="/notifications">See all my notifications</a></small></div>';
+    }
+
+    var get_notifications = function() {
+        var _str = '<ul id="notification-list" class="update_notifications list-group"><div class="w-100 text-center py-4"><i class="fa fa-circle-o-notch fa-2x fa-spin fa-fw"></i><span class="sr-only">Loading...</span></div></ul>';
+        get_notification_list();
+        return _str;
+    }
+
+    $('.popover [data-toggle="tooltip"]').tooltip('dispose')
+    $('#notifications_badge').popover('dispose').popover({
+        animation: false,
+        trigger: 'click',
+        title: get_notifications_title,
+        template: notification_template,
+        content: get_notifications,
+        container: 'body',
+        offset: '0, 9px',
+        placement: "bottom",
+        html: true
+    }).on('inserted.bs.popover', function() {
+        // Bloody js
+        setTimeout(function() {
+            $('.popover [data-toggle="tooltip"]').tooltip({
+                animation: false,
+                fallbackPlacement: 'clockwise',
+                placement: 'bottom'
+            });
+            $('.popover .actions a').on('click', function() {
+                mark_toggle(this)
+            })
+        }, 1000);
+    });
+    if (reinitiate) {
+        $('#notifications_badge').popover('show')
+    }
+}
+
+
+function mark_toggle(el) {
+    var r = new XMLHttpRequest();
+    r.addEventListener('readystatechange', function(event){
+        if (this.readyState == 4 && this.status == 200) {
+            fetch_api_data()
+            initiate_popover(reinitiate=true)
+        }
+    })
+    r.open("GET", notify_api_url_toggle_read +'/' + $(el).data('slug') + '/?json=1', true);
+    r.send();
+}
 
 
 function fill_notification_badge(data) {
@@ -21,12 +78,12 @@ function get_notification_list() {
     var data = fetch_api_data(notify_api_url_list, function(data) {
 
         var messages = data.list.map(function (item) {
-            var message = "";
+            var message = '';
             if(typeof item.actor !== 'undefined'){
-                message = '<strong>' + item.actor + '</strong>';
+                message += '<strong>' + item.actor + '</strong>';
             }
             if(typeof item.verb !== 'undefined'){
-                message = message + " " + item.verb;
+                message += " " + item.verb;
             }
             if(typeof item.target !== 'undefined'){
                 if(typeof item.forward_link !== 'undefined') {
@@ -36,18 +93,20 @@ function get_notification_list() {
                 }
             }
             if(typeof item.timesince !== 'undefined'){
-                message = message + " <div class='text-muted'>" + item.timesince + " ago</div>";
+                message += " <div class='text-muted'>" + item.timesince + " ago</div>";
             }
 
             if(item.unread) {
-                var mark_as_read = '<div class="actions"><a href="#"><i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i></a></div>';
+                var mark_as_read = '<div class="actions"><a href="#" data-slug="' + item.slug + '"><i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i></a></div>';
             } else {
-                var mark_as_read = '<div class="actions"><a href="#"><i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i></a></div>';
+                var mark_as_read = '<div class="actions"><a href="#" data-slug="' + item.slug + '"><i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i></a></div>';
             }
             return '<li class="list-group-item ' + (item.unread ? ' active' : '') + '">' + mark_as_read + message + '</li>';
         }).join('');
 
-        if (messages == '') { messages = 'You have no notifications.' }
+        if (messages == '') {
+            messages = '<div class="text-center px-2 py-3"><i class="fa fa-star-o fa-2x" aria-hidden="true"></i><h3>You have no new notifications</h3></div>'
+        }
 
         document.getElementById('notification-list').innerHTML = messages;
     });
@@ -94,34 +153,5 @@ function fetch_api_data(url=null, callback=null) {
 setTimeout(fetch_api_data, 1000);
 
 $(function(){
-    var notification_template = '<div class="popover notifications" role="tooltip"><div class="arrow"></div><h3 class="popover-header h2"></h3><div class="popover-body"></div></div>';
-
-    var get_notifications_title = function() {
-        return 'New notifications <div class="badge badge-warning live_notify_badge"></div><div class="mt-1"><small><a href="/notifications">See all my notifications</a></small></div>';
-    }
-
-    var get_notifications = function() {
-        var _str = '<ul id="notification-list" class="update_notifications list-group"><div class="w-100 text-center py-4"><i class="fa fa-circle-o-notch fa-2x fa-spin fa-fw"></i><span class="sr-only">Loading...</span></div></ul>';
-        get_notification_list();
-        return _str;
-    }
-
-    $('#notifications_badge').popover({
-        animation: false,
-        trigger: 'click',
-        title: get_notifications_title,
-        template: notification_template,
-        content: get_notifications,
-        container: 'body',
-        offset: '0, 9px',
-        placement: "bottom",
-        html: true
-    }).on('inserted.bs.popover', function() {
-        console.log($('.popover [data-toggle="tooltip"]'))
-        $('.popover [data-toggle="tooltip"]').tooltip({
-            animation: false,
-            fallbackPlacement: 'clockwise',
-            placement: 'auto'
-        });
-    });
+    initiate_popover();
 });

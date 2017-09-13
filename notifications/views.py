@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.forms import model_to_dict
 from django.http import JsonResponse
@@ -10,7 +10,12 @@ from .models import Notification
 from .utils import id2slug, slug2id
 
 
+def is_test_user(user):
+    return user.groups.filter(name='Testers').exists()
+
+
 @method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(is_test_user), name='dispatch')
 class NotificationViewList(ListView):
     context_object_name = 'notifications'
 
@@ -23,12 +28,8 @@ class AllNotificationsList(NotificationViewList):
         return self.request.user.notifications.all()
 
 
-class UnreadNotificationsList(NotificationViewList):
-    def get_queryset(self):
-        return self.request.user.notifications.unread()
-
-
 @login_required
+@user_passes_test(is_test_user)
 def forward(request, slug):
     """
     Open the url of the target object of the notification and redirect.
@@ -40,6 +41,7 @@ def forward(request, slug):
 
 
 @login_required
+@user_passes_test(is_test_user)
 def mark_all_as_read(request):
     request.user.notifications.mark_all_as_read()
 
@@ -47,40 +49,29 @@ def mark_all_as_read(request):
 
     if _next:
         return redirect(_next)
-    return redirect('notifications:unread')
+    return redirect('notifications:all')
 
 
 @login_required
-def mark_as_read(request, slug=None):
+@user_passes_test(is_test_user)
+def mark_toggle(request, slug=None):
     id = slug2id(slug)
 
     notification = get_object_or_404(Notification, recipient=request.user, id=id)
-    notification.mark_as_read()
+    notification.mark_toggle()
 
     _next = request.GET.get('next')
-
     if _next:
         return redirect(_next)
 
-    return redirect('notifications:unread')
+    if request.GET.get('json'):
+        return JsonResponse({'unread': notification.unread})
+
+    return redirect('notifications:all')
 
 
 @login_required
-def mark_as_unread(request, slug=None):
-    id = slug2id(slug)
-
-    notification = get_object_or_404(Notification, recipient=request.user, id=id)
-    notification.mark_as_unread()
-
-    _next = request.GET.get('next')
-
-    if _next:
-        return redirect(_next)
-
-    return redirect('notifications:unread')
-
-
-@login_required
+@user_passes_test(is_test_user)
 def delete(request, slug=None):
     id = slug2id(slug)
 
@@ -113,7 +104,7 @@ def live_notification_list(request):
 
     try:
         # Default to 5 as a max number of notifications
-        num_to_fetch = max(int(request.GET.get('max', 5)), 100)
+        num_to_fetch = max(int(request.GET.get('max', 5)), 1)
         num_to_fetch = min(num_to_fetch, 100)
     except ValueError:
         num_to_fetch = 5
@@ -125,6 +116,7 @@ def live_notification_list(request):
         struct['slug'] = id2slug(n.id)
         if n.actor:
             if isinstance(n.actor, User):
+                # Humanize if possible
                 struct['actor'] = '{f} {l}'.format(f=n.actor.first_name, l=n.actor.last_name)
             else:
                 struct['actor'] = str(n.actor)

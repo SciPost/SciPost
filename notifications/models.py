@@ -92,6 +92,14 @@ class Notification(models.Model):
         from .utils import id2slug
         return id2slug(self.id)
 
+    def mark_toggle(self):
+        if self.unread:
+            self.unread = False
+            self.save()
+        else:
+            self.unread = True
+            self.save()
+
     def mark_as_read(self):
         if self.unread:
             self.unread = False

@@ -2,6 +2,7 @@ from django.db import models
 
 
 class NotificationQuerySet(models.query.QuerySet):
+
     def unsent(self):
         return self.filter(emailed=False)
 
