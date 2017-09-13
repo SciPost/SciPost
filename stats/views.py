@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render
 
@@ -17,10 +19,8 @@ def statistics(request, journal_doi_label=None, volume_nr=None, issue_nr=None, y
         context['journal'] = journal
         if year:
             context['year'] = year
-            submissions = Submission.objects.filter(
-                submitted_to_journal=journal_doi_label,
-                submission_date__year=year,
-            )
+            submissions = Submission.objects.filter(submitted_to_journal=journal_doi_label
+            ).originally_submitted(datetime.date(int(year), 1, 1), datetime.date(int(year), 12, 31))
             context['submissions'] = submissions
             nr_ref_inv = 0
             nr_acc = 0

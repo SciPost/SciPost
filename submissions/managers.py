@@ -110,6 +110,18 @@ class SubmissionQuerySet(models.QuerySet):
         return self.filter(status__in=[STATUS_ACCEPTED, STATUS_REJECTED_VISIBLE, STATUS_PUBLISHED,
                                        STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE])
 
+    def originally_submitted(self, from_date, until_date):
+        """
+        Returns the submissions originally received between from_date and until_date
+        (including subsequent resubmissions, even if those came in later).
+        """
+        identifiers = []
+        for sub in self.filter(is_resubmission=False,
+                               submission_date__range=(from_date, until_date)):
+            identifiers.append(sub.arxiv_identifier_wo_vn_nr)
+        return self.filter(arxiv_identifier_wo_vn_nr__in=identifiers)
+
+
     def accepted(self):
         return self.filter(status=STATUS_ACCEPTED)
 

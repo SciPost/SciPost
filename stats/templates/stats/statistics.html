@@ -17,7 +17,8 @@
 <h1 class="highlight">Statistics</h1>
 
 <h2>Aggregate statistics</h2>
-<p>For each Journal, clicking on a year gives aggregate statistics for submissions (so including rejections). Clicking on a Journal/Volume/Issue gives aggregates for publications in this object.</p>
+<p>For each Journal, clicking on a year gives aggregate statistics for Submissions (so including rejections and withdrawals) which were first submitted in that year.</p>
+<p>Clicking on a Journal/Volume/Issue gives aggregates for all publications in that object.</p>
 <ul>
   {% for journal in journals|dictsort:"doi_label" %}
   <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label %}">{{ journal }}</a></li>
