@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.db import models
 
 from .managers import NewsManager
@@ -19,3 +20,6 @@ class NewsItem(models.Model):
 
     def __str__(self):
         return self.date.strftime('%Y-%m-%d') + ', ' + self.headline
+
+    def get_absolute_url(self):
+        return reverse('news:news') + '#news_' + str(self.id)
