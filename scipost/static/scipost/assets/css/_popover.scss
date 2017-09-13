@@ -1,0 +1,43 @@
+.popover {
+    width: 500px;
+    box-shadow: #ccc 0px 1px 2px 1px;
+}
+
+.notifications {
+    .popover-body {
+        padding: 0;
+    }
+
+    &.popover .list-group-item {
+        padding: 9px 14px;
+        border-radius: 0;
+        border-top: 1px solid #fff;
+    }
+
+    .actions {
+        display: block;
+        opacity: 0.0;
+        transition: opacity 0.1s;
+        width: 20px;
+        float: right;
+        height: 100%;
+
+        a:hover {
+            .fa-circle-o:before {
+                content: '\f111';
+            }
+
+            .fa-circle:before {
+                content: '\f10c';
+            }
+        }
+    }
+
+    .list-group-item:hover .actions {
+        opacity: 1.0;
+    }
+}
+
+.popover-header {
+    font-size: initial;
+}

@@ -41,6 +41,7 @@ urlpatterns = [
     url(r'^thesis/', include('theses.urls', namespace="_theses")),
     url(r'^meetings/', include('virtualmeetings.urls', namespace="virtualmeetings")),
     url(r'^news/', include('news.urls', namespace="news")),
+    url(r'^notifications/', include('notifications.urls', namespace="notifications")),
     url(r'^production/', include('production.urls', namespace="production")),
     url(r'^partners/', include('partners.urls', namespace="partners")),
 

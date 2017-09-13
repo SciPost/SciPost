@@ -5,12 +5,6 @@ from django.core.urlresolvers import reverse
 from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_STREAM_ONGOING, PRODUCTION_EVENTS
 from .managers import ProductionStreamManager, ProductionEventManager
 
-from scipost.models import Contributor
-
-
-##############
-# Production #
-##############
 
 class ProductionStream(models.Model):
     submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE)
@@ -22,7 +16,8 @@ class ProductionStream(models.Model):
     objects = ProductionStreamManager()
 
     def __str__(self):
-        return str(self.submission)
+        return '{arxiv}, {title}'.format(arxiv=self.submission.arxiv_identifier_w_vn_nr,
+                                         title=self.submission.title)
 
     def get_absolute_url(self):
         if self.status == PRODUCTION_STREAM_ONGOING:
@@ -39,7 +34,7 @@ class ProductionEvent(models.Model):
     event = models.CharField(max_length=64, choices=PRODUCTION_EVENTS)
     comments = models.TextField(blank=True, null=True)
     noted_on = models.DateTimeField(default=timezone.now)
-    noted_by = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    noted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     duration = models.DurationField(blank=True, null=True)
 
     objects = ProductionEventManager()
@@ -48,7 +43,7 @@ class ProductionEvent(models.Model):
         ordering = ['noted_on']
 
     def __str__(self):
-        return '%s: %s' % (str(self.stream.submission), self.get_event_display())
+        return '%s: %s' % (self.stream, self.get_event_display())
 
     def get_absolute_url(self):
         return self.stream.get_absolute_url()
