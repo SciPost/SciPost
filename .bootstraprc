@@ -36,6 +36,7 @@
         "type": true,
         "tooltip": true,
         "utilities": true,
+        "popover": true,
     },
     "scripts": {
         "alert": true,
@@ -46,5 +47,6 @@
         "tab": true,
         "tooltip": true,
         "util": true,
+        "popover": true,
     }
 }

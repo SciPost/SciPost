@@ -28,6 +28,17 @@ class UnreadNotificationsList(NotificationViewList):
 
 
 @login_required
+def forward(request, slug):
+    """
+    Open the url of the target object of the notification and redirect.
+    In addition, mark the notification as read.
+    """
+    notification = get_object_or_404(Notification, recipient=request.user, id=slug2id(slug))
+    notification.mark_as_read()
+    return redirect(notification.target.get_absolute_url())
+
+
+@login_required
 def mark_all_as_read(request):
     request.user.notifications.mark_all_as_read()
 
@@ -101,7 +112,7 @@ def live_unread_notification_list(request):
 
     try:
         # Default to 5 as a max number of notifications
-        num_to_fetch = max(int(request.GET.get('max', 5)))
+        num_to_fetch = max(int(request.GET.get('max', 5)), 100)
         num_to_fetch = min(num_to_fetch, 100)
     except ValueError:
         num_to_fetch = 5
@@ -115,10 +126,10 @@ def live_unread_notification_list(request):
             struct['actor'] = str(n.actor)
         if n.target:
             struct['target'] = str(n.target)
+            struct['forward_link'] = n.get_absolute_url()
         if n.action_object:
             struct['action_object'] = str(n.action_object)
-        if n.data:
-            struct['data'] = n.data
+
         unread_list.append(struct)
         if request.GET.get('mark_as_read'):
             n.mark_as_read()

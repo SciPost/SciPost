@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -59,7 +60,7 @@ class Notification(models.Model):
     class Meta:
         ordering = ('-created', )
 
-    def __unicode__(self):
+    def __str__(self):
         ctx = {
             'actor': self.actor,
             'verb': self.verb,
@@ -74,6 +75,9 @@ class Notification(models.Model):
         if self.action_object:
             return u'%(actor)s %(verb)s %(action_object)s %(timesince)s ago' % ctx
         return u'%(actor)s %(verb)s %(timesince)s ago' % ctx
+
+    def get_absolute_url(self):
+        return reverse('notifications:forward', args=(self.slug,))
 
     def timesince(self, now=None):
         """

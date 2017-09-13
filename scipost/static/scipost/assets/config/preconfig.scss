@@ -7,6 +7,7 @@
 //
 $base-border-radius: 2px;
 $border-radius: 2px;
+$border-radius-lg: 2px;
 
 // Alert
 //
@@ -139,6 +140,16 @@ $btn-border-radius-lg: 0;
 $blockquote-font-size: $font-size-base;
 // $blockquote-border-color: #ececec;
 
+
+// Popover
+//
+$popover-border-color:                #dddddd;
+$popover-arrow-width:                 5px;
+$popover-arrow-height:                5px;
+// $popover-arrow-color:                 $popover-bg;
+$popover-max-width:                   400px;
+
+$popover-arrow-outer-width:           ($popover-arrow-width + 1px);
 
 
 

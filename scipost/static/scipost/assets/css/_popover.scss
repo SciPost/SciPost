@@ -1,0 +1,15 @@
+.popover {
+    width: 400px;
+}
+
+.popover.notifications {
+    .popover-body {
+        padding: 0;
+    }
+
+    .list-group-item {
+        padding: 9px 14px;
+        border-radius: 0;
+        border-top: 1px solid #fff;
+    }
+}

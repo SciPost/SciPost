@@ -1,4 +1,5 @@
 import tooltip from './tooltip.js';
+import notifications from './notifications.js';
 
 function hide_all_alerts() {
     $(".alert").fadeOut(300);
@@ -43,5 +44,5 @@ $(function(){
     // Auto-submit hook for general form elements
     $("form .auto-submit input").on('change', function(){
         $(this).parents('form').submit()
-    })
+    });
 });

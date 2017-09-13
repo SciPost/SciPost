@@ -1,0 +1,8 @@
+.badge {
+    vertical-align: bottom;
+
+    .h3 &,
+    h3 & {
+        line-height: 1.25;
+    }
+}
