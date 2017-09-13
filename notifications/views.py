@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.forms import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -123,7 +124,10 @@ def live_notification_list(request):
         struct = model_to_dict(n)
         struct['slug'] = id2slug(n.id)
         if n.actor:
-            struct['actor'] = '{f} {l}'.format(f=n.actor.first_name, l=n.actor.last_name)
+            if isinstance(n.actor, User):
+                struct['actor'] = '{f} {l}'.format(f=n.actor.first_name, l=n.actor.last_name)
+            else:
+                struct['actor'] = str(n.actor)
         if n.target:
             struct['target'] = str(n.target)
             struct['forward_link'] = n.get_absolute_url()

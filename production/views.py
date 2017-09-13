@@ -13,6 +13,7 @@ from guardian.decorators import permission_required
 from .constants import PRODUCTION_STREAM_COMPLETED
 from .models import ProductionStream, ProductionEvent
 from .forms import ProductionEventForm
+from .signals import notify_stream_completed
 
 from scipost.models import Contributor
 
@@ -107,6 +108,8 @@ def mark_as_completed(request, stream_id):
     stream.status = PRODUCTION_STREAM_COMPLETED
     stream.closed = timezone.now()
     stream.save()
+
+    notify_stream_completed(request.user, stream)
     return redirect(reverse('production:production'))
 
 
