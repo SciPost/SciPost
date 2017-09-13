@@ -2,6 +2,7 @@ from journals.constants import SCIPOST_JOURNAL_PHYSICS
 
 
 STATUS_UNASSIGNED = 'unassigned'
+STATUS_ASSIGNMENT_FAILED = 'assignment_failed'
 STATUS_RESUBMISSION_INCOMING = 'resubmitted_incoming'
 STATUS_REVISION_REQUESTED = 'revision_requested'
 STATUS_EIC_ASSIGNED = 'EICassigned'
@@ -14,10 +15,15 @@ STATUS_REJECTED_VISIBLE = 'rejected_visible'
 STATUS_RESUBMITTED = 'resubmitted'
 STATUS_RESUBMITTED_REJECTED = 'resubmitted_and_rejected'
 STATUS_RESUBMITTED_REJECTED_VISIBLE = 'resubmitted_and_rejected_visible'
+STATUS_VOTING_IN_PREPARATION = 'voting_in_preparation'
+STATUS_PUT_TO_EC_VOTING = 'put_to_EC_voting'
+STATUS_EC_VOTE_COMPLETED = 'EC_vote_completed'
+STATUS_WITHDRAWN = 'withdrawn'
+
 SUBMISSION_STATUS = (
     (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
     (STATUS_RESUBMISSION_INCOMING, 'Resubmission incoming'),
-    ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'),
+    (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
     (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned, manuscript under review'),
     (STATUS_REVIEW_CLOSED, 'Review period closed, editorial recommendation pending'),
     # If revisions required: resubmission creates a new Submission object
@@ -27,22 +33,22 @@ SUBMISSION_STATUS = (
     (STATUS_RESUBMITTED_REJECTED_VISIBLE,
      'Has been resubmitted and subsequently rejected (still publicly visible)'),
     # If acceptance/rejection:
-    ('voting_in_preparation', 'Voting in preparation (eligible Fellows being selected)'),
-    ('put_to_EC_voting', 'Undergoing voting at the Editorial College'),
+    (STATUS_VOTING_IN_PREPARATION, 'Voting in preparation (eligible Fellows being selected)'),
+    (STATUS_PUT_TO_EC_VOTING, 'Undergoing voting at the Editorial College'),
     (STATUS_AWAITING_ED_REC, 'Awaiting Editorial Recommendation'),
-    ('EC_vote_completed', 'Editorial College voting rounded up'),
+    (STATUS_EC_VOTE_COMPLETED, 'Editorial College voting rounded up'),
     (STATUS_ACCEPTED, 'Publication decision taken: accept'),
     (STATUS_REJECTED, 'Publication decision taken: reject'),
     (STATUS_REJECTED_VISIBLE, 'Publication decision taken: reject (still publicly visible)'),
     (STATUS_PUBLISHED, 'Published'),
     # If withdrawn:
-    ('withdrawn', 'Withdrawn by the Authors'),
+    (STATUS_WITHDRAWN, 'Withdrawn by the Authors'),
 )
 
 SUBMISSION_HTTP404_ON_EDITORIAL_PAGE = [
-    'assignment_failed',
+    STATUS_ASSIGNMENT_FAILED,
     STATUS_PUBLISHED,
-    'withdrawn',
+    STATUS_WITHDRAWN,
     STATUS_REJECTED,
     STATUS_REJECTED_VISIBLE,
 ]
@@ -55,9 +61,9 @@ SUBMISSION_EXCLUDE_FROM_REPORTING = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
     STATUS_AWAITING_ED_REC,
     STATUS_REVIEW_CLOSED,
     STATUS_ACCEPTED,
-    'voting_in_preparation',
-    'put_to_EC_voting',
-    'withdrawn',
+    STATUS_VOTING_IN_PREPARATION,
+    STATUS_PUT_TO_EC_VOTING,
+    STATUS_WITHDRAWN,
 ]
 
 # Submissions which are allowed/required to submit a EIC Recommendation
@@ -71,10 +77,10 @@ SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [
 SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
     STATUS_UNASSIGNED,
     STATUS_RESUBMISSION_INCOMING,
-    'assignment_failed',
+    STATUS_ASSIGNMENT_FAILED,
     STATUS_RESUBMITTED_REJECTED,
     STATUS_REJECTED,
-    'withdrawn',
+    STATUS_WITHDRAWN,
 ]
 
 # Submissions which should not appear in search lists
@@ -88,7 +94,7 @@ SUBMISSION_STATUS_PUBLICLY_UNLISTED = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
 SUBMISSION_STATUS_VOTING_DEPRECATED = [
     STATUS_REJECTED,
     STATUS_PUBLISHED,
-    'withdrawn',
+    STATUS_WITHDRAWN,
 ]
 
 SUBMISSION_TYPE = (
