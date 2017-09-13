@@ -8,8 +8,8 @@ class NewsItem(models.Model):
     date = models.DateField()
     headline = models.CharField(max_length=300)
     blurb = models.TextField()
-    followup_link = models.URLField(blank=True, null=True)
-    followup_link_text = models.CharField(max_length=300, blank=True, null=True)
+    followup_link = models.URLField(blank=True)
+    followup_link_text = models.CharField(max_length=300, blank=True)
     on_homepage = models.BooleanField(default=True)
 
     objects = NewsManager()
