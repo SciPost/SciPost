@@ -102,11 +102,11 @@ def live_unread_notification_count(request):
     return JsonResponse(data)
 
 
-def live_unread_notification_list(request):
+def live_notification_list(request):
     if not request.user.is_authenticated():
         data = {
            'unread_count': 0,
-           'unread_list': []
+           'list': []
         }
         return JsonResponse(data)
 
@@ -117,9 +117,9 @@ def live_unread_notification_list(request):
     except ValueError:
         num_to_fetch = 5
 
-    unread_list = []
+    list = []
 
-    for n in request.user.notifications.unread()[:num_to_fetch]:
+    for n in request.user.notifications.all()[:num_to_fetch]:
         struct = model_to_dict(n)
         struct['slug'] = id2slug(n.id)
         if n.actor:
@@ -130,11 +130,11 @@ def live_unread_notification_list(request):
         if n.action_object:
             struct['action_object'] = str(n.action_object)
 
-        unread_list.append(struct)
+        list.append(struct)
         if request.GET.get('mark_as_read'):
             n.mark_as_read()
     data = {
         'unread_count': request.user.notifications.unread().count(),
-        'unread_list': unread_list
+        'list': list
     }
     return JsonResponse(data)

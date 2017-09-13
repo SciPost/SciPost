@@ -13,6 +13,6 @@ urlpatterns = [
     url(r'^delete/(?P<slug>\d+)/$', views.delete, name='delete'),
     url(r'^api/unread_count/$', views.live_unread_notification_count,
         name='live_unread_notification_count'),
-    url(r'^api/unread_list/$', views.live_unread_notification_list,
+    url(r'^api/list/$', views.live_notification_list,
         name='live_unread_notification_list'),
 ]

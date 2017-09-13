@@ -85,7 +85,7 @@ class Notification(models.Model):
         current timestamp.
         """
         from django.utils.timesince import timesince as timesince_
-        return timesince_(self.timestamp, now)
+        return timesince_(self.created, now)
 
     @property
     def slug(self):

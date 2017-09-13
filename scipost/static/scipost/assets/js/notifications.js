@@ -1,7 +1,7 @@
 var notify_badge_class = 'live_notify_badge';
 var notify_menu_class = 'live_notify_list';
 var notify_api_url_count = '/notifications/api/unread_count/';
-var notify_api_url_list = '/notifications/api/unread_list/';
+var notify_api_url_list = '/notifications/api/list/';
 var notify_fetch_count = '5';
 var notify_refresh_period = 15000;
 var consecutive_misfires = 0;
@@ -20,7 +20,7 @@ function fill_notification_badge(data) {
 function get_notification_list() {
     var data = fetch_api_data(notify_api_url_list, function(data) {
 
-        var messages = data.unread_list.map(function (item) {
+        var messages = data.list.map(function (item) {
             var message = "";
             if(typeof item.actor !== 'undefined'){
                 message = '<strong>' + item.actor + '</strong>';
@@ -39,7 +39,9 @@ function get_notification_list() {
                 message = message + " " + item.timestamp;
             }
             return '<li class="list-group-item ' + (item.unread ? ' active' : '') + '">' + message + '</li>';
-        }).join('')
+        }).join('');
+
+        if (messages == '') { messages = 'You have no notifications.' }
 
         document.getElementById('notification-list').innerHTML = messages;
     });
@@ -93,7 +95,7 @@ $(function(){
     }
 
     var get_notifications = function() {
-        var _str = '<ul id="notification-list" class="update_notifications list-group"><div class="w-100 text-center"><i class="fa fa-circle-o-notch fa-spin fa-fw"></i><span class="sr-only">Loading...</span></div></ul>';
+        var _str = '<ul id="notification-list" class="update_notifications list-group"><div class="w-100 text-center py-4"><i class="fa fa-circle-o-notch fa-2x fa-spin fa-fw"></i><span class="sr-only">Loading...</span></div></ul>';
         get_notification_list();
         return _str;
     }
