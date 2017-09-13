@@ -1,22 +1,26 @@
-var notify_badge_class = 'live_notify_badge';
-var notify_menu_class = 'live_notify_list';
-var notify_api_url_count = '/notifications/api/unread_count/';
-var notify_api_url_list = '/notifications/api/list/';
-var notify_api_url_toggle_read = '/notifications/mark-toggle';
-var notify_fetch_count = '5';
+var notify_badge_class = "live_notify_badge";
+var notify_menu_class = "live_notify_list";
+var notify_api_url_count = "/notifications/api/unread_count/";
+var notify_api_url_list = "/notifications/api/list/";
+var notify_api_url_toggle_read = "/notifications/mark-toggle";
+var notify_fetch_count = "5";
 var notify_refresh_period = 15000;
 var consecutive_misfires = 0;
 var registered_functions = [fill_notification_badge];
 
 
-function initiate_popover(reinitiate=false) {
+function initiate_popover(reinitiate) {
+    if(typeof reinitiate == 'undefined') {
+        reinitiate = false;
+    }
+
     var notification_template = '<div class="popover notifications" role="tooltip"><div class="arrow"></div><h3 class="popover-header h2"></h3><div class="popover-body"></div></div>';
 
-    var get_notifications_title = function() {
+    function get_notifications_title() {
         return 'Latest notifications <div class="badge badge-warning badge-pill live_notify_badge"></div><div class="mt-1"><small><a href="/notifications">See all my notifications</a></small></div>';
     }
 
-    var get_notifications = function() {
+    function get_notifications() {
         var _str = '<ul id="notification-list" class="update_notifications list-group"><div class="w-100 text-center py-4"><i class="fa fa-circle-o-notch fa-2x fa-spin fa-fw"></i><span class="sr-only">Loading...</span></div></ul>';
         get_notification_list();
         return _str;
@@ -60,7 +64,7 @@ function mark_toggle(el) {
             initiate_popover(reinitiate=true)
         }
     })
-    r.open("GET", notify_api_url_toggle_read +'/' + $(el).data('slug') + '/?json=1', true);
+    r.open("GET", notify_api_url_toggle_read + '/' + $(el).data('slug') + '/?json=1', true);
     r.send();
 }
 
@@ -112,7 +116,7 @@ function get_notification_list() {
     });
 }
 
-function fetch_api_data(url=null, callback=null) {
+function fetch_api_data(url, callback) {
     if (!url) {
         var url = notify_api_url_count;
     }
@@ -134,7 +138,7 @@ function fetch_api_data(url=null, callback=null) {
                 }
             }
         })
-        r.open("GET", url +'?max='+notify_fetch_count, true);
+        r.open("GET", url + '?max=' + notify_fetch_count, true);
         r.send();
     }
     if (consecutive_misfires < 10) {
@@ -142,7 +146,7 @@ function fetch_api_data(url=null, callback=null) {
     } else {
         var badges = document.getElementsByClassName(notify_badge_class);
         if (badges) {
-            for (var i = 0; i < badges.length; i++){
+            for (var i=0; i < badges.length; i++){
                 badges[i].innerHTML = "!";
                 badges[i].title = "Connection lost!"
             }

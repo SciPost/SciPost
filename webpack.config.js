@@ -76,8 +76,8 @@ module.exports = {
             dry: false,
             exclude: []
         }),
-        // new webpack.optimize.UglifyJsPlugin(),
-        // new webpack.optimize.OccurrenceOrderPlugin(),
-        // new webpack.optimize.AggressiveMergingPlugin()
+        new webpack.optimize.UglifyJsPlugin(),
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.optimize.AggressiveMergingPlugin()
     ],
 }
