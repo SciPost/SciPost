@@ -31,7 +31,7 @@
               <li class="nav-item highlighted dropdown navbar-counter">
                 <div class="nav-link">{# href="{% url 'notifications:all' %}" #}
                     <span class="user">{% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</span>
-                    <a href="#" class="d-inline dropdown-toggle" id="notifications_badge">
+                    <a href="javascript:;" class="d-inline-block ml-1 dropdown-toggle" id="notifications_badge">
                         <i class="fa fa-bell-o" aria-hidden="true"></i>
                         {% live_notify_badge classes="badge badge-pill badge-primary" %}
                     </a>

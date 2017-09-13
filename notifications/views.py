@@ -129,6 +129,7 @@ def live_notification_list(request):
             struct['forward_link'] = n.get_absolute_url()
         if n.action_object:
             struct['action_object'] = str(n.action_object)
+        struct['timesince'] = n.timesince()
 
         list.append(struct)
         if request.GET.get('mark_as_read'):

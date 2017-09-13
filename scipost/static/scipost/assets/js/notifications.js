@@ -35,10 +35,16 @@ function get_notification_list() {
                     message += " " + item.target;
                 }
             }
-            if(typeof item.timestamp !== 'undefined'){
-                message = message + " " + item.timestamp;
+            if(typeof item.timesince !== 'undefined'){
+                message = message + " <div class='text-muted'>" + item.timesince + " ago</div>";
             }
-            return '<li class="list-group-item ' + (item.unread ? ' active' : '') + '">' + message + '</li>';
+
+            if(item.unread) {
+                var mark_as_read = '<div class="actions"><a href="#"><i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i></a></div>';
+            } else {
+                var mark_as_read = '<div class="actions"><a href="#"><i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i></a></div>';
+            }
+            return '<li class="list-group-item ' + (item.unread ? ' active' : '') + '">' + mark_as_read + message + '</li>';
         }).join('');
 
         if (messages == '') { messages = 'You have no notifications.' }
@@ -88,10 +94,10 @@ function fetch_api_data(url=null, callback=null) {
 setTimeout(fetch_api_data, 1000);
 
 $(function(){
-    var notification_template = '<div class="popover notifications" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>';
+    var notification_template = '<div class="popover notifications" role="tooltip"><div class="arrow"></div><h3 class="popover-header h2"></h3><div class="popover-body"></div></div>';
 
     var get_notifications_title = function() {
-        return 'New notifications <div class="badge badge-warning live_notify_badge"></div>';
+        return 'New notifications <div class="badge badge-warning live_notify_badge"></div><div class="mt-1"><small><a href="/notifications">See all my notifications</a></small></div>';
     }
 
     var get_notifications = function() {
@@ -110,5 +116,12 @@ $(function(){
         offset: '0, 9px',
         placement: "bottom",
         html: true
+    }).on('inserted.bs.popover', function() {
+        console.log($('.popover [data-toggle="tooltip"]'))
+        $('.popover [data-toggle="tooltip"]').tooltip({
+            animation: false,
+            fallbackPlacement: 'clockwise',
+            placement: 'auto'
+        });
     });
 });
