@@ -1,10 +1,16 @@
 from django.contrib import admin
 
-from .models import ProductionStream, ProductionEvent
+from .models import ProductionStream, ProductionEvent, ProductionUser
 
 
 def event_count(obj):
     return obj.productionevent_set.count()
+
+
+class ProductionUserInline(admin.StackedInline):
+    model = ProductionUser
+    extra = 0
+    min_num = 0
 
 
 class ProductionEventInline(admin.TabularInline):

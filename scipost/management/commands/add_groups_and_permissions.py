@@ -27,6 +27,7 @@ class Command(BaseCommand):
         Testers, created = Group.objects.get_or_create(name='Testers')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
+        ProductionSupervisors, created = Group.objects.get_or_create(name='Production Supervisor')
         ProductionOfficers, created = Group.objects.get_or_create(name='Production Officers')
 
         PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
@@ -205,6 +206,14 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Production
+        can_promote_user_to_production_officer, created = Permission.objects.get_or_create(
+            codename='can_promote_user_to_production_officer',
+            name='Can promote user to production officer',
+            content_type=content_type)
+        can_assign_production_officer, created = Permission.objects.get_or_create(
+            codename='can_assign_production_officer',
+            name='Can assign production officer',
+            content_type=content_type)
         can_view_production, created = Permission.objects.get_or_create(
             codename='can_view_production',
             name='Can view production page',
@@ -250,6 +259,7 @@ class Command(BaseCommand):
             can_assign_submissions,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
+            can_promote_user_to_production_officer,
             can_view_production,
             can_attend_VGMs,
             can_view_timesheets,
@@ -314,6 +324,12 @@ class Command(BaseCommand):
 
         JuniorAmbassadors.permissions.set([
             can_draft_registration_invitations,
+        ])
+
+        ProductionSupervisors.permissions.set([
+            can_assign_production_officer,
+            can_view_docs_scipost,
+            can_view_production,
         ])
 
         ProductionOfficers.permissions.set([

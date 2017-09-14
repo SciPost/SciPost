@@ -1,9 +1,23 @@
 from django.db import models
-from django.utils import timezone
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_STREAM_ONGOING, PRODUCTION_EVENTS
 from .managers import ProductionStreamManager, ProductionEventManager
+
+
+class ProductionUser(models.Model):
+    """
+    Production Officers will have a ProductionUser object related to their account
+    to relate all production related actions to.
+    """
+    user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True)
+
+    # objects = ProductionUserQuerySet.as_manager()  -- Not implemented yet
+
+    def __str__(self):
+        return '%s, %s' % (self.user.last_name, self.user.first_name)
 
 
 class ProductionStream(models.Model):
