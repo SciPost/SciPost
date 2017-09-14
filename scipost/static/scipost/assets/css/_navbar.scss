@@ -73,3 +73,32 @@
         white-space: nowrap;
     }
 }
+
+.navbar-counter {
+    position: relative;
+
+    a.dropdown-toggle {
+        min-width: 45px;
+    }
+
+    a:hover {
+        text-decoration: none;
+
+        .badge {
+            background-color: $scipost-darkblue;
+        }
+
+        .fa-bell-o:before {
+            content: "\f0f3";
+        }
+    }
+
+    .badge {
+        vertical-align: top;
+        margin-left: -5px;
+        margin-top: -2px;
+        height: 16px;
+        min-width: 16px;
+        line-height: 12px;
+    }
+}

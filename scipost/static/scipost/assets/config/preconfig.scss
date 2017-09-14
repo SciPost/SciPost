@@ -7,6 +7,7 @@
 //
 $base-border-radius: 2px;
 $border-radius: 2px;
+$border-radius-lg: 2px;
 
 // Alert
 //
@@ -93,6 +94,9 @@ $list-group-bg: transparent;
 $list-group-item-padding-x: 0;
 $list-group-item-padding-y: 0;
 $list-group-border-color: #ddd;
+$list-group-active-color: $scipost-darkblue;
+$list-group-active-bg: $scipost-lightestblue;
+$list-group-active-border-color: $scipost-lightestblue;
 
 // Fonts
 //
@@ -136,6 +140,16 @@ $btn-border-radius-lg: 0;
 $blockquote-font-size: $font-size-base;
 // $blockquote-border-color: #ececec;
 
+
+// Popover
+//
+$popover-border-color:                #dddddd;
+$popover-arrow-width:                 5px;
+$popover-arrow-height:                5px;
+// $popover-arrow-color:                 $popover-bg;
+$popover-max-width:                   500px;
+
+$popover-arrow-outer-width:           ($popover-arrow-width + 1px);
 
 
 

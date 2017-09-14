@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.template import Template, Context
 from django.utils import timezone
 
 from django_countries.fields import CountryField

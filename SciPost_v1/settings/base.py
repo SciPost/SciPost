@@ -90,6 +90,7 @@ INSTALLED_APPS = (
     'mails',
     'mailing_lists',
     'news',
+    'notifications',
     'scipost',
     'submissions',
     'theses',
@@ -108,11 +109,6 @@ HAYSTACK_CONNECTIONS = {
         'PATH': 'local_files/haystack/',
         'EXCLUDED_INDEXES': ['sphinxdoc.search_indexes.DocumentIndex'],
     },
-    # 'scipost': {
-    #     'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-    #     'PATH': 'local_files/haystack_scipost/',
-    #     'EXCLUDED_INDEXES': ['sphinxdoc.search_indexes.DocumentIndex'],
-    # },
 }
 
 # Brute force automatically re-index Haystack using post_save signals on all models.
@@ -150,7 +146,7 @@ MATHJAX_CONFIG_DATA = {
         }
     }
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -159,7 +155,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.security.SecurityMiddleware'
 )
 
 ROOT_URLCONF = 'SciPost_v1.urls'
