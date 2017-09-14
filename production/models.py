@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_STREAM_ONGOING, PRODUCTION_EVENTS
-from .managers import ProductionStreamManager, ProductionEventManager
+from .managers import ProductionStreamQuerySet, ProductionEventManager
 
 
 class ProductionUser(models.Model):
@@ -12,7 +12,8 @@ class ProductionUser(models.Model):
     Production Officers will have a ProductionUser object related to their account
     to relate all production related actions to.
     """
-    user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True)
+    user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True,
+                                related_name='production_user')
 
     # objects = ProductionUserQuerySet.as_manager()  -- Not implemented yet
 
@@ -26,8 +27,10 @@ class ProductionStream(models.Model):
     closed = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=32,
                               choices=PRODUCTION_STREAM_STATUS, default=PRODUCTION_STREAM_ONGOING)
+    officers = models.ManyToManyField('production.ProductionUser', blank=True,
+                                      related_name='streams')
 
-    objects = ProductionStreamManager()
+    objects = ProductionStreamQuerySet.as_manager()
 
     def __str__(self):
         return '{arxiv}, {title}'.format(arxiv=self.submission.arxiv_identifier_w_vn_nr,

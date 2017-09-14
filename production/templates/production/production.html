@@ -71,7 +71,7 @@
         	</tr>
         	<tr id="collapse{{ stream.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ stream.id }}" style="background-color: #fff;">
         	  <td colspan="5">
-                    {% include 'production/partials/production_stream_card.html' with stream=stream form=prodevent_form %}
+                    {% include 'production/partials/production_stream_card.html' with stream=stream prodevent_form=prodevent_form assignment_form=assignment_form %}
         	  </td>
         	</tr>
     	{% empty %}

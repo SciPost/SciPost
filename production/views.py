@@ -1,7 +1,6 @@
 import datetime
 
 from django.contrib import messages
-from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
@@ -11,8 +10,8 @@ from django.views.generic.edit import UpdateView, DeleteView
 from guardian.decorators import permission_required
 
 from .constants import PRODUCTION_STREAM_COMPLETED
-from .models import ProductionStream, ProductionEvent
-from .forms import ProductionEventForm
+from .models import ProductionUser, ProductionStream, ProductionEvent
+from .forms import ProductionEventForm, AssignOfficerForm
 from .signals import notify_stream_completed
 
 from scipost.models import Contributor
@@ -28,14 +27,19 @@ def production(request):
     Overview page for the production process.
     All papers with accepted but not yet published status are included here.
     """
-    streams = ProductionStream.objects.ongoing().order_by('opened')
+    if request.user.has_perm('scipost.can_assign_production_officer'):
+        streams = ProductionStream.objects.ongoing().order_by('opened')
+    else:
+        streams = ProductionStream.objects.ongoing().filter_for_user(request.user.production_user).order_by('opened')
     prodevent_form = ProductionEventForm()
+    assignment_form = AssignOfficerForm()
     ownevents = ProductionEvent.objects.filter(
         noted_by=request.user.contributor,
         duration__gte=datetime.timedelta(minutes=1)).order_by('-noted_on')
     context = {
         'streams': streams,
         'prodevent_form': prodevent_form,
+        'assignment_form': assignment_form,
         'ownevents': ownevents,
     }
     if request.user.has_perm('scipost.can_view_timesheets'):
@@ -65,6 +69,33 @@ def add_event(request, stream_id):
         prodevent.save()
     else:
         messages.warning(request, 'The form was invalidly filled.')
+    return redirect(reverse('production:production'))
+
+
+@permission_required('scipost.can_assign_production_officer', return_403=True)
+def add_officer(request, stream_id):
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    form = AssignOfficerForm(request.POST or None, instance=stream)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Officer {officer} has been assigned.'.format(
+            officer=form.cleaned_data.get('officer')))
+    else:
+        for key, error in form.errors.items():
+            messages.warning(request, error[0])
+    return redirect(reverse('production:production'))
+
+
+@permission_required('scipost.can_assign_production_officer', return_403=True)
+def remove_officer(request, stream_id, officer_id):
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    try:
+        officer = stream.officers.get(pk=officer_id)
+    except ProductionUser.DoesNotExist:
+        return redirect(reverse('production:production'))
+
+    stream.officers.remove(officer)
+    messages.success(request, 'Officer {officer} has been removed.'.format(officer=officer))
     return redirect(reverse('production:production'))
 
 

@@ -28,4 +28,5 @@ class ProductionStreamAdmin(admin.ModelAdmin):
     )
 
 
+admin.site.register(ProductionUser)
 admin.site.register(ProductionStream, ProductionStreamAdmin)

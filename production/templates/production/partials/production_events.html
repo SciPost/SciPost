@@ -21,3 +21,8 @@
         <li>No events were found.</li>
     {% endfor %}
 </ul>
+
+{% if stream.total_duration %}
+    <hr class="sm">
+    <p class="pl-4 ml-3">Total duration for this stream: <strong>{{ stream.total_duration|duration }}</strong></p>
+{% endif %}
