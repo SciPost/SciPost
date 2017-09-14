@@ -304,7 +304,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
         for report in reports:
             report.doideposit_needs_updating = True
             report.save()
-        comments = Comment.objects.filter(author=contributor, anonymous=False)
+        comments = Comment.objects.filter(author=self.instance, anonymous=False)
         for comment in comments:
             comment.doideposit_needs_updating = True
             comment.save()
