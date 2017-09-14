@@ -296,7 +296,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
         and changes the orcid_id. It marks all Publications, Reports and Comments
         authors by this Contributor with a deposit_requires_update == True.
         """
-        publications = Publication.objects.filter(authors__in=self.instance)
+        publications = Publication.objects.filter(authors=self.instance)
         for publication in publications:
             publication.doideposit_needs_updating = True
             publication.save()
