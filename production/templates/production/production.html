@@ -24,15 +24,15 @@
       <div class="tab-nav-inner">
 	<ul class="nav btn-group personal-page-nav" role="tablist">
 	  <li class="nav-item btn btn-secondary">
-	    <a href="#streams" class="nav-link active" data-toggle="tab">Streams</a>
+	    <a href="#streams" class="nav-link active" data-toggle="tab">{{ perms.scipost.can_assign_production_officer|yesno:"Streams,My Streams" }}</a>
 	  </li>
 	  <li class="nav-item btn btn-secondary">
 	    <a href="#mytimesheet" class="nav-link" data-toggle="tab">My Timesheet</a>
 	  </li>
 	  {% if perms.scipost.can_view_timesheets %}
-	  <li class="nav-item btn btn-secondary">
-	    <a href="#teamtimesheets" class="nav-link" data-toggle="tab">Team Timesheets</a>
-	  </li>
+    	  <li class="nav-item btn btn-secondary">
+    	    <a href="#teamtimesheets" class="nav-link" data-toggle="tab">Team Timesheets</a>
+    	  </li>
 	  {% endif %}
 	</ul>
       </div>
@@ -45,7 +45,7 @@
   <div class="tab-pane active" id="streams" role="tabpanel">
     <div class="row">
       <div class="col-12">
-	<h2 class="highlight">Streams</h2>
+    	<h2 class="highlight">{{ perms.scipost.can_assign_production_officer|yesno:"Streams,My Streams" }}</h2>
       </div>
     </div>
 
@@ -61,24 +61,24 @@
       </thead>
 
       <tbody id="accordion" role="tablist" aria-multiselectable="true">
-	{% for stream in streams %}
-	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ stream.id }}" aria-expanded="true" aria-controls="collapse{{ stream.id }}" style="cursor: pointer;">
-	  <td>{{ stream.submission.author_list }}</td>
-	  <td>{{ stream.submission.title }}</td>
-	  <td>{{ stream.submission.acceptance_date|date:"Y-m-d" }}</td>
-	  <td>{{ stream.productionevent_set.last.get_event_display }}</td>
-	  <td>{{ stream.productionevent_set.last.noted_on }}</td>
-	</tr>
-	<tr id="collapse{{ stream.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ stream.id }}" style="background-color: #fff;">
-	  <td colspan="5">
-            {% include 'production/_production_stream_card.html' with stream=stream form=prodevent_form %}
-	  </td>
-	</tr>
-	{% empty %}
-	<tr>
-	  <td colspan="5">No production streams found.</td>
-	</tr>
-	{% endfor %}
+    	{% for stream in streams %}
+        	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ stream.id }}" aria-expanded="true" aria-controls="collapse{{ stream.id }}" style="cursor: pointer;">
+        	  <td>{{ stream.submission.author_list }}</td>
+        	  <td>{{ stream.submission.title }}</td>
+        	  <td>{{ stream.submission.acceptance_date|date:"Y-m-d" }}</td>
+        	  <td>{{ stream.productionevent_set.last.get_event_display }}</td>
+        	  <td>{{ stream.productionevent_set.last.noted_on }}</td>
+        	</tr>
+        	<tr id="collapse{{ stream.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ stream.id }}" style="background-color: #fff;">
+        	  <td colspan="5">
+                    {% include 'production/partials/production_stream_card.html' with stream=stream form=prodevent_form %}
+        	  </td>
+        	</tr>
+    	{% empty %}
+        	<tr>
+        	  <td colspan="5">No production streams found.</td>
+        	</tr>
+    	{% endfor %}
       </tbody>
     </table>
   </div>
@@ -140,7 +140,7 @@
 	</tr>
 	<tr id="collapse{{ member.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ member.id }}" style="background-color: #fff;">
 	  <td>
-	    {% include 'production/_production_timesheet_card.html' with events=member.productionevent_set.all %}
+	    {% include 'production/partials/production_timesheet_card.html' with events=member.productionevent_set.all %}
 	  </td>
 	</tr>
 	{% empty %}

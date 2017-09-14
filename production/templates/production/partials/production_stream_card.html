@@ -8,7 +8,7 @@
   <div class="row">
     <div class="{% if form %}col-lg-7{% else %}col-12{% endif %}">
       <h3>Events</h3>
-      {% include 'production/_production_events.html' with events=stream.productionevent_set.all %}
+      {% include 'production/partials/production_events.html' with events=stream.productionevent_set.all %}
       <br/>
 
       {% if stream.total_duration %}

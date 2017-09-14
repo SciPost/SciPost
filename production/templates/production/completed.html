@@ -24,7 +24,7 @@
             <div class="w-100" id="stream_{{stream.id}}">{% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}</div>
             <div class="card-body">
                 <h3>Events</h3>
-                {% include 'production/_production_events.html' with events=stream.productionevent_set.all %}
+                {% include 'production/partials/production_events.html' with events=stream.productionevent_set.all %}
             </div>
         </li>
       {% empty %}
