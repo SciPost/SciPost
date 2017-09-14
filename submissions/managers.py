@@ -8,9 +8,11 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
                        STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
                        SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT, STATUS_PUBLISHED,\
-                       SUBMISSION_EXCLUDE_FROM_REPORTING, STATUS_REJECTED_VISIBLE,\
+                       SUBMISSION_EXCLUDE_FROM_REPORTING,\
+                       STATUS_REJECTED, STATUS_REJECTED_VISIBLE,\
                        STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE,\
-                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR, STATUS_UNASSIGNED
+                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR,\
+                       STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED, STATUS_WITHDRAWN
 
 
 class SubmissionQuerySet(models.QuerySet):
@@ -108,8 +110,37 @@ class SubmissionQuerySet(models.QuerySet):
         return self.filter(status__in=[STATUS_ACCEPTED, STATUS_REJECTED_VISIBLE, STATUS_PUBLISHED,
                                        STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE])
 
+    def originally_submitted(self, from_date, until_date):
+        """
+        Returns the submissions originally received between from_date and until_date
+        (including subsequent resubmissions, even if those came in later).
+        """
+        identifiers = []
+        for sub in self.filter(is_resubmission=False,
+                               submission_date__range=(from_date, until_date)):
+            identifiers.append(sub.arxiv_identifier_wo_vn_nr)
+        return self.filter(arxiv_identifier_wo_vn_nr__in=identifiers)
+
+
     def accepted(self):
         return self.filter(status=STATUS_ACCEPTED)
+
+
+    def published(self):
+        return self.filter(status=STATUS_PUBLISHED)
+
+
+    def assignment_failed(self):
+        return self.filter(status=STATUS_ASSIGNMENT_FAILED)
+
+
+    def rejected(self):
+        return self._newest_version_only(self.filter(status__in=[STATUS_REJECTED,
+                                                                 STATUS_REJECTED_VISIBLE]))
+
+    def withdrawn(self):
+        return self._newest_version_only(self.filter(status=STATUS_WITHDRAWN))
+
 
     def open_for_reporting(self):
         """

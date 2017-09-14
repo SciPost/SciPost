@@ -385,6 +385,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
     needs_doi = models.NullBooleanField(default=None)
+    doideposit_needs_updating = models.BooleanField(default=False)
     genericdoideposit = GenericRelation('journals.GenericDOIDeposit',
                                         related_query_name='genericdoideposit')
     doi_label = models.CharField(max_length=200, blank=True)

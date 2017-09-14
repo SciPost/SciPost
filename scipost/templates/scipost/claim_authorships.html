@@ -1,4 +1,9 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Authorship Claims</span>
+{% endblock %}
 
 {% block pagetitle %}: authorship claims{% endblock pagetitle %}
 
@@ -13,6 +18,34 @@
         <h1 class="highlight">Contributor Authorship Claims</h1>
     </div>
 </div>
+
+{% if publication_authorships_to_claim %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="highlight">SciPost Publications</h2>
+            <h3>Potential authorships to claim (auto-detected)</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            {% for pub in publication_authorships_to_claim %}
+                <div class="card card-grey card-publication" id="{{pub.doi_label}}">
+                  {% include 'journals/_publication_card_content.html' with publication=pub %}
+                    <div class="card-footer">
+                        <form class="d-inline-block" action="{% url 'scipost:claim_pub_authorship' publication_id=pub.id claim=1 %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-secondary" type="submit" value="I am an author" />
+                        </form>
+                        <form class="d-inline-block ml-1" action="{% url 'scipost:claim_pub_authorship' publication_id=pub.id claim=0 %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-danger" type="submit" value="I am not an author" />
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
 
 {% if submission_authorships_to_claim %}
     <div class="row">
@@ -41,6 +74,7 @@
         </div>
     </div>
 {% endif %}
+
 
 {% if commentary_authorships_to_claim %}
     <div class="row">
@@ -98,7 +132,7 @@
     </div>
 {% endif %}
 
-{% if not submission_authorships_to_claim and not commentary_authorships_to_claim and not thesis_authorships_to_claim %}
+{% if not submission_authorships_to_claim and not commentary_authorships_to_claim and not thesis_authorships_to_claim and not publication_authorships_to_claim %}
 <div class="row">
     <div class="col-12">
         <h2>You have no authorships to claim</h2>

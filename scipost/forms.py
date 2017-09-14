@@ -25,7 +25,10 @@ from .models import Contributor, DraftInvitation, RegistrationInvitation,\
 
 from common.forms import MonthYearWidget
 from partners.decorators import has_contact
+
+from comments.models import Comment
 from journals.models import Publication
+from submissions.models import Report
 
 
 REGISTRATION_REFUSAL_CHOICES = (
@@ -287,6 +290,26 @@ class UpdatePersonalDataForm(forms.ModelForm):
         # for _list in original_lists:
         #     _list.update_membership([contributor], status='unsubscribed')
 
+    def propagate_orcid(self):
+        """
+        This method is called if a Contributor updates his/her personal data,
+        and changes the orcid_id. It marks all Publications, Reports and Comments
+        authors by this Contributor with a deposit_requires_update == True.
+        """
+        publications = Publication.objects.filter(authors=self.instance)
+        for publication in publications:
+            publication.doideposit_needs_updating = True
+            publication.save()
+        reports = Report.objects.filter(author=self.instance, anonymous=False)
+        for report in reports:
+            report.doideposit_needs_updating = True
+            report.save()
+        comments = Comment.objects.filter(author=self.instance, anonymous=False)
+        for comment in comments:
+            comment.doideposit_needs_updating = True
+            comment.save()
+        return
+
 
 class VetRegistrationForm(forms.Form):
     decision = forms.ChoiceField(widget=forms.RadioSelect,
@@ -500,3 +523,8 @@ class SendPrecookedEmailForm(forms.Form):
         required=False, initial=False,
         label='Include SciPost summary at end of message')
     from_address = forms.ChoiceField(choices=SCIPOST_FROM_ADDRESSES)
+
+
+class ConfirmationForm(forms.Form):
+    confirm = forms.ChoiceField(widget=forms.RadioSelect,
+                                choices=((True, 'Confirm'), (False, 'Abort')))

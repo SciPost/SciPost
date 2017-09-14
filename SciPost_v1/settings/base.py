@@ -98,6 +98,7 @@ INSTALLED_APPS = (
     'production',
     'partners',
     'funders',
+    'stats',
     'webpack_loader',
 )
 
@@ -113,7 +114,7 @@ HAYSTACK_CONNECTIONS = {
 # Brute force automatically re-index Haystack using post_save signals on all models.
 # When write-traffic increases, a custom processor is preferred which only connects
 # signals to eg. `vet-accepted` signals possibly using cron jobs instead of realtime updates.
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+HAYSTACK_SIGNAL_PROCESSOR = 'SciPost_v1.signalprocessors.AutoSearchIndexingProcessor'
 
 
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'

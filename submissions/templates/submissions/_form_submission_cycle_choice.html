@@ -12,27 +12,28 @@
     <div class="form-group row">
         <label class="col-form-label col-md-2 ">Refereeing cycle</label>
         <div class="col-md-10">
-            {% for field in form.refereeing_cycle %}
-                <div class="radio" data-reinvite="{% if field.choice_value == 'direct_rec' %}0{% else %}1{% endif %}">
-                    <label for="{{field.id_for_label}}" class="mb-0">
-                        {{field.tag}}
-                        {{field.choice_label}}
+            {% for widget in form.refereeing_cycle.subwidgets %}
+                <div class="radio" data-reinvite="{% if widget.data.value == 'direct_rec' %}0{% else %}1{% endif %}">
+                    <label for="{{widget.id_for_label}}" class="mb-0">
+                        {{widget.tag}}
+                        {{widget.choice_label}}
                     </label>
                 </div>
                 <p class="help-block text-muted">
-                    {{ field.help_text|safe }}
-                    {% if field.choice_value == 'short' %}
+                    {{ widget.help_text|safe }}
+                    {% if widget.data.value == 'short' %}
                         Run a speedy refereeing round: two weeks, with option of reinviting previous referees
-                    {% elif field.choice_value == 'direct_rec' %}
+                    {% elif widget.data.value == 'direct_rec' %}
                         Immediately write an editorial recommendation.
                     {% else %}
                         Run a new full refereeing round: four weeks as usual, can invite previous referees and/or new ones.
                     {% endif %}
                 </p>
 
-                {% for error in field.errors %}
-                    <span class="help-block {{ form.error_css_class }}">{{ error }}</span>
-                {% endfor %}
+
+            {% endfor %}
+            {% for error in form.refereeing_cycle.errors %}
+                <span class="help-block {{ form.error_css_class }}">{{ error }}</span>
             {% endfor %}
         </div>
     </div><!-- end refereeing cycle -->

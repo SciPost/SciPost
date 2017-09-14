@@ -1,7 +1,6 @@
 import datetime
 
 from django import template
-from django.utils import timezone
 
 from submissions.constants import SUBMISSION_STATUS_OUT_OF_POOL
 from submissions.models import Submission
