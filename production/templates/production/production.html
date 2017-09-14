@@ -34,6 +34,11 @@
     	    <a href="#teamtimesheets" class="nav-link" data-toggle="tab">Team Timesheets</a>
     	  </li>
 	  {% endif %}
+      {% if perms.scipost.can_promote_user_to_production_officer %}
+          <li class="nav-item btn btn-secondary">
+            <a href="#officers" class="nav-link" data-toggle="tab">Production Officers</a>
+          </li>
+      {% endif %}
 	</ul>
       </div>
     </div>
@@ -66,8 +71,8 @@
         	  <td>{{ stream.submission.author_list }}</td>
         	  <td>{{ stream.submission.title }}</td>
         	  <td>{{ stream.submission.acceptance_date|date:"Y-m-d" }}</td>
-        	  <td>{{ stream.productionevent_set.last.get_event_display }}</td>
-        	  <td>{{ stream.productionevent_set.last.noted_on }}</td>
+        	  <td>{{ stream.events.last.get_event_display }}</td>
+        	  <td>{{ stream.events.last.noted_on }}</td>
         	</tr>
         	<tr id="collapse{{ stream.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ stream.id }}" style="background-color: #fff;">
         	  <td colspan="5">
@@ -119,39 +124,60 @@
   </div>
 
   {% if perms.scipost.can_view_timesheets %}
-  <div class="tab-pane" id="teamtimesheets" role="tabpanel">
-    <div class="row">
-      <div class="col-12">
-	<h2 class="highlight">Team Timesheets</h2>
+      <div class="tab-pane" id="teamtimesheets" role="tabpanel">
+        <div class="row">
+          <div class="col-12">
+    	<h2 class="highlight">Team Timesheets</h2>
+          </div>
+        </div>
+
+        <table class="table table-hover mb-5">
+          <thead class="thead-default">
+    	<tr>
+    	  <th>Name</th>
+    	</tr>
+          </thead>
+
+          <tbody id="accordion" role="tablist" aria-multiselectable="true">
+        	{% for member in production_team.all %}
+            	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ member.id }}" aria-expanded="true" aria-controls="collapse{{ member.id }}" style="cursor: pointer;">
+            	  <td>{{ member }}</td>
+            	</tr>
+            	<tr id="collapse{{ member.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ member.id }}" style="background-color: #fff;">
+            	  <td>
+            	    {% include 'production/partials/production_timesheet_card.html' with events=member.productionevent_set.all %}
+            	  </td>
+            	</tr>
+        	{% empty %}
+            	<tr>
+            	  <td>No Team Member found.</td>
+            	</tr>
+        	{% endfor %}
+          </tbody>
+        </table>
+
       </div>
-    </div>
+  {% endif %}
 
-    <table class="table table-hover mb-5">
-      <thead class="thead-default">
-	<tr>
-	  <th>Name</th>
-	</tr>
-      </thead>
+  {% if perms.scipost.can_promote_user_to_production_officer %}
+      <div class="tab-pane" id="officers" role="tabpanel">
+          <h2 class="highlight">Production Officers</h2>
+          <h3>Current Production Officer</h3>
+          <ul>
+              {% for officer in production_officers %}
+                <li>{{ officer }}</li>
+              {% endfor %}
+          </ul>
 
-      <tbody id="accordion" role="tablist" aria-multiselectable="true">
-	{% for member in production_team.all %}
-	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ member.id }}" aria-expanded="true" aria-controls="collapse{{ member.id }}" style="cursor: pointer;">
-	  <td>{{ member }}</td>
-	</tr>
-	<tr id="collapse{{ member.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ member.id }}" style="background-color: #fff;">
-	  <td>
-	    {% include 'production/partials/production_timesheet_card.html' with events=member.productionevent_set.all %}
-	  </td>
-	</tr>
-	{% empty %}
-	<tr>
-	  <td>No Team Member found.</td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
-
-  </div>
+          {% if new_officer_form %}
+              <h3>Promote user to Production Officer</h3>
+              <form action="{% url 'production:user_to_officer' %}" method="post">
+                {% csrf_token %}
+                {{ new_officer_form|bootstrap }}
+                <input type="submit" class="btn btn-primary" value="Promote to Production Officer">
+            </form>
+          {% endif %}
+      </div>
   {% endif %}
 
 </div>

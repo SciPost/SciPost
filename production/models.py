@@ -42,16 +42,16 @@ class ProductionStream(models.Model):
         return reverse('production:completed') + '#stream_' + str(self.id)
 
     def total_duration(self):
-        totdur = self.productionevent_set.aggregate(models.Sum('duration'))
+        totdur = self.events.aggregate(models.Sum('duration'))
         return totdur['duration__sum']
 
 
 class ProductionEvent(models.Model):
-    stream = models.ForeignKey(ProductionStream, on_delete=models.CASCADE)
+    stream = models.ForeignKey(ProductionStream, on_delete=models.CASCADE, related_name='events')
     event = models.CharField(max_length=64, choices=PRODUCTION_EVENTS)
     comments = models.TextField(blank=True, null=True)
     noted_on = models.DateTimeField(default=timezone.now)
-    noted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    noted_by = models.ForeignKey('production.ProductionUser', on_delete=models.CASCADE)
     duration = models.DurationField(blank=True, null=True)
 
     objects = ProductionEventManager()

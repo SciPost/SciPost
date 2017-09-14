@@ -34,3 +34,11 @@ class AssignOfficerForm(forms.ModelForm):
         officer = self.cleaned_data['officer']
         self.instance.officers.add(officer)
         return self.instance
+
+
+class UserToOfficerForm(forms.ModelForm):
+    class Meta:
+        model = ProductionUser
+        fields = (
+            'user',
+        )

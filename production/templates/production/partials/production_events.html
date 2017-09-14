@@ -4,7 +4,7 @@
   {% for event in events %}
         <li id="event_{{ event.id }}">
           <p class="mb-0 font-weight-bold">{{ event.get_event_display }}
-              {% if event.noted_by == request.user.contributor %}
+              {% if event.noted_by == request.user.production_user %}
                   &middot; <a href="{% url 'production:update_event' event.id %}">Edit</a>
                   &middot; <a class="text-danger" href="{% url 'production:delete_event' event.id %}">Delete</a>
               {% endif %}

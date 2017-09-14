@@ -15,5 +15,5 @@ class ProductionStreamQuerySet(models.QuerySet):
 
 
 class ProductionEventManager(models.Manager):
-    def get_my_events(self, current_contributor):
-        return self.filter(noted_by=current_contributor)
+    def get_my_events(self, production_user):
+        return self.filter(noted_by=production_user)

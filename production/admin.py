@@ -4,7 +4,7 @@ from .models import ProductionStream, ProductionEvent, ProductionUser
 
 
 def event_count(obj):
-    return obj.productionevent_set.count()
+    return obj.events.count()
 
 
 class ProductionUserInline(admin.StackedInline):
