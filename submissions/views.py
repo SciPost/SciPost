@@ -38,7 +38,6 @@ from mails.views import MailEditingSubView
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, Remark, RegistrationInvitation
 from scipost.utils import Utils
-
 from comments.forms import CommentForm
 from production.models import ProductionStream
 

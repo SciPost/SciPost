@@ -14,7 +14,7 @@ from .constants import PRODUCTION_STREAM_COMPLETED
 from .models import ProductionUser, ProductionStream, ProductionEvent
 from .forms import ProductionEventForm, AssignOfficerForm, UserToOfficerForm
 from .permissions import is_production_user
-from .signals import notify_stream_completed, notify_new_stream
+from .signals import notify_stream_completed, notify_new_stream_assignment
 
 
 ######################
@@ -103,7 +103,7 @@ def add_officer(request, stream_id):
         form.save()
         officer = form.cleaned_data.get('officer')
         messages.success(request, 'Officer {officer} has been assigned.'.format(officer=officer))
-        notify_new_stream(request.user, stream, officer.user)
+        notify_new_stream_assignment(request.user, stream, officer.user)
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
