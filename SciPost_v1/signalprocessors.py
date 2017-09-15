@@ -25,10 +25,30 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
                     # TODO: Maybe log it or let the exception bubble?
                     pass
 
+    def update_instance_indexes(self, sender, instance):
+        """
+        Given an individual model instance, update its entire indexes.
+        """
+        try:
+            using_backends = self.connection_router.for_write(instance=instance)
+        except IndexError:
+            # No submissions given, stop processing here
+            return None
+
+        for using in using_backends:
+            try:
+                index = self.connections[using].get_unified_index().get_index(sender)
+                index.update(using=using)
+            except NotHandled:
+                # TODO: Maybe log it or let the exception bubble?
+                pass
+
     def handle_save(self, sender, instance, **kwargs):
         if isinstance(instance, Submission):
             # Submission have complex status handling, so a status change should lead to
             # more drastic reindexing.
             self.prepare_submission_indexing(sender, [instance])
             self.prepare_submission_indexing(sender, instance.other_versions)
-        super().handle_save(sender, instance, **kwargs)
+            self.update_instance_indexes(sender, instance)
+        else:
+            super().handle_save(sender, instance, **kwargs)
