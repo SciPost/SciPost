@@ -26,6 +26,8 @@ urlpatterns = [
 
     # Editorial Administration
     url(r'^admin$', views.EditorialSummaryView.as_view(), name='admin'),
+    url(r'^admin/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.EditorialSummaryView.as_view(), name='admin'),
     url(r'^admin/treated$', views.treated_submissions_list, name='treated_submissions_list'),
     url(r'^admin/{regex}/reports/compile$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.treated_submission_pdf_compile, name='treated_submission_pdf_compile'),

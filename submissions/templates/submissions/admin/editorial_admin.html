@@ -1,10 +1,10 @@
-{% extends 'scipost/_personal_page_base.html' %}
+{% extends 'submissions/admin/base.html' %}
 
 {% block pagetitle %}: Editorial Administration{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Editorial Administration</span>
+    {{ block.super }}
+    <span class="breadcrumb-item">{% if submission %}{{ submission.arxiv_identifier_w_vn_nr }}{% else %}All events in the last 24 hours{% endif %}</span>
 {% endblock %}
 
 
@@ -27,18 +27,10 @@
                     {% include 'partials/submissions/admin/submission_tooltip.html' with submission=sub %}
                     {% if sub == submission %}
                         <strong>
-                            <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            <div class="pl-md-4">
-                                <em>by {{sub.author_list}}</em><br>
-                                latest activity: {{sub.latest_activity|timesince}} ago
-                            </div>
+                            {% include 'partials/submissions/admin/submission_li.html' with submission=sub %}
                         </strong>
                     {% else %}
-                        <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        <div class="pl-md-4">
-                            <em>by {{sub.author_list}}</em><br>
-                            latest activity: {{sub.latest_activity|timesince}} ago
-                        </div>
+                        {% include 'partials/submissions/admin/submission_li.html' with submission=sub %}
                     {% endif %}
                 </li>
             {% empty %}
@@ -53,18 +45,10 @@
                     {% include 'partials/submissions/admin/submission_tooltip.html' with submission=sub %}
                     {% if sub == submission %}
                         <strong>
-                            <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            <div class="pl-md-4">
-                                <em>by {{sub.author_list}}</em><br>
-                                latest activity: {{sub.latest_activity|timesince}} ago
-                            </div>
+                            {% include 'partials/submissions/admin/submission_li.html' with submission=sub %}
                         </strong>
                     {% else %}
-                        <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        <div class="pl-md-4">
-                            <em>by {{sub.author_list}}</em><br>
-                            latest activity: {{sub.latest_activity|timesince}} ago
-                        </div>
+                        {% include 'partials/submissions/admin/submission_li.html' with submission=sub %}
                     {% endif %}
                 </li>
             {% empty %}
@@ -79,18 +63,10 @@
                     {% include 'partials/submissions/admin/submission_tooltip.html' with submission=sub %}
                     {% if sub == submission %}
                         <strong>
-                            <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                            <div class="pl-md-4">
-                                <em>by {{sub.author_list}}</em><br>
-                                latest activity: {{sub.latest_activity|timesince}} ago
-                            </div>
+                            {% include 'partials/submissions/admin/submission_li.html' with submission=sub %}
                         </strong>
                     {% else %}
-                        <a href="?submission={{sub.arxiv_identifier_w_vn_nr}}">{{sub.title}}</a>
-                        <div class="pl-md-4">
-                            <em>by {{sub.author_list}}</em><br>
-                            latest activity: {{sub.latest_activity|timesince}} ago
-                        </div>
+                        {% include 'partials/submissions/admin/submission_li.html' with submission=sub %}
                     {% endif %}
                 </li>
             {% empty %}

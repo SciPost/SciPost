@@ -1469,13 +1469,14 @@ class EditorialSummaryView(SubmissionAdminViewMixin, ListView):
         context = super().get_context_data(*args, **kwargs)
 
         # Pick submission from `submission_list` to include proper filters such as author filters.
-        try:
-            arxiv_id = self.request.GET.get('submission')
-            assert arxiv_id
-            context['submission'] = (context['submission_list']
-                                     .get(arxiv_identifier_w_vn_nr=arxiv_id))
-        except (AssertionError, Submission.DoesNotExist):
-            context['submission'] = None
+        if self.kwargs.get('arxiv_identifier_w_vn_nr'):
+            try:
+                context['submission'] = context['submission_list'].get(
+                    arxiv_identifier_w_vn_nr=self.kwargs['arxiv_identifier_w_vn_nr'])
+            except Submission.DoesNotExist:
+                context['submission'] = None
+
+        if not context.get('submission'):
             context['latest_events'] = SubmissionEvent.objects.for_eic().last_hours()
         return context
 

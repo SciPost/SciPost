@@ -1,0 +1,5 @@
+<a href="{% url 'submissions:admin' submission.arxiv_identifier_w_vn_nr %}">{{submission.title}}</a>
+<div class="pl-md-4">
+    <em>by {{submission.author_list}}</em><br>
+    latest activity: {{submission.latest_activity|timesince}} ago
+</div>

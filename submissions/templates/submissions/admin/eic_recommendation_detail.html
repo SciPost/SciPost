@@ -1,4 +1,4 @@
-{% extends 'submissions/_pool_base.html' %}
+{% extends 'submissions/admin/base.html' %}
 
 {% block pagetitle %}: editorial recommendation for submission{% endblock pagetitle %}
 
@@ -7,7 +7,6 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:admin' %}?submission={{submission.arxiv_identifier_w_vn_nr}}" class="breadcrumb-item">Editorial Administration</a>
     <span class="breadcrumb-item">Editorial Recommendation</span>
 {% endblock %}
 
