@@ -1067,6 +1067,16 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
         return redirect(reverse('submissions:editorial_page',
                                 args=[submission.arxiv_identifier_w_vn_nr]))
 
+    # Find EditorialAssignment for user
+    try:
+        assignment = submission.editorial_assignments.get(submission=submission,
+                                                          to=request.user.contributor)
+    except EditorialAssignment.DoesNotExist:
+        messages.warning(request, ('You cannot formulate an Editorial Recommendation,'
+                                   ' because you are not assigned as editor-in-charge.'))
+        return redirect(reverse('submissions:editorial_page',
+                                args=[submission.arxiv_identifier_w_vn_nr]))
+
     form = EICRecommendationForm(request.POST or None)
     if form.is_valid():
         # Create new EICRecommendation
@@ -1103,8 +1113,6 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
         submission.save()
 
         # The EIC has fulfilled this editorial assignment.
-        assignment = get_object_or_404(EditorialAssignment,
-                                       submission=submission, to=request.user.contributor)
         assignment.completed = True
         assignment.save()
         messages.success(request, 'Your Editorial Recommendation has been succesfully submitted')
