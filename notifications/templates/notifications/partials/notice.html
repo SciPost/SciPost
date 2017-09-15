@@ -3,9 +3,9 @@
         <div class="actions">
             <a href="{% url 'notifications:mark_toggle' notice.slug %}">
                 {% if notice.unread %}
-                    <i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i>
+                    <i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i>
                 {% else %}
-                    <i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i>
+                    <i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i>
                 {% endif %}
             </a>
         </div>
