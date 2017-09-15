@@ -31,13 +31,14 @@ from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSe
                    ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
                    EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
                    SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm,\
-                   iThenticateReportForm
+                   iThenticateReportForm, SubmissionPoolFilterForm
 from .utils import SubmissionUtils
 
 from mails.views import MailEditingSubView
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.models import Contributor, Remark, RegistrationInvitation
 from scipost.utils import Utils
+from scipost.permissions import is_tester
 
 from comments.forms import CommentForm
 from production.models import ProductionStream
@@ -324,7 +325,7 @@ def editorial_workflow(request):
 
 @login_required
 @permission_required('scipost.can_view_pool', raise_exception=True)
-def pool(request):
+def pool(request, arxiv_identifier_w_vn_nr=None):
     """
     The Submissions pool contains all submissions which are undergoing
     the editorial process, from submission
@@ -341,8 +342,7 @@ def pool(request):
                                              .filter(
                                                 submission__status__in=['voting_in_preparation']))
     contributor = Contributor.objects.get(user=request.user)
-    assignments_to_consider = EditorialAssignment.objects.filter(
-        to=contributor, accepted=None, deprecated=False)
+    assignments_to_consider = EditorialAssignment.objects.open().filter(to=contributor)
     consider_assignment_form = ConsiderAssignmentForm()
     recs_to_vote_on = (EICRecommendation.objects.get_for_user_in_pool(request.user)
                        .filter(eligible_to_vote=contributor)
@@ -362,12 +362,38 @@ def pool(request):
                'recs_to_vote_on': recs_to_vote_on,
                'rec_vote_form': rec_vote_form,
                'remark_form': remark_form, }
-    return render(request, 'submissions/pool.html', context)
+
+    # The following is in test phase. Update if test is done
+    # --
+
+    # Search
+    search_form = SubmissionPoolFilterForm(request.GET or None)
+    if search_form.is_valid():
+        context['submissions_in_pool'] = search_form.search(context['submissions_in_pool'])
+    context['search_form'] = search_form
+
+    # Show specific submission in the pool
+    if arxiv_identifier_w_vn_nr:
+        try:
+            context['submission'] = context['submissions_in_pool'].get(
+                arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+        except Submission.DoesNotExist:
+            context['submission'] = None
+
+    # Temporary test logic: only testers see the new Pool
+    if is_tester(request.user) and not request.GET.get('test'):
+        template = 'submissions/pool/pool.html'
+    else:
+        template = 'submissions/pool.html'
+    return render(request, template, context)
 
 
 @login_required
 @permission_required('scipost.can_view_pool', raise_exception=True)
 def submissions_by_status(request, status):
+    # ---
+    # DEPRECATED AS PER NEW POOL
+    # ---
     status_dict = dict(SUBMISSION_STATUS)
     if status not in status_dict.keys():
         errormessage = 'Unknown status.'
@@ -448,56 +474,76 @@ def assign_submission_ack(request, arxiv_identifier_w_vn_nr):
 @login_required
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 @transaction.atomic
-def accept_or_decline_assignment_ack(request, assignment_id):
-    contributor = Contributor.objects.get(user=request.user)
-    assignment = get_object_or_404(EditorialAssignment, pk=assignment_id)
+def assignment_request(request, assignment_id):
+    """
+    Process EditorialAssignment acceptance/denial form or show if not submitted.
+    """
+    assignment = get_object_or_404(EditorialAssignment.objects.open(),
+                                   to=request.user.contributor, pk=assignment_id)
+
     errormessage = None
     if assignment.submission.status == 'assignment_failed':
         errormessage = 'This Submission has failed pre-screening and has been rejected.'
-        context = {'errormessage': errormessage}
-        return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
-    if assignment.submission.editor_in_charge:
+
+    elif assignment.submission.editor_in_charge:
         errormessage = (assignment.submission.editor_in_charge.get_title_display() + ' ' +
                         assignment.submission.editor_in_charge.user.last_name +
                         ' has already agreed to be Editor-in-charge of this Submission.')
-        context = {'errormessage': errormessage}
-        return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
-    if request.method == 'POST':
-        form = ConsiderAssignmentForm(request.POST)
-        if form.is_valid():
-            assignment.date_answered = timezone.now()
-            if form.cleaned_data['accept'] == 'True':
-                assignment.accepted = True
-                assignment.to = contributor
-                assignment.submission.status = 'EICassigned'
-                assignment.submission.editor_in_charge = contributor
-                assignment.submission.open_for_reporting = True
-                deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
-                if assignment.submission.submitted_to_journal == 'SciPost Physics Lecture Notes':
-                    deadline += datetime.timedelta(days=28)
-                assignment.submission.reporting_deadline = deadline
-                assignment.submission.open_for_commenting = True
-                assignment.submission.latest_activity = timezone.now()
 
-                SubmissionUtils.load({'assignment': assignment})
-                SubmissionUtils.deprecate_other_assignments()
-                assign_perm('can_take_editorial_actions', contributor.user, assignment.submission)
-                ed_admins = Group.objects.get(name='Editorial Administrators')
-                assign_perm('can_take_editorial_actions', ed_admins, assignment.submission)
-                SubmissionUtils.send_EIC_appointment_email()
-                SubmissionUtils.send_author_prescreening_passed_email()
+    if errormessage:
+        # Assignments can get stuck here,
+        # if errormessage is given the contributor can't close the assignment!!
+        messages.warning(request, errormessage)
+        return redirect(reverse('submissions:pool'))
 
-                # Add SubmissionEvents
-                assignment.submission.add_general_event('The Editor-in-charge has been assigned.')
-            else:
-                assignment.accepted = False
-                assignment.refusal_reason = form.cleaned_data['refusal_reason']
-                assignment.submission.status = 'unassigned'
-            assignment.save()
-            assignment.submission.save()
+    form = ConsiderAssignmentForm(request.POST or None)
+    if form.is_valid():
+        assignment.date_answered = timezone.now()
+        if form.cleaned_data['accept'] == 'True':
+            assignment.accepted = True
+            assignment.to = request.user.contributor
+            assignment.submission.status = 'EICassigned'
+            assignment.submission.editor_in_charge = request.user.contributor
+            assignment.submission.open_for_reporting = True
+            deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
+            if assignment.submission.submitted_to_journal == 'SciPost Physics Lecture Notes':
+                deadline += datetime.timedelta(days=28)
+            assignment.submission.reporting_deadline = deadline
+            assignment.submission.open_for_commenting = True
+            assignment.submission.latest_activity = timezone.now()
 
-    context = {'assignment': assignment}
-    return render(request, 'submissions/accept_or_decline_assignment_ack.html', context)
+            SubmissionUtils.load({'assignment': assignment})
+            SubmissionUtils.deprecate_other_assignments()
+            assign_perm('can_take_editorial_actions', request.user, assignment.submission)
+            ed_admins = Group.objects.get(name='Editorial Administrators')
+            assign_perm('can_take_editorial_actions', ed_admins, assignment.submission)
+            SubmissionUtils.send_EIC_appointment_email()
+            SubmissionUtils.send_author_prescreening_passed_email()
+
+            # Add SubmissionEvents
+            assignment.submission.add_general_event('The Editor-in-charge has been assigned.')
+            msg = 'Thank you for becoming Editor-in-charge of this submission.'
+            url = reverse('submissions:editorial_page',
+                          args=(assignment.submission.arxiv_identifier_w_vn_nr,))
+        else:
+            assignment.accepted = False
+            assignment.refusal_reason = form.cleaned_data['refusal_reason']
+            assignment.submission.status = 'unassigned'
+            msg = 'Thank you for considering'
+            url = reverse('submissions:pool')
+        # Save assignment and submission
+        assignment.save()
+        assignment.submission.save()
+
+        # Form submitted, redirect user
+        messages.success(request, msg)
+        return redirect(url)
+
+    context = {
+        'assignment': assignment,
+        'form': form
+    }
+    return render(request, 'submissions/pool/assignment_request.html', context)
 
 
 @login_required
@@ -506,7 +552,7 @@ def accept_or_decline_assignment_ack(request, assignment_id):
 def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     """
     Called when a Fellow volunteers while perusing the submissions pool.
-    This is an adapted version of the accept_or_decline_assignment_ack method.
+    This is an adapted version of the assignment_request method.
     """
     submission = get_object_or_404(Submission.objects.get_pool(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
@@ -1350,9 +1396,14 @@ def vote_on_rec(request, rec_id):
                             remark=form.cleaned_data['remark'])
             remark.save()
         recommendation.save()
+        messages.success(request, 'Thank you for your vote.')
         return redirect(reverse('submissions:pool'))
 
-    return redirect(reverse('submissions:pool'))
+    context = {
+        'recommendation': recommendation,
+        'form': form
+    }
+    return render(request, 'submissions/pool/recommendation.html', context)
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)

@@ -12,7 +12,7 @@ from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUB
                        REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
                        STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE,\
-                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS
+                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS
 from . import exceptions, helpers
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
                     iThenticateReport
@@ -40,6 +40,17 @@ class SubmissionSearchForm(forms.Form):
             abstract__icontains=self.cleaned_data.get('abstract', ''),
             subject_area__icontains=self.cleaned_data.get('subject_area', '')
         )
+
+
+class SubmissionPoolFilterForm(forms.Form):
+    status = forms.ChoiceField(choices=((None, 'All statuses'),) + SUBMISSION_STATUS,
+                               required=False)
+
+    def search(self, queryset):
+        if self.cleaned_data.get('status'):
+            # Do extra check on non-required field to never show errors on template
+            return queryset.filter(status=self.cleaned_data['status'])
+        return queryset
 
 
 ###############################

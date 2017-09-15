@@ -1,0 +1,87 @@
+{% extends 'submissions/pool/base.html' %}
+
+{% load bootstrap %}
+{% load guardian_tags %}
+{% load scipost_extras %}
+{% load submissions_extras %}
+
+{% block breadcrumb_items %}
+    <a href="{% url 'scipost:personal_page' %}" class="breadcrumb-item">Personal Page</a>
+    {% if submission %}
+        <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+        <span class="breadcrumb-item">{{ submission.arxiv_identifier_w_vn_nr }}</span>
+    {% else %}
+        <span class="breadcrumb-item">Pool</span>
+    {% endif %}
+{% endblock %}
+
+{% block pagetitle %}: Submissions Pool{% endblock pagetitle %}
+
+{% block content %}
+    {% with is_ECAdmin=request.user|is_in_group:'Editorial Administrators' %}
+        <a href="{% url 'submissions:pool' %}?test=1">See old pool layout</a>
+        <div class="row">
+            <div class="col-md-7">
+                <h1>SciPost Submissions Pool</h1>
+
+                {% if assignments_to_consider %}
+                    <h3>Your open Assignment Requests <i class="fa fa-exclamation-circle text-warning"></i></h3>
+                    <ul>
+                        {% for assignment in assignments_to_consider %}
+                            <li>On submission: {{ assignment.submission }}<br>
+                                <a href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if recs_to_vote_on %}
+                    <h3>Recommendations to vote on <i class="fa fa-exclamation-circle text-warning"></i></h3>
+                    <ul>
+                        {% for recommendation in recs_to_vote_on %}
+                            <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>
+                                <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if assignments_to_consider or recs_to_vote_on %}
+                    <hr>
+                {% endif %}
+
+                {% if search_form %}
+                    <h3>Filter by status</h3>
+                    <form method="get" class="auto-submit mb-3">
+                        {{ search_form|bootstrap_inline }}
+                    </form>
+                {% endif %}
+
+                <ul class="list-unstyled">
+                    <!-- Submissions list -->
+                    {% for sub in submissions_in_pool %}
+                        <li class="p-2{% if sub == submission %} bg-light{% endif %}">
+                            {% if sub == submission %}
+                                {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=1 %}
+                            {% else %}
+                                {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=0 %}
+                            {% endif %}
+                        </li>
+                    {% empty %}
+                        <li>
+                            <h3 class="text-center"><i class="fa fa-question fa-2x"></i><br>No Submissions found.</h3>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div><!-- End page content -->
+
+            <div class="col-md-5">
+                {% if submission %}
+                    {% include 'submissions/_submission_card_in_pool.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
+                {% else %}
+                    <h3><em>Click on a submission to see its summary and actions</em></h3>
+                {% endif %}
+            </div>
+        </div>
+    {% endwith %}
+{% endblock %}

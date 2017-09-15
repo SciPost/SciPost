@@ -1,0 +1,23 @@
+<div class="row pool-item mb-0">
+    <div class="icons{% if is_current %} text-info{% endif %}">
+        {% include 'partials/submissions/admin/submission_tooltip.html' with submission=submission %}
+        {% if submission.editor_in_charge == request.user.contributor %}
+            <i class="fa fa-gavel mt-1{% if not is_current %} text-primary{% endif %}" data-toggle="tooltip" data-html="true" title="You are editor-in-charge"></i>
+        {% elif not submission.editor_in_charge %}
+            <i class="fa fa-exclamation mt-1 px-1 text-danger" data-toggle="tooltip" data-html="true" title="You can volunteer to become Editor-in-charge"></i>
+        {% endif %}
+    </div>
+    <div class="item col-auto">
+        {% if is_current %}
+            <strong>
+        {% endif %}
+            <p class="mb-2">
+                <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}">{{ submission.title }}</a><br>
+                <em>by {{ submission.author_list }}</em>
+            </p>
+            <p class="label label-{% if submission.status == 'unassigned' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ submission.get_status_display }}</p>
+        {% if is_current %}
+            </strong>
+        {% endif %}
+    </div>
+</div>

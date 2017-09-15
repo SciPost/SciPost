@@ -1,0 +1,20 @@
+{% extends 'submissions/pool/base.html' %}
+
+{% load bootstrap %}
+{% load guardian_tags %}
+{% load scipost_extras %}
+{% load submissions_extras %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Assignment Request</span>
+{% endblock %}
+
+{% block pagetitle %}: Assignment Request{% endblock pagetitle %}
+
+{% block content %}
+    <h1>Assignment request</h1>
+    <h3>Can you act as Editor-in-charge? (see below to accept/decline)</h3>
+
+    {% include 'submissions/_submission_assignment_request.html' with assignment=assignment consider_assignment_form=form %}
+{% endblock %}

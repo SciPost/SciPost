@@ -42,7 +42,7 @@ $(function(){
     });
 
     // Auto-submit hook for general form elements
-    $("form .auto-submit input").on('change', function(){
+    $("form .auto-submit input, form.auto-submit input, form.auto-submit select").on('change', function(){
         $(this).parents('form').submit()
     });
 });

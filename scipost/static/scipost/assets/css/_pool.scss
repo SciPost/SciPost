@@ -1,0 +1,20 @@
+$pool-icons-width: 40px;
+$pool-flex-width: calc(100% - 40px);
+
+
+.pool .pool-item {
+    .icons {
+        padding-left: 10px;
+        padding-right: 10px;
+        position: relative;
+        min-height: 1px;
+        flex: 0 0 $pool-icons-width;
+        max-width: $pool-icons-width;
+    }
+
+    .item {
+        flex: 0 0 $pool-flex-width;
+        width: $pool-flex-width;
+        max-width: none;
+    }
+}
