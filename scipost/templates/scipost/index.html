@@ -112,29 +112,23 @@
         <div class="card-footer"><a href="{% url 'news:news' %}">More news</a></div>
     </div><!-- End news -->
 
-    {% comment %}
+    {# {% comment %}#}
     <!-- Partners -->
     <div class="card card-grey">
         <div class="card-body">
-            <h2 class="card-title">
-                <a href="{% url 'partners:partners' %}">Partners</a>
-            </h2>
+            <h2 class="card-title">Partners</h2>
 
             <div>
-                <p>Institutions: consider joining our <a href="{% url 'partners:partners' %}">Supporting Partners Board</a>.</p>
-                Recently joined:
-                <ul class="mt-1">
-                    {% for agreement in current_agreements %}
-                        <li><strong>{{agreement.partner.institution.name}}</strong><br>
-                        {{agreement.partner.institution.get_country_display}}</li>
-
-                    {% endfor %}
-                </ul>
-
+                <p>
+                    SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. Supporting Partners provide operating funds to SciPost.
+                </p>
+                <p>
+                    Institutions, consider joining our <a href="{% url 'partners:partners' %}">Supporting Partners Board</a>.
+                </p>
             </div>
         </div>
     </div><!-- End Partners -->
-    {% endcomment %}
+    {# {% endcomment %}#}
 
     <!-- Summarized -->
     <div class="card card-grey">
