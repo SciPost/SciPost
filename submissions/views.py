@@ -21,7 +21,7 @@ from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATUS_EIC_ASSIGNED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES,\
-                       STATUS_DRAFT
+                       STATUS_DRAFT, CYCLE_DIRECT_REC
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication, SubmissionEvent
 from .mixins import SubmissionAdminViewMixin
@@ -645,6 +645,10 @@ def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
         messages.success(request, ('<h3>Your choice has been confirmed</h3>'
                                    'The new cycle will be <em>%s</em>'
                                    % submission.get_refereeing_cycle_display()))
+        if submission.refereeing_cycle == CYCLE_DIRECT_REC:
+            # Redirect to EIC Recommendation page immediately
+            return redirect(reverse('submissions:eic_recommendation',
+                            args=[submission.arxiv_identifier_w_vn_nr]))
     return redirect(reverse('submissions:editorial_page', args=[submission.arxiv_identifier_w_vn_nr]))
 
 
