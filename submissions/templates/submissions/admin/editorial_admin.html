@@ -1,5 +1,7 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
+{% load scipost_extras %}
+
 {% block pagetitle %}: Editorial Administration{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
@@ -19,6 +21,32 @@
             {% endif %}
             <a href="{% url 'submissions:pool' %}">Go to the pool</a>
         </p>
+
+        {% if recommendations_to_prepare_for_voting %}
+            <h3>Recommendations to prepare for voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
+            <ul>
+                {% for recommendation in recommendations_to_prepare_for_voting %}
+                    <li>On Editorial Recommendation: {{ recommendation }}<br>
+                        <a href="{% url 'submissions:prepare_for_voting' rec_id=recommendation.id %}">Prepare for voting</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if recommendations_undergoing_voting %}
+            <h3>Recommendations undergoing voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
+            <ul>
+                {% for recommendation in recommendations_undergoing_voting %}
+                    <li>On Editorial Recommendation: {{ recommendation }}<br>
+                        <a href="{% url 'submissions:admin_recommendation' recommendation.submission.arxiv_identifier_w_vn_nr %}">See Editorial Recommendation</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if recommendations_to_prepare_for_voting or recommendations_undergoing_voting %}
+            <hr>
+        {% endif %}
 
         <h3>Submissions currently in pre-screening</h3>
         <ul class="list-unstyled">

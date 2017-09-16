@@ -1521,6 +1521,13 @@ class EditorialSummaryView(SubmissionAdminViewMixin, ListView):
         except (AssertionError, Submission.DoesNotExist):
             context['submission'] = None
             context['latest_events'] = SubmissionEvent.objects.for_eic().last_hours()
+
+        context['recommendations_undergoing_voting'] = (
+            EICRecommendation.objects.get_for_user_in_pool(self.request.user)
+            .filter(submission__status='put_to_EC_voting'))
+        context['recommendations_to_prepare_for_voting'] = (
+            EICRecommendation.objects.get_for_user_in_pool(self.request.user)
+            .filter(submission__status='voting_in_preparation'))
         return context
 
 
@@ -1548,3 +1555,14 @@ class PlagiarismReportPDFView(SubmissionAdminViewMixin, SingleObjectMixin, Redir
         if not url:
             raise Http404
         return url
+
+
+class AdminRecommendationView(SubmissionAdminViewMixin, DetailView):
+    permission_required = 'scipost.can_fix_College_decision'
+    template_name = 'submissions/admin/recommendation.html'
+    editorial_page = True
+
+    def get_object(self):
+        """ Get the EICRecommendation as a submission-related instance. """
+        submission = super().get_object()
+        return submission.eicrecommendations.first()

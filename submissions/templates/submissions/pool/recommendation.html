@@ -12,9 +12,7 @@
 {% block content %}
     <h1>Editorial Recommendation to vote on</h1>
 
-    {# <div class="card card-outline-secondary">#}
-        {% include 'submissions/_submission_card_fellow_content.html' with submission=recommendation.submission %}
-    {# </div>#}
+    {% include 'submissions/_submission_card_fellow_content.html' with submission=recommendation.submission %}
 
     {# <div class="card card-outline-secondary">#}
         {% include 'submissions/_recommendation_fellow_content.html' with recommendation=recommendation %}
