@@ -35,9 +35,10 @@
 
         {% if recommendations_undergoing_voting %}
             <h3>Recommendations undergoing voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
-            <ul>
+            <ul class="fa-ul">
                 {% for recommendation in recommendations_undergoing_voting %}
-                    <li>On Editorial Recommendation: {{ recommendation }}<br>
+                    <li>{% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
+                        On Editorial Recommendation: {{ recommendation }}<br>
                         <a href="{% url 'submissions:admin_recommendation' recommendation.submission.arxiv_identifier_w_vn_nr %}">See Editorial Recommendation</a>
                     </li>
                 {% endfor %}

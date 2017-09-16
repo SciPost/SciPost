@@ -502,9 +502,9 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     # Editorial Fellows who have assessed this recommendation:
     eligible_to_vote = models.ManyToManyField('scipost.Contributor', blank=True,
                                               related_name='eligible_to_vote')
-    voted_for = models.ManyToManyField(Contributor, blank=True, related_name='voted_for')
-    voted_against = models.ManyToManyField(Contributor, blank=True, related_name='voted_against')
-    voted_abstain = models.ManyToManyField(Contributor, blank=True, related_name='voted_abstain')
+    voted_for = models.ManyToManyField('scipost.Contributor', blank=True, related_name='voted_for')
+    voted_against = models.ManyToManyField('scipost.Contributor', blank=True, related_name='voted_against')
+    voted_abstain = models.ManyToManyField('scipost.Contributor', blank=True, related_name='voted_abstain')
     voting_deadline = models.DateTimeField('date submitted', default=timezone.now)
 
     objects = EICRecommendationManager()
