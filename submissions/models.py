@@ -275,6 +275,9 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', requested on ' + self.date_created.strftime('%Y-%m-%d'))
 
+    def get_absolute_url(self):
+        return reverse('submissions:assignment_request', args=(self.id,))
+
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
@@ -503,8 +506,10 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     eligible_to_vote = models.ManyToManyField('scipost.Contributor', blank=True,
                                               related_name='eligible_to_vote')
     voted_for = models.ManyToManyField('scipost.Contributor', blank=True, related_name='voted_for')
-    voted_against = models.ManyToManyField('scipost.Contributor', blank=True, related_name='voted_against')
-    voted_abstain = models.ManyToManyField('scipost.Contributor', blank=True, related_name='voted_abstain')
+    voted_against = models.ManyToManyField('scipost.Contributor', blank=True,
+                                           related_name='voted_against')
+    voted_abstain = models.ManyToManyField('scipost.Contributor', blank=True,
+                                           related_name='voted_abstain')
     voting_deadline = models.DateTimeField('date submitted', default=timezone.now)
 
     objects = EICRecommendationManager()
@@ -512,6 +517,10 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     def __str__(self):
         return (self.submission.title[:20] + ' by ' + self.submission.author_list[:30] +
                 ', ' + self.get_recommendation_display())
+
+    def get_absolute_url(self):
+        # TODO: Fix this weird redirect, but it's neccesary for the notifications to have one.
+        return self.submission.get_absolute_url()
 
     @property
     def nr_for(self):
