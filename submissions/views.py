@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
@@ -1336,17 +1336,29 @@ def vote_on_rec(request, rec_id):
     form = RecommendationVoteForm(request.POST or None)
     if form.is_valid():
         if form.cleaned_data['vote'] == 'agree':
-            recommendation.voted_for.add(request.user.contributor)
+            try:
+                recommendation.voted_for.add(request.user.contributor)
+            except IntegrityError:
+                messages.warning(request, 'You have already voted for this Recommendation.')
+                return redirect(reverse('submissions:pool'))
             recommendation.voted_against.remove(request.user.contributor)
             recommendation.voted_abstain.remove(request.user.contributor)
         elif form.cleaned_data['vote'] == 'disagree':
             recommendation.voted_for.remove(request.user.contributor)
-            recommendation.voted_against.add(request.user.contributor)
+            try:
+                recommendation.voted_against.add(request.user.contributor)
+            except IntegrityError:
+                messages.warning(request, 'You have already voted for this Recommendation.')
+                return redirect(reverse('submissions:pool'))
             recommendation.voted_abstain.remove(request.user.contributor)
         elif form.cleaned_data['vote'] == 'abstain':
             recommendation.voted_for.remove(request.user.contributor)
             recommendation.voted_against.remove(request.user.contributor)
-            recommendation.voted_abstain.add(request.user.contributor)
+            try:
+                recommendation.voted_abstain.add(request.user.contributor)
+            except IntegrityError:
+                messages.warning(request, 'You have already voted for this Recommendation.')
+                return redirect(reverse('submissions:pool'))
         if form.cleaned_data['remark']:
             remark = Remark(contributor=request.user.contributor,
                             recommendation=recommendation,
