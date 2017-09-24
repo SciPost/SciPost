@@ -29,6 +29,6 @@
         <p class="mb-1">{{ notice.description|linebreaksbr }}</p>
     {% endif %}
     {% if notice.target %}
-        <a href="{{notice.target.get_absolute_url}}" class="btn btn-default px-0">Go to {{notice.target_content_type}}</a>
+        <a href="{{notice.get_absolute_url}}" class="btn btn-default px-0">Go to {{notice.target_content_type}}</a>
     {% endif %}
 </div>
