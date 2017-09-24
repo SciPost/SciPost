@@ -32,8 +32,13 @@ def notify_new_editorial_assignment(sender, instance, created, **kwargs):
     """
     if created:
         administration = Group.objects.get(name='Editorial Administrators')
+        if instance.accepted:
+            # A new assignment is auto-accepted if user assigned himself or on resubmission.
+            text = ' assigned you Editor-in-charge.'
+        else:
+            text = ' invited you to become Editor-in-charge.'
         notify.send(sender=sender, recipient=instance.to.user, actor=administration,
-                    verb=' invited you to become Editor-in-charge.', target=instance)
+                    verb=text, target=instance)
 
 
 def notify_new_referee_invitation(sender, instance, created, **kwargs):

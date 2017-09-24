@@ -71,6 +71,7 @@ class SubmissionChecks:
     last_submission = None
 
     def __init__(self, *args, **kwargs):
+        self.requested_by = kwargs.pop('requested_by', None)
         super().__init__(*args, **kwargs)
         # Prefill `is_resubmission` property if data is coming from initial data
         if kwargs.get('initial', None):
@@ -121,6 +122,11 @@ class SubmissionChecks:
             self.last_submission = submission
             if submission.status == STATUS_REVISION_REQUESTED:
                 self.is_resubmission = True
+                if self.requested_by.contributor not in submission.authors.all():
+                    error_message = ('There exists a preprint with this arXiv identifier '
+                                     'but an earlier version number. Resubmission is only possible'
+                                     ' if you are a registered author of this manuscript.')
+                    raise forms.ValidationError(error_message)
             elif submission.status in [STATUS_REJECTED, STATUS_REJECTED_VISIBLE]:
                 error_message = ('This arXiv preprint has previously undergone refereeing '
                                  'and has been rejected. Resubmission is only possible '
@@ -238,7 +244,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.requested_by = kwargs.pop('requested_by', None)
         super().__init__(*args, **kwargs)
 
         if not self.submission_is_resubmission():

@@ -96,10 +96,11 @@ class RequestSubmission(CreateView):
 @login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
 def prefill_using_arxiv_identifier(request):
-    query_form = SubmissionIdentifierForm(request.POST or None, initial=request.GET or None)
+    query_form = SubmissionIdentifierForm(request.POST or None, initial=request.GET or None,
+                                          requested_by=request.user)
     if query_form.is_valid():
         prefill_data = query_form.request_arxiv_preprint_form_prefill_data()
-        form = RequestSubmissionForm(initial=prefill_data)
+        form = RequestSubmissionForm(initial=prefill_data, requested_by=request.user)
 
         # Submit message to user
         if query_form.submission_is_resubmission():
