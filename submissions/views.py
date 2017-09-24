@@ -369,7 +369,8 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
     # Search
     search_form = SubmissionPoolFilterForm(request.GET or None)
     if search_form.is_valid():
-        context['submissions_in_pool'] = search_form.search(context['submissions_in_pool'])
+        context['submissions_in_pool'] = search_form.search(context['submissions_in_pool'],
+                                                            request.user.contributor)
     context['search_form'] = search_form
 
     # Show specific submission in the pool

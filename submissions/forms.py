@@ -45,11 +45,16 @@ class SubmissionSearchForm(forms.Form):
 class SubmissionPoolFilterForm(forms.Form):
     status = forms.ChoiceField(choices=((None, 'All statuses'),) + SUBMISSION_STATUS,
                                required=False)
+    editor_in_charge = forms.BooleanField(label='Show only Submissions for which I am editor in charge.', required=False)
 
-    def search(self, queryset):
+    def search(self, queryset, current_contributor=None):
         if self.cleaned_data.get('status'):
             # Do extra check on non-required field to never show errors on template
-            return queryset.filter(status=self.cleaned_data['status'])
+            queryset = queryset.filter(status=self.cleaned_data['status'])
+
+        if self.cleaned_data.get('editor_in_charge') and current_contributor:
+            queryset = queryset.filter(editor_in_charge=current_contributor)
+
         return queryset
 
 
