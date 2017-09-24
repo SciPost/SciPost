@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
@@ -21,7 +21,7 @@ from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATUS_EIC_ASSIGNED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES,\
-                       STATUS_DRAFT
+                       STATUS_DRAFT, CYCLE_DIRECT_REC
 from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, EditorialCommunication, SubmissionEvent
 from .mixins import SubmissionAdminViewMixin
@@ -644,6 +644,10 @@ def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
         messages.success(request, ('<h3>Your choice has been confirmed</h3>'
                                    'The new cycle will be <em>%s</em>'
                                    % submission.get_refereeing_cycle_display()))
+        if submission.refereeing_cycle == CYCLE_DIRECT_REC:
+            # Redirect to EIC Recommendation page immediately
+            return redirect(reverse('submissions:eic_recommendation',
+                            args=[submission.arxiv_identifier_w_vn_nr]))
     return redirect(reverse('submissions:editorial_page', args=[submission.arxiv_identifier_w_vn_nr]))
 
 
@@ -1339,17 +1343,29 @@ def vote_on_rec(request, rec_id):
     form = RecommendationVoteForm(request.POST or None)
     if form.is_valid():
         if form.cleaned_data['vote'] == 'agree':
-            recommendation.voted_for.add(request.user.contributor)
+            try:
+                recommendation.voted_for.add(request.user.contributor)
+            except IntegrityError:
+                messages.warning(request, 'You have already voted for this Recommendation.')
+                return redirect(reverse('submissions:pool'))
             recommendation.voted_against.remove(request.user.contributor)
             recommendation.voted_abstain.remove(request.user.contributor)
         elif form.cleaned_data['vote'] == 'disagree':
             recommendation.voted_for.remove(request.user.contributor)
-            recommendation.voted_against.add(request.user.contributor)
+            try:
+                recommendation.voted_against.add(request.user.contributor)
+            except IntegrityError:
+                messages.warning(request, 'You have already voted for this Recommendation.')
+                return redirect(reverse('submissions:pool'))
             recommendation.voted_abstain.remove(request.user.contributor)
         elif form.cleaned_data['vote'] == 'abstain':
             recommendation.voted_for.remove(request.user.contributor)
             recommendation.voted_against.remove(request.user.contributor)
-            recommendation.voted_abstain.add(request.user.contributor)
+            try:
+                recommendation.voted_abstain.add(request.user.contributor)
+            except IntegrityError:
+                messages.warning(request, 'You have already voted for this Recommendation.')
+                return redirect(reverse('submissions:pool'))
         if form.cleaned_data['remark']:
             remark = Remark(contributor=request.user.contributor,
                             recommendation=recommendation,
