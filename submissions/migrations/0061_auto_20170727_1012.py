@@ -6,8 +6,6 @@ from django.db import migrations
 
 from guardian.shortcuts import assign_perm
 
-from ..models import Report
-
 
 def do_nothing(apps, schema_editor):
     return
@@ -18,7 +16,7 @@ def update_eic_permissions(apps, schema_editor):
     Grant EIC of submission related to unvetted Reports
     permission to vet his submission's Report.
     """
-    # Report = apps.get_model('submissions', 'Report')  -- This doesn't work due to shitty imports
+    Report = apps.get_model('submissions', 'Report')
     count = 0
     for rep in Report.objects.filter(status='unvetted'):
         eic_user = rep.submission.editor_in_charge
