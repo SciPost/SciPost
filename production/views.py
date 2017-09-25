@@ -60,7 +60,11 @@ def completed(request):
     """
     Overview page for closed production streams.
     """
-    streams = ProductionStream.objects.completed().order_by('-opened')
+    streams = ProductionStream.objects.completed()
+    if not request.user.has_perm('scipost.can_assign_production_officer'):
+        streams = streams.filter_for_user(request.user.production_user)
+    streams = streams.order_by('-opened')
+
     context = {'streams': streams}
     return render(request, 'production/completed.html', context)
 
@@ -82,7 +86,11 @@ def user_to_officer(request):
 @is_production_user()
 @permission_required('scipost.can_view_production', return_403=True)
 def add_event(request, stream_id):
-    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    qs = ProductionStream.objects.ongoing()
+    if not request.user.has_perm('scipost.can_assign_production_officer'):
+        qs = qs.filter_for_user(request.user.production_user)
+
+    stream = get_object_or_404(qs, pk=stream_id)
     prodevent_form = ProductionEventForm(request.POST or None)
     if prodevent_form.is_valid():
         prodevent = prodevent_form.save(commit=False)

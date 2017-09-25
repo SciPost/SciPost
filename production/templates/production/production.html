@@ -1,7 +1,6 @@
-{% extends 'scipost/_personal_page_base.html' %}
+{% extends 'production/base.html' %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
     <span class="breadcrumb-item">Production page</span>
 {% endblock %}
 
@@ -51,6 +50,7 @@
     <div class="row">
       <div class="col-12">
     	<h2 class="highlight">{{ perms.scipost.can_assign_production_officer|yesno:"Streams,My Streams" }}</h2>
+        <a href="{% url 'production:completed' %}">View completed streams</a>
       </div>
     </div>
 
