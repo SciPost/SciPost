@@ -14,7 +14,7 @@ class ThesisLink(models.Model):
     """ An URL pointing to a thesis """
     requested_by = models.ForeignKey(
         'scipost.Contributor', blank=True, null=True,
-        related_name='thesislink_requested_by',
+        related_name='requested_theses',
         on_delete=models.CASCADE)
     vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey(
@@ -37,18 +37,18 @@ class ThesisLink(models.Model):
     author = models.CharField(max_length=1000)
     author_as_cont = models.ManyToManyField(
         'scipost.Contributor', blank=True,
-        related_name='author_cont')
+        related_name='theses')
     author_claims = models.ManyToManyField(
         'scipost.Contributor', blank=True,
-        related_name='authors_thesis_claims')
+        related_name='claimed_theses')
     author_false_claims = models.ManyToManyField(
         'scipost.Contributor', blank=True,
-        related_name='authors_thesis_false_claims')
+        related_name='false_claimed_theses')
     supervisor = models.CharField(max_length=1000)
     supervisor_as_cont = models.ManyToManyField(
         'scipost.Contributor', blank=True,
         verbose_name='supervisor(s)',
-        related_name='supervisor_cont')
+        related_name='supervised_theses')
     institution = models.CharField(
         max_length=300,
         verbose_name='degree granting institution')

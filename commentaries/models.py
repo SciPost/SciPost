@@ -16,7 +16,8 @@ class Commentary(TimeStampedModel):
     A Commentary contains all the contents of a SciPost Commentary page for a given publication.
     """
     requested_by = models.ForeignKey('scipost.Contributor', blank=True, null=True,
-                                     on_delete=models.CASCADE, related_name='requested_by')
+                                     on_delete=models.CASCADE,
+                                     related_name='requested_commentaries')
     vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey('scipost.Contributor', blank=True, null=True,
                                   on_delete=models.CASCADE)
@@ -44,11 +45,11 @@ class Commentary(TimeStampedModel):
 
     # Authors which have been mapped to contributors:
     authors = models.ManyToManyField('scipost.Contributor', blank=True,
-                                     related_name='authors_com')
+                                     related_name='commentaries')
     authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
-                                            related_name='authors_com_claims')
+                                            related_name='claimed_commentaries')
     authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,
-                                                  related_name='authors_com_false_claims')
+                                                  related_name='false_claimed_commentaries')
     journal = models.CharField(max_length=300, blank=True)
     volume = models.CharField(max_length=50, blank=True)
     pages = models.CharField(max_length=50, blank=True)
