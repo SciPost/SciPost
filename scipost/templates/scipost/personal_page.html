@@ -38,11 +38,6 @@
                             <a href="#editorial-actions" class="nav-link" data-toggle="tab">Editorial Actions</a>
                           </li>
         		      {% endif %}
-        		      {% if perms.scipost.can_view_production %}
-            		      <li class="nav-item btn btn-secondary">
-                			<a href="#production" class="nav-link" data-toggle="tab">Production</a>
-            		      </li>
-        		      {% endif %}
                       {% if perms.scipost.can_referee %}
                           <li class="nav-item btn btn-secondary">
                             <a class="nav-link" data-toggle="tab" href="#refereeing">Refereeing {% if refereeing_tab_total_count %}({{refereeing_tab_total_count}}){% endif %}</a>
@@ -351,30 +346,6 @@
                 {% endif %}
             </div><!-- End tab -->
         {% endif %}
-
-	    {% if perms.scipost.can_view_production %}
-	    <!-- Tab: Production -->
-	    <div class="tab-pane" id="production" role="tabpanel">
-	      <div class="row">
-		<div class="col-12">
-		  <div class="card card-grey">
-		    <div class="card-body">
-		      <h2 class="card-title mb-0">Production Tasks</h2>
-		    </div>
-		  </div>
-		</div>
-	      </div>
-	      <div class="row">
-		<div class="col-md-4">
-		  <h3>Production workflow</h3>
-		  <ul>
-		    <li><a href="{% url 'production:production' %}">Go to the production page</a></li>
-		    <li><a href="{% url 'production:completed' %}">View completed streams</a></li>
-		  </ul>
-		</div>
-	      </div>
-	    </div>
-	    {% endif %}
 
         <!-- Tab: Publications -->
         <div class="tab-pane" id="publications" role="tabpanel">
