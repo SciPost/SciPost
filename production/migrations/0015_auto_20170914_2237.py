@@ -11,13 +11,13 @@ def contributor_to_officer(apps, schema_editor):
     ProductionUser = apps.get_model('production', 'ProductionUser')
     officers = Group.objects.get(name='Production Officers')
     for user in officers.user_set.all():
-        ProductionUser.objects.get_or_create(user__id=user.id)
+        ProductionUser.objects.get_or_create(user_id=user.id)
     print('\n  - Production Officers transfered to ProductionUser')
 
     # Transfer all Events
     ProductionEvent = apps.get_model('production', 'ProductionEvent')
     for event in ProductionEvent.objects.all():
-        user = User.objects.get(contributor__id=event.noted_by_contributor.id)
+        user = User.objects.get(contributor__id=event.noted_by_contributor.id, production_user__isnull=False)
         event.noted_by.id = user.production_user.id
         event.save()
     print('  - ProductionEvents updated')
@@ -29,7 +29,7 @@ def officer_to_contributor(apps, schema_editor):
     # Transfer all Events
     ProductionEvent = apps.get_model('production', 'ProductionEvent')
     for event in ProductionEvent.objects.all():
-        user = User.objects.get(production_user__id=event.noted_by.id)
+        user = User.objects.get(production_user_id=event.noted_by.id)
         event.noted_by_contributor.id = user.contributor.id
         event.save()
     print('\n  - ProductionEvents updated')
