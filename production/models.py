@@ -27,10 +27,17 @@ class ProductionStream(models.Model):
     closed = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=32,
                               choices=PRODUCTION_STREAM_STATUS, default=PRODUCTION_STREAM_ONGOING)
-    officers = models.ManyToManyField('production.ProductionUser', blank=True,
-                                      related_name='streams')
+    officer = models.ForeignKey('production.ProductionUser', blank=True, null=True,
+                                related_name='streams')
+    supervisor = models.ForeignKey('production.ProductionUser', blank=True, null=True,
+                                   related_name='supervised_streams')
 
     objects = ProductionStreamQuerySet.as_manager()
+
+    class Meta:
+        permissions = (
+            ('can_perform_supervisory_actions', 'Can perform supervisory actions'),
+        )
 
     def __str__(self):
         return '{arxiv}, {title}'.format(arxiv=self.submission.arxiv_identifier_w_vn_nr,

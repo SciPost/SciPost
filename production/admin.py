@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from guardian.admin import GuardedModelAdmin
+
 from .models import ProductionStream, ProductionEvent, ProductionUser
 
 
@@ -19,7 +21,7 @@ class ProductionEventInline(admin.TabularInline):
     readonly_fields = ()
 
 
-class ProductionStreamAdmin(admin.ModelAdmin):
+class ProductionStreamAdmin(GuardedModelAdmin):
     search_fields = ['submission']
     list_filter = ['status']
     list_display = ['submission', 'opened', 'status', event_count]

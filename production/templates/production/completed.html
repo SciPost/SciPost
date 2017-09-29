@@ -21,11 +21,7 @@
     <ul class="list-group list-group-flush">
       {% for stream in streams %}
         <li class="list-group-item">
-            <div class="w-100" id="stream_{{stream.id}}">{% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}</div>
-            <div class="card-body">
-                <h3>Events</h3>
-                {% include 'production/partials/production_events.html' with events=stream.events.all %}
-            </div>
+            {% include 'production/partials/production_stream_card_completed.html' with stream=stream %}
         </li>
       {% empty %}
         <li class="list-group-item">No completed production streams found.</li>

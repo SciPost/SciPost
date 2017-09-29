@@ -11,7 +11,7 @@ class ProductionStreamQuerySet(models.QuerySet):
         return self.filter(status=PRODUCTION_STREAM_ONGOING)
 
     def filter_for_user(self, production_user):
-        return self.filter(officers=production_user)
+        return self.filter(officer=production_user)
 
 
 class ProductionEventManager(models.Manager):

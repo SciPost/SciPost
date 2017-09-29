@@ -18,22 +18,30 @@ class ProductionEventForm(forms.ModelForm):
 
 
 class AssignOfficerForm(forms.ModelForm):
-    officer = forms.ModelChoiceField(queryset=ProductionUser.objects.all())
+    # officer = forms.ModelChoiceField(queryset=ProductionUser.objects.all())
 
     class Meta:
         model = ProductionStream
-        fields = ()
+        fields = ('officer',)
+    #
+    # def clean_officer(self):
+    #     officer = self.cleaned_data['officer']
+    #     if officer in self.instance.officers.all():
+    #         self.add_error('officer', 'Officer already assigned to Stream')
+    #     return officer
+    #
+    # def save(self, commit=True):
+    #     self.instance.officer = self.cleaned_data['officer']
+    #     self.instace.save()
+    #     return self.instance
 
-    def clean_officer(self):
-        officer = self.cleaned_data['officer']
-        if officer in self.instance.officers.all():
-            self.add_error('officer', 'Officer already assigned to Stream')
-        return officer
 
-    def save(self, commit=True):
-        officer = self.cleaned_data['officer']
-        self.instance.officers.add(officer)
-        return self.instance
+class AssignSupervisorForm(forms.ModelForm):
+    # officer = forms.ModelChoiceField(queryset=ProductionUser.objects.all())
+
+    class Meta:
+        model = ProductionStream
+        fields = ('supervisor',)
 
 
 class UserToOfficerForm(forms.ModelForm):

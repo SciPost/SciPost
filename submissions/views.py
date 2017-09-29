@@ -1430,6 +1430,8 @@ def fix_College_decision(request, rec_id):
         # Create a ProductionStream object
         prodstream = ProductionStream(submission=submission)
         prodstream.save()
+        ed_admins = Group.objects.get(name='Editorial Administrators')
+        assign_perm('can_perform_supervisory_actions', ed_admins, prodstream)
 
         # Add SubmissionEvent for authors
         # Do not write a new event for minor/major modification: already done at moment of
