@@ -58,7 +58,8 @@ class ProductionEvent(models.Model):
     event = models.CharField(max_length=64, choices=PRODUCTION_EVENTS)
     comments = models.TextField(blank=True, null=True)
     noted_on = models.DateTimeField(default=timezone.now)
-    noted_by = models.ForeignKey('production.ProductionUser', on_delete=models.CASCADE)
+    noted_by = models.ForeignKey('production.ProductionUser', on_delete=models.CASCADE,
+                                 related_name='events')
     duration = models.DurationField(blank=True, null=True)
 
     objects = ProductionEventManager()

@@ -28,11 +28,6 @@
 	  <li class="nav-item btn btn-secondary">
 	    <a href="#mytimesheet" class="nav-link" data-toggle="tab">My Timesheet</a>
 	  </li>
-	  {% if perms.scipost.can_view_timesheets %}
-    	  <li class="nav-item btn btn-secondary">
-    	    <a href="#teamtimesheets" class="nav-link" data-toggle="tab">Team Timesheets</a>
-    	  </li>
-	  {% endif %}
       {% if perms.scipost.can_promote_user_to_production_officer %}
           <li class="nav-item btn btn-secondary">
             <a href="#officers" class="nav-link" data-toggle="tab">Production Officers</a>
@@ -92,7 +87,10 @@
   <div class="tab-pane" id="mytimesheet" role="tabpanel">
     <div class="row">
       <div class="col-12">
-	<h2 class="highlight">My Timesheet</h2>
+    	<h2 class="highlight">My Timesheet</h2>
+        {% if perms.scipost.can_view_timesheets %}
+            <a href="{% url 'finance:timesheets' %}">See team timesheets</a>
+        {% endif %}
       </div>
     </div>
 
@@ -122,42 +120,6 @@
       </tbody>
     </table>
   </div>
-
-  {% if perms.scipost.can_view_timesheets %}
-      <div class="tab-pane" id="teamtimesheets" role="tabpanel">
-        <div class="row">
-          <div class="col-12">
-    	<h2 class="highlight">Team Timesheets</h2>
-          </div>
-        </div>
-
-        <table class="table table-hover mb-5">
-          <thead class="thead-default">
-    	<tr>
-    	  <th>Name</th>
-    	</tr>
-          </thead>
-
-          <tbody id="accordion" role="tablist" aria-multiselectable="true">
-        	{% for member in production_team.all %}
-            	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ member.id }}" aria-expanded="true" aria-controls="collapse{{ member.id }}" style="cursor: pointer;">
-            	  <td>{{ member }}</td>
-            	</tr>
-            	<tr id="collapse{{ member.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ member.id }}" style="background-color: #fff;">
-            	  <td>
-            	    {% include 'production/partials/production_timesheet_card.html' with events=member.productionevent_set.all %}
-            	  </td>
-            	</tr>
-        	{% empty %}
-            	<tr>
-            	  <td>No Team Member found.</td>
-            	</tr>
-        	{% endfor %}
-          </tbody>
-        </table>
-
-      </div>
-  {% endif %}
 
   {% if perms.scipost.can_promote_user_to_production_officer %}
       <div class="tab-pane" id="officers" role="tabpanel">

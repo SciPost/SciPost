@@ -260,6 +260,13 @@
                                 {% endif %}
                             </ul>
                         {% endif %}
+
+                        {% if perms.scipost.can_view_timesheets %}
+                            <h3>Finance</h3>
+                            <ul>
+                                <li><a href="{% url 'finance:timesheets' %}">Production Team Timesheets</a></li>
+                            </ul>
+                        {% endif %}
                     </div>
                     {% endif %}
 
