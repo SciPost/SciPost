@@ -4,8 +4,6 @@
 
         {% if submission.status == 'unassigned' %}
             <i class="fa fa-exclamation mt-1 px-1 text-danger" data-toggle="tooltip" data-html="true" title="You can volunteer to become Editor-in-charge"></i>
-        {% else %}
-            {% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission %}
         {% endif %}
     </div>
     <div class="item col-auto">
@@ -15,14 +13,14 @@
         </p>
 
         <p class="card-text mb-3">
-            <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}">See details in the pool</a>
+            <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" data-toggle="dynamic" data-target="#details">See details</a>
             {% if submission.editor_in_charge == request.user.contributor %}
                 &middot; <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Go directly to editorial page</a>
             {% endif %}
         </p>
 
         {% if submission.cycle.has_required_actions and submission.cycle.get_required_actions %}
-            <p class="card-text text-danger">This Submission contains required actions.</p>
+            <p class="card-text bg-danger text-white p-1 px-2">This Submission contains required actions, <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" class="text-white" data-toggle="dynamic" data-target="#details">click to see details.</a> {% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission classes='text-white' %}</p>
         {% endif %}
 
         {% if submission.status == 'unassigned' %}

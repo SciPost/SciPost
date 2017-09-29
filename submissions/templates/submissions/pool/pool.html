@@ -61,10 +61,10 @@
                     </form>
                 {% endif %}
 
-                <ul class="list-unstyled">
+                <ul class="list-unstyled" data-target="active-list">
                     <!-- Submissions list -->
                     {% for sub in submissions_in_pool %}
-                        <li class="p-2{% if sub == submission %} bg-light{% endif %}">
+                        <li class="p-2{% if sub == submission %} active{% endif %}">
                             {% if sub == submission %}
                                 {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=1 %}
                             {% else %}
@@ -79,9 +79,9 @@
                 </ul>
             </div><!-- End page content -->
 
-            <div class="col-md-5">
+            <div class="col-md-5" id="details">
                 {% if submission %}
-                    {% include 'submissions/_submission_card_in_pool.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
+                    {% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
                 {% else %}
                     <h3><em>Click on a submission to see its summary and actions</em></h3>
                 {% endif %}

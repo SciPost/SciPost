@@ -337,11 +337,11 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
                            .prefetch_related('referee_invitations', 'remarks', 'comments'))
     recommendations_undergoing_voting = (EICRecommendation.objects
                                          .get_for_user_in_pool(request.user)
-                                         .filter(submission__status__in=['put_to_EC_voting']))
+                                         .filter(submission__status='put_to_EC_voting'))
     recommendations_to_prepare_for_voting = (EICRecommendation.objects
                                              .get_for_user_in_pool(request.user)
                                              .filter(
-                                                submission__status__in=['voting_in_preparation']))
+                                                submission__status='voting_in_preparation'))
     contributor = Contributor.objects.get(user=request.user)
     assignments_to_consider = EditorialAssignment.objects.open().filter(to=contributor)
     consider_assignment_form = ConsiderAssignmentForm()
@@ -354,15 +354,18 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
                        .exclude(submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED))
     rec_vote_form = RecommendationVoteForm()
     remark_form = RemarkForm()
-    context = {'submissions_in_pool': submissions_in_pool,
-               'submission_status': SUBMISSION_STATUS,
-               'recommendations_undergoing_voting': recommendations_undergoing_voting,
-               'recommendations_to_prepare_for_voting': recommendations_to_prepare_for_voting,
-               'assignments_to_consider': assignments_to_consider,
-               'consider_assignment_form': consider_assignment_form,
-               'recs_to_vote_on': recs_to_vote_on,
-               'rec_vote_form': rec_vote_form,
-               'remark_form': remark_form, }
+    context = {
+        'submissions_in_pool': submissions_in_pool,
+        'submission_status': SUBMISSION_STATUS,
+        'recommendations_undergoing_voting': recommendations_undergoing_voting,
+        'recommendations_to_prepare_for_voting': recommendations_to_prepare_for_voting,
+        'assignments_to_consider': assignments_to_consider,
+        'consider_assignment_form': consider_assignment_form,
+        'recs_to_vote_on': recs_to_vote_on,
+        'rec_vote_form': rec_vote_form,
+        'remark_form': remark_form,
+        'submission': None
+    }
 
     # The following is in test phase. Update if test is done
     # --
@@ -380,10 +383,12 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
             context['submission'] = context['submissions_in_pool'].get(
                 arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
         except Submission.DoesNotExist:
-            context['submission'] = None
+            pass
 
     # Temporary test logic: only testers see the new Pool
-    if is_tester(request.user) and not request.GET.get('test'):
+    if context['submission'] and request.GET.get('json'):
+        template = 'partials/submissions/pool/submission_details.html'
+    elif is_tester(request.user) and not request.GET.get('test'):
         template = 'submissions/pool/pool.html'
     else:
         template = 'submissions/pool.html'
@@ -431,7 +436,7 @@ def add_remark(request, arxiv_identifier_w_vn_nr):
         messages.success(request, 'Your remark has succesfully been posted')
     else:
         messages.warning(request, 'The form was invalidly filled.')
-    return redirect(reverse('submissions:pool'))
+    return redirect(reverse('submissions:pool', args=(arxiv_identifier_w_vn_nr,)))
 
 
 @login_required

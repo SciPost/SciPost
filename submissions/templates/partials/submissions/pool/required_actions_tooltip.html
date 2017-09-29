@@ -1,5 +1,5 @@
 {% if submission.cycle.has_required_actions and submission.cycle.get_required_actions %}
-    <i class="fa fa-exclamation-circle text-danger" data-toggle="tooltip" data-html="true" title="
+    <i class="fa fa-exclamation-circle {{ classes }}" data-toggle="tooltip" data-html="true" title="
         Required Actions:
         <ul class='mb-0 pl-3 text-left'>
             {% for action in submission.cycle.get_required_actions %}
