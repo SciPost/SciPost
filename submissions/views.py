@@ -1537,7 +1537,7 @@ class EditorialSummaryView(SubmissionAdminViewMixin, ListView):
 
         # Pick submission from `submission_list` to include proper filters such as author filters.
         try:
-            arxiv_id = self.request.GET.get('submission')
+            arxiv_id = self.kwargs.get('arxiv_identifier_w_vn_nr')
             assert arxiv_id
             context['submission'] = (context['submission_list']
                                      .get(arxiv_identifier_w_vn_nr=arxiv_id))
@@ -1552,6 +1552,12 @@ class EditorialSummaryView(SubmissionAdminViewMixin, ListView):
             EICRecommendation.objects.get_for_user_in_pool(self.request.user)
             .filter(submission__status='voting_in_preparation'))
         return context
+
+    def get_template_names(self):
+        if self.request.GET.get('json'):
+            return ['partials/submissions/admin/submission_details.html']
+        else:
+            return ['submissions/admin/editorial_admin.html']
 
 
 class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
