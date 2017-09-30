@@ -34,6 +34,11 @@ class AssignSupervisorForm(forms.ModelForm):
         model = ProductionStream
         fields = ('supervisor',)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['supervisor'].queryset = self.fields['supervisor'].queryset.filter(
+            user__groups__name='Production Supervisor')
+
 
 class UserToOfficerForm(forms.ModelForm):
     class Meta:
@@ -59,8 +64,15 @@ class ProductionUserMonthlyActiveFilter(forms.Form):
                                               ).distinct()
         output = []
         for user in users:
-            qs = self.get_events(user)
-            output.append({'events': qs, 'duration': qs.aggregate(total=Sum('duration'))})
+            events = user.events.filter(duration__isnull=False,
+                                        noted_on__month=self.cleaned_data['month'],
+                                        noted_on__year=self.cleaned_data['year'])
+            output.append({
+                'events': events,
+                'duration': events.aggregate(total=Sum('duration')),
+                'user': user
+            })
+            
         return output
 
     def get_events(self, officer=None):

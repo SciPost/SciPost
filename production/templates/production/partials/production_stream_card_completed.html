@@ -34,8 +34,8 @@
           {% include 'production/partials/production_events.html' with events=stream.events.all non_editable=1 %}
       {% endblock %}
 
-    </div>
-    {% if prodevent_form %}
+  </div>
+    {% if prodevent_form and "can_work_for_stream" in sub_perms %}
         <div class="col-lg-5 mt-4 mt-lg-0">
           <h3>Add an event to this production stream:</h3>
           <form action="{% url 'production:add_event' stream_id=stream.id %}" method="post">

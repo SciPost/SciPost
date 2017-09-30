@@ -119,6 +119,7 @@ def add_officer(request, stream_id):
     if form.is_valid():
         form.save()
         officer = form.cleaned_data.get('officer')
+        assign_perm('can_work_for_stream', officer.user, stream)
         messages.success(request, 'Officer {officer} has been assigned.'.format(officer=officer))
         notify_new_stream_assignment(request.user, stream, officer.user)
     else:
@@ -153,6 +154,7 @@ def add_supervisor(request, stream_id):
     if form.is_valid():
         form.save()
         supervisor = form.cleaned_data.get('supervisor')
+        assign_perm('can_work_for_stream', supervisor.user, stream)
         messages.success(request, 'Supervisor {supervisor} has been assigned.'.format(
             supervisor=supervisor))
         notify_new_stream_assignment(request.user, stream, supervisor.user)
