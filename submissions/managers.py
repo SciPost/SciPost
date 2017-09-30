@@ -264,7 +264,7 @@ class RefereeInvitationQuerySet(models.QuerySet):
     def declined(self):
         return self.filter(accepted=False)
 
-    def in_consideration(self):
+    def open(self):
         return self.pending().filter(cancelled=False)
 
     def in_process(self):
