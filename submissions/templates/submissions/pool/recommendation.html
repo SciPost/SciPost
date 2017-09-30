@@ -1,0 +1,29 @@
+{% extends 'submissions/pool/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Editorial Recommendation</span>
+{% endblock %}
+
+{% block pagetitle %}: Editorial Recommendation{% endblock pagetitle %}
+
+{% block content %}
+    <h1>Editorial Recommendation to vote on</h1>
+
+    {% include 'submissions/_submission_card_fellow_content.html' with submission=recommendation.submission %}
+
+    {# <div class="card card-outline-secondary">#}
+        {% include 'submissions/_recommendation_fellow_content.html' with recommendation=recommendation %}
+        <div class="card-footer">
+            <h3>Your position on this recommendation</h3>
+            <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
+                {% csrf_token %}
+                {{ form|bootstrap:'0,12' }}
+                <input type="submit" name="submit" value="Cast your vote" class="btn btn-primary submitButton" id="submit-id-submit">
+            </form>
+        </div>
+    {# </div>#}
+
+{% endblock %}

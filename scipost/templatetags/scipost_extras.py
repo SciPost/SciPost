@@ -12,7 +12,9 @@ register = template.Library()
 
 @register.filter(name='sort_by')
 def sort_by(queryset, order):
-    return queryset.order_by(order)
+    if queryset:
+        return queryset.order_by(order)
+    return None
 
 
 @register.filter(name='duration')

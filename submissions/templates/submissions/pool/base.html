@@ -1,0 +1,13 @@
+{% extends 'scipost/base.html' %}
+
+{% block body_class %}{{ block.super }} pool{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0">
+        <div class="container">
+            {% block breadcrumb_items %}
+                <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+            {% endblock %}
+        </div>
+    </nav>
+{% endblock %}

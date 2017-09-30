@@ -199,8 +199,8 @@ class EditorialAssignmentQuerySet(models.QuerySet):
     def ongoing(self):
         return self.filter(completed=False).accepted()
 
-    def in_consideration(self):
-        return self.filter(deprecated=False).ignored()
+    def open(self):
+        return self.filter(accepted=None, deprecated=False)
 
 
 class EICRecommendationManager(models.Manager):
