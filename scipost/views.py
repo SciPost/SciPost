@@ -1,5 +1,6 @@
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -10,10 +11,12 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
 from django.db.models import Prefetch
+from django.http import Http404
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.views.decorators.http import require_POST
 from django.views.generic.list import ListView
+from django.views.static import serve
 
 from guardian.decorators import permission_required
 from guardian.shortcuts import assign_perm, get_objects_for_user
@@ -83,6 +86,18 @@ def index(request):
         'current_agreements': MembershipAgreement.objects.now_active()[:2],
     }
     return render(request, 'scipost/index.html', context)
+
+
+def protected_serve(request, path, show_indexes=False):
+    """
+    Serve files that are saved outside the default MEDIA_ROOT folder for superusers only!
+    This will be usefull eg. in the admin pages.
+    """
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        # Only superusers may get to see secure files without an explicit serve method!
+        raise Http404
+    document_root = settings.MEDIA_ROOT_SECURE
+    return serve(request, path, document_root, show_indexes)
 
 
 ###############
