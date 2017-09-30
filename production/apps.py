@@ -8,7 +8,8 @@ class ProductionConfig(AppConfig):
     def ready(self):
         super().ready()
 
-        from .models import ProductionEvent, ProductionStream
-        from .signals import notify_new_event, notify_new_stream
+        from .models import ProductionEvent, ProductionStream, Proof
+        from .signals import notify_new_event, notify_new_stream, notify_proof_upload
         post_save.connect(notify_new_event, sender=ProductionEvent)
         post_save.connect(notify_new_stream, sender=ProductionStream)
+        post_save.connect(notify_proof_upload, sender=Proof)

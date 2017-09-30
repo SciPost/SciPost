@@ -1,12 +1,17 @@
 from django.db import models
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.functional import cached_property
 
 from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_STREAM_INITIATED, PRODUCTION_EVENTS,\
-                       EVENT_MESSAGE, EVENT_HOUR_REGISTRATION, PRODUCTION_STREAM_COMPLETED
+                       EVENT_MESSAGE, EVENT_HOUR_REGISTRATION, PRODUCTION_STREAM_COMPLETED,\
+                       PROOF_STATUSES, PROOF_UPLOADED
 from .managers import ProductionStreamQuerySet, ProductionEventManager
+from .utils import proof_id_to_slug
+
+from scipost.storage import SecureFileStorage
 
 
 class ProductionUser(models.Model):
@@ -86,3 +91,42 @@ class ProductionEvent(models.Model):
     @cached_property
     def editable(self):
         return self.event in [EVENT_MESSAGE, EVENT_HOUR_REGISTRATION] and not self.stream.completed
+
+
+def proofs_upload_location(instance, filename):
+    submission = instance.stream.submission
+    return 'UPLOADS/PROOFS/{year}/{arxiv}/{filename}'.format(
+        year=submission.submission_date.year,
+        arxiv=submission.arxiv_identifier_wo_vn_nr,
+        filename=filename)
+
+
+class Proof(models.Model):
+    """
+    A Proof directly related to a ProductionStream and Submission in SciPost.
+    It's meant to help the Production team
+    """
+    attachment = models.FileField(upload_to=proofs_upload_location, storage=SecureFileStorage())
+    version = models.PositiveSmallIntegerField(default=0)
+    stream = models.ForeignKey('production.ProductionStream', related_name='proofs')
+    uploaded_by = models.ForeignKey('production.ProductionUser', related_name='+')
+    created = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=16, choices=PROOF_STATUSES, default=PROOF_UPLOADED)
+    accessible_for_authors = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['version']
+
+    def get_absolute_url(self):
+        return reverse('production:proof',
+                       kwargs={'stream_id': self.stream.id, 'version': self.version})
+
+    def save(self, *args, **kwargs):
+        # Control Report count per Submission.
+        if not self.version:
+            self.version = self.stream.proofs.count() + 1
+        return super().save(*args, **kwargs)
+
+    @property
+    def slug(self):
+        return proof_id_to_slug(self.id)

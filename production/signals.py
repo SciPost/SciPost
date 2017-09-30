@@ -57,7 +57,7 @@ def notify_stream_status_change(sender, instance, created, **kwargs):
         for user in administators.user_set.all():
             notify.send(sender=sender, recipient=user,
                         actor=sender,
-                        verb=' has marked proofs as being accepted.', target=instance)
+                        verb=' has marked Proofs accepted.', target=instance)
     elif instance.status == constants.PROOFS_PUBLISHED:
         if instance.supervisor:
             notify.send(sender=sender, recipient=instance.supervisor.user,
@@ -84,3 +84,10 @@ def notify_stream_status_change(sender, instance, created, **kwargs):
             notify.send(sender=sender, recipient=instance.supervisor.user,
                         actor=sender,
                         verb=' changed the Production Stream status.', target=instance)
+
+
+def notify_proof_upload(sender, instance, created, **kwargs):
+    if created and instance.stream.supervisor:
+        notify.send(sender=sender, recipient=instance.stream.supervisor.user,
+                    actor=instance.uploaded_by.user, verb=' uploaded new Proofs to Production Stream.',
+                    target=instance)

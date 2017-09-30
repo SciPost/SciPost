@@ -32,4 +32,20 @@
           <h3>Events</h3>
           {% include 'production/partials/production_events.html' with events=stream.events.all non_editable=1 %}
       {% endblock %}
+
+    {% if "can_work_for_stream" in sub_perms %}
+      <h3>Proofs</h3>
+      <ul>
+          {% for proof in stream.proofs.all %}
+              <li class="py-1">
+                  <a href="{% url 'production:proof' stream_id=stream.id version=proof.version %}">Version {{ proof.version }}</a><br>
+                  Uploaded by {{ proof.uploaded_by.user.first_name }} {{ proof.uploaded_by.user.last_name }}<br>
+                  Accessible for authors: <strong>{{ proof.accessible_for_authors|yesno:'Yes,No' }}</strong><br>
+                  <span class="label label-secondary label-sm">{{ proof.get_status_display }}</span>
+              </li>
+          {% empty %}
+              <li>No Proofs found.</li>
+          {% endfor %}
+      </ul>
+    {% endif %}
 </div>

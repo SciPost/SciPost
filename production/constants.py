@@ -30,18 +30,21 @@ PRODUCTION_EVENTS = (
     ('status', 'Status change'),
     (EVENT_MESSAGE, 'Message'),
     (EVENT_HOUR_REGISTRATION, 'Hour registration'),
-    # ('assigned_to_supervisor', 'Assigned by EdAdmin to Supervisor'),
-    # ('message_edadmin_to_supervisor', 'Message from EdAdmin to Supervisor'),
-    # ('message_supervisor_to_edadmin', 'Message from Supervisor to EdAdmin'),
-    # ('officer_tasked_with_proof_production', 'Supervisor tasked officer with proofs production'),
-    # ('message_supervisor_to_officer', 'Message from Supervisor to Officer'),
-    # ('message_officer_to_supervisor', 'Message from Officer to Supervisor'),
-    # ('proofs_produced', 'Proofs have been produced'),
-    # ('proofs_checked_by_supervisor', 'Proofs have been checked by Supervisor'),
-    # ('proofs_sent_to_authors', 'Proofs sent to Authors'),
-    # ('proofs_returned_by_authors', 'Proofs returned by Authors'),
-    # ('corrections_implemented', 'Corrections implemented'),
-    # ('authors_have_accepted_proofs', 'Authors have accepted proofs'),
-    # ('paper_published', 'Paper has been published'),
-    # ('cited_notified', 'Cited people have been notified/invited to SciPost'),
+)
+
+PROOF_UPLOADED = 'uploaded'
+PROOF_SENT = 'sent'
+PROOF_ACCEPTED_SUP = 'accepted_sup'
+PROOF_DECLINED_SUP = 'declined_sup'
+PROOF_ACCEPTED = 'accepted'
+PROOF_DECLINED = 'declined'
+PROOF_RENEWED = 'renewed'
+PROOF_STATUSES = (
+    (PROOF_UPLOADED, 'Proofs uploaded'),
+    (PROOF_SENT, 'Proofs sent to authors'),
+    (PROOF_ACCEPTED_SUP, 'Proofs accepted by supervisor'),
+    (PROOF_DECLINED_SUP, 'Proofs declined by supervisor'),
+    (PROOF_ACCEPTED, 'Proofs accepted by authors'),
+    (PROOF_DECLINED, 'Proofs declined by authors'),
+    (PROOF_RENEWED, 'Proofs renewed'),
 )

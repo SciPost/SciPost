@@ -226,9 +226,17 @@ class Command(BaseCommand):
             codename='can_view_production',
             name='Can view production page',
             content_type=content_type)
+        can_upload_proofs, created = Permission.objects.get_or_create(
+            codename='can_upload_proofs',
+            name='Can upload proofs',
+            content_type=content_type)
         can_take_decisions_related_to_proofs, created = Permission.objects.get_or_create(
             codename='can_take_decisions_related_to_proofs',
             name='Can take decisions related to proofs',
+            content_type=content_type)
+        can_run_proofs_by_authors, created = Permission.objects.get_or_create(
+            codename='can_run_proofs_by_authors',
+            name='Can run proof by authors',
             content_type=content_type)
         can_publish_accepted_submission, created = Permission.objects.get_or_create(
             codename='can_publish_accepted_submission',
@@ -305,6 +313,8 @@ class Command(BaseCommand):
             can_assign_production_supervisor,
             can_view_all_production_streams,
             can_take_decisions_related_to_proofs,
+            can_upload_proofs,
+            can_run_proofs_by_authors,
         ])
 
         EditorialCollege.permissions.set([
@@ -347,13 +357,16 @@ class Command(BaseCommand):
             can_assign_production_officer,
             can_take_decisions_related_to_proofs,
             can_view_all_production_streams,
+            can_run_proofs_by_authors,
             can_view_docs_scipost,
             can_view_production,
+            can_upload_proofs,
         ])
 
         ProductionOfficers.permissions.set([
             can_view_docs_scipost,
             can_view_production,
+            can_upload_proofs,
         ])
 
         PartnersAdmin.permissions.set([

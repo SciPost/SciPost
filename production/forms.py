@@ -5,7 +5,7 @@ from django.utils.dates import MONTHS
 from django.db.models import Sum
 
 from . import constants
-from .models import ProductionUser, ProductionStream, ProductionEvent
+from .models import ProductionUser, ProductionStream, ProductionEvent, Proof
 from .signals import notify_stream_status_change
 
 today = datetime.datetime.today()
@@ -153,3 +153,9 @@ class ProductionUserMonthlyActiveFilter(forms.Form):
             })
 
         return output
+
+
+class ProofUploadForm(forms.ModelForm):
+    class Meta:
+        model = Proof
+        fields = ('attachment',)
