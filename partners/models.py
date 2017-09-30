@@ -26,6 +26,7 @@ from .constants import PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
 
 from .managers import MembershipAgreementManager, ProspectivePartnerManager, PartnerManager,\
                       ContactRequestManager, PartnersAttachmentManager
+from .storage import SecureFileStorage
 
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
@@ -291,7 +292,8 @@ class PartnersAttachment(models.Model):
     An Attachment which can (in the future) be related to a Partner, Contact, MembershipAgreement,
     etc.
     """
-    attachment = models.FileField(upload_to='UPLOADS/PARTNERS/ATTACHMENTS')
+    attachment = models.FileField(upload_to='UPLOADS/PARTNERS/ATTACHMENTS',
+                                  storage=SecureFileStorage())
     name = models.CharField(max_length=128)
     agreement = models.ForeignKey('partners.MembershipAgreement', related_name='attachments',
                                   blank=True)
