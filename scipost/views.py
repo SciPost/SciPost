@@ -732,7 +732,7 @@ def personal_page(request):
         nr_reports_to_vet = 0
         if contributor.is_MEC():
             nr_assignments_to_consider = (contributor.editorial_assignments
-                                          .in_consideration().count())
+                                          .open().count())
             active_assignments = contributor.editorial_assignments.ongoing()
             nr_reports_to_vet = (Report.objects.awaiting_vetting()
                                  .filter(submission__editor_in_charge=contributor).count())
@@ -749,7 +749,7 @@ def personal_page(request):
             nr_authorship_claims_to_vet = AuthorshipClaim.objects.awaiting_vetting().count()
 
         # Refereeing
-        nr_ref_inv_to_consider = contributor.referee_invitations.in_consideration().count()
+        nr_ref_inv_to_consider = contributor.referee_invitations.open().count()
         pending_ref_tasks = contributor.referee_invitations.in_process()
         refereeing_tab_total_count = nr_ref_inv_to_consider + len(pending_ref_tasks)
         refereeing_tab_total_count += contributor.reports.in_draft().count()
