@@ -1,5 +1,7 @@
 from django.contrib.auth.models import Group
 
+from .import constants
+
 from notifications.signals import notify
 
 
@@ -9,8 +11,8 @@ def notify_new_stream(sender, instance, created, **kwargs):
     """
     if created:
         editorial_college = Group.objects.get(name='Editorial College')
-        supervisors = Group.objects.get(name='Production Supervisor')
-        for recipient in supervisors.user_set.all():
+        administators = Group.objects.get(name='Editorial Administrators')
+        for recipient in administators.user_set.all():
             notify.send(sender=sender, recipient=recipient, actor=editorial_college,
                         verb=' accepted a Submission. A new Production Stream has started.',
                         target=instance)
@@ -31,24 +33,54 @@ def notify_new_event(sender, instance, created, **kwargs):
     if created:
         stream = instance.stream
 
-        if stream.officer != instance.noted_by:
+        if stream.officer and stream.officer != instance.noted_by:
             notify.send(sender=sender, recipient=stream.officer.user,
                         actor=instance.noted_by.user,
                         verb=' created a new Production Event.', target=instance)
 
-        if stream.supervisor != instance.noted_by:
+        if stream.supervisor and stream.supervisor != instance.noted_by:
             notify.send(sender=sender, recipient=stream.supervisor.user,
                         actor=instance.noted_by.user,
                         verb=' created a new Production Event.', target=instance)
 
 
-def notify_stream_completed(sender, instance, **kwargs):
+def notify_stream_status_change(sender, instance, created, **kwargs):
     """
-    Notify the production team about a Production Stream being completed.
-    """
-    stream = instance.stream
-    notify.send(sender=sender, recipient=stream.officer.user,
-                actor=sender, verb=' marked Production Stream as completed.', target=instance)
+    Notify the production officers about a new status change for a Production Stream.
 
-    notify.send(sender=sender, recipient=stream.supervisor.user,
-                actor=sender, verb=' marked Production Stream as completed.', target=instance)
+    sender -- User instance
+    instance -- ProductionStream instance
+    """
+
+    if instance.status == constants.PROOFS_ACCEPTED:
+        administators = Group.objects.get(name='Editorial Administrators')
+        for user in administators.user_set.all():
+            notify.send(sender=sender, recipient=user,
+                        actor=sender,
+                        verb=' has marked proofs as being accepted.', target=instance)
+    elif instance.status == constants.PROOFS_PUBLISHED:
+        if instance.supervisor:
+            notify.send(sender=sender, recipient=instance.supervisor.user,
+                        actor=sender,
+                        verb=' published the manuscript of your Production Stream.',
+                        target=instance)
+
+    elif instance.status == constants.PRODUCTION_STREAM_COMPLETED:
+        if instance.supervisor:
+            notify.send(sender=sender, recipient=instance.supervisor.user,
+                        actor=sender,
+                        verb=' marked your Production Stream as completed.', target=instance)
+        if instance.officer:
+            notify.send(sender=sender, recipient=instance.officer.user,
+                        actor=sender,
+                        verb=' marked your Production Stream as completed.', target=instance)
+    else:
+        if instance.officer:
+            notify.send(sender=sender, recipient=instance.officer.user,
+                        actor=sender,
+                        verb=' changed the Production Stream status.', target=instance)
+
+        if instance.supervisor:
+            notify.send(sender=sender, recipient=instance.supervisor.user,
+                        actor=sender,
+                        verb=' changed the Production Stream status.', target=instance)

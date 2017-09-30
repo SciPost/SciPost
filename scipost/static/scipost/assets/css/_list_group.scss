@@ -46,3 +46,9 @@ ul.events-list {
         }
     }
 }
+
+ul[data-target="active-list"] {
+    li.active {
+        background-color: $gray-100;
+    }
+}

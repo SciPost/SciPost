@@ -11,13 +11,14 @@ from django.utils.decorators import method_decorator
 from django.views.generic.edit import UpdateView, DeleteView
 
 from guardian.core import ObjectPermissionChecker
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, remove_perm
 
-from .constants import PRODUCTION_STREAM_COMPLETED
+from . import constants
 from .models import ProductionUser, ProductionStream, ProductionEvent
-from .forms import ProductionEventForm, AssignOfficerForm, UserToOfficerForm, AssignSupervisorForm
+from .forms import ProductionEventForm, AssignOfficerForm, UserToOfficerForm,\
+                   AssignSupervisorForm, StreamStatusForm
 from .permissions import is_production_user
-from .signals import notify_stream_completed, notify_new_stream_assignment
+from .signals import notify_stream_status_change,  notify_new_stream_assignment
 
 
 ######################
@@ -37,17 +38,11 @@ def production(request):
         streams = streams.filter_for_user(request.user.production_user)
     streams = streams.order_by('opened')
 
-    prodevent_form = ProductionEventForm()
-    assign_officer_form = AssignOfficerForm()
-    assign_supervisor_form = AssignSupervisorForm()
     ownevents = ProductionEvent.objects.filter(
         noted_by=request.user.production_user,
         duration__gte=datetime.timedelta(minutes=1)).order_by('-noted_on')
     context = {
         'streams': streams,
-        'prodevent_form': prodevent_form,
-        'assign_officer_form': assign_officer_form,
-        'assign_supervisor_form': assign_supervisor_form,
         'ownevents': ownevents,
     }
     if request.user.has_perm('scipost.can_view_timesheets'):
@@ -75,6 +70,36 @@ def completed(request):
 
 
 @is_production_user()
+@permission_required('scipost.can_view_production', raise_exception=True)
+def stream(request, stream_id):
+    """
+    Overview page for specific stream.
+    """
+    streams = ProductionStream.objects.ongoing()
+    if not request.user.has_perm('scipost.can_view_all_production_streams'):
+        # Restrict stream queryset if user is not supervisor
+        streams = streams.filter_for_user(request.user.production_user)
+    stream = get_object_or_404(streams, id=stream_id)
+    prodevent_form = ProductionEventForm()
+    assign_officer_form = AssignOfficerForm()
+    assign_supervisor_form = AssignSupervisorForm()
+    status_form = StreamStatusForm(instance=stream, production_user=request.user.production_user)
+
+    context = {
+        'stream': stream,
+        'prodevent_form': prodevent_form,
+        'assign_officer_form': assign_officer_form,
+        'assign_supervisor_form': assign_supervisor_form,
+        'status_form': status_form,
+    }
+
+    if request.GET.get('json'):
+        return render(request, 'production/partials/production_stream_card.html', context)
+    else:
+        return render(request, 'production/stream.html', context)
+
+
+@is_production_user()
 @permission_required('scipost.can_promote_user_to_production_officer')
 def user_to_officer(request):
     form = UserToOfficerForm(request.POST or None)
@@ -89,6 +114,26 @@ def user_to_officer(request):
 
 
 @is_production_user()
+@permission_required('scipost.can_take_decisions_related_to_proofs', raise_exception=True)
+def update_status(request, stream_id):
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm('can_perform_supervisory_actions', stream):
+        return redirect(reverse('production:production'))
+
+    p = request.user.production_user
+    form = StreamStatusForm(request.POST or None, instance=stream,
+                            production_user=p)
+
+    if form.is_valid():
+        stream = form.save()
+        messages.warning(request, 'Production Stream succesfully changed status.')
+    else:
+        messages.warning(request, 'The status change was invalid.')
+    return redirect(stream.get_absolute_url())
+
+
+@is_production_user()
 @permission_required('scipost.can_view_production', raise_exception=True)
 def add_event(request, stream_id):
     qs = ProductionStream.objects.ongoing()
@@ -100,6 +145,8 @@ def add_event(request, stream_id):
     if prodevent_form.is_valid():
         prodevent = prodevent_form.save(commit=False)
         prodevent.stream = stream
+        if prodevent.duration:
+            prodevent.event = constants.EVENT_HOUR_REGISTRATION
         prodevent.noted_by = request.user.production_user
         prodevent.save()
     else:
@@ -122,6 +169,13 @@ def add_officer(request, stream_id):
         assign_perm('can_work_for_stream', officer.user, stream)
         messages.success(request, 'Officer {officer} has been assigned.'.format(officer=officer))
         notify_new_stream_assignment(request.user, stream, officer.user)
+        event = ProductionEvent(
+            stream=stream,
+            event='assignment',
+            comments=' tasked Production Officer with proofs production:',
+            noted_to=officer,
+            noted_by=request.user.production_user)
+        event.save()
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
@@ -140,6 +194,7 @@ def remove_officer(request, stream_id, officer_id):
         officer = stream.officer
         stream.officer = None
         stream.save()
+        remove_perm('can_work_for_stream', officer.user, stream)
         messages.success(request, 'Officer {officer} has been removed.'.format(officer=officer))
 
     return redirect(reverse('production:production'))
@@ -154,10 +209,18 @@ def add_supervisor(request, stream_id):
     if form.is_valid():
         form.save()
         supervisor = form.cleaned_data.get('supervisor')
-        assign_perm('can_work_for_stream', supervisor.user, stream)
         messages.success(request, 'Supervisor {supervisor} has been assigned.'.format(
             supervisor=supervisor))
         notify_new_stream_assignment(request.user, stream, supervisor.user)
+        event = ProductionEvent(
+            stream=stream,
+            event='assignment',
+            comments=' assigned Production Supervisor:',
+            noted_to=supervisor,
+            noted_by=request.user.production_user)
+        event.save()
+
+        assign_perm('can_work_for_stream', supervisor.user, stream)
         assign_perm('can_perform_supervisory_actions', supervisor.user, stream)
     else:
         for key, error in form.errors.items():
@@ -173,6 +236,8 @@ def remove_supervisor(request, stream_id, officer_id):
         supervisor = stream.supervisor
         stream.supervisor = None
         stream.save()
+        remove_perm('can_work_for_stream', supervisor.user, stream)
+        remove_perm('can_perform_supervisory_actions', supervisor.user, stream)
         messages.success(request, 'Supervisor {supervisor} has been removed.'.format(
             supervisor=supervisor))
 
@@ -219,11 +284,18 @@ class DeleteEventView(DeleteView):
 @permission_required('scipost.can_publish_accepted_submission', raise_exception=True)
 def mark_as_completed(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
-    stream.status = PRODUCTION_STREAM_COMPLETED
+    stream.status = constants.PRODUCTION_STREAM_COMPLETED
     stream.closed = timezone.now()
     stream.save()
 
-    notify_stream_completed(request.user, stream)
+    prodevent = ProductionEvent(
+        stream=stream,
+        event='status',
+        comments=' marked the Production Stream as completed.',
+        noted_by=request.user.production_user
+    )
+    prodevent.save()
+    notify_stream_status_change(request.user, stream)
     return redirect(reverse('production:production'))
 
 

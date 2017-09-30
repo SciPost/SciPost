@@ -3,14 +3,13 @@
 
 {% get_obj_perms request.user for stream as "sub_perms" %}
 
-<div class="w-100" id="stream_{{stream.id}}">
+<div class="card-body py-0" id="stream_{{stream.id}}">
     {% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}
 </div>
 <div class="card-body">
-  <div class="row">
-    <div class="{% if prodevent_form %}col-lg-7{% else %}col-12{% endif %}">
-      <h3>Officers</h3>
+      <h3>Stream details</h3>
       <ul>
+          <li>Status: <em>{{ stream.get_status_display }}</em></li>
           {% block officers %}
               <li>Production Supervisor:
                     {% if stream.supervisor %}
@@ -33,17 +32,4 @@
           <h3>Events</h3>
           {% include 'production/partials/production_events.html' with events=stream.events.all non_editable=1 %}
       {% endblock %}
-
-  </div>
-    {% if prodevent_form and "can_work_for_stream" in sub_perms %}
-        <div class="col-lg-5 mt-4 mt-lg-0">
-          <h3>Add an event to this production stream:</h3>
-          <form action="{% url 'production:add_event' stream_id=stream.id %}" method="post">
-        	{% csrf_token %}
-        	{{ prodevent_form|bootstrap }}
-        	<input type="submit" class="btn btn-secondary" name="submit" value="Submit">
-          </form>
-        </div>
-    {% endif %}
-  </div>
 </div>
