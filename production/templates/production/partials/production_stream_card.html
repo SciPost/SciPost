@@ -46,8 +46,17 @@
                     </div>
                 </li>
               {% endif %}
-              {% if perms.scipost.can_upload_proofs and stream.status != 'accepted' and stream.status != 'completed' and stream.status != 'cited' %}
-                  <li><a href="{% url 'production:upload_proofs' stream_id=stream.id %}">Upload Proofs</a></li>
+              {% if perms.scipost.can_upload_proofs and stream.status != 'accepted' and stream.status != 'completed' and stream.status != 'cited' and upload_proofs_form %}
+                  <li>
+                      <a href="javascript:;" data-toggle="toggle" data-target="#upload_proofs">Upload Proofs</a>
+                      <div id="upload_proofs" style="display: none;">
+                          <form class="my-3" action="{% url 'production:upload_proofs' stream_id=stream.id %}" method="post" enctype="multipart/form-data">
+                            	{% csrf_token %}
+                            	{{ upload_proofs_form|bootstrap_inline }}
+                            	<input type="submit" class="btn btn-outline-primary" name="submit" value="Upload">
+                          </form>
+                      </div>
+                  </li>
               {% endif %}
               {% if perms.scipost.can_publish_accepted_submission %}
                   {% if not stream.submission.publication %}

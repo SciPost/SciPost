@@ -117,10 +117,14 @@ class Proof(models.Model):
     objects = ProofsQuerySet.as_manager()
 
     class Meta:
-        ordering = ['version']
+        ordering = ['stream', 'version']
 
     def get_absolute_url(self):
         return reverse('production:proof_pdf', kwargs={'slug': self.slug})
+
+    def __str__(self):
+        return 'Proof {version} for Stream {stream}'.format(
+            version=self.version, stream=self.stream.submission.title)
 
     def save(self, *args, **kwargs):
         # Control Report count per Submission.

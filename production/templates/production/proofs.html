@@ -40,7 +40,7 @@
                     <li><a href="{% url 'production:send_proofs' proof.stream.id proof.version %}">Send proofs to authors</a></li>
                 {% endif %}
                 {% if proof.status != 'uploaded' %}
-                    <li><a href="{% url 'production:toggle_accessibility' proof.stream.id proof.version %}">{{ proof.accessible_for_authors|yesno:'Make accessible,Hide' }} for authors</a></li>
+                    <li><a href="{% url 'production:toggle_accessibility' proof.stream.id proof.version %}">{{ proof.accessible_for_authors|yesno:'Hide,Make accessible' }} for authors</a></li>
                 {% endif %}
             {% endif %}
         </ul>

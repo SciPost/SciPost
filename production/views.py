@@ -86,6 +86,7 @@ def stream(request, stream_id):
     prodevent_form = ProductionEventForm()
     assign_officer_form = AssignOfficerForm()
     assign_supervisor_form = AssignSupervisorForm()
+    upload_proofs_form = ProofUploadForm()
     status_form = StreamStatusForm(instance=stream, production_user=request.user.production_user)
 
     context = {
@@ -94,6 +95,7 @@ def stream(request, stream_id):
         'assign_officer_form': assign_officer_form,
         'assign_supervisor_form': assign_supervisor_form,
         'status_form': status_form,
+        'upload_proofs_form': upload_proofs_form,
     }
 
     if request.GET.get('json'):

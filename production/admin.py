@@ -30,6 +30,11 @@ class ProductionStreamAdmin(GuardedModelAdmin):
     )
 
 
-admin.site.register(Proof)
+class ProductionProofsAdmin(admin.ModelAdmin):
+    list_display = ['stream', 'version', 'status', 'accessible_for_authors']
+    list_filter = ['status', 'accessible_for_authors']
+
+
+admin.site.register(Proof, ProductionProofsAdmin)
 admin.site.register(ProductionUser)
 admin.site.register(ProductionStream, ProductionStreamAdmin)
