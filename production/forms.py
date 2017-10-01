@@ -53,11 +53,23 @@ class ProductionUserMonthlyActiveFilter(forms.Form):
     year = forms.ChoiceField(choices=[(y, y) for y in reversed(range(today.year-6, today.year+1))])
 
     def __init__(self, *args, **kwargs):
+        if not kwargs.get('data', False) and not args[0]:
+            args = list(args)
+            args[0] = {
+                'month': today.month,
+                'year': today.year
+            }
+            args = tuple(args)
+        kwargs['initial'] = {
+            'month': today.month,
+            'year': today.year
+        }
         super().__init__(*args, **kwargs)
-        self.fields['month'].initial = today.month
-        self.fields['year'].initial = today.year
 
     def get_totals(self):
+        # Make accessible without need to explicitly check validity of form.
+        self.is_valid()
+
         users = ProductionUser.objects.filter(events__duration__isnull=False,
                                               events__noted_on__month=self.cleaned_data['month'],
                                               events__noted_on__year=self.cleaned_data['year']
@@ -72,13 +84,5 @@ class ProductionUserMonthlyActiveFilter(forms.Form):
                 'duration': events.aggregate(total=Sum('duration')),
                 'user': user
             })
-            
-        return output
 
-    def get_events(self, officer=None):
-        qs = ProductionEvent.objects.filter(duration__isnull=False,
-                                            noted_on__month=self.cleaned_data['month'],
-                                            noted_on__year=self.cleaned_data['year'])
-        if officer:
-            qs.filter(noted_by=officer)
-        return qs.order_by('noted_by')
+        return output
