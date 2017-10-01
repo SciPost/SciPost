@@ -1,0 +1,13 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+        <div class="container">
+            {% block breadcrumb_items %}
+                <a href="{% url 'submissions:admin' %}" class="breadcrumb-item">Editorial Administration</a>
+            {% endblock %}
+        </div>
+    </nav>
+{% endblock %}
+
+{% block container_class %}{{block.super}} pb-5{% endblock container_class %}

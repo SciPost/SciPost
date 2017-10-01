@@ -4,10 +4,12 @@
   {% for event in events %}
         <li id="event_{{ event.id }}">
           <p class="mb-0 font-weight-bold">{{ event.get_event_display }}
-              {% if event.noted_by == request.user.contributor %}
+            {% if not non_editable %}
+              {% if event.noted_by == request.user.production_user %}
                   &middot; <a href="{% url 'production:update_event' event.id %}">Edit</a>
                   &middot; <a class="text-danger" href="{% url 'production:delete_event' event.id %}">Delete</a>
               {% endif %}
+            {% endif %}
           </p>
           <p class="text-muted mb-1">noted {{ event.noted_on }} by {{ event.noted_by }}</p>
           {% if event.duration %}
@@ -21,3 +23,8 @@
         <li>No events were found.</li>
     {% endfor %}
 </ul>
+
+{% if stream.total_duration %}
+    <hr class="sm">
+    <p class="pl-4 ml-3">Total duration for this stream: <strong>{{ stream.total_duration|duration }}</strong></p>
+{% endif %}

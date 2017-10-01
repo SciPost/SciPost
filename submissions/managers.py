@@ -199,6 +199,9 @@ class EditorialAssignmentQuerySet(models.QuerySet):
     def ongoing(self):
         return self.filter(completed=False).accepted()
 
+    def open(self):
+        return self.filter(accepted=None, deprecated=False)
+
 
 class EICRecommendationManager(models.Manager):
     def get_for_user_in_pool(self, user):
@@ -260,3 +263,9 @@ class RefereeInvitationQuerySet(models.QuerySet):
 
     def declined(self):
         return self.filter(accepted=False)
+
+    def open(self):
+        return self.pending().filter(cancelled=False)
+
+    def in_process(self):
+        return self.accepted().filter(fulfilled=False)

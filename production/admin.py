@@ -1,10 +1,18 @@
 from django.contrib import admin
 
-from .models import ProductionStream, ProductionEvent
+from guardian.admin import GuardedModelAdmin
+
+from .models import ProductionStream, ProductionEvent, ProductionUser
 
 
 def event_count(obj):
-    return obj.productionevent_set.count()
+    return obj.events.count()
+
+
+class ProductionUserInline(admin.StackedInline):
+    model = ProductionUser
+    extra = 0
+    min_num = 0
 
 
 class ProductionEventInline(admin.TabularInline):
@@ -13,7 +21,7 @@ class ProductionEventInline(admin.TabularInline):
     readonly_fields = ()
 
 
-class ProductionStreamAdmin(admin.ModelAdmin):
+class ProductionStreamAdmin(GuardedModelAdmin):
     search_fields = ['submission']
     list_filter = ['status']
     list_display = ['submission', 'opened', 'status', event_count]
@@ -22,4 +30,5 @@ class ProductionStreamAdmin(admin.ModelAdmin):
     )
 
 
+admin.site.register(ProductionUser)
 admin.site.register(ProductionStream, ProductionStreamAdmin)

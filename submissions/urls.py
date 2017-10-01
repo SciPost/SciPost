@@ -26,6 +26,8 @@ urlpatterns = [
 
     # Editorial Administration
     url(r'^admin$', views.EditorialSummaryView.as_view(), name='admin'),
+    url(r'^admin/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.EditorialSummaryView.as_view(), name='admin'),
     url(r'^admin/treated$', views.treated_submissions_list, name='treated_submissions_list'),
     url(r'^admin/{regex}/reports/compile$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.treated_submission_pdf_compile, name='treated_submission_pdf_compile'),
@@ -40,13 +42,16 @@ urlpatterns = [
         views.report_pdf_compile, name='report_pdf_compile'),
     url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
         views.report_pdf_compile, name='report_pdf_compile'),
+    url(r'^admin/{regex}/recommendation$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.AdminRecommendationView.as_view(), name='admin_recommendation'),
 
     url(r'^submit_manuscript$', views.RequestSubmission.as_view(), name='submit_manuscript'),
     url(r'^submit_manuscript/prefill$', views.prefill_using_arxiv_identifier,
         name='prefill_using_identifier'),
-    url(r'^pool$', views.pool, name='pool'),
+    url(r'^pool/$', views.pool, name='pool'),
+    url(r'^pool/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX), views.pool, name='pool'),
     url(r'^submissions_by_status/(?P<status>[a-zA-Z_]+)$',
-        views.submissions_by_status, name='submissions_by_status'),
+        views.submissions_by_status, name='submissions_by_status'),  # DEPRECATED
     url(r'^add_remark/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.add_remark, name='add_remark'),
 
@@ -55,8 +60,8 @@ urlpatterns = [
         views.assign_submission, name='assign_submission'),
     url(r'^assign_submission_ack/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.assign_submission_ack, name='assign_submission_ack'),
-    url(r'^accept_or_decline_assignment_ack/(?P<assignment_id>[0-9]+)$',
-        views.accept_or_decline_assignment_ack, name='accept_or_decline_assignment_ack'),
+    url(r'^pool/assignment_request/(?P<assignment_id>[0-9]+)$',
+        views.assignment_request, name='assignment_request'),
     url(r'^volunteer_as_EIC/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.volunteer_as_EIC, name='volunteer_as_EIC'),
     url(r'^assignment_failed/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),

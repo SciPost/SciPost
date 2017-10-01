@@ -86,6 +86,7 @@ INSTALLED_APPS = (
     'sphinxdoc',
     'commentaries',
     'comments',
+    'finances',
     'journals',
     'mails',
     'mailing_lists',
@@ -227,8 +228,12 @@ USE_TZ = True
 
 # MEDIA
 MEDIA_URL = '/media/'
-MEDIA_ROOT = 'local_files/media/'
+MEDIA_URL_SECURE = '/files/secure/'
 MAX_UPLOAD_SIZE = "1310720"  # Default max attachment size in Bytes
+
+# -- These MEDIA settings are machine-dependent
+MEDIA_ROOT = 'local_files/media/'
+MEDIA_ROOT_SECURE = 'local_files/secure/media/'
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'

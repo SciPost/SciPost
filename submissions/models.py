@@ -35,7 +35,7 @@ from journals.models import Publication
 ###############
 class Submission(models.Model):
     # Main submission fields
-    author_comments = models.TextField(blank=True, null=True)
+    author_comments = models.TextField(blank=True)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
@@ -43,12 +43,12 @@ class Submission(models.Model):
                                          null=True, on_delete=models.CASCADE)
     is_current = models.BooleanField(default=True)
     is_resubmission = models.BooleanField(default=False)
-    list_of_changes = models.TextField(blank=True, null=True)
+    list_of_changes = models.TextField(blank=True)
     open_for_commenting = models.BooleanField(default=False)
     open_for_reporting = models.BooleanField(default=False)
-    referees_flagged = models.TextField(blank=True, null=True)
-    referees_suggested = models.TextField(blank=True, null=True)
-    remarks_for_editors = models.TextField(blank=True, null=True)
+    referees_flagged = models.TextField(blank=True)
+    referees_suggested = models.TextField(blank=True)
+    remarks_for_editors = models.TextField(blank=True)
     reporting_deadline = models.DateTimeField(default=timezone.now)
     secondary_areas = ChoiceArrayField(
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
@@ -62,7 +62,8 @@ class Submission(models.Model):
                                     verbose_name='Primary subject area', default='Phys:QP')
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
                                        blank=True, null=True, default=None)
-    submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                                     related_name='submitted_submissions')
 
     # Replace this by foreignkey?
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
@@ -70,11 +71,11 @@ class Submission(models.Model):
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField('scipost.Contributor', blank=True, related_name='authors_sub')
+    authors = models.ManyToManyField('scipost.Contributor', blank=True, related_name='submissions')
     authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
-                                            related_name='authors_sub_claims')
+                                            related_name='claimed_submissions')
     authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,
-                                                  related_name='authors_sub_false_claims')
+                                                  related_name='false_claimed_submissions')
     abstract = models.TextField()
 
     # Comments can be added to a Submission
@@ -275,12 +276,15 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', requested on ' + self.date_created.strftime('%Y-%m-%d'))
 
+    def get_absolute_url(self):
+        return reverse('submissions:assignment_request', args=(self.id,))
+
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='referee_invitations')
-    referee = models.ForeignKey('scipost.Contributor', related_name='referee', blank=True,
-                                null=True, on_delete=models.CASCADE)  # Why is this blank/null=True
+    referee = models.ForeignKey('scipost.Contributor', related_name='referee_invitations',
+                                blank=True, null=True, on_delete=models.CASCADE)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30, default='')
     last_name = models.CharField(max_length=30, default='')
@@ -353,7 +357,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     # `flagged' if author of report has been flagged by submission authors (surname check only)
     flagged = models.BooleanField(default=False)
     date_submitted = models.DateTimeField('date submitted')
-    author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                               related_name='reports')
     qualification = models.PositiveSmallIntegerField(
         choices=REFEREE_QUALIFICATION,
         verbose_name="Qualification to referee this: I am")
@@ -502,9 +507,11 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     # Editorial Fellows who have assessed this recommendation:
     eligible_to_vote = models.ManyToManyField('scipost.Contributor', blank=True,
                                               related_name='eligible_to_vote')
-    voted_for = models.ManyToManyField(Contributor, blank=True, related_name='voted_for')
-    voted_against = models.ManyToManyField(Contributor, blank=True, related_name='voted_against')
-    voted_abstain = models.ManyToManyField(Contributor, blank=True, related_name='voted_abstain')
+    voted_for = models.ManyToManyField('scipost.Contributor', blank=True, related_name='voted_for')
+    voted_against = models.ManyToManyField('scipost.Contributor', blank=True,
+                                           related_name='voted_against')
+    voted_abstain = models.ManyToManyField('scipost.Contributor', blank=True,
+                                           related_name='voted_abstain')
     voting_deadline = models.DateTimeField('date submitted', default=timezone.now)
 
     objects = EICRecommendationManager()
@@ -512,6 +519,10 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     def __str__(self):
         return (self.submission.title[:20] + ' by ' + self.submission.author_list[:30] +
                 ', ' + self.get_recommendation_display())
+
+    def get_absolute_url(self):
+        # TODO: Fix this weird redirect, but it's neccesary for the notifications to have one.
+        return self.submission.get_absolute_url()
 
     @property
     def nr_for(self):

@@ -1,8 +1,10 @@
+import mimetypes
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import modelformset_factory
-from django.http import HttpResponse
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.utils import timezone
 
@@ -95,7 +97,7 @@ def membership_request(request):
     return render(request, 'partners/membership_request.html', context)
 
 
-@permission_required('scipost.can_promote_prospect_to_partner', return_403=True)
+@permission_required('scipost.can_promote_to_production_team', return_403=True)
 @transaction.atomic
 def promote_prospartner(request, prospartner_id):
     prospartner = get_object_or_404(ProspectivePartner.objects.not_yet_partner(),
@@ -386,7 +388,11 @@ def agreement_details(request, agreement_id):
 def agreement_attachments(request, agreement_id, attachment_id):
     attachment = get_object_or_404(PartnersAttachment.objects.my_attachments(request.user),
                                    agreement__id=agreement_id, id=attachment_id)
-    response = HttpResponse(attachment.attachment.read(), content_type='application/pdf')
+
+    content_type, encoding = mimetypes.guess_type(attachment.attachment.path)
+    content_type = content_type or 'application/octet-stream'
+    response = HttpResponse(attachment.attachment.read(), content_type=content_type)
+    response["Content-Encoding"] = encoding
     response['Content-Disposition'] = ('filename=%s' % attachment.name)
     return response
 

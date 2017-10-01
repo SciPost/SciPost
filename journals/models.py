@@ -131,23 +131,27 @@ class Publication(models.Model):
                                        blank=True, null=True)
     title = models.CharField(max_length=300)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
+
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField(Contributor, blank=True, related_name='authors_pub')
+    authors = models.ManyToManyField('scipost.Contributor', blank=True,
+                                     related_name='publications')
     authors_unregistered = models.ManyToManyField(UnregisteredAuthor, blank=True,
-                                                  related_name='authors_unregistered')
-    first_author = models.ForeignKey(Contributor, blank=True, null=True, on_delete=models.CASCADE)
+                                                  related_name='publications')
+    first_author = models.ForeignKey('scipost.Contributor', blank=True, null=True,
+                                     on_delete=models.CASCADE,
+                                     related_name='first_author_publications')
     first_author_unregistered = models.ForeignKey(UnregisteredAuthor, blank=True, null=True,
                                                   on_delete=models.CASCADE,
-                                                  related_name='first_author_unregistered')
-    authors_claims = models.ManyToManyField(Contributor, blank=True,
-                                            related_name='authors_pub_claims')
-    authors_false_claims = models.ManyToManyField(Contributor, blank=True,
-                                                  related_name='authors_pub_false_claims')
+                                                  related_name='first_author_publications')
+    authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
+                                            related_name='claimed_publications')
+    authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,
+                                                  related_name='false_claimed_publications')
     abstract = models.TextField()
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
     cc_license = models.CharField(max_length=32, choices=CC_LICENSES, default=CCBY4)
     grants = models.ManyToManyField('funders.Grant', blank=True)
-    funders_generic = models.ManyToManyField('funders.Funder', blank=True) # not linked to a grant
+    funders_generic = models.ManyToManyField('funders.Funder', blank=True)  # not linked to a grant
     metadata = JSONField(default={}, blank=True, null=True)
     metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
     latest_metadata_update = models.DateTimeField(blank=True, null=True)

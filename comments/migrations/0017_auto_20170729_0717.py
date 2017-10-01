@@ -11,10 +11,10 @@ from guardian.shortcuts import assign_perm
 
 def update_all_contenttypes(**kwargs):
     from django.apps import apps
-    from django.contrib.contenttypes.management import update_contenttypes
+    from django.contrib.contenttypes.management import create_contenttypes
 
     for app_config in apps.get_app_configs():
-        update_contenttypes(app_config, **kwargs)
+        create_contenttypes(app_config, **kwargs)
 
 
 def create_all_permissions(**kwargs):

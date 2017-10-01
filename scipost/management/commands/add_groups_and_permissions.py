@@ -27,6 +27,7 @@ class Command(BaseCommand):
         Testers, created = Group.objects.get_or_create(name='Testers')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
+        ProductionSupervisors, created = Group.objects.get_or_create(name='Production Supervisor')
         ProductionOfficers, created = Group.objects.get_or_create(name='Production Officers')
 
         PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
@@ -52,8 +53,8 @@ class Command(BaseCommand):
             codename='can_read_partner_page',
             name='Can read Prospective Partner personal page',
             content_type=content_type)
-        can_promote_prospect_to_partner, created = Permission.objects.get_or_create(
-            codename='can_promote_prospect_to_partner',
+        can_promote_to_production_team, created = Permission.objects.get_or_create(
+            codename='can_promote_to_production_team',
             name='Can promote Prospective Partner to Partner',
             content_type=content_type)
         can_view_partners, created = Permission.objects.get_or_create(
@@ -205,6 +206,22 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Production
+        can_promote_user_to_production_officer, created = Permission.objects.get_or_create(
+            codename='can_promote_user_to_production_officer',
+            name='Can promote user to production officer',
+            content_type=content_type)
+        can_assign_production_officer, created = Permission.objects.get_or_create(
+            codename='can_assign_production_officer',
+            name='Can assign production officer',
+            content_type=content_type)
+        can_view_all_production_streams, created = Permission.objects.get_or_create(
+            codename='can_view_all_production_streams',
+            name='Can view all production stream',
+            content_type=content_type)
+        can_assign_production_supervisor, created = Permission.objects.get_or_create(
+            codename='can_assign_production_supervisor',
+            name='Can assign production supervisor',
+            content_type=content_type)
         can_view_production, created = Permission.objects.get_or_create(
             codename='can_view_production',
             name='Can view production page',
@@ -250,10 +267,13 @@ class Command(BaseCommand):
             can_assign_submissions,
             can_prepare_recommendations_for_voting,
             can_fix_College_decision,
+            can_promote_user_to_production_officer,
             can_view_production,
             can_attend_VGMs,
             can_view_timesheets,
             can_manage_mailchimp,
+            can_view_all_production_streams,
+            can_promote_to_production_team,
         ])
 
         FinancialAdmin.permissions.set([
@@ -278,6 +298,8 @@ class Command(BaseCommand):
             can_publish_accepted_submission,
             can_attend_VGMs,
             can_manage_reports,
+            can_assign_production_supervisor,
+            can_view_all_production_streams,
         ])
 
         EditorialCollege.permissions.set([
@@ -316,6 +338,13 @@ class Command(BaseCommand):
             can_draft_registration_invitations,
         ])
 
+        ProductionSupervisors.permissions.set([
+            can_assign_production_officer,
+            can_view_all_production_streams,
+            can_view_docs_scipost,
+            can_view_production,
+        ])
+
         ProductionOfficers.permissions.set([
             can_view_docs_scipost,
             can_view_production,
@@ -325,7 +354,6 @@ class Command(BaseCommand):
             can_read_partner_page,
             can_view_own_partner_details,
             can_manage_SPB,
-            can_promote_prospect_to_partner,
             can_email_prospartner_contact,
             can_view_partners,
         ])
