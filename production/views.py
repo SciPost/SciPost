@@ -514,5 +514,7 @@ def send_proofs(request, stream_id, version):
         stream.status = constants.PROOFS_SENT
         stream.save()
 
+    # TODO: SEND EMAIL TO NOTIFY OR KEEP THIS A HUMAN ACTION?
+
     messages.success(request, 'Proofs have been sent.')
     return redirect(stream.get_absolute_url())
