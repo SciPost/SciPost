@@ -152,6 +152,7 @@ def add_event(request, stream_id):
             prodevent.event = constants.EVENT_HOUR_REGISTRATION
         prodevent.noted_by = request.user.production_user
         prodevent.save()
+        messages.success(request, 'Comment added to Stream.')
     else:
         messages.warning(request, 'The form was invalidly filled.')
     return redirect(reverse('production:production'))
