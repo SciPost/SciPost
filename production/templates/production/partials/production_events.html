@@ -32,7 +32,7 @@
           {% if event.comments %}
               <p class="mt-2 mb-0">
                   {% if event.noted_to %}
-                    {{ event.noted_by.user.first_name }} {{ event.noted_by.user.first_name }} {{ event.comments|linebreaksbr }} {{ event.noted_to.user.first_name }} {{ event.noted_to.user.last_name }}.
+                    {{ event.noted_by.user.first_name }} {{ event.noted_by.user.last_name }} {{ event.comments|linebreaksbr }} {{ event.noted_to.user.first_name }} {{ event.noted_to.user.last_name }}.
                   {% else %}
                       {{ event.comments|linebreaksbr }}
                   {% endif %}
