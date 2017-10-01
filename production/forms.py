@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.utils.dates import MONTHS
 from django.db.models import Sum
 
@@ -46,6 +47,11 @@ class UserToOfficerForm(forms.ModelForm):
         fields = (
             'user',
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['user'].queryset = self.fields['user'].queryset.filter(
+            production_user__isnull=True).order_by('last_name')
 
 
 class ProductionUserMonthlyActiveFilter(forms.Form):

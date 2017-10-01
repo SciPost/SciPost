@@ -30,7 +30,7 @@
 	  </li>
       {% if perms.scipost.can_promote_user_to_production_officer %}
           <li class="nav-item btn btn-secondary">
-            <a href="#officers" class="nav-link" data-toggle="tab">Production Officers</a>
+            <a href="#officers" class="nav-link" data-toggle="tab">Production Team</a>
           </li>
       {% endif %}
 	</ul>
@@ -89,7 +89,7 @@
       <div class="col-12">
     	<h2 class="highlight">My Timesheet</h2>
         {% if perms.scipost.can_view_timesheets %}
-            <a href="{% url 'finance:timesheets' %}">See team timesheets</a>
+            <a href="{% url 'finances:timesheets' %}">See team timesheets</a>
         {% endif %}
       </div>
     </div>
@@ -123,8 +123,8 @@
 
   {% if perms.scipost.can_promote_user_to_production_officer %}
       <div class="tab-pane" id="officers" role="tabpanel">
-          <h2 class="highlight">Production Officers</h2>
-          <h3>Current Production Officers</h3>
+          <h2 class="highlight">Production Tream</h2>
+          <h3>Current Production Team</h3>
           <ul>
               {% for officer in production_officers %}
                 <li>{{ officer }}</li>
