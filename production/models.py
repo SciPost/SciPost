@@ -8,7 +8,7 @@ from django.utils.functional import cached_property
 from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_STREAM_INITIATED, PRODUCTION_EVENTS,\
                        EVENT_MESSAGE, EVENT_HOUR_REGISTRATION, PRODUCTION_STREAM_COMPLETED,\
                        PROOF_STATUSES, PROOF_UPLOADED
-from .managers import ProductionStreamQuerySet, ProductionEventManager
+from .managers import ProductionStreamQuerySet, ProductionEventManager, ProofsQuerySet
 from .utils import proof_id_to_slug
 
 from scipost.storage import SecureFileStorage
@@ -114,12 +114,13 @@ class Proof(models.Model):
     status = models.CharField(max_length=16, choices=PROOF_STATUSES, default=PROOF_UPLOADED)
     accessible_for_authors = models.BooleanField(default=False)
 
+    objects = ProofsQuerySet.as_manager()
+
     class Meta:
         ordering = ['version']
 
     def get_absolute_url(self):
-        return reverse('production:proof',
-                       kwargs={'stream_id': self.stream.id, 'version': self.version})
+        return reverse('production:proof_pdf', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         # Control Report count per Submission.

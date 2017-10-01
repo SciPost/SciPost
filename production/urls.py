@@ -38,4 +38,6 @@ urlpatterns = [
         production_views.DeleteEventView.as_view(), name='delete_event'),
     url(r'^proofs/(?P<slug>[0-9]+)$',
         production_views.proof_pdf, name='proof_pdf'),
+    url(r'^proofs/(?P<slug>[0-9]+)/decision$',
+        production_views.author_decision, name='author_decision'),
 ]

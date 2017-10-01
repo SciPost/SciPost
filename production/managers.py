@@ -17,3 +17,8 @@ class ProductionStreamQuerySet(models.QuerySet):
 class ProductionEventManager(models.Manager):
     def get_my_events(self, production_user):
         return self.filter(noted_by=production_user)
+
+
+class ProofsQuerySet(models.QuerySet):
+    def for_authors(self):
+        return self.filter(accessible_for_authors=True)

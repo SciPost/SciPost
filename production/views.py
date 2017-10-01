@@ -18,7 +18,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 from . import constants
 from .models import ProductionUser, ProductionStream, ProductionEvent, Proof
 from .forms import ProductionEventForm, AssignOfficerForm, UserToOfficerForm,\
-                   AssignSupervisorForm, StreamStatusForm, ProofUploadForm
+                   AssignSupervisorForm, StreamStatusForm, ProofUploadForm, ProofDecisionForm
 from .permissions import is_production_user
 from .signals import notify_stream_status_change,  notify_new_stream_assignment
 from .utils import proof_slug_to_id
@@ -159,6 +159,7 @@ def add_event(request, stream_id):
 
 @is_production_user()
 @permission_required('scipost.can_assign_production_officer', raise_exception=True)
+@transaction.atomic
 def add_officer(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
@@ -187,6 +188,7 @@ def add_officer(request, stream_id):
 
 @is_production_user()
 @permission_required('scipost.can_assign_production_officer', raise_exception=True)
+@transaction.atomic
 def remove_officer(request, stream_id, officer_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
@@ -233,6 +235,7 @@ def add_supervisor(request, stream_id):
 
 @is_production_user()
 @permission_required('scipost.can_assign_production_supervisor', raise_exception=True)
+@transaction.atomic
 def remove_supervisor(request, stream_id, officer_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     if getattr(stream.supervisor, 'id', 0) == int(officer_id):
@@ -285,6 +288,7 @@ class DeleteEventView(DeleteView):
 
 @is_production_user()
 @permission_required('scipost.can_publish_accepted_submission', raise_exception=True)
+@transaction.atomic
 def mark_as_completed(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     stream.status = constants.PRODUCTION_STREAM_COMPLETED
@@ -298,13 +302,14 @@ def mark_as_completed(request, stream_id):
         noted_by=request.user.production_user
     )
     prodevent.save()
-    notify_stream_status_change(request.user, stream)
+    notify_stream_status_change(request.user, stream, True)
     messages.success(request, 'Stream marked as completed.')
     return redirect(reverse('production:production'))
 
 
 @is_production_user()
 @permission_required('scipost.can_upload_proofs', raise_exception=True)
+@transaction.atomic
 def upload_proofs(request, stream_id):
     """
     Called by a member of the Production Team.
@@ -386,8 +391,8 @@ def proof_pdf(request, slug):
     # Check if user has access!
     checker = ObjectPermissionChecker(request.user)
     access = checker.has_perm('can_work_for_stream', stream) and request.user.has_perm('scipost.can_view_production')
-    if not access:
-        access = request.user in proof.stream.submission.authors.all()
+    if not access and request.user.contributor:
+        access = request.user.contributor in proof.stream.submission.authors.all()
     if not access:
         raise Http404
 
@@ -397,6 +402,29 @@ def proof_pdf(request, slug):
     response = HttpResponse(proof.attachment.read(), content_type=content_type)
     response["Content-Encoding"] = encoding
     return response
+
+
+@login_required
+@transaction.atomic
+def author_decision(request, slug):
+    """
+    The authors of a Submission/Proof are asked for their decision on the proof.
+    Accept or Decline? This will be asked if proof status is `ACCEPTED_SUP` and
+    will be handled in this view.
+    """
+    proof = Proof.objects.get(id=proof_slug_to_id(slug))
+    stream = proof.stream
+
+    # Check if user has access!
+    if request.user.contributor not in proof.stream.submission.authors.all():
+        raise Http404
+
+    form = ProofDecisionForm(request.POST or None, instance=proof)
+    if form.is_valid():
+        proof = form.save()
+        messages.success(request, 'Your decision has been sent.')
+
+    return redirect(stream.submission.get_absolute_url())
 
 
 @is_production_user()
@@ -423,6 +451,7 @@ def toggle_accessibility(request, stream_id, version):
 
 @is_production_user()
 @permission_required('scipost.can_run_proofs_by_authors', raise_exception=True)
+@transaction.atomic
 def decision(request, stream_id, version, decision):
     """
     Send/open proofs to the authors.
@@ -462,6 +491,7 @@ def decision(request, stream_id, version, decision):
 
 @is_production_user()
 @permission_required('scipost.can_run_proofs_by_authors', raise_exception=True)
+@transaction.atomic
 def send_proofs(request, stream_id, version):
     """
     Send/open proofs to the authors.

@@ -159,3 +159,41 @@ class ProofUploadForm(forms.ModelForm):
     class Meta:
         model = Proof
         fields = ('attachment',)
+
+
+class ProofDecisionForm(forms.ModelForm):
+    decision = forms.ChoiceField(choices=[(True, 'Accept Proofs for publication'),
+                                          (False, 'Decline Proofs for publication')])
+    comments = forms.CharField(required=False, widget=forms.Textarea)
+
+    class Meta:
+        model = Proof
+        fields = ()
+
+    def save(self, commit=True):
+        proof = self.instance
+        decision = self.cleaned_data['decision']
+        comments = self.cleaned_data['comments']
+        if decision:
+            proof.status = constants.PROOF_ACCEPTED
+            if proof.stream.status in [constants.PROOFS_PRODUCED,
+                                       constants.PROOF_CHECKED,
+                                       constants.PROOFS_SENT,
+                                       constants.PROOFS_CORRECTED]:
+                # Force status change on Stream if appropriate
+                proof.stream.status = constants.PROOFS_ACCEPTED
+        else:
+            proof.status = constants.PROOF_DECLINED
+
+        if commit:
+            proof.save()
+            proof.stream.save()
+
+            prodevent = ProductionEvent(
+                stream=proof.stream,
+                event='status',
+                comments='Received comments: {comments}'.format(comments=comments),
+                noted_by=proof.stream.supervisor
+            )
+            prodevent.save()
+        return proof
