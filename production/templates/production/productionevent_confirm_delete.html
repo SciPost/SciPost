@@ -1,8 +1,7 @@
-{% extends 'scipost/_personal_page_base.html' %}
+{% extends 'production/base.html' %}
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{{object.get_absolute_url}}" class="breadcrumb-item">Production streams</a>
     <span class="breadcrumb-item">Delete production event</span>
 {% endblock %}
 

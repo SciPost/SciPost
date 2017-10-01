@@ -1,0 +1,39 @@
+$pool-icons-width: 40px;
+$pool-flex-width: calc(100% - 40px);
+
+
+.editorial-admin,
+.pool {
+    .pool-item {
+        .icons {
+            padding-left: 10px;
+            padding-right: 10px;
+            position: relative;
+            min-height: 1px;
+            flex: 0 0 $pool-icons-width;
+            max-width: $pool-icons-width;
+        }
+
+        .item {
+            flex: 0 0 $pool-flex-width;
+            width: $pool-flex-width;
+            max-width: none;
+        }
+    }
+
+    .card.submission-detail {
+        position: sticky;
+        top: 15px;
+    }
+
+    #details .loading {
+        position: sticky;
+        top: 15px;
+        padding: 5rem 0 3rem 0;
+        text-align: center;
+    }
+
+    li.active {
+        background-color: $gray-100;
+    }
+}

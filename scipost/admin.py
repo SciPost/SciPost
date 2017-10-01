@@ -13,6 +13,7 @@ from scipost.models import Contributor, Remark,\
 
 from journals.models import Publication
 from partners.admin import ContactToUserInline
+from production.admin import ProductionUserInline
 from submissions.models import Submission
 
 
@@ -38,6 +39,7 @@ class UserAdmin(UserAdmin):
     inlines = [
         ContributorInline,
         ContactToUserInline,
+        ProductionUserInline
         ]
     search_fields = ['last_name', 'email']
 

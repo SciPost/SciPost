@@ -12,7 +12,7 @@ from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUB
                        REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
                        STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE,\
-                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS
+                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS
 from . import exceptions, helpers
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
                     iThenticateReport
@@ -42,6 +42,22 @@ class SubmissionSearchForm(forms.Form):
         )
 
 
+class SubmissionPoolFilterForm(forms.Form):
+    status = forms.ChoiceField(choices=((None, 'All statuses'),) + SUBMISSION_STATUS,
+                               required=False)
+    editor_in_charge = forms.BooleanField(label='Show only Submissions for which I am editor in charge.', required=False)
+
+    def search(self, queryset, current_contributor=None):
+        if self.cleaned_data.get('status'):
+            # Do extra check on non-required field to never show errors on template
+            queryset = queryset.filter(status=self.cleaned_data['status'])
+
+        if self.cleaned_data.get('editor_in_charge') and current_contributor:
+            queryset = queryset.filter(editor_in_charge=current_contributor)
+
+        return queryset
+
+
 ###############################
 # Submission and resubmission #
 ###############################
@@ -55,6 +71,7 @@ class SubmissionChecks:
     last_submission = None
 
     def __init__(self, *args, **kwargs):
+        self.requested_by = kwargs.pop('requested_by', None)
         super().__init__(*args, **kwargs)
         # Prefill `is_resubmission` property if data is coming from initial data
         if kwargs.get('initial', None):
@@ -105,6 +122,11 @@ class SubmissionChecks:
             self.last_submission = submission
             if submission.status == STATUS_REVISION_REQUESTED:
                 self.is_resubmission = True
+                if self.requested_by.contributor not in submission.authors.all():
+                    error_message = ('There exists a preprint with this arXiv identifier '
+                                     'but an earlier version number. Resubmission is only possible'
+                                     ' if you are a registered author of this manuscript.')
+                    raise forms.ValidationError(error_message)
             elif submission.status in [STATUS_REJECTED, STATUS_REJECTED_VISIBLE]:
                 error_message = ('This arXiv preprint has previously undergone refereeing '
                                  'and has been rejected. Resubmission is only possible '
@@ -222,7 +244,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.requested_by = kwargs.pop('requested_by', None)
         super().__init__(*args, **kwargs)
 
         if not self.submission_is_resubmission():

@@ -1,0 +1,24 @@
+<div class="row pool-item mb-0">
+    <div class="icons{% if is_current %} text-info{% endif %}">
+        {% include 'partials/submissions/admin/submission_tooltip.html' with submission=submission %}
+
+        {% if submission.status == 'unassigned' %}
+            <i class="fa fa-exclamation mt-1 px-1 text-danger" data-toggle="tooltip" data-html="true" title="This Submission does not have a Editor-in-charge"></i>
+        {% endif %}
+    </div>
+    <div class="item col-auto">
+        <p class="mb-1">
+            <a href="{% url 'submissions:admin' submission.arxiv_identifier_w_vn_nr %}">{{ submission.title }}</a><br>
+            <em>by {{ submission.author_list }}</em>
+        </p>
+
+        <p class="card-text mb-2">
+            <a href="{% url 'submissions:admin' submission.arxiv_identifier_w_vn_nr %}" data-toggle="dynamic" data-target="#details" data-toggle="dynamic" data-target="">See details</a>
+            {% if submission.editor_in_charge == request.user.contributor %}
+                &middot; <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Go directly to editorial page</a>
+            {% endif %}
+        </p>
+
+        <p class="label label-{% if submission.status == 'unassigned' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ submission.get_status_display }}</p>
+    </div>
+</div>

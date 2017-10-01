@@ -136,7 +136,7 @@ CONTRIBUTOR_STATUS = (
     # -4: disabled account (deceased)
     (CONTRIBUTOR_NEWLY_REGISTERED, 'newly registered'),
     (CONTRIBUTOR_NORMAL, 'normal user'),
-    (-1, 'not a professional scientist'),
+    (-1, 'not a professional scientist'),  # Soon to be deprecated
     (-2, 'other account already exists'),
     (-3, 'barred from SciPost'),
     (-4, 'account disabled'),

@@ -46,6 +46,11 @@
               <li class="nav-item">
                   <a class="nav-link" href="{% url 'scipost:logout' %}">Logout</a>
               </li>
+              {% if perms.scipost.can_view_production %}
+                  <li class="nav-item{% if '/production' in request.path %} active{% endif %}">
+                    <a class="nav-link" href="{% url 'production:production' %}">Production</a>
+                  </li>
+              {% endif %}
               {% if perms.scipost.can_oversee_refereeing %}
                   <li class="nav-item{% if '/submissions/admin' in request.path %} active{% endif %}">
                     <a class="nav-link" href="{% url 'submissions:admin' %}">Editorial Administration</a>

@@ -49,6 +49,10 @@ def mark_all_as_read(request):
 
     if _next:
         return redirect(_next)
+
+    if request.GET.get('json'):
+        return JsonResponse({'unread': 0})
+
     return redirect('notifications:all')
 
 

@@ -2,7 +2,8 @@ var notify_badge_class = "live_notify_badge";
 var notify_menu_class = "live_notify_list";
 var notify_api_url_count = "/notifications/api/unread_count/";
 var notify_api_url_list = "/notifications/api/list/";
-var notify_api_url_toggle_read = "/notifications/mark-toggle";
+var notify_api_url_toggle_read = "/notifications/mark-toggle/";
+var notify_api_url_mark_all_read = "/notifications/mark-all-as-read/";
 var notify_fetch_count = "5";
 var notify_refresh_period = 15000;
 var consecutive_misfires = 0;
@@ -17,7 +18,7 @@ function initiate_popover(reinitiate) {
     var notification_template = '<div class="popover notifications" role="tooltip"><div class="arrow"></div><h3 class="popover-header h2"></h3><div class="popover-body"></div></div>';
 
     function get_notifications_title() {
-        return 'Latest notifications <div class="badge badge-warning badge-pill live_notify_badge"></div><div class="mt-1"><small><a href="/notifications">See all my notifications</a></small></div>';
+        return 'Latest notifications <div class="badge badge-warning badge-pill live_notify_badge"></div><div class="mt-1"><small><a href="/notifications">See all my notifications</a> &middot; <a href="javascript:;" class="mark_all_read">Mark all as read</a></small></div>';
     }
 
     function get_notifications() {
@@ -42,11 +43,15 @@ function initiate_popover(reinitiate) {
         setTimeout(function() {
             $('.popover [data-toggle="tooltip"]').tooltip({
                 animation: false,
+                delay: {"show": 500, "hide": 100},
                 fallbackPlacement: 'clockwise',
                 placement: 'bottom'
             });
             $('.popover .actions a').on('click', function() {
                 mark_toggle(this)
+            })
+            $('.popover a.mark_all_read').on('click', function() {
+                mark_all_read(this)
             })
         }, 1000);
     });
@@ -55,8 +60,7 @@ function initiate_popover(reinitiate) {
     }
 }
 
-
-function mark_toggle(el) {
+function request_reinitiate(url) {
     var r = new XMLHttpRequest();
     r.addEventListener('readystatechange', function(event){
         if (this.readyState == 4 && this.status == 200) {
@@ -64,8 +68,16 @@ function mark_toggle(el) {
             initiate_popover(reinitiate=true)
         }
     })
-    r.open("GET", notify_api_url_toggle_read + '/' + $(el).data('slug') + '/?json=1', true);
+    r.open("GET", url, true);
     r.send();
+}
+
+function mark_all_read(el) {
+    request_reinitiate(notify_api_url_mark_all_read + '?json=1')
+}
+
+function mark_toggle(el) {
+    request_reinitiate(notify_api_url_toggle_read + $(el).data('slug') + '/?json=1')
 }
 
 
@@ -101,9 +113,9 @@ function get_notification_list() {
             }
 
             if(item.unread) {
-                var mark_as_read = '<div class="actions"><a href="#" data-slug="' + item.slug + '"><i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i></a></div>';
+                var mark_as_read = '<div class="actions"><a href="javascript:;" data-slug="' + item.slug + '"><i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i></a></div>';
             } else {
-                var mark_as_read = '<div class="actions"><a href="#" data-slug="' + item.slug + '"><i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i></a></div>';
+                var mark_as_read = '<div class="actions"><a href="javascript:;" data-slug="' + item.slug + '"><i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i></a></div>';
             }
             return '<li class="list-group-item ' + (item.unread ? ' active' : '') + '">' + mark_as_read + message + '</li>';
         }).join('');

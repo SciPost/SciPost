@@ -19,7 +19,7 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS
 from .fields import ChoiceArrayField
 from .managers import FellowManager, ContributorManager, RegistrationInvitationManager,\
-                      UnavailabilityPeriodManager
+                      UnavailabilityPeriodManager, AuthorshipClaimQuerySet
 
 
 def get_sentinel_user():
@@ -34,8 +34,7 @@ def get_sentinel_user():
 
 class Contributor(models.Model):
     """
-    All users of SciPost are Contributors.
-    Permissions determine the sub-types.
+    All *science* users of SciPost are Contributors.
     username, password, email, first_name and last_name are inherited from User.
     """
     user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True)
@@ -264,6 +263,8 @@ class AuthorshipClaim(models.Model):
                                   blank=True, null=True)
     status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS,
                                       default=AUTHORSHIP_CLAIM_PENDING)
+
+    objects = AuthorshipClaimQuerySet.as_manager()
 
 
 class PrecookedEmail(models.Model):
