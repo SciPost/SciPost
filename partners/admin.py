@@ -1,8 +1,15 @@
 from django.contrib import admin
 
-from .models import Contact, Partner, Consortium, Institution,\
+from .models import Petition, Contact, Partner, Consortium, Institution,\
                     ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
                     MembershipAgreement, ContactRequest, PartnersAttachment
+
+
+class PetitionAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('title',)}
+
+
+admin.site.register(Petition, PetitionAdmin)
 
 
 class AttachmentInline(admin.TabularInline):

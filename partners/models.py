@@ -33,6 +33,21 @@ from scipost.fields import ChoiceArrayField
 from scipost.models import get_sentinel_user, Contributor
 
 
+
+#############
+# Petitions #
+#############
+
+
+class Petition(models.Model):
+    title = models.CharField(max_length=256)
+    slug = models.SlugField()
+    headline = models.CharField(max_length=256)
+    statement = models.TextField()
+    signatories = models.ManyToManyField('scipost.Contributor', related_name='petitions')
+
+
+
 ########################
 # Prospective Partners #
 ########################

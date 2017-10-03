@@ -1,0 +1,60 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Supporting Partners: Petition{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% load staticfiles %}
+
+{% load scipost_extras %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+      <h1 class="highlight">SciPost Supporting Partners</h1>
+      <h2>{{ petition.headline }}</h2>
+      {{ petition.statement }}
+      {% if request.user not in petition.signatories %}
+      <h3><a href="{% url 'partners:sign_petition' slug=petition.slug contributor_id=contributor.id %}">Sign this petition</a></h3>
+      {% else %}
+      <h3>Thanks for signing this petition.</h3>
+      {% endif %}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <h2>Signatories</h2>
+    <table class="table">
+      {% for signatory in petition.signatories %}
+      <tr>
+	<td>{{ signatory.last_name }}</td>
+	<td>{{ signatory.first_name }}</td>
+	<td>{{ signatory.institution }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% if current_agreements %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Partners</h1>
+        <ul class="list-unstyled mb-5">
+            {% for agreement in current_agreements %}
+                <li class="media mb-2">
+                    <img class="d-flex mr-3" width="192" src="{% if agreement.partner.institution.logo %}{{agreement.partner.institution.logo.url}}{% endif %}" alt="Partner Logo">
+                    <div class="media-body">
+                        <p>
+                            <strong>{{agreement.partner.institution.name}}</strong><br>
+                            {{agreement.partner.institution.get_country_display}}
+                        </p>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}

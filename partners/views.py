@@ -13,7 +13,7 @@ from guardian.decorators import permission_required
 from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
     PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT
-from .models import Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
+from .models import Petition, Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
                     ProspectivePartnerEvent, MembershipAgreement, Contact, Institution,\
                     PartnersAttachment
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
@@ -37,6 +37,14 @@ def supporting_partners(request):
         prospective_agreements = MembershipAgreement.objects.submitted().order_by('date_requested')
         context['prospective_partners'] = prospective_agreements
     return render(request, 'partners/supporting_partners.html', context)
+
+
+def petition(request, slug):
+    petition = get_object_or_404(Petition, slug=slug)
+    context = {
+        'petition', petition
+    }
+    return render(request, 'partners/petition.html', context)
 
 
 @login_required

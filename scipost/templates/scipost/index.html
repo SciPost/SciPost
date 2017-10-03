@@ -123,8 +123,11 @@
                     SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. Supporting Partners provide operating funds to SciPost.
                 </p>
                 <p>
-                    Institutions: consider joining our <a href="{% url 'partners:partners' %}">Supporting Partners Board</a>. SciPost cannot exist without your support.
+                    Institutions: consider joining our <a href="{% url 'partners:partners' %}">Supporting Partners Board</a>. SciPost cannot exist without your support. Look at our <a href="{% static 'scipost/SPB/SciPost_Supporting_Partners_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf' %}">Partner Agreement</a>.
                 </p>
+		<p>
+		  Scientists: if it is not listed on our <a href="{% url 'partners:partners' %}">Partners page</a>, please petition your institution (through a librarian, director, ...) to join, using this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'partners/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">email template</a>.
+		</p>
             </div>
         </div>
     </div><!-- End Partners -->
