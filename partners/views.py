@@ -41,10 +41,22 @@ def supporting_partners(request):
 
 def petition(request, slug):
     petition = get_object_or_404(Petition, slug=slug)
+    is_signed = False
+    if request.user.is_authenticated():
+        is_signed = petition.signatories.filter(user=request.user).count() > 0
     context = {
-        'petition', petition
+        'petition': petition,
+        'is_signed': is_signed
     }
     return render(request, 'partners/petition.html', context)
+
+@login_required
+def sign_petition(request, slug):
+    petition = get_object_or_404(Petition, slug=slug)
+    petition.signatories.add(request.user.contributor)
+    petition.save()
+    messages.success(request, ('<h3>Many thanks for signing!</h3>'))
+    return redirect(reverse('partners:petition', kwargs={'slug': slug}))
 
 
 @login_required

@@ -44,7 +44,9 @@ class Petition(models.Model):
     slug = models.SlugField()
     headline = models.CharField(max_length=256)
     statement = models.TextField()
-    signatories = models.ManyToManyField('scipost.Contributor', related_name='petitions')
+    signatories = models.ManyToManyField('scipost.Contributor',
+                                         related_name='petitions',
+                                         blank=True)
 
 
 

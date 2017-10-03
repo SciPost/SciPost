@@ -12,29 +12,39 @@
 
 <div class="row">
   <div class="col-12">
-      <h1 class="highlight">SciPost Supporting Partners</h1>
-      <h2>{{ petition.headline }}</h2>
-      {{ petition.statement }}
-      {% if request.user not in petition.signatories %}
-      <h3><a href="{% url 'partners:sign_petition' slug=petition.slug contributor_id=contributor.id %}">Sign this petition</a></h3>
+    <div class="col-md-10 col-lg-7">
+      <h1 class="highlight">{{ petition.headline }}</h1>
+      <p>{{ petition.statement }}</p>
+      {% if request.user.is_authenticated %}
+      {% if not is_signed %}
+      <h3><a href="{% url 'partners:sign_petition' slug=petition.slug %}">Click here to sign this petition</a></h3>
       {% else %}
-      <h3>Thanks for signing this petition.</h3>
+      <h3>Thank you for signing this petition!</h3>
       {% endif %}
+      {% else %}
+      <h3>You must be logged in to sign this petition</h3>
+      {% endif %}
+    </div>
   </div>
 </div>
 
 <div class="row">
   <div class="col-12">
-    <h2>Signatories</h2>
-    <table class="table">
-      {% for signatory in petition.signatories %}
-      <tr>
-	<td>{{ signatory.last_name }}</td>
-	<td>{{ signatory.first_name }}</td>
-	<td>{{ signatory.institution }}</td>
-      </tr>
-      {% endfor %}
-    </table>
+    <div class="col-md-10">
+      <h2>Signatories</h2>
+      <table class="table">
+	{% for signatory in petition.signatories.all %}
+	<tr>
+	  <td>{{ signatory.user.last_name }}</td>
+	  <td>{{ signatory.user.first_name }}</td>
+	  <td>{{ signatory.affiliation }}</td>
+	  <td>{{ signatory.country_of_employment }}</td>
+	</tr>
+	{% empty %}
+	<tr><td>No signatories found</td></tr>
+	{% endfor %}
+      </table>
+    </div>
   </div>
 </div>
 
@@ -58,3 +68,6 @@
     </div>
 </div>
 {% endif %}
+
+
+{% endblock content %}
