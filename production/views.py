@@ -112,7 +112,7 @@ def add_event(request, stream_id):
 def add_officer(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
-    if not checker.has_perm('can_perform_supervisory_actions', stream):
+    if not checker.has_perm('can_work_for_stream', stream) or not request.user.has_perm('scipost.can_assign_production_officer'):
         return redirect(reverse('production:production'))
 
     form = AssignOfficerForm(request.POST or None, instance=stream)
@@ -133,7 +133,7 @@ def add_officer(request, stream_id):
 def remove_officer(request, stream_id, officer_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
-    if not checker.has_perm('can_perform_supervisory_actions', stream):
+    if not checker.has_perm('can_work_for_stream', stream) or not request.user.has_perm('scipost.can_assign_production_officer'):
         return redirect(reverse('production:production'))
 
     if getattr(stream.officer, 'id', 0) == int(officer_id):
@@ -158,7 +158,7 @@ def add_supervisor(request, stream_id):
         messages.success(request, 'Supervisor {supervisor} has been assigned.'.format(
             supervisor=supervisor))
         notify_new_stream_assignment(request.user, stream, supervisor.user)
-        assign_perm('can_perform_supervisory_actions', supervisor.user, stream)
+        # assign_perm('can_perform_supervisory_actions', supervisor.user, stream)
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
