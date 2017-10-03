@@ -37,7 +37,7 @@ class ProductionStream(models.Model):
     class Meta:
         permissions = (
             ('can_work_for_stream', 'Can work for stream'),
-            ('can_perform_supervisory_actions', 'Can perform supervisory actions'),
+            # ('can_perform_supervisory_actions', 'Can perform supervisory actions'),
         )
 
     def __str__(self):
