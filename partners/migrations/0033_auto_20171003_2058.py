@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import partners.storage
 
 
 class Migration(migrations.Migration):
@@ -24,10 +23,5 @@ class Migration(migrations.Migration):
                 ('statement', models.TextField()),
                 ('signatories', models.ManyToManyField(related_name='petitions', to='scipost.Contributor')),
             ],
-        ),
-        migrations.AlterField(
-            model_name='partnersattachment',
-            name='attachment',
-            field=models.FileField(storage=partners.storage.SecureFileStorage(), upload_to='UPLOADS/PARTNERS/ATTACHMENTS'),
         ),
     ]
