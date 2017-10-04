@@ -10,22 +10,20 @@
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
+<div class="row justify-content-md-center">
     <div class="col-md-10 col-lg-7">
       <h1 class="highlight">{{ petition.headline }}</h1>
-      <p>{{ petition.statement }}</p>
+      <p>{{ petition.statement|linebreaksbr }}</p>
       {% if request.user.is_authenticated %}
-      {% if not is_signed %}
-      <h3><a href="{% url 'partners:sign_petition' slug=petition.slug %}">Click here to sign this petition</a></h3>
+          {% if not is_signed %}
+              <h3><a href="{% url 'partners:sign_petition' slug=petition.slug %}">Click here to sign this petition!</a></h3>
+          {% else %}
+              <h3>Thank you for signing this petition!</h3>
+          {% endif %}
       {% else %}
-      <h3>Thank you for signing this petition!</h3>
-      {% endif %}
-      {% else %}
-      <h3>You must be logged in to sign this petition</h3>
+          <h3>You must be logged in to sign this petition</h3>
       {% endif %}
     </div>
-  </div>
 </div>
 
 <div class="row">

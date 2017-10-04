@@ -43,12 +43,13 @@ def petition(request, slug):
     petition = get_object_or_404(Petition, slug=slug)
     is_signed = False
     if request.user.is_authenticated():
-        is_signed = petition.signatories.filter(user=request.user).count() > 0
+        is_signed = petition.signatories.filter(user=request.user).exists()
     context = {
         'petition': petition,
         'is_signed': is_signed
     }
     return render(request, 'partners/petition.html', context)
+
 
 @login_required
 def sign_petition(request, slug):
