@@ -24,7 +24,8 @@
 	<p>
 	  <strong>Are you a scientist?</strong><br/>
 	  Is your institution of funding body not listed below as one of our current Supporting Partners?<br/>
-	  Please petition them to join by sending a librarian/director/... an email, starting from this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">template</a>.
+	  Please petition them to join by sending a librarian/director/... a personalized email, starting from this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">template</a>.<br/>
+	  You can also encourage them to join by <a href="{% url 'petitions:petition' slug='join-SPB' %}">signing our petition</a>.
 	</p>
       </li>
       <li>
