@@ -126,7 +126,7 @@
                     Institutions: consider joining our <a href="{% url 'partners:partners' %}">Supporting Partners Board</a>. SciPost cannot exist without your support. Look at our <a href="{% static 'scipost/SPB/SciPost_Supporting_Partners_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf' %}">Partner Agreement</a>.
                 </p>
 		<p>
-		  Scientists: if it is not listed on our <a href="{% url 'partners:partners' %}">Partners page</a>, please encourage your institution (through a librarian, director, ...) to join by <a href="{% url 'petitions:petition' slug=joinSPB %}">signing our petition, and by emailing them directly using this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'partners/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">email template</a>.
+		  Scientists: if it is not listed on our <a href="{% url 'partners:partners' %}">Partners page</a>, please encourage your institution (through a librarian, director, ...) to join by <a href="{% url 'petitions:petition' slug='join-SPB' %}">signing our petition</a>, and by emailing them directly using this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">email template</a>.
 		</p>
             </div>
         </div>
