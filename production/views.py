@@ -30,7 +30,7 @@ from .utils import proof_slug_to_id
 
 @is_production_user()
 @permission_required('scipost.can_view_production', raise_exception=True)
-def production(request):
+def production(request, stream_id=None):
     """
     Overview page for the production process.
     All papers with accepted but not yet published status are included here.
@@ -44,10 +44,21 @@ def production(request):
     ownevents = ProductionEvent.objects.filter(
         noted_by=request.user.production_user,
         duration__gte=datetime.timedelta(minutes=1)).order_by('-noted_on')
+
     context = {
         'streams': streams,
         'ownevents': ownevents,
     }
+
+    if stream_id:
+        try:
+            context['stream'] = streams.get(id=stream_id)
+            context['assign_officer_form'] = AssignOfficerForm()
+            context['assign_supervisor_form'] = AssignSupervisorForm()
+            context['prodevent_form'] = ProductionEventForm()
+        except ProductionStream.DoesNotExist:
+            pass
+
     if request.user.has_perm('scipost.can_view_timesheets'):
         context['production_team'] = ProductionUser.objects.all()
 
@@ -124,7 +135,7 @@ def update_status(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm('can_perform_supervisory_actions', stream):
-        return redirect(reverse('production:production'))
+        return redirect(reverse('production:production', args=(stream.id,)))
 
     p = request.user.production_user
     form = StreamStatusForm(request.POST or None, instance=stream,
@@ -157,7 +168,7 @@ def add_event(request, stream_id):
         messages.success(request, 'Comment added to Stream.')
     else:
         messages.warning(request, 'The form was invalidly filled.')
-    return redirect(reverse('production:production'))
+    return redirect(reverse('production:production', args=(stream.id,)))
 
 
 @is_production_user()
@@ -167,7 +178,7 @@ def add_officer(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm('can_perform_supervisory_actions', stream):
-        return redirect(reverse('production:production'))
+        return redirect(reverse('production:production', args=(stream.id,)))
 
     form = AssignOfficerForm(request.POST or None, instance=stream)
     if form.is_valid():
@@ -186,7 +197,7 @@ def add_officer(request, stream_id):
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
-    return redirect(reverse('production:production'))
+    return redirect(reverse('production:production', args=(stream.id,)))
 
 
 @is_production_user()
@@ -196,7 +207,7 @@ def remove_officer(request, stream_id, officer_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm('can_perform_supervisory_actions', stream):
-        return redirect(reverse('production:production'))
+        return redirect(reverse('production:production', args=(stream.id,)))
 
     if getattr(stream.officer, 'id', 0) == int(officer_id):
         officer = stream.officer
@@ -205,7 +216,7 @@ def remove_officer(request, stream_id, officer_id):
         remove_perm('can_work_for_stream', officer.user, stream)
         messages.success(request, 'Officer {officer} has been removed.'.format(officer=officer))
 
-    return redirect(reverse('production:production'))
+    return redirect(reverse('production:production', args=(stream.id,)))
 
 
 @is_production_user()
@@ -233,7 +244,7 @@ def add_supervisor(request, stream_id):
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
-    return redirect(reverse('production:production'))
+    return redirect(reverse('production:production', args=(stream.id,)))
 
 
 @is_production_user()
@@ -250,7 +261,7 @@ def remove_supervisor(request, stream_id, officer_id):
         messages.success(request, 'Supervisor {supervisor} has been removed.'.format(
             supervisor=supervisor))
 
-    return redirect(reverse('production:production'))
+    return redirect(reverse('production:production', args=(stream.id,)))
 
 
 @method_decorator(is_production_user(), name='dispatch')

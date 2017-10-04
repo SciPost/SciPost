@@ -4,6 +4,7 @@ from production import views as production_views
 
 urlpatterns = [
     url(r'^$', production_views.production, name='production'),
+    url(r'^(?P<stream_id>[0-9]+)$', production_views.production, name='production'),
     url(r'^completed$', production_views.completed, name='completed'),
     url(r'^officers/new$', production_views.user_to_officer, name='user_to_officer'),
     url(r'^streams/(?P<stream_id>[0-9]+)$',

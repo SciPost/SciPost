@@ -80,48 +80,18 @@
                 {% endfor %}
             </ul>
 
-            {% comment %}
-            <table class="table table-hover mb-5">
-              <thead class="thead-default">
-        	<tr>
-        	  <th>Authors</th>
-        	  <th>Title</th>
-        	  <th>Accepted</th>
-        	  <th>Latest Event</th>
-        	  <th>Date</th>
-        	</tr>
-              </thead>
-
-              <tbody id="accordion" role="tablist" aria-multiselectable="true">
-            	{% for stream in streams %}
-                	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ stream.id }}" aria-expanded="true" aria-controls="collapse{{ stream.id }}" style="cursor: pointer;">
-                	  <td>{{ stream.submission.author_list }}</td>
-                	  <td>{{ stream.submission.title }}</td>
-                	  <td>{{ stream.submission.acceptance_date|date:"Y-m-d" }}</td>
-                	  <td>{{ stream.events.last.get_event_display }}</td>
-                	  <td>{{ stream.events.last.noted_on }}</td>
-                	</tr>
-                	<tr id="collapse{{ stream.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ stream.id }}" style="background-color: #fff;">
-                	  <td colspan="5">
-                            {% include 'production/partials/production_stream_card.html' with stream=stream prodevent_form=prodevent_form assign_officer_form=assign_officer_form assign_supervisor_form=assign_supervisor_form %}
-                	  </td>
-                	</tr>
-            	{% empty %}
-                	<tr>
-                	  <td colspan="5">No production streams found.</td>
-                	</tr>
-            	{% endfor %}
-              </tbody>
-            </table>
-            {% endcomment %}
         </div>
         <div class="col-6">
             <div class="card center-loader" id="details">
-                <div class="text-center py-4">
-                    <i class="fa fa-hand-o-left fa-3x" aria-hidden="true"></i>
+                {% if stream %}
+                    {% include 'production/partials/production_stream_card.html' %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fa fa-hand-o-left fa-3x" aria-hidden="true"></i>
 
-                    <h3>Choose a Stream to see more details</h3>
-                </div>
+                        <h3>Choose a Stream to see more details</h3>
+                    </div>
+                {% endif %}
             </div>
 
         </div>
