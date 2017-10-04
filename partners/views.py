@@ -13,7 +13,7 @@ from guardian.decorators import permission_required
 from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
     PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT
-from .models import Petition, Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
+from .models import Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
                     ProspectivePartnerEvent, MembershipAgreement, Contact, Institution,\
                     PartnersAttachment
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
@@ -37,27 +37,6 @@ def supporting_partners(request):
         prospective_agreements = MembershipAgreement.objects.submitted().order_by('date_requested')
         context['prospective_partners'] = prospective_agreements
     return render(request, 'partners/supporting_partners.html', context)
-
-
-def petition(request, slug):
-    petition = get_object_or_404(Petition, slug=slug)
-    is_signed = False
-    if request.user.is_authenticated():
-        is_signed = petition.signatories.filter(user=request.user).exists()
-    context = {
-        'petition': petition,
-        'is_signed': is_signed
-    }
-    return render(request, 'partners/petition.html', context)
-
-
-@login_required
-def sign_petition(request, slug):
-    petition = get_object_or_404(Petition, slug=slug)
-    petition.signatories.add(request.user.contributor)
-    petition.save()
-    messages.success(request, ('<h3>Many thanks for signing!</h3>'))
-    return redirect(reverse('partners:petition', kwargs={'slug': slug}))
 
 
 @login_required

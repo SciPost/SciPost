@@ -100,6 +100,7 @@ INSTALLED_APPS = (
     'partners',
     'funders',
     'stats',
+    'petitions',
     'webpack_loader',
 )
 
