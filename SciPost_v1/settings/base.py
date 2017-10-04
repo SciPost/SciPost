@@ -86,7 +86,7 @@ INSTALLED_APPS = (
     'sphinxdoc',
     'commentaries',
     'comments',
-    'finance',
+    'finances',
     'journals',
     'mails',
     'mailing_lists',

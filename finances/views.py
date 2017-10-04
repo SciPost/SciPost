@@ -17,4 +17,4 @@ def timesheets(request):
     # if form.is_valid():
     context['totals'] = form.get_totals()
 
-    return render(request, 'finance/timesheets.html', context)
+    return render(request, 'finances/timesheets.html', context)

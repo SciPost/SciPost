@@ -1507,7 +1507,7 @@ def fix_College_decision(request, rec_id):
     elif recommendation.recommendation == -3:
         # Reject + update-reject other versions of submission
         submission.status = 'rejected'
-        for sub in submission.other_versions:
+        for sub in submission.other_versions_pool:
             sub.status = 'resubmitted_rejected'
             sub.save()
 

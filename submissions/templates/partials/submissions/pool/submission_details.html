@@ -7,18 +7,20 @@
     {% include 'submissions/_submission_card_fellow_content.html' with submission=submission %}
 
     <div class="card-body">
-        {% if submission.remarks.all %}
-            <h4>Remarks on this submission:</h4>
-            <ul>
-              {% for rem in submission.remarks.all %}
-                  {% include 'scipost/_remark_li.html' with remark=rem %}
-              {% endfor %}
-            </ul>
-        {% endif %}
-
+        <h3>Remarks on this submission:</h3>
         {% if remark_form %}
             {% include 'submissions/_remark_add_form.html' with submission=submission form=remark_form auto_show=1 %}
         {% endif %}
+        <p class="mb-1">Current remarks:</p>
+        <ul>
+          {% for rem in submission.remarks.all %}
+              {% include 'scipost/_remark_li.html' with remark=rem %}
+          {% empty %}
+              <li>No Remarks found.</li>
+          {% endfor %}
+        </ul>
+
+
 
         {% get_obj_perms request.user for submission as "sub_perms" %}
         {% if "can_take_editorial_actions" in sub_perms or is_ECAdmin %}

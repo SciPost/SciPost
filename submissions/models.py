@@ -176,6 +176,12 @@ class Submission(models.Model):
 
     @cached_property
     def other_versions(self):
+        return Submission.objects.public().filter(
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
+        ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
+
+    @cached_property
+    def other_versions_pool(self):
         return Submission.objects.filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
         ).exclude(pk=self.id).order_by('-arxiv_vn_nr')

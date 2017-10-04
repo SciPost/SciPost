@@ -37,4 +37,5 @@ class ProductionProofsAdmin(admin.ModelAdmin):
 
 admin.site.register(Proof, ProductionProofsAdmin)
 admin.site.register(ProductionUser)
+admin.site.register(ProductionEvent)
 admin.site.register(ProductionStream, ProductionStreamAdmin)

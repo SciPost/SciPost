@@ -23,6 +23,10 @@ $pool-flex-width: calc(100% - 40px);
 
     .card.submission-detail {
         position: sticky;
+        position: -webkit-sticky;
+        position: -moz-sticky;
+        position: -ms-sticky;
+        position: -o-sticky;
         top: 15px;
     }
 
