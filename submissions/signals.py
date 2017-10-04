@@ -45,7 +45,7 @@ def notify_new_referee_invitation(sender, instance, created, **kwargs):
     """
     Notify a Referee about a new refereeing invitation.
     """
-    if created:
+    if created and instance.referee:
         notify.send(sender=sender, recipient=instance.referee.user,
                     actor=instance.submission.editor_in_charge,
                     verb=' would like to invite you to referee a Submission.', target=instance)

@@ -17,7 +17,7 @@ def contributor_to_officer(apps, schema_editor):
     # Transfer all Events
     ProductionEvent = apps.get_model('production', 'ProductionEvent')
     for event in ProductionEvent.objects.all():
-        user = User.objects.get(contributor__id=event.noted_by_contributor.id, production_user__isnull=False)
+        user = User.objects.get(contributor__id=event.noted_by.user.contributor.id, production_user__isnull=False)
         event.noted_by.id = user.production_user.id
         event.save()
     print('  - ProductionEvents updated')
