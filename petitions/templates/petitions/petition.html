@@ -4,10 +4,6 @@
 
 {% load bootstrap %}
 
-{% load staticfiles %}
-
-{% load scipost_extras %}
-
 {% block content %}
 
 <div class="row">
@@ -16,7 +12,7 @@
       <p>{{ petition.statement|linebreaksbr }}</p>
       {% if not is_signed %}
       <h3>Please consider signing this petition</h3>
-      <form action="{% url 'petitions:sign_petition' slug=petition.slug %}" method="post">
+      <form action="{{ petition.get_absolute_url }}" method="post">
         {% csrf_token %}
         {{ form|bootstrap:'3,9' }}
         <input class="btn btn-primary" type="submit" value="Sign this petition" />
@@ -30,21 +26,19 @@
 
 <div class="row">
   <div class="col-12">
-    <div class="col-md-10">
       <h2>Signatories</h2>
       <table class="table">
-	{% for signatory in signatories.all %}
-	<tr>
-	  <td>{{ signatory.last_name }}</td>
-	  <td>{{ signatory.get_title_display }} {{ signatory.first_name }}</td>
-	  <td>{{ signatory.affiliation }}</td>
-	  <td>{{ signatory.get_country_of_employment_display }}</td>
-	</tr>
-	{% empty %}
-	<tr><td>No signatories found</td></tr>
-	{% endfor %}
+    	{% for signatory in petition.petition_signatories.verified %}
+        	<tr>
+        	  <td>{{ signatory.last_name }}</td>
+        	  <td>{{ signatory.get_title_display }} {{ signatory.first_name }}</td>
+        	  <td>{{ signatory.affiliation }}</td>
+        	  <td>{{ signatory.get_country_of_employment_display }}</td>
+        	</tr>
+    	{% empty %}
+        	<tr><td>No signatories found</td></tr>
+    	{% endfor %}
       </table>
-    </div>
   </div>
 </div>
 

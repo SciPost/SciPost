@@ -1,10 +1,12 @@
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db import models
 
 from django_countries.fields import CountryField
 
-from scipost.constants import TITLE_CHOICES
+from .managers import PetitionSignatoryQuerySet
 
+from scipost.constants import TITLE_CHOICES
 
 
 class Petition(models.Model):
@@ -18,9 +20,12 @@ class Petition(models.Model):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return reverse('petitions:petition', kwargs={'slug': self.slug})
+
 
 class PetitionSignatory(models.Model):
-    petition = models.ForeignKey(Petition, on_delete=models.CASCADE)
+    petition = models.ForeignKey('petitions.Petition', on_delete=models.CASCADE)
     signatory = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                   blank=True, null=True)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
@@ -33,7 +38,11 @@ class PetitionSignatory(models.Model):
     verification_key = models.CharField(max_length=40, blank=True)
     verified = models.BooleanField(default=False)
 
+    objects = PetitionSignatoryQuerySet.as_manager()
+
     class Meta:
+        default_related_name = 'petition_signatories'
+        ordering = ['last_name', 'country_of_employment', 'affiliation']
         verbose_name_plural = 'petition signatories'
 
     def __str__(self):
