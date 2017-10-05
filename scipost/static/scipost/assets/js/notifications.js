@@ -5,7 +5,7 @@ var notify_api_url_list = "/notifications/api/list/";
 var notify_api_url_toggle_read = "/notifications/mark-toggle/";
 var notify_api_url_mark_all_read = "/notifications/mark-all-as-read/";
 var notify_fetch_count = "5";
-var notify_refresh_period = 15000;
+var notify_refresh_period = 60000;
 var consecutive_misfires = 0;
 var registered_functions = [fill_notification_badge];
 
@@ -91,7 +91,7 @@ function fill_notification_badge(data) {
 }
 
 function get_notification_list() {
-    var data = fetch_api_data(notify_api_url_list, function(data) {
+    fetch_api_data(notify_api_url_list, true, function(data) {
 
         var messages = data.list.map(function (item) {
             var message = '';
@@ -128,9 +128,12 @@ function get_notification_list() {
     });
 }
 
-function fetch_api_data(url, callback) {
+function fetch_api_data(url, once, callback) {
     if (!url) {
         var url = notify_api_url_count;
+    }
+    if (!once) {
+        var once = false;
     }
 
     if (registered_functions.length > 0) {
@@ -153,15 +156,26 @@ function fetch_api_data(url, callback) {
         r.open("GET", url + '?max=' + notify_fetch_count, true);
         r.send();
     }
-    if (consecutive_misfires < 10) {
-        setTimeout(fetch_api_data,notify_refresh_period);
-    } else {
-        var badges = document.getElementsByClassName(notify_badge_class);
-        if (badges) {
-            for (var i=0; i < badges.length; i++){
-                badges[i].innerHTML = "!";
-                badges[i].title = "Connection lost!"
+    var timer = null;
+    if (!once) {
+        if (consecutive_misfires < 10 && !once) {
+            timer = setTimeout(fetch_api_data, notify_refresh_period);
+        } else {
+            var badges = document.getElementsByClassName(notify_badge_class);
+            if (badges) {
+                for (var i=0; i < badges.length; i++){
+                    badges[i].innerHTML = "!";
+                    badges[i].title = "Connection lost!"
+                }
             }
+        }
+    }
+
+    return stop;
+    function stop() {
+        if (timer) {
+            clearTimeout(timer);
+            timer = 0;
         }
     }
 }
