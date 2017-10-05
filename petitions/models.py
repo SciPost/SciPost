@@ -13,6 +13,7 @@ class Petition(models.Model):
     title = models.CharField(max_length=256)
     slug = models.SlugField()
     headline = models.CharField(max_length=256)
+    preamble = models.TextField(blank=True, null=True)
     statement = models.TextField()
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
