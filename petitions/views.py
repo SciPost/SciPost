@@ -32,7 +32,8 @@ def petition(request, slug):
     if form.is_valid():
         signature = form.save(commit=False)
         signature.petition = petition
-        message = '<h3>Many thanks for signing!</h3>'
+        message = ('<h3>Many thanks for signing!</h3>'
+                   '<p>Please invite your colleagues to also sign.</p>')
         if request.user.is_authenticated:
             signature.signatory = request.user.contributor
             signature.verified = True
@@ -91,5 +92,6 @@ def verify_signature(request, slug, key):
         # Slight reduction of db write-use
         signature.verified = True
         signature.save()
-    messages.success(request, ('<h3>Many thanks, your signature has been verified.</h3>'))
+    messages.success(request, ('<h3>Many thanks for confirming your signature.</h3>'
+                               '<p>Please invite your colleagues to also sign.</p>'))
     return redirect(petition.get_absolute_url())
