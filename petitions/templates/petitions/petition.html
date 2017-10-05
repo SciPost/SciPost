@@ -11,10 +11,10 @@
     <h1 class="highlight">{{ petition.headline }}</h1>
     {% if petition.preamble %}
     <h3>Preamble:</h3>
-    <p>{{ petition.preamble|linebreaksbr }}</p>
+    <p>{{ petition.preamble|safe|escape|linebreaksbr }}</p>
     {% endif %}
     <h3>Petition statement:</h3>
-    <p>{{ petition.statement|linebreaksbr }}</p>
+    <p>{{ petition.statement|safe|escape|linebreaksbr }}</p>
       {% if not is_signed %}
       <h3>Please consider signing this petition</h3>
       <form action="{{ petition.get_absolute_url }}" method="post">
