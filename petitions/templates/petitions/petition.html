@@ -37,7 +37,8 @@
     	{% for signatory in petition.petition_signatories.verified %}
         	<tr>
         	  <td>{{ signatory.last_name }}</td>
-        	  <td>{{ signatory.get_title_display }} {{ signatory.first_name }}</td>
+        	  <td>{{ signatory.get_title_display }}</td>
+		  <td>{{ signatory.first_name }}</td>
         	  <td>{{ signatory.affiliation }}</td>
         	  <td>{{ signatory.get_country_of_employment_display }}</td>
         	</tr>
