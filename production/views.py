@@ -217,6 +217,7 @@ class DeleteEventView(DeleteView):
 
 @is_production_user()
 @permission_required('scipost.can_publish_accepted_submission', raise_exception=True)
+@transaction.atomic
 def mark_as_completed(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     stream.status = PRODUCTION_STREAM_COMPLETED

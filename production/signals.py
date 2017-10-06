@@ -46,9 +46,8 @@ def notify_stream_completed(sender, instance, **kwargs):
     """
     Notify the production team about a Production Stream being completed.
     """
-    stream = instance.stream
-    notify.send(sender=sender, recipient=stream.officer.user,
+    notify.send(sender=sender, recipient=instance.officer.user,
                 actor=sender, verb=' marked Production Stream as completed.', target=instance)
 
-    notify.send(sender=sender, recipient=stream.supervisor.user,
+    notify.send(sender=sender, recipient=instance.supervisor.user,
                 actor=sender, verb=' marked Production Stream as completed.', target=instance)
