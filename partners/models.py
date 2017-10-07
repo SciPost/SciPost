@@ -33,6 +33,7 @@ from scipost.fields import ChoiceArrayField
 from scipost.models import get_sentinel_user, Contributor
 
 
+
 ########################
 # Prospective Partners #
 ########################

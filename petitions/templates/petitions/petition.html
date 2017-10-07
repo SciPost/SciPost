@@ -1,0 +1,53 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Petition{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">{{ petition.headline }}</h1>
+    {% if petition.preamble %}
+    <h3>Preamble:</h3>
+    <p>{{ petition.preamble|safe|escape|linebreaksbr }}</p>
+    {% endif %}
+    <h3>Petition statement:</h3>
+    <p>{{ petition.statement|safe|escape|linebreaksbr }}</p>
+      {% if not is_signed %}
+      <h3>Please consider signing this petition</h3>
+      <form action="{{ petition.get_absolute_url }}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap:'3,9' }}
+        <input class="btn btn-primary" type="submit" value="Sign this petition" />
+      </form>
+      {% else %}
+      <h3>Thank you for signing this petition!</h3>
+      <p>Please invite your colleagues to also sign.</p>
+      {% endif %}
+
+    </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+      <h2>Signatories</h2>
+      <table class="table">
+    	{% for signatory in petition.petition_signatories.verified %}
+        	<tr>
+        	  <td>{{ signatory.last_name }}</td>
+        	  <td>{{ signatory.get_title_display }}</td>
+		  <td>{{ signatory.first_name }}</td>
+        	  <td>{{ signatory.affiliation }}</td>
+        	  <td>{{ signatory.get_country_of_employment_display }}</td>
+        	</tr>
+    	{% empty %}
+        	<tr><td>No signatories found</td></tr>
+    	{% endfor %}
+      </table>
+  </div>
+</div>
+
+
+{% endblock content %}

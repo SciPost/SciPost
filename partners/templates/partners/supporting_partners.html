@@ -19,6 +19,29 @@
 
 <div class="row">
   <div class="col-12">
+    <ul>
+      <li>
+	<p>
+	  <strong>Are you a scientist?</strong><br/>
+	  Is your institution or funding body not listed below as one of our current Supporting Partners?<br/>
+	  Please petition them to join by sending a librarian/director/... a personalized email, starting from this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">template</a>.<br/>
+	  You can also encourage them to join by <a href="{% url 'petitions:petition' slug='join-SPB' %}">signing our petition</a>.
+	</p>
+      </li>
+      <li>
+	<p>
+	  <strong>Are you a librarian, funding agency representative or other potential supporter?</strong><br/>
+	  Have a quick look at our <a href="{% static 'scipost/SPB/SciPost_Supporting_Partners_Board_Prospectus.pdf' %}">one-page Prospectus</a>.<br/>
+	  Read detailed information in the draft <a href="{% static 'scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf' %}">Partner Agreement</a>, and <a href="mailto:partners@scipost.org">contact us</a> to get further details.
+	</p>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-12">
       <h3>Openness at strictly minimal cost: the role of professional academics</h3>
       <p>A fundamental principle underlining all of SciPost’s activities is openness. This means in particular that SciPost guarantees free online access to all publications in all its Journals (free for readers; all articles are published under the terms of a Creative Commons license (most commonly CC-BY)), and does not charge any article processing fees for publishing (free for authors). All editorial activities are performed by professional academics as part of their normal professional duties: contributors to SciPost are demonstrably dedicated to serving their community, and to realizing the dream of true openness in scientific publishing. SciPost thus achieves the highest possible standards of academic quality and open accessibility while maintaining costs at the lowest achievable level.</p>
 
