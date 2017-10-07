@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -11,6 +12,7 @@ from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_STREAM_INITIATED, PR
 from .managers import ProductionStreamQuerySet, ProductionEventManager, ProofsQuerySet
 from .utils import proof_id_to_slug
 
+from finances.models import WorkLog
 from scipost.storage import SecureFileStorage
 
 
@@ -40,6 +42,8 @@ class ProductionStream(models.Model):
                                 related_name='streams')
     supervisor = models.ForeignKey('production.ProductionUser', blank=True, null=True,
                                    related_name='supervised_streams')
+
+    work_logs = GenericRelation(WorkLog, related_query_name='streams')
 
     objects = ProductionStreamQuerySet.as_manager()
 

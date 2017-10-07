@@ -9,13 +9,29 @@
   {% include 'production/partials/production_events.html' with events=stream.events.all %}
 
   {% if "can_work_for_stream" in sub_perms and prodevent_form %}
-    <h3>Add message and/or hours to the Stream</h3>
+    <h3>Add message to the Stream</h3>
     <form action="{% url 'production:add_event' stream_id=stream.id %}" method="post" class="mb-2">
         {% csrf_token %}
         {{ prodevent_form|bootstrap }}
         <input type="submit" class="btn btn-secondary" name="submit" value="Submit">
     </form>
   {% endif %}
+
+  <h3>Work Log</h3>
+  {% if "can_work_for_stream" in sub_perms and work_log_form %}
+    <ul>
+        <li>
+            <a href="javascript:;" data-toggle="toggle" data-target="#log_form">Add hours to the Stream</a>
+            <form id="log_form" style="display: none;" action="{% url 'production:add_event' stream_id=stream.id %}" method="post" class="mb-2">
+                {% csrf_token %}
+                {{ work_log_form|bootstrap }}
+                <input type="submit" class="btn btn-secondary" name="submit" value="Log">
+            </form>
+        </li>
+    </ul>
+  {% endif %}
+
+  {% include 'partials/finances/logs.html' with logs=stream.work_logs.all %}
 
     {% if "can_perform_supervisory_actions" in sub_perms %}
           <h3>Actions</h3>

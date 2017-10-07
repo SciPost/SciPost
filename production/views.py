@@ -15,6 +15,8 @@ from django.views.generic.edit import UpdateView, DeleteView
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm, remove_perm
 
+from finances.forms import WorkLogForm
+
 from . import constants
 from .models import ProductionUser, ProductionStream, ProductionEvent, Proof
 from .forms import ProductionEventForm, AssignOfficerForm, UserToOfficerForm,\
@@ -98,6 +100,7 @@ def stream(request, stream_id):
     assign_officer_form = AssignOfficerForm()
     assign_supervisor_form = AssignSupervisorForm()
     upload_proofs_form = ProofUploadForm()
+    work_log_form = WorkLogForm()
     status_form = StreamStatusForm(instance=stream, production_user=request.user.production_user)
 
     context = {
@@ -107,6 +110,7 @@ def stream(request, stream_id):
         'assign_supervisor_form': assign_supervisor_form,
         'status_form': status_form,
         'upload_proofs_form': upload_proofs_form,
+        'work_log_form': work_log_form,
     }
 
     if request.GET.get('json'):
@@ -161,8 +165,6 @@ def add_event(request, stream_id):
     if prodevent_form.is_valid():
         prodevent = prodevent_form.save(commit=False)
         prodevent.stream = stream
-        if prodevent.duration:
-            prodevent.event = constants.EVENT_HOUR_REGISTRATION
         prodevent.noted_by = request.user.production_user
         prodevent.save()
         messages.success(request, 'Comment added to Stream.')

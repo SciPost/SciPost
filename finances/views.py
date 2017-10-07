@@ -1,7 +1,13 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
+from django.http import Http404
 from django.shortcuts import render
+from django.views.generic.edit import DeleteView
 
 from production.forms import ProductionUserMonthlyActiveFilter
+
+from .models import WorkLog
+from .utils import slug_to_id
 
 
 @permission_required('scipost.can_view_timesheets', raise_exception=True)
@@ -18,3 +24,17 @@ def timesheets(request):
     context['totals'] = form.get_totals()
 
     return render(request, 'finances/timesheets.html', context)
+
+
+class LogDeleteView(DeleteView):
+    model = WorkLog
+
+    def get_object(self):
+        try:
+            return WorkLog.objects.get(user=self.request.user, id=slug_to_id(self.kwargs['slug']))
+        except WorkLog.DoesNotExist:
+            raise Http404
+
+    def get_success_url(self):
+        messages.success(self.request, 'Log deleted.')
+        return self.object.content.get_absolute_url()

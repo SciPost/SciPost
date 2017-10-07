@@ -1,7 +1,6 @@
 import datetime
 
 from django import forms
-from django.contrib.auth import get_user_model
 from django.utils.dates import MONTHS
 from django.db.models import Sum
 
@@ -17,11 +16,9 @@ class ProductionEventForm(forms.ModelForm):
         model = ProductionEvent
         fields = (
             'comments',
-            'duration'
         )
         widgets = {
             'comments': forms.Textarea(attrs={'rows': 4}),
-            'duration': forms.TextInput(attrs={'placeholder': 'HH:MM:SS'})
         }
 
 

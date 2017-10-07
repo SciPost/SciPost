@@ -1,0 +1,34 @@
+ {% load scipost_extras %}
+
+ <ul class="list-unstyled">
+  {% for log in logs %}
+        <li id="log_{{ log.slug }}" class="pb-2">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <strong>{{ log.user.first_name }} {{ log.user.last_name }}</strong>
+                    <br>
+                    {{ log.comments }}
+                </div>
+                <div class="text-muted text-right d-flex justify-content-end">
+                    <div>
+                        {{ log.work_date }}
+                        <br>
+                        <strong>Duration: {{ log.duration|duration }}</strong>
+                    </div>
+                    <div class="pl-2">
+                        <a class="text-danger" href="{% url 'finances:log_delete' log.slug %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+            </div>
+        </li>
+    {% empty %}
+        <li>No logs were found.</li>
+    {% endfor %}
+</ul>
+{% comment %}
+user = models.ForeignKey(settings.AUTH_USER_MODEL)
+comments = models.TextField(blank=True)
+duration = models.DurationField(blank=True, null=True)
+work_date = models.DateField(default=timezone.now)
+created = models.DateTimeField(auto_now_add=True)
+{% endcomment %}
