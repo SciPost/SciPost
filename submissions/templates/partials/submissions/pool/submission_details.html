@@ -40,7 +40,7 @@
                         {% for assignment in submission.editorial_assignments.all %}
                             {% include 'submissions/_assignment_info.html' with assignment=assignment %}
                         {% empty %}
-                            <li>None found. <a href="{% url 'submissions:assign_submission' submission.arxiv_identifier_w_vn_nr %}">Send a first assignment request</a></li>
+                            <li>No assignment requests have been sent</li>
                         {% endfor %}
 
                         {% if not submission.editor_in_charge %}
