@@ -112,6 +112,13 @@
                 {% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
             {% else %}
                 <h3><em>Click on a submission to see its summary and actions</em></h3>
+
+                {% if is_ECAdmin %}
+                    <h2>All events in the last 24 hours</h2>
+                    <div id="eventslist">
+                        {% include 'submissions/submission_event_list_general.html' with events=latest_events %}
+                    </div>
+                {% endif %}
             {% endif %}
         </div>
     </div>

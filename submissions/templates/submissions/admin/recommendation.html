@@ -1,10 +1,10 @@
-{% extends 'submissions/pool/base.html' %}
+{% extends 'submissions/admin/base.html' %}
 
 {% load bootstrap %}
 {% load scipost_extras %}
 
 {% block breadcrumb_items %}
-    <a href="{% url 'submissions:admin' %}" class="breadcrumb-item">Editorial Administration</a>
+    {{ block.super }}
     <span class="breadcrumb-item">Editorial Recommendation</span>
 {% endblock %}
 
