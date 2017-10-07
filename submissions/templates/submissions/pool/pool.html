@@ -4,6 +4,7 @@
 {% load guardian_tags %}
 {% load scipost_extras %}
 {% load submissions_extras %}
+{% load user_groups %}
 
 {% block breadcrumb_items %}
     <a href="{% url 'scipost:personal_page' %}" class="breadcrumb-item">Personal Page</a>
@@ -18,15 +19,45 @@
 {% block pagetitle %}: Submissions Pool{% endblock pagetitle %}
 
 {% block content %}
-    {% with is_ECAdmin=request.user|is_in_group:'Editorial Administrators' %}
-        <a href="{% url 'submissions:pool' %}?test=1">See old pool layout</a>
-        <div class="row">
-            <div class="col-md-7">
-                <h1>SciPost Submissions Pool</h1>
-                {% if is_ECAdmin %}
-                    <a href="{% url 'submissions:admin' %}">Go to the Editorial Administration</a>
-                {% endif %}
+    {% is_edcol_admin request.user as is_ECAdmin %}
 
+    <a href="{% url 'submissions:pool' %}?test=1">See old pool layout</a>
+    <div class="row">
+        <div class="col-md-7">
+            <h1>SciPost Submissions Pool</h1>
+            {% if is_ECAdmin %}
+
+                {% if recommendations_to_prepare_for_voting or recommendations_undergoing_voting %}
+                    <div class="quote-border">
+                        <h2 class="text-primary">Administrative Tasks</h2>
+
+                        {% if recommendations_to_prepare_for_voting %}
+                            <h3>Recommendations to prepare for voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
+                            <ul>
+                                {% for recommendation in recommendations_to_prepare_for_voting %}
+                                    <li>On Editorial Recommendation: {{ recommendation }}<br>
+                                        <a href="{% url 'submissions:prepare_for_voting' rec_id=recommendation.id %}">Prepare for voting</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                        {% if recommendations_undergoing_voting %}
+                            <h3>Recommendations undergoing voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
+                            <ul class="fa-ul">
+                                {% for recommendation in recommendations_undergoing_voting %}
+                                    <li>{% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
+                                        On Editorial Recommendation: {{ recommendation }}<br>
+                                        <a href="{% url 'submissions:admin_recommendation' recommendation.submission.arxiv_identifier_w_vn_nr %}">See Editorial Recommendation</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            {% if assignments_to_consider or recs_to_vote_on %}
                 {% if assignments_to_consider %}
                     <h3>Your open Assignment Requests <i class="fa fa-exclamation-circle text-warning"></i></h3>
                     <ul>
@@ -48,43 +79,47 @@
                         {% endfor %}
                     </ul>
                 {% endif %}
+                <hr>
+            {% endif %}
 
-                {% if assignments_to_consider or recs_to_vote_on %}
-                    <hr>
+            {% if search_form %}
+                <h3>Filter by status</h3>
+                <form method="get" class="auto-submit mb-3">
+                    {{ search_form|bootstrap:'12,12' }}
+                </form>
+            {% endif %}
+
+            <ul class="list-unstyled" data-target="active-list">
+                <!-- Submissions list -->
+                {% for sub in submissions_in_pool %}
+                    <li class="p-2{% if sub == submission %} active{% endif %}">
+                        {% if sub == submission %}
+                            {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=1 %}
+                        {% else %}
+                            {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=0 %}
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <li>
+                        <h3 class="text-center"><i class="fa fa-question fa-2x"></i><br>No Submissions found.</h3>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div><!-- End page content -->
+
+        <div class="col-md-5" id="details">
+            {% if submission %}
+                {% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
+            {% else %}
+                <h3><em>Click on a submission to see its summary and actions</em></h3>
+
+                {% if is_ECAdmin %}
+                    <h2>All events in the last 24 hours</h2>
+                    <div id="eventslist">
+                        {% include 'submissions/submission_event_list_general.html' with events=latest_events %}
+                    </div>
                 {% endif %}
-
-                {% if search_form %}
-                    <h3>Filter by status</h3>
-                    <form method="get" class="auto-submit mb-3">
-                        {{ search_form|bootstrap:'12,12' }}
-                    </form>
-                {% endif %}
-
-                <ul class="list-unstyled" data-target="active-list">
-                    <!-- Submissions list -->
-                    {% for sub in submissions_in_pool %}
-                        <li class="p-2{% if sub == submission %} active{% endif %}">
-                            {% if sub == submission %}
-                                {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=1 %}
-                            {% else %}
-                                {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=0 %}
-                            {% endif %}
-                        </li>
-                    {% empty %}
-                        <li>
-                            <h3 class="text-center"><i class="fa fa-question fa-2x"></i><br>No Submissions found.</h3>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div><!-- End page content -->
-
-            <div class="col-md-5" id="details">
-                {% if submission %}
-                    {% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
-                {% else %}
-                    <h3><em>Click on a submission to see its summary and actions</em></h3>
-                {% endif %}
-            </div>
+            {% endif %}
         </div>
-    {% endwith %}
+    </div>
 {% endblock %}

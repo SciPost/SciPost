@@ -3,9 +3,9 @@
             <ul class="list-group list-group-flush events-list">
                 {% for event in events %}
                     <li class="list-group-item">
-                        <div>
-                            {{event.text}}<br>
-                            <span class="text-muted">{{event.created}}</span>
+                        <div class="d-flex flex-nowrap justify-content-start">
+                            <div class="time text-muted pr-2">{{event.created}}</div>
+                            <div class="content">{{event.text}}</div>
                         </div>
                     </li>
                 {% empty %}

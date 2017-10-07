@@ -1,10 +1,10 @@
-{% extends 'submissions/pool/base.html' %}
+{% extends 'submissions/admin/base.html' %}
 
 {% load bootstrap %}
 {% load scipost_extras %}
 
 {% block breadcrumb_items %}
-    <a href="{% url 'submissions:admin' %}" class="breadcrumb-item">Editorial Administration</a>
+    {{ block.super }}
     <span class="breadcrumb-item">Editorial Recommendation</span>
 {% endblock %}
 
@@ -14,7 +14,7 @@
     <h1 class="highlight">Editorial Recommendation</h1>
 
     <div class="card card-outline-secondary">
-        {% include 'submissions/_submission_card_fellow_content_sparse.html' with submission=object.submission %}
+        {% include 'submissions/_submission_card_fellow_content.html' with submission=object.submission %}
     </div>
 
     <div class="card card-outline-secondary">
