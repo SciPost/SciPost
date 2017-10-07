@@ -1,6 +1,6 @@
 from django import template
 
-from ..constants import subject_areas_dict, subject_areas_raw_dict
+from ..constants import subject_areas_dict
 from ..models import Contributor
 
 register = template.Library()

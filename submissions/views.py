@@ -386,7 +386,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
             pass
 
     # Temporary test logic: only testers see the new Pool
-    if context['submission'] and request.GET.get('json'):
+    if context['submission'] and request.is_ajax():
         template = 'partials/submissions/pool/submission_details.html'
     elif is_tester(request.user) and not request.GET.get('test'):
         template = 'submissions/pool/pool.html'
