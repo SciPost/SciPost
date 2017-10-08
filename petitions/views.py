@@ -20,6 +20,7 @@ def petition(request, slug):
         is_signed = petition.petition_signatories.verified().filter(
             signatory=request.user.contributor).exists()
         initial = {
+            'petition': petition,
             'title': request.user.contributor.title,
             'first_name': request.user.first_name,
             'last_name': request.user.last_name,
