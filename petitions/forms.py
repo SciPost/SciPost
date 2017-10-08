@@ -12,20 +12,32 @@ class SignPetitionForm(forms.ModelForm):
 
     class Meta:
         model = PetitionSignatory
-        fields = ['petition', 'title', 'first_name', 'last_name',
+        fields = ['title', 'first_name', 'last_name',
                   'email', 'country_of_employment', 'affiliation']
-        widgets = {'petition': forms.HiddenInput()}
 
+    def __init__(self, *args, **kwargs):
+        self.petition = kwargs.pop('petition', False)
+        self.current_user = kwargs.pop('current_user', False)
+        super().__init__(*args, **kwargs)
 
     def clean_email(self):
         email = self.cleaned_data['email']
-        petition = self.cleaned_data['petition']
+        petition = self.petition
+        if not petition:
+            return email
+
         if self.instance.id:
             return email
 
-        if Contributor.objects.filter(user__email=email).exists():
-            self.add_error('email', ('This email address is associated to a Contributor; please '
-                                     'login to sign the petition'))
-        elif PetitionSignatory.objects.filter(petition=petition, email=email).exists():
+        if self.current_user.is_authenticated():
+            if self.current_user.email != email:
+                self.add_error('email', 'This email address is not associated to your account')
+        else:
+            if Contributor.objects.filter(user__email=email).exists():
+                self.add_error('email', ('This email address is associated to a Contributor; please '
+                                         'login to sign the petition'))
+        if PetitionSignatory.objects.filter(petition=petition, email=email).exists():
             self.add_error('email', ('This email address is already associated to a '
                                      'signature for this petition'))
+
+        return email

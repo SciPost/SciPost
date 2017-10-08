@@ -29,7 +29,8 @@ def petition(request, slug):
             'affiliation': request.user.contributor.affiliation,
         }
 
-    form = SignPetitionForm(request.POST or None, initial=initial)
+    form = SignPetitionForm(request.POST or None, initial=initial, petition=petition,
+                            current_user=request.user)
     if form.is_valid():
         signature = form.save(commit=False)
         signature.petition = petition
