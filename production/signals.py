@@ -31,12 +31,12 @@ def notify_new_event(sender, instance, created, **kwargs):
     if created:
         stream = instance.stream
 
-        if stream.officer != instance.noted_by:
+        if stream.officer and stream.officer != instance.noted_by:
             notify.send(sender=sender, recipient=stream.officer.user,
                         actor=instance.noted_by.user,
                         verb=' created a new Production Event.', target=instance)
 
-        if stream.supervisor != instance.noted_by:
+        if stream.supervisor and stream.supervisor != instance.noted_by:
             notify.send(sender=sender, recipient=stream.supervisor.user,
                         actor=instance.noted_by.user,
                         verb=' created a new Production Event.', target=instance)
