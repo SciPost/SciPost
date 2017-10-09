@@ -51,7 +51,6 @@ def notify_stream_status_change(sender, instance, created, **kwargs):
     sender -- User instance
     instance -- ProductionStream instance
     """
-
     if instance.status == constants.PROOFS_ACCEPTED:
         administators = Group.objects.get(name='Editorial Administrators')
         for user in administators.user_set.all():

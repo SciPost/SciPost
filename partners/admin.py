@@ -5,6 +5,7 @@ from .models import Contact, Partner, Consortium, Institution,\
                     MembershipAgreement, ContactRequest, PartnersAttachment
 
 
+
 class AttachmentInline(admin.TabularInline):
     model = PartnersAttachment
 

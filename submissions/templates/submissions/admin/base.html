@@ -4,7 +4,11 @@
     <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
         <div class="container">
             {% block breadcrumb_items %}
-                <a href="{% url 'submissions:admin' %}" class="breadcrumb-item">Editorial Administration</a>
+                {% if submission %}
+                    <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Pool</a>
+                {% else %}
+                    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+                {% endif %}
             {% endblock %}
         </div>
     </nav>

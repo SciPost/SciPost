@@ -84,6 +84,9 @@ class Contributor(models.Model):
     def is_currently_available(self):
         return not self.unavailability_periods.today().exists()
 
+    def is_EdCol_Admin(self):
+        return self.user.groups.filter(name='Editorial Administrators').exists()
+
     def is_SP_Admin(self):
         return self.user.groups.filter(name='SciPost Administrators').exists()
 

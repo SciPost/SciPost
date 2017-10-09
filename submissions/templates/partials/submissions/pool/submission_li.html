@@ -1,6 +1,6 @@
 <div class="row pool-item mb-0">
     <div class="icons{% if is_current %} text-info{% endif %}">
-        {% include 'partials/submissions/admin/submission_tooltip.html' with submission=submission %}
+        {% include 'partials/submissions/pool/submission_tooltip.html' with submission=submission %}
 
         {% if submission.status == 'unassigned' %}
             <i class="fa fa-exclamation mt-1 px-1 text-danger" data-toggle="tooltip" data-html="true" title="You can volunteer to become Editor-in-charge"></i>

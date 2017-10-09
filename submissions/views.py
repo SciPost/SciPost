@@ -360,6 +360,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
                        .exclude(submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED))
     rec_vote_form = RecommendationVoteForm()
     remark_form = RemarkForm()
+
     context = {
         'submissions_in_pool': submissions_in_pool,
         'submission_status': SUBMISSION_STATUS,
@@ -391,8 +392,12 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
         except Submission.DoesNotExist:
             pass
 
+    # EdColAdmin related variables
+    if request.user.contributor.is_EdCol_Admin():
+        context['latest_events'] = SubmissionEvent.objects.for_eic().last_hours()
+
     # Temporary test logic: only testers see the new Pool
-    if context['submission'] and request.GET.get('json'):
+    if context['submission'] and request.is_ajax():
         template = 'partials/submissions/pool/submission_details.html'
     elif is_tester(request.user) and not request.GET.get('test'):
         template = 'submissions/pool/pool.html'
@@ -1539,43 +1544,6 @@ class EICRecommendationView(SubmissionAdminViewMixin, DetailView):
         ctx['object'] = get_object_or_404(ctx['submission'].eicrecommendations.all(),
                                           id=self.kwargs['rec_id'])
         return ctx
-
-
-class EditorialSummaryView(SubmissionAdminViewMixin, ListView):
-    """
-    Show all submission currently active in a refereeing process.
-    In addition show all EIC events of the last 24 hours.
-    """
-    permission_required = 'scipost.can_oversee_refereeing'
-    template_name = 'submissions/admin/editorial_admin.html'
-
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-
-        # Pick submission from `submission_list` to include proper filters such as author filters.
-        if self.kwargs.get('arxiv_identifier_w_vn_nr'):
-            try:
-                context['submission'] = context['submission_list'].get(
-                    arxiv_identifier_w_vn_nr=self.kwargs['arxiv_identifier_w_vn_nr'])
-            except Submission.DoesNotExist:
-                context['submission'] = None
-
-        if not context.get('submission'):
-            context['latest_events'] = SubmissionEvent.objects.for_eic().last_hours()
-
-        context['recommendations_undergoing_voting'] = (
-            EICRecommendation.objects.get_for_user_in_pool(self.request.user)
-            .filter(submission__status='put_to_EC_voting'))
-        context['recommendations_to_prepare_for_voting'] = (
-            EICRecommendation.objects.get_for_user_in_pool(self.request.user)
-            .filter(submission__status='voting_in_preparation'))
-        return context
-
-    def get_template_names(self):
-        if self.request.GET.get('json'):
-            return ['partials/submissions/admin/submission_details.html']
-        else:
-            return ['submissions/admin/editorial_admin.html']
 
 
 class PlagiarismView(SubmissionAdminViewMixin, UpdateView):

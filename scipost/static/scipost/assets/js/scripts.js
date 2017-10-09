@@ -1,8 +1,15 @@
-import tooltip from './tooltip.js';
 import notifications from './notifications.js';
 
 function hide_all_alerts() {
     $(".alert").fadeOut(300);
+}
+
+var activate_tooltip = function() {
+    jQuery('[data-toggle="tooltip"]').tooltip({
+        animation: false,
+        fallbackPlacement: 'clockwise',
+        placement: 'auto'
+    });
 }
 
 var getUrlParameter = function getUrlParameter(sParam) {

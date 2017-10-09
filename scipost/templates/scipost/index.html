@@ -120,11 +120,14 @@
 
             <div>
                 <p>
-                    SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. Supporting Partners provide operating funds to SciPost.
+                    SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. Supporting Partners provide operating funds to SciPost through a cost-slashing consortial model.
                 </p>
                 <p>
-                    Institutions: consider joining our <a href="{% url 'partners:partners' %}">Supporting Partners Board</a>. SciPost cannot exist without your support.
+                    Institutions: consider joining our <a href="{% url 'partners:partners' %}">Supporting Partners Board</a>. SciPost cannot exist without your support. Look at our <a href="{% static 'scipost/SPB/SciPost_Supporting_Partners_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf' %}">Partner Agreement</a>.
                 </p>
+		<p>
+		  <span style="color: red;">Scientists, please help us out:</span> if it is not listed on our <a href="{% url 'partners:partners' %}">Partners page</a>, please encourage your institution (through a librarian, director, ...) to join by <a href="{% url 'petitions:petition' slug='join-SPB' %}">signing our petition</a>, and by personally emailing them directly using this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">email template</a>.
+		</p>
             </div>
         </div>
     </div><!-- End Partners -->
