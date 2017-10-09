@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^streams/(?P<stream_id>[0-9]+)/proofs/upload$',
         production_views.upload_proofs, name='upload_proofs'),
     url(r'^streams/(?P<stream_id>[0-9]+)/proofs/(?P<version>[0-9]+)$',
-        production_views.proof, name='proof'),
+        production_views.proofs, name='proofs'),
     url(r'^streams/(?P<stream_id>[0-9]+)/proofs/(?P<version>[0-9]+)/decision/(?P<decision>accept|decline)$',
         production_views.decision, name='decision'),
     url(r'^streams/(?P<stream_id>[0-9]+)/proofs/(?P<version>[0-9]+)/send_to_authors$',
@@ -42,7 +42,7 @@ urlpatterns = [
     url(r'^events/(?P<event_id>[0-9]+)/delete',
         production_views.DeleteEventView.as_view(), name='delete_event'),
     url(r'^proofs/(?P<slug>[0-9]+)$',
-        production_views.proof_pdf, name='proof_pdf'),
+        production_views.proofs_pdf, name='proofs_pdf'),
     url(r'^proofs/(?P<slug>[0-9]+)/decision$',
         production_views.author_decision, name='author_decision'),
 ]

@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -8,9 +7,9 @@ from django.utils.functional import cached_property
 
 from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_STREAM_INITIATED, PRODUCTION_EVENTS,\
                        EVENT_MESSAGE, EVENT_HOUR_REGISTRATION, PRODUCTION_STREAM_COMPLETED,\
-                       PROOF_STATUSES, PROOF_UPLOADED
+                       PROOFS_STATUSES, PROOFS_UPLOADED
 from .managers import ProductionStreamQuerySet, ProductionEventManager, ProofsQuerySet
-from .utils import proof_id_to_slug
+from .utils import proofs_id_to_slug
 
 from finances.models import WorkLog
 from scipost.storage import SecureFileStorage
@@ -107,29 +106,29 @@ def proofs_upload_location(instance, filename):
         filename=filename)
 
 
-class Proof(models.Model):
+class Proofs(models.Model):
     """
-    A Proof directly related to a ProductionStream and Submission in SciPost.
-    It's meant to help the Production team
+    Proofs are directly related to a ProductionStream and Submission in SciPost.
     """
     attachment = models.FileField(upload_to=proofs_upload_location, storage=SecureFileStorage())
     version = models.PositiveSmallIntegerField(default=0)
     stream = models.ForeignKey('production.ProductionStream', related_name='proofs')
     uploaded_by = models.ForeignKey('production.ProductionUser', related_name='+')
     created = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=16, choices=PROOF_STATUSES, default=PROOF_UPLOADED)
+    status = models.CharField(max_length=16, choices=PROOFS_STATUSES, default=PROOFS_UPLOADED)
     accessible_for_authors = models.BooleanField(default=False)
 
     objects = ProofsQuerySet.as_manager()
 
     class Meta:
         ordering = ['stream', 'version']
+        verbose_name_plural = 'Proofs'
 
     def get_absolute_url(self):
-        return reverse('production:proof_pdf', kwargs={'slug': self.slug})
+        return reverse('production:proofs_pdf', kwargs={'slug': self.slug})
 
     def __str__(self):
-        return 'Proof {version} for Stream {stream}'.format(
+        return 'Proofs {version} for Stream {stream}'.format(
             version=self.version, stream=self.stream.submission.title)
 
     def save(self, *args, **kwargs):
@@ -140,4 +139,4 @@ class Proof(models.Model):
 
     @property
     def slug(self):
-        return proof_id_to_slug(self.id)
+        return proofs_id_to_slug(self.id)

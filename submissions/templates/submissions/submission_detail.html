@@ -117,20 +117,20 @@
     </div>
 {% endif %}
 
-{% if is_author %}
+{% if is_author or user|is_in_group:'Editorial Administrators' %}
     {% if submission.production_stream.proofs.for_authors.exists %}
         <div class="mb-4" id="proofsslist">
             <h2>Proofs</h2>
             <ul>
-                {% for proof in submission.production_stream.proofs.for_authors %}
+                {% for proofs in submission.production_stream.proofs.for_authors %}
                     <li>
-                        <a href="{{ proof.get_absolute_url }}" target="_blank">Download version {{ proof.version }}</a> &middot; uploaded: {{ proof.created|date:"DATE_FORMAT" }} &middot;
-                        status: <span class="label label-secondary label-sm">{{ proof.get_status_display }}</span>
-                        {% if proof.status == 'accepted_sup' and proof_decision_form %}
+                        <a href="{{ proofs.get_absolute_url }}" target="_blank">Download version {{ proofs.version }}</a> &middot; uploaded: {{ proofs.created|date:"DATE_FORMAT" }} &middot;
+                        status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
+                        {% if proofs.status == 'accepted_sup' and proofs_decision_form and is_author %}
                             <h3 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proof.version }}</h3>
-                            <form method="post" action="{% url 'production:author_decision' proof.slug %}" class="my-2">
+                            <form method="post" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
                                 {% csrf_token %}
-                                {{ proof_decision_form|bootstrap }}
+                                {{ proofs_decision_form|bootstrap }}
                                 <input class="btn btn-primary btn-sm" type="submit" value="Submit">
                             </form>
                         {% endif %}

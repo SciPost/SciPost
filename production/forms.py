@@ -5,7 +5,7 @@ from django.utils.dates import MONTHS
 from django.db.models import Sum
 
 from . import constants
-from .models import ProductionUser, ProductionStream, ProductionEvent, Proof
+from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs
 from .signals import notify_stream_status_change
 
 today = datetime.datetime.today()
@@ -176,45 +176,47 @@ class ProductionUserMonthlyActiveFilter(forms.Form):
         return output
 
 
-class ProofUploadForm(forms.ModelForm):
+class ProofsUploadForm(forms.ModelForm):
     class Meta:
-        model = Proof
+        model = Proofs
         fields = ('attachment',)
 
 
-class ProofDecisionForm(forms.ModelForm):
+class ProofsDecisionForm(forms.ModelForm):
     decision = forms.ChoiceField(choices=[(True, 'Accept Proofs for publication'),
                                           (False, 'Decline Proofs for publication')])
-    comments = forms.CharField(required=False, widget=forms.Textarea)
+    feedback = forms.CharField(required=False, widget=forms.Textarea)
 
     class Meta:
-        model = Proof
+        model = Proofs
         fields = ()
 
     def save(self, commit=True):
-        proof = self.instance
+        proofs = self.instance
         decision = self.cleaned_data['decision']
-        comments = self.cleaned_data['comments']
-        if decision:
-            proof.status = constants.PROOF_ACCEPTED
-            if proof.stream.status in [constants.PROOFS_PRODUCED,
-                                       constants.PROOF_CHECKED,
-                                       constants.PROOFS_SENT,
-                                       constants.PROOFS_CORRECTED]:
+        comments = self.cleaned_data['feedback']
+
+        if decision in ['True', True]:
+            proofs.status = constants.PROOFS_ACCEPTED
+            if proofs.stream.status in [constants.PROOFS_PRODUCED,
+                                        constants.PROOFS_CHECKED,
+                                        constants.PROOFS_SENT,
+                                        constants.PROOFS_CORRECTED]:
                 # Force status change on Stream if appropriate
-                proof.stream.status = constants.PROOFS_ACCEPTED
+                proofs.stream.status = constants.PROOFS_ACCEPTED
         else:
-            proof.status = constants.PROOF_DECLINED
+            proofs.status = constants.PROOFS_DECLINED
+            proofs.stream.status = constants.PROOFS_RETURNED
 
         if commit:
-            proof.save()
-            proof.stream.save()
+            proofs.save()
+            proofs.stream.save()
 
             prodevent = ProductionEvent(
-                stream=proof.stream,
+                stream=proofs.stream,
                 event='status',
-                comments='Received comments: {comments}'.format(comments=comments),
-                noted_by=proof.stream.supervisor
+                comments='Received feedback: {comments}'.format(comments=comments),
+                noted_by=proofs.stream.supervisor
             )
             prodevent.save()
-        return proof
+        return proofs

@@ -1,14 +1,14 @@
 from django.db import models
 
-from .constants import PRODUCTION_STREAM_COMPLETED
+from . import constants
 
 
 class ProductionStreamQuerySet(models.QuerySet):
     def completed(self):
-        return self.filter(status=PRODUCTION_STREAM_COMPLETED)
+        return self.filter(status=constants.PRODUCTION_STREAM_COMPLETED)
 
     def ongoing(self):
-        return self.exclude(status=PRODUCTION_STREAM_COMPLETED)
+        return self.exclude(status=constants.PRODUCTION_STREAM_COMPLETED)
 
     def filter_for_user(self, production_user):
         """
@@ -27,3 +27,7 @@ class ProductionEventManager(models.Manager):
 class ProofsQuerySet(models.QuerySet):
     def for_authors(self):
         return self.filter(accessible_for_authors=True)
+
+    def can_be_send(self):
+        return self.filter(status__in=[constants.PROOFS_UPLOADED, constants.PROOFS_SENT,
+                                       constants.PROOFS_ACCEPTED_SUP])

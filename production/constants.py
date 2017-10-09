@@ -32,19 +32,18 @@ PRODUCTION_EVENTS = (
     (EVENT_HOUR_REGISTRATION, 'Hour registration'),
 )
 
-PROOF_UPLOADED = 'uploaded'
-PROOF_SENT = 'sent'
-PROOF_ACCEPTED_SUP = 'accepted_sup'
-PROOF_DECLINED_SUP = 'declined_sup'
-PROOF_ACCEPTED = 'accepted'
-PROOF_DECLINED = 'declined'
-PROOF_RENEWED = 'renewed'
-PROOF_STATUSES = (
-    (PROOF_UPLOADED, 'Proofs uploaded'),
-    (PROOF_SENT, 'Proofs sent to authors'),
-    (PROOF_ACCEPTED_SUP, 'Proofs accepted by supervisor'),
-    (PROOF_DECLINED_SUP, 'Proofs declined by supervisor'),
-    (PROOF_ACCEPTED, 'Proofs accepted by authors'),
-    (PROOF_DECLINED, 'Proofs declined by authors'),
-    (PROOF_RENEWED, 'Proofs renewed'),
+PROOFS_UPLOADED = 'uploaded'
+PROOFS_SENT = 'sent'
+PROOFS_ACCEPTED_SUP = 'accepted_sup'
+PROOFS_DECLINED_SUP = 'declined_sup'
+PROOFS_DECLINED = 'declined'
+PROOFS_RENEWED = 'renewed'
+PROOFS_STATUSES = (
+    (PROOFS_UPLOADED, 'Proofs uploaded'),
+    (PROOFS_SENT, 'Proofs sent to authors'),
+    (PROOFS_ACCEPTED_SUP, 'Proofs accepted by supervisor'),
+    (PROOFS_DECLINED_SUP, 'Proofs declined by supervisor'),
+    (PROOFS_ACCEPTED, 'Proofs accepted by authors'),
+    (PROOFS_DECLINED, 'Proofs declined by authors'),
+    (PROOFS_RENEWED, 'Proofs renewed'),
 )

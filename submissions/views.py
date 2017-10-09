@@ -41,7 +41,7 @@ from scipost.utils import Utils
 from scipost.permissions import is_tester
 
 from comments.forms import CommentForm
-from production.forms import ProofDecisionForm
+from production.forms import ProofsDecisionForm
 from production.models import ProductionStream
 
 import strings
@@ -190,7 +190,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         except Report.DoesNotExist:
             unfinished_report_for_user = None
 
-        context['proof_decision_form'] = ProofDecisionForm()
+        context['proofs_decision_form'] = ProofsDecisionForm()
     except AttributeError:
         is_author = False
         is_author_unchecked = False

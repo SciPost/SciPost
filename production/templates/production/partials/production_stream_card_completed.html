@@ -46,12 +46,27 @@
     {% if "can_work_for_stream" in sub_perms %}
       <h3>Proofs</h3>
       <ul>
-          {% for proof in stream.proofs.all %}
+          {% for proofs in stream.proofs.all %}
               <li class="py-1">
-                  <a href="{% url 'production:proof' stream_id=stream.id version=proof.version %}">Version {{ proof.version }}</a><br>
-                  Uploaded by {{ proof.uploaded_by.user.first_name }} {{ proof.uploaded_by.user.last_name }}<br>
-                  Accessible for authors: <strong>{{ proof.accessible_for_authors|yesno:'Yes,No' }}</strong><br>
-                  <span class="label label-secondary label-sm">{{ proof.get_status_display }}</span>
+                  <a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Version {{ proofs.version }}</a><br>
+                  Uploaded by {{ proofs.uploaded_by.user.first_name }} {{ proofs.uploaded_by.user.last_name }}<br>
+                  Accessible for authors: {{ proofs.accessible_for_authors|yesno:'<strong>Yes</strong>,No'|safe }}<br>
+
+                  {% if perms.scipost.can_run_proofs_by_authors %}
+                      {% if proofs.status == 'uploaded' %}
+                          <strong><span class="text-danger">See details for open actions:</span></strong>
+                          <ul>
+                              <li><a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Accept or decline proofs</a></li>
+                          </ul>
+                      {% elif proofs.status == 'accepted_sup' %}
+                         <strong><span class="text-danger">See details for open actions:</span></strong>
+                         <ul>
+                             <li><a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Send proofs to authors</a></li>
+                         </ul>
+                      {% endif %}
+                  {% endif %}
+
+                  <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
               </li>
           {% empty %}
               <li>No Proofs found.</li>

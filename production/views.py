@@ -18,13 +18,13 @@ from guardian.shortcuts import assign_perm, remove_perm
 from finances.forms import WorkLogForm
 
 from . import constants
-from .models import ProductionUser, ProductionStream, ProductionEvent, Proof
+from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs
 from .forms import ProductionEventForm, AssignOfficerForm, UserToOfficerForm,\
-                   AssignSupervisorForm, StreamStatusForm, ProofUploadForm, ProofDecisionForm,\
+                   AssignSupervisorForm, StreamStatusForm, ProofsUploadForm, ProofsDecisionForm,\
                    AssignInvitationsOfficerForm
 from .permissions import is_production_user
 from .signals import notify_stream_status_change,  notify_new_stream_assignment
-from .utils import proof_slug_to_id
+from .utils import proofs_slug_to_id
 
 
 ######################
@@ -62,7 +62,7 @@ def production(request, stream_id=None):
             context['assign_supervisor_form'] = AssignSupervisorForm()
             context['prodevent_form'] = ProductionEventForm()
             context['work_log_form'] = WorkLogForm()
-            context['upload_proofs_form'] = ProofUploadForm()
+            context['upload_proofs_form'] = ProofsUploadForm()
         except ProductionStream.DoesNotExist:
             pass
 
@@ -105,7 +105,7 @@ def stream(request, stream_id):
     assign_officer_form = AssignOfficerForm()
     assign_invitiations_officer_form = AssignInvitationsOfficerForm()
     assign_supervisor_form = AssignSupervisorForm()
-    upload_proofs_form = ProofUploadForm()
+    upload_proofs_form = ProofsUploadForm()
     work_log_form = WorkLogForm()
     status_form = StreamStatusForm(instance=stream, production_user=request.user.production_user)
 
@@ -397,14 +397,14 @@ def upload_proofs(request, stream_id):
     if not checker.has_perm('can_work_for_stream', stream):
         return redirect(reverse('production:production'))
 
-    form = ProofUploadForm(request.POST or None, request.FILES or None)
+    form = ProofsUploadForm(request.POST or None, request.FILES or None)
     if form.is_valid():
-        proof = form.save(commit=False)
-        proof.stream = stream
-        proof.uploaded_by = request.user.production_user
-        proof.save()
-        Proof.objects.filter(stream=stream).exclude(version=proof.version).update(
-            status=constants.PROOF_RENEWED)
+        proofs = form.save(commit=False)
+        proofs.stream = stream
+        proofs.uploaded_by = request.user.production_user
+        proofs.save()
+        Proofs.objects.filter(stream=stream).exclude(version=proofs.version).exclude(
+            status=constants.PROOFS_ACCEPTED).update(status=constants.PROOFS_RENEWED)
         messages.success(request, 'Proof uploaded.')
 
         # Update Stream status
@@ -418,7 +418,7 @@ def upload_proofs(request, stream_id):
         prodevent = ProductionEvent(
             stream=stream,
             event='status',
-            comments='New Proofs uploaded, version {v}'.format(v=proof.version),
+            comments='New Proofs uploaded, version {v}'.format(v=proofs.version),
             noted_by=request.user.production_user
         )
         prodevent.save()
@@ -433,7 +433,7 @@ def upload_proofs(request, stream_id):
 
 @is_production_user()
 @permission_required('scipost.can_view_production', raise_exception=True)
-def proof(request, stream_id, version):
+def proofs(request, stream_id, version):
     """
     Called by a member of the Production Team.
     Upload the production version .pdf of a submission.
@@ -444,39 +444,39 @@ def proof(request, stream_id, version):
         return redirect(reverse('production:production'))
 
     try:
-        proof = stream.proofs.get(version=version)
-    except Proof.DoesNotExist:
+        proofs = stream.proofs.get(version=version)
+    except Proofs.DoesNotExist:
         raise Http404
 
     context = {
         'stream': stream,
-        'proof': proof
+        'proofs': proofs
     }
     return render(request, 'production/proofs.html', context)
 
 
-def proof_pdf(request, slug):
-    """ Open Proof pdf. """
+def proofs_pdf(request, slug):
+    """ Open Proofs pdf. """
     if not request.user.is_authenticated:
         # Don't use the decorator but this strategy,
         # because now it will return 404 instead of a redirect to the login page.
         raise Http404
 
-    proof = Proof.objects.get(id=proof_slug_to_id(slug))
-    stream = proof.stream
+    proofs = Proofs.objects.get(id=proofs_slug_to_id(slug))
+    stream = proofs.stream
 
     # Check if user has access!
     checker = ObjectPermissionChecker(request.user)
     access = checker.has_perm('can_work_for_stream', stream) and request.user.has_perm('scipost.can_view_production')
     if not access and request.user.contributor:
-        access = request.user.contributor in proof.stream.submission.authors.all()
+        access = request.user.contributor in proofs.stream.submission.authors.all()
     if not access:
         raise Http404
 
     # Passed the test! The user may see the file!
-    content_type, encoding = mimetypes.guess_type(proof.attachment.path)
+    content_type, encoding = mimetypes.guess_type(proofs.attachment.path)
     content_type = content_type or 'application/octet-stream'
-    response = HttpResponse(proof.attachment.read(), content_type=content_type)
+    response = HttpResponse(proofs.attachment.read(), content_type=content_type)
     response["Content-Encoding"] = encoding
     return response
 
@@ -489,16 +489,17 @@ def author_decision(request, slug):
     Accept or Decline? This will be asked if proof status is `ACCEPTED_SUP` and
     will be handled in this view.
     """
-    proof = Proof.objects.get(id=proof_slug_to_id(slug))
-    stream = proof.stream
+    proofs = Proofs.objects.get(id=proofs_slug_to_id(slug))
+    stream = proofs.stream
 
     # Check if user has access!
-    if request.user.contributor not in proof.stream.submission.authors.all():
+    if request.user.contributor not in proofs.stream.submission.authors.all():
         raise Http404
 
-    form = ProofDecisionForm(request.POST or None, instance=proof)
+    form = ProofsDecisionForm(request.POST or None, instance=proofs)
     if form.is_valid():
-        proof = form.save()
+        proofs = form.save()
+        notify_stream_status_change(request.user, stream, False)
         messages.success(request, 'Your decision has been sent.')
 
     return redirect(stream.submission.get_absolute_url())
@@ -516,12 +517,12 @@ def toggle_accessibility(request, stream_id, version):
         return redirect(reverse('production:production'))
 
     try:
-        proof = stream.proofs.exclude(status=constants.PROOF_UPLOADED).get(version=version)
-    except Proof.DoesNotExist:
+        proofs = stream.proofs.exclude(status=constants.PROOFS_UPLOADED).get(version=version)
+    except Proofs.DoesNotExist:
         raise Http404
 
-    proof.accessible_for_authors = not proof.accessible_for_authors
-    proof.save()
+    proofs.accessible_for_authors = not proofs.accessible_for_authors
+    proofs.save()
     messages.success(request, 'Proofs accessibility updated.')
     return redirect(stream.get_absolute_url())
 
@@ -531,7 +532,7 @@ def toggle_accessibility(request, stream_id, version):
 @transaction.atomic
 def decision(request, stream_id, version, decision):
     """
-    Send/open proofs to the authors.
+    Send/open proofs to the authors. This decision is taken by the supervisor.
     """
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
@@ -539,25 +540,26 @@ def decision(request, stream_id, version, decision):
         return redirect(reverse('production:production'))
 
     try:
-        proof = stream.proofs.get(version=version, status=constants.PROOF_UPLOADED)
-    except Proof.DoesNotExist:
+        proofs = stream.proofs.get(version=version, status=constants.PROOFS_UPLOADED)
+    except Proofs.DoesNotExist:
         raise Http404
 
     if decision == 'accept':
-        proof.status = constants.PROOF_ACCEPTED_SUP
+        proofs.status = constants.PROOFS_ACCEPTED_SUP
         stream.status = constants.PROOFS_CHECKED
         decision = 'accepted'
     else:
-        proof.status = constants.PROOF_DECLINED_SUP
+        proofs.status = constants.PROOFS_DECLINED_SUP
+        proofs.accessible_for_authors = False
         stream.status = constants.PROOFS_TASKED
         decision = 'declined'
     stream.save()
-    proof.save()
+    proofs.save()
 
     prodevent = ProductionEvent(
         stream=stream,
         event='status',
-        comments='Proofs version {version} are {decision}.'.format(version=proof.version,
+        comments='Proofs version {version} are {decision}.'.format(version=proofs.version,
                                                                    decision=decision),
         noted_by=request.user.production_user
     )
@@ -579,15 +581,16 @@ def send_proofs(request, stream_id, version):
         return redirect(reverse('production:production'))
 
     try:
-        proof = stream.proofs.get(version=version, status=constants.PROOF_UPLOADED)
-    except Proof.DoesNotExist:
+        proof = stream.proofs.can_be_send().get(version=version)
+    except Proofs.DoesNotExist:
         raise Http404
 
-    proof.status = constants.PROOF_SENT
+    proof.status = constants.PROOFS_SENT
     proof.accessible_for_authors = True
     proof.save()
 
-    if stream.status not in [constants.PROOFS_PUBLISHED, constants.PROOFS_CITED]:
+    if stream.status not in [constants.PROOFS_PUBLISHED, constants.PROOFS_CITED,
+                             constants.PRODUCTION_STREAM_COMPLETED]:
         stream.status = constants.PROOFS_SENT
         stream.save()
 

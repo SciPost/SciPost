@@ -85,7 +85,7 @@ def notify_stream_status_change(sender, instance, created, **kwargs):
                         verb=' changed the Production Stream status.', target=instance)
 
 
-def notify_proof_upload(sender, instance, created, **kwargs):
+def notify_proofs_upload(sender, instance, created, **kwargs):
     if created and instance.stream.supervisor:
         notify.send(sender=sender, recipient=instance.stream.supervisor.user,
                     actor=instance.uploaded_by.user, verb=' uploaded new Proofs to Production Stream.',
