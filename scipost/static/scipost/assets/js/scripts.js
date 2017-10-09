@@ -44,6 +44,8 @@ function init_page() {
     $('[data-toggle="toggle"]').on('click', function() {
         $($(this).attr('data-target')).toggle();
     });
+
+    activate_tooltip();
 }
 
 $(function(){
