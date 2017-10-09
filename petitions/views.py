@@ -9,6 +9,7 @@ from django.template import Context, Template
 
 from .models import Petition, PetitionSignatory
 from .forms import SignPetitionForm
+from .utils import PetitionUtils
 
 
 def petition(request, slug):
@@ -39,6 +40,8 @@ def petition(request, slug):
         if request.user.is_authenticated:
             signature.signatory = request.user.contributor
             signature.verified = True
+            PetitionUtils.load({'petition': petition})
+            PetitionUtils.send_SPB_petition_signature_thanks(request.user.email)
         else:
             # Generate verification key and link
             salt = ""
@@ -96,4 +99,6 @@ def verify_signature(request, slug, key):
         signature.save()
     messages.success(request, ('<h3>Many thanks for confirming your signature.</h3>'
                                '<p>Please invite your colleagues to also sign.</p>'))
+    PetitionUtils.load({'petition': petition})
+    PetitionUtils.send_SPB_petition_signature_thanks(signature.email)
     return redirect(petition.get_absolute_url())
