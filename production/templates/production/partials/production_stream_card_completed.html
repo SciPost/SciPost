@@ -9,7 +9,7 @@
 <div class="card-body">
       <h3>Stream details</h3>
       <ul>
-          <li>Status: <em>{{ stream.get_status_display }}</em></li>
+          <li>Status: <span class="label label-secondary label-sm">{{ stream.get_status_display }}</span></li>
           {% block officers %}
               <li>Production Supervisor:
                     {% if stream.supervisor %}
@@ -23,6 +23,13 @@
                         <strong>{{ stream.officer }}</strong>
                     {% else %}
                         <em>No Officer assigned.</em>
+                    {% endif %}
+              </li>
+              <li>Invitations Officer:
+                    {% if stream.invitations_officer %}
+                        <strong>{{ stream.invitations_officer }}</strong>
+                    {% else %}
+                        <em>No Invitations Officer assigned.</em>
                     {% endif %}
               </li>
           {% endblock %}

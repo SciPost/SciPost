@@ -33,45 +33,65 @@
 
   {% include 'partials/finances/logs.html' with logs=stream.work_logs.all %}
 
-    {% if "can_perform_supervisory_actions" in sub_perms %}
+    {% if "can_perform_supervisory_actions" in sub_perms or "can_work_for_stream" in sub_perms %}
           <h3>Actions</h3>
           <ul>
-              {% if perms.scipost.can_assign_production_supervisor and assign_supervisor_form %}
-                  <li>
-                      <a href="javascript:;" data-toggle="toggle" data-target="#add_supervisor_{{stream.id}}">Assign Production Supervisor to this stream</a>
-                      <div id="add_supervisor_{{stream.id}}" style="display: none;">
-                          <form class="my-3" action="{% url 'production:add_supervisor' stream_id=stream.id %}" method="post">
-                              {% csrf_token %}
-                              {{ assign_supervisor_form|bootstrap_inline }}
-                              <input type="submit" class="btn btn-outline-primary" name="submit" value="Add supervisor">
-                          </form>
-                      </div>
-                  </li>
+              {% if "can_perform_supervisory_actions" in sub_perms %}
+                  {% if perms.scipost.can_assign_production_supervisor and assign_supervisor_form %}
+                      <li>
+                          <a href="javascript:;" data-toggle="toggle" data-target="#add_supervisor_{{stream.id}}">Assign Production Supervisor to this stream</a>
+                          <div id="add_supervisor_{{stream.id}}" style="display: none;">
+                              <form class="my-3" action="{% url 'production:add_supervisor' stream_id=stream.id %}" method="post">
+                                  {% csrf_token %}
+                                  {{ assign_supervisor_form|bootstrap_inline }}
+                                  <input type="submit" class="btn btn-outline-primary" name="submit" value="Add supervisor">
+                              </form>
+                          </div>
+                      </li>
+                  {% endif %}
+                  {% if perms.scipost.can_assign_production_officer %}
+                      {% if assign_officer_form %}
+                        <li>
+                            <a href="javascript:;" data-toggle="toggle" data-target="#add_officer_{{stream.id}}">Assign Production Officer to this stream</a>
+                            <div id="add_officer_{{stream.id}}" style="display: none;">
+                                <form class="my-3" action="{% url 'production:add_officer' stream_id=stream.id %}" method="post">
+                                  	{% csrf_token %}
+                                  	{{ assign_officer_form|bootstrap_inline }}
+                                  	<input type="submit" class="btn btn-outline-primary" name="submit" value="Add officer">
+                                </form>
+                            </div>
+                        </li>
+                    {% endif %}
+                    {% if assign_officer_form %}
+                        <li>
+                            <a href="javascript:;" data-toggle="toggle" data-target="#add_invs_officer_{{stream.id}}">Assign Invitations Officer to this stream</a>
+                            <div id="add_invs_officer_{{stream.id}}" style="display: none;">
+                                <form class="my-3" action="{% url 'production:add_invitations_officer' stream_id=stream.id %}" method="post">
+                                  	{% csrf_token %}
+                                  	{{ assign_invitiations_officer_form|bootstrap_inline }}
+                                  	<input type="submit" class="btn btn-outline-primary" name="submit" value="Add officer">
+                                </form>
+                            </div>
+                        </li>
+                    {% endif %}
+                  {% endif %}
               {% endif %}
-              {% if perms.scipost.can_assign_production_officer and assign_officer_form %}
-                <li>
-                    <a href="javascript:;" data-toggle="toggle" data-target="#add_officer_{{stream.id}}">Assign Production Officer to this stream</a>
-                    <div id="add_officer_{{stream.id}}" style="display: none;">
-                        <form class="my-3" action="{% url 'production:add_officer' stream_id=stream.id %}" method="post">
-                          	{% csrf_token %}
-                          	{{ assign_officer_form|bootstrap_inline }}
-                          	<input type="submit" class="btn btn-outline-primary" name="submit" value="Add officer">
-                        </form>
-                    </div>
-                </li>
+
+              {% if "can_work_for_stream" in sub_perms %}
+                  {% if perms.scipost.can_upload_proofs and upload_proofs_form %}
+                      <li>
+                          <a href="javascript:;" data-toggle="toggle" data-target="#upload_proofs">Upload Proofs</a>
+                          <div id="upload_proofs" style="display: none;">
+                              <form class="my-3" action="{% url 'production:upload_proofs' stream_id=stream.id %}" method="post" enctype="multipart/form-data">
+                                	{% csrf_token %}
+                                	{{ upload_proofs_form|bootstrap_inline }}
+                                	<input type="submit" class="btn btn-outline-primary" name="submit" value="Upload">
+                              </form>
+                          </div>
+                      </li>
+                  {% endif %}
               {% endif %}
-              {% if perms.scipost.can_upload_proofs and stream.status != 'accepted' and stream.status != 'completed' and stream.status != 'cited' and upload_proofs_form %}
-                  <li>
-                      <a href="javascript:;" data-toggle="toggle" data-target="#upload_proofs">Upload Proofs</a>
-                      <div id="upload_proofs" style="display: none;">
-                          <form class="my-3" action="{% url 'production:upload_proofs' stream_id=stream.id %}" method="post" enctype="multipart/form-data">
-                            	{% csrf_token %}
-                            	{{ upload_proofs_form|bootstrap_inline }}
-                            	<input type="submit" class="btn btn-outline-primary" name="submit" value="Upload">
-                          </form>
-                      </div>
-                  </li>
-              {% endif %}
+
               {% if perms.scipost.can_publish_accepted_submission %}
                   {% if not stream.submission.publication %}
                     <li><a href="{% url 'journals:initiate_publication' %}">Initiate the publication process</a></li>
@@ -101,6 +121,16 @@
               {% endif %}
           {% else %}
               <em>No Officer assigned yet.</em>
+          {% endif %}
+    </li>
+    <li>Invitations Officer:
+          {% if stream.invitations_officer %}
+              <strong>{{ stream.invitations_officer }}</strong>
+              {% if "can_work_for_stream" in sub_perms and perms.scipost.can_assign_production_officer %}
+                  &middot; <a href="{% url 'production:remove_invitations_officer' stream_id=stream.id officer_id=stream.invitations_officer.id %}" class="text-danger">Remove from stream</a>
+              {% endif %}
+          {% else %}
+              <em>No Invitations Officer assigned yet.</em>
           {% endif %}
     </li>
 {% endblock %}

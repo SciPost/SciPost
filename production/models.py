@@ -42,6 +42,8 @@ class ProductionStream(models.Model):
                                 related_name='streams')
     supervisor = models.ForeignKey('production.ProductionUser', blank=True, null=True,
                                    related_name='supervised_streams')
+    invitations_officer = models.ForeignKey('production.ProductionUser', blank=True, null=True,
+                                            related_name='invitations_officer_streams')
 
     work_logs = GenericRelation(WorkLog, related_query_name='streams')
 

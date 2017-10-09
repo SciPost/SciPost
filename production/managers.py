@@ -11,7 +11,12 @@ class ProductionStreamQuerySet(models.QuerySet):
         return self.exclude(status=PRODUCTION_STREAM_COMPLETED)
 
     def filter_for_user(self, production_user):
-        return self.filter(officer=production_user)
+        """
+        Return ProductionStreams that are only assigned to me as a Production Officer
+        or a Inivtations Officer.
+        """
+        return self.filter(models.Q(officer=production_user)
+                           | models.Q(invitations_officer=production_user))
 
 
 class ProductionEventManager(models.Manager):

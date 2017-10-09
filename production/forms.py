@@ -36,6 +36,12 @@ class AssignOfficerForm(forms.ModelForm):
         return stream
 
 
+class AssignInvitationsOfficerForm(forms.ModelForm):
+    class Meta:
+        model = ProductionStream
+        fields = ('invitations_officer',)
+
+
 class AssignSupervisorForm(forms.ModelForm):
     class Meta:
         model = ProductionStream

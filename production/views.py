@@ -20,7 +20,8 @@ from finances.forms import WorkLogForm
 from . import constants
 from .models import ProductionUser, ProductionStream, ProductionEvent, Proof
 from .forms import ProductionEventForm, AssignOfficerForm, UserToOfficerForm,\
-                   AssignSupervisorForm, StreamStatusForm, ProofUploadForm, ProofDecisionForm
+                   AssignSupervisorForm, StreamStatusForm, ProofUploadForm, ProofDecisionForm,\
+                   AssignInvitationsOfficerForm
 from .permissions import is_production_user
 from .signals import notify_stream_status_change,  notify_new_stream_assignment
 from .utils import proof_slug_to_id
@@ -54,10 +55,14 @@ def production(request, stream_id=None):
 
     if stream_id:
         try:
+            # "Pre-load" ProductionStream
             context['stream'] = streams.get(id=stream_id)
             context['assign_officer_form'] = AssignOfficerForm()
+            context['assign_invitiations_officer_form'] = AssignInvitationsOfficerForm()
             context['assign_supervisor_form'] = AssignSupervisorForm()
             context['prodevent_form'] = ProductionEventForm()
+            context['work_log_form'] = WorkLogForm()
+            context['upload_proofs_form'] = ProofUploadForm()
         except ProductionStream.DoesNotExist:
             pass
 
@@ -98,6 +103,7 @@ def stream(request, stream_id):
     stream = get_object_or_404(streams, id=stream_id)
     prodevent_form = ProductionEventForm()
     assign_officer_form = AssignOfficerForm()
+    assign_invitiations_officer_form = AssignInvitationsOfficerForm()
     assign_supervisor_form = AssignSupervisorForm()
     upload_proofs_form = ProofUploadForm()
     work_log_form = WorkLogForm()
@@ -108,6 +114,7 @@ def stream(request, stream_id):
         'prodevent_form': prodevent_form,
         'assign_officer_form': assign_officer_form,
         'assign_supervisor_form': assign_supervisor_form,
+        'assign_invitiations_officer_form': assign_invitiations_officer_form,
         'status_form': status_form,
         'upload_proofs_form': upload_proofs_form,
         'work_log_form': work_log_form,
@@ -205,6 +212,36 @@ def add_officer(request, stream_id):
 @is_production_user()
 @permission_required('scipost.can_assign_production_officer', raise_exception=True)
 @transaction.atomic
+def add_invitations_officer(request, stream_id):
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm('can_perform_supervisory_actions', stream):
+        return redirect(reverse('production:production', args=(stream.id,)))
+
+    form = AssignInvitationsOfficerForm(request.POST or None, instance=stream)
+    if form.is_valid():
+        form.save()
+        officer = form.cleaned_data.get('invitations_officer')
+        assign_perm('can_work_for_stream', officer.user, stream)
+        messages.success(request, 'Invitations Officer {officer} has been assigned.'.format(
+            officer=officer))
+        notify_new_stream_assignment(request.user, stream, officer.user)
+        event = ProductionEvent(
+            stream=stream,
+            event='assignment',
+            comments=' tasked Invitations Officer with invitations:',
+            noted_to=officer,
+            noted_by=request.user.production_user)
+        event.save()
+    else:
+        for key, error in form.errors.items():
+            messages.warning(request, error[0])
+    return redirect(reverse('production:production', args=(stream.id,)))
+
+
+@is_production_user()
+@permission_required('scipost.can_assign_production_officer', raise_exception=True)
+@transaction.atomic
 def remove_officer(request, stream_id, officer_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
@@ -215,8 +252,32 @@ def remove_officer(request, stream_id, officer_id):
         officer = stream.officer
         stream.officer = None
         stream.save()
-        remove_perm('can_work_for_stream', officer.user, stream)
+        if officer not in [stream.invitations_officer, stream.supervisor]:
+            # Remove Officer from stream if not assigned anymore
+            remove_perm('can_work_for_stream', officer.user, stream)
         messages.success(request, 'Officer {officer} has been removed.'.format(officer=officer))
+
+    return redirect(reverse('production:production', args=(stream.id,)))
+
+
+@is_production_user()
+@permission_required('scipost.can_assign_production_officer', raise_exception=True)
+@transaction.atomic
+def remove_invitations_officer(request, stream_id, officer_id):
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm('can_perform_supervisory_actions', stream):
+        return redirect(reverse('production:production', args=(stream.id,)))
+
+    if getattr(stream.invitations_officer, 'id', 0) == int(officer_id):
+        officer = stream.invitations_officer
+        stream.invitations_officer = None
+        stream.save()
+        if officer not in [stream.officer, stream.supervisor]:
+            # Remove Officer from stream if not assigned anymore
+            remove_perm('can_work_for_stream', officer.user, stream)
+        messages.success(request, 'Invitations Officer {officer} has been removed.'.format(
+            officer=officer))
 
     return redirect(reverse('production:production', args=(stream.id,)))
 
