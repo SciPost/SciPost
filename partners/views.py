@@ -10,6 +10,8 @@ from django.utils import timezone
 
 from guardian.decorators import permission_required
 
+from mails.views import MailEditingSubView
+
 from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
     PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT
@@ -17,13 +19,12 @@ from .models import Partner, ProspectivePartner, ProspectiveContact, ContactRequ
                     ProspectivePartnerEvent, MembershipAgreement, Contact, Institution,\
                     PartnersAttachment
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
-                   EmailProspectivePartnerContactForm, PromoteToPartnerForm,\
+                   PromoteToPartnerForm,\
                    ProspectivePartnerEventForm, MembershipQueryForm,\
                    PartnerForm, ContactForm, ContactFormset, ContactModelFormset,\
                    NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
                    MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
-                   ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm,\
-                   EmailProspectivePartnerGenericForm
+                   ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
 from .utils import PartnerUtils
 
 
@@ -261,10 +262,15 @@ def add_prospartner_contact(request, prospartner_id):
 
 @permission_required('scipost.can_email_prospartner_contact', return_403=True)
 @transaction.atomic
-def email_prospartner_contact(request, contact_id):
+def email_prospartner_contact(request, contact_id, mail=None):
     contact = get_object_or_404(ProspectiveContact, pk=contact_id)
-    form = EmailProspectivePartnerContactForm(request.POST or None)
-    if form.is_valid():
+
+    if mail == 'followup':
+        code = 'partners_followup_mail'
+    else:
+        code = 'partners_initial_mail'
+    mail_request = MailEditingSubView(request, mail_code=code, contact=contact)
+    if mail_request.is_valid():
         comments = 'Email sent to %s.' % str(contact)
         prospartnerevent = ProspectivePartnerEvent(
             prospartner=contact.prospartner,
@@ -277,25 +283,26 @@ def email_prospartner_contact(request, contact_id):
                                           PROSPECTIVE_PARTNER_ADDED]:
             contact.prospartner.status = PROSPECTIVE_PARTNER_APPROACHED
             contact.prospartner.save()
-        PartnerUtils.load({'contact': contact,
-                           'email_subject': form.cleaned_data['email_subject'],
-                           'message': form.cleaned_data['message'],
-                           'include_SPB_summary': form.cleaned_data['include_SPB_summary']})
 
-        PartnerUtils.email_prospartner_contact()
-        messages.success(request, 'Email successfully sent')
+        messages.success(request, 'Email successfully sent.')
+        mail_request.send()
         return redirect(reverse('partners:dashboard'))
-    context = {'contact': contact, 'form': form}
-    return render(request, 'partners/email_prospartner_contact.html', context)
+    else:
+        return mail_request.return_render()
 
 
 @permission_required('scipost.can_email_prospartner_contact', return_403=True)
 @transaction.atomic
-def email_prospartner_generic(request, prospartner_id):
+def email_prospartner_generic(request, prospartner_id, mail=None):
     prospartner = get_object_or_404(ProspectivePartner, pk=prospartner_id)
-    form = EmailProspectivePartnerGenericForm(request.POST or None)
-    if form.is_valid():
-        comments = 'Email sent to %s.' % form.cleaned_data['email']
+
+    if mail == 'followup':
+        code = 'partners_followup_mail'
+    else:
+        code = 'partners_initial_mail'
+    mail_request = MailEditingSubView(request, mail_code=code)
+    if mail_request.is_valid():
+        comments = 'Email sent to %s.' % str(mail_request.recipients_string)
         prospartnerevent = ProspectivePartnerEvent(
             prospartner=prospartner,
             event=PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,
@@ -307,17 +314,12 @@ def email_prospartner_generic(request, prospartner_id):
                                   PROSPECTIVE_PARTNER_ADDED]:
             prospartner.status = PROSPECTIVE_PARTNER_APPROACHED
             prospartner.save()
-        PartnerUtils.load({'institution_name': prospartner.institution_name,
-                           'email': form.cleaned_data['email'],
-                           'email_subject': form.cleaned_data['email_subject'],
-                           'message': form.cleaned_data['message'],
-                           'include_SPB_summary': form.cleaned_data['include_SPB_summary']})
 
-        PartnerUtils.email_prospartner_generic()
-        messages.success(request, 'Email successfully sent')
+        messages.success(request, 'Email successfully sent.')
+        mail_request.send()
         return redirect(reverse('partners:dashboard'))
-    context = {'prospartner': prospartner, 'form': form}
-    return render(request, 'partners/email_prospartner_generic.html', context)
+    else:
+        return mail_request.return_render()
 
 
 @permission_required('scipost.can_manage_SPB', return_403=True)

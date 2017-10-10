@@ -15,7 +15,10 @@
       <p>{{ pp.get_status_display }}</p>
     </div>
     <div class="col-md-7">
-      <a href="{% url 'partners:email_prospartner_generic' prospartner_id=pp.id %}">Compose email to a generic address</a>
+        <ul>
+          <li><a href="{% url 'partners:email_prospartner_generic' prospartner_id=pp.id %}">Compose email to a generic address</a></li>
+          <li><a href="{% url 'partners:email_prospartner_generic' prospartner_id=pp.id mail='followup' %}">Compose follow-up email to a generic address</a></li>
+        </ul>
       <h3>Contacts:</h3>
       <a class="d-inline-block mb-2" href="{% url 'partners:add_prospartner_contact' prospartner_id=pp.id %}">Add a contact</a>
       <table class="table">
@@ -31,7 +34,12 @@
             <td>{{ contact.role }}</td>
             <td>{{ contact.get_title_display }} {{ contact.first_name }} {{ contact.last_name }}</td>
             <td>{{ contact.email }}</td>
-	    <td><a href="{% url 'partners:email_prospartner_contact' contact_id=contact.id %}">Compose email</a></td>
+	    <td>
+            <ul>
+                <li><a href="{% url 'partners:email_prospartner_contact' contact_id=contact.id %}">Compose email</a>
+                <li><a href="{% url 'partners:email_prospartner_contact' contact_id=contact.id mail='followup' %}">Compose follow-up email</a>
+            </ul>
+        </td>
 	  </tr>
           {% empty %}
           <tr>

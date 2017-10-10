@@ -458,26 +458,6 @@ class ProspectiveContactForm(forms.ModelForm):
         widgets = {'prospartner': forms.HiddenInput()}
 
 
-class EmailProspectivePartnerContactForm(forms.Form):
-    email_subject = forms.CharField(widget=forms.Textarea(),
-                                    initial='Supporting Partners Board')
-    message = forms.CharField(widget=forms.Textarea(), required=False)
-    include_SPB_summary = forms.BooleanField(
-        required=False, initial=True,
-        label='include SPB summary with message')
-
-    def __init__(self, *args, **kwargs):
-        super(EmailProspectivePartnerContactForm, self).__init__(*args, **kwargs)
-        self.fields['email_subject'].widget.attrs.update(
-            {'rows': 1})
-        self.fields['message'].widget.attrs.update(
-            {'placeholder': 'Write your message in this box (optional).'})
-
-
-class EmailProspectivePartnerGenericForm(EmailProspectivePartnerContactForm):
-    email = forms.EmailField(label='Generic address for emailing')
-
-
 class ProspectivePartnerEventForm(forms.ModelForm):
     class Meta:
         model = ProspectivePartnerEvent
