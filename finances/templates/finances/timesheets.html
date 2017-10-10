@@ -7,6 +7,7 @@
 {% block pagetitle %}: Team Timesheets{% endblock pagetitle %}
 
 {% load bootstrap %}
+{% load scipost_extras %}
 
 {% block content %}
 
@@ -25,26 +26,25 @@
     <div class="col-12">
         <h2 class="mb-2 mt-4">Team Timesheets</h2>
         {% for total in totals %}
-            <h3 class="mb-1">{{ total.user }}</h3>
+            <h3 class="mb-1">{{ total.user.first_name }} {{ total.user.last_name }}</h3>
             <table class="table">
                 <thead class="thead-default">
                   <tr>
                       <th>Date</th>
-                      <th>By</th>
-                      <th>Stream</th>
-                      <th>Event</th>
+                      <th>Related to object</th>
+                      <th>Log type</th>
+                      <th>Comments</th>
                       <th>Duration</th>
                   </tr>
                 </thead>
-
                 <tbody>
-                    {% for event in total.events %}
+                    {% for log in total.logs %}
                         <tr>
-                            <td>{{ event.noted_on }}</td>
-                            <td>{{ event.noted_by }}</td>
-                            <td>{{ event.stream }}</td>
-                            <td>{{ event.get_event_display }}</td>
-                            <td>{{ event.duration }}</td>
+                            <td>{{ log.work_date }}</td>
+                            <td>{{ log.content }}</td>
+                            <td>{{ log.log_type }}</td>
+                            <td>{{ log.comments }}</td>
+                            <td>{{ log.duration|duration }}</td>
                         </tr>
                     {% endfor %}
                     <tr>

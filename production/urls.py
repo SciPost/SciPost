@@ -23,6 +23,8 @@ urlpatterns = [
         production_views.toggle_accessibility, name='toggle_accessibility'),
     url(r'^streams/(?P<stream_id>[0-9]+)/events/add$',
         production_views.add_event, name='add_event'),
+    url(r'^streams/(?P<stream_id>[0-9]+)/logs/add$',
+        production_views.add_work_log, name='add_work_log'),
     url(r'^streams/(?P<stream_id>[0-9]+)/officer/add$',
         production_views.add_officer, name='add_officer'),
     url(r'^streams/(?P<stream_id>[0-9]+)/officer/(?P<officer_id>[0-9]+)/remove$',

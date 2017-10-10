@@ -1,5 +1,6 @@
 {% load bootstrap %}
 {% load guardian_tags %}
+{% load scipost_extras %}
 
 {% get_obj_perms request.user for stream as "sub_perms" %}
 
@@ -41,6 +42,11 @@
 
           <h3>Work Log</h3>
           {% include 'partials/finances/logs.html' with logs=stream.work_logs.all %}
+
+            {% if stream.total_duration %}
+                <hr class="sm">
+                <p class="pl-4 ml-3">Total duration for this stream: <strong>{{ stream.total_duration|duration }}</strong></p>
+            {% endif %}
       {% endblock %}
 
     {% if "can_work_for_stream" in sub_perms %}

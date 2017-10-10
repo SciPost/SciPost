@@ -10,6 +10,7 @@ from .utils import id_to_slug
 class WorkLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     comments = models.TextField(blank=True)
+    log_type = models.CharField(max_length=128, blank=True)
     duration = models.DurationField(blank=True, null=True)
     work_date = models.DateField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
@@ -20,6 +21,7 @@ class WorkLog(models.Model):
 
     class Meta:
         default_related_name = 'work_logs'
+        ordering = ['-work_date', 'created']
 
     def __str__(self):
         return 'Log of {0} {1} on {2}'.format(

@@ -47,3 +47,11 @@ PROOFS_STATUSES = (
     (PROOFS_DECLINED, 'Proofs declined by authors'),
     (PROOFS_RENEWED, 'Proofs renewed'),
 )
+
+PRODUCTION_OFFICERS_WORK_LOG_TYPES = (
+    ('Production: Production Officer tasks', 'Production Officer tasks'),
+)
+PRODUCTION_ALL_WORK_LOG_TYPES = (
+    ('Production: Supervisory tasks', 'Supervisory tasks'),
+    ('Production: Production Officer tasks', 'Production Officer tasks'),
+)

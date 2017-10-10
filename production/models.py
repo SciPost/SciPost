@@ -63,7 +63,7 @@ class ProductionStream(models.Model):
 
     @cached_property
     def total_duration(self):
-        totdur = self.events.aggregate(models.Sum('duration'))
+        totdur = self.work_logs.aggregate(models.Sum('duration'))
         return totdur['duration__sum']
 
     @cached_property

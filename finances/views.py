@@ -4,8 +4,7 @@ from django.http import Http404
 from django.shortcuts import render
 from django.views.generic.edit import DeleteView
 
-from production.forms import ProductionUserMonthlyActiveFilter
-
+from .forms import LogsMonthlyActiveFilter
 from .models import WorkLog
 from .utils import slug_to_id
 
@@ -15,7 +14,7 @@ def timesheets(request):
     """
     See an overview per month of all timesheets.
     """
-    form = ProductionUserMonthlyActiveFilter(request.GET or None)
+    form = LogsMonthlyActiveFilter(request.GET or None)
     context = {
         'form': form,
     }

@@ -43,8 +43,3 @@
         <li>No events were found.</li>
     {% endfor %}
 </ul>
-
-{% if stream.total_duration %}
-    <hr>
-    <p class="text-right">Total duration for this stream: <strong>{{ stream.total_duration|duration }}</strong></p>
-{% endif %}

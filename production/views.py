@@ -16,6 +16,7 @@ from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm, remove_perm
 
 from finances.forms import WorkLogForm
+from mails.views import MailEditingSubView
 
 from . import constants
 from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs
@@ -44,13 +45,8 @@ def production(request, stream_id=None):
         streams = streams.filter_for_user(request.user.production_user)
     streams = streams.order_by('opened')
 
-    ownevents = ProductionEvent.objects.filter(
-        noted_by=request.user.production_user,
-        duration__gte=datetime.timedelta(minutes=1)).order_by('-noted_on')
-
     context = {
         'streams': streams,
-        'ownevents': ownevents,
     }
 
     if stream_id:
@@ -61,7 +57,12 @@ def production(request, stream_id=None):
             context['assign_invitiations_officer_form'] = AssignInvitationsOfficerForm()
             context['assign_supervisor_form'] = AssignSupervisorForm()
             context['prodevent_form'] = ProductionEventForm()
-            context['work_log_form'] = WorkLogForm()
+
+            if request.user.has_perm('scipost.can_view_all_production_streams'):
+                types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+            else:
+                types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+            context['work_log_form'] = WorkLogForm(log_types=types)
             context['upload_proofs_form'] = ProofsUploadForm()
         except ProductionStream.DoesNotExist:
             pass
@@ -106,7 +107,12 @@ def stream(request, stream_id):
     assign_invitiations_officer_form = AssignInvitationsOfficerForm()
     assign_supervisor_form = AssignSupervisorForm()
     upload_proofs_form = ProofsUploadForm()
-    work_log_form = WorkLogForm()
+
+    if request.user.has_perm('scipost.can_view_all_production_streams'):
+        types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+    else:
+        types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+    work_log_form = WorkLogForm(log_types=types)
     status_form = StreamStatusForm(instance=stream, production_user=request.user.production_user)
 
     context = {
@@ -178,6 +184,31 @@ def add_event(request, stream_id):
     else:
         messages.warning(request, 'The form was invalidly filled.')
     return redirect(reverse('production:production', args=(stream.id,)))
+
+
+@is_production_user()
+@permission_required('scipost.can_view_production', raise_exception=True)
+def add_work_log(request, stream_id):
+    stream = get_object_or_404(ProductionStream, pk=stream_id)
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm('can_work_for_stream', stream):
+        return redirect(stream.get_absolute_url())
+
+    if request.user.has_perm('scipost.can_view_all_production_streams'):
+        types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+    else:
+        types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+    work_log_form = WorkLogForm(request.POST or None, log_types=types)
+
+    if work_log_form.is_valid():
+        log = work_log_form.save(commit=False)
+        log.content = stream
+        log.user = request.user
+        log.save()
+        messages.success(request, 'Work Log added to Stream.')
+    else:
+        messages.warning(request, 'The form was invalidly filled.')
+    return redirect(stream.get_absolute_url())
 
 
 @is_production_user()
@@ -581,20 +612,35 @@ def send_proofs(request, stream_id, version):
         return redirect(reverse('production:production'))
 
     try:
-        proof = stream.proofs.can_be_send().get(version=version)
+        proofs = stream.proofs.can_be_send().get(version=version)
     except Proofs.DoesNotExist:
         raise Http404
 
-    proof.status = constants.PROOFS_SENT
-    proof.accessible_for_authors = True
-    proof.save()
+    proofs.status = constants.PROOFS_SENT
+    proofs.accessible_for_authors = True
 
     if stream.status not in [constants.PROOFS_PUBLISHED, constants.PROOFS_CITED,
                              constants.PRODUCTION_STREAM_COMPLETED]:
         stream.status = constants.PROOFS_SENT
         stream.save()
 
-    # TODO: SEND EMAIL TO NOTIFY OR KEEP THIS A HUMAN ACTION?
+    mail_request = MailEditingSubView(request, mail_code='production_send_proofs',
+                                      proofs=proofs)
+    if mail_request.is_valid():
+        proofs.save()
+        stream.save()
+        messages.success(request, 'Proofs have been sent.')
+        mail_request.send()
+        prodevent = ProductionEvent(
+            stream=stream,
+            event='status',
+            comments='Proofs version {version} sent to authors.'.format(version=proofs.version),
+            noted_by=request.user.production_user
+        )
+        prodevent.save()
+        return redirect(stream.get_absolute_url())
+    else:
+        return mail_request.return_render()
 
     messages.success(request, 'Proofs have been sent.')
     return redirect(stream.get_absolute_url())

@@ -7,6 +7,8 @@
                 <div>
                     <strong>{{ log.user.first_name }} {{ log.user.last_name }}</strong>
                     <br>
+                    <span class="text-muted">{{ log.log_type }}</span>
+                    <br>
                     {{ log.comments }}
                 </div>
                 <div class="text-muted text-right d-flex justify-content-end">
@@ -25,10 +27,3 @@
         <li>No logs were found.</li>
     {% endfor %}
 </ul>
-{% comment %}
-user = models.ForeignKey(settings.AUTH_USER_MODEL)
-comments = models.TextField(blank=True)
-duration = models.DurationField(blank=True, null=True)
-work_date = models.DateField(default=timezone.now)
-created = models.DateTimeField(auto_now_add=True)
-{% endcomment %}
