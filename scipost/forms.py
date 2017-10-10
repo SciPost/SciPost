@@ -6,6 +6,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.dates import MONTHS
 from django.utils.http import is_safe_url
@@ -327,6 +328,22 @@ class AuthenticationForm(forms.Form):
     password = forms.CharField(label='Password', widget=forms.PasswordInput())
     next = forms.CharField(widget=forms.HiddenInput(), required=False)
 
+    def user_is_inactive(self):
+        """
+        Check if the User is active but only if the password is valid, to prevent any
+        possible clue (?) of the password.
+        """
+        username = self.cleaned_data['username']
+        password = self.cleaned_data['password']
+        try:
+            _user = User.objects.get(Q(email=username) | Q(username=username))
+            return _user.check_password(password) and not _user.is_active
+        except:
+            return False
+
+    def can_resend_activation_mail(self):
+        return True
+
     def authenticate(self):
         """
         Authenticate will return an valid User if credentials are correct.
@@ -338,6 +355,7 @@ class AuthenticationForm(forms.Form):
         if user:
             return user
 
+        # Try to use the email address for convenience
         try:
             _user = User.objects.get(email=username)
             return authenticate(username=_user.username, password=password)
