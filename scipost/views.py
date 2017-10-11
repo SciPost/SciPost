@@ -210,7 +210,7 @@ def request_new_activation_link(request, contributor_id, key):
         context = {
             'ack_header': 'We have emailed you a new activation link.',
             'ack_message': ('Please acknowledge it within its 48 hours validity '
-                            'window if you want us to proceed with vetting your registraion.'),
+                            'window if you want us to proceed with vetting your registration.'),
         }
         return render(request, 'scipost/acknowledgement.html', context)
     context = {'contributor': contributor}
@@ -643,16 +643,15 @@ def login_view(request):
         user = form.authenticate()
         if user is not None:
             if is_registered(user):
-                # This check seems redundant, however do not remove.
-                if user.is_active:
-                    login(request, user)
-                    redirect_to = form.get_redirect_url(request)
-                    return redirect(redirect_to)
-                else:
-                    form.add_error(None, 'Your account is disabled.')
+                login(request, user)
+                redirect_to = form.get_redirect_url(request)
+                return redirect(redirect_to)
             else:
                 form.add_error(None, ('Your account has not yet been vetted. '
                                       '(our admins will verify your credentials very soon)'))
+        elif form.user_is_inactive():
+            form.add_error(None, ('Your account is not yet activated. '
+                                  'Please first activate your account.'))
         else:
             form.add_error(None, 'Invalid username/password.')
     context = {'form': form}
