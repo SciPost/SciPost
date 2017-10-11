@@ -7,6 +7,8 @@ The site is anchored at https://scipost.org. Many further details about SciPost,
 
 Crucially, as explained on our Partners page at https://scipost.org/partners, SciPost follows a completely different funding model than traditional publishers, and provides a cost-slashing alternative to existing platforms. SciPost charges neither subscription fees, nor article processing charges; its activities are instead to be collectively financed through a Supporting Partners Board, formed by a worldwide consortium of institutions and organizations which directly or indirectly benefit from SciPost’s activities.
 
+A short summary of important aspects of SciPost and reasons for you to join its Supporting Partners Board are given in our one-page prospectus (https://scipost.org/static/scipost/SPB/SciPost_Supporting_Partners_Board_Prospectus.pdf).
+
 Support takes the form of a small financial commitment, collectively pooled to enable SciPost to perform all its publication-related activities, maintain its online portal and implement its long-term development plan.
 
 In the agreement template, which you can find online at https://scipost.org/static/scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf, you will find many more specific details about our operations, requirements and funding strategy. I would greatly appreciate if you took a few minutes to read through this document.
