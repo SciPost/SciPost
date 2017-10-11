@@ -1,0 +1,7 @@
+{
+    "subject": "SciPost: Your proofs have been produced",
+    "to_address": "stream.submission.authors.all",
+    "from_address_name": "SciPost Production",
+    "from_address": "proofs@scipost.org",
+    "context_object": "proofs"
+}

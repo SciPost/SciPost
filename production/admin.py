@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from guardian.admin import GuardedModelAdmin
 
-from .models import ProductionStream, ProductionEvent, ProductionUser, ProductionEvent
+from .models import ProductionStream, ProductionEvent, ProductionUser, Proofs
 
 
 def event_count(obj):
@@ -30,6 +30,12 @@ class ProductionStreamAdmin(GuardedModelAdmin):
     )
 
 
+class ProductionProofsAdmin(admin.ModelAdmin):
+    list_display = ['stream', 'version', 'status', 'accessible_for_authors']
+    list_filter = ['status', 'accessible_for_authors']
+
+
+admin.site.register(Proofs, ProductionProofsAdmin)
 admin.site.register(ProductionUser)
 admin.site.register(ProductionEvent)
 admin.site.register(ProductionStream, ProductionStreamAdmin)

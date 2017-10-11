@@ -41,6 +41,7 @@ from scipost.utils import Utils
 from scipost.permissions import is_tester
 
 from comments.forms import CommentForm
+from production.forms import ProofsDecisionForm
 from production.models import ProductionStream
 
 import strings
@@ -177,6 +178,7 @@ def submission_detail_wo_vn_nr(request, arxiv_identifier_wo_vn_nr):
 
 def submission_detail(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    context = {}
     try:
         is_author = request.user.contributor in submission.authors.all()
         is_author_unchecked = (not is_author and
@@ -187,6 +189,8 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                                           .get(author=request.user.contributor))
         except Report.DoesNotExist:
             unfinished_report_for_user = None
+
+        context['proofs_decision_form'] = ProofsDecisionForm()
     except AttributeError:
         is_author = False
         is_author_unchecked = False
@@ -209,16 +213,18 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
 
     recommendations = submission.eicrecommendations.all()
 
-    context = {'submission': submission,
-               'recommendations': recommendations,
-               'comments': comments,
-               'invited_reports': invited_reports,
-               'contributed_reports': contributed_reports,
-               'unfinished_report_for_user': unfinished_report_for_user,
-               'author_replies': author_replies,
-               'form': form,
-               'is_author': is_author,
-               'is_author_unchecked': is_author_unchecked}
+    context.update({
+        'submission': submission,
+        'recommendations': recommendations,
+        'comments': comments,
+        'invited_reports': invited_reports,
+        'contributed_reports': contributed_reports,
+        'unfinished_report_for_user': unfinished_report_for_user,
+        'author_replies': author_replies,
+        'form': form,
+        'is_author': is_author,
+        'is_author_unchecked': is_author_unchecked,
+    })
     return render(request, 'submissions/submission_detail.html', context)
 
 

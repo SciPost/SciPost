@@ -1,30 +1,45 @@
 {% load scipost_extras %}
 
-<ul>
+<ul class="list-unstyled">
   {% for event in events %}
-        <li id="event_{{ event.id }}">
-          <p class="mb-0 font-weight-bold">{{ event.get_event_display }}
-            {% if not non_editable %}
-              {% if event.noted_by == request.user.production_user %}
-                  &middot; <a href="{% url 'production:update_event' event.id %}">Edit</a>
-                  &middot; <a class="text-danger" href="{% url 'production:delete_event' event.id %}">Delete</a>
-              {% endif %}
-            {% endif %}
-          </p>
-          <p class="text-muted mb-1">noted {{ event.noted_on }} by {{ event.noted_by }}</p>
-          {% if event.duration %}
-              <div class="mb-2">Duration: {{ event.duration|duration }}</div>
-          {% endif %}
+        <li id="event_{{ event.id }}" class="pb-2">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <strong>{{ event.noted_by.user.first_name }} {{ event.noted_by.user.last_name }}</strong>
+                    <br>
+                    {{ event.get_event_displa|linebreaksbr }}
+                </div>
+                <div class="text-muted text-right d-flex justify-content-end">
+                    <div>
+                        {{ event.noted_on }}
+                        {% if event.duration %}
+                            <br>
+                            <strong>Duration: {{ event.duration|duration }}</strong>
+                        {% endif %}
+                    </div>
+
+                    {% if not non_editable %}
+                      {% if event.noted_by == request.user.production_user and event.editable %}
+                          <div class="pl-2">
+                              <a href="{% url 'production:update_event' event.id %}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                              <a class="text-danger" href="{% url 'production:delete_event' event.id %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                          </div>
+                      {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
           {% if event.comments %}
-              <div>{{ event.comments|linebreaks }}</div>
+              <p class="mt-2 mb-0">
+                  {% if event.noted_to %}
+                    {{ event.noted_by.user.first_name }} {{ event.noted_by.user.last_name }} {{ event.comments|linebreaksbr }} {{ event.noted_to.user.first_name }} {{ event.noted_to.user.last_name }}.
+                  {% else %}
+                      {{ event.comments|linebreaksbr }}
+                  {% endif %}
+              </p>
           {% endif %}
         </li>
     {% empty %}
         <li>No events were found.</li>
     {% endfor %}
 </ul>
-
-{% if stream.total_duration %}
-    <hr class="sm">
-    <p class="pl-4 ml-3">Total duration for this stream: <strong>{{ stream.total_duration|duration }}</strong></p>
-{% endif %}

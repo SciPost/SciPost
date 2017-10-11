@@ -30,6 +30,9 @@ from comments.models import Comment
 from funders.models import Funder
 from submissions.models import Submission, Report
 from scipost.models import Contributor
+from production.constants import PROOFS_PUBLISHED
+from production.models import ProductionEvent
+from production.signals import notify_stream_status_change
 
 from funders.forms import FunderSelectForm, GrantSelectForm
 from scipost.forms import ConfirmationForm
@@ -263,6 +266,21 @@ def validate_publication(request):
         submission.published_as = publication
         submission.status = 'published'
         submission.save()
+
+        # Update ProductionStream
+        stream = submission.production_stream
+        if stream:
+            stream.status = PROOFS_PUBLISHED
+            stream.save()
+            if request.user.production_user:
+                prodevent = ProductionEvent(
+                    stream=stream,
+                    event='status',
+                    comments=' published the manuscript.',
+                    noted_by=request.user.production_user
+                )
+                prodevent.save()
+            notify_stream_status_change(request.user, stream, False)
 
         # TODO: Create a Commentary Page
         # Email authors

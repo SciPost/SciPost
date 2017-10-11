@@ -1,0 +1,50 @@
+{% extends 'production/base.html' %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{{ stream.get_absolute_url }}" class="breadcrumb-item">Production Stream</a>
+    <span class="breadcrumb-item">Proofs (version {{ proofs.version }})</span>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Proofs (version {{ proofs.version }})</h1>
+        {% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <h3>Info</h3>
+        <ul>
+            <li>Version: {{ proofs.version }}</li>
+            <li>Status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span></li>
+            <li>Uploaded by: {{ proofs.uploaded_by }}</li>
+            <li>Accessible for Authors: {{ proofs.accessible_for_authors|yesno:'Yes,No' }}</li>
+        </ul>
+
+        <h3>Actions</h3>
+        <ul>
+            <li><a href="{% url 'production:proofs_pdf' proofs.slug %}" target="_blank">Download file</a></li>
+            {% if perms.scipost.can_run_proofs_by_authors %}
+                {% if proofs.status == 'uploaded' %}
+                    <li>
+                        <a href="{% url 'production:decision' proofs.stream.id proofs.version 'accept' %}">Accept proofs</a>
+                        &middot;
+                        <a href="{% url 'production:decision' proofs.stream.id proofs.version 'decline' %}" class="text-danger">Decline proofs</a>
+                    </li>
+                {% elif proofs.status == 'accepted_sup' %}
+                    <li><a href="{% url 'production:send_proofs' proofs.stream.id proofs.version %}">Send proofs to authors</a></li>
+                {% endif %}
+                {% if proofs.status != 'uploaded' %}
+                    <li><a href="{% url 'production:toggle_accessibility' proofs.stream.id proofs.version %}">{{ proofs.accessible_for_authors|yesno:'Hide,Make accessible' }} for authors</a></li>
+                {% endif %}
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,49 @@
+{% extends 'production/base.html' %}
+
+{% load scipost_extras %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Delete log</span>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Delete log</h1>
+        {% include 'submissions/_submission_card_content_sparse.html' with submission=object.content.submission %}
+    </div>
+</div>
+<div class="row">
+  <div class="col-12">
+      <form method="post">
+        {% csrf_token %}
+            <h3 class="mb-2">Are you sure you want to delete this work log?</h3>
+            <table class="table">
+                <tr>
+                    <th>Logged by</th>
+                    <td>{{ object.user }}</td>
+                </tr>
+                <tr>
+                    <th>Comment</th>
+                    <td>{{ object.comments|default:'-' }}</td>
+                </tr>
+                <tr>
+                    <th>Logged time</th>
+                    <td>{{ object.duration|duration }}</td>
+                </tr>
+                <tr>
+                    <th>Log date</th>
+                    <td>{{ object.work_date }}</td>
+                </tr>
+            </table>
+            <input type="submit" class="btn btn-danger" value="Yes, delete log" />
+      </form>
+    </ul>
+  </div>
+</div>
+
+{% endblock content %}

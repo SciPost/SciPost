@@ -10,6 +10,10 @@ class MailEditingSubView(object):
         self.template_name = kwargs.get('template', 'mails/mail_form.html')
         self.mail_form = EmailTemplateForm(request.POST or None, mail_code=mail_code, **kwargs)
 
+    @property
+    def recipients_string(self):
+        return ', '.join(getattr(self.mail_form, 'mail_fields', {}).get('recipients', ['']))
+
     def is_valid(self):
         return self.mail_form.is_valid()
 
