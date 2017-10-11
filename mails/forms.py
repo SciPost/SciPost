@@ -1,5 +1,6 @@
 import json
 import inspect
+from html2text import HTML2Text
 
 from django import forms
 from django.core.mail import EmailMultiAlternatives
@@ -9,10 +10,12 @@ from django.template import loader
 
 from scipost.models import Contributor
 
+from .widgets import SummernoteEditor
+
 
 class EmailTemplateForm(forms.Form):
     subject = forms.CharField(max_length=250, label="Subject*")
-    text = forms.CharField(widget=forms.Textarea(attrs={'rows': 25}), label="Text*")
+    text = forms.CharField(widget=SummernoteEditor, label="Text*")
     extra_recipient = forms.EmailField(label="Optional: bcc this email to", required=False)
 
     def __init__(self, *args, **kwargs):
@@ -21,8 +24,12 @@ class EmailTemplateForm(forms.Form):
         super().__init__(*args)
 
         # Gather data
-        mail_template = loader.get_template('mail_templates/%s.txt' % self.mail_code)
-        self.mail_template = mail_template.render(kwargs)
+        mail_template = loader.get_template('mail_templates/%s.html' % self.mail_code)
+        mail_template = mail_template.render(kwargs)
+        # self.doc = html.fromstring(mail_template)
+        # self.doc2 = self.doc.text_content()
+        # print(self.doc2)
+
         json_location = '%s/mails/templates/mail_templates/%s.json' % (settings.BASE_DIR,
                                                                        self.mail_code)
         self.mail_data = json.loads(open(json_location).read())
@@ -43,14 +50,14 @@ class EmailTemplateForm(forms.Form):
             self.fields['extra_recipient'].required = True
 
         # Set the data as initials
-        self.fields['text'].initial = self.mail_template
+        self.fields['text'].initial = mail_template
         self.fields['subject'].initial = self.mail_data['subject']
 
     def save_data(self):
         # Get text and html
-        message = self.cleaned_data['text']
-        html_template = loader.get_template('email/general.html')
-        html_message = html_template.render({'text': message})
+        html_message = self.cleaned_data['text']
+        handler = HTML2Text()
+        message = handler.handle(html_message)
 
         # Get recipients list. Try to send through BCC to prevent privacy issues!
         bcc_list = []
