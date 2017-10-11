@@ -23,6 +23,9 @@ class ProductionEventManager(models.Manager):
     def get_my_events(self, production_user):
         return self.filter(noted_by=production_user)
 
+    def all_without_duration(self):
+        return self.filter(duration__isnull=True)
+
 
 class ProofsQuerySet(models.QuerySet):
     def for_authors(self):
