@@ -26,11 +26,11 @@ from .constants import PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
 
 from .managers import MembershipAgreementManager, ProspectivePartnerManager, PartnerManager,\
                       ContactRequestManager, PartnersAttachmentManager
-from .storage import SecureFileStorage
 
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import get_sentinel_user, Contributor
+from scipost.storage import SecureFileStorage
 
 
 

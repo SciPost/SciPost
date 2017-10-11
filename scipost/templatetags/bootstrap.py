@@ -11,7 +11,7 @@ register = template.Library()
 
 
 @register.filter
-def bootstrap(element, args='2,10'):
+def bootstrap(element, args='2,10', extra_classes=''):
     '''Pass arguments to tag by separating them using a comma ",".
 
     Arguments:
@@ -31,6 +31,9 @@ def bootstrap(element, args='2,10'):
         markup_classes['label'] += ' col-form-label-%s' % args.get(2)
         markup_classes['form_control'] = 'form-control-%s' % args.get(2)
 
+    if extra_classes:
+        markup_classes['extra'] = extra_classes
+
     return render(element, markup_classes)
 
 
@@ -48,6 +51,11 @@ def bootstrap_inline(element, args='2,10'):
     except IndexError:
         markup_classes['form_control'] = ''
     return render(element, markup_classes)
+
+
+@register.filter
+def bootstrap_grouped(element, args='2,10'):
+    return bootstrap(element, args, 'grouped')
 
 
 @register.filter

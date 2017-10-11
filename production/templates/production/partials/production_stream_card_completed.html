@@ -1,16 +1,16 @@
 {% load bootstrap %}
 {% load guardian_tags %}
+{% load scipost_extras %}
 
 {% get_obj_perms request.user for stream as "sub_perms" %}
 
-<div class="w-100" id="stream_{{stream.id}}">
+<div class="card-body py-0" id="stream_{{stream.id}}">
     {% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}
 </div>
 <div class="card-body">
-  <div class="row">
-    <div class="{% if prodevent_form %}col-lg-7{% else %}col-12{% endif %}">
-      <h3>Officers</h3>
+      <h3>Stream details</h3>
       <ul>
+          <li>Status: <span class="label label-secondary label-sm">{{ stream.get_status_display }}</span></li>
           {% block officers %}
               <li>Production Supervisor:
                     {% if stream.supervisor %}
@@ -26,24 +26,57 @@
                         <em>No Officer assigned.</em>
                     {% endif %}
               </li>
+              <li>Invitations Officer:
+                    {% if stream.invitations_officer %}
+                        <strong>{{ stream.invitations_officer }}</strong>
+                    {% else %}
+                        <em>No Invitations Officer assigned.</em>
+                    {% endif %}
+              </li>
           {% endblock %}
       </ul>
 
       {% block actions %}
           <h3>Events</h3>
           {% include 'production/partials/production_events.html' with events=stream.events.all non_editable=1 %}
+
+          <h3>Work Log</h3>
+          {% include 'partials/finances/logs.html' with logs=stream.work_logs.all %}
+
+            {% if stream.total_duration %}
+                <hr class="sm">
+                <p class="pl-4 ml-3">Total duration for this stream: <strong>{{ stream.total_duration|duration }}</strong></p>
+            {% endif %}
       {% endblock %}
 
-  </div>
-    {% if prodevent_form and "can_work_for_stream" in sub_perms %}
-        <div class="col-lg-5 mt-4 mt-lg-0">
-          <h3>Add an event to this production stream:</h3>
-          <form action="{% url 'production:add_event' stream_id=stream.id %}" method="post">
-        	{% csrf_token %}
-        	{{ prodevent_form|bootstrap }}
-        	<input type="submit" class="btn btn-secondary" name="submit" value="Submit">
-          </form>
-        </div>
+    {% if "can_work_for_stream" in sub_perms %}
+      <h3>Proofs</h3>
+      <ul>
+          {% for proofs in stream.proofs.all %}
+              <li class="py-1">
+                  <a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Version {{ proofs.version }}</a><br>
+                  Uploaded by {{ proofs.uploaded_by.user.first_name }} {{ proofs.uploaded_by.user.last_name }}<br>
+                  Accessible for authors: {{ proofs.accessible_for_authors|yesno:'<strong>Yes</strong>,No'|safe }}<br>
+
+                  {% if perms.scipost.can_run_proofs_by_authors %}
+                      {% if proofs.status == 'uploaded' %}
+                          <strong><span class="text-danger">See details for open actions:</span></strong>
+                          <ul>
+                              <li><a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Accept or decline proofs</a></li>
+                          </ul>
+                      {% elif proofs.status == 'accepted_sup' %}
+                         <strong><span class="text-danger">See details for open actions:</span></strong>
+                         <ul>
+                             <li><a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Send proofs to authors</a></li>
+                         </ul>
+                      {% endif %}
+                  {% endif %}
+
+                  <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
+              </li>
+          {% empty %}
+              <li>No Proofs found.</li>
+          {% endfor %}
+      </ul>
     {% endif %}
-  </div>
 </div>

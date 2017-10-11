@@ -1,0 +1,20 @@
+<p>
+    Dear {% for author in proofs.stream.submission.authors.all %}{{ author.get_title_display }} {{ author.user.last_name }}{% if not forloop.last %}, {% elif proofs.stream.submission.authors.count > 1 %} and {% endif %}{% endfor %},
+</p>
+
+<p>
+    The SciPost production team has finished the proofs of your manuscript (version {{ proofs.version }}). You can find the proofs on your <a href="https://scipost.org{{ proofs.stream.submission.get_absolute_url }}">submission's page</a>.
+</p>
+
+<p>
+    Please review the proofs and let us know whether you accept the proofs for publication using the form on the submission page.
+</p>
+
+<p>
+    Sincerely,<br>
+
+    {{ proofs.stream.supervisor.user.first_name }} {{ proofs.stream.supervisor.user.last_name }},<br>
+    SciPost Production
+</p>
+
+{% include 'email/_footer.html' %}

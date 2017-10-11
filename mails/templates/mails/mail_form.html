@@ -11,7 +11,7 @@
 
     <form enctype="multipart/form-data" method="post">
         {% csrf_token %}
-        {{form|bootstrap}}
+        {{ form|bootstrap }}
         <div class="form-group row">
             <div class="offset-md-2 col-md-10">
                 <input class="btn btn-secondary mr-2" type="reset" value="Reset to default">
@@ -20,3 +20,9 @@
         </div>
     </form>
 {% endblock content %}
+
+
+{% block footer_script %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock footer_script %}

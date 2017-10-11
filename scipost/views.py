@@ -39,7 +39,7 @@ from commentaries.models import Commentary
 from comments.models import Comment
 from journals.models import Publication, Journal
 from news.models import NewsItem
-from submissions.models import Submission, EditorialAssignment, RefereeInvitation,\
+from submissions.models import Submission, RefereeInvitation,\
                                Report, EICRecommendation
 from partners.models import MembershipAgreement
 from theses.models import ThesisLink

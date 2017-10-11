@@ -28,6 +28,7 @@ var getUrlParameter = function getUrlParameter(sParam) {
 };
 
 function init_page() {
+    console.log('init!')
     // Show right tab if url contains `tab` GET request
     var tab = getUrlParameter('tab')
     if (tab) {
@@ -39,17 +40,17 @@ function init_page() {
         $(this).parents('form').submit()
     });
 
+    // Start general toggle
+    $('[data-toggle="toggle"]').on('click', function() {
+        $($(this).attr('data-target')).toggle();
+    });
+
     activate_tooltip();
 }
 
 $(function(){
     // Remove all alerts in screen automatically after 15sec.
     setTimeout(function() {hide_all_alerts()}, 15000);
-
-    // Start general toggle
-    $('[data-toggle="toggle"]').on('click', function() {
-        $($(this).attr('data-target')).toggle();
-    });
 
     // Change `tab` GET parameter for page-reload
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -71,13 +72,14 @@ $(function(){
 
         $.get(url + '?json=1').done(function(data) {
             // console.log('done', data);
-            $(target).html(data);
+            $(target).html(data).promise().done(function() {
+                init_page();
+            });
             $('[data-target="active-list"]')
                 .find('> li')
                 .removeClass('active')
             $(self).parents('[data-target="active-list"] > li')
                 .addClass('active');
-            init_page();
         });
     });
 });

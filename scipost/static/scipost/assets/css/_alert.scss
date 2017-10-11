@@ -1,5 +1,5 @@
 .alert {
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem 2.5rem 0.75rem 1.25rem;
     margin-bottom: 0.5rem;
     position: relative;
     clear: both;
@@ -16,7 +16,6 @@
     }
 }
 
-.alert-dismissable, // The misspelled .alert-dismissable was deprecated in 3.2.0.
 .alert-dismissible {
     // Adjust close link position
     .close {
@@ -26,4 +25,16 @@
         height: 100%;
         cursor: pointer;
     }
+}
+
+
+@mixin scipost-alert-variant($background, $border, $color) {
+  background-color: $white;
+  border-top: 3px solid $color;
+}
+
+@each $color, $value in $theme-colors {
+  .alert-#{$color} {
+    @include scipost-alert-variant(theme-color-level($color, -10), theme-color-level($color, -9), theme-color-level($color, 6));
+  }
 }

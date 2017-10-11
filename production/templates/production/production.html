@@ -7,6 +7,7 @@
 {% block pagetitle %}: Production page{% endblock pagetitle %}
 
 {% load bootstrap %}
+{% load scipost_extras %}
 
 {% block content %}
 
@@ -49,38 +50,53 @@
       </div>
     </div>
 
-    <table class="table table-hover mb-5">
-      <thead class="thead-default">
-	<tr>
-	  <th>Authors</th>
-	  <th>Title</th>
-	  <th>Accepted</th>
-	  <th>Latest Event</th>
-	  <th>Date</th>
-	</tr>
-      </thead>
+    <div class="row">
+        <div class="col-6">
+            <ul class="list-unstyled" data-target="active-list">
+                {% for stream in streams %}
+                    <li class="p-2">
+                        <div class="d-flex justify-content-start">
+                            <div class="icons pr-2">
+                                <i class="fa fa-users" data-toggle="tooltip" data-html="true" title="" data-original-title="
+                                    Supervisor: {% if stream.supervisor %}{{ stream.supervisor.user.first_name }} {{ stream.supervisor.user.last_name }}{% else %}<em>Unassigned</em>{% endif %}<br>
+                                    Officer: {% if stream.officer %}{{ stream.officer.user.first_name }} {{ stream.officer.user.last_name }}{% else %}<em>Unassigned</em>{% endif %}
+                                "></i>
+                                {% if stream.supervisor.user == request.user %}
+                                    <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="You are assigned as supervisor"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <p class="mb-1">
+                                    <a href="{% url 'production:stream' stream.id %}">{{ stream.submission.title }}</a><br>
+                                    <em>by {{ stream.submission.author_list }}</em>
+                                </p>
+                                <p class="card-text mb-2">
+                                    <a href="{% url 'production:stream' stream.id %}" data-toggle="dynamic" data-target="#details">See stream details</a>
+                                </p>
 
-      <tbody id="accordion" role="tablist" aria-multiselectable="true">
-    	{% for stream in streams %}
-        	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ stream.id }}" aria-expanded="true" aria-controls="collapse{{ stream.id }}" style="cursor: pointer;">
-        	  <td>{{ stream.submission.author_list }}</td>
-        	  <td>{{ stream.submission.title }}</td>
-        	  <td>{{ stream.submission.acceptance_date|date:"Y-m-d" }}</td>
-        	  <td>{{ stream.events.last.get_event_display }}</td>
-        	  <td>{{ stream.events.last.noted_on }}</td>
-        	</tr>
-        	<tr id="collapse{{ stream.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ stream.id }}" style="background-color: #fff;">
-        	  <td colspan="5">
-                    {% include 'production/partials/production_stream_card.html' with stream=stream prodevent_form=prodevent_form assignment_form=assignment_form %}
-        	  </td>
-        	</tr>
-    	{% empty %}
-        	<tr>
-        	  <td colspan="5">No production streams found.</td>
-        	</tr>
-    	{% endfor %}
-      </tbody>
-    </table>
+                                <p class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</p>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+        <div class="col-6">
+            <div class="card center-loader" id="details">
+                {% if stream %}
+                    {% include 'production/partials/production_stream_card.html' %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fa fa-hand-o-left fa-3x" aria-hidden="true"></i>
+
+                        <h3>Choose a Stream to see more details</h3>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
   </div>
 
 
@@ -98,23 +114,24 @@
       <thead class="thead-default">
 	<tr>
 	  <th>Date</th>
+	  <th>Comment</th>
 	  <th>Stream</th>
-	  <th>Event</th>
+      <th>Log type</th>
 	  <th>Duration</th>
 	</tr>
       </thead>
-
       <tbody role="tablist">
-	{% for event in ownevents %}
-	<tr>
-	  <td>{{ event.noted_on }}</td>
-	  <td>{{ event.stream }}</td>
-	  <td>{{ event.get_event_display }}</td>
-	  <td>{{ event.duration }}</td>
-	</tr>
+	{% for log in request.user.work_logs.all %}
+    	<tr>
+    	  <td>{{ log.work_date }}</td>
+    	  <td>{{ log.comments }}</td>
+    	  <td>{{ log.content }}</td>
+          <td>{{ log.log_type }}</td>
+    	  <td>{{ log.duration|duration }}</td>
+    	</tr>
 	{% empty %}
 	<tr>
-	  <td colspan="4">No events found.</td>
+	  <td colspan="4">No logs found.</td>
 	</tr>
 	{% endfor %}
       </tbody>
