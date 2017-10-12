@@ -1,3 +1,4 @@
+import re
 import json
 import inspect
 from html2text import HTML2Text
@@ -62,14 +63,17 @@ class EmailTemplateForm(forms.Form):
         # Get recipients list. Try to send through BCC to prevent privacy issues!
         bcc_list = []
         if self.mail_data.get('bcc_to') and self.object:
-            bcc_to = self.object
-            for attr in self.mail_data.get('bcc_to').split('.'):
-                bcc_to = getattr(bcc_to, attr)
-
-            if not isinstance(bcc_to, list):
-                bcc_list = [bcc_to]
+            if re.match("[^@]+@[^@]+\.[^@]+", self.mail_data.get('bcc_to')):
+                bcc_list = [self.mail_data.get('bcc_to')]
             else:
-                bcc_list = bcc_to
+                bcc_to = self.object
+                for attr in self.mail_data.get('bcc_to').split('.'):
+                    bcc_to = getattr(bcc_to, attr)
+
+                if not isinstance(bcc_to, list):
+                    bcc_list = [bcc_to]
+                else:
+                    bcc_list = bcc_to
 
         if self.cleaned_data.get('extra_recipient') and self.recipient:
             bcc_list.append(self.cleaned_data.get('extra_recipient'))
