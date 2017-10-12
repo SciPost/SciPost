@@ -5,7 +5,8 @@ from ..constants import PROSPECTIVE_PARTNER_REQUESTED,\
                         PROSPECTIVE_PARTNER_APPROACHED,\
                         PROSPECTIVE_PARTNER_NEGOTIATING,\
                         PROSPECTIVE_PARTNER_UNINTERESTED,\
-                        PROSPECTIVE_PARTNER_PROCESSED
+                        PROSPECTIVE_PARTNER_PROCESSED,\
+                        PROSPECTIVE_PARTNER_FOLLOWED_UP
 
 register = template.Library()
 
@@ -25,4 +26,6 @@ def partnerstatuscolor(status):
         color = '#ee0000'
     elif status == PROSPECTIVE_PARTNER_PROCESSED:
         color = '#32cd32'
+    elif status == PROSPECTIVE_PARTNER_FOLLOWED_UP:
+        color = '#d2e3f6'
     return color
