@@ -129,12 +129,18 @@ def reply_to_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
 
     # Verify if this is from an author:
-    try:
-        # Submission/Commentary
-        is_author = comment.content_object.authors.filter(id=request.user.contributor.id).exists()
-    except AttributeError:
+    related_object = comment.content_object
+    if isinstance(related_object, Submission) or isinstance(related_object, Commentary):
+        is_author = related_object.authors.filter(id=request.user.contributor.id).exists()
+    elif isinstance(related_object, Report):
+        is_author = related_object.submission.authors.filter(
+            id=request.user.contributor.id).exists()
+    elif isinstance(related_object, ThesisLink):
         # ThesisLink
-        is_author = comment.content_object.author == request.user.contributor
+        is_author = related_object.author == request.user.contributor
+    else:
+        # No idea what this could be, but just to be sure
+        is_author = related_object.author == request.user.contributor
 
     form = CommentForm(request.POST or None, request.FILES or None)
     if form.is_valid():
