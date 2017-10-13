@@ -119,8 +119,10 @@
                     {# END: Scientist fields #}
                     {% endif %}
 
-                    <h3 class="text-danger">Scientists, please help us out!</h3>
-                    <p>If it is not listed on our Partners page, please encourage your institution (through a librarian, director, ...) to join by <a class="h3 text-blue" href="{% url 'petitions:petition' slug='join-SPB' %}">signing our petition</a>.</p>
+                    <div class="border border-danger p-2">
+                        <h3 class="text-danger">Scientists, please help us out!</h3>
+                        <p class="mb-1">If it is not listed on our Partners page, please encourage your institution (through a librarian, director, ...) to join by <a class="h3 text-blue" href="{% url 'petitions:petition' slug='join-SPB' %}">signing our petition</a>.</p>
+                    </div>
                     <hr>
 
                   {% if 'SciPost Administrators' in user_groups %}
