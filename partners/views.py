@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.forms import modelformset_factory
-from django.http import FileResponse, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.utils import timezone
 
@@ -14,7 +14,8 @@ from mails.views import MailEditingSubView
 
 from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
-    PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT
+    PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
+    PROSPECTIVE_PARTNER_FOLLOWED_UP
 from .models import Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
                     ProspectivePartnerEvent, MembershipAgreement, Contact, Institution,\
                     PartnersAttachment
@@ -25,7 +26,6 @@ from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
                    NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
                    MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
                    ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
-from .utils import PartnerUtils
 
 
 def supporting_partners(request):
@@ -265,13 +265,17 @@ def add_prospartner_contact(request, prospartner_id):
 def email_prospartner_contact(request, contact_id, mail=None):
     contact = get_object_or_404(ProspectiveContact, pk=contact_id)
 
+    suffix = ''
     if mail == 'followup':
         code = 'partners_followup_mail'
+        suffix = ' (followup)'
+        new_status = PROSPECTIVE_PARTNER_FOLLOWED_UP
     else:
         code = 'partners_initial_mail'
+        new_status = PROSPECTIVE_PARTNER_APPROACHED
     mail_request = MailEditingSubView(request, mail_code=code, contact=contact)
     if mail_request.is_valid():
-        comments = 'Email sent to %s.' % str(contact)
+        comments = 'Email{suffix} sent to {name}.'.format(suffix=suffix, name=contact)
         prospartnerevent = ProspectivePartnerEvent(
             prospartner=contact.prospartner,
             event=PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,
@@ -280,8 +284,9 @@ def email_prospartner_contact(request, contact_id, mail=None):
             noted_by=request.user.contributor)
         prospartnerevent.save()
         if contact.prospartner.status in [PROSPECTIVE_PARTNER_REQUESTED,
-                                          PROSPECTIVE_PARTNER_ADDED]:
-            contact.prospartner.status = PROSPECTIVE_PARTNER_APPROACHED
+                                          PROSPECTIVE_PARTNER_ADDED,
+                                          PROSPECTIVE_PARTNER_APPROACHED]:
+            contact.prospartner.status = new_status
             contact.prospartner.save()
 
         messages.success(request, 'Email successfully sent.')
@@ -296,13 +301,19 @@ def email_prospartner_contact(request, contact_id, mail=None):
 def email_prospartner_generic(request, prospartner_id, mail=None):
     prospartner = get_object_or_404(ProspectivePartner, pk=prospartner_id)
 
+    suffix = ''
+
     if mail == 'followup':
         code = 'partners_followup_mail'
+        suffix = ' (followup)'
+        new_status = PROSPECTIVE_PARTNER_FOLLOWED_UP
     else:
         code = 'partners_initial_mail'
+        new_status = PROSPECTIVE_PARTNER_APPROACHED
     mail_request = MailEditingSubView(request, mail_code=code)
     if mail_request.is_valid():
-        comments = 'Email sent to %s.' % str(mail_request.recipients_string)
+        comments = 'Email{suffix} sent to {name}.'.format(suffix=suffix,
+                                                          name=mail_request.recipients_string)
         prospartnerevent = ProspectivePartnerEvent(
             prospartner=prospartner,
             event=PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,
@@ -311,8 +322,9 @@ def email_prospartner_generic(request, prospartner_id, mail=None):
             noted_by=request.user.contributor)
         prospartnerevent.save()
         if prospartner.status in [PROSPECTIVE_PARTNER_REQUESTED,
-                                  PROSPECTIVE_PARTNER_ADDED]:
-            prospartner.status = PROSPECTIVE_PARTNER_APPROACHED
+                                  PROSPECTIVE_PARTNER_ADDED,
+                                  PROSPECTIVE_PARTNER_APPROACHED]:
+            prospartner.status = new_status
             prospartner.save()
 
         messages.success(request, 'Email successfully sent.')

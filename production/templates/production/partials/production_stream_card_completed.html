@@ -38,7 +38,7 @@
 
       {% block actions %}
           <h3>Events</h3>
-          {% include 'production/partials/production_events.html' with events=stream.events.all non_editable=1 %}
+          {% include 'production/partials/production_events.html' with events=stream.events.all_without_duration non_editable=1 %}
 
           <h3>Work Log</h3>
           {% include 'partials/finances/logs.html' with logs=stream.work_logs.all %}

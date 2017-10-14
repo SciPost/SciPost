@@ -67,7 +67,7 @@
                             </div>
                             <div>
                                 <p class="mb-1">
-                                    <a href="{% url 'production:stream' stream.id %}">{{ stream.submission.title }}</a><br>
+                                    <a href="{% url 'production:stream' stream.id %}" data-toggle="dynamic" data-target="#details">{{ stream.submission.title }}</a><br>
                                     <em>by {{ stream.submission.author_list }}</em>
                                 </p>
                                 <p class="card-text mb-2">

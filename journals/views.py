@@ -248,6 +248,10 @@ def validate_publication(request):
         #publication.pdf_file = request.FILES['pdf_file']
         submission = publication.accepted_submission
         publication.authors.add(*submission.authors.all())
+        if publication.first_author:
+            publication.authors.add(publication.first_author)
+        if publication.first_author_unregistered:
+            publication.authors_unregistered.add(publication.first_author_unregistered)
         publication.authors_claims.add(*submission.authors_claims.all())
         publication.authors_false_claims.add(*submission.authors_false_claims.all())
         publication.save()
