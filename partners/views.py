@@ -302,7 +302,7 @@ def email_prospartner_generic(request, prospartner_id, mail=None):
     prospartner = get_object_or_404(ProspectivePartner, pk=prospartner_id)
 
     suffix = ''
-    raise
+
     if mail == 'followup':
         code = 'partners_followup_mail'
         suffix = ' (followup)'
