@@ -74,6 +74,8 @@ class EmailTemplateForm(forms.Form):
                     bcc_list = [bcc_to]
                 else:
                     bcc_list = bcc_to
+        elif re.match("[^@]+@[^@]+\.[^@]+", self.mail_data.get('bcc_to')):
+            bcc_list = [self.mail_data.get('bcc_to')]
 
         if self.cleaned_data.get('extra_recipient') and self.recipient:
             bcc_list.append(self.cleaned_data.get('extra_recipient'))
