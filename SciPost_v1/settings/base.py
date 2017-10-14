@@ -84,6 +84,7 @@ INSTALLED_APPS = (
     'haystack',
     'rest_framework',
     'sphinxdoc',
+    'colleges',
     'commentaries',
     'comments',
     'finances',

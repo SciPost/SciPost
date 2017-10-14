@@ -111,7 +111,8 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'remarks_for_editors',
                 'submitted_to_journal',
                 'pdf_refereeing_pack',
-                'plagiarism_report'),
+                'plagiarism_report',
+                'pool'),
         }),
         ('Meta', {
             'classes': ('collapse',),

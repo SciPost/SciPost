@@ -69,8 +69,8 @@ class SubmissionAdminViewMixin(FriendlyPermissionMixin, SubmissionFormViewMixin)
         """
         qs = super().get_queryset()
         if self.pool:
-            return qs.get_pool(self.request.user)
-        return qs.filter_editorial_page(self.request.user)
+            return qs.pool(self.request.user)
+        return qs.overcomplete_pool(self.request.user)
 
     def get_object(self):
         """

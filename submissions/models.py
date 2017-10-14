@@ -15,7 +15,7 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
                        EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
-from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationManager,\
+from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet,\
                       ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
@@ -24,7 +24,6 @@ from comments.models import Comment
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
-from scipost.models import Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
@@ -58,6 +57,8 @@ class Submission(models.Model):
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_UNASSIGNED)
     refereeing_cycle = models.CharField(max_length=30, choices=SUBMISSION_CYCLES,
                                         default=CYCLE_DEFAULT)
+    fellows = models.ManyToManyField('colleges.EditorialCollegeFellowship', blank=True,
+                                     related_name='pool')
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
@@ -520,7 +521,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
                                            related_name='voted_abstain')
     voting_deadline = models.DateTimeField('date submitted', default=timezone.now)
 
-    objects = EICRecommendationManager()
+    objects = EICRecommendationQuerySet.as_manager()
 
     def __str__(self):
         return (self.submission.title[:20] + ' by ' + self.submission.author_list[:30] +

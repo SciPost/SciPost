@@ -12,7 +12,9 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE,\
                        STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE,\
                        EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR,\
-                       STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED, STATUS_WITHDRAWN
+                       STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED, STATUS_WITHDRAWN,\
+                       STATUS_PUT_TO_EC_VOTING, STATUS_VOTING_IN_PREPARATION,\
+                       SUBMISSION_STATUS_VOTING_DEPRECATED
 
 
 class SubmissionQuerySet(models.QuerySet):
@@ -44,8 +46,47 @@ class SubmissionQuerySet(models.QuerySet):
         except AttributeError:
             return self.none()
 
+    def _pool(self, user):
+        """
+        This filter creates 'the complete pool' for an user.
+
+        This new-style pool does explicitly not have the author filter.
+        """
+        if not hasattr(user, 'contributor'):
+            return self.none()
+
+        if user.has_perm('scipost.can_oversee_refereeing'):
+            # Editorial Administators do have permission to see all submissions
+            # without being one of the College Fellows. Therefore, use the 'old' author
+            # filter to still filter out their conflicts of interests.
+            return self.user_filter(user)
+        else:
+            qs = user.contributor.fellowships.active()
+            return self.filter(fellows__in=qs)
+
+    def pool(self, user):
+        """
+        Return the pool for a certain user.
+        """
+        qs = self._pool(user)
+        qs = qs.exclude(is_current=False).exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
+        return qs.order_by('-submission_date')
+
+    def overcomplete_pool(self, user):
+        """
+        Return the overcomplete pool for a certain user.
+        This is similar to the regular pool, however it also contains submissions that are
+        hidden in the regular pool, but should still be able to be opened by for example
+        the Editor-in-charge.
+        """
+        qs = self._pool(user)
+        qs = qs.exclude(status__in=SUBMISSION_HTTP404_ON_EDITORIAL_PAGE)
+        return qs.order_by('-submission_date')
+
     def get_pool(self, user):
         """
+        -- DEPRECATED --
+
         Return subset of active and newest 'alive' submissions.
         """
         return (self.user_filter(user)
@@ -55,6 +96,8 @@ class SubmissionQuerySet(models.QuerySet):
 
     def filter_editorial_page(self, user):
         """
+        -- DEPRECATED --
+
         Return Submissions currently 'alive' (being refereed, not published).
 
         It is meant to allow opening and editing certain submissions that are officially
@@ -121,18 +164,14 @@ class SubmissionQuerySet(models.QuerySet):
             identifiers.append(sub.arxiv_identifier_wo_vn_nr)
         return self.filter(arxiv_identifier_wo_vn_nr__in=identifiers)
 
-
     def accepted(self):
         return self.filter(status=STATUS_ACCEPTED)
-
 
     def published(self):
         return self.filter(status=STATUS_PUBLISHED)
 
-
     def assignment_failed(self):
         return self.filter(status=STATUS_ASSIGNMENT_FAILED)
-
 
     def rejected(self):
         return self._newest_version_only(self.filter(status__in=[STATUS_REJECTED,
@@ -140,7 +179,6 @@ class SubmissionQuerySet(models.QuerySet):
 
     def withdrawn(self):
         return self._newest_version_only(self.filter(status=STATUS_WITHDRAWN))
-
 
     def open_for_reporting(self):
         """
@@ -203,7 +241,7 @@ class EditorialAssignmentQuerySet(models.QuerySet):
         return self.filter(accepted=None, deprecated=False)
 
 
-class EICRecommendationManager(models.Manager):
+class EICRecommendationQuerySet(models.QuerySet):
     def get_for_user_in_pool(self, user):
         """
         -- DEPRECATED --
@@ -221,6 +259,8 @@ class EICRecommendationManager(models.Manager):
 
     def filter_for_user(self, user, **kwargs):
         """
+        -- DEPRECATED --
+
         Return list of EICRecommendation's which are owned/assigned author through the
         related submission.
         """
@@ -228,6 +268,23 @@ class EICRecommendationManager(models.Manager):
             return self.filter(submission__authors=user.contributor).filter(**kwargs)
         except AttributeError:
             return self.none()
+
+    def user_may_vote_on(self, user):
+        if not hasattr(user, 'contributor'):
+            return self.none()
+
+        return (self.filter(eligible_to_vote=user.contributor)
+                .exclude(recommendation__in=[-1, -2])
+                .exclude(voted_for=user.contributor)
+                .exclude(voted_against=user.contributor)
+                .exclude(voted_abstain=user.contributor)
+                .exclude(submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED))
+
+    def put_to_voting(self):
+        return self.filter(submission__status=STATUS_PUT_TO_EC_VOTING)
+
+    def voting_in_preparation(self):
+        return self.filter(submission__status=STATUS_VOTING_IN_PREPARATION)
 
 
 class ReportQuerySet(models.QuerySet):

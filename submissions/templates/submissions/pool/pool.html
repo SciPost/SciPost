@@ -27,14 +27,14 @@
             <h1>SciPost Submissions Pool</h1>
             {% if is_ECAdmin %}
 
-                {% if recommendations_to_prepare_for_voting or recommendations_undergoing_voting %}
+                {% if recommendations.voting_in_preparation.exists or recommendations.put_to_voting.exists %}
                     <div class="quote-border">
                         <h2 class="text-primary">Administrative Tasks</h2>
 
-                        {% if recommendations_to_prepare_for_voting %}
+                        {% if recommendations.voting_in_preparation.exists %}
                             <h3>Recommendations to prepare for voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
                             <ul>
-                                {% for recommendation in recommendations_to_prepare_for_voting %}
+                                {% for recommendation in recommendations.voting_in_preparation %}
                                     <li>On Editorial Recommendation: {{ recommendation }}<br>
                                         <a href="{% url 'submissions:prepare_for_voting' rec_id=recommendation.id %}">Prepare for voting</a>
                                     </li>
@@ -42,10 +42,10 @@
                             </ul>
                         {% endif %}
 
-                        {% if recommendations_undergoing_voting %}
+                        {% if recommendations.put_to_voting.exists %}
                             <h3>Recommendations undergoing voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
                             <ul class="fa-ul">
-                                {% for recommendation in recommendations_undergoing_voting %}
+                                {% for recommendation in recommendations.put_to_voting %}
                                     <li>{% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
                                         On Editorial Recommendation: {{ recommendation }}<br>
                                         <a href="{% url 'submissions:admin_recommendation' recommendation.submission.arxiv_identifier_w_vn_nr %}">See Editorial Recommendation</a>
@@ -91,7 +91,7 @@
 
             <ul class="list-unstyled" data-target="active-list">
                 <!-- Submissions list -->
-                {% for sub in submissions_in_pool %}
+                {% for sub in submissions %}
                     <li class="p-2{% if sub == submission %} active{% endif %}">
                         {% if sub == submission %}
                             {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=1 %}
