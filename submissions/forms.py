@@ -18,6 +18,7 @@ from .models import Submission, RefereeInvitation, Report, EICRecommendation, Ed
                     iThenticateReport
 
 from colleges.models import Fellowship
+from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.services import ArxivCaller
 from scipost.models import Contributor
@@ -223,6 +224,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             'is_resubmission',
             'discipline',
             'submitted_to_journal',
+            'proceeding',
             'submission_type',
             'domain',
             'subject_area',
@@ -257,6 +259,11 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             self.fields['list_of_changes'].widget.attrs.update({
                 'placeholder': 'Give a point-by-point list of changes (will be viewable online)'})
 
+        # Proceedings submission
+        qs = self.fields['proceeding'].queryset.open_for_submission()
+        self.fields['proceeding'].queryset = qs
+        self.fields['proceeding'].empty_label = None
+
         # Update placeholder for the other fields
         self.fields['arxiv_link'].widget.attrs.update({
             'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
@@ -279,6 +286,10 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         self.do_pre_checks(cleaned_data['arxiv_identifier_w_vn_nr'])
         self.arxiv_meets_regex(cleaned_data['arxiv_identifier_w_vn_nr'],
                                cleaned_data['submitted_to_journal'])
+
+        if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
+            del self.cleaned_data['proceeding']
+
         return cleaned_data
 
     def clean_author_list(self):
@@ -344,9 +355,13 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         return submission
 
     def set_pool(self, submission):
-        fellows = Fellowship.objects.active().regular().filter(
-            contributor__discipline=submission.discipline)
-        submission.pool.set(fellows)
+        qs = Fellowship.objects.active()
+        fellows = qs.regular().filter(contributor__discipline=submission.discipline)
+        submission.fellows.set(fellows)
+
+        if submission.proceeding:
+            guest_fellows = qs.guests().filter(proceedings=submission.proceeding)
+            submission.fellows.add(*guest_fellows)
 
     @transaction.atomic
     def save(self):

@@ -86,7 +86,8 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'discipline',
                 'domain',
                 'subject_area',
-                'secondary_areas'),
+                'secondary_areas',
+                'proceeding'),
         }),
         ('Authors', {
             'classes': ('collapse',),

@@ -97,6 +97,7 @@ INSTALLED_APPS = (
     'submissions',
     'theses',
     'virtualmeetings',
+    'proceedings',
     'production',
     'partners',
     'funders',
