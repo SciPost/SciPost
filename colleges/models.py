@@ -1,13 +1,14 @@
 import datetime
 
 from django.db import models
+from django.urls import reverse
 
 from scipost.behaviors import TimeStampedModel
 
 from .managers import FellowQuerySet
 
 
-class EditorialCollegeFellowship(TimeStampedModel):
+class Fellowship(TimeStampedModel):
     """
     Editorial College Fellowship connecting Editorial College and Contributors,
     possibly with a limiting start/until date.
@@ -17,7 +18,6 @@ class EditorialCollegeFellowship(TimeStampedModel):
     """
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                     related_name='fellowships')
-    affiliation = models.CharField(max_length=255, blank=True)
     start_date = models.DateField(null=True, blank=True)
     until_date = models.DateField(null=True, blank=True)
 
@@ -28,6 +28,15 @@ class EditorialCollegeFellowship(TimeStampedModel):
 
     def __str__(self):
         return self.contributor.__str__()
+
+    def get_absolute_url(self):
+        return reverse('colleges:fellowship', args=(self.id,))
+
+    def sibling_fellowships(self):
+        """
+        Return all Fellowships that are directly related to the Fellow of this Fellowship.
+        """
+        return self.contributor.fellowships.all()
 
     def is_active(self):
         today = datetime.date.today()

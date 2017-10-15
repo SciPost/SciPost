@@ -110,6 +110,10 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Editorial College
+        can_manage_college_composition, created = Permission.objects.get_or_create(
+            codename='can_manage_college_composition',
+            name='Can manage Editorial College compositions',
+            content_type=content_type)
         can_attend_VGMs, created = Permission.objects.get_or_create(
             codename='can_attend_VGMs',
             name='Can attend Virtual General Meetings',
@@ -304,6 +308,7 @@ class Command(BaseCommand):
             can_do_plagiarism_checks,
             can_oversee_refereeing,
             can_prepare_recommendations_for_voting,
+            can_manage_college_composition,
             can_fix_College_decision,
             can_view_production,
             can_view_timesheets,

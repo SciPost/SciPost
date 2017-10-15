@@ -1,0 +1,109 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Active Fellowships</a>
+    <span class="breadcrumb-item">Fellowship details</span>
+{% endblock %}
+
+{% block pagetitle %}: Fellowship details{% endblock pagetitle %}
+
+{% block content %}
+    <h1>Fellowship details</h1>
+    <h2 class="text-primary">{{ fellowship }}</h2>
+    <br>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Details</h3>
+
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Fellowship ID</th>
+                        <td>{{ fellowship.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fellow</th>
+                        <td>{{ fellowship }}</td>
+                    </tr>
+                    <tr>
+                        <th>Discipline</th>
+                        <td>{{ fellowship.contributor.get_discipline_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Start date</th>
+                        <td>{{ fellowship.start_date|default:'<i>No start date</i>' }}</td>
+                    </tr>
+                    <tr>
+                        <th>End date</th>
+                        <td>{{ fellowship.until_date|default:'<i>No end date</i>' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h3>All fellowships of this fellow</h3>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fellowship ID</th>
+                        <th colspan="2">Date range</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fellowship in fellowship.sibling_fellowships %}
+                        <tr>
+                            <td>{{ fellowship.id }}</td>
+                            <td>
+                                {% if fellowship.start_date %}
+                                    from {{ fellowship.start_date }}
+                                {% endif %}
+                                {% if fellowship.until_date %}
+                                    until {{ fellowship.until_date }}
+                                {% endif %}
+                                {% if not fellowship.start_date and not fellowship.until_date %}
+                                    <i>Unlimited</i>
+                                {% endif %}
+                            </td>
+                            <td><a href="{{ fellowship.get_absolute_url }}">See details</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="#">Add new Fellowship for {{ fellowship.contributor }}</a>
+        </div>
+    </div>
+
+    <h3>Pool for this Fellowship</h3>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Submission</th>
+                <th colspan="2">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in fellowship.pool.all %}
+                <tr>
+                    <td>
+                        <a href="{{ submission.get_absolute_url }}">{{ submission.arxiv_identifier_w_vn_nr }}, {{ submission.title|truncatechars:50 }}</a>
+                    </td>
+                    <td>{{ submission.get_status_display }}</td>
+                    <td>
+                        {% if submission.editor_in_charge == fellowship.contributor %}
+                            <strong>Fellow is Editor-in-charge</strong>
+                        {% else %}
+                            <a class="text-danger" href="#">Remove from this Fellowship's pool</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3" class="py-3 text-center"><a href="#">Add Submission to this Fellowship's pool</a></td>
+            </tr>
+        </tbody>
+    </table>
+
+{% endblock %}

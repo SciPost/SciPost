@@ -57,7 +57,7 @@ class Submission(models.Model):
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_UNASSIGNED)
     refereeing_cycle = models.CharField(max_length=30, choices=SUBMISSION_CYCLES,
                                         default=CYCLE_DEFAULT)
-    fellows = models.ManyToManyField('colleges.EditorialCollegeFellowship', blank=True,
+    fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')

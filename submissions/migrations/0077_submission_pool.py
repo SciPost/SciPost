@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='submission',
             name='pool',
-            field=models.ManyToManyField(blank=True, related_name='pool', to='colleges.EditorialCollegeFellowship'),
+            field=models.ManyToManyField(blank=True, related_name='pool', to='colleges.Fellowship'),
         ),
     ]
