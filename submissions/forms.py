@@ -263,6 +263,10 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         qs = self.fields['proceeding'].queryset.open_for_submission()
         self.fields['proceeding'].queryset = qs
         self.fields['proceeding'].empty_label = None
+        if qs.count() > 0:
+            # Open the proceedings Journal for submission
+            self.fields['submitted_to_journal'].choices += (
+                (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Proceedings'),)
 
         # Update placeholder for the other fields
         self.fields['arxiv_link'].widget.attrs.update({
