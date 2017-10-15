@@ -5,6 +5,12 @@ from django.db.models import Q
 
 
 class FellowQuerySet(models.QuerySet):
+    def guests(self):
+        return self.filter(guest=True)
+
+    def regular(self):
+        return self.filter(guest=False)
+
     def active(self):
         today = datetime.date.today()
         return self.filter(

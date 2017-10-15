@@ -21,13 +21,18 @@ class Fellowship(TimeStampedModel):
     start_date = models.DateField(null=True, blank=True)
     until_date = models.DateField(null=True, blank=True)
 
+    guest = models.BooleanField('Guest Fellowship', default=False)
+
     objects = FellowQuerySet.as_manager()
 
     class Meta:
         unique_together = ('contributor', 'start_date', 'until_date')
 
     def __str__(self):
-        return self.contributor.__str__()
+        _str = self.contributor.__str__()
+        if self.guest:
+            _str += ' (guest fellowship)'
+        return _str
 
     def get_absolute_url(self):
         return reverse('colleges:fellowship', args=(self.id,))

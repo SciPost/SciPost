@@ -17,6 +17,7 @@ from . import exceptions, helpers
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
                     iThenticateReport
 
+from colleges.models import Fellowship
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.services import ArxivCaller
 from scipost.models import Contributor
@@ -342,6 +343,11 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         submission.save()
         return submission
 
+    def set_pool(self, submission):
+        fellows = Fellowship.objects.active().regular().filter(
+            contributor__discipline=submission.discipline)
+        submission.pool.set(fellows)
+
     @transaction.atomic
     def save(self):
         """
@@ -368,6 +374,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             submission = self.copy_and_save_data_from_resubmission(submission)
             submission = self.reassign_eic_and_admins(submission)
         submission.authors.add(self.requested_by.contributor)
+        self.set_pool(submission)
         return submission
 
 
