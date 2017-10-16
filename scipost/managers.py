@@ -44,6 +44,9 @@ class RegistrationInvitationManager(models.Manager):
     def declined(self):
         return self.filter(responded=True, declined=True)
 
+    def declined_or_without_response(self):
+        return self.filter(Q(responded=True, declined=True) | Q(responded=False))
+
 
 class UnavailabilityPeriodManager(models.Manager):
     def today(self):
