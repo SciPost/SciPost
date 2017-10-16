@@ -239,9 +239,9 @@
 
 {# This is an apparent redundant logic block; however, it makes sure the "login to ..." links wouldn't be shown twice! #}
 {% if not user.is_authenticated and submission.comments.vetted.exists %}
-    {% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting %}
+    {% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
 {% elif user.is_authenticated %}
-    {% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting %}
+    {% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
 {% endif %}
 
 {% endblock content %}

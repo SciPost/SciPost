@@ -23,3 +23,7 @@ def is_viewable_by_authors(recommendation):
     return recommendation.submission.status in ['revision_requested', 'resubmitted',
                                                 'accepted', 'rejected',
                                                 'published', 'withdrawn']
+
+@register.filter
+def user_is_referee(submission, user):
+    return submission.referee_invitations.filter(referee__user=user).exists()
