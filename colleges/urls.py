@@ -12,6 +12,12 @@ urlpatterns = [
     url(r'^fellowships/(?P<id>[0-9]+)/edit$', views.fellowship_edit, name='fellowship_edit'),
     url(r'^fellowships/(?P<id>[0-9]+)/terminate$', views.fellowship_terminate,
         name='fellowship_terminate'),
+    url(r'^fellowships/submissions/{regex}/$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_pool,
+        name='submission'),
+    url(r'^fellowships/submissions/{regex}/add$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_add_fellowship,
+        name='submission_add_fellowship'),
     url(r'^fellowships/(?P<id>[0-9]+)/submissions/{regex}/remove$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.fellowship_remove_submission,
         name='fellowship_remove_submission'),

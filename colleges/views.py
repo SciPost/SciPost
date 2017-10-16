@@ -1,9 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect
+from django.core.urlresolvers import reverse
+
+from submissions.models import Submission
 
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
-    FellowshipAddSubmissionForm, AddFellowshipForm
+    FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm
 from .models import Fellowship
 
 
@@ -90,6 +93,53 @@ def fellowship_terminate(request, id):
     else:
         messages.warning(request, 'Fellowship has not been terminated, please try again.')
     return redirect(fellowship.get_absolute_url())
+
+
+@login_required
+@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+def submission_pool(request, arxiv_identifier_w_vn_nr):
+    """
+    List all Fellowships related to Submission.
+    """
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    # form = FellowshipRemoveSubmissionForm(request.POST or None,
+    #                                       submission=submission, instance=fellowship)
+    #
+    # if form.is_valid() and request.POST:
+    #     form.save()
+    #     messages.success(request, 'Submission {sub} removed from Fellowship.'.format(
+    #         sub=arxiv_identifier_w_vn_nr))
+    #     return redirect(fellowship.get_absolute_url())
+
+    context = {
+        # 'form': form,
+        'submission': submission
+    }
+    return render(request, 'colleges/submission_pool.html', context)
+
+
+@login_required
+@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+def submission_add_fellowship(request, arxiv_identifier_w_vn_nr):
+    """
+    Add Fellowship to the pool of a Submission.
+    """
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    form = SubmissionAddFellowshipForm(request.POST or None, instance=submission)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Fellowship {fellowship} ({id}) added to Submission.'.format(
+            fellowship=form.cleaned_data['fellowship'].contributor,
+            id=form.cleaned_data['fellowship'].id))
+        return redirect(reverse('colleges:submission',
+                                args=(submission.arxiv_identifier_w_vn_nr,)))
+
+    context = {
+        'submission': submission,
+        'form': form,
+    }
+    return render(request, 'colleges/submission_add.html', context)
 
 
 @login_required

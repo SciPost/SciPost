@@ -87,7 +87,7 @@ class FellowshipRemoveSubmissionForm(forms.ModelForm):
 
 class FellowshipAddSubmissionForm(forms.ModelForm):
     submission = forms.ModelChoiceField(queryset=None, to_field_name='arxiv_identifier_w_vn_nr',
-                                        empty_label="Please choice the Submission to add to the pool")
+                                        empty_label="Please choose the Submission to add to the pool")
 
     class Meta:
         model = Fellowship
@@ -103,3 +103,23 @@ class FellowshipAddSubmissionForm(forms.ModelForm):
         fellowship = self.instance
         fellowship.pool.add(submission)
         return fellowship
+
+
+class SubmissionAddFellowshipForm(forms.ModelForm):
+    fellowship = forms.ModelChoiceField(queryset=None, to_field_name='id',
+                                        empty_label="Please choose the Fellow to add to the Pool")
+
+    class Meta:
+        model = Submission
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        pool = self.instance.fellows.values_list('id', flat=True)
+        self.fields['fellowship'].queryset = Fellowship.objects.active().exclude(id__in=pool)
+
+    def save(self):
+        fellowship = self.cleaned_data['fellowship']
+        submission = self.instance
+        submission.fellows.add(fellowship)
+        return submission
