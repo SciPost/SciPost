@@ -1,5 +1,7 @@
 {% extends 'scipost/base.html' %}
 
+{% load staticfiles %}
+
 {% block pagetitle %}: Frequently asked questions{% endblock pagetitle %}
 
 
@@ -37,13 +39,13 @@
             <h3>Which Journals does SciPost publish?</h3>
         </a>
         <div id="journals_journals" class="collapse" role="tabpanel">
-            <p>In the startup phase, two Journals are being offered:</p>
+            <p>The following Journals are currently being offered:</p>
               <ul>
                 <li>SciPost Physics</li>
                 <li>SciPost Physics Lecture Notes</li>
+                <li>SciPost Physics Proceedings</li>
               </ul>
-            <p>Both Journals cover all domains and subject areas within the field of Physics.</p>
-            <p>SciPost Physics Select, the editorially-selected highlights Journal, will be introduced in the near future.</p>
+            <p>These Journals cover all domains and subject areas within the field of Physics.</p>
         </div>
     </div>
 
@@ -116,7 +118,9 @@
             <h3>Will SciPost papers be listed in citation databases?</h3>
         </a>
         <div id="journals_cite_db" class="collapse" role="journals_cite_db">
-            <p>Inclusion in standard citation databases can be applied for once the Journals have been operating for a short while (at least 3 months). Past experience with other new journals shows that listing typically occurs within a year of launch. Search engine-based listings are expected to pick our Journals up on a shorter timescale.</p>
+	  <p>SciPost Physics is listed in <a href="http://wokinfo.com/prod=
+ucts_tools/multidisciplinary/esci/">ESCI</a> (part of Web of Science's Core Collection), in Google Scholar and in INSPIRE.</p>
+	  <p>SciPost is an active participant in the <a href="https://i4oc.org">Initiative for Open Citations</a> (I4OC), aiming to make all citation metadata publicly available, thereby opening up a future in which a much more diverse citation metrics landscape will be accessible.</p>
         </div>
     </div>
 
@@ -143,8 +147,7 @@
             <h3>Will my papers always be available?</h3>
         </a>
         <div id="journals_availability" class="collapse" role="journals_availability">
-            <p>Yes. SciPost is here to stay, and authors should not worry that their SciPost publications could potentially disappear.
-            SciPost has institutional backing guaranteeing perpetuity of access to its journals database.</p>
+            <p>Yes. SciPost is here to stay, and authors should not worry that their SciPost publications could potentially disappear. In any case, all our publications are preserved in the <a href="https://clockss.org">CLOCKSS</a>, an industry-wide standard professional-level archiving system. As long as the Web exists, our publications will be accessible, even if the Netherlands get flooded.</p>
         </div>
     </div>
 
@@ -233,7 +236,7 @@
         </a>
         <div id="commentaries_privacy" class="collapse" role="tabpanel">
             <p>Comments posted on SciPost carry an identifier including the Contributor's full name.</p>
-            <p>Reports on Submissions are anonymous by default. If the Contributor providing the Report wishes it, anonymity can be waived.</p>
+            <p>Reports on Submissions are anonymous by default. If the Contributor providing the Report wishes it, anonymity can be waived. Though we do not force it, we do encourage our Referees to sign their Reports.</p>
             <p>More details can be found in our <a href="{% url 'scipost:privacy_policy' %}">Privacy Policy</a>.</p>
         </div>
     </div>
@@ -269,7 +272,7 @@
         </a>
         <div id="scipost_fields" class="collapse" role="tabpanel">
             <p>The initial rollout of SciPost offers a Physics portal.</p>
-            <p>Portals in other disciplines will be opened if the SciPost model proves to be successful.</p>
+            <p>Portals in other disciplines will be opened if the SciPost model proves to be successful, and when a sufficient number of <a href="{% url 'partners:partners' %}">Supporting Partners</a> have been signed up.</p>
         </div>
     </div>
 
@@ -287,8 +290,9 @@
             <h3>How is SciPost funded?</h3>
         </a>
         <div id="scipost_funded" class="collapse" role="tabpanel">
-            <p>SciPost operates non-commercially, incurring minimal costs. Contributors, who are by definition all academically employed, provide all the content and perform all editorial tasks as part of their normal institutional academic duties. Operations are kept running by a team of volunteer officers, themselves academically employed.</p>
-            <p>Support for operational costs is initially provided by the <a target="_blank" href="http://www.nwo.nl/en">NWO</a> in the Netherlands. Long-term operations will be financed by donations from national funding agencies, universities, societies, foundations and individuals. If you are interested in financially supporting SciPost, <a href="mailto:jscaux@scipost.org">contact us</a>.</p>
+            <p>SciPost operates non-commercially and purely not-for-profit, incurring minimal costs. Contributors, who are by definition all academically employed, provide all the content and perform all editorial tasks as part of their normal institutional academic duties. Operations are kept running by a team of volunteer officers, themselves academically employed.</p>
+            <p>The startup phase was supported by a grant from the <a target="_blank" href="http://www.nwo.nl/en">NWO</a> in the Netherlands. Long-term operations will be financed by donations from national funding agencies, universities, societies, foundations and individuals. More information on our cost-slashing consortial scheme can be found on our <a href="{% url 'partners:partners' %}">partners page</a>. Librarians can have a look at our <a href="{% static 'scipost/SPB/SciPost_Supporting_Partners_Board_Prospectus.pdf' %}">one-page Prospectus</a>. Detailed information for prospective Partners can be found in the draft <a href="{% static 'scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf' %}">Partner Agreement</a>. If you are interested in financially supporting SciPost, <a href="mailto:partners@scipost.org">contact us</a> to get further details.
+	    </p>
         </div>
     </div>
 </div>
