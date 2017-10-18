@@ -102,17 +102,8 @@ def submission_pool(request, arxiv_identifier_w_vn_nr):
     List all Fellowships related to Submission.
     """
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    # form = FellowshipRemoveSubmissionForm(request.POST or None,
-    #                                       submission=submission, instance=fellowship)
-    #
-    # if form.is_valid() and request.POST:
-    #     form.save()
-    #     messages.success(request, 'Submission {sub} removed from Fellowship.'.format(
-    #         sub=arxiv_identifier_w_vn_nr))
-    #     return redirect(fellowship.get_absolute_url())
 
     context = {
-        # 'form': form,
         'submission': submission
     }
     return render(request, 'colleges/submission_pool.html', context)

@@ -20,16 +20,23 @@ class FellowQuerySet(models.QuerySet):
             Q(start_date__isnull=True, until_date__isnull=True)
             ).order_by('contributor__user__last_name')
 
-    def filter_for_submission_author(self, submission):
+    def return_active_for_submission(self, submission):
+        """
+        This method returns a *list* of Fellowships that passed the 'author-check' for
+        a specific submission.
+        """
         try:
-            submissions_exclude = Submission.objects.filter()
-            Contributor.objects.filter(user__last_name)
+            qs = self.exclude(contributor__in=submission.authors.all()).active()
+            false_claims = submission.authors_false_claims.all()
+            author_list = submission.author_list.lower()
+            fellowships = []
+            for fellowship in qs:
+                contributor = fellowship.contributor
+                user = contributor.user
+                if user.last_name.lower() in author_list and contributor not in false_claims:
+                    continue
 
-            # return (self.exclude(authors=user.contributor)
-            #         .exclude(Q(author_list__icontains=user.last_name),
-            #                  ~Q(authors_false_claims=user.contributor)))
-            return (self.exclude(contributor__in=submission.authors)
-                    .exclude(Q(contributor__user__last_name=submission.author_list),  # U/S, use: https://docs.djangoproject.com/en/1.11/ref/models/querysets/#iregex
-                             ~Q(contributor__in=submission.authors_false_claims.all())))
-        except:
-            return self.none()
+                fellowships.append(fellowship)
+            return fellowships
+        except AttributeError:
+                return []

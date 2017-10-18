@@ -360,12 +360,15 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
     def set_pool(self, submission):
         qs = Fellowship.objects.active()
-        fellows = qs.regular().filter(contributor__discipline=submission.discipline)
+        fellows = qs.regular().filter(
+            contributor__discipline=submission.discipline).return_active_for_submission(submission)
         submission.fellows.set(fellows)
 
         if submission.proceeding:
-            guest_fellows = qs.guests().filter(proceedings=submission.proceeding)
-            submission.fellows.add(*guest_fellows)
+            # Add Guest Fellowships if the Submission is a Proceedings manuscript
+            guest_fellows = qs.guests().filter(
+                proceedings=submission.proceeding).return_active_for_submission(submission)
+            submission.fellows.add(guest_fellows)
 
     @transaction.atomic
     def save(self):

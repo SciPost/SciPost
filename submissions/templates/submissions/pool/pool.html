@@ -89,10 +89,10 @@
                 </form>
             {% endif %}
 
-            <ul class="list-unstyled" data-target="active-list">
+            <ul class="list-group" data-target="active-list">
                 <!-- Submissions list -->
                 {% for sub in submissions %}
-                    <li class="p-2{% if sub == submission %} active{% endif %}">
+                    <li class="list-group-item p-2{% if sub == submission %} active{% endif %}">
                         {% if sub == submission %}
                             {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=1 %}
                         {% else %}
