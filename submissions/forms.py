@@ -224,7 +224,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             'is_resubmission',
             'discipline',
             'submitted_to_journal',
-            'proceeding',
+            'proceedings',
             'submission_type',
             'domain',
             'subject_area',
@@ -260,13 +260,18 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
                 'placeholder': 'Give a point-by-point list of changes (will be viewable online)'})
 
         # Proceedings submission
-        qs = self.fields['proceeding'].queryset.open_for_submission()
-        self.fields['proceeding'].queryset = qs
-        self.fields['proceeding'].empty_label = None
-        if qs.exists():
+        qs = self.fields['proceedings'].queryset.open_for_submission()
+        self.fields['proceedings'].queryset = qs
+        self.fields['proceedings'].empty_label = None
+        if not qs.exists():
             # Open the proceedings Journal for submission
-            self.fields['submitted_to_journal'].choices += (
-                (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Proceedings'),)
+            def filter_proceedings(item):
+                return item[0] != SCIPOST_JOURNAL_PHYSICS_PROC
+
+            self.fields['submitted_to_journal'].choices = filter(
+                filter_proceedings, self.fields['submitted_to_journal'].choices)
+            # self.fields['submitted_to_journal'].choices += (
+            #     (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Proceedings'),)
 
         # Update placeholder for the other fields
         self.fields['arxiv_link'].widget.attrs.update({
@@ -292,7 +297,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
                                cleaned_data['submitted_to_journal'])
 
         if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
-            del self.cleaned_data['proceeding']
+            del self.cleaned_data['proceedings']
 
         return cleaned_data
 
@@ -364,10 +369,10 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             contributor__discipline=submission.discipline).return_active_for_submission(submission)
         submission.fellows.set(fellows)
 
-        if submission.proceeding:
+        if submission.proceedings:
             # Add Guest Fellowships if the Submission is a Proceedings manuscript
             guest_fellows = qs.guests().filter(
-                proceedings=submission.proceeding).return_active_for_submission(submission)
+                proceedings=submission.proceedings).return_active_for_submission(submission)
             submission.fellows.add(guest_fellows)
 
     @transaction.atomic

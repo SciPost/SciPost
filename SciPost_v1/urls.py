@@ -45,6 +45,7 @@ urlpatterns = [
     url(r'^news/', include('news.urls', namespace="news")),
     url(r'^notifications/', include('notifications.urls', namespace="notifications")),
     url(r'^petitions/', include('petitions.urls', namespace="petitions")),
+    url(r'^proceedings/', include('proceedings.urls', namespace="proceedings")),
     url(r'^production/', include('production.urls', namespace="production")),
     url(r'^partners/', include('partners.urls', namespace="partners")),
     url(r'^stats/', include('stats.urls', namespace="stats")),

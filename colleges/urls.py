@@ -23,4 +23,9 @@ urlpatterns = [
         name='fellowship_remove_submission'),
     url(r'^fellowships/(?P<id>[0-9]+)/submissions/add$',
         views.fellowship_add_submission, name='fellowship_add_submission'),
+
+    url(r'^fellowships/(?P<id>[0-9]+)/proceedings/add$',
+        views.fellowship_add_proceedings, name='fellowship_add_proceedings'),
+    url(r'^fellowships/(?P<id>[0-9]+)/proceedings/(?P<proceedings_id>[0-9]+)/remove$',
+        views.fellowship_remove_proceedings, name='fellowship_remove_proceedings'),
 ]

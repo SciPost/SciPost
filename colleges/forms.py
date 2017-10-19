@@ -2,6 +2,7 @@ import datetime
 
 from django import forms
 
+from proceedings.models import Proceedings
 from submissions.models import Submission
 from scipost.models import Contributor
 
@@ -123,3 +124,46 @@ class SubmissionAddFellowshipForm(forms.ModelForm):
         submission = self.instance
         submission.fellows.add(fellowship)
         return submission
+
+
+class FellowshipRemoveProceedingsForm(forms.ModelForm):
+    """
+    Use this form in admin-accessible views only! It could possibly reveal the
+    identity of the Editor-in-charge!
+    """
+    class Meta:
+        model = Fellowship
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        self.proceedings = kwargs.pop('proceedings')
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        if self.proceedings.lead_fellow == self.instance:
+            self.add_error(None, 'Fellowship cannot be removed as it is assigned as lead fellow.')
+
+    def save(self):
+        fellowship = self.instance
+        self.proceedings.fellowships.remove(fellowship)
+        return fellowship
+
+
+class FellowshipAddProceedingsForm(forms.ModelForm):
+    proceedings = forms.ModelChoiceField(queryset=None, to_field_name='id',
+                                         empty_label="Please choose the Proceedings to add to the Pool")
+
+    class Meta:
+        model = Fellowship
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        proceedings = self.instance.proceedings.values_list('id', flat=True)
+        self.fields['proceedings'].queryset = Proceedings.objects.exclude(id__in=proceedings)
+
+    def save(self):
+        proceedings = self.cleaned_data['proceedings']
+        fellowship = self.instance
+        proceedings.fellowships.add(fellowship)
+        return fellowship

@@ -69,8 +69,8 @@ class Submission(models.Model):
     # Replace this by foreignkey?
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
                                             verbose_name="Journal to be submitted to")
-    proceeding = models.ForeignKey('proceedings.Proceeding', null=True, blank=True,
-                                   related_name='submissions')
+    proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
+                                    related_name='submissions')
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:

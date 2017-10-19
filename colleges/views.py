@@ -3,10 +3,12 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.urlresolvers import reverse
 
+from proceedings.models import Proceedings
 from submissions.models import Submission
 
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
-    FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm
+    FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
+    FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm
 from .models import Fellowship
 
 
@@ -179,3 +181,49 @@ def fellowship_add_submission(request, id):
         'form': form,
     }
     return render(request, 'colleges/fellowship_submission_add.html', context)
+
+
+@login_required
+@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+def fellowship_remove_proceedings(request, id, proceedings_id):
+    """
+    Remove Proceedings from the pool of a Fellowship.
+    """
+    fellowship = get_object_or_404(Fellowship, id=id)
+    proceedings = get_object_or_404(fellowship.proceedings.all(), id=proceedings_id)
+    form = FellowshipRemoveProceedingsForm(request.POST or None,
+                                           proceedings=proceedings, instance=fellowship)
+
+    if form.is_valid() and request.POST:
+        form.save()
+        messages.success(request, 'Proceedings %s removed from Fellowship.' % str(proceedings))
+        return redirect(fellowship.get_absolute_url())
+
+    context = {
+        'fellowship': fellowship,
+        'form': form,
+        'proceedings': proceedings
+    }
+    return render(request, 'colleges/fellowship_proceedings_remove.html', context)
+
+
+@login_required
+@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+def fellowship_add_proceedings(request, id):
+    """
+    Add Proceedings to the pool of a Fellowship.
+    """
+    fellowship = get_object_or_404(Fellowship, id=id)
+    form = FellowshipAddProceedingsForm(request.POST or None, instance=fellowship)
+
+    if form.is_valid():
+        form.save()
+        proceedings = form.cleaned_data.get('proceedings', '')
+        messages.success(request, 'Proceedings %s added to Fellowship.' % str(proceedings))
+        return redirect(fellowship.get_absolute_url())
+
+    context = {
+        'fellowship': fellowship,
+        'form': form,
+    }
+    return render(request, 'colleges/fellowship_proceedings_add.html', context)

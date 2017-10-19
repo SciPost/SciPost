@@ -92,6 +92,37 @@
         </div>
     </div>
 
+    {% if fellowship.guest %}
+        <h3>Proceedings this Guest Fellowship is assigned to</h3>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Issue</th>
+                    <th>Submissions Open</th>
+                    <th>Submissions Deadline</th>
+                    <th>Submissions Close</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proceedings in fellowship.proceedings.all %}
+                    <tr>
+                        <td>{{ proceedings.event_name }}</td>
+                        <td><a href="{{ proceedings.get_absolute_url }}">{{ proceedings.issue }}</a></td>
+                        <td>{{ proceedings.submissions_open }}</td>
+                        <td>{{ proceedings.submissions_deadline }}</td>
+                        <td>{{ proceedings.submissions_close }}</td>
+                        <td><a class="text-danger" href="{% url 'colleges:fellowship_remove_proceedings' fellowship.id proceedings.id %}">Remove Proceedings</a></td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="6" class="py-3 text-center"><a href="{% url 'colleges:fellowship_add_proceedings' fellowship.id %}">Add Proceedings to Guest Fellowship</a></td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
     <h3>Pool for this Fellowship</h3>
     <table class="table table-hover">
         <thead>

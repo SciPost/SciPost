@@ -1,0 +1,44 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Proceedings</span>
+{% endblock %}
+
+{% block pagetitle %}: Manage Proceedings{% endblock pagetitle %}
+
+{% block content %}
+    <h1>Manage Proceedings</h1>
+    <a href="{% url 'proceedings:proceedings' %}">Add new Proceedings</a>
+
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Issue name</th>
+                <th>Event name</th>
+                <th>Submission Deadline</th>
+                <th>Guest Fellowships</th>
+                <th>Submissions</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proc in proceedings %}
+                <tr>
+                    <td>{{ proc.issue_name }}</td>
+                    <td>{{ proc.event_name }}</td>
+                    <td>{{ proc.submissions_deadline }}</td>
+                    <td>{{ proc.fellowships.count }}</td>
+                    <td>{{ proc.submissions.count }}</td>
+                    <td>
+                        <a href="{% url 'proceedings:proceedings_details' proc.id %}">View Proceedings details</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td class="text-danger py-2" colspan="4">There are no Proceedings!</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

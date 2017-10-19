@@ -111,6 +111,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'referees_suggested',
                 'remarks_for_editors',
                 'submitted_to_journal',
+                'proceeding',
                 'pdf_refereeing_pack',
                 'plagiarism_report',
                 'fellows'),

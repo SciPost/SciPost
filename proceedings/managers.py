@@ -1,6 +1,9 @@
+import datetime
+
 from django.db import models
 
 
-class ProceedingQuerySet(models.QuerySet):
+class ProceedingsQuerySet(models.QuerySet):
     def open_for_submission(self):
-        return self.filter(open_for_submission=True)
+        today = datetime.date.today()
+        return self.filter(submissions_open__lte=today, submissions_close__gte=today)

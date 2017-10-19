@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from .models import Proceeding
+from .models import Proceedings
 
 
-class ProceedingAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'journal', 'open_for_submission',)
-    list_filter = ('journal', 'open_for_submission',)
+class ProceedingsAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'issue',)
+    list_filter = ('issue',)
 
 
-admin.site.register(Proceeding, ProceedingAdmin)
+admin.site.register(Proceedings, ProceedingsAdmin)
