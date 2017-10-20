@@ -48,9 +48,13 @@ class SubmissionQuerySet(models.QuerySet):
 
     def _pool(self, user):
         """
-        This filter creates 'the complete pool' for an user.
+        This filter creates 'the complete pool' for an user. This new-style pool does
+        explicitly not have the author filter anymore, but registered pools for every Submission.
 
-        This new-style pool does explicitly not have the author filter.
+        !!!  IMPORTANT SECURITY NOTICE  !!!
+        All permissions regarding Editorial College actions are implicitly taken care
+        of in this filter method! ALWAYS use this filter method in your Editorial College
+        related view/action.
         """
         if not hasattr(user, 'contributor'):
             return self.none()
@@ -66,22 +70,34 @@ class SubmissionQuerySet(models.QuerySet):
 
     def pool(self, user):
         """
-        Return the pool for a certain user.
+        Return the pool for a certain user: filtered to "in active referee phase".
         """
         qs = self._pool(user)
         qs = qs.exclude(is_current=False).exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
-        return qs.order_by('-submission_date')
+        return qs
 
-    def overcomplete_pool(self, user):
+    def pool_editable(self, user):
         """
-        Return the overcomplete pool for a certain user.
+        Return the editable pool for a certain user.
+
         This is similar to the regular pool, however it also contains submissions that are
         hidden in the regular pool, but should still be able to be opened by for example
         the Editor-in-charge.
         """
         qs = self._pool(user)
         qs = qs.exclude(status__in=SUBMISSION_HTTP404_ON_EDITORIAL_PAGE)
-        return qs.order_by('-submission_date')
+        return qs
+
+    def pool_full(self, user):
+        """
+        Return the *FULL* pool for a certain user.
+        This makes sure the user can see all history of Submissions related to its Fellowship(s).
+
+        Do not use this filter by default however, as this also contains Submissions
+        that are for example either rejected or accepted already and thus "inactive."
+        """
+        qs = self._pool(user)
+        return qs
 
     def get_pool(self, user):
         """

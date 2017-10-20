@@ -340,7 +340,18 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
     All members of the Editorial College have access.
     """
     # Objects
-    submissions = Submission.objects.pool(request.user)
+
+    # The following is in test phase. Update if test is done
+    # --
+    # Search
+    search_form = SubmissionPoolFilterForm(request.GET or None)
+    if search_form.is_valid():
+        submissions = search_form.search(Submission.objects.all(), request.user)
+    else:
+        # Mainly as fallback for the old-pool while in test phase.
+        submissions = Submission.objects.pool(request.user)
+
+    # submissions = Submission.objects.pool(request.user)
     recommendations = EICRecommendation.objects.filter(submission__in=submissions)
     recs_to_vote_on = recommendations.user_may_vote_on(request.user)
     assignments_to_consider = EditorialAssignment.objects.open().filter(to=request.user.contributor)
@@ -363,12 +374,6 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
 
     # The following is in test phase. Update if test is done
     # --
-
-    # Search
-    search_form = SubmissionPoolFilterForm(request.GET or None)
-    if search_form.is_valid():
-        context['submissions'] = search_form.search(context['submissions'],
-                                                    request.user.contributor)
     context['search_form'] = search_form
 
     # Show specific submission in the pool
@@ -671,7 +676,7 @@ def assignments(request):
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def editorial_page(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
     context = {
@@ -686,7 +691,7 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
     form = SubmissionCycleChoiceForm(request.POST or None, instance=submission)
@@ -709,7 +714,7 @@ def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def select_referee(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
     context = {}
@@ -760,7 +765,7 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
     The pending refereeing invitation is then recognized upon registration,
     using the invitation token.
     """
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if request.method == 'POST':
         ref_recruit_form = RefereeRecruitmentForm(request.POST)
@@ -820,7 +825,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
     For a referee who isn't a Contributor yet, the method recruit_referee above
     is called instead.
     """
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     contributor = get_object_or_404(Contributor, pk=contributor_id)
     if not contributor.is_currently_available:
@@ -863,7 +868,7 @@ def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
     when a referee has been invited but hasn't answered yet.
     It can be used for registered as well as unregistered referees.
     """
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     invitation = get_object_or_404(submission.referee_invitations.all(), pk=invitation_id)
     invitation.nr_reminders += 1
@@ -985,7 +990,7 @@ def cancel_ref_invitation(request, arxiv_identifier_w_vn_nr, invitation_id):
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     submission.reporting_deadline += datetime.timedelta(days=int(days))
     submission.open_for_reporting = True
@@ -1003,7 +1008,7 @@ def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
 @permission_required_or_403('can_take_editorial_actions',
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
     form = SetRefereeingDeadlineForm(request.POST or None)
@@ -1040,7 +1045,7 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
     round off any replies to reports or comments before the
     editorial recommendation is formulated.
     """
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     submission.open_for_reporting = False
     submission.open_for_commenting = False
@@ -1058,7 +1063,7 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
 @permission_required('scipost.can_oversee_refereeing', raise_exception=True)
 def refereeing_overview(request):
     submissions_under_refereeing = (Submission.objects
-                                    .overcomplete_pool(request.user)
+                                    .pool_editable(request.user)
                                     .filter(status=STATUS_EIC_ASSIGNED)
                                     .order_by('submission_date'))
     context = {'submissions_under_refereeing': submissions_under_refereeing}
@@ -1071,7 +1076,7 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
     Communication between editor-in-charge, author or referee
     occurring during the submission refereeing.
     """
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     errormessage = None
     if comtype not in dict(ED_COMM_CHOICES).keys():
@@ -1122,7 +1127,7 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
                             (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 @transaction.atomic
 def eic_recommendation(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.overcomplete_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if submission.eic_recommendation_required():
         messages.warning(request, ('<h3>An Editorial Recommendation is not required</h3>'
@@ -1338,7 +1343,7 @@ def vet_submitted_report(request, report_id):
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
 @transaction.atomic
 def prepare_for_voting(request, rec_id):
-    submissions = Submission.objects.overcomplete_pool(request.user)
+    submissions = Submission.objects.pool_editable(request.user)
     recommendation = get_object_or_404(EICRecommendation.objects.filter(submission__in=submissions),
                                        id=rec_id)
 
@@ -1403,7 +1408,7 @@ def prepare_for_voting(request, rec_id):
 @permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
 @transaction.atomic
 def vote_on_rec(request, rec_id):
-    submissions = Submission.objects.overcomplete_pool(request.user)
+    submissions = Submission.objects.pool_editable(request.user)
     recommendation = get_object_or_404(EICRecommendation.objects.filter(submission__in=submissions),
                                        id=rec_id)
 
@@ -1458,7 +1463,7 @@ def remind_Fellows_to_vote(request):
 
     TODO: This reminder function doesn't filter per submission?!
     """
-    submissions = Submission.objects.overcomplete_pool(request.user)
+    submissions = Submission.objects.pool_editable(request.user)
     recommendations = EICRecommendation.objects.filter(submission__in=submissions).put_to_voting()
 
     Fellow_emails = []
@@ -1496,7 +1501,7 @@ def fix_College_decision(request, rec_id):
     TO FIX: If multiple recommendations are submitted; decisions may be overruled unexpectedly.
     TO FIX: A college decision can be fixed multiple times, there is no already-fixed mechanism!!!
     """
-    submissions = Submission.objects.overcomplete_pool(request.user)
+    submissions = Submission.objects.pool_editable(request.user)
     recommendation = get_object_or_404(EICRecommendation.objects.filter(submission__in=submissions),
                                        id=rec_id)
 

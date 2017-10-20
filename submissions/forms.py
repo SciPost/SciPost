@@ -45,19 +45,23 @@ class SubmissionSearchForm(forms.Form):
 
 
 class SubmissionPoolFilterForm(forms.Form):
-    status = forms.ChoiceField(choices=((None, 'All statuses'),) + SUBMISSION_STATUS,
-                               required=False)
-    editor_in_charge = forms.BooleanField(label='Show only Submissions for which I am editor in charge.', required=False)
+    status = forms.ChoiceField(
+        choices=((None, 'All in refereeing phase'),) + SUBMISSION_STATUS, required=False)
+    editor_in_charge = forms.BooleanField(
+        label='Show only Submissions for which I am editor in charge.', required=False)
 
-    def search(self, queryset, current_contributor=None):
+    def search(self, queryset, current_user):
         if self.cleaned_data.get('status'):
             # Do extra check on non-required field to never show errors on template
-            queryset = queryset.filter(status=self.cleaned_data['status'])
+            queryset = queryset.pool_full(current_user).filter(status=self.cleaned_data['status'])
+        else:
+            # If no specific status if requested, just return the Pool by default
+            queryset = queryset.pool(current_user)
 
-        if self.cleaned_data.get('editor_in_charge') and current_contributor:
-            queryset = queryset.filter(editor_in_charge=current_contributor)
+        if self.cleaned_data.get('editor_in_charge') and hasattr(current_user, 'contributor'):
+            queryset = queryset.filter(editor_in_charge=current_user.contributor)
 
-        return queryset
+        return queryset.order_by('-submission_date')
 
 
 ###############################

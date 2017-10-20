@@ -87,7 +87,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'domain',
                 'subject_area',
                 'secondary_areas',
-                'proceeding'),
+                'proceedings'),
         }),
         ('Authors', {
             'classes': ('collapse',),
@@ -111,7 +111,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'referees_suggested',
                 'remarks_for_editors',
                 'submitted_to_journal',
-                'proceeding',
+                'proceedings',
                 'pdf_refereeing_pack',
                 'plagiarism_report',
                 'fellows'),
