@@ -373,7 +373,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             # Add Guest Fellowships if the Submission is a Proceedings manuscript
             guest_fellows = qs.guests().filter(
                 proceedings=submission.proceedings).return_active_for_submission(submission)
-            submission.fellows.add(guest_fellows)
+            submission.fellows.add(*guest_fellows)
 
     @transaction.atomic
     def save(self):
