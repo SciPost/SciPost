@@ -26,6 +26,22 @@ ul.events-list {
 
 ul[data-target="active-list"] {
     li.active {
-        background-color: $gray-100;
+        // background-color: $gray-100;
     }
+}
+
+.pool-list {
+    > .submission {
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: -1px;
+
+        &.active {
+            border: 1px solid #000;
+            margin-bottom: 0;
+        }
+    }
+    // > .submission:first-child {
+    //     border-top: 0;
+    // }
 }

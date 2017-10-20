@@ -1,16 +1,17 @@
-{% load guardian_tags %}
 {% load scipost_extras %}
 {% load submissions_extras %}
 {% load user_groups %}
 
-{% get_obj_perms request.user for submission as "sub_perms" %}
-{% is_edcol_admin request.user as is_ECAdmin %}
+{% is_editor_in_charge request.user submission as is_editor_in_charge %}
+{% is_edcol_admin request.user as is_editorial_admin %}
 
-<div class="card submission-detail">
-    <div class="scroll">
-        {% include 'submissions/_submission_card_fellow_content.html' with submission=submission %}
 
-        <div class="card-body">
+<hr>
+<div class="bg-white submission-detail mt-1">
+    {# <div class="scroll">#}
+        {% include 'submissions/_submission_card_fellow_content.html' with submission=submission hide_title=1 cardblock_class='px-0 pt-0' %}
+
+        <div>
             <h3>Remarks on this submission:</h3>
             {% if remark_form %}
                 {% include 'submissions/_remark_add_form.html' with submission=submission form=remark_form auto_show=1 %}
@@ -24,14 +25,15 @@
               {% endfor %}
             </ul>
 
-            {% if "can_take_editorial_actions" in sub_perms or is_ECAdmin %}
+            {% if is_editor_in_charge or is_editorial_admin %}
+                <br>
                 {% include 'submissions/_required_actions_block.html' with submission=submission %}
                 <h4>
                     <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
                 </h4>
             {% endif %}
 
-            {% if is_ECAdmin %}
+            {% if is_editorial_admin %}
                 <h3>Editorial Administration</h3>
                 <ul class="pl-4 mb-3">
                     {# EIC Assignments #}
@@ -87,5 +89,5 @@
                 </div>
             {% endif %}
         </div>
-    </div>
+    {# </div>#}
 </div>

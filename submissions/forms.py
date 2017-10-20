@@ -352,11 +352,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
     @transaction.atomic
     def reassign_eic_and_admins(self, submission):
-        # Assign permissions
-        assign_perm('can_take_editorial_actions', submission.editor_in_charge.user, submission)
-        ed_admins = Group.objects.get(name='Editorial Administrators')
-        assign_perm('can_take_editorial_actions', ed_admins, submission)
-
         # Assign editor
         assignment = EditorialAssignment(
             submission=submission,
@@ -472,21 +467,37 @@ class SetRefereeingDeadlineForm(forms.Form):
         return self.cleaned_data.get('deadline')
 
 
-class VotingEligibilityForm(forms.Form):
+class VotingEligibilityForm(forms.ModelForm):
+    eligible_Fellows = forms.ModelMultipleChoiceField(
+        queryset=Contributor.objects.none(),
+        widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
+        required=True, label='Eligible for voting')
+
+    class Meta:
+        model = EICRecommendation
+        fields = ()
 
     def __init__(self, *args, **kwargs):
-        discipline = kwargs.pop('discipline')
-        subject_area = kwargs.pop('subject_area')
-        super(VotingEligibilityForm, self).__init__(*args, **kwargs)
-        self.fields['eligible_Fellows'] = forms.ModelMultipleChoiceField(
-            queryset=Contributor.objects.filter(
-                user__groups__name__in=['Editorial College'],
-                user__contributor__discipline=discipline,
-                user__contributor__expertises__contains=[subject_area]
-            ).order_by('user__last_name'),
-            widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
-            required=True, label='Eligible for voting',
-        )
+        super().__init__(*args, **kwargs)
+        # Do we need this discipline filter still with the new Pool construction???
+        # -- JdW; Oct 20th, 2017
+        self.fields['eligible_Fellows'].queryset = Contributor.objects.filter(
+                fellowships__pool=self.instance.submission,
+                discipline=self.instance.submission.discipline,
+                expertises__contains=self.instance.submission.subject_area
+                ).order_by('user__last_name')
+
+    def save(self, commit=True):
+        recommendation = self.instance
+        recommendation.eligible_to_vote = self.cleaned_data['eligible_Fellows']
+        submission = self.instance.submission
+        submission.status = 'put_to_EC_voting'
+
+        if commit:
+            recommendation.save()
+            submission.save()
+            recommendation.voted_for.add(recommendation.submission.editor_in_charge)
+        return recommendation
 
 
 ############

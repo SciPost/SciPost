@@ -27,7 +27,7 @@ class SubmissionQuerySet(models.QuerySet):
         """
         # This method used a double query, which is a consequence of the complex distinct()
         # filter combined with the PostGresQL engine. Without the double query, ordering
-        # on a specific field after filtering would be impossible.
+        # on a specific field after filtering seems impossible.
         ids = (queryset
                .order_by('arxiv_identifier_wo_vn_nr', '-arxiv_vn_nr')
                .distinct('arxiv_identifier_wo_vn_nr')
@@ -99,30 +99,16 @@ class SubmissionQuerySet(models.QuerySet):
         qs = self._pool(user)
         return qs
 
-    def get_pool(self, user):
+    def filter_for_eic(self, user):
         """
-        -- DEPRECATED --
-
-        Return subset of active and newest 'alive' submissions.
+        Return the set of Submissions the user is Editor-in-charge for or return the pool if
+        User is Editorial Administrator.
         """
-        return (self.user_filter(user)
-                .exclude(is_current=False)
-                .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
-                .order_by('-submission_date'))
+        qs = self._pool(user)
 
-    def filter_editorial_page(self, user):
-        """
-        -- DEPRECATED --
-
-        Return Submissions currently 'alive' (being refereed, not published).
-
-        It is meant to allow opening and editing certain submissions that are officially
-        out of the submission cycle i.e. due to resubmission, but should still have the
-        possibility to be opened by the EIC.
-        """
-        return (self.user_filter(user)
-                .exclude(status__in=SUBMISSION_HTTP404_ON_EDITORIAL_PAGE)
-                .order_by('-submission_date'))
+        if not user.has_perm('scipost.can_oversee_refereeing') and hasattr(user, 'contributor'):
+            qs = qs.filter(editor_in_charge=user.contributor)
+        return qs
 
     def prescreening(self):
         """

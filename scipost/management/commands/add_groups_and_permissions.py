@@ -38,7 +38,6 @@ class Command(BaseCommand):
         content_type = ContentType.objects.get_for_model(Contributor)
         content_type_contact = ContentType.objects.get_for_model(Contact)
         content_type_draft_invitation = ContentType.objects.get_for_model(DraftInvitation)
-        content_type_report = ContentType.objects.get_for_model(Report)
 
         # Supporting Partners
         can_manage_SPB, created = Permission.objects.get_or_create(
@@ -157,7 +156,7 @@ class Command(BaseCommand):
         can_vet_submitted_reports, created = Permission.objects.get_or_create(
             codename='can_vet_submitted_reports',
             name='Can vet submitted Reports',
-            content_type=content_type_report)
+            content_type=content_type)
 
         # Submissions
         can_submit_manuscript, created = Permission.objects.get_or_create(

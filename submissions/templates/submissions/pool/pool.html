@@ -23,7 +23,7 @@
 
     <a href="{% url 'submissions:pool' %}?test=1">See old pool layout</a>
     <div class="row">
-        <div class="col-md-7">
+        <div class="col-12">
             <h1>SciPost Submissions Pool</h1>
             {% if is_ECAdmin %}
 
@@ -89,15 +89,21 @@
                 </form>
             {% endif %}
 
-            <ul class="list-group" data-target="active-list">
+            <ul class="list-unstyled pool-list" data-target="active-list">
                 <!-- Submissions list -->
                 {% for sub in submissions %}
-                    <li class="list-group-item p-2{% if sub == submission %} active{% endif %}">
+                    <li class="submission py-2 px-3{% if sub == submission %} active{% endif %}" id="submission_{{ submission.id }}">
                         {% if sub == submission %}
                             {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=1 %}
                         {% else %}
                             {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=0 %}
                         {% endif %}
+
+                        <div class="loading-container px-3" id="container_{{ sub.id }}">
+                            {% if submission and submission == sub %}
+                                {% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
+                            {% endif %}
+                        </div>
                     </li>
                 {% empty %}
                     <li>
@@ -106,20 +112,17 @@
                 {% endfor %}
             </ul>
         </div><!-- End page content -->
-
-        <div class="col-md-5" id="details">
-            {% if submission %}
-                {% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
-            {% else %}
-                <h3><em>Click on a submission to see its summary and actions</em></h3>
-
-                {% if is_ECAdmin %}
-                    <h2>All events in the last 24 hours</h2>
-                    <div id="eventslist">
-                        {% include 'submissions/submission_event_list_general.html' with events=latest_events %}
-                    </div>
-                {% endif %}
-            {% endif %}
-        </div>
     </div>
 {% endblock %}
+
+{% comment %}
+    <h3><em>Click on a submission to see its summary and actions</em></h3>
+
+    {% if is_ECAdmin %}
+        <h2>All events in the last 24 hours</h2>
+        <div id="eventslist">
+            {% include 'submissions/submission_event_list_general.html' with events=latest_events %}
+        </div>
+    {% endif %}
+
+    {% endcomment %}

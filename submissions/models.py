@@ -107,11 +107,6 @@ class Submission(models.Model):
 
     objects = SubmissionQuerySet.as_manager()
 
-    class Meta:
-        permissions = (
-            ('can_take_editorial_actions', 'Can take editorial actions'),
-        )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._update_cycle()
@@ -412,9 +407,6 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         unique_together = ('submission', 'report_nr')
         default_related_name = 'reports'
         ordering = ['-date_submitted']
-        permissions = (
-            ('can_vet_submitted_reports', 'Can vet submitted Reports'),
-        )
 
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +

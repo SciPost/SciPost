@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction, IntegrityError
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -16,10 +16,9 @@ from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import assign_perm, get_objects_for_user
+from guardian.shortcuts import assign_perm
 
-from .constants import SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_VETTED, STATUS_EIC_ASSIGNED,\
+from .constants import STATUS_VETTED, STATUS_EIC_ASSIGNED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES,\
                        STATUS_DRAFT, CYCLE_DIRECT_REC
 from .models import Submission, EICRecommendation, EditorialAssignment,\
@@ -363,6 +362,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
 
     context = {
         'submissions': submissions,
+        'search_form': search_form,
         'submission_status': SUBMISSION_STATUS,
         'recommendations': recommendations,
         'assignments_to_consider': assignments_to_consider,
@@ -374,7 +374,6 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
 
     # The following is in test phase. Update if test is done
     # --
-    context['search_form'] = search_form
 
     # Show specific submission in the pool
     context['submission'] = None
@@ -409,7 +408,7 @@ def submissions_by_status(request, status):
     if status not in status_dict.keys():
         errormessage = 'Unknown status.'
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    submissions_of_status = (Submission.objects.get_pool(request.user)
+    submissions_of_status = (Submission.objects.pool_full(request.user)
                              .filter(status=status).order_by('-submission_date'))
 
     context = {
@@ -421,13 +420,13 @@ def submissions_by_status(request, status):
 
 
 @login_required
-@permission_required('scipost.can_view_pool', raise_exception=True)
+# @permission_required('scipost.can_view_pool', raise_exception=True)
 def add_remark(request, arxiv_identifier_w_vn_nr):
     """
     With this method, an Editorial Fellow or Board Member
     is adding a remark on a Submission.
     """
-    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
     remark_form = RemarkForm(request.POST or None)
@@ -446,7 +445,11 @@ def add_remark(request, arxiv_identifier_w_vn_nr):
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 def assign_submission(request, arxiv_identifier_w_vn_nr):
-    submission_to_assign = get_object_or_404(Submission.objects.get_pool(request.user),
+    """
+    Assign Editor-in-charge to Submission.
+    Action done by SciPost Administration or Editorial College Administration.
+    """
+    submission_to_assign = get_object_or_404(Submission.objects.pool_editable(request.user),
                                              arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     form = AssignSubmissionForm(discipline=submission_to_assign.discipline)
     context = {'submission_to_assign': submission_to_assign,
@@ -457,7 +460,11 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 def assign_submission_ack(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+    """
+    Assign Editor-in-charge to Submission.
+    Action done by SciPost Administration or Editorial College Administration.
+    """
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if request.method == 'POST':
         form = AssignSubmissionForm(request.POST, discipline=submission.discipline)
@@ -525,9 +532,6 @@ def assignment_request(request, assignment_id):
 
             SubmissionUtils.load({'assignment': assignment})
             SubmissionUtils.deprecate_other_assignments()
-            assign_perm('can_take_editorial_actions', request.user, assignment.submission)
-            ed_admins = Group.objects.get(name='Editorial Administrators')
-            assign_perm('can_take_editorial_actions', ed_admins, assignment.submission)
             SubmissionUtils.send_EIC_appointment_email()
             SubmissionUtils.send_author_prescreening_passed_email()
 
@@ -565,7 +569,7 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     Called when a Fellow volunteers while perusing the submissions pool.
     This is an adapted version of the assignment_request method.
     """
-    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     errormessage = None
     if submission.status == 'assignment_failed':
@@ -600,9 +604,6 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
 
     SubmissionUtils.load({'assignment': assignment})
     SubmissionUtils.deprecate_other_assignments()
-    assign_perm('can_take_editorial_actions', contributor.user, submission)
-    ed_admins = Group.objects.get(name='Editorial Administrators')
-    assign_perm('can_take_editorial_actions', ed_admins, submission)
     SubmissionUtils.send_EIC_appointment_email()
     SubmissionUtils.send_author_prescreening_passed_email()
 
@@ -623,7 +624,7 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
     The submission is rejected.
     This method is called from pool.html by an Editorial Administrator.
     """
-    submission = get_object_or_404(Submission.objects.get_pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if request.method == 'POST':
         form = ModifyPersonalMessageForm(request.POST)
@@ -673,10 +674,13 @@ def assignments(request):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def editorial_page(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    """
+    The central page for the EIC to manage all its Editorial duties.
+
+    Accessible for: Editor-in-charge and Editorial Administration
+    """
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
     context = {
@@ -688,10 +692,14 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    """
+    If Submission is `resubmission_incoming` the EIC should first choose what refereeing
+    cycle to choose.
+
+    Accessible for: Editor-in-charge and Editorial Administration
+    """
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
     form = SubmissionCycleChoiceForm(request.POST or None, instance=submission)
@@ -711,12 +719,14 @@ def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def select_referee(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
-                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    """
+    Select/Invite referees by first listing them here.
 
+    Accessible for: Editor-in-charge and Editorial Administration
+    """
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
+                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     context = {}
     queryresults = ''
 
@@ -753,8 +763,6 @@ def select_referee(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 @transaction.atomic
 def recruit_referee(request, arxiv_identifier_w_vn_nr):
     """
@@ -764,9 +772,12 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
     This function emails a registration invitation to this person.
     The pending refereeing invitation is then recognized upon registration,
     using the invitation token.
+
+    Accessible for: Editor-in-charge and Editorial Administration
     """
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+
     if request.method == 'POST':
         ref_recruit_form = RefereeRecruitmentForm(request.POST)
         if ref_recruit_form.is_valid():
@@ -815,8 +826,6 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 @transaction.atomic
 def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id):
     """
@@ -824,10 +833,13 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
     in the case where the referee is an identified Contributor.
     For a referee who isn't a Contributor yet, the method recruit_referee above
     is called instead.
+
+    Accessible for: Editor-in-charge and Editorial Administration
     """
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     contributor = get_object_or_404(Contributor, pk=contributor_id)
+
     if not contributor.is_currently_available:
         errormessage = ('This Contributor is marked as currently unavailable. '
                         'Please go back and select another referee.')
@@ -860,15 +872,15 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
     """
     This method is used by the Editor-in-charge from the editorial_page
     when a referee has been invited but hasn't answered yet.
     It can be used for registered as well as unregistered referees.
+
+    Accessible for: Editor-in-charge and Editorial Administration
     """
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     invitation = get_object_or_404(submission.referee_invitations.all(), pk=invitation_id)
     invitation.nr_reminders += 1
@@ -891,9 +903,9 @@ def accept_or_decline_ref_invitations(request):
     RefereeInvitations need to be either accepted or declined by the invited user
     using this view. The decision will be taken one invitation at a time.
     """
-    invitation = RefereeInvitation.objects.filter(referee__user=request.user,
-                                                  accepted=None,
-                                                  cancelled=False).first()
+    invitation = RefereeInvitation.objects.filter(
+        referee__user=request.user, accepted=None, cancelled=False).first()
+
     if not invitation:
         messages.success(request, 'There are no Refereeing Invitations for you to consider.')
         return redirect(reverse('scipost:personal_page'))
@@ -905,7 +917,9 @@ def accept_or_decline_ref_invitations(request):
 @login_required
 @permission_required('scipost.can_referee', raise_exception=True)
 def accept_or_decline_ref_invitation_ack(request, invitation_id):
-    invitation = get_object_or_404(RefereeInvitation, pk=invitation_id)
+    invitation = get_object_or_404(RefereeInvitation.objects.filter(
+        referee__user=request.user, accepted=None, cancelled=False), pk=invitation_id)
+
     form = ConsiderRefereeInvitationForm(request.POST or None)
     if form.is_valid():
         invitation.date_responded = timezone.now()
@@ -963,15 +977,20 @@ def decline_ref_invitation(request, invitation_key):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def cancel_ref_invitation(request, arxiv_identifier_w_vn_nr, invitation_id):
     """
     This method is used by the Editor-in-charge from the editorial_page
     to remove a referee for the list of invited ones.
     It can be used for registered as well as unregistered referees.
+
+    Accessible for: Editor-in-charge and Editorial Administration
     """
-    invitation = get_object_or_404(RefereeInvitation, pk=invitation_id)
+    try:
+        submissions = Submission.objects.filter_for_eic(request.user)
+        invitation = submissions.referee_invitations.get(pk=invitation_id)
+    except RefereeInvitation.DoesNotExist:
+        raise Http404
+
     invitation.cancelled = True
     invitation.save()
     SubmissionUtils.load({'invitation': invitation})
@@ -987,11 +1006,15 @@ def cancel_ref_invitation(request, arxiv_identifier_w_vn_nr, invitation_id):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    """
+    Extend Refereeing deadline for Submission and open reporting and commenting.
+
+    Accessible for: Editor-in-charge and Editorial Administration
+    """
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+
     submission.reporting_deadline += datetime.timedelta(days=int(days))
     submission.open_for_reporting = True
     submission.open_for_commenting = True
@@ -1005,10 +1028,14 @@ def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    """
+    Set Refereeing deadline for Submission and open reporting and commenting if
+    the new date is in the future.
+
+    Accessible for: Editor-in-charge and Editorial Administration
+    """
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
     form = SetRefereeingDeadlineForm(request.POST or None)
@@ -1035,8 +1062,6 @@ def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
     """
     Called by the Editor-in-charge when a satisfactory number of
@@ -1044,9 +1069,12 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
     Automatically emails the authors to ask them if they want to
     round off any replies to reports or comments before the
     editorial recommendation is formulated.
+
+    Accessible for: Editor-in-charge and Editorial Administration
     """
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+
     submission.open_for_reporting = False
     submission.open_for_commenting = False
     if submission.status == 'EICassigned':  # only close if currently undergoing refereeing
@@ -1076,14 +1104,14 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
     Communication between editor-in-charge, author or referee
     occurring during the submission refereeing.
     """
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    submission = get_object_or_404(Submission.objects.pool_full(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     errormessage = None
     if comtype not in dict(ED_COMM_CHOICES).keys():
         errormessage = 'Unknown type of cummunication.'
     # TODO: Verify that this is requested by an authorized contributor (eic, ref, author)
     elif (comtype in ['EtoA', 'EtoR', 'EtoS'] and
-          not request.user.has_perm('can_take_editorial_actions', submission)):
+          submission.editor_in_charge != request.user.contributor):
         errormessage = 'Only the Editor-in-charge can perform this action.'
     elif (comtype in ['AtoE'] and
           not (request.user.contributor == submission.submitted_by)):
@@ -1123,12 +1151,16 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
 
 
 @login_required
-@permission_required_or_403('can_take_editorial_actions',
-                            (Submission, 'arxiv_identifier_w_vn_nr', 'arxiv_identifier_w_vn_nr'))
 @transaction.atomic
 def eic_recommendation(request, arxiv_identifier_w_vn_nr):
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    """
+    Write EIC Recommendation.
+
+    Accessible for: Editor-in-charge and Editorial Administration
+    """
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+
     if submission.eic_recommendation_required():
         messages.warning(request, ('<h3>An Editorial Recommendation is not required</h3>'
                                    'This submission\'s current status is: <em>%s</em>'
@@ -1265,10 +1297,6 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         SubmissionUtils.email_EIC_report_delivered()
         SubmissionUtils.email_referee_report_delivered()
 
-        # Assign explicit permission to EIC to vet this report
-        assign_perm('submissions.can_vet_submitted_reports', submission.editor_in_charge.user,
-                    newreport)
-
         # Add SubmissionEvents for the EIC only, as it can also be rejected still
         submission.add_event_for_eic('%s has submitted a new Report.'
                                      % request.user.last_name)
@@ -1281,12 +1309,13 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
-@permission_required('submissions.can_vet_submitted_reports', raise_exception=True)
 def vet_submitted_reports_list(request):
     """
     Reports with status `unvetted` will be shown (oldest first).
     """
-    reports_to_vet = Report.objects.awaiting_vetting().order_by('date_submitted')
+    submissions = get_list_or_404(Submission.objects.filter_for_eic(request.user))
+    reports_to_vet = Report.objects.filter(
+        submission__in=submissions).awaiting_vetting().order_by('date_submitted')
     context = {'reports_to_vet': reports_to_vet}
     return render(request, 'submissions/vet_submitted_reports_list.html', context)
 
@@ -1301,11 +1330,9 @@ def vet_submitted_report(request, report_id):
     After vetting an email is sent to the report author, bcc EIC. If report
     has not been refused, the submission author is also mailed.
     """
-    # Method `get_objects_for_user` gets all Reports that are assigned to the user
-    # or *all* Reports if user is SciPost Admin or Vetting Editor.
-    report = get_object_or_404((get_objects_for_user(request.user,
-                                                     'submissions.can_vet_submitted_reports')
-                                .awaiting_vetting()), id=report_id)
+    submissions = Submission.objects.filter_for_eic(request.user)
+    report = get_object_or_404(Report.objects.filter(
+        submission__in=submissions).awaiting_vetting(), id=report_id)
 
     form = VetReportForm(request.POST or None, initial={'report': report})
     if form.is_valid():
@@ -1340,61 +1367,48 @@ def vet_submitted_report(request, report_id):
     return render(request, 'submissions/vet_submitted_report.html', context)
 
 
+@login_required
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
 @transaction.atomic
 def prepare_for_voting(request, rec_id):
     submissions = Submission.objects.pool_editable(request.user)
-    recommendation = get_object_or_404(EICRecommendation.objects.filter(submission__in=submissions),
-                                       id=rec_id)
+    recommendation = get_object_or_404(
+        EICRecommendation.objects.filter(submission__in=submissions), id=rec_id)
 
-    # Fellows_with_expertise = Contributor.objects.filter(
-    #     user__groups__name__in=['Editorial College'],
-    #     expertises__contains=[recommendation.submission.subject_area])
-    fellows_with_expertise = (recommendation.submission.fellows
-                              .filter(expertises__contains=recommendation.submission.subject_area))
+    fellows_with_expertise = recommendation.submission.fellows.filter(
+        expertises__contains=recommendation.submission.subject_area)
+
     coauthorships = {}
-    if request.method == 'POST':
-        eligibility_form = VotingEligibilityForm(
-            request.POST,
-            discipline=recommendation.submission.discipline,
-            subject_area=recommendation.submission.subject_area
-        )
-        if eligibility_form.is_valid():
-            recommendation.eligible_to_vote = eligibility_form.cleaned_data['eligible_Fellows']
-            recommendation.voted_for.add(recommendation.submission.editor_in_charge)
-            recommendation.save()
-            recommendation.submission.status = 'put_to_EC_voting'
-            recommendation.submission.save()
-            messages.success(request, 'We have registered your selection.')
 
-            # Add SubmissionEvents
-            recommendation.submission.add_event_for_eic('The Editorial Recommendation has been '
-                                                        'put forward to the College for voting.')
+    eligibility_form = VotingEligibilityForm(request.POST or None, instance=recommendation)
+    if eligibility_form.is_valid():
+        eligibility_form.save()
+        messages.success(request, 'We have registered your selection.')
 
-            return redirect(reverse('submissions:editorial_page',
-                                    args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
+        # Add SubmissionEvents
+        recommendation.submission.add_event_for_eic('The Editorial Recommendation has been '
+                                                    'put forward to the College for voting.')
+
+        return redirect(reverse('submissions:editorial_page',
+                                args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
         # Identify possible co-authorships in last 3 years, disqualifying Fellow from voting:
         if recommendation.submission.metadata is not None:
-            for Fellow in fellows_with_expertise:
+            for fellow in fellows_with_expertise:
                 sub_auth_boolean_str = '((' + (recommendation.submission
                                                .metadata['entries'][0]['authors'][0]['name']
                                                .split()[-1])
                 for author in recommendation.submission.metadata['entries'][0]['authors'][1:]:
                     sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
                     sub_auth_boolean_str += ')+AND+'
-                    search_str = sub_auth_boolean_str + Fellow.user.last_name + ')'
+                    search_str = sub_auth_boolean_str + fellow.user.last_name + ')'
                     queryurl = ('http://export.arxiv.org/api/query?search_query=au:%s'
                                 % search_str + '&sortBy=submittedDate&sortOrder=descending'
                                 '&max_results=5')
                     arxivquery = feedparser.parse(queryurl)
                     queryresults = arxivquery
                     if queryresults.entries:
-                        coauthorships[Fellow.user.last_name] = queryresults
-
-        eligibility_form = VotingEligibilityForm(
-            discipline=recommendation.submission.discipline,
-            subject_area=recommendation.submission.subject_area)
+                        coauthorships[fellow.user.last_name] = queryresults
 
     context = {
         'recommendation': recommendation,
@@ -1405,12 +1419,12 @@ def prepare_for_voting(request, rec_id):
     return render(request, 'submissions/prepare_for_voting.html', context)
 
 
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@login_required
 @transaction.atomic
 def vote_on_rec(request, rec_id):
     submissions = Submission.objects.pool_editable(request.user)
-    recommendation = get_object_or_404(EICRecommendation.objects.filter(submission__in=submissions),
-                                       id=rec_id)
+    recommendation = get_object_or_404(
+        EICRecommendation.objects.filter(submission__in=submissions), id=rec_id)
 
     form = RecommendationVoteForm(request.POST or None)
     if form.is_valid():
@@ -1501,9 +1515,9 @@ def fix_College_decision(request, rec_id):
     TO FIX: If multiple recommendations are submitted; decisions may be overruled unexpectedly.
     TO FIX: A college decision can be fixed multiple times, there is no already-fixed mechanism!!!
     """
-    submissions = Submission.objects.pool_editable(request.user)
-    recommendation = get_object_or_404(EICRecommendation.objects.filter(submission__in=submissions),
-                                       id=rec_id)
+    submissions = Submission.objects.pool_full(request.user)
+    recommendation = get_object_or_404(EICRecommendation.objects.filter(
+        submission__in=submissions), id=rec_id)
 
     submission = recommendation.submission
     if recommendation.recommendation in [1, 2, 3]:

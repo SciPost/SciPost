@@ -1,4 +1,4 @@
-<div class="row pool-item mb-0">
+<div class="row pool-item mb-0 px-3">
     <div class="icons{% if is_current %} text-info{% endif %}">
         {% include 'partials/submissions/pool/submission_tooltip.html' with submission=submission %}
 
@@ -19,27 +19,25 @@
                 {% elif submission.editor_in_charge == request.user.contributor %}
                     <strong>You are Editor-in-charge</strong>
                 {% else %}
-                    {{ submission.editor_in_charge }}
+                    <span class="text-muted">Editor-in-charge:</span> {{ submission.editor_in_charge }}
                 {% endif %}
-                <br>
-                <small class="text-muted">Editor-in-charge</small>
             </div>
             <div class="col-7">
-                {{ submission.get_status_display }}
-                <br>
-                <small class="text-muted">Status</small>
+                <span class="label label-sm label-secondary">{{ submission.get_status_display }}</span>
             </div>
         </div>
-{% comment %}
-        <p class="card-text mb-3">
-            <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" data-toggle="dynamic" data-target="#details">See details</a>
+
+        <div class="card-text">
+            <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" data-toggle="dynamic" data-target="#container_{{ submission.id }}">See details</a>
             {% if submission.editor_in_charge == request.user.contributor %}
                 &middot; <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Go directly to editorial page</a>
             {% endif %}
-        </p>
-{% endcomment %}
+        </div>
+
         {% if submission.cycle.has_required_actions and submission.cycle.get_required_actions %}
-            <p class="card-text bg-danger text-white p-1 px-2">This Submission contains required actions, <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" class="text-white" data-toggle="dynamic" data-target="#details">click to see details.</a> {% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission classes='text-white' %}</p>
+            <div class="card-text bg-danger text-white mt-1 py-1 px-2">
+                This Submission contains required actions, <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" class="text-white" data-toggle="dynamic" data-target="#container_{{ submission.id }}">click to see details.</a> {% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission classes='text-white' %}
+            </div>
         {% endif %}
 
     </div>
