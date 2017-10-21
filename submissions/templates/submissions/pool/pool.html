@@ -89,28 +89,23 @@
                 </form>
             {% endif %}
 
-            <ul class="list-unstyled pool-list" data-target="active-list">
-                <!-- Submissions list -->
-                {% for sub in submissions %}
-                    <li class="submission py-2 px-3{% if sub == submission %} active{% endif %}" id="submission_{{ submission.id }}">
-                        {% if sub == submission %}
-                            {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=1 %}
-                        {% else %}
-                            {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=0 %}
-                        {% endif %}
+            {% if search_form.status.value %}
+                <h3>All Submissions with status: <span class="text-primary">{{ search_form.status_verbose }}</span></h3>
+                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions %}
+            {% else %}
+                <h3>Submissions currently in pre-screening</h3>
+                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.prescreening %}
 
-                        <div class="loading-container px-3" id="container_{{ sub.id }}">
-                            {% if submission and submission == sub %}
-                                {% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
-                            {% endif %}
-                        </div>
-                    </li>
-                {% empty %}
-                    <li>
-                        <h3 class="text-center"><i class="fa fa-question fa-2x"></i><br>No Submissions found.</h3>
-                    </li>
-                {% endfor %}
-            </ul>
+                <h3>Submissions currently in active refereeing phase</h3>
+                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.actively_refereeing %}
+
+                <h3>Submissions awaiting resubmission</h3>
+                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.revision_requested %}
+
+                <h3>Submissions accepted</h3>
+                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.accepted %}
+            {% endif %}
+
         </div><!-- End page content -->
     </div>
 {% endblock %}

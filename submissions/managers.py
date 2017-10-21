@@ -14,7 +14,7 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR,\
                        STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED, STATUS_WITHDRAWN,\
                        STATUS_PUT_TO_EC_VOTING, STATUS_VOTING_IN_PREPARATION,\
-                       SUBMISSION_STATUS_VOTING_DEPRECATED
+                       SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_REVISION_REQUESTED
 
 
 class SubmissionQuerySet(models.QuerySet):
@@ -122,7 +122,8 @@ class SubmissionQuerySet(models.QuerySet):
         """
         return (self.exclude(is_current=False)
                     .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
-                    .exclude(status__in=[STATUS_UNASSIGNED, STATUS_ACCEPTED]))
+                    .exclude(status__in=[STATUS_UNASSIGNED, STATUS_ACCEPTED,
+                                         STATUS_REVISION_REQUESTED]))
 
     def public(self):
         """
@@ -168,6 +169,9 @@ class SubmissionQuerySet(models.QuerySet):
 
     def accepted(self):
         return self.filter(status=STATUS_ACCEPTED)
+
+    def revision_requested(self):
+        return self.filter(status=STATUS_REVISION_REQUESTED)
 
     def published(self):
         return self.filter(status=STATUS_PUBLISHED)

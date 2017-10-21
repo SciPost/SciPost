@@ -28,7 +28,6 @@ var getUrlParameter = function getUrlParameter(sParam) {
 };
 
 function init_page() {
-    console.log('init!')
     // Show right tab if url contains `tab` GET request
     var tab = getUrlParameter('tab')
     if (tab) {
@@ -43,6 +42,14 @@ function init_page() {
     // Start general toggle
     $('[data-toggle="toggle"]').on('click', function() {
         $($(this).attr('data-target')).toggle();
+    });
+
+    // Make links that could possibly hide html blocks
+    $('[data-toggle="hide"]').on('click', function() {
+        $($(this).attr('data-target'))
+        .hide()
+        .parents('.active')
+        .removeClass('active');
     });
 
     activate_tooltip();
@@ -66,12 +73,12 @@ $(function(){
         var self = this,
             url = $(this).attr('href'),
             target = $(this).attr('data-target');
-        // console.log('click', url, target);
 
-        $(target).html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+        $(target)
+        .show()
+        .html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
 
         $.get(url + '?json=1').done(function(data) {
-            // console.log('done', data);
             $(target).html(data).promise().done(function() {
                 init_page();
             });

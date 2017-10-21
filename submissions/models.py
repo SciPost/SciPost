@@ -172,14 +172,25 @@ class Submission(models.Model):
     def reporting_deadline_has_passed(self):
         return timezone.now() > self.reporting_deadline
 
+    @property
+    def original_submission_date(self):
+        return Submission.objects.filter(
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).first().submission_date
+
     @cached_property
     def other_versions(self):
+        """
+        Return all other versions of the Submission that are publicly accessible.
+        """
         return Submission.objects.public().filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
         ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
 
     @cached_property
     def other_versions_pool(self):
+        """
+        Return all other versions of the Submission.
+        """
         return Submission.objects.filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
         ).exclude(pk=self.id).order_by('-arxiv_vn_nr')

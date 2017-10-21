@@ -63,6 +63,12 @@ class SubmissionPoolFilterForm(forms.Form):
 
         return queryset.order_by('-submission_date')
 
+    def status_verbose(self):
+        try:
+            return dict(SUBMISSION_STATUS)[self.cleaned_data['status']]
+        except KeyError:
+            return ''
+
 
 ###############################
 # Submission and resubmission #

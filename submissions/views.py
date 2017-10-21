@@ -361,7 +361,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
     remark_form = RemarkForm()
 
     context = {
-        'submissions': submissions,
+        'submissions': submissions.order_by('status', '-submission_date'),
         'search_form': search_form,
         'submission_status': SUBMISSION_STATUS,
         'recommendations': recommendations,
@@ -379,7 +379,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
     context['submission'] = None
     if arxiv_identifier_w_vn_nr:
         try:
-            context['submission'] = context['submissions'].get(
+            context['submission'] = Submission.objects.pool_full(request.user).get(
                 arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
         except Submission.DoesNotExist:
             pass
