@@ -1376,7 +1376,7 @@ def prepare_for_voting(request, rec_id):
         EICRecommendation.objects.filter(submission__in=submissions), id=rec_id)
 
     fellows_with_expertise = recommendation.submission.fellows.filter(
-        expertises__contains=recommendation.submission.subject_area)
+        contributor__expertises__contains=[recommendation.submission.subject_area])
 
     coauthorships = {}
 
@@ -1401,18 +1401,18 @@ def prepare_for_voting(request, rec_id):
                 for author in recommendation.submission.metadata['entries'][0]['authors'][1:]:
                     sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
                     sub_auth_boolean_str += ')+AND+'
-                    search_str = sub_auth_boolean_str + fellow.user.last_name + ')'
+                    search_str = sub_auth_boolean_str + fellow.contributor.user.last_name + ')'
                     queryurl = ('http://export.arxiv.org/api/query?search_query=au:%s'
                                 % search_str + '&sortBy=submittedDate&sortOrder=descending'
                                 '&max_results=5')
                     arxivquery = feedparser.parse(queryurl)
                     queryresults = arxivquery
                     if queryresults.entries:
-                        coauthorships[fellow.user.last_name] = queryresults
+                        coauthorships[fellow.contributor.user.last_name] = queryresults
 
     context = {
         'recommendation': recommendation,
-        'Fellows_with_expertise': fellows_with_expertise,
+        'fellows_with_expertise': fellows_with_expertise,
         'coauthorships': coauthorships,
         'eligibility_form': eligibility_form,
     }

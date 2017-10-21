@@ -57,8 +57,8 @@
     <div class="col-md-6">
         <p>Fellows with expertise matching the Submission's subject area:</p>
         <ul>
-            {% for Fellow in Fellows_with_expertise %}
-                <li>{{ Fellow.user.last_name }}</li>
+            {% for fellow in fellows_with_expertise %}
+                <li>{{ fellow.contributor.user.last_name }}</li>
             {% endfor %}
         </ul>
     </div>

@@ -8,7 +8,6 @@ class ProceedingsForm(forms.ModelForm):
         model = Proceedings
         fields = (
             'issue',
-            'issue_name',
             'event_name',
             'event_description',
             'event_start_date',

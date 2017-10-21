@@ -9,12 +9,11 @@
 
 {% block content %}
     <h1>Manage Proceedings</h1>
-    <a href="{% url 'proceedings:proceedings' %}">Add new Proceedings</a>
+    <a href="{% url 'proceedings:proceedings_add' %}">Add new Proceedings</a>
 
     <table class="table mt-3">
         <thead>
             <tr>
-                <th>Issue name</th>
                 <th>Event name</th>
                 <th>Submission Deadline</th>
                 <th>Guest Fellowships</th>
@@ -25,7 +24,6 @@
         <tbody>
             {% for proc in proceedings %}
                 <tr>
-                    <td>{{ proc.issue_name }}</td>
                     <td>{{ proc.event_name }}</td>
                     <td>{{ proc.submissions_deadline }}</td>
                     <td>{{ proc.fellowships.count }}</td>
@@ -36,7 +34,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td class="text-danger py-2" colspan="4">There are no Proceedings!</td>
+                    <td class="text-danger py-2" colspan="5">There are no Proceedings!</td>
                 </tr>
             {% endfor %}
         </tbody>

@@ -27,6 +27,10 @@
         {{block.super}}
     {% endwith %}
 
+    {% if issue.proceedings %}
+        {% include 'partials/proceedings/description.html' with proceedings=issue.proceedings %}
+    {% endif %}
+
     <div class="row">
         <div class="col-12">
             <ul class="list-unstyled">

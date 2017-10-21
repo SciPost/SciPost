@@ -16,7 +16,6 @@ class Proceedings(TimeStampedModel):
     issue = models.OneToOneField('journals.Issue', related_name='proceedings',
                                  limit_choices_to={
                                     'in_volume__in_journal__name': 'SciPostPhysProc'})
-    issue_name = models.CharField(max_length=256)
 
     # Event the Proceedings is for
     event_name = models.CharField(max_length=256, blank=True)
@@ -42,7 +41,7 @@ class Proceedings(TimeStampedModel):
         default_related_name = 'proceedings'
 
     def __str__(self):
-        return self.issue_name
+        return self.event_name
 
     def get_absolute_url(self):
         return reverse('proceedings:proceedings_details', args=(self.id,))

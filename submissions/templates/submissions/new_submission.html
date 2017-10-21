@@ -10,14 +10,14 @@
 $(document).ready(function(){
   $('select#id_submitted_to_journal').on('change', function (){
       var selection = $(this).val();
-      $("#id_proceeding, #id_submission_type").parents('.form-group').hide()
+      $("#id_proceedings, #id_submission_type").parents('.form-group').hide()
 
       switch(selection){
         case "SciPostPhys":
           $("#id_submission_type").parents('.form-group').show()
           break;
         case "SciPostPhysProc":
-          $("#id_proceeding").parents('.form-group').show()
+          $("#id_proceedings").parents('.form-group').show()
           break;
       }
   }).trigger('change');

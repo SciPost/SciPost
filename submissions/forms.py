@@ -2,11 +2,8 @@ import re
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth.models import Group
 from django.db import transaction
 from django.utils import timezone
-
-from guardian.shortcuts import assign_perm
 
 from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED,\
                        REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
@@ -46,7 +43,8 @@ class SubmissionSearchForm(forms.Form):
 
 class SubmissionPoolFilterForm(forms.Form):
     status = forms.ChoiceField(
-        choices=((None, 'All in refereeing phase'),) + SUBMISSION_STATUS, required=False)
+        choices=((None, 'All submissions currently under evaluation'),) + SUBMISSION_STATUS,
+        required=False)
     editor_in_charge = forms.BooleanField(
         label='Show only Submissions for which I am editor in charge.', required=False)
 
@@ -280,8 +278,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
             self.fields['submitted_to_journal'].choices = filter(
                 filter_proceedings, self.fields['submitted_to_journal'].choices)
-            # self.fields['submitted_to_journal'].choices += (
-            #     (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Proceedings'),)
+            del self.fields['proceedings']
 
         # Update placeholder for the other fields
         self.fields['arxiv_link'].widget.attrs.update({
@@ -474,7 +471,7 @@ class SetRefereeingDeadlineForm(forms.Form):
 
 
 class VotingEligibilityForm(forms.ModelForm):
-    eligible_Fellows = forms.ModelMultipleChoiceField(
+    eligible_fellows = forms.ModelMultipleChoiceField(
         queryset=Contributor.objects.none(),
         widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
         required=True, label='Eligible for voting')
@@ -487,15 +484,15 @@ class VotingEligibilityForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Do we need this discipline filter still with the new Pool construction???
         # -- JdW; Oct 20th, 2017
-        self.fields['eligible_Fellows'].queryset = Contributor.objects.filter(
+        self.fields['eligible_fellows'].queryset = Contributor.objects.filter(
                 fellowships__pool=self.instance.submission,
                 discipline=self.instance.submission.discipline,
-                expertises__contains=self.instance.submission.subject_area
+                expertises__contains=[self.instance.submission.subject_area]
                 ).order_by('user__last_name')
 
     def save(self, commit=True):
         recommendation = self.instance
-        recommendation.eligible_to_vote = self.cleaned_data['eligible_Fellows']
+        recommendation.eligible_to_vote = self.cleaned_data['eligible_fellows']
         submission = self.instance.submission
         submission.status = 'put_to_EC_voting'
 
