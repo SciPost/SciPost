@@ -4,14 +4,14 @@
         <h2 class="pb-1 text-blue">{{publication.title}}</h2>
 
         <p class="mb-1">{{ publication.author_list }}</p>
-        <p class="text-muted">
+        <p class="text-muted mb-0">
             {{ publication.citation }} &middot; published {{ publication.publication_date|date:'j F Y' }}
             {% if publication.cc_license != 'CC BY 4.0' %}
                 &middot; licensed under {{publication.get_cc_license_display}}
             {% endif %}
         </p>
 
-        <ul class="publicationClickables">
+        <ul class="publicationClickables mt-3">
             <li>doi:  {{publication.doi_string}}</li>
             <li class="publicationPDF">
                 <a href="{{publication.get_absolute_url}}/pdf" target="_blank">pdf</a>
@@ -29,6 +29,11 @@
 </div>
 <div class="row">
     <div class="col-12">
+        {% if publication.in_issue.proceedings %}
+            <h3>Proceedings event</h3>
+            <p><a href="{{ publication.in_issue.get_absolute_url }}">{{ publication.in_issue.proceedings.event_name }}</a></p>
+        {% endif %}
+
         <h3>Abstract</h3>
         <p class="abstract">{{ publication.abstract }}</p>
     </div>

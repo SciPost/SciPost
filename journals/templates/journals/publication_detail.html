@@ -49,14 +49,6 @@
 
     {% include 'journals/_publication_details.html' with publication=publication %}
 
-    {% if publication.in_issue.proceedings %}
-        <div class="card">
-            <div class="card-body">
-                {% include 'partials/proceedings/description.html' with proceedings=publication.in_issue.proceedings %}
-            </div>
-        </div>
-    {% endif %}
-
     <hr>
     {% if publication.citedby|length >= 1 %}
 
