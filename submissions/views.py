@@ -898,27 +898,24 @@ def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
 
 @login_required
 @permission_required('scipost.can_referee', raise_exception=True)
-def accept_or_decline_ref_invitations(request):
+def accept_or_decline_ref_invitations(request, invitation_id=None):
     """
     RefereeInvitations need to be either accepted or declined by the invited user
     using this view. The decision will be taken one invitation at a time.
     """
     invitation = RefereeInvitation.objects.filter(
-        referee__user=request.user, accepted=None, cancelled=False).first()
+        referee__user=request.user, accepted=None, cancelled=False)
+    if invitation_id:
+        try:
+            invitation = invitation.get(id=invitation_id)
+        except RefereeInvitation.DoesNotExist:
+            invitation = invitation.first()
+    else:
+        invitation = invitation.first()
 
     if not invitation:
         messages.success(request, 'There are no Refereeing Invitations for you to consider.')
         return redirect(reverse('scipost:personal_page'))
-    form = ConsiderRefereeInvitationForm()
-    context = {'invitation_to_consider': invitation, 'form': form}
-    return render(request, 'submissions/accept_or_decline_ref_invitations.html', context)
-
-
-@login_required
-@permission_required('scipost.can_referee', raise_exception=True)
-def accept_or_decline_ref_invitation_ack(request, invitation_id):
-    invitation = get_object_or_404(RefereeInvitation.objects.filter(
-        referee__user=request.user, accepted=None, cancelled=False), pk=invitation_id)
 
     form = ConsiderRefereeInvitationForm(request.POST or None)
     if form.is_valid():
@@ -926,10 +923,18 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
         if form.cleaned_data['accept'] == 'True':
             invitation.accepted = True
             decision_string = 'accepted'
+            messages.success(request, ('<h2>Thank you for agreeing to referee this Submission</h2>'
+                                       '<p>When you are ready, please go to the '
+                                       '<a href="{url}">Submission\'s page</a> to'
+                                       ' submit your Report.</p>'.format(
+                                            url=invitation.submission.get_absolute_url())))
         else:
             invitation.accepted = False
             decision_string = 'declined'
             invitation.refusal_reason = form.cleaned_data['refusal_reason']
+            messages.success(request, ('<h1>You have declined to contribute a Report</h1>'
+                                       'Nonetheless, we thank you very much for considering'
+                                       ' this refereeing invitation.</p>'))
         invitation.save()
         SubmissionUtils.load({'invitation': invitation}, request)
         SubmissionUtils.email_referee_response_to_EIC()
@@ -941,9 +946,13 @@ def accept_or_decline_ref_invitation_ack(request, invitation_id):
         invitation.submission.add_event_for_eic('Referee %s has %s the refereeing invitation.'
                                                 % (invitation.referee.user.last_name,
                                                    decision_string))
-
-    context = {'invitation': invitation}
-    return render(request, 'submissions/accept_or_decline_ref_invitation_ack.html', context)
+        return redirect('submissions:accept_or_decline_ref_invitations')
+    form = ConsiderRefereeInvitationForm()
+    context = {
+        'invitation': invitation,
+        'form': form
+    }
+    return render(request, 'submissions/accept_or_decline_ref_invitations.html', context)
 
 
 def decline_ref_invitation(request, invitation_key):
@@ -1124,8 +1133,8 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
           not request.user.groups.filter(name='Editorial Administrators').exists()):
         errormessage = 'Only Editorial Administrators can perform this action.'
     if errormessage is not None:
-        context = {'errormessage': errormessage, 'comtype': comtype}
-        return render(request, 'submissions/communication.html', context)
+        messages.warning(request, errormessage)
+        return redirect(reverse('submissions:pool'))
 
     form = EditorialCommunicationForm(request.POST or None)
     if form.is_valid():
@@ -1161,7 +1170,7 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
-    if submission.eic_recommendation_required():
+    if not submission.eic_recommendation_required:
         messages.warning(request, ('<h3>An Editorial Recommendation is not required</h3>'
                                    'This submission\'s current status is: <em>%s</em>'
                                    % submission.get_status_display()))
@@ -1170,11 +1179,13 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
 
     # Find EditorialAssignment for user
     try:
-        assignment = submission.editorial_assignments.get(submission=submission,
-                                                          to=request.user.contributor)
+        assignment = submission.editorial_assignments.accepted().get(
+            to=submission.editor_in_charge)
     except EditorialAssignment.DoesNotExist:
         messages.warning(request, ('You cannot formulate an Editorial Recommendation,'
-                                   ' because you are not assigned as editor-in-charge.'))
+                                   ' because the Editorial Assignment has not been set properly.'
+                                   ' Please '
+                                   '<a href="mailto:admin@scipost.org">report the problem</a>.'))
         return redirect(reverse('submissions:editorial_page',
                                 args=[submission.arxiv_identifier_w_vn_nr]))
 

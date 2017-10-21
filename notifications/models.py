@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.utils import timezone
 
+from .constants import NOTIFICATION_TYPES
 from .managers import NotificationQuerySet
 
 
@@ -52,8 +53,9 @@ class Notification(models.Model):
 
     created = models.DateTimeField(default=timezone.now)
 
-    public = models.BooleanField(default=True)
-    emailed = models.BooleanField(default=False)
+    # This field is for internal use only. It is used to prevent duplicate sending
+    # of notifications.
+    internal_type = models.CharField(max_length=255, blank=True, choices=NOTIFICATION_TYPES)
 
     objects = NotificationQuerySet.as_manager()
 

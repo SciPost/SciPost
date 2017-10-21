@@ -165,8 +165,13 @@ class Submission(models.Model):
     def get_absolute_url(self):
         return reverse('submissions:submission', args=[self.arxiv_identifier_w_vn_nr])
 
+    @property
+    def notification_name(self):
+        return self.arxiv_identifier_w_vn_nr
+
+    @property
     def eic_recommendation_required(self):
-        return self.status not in SUBMISSION_EIC_RECOMMENDATION_REQUIRED
+        return self.status in SUBMISSION_EIC_RECOMMENDATION_REQUIRED
 
     @property
     def reporting_deadline_has_passed(self):
@@ -294,6 +299,10 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     def get_absolute_url(self):
         return reverse('submissions:assignment_request', args=(self.id,))
 
+    @property
+    def notification_name(self):
+        return self.submission.arxiv_identifier_w_vn_nr
+
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
@@ -325,11 +334,18 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))
 
+    def get_absolute_url(self):
+        return reverse('submissions:accept_or_decline_ref_invitations', args=(self.id,))
+
     @property
     def referee_str(self):
         if self.referee:
             return str(self.referee)
         return self.last_name + ', ' + self.first_name
+
+    @property
+    def notification_name(self):
+        return self.submission.arxiv_identifier_w_vn_nr
 
     def reset_content(self):
         self.nr_reminders = 0
@@ -437,6 +453,10 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
 
     @property
+    def notification_name(self):
+        return self.submission.arxiv_identifier_w_vn_nr
+
+    @property
     def doi_string(self):
         if self.doi_label:
             return '10.21468/' + self.doi_label
@@ -535,6 +555,10 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     def get_absolute_url(self):
         # TODO: Fix this weird redirect, but it's neccesary for the notifications to have one.
         return self.submission.get_absolute_url()
+
+    @property
+    def notification_name(self):
+        return self.submission.arxiv_identifier_w_vn_nr
 
     @property
     def nr_for(self):

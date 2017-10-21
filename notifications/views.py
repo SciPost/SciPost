@@ -14,20 +14,6 @@ def is_test_user(user):
     return user.groups.filter(name='Testers').exists()
 
 
-@method_decorator(login_required, name='dispatch')
-@method_decorator(user_passes_test(is_test_user), name='dispatch')
-class NotificationViewList(ListView):
-    context_object_name = 'notifications'
-
-
-class AllNotificationsList(NotificationViewList):
-    """
-    Index page for authenticated user
-    """
-    def get_queryset(self):
-        return self.request.user.notifications.all()
-
-
 @login_required
 @user_passes_test(is_test_user)
 def forward(request, slug):
@@ -125,7 +111,10 @@ def live_notification_list(request):
             else:
                 struct['actor'] = str(n.actor)
         if n.target:
-            struct['target'] = str(n.target)
+            if hasattr(n.target, 'notification_name'):
+                struct['target'] = n.target.notification_name
+            else:
+                struct['target'] = str(n.target)
             struct['forward_link'] = n.get_absolute_url()
         if n.action_object:
             struct['action_object'] = str(n.action_object)

@@ -668,12 +668,15 @@ class EditorialCommunicationForm(forms.Form):
 class EICRecommendationForm(forms.ModelForm):
     class Meta:
         model = EICRecommendation
-        fields = ['recommendation',
-                  'remarks_for_authors', 'requested_changes',
-                  'remarks_for_editorial_college']
+        fields = [
+            'recommendation',
+            'remarks_for_authors',
+            'requested_changes',
+            'remarks_for_editorial_college'
+        ]
 
     def __init__(self, *args, **kwargs):
-        super(EICRecommendationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['remarks_for_authors'].widget.attrs.update(
             {'placeholder': 'Your general remarks for the authors',
              'rows': 10, 'cols': 100})

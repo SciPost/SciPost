@@ -332,3 +332,15 @@ class RefereeInvitationQuerySet(models.QuerySet):
 
     def in_process(self):
         return self.accepted().filter(fulfilled=False)
+
+    def approaching_deadline(self):
+        qs = self.in_process()
+        deadline = datetime.datetime.now() + datetime.timedelta(days=2)
+        qs = qs.filter(submission__reporting_deadline__lte=deadline)
+        return qs
+
+    def overdue(self):
+        qs = self.in_process()
+        deadline = datetime.datetime.now()
+        qs = qs.filter(submission__reporting_deadline__lte=deadline)
+        return qs
