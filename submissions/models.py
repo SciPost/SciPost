@@ -15,7 +15,7 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
                        EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
-from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationManager,\
+from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet,\
                       ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
@@ -24,7 +24,6 @@ from comments.models import Comment
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
-from scipost.models import Contributor
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
@@ -58,6 +57,8 @@ class Submission(models.Model):
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_UNASSIGNED)
     refereeing_cycle = models.CharField(max_length=30, choices=SUBMISSION_CYCLES,
                                         default=CYCLE_DEFAULT)
+    fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
+                                     related_name='pool')
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
@@ -68,6 +69,8 @@ class Submission(models.Model):
     # Replace this by foreignkey?
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
                                             verbose_name="Journal to be submitted to")
+    proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
+                                    related_name='submissions')
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:
@@ -103,11 +106,6 @@ class Submission(models.Model):
     latest_activity = models.DateTimeField(auto_now=True)
 
     objects = SubmissionQuerySet.as_manager()
-
-    class Meta:
-        permissions = (
-            ('can_take_editorial_actions', 'Can take editorial actions'),
-        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -167,21 +165,37 @@ class Submission(models.Model):
     def get_absolute_url(self):
         return reverse('submissions:submission', args=[self.arxiv_identifier_w_vn_nr])
 
+    @property
+    def notification_name(self):
+        return self.arxiv_identifier_w_vn_nr
+
+    @property
     def eic_recommendation_required(self):
-        return self.status not in SUBMISSION_EIC_RECOMMENDATION_REQUIRED
+        return self.status in SUBMISSION_EIC_RECOMMENDATION_REQUIRED
 
     @property
     def reporting_deadline_has_passed(self):
         return timezone.now() > self.reporting_deadline
 
+    @property
+    def original_submission_date(self):
+        return Submission.objects.filter(
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).first().submission_date
+
     @cached_property
     def other_versions(self):
+        """
+        Return all other versions of the Submission that are publicly accessible.
+        """
         return Submission.objects.public().filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
         ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
 
     @cached_property
     def other_versions_pool(self):
+        """
+        Return all other versions of the Submission.
+        """
         return Submission.objects.filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
         ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
@@ -285,6 +299,10 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     def get_absolute_url(self):
         return reverse('submissions:assignment_request', args=(self.id,))
 
+    @property
+    def notification_name(self):
+        return self.submission.arxiv_identifier_w_vn_nr
+
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
@@ -316,11 +334,18 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))
 
+    def get_absolute_url(self):
+        return reverse('submissions:accept_or_decline_ref_invitations', args=(self.id,))
+
     @property
     def referee_str(self):
         if self.referee:
             return str(self.referee)
         return self.last_name + ', ' + self.first_name
+
+    @property
+    def notification_name(self):
+        return self.submission.arxiv_identifier_w_vn_nr
 
     def reset_content(self):
         self.nr_reminders = 0
@@ -409,9 +434,6 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         unique_together = ('submission', 'report_nr')
         default_related_name = 'reports'
         ordering = ['-date_submitted']
-        permissions = (
-            ('can_vet_submitted_reports', 'Can vet submitted Reports'),
-        )
 
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
@@ -429,6 +451,10 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     def get_absolute_url(self):
         return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
+
+    @property
+    def notification_name(self):
+        return self.submission.arxiv_identifier_w_vn_nr
 
     @property
     def doi_string(self):
@@ -520,7 +546,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
                                            related_name='voted_abstain')
     voting_deadline = models.DateTimeField('date submitted', default=timezone.now)
 
-    objects = EICRecommendationManager()
+    objects = EICRecommendationQuerySet.as_manager()
 
     def __str__(self):
         return (self.submission.title[:20] + ' by ' + self.submission.author_list[:30] +
@@ -529,6 +555,10 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     def get_absolute_url(self):
         # TODO: Fix this weird redirect, but it's neccesary for the notifications to have one.
         return self.submission.get_absolute_url()
+
+    @property
+    def notification_name(self):
+        return self.submission.arxiv_identifier_w_vn_nr
 
     @property
     def nr_for(self):

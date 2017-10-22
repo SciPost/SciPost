@@ -4,6 +4,7 @@
 
 {% load scipost_extras %}
 {% load bootstrap %}
+{% load user_groups %}
 
 {% block breadcrumb_items %}
     {{block.super}}
@@ -12,6 +13,8 @@
 {% endblock %}
 
 {% block content %}
+
+{% is_edcol_admin request.user as is_editorial_admin %}
 
 <h2>Editorial Page for Submission</h2>
 <h1 class="text-primary">{{submission.title}}</h1>
@@ -211,11 +214,16 @@
                             <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
                         {% endif %}
                     {% endif %}
-                    <li>
-                        <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
-                        <p>If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
-                        <br/>If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.</p>
-                    </li>
+                    {% if submission.eic_recommendation_required %}
+                        <li>
+                            <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
+                            <p>
+                                If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
+                                <br>
+                                If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.
+                            </p>
+                        </li>
+                    {% endif %}
               </ul>
         </div>
     </div>
@@ -223,8 +231,13 @@
 
 <h2 class="mt-3">Communications</h2>
 <ul>
-    <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoA' %}">Draft and send a communication with the submitting Author</a></li>
-    <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
+    {% if submission.editor_in_charge == request.user.contributor %}
+        <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoA' %}">Draft and send a communication with the submitting Author</a></li>
+        <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
+    {% endif %}
+    {% if is_editorial_admin %}
+        <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='StoE' %}">Draft and send a communication as Editorial Administrator to the Editor-in-charge</a></li>
+    {% endif %}
 </ul>
 
 <div class="row">

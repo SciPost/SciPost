@@ -12,7 +12,9 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE,\
                        STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE,\
                        EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR,\
-                       STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED, STATUS_WITHDRAWN
+                       STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED, STATUS_WITHDRAWN,\
+                       STATUS_PUT_TO_EC_VOTING, STATUS_VOTING_IN_PREPARATION,\
+                       SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_REVISION_REQUESTED
 
 
 class SubmissionQuerySet(models.QuerySet):
@@ -25,7 +27,7 @@ class SubmissionQuerySet(models.QuerySet):
         """
         # This method used a double query, which is a consequence of the complex distinct()
         # filter combined with the PostGresQL engine. Without the double query, ordering
-        # on a specific field after filtering would be impossible.
+        # on a specific field after filtering seems impossible.
         ids = (queryset
                .order_by('arxiv_identifier_wo_vn_nr', '-arxiv_vn_nr')
                .distinct('arxiv_identifier_wo_vn_nr')
@@ -44,26 +46,69 @@ class SubmissionQuerySet(models.QuerySet):
         except AttributeError:
             return self.none()
 
-    def get_pool(self, user):
+    def _pool(self, user):
         """
-        Return subset of active and newest 'alive' submissions.
-        """
-        return (self.user_filter(user)
-                .exclude(is_current=False)
-                .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
-                .order_by('-submission_date'))
+        This filter creates 'the complete pool' for an user. This new-style pool does
+        explicitly not have the author filter anymore, but registered pools for every Submission.
 
-    def filter_editorial_page(self, user):
+        !!!  IMPORTANT SECURITY NOTICE  !!!
+        All permissions regarding Editorial College actions are implicitly taken care
+        of in this filter method! ALWAYS use this filter method in your Editorial College
+        related view/action.
         """
-        Return Submissions currently 'alive' (being refereed, not published).
+        if not hasattr(user, 'contributor'):
+            return self.none()
 
-        It is meant to allow opening and editing certain submissions that are officially
-        out of the submission cycle i.e. due to resubmission, but should still have the
-        possibility to be opened by the EIC.
+        if user.has_perm('scipost.can_oversee_refereeing'):
+            # Editorial Administators do have permission to see all submissions
+            # without being one of the College Fellows. Therefore, use the 'old' author
+            # filter to still filter out their conflicts of interests.
+            return self.user_filter(user)
+        else:
+            qs = user.contributor.fellowships.active()
+            return self.filter(fellows__in=qs)
+
+    def pool(self, user):
         """
-        return (self.user_filter(user)
-                .exclude(status__in=SUBMISSION_HTTP404_ON_EDITORIAL_PAGE)
-                .order_by('-submission_date'))
+        Return the pool for a certain user: filtered to "in active referee phase".
+        """
+        qs = self._pool(user)
+        qs = qs.exclude(is_current=False).exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
+        return qs
+
+    def pool_editable(self, user):
+        """
+        Return the editable pool for a certain user.
+
+        This is similar to the regular pool, however it also contains submissions that are
+        hidden in the regular pool, but should still be able to be opened by for example
+        the Editor-in-charge.
+        """
+        qs = self._pool(user)
+        qs = qs.exclude(status__in=SUBMISSION_HTTP404_ON_EDITORIAL_PAGE)
+        return qs
+
+    def pool_full(self, user):
+        """
+        Return the *FULL* pool for a certain user.
+        This makes sure the user can see all history of Submissions related to its Fellowship(s).
+
+        Do not use this filter by default however, as this also contains Submissions
+        that are for example either rejected or accepted already and thus "inactive."
+        """
+        qs = self._pool(user)
+        return qs
+
+    def filter_for_eic(self, user):
+        """
+        Return the set of Submissions the user is Editor-in-charge for or return the pool if
+        User is Editorial Administrator.
+        """
+        qs = self._pool(user)
+
+        if not user.has_perm('scipost.can_oversee_refereeing') and hasattr(user, 'contributor'):
+            qs = qs.filter(editor_in_charge=user.contributor)
+        return qs
 
     def prescreening(self):
         """
@@ -77,7 +122,8 @@ class SubmissionQuerySet(models.QuerySet):
         """
         return (self.exclude(is_current=False)
                     .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
-                    .exclude(status__in=[STATUS_UNASSIGNED, STATUS_ACCEPTED]))
+                    .exclude(status__in=[STATUS_UNASSIGNED, STATUS_ACCEPTED,
+                                         STATUS_REVISION_REQUESTED]))
 
     def public(self):
         """
@@ -121,18 +167,17 @@ class SubmissionQuerySet(models.QuerySet):
             identifiers.append(sub.arxiv_identifier_wo_vn_nr)
         return self.filter(arxiv_identifier_wo_vn_nr__in=identifiers)
 
-
     def accepted(self):
         return self.filter(status=STATUS_ACCEPTED)
 
+    def revision_requested(self):
+        return self.filter(status=STATUS_REVISION_REQUESTED)
 
     def published(self):
         return self.filter(status=STATUS_PUBLISHED)
 
-
     def assignment_failed(self):
         return self.filter(status=STATUS_ASSIGNMENT_FAILED)
-
 
     def rejected(self):
         return self._newest_version_only(self.filter(status__in=[STATUS_REJECTED,
@@ -140,7 +185,6 @@ class SubmissionQuerySet(models.QuerySet):
 
     def withdrawn(self):
         return self._newest_version_only(self.filter(status=STATUS_WITHDRAWN))
-
 
     def open_for_reporting(self):
         """
@@ -203,7 +247,7 @@ class EditorialAssignmentQuerySet(models.QuerySet):
         return self.filter(accepted=None, deprecated=False)
 
 
-class EICRecommendationManager(models.Manager):
+class EICRecommendationQuerySet(models.QuerySet):
     def get_for_user_in_pool(self, user):
         """
         -- DEPRECATED --
@@ -221,6 +265,8 @@ class EICRecommendationManager(models.Manager):
 
     def filter_for_user(self, user, **kwargs):
         """
+        -- DEPRECATED --
+
         Return list of EICRecommendation's which are owned/assigned author through the
         related submission.
         """
@@ -228,6 +274,23 @@ class EICRecommendationManager(models.Manager):
             return self.filter(submission__authors=user.contributor).filter(**kwargs)
         except AttributeError:
             return self.none()
+
+    def user_may_vote_on(self, user):
+        if not hasattr(user, 'contributor'):
+            return self.none()
+
+        return (self.filter(eligible_to_vote=user.contributor)
+                .exclude(recommendation__in=[-1, -2])
+                .exclude(voted_for=user.contributor)
+                .exclude(voted_against=user.contributor)
+                .exclude(voted_abstain=user.contributor)
+                .exclude(submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED))
+
+    def put_to_voting(self):
+        return self.filter(submission__status=STATUS_PUT_TO_EC_VOTING)
+
+    def voting_in_preparation(self):
+        return self.filter(submission__status=STATUS_VOTING_IN_PREPARATION)
 
 
 class ReportQuerySet(models.QuerySet):
@@ -269,3 +332,17 @@ class RefereeInvitationQuerySet(models.QuerySet):
 
     def in_process(self):
         return self.accepted().filter(fulfilled=False)
+
+    def approaching_deadline(self):
+        qs = self.in_process()
+        psuedo_deadline = datetime.datetime.now() + datetime.timedelta(days=2)
+        deadline = datetime.datetime.now()
+        qs = qs.filter(submission__reporting_deadline__lte=psuedo_deadline,
+                       submission__reporting_deadline__gte=deadline)
+        return qs
+
+    def overdue(self):
+        qs = self.in_process()
+        deadline = datetime.datetime.now()
+        qs = qs.filter(submission__reporting_deadline__lte=deadline)
+        return qs

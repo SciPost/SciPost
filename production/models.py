@@ -70,6 +70,10 @@ class ProductionStream(models.Model):
     def completed(self):
         return self.status == PRODUCTION_STREAM_COMPLETED
 
+    @property
+    def notification_name(self):
+        return self.submission.arxiv_identifier_w_vn_nr
+
 
 class ProductionEvent(models.Model):
     stream = models.ForeignKey(ProductionStream, on_delete=models.CASCADE, related_name='events')
@@ -96,6 +100,10 @@ class ProductionEvent(models.Model):
     @cached_property
     def editable(self):
         return self.event in [EVENT_MESSAGE, EVENT_HOUR_REGISTRATION] and not self.stream.completed
+
+    @property
+    def notification_name(self):
+        return self.stream.notification_name
 
 
 def proofs_upload_location(instance, filename):

@@ -4,7 +4,6 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^$', views.AllNotificationsList.as_view(), name='all'),
     url(r'^redirect/(?P<slug>\d+)$', views.forward, name='forward'),
     url(r'^mark-all-as-read/$', views.mark_all_as_read, name='mark_all_as_read'),
     url(r'^mark-toggle/(?P<slug>\d+)/$', views.mark_toggle, name='mark_toggle'),

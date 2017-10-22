@@ -1,0 +1,42 @@
+<table class="proceedings summary">
+    <tr>
+        <th>Event name</th>
+        <td>{{ proceedings.event_name }}</td>
+    </tr>
+    <tr>
+        <th>Description</th>
+        <td>{{ proceedings.event_description|default:'-'|linebreaksbr }}</td>
+    </tr>
+    {% if proceedings.event_start_date %}
+        <tr>
+            <th>Event start date</th>
+            <td>{{ proceedings.event_start_date }}</td>
+        </tr>
+    {% endif %}
+    {% if proceedings.event_end_date %}
+        <tr>
+            <th>Event end date</th>
+            <td>{{ proceedings.event_end_date }}</td>
+        </tr>
+    {% endif %}
+    <tr>
+        <th>Guest Fellowships</th>
+        <td>{{ proceedings.fellowships.count }}</td>
+    </tr>
+    <tr>
+        <th>Lead Fellowship</th>
+        <td>{{ proceedings.lead_fellow }}</td>
+    </tr>
+    <tr>
+        <th>Submission Open</th>
+        <td>{{ proceedings.submissions_open }}</td>
+    </tr>
+    <tr>
+        <th>Submission Deadline</th>
+        <td>{{ proceedings.submissions_deadline }}</td>
+    </tr>
+    <tr>
+        <th>Submission Close</th>
+        <td>{{ proceedings.submissions_close }}</td>
+    </tr>
+</table>

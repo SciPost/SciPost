@@ -38,7 +38,6 @@ class Command(BaseCommand):
         content_type = ContentType.objects.get_for_model(Contributor)
         content_type_contact = ContentType.objects.get_for_model(Contact)
         content_type_draft_invitation = ContentType.objects.get_for_model(DraftInvitation)
-        content_type_report = ContentType.objects.get_for_model(Report)
 
         # Supporting Partners
         can_manage_SPB, created = Permission.objects.get_or_create(
@@ -110,6 +109,10 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Editorial College
+        can_manage_college_composition, created = Permission.objects.get_or_create(
+            codename='can_manage_college_composition',
+            name='Can manage Editorial College compositions',
+            content_type=content_type)
         can_attend_VGMs, created = Permission.objects.get_or_create(
             codename='can_attend_VGMs',
             name='Can attend Virtual General Meetings',
@@ -153,7 +156,7 @@ class Command(BaseCommand):
         can_vet_submitted_reports, created = Permission.objects.get_or_create(
             codename='can_vet_submitted_reports',
             name='Can vet submitted Reports',
-            content_type=content_type_report)
+            content_type=content_type)
 
         # Submissions
         can_submit_manuscript, created = Permission.objects.get_or_create(
@@ -304,6 +307,7 @@ class Command(BaseCommand):
             can_do_plagiarism_checks,
             can_oversee_refereeing,
             can_prepare_recommendations_for_voting,
+            can_manage_college_composition,
             can_fix_College_decision,
             can_view_production,
             can_view_timesheets,

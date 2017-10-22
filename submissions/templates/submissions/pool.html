@@ -21,7 +21,7 @@
     <div class="col-lg-8">
 
         {% if is_ECAdmin %}
-            {% if recommendations_undergoing_voting %}
+            {% if recommendations.put_to_voting.exists %}
                 <div class="row">
                     <div class="col-12">
                         <h3 class="highlight mt-0">Administrative actions on recommendations undergoing voting:</h3>
@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="row">
-                    {% for rec in recommendations_undergoing_voting %}
+                    {% for rec in recommendations.put_to_voting %}
                         {% if not forloop.first %}
                             <hr>
                         {% endif %}
@@ -116,14 +116,14 @@
                 <hr>
             {% endif %}
 
-            {% if recommendations_to_prepare_for_voting %}
+            {% if recommendations.voting_in_preparation.exists %}
                 <div class="row">
                     <div class="col-12">
                         <h1 class="highlight mt-0">Recommendations to prepare for voting</h1>
                     </div>
                 </div>
 
-                {% for rec in recommendations_to_prepare_for_voting %}
+                {% for rec in recommendations.voting_in_preparation %}
                     {% if not forloop.first %}
                         <hr>
                     {% endif %}
@@ -229,7 +229,7 @@
         <div class="row">
             <div class="col-12">
                 <!-- Submissions list -->
-                {% for sub in submissions_in_pool %}
+                {% for sub in submissions %}
                     <div class="card card-outline-secondary mt-1" id="pool_submission_{{sub.id}}">
                         {% include 'submissions/_submission_card_in_pool.html' with submission=sub remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
                     </div>
@@ -258,14 +258,14 @@
                 </div><!-- end status -->
 
                 {% if is_ECAdmin %}
-                    {% if recommendations_undergoing_voting %}
+                    {% if recommendations.put_to_voting.exists %}
                         <!-- Preparing -->
                         <a href="#rec_filter_voting" data-toggle="collapse" class="collapsed">
                             <h3 class="card-title text-gray-dark">Recommendations undergoing voting ({{recommendations_undergoing_voting|length}})</h3>
                         </a>
                         <div id="rec_filter_voting" class="collapse">
                             <ul class="list-group list-group-flush">
-                                {% for recommendation in recommendations_undergoing_voting %}
+                                {% for recommendation in recommendations.put_to_voting %}
                                     <li class="list-group-item">
                                         <div class="card-body">
                                             <a href="#undergoing_rec_{{recommendation.id}}">{{recommendation.submission.title}}</a>
@@ -278,14 +278,14 @@
                         </div><!-- end preparing -->
                     {% endif %}
 
-                    {% if recommendations_to_prepare_for_voting %}
+                    {% if recommendations.voting_in_preparation.exists %}
                         <!-- Preparing -->
                         <a href="#rec_filter_prepare" data-toggle="collapse" class="collapsed">
                             <h3 class="card-title text-gray-dark">Recommendations to prepare ({{recommendations_to_prepare_for_voting|length}})</h3>
                         </a>
                         <div id="rec_filter_prepare" class="collapse">
                             <ul class="list-group list-group-flush">
-                                {% for recommendation in recommendations_to_prepare_for_voting %}
+                                {% for recommendation in recommendations.voting_in_preparation %}
                                     <li class="list-group-item">
                                         <div class="card-body">
                                             <a href="#prepare_rec_{{recommendation.id}}">{{recommendation.submission.title}}</a>
@@ -301,11 +301,11 @@
 
                 <!-- Pool -->
                 <a href="#pool_filter_submissions" data-toggle="collapse">
-                    <h3 class="card-title text-gray-dark">Submissions in pool ({{submissions_in_pool|length}})</h3>
+                    <h3 class="card-title text-gray-dark">Submissions in pool ({{submissions|length}})</h3>
                 </a>
                 <div id="pool_filter_submissions" class="collapse show">
                     <ul class="list-group list-group-flush">
-                        {% for submission in submissions_in_pool %}
+                        {% for submission in submissions %}
                             <li class="list-group-item">
                                 <div class="card-body" style="overflow: auto;">
                                     <a href="#pool_submission_{{submission.id}}">{{submission.title}}</a>

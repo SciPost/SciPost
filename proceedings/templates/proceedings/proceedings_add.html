@@ -1,0 +1,22 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <a href="{% url 'proceedings:proceedings' %}" class="breadcrumb-item">Proceedings</a>
+    <span class="breadcrumb-item">Add new</span>
+{% endblock %}
+
+{% block pagetitle %}: Add new Proceedings{% endblock pagetitle %}
+
+{% block content %}
+    <h1>Add new Proceedings</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-primary">Add Proceedings</button>
+    </form>
+
+{% endblock %}

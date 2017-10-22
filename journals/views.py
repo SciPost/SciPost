@@ -245,7 +245,6 @@ def validate_publication(request):
         publication = validate_publication_form.save()
 
         # Fill in remaining data
-        #publication.pdf_file = request.FILES['pdf_file']
         submission = publication.accepted_submission
         publication.authors.add(*submission.authors.all())
         if publication.first_author:

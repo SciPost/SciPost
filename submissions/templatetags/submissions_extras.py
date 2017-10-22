@@ -1,8 +1,5 @@
-import datetime
-
 from django import template
 
-from submissions.constants import SUBMISSION_STATUS_OUT_OF_POOL
 from submissions.models import Submission
 
 register = template.Library()

@@ -1,8 +1,11 @@
-<div class="card-body {% block cardblock_class_block %}{% endblock %}">
-    <h5 class="pb-0">{{submission.get_subject_area_display}}</h5>
-    <h3 class="card-title {% block title_class_block %}{% endblock %}">
-        <a href="{{submission.get_absolute_url}}">{{submission.title}}</a>
-    </h3>
+<div class="card-body {% block cardblock_class_block %}{% endblock %} {{ cardblock_class }}">
+
+    <div class="submission_title">
+        <h5 class="pb-0">{{submission.get_subject_area_display}}</h5>
+        <h3 class="card-title {% block title_class_block %}{% endblock %}">
+            <a href="{{submission.get_absolute_url}}">{{submission.title}}</a>
+        </h3>
+    </div>
 
     {% block card_block_footer %}{% endblock %}
 </div>
