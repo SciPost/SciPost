@@ -1057,12 +1057,7 @@ def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
         submission.latest_activity = timezone.now()
         submission.save()
         submission.add_general_event('A new refereeing deadline is set.')
-        context = {'ack_header': 'New reporting deadline set.',
-                   'followup_message': 'Return to the ',
-                   'followup_link': reverse('submissions:editorial_page',
-                                            kwargs={'arxiv_identifier_w_vn_nr': submission.arxiv_identifier_w_vn_nr}),
-                   'followup_link_label': 'Submission\'s Editorial Page'}
-        return render(request, 'scipost/acknowledgement.html', context)
+        messages.success(request, 'New reporting deadline set.')
     else:
         messages.error(request, 'The deadline has not been set. Please try again.')
 
