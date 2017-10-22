@@ -1,9 +1,8 @@
 {% extends 'submissions/_submission_card_base.html' %}
 
 {% block card_block_footer %}
-    {% if not hide_title %}
-        <p class="card-text mb-3">by {{submission.author_list}}</p>
-    {% endif %}
+    <p class="card-text mb-3 author_list">by {{submission.author_list}}</p>
+
     <table class="text-muted w-100 mb-1">
         <tr>
             <td style="min-width: 40%;">Version</td>

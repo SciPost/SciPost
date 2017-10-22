@@ -1,11 +1,11 @@
 <div class="card-body {% block cardblock_class_block %}{% endblock %} {{ cardblock_class }}">
 
-    {% if not hide_title %}
+    <div class="submission_title">
         <h5 class="pb-0">{{submission.get_subject_area_display}}</h5>
         <h3 class="card-title {% block title_class_block %}{% endblock %}">
             <a href="{{submission.get_absolute_url}}">{{submission.title}}</a>
         </h3>
-    {% endif %}
+    </div>
 
     {% block card_block_footer %}{% endblock %}
 </div>
