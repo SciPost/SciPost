@@ -3,8 +3,6 @@ from django.contrib.auth.models import User
 from django.forms import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.decorators import method_decorator
-from django.views.generic import ListView
 
 from .models import Notification
 from .utils import id2slug, slug2id
