@@ -914,7 +914,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         invitation = invitation.first()
 
     if not invitation:
-        messages.success(request, 'There are no Refereeing Invitations for you to consider.')
+        messages.success(request, 'There are no more Refereeing Invitations for you to consider.')
         return redirect(reverse('scipost:personal_page'))
 
     form = ConsiderRefereeInvitationForm(request.POST or None)
@@ -923,7 +923,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         if form.cleaned_data['accept'] == 'True':
             invitation.accepted = True
             decision_string = 'accepted'
-            messages.success(request, ('<h2>Thank you for agreeing to referee this Submission</h2>'
+            messages.success(request, ('<h3>Thank you for agreeing to referee this Submission</h3>'
                                        '<p>When you are ready, please go to the '
                                        '<a href="{url}">Submission\'s page</a> to'
                                        ' submit your Report.</p>'.format(
