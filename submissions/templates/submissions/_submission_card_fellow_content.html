@@ -81,7 +81,7 @@
 
         {% if perms.scipost.can_manage_college_composition %}
             <tr>
-                <td>Pool size</td>
+                <td>Pool composition</td>
                 <td><a href="{% url 'colleges:submission' submission.arxiv_identifier_w_vn_nr %}">{{ submission.fellows.count }} Fellowships</a></td>
             </tr>
         {% endif %}
