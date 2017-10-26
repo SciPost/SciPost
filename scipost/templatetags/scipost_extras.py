@@ -19,10 +19,12 @@ def sort_by(queryset, order):
 
 @register.filter(name='duration')
 def duration(dur):
-    total_seconds = int(dur.total_seconds())
-    hours = total_seconds // 3600
-    minutes = (total_seconds % 3600) // 60
-    return '{}h {}m'.format(hours, minutes)
+    if dur:
+        total_seconds = int(dur.total_seconds())
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        return '{}h {}m'.format(hours, minutes)
+    return '0h 0m'
 
 
 #######################
