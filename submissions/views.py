@@ -1569,7 +1569,7 @@ def fix_College_decision(request, rec_id):
 
 class EICRecommendationView(SubmissionAdminViewMixin, DetailView):
     permission_required = 'scipost.can_fix_College_decision'
-    template_name = 'submissions/admin/eic_recommendation_detail.html'
+    template_name = 'submissions/admin/recommendation.html'
     editorial_page = True
 
     def get_context_data(self, *args, **kwargs):
@@ -1604,14 +1604,3 @@ class PlagiarismReportPDFView(SubmissionAdminViewMixin, SingleObjectMixin, Redir
         if not url:
             raise Http404
         return url
-
-
-class AdminRecommendationView(SubmissionAdminViewMixin, DetailView):
-    permission_required = 'scipost.can_fix_College_decision'
-    template_name = 'submissions/admin/recommendation.html'
-    editorial_page = True
-
-    def get_object(self):
-        """ Get the EICRecommendation as a submission-related instance. """
-        submission = super().get_object()
-        return submission.eicrecommendations.first()

@@ -48,7 +48,7 @@
                                 {% for recommendation in recommendations.put_to_voting %}
                                     <li>{% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
                                         On Editorial Recommendation: {{ recommendation }}<br>
-                                        <a href="{% url 'submissions:admin_recommendation' recommendation.submission.arxiv_identifier_w_vn_nr %}">See Editorial Recommendation</a>
+                                        <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.arxiv_identifier_w_vn_nr recommendation.id %}">See Editorial Recommendation</a>
                                     </li>
                                 {% endfor %}
                             </ul>

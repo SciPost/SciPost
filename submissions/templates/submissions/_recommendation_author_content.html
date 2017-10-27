@@ -1,18 +1,20 @@
-<div class="card-body">
-    <h2 class="pb-0 mb-0">Editorial Recommendation</h2>
+<div class="card">
+    <div class="card-body">
+        <h2 class="pb-0 mb-0">Editorial Recommendation</h2>
 
-    {% block recommendation_header %}
-        <h3 class="card-title text-muted">Date {{recommendation.date_submitted}}</h3>
-    {% endblock %}
+        {% block recommendation_header %}
+            <h3 class="card-title text-muted">Date {{recommendation.date_submitted}}</h3>
+        {% endblock %}
 
-    <h3 class="pb-0">Remarks for authors</h3>
-    <p class="pl-md-3">{{recommendation.remarks_for_authors|default:'-'}}</p>
+        <h3 class="pb-0">Remarks for authors</h3>
+        <p class="pl-md-3">{{recommendation.remarks_for_authors|default:'-'}}</p>
 
-    <h3 class="pb-0">Requested changes</h3>
-    <p class="pl-md-3">{{recommendation.requested_changes|default:'-'}}</p>
+        <h3 class="pb-0">Requested changes</h3>
+        <p class="pl-md-3">{{recommendation.requested_changes|default:'-'}}</p>
 
-    {% block recommendation_before_recommendation %}{% endblock %}
+        {% block recommendation_before_recommendation %}{% endblock %}
 
-    <h3 class="pb-0">Recommendation</h3>
-    <p class="pl-md-3 mb-0">{{recommendation.get_recommendation_display}}</p>
+        <h3 class="pb-0">Recommendation</h3>
+        <p class="pl-md-3 mb-0">{{recommendation.get_recommendation_display}}</p>
+    </div>
 </div>
