@@ -1,4 +1,4 @@
-{% extends 'submissions/_pool_base.html' %}
+{% extends 'submissions/pool/base.html' %}
 
 {% block pagetitle %}: communication{% endblock pagetitle %}
 
@@ -7,7 +7,6 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
     <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</a>
     <span class="breadcrumb-item">Communication</span>
 {% endblock %}
@@ -15,38 +14,37 @@
 {% block content %}
 
 
-<div class="row">
-  <div class="col-12">
-    <h1 class="highlight">Send a Communication</h1>
+<div class="card card-grey">
+  <div class="card-body">
+    <h1 class="pb-0">Send a Communication</h1>
       {% if comtype == 'EtoA' %}
-          <p>to the submitting Author of Submission</p>
+          <h3>to the submitting Author of Submission</h3>
       {% elif comtype == 'AtoE' or comtype == 'RtoE' or comtype == 'StoE' %}
           <h3>to the Editor-in-charge of Submission</h3>
       {% elif comtype == 'EtoR' %}
-          <p>to Referee of Submission</p>
+          <h3>to Referee of Submission</h3>
       {% elif comtype == 'EtoS' %}
-          <p>to SciPost Editorial Administrators</p>
+          <h3>to SciPost Editorial Administrators</h3>
       {% endif %}
-
-        <div class="card">
-            {% include 'submissions/_submission_card_content.html' with submission=submission %}
-        </div>
     </div>
 </div>
 
+{% include 'submissions/_submission_card_content.html' with submission=submission %}
+
+<br>
 <div class="row">
     <div class="col-12">
         {% if referee_id %}
           <form action="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype=comtype referee_id=referee_id %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap:'0,12' }}
-            <input class="btn btn-secondary" type="submit" value="Send communication"/>
+            <input class="btn btn-primary" type="submit" value="Send communication"/>
           </form>
           {% else %}
           <form action="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype=comtype %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap:'0,12' }}
-            <input class="btn btn-secondary" type="submit" value="Send communication"/>
+            <input class="btn btn-primary" type="submit" value="Send communication"/>
           </form>
           {% endif %}
         </div>

@@ -19,10 +19,9 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12">
-      <table class="assignments_listing w-100">
-        <thead>
+<table class="assignments_listing w-100">
+    <thead class="">
+        <tr>
           <th>Name</th>
           <th>Expertises</th>
           <th>Ongoing</th>
@@ -31,20 +30,19 @@
           <th>Refused<br/>last yr / tot</th>
           <th>Ignored<br/>last yr / tot</th>
           <th>Fulfilled<br/>last yr / tot</th>
-        </thead>
-        <tbody>
-          {% for fellow in fellows %}
-            <tr>
-                <td>
-                    <a href="{% url 'scipost:Fellow_activity_overview' %}?fellow={{fellow.id}}">{{ fellow.user.last_name }}, {{ fellow.user.first_name }}</a>
-                </td>
-                {% include 'partials/scipost/contributor_assignments_as_td.html' with contributor=fellow %}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-</div>
+      </tr>
+    </thead>
+    <tbody>
+      {% for fellow in fellows %}
+        <tr>
+            <td>
+                <a href="{% url 'scipost:Fellow_activity_overview' %}?fellow={{fellow.id}}">{{ fellow.user.last_name }}, {{ fellow.user.first_name }}</a>
+            </td>
+            {% include 'partials/scipost/contributor_assignments_as_td.html' with contributor=fellow %}
+        </tr>
+      {% endfor %}
+    </tbody>
+</table>
 
 {% if fellow %}
     <div class="row">

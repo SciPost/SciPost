@@ -39,8 +39,6 @@ urlpatterns = [
         views.report_pdf_compile, name='report_pdf_compile'),
     url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
         views.report_pdf_compile, name='report_pdf_compile'),
-    # url(r'^admin/{regex}/recommendation$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-    #     views.AdminRecommendationView.as_view(), name='admin_recommendation'),
 
     url(r'^submit_manuscript$', views.RequestSubmission.as_view(), name='submit_manuscript'),
     url(r'^submit_manuscript/prefill$', views.prefill_using_arxiv_identifier,
