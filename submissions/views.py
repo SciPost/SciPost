@@ -524,7 +524,7 @@ def assignment_request(request, assignment_id):
             assignment.submission.editor_in_charge = request.user.contributor
             assignment.submission.open_for_reporting = True
             deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
-            if assignment.submission.submitted_to_journal == 'SciPost Physics Lecture Notes':
+            if assignment.submission.submitted_to_journal == 'SciPostPhysLectNotes':
                 deadline += datetime.timedelta(days=28)
             assignment.submission.reporting_deadline = deadline
             assignment.submission.open_for_commenting = True
@@ -591,7 +591,7 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
                                      date_created=timezone.now(),
                                      date_answered=timezone.now())
     deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
-    if submission.submitted_to_journal == 'SciPost Physics Lecture Notes':
+    if submission.submitted_to_journal == 'SciPostPhysLectNotes':
         deadline += datetime.timedelta(days=28)
     submission.status = 'EICassigned'
     submission.editor_in_charge = contributor

@@ -96,13 +96,14 @@
     .badge {
         vertical-align: top;
         margin-left: -15px;
-        margin-top: -6px;
-        height: 15px;
+        margin-top: -5px;
+        height: 16px;
         min-width: 16px;
         line-height: 10px;
         display: none;
         padding: 0.25em;
         border-radius: 99px;
+        border: 1px solid #f9f9f9;
     }
 }
 
