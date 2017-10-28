@@ -14,83 +14,20 @@
 {% block content %}
 
 {% if not comments_to_vet %}
-<div class="row">
-    <div class="col-12">
-        <h1>There are no comments for you to vet.</h1>
-        <h3><a href="{% url 'scipost:personal_page' %}">Return to personal page</a></h3>
+    <div class="row">
+        <div class="col-12">
+            <h1>There are no comments for you to vet.</h1>
+            <h3><a href="{% url 'scipost:personal_page' %}">Return to personal page</a></h3>
+        </div>
     </div>
-</div>
 {% else %}
-<div class="row">
-    <div class="col-12">
-        <h1 class="highlight">SciPost Comments to vet:</h1>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-12">
-        {% for comment_to_vet in comments_to_vet %}
-            <div class="card card-vetting">
-                <div class="card-header">
+    <h1 class="highlight">SciPost Comments to vet:</h1>
 
-                    {% if comment_to_vet.commentary %}
-                        <h2>From Commentary (<a href="{% url 'commentaries:commentary' arxiv_or_DOI_string=comment_to_vet.commentary.arxiv_or_DOI_string %}">link</a>)</h2>
-                        {% include 'commentaries/_commentary_summary.html' with commentary=comment_to_vet.commentary %}
-                    {% endif %}
+    {% for comment_to_vet in comments_to_vet %}
+        {% include 'comments/_vet_comment_form.html' with comment=comment_to_vet form=form %}
+    {% endfor %}
 
-                    {% if comment_to_vet.submission %}
-                        <h2>From Submission (<a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=comment_to_vet.submission.arxiv_identifier_w_vn_nr %}">link</a>)</h2>
-                        {% include 'submissions/_submission_summary_short.html' with submission=comment_to_vet.submission %}
-                    {% endif %}
-
-                    {% if comment_to_vet.thesislink %}
-                        <h2>From Thesis Link (<a href="{% url 'theses:thesis' comment_to_vet.thesislink.id %}">link</a>)</h2>
-                        {% include 'theses/_thesislink_information.html' with thesislink=comment_to_vet.thesislink %}
-                    {% endif %}
-                </div>
-                <div class="card-body">
-
-                    <h2 class="card-title">The Comment to be vetted:</h2>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            {% include 'comments/_comment_identifier_vetting.html' with comment=comment_to_vet %}
-                            <hr class="small">
-
-                            <h3>Comment text:</h3>
-                            <p>{{ comment_to_vet.comment_text }}</p>
-
-                            {% if comment_to_vet.file_attachment %}
-                                <h3>Attachment:</h3>
-                                <p>
-                                    <a target="_blank" href="{{ comment_to_vet.file_attachment.url }}">
-                                        {% if comment_to_vet.file_attachment|is_image %}
-                                            <img class="attachment attachment-comment" src="{{ comment_to_vet.file_attachment.url }}">
-                                        {% else %}
-                                            {{ comment_to_vet.file_attachment|filename }}<br><small>{{ comment_to_vet.file_attachment.size|filesizeformat }}</small>
-                                        {% endif %}
-                                    </a>
-                                </p>
-                            {% endif %}
-
-                            {% if comment_to_vet.remarks_for_editors %}
-                                <h3>Remarks for Editors only:</h3>
-                                <p>{{ comment_to_vet.remarks_for_editors }}</p>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <form action="{% url 'comments:vet_submitted_comment_ack' comment_id=comment_to_vet.id %}" method="post">
-                                {% csrf_token %}
-                                {{ form|bootstrap }}
-                                <input class="btn btn-primary" type="submit" value="Submit" />
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-</div>
 {% endif %}
 
 {% endblock content %}

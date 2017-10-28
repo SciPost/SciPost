@@ -53,7 +53,7 @@ def vet_submitted_comments_list(request):
     comments_to_vet = Comment.objects.awaiting_vetting().order_by('date_submitted')
     form = VetCommentForm()
     context = {'comments_to_vet': comments_to_vet, 'form': form}
-    return(render(request, 'comments/vet_submitted_comments_list.html', context))
+    return(render(request, 'comments/vet_submitted_comments.html', context))
 
 
 @login_required
