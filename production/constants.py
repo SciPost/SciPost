@@ -49,9 +49,16 @@ PROOFS_STATUSES = (
 )
 
 PRODUCTION_OFFICERS_WORK_LOG_TYPES = (
-    ('Production: Production Officer tasks', 'Production Officer tasks'),
+    ('Production: Proofs have been produced', 'Proofs have been produced'),
+    ('Production: Corrections implemented', 'Corrections implemented'),
+    ('Production: Cited people have been notified/invited to SciPost',
+     'Cited people have been notified/invited to SciPost'),
 )
 PRODUCTION_ALL_WORK_LOG_TYPES = (
-    ('Production: Supervisory tasks', 'Supervisory tasks'),
-    ('Production: Production Officer tasks', 'Production Officer tasks'),
+    ('Production: Proofs have been produced', 'Proofs have been produced'),
+    ('Production: Corrections implemented', 'Corrections implemented'),
+    ('Production: Paper has been published', 'Paper has been published'),
+    ('Maintaince: Metadata has been updated', 'Metadata has been updated'),
+    ('Production: Cited people have been notified/invited to SciPost',
+     'Cited people have been notified/invited to SciPost'),
 )

@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.shortcuts import render
 from django.views.generic.edit import DeleteView
@@ -25,7 +26,7 @@ def timesheets(request):
     return render(request, 'finances/timesheets.html', context)
 
 
-class LogDeleteView(DeleteView):
+class LogDeleteView(LoginRequiredMixin, DeleteView):
     model = WorkLog
 
     def get_object(self):
