@@ -1,6 +1,6 @@
-{% extends 'submissions/_pool_base.html' %}
+{% extends 'submissions/pool/base.html' %}
 
-{% block pagetitle %}: editorial page for submission{% endblock pagetitle %}
+{% block pagetitle %}: Editorial Page for Submission{% endblock pagetitle %}
 
 {% load scipost_extras %}
 {% load bootstrap %}
@@ -8,7 +8,6 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
     <span class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</span>
 {% endblock %}
 

@@ -4,20 +4,7 @@
 {% load submissions_extras %}
 {% load bootstrap %}
 
-{% block pagetitle %}: submission detail{% endblock pagetitle %}
-
-{% block headsup %}
-
-  <script>
-    $(document).ready(function(){
-        $("#invitedreportsbutton").click(function(){
-            $("#invitedreportslist").toggle();
-        });
-
-    });
-  </script>
-
-{% endblock headsup %}
+{% block pagetitle %} Submission: {{ submission.title|truncatechars:40 }}{% endblock pagetitle %}
 
 {% block breadcrumb %}
     <nav class="breadcrumb py-md-2 px-0">
@@ -29,7 +16,6 @@
 {% endblock %}
 
 {% block content %}
-
 
 <div class="row">
     <div class="col-12">
@@ -98,19 +84,12 @@
 {% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
     {% for recommendation in recommendations %}
         {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' or recommendation|is_viewable_by_authors %}
-            <div class="row">
-                <div class="col-12">
-                    <div class="card card-outline-secondary">
-                        {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
-                    </div>
-                </div>
-            </div>
+            {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
         {% endif %}
     {% endfor %}
 
     <div class="mb-4">
         <h2>Events</h2>
-        <a href="javascript:;" data-toggle="toggle" data-target="#eventslist">Show/hide events</a>
         <div id="eventslist">
             {% include 'submissions/submission_event_list.html' with events=submission.events.for_author %}
         </div>

@@ -1,0 +1,64 @@
+{% extends 'submissions/pool/base.html' %}
+
+{% block pagetitle %}: Editorial Recommendation for Submission{% endblock pagetitle %}
+
+{% load scipost_extras %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</a>
+    <span class="breadcrumb-item">Formulate Editorial Recommendation</span>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="highlight">Formulate Editorial Recommendation for Submission</h1>
+
+<br>
+{% include 'submissions/_submission_summary.html' with submission=submission %}
+
+<br>
+<div class="card card-grey">
+    <div class="card-body">
+        <h2 class="card-title">Your Editorial Recommendation</h2>
+        <p class="card-text">You recommendation will be processed by the Editorial Administration.</p>
+        <ul class="mb-0">
+            <li>acceptance or rejection: forwarded to the Editorial College for ratification</li>
+            <li>request for revision: sent directly to the authors</li>
+        </ul>
+    </div>
+</div>
+
+{% if submission.editor_in_charge != request.user.contributor %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-body d-flex flex-row">
+                    <div class="p-2">
+                        <i class="fa fa-2x fa-exclamation-triangle text-warning" aria-hidden="true"></i>
+                    </div>
+                    <div class="px-2">
+                        You are not assigned as Editor in charge. However, you can formulate an Editorial Recommendation because you are Editorial Administrator. <strong>This Editorial Recommendation will still be signed by the Editor-in-charge.</strong>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<br>
+
+<div class="row">
+    <div class="col-12">
+        <form action="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <input class="btn btn-primary" type="submit" value="Submit Recommendation"/>
+        </form>
+    </div>
+</div>
+
+
+{% endblock content %}

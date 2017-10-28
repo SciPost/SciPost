@@ -664,13 +664,11 @@ def assignments(request):
     current_assignments = assignments.filter(accepted=True,
                                              deprecated=False,
                                              completed=False)
-    consider_assignment_form = ConsiderAssignmentForm()
     context = {
         'assignments_to_consider': assignments_to_consider,
-        'consider_assignment_form': consider_assignment_form,
         'current_assignments': current_assignments,
     }
-    return render(request, 'submissions/assignments.html', context)
+    return render(request, 'submissions/pool/assignments.html', context)
 
 
 @login_required
@@ -1099,7 +1097,7 @@ def refereeing_overview(request):
                                     .filter(status=STATUS_EIC_ASSIGNED)
                                     .order_by('submission_date'))
     context = {'submissions_under_refereeing': submissions_under_refereeing}
-    return render(request, 'submissions/refereeing_overview.html', context)
+    return render(request, 'submissions/admin/refereeing_overview.html', context)
 
 
 @login_required
@@ -1228,7 +1226,7 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
 
     context = {'submission': submission,
                'form': form}
-    return render(request, 'submissions/eic_recommendation.html', context)
+    return render(request, 'submissions/pool/recommendation_formulate.html', context)
 
 
 ###########
@@ -1422,7 +1420,7 @@ def prepare_for_voting(request, rec_id):
         'coauthorships': coauthorships,
         'eligibility_form': eligibility_form,
     }
-    return render(request, 'submissions/prepare_for_voting.html', context)
+    return render(request, 'submissions/admin/recommendation_prepare_for_voting.html', context)
 
 
 @login_required
@@ -1569,7 +1567,7 @@ def fix_College_decision(request, rec_id):
 
 class EICRecommendationView(SubmissionAdminViewMixin, DetailView):
     permission_required = 'scipost.can_fix_College_decision'
-    template_name = 'submissions/admin/eic_recommendation_detail.html'
+    template_name = 'submissions/admin/recommendation.html'
     editorial_page = True
 
     def get_context_data(self, *args, **kwargs):
@@ -1604,14 +1602,3 @@ class PlagiarismReportPDFView(SubmissionAdminViewMixin, SingleObjectMixin, Redir
         if not url:
             raise Http404
         return url
-
-
-class AdminRecommendationView(SubmissionAdminViewMixin, DetailView):
-    permission_required = 'scipost.can_fix_College_decision'
-    template_name = 'submissions/admin/recommendation.html'
-    editorial_page = True
-
-    def get_object(self):
-        """ Get the EICRecommendation as a submission-related instance. """
-        submission = super().get_object()
-        return submission.eicrecommendations.first()
