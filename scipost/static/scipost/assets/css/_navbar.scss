@@ -140,6 +140,10 @@
         margin: 0 0.25rem;
     }
 
+    &.show .fa-inbox {
+        color: $scipost-darkblue;
+    }
+
     &.positive_count {
         .badge_link {
             color: $scipost-orange;

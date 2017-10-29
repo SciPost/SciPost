@@ -30,7 +30,9 @@
             border-bottom: 0;
         }
     }
-    a.dropdown-item {
+
+    a.dropdown-item,
+    .dropdown-item a {
         color: $scipost-lightblue;
 
         &:hover {
