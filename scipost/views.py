@@ -719,7 +719,6 @@ def personal_page(request):
         context['needs_validation'] = contributor.status != CONTRIBUTOR_NORMAL
     except Contributor.DoesNotExist:
         contributor = None
-    context['user_groups'] = request.user.groups.values_list('name', flat=True)
 
     if contributor:
         # Compile the unavailability periods:

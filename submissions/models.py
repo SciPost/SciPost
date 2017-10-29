@@ -29,11 +29,13 @@ from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
 
 
-###############
-# Submissions:
-###############
 class Submission(models.Model):
-    # Main submission fields
+    """
+    Submission is a SciPost register of an ArXiv article. This object is the central
+    instance for every action, recommendation, communication, etc. etc. that is related to the
+    refereeing cycle of a Submission. A possible Publication object is later directly related
+    to this Submission instance.
+    """
     author_comments = models.TextField(blank=True)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
@@ -53,7 +55,7 @@ class Submission(models.Model):
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
 
-    # Status set by Editors
+    # Refereeing fields
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_UNASSIGNED)
     refereeing_cycle = models.CharField(max_length=30, choices=SUBMISSION_CYCLES,
                                         default=CYCLE_DEFAULT)
@@ -107,6 +109,9 @@ class Submission(models.Model):
 
     objects = SubmissionQuerySet.as_manager()
 
+    class Meta:
+        app_label = 'submissions'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._update_cycle()
@@ -129,8 +134,8 @@ class Submission(models.Model):
         else:
             header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
         try:
-            header += ' (published as %s (%s))' % (self.publication.doi_string,
-                                                   self.publication.publication_date.strftime('%Y'))
+            header += ' (published as %s (%s))' % (
+                self.publication.doi_string, self.publication.publication_date.strftime('%Y'))
         except Publication.DoesNotExist:
             pass
         return header
@@ -274,9 +279,15 @@ class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
 ######################
 
 class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
+    """
+    EditorialAssignment is a registration for Fellows of their duties of being a
+    Editor-in-charge for a specific Submission. This model could start as a invitation only,
+    which should then be accepted or declined by the invited.
+    """
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
     to = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
+
     # attribute `deprecated' becomes True if another Fellow becomes Editor-in-charge
     deprecated = models.BooleanField(default=False)
     completed = models.BooleanField(default=False)
@@ -477,17 +488,16 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         Check if current Report is a `FollowupReport`. A Report is a `FollowupReport` if the
         author of the report already has a vetted report in the series of the specific Submission.
         """
-        return (self.author.reports.accepted()
-                .filter(submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr,
-                        submission__arxiv_vn_nr__lt=self.submission.arxiv_vn_nr)
-                .exists())
+        return (self.author.reports.accepted().filter(
+            submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr,
+            submission__arxiv_vn_nr__lt=self.submission.arxiv_vn_nr).exists())
 
     def latest_report_from_series(self):
         """
         Get latest Report from the same author for the Submission series.
         """
-        return (self.author.reports.accepted()
-                .filter(submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+        return (self.author.reports.accepted().filter(
+            submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
                 .order_by('submission__arxiv_identifier_wo_vn_nr').last())
 
 
@@ -520,12 +530,12 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
         return output
 
 
-############################
-# Editorial Recommendation #
-############################
-
-# From the Editor-in-charge of a Submission
 class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
+    """
+    The EICRecommendation is the recommendation of a Submission written by
+    the Editor-in-charge made at the end of the refereeing cycle. It can be voted for by
+    a subset of Fellows and should contain the actual publication decision.
+    """
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='eicrecommendations')
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
@@ -574,7 +584,10 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
 
 
 class iThenticateReport(TimeStampedModel):
-    # is_pending = models.BooleanField(default=True)
+    """
+    iThenticateReport is the SciPost register of an iThenticate report. It saves
+    basic information coming from iThenticate into the SciPost database for easy access.
+    """
     uploaded_time = models.DateTimeField(null=True, blank=True)
     processed_time = models.DateTimeField(null=True, blank=True)
     doc_id = models.IntegerField(primary_key=True)

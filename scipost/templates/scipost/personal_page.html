@@ -1,6 +1,7 @@
 {% extends 'scipost/base.html' %}
 
 {% load bootstrap %}
+{% load user_groups %}
 
 {% block pagetitle %}: personal page{% endblock pagetitle %}
 
@@ -17,6 +18,17 @@
     </div>
 
 {% else %}
+    {# Save all Permission groups into template variables #}
+        {% is_edcol_admin request.user as is_edcol_admin %}
+        {% is_scipost_admin request.user as is_scipost_admin %}
+        {% is_editorial_college request.user as is_editorial_college %}
+        {% is_advisory_board request.user as is_advisory_board %}
+        {% is_vetting_editor request.user as is_vetting_editor %}
+        {% is_ambassador request.user as is_ambassador %}
+        {% is_junior_ambassador request.user as is_junior_ambassador %}
+        {% is_registered_contributor request.user as is_registered_contributor %}
+        {% is_tester request.user as is_tester %}
+        {% is_production_officer request.user as is_production_officer %}
 
     <div class="row">
         <div class="col-12">
@@ -33,7 +45,7 @@
                       <li class="nav-item btn btn-secondary">
                         <a href="#account" class="nav-link active" data-toggle="tab">Account</a>
                       </li>
-                      {% if 'SciPost Administrators' in user_groups or 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups or 'Advisory Board' in user_groups or 'Vetting Editors' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
+                      {% if is_scipost_admin or is_edcol_admin or is_editorial_college or is_advisory_board or is_vetting_editor or is_ambassador or is_junior_ambassador %}
                           <li class="nav-item btn btn-secondary">
                             <a href="#editorial-actions" class="nav-link" data-toggle="tab">Editorial Actions</a>
                           </li>
@@ -127,34 +139,34 @@
                         <hr>
                     {% endif %}
 
-                  {% if 'SciPost Administrators' in user_groups %}
+                  {% if is_scipost_admin %}
                       <h3>You are a SciPost Administrator.</h3>
                   {% endif %}
-                  {% if 'Editorial Administrators' in user_groups %}
+                  {% if is_edcol_admin %}
                       <h3>You are a SciPost Editorial Administrator.</h3>
                   {% endif %}
-                  {% if 'Advisory Board' in user_groups %}
+                  {% if is_advisory_board %}
                       <h3>You are a member of the Advisory Board.</h3>
                   {% endif %}
-                  {% if 'Editorial College' in user_groups %}
+                  {% if is_editorial_college %}
                       <h3>You are a member of the Editorial College.</h3>
         		  {% endif %}
-        		  {% if 'Vetting Editors' in user_groups %}
+        		  {% if is_vetting_editor %}
                           <h3>You are a SciPost Vetting Editor.</h3>
         		  {% endif %}
-        		  {% if 'Registered Contributors' in user_groups %}
+        		  {% if is_registered_contributor %}
                           <h3>You are a Registered Contributor.</h3>
         		  {% endif %}
-        		  {% if 'Testers' in user_groups %}
+        		  {% if is_tester %}
                           <h3>You are a SciPost Tester.</h3>
         		  {% endif %}
-        		  {% if 'Ambassadors' in user_groups %}
+        		  {% if is_ambassador %}
                           <h3>You are a SciPost Ambassador.</h3>
         		  {% endif %}
-        		  {% if 'Junior Ambassadors' in user_groups %}
+        		  {% if is_junior_ambassador %}
                           <h3>You are a SciPost Junior Ambassador.</h3>
         		  {% endif %}
-        		  {% if 'Production Officers' in user_groups %}
+        		  {% if is_production_officer %}
         		  <h3>You are a SciPost Production Officer.</h3>
         		  {% endif %}
 
@@ -249,7 +261,7 @@
             {% endif %}
         </div><!-- End tab -->
 
-        {% if 'SciPost Administrators' in user_groups or 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups or 'Advisory Board' in user_groups or 'Vetting Editors' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
+        {% if is_scipost_admin or is_edcol_admin or is_editorial_college or is_advisory_board or is_vetting_editor or is_ambassador or is_junior_ambassador %}
             <!-- Tab: Editorial Actions -->
             <div class="tab-pane" id="editorial-actions" role="tabpanel">
                 <div class="row">
@@ -263,7 +275,7 @@
                 </div>
 
                 <div class="row">
-                    {% if 'SciPost Administrators' in user_groups or 'Advisory Board' in user_groups or 'Ambassadors' in user_groups or 'Junior Ambassadors' in user_groups %}
+                    {% if is_scipost_admin or is_advisory_board or is_ambassador or is_junior_ambassador %}
                     <div class="col-md-4">
                         <h3>Registration actions</h3>
                         <ul>
@@ -288,7 +300,7 @@
                         </ul>
                         {% endif %}
 
-                        {% if 'SciPost Administrators' in user_groups %}
+                        {% if is_scipost_admin %}
                             <h3>Email communications</h3>
                             <ul>
                                 {% if perms.scipost.can_email_group_members %}
@@ -314,7 +326,7 @@
                     {% endif %}
 
                     <div class="col-md-4">
-                        {% if 'Vetting Editors' in user_groups or perms.scipost.can_vet_submitted_reports %}
+                        {% if is_vetting_editor or perms.scipost.can_vet_submitted_reports %}
                         <h3>Vetting actions</h3>
                         <ul>
                             {% if perms.scipost.can_vet_commentary_requests %}
@@ -335,7 +347,7 @@
                         </ul>
                         {% endif %}
 
-                        {% if 'Editorial Administrators' in user_groups %}
+                        {% if is_edcol_admin %}
                             <h3>Editorial Admin actions</h3>
                             <ul>
                               <li><a href="{% url 'submissions:reports_accepted_list' %}">Accepted Reports</a>{% if nr_reports_without_pdf %} ({{nr_reports_without_pdf}} unfinished){% endif %}</li>
@@ -358,7 +370,7 @@
                         {% endif %}
                     </div>
 
-                    {% if 'Editorial Administrators' in user_groups or 'Editorial College' in user_groups %}
+                    {% if is_edcol_admin or is_editorial_college %}
                     <div class="col-md-4">
                         <h3>Info</h3>
                         <ul>
@@ -379,16 +391,16 @@
                         {% endif %}
                         </ul>
 
-			{% if 'Editorial Administrators' in user_groups %}
-			<h3>Refereeing overview</h3>
-			<ul>
-			  <li>View (and act on) outstanding refereeing invitations in the <a href="{% url 'submissions:refereeing_overview' %}">refereeing overview</a></li>
-			  <li><a href="{% url 'stats:statistics' %}">View statistics</a> for submissions, refereeing, publishing</li>
-			</ul>
-                        <h3>Voting</h3>
-                        <ul>
-                            <li>Prepare Editorial Recommendations for voting via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_recommendations_to_prepare_for_voting }})</li>
-                        </ul>
+			{% if is_edcol_admin %}
+    			<h3>Refereeing overview</h3>
+    			<ul>
+    			  <li>View (and act on) outstanding refereeing invitations in the <a href="{% url 'submissions:refereeing_overview' %}">refereeing overview</a></li>
+    			  <li><a href="{% url 'stats:statistics' %}">View statistics</a> for submissions, refereeing, publishing</li>
+    			</ul>
+                <h3>Voting</h3>
+                <ul>
+                    <li>Prepare Editorial Recommendations for voting via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_recommendations_to_prepare_for_voting }})</li>
+                </ul>
 			{% endif %}
                     </div>
                     {% endif %}
