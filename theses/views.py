@@ -14,6 +14,7 @@ from .models import ThesisLink
 from .forms import RequestThesisLinkForm, ThesisLinkSearchForm, VetThesisLinkForm
 
 from comments.forms import CommentForm
+from scipost.mixins import PaginationMixin
 
 import strings
 
@@ -78,7 +79,7 @@ class VetThesisLink(UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ThesisListView(ListView):
+class ThesisListView(PaginationMixin, ListView):
     model = ThesisLink
     form = ThesisLinkSearchForm
     paginate_by = 10

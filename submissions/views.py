@@ -35,6 +35,7 @@ from .utils import SubmissionUtils
 
 from mails.views import MailEditingSubView
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
+from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark, RegistrationInvitation
 from scipost.utils import Utils
 from scipost.permissions import is_tester
@@ -122,7 +123,7 @@ def prefill_using_arxiv_identifier(request):
     return render(request, 'submissions/prefill_using_identifier.html', context)
 
 
-class SubmissionListView(ListView):
+class SubmissionListView(PaginationMixin, ListView):
     model = Submission
     template_name = 'submissions/submissions.html'
     form = SubmissionSearchForm

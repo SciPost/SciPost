@@ -71,33 +71,28 @@
         {% else %}
           <h2>Search results:</h3>
         {% endif %}
-        {% if commentary_list %}
-            {% if is_paginated %}
-              <p>
-              {% if page_obj.has_previous %}
-                <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
-              {% endif %}
-              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-              {% if page_obj.has_next %}
-                <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
-              {% endif %}
-              </p>
-            {% endif %}
-
-            </div>
-            <div class="col-12">
-
-            <ul class="list-group list-group-flush">
-                {% for object in commentary_list %}
-                    <li class="list-group-item">
-                        {% include 'commentaries/_commentary_card_content.html' with commentary=object %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <h3>No match found for your search query.</h3>
-        {% endif %}
     </div>
+    {% if is_paginated %}
+        <div class="col-12">
+            {% include 'partials/pagination.html' with page_obj=page_obj %}
+        </div>
+    {% endif %}
+    <div class="col-12">
+        <ul class="list-group list-group-flush">
+            {% for object in commentary_list %}
+                <li class="list-group-item">
+                    {% include 'commentaries/_commentary_card_content.html' with commentary=object %}
+                </li>
+            {% empty %}
+                <h3><em>No match found for your search query.</em></h3>
+            {% endfor %}
+        </ul>
+    </div>
+    {% if is_paginated %}
+        <div class="col-12">
+            {% include 'partials/pagination.html' with page_obj=page_obj %}
+        </div>
+    {% endif %}
 </div>
 
 {% endblock content %}
