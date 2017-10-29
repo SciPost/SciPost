@@ -119,8 +119,11 @@ def live_notification_list(request):
         struct['timesince'] = n.timesince()
 
         list.append(struct)
-        if request.GET.get('mark_as_read'):
-            n.mark_as_read()
+
+    if request.GET.get('mark_as_read'):
+        # Mark all as read
+        request.user.notifications.mark_all_as_read()
+
     data = {
         'unread_count': request.user.notifications.unread().count(),
         'list': list

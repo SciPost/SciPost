@@ -68,6 +68,10 @@ nav.main-nav {
     }
 }
 
+.nav {
+    flex-wrap: nowrap;
+}
+
 nav.submenu {
     margin-top: -1.5rem;
     margin-bottom: 1rem;
@@ -78,11 +82,27 @@ nav.submenu {
     border-bottom: 1px solid #ddd;
 
     .item {
-        padding: 0 0.5rem;
-        border-right: 2px solid #fff;
+        padding: 0.1rem 0.5rem;
+        white-space: nowrap;
+        display: block;
     }
     .item:first-child,
     .item:last-child {
         border-right: 0;
+    }
+}
+
+@media (min-width: 768px) {
+    nav.submenu {
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: row;
+
+        .item {
+            padding-top: 0;
+            padding-bottom: 0;
+            display: inline;
+            border-right: 2px solid #fff;
+        }
     }
 }
