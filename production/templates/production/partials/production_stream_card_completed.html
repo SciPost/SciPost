@@ -4,8 +4,8 @@
 
 {% get_obj_perms request.user for stream as "sub_perms" %}
 
-<div class="card-body py-0" id="stream_{{stream.id}}">
-    {% include 'submissions/_submission_card_content_sparse.html' with submission=stream.submission %}
+<div class="card-body" id="stream_{{stream.id}}">
+    {% include 'partials/submissions/submission_card_content.html' with submission=stream.submission %}
 </div>
 <div class="card-body">
       <h3>Stream details</h3>

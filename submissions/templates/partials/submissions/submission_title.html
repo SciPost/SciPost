@@ -1,0 +1,7 @@
+<div class="submission_title">
+    <h5 class="pb-0 subject_area">{{ submission.get_subject_area_display }}</h5>
+    <h3 class="card-title mb-0 submisssion_title">
+        <a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a>
+    </h3>
+    <p class="mb-3 author_list">by {{ submission.author_list }}</p>
+</div>
