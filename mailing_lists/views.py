@@ -51,7 +51,7 @@ def export_non_registered_invitations(request):
     Syncronize the Mailchimp lists in the database with the lists known in
     the mailchimp account which is related to the API_KEY.
     """
-    invitations = RegistrationInvitation.objects.declined()
+    invitations = RegistrationInvitation.objects.declined_or_without_response()
 
     response = HttpResponse(content_type='text/csv')
     filename = "export_{timestamp}_non_registered_invitations.csv".format(timestamp='')

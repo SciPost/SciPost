@@ -1,5 +1,5 @@
 <p>
-    Dear {{ contact.get_title_display }} {{ contact.last_name }},
+    Dear {% if contact %}{{ contact.get_title_display }} {{ contact.last_name }}{% else %}colleagues{% endif %},
 </p>
 
 <p>
