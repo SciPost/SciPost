@@ -21,7 +21,9 @@
             <ul class="list-group list-group-flush">
                 {% for submission in accepted_SP_submissions %}
                     <li class="list-group-item">
-                        {% include 'submissions/_submission_card_content.html' with submission=submission %}
+                        <div class="card-body px-0">
+                            {% include 'partials/submissions/submission_card_content.html' with submission=submission %}
+                        </div>
                     </li>
                 {% empty %}
                     <li class="list-group-item">

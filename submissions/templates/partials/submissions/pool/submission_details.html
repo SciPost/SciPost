@@ -12,7 +12,9 @@
         <a href="javascript:;" class="d-inline-block px-3" data-toggle="hide" data-target="#container_{{ submission.id }}">Hide details <i class="fa fa-angle-up text-blue" aria-hidden="true"></i></a>
     </div>
 
-    {% include 'submissions/_submission_card_fellow_content.html' with submission=submission hide_title=1 cardblock_class='px-0 pt-0' %}
+    <div class="card-body px-0">
+        {% include 'partials/submissions/pool/submission_info_table.html' with submission=submission %}
+    </div>
 
     <div>
         <h3>Remarks on this submission:</h3>

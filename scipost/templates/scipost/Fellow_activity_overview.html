@@ -59,7 +59,10 @@
             <ul class="list-group list-group-flush">
               {% for assignment in assignments_ongoing %}
                   <li class="list-group-item">
-                      {% include 'submissions/_submission_card_contributor_content.html' with submission=assignment.submission %}
+                      <div class="card-body px-0">
+                          {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
+                          {% include 'submissions/_submission_status_block.html' with submission=assignment.submission %}
+                      </div>
                   </li>
               {% empty %}
                   <li class="list-group-item">No completed assignments</li>
@@ -75,7 +78,10 @@
           <ul class="list-group list-group-flush">
             {% for assignment in assignments_completed %}
                 <li class="list-group-item">
-                    {% include 'submissions/_submission_card_contributor_content.html' with submission=assignment.submission %}
+                    <div class="card-body px-0">
+                        {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
+                        {% include 'submissions/_submission_status_block.html' with submission=assignment.submission %}
+                    </div>
                 </li>
             {% empty %}
                 <li class="list-group-item">No completed assignments</li>

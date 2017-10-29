@@ -415,7 +415,11 @@
                             <ul class="list-group list-group-flush">
                                 {% for assignment in active_assignments %}
                                     <li class="list-group-item">
-                                        {% include 'submissions/_submission_card_eic_content.html' with submission=assignment.submission %}
+                                        <div class="card-body px-0">
+                                            {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
+                                            {% include 'submissions/_submission_status_block.html' with submission=assignment.submission %}
+                                            <p class="card-text mt-2">Manage this Submission from its <a href="{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a>.</p>
+                                        </div>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -493,7 +497,9 @@
                             <ul class="list-group list-group-flush">
                             {% for task in pending_ref_tasks %}
                                 <li class="list-group-item">
-                                    {% include 'submissions/_refereeing_invitation_card_content.html' with invitation=task %}
+                                    <div class="card-body px-0">
+                                        {% include 'partials/submissions/refereeing_invitation_card_content.html' with invitation=task %}
+                                    </div>
                                 </li>
                             {% empty %}
                                 <li class="list-group-item"><em>You do not have any pending refereeing task</em></li>
@@ -511,8 +517,10 @@
                                 <ul class="list-group list-group-flush">
                                 {% for report in contributor.reports.in_draft.all %}
                                     <li class="list-group-item">
-                                        <div class="w-100">{% include 'submissions/_submission_card_content.html' with submission=report.submission %}</div>
-                                        <div class="px-2 mb-2"><a class="px-1" href="{% url 'submissions:submit_report' report.submission.arxiv_identifier_w_vn_nr %}">Finish report</a></div>
+                                        <div class="card-body px-0">
+                                            {% include 'partials/submissions/submission_card_content.html' with submission=report.submission %}
+                                            <a class="btn btn-outline-primary my-2" href="{% url 'submissions:submit_report' report.submission.arxiv_identifier_w_vn_nr %}">Finish report</a>
+                                        </div>
                                     </li>
                                 {% endfor %}
                                 </ul>
@@ -532,7 +540,7 @@
                                         {% comment %}
                                             Temporary: There is already a template for a "Report summary" in a parallel (unmerged) branch. Awaiting merge to use that template.
                                         {% endcomment %}
-                                        <div class="card-body {% block cardblock_class_block %}{% endblock %}">
+                                        <div class="card-body px-0 {% block cardblock_class_block %}{% endblock %}">
                                             <h3>Report on Submission <a href="{{report.submission.get_absolute_url}}">{{report.submission.title}}</a></h3>
                                             <table>
                                                 <tr>
@@ -586,7 +594,21 @@
                         <ul class="list-group list-group-flush">
                             {% for sub in own_submissions %}
                                 <li class="list-group-item">
-                                    {% include 'submissions/_submission_card_author_content.html' with submission=sub current_user=request.user %}
+                                    <div class="card-body px-0">
+                                        {% include 'partials/submissions/submission_card_content.html' with submission=sub %}
+                                        {% include 'submissions/_submission_status_block.html' with submission=sub %}
+
+                                        {% if request.user.contributor == sub.submitted_by %}
+                                            <p class="card-text mt-1">
+                                                {% if sub.editor_in_charge %}
+                                                    <a href="{% url 'submissions:communication' sub.arxiv_identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a>
+                                                {% endif %}
+                                                {% if sub.status == 'revision_requested' %}
+                                                    &middot; <a href="{% url 'submissions:prefill_using_identifier' %}?identifier={{ sub.arxiv_identifier_wo_vn_nr }}">Resubmit this manuscript</a>
+                                                {% endif %}
+                                            </p>
+                                        {% endif %}
+                                    </div>
                                 </li>
                             {% empty %}
                                 <li class="list-group-item">

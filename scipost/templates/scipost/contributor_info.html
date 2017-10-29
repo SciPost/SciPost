@@ -37,7 +37,6 @@
 {% endif %}
 
 {% if contributor_submissions %}
-    {# <hr>#}
     <div class="row">
         <div class="col-12">
             <h2 class="highlight">Submissions <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mysubmissionslist">View/hide submissions</a></small></h2>
@@ -48,7 +47,9 @@
                 <ul class="list-group list-group-flush">
                     {% for sub in contributor_submissions %}
                         <li class="list-group-item">
-                            {% include 'submissions/_submission_card_content.html' with submission=sub %}
+                            <div class="card-body px-0">
+                                {% include 'partials/submissions/submission_card_content.html' with submission=sub %}
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
