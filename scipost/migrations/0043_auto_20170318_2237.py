@@ -4,13 +4,14 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from ..db.constants_migration_0043 import collegeMembers
+# from ..db.constants_migration_0043 import collegeMembers
 
 
 def fill_editorial_college(apps, schema_editor):
     EditorialCollege = apps.get_model('scipost', 'EditorialCollege')
     EditorialMember = apps.get_model('scipost', 'EditorialCollegeMember')
     college, new = EditorialCollege.objects.get_or_create(discipline='Physics')
+    collegeMembers = []
     for member in collegeMembers:
         EditorialMember.objects.get_or_create(discipline=college, **member)
 
