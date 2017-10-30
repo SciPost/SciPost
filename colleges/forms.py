@@ -21,7 +21,7 @@ class AddFellowshipForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['contributor'].queryset = Contributor.objects.fellows()
+        self.fields['contributor'].queryset = Contributor.objects.active()
         self.fields['contributor'].label = "Fellow"
 
     def clean(self):
