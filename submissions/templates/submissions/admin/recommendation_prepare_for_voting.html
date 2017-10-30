@@ -18,7 +18,7 @@
 {% include 'partials/submissions/pool/submission_info_table.html' with submission=recommendation.submission %}
 
 <br>
-{% include 'submissions/_recommendation_fellow_content.html' with recommendation=object %}
+{% include 'submissions/_recommendation_fellow_content.html' with recommendation=recommendation %}
 
 {% if recommendation.submission.referees_flagged %}
     <br>
