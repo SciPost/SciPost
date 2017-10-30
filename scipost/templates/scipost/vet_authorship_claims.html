@@ -26,16 +26,12 @@
     </div>
 {% else %}
 
-<div class="row">
-    <div class="col-12">
-        <h1 class="highlight">Vet Authorship Claims</h1>
-  </div>
-</div>
+<h1 class="highlight">Vet Authorship Claims</h1>
 
-  <ul class="list-group list-group-flush">
+  {# <ul class="list-group list-group-flush">#}
     {% for claim in claims_to_vet %}
-        <li class="list-unstyled">
-            <div class="card w-100">
+        {# <li class="list-group-item">#}
+            <div class="card ">
                 {% if claim.publication %}
                     <div class="card-header">
                         <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Publication:</h4>
@@ -45,7 +41,9 @@
                     <div class="card-header">
                         <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
                     </div>
-                    {% include 'submissions/_submission_card_content.html' with submission=claim.submission %}
+                    <div class="card-body">
+                        {% include 'partials/submissions/submission_card_content.html' with submission=claim.submission %}
+                    </div>
                 {% elif claim.commentary %}
                     <div class="card-header">
                         <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Commentary:</h4>
@@ -60,17 +58,17 @@
                 <div class="card-footer">
                     <form class="d-inline-block" action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=1%}" method="post">
                       {% csrf_token %}
-                      <input class="btn btn-secondary" type="submit" value="Accept" />
+                      <input class="btn btn-secondary px-3" type="submit" value="Accept" />
                     </form>
                     <form class="d-inline-block ml-1" action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=0%}" method="post">
                       {% csrf_token %}
-                      <input class="btn btn-danger" type="submit" value="Deny" />
+                      <input class="btn btn-danger px-3" type="submit" value="Deny" />
                     </form>
                 </div>
             </div>
-        </li>
+        {# </li>#}
     {% endfor %}
-  </ul>
+  {# </ul>#}
 
 {% endif %}
 

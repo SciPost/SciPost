@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User, Group
 
+from notifications.constants import NOTIFICATION_REFEREE_DEADLINE, NOTIFICATION_REFEREE_OVERDUE
+from notifications.models import Notification
 from notifications.signals import notify
 
 
@@ -49,3 +51,37 @@ def notify_new_referee_invitation(sender, instance, created, **kwargs):
         notify.send(sender=sender, recipient=instance.referee.user,
                     actor=instance.submission.editor_in_charge,
                     verb=' would like to invite you to referee a Submission.', target=instance)
+
+
+def notify_invitation_approaching_deadline(sender, instance, created, **kwargs):
+    """
+    Notify Referee its unfinished duty is approaching the deadline.
+    """
+    if instance.referee:
+        notifications = Notification.objects.filter(
+            recipient=instance.referee.user, internal_type=NOTIFICATION_REFEREE_DEADLINE).unread()
+        if not notifications.exists():
+            # User doesn't already have a notification to remind him.
+            administration = Group.objects.get(name='Editorial Administrators')
+            notify.send(sender=sender, recipient=instance.referee.user,
+                        actor=administration,
+                        verb=(' would like to remind you that your Refereeing Task is '
+                              'approaching its deadline, please submit your Report'),
+                        target=instance.submission, type=NOTIFICATION_REFEREE_DEADLINE)
+
+
+def notify_invitation_overdue(sender, instance, created, **kwargs):
+    """
+    Notify Referee its unfinished duty is overdue.
+    """
+    if instance.referee:
+        notifications = Notification.objects.filter(
+            recipient=instance.referee.user, internal_type=NOTIFICATION_REFEREE_OVERDUE).unread()
+        if not notifications.exists():
+            # User doesn't already have a notification to remind him.
+            administration = Group.objects.get(name='Editorial Administrators')
+            notify.send(sender=sender, recipient=instance.referee.user,
+                        actor=administration,
+                        verb=(' would like to remind you that your Refereeing Task is overdue, '
+                              'please submit your Report'),
+                        target=instance.submission, type=NOTIFICATION_REFEREE_OVERDUE)

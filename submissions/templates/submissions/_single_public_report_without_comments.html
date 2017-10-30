@@ -10,16 +10,16 @@
                     <h3>{% if report.anonymous %}(chose public anonymity) {% endif %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
                       on {{ report.date_submitted|date:'Y-n-j' }}
                     </h3>
-		    <ul class="publicationClickables">
-		      {% if report.doi_string %}<li>doi:  {{ report.doi_string }}</li>{% endif %}
-                      {% if report.pdf_report %}
-                      <li><a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download as PDF</a></li>
-                    {% endif %}
-                    {% if perms.scipost.can_manage_reports %}
-                      <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
-                      {% endif %}
-		    </ul>
-</div>
+            	    <ul class="publicationClickables">
+            	      {% if report.doi_string %}<li>doi:  {{ report.doi_string }}</li>{% endif %}
+                              {% if report.pdf_report %}
+                              <li><a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download as PDF</a></li>
+                            {% endif %}
+                            {% if perms.scipost.can_manage_reports %}
+                              <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
+                              {% endif %}
+            	    </ul>
+                </div>
 
                 {% if report.flagged %}
                     <h4 class="text-danger font-weight-bold">CAUTION: check if this referee has been flagged by the authors</h4>
@@ -52,15 +52,15 @@
                     <h3>{% if report.anonymous %}Anonymous Report {{report.report_nr}}{% else %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>{% endif %}
                         on {{ report.date_submitted|date:'Y-n-j' }}</h3>
                     </h3>
-		    <ul class="publicationClickables">
-		      {% if report.doi_string %}<li>doi:  {{ report.doi_string }}</li>{% endif %}
-                      {% if report.pdf_report %}
-                      <li><a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download as PDF</a></li>
-                      {% endif %}
-                      {% if perms.scipost.can_manage_reports %}
-                      <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
-                      {% endif %}
-		    </ul>
+        		    <ul class="publicationClickables">
+        		      {% if report.doi_string %}<li>doi:  {{ report.doi_string }}</li>{% endif %}
+                              {% if report.pdf_report %}
+                              <li><a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download as PDF</a></li>
+                              {% endif %}
+                              {% if perms.scipost.can_manage_reports %}
+                              <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
+                              {% endif %}
+        		    </ul>
                 </div>
 
                 {% include 'submissions/_single_report_content.html' with report=report %}

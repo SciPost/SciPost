@@ -2,11 +2,8 @@ import re
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth.models import Group
 from django.db import transaction
 from django.utils import timezone
-
-from guardian.shortcuts import assign_perm
 
 from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED,\
                        REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
@@ -17,6 +14,8 @@ from . import exceptions, helpers
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
                     iThenticateReport
 
+from colleges.models import Fellowship
+from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.services import ArxivCaller
 from scipost.models import Contributor
@@ -43,19 +42,30 @@ class SubmissionSearchForm(forms.Form):
 
 
 class SubmissionPoolFilterForm(forms.Form):
-    status = forms.ChoiceField(choices=((None, 'All statuses'),) + SUBMISSION_STATUS,
-                               required=False)
-    editor_in_charge = forms.BooleanField(label='Show only Submissions for which I am editor in charge.', required=False)
+    status = forms.ChoiceField(
+        choices=((None, 'All submissions currently under evaluation'),) + SUBMISSION_STATUS,
+        required=False)
+    editor_in_charge = forms.BooleanField(
+        label='Show only Submissions for which I am editor in charge.', required=False)
 
-    def search(self, queryset, current_contributor=None):
+    def search(self, queryset, current_user):
         if self.cleaned_data.get('status'):
             # Do extra check on non-required field to never show errors on template
-            queryset = queryset.filter(status=self.cleaned_data['status'])
+            queryset = queryset.pool_full(current_user).filter(status=self.cleaned_data['status'])
+        else:
+            # If no specific status if requested, just return the Pool by default
+            queryset = queryset.pool(current_user)
 
-        if self.cleaned_data.get('editor_in_charge') and current_contributor:
-            queryset = queryset.filter(editor_in_charge=current_contributor)
+        if self.cleaned_data.get('editor_in_charge') and hasattr(current_user, 'contributor'):
+            queryset = queryset.filter(editor_in_charge=current_user.contributor)
 
-        return queryset
+        return queryset.order_by('-submission_date')
+
+    def status_verbose(self):
+        try:
+            return dict(SUBMISSION_STATUS)[self.cleaned_data['status']]
+        except KeyError:
+            return ''
 
 
 ###############################
@@ -222,6 +232,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             'is_resubmission',
             'discipline',
             'submitted_to_journal',
+            'proceedings',
             'submission_type',
             'domain',
             'subject_area',
@@ -256,6 +267,19 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             self.fields['list_of_changes'].widget.attrs.update({
                 'placeholder': 'Give a point-by-point list of changes (will be viewable online)'})
 
+        # Proceedings submission
+        qs = self.fields['proceedings'].queryset.open_for_submission()
+        self.fields['proceedings'].queryset = qs
+        self.fields['proceedings'].empty_label = None
+        if not qs.exists():
+            # Open the proceedings Journal for submission
+            def filter_proceedings(item):
+                return item[0] != SCIPOST_JOURNAL_PHYSICS_PROC
+
+            self.fields['submitted_to_journal'].choices = filter(
+                filter_proceedings, self.fields['submitted_to_journal'].choices)
+            del self.fields['proceedings']
+
         # Update placeholder for the other fields
         self.fields['arxiv_link'].widget.attrs.update({
             'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
@@ -278,6 +302,10 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         self.do_pre_checks(cleaned_data['arxiv_identifier_w_vn_nr'])
         self.arxiv_meets_regex(cleaned_data['arxiv_identifier_w_vn_nr'],
                                cleaned_data['submitted_to_journal'])
+
+        if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
+            del self.cleaned_data['proceedings']
+
         return cleaned_data
 
     def clean_author_list(self):
@@ -327,11 +355,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
     @transaction.atomic
     def reassign_eic_and_admins(self, submission):
-        # Assign permissions
-        assign_perm('can_take_editorial_actions', submission.editor_in_charge.user, submission)
-        ed_admins = Group.objects.get(name='Editorial Administrators')
-        assign_perm('can_take_editorial_actions', ed_admins, submission)
-
         # Assign editor
         assignment = EditorialAssignment(
             submission=submission,
@@ -341,6 +364,18 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         assignment.save()
         submission.save()
         return submission
+
+    def set_pool(self, submission):
+        qs = Fellowship.objects.active()
+        fellows = qs.regular().filter(
+            contributor__discipline=submission.discipline).return_active_for_submission(submission)
+        submission.fellows.set(fellows)
+
+        if submission.proceedings:
+            # Add Guest Fellowships if the Submission is a Proceedings manuscript
+            guest_fellows = qs.guests().filter(
+                proceedings=submission.proceedings).return_active_for_submission(submission)
+            submission.fellows.add(*guest_fellows)
 
     @transaction.atomic
     def save(self):
@@ -368,6 +403,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             submission = self.copy_and_save_data_from_resubmission(submission)
             submission = self.reassign_eic_and_admins(submission)
         submission.authors.add(self.requested_by.contributor)
+        self.set_pool(submission)
         return submission
 
 
@@ -434,21 +470,37 @@ class SetRefereeingDeadlineForm(forms.Form):
         return self.cleaned_data.get('deadline')
 
 
-class VotingEligibilityForm(forms.Form):
+class VotingEligibilityForm(forms.ModelForm):
+    eligible_fellows = forms.ModelMultipleChoiceField(
+        queryset=Contributor.objects.none(),
+        widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
+        required=True, label='Eligible for voting')
+
+    class Meta:
+        model = EICRecommendation
+        fields = ()
 
     def __init__(self, *args, **kwargs):
-        discipline = kwargs.pop('discipline')
-        subject_area = kwargs.pop('subject_area')
-        super(VotingEligibilityForm, self).__init__(*args, **kwargs)
-        self.fields['eligible_Fellows'] = forms.ModelMultipleChoiceField(
-            queryset=Contributor.objects.filter(
-                user__groups__name__in=['Editorial College'],
-                user__contributor__discipline=discipline,
-                user__contributor__expertises__contains=[subject_area]
-            ).order_by('user__last_name'),
-            widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
-            required=True, label='Eligible for voting',
-        )
+        super().__init__(*args, **kwargs)
+        # Do we need this discipline filter still with the new Pool construction???
+        # -- JdW; Oct 20th, 2017
+        self.fields['eligible_fellows'].queryset = Contributor.objects.filter(
+                fellowships__pool=self.instance.submission,
+                discipline=self.instance.submission.discipline,
+                expertises__contains=[self.instance.submission.subject_area]
+                ).order_by('user__last_name')
+
+    def save(self, commit=True):
+        recommendation = self.instance
+        recommendation.eligible_to_vote = self.cleaned_data['eligible_fellows']
+        submission = self.instance.submission
+        submission.status = 'put_to_EC_voting'
+
+        if commit:
+            recommendation.save()
+            submission.save()
+            recommendation.voted_for.add(recommendation.submission.editor_in_charge)
+        return recommendation
 
 
 ############
@@ -616,12 +668,15 @@ class EditorialCommunicationForm(forms.Form):
 class EICRecommendationForm(forms.ModelForm):
     class Meta:
         model = EICRecommendation
-        fields = ['recommendation',
-                  'remarks_for_authors', 'requested_changes',
-                  'remarks_for_editorial_college']
+        fields = [
+            'recommendation',
+            'remarks_for_authors',
+            'requested_changes',
+            'remarks_for_editorial_college'
+        ]
 
     def __init__(self, *args, **kwargs):
-        super(EICRecommendationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['remarks_for_authors'].widget.attrs.update(
             {'placeholder': 'Your general remarks for the authors',
              'rows': 10, 'cols': 100})

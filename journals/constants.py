@@ -7,7 +7,8 @@ SCIPOST_JOURNAL_PHYSICS_PROC = 'SciPostPhysProc'
 # Journal open for submission
 SCIPOST_JOURNALS_SUBMIT = (
     (SCIPOST_JOURNAL_PHYSICS, 'SciPost Physics'),
-    (SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES, 'SciPost Physics Lecture Notes')
+    (SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES, 'SciPost Physics Lecture Notes'),
+    (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Proceedings')
 )
 
 # Journal closed for submission

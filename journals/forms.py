@@ -11,7 +11,7 @@ from submissions.models import Submission
 class InitiatePublicationForm(forms.Form):
     accepted_submission = forms.ModelChoiceField(queryset=Submission.objects.accepted())
     to_be_issued_in = forms.ModelChoiceField(
-        queryset=Issue.objects.filter(until_date__gt=timezone.now()))
+        queryset=Issue.objects.filter(until_date__gte=timezone.now()))
 
     def __init__(self, *args, **kwargs):
         super(InitiatePublicationForm, self).__init__(*args, **kwargs)

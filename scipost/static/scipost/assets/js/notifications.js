@@ -1,3 +1,4 @@
+var notify_container_class = "notifications_container";
 var notify_badge_class = "live_notify_badge";
 var notify_menu_class = "live_notify_list";
 var notify_api_url_count = "/notifications/api/unread_count/";
@@ -15,10 +16,10 @@ function initiate_popover(reinitiate) {
         reinitiate = false;
     }
 
-    var notification_template = '<div class="popover notifications" role="tooltip"><div class="arrow"></div><h3 class="popover-header h2"></h3><div class="popover-body"></div></div>';
+    var notification_template = '<div class="popover notifications" role="tooltip"><div class="arrow"></div><p class="popover-header"></p><div class="popover-body"></div></div>';
 
     function get_notifications_title() {
-        return 'Latest notifications <div class="badge badge-warning badge-pill live_notify_badge"></div><div class="mt-1"><small><a href="/notifications">See all my notifications</a> &middot; <a href="javascript:;" class="mark_all_read">Mark all as read</a></small></div>';
+        return 'My inbox';
     }
 
     function get_notifications() {
@@ -83,9 +84,15 @@ function mark_toggle(el) {
 
 function fill_notification_badge(data) {
     var badges = document.getElementsByClassName(notify_badge_class);
+    var container = $('.' + notify_container_class);
     if (badges) {
         for(var i = 0; i < badges.length; i++){
             badges[i].innerHTML = data.unread_count;
+            if (data.unread_count > 0) {
+                container.addClass('positive_count');
+            } else {
+                container.removeClass('positive_count');
+            }
         }
     }
 }
@@ -94,7 +101,7 @@ function get_notification_list() {
     fetch_api_data(notify_api_url_list, true, function(data) {
 
         var messages = data.list.map(function (item) {
-            var message = '';
+            var message = "<div>";
             if(typeof item.actor !== 'undefined'){
                 message += '<strong>' + item.actor + '</strong>';
             }
@@ -109,15 +116,16 @@ function get_notification_list() {
                 }
             }
             if(typeof item.timesince !== 'undefined'){
-                message += " <div class='text-muted'>" + item.timesince + " ago</div>";
+                message += "<br><small class='text-muted'>" + item.timesince + " ago</small>";
             }
+            message += "</div>";
 
             if(item.unread) {
                 var mark_as_read = '<div class="actions"><a href="javascript:;" data-slug="' + item.slug + '"><i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i></a></div>';
             } else {
                 var mark_as_read = '<div class="actions"><a href="javascript:;" data-slug="' + item.slug + '"><i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i></a></div>';
             }
-            return '<li class="list-group-item ' + (item.unread ? ' active' : '') + '">' + mark_as_read + message + '</li>';
+            return '<li class="list-group-item ' + (item.unread ? ' active' : '') + '">' + message + mark_as_read + '</li>';
         }).join('');
 
         if (messages == '') {

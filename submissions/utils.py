@@ -1137,19 +1137,19 @@ class SubmissionUtils(BaseMailUtil):
             recipient_greeting = ('Dear ' +
                                   cls.communication.submission.submitted_by.get_title_display() + ' ' +
                                   cls.communication.submission.submitted_by.user.last_name)
-            bcc_emails.append(cls.communication.submission.editor_in_charge)
+            bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
             bcc_emails.append('submissions@scipost.org')
         elif cls.communication.comtype in ['EtoR']:
             recipient_email.append(cls.communication.referee.user.email)
             recipient_greeting = ('Dear ' +
                                   cls.communication.referee.get_title_display() + ' ' +
                                   cls.communication.referee.user.last_name)
-            bcc_emails.append(cls.communication.submission.editor_in_charge)
+            bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
             bcc_emails.append('submissions@scipost.org')
         elif cls.communication.comtype in ['EtoS']:
             recipient_email.append('submissions@scipost.org')
             recipient_greeting = 'Dear Editorial Administrators'
-            bcc_emails.append(cls.communication.submission.editor_in_charge)
+            bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
             further_action_page = 'https://scipost.org/submissions/pool'
 
         email_text = (recipient_greeting +

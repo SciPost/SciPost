@@ -13,8 +13,15 @@
 {% block pagetitle %}: Assignment Request{% endblock pagetitle %}
 
 {% block content %}
-    <h1 class="highlight">Assignment request</h1>
-    <h3>Can you act as Editor-in-charge? (see below to accept/decline)</h3>
 
-    {% include 'submissions/_submission_assignment_request.html' with assignment=assignment consider_assignment_form=form %}
+<div class="card card-grey">
+    <div class="card-body">
+        <h1>Assignment request</h1>
+        <h3 class="pt-0">Can you act as Editor-in-charge? (see below to accept/decline)</h3>
+    </div>
+</div>
+<br>
+
+{% include 'partials/submissions/pool/submission_assignment_request.html' with assignment=assignment consider_assignment_form=form %}
+
 {% endblock %}

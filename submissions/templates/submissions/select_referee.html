@@ -1,4 +1,4 @@
-{% extends 'submissions/_pool_base.html' %}
+{% extends 'submissions/pool/base.html' %}
 
 {% block pagetitle %}: select referee for submission{% endblock pagetitle %}
 
@@ -7,7 +7,6 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
     <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</a>
     <span class="breadcrumb-item">Select Referee</span>
 {% endblock %}
@@ -40,12 +39,12 @@
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight" id="form">Select an additional Referee</h1>
+        <h2 class="highlight" id="form">Select an additional Referee</h2>
 
         <form action="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}#form" method="post">
             {% csrf_token %}
             {{ ref_search_form|bootstrap }}
-            <input class="btn btn-secondary" type="submit" value="Find referee">
+            <input class="btn btn-primary" type="submit" value="Find referee">
         </form>
     </div>
 </div>

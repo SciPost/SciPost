@@ -1,39 +1,37 @@
-$pool-icons-width: 40px;
-$pool-flex-width: calc(100% - 40px);
+.pool-list {
+    > .submission {
+        border: 1px solid #ddd;
+        margin-bottom: 2px;
+        padding-left: 3rem;
+        padding-right: 3rem;
+        position: relative;
 
-
-.editorial-admin,
-.pool {
-    .pool-item {
         .icons {
-            padding-left: 10px;
-            padding-right: 10px;
-            position: relative;
-            min-height: 1px;
-            flex: 0 0 $pool-icons-width;
-            max-width: $pool-icons-width;
+            max-width: 3rem;
+            width: 3rem;
+            position: absolute;
+            left: 0;
+            top: 0;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
         }
 
-        .item {
-            flex: 0 0 $pool-flex-width;
-            width: $pool-flex-width;
-            max-width: none;
+        &.active {
+            border-color: $scipost-darkblue;
         }
     }
 
-    .card.submission-detail {
-        position: sticky;
-        position: -webkit-sticky;
-        position: -moz-sticky;
-        position: -ms-sticky;
-        position: -o-sticky;
-        top: 15px;
-    }
-
-    #details .loading {
+    .loading {
         position: sticky;
         top: 15px;
         padding: 5rem 0 3rem 0;
         text-align: center;
+    }
+
+    .loading-container {
+        .submission_title,
+        .author_list {
+            display: none;
+        }
     }
 }

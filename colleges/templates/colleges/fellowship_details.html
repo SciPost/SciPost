@@ -1,0 +1,156 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Active Fellowships</a>
+    <span class="breadcrumb-item">Fellowship details</span>
+{% endblock %}
+
+{% block pagetitle %}: Fellowship details{% endblock pagetitle %}
+
+{% block content %}
+    <h1>Fellowship details</h1>
+    <h2 class="text-primary">{{ fellowship }}</h2>
+    <br>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Details</h3>
+
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Fellowship ID</th>
+                        <td>{{ fellowship.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fellow</th>
+                        <td>{{ fellowship }}</td>
+                    </tr>
+                    <tr>
+                        <th>Discipline</th>
+                        <td>{{ fellowship.contributor.get_discipline_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Start date</th>
+                        <td>{{ fellowship.start_date|default:'<i>No start date</i>' }}</td>
+                    </tr>
+                    <tr>
+                        <th>End date</th>
+                        <td>{{ fellowship.until_date|default:'<i>No end date</i>' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Pool size</th>
+                        <td>{{ fellowship.pool.count }}</td>
+                    </tr>
+                    <tr>
+                        <th>Type</th>
+                        <td>{{ fellowship.guest|yesno:"Guest fellowship,Regular fellowship"|safe }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form method="post" action="{% url 'colleges:fellowship_terminate' fellowship.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Terminate Fellowship</button>
+            </form>
+            <a href="{% url 'colleges:fellowship_edit' fellowship.id %}" class="btn btn-info ml-2">Edit Fellowship</a>
+        </div>
+        <div class="col-md-6">
+            <h3>All fellowships of this fellow</h3>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fellowship ID</th>
+                        <th>Type</th>
+                        <th colspan="2">Date range</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fellowship in fellowship.sibling_fellowships %}
+                        <tr>
+                            <td>{{ fellowship.id }}</td>
+                            <td>{{ fellowship.guest|yesno:"Guest fellowship,Regular fellowship"|safe }}</td>
+                            <td>
+                                {% if fellowship.start_date %}
+                                    from {{ fellowship.start_date }}
+                                {% endif %}
+                                {% if fellowship.until_date %}
+                                    until {{ fellowship.until_date }}
+                                {% endif %}
+                                {% if not fellowship.start_date and not fellowship.until_date %}
+                                    <i>Unlimited</i>
+                                {% endif %}
+                            </td>
+                            <td><a href="{{ fellowship.get_absolute_url }}">See details</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{% url 'colleges:fellowship_add' %}?contributor={{ fellowship.contributor.id }}">Add new Fellowship for {{ fellowship.contributor }}</a>
+        </div>
+    </div>
+
+    {% if fellowship.guest %}
+        <h3>Proceedings this Guest Fellowship is assigned to</h3>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Issue</th>
+                    <th>Submissions Open</th>
+                    <th>Submissions Deadline</th>
+                    <th>Submissions Close</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proceedings in fellowship.proceedings.all %}
+                    <tr>
+                        <td>{{ proceedings.event_name }}</td>
+                        <td><a href="{{ proceedings.get_absolute_url }}">{{ proceedings.issue }}</a></td>
+                        <td>{{ proceedings.submissions_open }}</td>
+                        <td>{{ proceedings.submissions_deadline }}</td>
+                        <td>{{ proceedings.submissions_close }}</td>
+                        <td><a class="text-danger" href="{% url 'colleges:fellowship_remove_proceedings' fellowship.id proceedings.id %}">Remove Proceedings</a></td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="6" class="py-3 text-center"><a href="{% url 'colleges:fellowship_add_proceedings' fellowship.id %}">Add Proceedings to Guest Fellowship</a></td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
+    <h3>Pool for this Fellowship</h3>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Submission</th>
+                <th colspan="2">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in fellowship.pool.all %}
+                <tr>
+                    <td>
+                        <a href="{{ submission.get_absolute_url }}">{{ submission.arxiv_identifier_w_vn_nr }}, {{ submission.title|truncatechars:50 }}</a>
+                    </td>
+                    <td>{{ submission.get_status_display }}</td>
+                    <td>
+                        {% if submission.editor_in_charge == fellowship.contributor %}
+                            <strong>Fellow is Editor-in-charge</strong>
+                        {% else %}
+                            <a class="text-danger" href="{% url 'colleges:fellowship_remove_submission' fellowship.id submission.arxiv_identifier_w_vn_nr %}">Remove from this Fellowship's pool</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3" class="py-3 text-center"><a href="{% url 'colleges:fellowship_add_submission' fellowship.id %}">Add Submission to this Fellowship's pool</a></td>
+            </tr>
+        </tbody>
+    </table>
+
+{% endblock %}

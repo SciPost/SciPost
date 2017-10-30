@@ -3,15 +3,53 @@
     box-shadow: #ccc 0px 1px 2px 1px;
 }
 
+.navbar-counter .nav-link:hover {
+    background-color: $white;
+}
+
+.popover.bs-popover-bottom,
+.popover.bs-popover-auto[x-placement^="bottom"] {
+    .arrow::before {
+        border-bottom-color: rgb(221, 221, 221);
+    }
+
+    .arrow::after {
+        border-bottom-color: #f7f7f7;
+    }
+}
+
 .notifications {
+    border: 0;
+    border-radius: 0;
+
+    .popover-header {
+        font-size: 100%;
+        padding: 0.3rem 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+
+        a {
+            color: $scipost-darkblue;
+        }
+    }
+
     .popover-body {
         padding: 0;
     }
 
     &.popover .list-group-item {
-        padding: 9px 14px;
+        padding: 0.4rem 1rem;
         border-radius: 0;
         border-top: 1px solid #fff;
+        border-left: 0;
+        border-right: 0;
+        flex-direction: row;
+        justify-content: space-between;
+        display: flex;
+
+        &:last-child {
+            border-bottom: 0;
+        }
     }
 
     .actions {
@@ -19,8 +57,12 @@
         opacity: 0.0;
         transition: opacity 0.1s;
         width: 20px;
-        float: right;
         height: 100%;
+        padding-left: 0.25rem;
+
+        .fa[data-toggle="tooltip"] {
+            font-size: 1em;
+        }
 
         a:hover {
             .fa-circle-o:before {

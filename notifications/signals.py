@@ -4,7 +4,7 @@ from .models import Notification
 
 
 notify = Signal(providing_args=[
-    'recipient', 'actor', 'verb', 'action_object', 'target', 'description', 'level'
+    'recipient', 'actor', 'verb', 'action_object', 'target', 'description', 'level', 'type'
 ])
 
 
@@ -23,7 +23,8 @@ def notify_receiver(sender, **kwargs):
             action_object=kwargs.get('action_object'),
             target=kwargs.get('target'),
             description=kwargs.get('description'),
-            level=kwargs.get('level', 'info')
+            level=kwargs.get('level', 'info'),
+            internal_type=kwargs.get('type', '')
         )
         notification.save()
     print("Request finished!")

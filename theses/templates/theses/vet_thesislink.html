@@ -1,6 +1,12 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/_personal_page_base.html' %}
 
 {% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'theses:unvetted_thesislinks' %}" class="breadcrumb-item">Unvetted Thesis Links</a>
+    <span class="breadcrumb-item">Vet {{ form.instance.title }} by {{ form.instance.author }}</span>
+{% endblock %}
 
 {% block pagetitle %}: Unvetted Thesis Links{% endblock pagetitle %}
 

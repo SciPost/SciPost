@@ -1,0 +1,20 @@
+<ul class="list-unstyled pool-list mt-2" data-target="active-list">
+    <!-- Submissions list -->
+    {% for sub in submissions %}
+        <li class="submission py-2{% if sub == submission %} active{% endif %}" id="submission_{{ submission.id }}">
+            {% if sub == submission %}
+                {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=1 %}
+            {% else %}
+                {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=0 %}
+            {% endif %}
+
+            <div class="loading-container" id="container_{{ sub.id }}">
+                {% if submission and submission == sub %}
+                    {% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
+                {% endif %}
+            </div>
+        </li>
+    {% empty %}
+        <li><em>No Submissions found.</em></li>
+    {% endfor %}
+</ul>

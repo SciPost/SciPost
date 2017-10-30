@@ -1,0 +1,41 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% block pagetitle %}: overview of refereeing{% endblock pagetitle %}
+
+{% load scipost_extras %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Refereeing overview</span>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="highlight">Refereeing overview</h1>
+
+{% for submission in submissions_under_refereeing %}
+    {% if not forloop.first %}<hr/>{% endif %}
+
+    <div class="row">
+        <div class="col-12">
+        	<h3><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
+        	<p>{{ submission.author_list }}</p>
+
+        	<div>
+                Editor-in-charge: {{ submission.editor_in_charge }}<br>
+        	    Refereeing deadline: {{ submission.reporting_deadline }}<br>
+                <br>
+        	    Refereeing status summary:<br>
+            	{% include 'submissions/_submission_refereeing_status.html' with submission=submission %}
+            </div>
+
+            <p class="mb-2">Detail of refereeing invitations:</p>
+        	{% include 'submissions/_submission_refereeing_invitations.html' with submission=submission invitations=submission.referee_invitations.all %}
+        	<a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='StoE' %}" target="_blank">Send a communication to the Editor-in-charge</a>
+        </div>
+    </div>
+
+{% endfor %}
+
+{% endblock content %}

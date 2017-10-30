@@ -16,6 +16,7 @@ from .forms import DOIToQueryForm, ArxivQueryForm, VetCommentaryForm, RequestCom
 
 from comments.models import Comment
 from comments.forms import CommentForm
+from scipost.mixins import PaginationMixin
 
 import strings
 
@@ -190,7 +191,7 @@ def modify_commentary_request(request, commentary_id):
     return render(request, 'commentaries/modify_commentary_request.html', context)
 
 
-class CommentaryListView(ListView):
+class CommentaryListView(PaginationMixin, ListView):
     model = Commentary
     form = CommentarySearchForm
     paginate_by = 10

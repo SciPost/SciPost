@@ -1,0 +1,28 @@
+{% load request_filters %}
+
+<div class="text-center">
+    {% if page_obj.has_previous %}
+        <a class="" href="?{% url_replace page=page_obj.previous_page_number %}"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Previous</a>
+    {% else %}
+        <span class="text-muted"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Previous</span>
+    {% endif %}
+
+
+    {% for page in page_obj.pages %}
+        {% if page %}
+            {% if page == page_obj.number %}
+                <span class="current page">{{ page }}</span>
+            {% else %}
+                <a href="?{% url_replace page=page %}" class="page">{{ page }}</a>
+            {% endif %}
+        {% else %}
+            ...
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a class="" href="?{% url_replace page=page_obj.next_page_number %}">Next <i class="fa fa-long-arrow-right" aria-hidden="true"></i></a>
+    {% else %}
+        <span class="text-muted">Next <i class="fa fa-long-arrow-right" aria-hidden="true"></i></span>
+    {% endif %}
+</div>
