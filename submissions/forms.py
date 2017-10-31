@@ -304,7 +304,11 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
                                cleaned_data['submitted_to_journal'])
 
         if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
-            del self.cleaned_data['proceedings']
+            try:
+                del self.cleaned_data['proceedings']
+            except KeyError:
+                # No proceedings returned to data
+                return cleaned_data
 
         return cleaned_data
 
