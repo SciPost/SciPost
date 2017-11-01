@@ -2,7 +2,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.template import Template, Context
 from django.utils import timezone
 from django.urls import reverse
 
@@ -16,7 +15,6 @@ from .managers import IssueManager, PublicationManager, JournalManager
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
-from scipost.models import Contributor
 
 
 ################
@@ -90,7 +88,9 @@ class Issue(models.Model):
         unique_together = ('number', 'in_volume')
 
     def __str__(self):
-        text = '%s issue %s' % (self.in_volume, self.number)
+        text = self.issue_number
+        if hasattr(self, 'proceedings'):
+            return text
         text += self.period_as_string()
         if self.status == STATUS_DRAFT:
             text += ' (In draft)'
@@ -102,6 +102,10 @@ class Issue(models.Model):
     @property
     def doi_string(self):
         return '10.21468/' + self.doi_label
+
+    @property
+    def issue_number(self):
+        return '%s issue %s' % (self.in_volume, self.number)
 
     def short_str(self):
         return 'Vol. %s issue %s' % (self.in_volume.number, self.number)

@@ -21,6 +21,9 @@
                 {% for issue in issues %}
                     <li>
                         <a href="{{issue.get_absolute_url}}">{{issue}}</a>
+                        {% if issue.proceedings %}
+                            <div class="pl-4 mb-1">Submission deadline: {{ issue.proceedings.submissions_deadline }}</div>
+                        {% endif %}
                     </li>
                 {% empty %}
                     <li>
