@@ -9,6 +9,16 @@ from .constants import NOTIFICATION_TYPES
 from .managers import NotificationQuerySet
 
 
+class FakeActors(models.Model):
+    """
+    This Model acts as a surrogate person that either is unknown, deceased, fake, etc. etc.
+    """
+    name = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.name
+
+
 class Notification(models.Model):
     """
     Action model describing the actor acting out a verb (on an optional

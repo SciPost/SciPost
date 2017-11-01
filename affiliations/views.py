@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.contrib import messages
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
@@ -31,9 +31,6 @@ class AffiliationUpdateView(UpdateView):
     def form_valid(self, *args, **kwargs):
         messages.success(self.request, 'Affiliation saved')
         return super().form_valid(*args, **kwargs)
-
-    def get_success_url(self):
-        return reverse('affiliations:affiliation_details', args=(self.object.id,))
 
 
 def merge_affiliations(request, affiliation_id):

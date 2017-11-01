@@ -3,7 +3,7 @@
     <tr><td>First name: </td><td>&nbsp;</td><td>{{ contributor.user.first_name }}</td></tr>
     <tr><td>Last name: </td><td>&nbsp;</td><td>{{ contributor.user.last_name }}</td></tr>
     <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ contributor.orcid_id|default:'-' }}</td></tr>
-    <tr><td>Country of employment: </td><td>&nbsp;</td><td>{{ contributor.country_of_employment.name|default:'-'}}</td></tr>
-    <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ contributor.affiliation|default:'-' }}</td></tr>
+    <tr><td>Country of employment: </td><td>&nbsp;</td><td>{{ contributor.affiliation.get_country_display|default:'-'}}</td></tr>
+    <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ contributor.affiliation.name|default:'-' }}</td></tr>
     <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ contributor.personalwebpage|default:'-' }}</td></tr>
 </table>

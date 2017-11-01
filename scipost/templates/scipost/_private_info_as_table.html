@@ -5,8 +5,8 @@
     <tr><td>Email: </td><td>&nbsp;</td><td>{{ contributor.user.email }}</td></tr>
     <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ contributor.orcid_id }}</td></tr>
     <tr><td>Country of employment: </td><td>&nbsp;</td>
-    <td>{{ contributor.country_of_employment.name }}</td></tr>
-    <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ contributor.affiliation }}</td></tr>
+    <td>{{ contributor.affiliation.get_country_display }}</td></tr>
+    <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ contributor.affiliation.name }}</td></tr>
     <tr><td>Address: </td><td>&nbsp;</td><td>{{ contributor.address }}</td></tr>
     <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ contributor.personalwebpage }}</td></tr>
     <tr><td>Accept SciPost emails: </td><td>&nbsp;</td><td>{{ contributor.accepts_SciPost_emails }}</td></tr>
