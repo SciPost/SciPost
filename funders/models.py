@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models import Q
+
+from journals.models import Publication
 
 
 class Funder(models.Model):
@@ -19,6 +22,10 @@ class Funder(models.Model):
             result += ' (%s)' % self.acronym
         return result
 
+    def all_related_publications(self):
+        return Publication.objects.filter(
+            Q(funders_generic=self) | Q(grants__funder=self)).distinct()
+
 
 class Grant(models.Model):
     """
@@ -26,7 +33,7 @@ class Grant(models.Model):
     In a Publication's metadata, all grants are listed
     in the Crossmark part of the metadata.
     """
-    funder = models.ForeignKey(Funder, on_delete=models.CASCADE)
+    funder = models.ForeignKey('funders.Funder', on_delete=models.CASCADE)
     number = models.CharField(max_length=64)
     recipient_name = models.CharField(max_length=64, blank=True, null=True)
     recipient = models.ForeignKey('scipost.Contributor', blank=True, null=True,
