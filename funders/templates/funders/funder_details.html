@@ -1,0 +1,22 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Funder details{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<h1 class="highlight">Funder {{ funder.name }}</h1>
+
+
+<h3>All Publications related to this Funder</h3>
+<ul>
+    {% for publication in funder.all_related_publications %}
+        <li><a href="{{ publication.get_absolute_url }}">{{ publication }}</a></li>
+    {% empty %}
+        <li>No publications</li>
+    {% endfor %}
+</ul>
+
+
+{% endblock content %}

@@ -245,6 +245,10 @@ class Command(BaseCommand):
             codename='can_publish_accepted_submission',
             name='Can publish accepted submission',
             content_type=content_type)
+        can_view_all_funding_info, created = Permission.objects.get_or_create(
+            codename='can_view_all_funding_info',
+            name='Can view all Funders info',
+            content_type=content_type)
 
         # Documentation
         can_view_docs_scipost, created = Permission.objects.get_or_create(
@@ -312,6 +316,7 @@ class Command(BaseCommand):
             can_view_production,
             can_view_timesheets,
             can_publish_accepted_submission,
+            can_view_all_funding_info,
             can_attend_VGMs,
             can_manage_reports,
             can_assign_production_supervisor,

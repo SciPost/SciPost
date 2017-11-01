@@ -2,7 +2,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.template import Template, Context
 from django.utils import timezone
 from django.urls import reverse
 
@@ -16,7 +15,6 @@ from .managers import IssueManager, PublicationManager, JournalManager
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
-from scipost.models import Contributor
 
 
 ################
@@ -35,7 +33,7 @@ class Journal(models.Model):
     name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS, unique=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_journal_validator])
-    issn = models.CharField(max_length=16, default='2542-4653')
+    issn = models.CharField(max_length=16, default='2542-4653', blank=True)
     active = models.BooleanField(default=True)
 
     objects = JournalManager()
@@ -90,7 +88,9 @@ class Issue(models.Model):
         unique_together = ('number', 'in_volume')
 
     def __str__(self):
-        text = '%s issue %s' % (self.in_volume, self.number)
+        text = self.issue_number
+        if hasattr(self, 'proceedings'):
+            return text
         text += self.period_as_string()
         if self.status == STATUS_DRAFT:
             text += ' (In draft)'
@@ -102,6 +102,10 @@ class Issue(models.Model):
     @property
     def doi_string(self):
         return '10.21468/' + self.doi_label
+
+    @property
+    def issue_number(self):
+        return '%s issue %s' % (self.in_volume, self.number)
 
     def short_str(self):
         return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
@@ -150,8 +154,9 @@ class Publication(models.Model):
     abstract = models.TextField()
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
     cc_license = models.CharField(max_length=32, choices=CC_LICENSES, default=CCBY4)
-    grants = models.ManyToManyField('funders.Grant', blank=True)
-    funders_generic = models.ManyToManyField('funders.Funder', blank=True)  # not linked to a grant
+    grants = models.ManyToManyField('funders.Grant', blank=True, related_name="publications")
+    funders_generic = models.ManyToManyField('funders.Funder', blank=True,
+                                             related_name="publications")  # not linked to a grant
     metadata = JSONField(default={}, blank=True, null=True)
     metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
     latest_metadata_update = models.DateTimeField(blank=True, null=True)

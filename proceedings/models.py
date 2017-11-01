@@ -19,6 +19,7 @@ class Proceedings(TimeStampedModel):
 
     # Event the Proceedings is for
     event_name = models.CharField(max_length=256, blank=True)
+    event_suffix = models.CharField(max_length=256, blank=True)
     event_description = models.TextField(blank=True)
     event_start_date = models.DateField(null=True, blank=True)
     event_end_date = models.DateField(null=True, blank=True)
@@ -41,7 +42,10 @@ class Proceedings(TimeStampedModel):
         default_related_name = 'proceedings'
 
     def __str__(self):
-        return self.event_name
+        _str = self.event_name
+        if self.event_suffix:
+            _str += ' ({s})'.format(s=self.event_suffix)
+        return _str
 
     def get_absolute_url(self):
         return reverse('proceedings:proceedings_details', args=(self.id,))

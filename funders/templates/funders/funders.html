@@ -59,18 +59,20 @@
 	      <th>Name</th>
 	      <th>Acronym</th>
 	      <th>Identifier</th>
+          <th></th>
 	    </tr>
 	  </thead>
 	  <tbody id="accordion" role="tablist" aria-multiselectable="true">
 	    {% for funder in funders %}
-	    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ funder.id }}" aria-expanded="true" aria-controls="collapse{{ funder.id }}" style="cursor: pointer;">
+	    <tr>
 	      <td>{{ funder.name }}</td>
 	      <td>{{ funder.acronym }}</td>
 	      <td>{{ funder.identifier }}</td>
+          <td><a href="{% url 'funders:funder_publications' funder.id %}">See all Publications for Funder</a></td>
 	    </tr>
             {% empty %}
             <tr>
-              <td colspan="3">No funders found</td>
+              <td colspan="4">No funders found</td>
             </tr>
 	    {% endfor %}
 	  </tbody>
@@ -108,7 +110,7 @@
 	  </thead>
 	  <tbody id="accordion" role="tablist" aria-multiselectable="true">
 	    {% for grant in grants %}
-	    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ grant.id }}" aria-expanded="true" aria-controls="collapse{{ grant.id }}" style="cursor: pointer;">
+	    <tr>
 	      <td>{{ grant.funder.name }}</td>
 	      {% if grant.recipient %}
 	      <td>{{ grant.recipient }}</td>
