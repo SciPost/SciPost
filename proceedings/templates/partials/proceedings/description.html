@@ -5,7 +5,8 @@
         <strong>Submission deadline: {{ proceedings.submissions_deadline }}</strong>.
     </div>
     {% if proceedings.open_for_submission %}
-        <a href="{% url 'submissions:submit_manuscript' %}">Submit your manuscript here</a>
+        <a href="{% url 'submissions:submit_manuscript' %}">Submit your manuscript here</a>.
+        Prepare your manuscript according to <a href="{% url 'submissions:author_guidelines' %}">our guidelines</a>, using <a href>our LaTeX template</a>.
     {% endif %}
 </div>
 <p>{{ proceedings.event_description|linebreaksbr }}</p>
