@@ -22,7 +22,7 @@
                     <li>
                         <a href="{{issue.get_absolute_url}}">{{issue}}</a>
                         {% if issue.proceedings %}
-                            <div class="pl-4 mb-1">Submission deadline: {{ issue.proceedings.submissions_deadline }}</div>
+                            {% include 'partials/proceedings/proceedings_li.html' with proceedings=issue.proceedings %}
                         {% endif %}
                     </li>
                 {% empty %}
