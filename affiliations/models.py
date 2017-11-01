@@ -25,4 +25,4 @@ class Affiliation(models.Model):
         return '{name} ({country})'.format(name=self.name, country=self.get_country_display())
 
     def get_absolute_url(self):
-        return reverse('affiliations:affiliation_details', args=(self.object.id,))
+        return reverse('affiliations:affiliation_details', args=(self.id,))

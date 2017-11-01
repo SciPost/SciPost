@@ -1,6 +1,8 @@
 from django.shortcuts import redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import permission_required
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404
@@ -9,11 +11,13 @@ from .forms import AffiliationMergeForm
 from .models import Affiliation
 
 
+@method_decorator(permission_required('scipost.can_manage_affiliations'), name='dispatch')
 class AffiliationListView(ListView):
     model = Affiliation
     paginate_by = 100
 
 
+@method_decorator(permission_required('scipost.can_manage_affiliations'), name='dispatch')
 class AffiliationUpdateView(UpdateView):
     model = Affiliation
     pk_url_kwarg = 'affiliation_id'
@@ -33,6 +37,7 @@ class AffiliationUpdateView(UpdateView):
         return super().form_valid(*args, **kwargs)
 
 
+@permission_required('scipost.can_manage_affiliations')
 def merge_affiliations(request, affiliation_id):
     """
     Merge Affiliation (affiliation_id) into the Affliation chosen in the form.
