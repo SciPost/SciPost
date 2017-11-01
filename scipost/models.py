@@ -52,6 +52,8 @@ class Contributor(models.Model):
                                 blank=True)
     country_of_employment = CountryField()
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
+    _affiliation = models.ForeignKey('affiliations.Affiliation', null=True, blank=True,
+                                     related_name='contributors')
     address = models.CharField(max_length=1000, verbose_name="address",
                                blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page',

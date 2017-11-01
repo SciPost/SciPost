@@ -17,7 +17,7 @@
 {% endif %}
 <ul>
     {% for affiliation in object_list %}
-        <li>{{ affiliation }}</li>
+        <li><a href="{% url 'affiliations:affiliation_details' affiliation.id %}">{{ affiliation }}</a></li>
     {% empty %}
         <li><em>There are no Affiliations known yet.</em><li>
     {% endfor %}
