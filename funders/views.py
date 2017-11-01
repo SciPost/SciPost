@@ -63,3 +63,14 @@ def add_grant(request):
     elif grant_form.has_changed():
         messages.warning(request, 'The form was invalidly filled (grant already exists?).')
     return redirect(reverse('funders:funders'))
+
+
+@permission_required('scipost.can_view_all_funding_info', raise_exception=True)
+def publication_per_funder(request):
+    funders = Funder.objects.all()
+    form = FunderRegistrySearchForm()
+    grants = Grant.objects.all()
+    grant_form = GrantForm()
+    context = {'form': form, 'funders': funders,
+               'grants': grants, 'grant_form': grant_form}
+    return render(request, 'funders/funders.html', context)

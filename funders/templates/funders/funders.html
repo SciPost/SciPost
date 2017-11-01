@@ -59,6 +59,7 @@
 	      <th>Name</th>
 	      <th>Acronym</th>
 	      <th>Identifier</th>
+          <th></th>
 	    </tr>
 	  </thead>
 	  <tbody id="accordion" role="tablist" aria-multiselectable="true">
@@ -67,10 +68,11 @@
 	      <td>{{ funder.name }}</td>
 	      <td>{{ funder.acronym }}</td>
 	      <td>{{ funder.identifier }}</td>
+          <td><a href="">See all Publications for Funder</a></td>
 	    </tr>
             {% empty %}
             <tr>
-              <td colspan="3">No funders found</td>
+              <td colspan="4">No funders found</td>
             </tr>
 	    {% endfor %}
 	  </tbody>
