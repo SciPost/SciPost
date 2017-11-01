@@ -1,0 +1,30 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+
+{% block pagetitle %}: Affiliations{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Affiliations</span>
+{% endblock %}
+
+{% block content %}
+
+<h1>Affiliations</h1>
+
+{% if is_paginated %}
+    {% include 'partials/pagination.html' with page_obj=page_obj %}
+{% endif %}
+<ul>
+    {% for affiliation in object_list %}
+        <li>{{ affiliation }}</li>
+    {% empty %}
+        <li><em>There are no Affiliations known yet.</em><li>
+    {% endfor %}
+</ul>
+{% if is_paginated %}
+    {% include 'partials/pagination.html' with page_obj=page_obj %}
+{% endif %}
+
+
+{% endblock content %}

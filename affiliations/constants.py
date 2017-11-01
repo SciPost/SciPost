@@ -1,0 +1,4 @@
+AFFILIATION_UNIVERSITY = 'university'
+AFFILIATION_TYPES = (
+    (AFFILIATION_UNIVERSITY, 'University'),
+ )
