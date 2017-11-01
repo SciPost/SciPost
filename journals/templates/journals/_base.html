@@ -50,7 +50,7 @@
         <div class="row my-1">
             <div class="col-12">
                 {% if journal.active %}
-                    <p>{{journal}} is published by the SciPost Foundation under the journal doi: 10.21468/{{journal.name}} and ISSN {{journal.issn}}.</p>
+                    <p>{{journal}} is published by the SciPost Foundation under the journal doi: 10.21468/{{journal.name}}{% if journal.issn %} and ISSN {{journal.issn}}{% endif %}.</p>
                 {% endif %}
 		{% if journal.doi_label == 'SciPostPhys' %}
 		    <p>SciPost Physics has been awarded the DOAJ Seal <img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="40"> from the <a href="https://doaj.org">Directory of Open Access Journals</a></p>

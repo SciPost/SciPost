@@ -33,7 +33,7 @@ class Journal(models.Model):
     name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS, unique=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_journal_validator])
-    issn = models.CharField(max_length=16, default='2542-4653')
+    issn = models.CharField(max_length=16, default='2542-4653', blank=True)
     active = models.BooleanField(default=True)
 
     objects = JournalManager()
