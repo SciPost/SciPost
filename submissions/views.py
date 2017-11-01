@@ -1568,14 +1568,14 @@ def fix_College_decision(request, rec_id):
 
 class EICRecommendationView(SubmissionAdminViewMixin, DetailView):
     permission_required = 'scipost.can_fix_College_decision'
-    template_name = 'submissions/admin/recommendation.html'
+    template_name = 'submissions/pool/recommendation.html'
     editorial_page = True
 
     def get_context_data(self, *args, **kwargs):
         """ Get the EICRecommendation as a submission-related instance. """
         ctx = super().get_context_data(*args, **kwargs)
-        ctx['object'] = get_object_or_404(ctx['submission'].eicrecommendations.all(),
-                                          id=self.kwargs['rec_id'])
+        ctx['recommendation'] = get_object_or_404(
+            ctx['submission'].eicrecommendations.all(), id=self.kwargs['rec_id'])
         return ctx
 
 
