@@ -25,7 +25,7 @@
                     <li><a class="{% block link_class_physics_issues %}{% endblock %}" href="{% url 'journal:issues' journal.doi_label %}">Issues</a></li>
                     <li><a class="{% block link_class_physics_recent %}{% endblock %}" href="{% url 'journal:recent' journal.doi_label %}">Recent</a></li>
                     <li><a class="{% block link_class_physics_accepted %}{% endblock %}" href="{% url 'journal:accepted' journal.doi_label %}">Accepted</a></li>
-                    <li><a href="{% url 'submissions:submissions' %}?to_journal=SciPostPhysics">Submissions</a></li>
+                    <li><a href="{% url 'submissions:submissions' %}?to_journal={{ journal.name }}">Submissions</a></li>
                     <li><a class="{% block link_class_physics_info %}{% endblock %}" href="{% url 'journal:info_for_authors' journal.doi_label %}">Info for authors</a></li>
                 {% endif %}
                 <li><a class="{% block link_class_physics_about %}{% endblock %}" href="{% url 'journal:about' journal.doi_label %}">About</a></li>
