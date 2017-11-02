@@ -6,7 +6,6 @@ from django.contrib.auth.models import User, Permission
 
 from scipost.models import Contributor, Remark,\
                            DraftInvitation,\
-                           AffiliationObject,\
                            RegistrationInvitation,\
                            AuthorshipClaim, PrecookedEmail,\
                            EditorialCollege, EditorialCollegeFellowship, UnavailabilityPeriod
@@ -177,13 +176,6 @@ class PrecookedEmailAdmin(admin.ModelAdmin):
 admin.site.register(PrecookedEmail, PrecookedEmailAdmin)
 
 
-class AffiliationObjectAdmin(admin.ModelAdmin):
-    search_fields = ['country', 'institution', 'subunit']
-
-
-admin.site.register(AffiliationObject, AffiliationObjectAdmin)
-
-
 class EditorialCollegeAdmin(admin.ModelAdmin):
     search_fields = ['discipline', 'member']
 
@@ -194,6 +186,7 @@ admin.site.register(EditorialCollege, EditorialCollegeAdmin)
 def college_fellow_is_active(fellow):
     '''Check if fellow is currently active.'''
     return fellow.is_active()
+
 
 class EditorialCollegeFellowshipAdminForm(forms.ModelForm):
     contributor = forms.ModelChoiceField(

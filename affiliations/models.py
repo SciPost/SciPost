@@ -4,6 +4,7 @@ from django.urls import reverse
 from django_countries.fields import CountryField
 
 from .constants import INSTITUTE_TYPES, TYPE_UNIVERSITY
+from .managers import AffiliationQuerySet
 
 
 class Institute(models.Model):
@@ -36,8 +37,11 @@ class Affiliation(models.Model):
     begin_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
 
+    objects = AffiliationQuerySet.as_manager()
+
     class Meta:
         default_related_name = 'affiliations'
+        ordering = ['begin_date', 'end_date', 'institute']
 
     def __str__(self):
         return '{contributor} ({institute})'.format(

@@ -15,75 +15,28 @@
     <script>
 
     $(document).ready(function(){
+        $('select#id_discipline').on('change', function() {
+            var selection = $(this).val();
+            $("ul[id^='id_expertises_']").closest("li").hide();
 
-      switch ($('select#id_discipline').val()) {
-        case "physics":
-          $("#id_expertises_0").closest("li").show();
-          $("#id_expertises_1").closest("li").hide();
-          $("#id_expertises_2").closest("li").hide();
-          $("#id_expertises_3").closest("li").hide();
-          break;
-        case "astrophysics":
-          $("#id_expertises_0").closest("li").hide();
-          $("#id_expertises_1").closest("li").show();
-          $("#id_expertises_2").closest("li").hide();
-          $("#id_expertises_3").closest("li").hide();
-          break;
-        case "mathematics":
-          $("#id_expertises_0").closest("li").hide();
-          $("#id_expertises_1").closest("li").hide();
-          $("#id_expertises_2").closest("li").show();
-          $("#id_expertises_3").closest("li").hide();
-          break;
-        case "computerscience":
-          $("#id_expertises_0").closest("li").hide();
-          $("#id_expertises_1").closest("li").hide();
-          $("#id_expertises_2").closest("li").hide();
-          $("#id_expertises_3").closest("li").show();
-          break;
-        default:
-          $("#id_expertises_0").closest("li").show();
-          $("#id_expertises_1").closest("li").show();
-          $("#id_expertises_2").closest("li").show();
-          $("#id_expertises_3").closest("li").show();
-          break;
-      }
-
-      $('select#id_discipline').on('change', function() {
-        var selection = $(this).val();
-        switch(selection){
-        case "physics":
-          $("#id_expertises_0").closest("li").show();
-          $("#id_expertises_1").closest("li").hide();
-          $("#id_expertises_2").closest("li").hide();
-          $("#id_expertises_3").closest("li").hide();
-          break;
-        case "astrophysics":
-          $("#id_expertises_0").closest("li").hide();
-          $("#id_expertises_1").closest("li").show();
-          $("#id_expertises_2").closest("li").hide();
-          $("#id_expertises_3").closest("li").hide();
-          break;
-        case "mathematics":
-          $("#id_expertises_0").closest("li").hide();
-          $("#id_expertises_1").closest("li").hide();
-          $("#id_expertises_2").closest("li").show();
-          $("#id_expertises_3").closest("li").hide();
-          break;
-        case "computerscience":
-          $("#id_expertises_0").closest("li").hide();
-          $("#id_expertises_1").closest("li").hide();
-          $("#id_expertises_2").closest("li").hide();
-          $("#id_expertises_3").closest("li").show();
-          break;
-        default:
-          $("#id_expertises_0").closest("li").show();
-          $("#id_expertises_1").closest("li").show();
-          $("#id_expertises_2").closest("li").show();
-          $("#id_expertises_3").closest("li").show();
-          break;
-        }
-      });
+            switch(selection){
+                case "physics":
+                    $("#id_expertises_0").closest("li").show();
+                break;
+                case "astrophysics":
+                    $("#id_expertises_1").closest("li").show();
+                break;
+                case "mathematics":
+                    $("#id_expertises_2").closest("li").show();
+                break;
+                case "computerscience":
+                    $("#id_expertises_3").closest("li").show();
+                break;
+                default:
+                    $("ul[id^='id_expertises_']").closest("li").show();
+                break;
+            }
+        }).trigger('change');
 
     });
 
@@ -91,18 +44,43 @@
 {% endif %}
 
 
-<div class="row justify-content-center">
-    <div class="col-lg-10">
-        <h1 class="highlight">Update your personal data</h1>
-        <form action="{% url 'scipost:update_personal_data' %}" method="post">
-            {% csrf_token %}
-            {{user_form|bootstrap}}
-            {% if cont_form %}
-            	{{cont_form|bootstrap}}
-            {% endif %}
-            <input type="submit" class="btn btn-primary" value="Update" />
-        </form>
-    </div>
-</div>
 
+<form action="{% url 'scipost:update_personal_data' %}" method="post">
+    {% csrf_token %}
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <h1 class="mb-3">Update your personal data</h1>
+            {{ user_form|bootstrap }}
+            {% if cont_form %}
+            	{{ cont_form|bootstrap }}
+            {% endif %}
+        </div>
+        {% if institute_formset %}
+            <div class="col-lg-6">
+                <div id="institutes" class="formset-group">
+                    <h1 class="mb-3">Your Institutes</h1>
+                    {{ institute_formset.media }}
+                    {{ institute_formset|bootstrap }}
+                </div>
+                <div class="formset-form form-empty" style="display: none;">
+                    {{ institute_formset.empty_form|bootstrap }}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="text-center">
+        <input type="submit" class="btn btn-primary btn-lg px-3" value="Save changes" />
+    </div>
+</form>
+
+<script type="text/javascript">
+    $(function() {
+        $('form #institutes > .formset-form').formset({
+            addText: 'add new Institute',
+            deleteText: 'remove Institute',
+            formTemplate: 'form .form-empty',
+        })
+    })
+</script>
 {% endblock content %}

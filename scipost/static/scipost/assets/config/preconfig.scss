@@ -108,6 +108,7 @@ $font-family-base:       $font-family-sans-serif;
 
 $font-size-base: 0.8rem;
 $font-size-sm: 0.75rem;
+$font-size-lg: 1.0rem;
 
 $h1-font-size: 1.8em;
 $h2-font-size: 1.5em;
@@ -132,7 +133,7 @@ $nav-link-padding-y: 0.4rem;
 $input-border-radius: 0;
 $btn-border-radius: $base-border-radius;
 $btn-border-radius-sm: $base-border-radius;
-$btn-border-radius-lg: 0;
+$btn-border-radius-lg: $base-border-radius;
 
 
 // Block quote

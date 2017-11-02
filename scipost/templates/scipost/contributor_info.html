@@ -4,22 +4,13 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="card card-grey">
-            <div class="card-body">
-                <h1 class="card-title mb-0">Contributor info</h1>
-                <h3 class="card-subtitle text-muted">{{contributor.get_formal_display}}</h2>
-            </div>
-        </div>
-    </div>
-</div>
+<h1 class="highlight mb-4">Contributor info: {{ contributor.get_formal_display }}</h1>
 
 {% include "scipost/_public_info_as_table.html" with contributor=contributor %}
 
 <br>
 {% if contributor_publications %}
-    {# <hr>#}
+
     <div class="row">
         <div class="col-12">
             <h2 class="highlight">Publications <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mypublicationslist">View/hide publications</a></small></h2>

@@ -35,6 +35,7 @@ from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriod
                    EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
+from affiliations.forms import AffiliationsFormset
 from commentaries.models import Commentary
 from comments.models import Comment
 from journals.models import Publication, Journal
@@ -880,7 +881,7 @@ def _update_personal_data_user_only(request):
     if user_form.is_valid():
         user_form.save()
         messages.success(request, 'Your personal data has been updated.')
-        return redirect(reverse('partners:dashboard'))
+        return redirect(reverse('scipost:update_personal_data'))
     context = {
         'user_form': user_form
     }
@@ -891,19 +892,26 @@ def _update_personal_data_contributor(request):
     contributor = Contributor.objects.get(user=request.user)
     user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
     cont_form = UpdatePersonalDataForm(request.POST or None, instance=contributor)
-    if user_form.is_valid() and cont_form.is_valid():
+    institute_formset = AffiliationsFormset(request.POST or None, contributor=contributor)
+    if user_form.is_valid() and cont_form.is_valid() and institute_formset.is_valid():
         user_form.save()
         cont_form.save()
         cont_form.sync_lists()
+        institute_formset.save()
         if 'orcid_id' in cont_form.changed_data:
             cont_form.propagate_orcid()
         messages.success(request, 'Your personal data has been updated.')
-        return redirect(reverse('scipost:personal_page'))
+        return redirect(reverse('scipost:update_personal_data'))
     else:
         user_form = UpdateUserDataForm(instance=contributor.user)
         cont_form = UpdatePersonalDataForm(instance=contributor)
-    return render(request, 'scipost/update_personal_data.html',
-                  {'user_form': user_form, 'cont_form': cont_form})
+
+    context = {
+        'user_form': user_form,
+        'cont_form': cont_form,
+        'institute_formset': institute_formset,
+    }
+    return render(request, 'scipost/update_personal_data.html', context)
 
 
 @login_required

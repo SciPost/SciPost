@@ -61,10 +61,6 @@ class Contributor(models.Model):
         default=True,
         verbose_name="I accept to receive SciPost emails")
 
-    # U/S
-    old_country_of_employment = CountryField()
-    old_affiliation = models.CharField(max_length=300, verbose_name='affiliation')
-
     objects = ContributorManager()
 
     def __str__(self):
@@ -288,16 +284,6 @@ class PrecookedEmail(models.Model):
 
     def __str__(self):
         return self.email_subject
-
-
-#######################
-# Affiliation Objects #
-#######################
-
-class AffiliationObject(models.Model):
-    country = CountryField()
-    institution = models.CharField(max_length=128)
-    subunit = models.CharField(max_length=128)
 
 
 ######################
