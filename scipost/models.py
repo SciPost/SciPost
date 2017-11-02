@@ -50,10 +50,6 @@ class Contributor(models.Model):
         blank=True, null=True)
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
                                 blank=True)
-    old_country_of_employment = CountryField()
-    old_affiliation = models.CharField(max_length=300, verbose_name='affiliation')
-    affiliation = models.ForeignKey('affiliations.Institute', null=True, blank=True,
-                                    related_name='contributors')
     address = models.CharField(max_length=1000, verbose_name="address",
                                blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page',
@@ -64,6 +60,10 @@ class Contributor(models.Model):
     accepts_SciPost_emails = models.BooleanField(
         default=True,
         verbose_name="I accept to receive SciPost emails")
+
+    # U/S
+    old_country_of_employment = CountryField()
+    old_affiliation = models.CharField(max_length=300, verbose_name='affiliation')
 
     objects = ContributorManager()
 
