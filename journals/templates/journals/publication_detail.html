@@ -3,8 +3,9 @@
 {% load journals_extras %}
 {% load staticfiles %}
 {% load scipost_extras %}
+{% load user_groups %}
 
-{% block pagetitle %}: Publication detail{% endblock pagetitle %}
+{% block pagetitle %}: {{ publication.citation }} - {{ publication.title }}{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
     {{block.super}}
@@ -46,6 +47,7 @@
 {% endblock headsup %}
 
 {% block content %}
+    {% is_edcol_admin request.user as is_edcol_admin %}
 
     {% include 'journals/_publication_details.html' with publication=publication %}
 
@@ -85,10 +87,20 @@
               {{ author }} {% if not forloop.last %}&nbsp;&middot;&nbsp;{% endif %}
             {% endfor %}
             </p>
+
+            {% if is_edcol_admin %}
+                {# This function is not available for public yet! #}
+                <h3>Institutes related to this Publication: <small>(adminstrator only)</small></h3>
+                <ul>
+                    {% for institute in publication.institutes.all %}
+                        <li>{{ institute }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     </div>
 
-    {% if request.user|is_in_group:'Editorial Administrators' %}
+    {% if is_edcol_admin %}
     <hr>
     <div class="row">
         <div class="col-12">
