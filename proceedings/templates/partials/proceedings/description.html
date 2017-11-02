@@ -9,7 +9,7 @@
         Prepare your manuscript according to <a href="{% url 'submissions:author_guidelines' %}">our guidelines</a>, using <a href>our LaTeX template</a>.
     {% endif %}
 </div>
-<p>{{ proceedings.event_description|linebreaksbr }}</p>
+<p>{{ proceedings.event_description|safe|linebreaksbr }}</p>
 
 {% if proceedings.fellowships.guests.exists %}
     <h3>Guest Fellows responsible for this Issue</h3>
