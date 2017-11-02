@@ -52,7 +52,7 @@ class Contributor(models.Model):
                                 blank=True)
     old_country_of_employment = CountryField()
     old_affiliation = models.CharField(max_length=300, verbose_name='affiliation')
-    affiliation = models.ForeignKey('affiliations.Affiliation', null=True, blank=True,
+    affiliation = models.ForeignKey('affiliations.Institute', null=True, blank=True,
                                     related_name='contributors')
     address = models.CharField(max_length=1000, verbose_name="address",
                                blank=True)

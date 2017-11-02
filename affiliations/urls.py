@@ -3,9 +3,9 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.AffiliationListView.as_view(), name='affiliations'),
-    url(r'^(?P<affiliation_id>[0-9]+)/$', views.AffiliationUpdateView.as_view(),
-        name='affiliation_details'),
-    url(r'^(?P<affiliation_id>[0-9]+)/merge$', views.merge_affiliations,
-        name='merge_affiliations'),
+    url(r'^$', views.InstituteListView.as_view(), name='institutes'),
+    url(r'^(?P<institute_id>[0-9]+)/$', views.InstituteUpdateView.as_view(),
+        name='institute_details'),
+    url(r'^(?P<institute_id>[0-9]+)/merge$', views.merge_institutes,
+        name='merge_institutes'),
 ]

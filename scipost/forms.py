@@ -24,7 +24,7 @@ from .decorators import has_contributor
 from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
-from affiliations.models import Affiliation
+from affiliations.models import Institute
 from common.forms import MonthYearWidget
 from partners.decorators import has_contact
 
@@ -58,12 +58,12 @@ class RegistrationForm(forms.Form):
                                widget=forms.TextInput(
                                     {'placeholder': 'Recommended. Get one at orcid.org'}))
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
-    country_of_employment = LazyTypedChoiceField(
-        choices=countries, label='* Country of employment', initial='NL',
-        widget=CountrySelectWidget(layout=(
-            '{widget}<img class="country-select-flag" id="{flag_id}"'
-            ' style="margin: 6px 4px 0" src="{country.flag}">')))
-    affiliation = forms.CharField(label='* Affiliation', max_length=300)
+    # country_of_employment = LazyTypedChoiceField(
+    #     choices=countries, label='* Country of employment', initial='NL',
+    #     widget=CountrySelectWidget(layout=(
+    #         '{widget}<img class="country-select-flag" id="{flag_id}"'
+    #         ' style="margin: 6px 4px 0" src="{country.flag}">')))
+    # affiliation = forms.CharField(label='* Affiliation', max_length=300)
     address = forms.CharField(
         label='Address', max_length=1000,
         widget=forms.TextInput({'placeholder': 'For postal correspondence'}),
@@ -116,17 +116,17 @@ class RegistrationForm(forms.Form):
             'password': self.cleaned_data['password'],
             'is_active': False
         })
-        affiliation, __ = Affiliation.objects.get_or_create(
-            country=self.cleaned_data['country_of_employment'],
-            name=self.cleaned_data['affiliation'],
-        )
+        # institute, __ = Institute.objects.get_or_create(
+        #     country=self.cleaned_data['country_of_employment'],
+        #     name=self.cleaned_data['affiliation'],
+        # )
         contributor, new = Contributor.objects.get_or_create(**{
             'user': user,
             'invitation_key': self.cleaned_data.get('invitation_key', ''),
             'title': self.cleaned_data['title'],
             'orcid_id': self.cleaned_data['orcid_id'],
             'address': self.cleaned_data['address'],
-            'affiliation': affiliation,
+            # 'affiliation': institute,
             'personalwebpage': self.cleaned_data['personalwebpage'],
         })
 
@@ -261,8 +261,8 @@ class UpdateUserDataForm(forms.ModelForm):
 
 
 class UpdatePersonalDataForm(forms.ModelForm):
-    country_of_employment = LazyTypedChoiceField(choices=countries, widget=CountrySelectWidget())
-    affiliation = forms.CharField(max_length=300)
+    # country_of_employment = LazyTypedChoiceField(choices=countries, widget=CountrySelectWidget())
+    # affiliation = forms.CharField(max_length=300)
 
     class Meta:
         model = Contributor
@@ -277,24 +277,24 @@ class UpdatePersonalDataForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['country_of_employment'].initial = self.instance.affiliation.country
-        self.fields['affiliation'].initial = self.instance.affiliation.name
+        # self.fields['country_of_employment'].initial = self.instance.affiliation.country
+        # self.fields['affiliation'].initial = self.instance.affiliation.name
 
     def save(self, commit=True):
         contributor = super().save(commit)
-        if commit:
-            if contributor.affiliation.contributors.count() == 1:
-                # Just update if there are no other people using this Affiliation
-                affiliation = contributor.affiliation
-                affiliation.name = self.cleaned_data['affiliation']
-                affiliation.country = self.cleaned_data['country_of_employment']
-                affiliation.save()
-            else:
-                affiliation, __ = Affiliation.objects.get_or_create(
-                    name=self.cleaned_data['affiliation'],
-                    country=self.cleaned_data['country_of_employment'])
-                contributor.affiliation = affiliation
-                contributor.save()
+        # if commit:
+        #     if contributor.affiliation.contributors.count() == 1:
+        #         # Just update if there are no other people using this Affiliation
+        #         affiliation = contributor.affiliation
+        #         affiliation.name = self.cleaned_data['affiliation']
+        #         affiliation.country = self.cleaned_data['country_of_employment']
+        #         affiliation.save()
+        #     else:
+        #         affiliation, __ = Affiliation.objects.get_or_create(
+        #             name=self.cleaned_data['affiliation'],
+        #             country=self.cleaned_data['country_of_employment'])
+        #         contributor.affiliation = affiliation
+        #         contributor.save()
         return contributor
 
     def sync_lists(self):

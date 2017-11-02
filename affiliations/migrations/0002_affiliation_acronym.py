@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='affiliation',
+            model_name='institute',
             name='acronym',
             field=models.CharField(blank=True, max_length=16),
         ),

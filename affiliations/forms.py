@@ -1,22 +1,22 @@
 from django import forms
 
-from .models import Affiliation
+from .models import Institute
 
 
-class AffiliationMergeForm(forms.ModelForm):
-    affiliation = forms.ModelChoiceField(queryset=Affiliation.objects.none())
+class InstituteMergeForm(forms.ModelForm):
+    institute = forms.ModelChoiceField(queryset=Institute.objects.none())
 
     class Meta:
-        model = Affiliation
+        model = Institute
         fields = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['affiliation'].queryset = Affiliation.objects.exclude(id=self.instance.id)
+        self.fields['institute'].queryset = Institute.objects.exclude(id=self.instance.id)
 
     def save(self, commit=True):
-        old_affiliation = self.cleaned_data['affiliation']
+        old_institute = self.cleaned_data['institute']
         if commit:
-            old_affiliation.contributors.update(affiliation=self.instance)
-            old_affiliation.delete()
+            old_institute.contributors.update(institute=self.instance)
+            old_institute.delete()
         return self.instance

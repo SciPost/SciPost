@@ -1,4 +1,4 @@
-AFFILIATION_UNIVERSITY = 'university'
-AFFILIATION_TYPES = (
-    (AFFILIATION_UNIVERSITY, 'University'),
+TYPE_UNIVERSITY = 'university'
+INSTITUTE_TYPES = (
+    (TYPE_UNIVERSITY, 'University'),
  )

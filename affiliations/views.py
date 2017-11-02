@@ -7,20 +7,20 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404
 
-from .forms import AffiliationMergeForm
-from .models import Affiliation
+from .forms import InstituteMergeForm
+from .models import Institute
 
 
 @method_decorator(permission_required('scipost.can_manage_affiliations'), name='dispatch')
-class AffiliationListView(ListView):
-    model = Affiliation
+class InstituteListView(ListView):
+    model = Institute
     paginate_by = 100
 
 
 @method_decorator(permission_required('scipost.can_manage_affiliations'), name='dispatch')
-class AffiliationUpdateView(UpdateView):
-    model = Affiliation
-    pk_url_kwarg = 'affiliation_id'
+class InstituteUpdateView(UpdateView):
+    model = Institute
+    pk_url_kwarg = 'institute_id'
     fields = [
         'name',
         'acronym',
@@ -29,24 +29,24 @@ class AffiliationUpdateView(UpdateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['merge_form'] = AffiliationMergeForm()
+        context['merge_form'] = InstituteMergeForm()
         return context
 
     def form_valid(self, *args, **kwargs):
-        messages.success(self.request, 'Affiliation saved')
+        messages.success(self.request, 'Institute saved')
         return super().form_valid(*args, **kwargs)
 
 
 @permission_required('scipost.can_manage_affiliations')
-def merge_affiliations(request, affiliation_id):
+def merge_institutes(request, institute_id):
     """
     Merge Affiliation (affiliation_id) into the Affliation chosen in the form.
     """
-    affiliation = get_object_or_404(Affiliation, id=affiliation_id)
-    form = AffiliationMergeForm(request.POST or None, instance=affiliation)
+    institute = get_object_or_404(Institute, id=institute_id)
+    form = InstituteMergeForm(request.POST or None, instance=institute)
     if form.is_valid():
         form.save()
-        messages.success(request, 'Affiliation {a} merged into {b}'.format(
-            a=form.cleaned_data.get('affiliation', '?'), b=affiliation))
+        messages.success(request, 'Institute {a} merged into {b}'.format(
+            a=form.cleaned_data.get('institute', '?'), b=institute))
 
-    return redirect(reverse('affiliations:affiliation_details', args=(affiliation.id,)))
+    return redirect(reverse('affiliations:institute_details', args=(institute.id,)))

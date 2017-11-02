@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Affiliation
+from .models import Institute
 
 
-admin.site.register(Affiliation)
+admin.site.register(Institute)

@@ -13,5 +13,5 @@ def notify_new_affiliation(sender, instance, created, **kwargs):
         actor, __ = FakeActors.objects.get_or_create(name='A SciPost user')
         for user in administrators:
             notify.send(sender=sender, recipient=user, actor=actor,
-                        verb=' created a new Affiliation instance. You may want to validate it.',
+                        verb=' created a new Institute instance. You may want to validate it.',
                         target=instance)
