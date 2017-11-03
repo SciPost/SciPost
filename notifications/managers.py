@@ -13,6 +13,10 @@ class NotificationQuerySet(models.query.QuerySet):
         """Return only unread items in the current queryset"""
         return self.filter(unread=True)
 
+    def pseudo_unread(self):
+        """Return only unread items in the current queryset"""
+        return self.filter(pseudo_unread=True)
+
     def read(self):
         """Return only read items in the current queryset"""
         return self.filter(unread=False)
@@ -26,6 +30,16 @@ class NotificationQuerySet(models.query.QuerySet):
             qs = qs.filter(recipient=recipient)
 
         return qs.update(unread=False)
+
+    def mark_all_as_pseudo_read(self, recipient=None):
+        """Mark as read any unread messages in the current queryset."""
+        # We want to filter out read ones, as later we will store
+        # the time they were marked as read.
+        qs = self.pseudo_unread()
+        if recipient:
+            qs = qs.filter(recipient=recipient)
+
+        return qs.update(pseudo_unread=False)
 
     def mark_all_as_unread(self, recipient=None):
         """Mark as unread any read messages in the current queryset."""

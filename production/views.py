@@ -1,4 +1,3 @@
-import datetime
 import mimetypes
 
 from django.contrib import messages

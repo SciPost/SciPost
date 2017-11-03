@@ -4,6 +4,8 @@
  */
 .navbar {
     margin-bottom: 1.5rem;
+    display: block;
+    flex-wrap: nowrap;
 
     &.main-nav {
         border-bottom: 1px solid #ddd;
@@ -25,10 +27,6 @@
         }
     }
 
-    .navbar-nav {
-        flex-direction: row;
-    }
-
     .active > .nav-link {
         border-color: $scipost-darkblue;
         box-shadow: 0 1px 0 0 #ccc;
@@ -37,9 +35,25 @@
     .highlighted > .nav-link {
         background-color: rgba(255, 255, 255, 0.6);
     }
+}
 
-    .nav-item {
-        margin-right: 0.5rem;
+@media (min-width: 768px) {
+    .navbar {
+        display: flex;
+
+        .navbar-nav {
+            margin-right: auto;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .nav-item {
+            margin-right: 0.5rem;
+        }
+
+        [data-toggle="collapse"] {
+            display: none;
+        }
     }
 }
 
@@ -92,47 +106,55 @@
             content: "\f0f3";
         }
     }
+}
 
-    .badge {
-        vertical-align: top;
-        margin-left: -15px;
-        margin-top: -5px;
-        height: 16px;
-        min-width: 16px;
-        line-height: 10px;
-        display: none;
-        padding: 0.25em;
-        border-radius: 99px;
-        border: 1px solid #f9f9f9;
-    }
+.live_notify_badge {
+    vertical-align: top;
+    margin-left: -15px;
+    margin-top: -5px;
+    height: 16px;
+    min-width: 16px;
+    line-height: 10px;
+    display: none;
+    padding: 0.25em;
+    border-radius: 99px;
+    border: 1px solid #f9f9f9;
 }
 
 .notifications_container {
-    color: $scipost-lightestblue;
+    .badge_link {
+        color: $scipost-lightestblue;
+
+        // &::after {
+        //     content: none;
+        // }
+    }
 
     .user {
         color: $scipost-darkblue;
     }
 
-    .fa {
+    .fa-inbox {
         font-size: 150%;
         vertical-align: bottom;
         margin: 0 0.25rem;
     }
 
+    &.show .fa-inbox {
+        color: $scipost-darkblue;
+    }
+
     &.positive_count {
-        color: $scipost-orange;
+        .badge_link {
+            color: $scipost-orange;
+        }
 
         .user {
             color: $scipost-darkblue;
         }
 
-        .badge {
+        .live_notify_badge {
             display: inline-block;
         }
-    }
-
-    &::after {
-        content: none;
     }
 }
