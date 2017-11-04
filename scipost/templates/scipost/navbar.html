@@ -4,7 +4,7 @@
 
 
 <nav class="navbar navbar-light main-nav navbar-expand-lg">
-    <ul id="menu-navbar" class="navbar-nav collapse">
+    <ul id="menu-navbar" class="navbar-nav">
       <li class="nav-item{% if request.path == '/' %} active{% endif %}">
         <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
       </li>
@@ -69,7 +69,6 @@
       {% endif %}
 
     </ul>
-    <a class="btn btn-block my-2" data-toggle="collapse" href="#menu-navbar" aria-expanded="false" aria-controls="menu-navbar">Show menu <i class="fa fa-angle-down" aria-hidden="true"></i></a>
     <form action="{% url 'scipost:search' %}" method="get" class="form-inline search-nav-form">
         <input class="form-control" id="id_q" maxlength="100" name="q" type="text" required="required" value="{{search_query|default:''}}">
         <input class="btn btn-secondary" type="submit" value="Search">

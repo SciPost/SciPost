@@ -4,8 +4,9 @@
  */
 .navbar {
     margin-bottom: 1.5rem;
-    display: block;
+    display: flex;
     flex-wrap: nowrap;
+    overflow-x: scroll;
 
     &.main-nav {
         border-bottom: 1px solid #ddd;
@@ -35,16 +36,18 @@
     .highlighted > .nav-link {
         background-color: rgba(255, 255, 255, 0.6);
     }
+
+    .navbar-nav {
+        display: flex;
+        flex-direction: row;
+    }
 }
 
 @media (min-width: 768px) {
     .navbar {
-        display: flex;
 
         .navbar-nav {
             margin-right: auto;
-            display: flex;
-            flex-direction: row;
         }
 
         .nav-item {
