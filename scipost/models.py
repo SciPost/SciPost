@@ -50,8 +50,6 @@ class Contributor(models.Model):
         blank=True, null=True)
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
                                 blank=True)
-    country_of_employment = CountryField()
-    affiliation = models.CharField(max_length=300, verbose_name='affiliation')
     address = models.CharField(max_length=1000, verbose_name="address",
                                blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page',
@@ -225,7 +223,7 @@ class RegistrationInvitation(models.Model):
 
 
 class CitationNotification(models.Model):
-    contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
+    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     cited_in_submission = models.ForeignKey('submissions.Submission',
                                             on_delete=models.CASCADE,
                                             blank=True, null=True)
@@ -286,16 +284,6 @@ class PrecookedEmail(models.Model):
 
     def __str__(self):
         return self.email_subject
-
-
-#######################
-# Affiliation Objects #
-#######################
-
-class AffiliationObject(models.Model):
-    country = CountryField()
-    institution = models.CharField(max_length=128)
-    subunit = models.CharField(max_length=128)
 
 
 ######################

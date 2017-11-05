@@ -10,7 +10,7 @@ from .models import Funder, Grant
 from .forms import FunderRegistrySearchForm, FunderForm, GrantForm
 
 
-@permission_required('scipost.can_publish_accepted_submission', raise_exception=True)
+@permission_required('scipost.can_view_all_funding_info', raise_exception=True)
 def funders(request):
     funders = Funder.objects.all()
     form = FunderRegistrySearchForm()
@@ -21,7 +21,7 @@ def funders(request):
     return render(request, 'funders/funders.html', context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', raise_exception=True)
+@permission_required('scipost.can_view_all_funding_info', raise_exception=True)
 def query_crossref_for_funder(request):
     """
     Checks Crossref's Fundref Registry for an entry
@@ -41,7 +41,7 @@ def query_crossref_for_funder(request):
     return render(request, 'funders/query_crossref_for_funder.html', context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', raise_exception=True)
+@permission_required('scipost.can_view_all_funding_info', raise_exception=True)
 def add_funder(request):
     form = FunderForm(request.POST or None)
     if form.is_valid():
@@ -63,7 +63,7 @@ def funder_publications(request, funder_id):
     return render(request, 'funders/funder_details.html', context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', raise_exception=True)
+@permission_required('scipost.can_view_all_funding_info', raise_exception=True)
 def add_grant(request):
     grant_form = GrantForm(request.POST or None)
     if grant_form.is_valid():

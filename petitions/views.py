@@ -26,8 +26,8 @@ def petition(request, slug):
             'first_name': request.user.first_name,
             'last_name': request.user.last_name,
             'email': request.user.email,
-            'country_of_employment': request.user.contributor.country_of_employment,
-            'affiliation': request.user.contributor.affiliation,
+            'country_of_employment': request.user.contributor.affiliation.country_of_employment,
+            'affiliation': request.user.contributor.affiliation.name,
         }
 
     form = SignPetitionForm(request.POST or None, initial=initial, petition=petition,

@@ -121,3 +121,18 @@ input[type="file"] {
         }
     }
 }
+
+.formset-group {
+    .formset-form {
+        border-bottom: 1px solid #ddd;
+        padding: 1rem 0 0.5rem;
+
+        &.form-1 {
+            padding-top: 0;
+        }
+
+        &.to_be_deleted {
+            opacity: 0.2;
+        }
+    }
+}

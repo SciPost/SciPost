@@ -9,6 +9,16 @@ from .constants import NOTIFICATION_TYPES
 from .managers import NotificationQuerySet
 
 
+class FakeActors(models.Model):
+    """
+    This Model acts as a surrogate person that either is unknown, deceased, fake, etc. etc.
+    """
+    name = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.name
+
+
 class Notification(models.Model):
     """
     Action model describing the actor acting out a verb (on an optional
@@ -33,6 +43,7 @@ class Notification(models.Model):
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False,
                                   related_name='notifications')
     unread = models.BooleanField(default=True)
+    pseudo_unread = models.BooleanField(default=True)  # Used to keep notification-bg "active"
 
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
     actor_object_id = models.CharField(max_length=255)
@@ -51,7 +62,7 @@ class Notification(models.Model):
     action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
     action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
 
-    created = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
 
     # This field is for internal use only. It is used to prevent duplicate sending
     # of notifications.
@@ -95,19 +106,22 @@ class Notification(models.Model):
         return id2slug(self.id)
 
     def mark_toggle(self):
-        if self.unread:
+        if self.pseudo_unread:
             self.unread = False
-            self.save()
+            self.pseudo_unread = False
         else:
             self.unread = True
-            self.save()
+            self.pseudo_unread = True
+        self.save()
 
     def mark_as_read(self):
-        if self.unread:
+        if self.unread or self.pseudo_unread:
             self.unread = False
+            self.pseudo_unread = False
             self.save()
 
     def mark_as_unread(self):
-        if not self.unread:
+        if not self.unread or not self.pseudo_unread:
             self.unread = True
+            self.pseudo_unread = True
             self.save()

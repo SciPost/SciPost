@@ -1,0 +1,55 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Institutes details{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <a href="{% url 'affiliations:institutes' %}" class="breadcrumb-item">Institutes</a>
+    <span class="breadcrumb-item">Institute detail</span>
+{% endblock %}
+
+{% block content %}
+
+<h1>Institute {{ institute }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input class="btn btn-primary" type="submit" value="Update Institute">
+</form>
+
+<br>
+<a href="javascript:;" data-toggle="toggle" data-target="#merging">Merge another institute into {{ institute }}?</a>
+<div id="merging" style="display: none;">
+    <h3>Merge institutes</h3>
+    <div class="card border-danger">
+        <div class="card-body d-flex flex-row">
+            <div class="p-2">
+                <i class="fa fa-2x fa-exclamation-triangle text-warning" aria-hidden="true"></i>
+            </div>
+            <div class="px-2">
+                You better be sure what you are doing, this is a one-way street. This will merge the chosen institute into {{ institute }}. The fields of the chosen institute <strong>will be lost</strong> however.
+            </div>
+
+        </div>
+    </div>
+    <br>
+    <form action="{% url 'affiliations:merge_institutes' institute.id %}" method="post">
+        {% csrf_token %}
+        {{ merge_form|bootstrap }}
+        <input class="btn btn-primary" type="submit" value="Merge institutes" onclick="return confirm('Are you sure this is what you want?')">
+    </form>
+</div>
+
+<br>
+<br>
+<h3>Contributors of {{ institute }}</h3>
+<ul>
+    {% for contributor in institute.contributors.all %}
+        <li>{{ contributor }}</li>
+    {% endfor %}
+</ul>
+
+{% endblock content %}

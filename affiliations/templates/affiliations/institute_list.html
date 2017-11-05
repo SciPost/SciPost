@@ -1,0 +1,30 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+
+{% block pagetitle %}: Institutes{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Institutes</span>
+{% endblock %}
+
+{% block content %}
+
+<h1>All Institutes in the database</h1>
+
+{% if is_paginated %}
+    {% include 'partials/pagination.html' with page_obj=page_obj %}
+{% endif %}
+<ul>
+    {% for institute in object_list %}
+        <li><a href="{% url 'affiliations:institute_details' institute.id %}">{{ institute }}</a></li>
+    {% empty %}
+        <li><em>There are no Institutes known yet.</em><li>
+    {% endfor %}
+</ul>
+{% if is_paginated %}
+    {% include 'partials/pagination.html' with page_obj=page_obj %}
+{% endif %}
+
+
+{% endblock content %}

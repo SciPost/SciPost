@@ -253,6 +253,13 @@ def validate_publication(request):
             publication.authors_unregistered.add(publication.first_author_unregistered)
         publication.authors_claims.add(*submission.authors_claims.all())
         publication.authors_false_claims.add(*submission.authors_false_claims.all())
+
+        # Add Institutes to the publication
+        for author in publication.authors.all():
+            for institute in author.affiliations.active():
+                publication.institutes.add(institute)
+
+        # Save the beast
         publication.save()
 
         # Move file to final location

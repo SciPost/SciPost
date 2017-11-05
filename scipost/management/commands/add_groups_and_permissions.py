@@ -262,6 +262,12 @@ class Command(BaseCommand):
             name='Can view timesheets',
             content_type=content_type)
 
+        # Affiliations administration
+        can_manage_affiliations, created = Permission.objects.get_or_create(
+            codename='can_manage_affiliations',
+            name='Can manage affiliations',
+            content_type=content_type)
+
         # Mailchimp
         can_manage_mailchimp, created = Permission.objects.get_or_create(
             codename='can_manage_mailchimp',
@@ -293,6 +299,7 @@ class Command(BaseCommand):
             can_manage_mailchimp,
             can_view_all_production_streams,
             can_promote_to_production_team,
+            can_manage_affiliations,
         ])
 
         FinancialAdmin.permissions.set([
