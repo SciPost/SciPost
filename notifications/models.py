@@ -62,7 +62,7 @@ class Notification(models.Model):
     action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
     action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
 
-    created = models.DateTimeField(default=timezone.now)
+    created = models.DateTimeField(auto_now_add=True)
 
     # This field is for internal use only. It is used to prevent duplicate sending
     # of notifications.

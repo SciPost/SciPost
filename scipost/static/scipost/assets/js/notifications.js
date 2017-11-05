@@ -45,7 +45,9 @@ function update_list_callback(data, args) {
 
     var messages = items.map(function (item) {
         // Notification content
-        var message = '';
+        var message = '',
+            link = '';
+
         if(typeof item.actor !== 'undefined'){
             message += '<strong>' + item.actor + '</strong>';
         }
@@ -54,6 +56,7 @@ function update_list_callback(data, args) {
         }
         if(typeof item.target !== 'undefined'){
             if(typeof item.forward_link !== 'undefined') {
+                link = item.forward_link;
                 message += " <a href='" + item.forward_link + "'>" + item.target + "</a>";
             } else {
                 message += " " + item.target;
@@ -79,24 +82,26 @@ function update_list_callback(data, args) {
         }
 
         // Complete list html
-        return '<li class="dropdown-item ' + (item.unread ? ' active' : '') + '"><div>' + message + '</div><div class="actions">' + mark_toggle + '</div></li>';
+        if(link !== '') {
+            return '<li href="' + link + '" class="item ' + (item.unread ? ' active' : '') + '"><div>' + message + '</div><div class="actions">' + mark_toggle + '</div></li>';
+        } else {
+            return '<li class="item ' + (item.unread ? ' active' : '') + '"><div>' + message + '</div><div class="actions">' + mark_toggle + '</div></li>';
+        }
+
     }).join('');
 
     if (messages == '') {
-        messages = '<li class="dropdown-item px-5"><em>You have no new notifications</em></li>'
+        messages = '<li class="item px-5"><em>You have no new notifications</em></li>'
     }
 
     // Fill DOM
-    el.find('.live_notify_list').html(messages).trigger('refresh_notify_list');
+    el.find('.live_notify_list').html(messages).parents('body').trigger('refresh_notify_list');
 }
 
 function update_mark_callback(data, args) {
     var el = $(args['element']);
-    $(el).parents('.dropdown-item').toggleClass('active');
-
-    $('.live_notify_badge').each(function(index, el) {
-        update_counter(el);
-    });
+    $(el).parents('.item').toggleClass('active');
+    trigger_badge();
 }
 
 
@@ -113,14 +118,27 @@ function update_list(el) {
     fetch_api_data(update_list_callback, "/notifications/api/list/?mark_as_read=1", {'element': el});
 }
 
-// setTimeout(fetch_api_data, 1000);
+function trigger_badge() {
+    $('.live_notify_badge').trigger('notification_count_updated');
+}
+// Update Badge count every minute
+var badge_timer = setInterval(trigger_badge, 60000);
+
+function initiate_popover() {
+    var template = $('.notifications_container .popover-template').html();
+    $('.notifications_container a[data-toggle="popover"]').popover({
+        trigger: 'focus',
+        template: template,
+        placement: 'bottom',
+        title: 'empty-on-purpose'
+    })
+    .on('inserted.bs.popover', function() {
+        $('body').trigger('notification_open_list');
+    });
+}
 
 $(function(){
-    $('.notifications_container')
-    .on('show.bs.dropdown', function() {
-        $(this).trigger('notification_open_list');
-    })
-    .on('notification_open_list', function() {
+    $('body').on('notification_open_list', function() {
         update_list(this);
     })
 
@@ -129,22 +147,26 @@ $(function(){
     }).trigger('notification_count_updated');
 
 
-    $('.live_notify_list').on('refresh_notify_list', function() {
+    $('body').on('refresh_notify_list', function() {
         // Bloody js
-        $(this).find('li.dropdown-item').on('click', function(e) {
+        var list = $('.live_notify_list');
+        list.find('li.item').on('click', function(e) {
             e.stopPropagation();
+        })
+        .filter('[href]').on('click', function(e) {
+            window.location.href = $(this).attr('href')
         });
-        $(this).find('[data-toggle="tooltip"]').tooltip({
+        list.find('[data-toggle="tooltip"]').tooltip({
             animation: false,
             delay: {"show": 500, "hide": 100},
             fallbackPlacement: 'clockwise',
             placement: 'bottom'
         });
-        $(this).find('.actions a.mark-toggle').on('click', function(e) {
+        list.find('.actions a.mark-toggle').on('click', function(e) {
             e.stopPropagation();
             mark_toggle(this);
         });
     });
 
-    // initiate_popover();
+    initiate_popover();
 });

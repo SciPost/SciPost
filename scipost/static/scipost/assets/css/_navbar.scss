@@ -94,6 +94,10 @@
 .navbar-counter {
     position: relative;
 
+    .nav-link.notifications_container:hover {
+        background-color: #fff;
+    }
+
     a.dropdown-toggle {
         min-width: 45px;
     }
@@ -138,9 +142,13 @@
     }
 
     .fa-inbox {
-        font-size: 150%;
         vertical-align: bottom;
         margin: 0 0.25rem;
+        min-width: 17px;
+
+        &:before {
+            font-size: 150%;
+        }
     }
 
     &.show .fa-inbox {

@@ -28,9 +28,9 @@
 
       {% if user.is_authenticated %}
         {% if request.user|is_in_group:'Testers' %}
-          <li class="nav-item highlighted dropdown navbar-counter">
+          <li class="nav-item highlighted navbar-counter">
             <div class="nav-link notifications_container">
-                <a href="javascript:;" class="d-inline-block ml-1 dropdown-toggle badge_link" id="notifications_badge" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <a href="javascript:;" class="d-inline-block ml-1 badge_link" id="notifications_badge" data-toggle="popover">
                     <span class="user">{% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</span>
                     <i class="fa fa-inbox" aria-hidden="true"></i>
                     {% live_notify_badge classes="badge badge-pill badge-primary" %}
