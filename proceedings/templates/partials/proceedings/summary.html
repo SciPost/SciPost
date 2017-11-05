@@ -5,7 +5,7 @@
     </tr>
     <tr>
         <th>Description</th>
-        <td>{{ proceedings.event_description|default:'-'|linebreaksbr }}</td>
+        <td>{{ proceedings.event_description|safe|default:'-'|linebreaksbr }}</td>
     </tr>
     {% if proceedings.event_start_date %}
         <tr>

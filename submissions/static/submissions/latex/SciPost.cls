@@ -1,8 +1,8 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{SciPost} % SciPost Latex Template v1a (2016/06/14)
+\ProvidesClass{SciPost} % SciPost Latex Template v1e (2017/10/31)
 
 
-\LoadClass[11pt]{article}
+\LoadClass[11pt,a4paper]{article}
 
 
 % Layout
@@ -28,7 +28,8 @@
 \RequirePackage{doi}
 
 % Math formulas and symbols
-\RequirePackage{amsmath,amssymb}
+%\RequirePackage{amsmath,amssymb} % Redundant (clashes with mathdesign)
+\RequirePackage{amsmath}
 
 % Hyperrefs
 \RequirePackage{hyperref}
@@ -50,10 +51,34 @@
 \RequirePackage{xcolor}
 \definecolor{scipostdeepblue}{HTML}{002B49}
 
+\RequirePackage{graphicx}
 
+\RequirePackage{cite}
+
+%% Patch lineno when used with amsmath
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+\expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+\expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+\renewenvironment{#1}%
+{\linenomath\csname old#1\endcsname}%
+{\csname oldend#1\endcsname\endlinenomath}}%
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+\patchAmsMathEnvironmentForLineno{#1}%
+\patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+\patchBothAmsMathEnvironmentsForLineno{equation}%
+\patchBothAmsMathEnvironmentsForLineno{align}%
+\patchBothAmsMathEnvironmentsForLineno{flalign}%
+\patchBothAmsMathEnvironmentsForLineno{alignat}%
+\patchBothAmsMathEnvironmentsForLineno{gather}%
+\patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+%% End patch lineno
+
+\DeclareOption{Phys}{
 \lhead{
-%  \colorbox{scipostdeepblue}{\strut \bf \color{white} ~Submission }
   \colorbox{scipostdeepblue}{\strut \bf \color{white} ~SciPost Physics }
+}
 }
 
 \DeclareOption{LectureNotes}{
@@ -63,8 +88,16 @@
 }
 \ProcessOptions\relax
 
-\rhead{
-  \colorbox{scipostdeepblue}{\strut \bf \color{white} ~Submission }
+\DeclareOption{Proceedings}{
+  \lhead{
+    \colorbox{scipostdeepblue}{\strut \bf \color{white} ~SciPost Physics Proceedings }
+  }
 }
+\ProcessOptions\relax
 
-
+\DeclareOption{submission}{
+  \rhead{
+    \colorbox{scipostdeepblue}{\strut \bf \color{white} ~Submission }
+  }
+ }
+\ProcessOptions\relax

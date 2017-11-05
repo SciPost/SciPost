@@ -995,7 +995,7 @@ def cancel_ref_invitation(request, arxiv_identifier_w_vn_nr, invitation_id):
     """
     try:
         submissions = Submission.objects.filter_for_eic(request.user)
-        invitation = submissions.referee_invitations.get(pk=invitation_id)
+        invitation = RefereeInvitation.objects.get(submission__in=submissions, pk=invitation_id)
     except RefereeInvitation.DoesNotExist:
         raise Http404
 

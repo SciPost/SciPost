@@ -1,6 +1,6 @@
 % =========================================================================
 % SciPost LaTeX template
-% Version 1a (2016/06/14)
+% Version 1e (2017-10-31)
 %
 % Submissions to SciPost Journals should make use of this template.
 %
@@ -11,16 +11,18 @@
 % =========================================================================
 
 
-% TODO: uncommente ONE of the class declarations below
+% TODO: uncomment ONE of the class declarations below
 % If you are submitting a paper to SciPost Physics: uncomment next line
-\documentclass{SciPost}
+\documentclass[submission, Phys]{SciPost}
 % If you are submitting a paper to SciPost Physics Lecture Notes: uncomment next line
-%\documentclass[LectureNotes]{SciPost}
+%\documentclass[submission, LectureNotes]{SciPost}
+% If you are submitting a paper to SciPost Physics Proceedings: uncomment next line
+%\documentclass[submission, Proceedings]{SciPost}
 
 
 \begin{document}
 
-% TODO: write your article's title here. 
+% TODO: write your article's title here.
 % The article title is centered, Large boldface, and should fit in two lines
 \begin{center}{\Large \textbf{
 Article Title, as descriptive as possible, ideally fitting in two lines (approximately 150 characters) or less
@@ -28,19 +30,21 @@ Article Title, as descriptive as possible, ideally fitting in two lines (approxi
 
 % TODO: write the author list here. Use initials + surname format.
 % Separate subsequent authors by a comma, omit comma at the end of the list.
-% Mark the corresponding author with a superscript *. 
+% Mark the corresponding author with a superscript *.
 \begin{center}
-Initials1 Surname1\textsuperscript{1}, 
-A.B. Cee\textsuperscript{2}, 
-Initials3 Surname3\textsuperscript{3*}
+D. E. Faa\textsuperscript{1},
+A. B. Cee\textsuperscript{2},
+G. K. See\textsuperscript{3*}
 \end{center}
 
-% TODO: write all affiliations here. 
+% TODO: write all affiliations here.
 % Format: institute, city, country
 \begin{center}
 {\bf 1} Affiliation1
 \\
 {\bf 2} Affiliation2
+\\
+{\bf 3} Affiliation2
 \\
 % TODO: provide email address of corresponding author
 * CorrespondingAuthor@email.address
@@ -54,10 +58,10 @@ Initials3 Surname3\textsuperscript{3*}
 %\linenumbers
 
 \section*{Abstract}
-{\bf 
+{\bf
 % TODO: write your abstract here.
 The abstract is in boldface, and should fit in 8 lines.
-It should be written in a clear and accessible style, emphasizing the context, the problem(s) studied, the methods used, the results obtained, the conclusions reached, and the outlook. You can add a table contents, recommended if your paper is more than 6 pages long. 
+It should be written in a clear and accessible style, emphasizing the context, the problem(s) studied, the methods used, the results obtained, the conclusions reached, and the outlook. You can add a table contents, recommended if your paper is more than 6 pages long.
 }
 
 
@@ -80,14 +84,14 @@ The bulk of the paper should be clearly divided into sections with short descrip
 
 
 \section{A Section}
-Use sections to structure your article's presentation. 
+Use sections to structure your article's presentation.
 
 Equations should be centered; multi-line equations should be aligned.
 \begin{equation}
 H = \sum_{j=1}^N \left[J (S^x_j S^x_{j+1} + S^y_j S^y_{j+1} + \Delta S^z_j S^z_{j+1}) - h S^z_j \right].
 \end{equation}
 
-In the list of references, cited papers \cite{1931_Bethe_ZP_71} should include authors, title, journal reference (journal name, volume number (in bold), start page) and most importantly DOI link. For a preprint \cite{arXiv:1108.2700}, please include authors, title (please ensure proper capitalization) and arXiv link. If you use BiBTeX with our style file, the right format will be automatically implemented.
+In the list of references, cited papers \cite{1931_Bethe_ZP_71} should include authors, title, journal reference (journal name, volume number (in bold), start page) and most importantly a DOI link. For a preprint \cite{arXiv:1108.2700}, please include authors, title (please ensure proper capitalization) and arXiv link. If you use BiBTeX with our style file, the right format will be automatically implemented.
 
 All equations and references should be hyperlinked to ensure ease of navigation. This also holds for [sub]sections: readers should be able to easily jump to Section \ref{sec:another}.
 
@@ -105,7 +109,7 @@ Figures should only occupy the stricly necessary space, in any case individually
 You must include a conclusion.
 
 \section*{Acknowledgements}
-Acknowledgements should follow immediately after the conclusion. 
+Acknowledgements should follow immediately after the conclusion.
 
 % TODO: include author contributions
 \paragraph{Author contributions}
@@ -113,7 +117,7 @@ This is optional. If desired, contributions should be succinctly described in a 
 
 % TODO: include funding information
 \paragraph{Funding information}
-Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.
+Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials. Correctly-provided data will be linked to funders listed in the \href{https://www.crossref.org/services/funder-registry/}{\sf Fundref registry}.
 
 
 \begin{appendix}
@@ -122,7 +126,7 @@ Authors are required to provide funding information, including relevant agencies
 Add material which is better left outside the main text in a series of Appendices labeled by capital letters.
 
 \section{About references}
-Your references should start with the comma-separated author list (initials + last name), the publication title in italics, the journal reference with volume in bold, start page number, publication year in parenthesis, completed by the DOI link (linking must be implemented before publication). If using BiBTeX, please use the style files provided  on \url{https://scipost.org/submissions/author_guidelines}. If you are using our \LaTeX template, simply add 
+Your references should start with the comma-separated author list (initials + last name), the publication title in italics, the journal reference with volume in bold, start page number, publication year in parenthesis, completed by the DOI link (linking must be implemented before publication). If using BiBTeX, please use the style files provided  on \url{https://scipost.org/submissions/author_guidelines}. If you are using our \LaTeX template, simply add
 \begin{verbatim}
 \bibliography{your_bibtex_file}
 \end{verbatim}
@@ -134,7 +138,7 @@ in order to simplify the production of your paper.
 \end{appendix}
 
 
-% TODO: 
+% TODO:
 % Provide your bibliography here. You have two options:
 
 % FIRST OPTION - write your entries here directly, following the example below, including Author(s), Title, Journal Ref. with year in parentheses at the end, followed by the DOI number.
