@@ -134,6 +134,10 @@ function initiate_popover() {
     })
     .on('inserted.bs.popover', function() {
         $('body').trigger('notification_open_list');
+    })
+    .on('hide.bs.popover', function() {
+        // Bug: force removal of tooltip
+        $('body > .tooltip').remove();
     });
 }
 
