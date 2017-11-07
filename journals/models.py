@@ -166,7 +166,7 @@ class Publication(models.Model):
     grants = models.ManyToManyField('funders.Grant', blank=True, related_name="publications")
     funders_generic = models.ManyToManyField(
         'funders.Funder', blank=True, related_name="publications")  # not linked to a grant
-    institutes = models.ManyToManyField('affiliations.Institute',
+    institutes = models.ManyToManyField('affiliations.Institution',
                                         blank=True, related_name="publications")
 
     # Metadata

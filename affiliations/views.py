@@ -8,18 +8,18 @@ from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404
 
 from .forms import InstituteMergeForm
-from .models import Institute
+from .models import Institution
 
 
 @method_decorator(permission_required('scipost.can_manage_affiliations'), name='dispatch')
 class InstituteListView(ListView):
-    model = Institute
+    model = Institution
     paginate_by = 100
 
 
 @method_decorator(permission_required('scipost.can_manage_affiliations'), name='dispatch')
 class InstituteUpdateView(UpdateView):
-    model = Institute
+    model = Institution
     pk_url_kwarg = 'institute_id'
     fields = [
         'name',
@@ -42,7 +42,7 @@ def merge_institutes(request, institute_id):
     """
     Merge Affiliation (affiliation_id) into the Affliation chosen in the form.
     """
-    institute = get_object_or_404(Institute, id=institute_id)
+    institute = get_object_or_404(Institution, id=institute_id)
     form = InstituteMergeForm(request.POST or None, instance=institute)
     if form.is_valid():
         form.save()

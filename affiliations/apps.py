@@ -10,4 +10,4 @@ class AffiliationsConfig(AppConfig):
 
         from . import models, signals
         post_save.connect(signals.notify_new_affiliation,
-                          sender=models.Institute)
+                          sender=models.Institution)

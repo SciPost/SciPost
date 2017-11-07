@@ -7,7 +7,7 @@ from .constants import INSTITUTE_TYPES, TYPE_UNIVERSITY
 from .managers import AffiliationQuerySet
 
 
-class Institute(models.Model):
+class Institution(models.Model):
     """
     Any (scientific) Institute in the world should ideally have a SciPost registration.
     """
@@ -32,7 +32,7 @@ class Affiliation(models.Model):
     An Affiliation is a (time dependent) connection between an Institute and a Contributor.
     This could thus be changed over time and history will be preserved.
     """
-    institute = models.ForeignKey('affiliations.Institute')
+    institute = models.ForeignKey('affiliations.Institution')
     contributor = models.ForeignKey('scipost.Contributor')
     begin_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)

@@ -8,7 +8,7 @@ from django_countries.widgets import CountrySelectWidget
 
 from common.widgets import DateWidget
 
-from .models import Affiliation, Institute
+from .models import Affiliation, Institution
 
 
 class AffiliationForm(forms.ModelForm):
@@ -58,7 +58,7 @@ class AffiliationForm(forms.ModelForm):
                 institute.country = self.cleaned_data['country']
                 institute.save()
             else:
-                institute, __ = Institute.objects.get_or_create(
+                institute, __ = Institution.objects.get_or_create(
                     name=self.cleaned_data['name'],
                     country=self.cleaned_data['country'])
                 affiliation.institute = institute
@@ -97,15 +97,15 @@ AffiliationsFormset = modelformset_factory(Affiliation, form=AffiliationForm, ca
 
 
 class InstituteMergeForm(forms.ModelForm):
-    institute = forms.ModelChoiceField(queryset=Institute.objects.none())
+    institute = forms.ModelChoiceField(queryset=Institution.objects.none())
 
     class Meta:
-        model = Institute
+        model = Institution
         fields = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['institute'].queryset = Institute.objects.exclude(id=self.instance.id)
+        self.fields['institute'].queryset = Institution.objects.exclude(id=self.instance.id)
 
     def save(self, commit=True):
         old_institute = self.cleaned_data['institute']
