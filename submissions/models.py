@@ -67,6 +67,8 @@ class Submission(models.Model):
                                        blank=True, null=True, default=None)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                      related_name='submitted_submissions')
+    voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
+                                            related_name='voting_pool')
 
     # Replace this by foreignkey?
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
