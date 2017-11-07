@@ -9,8 +9,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
-from django_countries.fields import CountryField
-
 from .behaviors import TimeStampedModel
 from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        subject_areas_dict, CONTRIBUTOR_STATUS, TITLE_CHOICES,\

@@ -1,4 +1,4 @@
 TYPE_UNIVERSITY = 'university'
-INSTITUTE_TYPES = (
+INSTITUTION_TYPES = (
     (TYPE_UNIVERSITY, 'University'),
  )

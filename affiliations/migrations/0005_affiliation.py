@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('begin_date', models.DateField(blank=True, null=True)),
                 ('end_date', models.DateField(blank=True, null=True)),
                 ('contributor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='affiliations', to='scipost.Contributor')),
-                ('institute', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='affiliations', to='affiliations.Institute')),
+                ('institute', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='affiliations', to='affiliations.Institution')),
             ],
             options={
                 'default_related_name': 'affiliations',

@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='publication',
             name='institutes',
-            field=models.ManyToManyField(blank=True, related_name='publications', to='affiliations.Institute'),
+            field=models.ManyToManyField(blank=True, related_name='publications', to='affiliations.Institution'),
         ),
     ]

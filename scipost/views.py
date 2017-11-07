@@ -892,12 +892,12 @@ def _update_personal_data_contributor(request):
     contributor = Contributor.objects.get(user=request.user)
     user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
     cont_form = UpdatePersonalDataForm(request.POST or None, instance=contributor)
-    institute_formset = AffiliationsFormset(request.POST or None, contributor=contributor)
-    if user_form.is_valid() and cont_form.is_valid() and institute_formset.is_valid():
+    institution_formset = AffiliationsFormset(request.POST or None, contributor=contributor)
+    if user_form.is_valid() and cont_form.is_valid() and institution_formset.is_valid():
         user_form.save()
         cont_form.save()
         cont_form.sync_lists()
-        institute_formset.save()
+        institution_formset.save()
         if 'orcid_id' in cont_form.changed_data:
             cont_form.propagate_orcid()
         messages.success(request, 'Your personal data has been updated.')
@@ -909,7 +909,7 @@ def _update_personal_data_contributor(request):
     context = {
         'user_form': user_form,
         'cont_form': cont_form,
-        'institute_formset': institute_formset,
+        'institution_formset': institution_formset,
     }
     return render(request, 'scipost/update_personal_data.html', context)
 

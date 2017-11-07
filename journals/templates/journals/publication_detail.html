@@ -90,10 +90,10 @@
 
             {% if is_edcol_admin %}
                 {# This function is not available for public yet! #}
-                <h3>Institutes related to this Publication: <small>(adminstrator only)</small></h3>
+                <h3>Institutions related to this Publication: <small>(adminstrator only)</small></h3>
                 <ul>
-                    {% for institute in publication.institutes.all %}
-                        <li>{{ institute }}</li>
+                    {% for institution in publication.institutions.all %}
+                        <li>{{ institution }}</li>
                     {% endfor %}
                 </ul>
             {% endif %}

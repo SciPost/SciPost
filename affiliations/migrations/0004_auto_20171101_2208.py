@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(
-            name='institute',
+            name='institution',
             options={'ordering': ['country']},
         ),
     ]

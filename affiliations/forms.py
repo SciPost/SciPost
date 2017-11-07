@@ -35,40 +35,40 @@ class AffiliationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.contributor = kwargs.pop('contributor')
         affiliation = kwargs.get('instance')
-        if hasattr(affiliation, 'institute'):
-            institute = affiliation.institute
+        if hasattr(affiliation, 'institution'):
+            institution = affiliation.institution
             kwargs['initial'] = {
-                'name': institute.name,
-                'country': institute.country
+                'name': institution.name,
+                'country': institution.country
             }
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
         """
-        Save the Affiliation and Institute if neccessary.
+        Save the Affiliation and Institution if neccessary.
         """
         affiliation = super().save(commit=False)
         affiliation.contributor = self.contributor
 
         if commit:
-            if hasattr(affiliation, 'institute') and affiliation.institute.affiliations.count() == 1:
-                # Just update if there are no other people using this Institute
-                institute = affiliation.institute
-                institute.name = self.cleaned_data['name']
-                institute.country = self.cleaned_data['country']
-                institute.save()
+            if hasattr(affiliation, 'institution') and affiliation.institution.affiliations.count() == 1:
+                # Just update if there are no other people using this Institution
+                institution = affiliation.institution
+                institution.name = self.cleaned_data['name']
+                institution.country = self.cleaned_data['country']
+                institution.save()
             else:
-                institute, __ = Institution.objects.get_or_create(
+                institution, __ = Institution.objects.get_or_create(
                     name=self.cleaned_data['name'],
                     country=self.cleaned_data['country'])
-                affiliation.institute = institute
+                affiliation.institution = institution
             affiliation.save()
         return affiliation
 
 
 class AffiliationsFormSet(BaseModelFormSet):
     """
-    This formset helps update the Institutes for the Contributor at specific time periods.
+    This formset helps update the Institutions for the Contributor at specific time periods.
     """
     def __init__(self, *args, **kwargs):
         self.contributor = kwargs.pop('contributor')
@@ -96,8 +96,8 @@ AffiliationsFormset = modelformset_factory(Affiliation, form=AffiliationForm, ca
                                            formset=AffiliationsFormSet, extra=0)
 
 
-class InstituteMergeForm(forms.ModelForm):
-    institute = forms.ModelChoiceField(queryset=Institution.objects.none())
+class InstitutionMergeForm(forms.ModelForm):
+    institution = forms.ModelChoiceField(queryset=Institution.objects.none())
 
     class Meta:
         model = Institution
@@ -105,11 +105,12 @@ class InstituteMergeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['institute'].queryset = Institution.objects.exclude(id=self.instance.id)
+        self.fields['institution'].queryset = Institution.objects.exclude(id=self.instance.id)
 
     def save(self, commit=True):
-        old_institute = self.cleaned_data['institute']
+        old_institution = self.cleaned_data['institution']
         if commit:
-            Affiliation.objects.filter(institute=old_institute).update(institute=self.instance)
-            old_institute.delete()
+            Affiliation.objects.filter(
+                institution=old_institution).update(institution=self.instance)
+            old_institution.delete()
         return self.instance
