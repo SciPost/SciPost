@@ -24,7 +24,7 @@ from .decorators import has_contributor
 from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
-from affiliations.models import Affiliation, Institute
+from affiliations.models import Affiliation, Institution
 from common.forms import MonthYearWidget
 from partners.decorators import has_contact
 
@@ -116,7 +116,7 @@ class RegistrationForm(forms.Form):
             'password': self.cleaned_data['password'],
             'is_active': False
         })
-        institute, __ = Institute.objects.get_or_create(
+        institution, __ = Institution.objects.get_or_create(
             country=self.cleaned_data['country_of_employment'],
             name=self.cleaned_data['affiliation'],
         )
@@ -130,7 +130,7 @@ class RegistrationForm(forms.Form):
         })
         affiliation, __ = Affiliation.objects.get_or_create(
             contributor=contributor,
-            institute=institute,
+            institution=institution,
         )
 
         if contributor.activation_key == '':

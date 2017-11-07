@@ -254,10 +254,10 @@ def validate_publication(request):
         publication.authors_claims.add(*submission.authors_claims.all())
         publication.authors_false_claims.add(*submission.authors_false_claims.all())
 
-        # Add Institutes to the publication
+        # Add Institutions to the publication
         for author in publication.authors.all():
-            for institute in author.affiliations.active():
-                publication.institutes.add(institute)
+            for institution in author.affiliations.active():
+                publication.institutions.add(institution)
 
         # Save the beast
         publication.save()

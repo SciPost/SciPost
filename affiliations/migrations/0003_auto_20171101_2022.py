@@ -5,11 +5,11 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 
-def fill_institutes(apps, schema_editor):
+def fill_institutions(apps, schema_editor):
     Contributor = apps.get_model('scipost', 'Contributor')
-    Institute = apps.get_model('affiliations', 'Institute')
+    Institution = apps.get_model('affiliations', 'Institution')
     for contributor in Contributor.objects.all():
-        affiliation, __ = Institute.objects.get_or_create(
+        affiliation, __ = Institution.objects.get_or_create(
             name=contributor.affiliation, country=contributor.country_of_employment)
         contributor._affiliation = affiliation
         contributor.save()
@@ -27,5 +27,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(fill_institutes, return_none),
+        migrations.RunPython(fill_institutions, return_none),
     ]

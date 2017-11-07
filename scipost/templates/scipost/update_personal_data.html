@@ -55,15 +55,15 @@
             	{{ cont_form|bootstrap }}
             {% endif %}
         </div>
-        {% if institute_formset %}
+        {% if institution_formset %}
             <div class="col-lg-6">
-                <div id="institutes" class="formset-group">
-                    <h1 class="mb-3">Your Institutes</h1>
-                    {{ institute_formset.media }}
-                    {{ institute_formset|bootstrap }}
+                <div id="institutions" class="formset-group">
+                    <h1 class="mb-3">Your Institutions</h1>
+                    {{ institution_formset.media }}
+                    {{ institution_formset|bootstrap }}
                 </div>
                 <div class="formset-form form-empty" style="display: none;">
-                    {{ institute_formset.empty_form|bootstrap }}
+                    {{ institution_formset.empty_form|bootstrap }}
                 </div>
             </div>
         {% endif %}
@@ -76,9 +76,9 @@
 
 <script type="text/javascript">
     $(function() {
-        $('form #institutes > .formset-form').formset({
-            addText: 'add new Institute',
-            deleteText: 'remove Institute',
+        $('form #institutions > .formset-form').formset({
+            addText: 'add new Institution',
+            deleteText: 'remove Institution',
             formTemplate: 'form .form-empty',
         })
     })
