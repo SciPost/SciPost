@@ -14,7 +14,7 @@ def fill_publications(apps, schema_editor):
     for publication in Publication.objects.all():
         for author in publication.authors.all():
             for affiliation in author.affiliations.all():
-                publication.institutes.add(affiliation.institute)
+                publication.institutes.add(affiliation.institution)
 
 
 def return_none(*args, **kwargs):
@@ -25,6 +25,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('journals', '0050_publication_institutes'),
+        ('affiliations', '0008_auto_20171107_1354'),
     ]
 
     operations = [
