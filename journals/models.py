@@ -123,20 +123,28 @@ class Issue(models.Model):
 
 
 class Publication(models.Model):
+    """
+    A Publication is an object directly related to an accepted Submission. It contains metadata,
+    the actual publication file, author data, etc. etc.
+    """
+    # Publication data
     accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE)
     in_issue = models.ForeignKey(Issue, on_delete=models.CASCADE)
     paper_nr = models.PositiveSmallIntegerField()
+
+    # Core fields
+    title = models.CharField(max_length=300)
+    author_list = models.CharField(max_length=1000, verbose_name="author list")
+    abstract = models.TextField()
+    pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    secondary_areas = ChoiceArrayField(models.CharField(max_length=10,
-                                                        choices=SCIPOST_SUBJECT_AREAS),
-                                       blank=True, null=True)
-    title = models.CharField(max_length=300)
-    author_list = models.CharField(max_length=1000, verbose_name="author list")
+    secondary_areas = ChoiceArrayField(
+        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), blank=True, null=True)
 
-    # Authors which have been mapped to contributors:
+    # Authors
     authors = models.ManyToManyField('scipost.Contributor', blank=True,
                                      related_name='publications')
     authors_unregistered = models.ManyToManyField(UnregisteredAuthor, blank=True,
@@ -151,26 +159,33 @@ class Publication(models.Model):
                                             related_name='claimed_publications')
     authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,
                                                   related_name='false_claimed_publications')
-    abstract = models.TextField()
-    pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
+
     cc_license = models.CharField(max_length=32, choices=CC_LICENSES, default=CCBY4)
+
+    # Funders
     grants = models.ManyToManyField('funders.Grant', blank=True, related_name="publications")
-    funders_generic = models.ManyToManyField('funders.Funder', blank=True,
-                                             related_name="publications")  # not linked to a grant
+    funders_generic = models.ManyToManyField(
+        'funders.Funder', blank=True, related_name="publications")  # not linked to a grant
+    institutions = models.ManyToManyField('affiliations.Institution',
+                                          blank=True, related_name="publications")
+
+    # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
     metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
-    latest_metadata_update = models.DateTimeField(blank=True, null=True)
     metadata_DOAJ = JSONField(default={}, blank=True, null=True)
-    BiBTeX_entry = models.TextField(blank=True, null=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_publication_validator])
+    BiBTeX_entry = models.TextField(blank=True, null=True)
     doideposit_needs_updating = models.BooleanField(default=False)
+    citedby = JSONField(default={}, blank=True, null=True)
+
+    # Date fields
     submission_date = models.DateField(verbose_name='submission date')
     acceptance_date = models.DateField(verbose_name='acceptance date')
     publication_date = models.DateField(verbose_name='publication date')
     latest_citedby_update = models.DateTimeField(null=True, blank=True)
+    latest_metadata_update = models.DateTimeField(blank=True, null=True)
     latest_activity = models.DateTimeField(default=timezone.now)
-    citedby = JSONField(default={}, blank=True, null=True)
 
     objects = PublicationManager()
 

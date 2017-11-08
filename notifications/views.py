@@ -26,22 +26,6 @@ def forward(request, slug):
 
 @login_required
 @user_passes_test(is_test_user)
-def mark_all_as_read(request):
-    request.user.notifications.mark_all_as_read()
-
-    _next = request.GET.get('next')
-
-    if _next:
-        return redirect(_next)
-
-    if request.GET.get('json'):
-        return JsonResponse({'unread': 0})
-
-    return redirect('notifications:all')
-
-
-@login_required
-@user_passes_test(is_test_user)
 def mark_toggle(request, slug=None):
     id = slug2id(slug)
 
@@ -54,22 +38,6 @@ def mark_toggle(request, slug=None):
 
     if request.GET.get('json'):
         return JsonResponse({'unread': notification.unread})
-
-    return redirect('notifications:all')
-
-
-@login_required
-@user_passes_test(is_test_user)
-def delete(request, slug=None):
-    id = slug2id(slug)
-
-    notification = get_object_or_404(Notification, recipient=request.user, id=id)
-    notification.delete()
-
-    _next = request.GET.get('next')
-
-    if _next:
-        return redirect(_next)
 
     return redirect('notifications:all')
 
@@ -101,6 +69,7 @@ def live_notification_list(request):
 
     for n in request.user.notifications.all()[:num_to_fetch]:
         struct = model_to_dict(n)
+        struct['unread'] = struct['pseudo_unread']
         struct['slug'] = id2slug(n.id)
         if n.actor:
             if isinstance(n.actor, User):
@@ -119,8 +88,11 @@ def live_notification_list(request):
         struct['timesince'] = n.timesince()
 
         list.append(struct)
-        if request.GET.get('mark_as_read'):
-            n.mark_as_read()
+
+    if request.GET.get('mark_as_read'):
+        # Mark all as read
+        request.user.notifications.mark_all_as_read()
+
     data = {
         'unread_count': request.user.notifications.unread().count(),
         'list': list

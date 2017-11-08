@@ -1,13 +1,21 @@
-<table>
-    <tr><td>Title: </td><td>&nbsp;</td><td>{{ contributor.get_title_display }}</td></tr>
-    <tr><td>First name: </td><td>&nbsp;</td><td>{{ contributor.user.first_name }}</td></tr>
-    <tr><td>Last name: </td><td>&nbsp;</td><td>{{ contributor.user.last_name }}</td></tr>
-    <tr><td>Email: </td><td>&nbsp;</td><td>{{ contributor.user.email }}</td></tr>
-    <tr><td>ORCID id: </td><td>&nbsp;</td><td>{{ contributor.orcid_id }}</td></tr>
-    <tr><td>Country of employment: </td><td>&nbsp;</td>
-    <td>{{ contributor.country_of_employment.name }}</td></tr>
-    <tr><td>Affiliation: </td><td>&nbsp;</td><td>{{ contributor.affiliation }}</td></tr>
-    <tr><td>Address: </td><td>&nbsp;</td><td>{{ contributor.address }}</td></tr>
-    <tr><td>Personal web page: </td><td>&nbsp;</td><td>{{ contributor.personalwebpage }}</td></tr>
-    <tr><td>Accept SciPost emails: </td><td>&nbsp;</td><td>{{ contributor.accepts_SciPost_emails }}</td></tr>
+<table class="contributor-info">
+    <tr><td>Title:</td><td>{{ contributor.get_title_display }}</td></tr>
+    <tr><td>First name:</td><td>{{ contributor.user.first_name }}</td></tr>
+    <tr><td>Last name: </td><td>{{ contributor.user.last_name }}</td></tr>
+    <tr><td>Email: </td><td>{{ contributor.user.email }}</td></tr>
+    <tr><td>ORCID id: </td><td>{{ contributor.orcid_id }}</td></tr>
+    <tr>
+        <td>Affiliation(s):</td>
+        <td>
+            {% for affiliation in contributor.affiliations.active %}
+                {% if not forloop.first %}
+                    <br>
+                {% endif %}
+                {{ affiliation.institution }}
+            {% endfor %}
+        </td>
+    </tr>
+    <tr><td>Address: </td><td>{{ contributor.address }}</td></tr>
+    <tr><td>Personal web page: </td><td>{{ contributor.personalwebpage }}</td></tr>
+    <tr><td>Accept SciPost emails: </td><td>{{ contributor.accepts_SciPost_emails }}</td></tr>
 </table>

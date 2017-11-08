@@ -24,6 +24,7 @@ from .decorators import has_contributor
 from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
+from affiliations.models import Affiliation, Institution
 from common.forms import MonthYearWidget
 from partners.decorators import has_contact
 
@@ -115,16 +116,22 @@ class RegistrationForm(forms.Form):
             'password': self.cleaned_data['password'],
             'is_active': False
         })
+        institution, __ = Institution.objects.get_or_create(
+            country=self.cleaned_data['country_of_employment'],
+            name=self.cleaned_data['affiliation'],
+        )
         contributor, new = Contributor.objects.get_or_create(**{
             'user': user,
             'invitation_key': self.cleaned_data.get('invitation_key', ''),
             'title': self.cleaned_data['title'],
             'orcid_id': self.cleaned_data['orcid_id'],
-            'country_of_employment': self.cleaned_data['country_of_employment'],
             'address': self.cleaned_data['address'],
-            'affiliation': self.cleaned_data['affiliation'],
             'personalwebpage': self.cleaned_data['personalwebpage'],
         })
+        affiliation, __ = Affiliation.objects.get_or_create(
+            contributor=contributor,
+            institution=institution,
+        )
 
         if contributor.activation_key == '':
             # Seems redundant?
@@ -259,37 +266,20 @@ class UpdateUserDataForm(forms.ModelForm):
 class UpdatePersonalDataForm(forms.ModelForm):
     class Meta:
         model = Contributor
-        fields = ['title', 'discipline', 'expertises', 'orcid_id', 'country_of_employment',
-                  'affiliation', 'address', 'personalwebpage'
-                  ]
-        widgets = {'country_of_employment': CountrySelectWidget()}
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['mail_subscription'] = forms.ModelMultipleChoiceField(
-    #             queryset=MailchimpList.objects.open_to_subscribe(kwargs['instance']).distinct(),
-    #             widget=forms.CheckboxSelectMultiple(),
-    #             label='Subscribe to the following mailing lists:',
-    #             required=False)
-    #     self.fields['mailing_lists'] = forms.ModelMultipleChoiceField(
-    #             queryset=MailchimpList.objects.open_to_subscribe(kwargs['instance']).distinct(),
-    #             widget=forms.CheckboxSelectMultiple(),
-    #             label='Subscribe to the following mailing lists:',
-    #             required=False)
+        fields = [
+            'title',
+            'discipline',
+            'expertises',
+            'orcid_id',
+            'address',
+            'personalwebpage'
+        ]
 
     def sync_lists(self):
+        """
+        Pseudo U/S; do not remove
+        """
         return
-        # contributor = self.instance
-        # original_lists = list(self.fields['mailing_lists'].queryset)
-        #
-        # # Subscribe to lists
-        # for _list in self.cleaned_data['mailing_lists']:
-        #     _list.update_membership([contributor])
-        #     original_lists.remove(_list)
-        #
-        # # Unsubscribe from the leftovers
-        # for _list in original_lists:
-        #     _list.update_membership([contributor], status='unsubscribed')
 
     def propagate_orcid(self):
         """
@@ -478,12 +468,6 @@ class SearchForm(HayStackSearchForm):
     # The date filters doesn't function well...
     start = forms.DateField(widget=MonthYearWidget(), required=False)  # Month
     end = forms.DateField(widget=MonthYearWidget(end=True), required=False)  # Month
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     models = self.fields['models'].choices
-    #     models = filter(lambda x: x[0] != 'sphinxdoc.document', models)
-    #     self.fields['models'].choices = models
 
     def search(self):
         sqs = super().search()

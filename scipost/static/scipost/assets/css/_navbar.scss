@@ -4,6 +4,9 @@
  */
 .navbar {
     margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: scroll;
 
     &.main-nav {
         border-bottom: 1px solid #ddd;
@@ -25,10 +28,6 @@
         }
     }
 
-    .navbar-nav {
-        flex-direction: row;
-    }
-
     .active > .nav-link {
         border-color: $scipost-darkblue;
         box-shadow: 0 1px 0 0 #ccc;
@@ -38,8 +37,26 @@
         background-color: rgba(255, 255, 255, 0.6);
     }
 
-    .nav-item {
-        margin-right: 0.5rem;
+    .navbar-nav {
+        display: flex;
+        flex-direction: row;
+    }
+}
+
+@media (min-width: 768px) {
+    .navbar {
+
+        .navbar-nav {
+            margin-right: auto;
+        }
+
+        .nav-item {
+            margin-right: 0.5rem;
+        }
+
+        [data-toggle="collapse"] {
+            display: none;
+        }
     }
 }
 
@@ -77,6 +94,10 @@
 .navbar-counter {
     position: relative;
 
+    .nav-link.notifications_container:hover {
+        background-color: #fff;
+    }
+
     a.dropdown-toggle {
         min-width: 45px;
     }
@@ -92,47 +113,59 @@
             content: "\f0f3";
         }
     }
+}
 
-    .badge {
-        vertical-align: top;
-        margin-left: -15px;
-        margin-top: -5px;
-        height: 16px;
-        min-width: 16px;
-        line-height: 10px;
-        display: none;
-        padding: 0.25em;
-        border-radius: 99px;
-        border: 1px solid #f9f9f9;
-    }
+.live_notify_badge {
+    vertical-align: top;
+    margin-left: -15px;
+    margin-top: -5px;
+    height: 16px;
+    min-width: 16px;
+    line-height: 10px;
+    display: none;
+    padding: 0.25em;
+    border-radius: 99px;
+    border: 1px solid #f9f9f9;
 }
 
 .notifications_container {
-    color: $scipost-lightestblue;
+    .badge_link {
+        color: $scipost-lightestblue;
+
+        // &::after {
+        //     content: none;
+        // }
+    }
 
     .user {
         color: $scipost-darkblue;
     }
 
-    .fa {
-        font-size: 150%;
+    .fa-inbox {
         vertical-align: bottom;
         margin: 0 0.25rem;
+        min-width: 17px;
+
+        &:before {
+            font-size: 150%;
+        }
+    }
+
+    &.show .fa-inbox {
+        color: $scipost-darkblue;
     }
 
     &.positive_count {
-        color: $scipost-orange;
+        .badge_link {
+            color: $scipost-orange;
+        }
 
         .user {
             color: $scipost-darkblue;
         }
 
-        .badge {
+        .live_notify_badge {
             display: inline-block;
         }
-    }
-
-    &::after {
-        content: none;
     }
 }
