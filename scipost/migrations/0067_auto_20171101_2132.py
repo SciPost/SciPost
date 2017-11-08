@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('scipost', '0066_contributor__affiliation'),
+        ('affiliations', '0003_auto_20171101_2022'),
     ]
 
     operations = [
