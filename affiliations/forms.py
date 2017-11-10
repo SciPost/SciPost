@@ -12,9 +12,9 @@ from .models import Affiliation, Institution
 
 
 class AffiliationForm(forms.ModelForm):
-    name = forms.CharField(label='* Affiliation', max_length=300)
+    name = forms.CharField(label='* Institution', max_length=300)
     country = LazyTypedChoiceField(
-        choices=countries, label='* Country', widget=CountrySelectWidget())
+        choices=countries, label='* Country', widget=CountrySelectWidget(), default='NL')
 
     class Meta:
         model = Affiliation
