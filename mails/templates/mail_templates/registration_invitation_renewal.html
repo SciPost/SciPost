@@ -10,10 +10,10 @@
 <p>
     Dear
     {% if invitation.message_style == 'F' %}
-        {{ invitation.get_title_display }} {{ invitation.last_name }}
+        {{ invitation.get_title_display }} {{ invitation.last_name }},
     {% else %}
-        {{ invitation.first_name }}
-    {% endif %},
+        {{ invitation.first_name }},
+    {% endif %}
 </p>
 
 {% if invitation.invitation_type == 'R' %}
