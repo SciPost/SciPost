@@ -29,7 +29,7 @@ class Institution(models.Model):
         return reverse('affiliations:institution_details', args=(self.id,))
 
     def contributors(self):
-        return Contributor.objects.filter(institution=self)
+        return Contributor.objects.filter(affiliations__institution=self)
 
 
 class Affiliation(models.Model):
