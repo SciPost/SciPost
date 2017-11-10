@@ -47,7 +47,7 @@
 <br>
 <h3>Contributors of {{ institution }}</h3>
 <ul>
-    {% for contributor in institution.contributors.all %}
+    {% for contributor in institution.contributors %}
         <li>{{ contributor }}</li>
     {% endfor %}
 </ul>
