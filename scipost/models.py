@@ -219,6 +219,18 @@ class RegistrationInvitation(models.Model):
         return (self.first_name + ' ' + self.last_name
                 + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
 
+    def refresh_keys(self, force_new_key=False):
+        # Generate email activation key and link
+        if not self.invitation_key or force_new_key:
+            salt = ""
+            for i in range(5):
+                salt = salt + random.choice(string.ascii_letters)
+            salt = salt.encode('utf8')
+            invitationsalt = self.last_name.encode('utf8')
+            self.invitation_key = hashlib.sha1(salt + invitationsalt).hexdigest()
+        self.key_expires = timezone.now() + datetime.timedelta(days=365)
+        self.save()
+
 
 class CitationNotification(models.Model):
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)

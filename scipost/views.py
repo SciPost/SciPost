@@ -39,6 +39,7 @@ from affiliations.forms import AffiliationsFormset
 from commentaries.models import Commentary
 from comments.models import Comment
 from journals.models import Publication, Journal
+from mails.views import MailEditingSubView
 from news.models import NewsItem
 from submissions.models import Submission, RefereeInvitation,\
                                Report, EICRecommendation
@@ -440,7 +441,7 @@ def map_draft_reg_inv_to_contributor(request, draft_id, contributor_id):
     return redirect(reverse('scipost:registration_invitations'))
 
 
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+@permission_required('scipost.can_invite_Fellows', return_403=True)
 def registration_invitations(request, draft_id=None):
     """ Overview and tools for administrators """
     # List invitations sent; send new ones
@@ -468,6 +469,7 @@ def registration_invitations(request, draft_id=None):
         invitation = reg_inv_form.save(commit=False)
         invitation.invited_by = request.user.contributor
         invitation.save()
+        invitation.refresh_keys()
 
         Utils.load({'invitation': invitation})
         Utils.send_registration_invitation_email()
@@ -568,26 +570,27 @@ def edit_invitation_personal_message(request, invitation_id):
     return render(request, 'scipost/edit_invitation_personal_message.html', context)
 
 
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
+@permission_required('scipost.can_invite_Fellows', return_403=True)
 def renew_registration_invitation(request, invitation_id):
     """
     Renew an invitation (called from registration_invitations).
     """
     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
-    errormessage = None
-    if(invitation.invitation_type == 'F'
-       and not request.user.has_perm('scipost.can_invite_Fellows')):
-        errormessage = ('You do not have the authorization to send a Fellow-type '
-                        'invitation. Consider Contributor, or cited (sub/pub). ')
-    elif invitation.invitation_type == 'R':
-        errormessage = ('Referee-type invitations must be made by the Editor-in-charge '
-                        'at the relevant Submission\'s Editorial Page. ')
-    if errormessage is not None:
-        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
 
-    Utils.load({'invitation': invitation})
-    Utils.send_registration_invitation_email(True)
-    return redirect(reverse('scipost:registration_invitations'))
+    # Utils.load({'invitation': invitation})
+    # Utils.send_registration_invitation_email(True)
+    mail_request = MailEditingSubView(request, mail_code='registration_invitation_renewal',
+                                      invitation=invitation)
+    if mail_request.is_valid():
+        invitation.nr_reminders += 1
+        invitation.date_last_reminded = timezone.now()
+        invitation.save()
+        invitation.refresh_keys()
+        messages.success(request, 'Registration invitation have been sent.')
+        mail_request.send()
+        return redirect('scipost:registration_invitations')
+    else:
+        return mail_request.return_render()
 
 
 @permission_required('scipost.can_manage_registration_invitations', return_403=True)

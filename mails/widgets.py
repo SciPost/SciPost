@@ -3,9 +3,6 @@ import json
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.forms import widgets, Media
 from django.utils.safestring import mark_safe
-# from django.conf import settings
-
-# from . import PLUGINS, PLUGINS_WITH_CSS
 
 
 class SummernoteEditor(widgets.Textarea):
@@ -23,6 +20,7 @@ class SummernoteEditor(widgets.Textarea):
                 ['font', ['strikethrough', 'superscript', 'subscript']],
                 ['fontsize', ['fontsize']],
                 ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link', 'hr']]
             ],
         }
 
@@ -34,10 +32,7 @@ class SummernoteEditor(widgets.Textarea):
         except NoReverseMatch:
             default_options['fileUpload'] = False
 
-        # settings_options = getattr(settings, 'FROALA_EDITOR_OPTIONS', {})
-        # options = dict(default_options.items() + settings_options.items() + self.options.items())
         options = dict(default_options.items()).copy()
-        # options.update(settings_options.items())
         options.update(self.options.items())
 
         json_options = json.dumps(options)
