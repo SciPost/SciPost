@@ -1,0 +1,8 @@
+{
+    "subject": "SciPost: invitation",
+    "to_address": "email",
+    "bcc_to": "invited_by.user.email",
+    "from_address_name": "J-S Caux",
+    "from_address": "jscaux@scipost.org",
+    "context_object": "invitation"
+}

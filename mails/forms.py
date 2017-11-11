@@ -62,7 +62,7 @@ class EmailTemplateForm(forms.Form):
 
         # Get recipients list. Try to send through BCC to prevent privacy issues!
         bcc_list = []
-        if self.mail_data.get('bcc_to') and self.object:
+        if self.mail_data.get('bcc_to', False) and self.object:
             if re.match("[^@]+@[^@]+\.[^@]+", self.mail_data.get('bcc_to')):
                 bcc_list = [self.mail_data.get('bcc_to')]
             else:
@@ -74,7 +74,7 @@ class EmailTemplateForm(forms.Form):
                     bcc_list = [bcc_to]
                 else:
                     bcc_list = bcc_to
-        elif re.match("[^@]+@[^@]+\.[^@]+", self.mail_data.get('bcc_to')):
+        elif re.match("[^@]+@[^@]+\.[^@]+", self.mail_data.get('bcc_to', '')):
             bcc_list = [self.mail_data.get('bcc_to')]
 
         if self.cleaned_data.get('extra_recipient') and self.recipient:

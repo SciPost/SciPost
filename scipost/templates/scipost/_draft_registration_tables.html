@@ -1,357 +1,404 @@
-<div class="row">
-    <div class="col-12">
-        <h2 class="highlight">Invitations sent (response pending)</h2>
 
-        <h3>Editorial Fellows ({{sent_reg_inv_fellows|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_sent_reg_inv_fellows">view/hide</a></h3>
+<h2 class="highlight">Invitations sent (response pending)</h2>
 
-        <table class="table" id="table_sent_reg_inv_fellows" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for fellow in sent_reg_inv_fellows %}
-                  <tr>
-                    <td>{{ fellow.last_name }}</td>
-                    <td>{{ fellow.first_name }}</td>
-                    <td>{{ fellow.email }}</td>
-                    <td>{{ fellow.date_sent }} </td>
-                    <td>{{ fellow.get_invitation_type_display }}</td>
-                    <td>{{ fellow.invited_by.user.first_name }} {{ fellow.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<h3>Editorial Fellows ({{sent_reg_inv_fellows|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_sent_reg_inv_fellows">view/hide +</a>
 
-        <h3>Normal Contributors ({{sent_reg_inv_contrib|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_sent_reg_inv_contrib">view/hide</a></h3>
-        <table class="table" id="table_sent_reg_inv_contrib" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invitation in sent_reg_inv_contrib %}
-                  <tr>
-                    <td>{{ invitation.last_name }}</td>
-                    <td>{{ invitation.first_name }}</td>
-                    <td>{{ invitation.email }}</td>
-                    <td>{{ invitation.date_sent }} </td>
-                    <td>{{ invitation.get_invitation_type_display }}</td>
-                    <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<table class="table" id="table_sent_reg_inv_fellows" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for fellow in sent_reg_inv_fellows %}
+          <tr>
+            <td>{{ fellow.last_name }}</td>
+            <td>{{ fellow.first_name }}</td>
+            <td>{{ fellow.email }}</td>
+            <td>{{ fellow.date_sent }} </td>
+            <td>{{ fellow.get_invitation_type_display }}</td>
+            <td>{{ fellow.invited_by.user.first_name }} {{ fellow.invited_by.user.last_name }}</td>
+            <td>
+                {% if perms.scipost.can_invite_Fellows %}
+                    <a href="{% url 'scipost:renew_registration_invitation' invitation_id=fellow.id %}">Renew</a> ({{ fellow.nr_reminders }}) {% if fellow.date_last_reminded %}(last: {{ fellow.date_last_reminded|date:"Y-m-d" }}){% endif %}
+                    &middot;
+                    <a href="{% url 'scipost:mark_reg_inv_as_declined' invitation_id=fellow.id %}">Declined</a>
+                {% endif %}
+            </td>
 
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-        <h3>Referees ({{sent_reg_inv_ref|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_sent_reg_inv_ref">view/hide</a></h3>
-        <table class="table" id="table_sent_reg_inv_ref" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invitation in sent_reg_inv_ref %}
-                  <tr>
-                    <td>{{ invitation.last_name }}</td>
-                    <td>{{ invitation.first_name }}</td>
-                    <td>{{ invitation.email }}</td>
-                    <td>{{ invitation.date_sent }} </td>
-                    <td>{{ invitation.get_invitation_type_display }}</td>
-                    <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<h3>Normal Contributors ({{sent_reg_inv_contrib|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_sent_reg_inv_contrib">view/hide +</a>
 
-        <h3>Cited in sub ({{sent_reg_inv_cited_sub|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_sent_reg_inv_cited_sub">view/hide</a></h3>
-        <table class="table" id="table_sent_reg_inv_cited_sub" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invitation in sent_reg_inv_cited_sub %}
-                  <tr>
-                    <td>{{ invitation.last_name }}</td>
-                    <td>{{ invitation.first_name }}</td>
-                    <td>{{ invitation.email }}</td>
-                    <td>{{ invitation.date_sent }} </td>
-                    <td>{{ invitation.get_invitation_type_display }}</td>
-                    <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<table class="table" id="table_sent_reg_inv_contrib" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invitation in sent_reg_inv_contrib %}
+          <tr>
+            <td>{{ invitation.last_name }}</td>
+            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.email }}</td>
+            <td>{{ invitation.date_sent }} </td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
+            <td>
+                {% if perms.scipost.can_invite_Fellows %}
+                    <a href="{% url 'scipost:renew_registration_invitation' invitation_id=invitation.id %}">Renew</a> ({{ invitation.nr_reminders }}) {% if invitation.date_last_reminded %}(last: {{ invitation.date_last_reminded|date:"Y-m-d" }}){% endif %}
+                    &middot;
+                    <a href="{% url 'scipost:mark_reg_inv_as_declined' invitation_id=invitation.id %}">Declined</a>
+                {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 
-        <h3>Cited in pub ({{sent_reg_inv_cited_pub|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_sent_reg_inv_cited_pub">view/hide</a></h3>
-        <table class="table" id="table_sent_reg_inv_cited_pub" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invitation in sent_reg_inv_cited_pub %}
-                  <tr>
-                    <td>{{ invitation.last_name }}</td>
-                    <td>{{ invitation.first_name }}</td>
-                    <td>{{ invitation.email }}</td>
-                    <td>{{ invitation.date_sent }} </td>
-                    <td>{{ invitation.get_invitation_type_display }}</td>
-                    <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+<h3>Referees ({{sent_reg_inv_ref|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_sent_reg_inv_ref">view/hide +</a>
 
-<div class="row">
-    <div class="col-12">
-        <h2 class="highlight">Invitations sent (responded)</h2>
+<table class="table" id="table_sent_reg_inv_ref" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invitation in sent_reg_inv_ref %}
+          <tr>
+            <td>{{ invitation.last_name }}</td>
+            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.email }}</td>
+            <td>{{ invitation.date_sent }} </td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
+            <td>
+                {% if perms.scipost.can_invite_Fellows %}
+                    <a href="{% url 'scipost:renew_registration_invitation' invitation_id=invitation.id %}">Renew</a> ({{ invitation.nr_reminders }}) {% if invitation.date_last_reminded %}(last: {{ invitation.date_last_reminded|date:"Y-m-d" }}){% endif %}
+                {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-        <h3>Editorial Fellows ({{resp_reg_inv_fellow|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_resp_reg_inv_fellow">view/hide</a></h3>
-        <table class="table" id="table_resp_reg_inv_fellow" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invitation in resp_reg_inv_fellow %}
-                  <tr>
-                    <td>{{ invitation.last_name }}</td>
-                    <td>{{ invitation.first_name }}</td>
-                    <td>{{ invitation.email }}</td>
-                    <td>{{ invitation.date_sent }} </td>
-                    <td>{{ invitation.get_invitation_type_display }}</td>
-                    <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<h3>Cited in sub ({{sent_reg_inv_cited_sub|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_sent_reg_inv_cited_sub">view/hide +</a>
 
-        <h3>Normal Contributors ({{resp_reg_inv_contrib|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_resp_reg_inv_contrib">view/hide</a></h3>
-        <table class="table" id="table_resp_reg_inv_contrib" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invitation in resp_reg_inv_contrib %}
-                  <tr>
-                    <td>{{ invitation.last_name }}</td>
-                    <td>{{ invitation.first_name }}</td>
-                    <td>{{ invitation.email }}</td>
-                    <td>{{ invitation.date_sent }} </td>
-                    <td>{{ invitation.get_invitation_type_display }}</td>
-                    <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<table class="table" id="table_sent_reg_inv_cited_sub" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invitation in sent_reg_inv_cited_sub %}
+          <tr>
+            <td>{{ invitation.last_name }}</td>
+            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.email }}</td>
+            <td>{{ invitation.date_sent }} </td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
+            <td>
+                {% if perms.scipost.can_invite_Fellows %}
+                    <a href="{% url 'scipost:renew_registration_invitation' invitation_id=invitation.id %}">Renew</a> ({{ invitation.nr_reminders }}) {% if invitation.date_last_reminded %}(last: {{ invitation.date_last_reminded|date:"Y-m-d" }}){% endif %}
+                {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-        <h3>Referees ({{resp_reg_inv_ref|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_resp_reg_inv_ref">view/hide</a></h3>
-        <table class="table" id="table_resp_reg_inv_ref" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invitation in resp_reg_inv_ref %}
-                  <tr>
-                    <td>{{ invitation.last_name }}</td>
-                    <td>{{ invitation.first_name }}</td>
-                    <td>{{ invitation.email }}</td>
-                    <td>{{ invitation.date_sent }} </td>
-                    <td>{{ invitation.get_invitation_type_display }}</td>
-                    <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
 
-        <h3>Cited in sub ({{resp_reg_inv_cited_sub|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_resp_reg_inv_cited_sub">view/hide</a></h3>
-        <table class="table" id="table_resp_reg_inv_cited_sub" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invitation in resp_reg_inv_cited_sub %}
-                  <tr>
-                    <td>{{ invitation.last_name }}</td>
-                    <td>{{ invitation.first_name }}</td>
-                    <td>{{ invitation.email }}</td>
-                    <td>{{ invitation.date_sent }} </td>
-                    <td>{{ invitation.get_invitation_type_display }}</td>
-                    <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<h3>Cited in pub ({{sent_reg_inv_cited_pub|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_sent_reg_inv_cited_pub">view/hide +</a>
 
-        <h3>Cited in pub ({{resp_reg_inv_cited_pub|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_resp_reg_inv_cited_pub">view/hide</a></h3>
-        <table class="table" id="table_resp_reg_inv_cited_pub" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invitation in resp_reg_inv_cited_pub %}
-                  <tr>
-                    <td>{{ invitation.last_name }}</td>
-                    <td>{{ invitation.first_name }}</td>
-                    <td>{{ invitation.email }}</td>
-                    <td>{{ invitation.date_sent }} </td>
-                    <td>{{ invitation.get_invitation_type_display }}</td>
-                    <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<table class="table" id="table_sent_reg_inv_cited_pub" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invitation in sent_reg_inv_cited_pub %}
+          <tr>
+            <td>{{ invitation.last_name }}</td>
+            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.email }}</td>
+            <td>{{ invitation.date_sent }} </td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
+            <td>
+                {% if perms.scipost.can_invite_Fellows %}
+                    <a href="{% url 'scipost:renew_registration_invitation' invitation_id=invitation.id %}">Renew</a> ({{ invitation.nr_reminders }}) {% if invitation.date_last_reminded %}(last: {{ invitation.date_last_reminded|date:"Y-m-d" }}){% endif %}
+                {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="7">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-        <h3>Declined ({{decl_reg_inv|length}}) - <a href="javascript:void(0)" data-toggle="toggle" data-target="#table_decl_reg_inv">view/hide</a></h3>
-        <table class="table" id="table_decl_reg_inv" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Last name</th>
-                    <th>First name</th>
-                    <th>Email</th>
-                    <th>Date sent</th>
-                    <th>Type</th>
-                    <th>Invited by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invitation in decl_reg_inv %}
-                  <tr>
-                    <td>{{ invitation.last_name }}</td>
-                    <td>{{ invitation.first_name }}</td>
-                    <td>{{ invitation.email }}</td>
-                    <td>{{ invitation.date_sent }} </td>
-                    <td>{{ invitation.get_invitation_type_display }}</td>
-                    <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
-                  </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6">No invitations found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+<h2 class="highlight">Invitations sent (responded)</h2>
 
-<div class="row">
-    <div class="col-12">
-        <h2 class="highlight">List of already-registered contributors ({{names_reg_contributors|length}}) <small><a href="javascript:void(0)" data-toggle="toggle" data-target="#registered_contributors">view/hide</a></small></h3>
-        <div class="card-columns" id="registered_contributors" style="display: none;">
-            {% for first_name, last_name in names_reg_contributors %}
-                <div class="card border-0">
-                  {{ last_name }}, {{ first_name }}
-                </div>
-            {% endfor %}
+<h3>Editorial Fellows ({{resp_reg_inv_fellow|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_resp_reg_inv_fellow">view/hide +</a>
+
+<table class="table" id="table_resp_reg_inv_fellow" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invitation in resp_reg_inv_fellow %}
+          <tr>
+            <td>{{ invitation.last_name }}</td>
+            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.email }}</td>
+            <td>{{ invitation.date_sent }} </td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Normal Contributors ({{resp_reg_inv_contrib|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_resp_reg_inv_contrib">view/hide +</a>
+
+<table class="table" id="table_resp_reg_inv_contrib" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invitation in resp_reg_inv_contrib %}
+          <tr>
+            <td>{{ invitation.last_name }}</td>
+            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.email }}</td>
+            <td>{{ invitation.date_sent }} </td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Referees ({{resp_reg_inv_ref|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_resp_reg_inv_ref">view/hide +</a>
+
+<table class="table" id="table_resp_reg_inv_ref" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invitation in resp_reg_inv_ref %}
+          <tr>
+            <td>{{ invitation.last_name }}</td>
+            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.email }}</td>
+            <td>{{ invitation.date_sent }} </td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Cited in sub ({{resp_reg_inv_cited_sub|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_resp_reg_inv_cited_sub">view/hide +</a>
+
+<table class="table" id="table_resp_reg_inv_cited_sub" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invitation in resp_reg_inv_cited_sub %}
+          <tr>
+            <td>{{ invitation.last_name }}</td>
+            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.email }}</td>
+            <td>{{ invitation.date_sent }} </td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Cited in pub ({{resp_reg_inv_cited_pub|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_resp_reg_inv_cited_pub">view/hide +</a>
+
+<table class="table" id="table_resp_reg_inv_cited_pub" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invitation in resp_reg_inv_cited_pub %}
+          <tr>
+            <td>{{ invitation.last_name }}</td>
+            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.email }}</td>
+            <td>{{ invitation.date_sent }} </td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Declined ({{decl_reg_inv|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#table_decl_reg_inv">view/hide +</a>
+
+<table class="table" id="table_decl_reg_inv" style="display: none;">
+    <thead>
+        <tr>
+            <th>Last name</th>
+            <th>First name</th>
+            <th>Email</th>
+            <th>Date sent</th>
+            <th>Type</th>
+            <th>Invited by</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invitation in decl_reg_inv %}
+          <tr>
+            <td>{{ invitation.last_name }}</td>
+            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.email }}</td>
+            <td>{{ invitation.date_sent }} </td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
+          </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">No invitations found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2 class="highlight">List of already-registered contributors ({{names_reg_contributors|length}})</h3>
+<a href="javascript:void(0)" class="btn mb-2" data-toggle="toggle" data-target="#registered_contributors">view/hide +</a>
+
+<div class="card-columns" id="registered_contributors" style="display: none;">
+    {% for first_name, last_name in names_reg_contributors %}
+        <div class="card border-0">
+          {{ last_name }}, {{ first_name }}
         </div>
-    </div>
+    {% endfor %}
 </div>

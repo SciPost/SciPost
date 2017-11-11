@@ -3,6 +3,8 @@ from django.urls import reverse
 
 from django_countries.fields import CountryField
 
+from scipost.models import Contributor
+
 from .constants import INSTITUTION_TYPES, TYPE_UNIVERSITY
 from .managers import AffiliationQuerySet
 
@@ -25,6 +27,9 @@ class Institution(models.Model):
 
     def get_absolute_url(self):
         return reverse('affiliations:institution_details', args=(self.id,))
+
+    def contributors(self):
+        return Contributor.objects.filter(affiliations__institution=self)
 
 
 class Affiliation(models.Model):
