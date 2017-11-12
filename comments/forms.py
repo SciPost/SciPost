@@ -12,7 +12,7 @@ class CommentForm(forms.ModelForm):
                   'comment_text', 'remarks_for_editors', 'file_attachment']
 
     def __init__(self, *args, **kwargs):
-        super(CommentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['comment_text'].widget.attrs.update(
             {'placeholder': 'NOTE: only serious and meaningful Comments will be accepted.'})
         self.fields['remarks_for_editors'].widget.attrs.update(

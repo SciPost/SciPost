@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db import transaction
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views.generic.edit import CreateView
@@ -12,10 +13,12 @@ from django.http import Http404
 
 from .models import Commentary
 from .forms import DOIToQueryForm, ArxivQueryForm, VetCommentaryForm, RequestCommentaryForm,\
-                   CommentarySearchForm, RequestPublishedArticleForm, RequestArxivPreprintForm
+                   CommentarySearchForm, RequestPublishedArticleForm, RequestArxivPreprintForm,\
+                   CommentSciPostPublication
 
 from comments.models import Comment
 from comments.forms import CommentForm
+from journals.models import Publication
 from scipost.mixins import PaginationMixin
 
 import strings
@@ -238,3 +241,25 @@ def commentary_detail(request, arxiv_or_DOI_string):
     context = {'commentary': commentary,
                'author_replies': author_replies, 'form': form}
     return render(request, 'commentaries/commentary_detail.html', context)
+
+
+@login_required
+@permission_required('scipost.can_submit_comments', raise_exception=True)
+@transaction.atomic
+def comment_on_publication(request, doi_label):
+    """
+    This will let authors of an SciPost publication comment on their Publication by
+    automatically creating a Commentary page if not exist already.
+    """
+    publication = get_object_or_404(Publication.objects.published(),
+                                    doi_label=doi_label, authors=request.user.contributor)
+    form = CommentSciPostPublication(request.POST or None, request.FILES or None,
+                                     publication=publication, current_user=request.user)
+    if form.is_valid():
+        comment = form.save()
+        return redirect(comment.content_object.get_absolute_url())
+    context = {
+        'publication': publication,
+        'form': form
+    }
+    return render(request, 'commentaries/comment_on_publication.html', context)

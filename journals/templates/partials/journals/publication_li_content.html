@@ -1,7 +1,7 @@
 <h5 class="pb-0">{{publication.get_subject_area_display}}</h5>
 <h3><a href="{{publication.get_absolute_url}}">{{publication.title}}</a></h3>
 
-<p class="mt-0 mb-3">{{ publication.author_list }}</p>
+<p class="mt-0 mb-2">{{ publication.author_list }}</p>
 <p class="text-muted mb-0">
     {{ publication.citation }} &middot; <span class="font-weight-light">published {{ publication.publication_date|date:'j F Y' }}</span>
 </p>

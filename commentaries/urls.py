@@ -35,4 +35,8 @@ urlpatterns = [
         name='vet_commentary_requests_submit'),
     url(r'^vet_commentary_requests/(?P<commentary_id>[0-9]+)/modify$',
         views.modify_commentary_request, name='modify_commentary_request'),
+
+    # Commentaries on SciPost Publications
+    url(r'^publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/comment$',
+        views.comment_on_publication, name='comment_on_publication')
 ]

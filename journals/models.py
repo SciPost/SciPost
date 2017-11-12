@@ -11,7 +11,7 @@ from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
                        STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,\
                        CCBY4, CC_LICENSES, CC_LICENSES_URI
 from .helpers import paper_nr_string, journal_name_abbrev_citation
-from .managers import IssueManager, PublicationManager, JournalManager
+from .managers import IssueManager, PublicationQuerySet, JournalManager
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
@@ -53,7 +53,7 @@ class Journal(models.Model):
 
 
 class Volume(models.Model):
-    in_journal = models.ForeignKey(Journal, on_delete=models.CASCADE)
+    in_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
@@ -72,7 +72,7 @@ class Volume(models.Model):
 
 
 class Issue(models.Model):
-    in_volume = models.ForeignKey(Volume, on_delete=models.CASCADE)
+    in_volume = models.ForeignKey('journals.Volume', on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
@@ -129,7 +129,7 @@ class Publication(models.Model):
     """
     # Publication data
     accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE)
-    in_issue = models.ForeignKey(Issue, on_delete=models.CASCADE)
+    in_issue = models.ForeignKey('journals.Issue', on_delete=models.CASCADE)
     paper_nr = models.PositiveSmallIntegerField()
 
     # Core fields
@@ -187,7 +187,7 @@ class Publication(models.Model):
     latest_metadata_update = models.DateTimeField(blank=True, null=True)
     latest_activity = models.DateTimeField(default=timezone.now)
 
-    objects = PublicationManager()
+    objects = PublicationQuerySet.as_manager()
 
     def __str__(self):
         header = (self.citation() + ', '
