@@ -106,6 +106,29 @@ class ProductionEvent(models.Model):
         return self.stream.notification_name
 
 
+def production_event_upload_location(instance, filename):
+    submission = instance.production_event.stream.submission
+    return 'UPLOADS/PRODSTREAMS/{year}/{arxiv}/{filename}'.format(
+        year=submission.submission_date.year,
+        arxiv=submission.arxiv_identifier_wo_vn_nr,
+        filename=filename)
+
+
+class ProductionEventAttachment(models.Model):
+    """
+    An ProductionEventAttachment is in general used by authors to reply to an Proofs version
+    with their version of the Proofs with comments.
+    """
+    production_event = models.ForeignKey('production.ProductionEvent', on_delete=models.CASCADE,
+                                         related_name='attachments')
+    attachment = models.FileField(upload_to=production_event_upload_location,
+                                  storage=SecureFileStorage())
+
+    def get_absolute_url(self):
+        return reverse('production:production_event_attachment_pdf',
+                       args=(self.production_event.stream.id, self.id,))
+
+
 def proofs_upload_location(instance, filename):
     submission = instance.stream.submission
     return 'UPLOADS/PROOFS/{year}/{arxiv}/{filename}'.format(
