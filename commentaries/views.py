@@ -257,6 +257,7 @@ def comment_on_publication(request, doi_label):
                                      publication=publication, current_user=request.user)
     if form.is_valid():
         comment = form.save()
+        messages.success(request, strings.acknowledge_request_commentary)
         return redirect(comment.content_object.get_absolute_url())
     context = {
         'publication': publication,
