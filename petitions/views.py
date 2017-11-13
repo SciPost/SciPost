@@ -20,14 +20,17 @@ def petition(request, slug):
     if request.user.is_authenticated:
         is_signed = petition.petition_signatories.verified().filter(
             signatory=request.user.contributor).exists()
+        affiliation = request.user.contributor.affiliations.first() or {}
+        institition = affiliation.institution.name if affiliation else ''
+        country = affiliation.institution.country if affiliation else ''
         initial = {
             'petition': petition,
             'title': request.user.contributor.title,
             'first_name': request.user.first_name,
             'last_name': request.user.last_name,
             'email': request.user.email,
-            'country_of_employment': request.user.contributor.affiliation.country_of_employment,
-            'affiliation': request.user.contributor.affiliation.name,
+            'country_of_employment': country,
+            'affiliation': institition,
         }
 
     form = SignPetitionForm(request.POST or None, initial=initial, petition=petition,
