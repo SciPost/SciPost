@@ -18,7 +18,8 @@ from finances.forms import WorkLogForm
 from mails.views import MailEditingSubView
 
 from . import constants
-from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs
+from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs,\
+    ProductionEventAttachment
 from .forms import ProductionEventForm, AssignOfficerForm, UserToOfficerForm,\
                    AssignSupervisorForm, StreamStatusForm, ProofsUploadForm, ProofsDecisionForm,\
                    AssignInvitationsOfficerForm
@@ -492,7 +493,7 @@ def proofs_pdf(request, slug):
         # because now it will return 404 instead of a redirect to the login page.
         raise Http404
 
-    proofs = Proofs.objects.get(id=proofs_slug_to_id(slug))
+    proofs = get_object_or_404(Proofs, id=proofs_slug_to_id(slug))
     stream = proofs.stream
 
     # Check if user has access!
@@ -507,6 +508,34 @@ def proofs_pdf(request, slug):
     content_type, encoding = mimetypes.guess_type(proofs.attachment.path)
     content_type = content_type or 'application/octet-stream'
     response = HttpResponse(proofs.attachment.read(), content_type=content_type)
+    response["Content-Encoding"] = encoding
+    return response
+
+
+def production_event_attachment_pdf(request, stream_id, attachment_id):
+    """ Open ProductionEventAttachment pdf. """
+    if not request.user.is_authenticated:
+        # Don't use the decorator but this strategy,
+        # because now it will return 404 instead of a redirect to the login page.
+        raise Http404
+
+    stream = get_object_or_404(ProductionStream, id=stream_id)
+    attachment = get_object_or_404(
+        ProductionEventAttachment.objects.filter(production_event__stream=stream),
+        id=attachment_id)
+
+    # Check if user has access!
+    checker = ObjectPermissionChecker(request.user)
+    access = checker.has_perm('can_work_for_stream', stream) and request.user.has_perm('scipost.can_view_production')
+    if not access and request.user.contributor:
+        access = request.user.contributor in stream.submission.authors.all()
+    if not access:
+        raise Http404
+
+    # Passed the test! The user may see the file!
+    content_type, encoding = mimetypes.guess_type(attachment.attachment.path)
+    content_type = content_type or 'application/octet-stream'
+    response = HttpResponse(attachment.attachment.read(), content_type=content_type)
     response["Content-Encoding"] = encoding
     return response
 
@@ -526,7 +555,7 @@ def author_decision(request, slug):
     if request.user.contributor not in proofs.stream.submission.authors.all():
         raise Http404
 
-    form = ProofsDecisionForm(request.POST or None, instance=proofs)
+    form = ProofsDecisionForm(request.POST or None, request.FILES or None, instance=proofs)
     if form.is_valid():
         proofs = form.save()
         notify_stream_status_change(request.user, stream, False)
@@ -595,7 +624,7 @@ def decision(request, stream_id, version, decision):
     )
     prodevent.save()
     messages.success(request, 'Proofs have been {decision}.'.format(decision=decision))
-    return redirect(stream.get_absolute_url())
+    return redirect(reverse('production:proofs', args=(stream.id, proofs.version)))
 
 
 @is_production_user()

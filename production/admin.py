@@ -2,7 +2,8 @@ from django.contrib import admin
 
 from guardian.admin import GuardedModelAdmin
 
-from .models import ProductionStream, ProductionEvent, ProductionUser, Proofs
+from .models import ProductionStream, ProductionEvent, ProductionUser, Proofs,\
+    ProductionEventAttachment
 
 
 def event_count(obj):
@@ -38,4 +39,5 @@ class ProductionProofsAdmin(admin.ModelAdmin):
 admin.site.register(Proofs, ProductionProofsAdmin)
 admin.site.register(ProductionUser)
 admin.site.register(ProductionEvent)
+admin.site.register(ProductionEventAttachment)
 admin.site.register(ProductionStream, ProductionStreamAdmin)
