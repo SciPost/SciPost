@@ -105,13 +105,15 @@
                     <li>
                         <a href="{{ proofs.get_absolute_url }}" target="_blank">Download version {{ proofs.version }}</a> &middot; uploaded: {{ proofs.created|date:"DATE_FORMAT" }} &middot;
                         status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
-                        {% if proofs.status == 'accepted_sup' and proofs_decision_form and is_author %}
-                            <h3 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proof.version }}</h3>
-                            <form method="post" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
-                                {% csrf_token %}
-                                {{ proofs_decision_form|bootstrap }}
-                                <input class="btn btn-primary btn-sm" type="submit" value="Submit">
-                            </form>
+                        {% if proofs.status == 'accepted_sup' or proofs.status == 'sent' %}
+                            {% if proofs_decision_form and is_author %}
+                                <h3 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proofs.version }}</h3>
+                                <form method="post" enctype="multipart/form-data" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
+                                    {% csrf_token %}
+                                    {{ proofs_decision_form|bootstrap }}
+                                    <input class="btn btn-primary btn-sm" type="submit" value="Submit">
+                                </form>
+                            {% endif %}
                         {% endif %}
                     </li>
                 {% endfor %}
