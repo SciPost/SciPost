@@ -14,7 +14,6 @@ SCIPOST_JOURNALS_SUBMIT = (
 # Journal closed for submission
 SCIPOST_JOURNALS_NO_SUBMIT = (
     (SCIPOST_JOURNAL_PHYSICS_SELECT, 'SciPost Physics Select'),
-    (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Physics Proceedings'),
 )
 
 # All allowed journals
