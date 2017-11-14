@@ -27,7 +27,7 @@
             <h1>SciPost Submissions Pool</h1>
             {% if is_ECAdmin %}
 
-                {% if recommendations.voting_in_preparation.exists or recommendations.put_to_voting.exists %}
+                {% if recommendations.voting_in_preparation.exists or recommendations.put_to_voting.exists or latest_submission_events %}
                     <div class="quote-border">
                         <h2 class="text-primary">Administrative Tasks</h2>
 
