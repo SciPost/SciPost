@@ -387,7 +387,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
 
     # EdColAdmin related variables
     if request.user.has_perm('scipost.can_oversee_refereeing'):
-        context['latest_events'] = SubmissionEvent.objects.for_eic().last_hours()
+        context['latest_submission_events'] = SubmissionEvent.objects.for_eic().last_hours()
 
     # Temporary test logic: only testers see the new Pool
     if context['submission'] and request.is_ajax():
