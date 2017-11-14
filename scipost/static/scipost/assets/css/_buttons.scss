@@ -39,13 +39,13 @@
 .voting-group {
     border-radius: $card-border-radius;
     color: $scipost-darkblue;
-    box-shadow: 0 1px 0 0 $gray-600;
+    border: 1px solid $gray-600;
 
     > div {
         padding: 0.25rem 0.5rem;
         font-size: 0.8rem;
         border-radius: 0;
-        line-height: 1.25;
+        line-height: 1;
         margin: 0;
         display: inline-block;
         color: #002b49;
@@ -96,5 +96,14 @@
         &.disagree:hover {
             background-color: #c9302c;
         }
+    }
+}
+
+.category-group {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+
+    > div {
+        line-height: 1.3;
     }
 }
