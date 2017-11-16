@@ -921,8 +921,11 @@ def harvest_citedby_links(request, doi_label):
     for link in response_deserialized.iter(prefix + 'forward_link'):
         doi = link.find(prefix + 'journal_cite').find(prefix + 'doi').text
         article_title = link.find(prefix + 'journal_cite').find(prefix + 'article_title').text
-        journal_abbreviation = link.find(prefix + 'journal_cite').find(
-            prefix + 'journal_abbreviation').text
+        try:
+            journal_abbreviation = link.find(prefix + 'journal_cite').find(
+                prefix + 'journal_abbreviation').text
+        except:
+            journal_abbreviation = None
         try:
             volume = link.find(prefix + 'journal_cite').find(prefix + 'volume').text
         except AttributeError:
