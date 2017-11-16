@@ -256,8 +256,8 @@ def validate_publication(request):
 
         # Add Institutions to the publication
         for author in publication.authors.all():
-            for institution in author.affiliations.active():
-                publication.institutions.add(institution)
+            for current_affiliation in author.affiliations.active():
+                publication.institutions.add(current_affiliation.institution)
 
         # Save the beast
         publication.save()
