@@ -6,6 +6,10 @@
         <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
     {% endif %}
 
+    {% if report.comments.vetted.exists %}
+        <br>
+    {% endif %}
+
     {% for reply in report.comments.vetted %}
         {% include 'comments/_single_comment_with_link.html' with comment=reply perms=perms user=user %}
     {% endfor %}

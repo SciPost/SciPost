@@ -272,7 +272,8 @@ class UpdatePersonalDataForm(forms.ModelForm):
             'expertises',
             'orcid_id',
             'address',
-            'personalwebpage'
+            'personalwebpage',
+            'accepts_SciPost_emails',
         ]
 
     def sync_lists(self):

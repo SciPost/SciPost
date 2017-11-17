@@ -21,6 +21,8 @@ urlpatterns = [
         production_views.send_proofs, name='send_proofs'),
     url(r'^streams/(?P<stream_id>[0-9]+)/proofs/(?P<version>[0-9]+)/toggle_access$',
         production_views.toggle_accessibility, name='toggle_accessibility'),
+    url(r'^streams/(?P<stream_id>[0-9]+)/proofs/(?P<attachment_id>[0-9]+)/reply/pdf$',
+        production_views.production_event_attachment_pdf, name='production_event_attachment_pdf'),
     url(r'^streams/(?P<stream_id>[0-9]+)/events/add$',
         production_views.add_event, name='add_event'),
     url(r'^streams/(?P<stream_id>[0-9]+)/logs/add$',

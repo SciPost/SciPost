@@ -28,7 +28,9 @@ class Commentary(TimeStampedModel):
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     default='Phys:QP')
     open_for_commenting = models.BooleanField(default=True)
-    title = models.CharField(max_length=300, verbose_name='title')
+
+    # Article/publication data
+    title = models.CharField(max_length=300)
     arxiv_identifier = models.CharField(max_length=100, blank=True,
                                         verbose_name="arXiv identifier (including version nr)")
     arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)', blank=True)
@@ -41,9 +43,11 @@ class Commentary(TimeStampedModel):
     arxiv_or_DOI_string = models.CharField(max_length=100,
                                            verbose_name='string form of arxiv nr or'
                                                         ' DOI for commentary url')
-    author_list = models.CharField(max_length=1000)
+    scipost_publication = models.OneToOneField('journals.Publication', null=True, blank=True,
+                                               related_name='commentary')
 
     # Authors which have been mapped to contributors:
+    author_list = models.CharField(max_length=1000)
     authors = models.ManyToManyField('scipost.Contributor', blank=True,
                                      related_name='commentaries')
     authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
@@ -71,7 +75,7 @@ class Commentary(TimeStampedModel):
     def get_absolute_url(self):
         return reverse('commentaries:commentary', args=(self.arxiv_or_DOI_string,))
 
-    def parse_links_into_urls(self, commit=False):
+    def parse_links_into_urls(self, commit=True):
         """ Takes the arXiv nr or DOI and turns it into the urls """
         if self.pub_DOI:
             self.arxiv_or_DOI_string = self.pub_DOI

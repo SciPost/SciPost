@@ -54,8 +54,8 @@
       <ul>
           {% for proofs in stream.proofs.all %}
               <li class="py-1">
-                  <a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Version {{ proofs.version }}</a><br>
-                  Uploaded by {{ proofs.uploaded_by.user.first_name }} {{ proofs.uploaded_by.user.last_name }}<br>
+                  <a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Version {{ proofs.version }}</a> &middot; <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span><br>
+                  Uploaded by: {{ proofs.uploaded_by.user.first_name }} {{ proofs.uploaded_by.user.last_name }}<br>
                   Accessible for authors: {{ proofs.accessible_for_authors|yesno:'<strong>Yes</strong>,No'|safe }}<br>
 
                   {% if perms.scipost.can_run_proofs_by_authors %}
@@ -71,8 +71,6 @@
                          </ul>
                       {% endif %}
                   {% endif %}
-
-                  <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
               </li>
           {% empty %}
               <li>No Proofs found.</li>

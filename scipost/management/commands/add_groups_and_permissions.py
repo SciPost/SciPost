@@ -314,6 +314,7 @@ class Command(BaseCommand):
 
         EditorialAdmin.permissions.set([
             can_view_pool,
+            can_invite_Fellows,
             can_assign_submissions,
             can_do_plagiarism_checks,
             can_oversee_refereeing,

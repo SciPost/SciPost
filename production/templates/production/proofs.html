@@ -38,8 +38,7 @@
                     </li>
                 {% elif proofs.status == 'accepted_sup' %}
                     <li><a href="{% url 'production:send_proofs' proofs.stream.id proofs.version %}">Send proofs to authors</a></li>
-                {% endif %}
-                {% if proofs.status != 'uploaded' %}
+                {% else %}
                     <li><a href="{% url 'production:toggle_accessibility' proofs.stream.id proofs.version %}">{{ proofs.accessible_for_authors|yesno:'Hide,Make accessible' }} for authors</a></li>
                 {% endif %}
             {% endif %}

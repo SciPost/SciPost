@@ -35,7 +35,7 @@
                       {% for publication in publications %}
                           <li class="list-group-item">
                               <div class="card-body px-0">
-                                  {% include 'journals/_publication_details_small.html' with publication=publication %}
+                                  {% include 'partials/journals/publication_li_content.html' with publication=publication %}
                               </div>
                           </li>
                       {% endfor %}
