@@ -167,6 +167,7 @@ class SubmissionAddVotingFellowForm(forms.ModelForm):
     def save(self):
         fellowship = self.cleaned_data['fellowship']
         submission = self.instance
+        submission.fellows.add(fellowship)
         submission.voting_fellows.add(fellowship)
         return submission
 

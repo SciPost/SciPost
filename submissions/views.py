@@ -33,6 +33,7 @@ from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSe
                    iThenticateReportForm, SubmissionPoolFilterForm
 from .utils import SubmissionUtils
 
+from colleges.permissions import fellowship_required
 from mails.views import MailEditingSubView
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.mixins import PaginationMixin
@@ -331,7 +332,7 @@ def editorial_workflow(request):
 
 
 @login_required
-@permission_required('scipost.can_view_pool', raise_exception=True)
+@fellowship_required()
 def pool(request, arxiv_identifier_w_vn_nr=None):
     """
     The Submissions pool contains all submissions which are undergoing
@@ -392,7 +393,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
     # Temporary test logic: only testers see the new Pool
     if context['submission'] and request.is_ajax():
         template = 'partials/submissions/pool/submission_details.html'
-    elif is_tester(request.user) and not request.GET.get('test'):
+    elif is_tester(request.user) and not request.GET.get('test') or True:
         template = 'submissions/pool/pool.html'
     else:
         template = 'submissions/pool.html'
@@ -679,13 +680,23 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
 
     Accessible for: Editor-in-charge and Editorial Administration
     """
-    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
+    submission = get_object_or_404(Submission.objects.pool_full(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+
+    full_access = True
+    if not request.user.has_perm('scipost.can_oversee_refereeing'):
+        # Administrators will be able to see all Submissions
+        if submission.editor_in_charge != request.user.contributor:
+            # The current user is not EIC of the Submission!
+            full_access = False
+            if not submission.voting_fellows.filter(contributor__user=request.user).exists():
+                raise Http404
 
     context = {
         'submission': submission,
         'set_deadline_form': SetRefereeingDeadlineForm(),
         'cycle_choice_form': SubmissionCycleChoiceForm(instance=submission),
+        'full_access': full_access,
     }
     return render(request, 'submissions/editorial_page.html', context)
 
@@ -714,7 +725,8 @@ def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
             # Redirect to EIC Recommendation page immediately
             return redirect(reverse('submissions:eic_recommendation',
                             args=[submission.arxiv_identifier_w_vn_nr]))
-    return redirect(reverse('submissions:editorial_page', args=[submission.arxiv_identifier_w_vn_nr]))
+    return redirect(
+        reverse('submissions:editorial_page', args=[submission.arxiv_identifier_w_vn_nr]))
 
 
 @login_required

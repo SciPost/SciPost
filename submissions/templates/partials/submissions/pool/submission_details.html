@@ -30,7 +30,7 @@
           {% endfor %}
         </ul>
 
-        {% if is_editor_in_charge or is_editorial_admin %}
+        {% if is_editor_in_charge or is_editorial_admin or submission|is_voting_fellow:request.user %}
             <br>
             {% include 'submissions/_required_actions_block.html' with submission=submission %}
             <h4>
