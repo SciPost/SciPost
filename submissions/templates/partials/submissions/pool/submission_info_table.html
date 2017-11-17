@@ -77,8 +77,13 @@
     {% if perms.scipost.can_manage_college_composition %}
         <tr>
             <td>Pool composition</td>
-            <td><a href="{% url 'colleges:submission' submission.arxiv_identifier_w_vn_nr %}">{{ submission.fellows.count }} Fellowships</a></td>
+            <td><a href="{% url 'colleges:submission' submission.arxiv_identifier_w_vn_nr %}">{{ submission.fellows.count }} Fellowship{{ submission.fellows.count|pluralize }}</a></td>
         </tr>
+        <tr>
+            <td>Fellows voting</td>
+            <td><a href="{% url 'colleges:submission_voting_fellows' submission.arxiv_identifier_w_vn_nr %}">{{ submission.voting_fellows.count }} Fellowship{{ submission.voting_fellows.count|pluralize }}</a></td>
+        </tr>
+
     {% endif %}
 
 </table>

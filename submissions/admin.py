@@ -114,7 +114,8 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'proceedings',
                 'pdf_refereeing_pack',
                 'plagiarism_report',
-                'fellows'),
+                'fellows',
+                'voting_fellows'),
         }),
         ('Meta', {
             'classes': ('collapse',),
