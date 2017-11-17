@@ -3,12 +3,13 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.urlresolvers import reverse
 
-from proceedings.models import Proceedings
+# from proceedings.models import Proceedings
 from submissions.models import Submission
 
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
-    FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm
+    FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
+    FellowVotingRemoveSubmissionForm
 from .models import Fellowship
 
 
@@ -109,6 +110,71 @@ def submission_pool(request, arxiv_identifier_w_vn_nr):
         'submission': submission
     }
     return render(request, 'colleges/submission_pool.html', context)
+
+
+@login_required
+@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+def submission_voting_fellows(request, arxiv_identifier_w_vn_nr):
+    """
+    List all Fellowships selected for voting on the EIC related to Submission.
+    """
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+
+    context = {
+        'submission': submission
+    }
+    return render(request, 'colleges/submission_voting_fellows.html', context)
+
+
+@login_required
+@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+def submission_add_fellowship_voting(request, arxiv_identifier_w_vn_nr):
+    """
+    Add Fellowship to the Fellows voting on the EICRecommendation of a Submission.
+    """
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    form = SubmissionAddVotingFellowForm(request.POST or None, instance=submission)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Fellowship {fellowship} ({id}) added to voting Fellows.'.format(
+            fellowship=form.cleaned_data['fellowship'].contributor,
+            id=form.cleaned_data['fellowship'].id))
+        return redirect(reverse('colleges:submission_voting_fellows',
+                                args=(submission.arxiv_identifier_w_vn_nr,)))
+
+    context = {
+        'submission': submission,
+        'form': form,
+    }
+    return render(request, 'colleges/submission_add_for_voting.html', context)
+
+
+@login_required
+@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+def fellowship_remove_submission_voting(request, id, arxiv_identifier_w_vn_nr):
+    """
+    Remove Fellow from the EICRecommendation voting group for the Submission.
+    """
+    fellowship = get_object_or_404(Fellowship, id=id)
+    submission = get_object_or_404(fellowship.voting_pool.all(),
+                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    form = FellowVotingRemoveSubmissionForm(request.POST or None,
+                                            submission=submission, instance=fellowship)
+
+    if form.is_valid() and request.POST:
+        form.save()
+        messages.success(request, 'Submission {sub} removed from Fellowship.'.format(
+            sub=arxiv_identifier_w_vn_nr))
+        return redirect(reverse('colleges:submission_voting_fellows',
+                                args=(submission.arxiv_identifier_w_vn_nr,)))
+
+    context = {
+        'fellowship': fellowship,
+        'form': form,
+        'submission': submission
+    }
+    return render(request, 'colleges/fellowship_submission_remove_voting.html', context)
 
 
 @login_required
