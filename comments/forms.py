@@ -9,14 +9,19 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ['is_cor', 'is_rem', 'is_que', 'is_ans', 'is_obj',
                   'is_rep', 'is_val', 'is_lit', 'is_sug',
-                  'comment_text', 'remarks_for_editors', 'file_attachment']
+                  'comment_text', 'remarks_for_editors', 'file_attachment',
+                  'anonymous']
 
     def __init__(self, *args, **kwargs):
+        self.is_report_comment = kwargs.pop('is_report_comment', False)
         super().__init__(*args, **kwargs)
         self.fields['comment_text'].widget.attrs.update(
             {'placeholder': 'NOTE: only serious and meaningful Comments will be accepted.'})
         self.fields['remarks_for_editors'].widget.attrs.update(
             {'rows': 3, 'placeholder': '(these remarks will not be publicly visible)'})
+
+        if not self.is_report_comment:
+            del self.fields['anonymous']
 
 
 class VetCommentForm(forms.Form):

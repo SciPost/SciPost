@@ -181,7 +181,7 @@ def reply_to_report(request, report_id):
     # Verify if this is from an author:
     is_author = report.submission.authors.filter(user=request.user).exists()
 
-    form = CommentForm(request.POST or None, request.FILES or None)
+    form = CommentForm(request.POST or None, request.FILES or None, is_report_comment=True)
     if form.is_valid():
         newcomment = form.save(commit=False)
         newcomment.content_object = report

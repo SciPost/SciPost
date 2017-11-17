@@ -27,7 +27,7 @@
             <h1>SciPost Submissions Pool</h1>
             {% if is_ECAdmin %}
 
-                {% if recommendations.voting_in_preparation.exists or recommendations.put_to_voting.exists %}
+                {% if recommendations.voting_in_preparation.exists or recommendations.put_to_voting.exists or latest_submission_events %}
                     <div class="quote-border">
                         <h2 class="text-primary">Administrative Tasks</h2>
 
@@ -53,7 +53,14 @@
                                 {% endfor %}
                             </ul>
                         {% endif %}
+                        {% if latest_submission_events %}
+                            <a href="javascript:void(0)" class="btn" data-toggle="toggle" data-target="#lastest_events_list"><i class="fa fa-comments-o"></i> View/hide latest events ({{ latest_submission_events|length }}) in the last 24 hours</a>
+                            <div id="lastest_events_list" style="display: none;">
+                                {% include 'submissions/submission_event_list_general.html' with events=latest_submission_events %}
+                            </div>
+                        {% endif %}
                     </div>
+                    <br>
                 {% endif %}
             {% endif %}
 
