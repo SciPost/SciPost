@@ -53,10 +53,10 @@ def add_funder(request):
     return redirect(reverse('funders:funders'))
 
 
-@permission_required('scipost.can_view_all_funding_info', raise_exception=True)
+# @permission_required('scipost.can_view_all_funding_info', raise_exception=True)
 def funder_publications(request, funder_id):
     """
-    See details of specific Funder.
+    See details of specific Funder (publicly accessible).
     """
     funder = get_object_or_404(Funder, id=funder_id)
     context = {'funder': funder}

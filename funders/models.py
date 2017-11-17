@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
 
 from journals.models import Publication
 
@@ -21,6 +22,9 @@ class Funder(models.Model):
         if self.acronym:
             result += ' (%s)' % self.acronym
         return result
+
+    def get_absolute_url(self):
+        return reverse('funders:funder_publications', args=(self.id,))
 
     def all_related_publications(self):
         return Publication.objects.filter(
