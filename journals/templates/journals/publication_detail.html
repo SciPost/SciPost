@@ -54,7 +54,7 @@
     {% if publication.commentary and publication.commentary.comments.vetted.exists %}
         <h3>Post-publication commentaries</h3>
         <p>
-            There has been commented on this Publication ({{ publication.commentary.comments.vetted.count }}), see <a href="{{ publication.commentary.get_absolute_url }}">this Publication's Commentary page</a> for details.
+            This Publication ({{ publication.commentary.comments.vetted.count }}) has been commented on, see <a href="{{ publication.commentary.get_absolute_url }}">this Publication's Commentary page</a> for details.
         </p>
     {% endif %}
 
