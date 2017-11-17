@@ -87,6 +87,8 @@ $(function(){
                 .removeClass('active')
             $(self).parents('[data-target="active-list"] > li')
                 .addClass('active');
+
+            window.history.replaceState('scipost', document.title, url);
         });
     });
 });
