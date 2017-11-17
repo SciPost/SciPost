@@ -18,28 +18,33 @@
         </td>
     </tr>
     {% if commentary.type == 'published' %}
-    <tr>
-        <td>Journal ref.:</td>
-        <td>{{commentary.journal}} {{commentary.volume}}, {{commentary.pages}}</td>
-    </tr>
-    <tr>
-        <td>DOI:</td>
-        <td>
-            <a href="{{commentary.pub_DOI_link}}" target="_blank">{{commentary.pub_DOI_link}}</a>
-        </td>
-    </tr>
+        <tr>
+            <td>Journal ref.:</td>
+            <td>{{commentary.journal}} {{commentary.volume}}{% if commentary.pages %}, {{commentary.pages}}{% endif %}</td>
+        </tr>
+        <tr>
+            <td>DOI:</td>
+            <td>
+                <a href="{{commentary.pub_DOI_link}}" target="_blank">{{commentary.pub_DOI_link}}</a>
+            </td>
+        </tr>
     {% elif commentary.type == 'preprint' %}
-    <tr>
-        <td>arxiv Link:</td>
-        <td>
-            <a href="{{commentary.arxiv_link}}" target="_blank">{{commentary.arxiv_link}}</a>
-        </td>
-    </tr>
+        <tr>
+            <td>arxiv Link:</td>
+            <td>
+                <a href="{{commentary.arxiv_link}}" target="_blank">{{commentary.arxiv_link}}</a>
+            </td>
+        </tr>
     {% endif %}
     {% if commentary.pub_date %}
-    <tr>
-        <td>Date:</td>
-        <td>{{commentary.pub_date}}</td>
-    </tr>
+        <tr>
+            <td>Date:</td>
+            <td>{{commentary.pub_date}}</td>
+        </tr>
     {% endif %}
 </table>
+
+{% if commentary.scipost_publication %}
+    <br>
+    <p class="my-0">Published in {{commentary.scipost_publication.in_issue.in_volume.in_journal.get_name_display}}: <a href="{{commentary.scipost_publication.get_absolute_url}}">{{commentary.scipost_publication.in_issue.in_volume.in_journal.get_abbreviation_citation}} <strong>{{commentary.scipost_publication.in_issue.in_volume.number}}</strong>, {{commentary.scipost_publication.get_paper_nr}} ({{commentary.scipost_publication.publication_date|date:'Y'}})</a></p>
+{% endif %}

@@ -1,34 +1,25 @@
-{% extends 'scipost/base.html' %}
-
-{% block pagetitle %}: Commentary detail{% endblock pagetitle %}
-
-{% block headsup %}
+{% extends 'commentaries/base.html' %}
 
 {% load scipost_extras %}
 
-{% endblock headsup %}
+{% block pagetitle %}: Commentary detail{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">{{ commentary }}</span>
+{% endblock %}
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        <h1 class="highlight">SciPost Commentary Page (non-SciPost publications)</h1>
-    </div>
-</div>
+<h1 class="highlight">SciPost Commentary Page</h1>
 
-<div class="row">
-    <div class="col-12">
-        <h2>Original publication: </h2>
-        {% include 'commentaries/_commentary_summary.html' with commentary=commentary %}
-    </div>
-</div>
+<h3>Original publication:</h3>
+{% include 'commentaries/_commentary_summary.html' with commentary=commentary %}
 
-<div class="row">
-    <div class="col-12">
-        <h3>Abstract:</h3>
-        <p>{{ commentary.pub_abstract }}</p>
-    </div>
-</div>
+<br>
+
+<h3>Abstract:</h3>
+<p>{{ commentary.pub_abstract }}</p>
 
 {% include 'scipost/comments_block.html' with comments=commentary.comments.vetted type_of_object='Commentary' %}
 
