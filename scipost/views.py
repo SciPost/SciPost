@@ -1316,3 +1316,11 @@ class AboutView(ListView):
             ))
         context['object_list'] = object_list
         return context
+
+
+def csrf_failure(request, reason=""):
+    """
+    Custom CRSF Failure. Informing admins via email as well.
+    """
+    mail.mail_admins('CRSF Failure', 'Error message: ' + reason)
+    return render(request, 'crsf-failure.html')
