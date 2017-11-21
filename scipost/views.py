@@ -1322,5 +1322,7 @@ def csrf_failure(request, reason=""):
     """
     Custom CRSF Failure. Informing admins via email as well.
     """
-    mail.mail_admins('CRSF Failure', 'Error message: ' + reason + '\nUser: ' + request.user)
+    body = 'Error message: ' + reason + '\nUser: ' + request.user
+    body += '\nRequest GET: ' + request.GET + '\nRequest POST: ' + request.POST
+    mail.mail_admins('CRSF Failure', body)
     return render(request, 'crsf-failure.html')
