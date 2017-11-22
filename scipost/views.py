@@ -36,6 +36,7 @@ from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriod
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from affiliations.forms import AffiliationsFormset
+from colleges.permissions import fellowship_or_admin_required
 from commentaries.models import Commentary
 from comments.models import Comment
 from journals.models import Publication, Journal
@@ -1268,7 +1269,8 @@ def EdCol_bylaws(request):
     return render(request, 'scipost/EdCol_by-laws.html')
 
 
-@permission_required('scipost.can_view_pool', return_403=True)
+@login_required
+@fellowship_or_admin_required()
 def Fellow_activity_overview(request):
     fellows = (Contributor.objects.fellows()
                .prefetch_related('editorial_assignments')
