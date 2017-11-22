@@ -39,7 +39,7 @@ class IssueManager(models.Manager):
                               **kwargs).order_by('-until_date').first()
 
 
-class PublicationManager(models.Manager):
+class PublicationQuerySet(models.QuerySet):
     def get_published(self, *args, **kwargs):
         try:
             return self.published(*args, **kwargs)[0]

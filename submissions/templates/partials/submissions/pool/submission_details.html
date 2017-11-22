@@ -30,7 +30,7 @@
           {% endfor %}
         </ul>
 
-        {% if is_editor_in_charge or is_editorial_admin %}
+        {% if is_editor_in_charge or is_editorial_admin or submission|is_voting_fellow:request.user %}
             <br>
             {% include 'submissions/_required_actions_block.html' with submission=submission %}
             <h4>
@@ -41,6 +41,9 @@
         {% if is_editorial_admin %}
             <h3>Editorial Administration</h3>
             <ul class="pl-4 mb-3">
+                <li><a href="{% url 'colleges:submission' submission.arxiv_identifier_w_vn_nr %}">Manage Pool composition</a></li>
+                <li><a href="{% url 'colleges:submission_voting_fellows' submission.arxiv_identifier_w_vn_nr %}">Manage Voting Fellows</a></li>
+
                 {# EIC Assignments #}
                 {% if perms.scipost.can_assign_submissions %}
                     <li>EIC Assignment requests:</li>
@@ -86,6 +89,7 @@
                     <li><a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
                     <li>After proofs have been accepted, you can <a href="{% url 'journals:initiate_publication' %}">initiate the publication process</a> (leads to the validation page)</li>
                 {% endif %}
+
             </ul>
 
             <h3>Events</h3>

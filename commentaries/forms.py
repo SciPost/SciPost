@@ -9,6 +9,7 @@ from django.template.loader import get_template
 from .models import Commentary
 from .constants import COMMENTARY_PUBLISHED, COMMENTARY_PREPRINT
 
+from comments.forms import CommentForm
 from scipost.services import DOICaller, ArxivCaller
 from scipost.models import Contributor
 
@@ -101,7 +102,7 @@ class RequestCommentaryForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        self.instance.parse_links_into_urls()
+        self.instance.parse_links_into_urls(commit=False)
         if self.requested_by:
             self.instance.requested_by = self.requested_by
         return super().save(*args, **kwargs)
@@ -291,3 +292,66 @@ class CommentarySearchForm(forms.Form):
             title__icontains=self.cleaned_data['title'],
             pub_abstract__icontains=self.cleaned_data['abstract'],
             author_list__icontains=self.cleaned_data['author']).order_by('-pub_date')
+
+
+class CommentSciPostPublication(CommentForm):
+    """
+    This Form will let authors of an SciPost publication comment on their Publication
+    using the Commentary functionalities. It will create an Commentary page if it does not
+    exist yet.
+
+    It inherits from ModelForm: CommentForm and thus will, by default, return a Comment!
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.publication = kwargs.pop('publication')
+        self.current_user = kwargs.pop('current_user')
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        """
+        Create (vetted) Commentary page if not exist and do save actions as
+        per original CommentForm.
+        """
+        if not commit:
+            raise AssertionError('CommentSciPostPublication can only be used with commit=True')
+
+        try:
+            commentary = self.publication.commentary
+        except Commentary.DoesNotExist:
+            submission = self.publication.accepted_submission
+            commentary = Commentary(**{
+                # 'vetted_by': None,
+                'requested_by': self.current_user.contributor,
+                'vetted': True,
+                'type': COMMENTARY_PUBLISHED,
+                'discipline': self.publication.discipline,
+                'domain': self.publication.domain,
+                'subject_area': self.publication.subject_area,
+                'title': self.publication.title,
+                'arxiv_identifier': submission.arxiv_identifier_w_vn_nr,
+                'arxiv_link': submission.arxiv_link,
+                'pub_DOI': self.publication.doi_string,
+                'metadata': self.publication.metadata,
+                'scipost_publication': self.publication,
+                'author_list': self.publication.author_list,
+                'journal': self.publication.in_issue.in_volume.in_journal.get_name_display(),
+                'pages': self.publication.in_issue.number,
+                'volume': self.publication.in_issue.in_volume.number,
+                'pub_date': self.publication.publication_date,
+                'pub_abstract': self.publication.abstract,
+            })
+            commentary.parse_links_into_urls(commit=False)
+            commentary.save()
+            commentary.authors.add(*self.publication.authors.all())
+            commentary.authors_claims.add(*self.publication.authors_claims.all())
+            commentary.authors_false_claims.add(*self.publication.authors_false_claims.all())
+
+        # Original saving steps
+        comment = super().save(commit=False)
+        comment.author = self.current_user.contributor
+        comment.is_author_reply = True
+        comment.content_object = commentary
+        comment.save()
+        comment.grant_permissions()
+        return comment

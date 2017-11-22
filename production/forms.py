@@ -3,7 +3,8 @@ import datetime
 from django import forms
 
 from . import constants
-from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs
+from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs,\
+    ProductionEventAttachment
 from .signals import notify_stream_status_change
 
 today = datetime.datetime.today()
@@ -144,6 +145,7 @@ class ProofsDecisionForm(forms.ModelForm):
     decision = forms.ChoiceField(choices=[(True, 'Accept Proofs for publication'),
                                           (False, 'Decline Proofs for publication')])
     feedback = forms.CharField(required=False, widget=forms.Textarea)
+    feedback_attachment = forms.FileField(required=False)
 
     class Meta:
         model = Proofs
@@ -173,9 +175,14 @@ class ProofsDecisionForm(forms.ModelForm):
             prodevent = ProductionEvent(
                 stream=proofs.stream,
                 event='status',
-                comments='Received feedback from the authors: {comments}'.format(
+                comments='<em>Received feedback from the authors:</em><br>{comments}'.format(
                     comments=comments),
                 noted_by=proofs.stream.supervisor
             )
             prodevent.save()
+            if self.cleaned_data.get('feedback_attachment'):
+                attachment = ProductionEventAttachment(
+                    attachment=self.cleaned_data['feedback_attachment'],
+                    production_event=prodevent)
+                attachment.save()
         return proofs

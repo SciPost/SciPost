@@ -45,8 +45,6 @@ urlpatterns = [
         name='prefill_using_identifier'),
     url(r'^pool/$', views.pool, name='pool'),
     url(r'^pool/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX), views.pool, name='pool'),
-    url(r'^submissions_by_status/(?P<status>[a-zA-Z_]+)$',
-        views.submissions_by_status, name='submissions_by_status'),  # DEPRECATED
     url(r'^add_remark/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.add_remark, name='add_remark'),
 

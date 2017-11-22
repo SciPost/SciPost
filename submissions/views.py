@@ -33,12 +33,12 @@ from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSe
                    iThenticateReportForm, SubmissionPoolFilterForm
 from .utils import SubmissionUtils
 
+from colleges.permissions import fellowship_required
 from mails.views import MailEditingSubView
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark, RegistrationInvitation
 from scipost.utils import Utils
-from scipost.permissions import is_tester
 
 from comments.forms import CommentForm
 from production.forms import ProofsDecisionForm
@@ -331,7 +331,7 @@ def editorial_workflow(request):
 
 
 @login_required
-@permission_required('scipost.can_view_pool', raise_exception=True)
+@fellowship_required()
 def pool(request, arxiv_identifier_w_vn_nr=None):
     """
     The Submissions pool contains all submissions which are undergoing
@@ -339,10 +339,6 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
     to publication acceptance or rejection.
     All members of the Editorial College have access.
     """
-    # Objects
-
-    # The following is in test phase. Update if test is done
-    # --
     # Search
     search_form = SubmissionPoolFilterForm(request.GET or None)
     if search_form.is_valid():
@@ -354,7 +350,8 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
     # submissions = Submission.objects.pool(request.user)
     recommendations = EICRecommendation.objects.filter(submission__in=submissions)
     recs_to_vote_on = recommendations.user_may_vote_on(request.user)
-    assignments_to_consider = EditorialAssignment.objects.open().filter(to=request.user.contributor)
+    assignments_to_consider = EditorialAssignment.objects.open().filter(
+        to=request.user.contributor)
 
     # Forms
     consider_assignment_form = ConsiderAssignmentForm()
@@ -373,9 +370,6 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
         'remark_form': remark_form,
     }
 
-    # The following is in test phase. Update if test is done
-    # --
-
     # Show specific submission in the pool
     context['submission'] = None
     if arxiv_identifier_w_vn_nr:
@@ -392,36 +386,12 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
     # Temporary test logic: only testers see the new Pool
     if context['submission'] and request.is_ajax():
         template = 'partials/submissions/pool/submission_details.html'
-    elif is_tester(request.user) and not request.GET.get('test'):
-        template = 'submissions/pool/pool.html'
     else:
-        template = 'submissions/pool.html'
+        template = 'submissions/pool/pool.html'
     return render(request, template, context)
 
 
 @login_required
-@permission_required('scipost.can_view_pool', raise_exception=True)
-def submissions_by_status(request, status):
-    # ---
-    # DEPRECATED AS PER NEW POOL
-    # ---
-    status_dict = dict(SUBMISSION_STATUS)
-    if status not in status_dict.keys():
-        errormessage = 'Unknown status.'
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
-    submissions_of_status = (Submission.objects.pool_full(request.user)
-                             .filter(status=status).order_by('-submission_date'))
-
-    context = {
-        'submissions_of_status': submissions_of_status,
-        'status': status_dict[status],
-        'remark_form': RemarkForm()
-    }
-    return render(request, 'submissions/submissions_by_status.html', context)
-
-
-@login_required
-# @permission_required('scipost.can_view_pool', raise_exception=True)
 def add_remark(request, arxiv_identifier_w_vn_nr):
     """
     With this method, an Editorial Fellow or Board Member
@@ -679,13 +649,23 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
 
     Accessible for: Editor-in-charge and Editorial Administration
     """
-    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
+    submission = get_object_or_404(Submission.objects.pool_full(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+
+    full_access = True
+    if not request.user.has_perm('scipost.can_oversee_refereeing'):
+        # Administrators will be able to see all Submissions
+        if submission.editor_in_charge != request.user.contributor:
+            # The current user is not EIC of the Submission!
+            full_access = False
+            if not submission.voting_fellows.filter(contributor__user=request.user).exists():
+                raise Http404
 
     context = {
         'submission': submission,
         'set_deadline_form': SetRefereeingDeadlineForm(),
         'cycle_choice_form': SubmissionCycleChoiceForm(instance=submission),
+        'full_access': full_access,
     }
     return render(request, 'submissions/editorial_page.html', context)
 
@@ -714,7 +694,8 @@ def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
             # Redirect to EIC Recommendation page immediately
             return redirect(reverse('submissions:eic_recommendation',
                             args=[submission.arxiv_identifier_w_vn_nr]))
-    return redirect(reverse('submissions:editorial_page', args=[submission.arxiv_identifier_w_vn_nr]))
+    return redirect(
+        reverse('submissions:editorial_page', args=[submission.arxiv_identifier_w_vn_nr]))
 
 
 @login_required

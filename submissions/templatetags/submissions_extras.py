@@ -25,3 +25,8 @@ def is_viewable_by_authors(recommendation):
 @register.filter
 def user_is_referee(submission, user):
     return submission.referee_invitations.filter(referee__user=user).exists()
+
+
+@register.filter
+def is_voting_fellow(submission, user):
+    return submission.voting_fellows.filter(contributor__user=user).exists()

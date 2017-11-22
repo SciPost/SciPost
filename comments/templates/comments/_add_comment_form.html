@@ -14,7 +14,7 @@
 </script>
 {% endblock %}
 
-<form enctype="multipart/form-data" action="{{url}}" method="post">
+<form enctype="multipart/form-data" {% if url %}action="{{url}}" {% endif %}method="post">
       {% csrf_token %}
       <div class="row">
           <div class="col-md-9">
