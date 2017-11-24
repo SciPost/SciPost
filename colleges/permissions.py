@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import PermissionDenied
 
 
 def fellowship_required():
@@ -10,8 +11,7 @@ def fellowship_required():
             if hasattr(u, 'contributor') and u.contributor.fellowships.exists():
                 # Fellow
                 return True
-
-        return False
+        raise PermissionDenied
     return user_passes_test(test)
 
 
@@ -28,5 +28,5 @@ def fellowship_or_admin_required():
             if u.has_perm('scipost.can_oversee_refereeing'):
                 # Administrator
                 return True
-        return False
+        raise PermissionDenied
     return user_passes_test(test)
