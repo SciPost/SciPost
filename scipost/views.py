@@ -587,7 +587,7 @@ def renew_registration_invitation(request, invitation_id):
         invitation.date_last_reminded = timezone.now()
         invitation.save()
         invitation.refresh_keys()
-        messages.success(request, 'Registration invitation have been sent.')
+        messages.success(request, 'Registration invitation has been sent.')
         mail_request.send()
         return redirect('scipost:registration_invitations')
     else:
