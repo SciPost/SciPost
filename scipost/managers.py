@@ -1,21 +1,20 @@
-import datetime
-
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 from .constants import CONTRIBUTOR_NORMAL, INVITATION_EDITORIAL_FELLOW,\
                        CONTRIBUTOR_NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
 
 
 class FellowManager(models.Manager):
-    def active(self, *args, **kwargs):
-        today = datetime.date.today()
+    def active(self):
+        today = timezone.now().date()
         return self.filter(
             Q(start_date__lte=today, until_date__isnull=True) |
             Q(start_date__isnull=True, until_date__gte=today) |
             Q(start_date__lte=today, until_date__gte=today) |
-            Q(start_date__isnull=True, until_date__isnull=True),
-            **kwargs).order_by('contributor__user__last_name')
+            Q(start_date__isnull=True, until_date__isnull=True)
+            ).order_by('contributor__user__last_name')
 
 
 class ContributorManager(models.Manager):
@@ -50,7 +49,7 @@ class RegistrationInvitationManager(models.Manager):
 
 class UnavailabilityPeriodManager(models.Manager):
     def today(self):
-        today = datetime.date.today()
+        today = timezone.now().date()
         return self.filter(start__lte=today, end__gte=today)
 
 
