@@ -1095,7 +1095,11 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
     Communication between editor-in-charge, author or referee
     occurring during the submission refereeing.
     """
-    submission = get_object_or_404(Submission.objects.pool_full(request.user),
+    if comtype == 'AtoE':
+        submissions_qs = Submission.objects.filter(authors__user=request.user)
+    else:
+        submissions_qs = Submission.objects.pool_full(request.user)
+    submission = get_object_or_404(submissions_qs,
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     errormessage = None
     if comtype not in dict(ED_COMM_CHOICES).keys():
