@@ -1329,9 +1329,10 @@ def csrf_failure(request, reason=""):
     """
     # Filter out privacy data
     settings_dict = {}
-    for k in dir(request.POST):
-        if k.isupper():
-            settings_dict[k] = cleanse_setting(k, getattr(request.POST, k))
+
+    for key in request.POST.keys():
+        if key:
+            settings_dict[key] = cleanse_setting(key, request.POST[key])
 
     # Email content
     body = 'Error message: ' + reason + '\nUser: ' + str(request.user)
