@@ -16,6 +16,8 @@ from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY
                        STATUS_PUT_TO_EC_VOTING, STATUS_VOTING_IN_PREPARATION,\
                        SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_REVISION_REQUESTED
 
+now = timezone.now()
+
 
 class SubmissionQuerySet(models.QuerySet):
     def _newest_version_only(self, queryset):
@@ -335,7 +337,7 @@ class RefereeInvitationQuerySet(models.QuerySet):
 
     def approaching_deadline(self):
         qs = self.in_process()
-        psuedo_deadline = datetime.datetime.now() + datetime.timedelta(days=2)
+        psuedo_deadline = now + datetime.timedelta(days=2)
         deadline = datetime.datetime.now()
         qs = qs.filter(submission__reporting_deadline__lte=psuedo_deadline,
                        submission__reporting_deadline__gte=deadline)
@@ -343,6 +345,6 @@ class RefereeInvitationQuerySet(models.QuerySet):
 
     def overdue(self):
         qs = self.in_process()
-        deadline = datetime.datetime.now()
+        deadline = now
         qs = qs.filter(submission__reporting_deadline__lte=deadline)
         return qs

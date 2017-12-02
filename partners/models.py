@@ -32,6 +32,7 @@ from scipost.fields import ChoiceArrayField
 from scipost.models import get_sentinel_user, Contributor
 from scipost.storage import SecureFileStorage
 
+now = timezone.now()
 
 
 ########################
@@ -174,7 +175,7 @@ class Contact(models.Model):
         feed = feed.encode('utf8')
         salt = self.user.username.encode('utf8')
         self.activation_key = hashlib.sha1(salt+salt).hexdigest()
-        self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
+        self.key_expires = now + datetime.timedelta(days=2)
 
     def save(self, *args, **kwargs):
         if not self.activation_key:

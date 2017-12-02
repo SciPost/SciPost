@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.urlresolvers import reverse
 
-# from proceedings.models import Proceedings
 from submissions.models import Submission
 
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\

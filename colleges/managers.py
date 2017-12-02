@@ -1,9 +1,8 @@
-import datetime
-
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
-today = datetime.date.today()
+today = timezone.now().date()
 
 
 class FellowQuerySet(models.QuerySet):
