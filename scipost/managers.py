@@ -5,10 +5,11 @@ from django.utils import timezone
 from .constants import CONTRIBUTOR_NORMAL, INVITATION_EDITORIAL_FELLOW,\
                        CONTRIBUTOR_NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
 
+today = timezone.now().date()
+
 
 class FellowManager(models.Manager):
     def active(self):
-        today = timezone.now().date()
         return self.filter(
             Q(start_date__lte=today, until_date__isnull=True) |
             Q(start_date__isnull=True, until_date__gte=today) |
@@ -49,7 +50,6 @@ class RegistrationInvitationManager(models.Manager):
 
 class UnavailabilityPeriodManager(models.Manager):
     def today(self):
-        today = timezone.now().date()
         return self.filter(start__lte=today, end__gte=today)
 
 
