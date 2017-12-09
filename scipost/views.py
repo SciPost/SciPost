@@ -1,4 +1,4 @@
-import logging
+import json
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
@@ -1328,15 +1328,21 @@ def csrf_failure(request, reason=""):
     Custom CRSF Failure. Informing admins via email as well.
     """
     # Filter out privacy data
-    settings_dict = {}
-
+    post_data = {}
     for key in request.POST.keys():
         if key:
-            settings_dict[key] = cleanse_setting(key, request.POST[key])
+            post_data[key] = cleanse_setting(key, request.POST[key])
 
     # Email content
-    body = 'Error message: ' + reason + '\nUser: ' + str(request.user)
-    body += '\nRequest GET: ' + str(request.GET) + '\nRequest POST: '
-    body += str(settings_dict)
+    body = {
+        'ERROR': str(reason),
+        'USER': str(request.user),
+        'GET': dict(request.GET),
+        'POST': post_data,
+        'META': {k: str(v) for k, v in request.META.items()},
+    }
+
+    body = json.dumps(body, indent=4)
+
     mail.mail_admins('CRSF Failure', body)
     return render(request, 'crsf-failure.html')
