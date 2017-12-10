@@ -1340,7 +1340,9 @@ def csrf_failure(request, reason=""):
         'GET': dict(request.GET),
         'POST': post_data,
         'META': {k: str(v) for k, v in request.META.items()},
+        'COOKIES': {k: str(v) for k, v in request.COOKIES.items()},
     }
+    raise
 
     body = json.dumps(body, indent=4)
 
