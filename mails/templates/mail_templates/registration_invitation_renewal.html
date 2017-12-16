@@ -16,6 +16,7 @@
     {% endif %}
 </p>
 
+
 {% if invitation.invitation_type == 'R' %}
     <p>
         We would hereby like to cordially invite you
@@ -44,7 +45,20 @@
     <p>Many thanks in advance,</p>
     <p>The SciPost Team</p>
 {% elif invitation.invitation_type == 'ci' %}
-    <p>
+<p>
+  I hereby wanted to remind you of an invitation sent to you a while back, originating from the fact that your work was cited in a publication in a SciPost journal (see details below).
+</p>
+<p>
+  In case you are not yet familiar with SciPost, please have a look at the site https://scipost.org. You will hopefully feel sympathy for this by-and-for-scientists initiative aiming to bring much needed reform to the world of scientific publishing.
+</p>
+<p>
+  Your registration as a Contributor to SciPost would be most welcome, as well as your submissions to our emerging journals.
+</p>
+<p>All the best,</p>
+<p>Prof. J.-S. Caux on behalf of the SciPost Team</p>
+<br/>
+<hr/>
+<p>
         Your work has been cited in a manuscript submitted to SciPost, {{ invitation.cited_in_submission.title }} <br>by {{ invitation.cited_in_submission.author_list }}, <br>
         which you can find online at the
         <a href="https://scipost.org/submission/{{ invitation.cited_in_submission.arxiv_identifier_w_vn_nr }}">
