@@ -403,7 +403,7 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
 def add_unregistered_author(request, publication_id, unregistered_author_id):
     publication = get_object_or_404(Publication, id=publication_id)
     unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
-    publication.unregistered_authors.add(unregistered_author)
+    publication.authors_unregistered.add(unregistered_author)
     publication.save()
     return redirect(reverse('journals:manage_metadata',
                             kwargs={'doi_label': publication.doi_label}))

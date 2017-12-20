@@ -147,12 +147,12 @@ class Publication(models.Model):
     # Authors
     authors = models.ManyToManyField('scipost.Contributor', blank=True,
                                      related_name='publications')
-    authors_unregistered = models.ManyToManyField(UnregisteredAuthor, blank=True,
+    authors_unregistered = models.ManyToManyField('journals.UnregisteredAuthor', blank=True,
                                                   related_name='publications')
     first_author = models.ForeignKey('scipost.Contributor', blank=True, null=True,
                                      on_delete=models.CASCADE,
                                      related_name='first_author_publications')
-    first_author_unregistered = models.ForeignKey(UnregisteredAuthor, blank=True, null=True,
+    first_author_unregistered = models.ForeignKey('journals.UnregisteredAuthor', blank=True, null=True,
                                                   on_delete=models.CASCADE,
                                                   related_name='first_author_publications')
     authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
