@@ -6,7 +6,7 @@ from .base import *
 # THE MAIN THING HERE
 DEBUG = False
 # CERTFILE = get_secret("CERTFILE")
-ALLOWED_HOSTS = ['www.scipost.org', 'scipost.org', '87.247.240.135']
+ALLOWED_HOSTS = ['www.scipost.org', 'scipost.org', '87.247.240.135', 'scipost.webfactional.com']
 
 # Static and media
 STATIC_ROOT = '/home/scipost/webapps/scipost_static/'
