@@ -5,7 +5,9 @@ DEBUG = False
 ALLOWED_HOSTS = ['www.scipost.org', 'scipost.org']
 
 # Static and media
+STATIC_URL = 'https://scipost.org/static/'
 STATIC_ROOT = '/home/scipost/webapps/scipost_static/'
+MEDIA_URL = 'https://scipost.org/media/'
 MEDIA_ROOT = '/home/scipost/webapps/scipost_media/'
 
 # Recaptcha
