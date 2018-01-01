@@ -19,6 +19,8 @@ from .fields import ChoiceArrayField
 from .managers import FellowManager, ContributorManager, RegistrationInvitationManager,\
                       UnavailabilityPeriodManager, AuthorshipClaimQuerySet
 
+today = timezone.now().date()
+
 
 def get_sentinel_user():
     '''
@@ -330,7 +332,6 @@ class EditorialCollegeFellowship(TimeStampedModel):
         return self.contributor.__str__()
 
     def is_active(self):
-        today = datetime.date.today()
         if not self.start_date:
             if not self.until_date:
                 return True

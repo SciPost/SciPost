@@ -34,8 +34,6 @@ class MembershipAgreementManager(models.Manager):
     def now_active(self):
         return self.filter(start_date__lte=timezone.now().date(),
                            end_date__gte=timezone.now().date())
-        # start_date = models.DateField()
-        # duration = models.DurationField(choices=MEMBERSHIP_DURATION)
 
 
 class PartnersAttachmentManager(models.Manager):

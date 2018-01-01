@@ -33,7 +33,7 @@ from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSe
                    iThenticateReportForm, SubmissionPoolFilterForm
 from .utils import SubmissionUtils
 
-from colleges.permissions import fellowship_required
+from colleges.permissions import fellowship_required, fellowship_or_admin_required
 from mails.views import MailEditingSubView
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.mixins import PaginationMixin
@@ -321,7 +321,7 @@ def treated_submission_pdf_compile(request, arxiv_identifier_w_vn_nr):
 ######################
 
 @login_required
-@permission_required('scipost.can_view_pool', raise_exception=True)
+@fellowship_or_admin_required()
 def editorial_workflow(request):
     """
     Summary page for Editorial Fellows, containing a digest
@@ -331,7 +331,7 @@ def editorial_workflow(request):
 
 
 @login_required
-@fellowship_required()
+@fellowship_or_admin_required()
 def pool(request, arxiv_identifier_w_vn_nr=None):
     """
     The Submissions pool contains all submissions which are undergoing
@@ -392,6 +392,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
 
 
 @login_required
+@fellowship_or_admin_required()
 def add_remark(request, arxiv_identifier_w_vn_nr):
     """
     With this method, an Editorial Fellow or Board Member
@@ -461,7 +462,7 @@ def assign_submission_ack(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@fellowship_required()
 @transaction.atomic
 def assignment_request(request, assignment_id):
     """
@@ -533,7 +534,7 @@ def assignment_request(request, assignment_id):
 
 
 @login_required
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@fellowship_required()
 @transaction.atomic
 def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     """
@@ -622,7 +623,7 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
-@permission_required('scipost.can_take_charge_of_submissions', raise_exception=True)
+@fellowship_required()
 def assignments(request):
     """
     This page provides a Fellow with an explicit task list
@@ -643,6 +644,7 @@ def assignments(request):
 
 
 @login_required
+@fellowship_or_admin_required()
 def editorial_page(request, arxiv_identifier_w_vn_nr):
     """
     The central page for the EIC to manage all its Editorial duties.
@@ -671,6 +673,7 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
+@fellowship_or_admin_required()
 def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
     """
     If Submission is `resubmission_incoming` the EIC should first choose what refereeing
@@ -699,6 +702,7 @@ def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
+@fellowship_or_admin_required()
 def select_referee(request, arxiv_identifier_w_vn_nr):
     """
     Select/Invite referees by first listing them here.
@@ -743,6 +747,7 @@ def select_referee(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
+@fellowship_or_admin_required()
 @transaction.atomic
 def recruit_referee(request, arxiv_identifier_w_vn_nr):
     """
@@ -806,6 +811,7 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
+@fellowship_or_admin_required()
 @transaction.atomic
 def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id):
     """
@@ -852,6 +858,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
 
 
 @login_required
+@fellowship_or_admin_required()
 def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
     """
     This method is used by the Editor-in-charge from the editorial_page
@@ -1088,7 +1095,11 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
     Communication between editor-in-charge, author or referee
     occurring during the submission refereeing.
     """
-    submission = get_object_or_404(Submission.objects.pool_full(request.user),
+    if comtype == 'AtoE':
+        submissions_qs = Submission.objects.filter(authors__user=request.user)
+    else:
+        submissions_qs = Submission.objects.pool_full(request.user)
+    submission = get_object_or_404(submissions_qs,
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     errormessage = None
     if comtype not in dict(ED_COMM_CHOICES).keys():
@@ -1130,11 +1141,18 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
             return redirect(reverse('scipost:personal_page'))
         elif comtype == 'StoE':
             return redirect(reverse('submissions:pool'))
-    context = {'submission': submission, 'comtype': comtype, 'referee_id': referee_id, 'form': form}
+
+    context = {
+        'submission': submission,
+        'comtype': comtype,
+        'referee_id': referee_id,
+        'form': form
+    }
     return render(request, 'submissions/communication.html', context)
 
 
 @login_required
+@fellowship_or_admin_required()
 @transaction.atomic
 def eic_recommendation(request, arxiv_identifier_w_vn_nr):
     """
@@ -1295,6 +1313,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 
 
 @login_required
+@fellowship_or_admin_required()
 def vet_submitted_reports_list(request):
     """
     Reports with status `unvetted` will be shown (oldest first).
@@ -1307,6 +1326,7 @@ def vet_submitted_reports_list(request):
 
 
 @login_required
+@fellowship_or_admin_required()
 @transaction.atomic
 def vet_submitted_report(request, report_id):
     """
@@ -1406,6 +1426,7 @@ def prepare_for_voting(request, rec_id):
 
 
 @login_required
+@fellowship_or_admin_required()
 @transaction.atomic
 def vote_on_rec(request, rec_id):
     submissions = Submission.objects.pool_editable(request.user)

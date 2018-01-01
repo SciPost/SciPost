@@ -1,11 +1,12 @@
-import datetime
-
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils import timezone
 
 from scipost.behaviors import TimeStampedModel
 
 from .managers import ProceedingsQuerySet
+
+today = timezone.now().date()
 
 
 class Proceedings(TimeStampedModel):
@@ -52,5 +53,4 @@ class Proceedings(TimeStampedModel):
 
     @property
     def open_for_submission(self):
-        today = datetime.date.today()
         return self.submissions_open <= today and self.submissions_close >= today

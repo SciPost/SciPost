@@ -56,6 +56,8 @@ PRODUCTION_OFFICERS_WORK_LOG_TYPES = (
 )
 PRODUCTION_ALL_WORK_LOG_TYPES = (
     ('Production: Proofs have been produced', 'Proofs have been produced'),
+    ('Production: Proofs have been checked by Supervisor',
+     'Proofs have been checked by Supervisor'),
     ('Production: Corrections implemented', 'Corrections implemented'),
     ('Production: Paper has been published', 'Paper has been published'),
     ('Maintaince: Metadata has been updated', 'Metadata has been updated'),

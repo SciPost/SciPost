@@ -1,13 +1,12 @@
-import datetime
-
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.dates import MONTHS
 from django.db.models import Sum
+from django.utils import timezone
 
 from .models import WorkLog
 
-today = datetime.datetime.today()
+today = timezone.now().date()
 
 
 class WorkLogForm(forms.ModelForm):

@@ -16,6 +16,7 @@
     {% endif %}
 </p>
 
+
 {% if invitation.invitation_type == 'R' %}
     <p>
         We would hereby like to cordially invite you
@@ -44,7 +45,7 @@
     <p>Many thanks in advance,</p>
     <p>The SciPost Team</p>
 {% elif invitation.invitation_type == 'ci' %}
-    <p>
+<p>
         Your work has been cited in a manuscript submitted to SciPost, {{ invitation.cited_in_submission.title }} <br>by {{ invitation.cited_in_submission.author_list }}, <br>
         which you can find online at the
         <a href="https://scipost.org/submission/{{ invitation.cited_in_submission.arxiv_identifier_w_vn_nr }}">
@@ -98,6 +99,19 @@
     <p>{{ invitation.invited_by.get_title_display }} {{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</p>
 
 {% elif invitation.invitation_type == 'cp' %}
+<p>
+  I hereby wanted to remind you of an invitation sent to you a while back, originating from the fact that your work was cited in a publication in a SciPost journal (see details below).
+</p>
+<p>
+  In case you are not yet familiar with SciPost, please have a look at the site https://scipost.org. You will hopefully feel sympathy for this by-and-for-scientists initiative aiming to bring much needed reform to the world of scientific publishing.
+</p>
+<p>
+  Your registration as a Contributor to SciPost would be most welcome, as well as your submissions to our emerging journals.
+</p>
+<p>All the best,</p>
+<p>Prof. J.-S. Caux on behalf of the SciPost Team</p>
+<br/>
+<hr/>
     <p>Your work has been cited in a paper published by SciPost,</p>
     <p>
         {{ invitation.cited_in_publication.title }}</p> <p>by {{ invitation.cited_in_publication.author_list }} (published as <a href="https://scipost.org/{{ invitation.cited_in_publication.doi_label }}">{{ invitation.cited_in_publication.citation }}</a>).
@@ -134,7 +148,7 @@
         For your convenience, a partly pre-filled
         <a href="https://scipost.org/invitation/{{ invitation_key }}">registration form</a>
          has been prepared for you (you can in any case still register at the
-        <a href="https://scipost.org/register">registration page</a>.
+        <a href="https://scipost.org/register">registration page</a>).
     </p>
     <p>
         If you do develop sympathy for the initiative, besides participating in the

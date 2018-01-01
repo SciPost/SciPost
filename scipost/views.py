@@ -1,3 +1,5 @@
+import json
+
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.conf import settings
@@ -16,6 +18,7 @@ from django.shortcuts import redirect
 from django.template import Context, Template
 from django.views.decorators.http import require_POST
 from django.views.generic.list import ListView
+from django.views.debug import cleanse_setting
 from django.views.static import serve
 
 from guardian.decorators import permission_required
@@ -36,6 +39,7 @@ from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriod
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from affiliations.forms import AffiliationsFormset
+from colleges.permissions import fellowship_or_admin_required
 from commentaries.models import Commentary
 from comments.models import Comment
 from journals.models import Publication, Journal
@@ -586,7 +590,7 @@ def renew_registration_invitation(request, invitation_id):
         invitation.date_last_reminded = timezone.now()
         invitation.save()
         invitation.refresh_keys()
-        messages.success(request, 'Registration invitation have been sent.')
+        messages.success(request, 'Registration invitation has been sent.')
         mail_request.send()
         return redirect('scipost:registration_invitations')
     else:
@@ -1268,7 +1272,8 @@ def EdCol_bylaws(request):
     return render(request, 'scipost/EdCol_by-laws.html')
 
 
-@permission_required('scipost.can_view_pool', return_403=True)
+@login_required
+@fellowship_or_admin_required()
 def Fellow_activity_overview(request):
     fellows = (Contributor.objects.fellows()
                .prefetch_related('editorial_assignments')
@@ -1322,7 +1327,23 @@ def csrf_failure(request, reason=""):
     """
     Custom CRSF Failure. Informing admins via email as well.
     """
-    body = 'Error message: ' + reason + '\nUser: ' + str(request.user)
-    body += '\nRequest GET: ' + str(request.GET) + '\nRequest POST: ' + str(request.POST)
+    # Filter out privacy data
+    post_data = {}
+    for key in request.POST.keys():
+        if key:
+            post_data[key] = cleanse_setting(key, request.POST[key])
+
+    # Email content
+    body = {
+        'ERROR': str(reason),
+        'USER': str(request.user),
+        'GET': dict(request.GET),
+        'POST': post_data,
+        'META': {k: str(v) for k, v in request.META.items()},
+        'COOKIES': {k: str(v) for k, v in request.COOKIES.items()},
+    }
+
+    body = json.dumps(body, indent=4)
+
     mail.mail_admins('CRSF Failure', body)
     return render(request, 'crsf-failure.html')

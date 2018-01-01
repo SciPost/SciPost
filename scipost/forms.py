@@ -19,7 +19,8 @@ from captcha.fields import ReCaptchaField
 from ajax_select.fields import AutoCompleteSelectField
 from haystack.forms import ModelSearchForm as HayStackSearchForm
 
-from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES
+from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,\
+    INVITATION_CITED_SUBMISSION, INVITATION_CITED_PUBLICATION
 from .decorators import has_contributor
 from .models import Contributor, DraftInvitation, RegistrationInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
@@ -218,6 +219,16 @@ class RegistrationInvitationForm(forms.ModelForm):
         self.fields['cited_in_publication'] = forms.ModelChoiceField(
             queryset=Publication.objects.all().order_by('-publication_date'),
             required=False)
+
+    def clean(self):
+        data = self.cleaned_data
+        if data.get('invitation_type') == INVITATION_CITED_SUBMISSION:
+            if not data.get('cited_in_submission'):
+                self.add_error('cited_in_submission', 'Please state the Submission cited.')
+        if data.get('invitation_type') == INVITATION_CITED_PUBLICATION:
+            if not data.get('cited_in_publication'):
+                self.add_error('cited_in_publication', 'Please state the Publication cited.')
+        return data
 
     def clean_email(self):
         email = self.cleaned_data['email']
