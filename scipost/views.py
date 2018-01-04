@@ -324,11 +324,11 @@ def registration_requests(request):
     List all inactive users. These are users that have filled the registration form,
     but did not yet activate their account using the validation email.
     '''
-    unactive_contributors = (Contributor.objects.awaiting_validation()
+    inactive_contributors = (Contributor.objects.awaiting_validation()
                              .prefetch_related('user')
                              .order_by('-key_expires'))
     context = {
-        'unactive_contributors': unactive_contributors,
+        'inactive_contributors': inactive_contributors,
         'now': timezone.now()
     }
     return render(request, 'scipost/registration_requests.html', context)
