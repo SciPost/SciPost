@@ -189,9 +189,10 @@ def activation(request, contributor_id, key):
             }))
         contributor.user.is_active = True
         contributor.user.save()
-        context = {'ack_header': 'Your email address has been confirmed.',
-                   'ack_message': ('Your SciPost account will soon be vetted. '
-                                   'You will soon receive an email from us.'),
+        context = {'ack_header': 'Many thanks for confirming your email address.',
+                   'ack_message': ('Your SciPost account will soon be vetted by '
+                                   'an administrator, after which you will be able to log in. '
+                                   'You will soon receive an email confirmation from us!'),
                    }
         return render(request, 'scipost/acknowledgement.html', context)
     messages.success(request, ('<h3>Your email has already been confirmed.</h3>'
