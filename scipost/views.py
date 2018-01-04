@@ -245,7 +245,7 @@ def unsubscribe(request, contributor_id, key):
 @permission_required('scipost.can_vet_registration_requests', return_403=True)
 def vet_registration_requests(request):
     contributors_to_vet = (Contributor.objects
-                           .filter(user__is_active=True, status=0)
+                           .awaiting_vetting()
                            .order_by('key_expires'))
     form = VetRegistrationForm()
     context = {'contributors_to_vet': contributors_to_vet, 'form': form}

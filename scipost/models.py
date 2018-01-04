@@ -86,7 +86,8 @@ class Contributor(models.Model):
         return self.user.groups.filter(name='Editorial Administrators').exists()
 
     def is_SP_Admin(self):
-        return self.user.groups.filter(name='SciPost Administrators').exists()
+        return (self.user.groups.filter(name='SciPost Administrators').exists()
+                or self.user.is_superuser)
 
     def is_MEC(self):
         return self.user.groups.filter(name='Editorial College').exists()
