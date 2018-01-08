@@ -1,8 +1,11 @@
 <div class="card-body card-comment">
     {% block card_block_header %}{% endblock %}
     <p class="card-text">
-        <a href="{{comment.author.get_absolute_url}}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a>:
-
+      {% if comment.anonymous %}
+      Anonymous:
+      {% else %}
+      <a href="{{comment.author.get_absolute_url}}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a>:
+      {% endif %}
         <a href="{{comment.get_absolute_url}}">
             "{{comment.comment_text|slice:'30'}}{% if comment.comment_text|length > 30 %}...{% endif %}"
         </a>
