@@ -189,9 +189,10 @@ def activation(request, contributor_id, key):
             }))
         contributor.user.is_active = True
         contributor.user.save()
-        context = {'ack_header': 'Your email address has been confirmed.',
-                   'ack_message': ('Your SciPost account will soon be vetted. '
-                                   'You will soon receive an email from us.'),
+        context = {'ack_header': 'Many thanks for confirming your email address.',
+                   'ack_message': ('Your SciPost account will soon be vetted by '
+                                   'an administrator, after which you will be able to log in. '
+                                   'You will soon receive an email confirmation from us!'),
                    }
         return render(request, 'scipost/acknowledgement.html', context)
     messages.success(request, ('<h3>Your email has already been confirmed.</h3>'
@@ -244,7 +245,7 @@ def unsubscribe(request, contributor_id, key):
 @permission_required('scipost.can_vet_registration_requests', return_403=True)
 def vet_registration_requests(request):
     contributors_to_vet = (Contributor.objects
-                           .filter(user__is_active=True, status=0)
+                           .awaiting_vetting()
                            .order_by('key_expires'))
     form = VetRegistrationForm()
     context = {'contributors_to_vet': contributors_to_vet, 'form': form}
@@ -323,11 +324,11 @@ def registration_requests(request):
     List all inactive users. These are users that have filled the registration form,
     but did not yet activate their account using the validation email.
     '''
-    unactive_contributors = (Contributor.objects.awaiting_validation()
+    inactive_contributors = (Contributor.objects.awaiting_validation()
                              .prefetch_related('user')
                              .order_by('-key_expires'))
     context = {
-        'unactive_contributors': unactive_contributors,
+        'inactive_contributors': inactive_contributors,
         'now': timezone.now()
     }
     return render(request, 'scipost/registration_requests.html', context)

@@ -16,7 +16,7 @@
         <h1 class="highlight">Registration awaiting validation</h1>
         <p>
             These Contributors did not yet activate their account. Sometimes, this link is never clicked on (email is either lost to spam, or not received).<br>
-            As per this page, you are able to send a reminder email to the as-yet-unconfirmed contributor.
+            From here, you are able to send a reminder email to the as-yet-unconfirmed contributor.
         </p>
     </div>
 </div>
@@ -34,7 +34,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for contributor in unactive_contributors %}
+                {% for contributor in inactive_contributors %}
                     <tr>
                         <td>{{contributor.user.first_name}} {{contributor.user.last_name}}</td>
                         <td>{{contributor.user.email}}</td>
