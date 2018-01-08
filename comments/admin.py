@@ -15,11 +15,18 @@ def comment_is_vetted(comment):
     return comment.status is STATUS_VETTED
 
 
+def comment_is_anonymous(comment):
+    '''Check if comment is vetted.'''
+    return comment.anonymous
+
+
 class CommentAdmin(GuardedModelAdmin):
-    list_display = (comment_opening, 'author', 'date_submitted', comment_is_vetted)
+    list_display = (
+        comment_opening, 'author', 'date_submitted', comment_is_vetted, comment_is_anonymous)
     date_hierarchy = 'date_submitted'
     list_filter = ('status',)
     comment_is_vetted.boolean = True
+    comment_is_anonymous.boolean = True
 
 
 admin.site.register(Comment, CommentAdmin)
