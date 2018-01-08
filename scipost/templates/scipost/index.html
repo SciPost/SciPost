@@ -6,16 +6,24 @@
 {% block body_class %}{{block.super}} has-sidebar has-breadcrumb-submenu homepage{% endblock %}
 
 {% block breadcrumb %}
-    <nav class="submenu">
-        <span class="item">Our Journals:</span>
-        {% for journal in journals %}
-            {% if journal.active %}
-                <a href="{{journal.get_absolute_url}}" class="item">{{journal}}</a>
-            {% else %}
-                <a href="{% url 'journal:about' journal.name %}" class="item">{{journal}}</a>
-            {% endif %}
-        {% endfor %}
-    </nav>
+    <div class="container-outside sub-nav">
+        <div class="container">
+            <nav class="navbar sub-nav navbar-expand-lg">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><span class="nav-link">Our Journals:</span></li>
+                    {% for journal in journals %}
+                        <li class="nav-item">
+                            {% if journal.active %}
+                                <a href="{{journal.get_absolute_url}}" class="nav-link">{{journal}}</a>
+                            {% else %}
+                                <a href="{% url 'journal:about' journal.name %}" class="nav-link">{{journal}}</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </div>
+            </nav>
+        </div>
+    </div>
 {% endblock %}
 
 {% block footer_script %}
@@ -26,7 +34,7 @@
     <div class="row">
         <div class="col-lg-6">
             <!-- Latest publications -->
-            <div class="card card-grey px-4">
+            <div class="card card-grey px-3">
                 <div class="card-header px-0">
                     <h2><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
                 </div>
@@ -51,7 +59,7 @@
 
         <div class="col-lg-6">
             <!-- Latest submissions -->
-            <div class="card card-grey px-4">
+            <div class="card card-grey px-3">
                 <div class="card-header px-0">
                     <h2><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
                 </div>

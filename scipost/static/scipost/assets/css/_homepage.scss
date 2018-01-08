@@ -1,25 +1,13 @@
 .has-sidebar {
-    .submenu {
-        margin-bottom: 0;
-    }
-
     .content-wrapper {
         display: flex;
         flex-wrap: wrap;
         position: relative;
     }
 
-    .container {
-        position: relative;
-        z-index: 2;
-        float: left;
-        width: calc(100% - 400px);
-        min-height: 100%;
-    }
-
     .sidebar,
     .main-panel {
-        padding-top: 1.5rem;
+        padding-top: 0;
         overflow: auto;
         max-height: 100%;
         height: 100%;
@@ -35,39 +23,10 @@
 
     .sidebar {
         width: 100%;
-        border-top: 2px solid $card-grey-border-bottom-color;
-        background-size: cover;
-        background-position: center center;
-        background-color: $white;
-        border-left: 1px solid #ddd;
-        position: relative;
-        padding-top: 0.25rem;
         padding-left: 1rem;
         padding-right: 1rem;
-        margin-top: 2rem;
-
         .card {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            background: none;
-            border: 0;
-            margin-bottom: 0;
-            box-shadow: none;
-            border-radius: 0;
-            border-bottom: 1px solid $card-grey-border-bottom-color;
-        }
-        .card:last-child {
-            border-bottom: 0;
-        }
-
-        .card-header,
-        .card-body,
-        .card-footer {
-            border: 0;
-            margin-left: 0;
-            margin-right: 0;
-            padding-left: 0;
-            padding-right: 0;
+            margin-bottom: 1rem;
         }
     }
 }
@@ -77,26 +36,12 @@
     .has-sidebar {
         .main-panel {
             width: calc(100% - 350px);
-            padding-left: 1rem;
+            padding-left: 0;
             padding-right: 1rem;
         }
         .sidebar {
             width: 350px;
-            border-top: 0;
-            padding-bottom: 3rem;
-            padding-left: 40px;
-            margin-top: 0;
-
-
-            &:before {
-                content: '';
-                left: 0;
-                top: 0;
-                position: absolute;
-                height: 100%;
-                width: 20px;
-                background: $scipost-white;
-            }
+            padding-right: 0;
         }
     }
 }
@@ -109,8 +54,6 @@
 
         .sidebar {
             width: 400px;
-            padding-left: 3rem;
-            padding-right: 2rem;
         }
     }
 }

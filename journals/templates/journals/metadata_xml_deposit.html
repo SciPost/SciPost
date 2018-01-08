@@ -3,15 +3,17 @@
 {% block pagetitle %}: metadata XML deposit{% endblock pagetitle %}
 
 {% block breadcrumb %}
-    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+    <div class="container-outside header">
         <div class="container">
-            <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-            <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
-            <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
-            <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
-            <span class="breadcrumb-item active">Metadata XML deposit</span>
+            <nav class="breadcrumb hidden-sm-down">
+                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+                <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
+                <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
+                <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+                <span class="breadcrumb-item active">Metadata XML deposit</span>
+            </nav>
         </div>
-    </nav>
+    </div>
 {% endblock %}
 
 {% block content %}

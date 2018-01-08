@@ -49,6 +49,23 @@ h5 {
     font-weight: 300;
 }
 
+.container-outside.header {
+    background-color: $gray-200;
+    // box-shadow: 0 1px 0 0 $card-shadow-color;
+
+    h1,
+    h2 {
+        padding: 15px;
+        background-color: $gray-300;
+        border-radius: $card-border-radius;
+        border: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        // margin-bottom: 10px;
+        box-shadow: none;
+    }
+}
+
 .highlight {
     background-color: #f4f4f4;
     border-radius: $card-border-radius;

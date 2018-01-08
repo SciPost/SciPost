@@ -53,32 +53,6 @@ input[type="file"] {
     border-radius: 0.15rem;
 }
 
-.search-nav-form {
-    min-width: 260px;
-
-    input {
-        margin-right: 0 !important;
-        outline: 0;
-        line-height: 1.75;
-    }
-
-    input[name="q"] {
-        border-right: 0;
-        width: 200px;
-        border-radius: $base-border-radius 0 0 $base-border-radius;
-    }
-
-    input[type="submit"] {
-        background: #f4f4f4;
-        width: 60px;
-        text-align: center;
-        border-radius: 0 $base-border-radius $base-border-radius 0;
-
-        &:hover {
-            background: #ddd;
-        }
-    }
-}
 
 .form-group.checkboxes {
     [type="checkbox"] {

@@ -3,13 +3,15 @@
 {% block pagetitle %}: privacy policy{% endblock pagetitle %}
 
 {% block breadcrumb %}
-    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+    <div class="container-outside header">
         <div class="container">
-            <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
-            <a  href="{% url 'scipost:FAQ' %}" class="breadcrumb-item">Frequently asked questions</a>
-            <span class="breadcrumb-item">Privacy Policy</span>
+            <nav class="breadcrumb hidden-sm-down">
+                <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
+                <a  href="{% url 'scipost:FAQ' %}" class="breadcrumb-item">Frequently asked questions</a>
+                <span class="breadcrumb-item">Privacy Policy</span>
+            </nav>
         </div>
-    </nav>
+    </div>
 {% endblock %}
 
 {% block content %}
