@@ -72,7 +72,7 @@
 
             </ul>
             <form action="{% url 'scipost:search' %}" method="get" class="form-inline search-nav-form">
-                <input class="form-control mr-sm-2" id="id_q" maxlength="100" name="q" type="text" required="required" aria-label="Search" value="{{ search_query|default:'Search term...' }}">
+                <input class="form-control mr-sm-2" id="id_q" maxlength="100" name="q" type="text" aria-label="Search" value="{{ search_query|default:'' }}">
                 <button class="btn my-0" type="submit"><i class="fa fa-search"></i> Search</button>
             </form>
         </nav>
