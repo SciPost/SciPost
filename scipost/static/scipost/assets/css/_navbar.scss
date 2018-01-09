@@ -161,11 +161,11 @@
         margin: 0 !important;
         padding: 0.5rem 0.75rem;
         height: 100%;
-        // border: 6px solid $gray-800;
-        border: 0;
-        // border-left-width: 8px;
-        background-color: #485058;
-        color: #fff;
+        border: 6px solid $gray-800;
+        // border: 0;
+        border-left-width: 8px;
+        // background-color: #485058;
+        // color: #fff;
         width: 100px;
         transition: 0.1s;
     }
