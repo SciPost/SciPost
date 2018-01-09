@@ -1,5 +1,9 @@
 .container-outside.breadcrumb-nav {
-    background-color: $gray-300;
+    background-color: $gray-200;
+
+    .breadcrumb {
+        background-color: transparent;
+    }
 }
 
 .breadcrumb {

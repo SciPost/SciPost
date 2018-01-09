@@ -32,8 +32,8 @@ footer.secondary {
     background-color: $white;
 }
 
-@media (min-width: 1300px) {
-    .container {
-        max-width: 1300px;
-    }
+.container {
+    max-width: 1500px;
+    padding-left: 30px;
+    padding-right: 30px;
 }
