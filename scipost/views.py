@@ -90,7 +90,7 @@ def index(request):
         'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
-        'current_agreements': MembershipAgreement.objects.now_active()[:2],
+        'current_agreements': MembershipAgreement.objects.now_active(),
     }
     return render(request, 'scipost/index.html', context)
 
