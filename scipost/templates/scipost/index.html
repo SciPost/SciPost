@@ -176,15 +176,17 @@
     <footer class="container-fluid text-left secondary pt-4 mt-5">
         <div class="row">
             <div class="col-lg-6">
-                <h1>Supporting partners:</h1>
-                <div class="row">
-                    {% for agreement in current_agreements %}
-                        <div class="col-lg-4">
+                <h1>Supporting partners</h1>
+                <a class="mb-2 d-inline-block" href="{% url 'partners:partners' %}">See all Partners</a>
+                <div class="supporting-partners">
+                    <ul id="fader">
+                        {% for agreement in current_agreements %}
                             {% if agreement.partner.institution.logo %}
-                                <img class="rounded" src="{{ agreement.partner.institution.logo.url }}" alt="Partner Logo">
+                            <li class="item"><img class="rounded" src="{{ agreement.partner.institution.logo.url }}" alt="Partner Logo"></li>
+                                {# <div class="item"><img class="rounded" src="{{ agreement.partner.institution.logo.url }}" alt="Partner Logo"></div> #}
                             {% endif %}
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
             <div class="col-lg-6 logos">
@@ -203,6 +205,7 @@
         		<a href="//www.mpg.de/en" target="_blank"><img width="100" src="{% static 'scipost/images/Max-Planck-Gesellschaft.svg' %}"></a>
         		<a href="//www.vsnu.nl" target="_blank"><img width="100" src="{% static 'scipost/images/logovsnu.jpg' %}"></a>
         		<a href="//www.openaire.eu" target="_blank"><img width="100" src="{% static 'scipost/images/OpenAIRE.png' %}"></a>
+                <a href="//i4oc.org/" target="_blank"><img width="100" src="{% static 'scipost/images/I4OC.png' %}"></a>
             </div>
 	      </div>
 	    </div>

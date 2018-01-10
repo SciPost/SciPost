@@ -13,6 +13,7 @@ module.exports = {
             "./scipost/static/scipost/assets/js/scripts.js",
         ],
         homepage: [
+            "./scipost/static/scipost/assets/js/fader.js",
             "./scipost/static/scipost/assets/js/newsticker.js",
         ],
     },
