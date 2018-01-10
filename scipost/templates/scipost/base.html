@@ -1,12 +1,15 @@
 {% extends 'scipost/bare_base.html' %}
 
 {% block base %}
+
     <div class="{% block container_class %}container pb-5{% endblock %}">
-        {% block page_header %}{% endblock page_header %}
+        <div class="container-inner">
+            {% block page_header %}{% endblock page_header %}
 
-        {% block content %}{% endblock content %}
+            {% block content %}{% endblock content %}
 
-        {% block content_footer %}{% endblock content_footer %}
+            {% block content_footer %}{% endblock content_footer %}
+        </div>
     </div>
 
     {% block secondary_footer %}{% endblock secondary_footer %}

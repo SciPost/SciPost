@@ -1,16 +1,16 @@
+.container-outside.breadcrumb-nav {
+    background-color: $gray-200;
+
+    .breadcrumb {
+        background-color: transparent;
+    }
+}
+
 .breadcrumb {
-    margin-top: -1.5rem;
-    margin-bottom: 1.5rem;
-    border-top: 1px solid #fff;
-    border-bottom: 1px solid #ddd;
+    margin-bottom: 0;
     white-space: nowrap;
     overflow: auto;
-
-    .container {
-        width: 100%;
-        display: flex;
-        flex-wrap: nowrap;
-    }
+    padding: 0.5rem 1.0rem;
 
     .breadcrumb-item {
         margin-bottom: 0;

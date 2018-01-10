@@ -5,12 +5,14 @@
 {% load staticfiles %}
 
 {% block breadcrumb %}
-    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+    <div class="container-outside header">
         <div class="container">
-            <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
-            <span class="breadcrumb-item">Author guidelines</span>
+            <nav class="breadcrumb hidden-sm-down">
+                <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
+                <span class="breadcrumb-item">Author guidelines</span>
+            </nav>
         </div>
-    </nav>
+    </div>
 {% endblock %}
 
 {% block content %}

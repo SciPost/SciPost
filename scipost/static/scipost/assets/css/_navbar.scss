@@ -3,62 +3,78 @@
  *
  */
 .navbar {
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: scroll;
 
-    &.main-nav {
-        border-bottom: 1px solid #ddd;
-    }
-
-    .nav-link {
-        padding-right: .5rem;
-        padding-left: .5rem;
-        border: 1px solid transparent;
-        border-radius: $card-border-radius;
-        word-wrap: break-word;
-        white-space: nowrap;
-        -webkit-transition: all 0.1s ease-in-out;
-             -o-transition: all 0.1s ease-in-out;
-                transition: all 0.1s ease-in-out;
-
-        @include hover-focus {
-            background-color: $white;
-        }
-    }
-
-    .active > .nav-link {
-        border-color: $scipost-darkblue;
-        box-shadow: 0 1px 0 0 #ccc;
-    }
-
-    .highlighted > .nav-link {
-        background-color: rgba(255, 255, 255, 0.6);
+    .nav-item.active a,
+    a:hover {
+        text-decoration: underline;
     }
 
     .navbar-nav {
-        display: flex;
         flex-direction: row;
-    }
-}
+        overflow: scroll;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+        overflow: -moz-scrollbars-none;
 
-@media (min-width: 768px) {
-    .navbar {
-
-        .navbar-nav {
-            margin-right: auto;
-        }
-
-        .nav-item {
-            margin-right: 0.5rem;
-        }
-
-        [data-toggle="collapse"] {
-            display: none;
+        .nav-link {
+            padding-left: .5rem;
+            padding-right: .5rem;
+            white-space: nowrap;
         }
     }
 }
+
+// Hide scrollbars... trying to
+::-webkit-scrollbar,
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece,
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-corner,
+::-webkit-resizer {
+    display: none;
+    background: rgba(0,0,0,0);
+    background-color: rgba(0,0,0,0);
+}
+
+.container-outside {
+    &.main-nav {
+        background-color: $scipost-lightblue;
+
+        .navbar {
+            background-color: $scipost-lightblue;
+
+            a {
+                color: $white;
+            }
+        }
+    }
+
+    &.sub-nav {
+        background-color: $gray-200;
+
+        .navbar {
+            background-color: $gray-200;
+
+            a {
+                color: $scipost-lightblue;
+            }
+        }
+
+        span.nav-link {
+            color: #465d8e;
+        }
+
+        &.lighter {
+            background-color: #f2f2f2;
+
+            .navbar {
+                background-color: #f2f2f2;
+            }
+        }
+    }
+}
+
 
 .navbar-scroll {
     white-space: nowrap;
@@ -81,8 +97,6 @@
 }
 
 .navbar-secondary {
-    margin-top: -0.75rem;
-    margin-bottom: 0;
     background-color: transparent;
 
     > div {
@@ -94,24 +108,8 @@
 .navbar-counter {
     position: relative;
 
-    .nav-link.notifications_container:hover {
-        background-color: #fff;
-    }
-
     a.dropdown-toggle {
         min-width: 45px;
-    }
-
-    a:hover {
-        text-decoration: none;
-
-        .badge {
-            background-color: $scipost-darkblue;
-        }
-
-        .fa-bell-o:before {
-            content: "\f0f3";
-        }
     }
 }
 
@@ -125,47 +123,61 @@
     display: none;
     padding: 0.25em;
     border-radius: 99px;
-    border: 1px solid #f9f9f9;
+    border: 1px solid $white;
+    background-color: $white;
+    color: $scipost-lightblue;
 }
 
-.notifications_container {
-    .badge_link {
-        color: $scipost-lightestblue;
+.search-nav-form {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
 
-        // &::after {
-        //     content: none;
-        // }
+    input[name="q"] {
+        position: relative;
+        outline: none;
+        border-radius: 0;
+        font-size: 110%;
+        margin: 0 !important;
+        padding: 0.5rem 0.75rem;
+        height: 100%;
+        border: 6px solid $gray-800;
+        border-left-width: 8px;
+        width: 100px;
+        transition: 0.1s;
     }
 
-    .user {
-        color: $scipost-darkblue;
+    &:active input[name="q"],
+    &:focus input[name="q"],
+    &:hover input[name="q"],
+    input[name="q"]:active,
+    input[name="q"]:focus,
+    input[name="q"]:hover {
+        width: 200px;
     }
 
-    .fa-inbox {
-        vertical-align: bottom;
-        margin: 0 0.25rem;
-        min-width: 17px;
+    [type="submit"] {
+        background-color: $gray-800;
+        color: $white;
+        border-radius: 0;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+        height: 100%;
+        position: relative;
+    }
+    [type="submit"]:hover {
+        background-color: $gray-700;
+    }
+}
 
-        &:before {
-            font-size: 150%;
-        }
+@media (min-width: 992px) {
+    .search-nav-form {
+        display: flex;
     }
 
-    &.show .fa-inbox {
-        color: $scipost-darkblue;
-    }
-
-    &.positive_count {
-        .badge_link {
-            color: $scipost-orange;
-        }
-
-        .user {
-            color: $scipost-darkblue;
-        }
-
-        .live_notify_badge {
-            display: inline-block;
-        }
+    .nav-item.search-item {
+        display: none;
     }
 }

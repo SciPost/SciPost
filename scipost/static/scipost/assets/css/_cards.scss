@@ -2,8 +2,9 @@
     margin-bottom: 10px;
 
     &.card-grey {
-        background-color: #F4F4F4;
-        border-color: $card-grey-border-color;
+        background-color: $card-grey-bg;
+        border: 0;
+        border-top: 3px solid $scipost-lightblue;
         box-shadow: 0 1px 0 0 $card-shadow-color;
 
         .card-header {
@@ -18,7 +19,7 @@
 
     &.card-publication {
         box-shadow: 0 1px 0 0 #ddd;
-        border-color: #ddd;
+        border: 1px solid #ddd;
 
         .card-header {
             background-color: #eee;
@@ -75,7 +76,6 @@
 
 .card-publication {
     width: 100%;
-    border-color: #f1f1f1;
 
     &.card-grey {
         background-color: #f8f8f8;
