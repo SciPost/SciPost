@@ -131,6 +131,6 @@ function removeFilter(element) {
     // Start
     $('#fader').innerfade({
         timeout: 3000,
-        type: 'random',
+        type: 'random_start',
     });
 }(jQuery));
