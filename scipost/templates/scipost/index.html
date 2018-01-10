@@ -176,7 +176,7 @@
     <footer class="container-fluid text-left secondary pt-4 mt-5">
         <div class="row">
             <div class="col-lg-6">
-                <h1>SciPost partners with</h1>
+                <h1>Supporting partners:</h1>
                 <div class="row">
                     {# <div class="col-lg-2"> #}
                         {% for agreement in current_agreements %}
@@ -196,6 +196,15 @@
                 <a href="//www.doaj.org" target="_blank"><img src="{% static 'scipost/images/doaj_logo_200.jpg' %}" width="90" alt="DOAJ logo"></a>
                 <a href="//www.clockss.org" target="_blank"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" width="80" alt="Clockss logo"></a>
             </div>
-        </div>
+	    </div>
+	    <div class="row">
+	      <div class"col-lg-6 logos">
+		<h1>Granting institutions</h1>
+		<a href="//www.nwo.nl/en" target="_blank"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}"></a>
+		<a href="//www.mpg.de/en" target="_blank"><img src="{% static 'scipost/images/Max-Planck-Gesellschaft.svg"></a>
+		<a href="//www.vsnu.nl" target="_blank"><img src="{% static 'scipost/images/logovsnu.jpg"></a>
+		<a href="//www.openaire.eu" target="_blank"><img src="{% static 'scipost/images/OpenAIRE.png"></a>
+	      </div>
+	    </div>
     </footer>
 {% endblock %}
