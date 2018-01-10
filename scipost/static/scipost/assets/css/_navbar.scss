@@ -9,6 +9,10 @@
         text-decoration: underline;
     }
 
+    .nav-link {
+        color: $white;
+    }
+
     .navbar-nav {
         flex-direction: row;
         overflow: scroll;
