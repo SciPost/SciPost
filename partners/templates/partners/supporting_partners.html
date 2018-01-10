@@ -6,16 +6,25 @@
 
 {% load scipost_extras %}
 
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <h1>SciPost Supporting Partners</h1>
+        </div>
+    </div>
+{% endblock %}
+
+
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
-      <h1 class="highlight">SciPost Supporting Partners</h1>
-      {% if perms.scipost.can_manage_SPB %}
+{% if perms.scipost.can_manage_SPB %}
+    <div class="row">
+      <div class="col-12">          
           <a href="{% url 'partners:dashboard' %}">Manage Partners</a>
-      {% endif %}
+        </div>
     </div>
-</div>
+{% endif %}
 
 <div class="row">
   <div class="col-12">

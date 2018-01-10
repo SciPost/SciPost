@@ -1,17 +1,19 @@
 {% extends 'scipost/base.html' %}
 
 {% block breadcrumb %}
-    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+    <div class="container-outside header">
         <div class="container">
-            {% block breadcrumb_items %}
-                {% if submission %}
-                    <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Pool</a>
-                {% else %}
-                    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
-                {% endif %}
-            {% endblock %}
+            <nav class="breadcrumb hidden-sm-down">
+                {% block breadcrumb_items %}
+                    {% if submission %}
+                        <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Pool</a>
+                    {% else %}
+                        <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+                    {% endif %}
+                {% endblock %}
+            </nav>
         </div>
-    </nav>
+    </div>
 {% endblock %}
 
 {% block container_class %}{{block.super}} pb-5{% endblock container_class %}

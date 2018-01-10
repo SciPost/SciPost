@@ -5,8 +5,8 @@
 // General variable structure
 //
 //
-$base-border-radius: 2px;
-$border-radius: 2px;
+$base-border-radius: 0;
+$border-radius: 0;
 $border-radius-lg: 2px;
 
 // Alert
@@ -17,12 +17,13 @@ $alert-padding-x: 0.75rem;
 // Grid
 //
 $grid-gutter-width: 20px;
-$container-max-widths: (
-    sm: 728px,
-    md: 952px,
-    lg: 1160px,
-    xl: 1200px
-);
+// $container-max-widths: (
+//     xs: ,
+//     sm: 728px,
+//     md: 720px,
+//     lg: 960px,
+//     xl: 1140px
+// );
 
 // Colors
 //
@@ -31,10 +32,9 @@ $scipost-lightblue: #6885c3;
 $scipost-lightestblue: #d3e3f6;
 $scipost-darkblue: #002b49;
 $scipost-orange: #f6a11a;
-$scipost-white: #f9f9f9;
+// $scipost-white: #f9f9f9;
+$scipost-white: #f6f6f6;
 $sidebar-border-color: #dfe0e4;
-
-$body-color: $scipost-darkblue;
 
 // -- Bootstrap color codes
 $white: #fff;
@@ -42,6 +42,9 @@ $blue: $scipost-lightblue;  // Primary
 $green: #6ebb6e;
 $cyan: $scipost-lightestblue;
 $yellow: $scipost-orange;
+$gray-100: $scipost-white;
+$gray-200: #e5e5e5;
+$gray-300: #dfdfdf;
 $gray-600: #ccc;
 $text-muted: #636c72;
 // Others, now as default
@@ -50,6 +53,11 @@ $text-muted: #636c72;
 // $gray-600: $gray-600;  // Secondary
 // $gray-800: $gray-800;
 
+// Body
+//
+$body-bg: $gray-100;
+$body-color: $scipost-darkblue;
+
 
 // Alerts
 //
@@ -57,18 +65,20 @@ $alert-border-radius: $base-border-radius;
 
 // Cards
 //
-
 $card-border-radius: $base-border-radius;
+$card-bg: $gray-200;
+$card-border-color: $gray-200;
 $card-spacer-x: 0.75rem;
 $card-spacer-y: 0.5rem;
 $card-shadow-color: #ccc;
 $card-grey-border-bottom-color: #d0d1d5;
-$card-grey-border-color: #e5e6e9 #dfe0e4 $card-grey-border-bottom-color;
+$card-grey-bg: $gray-100;
+$card-grey-border-color: $scipost-lightblue $gray-100 $gray-100;
 
 
 // breadcrumb
 //
-$breadcrumb-bg: #f9f9f9;
+$breadcrumb-bg: $gray-100;
 $breadcrumb-active-color: $scipost-darkblue;
 $breadcrumb-divider-color: $scipost-orange;
 
@@ -129,7 +139,9 @@ $table-cell-padding: 0.25rem 0.5rem;
 //
 $navbar-light-color: $scipost-darkblue;
 $navbar-light-hover-color: $scipost-darkblue;
-$nav-link-padding-y: 0.4rem;
+$navbar-padding-x: 0.3rem;
+$navbar-padding-y: 0.3rem;
+// $nav-link-padding-y: 0.4rem;
 
 $input-border-radius: 0;
 $btn-border-radius: $base-border-radius;

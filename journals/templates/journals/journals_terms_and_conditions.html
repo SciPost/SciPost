@@ -4,12 +4,14 @@
 
 
 {% block breadcrumb %}
-    <nav class="breadcrumb py-md-2 px-0 hidden-sm-down">
+    <div class="container-outside header">
         <div class="container">
-            <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-            <span class="breadcrumb-item">Terms and Conditions</span>
+            <nav class="breadcrumb hidden-sm-down">
+                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+                <span class="breadcrumb-item">Terms and Conditions</span>
+            </nav>
         </div>
-    </nav>
+    </div>
 {% endblock %}
 
 {% block content %}

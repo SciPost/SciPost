@@ -6,16 +6,24 @@
 {% block body_class %}{{block.super}} has-sidebar has-breadcrumb-submenu homepage{% endblock %}
 
 {% block breadcrumb %}
-    <nav class="submenu">
-        <span class="item">Our Journals:</span>
-        {% for journal in journals %}
-            {% if journal.active %}
-                <a href="{{journal.get_absolute_url}}" class="item">{{journal}}</a>
-            {% else %}
-                <a href="{% url 'journal:about' journal.name %}" class="item">{{journal}}</a>
-            {% endif %}
-        {% endfor %}
-    </nav>
+    <div class="container-outside sub-nav">
+        <div class="container">
+            <nav class="navbar sub-nav navbar-expand-lg">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><span class="nav-link">Our Journals:</span></li>
+                    {% for journal in journals %}
+                        <li class="nav-item">
+                            {% if journal.active %}
+                                <a href="{{journal.get_absolute_url}}" class="nav-link">{{journal}}</a>
+                            {% else %}
+                                <a href="{% url 'journal:about' journal.name %}" class="nav-link">{{journal}}</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </div>
+            </nav>
+        </div>
+    </div>
 {% endblock %}
 
 {% block footer_script %}
@@ -26,7 +34,7 @@
     <div class="row">
         <div class="col-lg-6">
             <!-- Latest publications -->
-            <div class="card card-grey px-4">
+            <div class="card card-grey px-3">
                 <div class="card-header px-0">
                     <h2><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
                 </div>
@@ -51,7 +59,7 @@
 
         <div class="col-lg-6">
             <!-- Latest submissions -->
-            <div class="card card-grey px-4">
+            <div class="card card-grey px-3">
                 <div class="card-header px-0">
                     <h2><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
                 </div>
@@ -168,13 +176,16 @@
     <footer class="container-fluid text-left secondary pt-4 mt-5">
         <div class="row">
             <div class="col-lg-6">
-                <h1>SciPost is endorsed by</h1>
-                <div class="row">
-                    <div class="col-lg-6">
-                        <a href="//www.nwo.nl/en" target="_blank"><img  style="max-height: 55px; width: auto;" src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo"></a>
-                        <p id="NWOOpenAccess" class="mt-1">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as
-                            stipulated on the NWO’s <a href="//www.nwo.nl/en/policies/open+science" target="_blank">Open Science page</a>.</p>
-                    </div>
+                <h1>Supporting partners</h1>
+                <a class="mb-2 d-inline-block" href="{% url 'partners:partners' %}">See all Partners</a>
+                <div class="supporting-partners">
+                    <ul id="fader">
+                        {% for agreement in current_agreements %}
+                            {% if agreement.partner.institution.logo %}
+                                <li class="item"><img height="100" class="rounded" src="{{ agreement.partner.institution.logo.url }}" alt="Partner Logo"></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
             <div class="col-lg-6 logos">
@@ -184,6 +195,18 @@
                 <a href="//www.doaj.org" target="_blank"><img src="{% static 'scipost/images/doaj_logo_200.jpg' %}" width="90" alt="DOAJ logo"></a>
                 <a href="//www.clockss.org" target="_blank"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" width="80" alt="Clockss logo"></a>
             </div>
-        </div>
+	    </div>
+	    <div class="row">
+	      <div class"col-lg-6 logos">
+		<h1>Granting institutions</h1>
+            <div class="granting-institutions">
+        		<a href="//www.nwo.nl/en" target="_blank" style="max-width: 600px;"><img width="600" src="{% static 'scipost/images/NWO_LOGO_EN_2.png' %}"></a>
+        		<a href="//www.mpg.de/en" target="_blank"><img width="100" src="{% static 'scipost/images/Max-Planck-Gesellschaft.svg' %}"></a>
+        		<a href="//www.vsnu.nl" target="_blank"><img width="100" src="{% static 'scipost/images/logovsnu.jpg' %}"></a>
+        		<a href="//www.openaire.eu" target="_blank"><img width="100" src="{% static 'scipost/images/OpenAIRE.png' %}"></a>
+                <a href="//i4oc.org/" target="_blank"><img width="100" src="{% static 'scipost/images/I4OC.png' %}"></a>
+            </div>
+	      </div>
+	    </div>
     </footer>
 {% endblock %}
