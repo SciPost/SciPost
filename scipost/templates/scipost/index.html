@@ -178,15 +178,13 @@
             <div class="col-lg-6">
                 <h1>Supporting partners:</h1>
                 <div class="row">
-                    {# <div class="col-lg-2"> #}
-                        {% for agreement in current_agreements %}
+                    {% for agreement in current_agreements %}
                         <div class="col-lg-4">
                             {% if agreement.partner.institution.logo %}
                                 <img class="rounded" src="{{ agreement.partner.institution.logo.url }}" alt="Partner Logo">
                             {% endif %}
-                            </div>
-                        {% endfor %}
-
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
             <div class="col-lg-6 logos">
@@ -200,10 +198,12 @@
 	    <div class="row">
 	      <div class"col-lg-6 logos">
 		<h1>Granting institutions</h1>
-		<a href="//www.nwo.nl/en" target="_blank"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}"></a>
-		<a href="//www.mpg.de/en" target="_blank"><img src="{% static 'scipost/images/Max-Planck-Gesellschaft.svg"></a>
-		<a href="//www.vsnu.nl" target="_blank"><img src="{% static 'scipost/images/logovsnu.jpg"></a>
-		<a href="//www.openaire.eu" target="_blank"><img src="{% static 'scipost/images/OpenAIRE.png"></a>
+            <div class="granting-institutions">
+        		<a href="//www.nwo.nl/en" target="_blank" style="max-width: 600px;"><img width="600" src="{% static 'scipost/images/NWO_LOGO_EN_2.png' %}"></a>
+        		<a href="//www.mpg.de/en" target="_blank"><img width="100" src="{% static 'scipost/images/Max-Planck-Gesellschaft.svg' %}"></a>
+        		<a href="//www.vsnu.nl" target="_blank"><img width="100" src="{% static 'scipost/images/logovsnu.jpg' %}"></a>
+        		<a href="//www.openaire.eu" target="_blank"><img width="100" src="{% static 'scipost/images/OpenAIRE.png' %}"></a>
+            </div>
 	      </div>
 	    </div>
     </footer>
