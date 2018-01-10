@@ -176,13 +176,17 @@
     <footer class="container-fluid text-left secondary pt-4 mt-5">
         <div class="row">
             <div class="col-lg-6">
-                <h1>SciPost is endorsed by</h1>
+                <h1>SciPost partners with</h1>
                 <div class="row">
-                    <div class="col-lg-6">
-                        <a href="//www.nwo.nl/en" target="_blank"><img  style="max-height: 55px; width: auto;" src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo"></a>
-                        <p id="NWOOpenAccess" class="mt-1">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as
-                            stipulated on the NWO’s <a href="//www.nwo.nl/en/policies/open+science" target="_blank">Open Science page</a>.</p>
-                    </div>
+                    {# <div class="col-lg-2"> #}
+                        {% for agreement in current_agreements %}
+                        <div class="col-lg-4">
+                            {% if agreement.partner.institution.logo %}
+                                <img class="rounded" src="{{ agreement.partner.institution.logo.url }}" alt="Partner Logo">
+                            {% endif %}
+                            </div>
+                        {% endfor %}
+
                 </div>
             </div>
             <div class="col-lg-6 logos">
