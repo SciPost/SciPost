@@ -1,0 +1,9 @@
+.media > img.small-img {
+    width: 100px;
+    margin-left: 46px;
+    margin-right: 46px;
+
+    &.mr-3 {
+        margin-right: 62px !important;
+    }
+}
