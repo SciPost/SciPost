@@ -135,7 +135,8 @@ class InstitutionForm(forms.ModelForm):
             'acronym',
             'address',
             'country',
-            'logo'
+            'logo',
+            'css_class',
         )
 
 
