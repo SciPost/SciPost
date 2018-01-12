@@ -8,7 +8,8 @@ from django.utils.functional import cached_property
 from .constants import PRODUCTION_STREAM_STATUS, PRODUCTION_STREAM_INITIATED, PRODUCTION_EVENTS,\
                        EVENT_MESSAGE, EVENT_HOUR_REGISTRATION, PRODUCTION_STREAM_COMPLETED,\
                        PROOFS_STATUSES, PROOFS_UPLOADED
-from .managers import ProductionStreamQuerySet, ProductionEventManager, ProofsQuerySet
+from .managers import ProductionStreamQuerySet, ProductionEventManager, ProofsQuerySet,\
+                      ProductionUserQuerySet
 from .utils import proofs_id_to_slug
 
 from finances.models import WorkLog
@@ -21,12 +22,15 @@ class ProductionUser(models.Model):
     to relate all production related actions to.
     """
     user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True,
-                                related_name='production_user')
+                                related_name='production_user', null=True)
+    name = models.CharField(max_length=128, blank=True)
 
-    # objects = ProductionUserQuerySet.as_manager()  -- Not implemented yet
+    objects = ProductionUserQuerySet.as_manager()
 
     def __str__(self):
-        return '%s, %s' % (self.user.last_name, self.user.first_name)
+        if self.user:
+            return '%s, %s' % (self.user.last_name, self.user.first_name)
+        return '%s (deactivated)' % self.name
 
 
 class ProductionStream(models.Model):

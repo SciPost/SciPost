@@ -7,6 +7,8 @@ urlpatterns = [
     url(r'^(?P<stream_id>[0-9]+)$', production_views.production, name='production'),
     url(r'^completed$', production_views.completed, name='completed'),
     url(r'^officers/new$', production_views.user_to_officer, name='user_to_officer'),
+    url(r'^officers/(?P<officer_id>[0-9]+)/delete$', production_views.delete_officer,
+        name='delete_officer'),
     url(r'^streams/(?P<stream_id>[0-9]+)$',
         production_views.stream, name='stream'),
     url(r'^streams/(?P<stream_id>[0-9]+)/status$',

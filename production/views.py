@@ -68,10 +68,10 @@ def production(request, stream_id=None):
             pass
 
     if request.user.has_perm('scipost.can_view_timesheets'):
-        context['production_team'] = ProductionUser.objects.all()
+        context['production_team'] = ProductionUser.objects.active()
 
     if request.user.has_perm('scipost.can_promote_to_production_team'):
-        context['production_officers'] = ProductionUser.objects.all()
+        context['production_officers'] = ProductionUser.objects.active()
         context['new_officer_form'] = UserToOfficerForm()
     return render(request, 'production/production.html', context)
 
@@ -143,6 +143,20 @@ def user_to_officer(request):
         group = Group.objects.get(name='Production Officers')
         officer.user.groups.add(group)
         messages.success(request, '{user} promoted to Production Officer'.format(user=officer))
+    return redirect(reverse('production:production'))
+
+
+@is_production_user()
+@permission_required('scipost.can_promote_user_to_production_officer')
+def delete_officer(request, officer_id):
+    production_user = get_object_or_404(ProductionUser.objects.active(), id=officer_id)
+    production_user.name = '{first_name} {last_name}'.format(
+        first_name=production_user.user.first_name,
+        last_name=production_user.user.last_name)
+    production_user.user = None
+    production_user.save()
+
+    messages.success(request, '{user} removed as Production Officer'.format(user=production_user))
     return redirect(reverse('production:production'))
 
 
