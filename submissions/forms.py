@@ -762,7 +762,6 @@ class iThenticateReportForm(forms.ModelForm):
         self.client = self.get_client()
 
         if not self.client:
-            self.add_error(None, "Failed to login to iThenticate.")
             return None
 
         # Document (id) is found

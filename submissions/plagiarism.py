@@ -88,7 +88,7 @@ class iThenticate:
 
         if response['status'] == 200:
             submission.add_general_event('The document has been submitted for a plagiarism check.')
-            return response.get('data', [{}])[0].get('uploaded')
+            return response.get('data', [{}])[0]
         return None
 
     def get_url(self, document_id):
