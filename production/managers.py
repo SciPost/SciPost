@@ -3,6 +3,11 @@ from django.db import models
 from . import constants
 
 
+class ProductionUserQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(user__isnull=False)
+
+
 class ProductionStreamQuerySet(models.QuerySet):
     def completed(self):
         return self.filter(status=constants.PRODUCTION_STREAM_COMPLETED)

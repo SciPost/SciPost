@@ -20,7 +20,7 @@
 
 {% if perms.scipost.can_manage_SPB %}
     <div class="row">
-      <div class="col-12">          
+      <div class="col-12">
           <a href="{% url 'partners:dashboard' %}">Manage Partners</a>
         </div>
     </div>
@@ -154,7 +154,7 @@
         <ul class="list-unstyled mb-5">
             {% for agreement in current_agreements %}
                 <li class="media mb-2">
-                    <img class="d-flex mr-3" width="192" src="{% if agreement.partner.institution.logo %}{{agreement.partner.institution.logo.url}}{% endif %}" alt="Partner Logo">
+                    <img class="d-flex mr-3 {{ agreement.partner.institution.css_class }}" width="192" src="{% if agreement.partner.institution.logo %}{{agreement.partner.institution.logo.url}}{% endif %}" alt="Partner Logo">
                     <div class="media-body">
                         <p>
                             <strong>{{agreement.partner.institution.name}}</strong><br>

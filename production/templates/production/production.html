@@ -83,7 +83,7 @@
 
         </div>
         <div class="col-6">
-            <div class="card center-loader" id="details">
+            <div class="card center-loader bg-white" id="details">
                 {% if stream %}
                     {% include 'production/partials/production_stream_card.html' %}
                 {% else %}
@@ -144,7 +144,12 @@
           <h3>Current Production Team</h3>
           <ul>
               {% for officer in production_officers %}
-                <li>{{ officer }}</li>
+                <li>{{ officer }}
+                    <form action="{% url 'production:delete_officer' officer.id %}" class="d-inline px-1" method="post">
+                      {% csrf_token %}
+                      <input type="submit" class="btn btn-danger mb-1" value="Remove Officer">
+                  </form>
+              </li>
               {% endfor %}
           </ul>
 
