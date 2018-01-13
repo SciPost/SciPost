@@ -9,7 +9,8 @@ from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUB
                        REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
                        STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE,\
-                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS
+                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS,\
+                       POST_PUBLICATION_STATUSES, REPORT_POST_PUBLICATION, REPORT_NORMAL
 from . import exceptions, helpers
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
                     iThenticateReport
@@ -536,6 +537,8 @@ class ReportForm(forms.ModelForm):
                     }
                 })
 
+        self.submission = kwargs.pop('submission')
+
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields['strengths'].widget.attrs.update({
             'placeholder': ('Give a point-by-point '
@@ -577,14 +580,19 @@ class ReportForm(forms.ModelForm):
             if self.fields[field].required:
                 self.fields[field].label += ' *'
 
-    def save(self, submission):
+        if self.submission.status in POST_PUBLICATION_STATUSES:
+            self.report_type = REPORT_POST_PUBLICATION
+        else:
+            self.report_type = REPORT_NORMAL
+
+    def save(self):
         """
         Update meta data if ModelForm is submitted (non-draft).
         Possibly overwrite the default status if user asks for saving as draft.
         """
         report = super().save(commit=False)
 
-        report.submission = submission
+        report.submission = self.submission
         report.date_submitted = timezone.now()
 
         # Save with right status asked by user
@@ -594,15 +602,15 @@ class ReportForm(forms.ModelForm):
             report.status = STATUS_UNVETTED
 
             # Update invitation and report meta data if exist
-            invitation = submission.referee_invitations.filter(referee=report.author).first()
+            invitation = self.submission.referee_invitations.filter(referee=report.author).first()
             if invitation:
                 invitation.fulfilled = True
                 invitation.save()
                 report.invited = True
 
             # Check if report author if the report is being flagged on the submission
-            if submission.referees_flagged:
-                if report.author.user.last_name in submission.referees_flagged:
+            if self.submission.referees_flagged:
+                if report.author.user.last_name in self.submission.referees_flagged:
                     report.flagged = True
         report.save()
         return report

@@ -82,6 +82,9 @@
             <div class="card card-grey">
                 <div class="card-body">
                     <h1>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h1>
+                    {% if form.report_type == 'report_post_pub' %}
+                        <p class="text-warning">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be flagged as <label class="label label-outline-warning">Post-publication Report</label>.</p>
+                    {% endif %}
                     <p>A preview of text areas will appear below as you type (you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
                     <p class="mb-0">Any fields with an asterisk (*) are required.</p>
                     {% if form.instance.is_followup_report %}
