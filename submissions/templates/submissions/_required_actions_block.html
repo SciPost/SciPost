@@ -1,5 +1,5 @@
 {% if submission.cycle.has_required_actions %}
-    <div class="card {% if submission.cycle.get_required_actions %}bg-danger text-white{% else %}border-success text-success{% endif %}">
+    <div class="card {% if submission.cycle.get_required_actions %}bg-danger text-white{% else %}bg-white border-success text-success{% endif %}">
         <div class="card-header py-1 {% if not submission.cycle.get_required_actions %}bg-transparent border-0 pb-0{% endif %}">
             <h3>Required actions:</h3>
         </div>
