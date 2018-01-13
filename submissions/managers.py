@@ -320,6 +320,9 @@ class ReportQuerySet(models.QuerySet):
 
 
 class RefereeInvitationQuerySet(models.QuerySet):
+    def awaiting_response(self):
+        return self.pending().open()
+
     def pending(self):
         return self.filter(accepted=None)
 

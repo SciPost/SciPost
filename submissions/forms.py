@@ -594,10 +594,9 @@ class ReportForm(forms.ModelForm):
             report.status = STATUS_UNVETTED
 
             # Update invitation and report meta data if exist
-            invitation = submission.referee_invitations.filter(referee=report.author).first()
-            if invitation:
-                invitation.fulfilled = True
-                invitation.save()
+            updated_invitations = submission.referee_invitations.filter(
+                referee=report.author).update(fulfilled=True)
+            if updated_invitations > 0:
                 report.invited = True
 
             # Check if report author if the report is being flagged on the submission

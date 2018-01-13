@@ -14,7 +14,8 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
-                       EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
+                       EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,\
+                       STATUS_DRAFT, STATUS_VETTED
 from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet,\
                       ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
@@ -360,6 +361,10 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     def notification_name(self):
         return self.submission.arxiv_identifier_w_vn_nr
 
+    @property
+    def related_report(self):
+        return self.submission.reports.filter(author=self.referee).first()
+
     def reset_content(self):
         self.nr_reminders = 0
         self.date_last_reminded = None
@@ -451,6 +456,14 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def __str__(self):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
+
+    @property
+    def is_in_draft(self):
+        return self.status == STATUS_DRAFT
+
+    @property
+    def is_vetted(self):
+        return self.status == STATUS_VETTED
 
     def save(self, *args, **kwargs):
         # Control Report count per Submission.
