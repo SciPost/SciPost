@@ -818,7 +818,7 @@ class iThenticateReportForm(forms.ModelForm):
         client = self.client
         response = client.documents.get(self.document_id)
         if response['status'] == 200:
-            return response.get('data')[0]
+            return response.get('data')[0].get('documents')[0]
         self.add_error(None, "Updating failed. iThenticate didn't return valid data [1]")
 
         for msg in client.messages:
