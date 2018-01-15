@@ -44,3 +44,7 @@ MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")
 # iThenticate
 ITHENTICATE_USERNAME = get_secret('ITHENTICATE_USERNAME')
 ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
+
+# Logging
+LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/webapps/scipost/logs/arxiv.log'
+LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/webapps/scipost/logs/doi.log'
