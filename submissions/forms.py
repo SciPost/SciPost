@@ -187,7 +187,7 @@ class SubmissionChecks:
 
 
 class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
-    IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$'
+    IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
     IDENTIFIER_PLACEHOLDER = 'new style (with version nr) ####.####(#)v#(#)'
 
     identifier = forms.RegexField(regex=IDENTIFIER_PATTERN_NEW, strip=True,

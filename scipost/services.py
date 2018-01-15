@@ -76,6 +76,7 @@ class ArxivCaller:
         url = self.query_base_url % self.identifier
         request = requests.get(url)
         response_content = feedparser.parse(request.content)
+
         arxiv_data = response_content['entries'][0]
         if self._search_result_present(arxiv_data):
             self.is_valid = True
@@ -104,4 +105,6 @@ class ArxivCaller:
         }
 
     def _search_result_present(self, data):
-        return 'title' in data
+        if len(data.get('entries', [])) > 0:
+            return 'title' in data['entries'][0]
+        return False
