@@ -856,7 +856,7 @@ def metadata_DOAJ_deposit(request, doi_label):
     deposit.response_text = r.text
 
     # Save a copy to the filename with and without timestamp
-    path_with_timestamp = '{issue}/{paper}/{doi}_DOAJ_{timestamp}.xml'.format(
+    path_with_timestamp = '{issue}/{paper}/{doi}_DOAJ_{timestamp}.json'.format(
         issue=publication.in_issue.path,
         paper=publication.get_paper_nr(),
         doi=publication.doi_label.replace('.', '_'),
@@ -866,7 +866,7 @@ def metadata_DOAJ_deposit(request, doi_label):
     f.close()
 
     # Copy file
-    path_without_timestamp = '{issue}/{paper}/{doi}_DOAJ.xml'.format(
+    path_without_timestamp = '{issue}/{paper}/{doi}_DOAJ.json'.format(
         issue=publication.in_issue.path,
         paper=publication.get_paper_nr(),
         doi=publication.doi_label.replace('.', '_'))
