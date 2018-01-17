@@ -756,7 +756,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     response_text = r.text
 
     # Then create the associated Deposit object (saving the metadata to a file)
-    if option == 'deposit' or True:
+    if option == 'deposit':
         deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
                           metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
         deposit.response_text = r.text
