@@ -226,20 +226,22 @@ class Deposit(models.Model):
     All deposit history is thus contained here.
     """
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
-    timestamp = models.CharField(max_length=40, default='')
-    doi_batch_id = models.CharField(max_length=40, default='')
-    metadata_xml = models.TextField(blank=True, null=True)
+    timestamp = models.CharField(max_length=40)
+    doi_batch_id = models.CharField(max_length=40)
+    metadata_xml = models.TextField(blank=True)
     metadata_xml_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)
-    response_text = models.TextField(blank=True, null=True)
+    response_text = models.TextField(blank=True)
     deposit_successful = models.NullBooleanField(default=None)
 
     class Meta:
         ordering = ['-timestamp']
 
     def __str__(self):
-        return (self.deposition_date.strftime('%Y-%m-%D') +
-                ' for ' + self.publication.doi_label)
+        _str = ''
+        if self.deposition_date:
+            _str += '%s for ' % self.deposition_date.strftime('%Y-%m-%D')
+        return _str + self.publication.doi_label
 
 
 class DOAJDeposit(models.Model):
