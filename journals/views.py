@@ -751,7 +751,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
 
     # Then create the associated Deposit object (saving the metadata to a file)
     if option == 'deposit':
-        content = ContentFile(publication.metadata_xml)
+        content = ContentFile(publication.metadata_xml.encode('ascii'))
         deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
                           metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
         deposit.metadata_xml_file.save(path, content)
