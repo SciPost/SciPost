@@ -313,3 +313,42 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 CSRF_FAILURE_VIEW = 'scipost.views.csrf_failure'
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s | %(message)s'
+        },
+    },
+    'handlers': {
+        'scipost_file_arxiv': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '/path/to/logs/arxiv.log',
+            'formatter': 'verbose',
+        },
+        'scipost_file_doi': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '/path/to/logs/doi.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'scipost.services.arxiv': {
+            'handlers': ['scipost_file_arxiv'],
+            'level': 'INFO',
+            'propagate': True,
+            'formatter': 'simple',
+        },
+        'scipost.services.doi': {
+            'handlers': ['scipost_file_doi'],
+            'level': 'INFO',
+            'propagate': True,
+            'formatter': 'simple',
+        },
+    },
+}
