@@ -17,6 +17,11 @@
                 <li>
                     {% if invitation.fulfilled %}
                         <i class="fa-li fa fa-check-square-o"></i>Submitted Report on {{ invitation.related_report.date_submitted }}.
+                        <ul class="list-style-none">
+                            <li>Status: <span class="{% if invitation.related_report.status == 'vetted' %}text-success{% elif invitation.related_report.status == 'unvetted' %}text-danger{% endif %}">{{ invitation.related_report.get_status_display }}</span></li>
+                            <li>Anonymous: {{ invitation.related_report.anonymous|yesno:'Yes,No' }}</li>
+                            {% if invitation.related_report.doi_label %}<li>DOI: {{ invitation.related_report.doi_string }}</li>{% endif %}
+                        </ul>
                     {% else %}
                         <i class="fa-li fa fa-square-o"></i>
                         {% if invitation.related_report.is_in_draft %}
@@ -35,39 +40,17 @@
                 </li>
             </ul>
 
-            {% if invitation.related_report.is_vetted %}
-                {% if invitation.related_report.anonymous %}
-                    <p class="card-text">You have anonymously submitted your Report. <a href="{% url 'journals:sign_existing_report' report_id=invitation.related_report.id %}">You can click here to sign this Report</a> (leads to confirmation page).</p>
-                {% endif %}
+            {% if invitation.related_report.anonymous %}
+                <p class="card-text">You have anonymously submitted your Report. <a href="{% url 'journals:sign_existing_report' report_id=invitation.related_report.id %}">You can click here to sign this Report</a> (leads to confirmation page).</p>
             {% endif %}
         {% else %}
             <h3 class="card-title">Referee Invitation</h3>
             <p class="card-text"You have declined to contribute a Report. >Nonetheless, we thank you very much for considering this refereeing invitation.</p>
             <p class="card-text">Reason: {{ invitation.get_refusal_reason_display }}</p>
         {% endif %}
+
+        <h3 class="card-title">Communication</h3>
+        <a class="card-link" href="{% url 'submissions:communication' invitation.submission.arxiv_identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
+
     </div>
 </div>
-
-{% comment %}
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
-                                   related_name='referee_invitations')
-    referee = models.ForeignKey('scipost.Contributor', related_name='referee_invitations',
-                                blank=True, null=True, on_delete=models.CASCADE)
-    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    first_name = models.CharField(max_length=30, default='')
-    last_name = models.CharField(max_length=30, default='')
-    email_address = models.EmailField()
-    # if Contributor not found, person is invited to register
-    invitation_key = models.CharField(max_length=40, default='')
-    date_invited = models.DateTimeField(default=timezone.now)
-    invited_by = models.ForeignKey('scipost.Contributor', related_name='referee_invited_by',
-                                   blank=True, null=True, on_delete=models.CASCADE)
-    nr_reminders = models.PositiveSmallIntegerField(default=0)
-    date_last_reminded = models.DateTimeField(blank=True, null=True)
-    accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
-    date_responded = models.DateTimeField(blank=True, null=True)
-    refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS,
-                                      blank=True, null=True)
-    fulfilled = models.BooleanField(default=False)  # True if a Report has been submitted
-    cancelled = models.BooleanField(default=False)  # True if EIC has deactivated invitation
-{% endcomment %}
