@@ -15,10 +15,10 @@
 
     .navbar-nav {
         flex-direction: row;
-        overflow: scroll;
-        -ms-overflow-style: none;
+        overflow: auto;
+        // -ms-overflow-style: none;
         -webkit-overflow-scrolling: touch;
-        overflow: -moz-scrollbars-none;
+        // overflow: -moz-scrollbars-none;
 
         .nav-link {
             padding-left: .5rem;
@@ -29,17 +29,17 @@
 }
 
 // Hide scrollbars... trying to
-::-webkit-scrollbar,
-::-webkit-scrollbar-button,
-::-webkit-scrollbar-track,
-::-webkit-scrollbar-track-piece,
-::-webkit-scrollbar-thumb,
-::-webkit-scrollbar-corner,
-::-webkit-resizer {
-    display: none;
-    background: rgba(0,0,0,0);
-    background-color: rgba(0,0,0,0);
-}
+// ::-webkit-scrollbar,
+// ::-webkit-scrollbar-button,
+// ::-webkit-scrollbar-track,
+// ::-webkit-scrollbar-track-piece,
+// ::-webkit-scrollbar-thumb,
+// ::-webkit-scrollbar-corner,
+// ::-webkit-resizer {
+//     // display: none;
+//     background: rgba(0,0,0,0);
+//     background-color: rgba(0,0,0,0);
+// }
 
 .container-outside {
     &.main-nav {

@@ -187,7 +187,7 @@ class SubmissionChecks:
 
 
 class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
-    IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}.[0-9]{4,5}v[0-9]{1,2}$'
+    IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
     IDENTIFIER_PLACEHOLDER = 'new style (with version nr) ####.####(#)v#(#)'
 
     identifier = forms.RegexField(regex=IDENTIFIER_PATTERN_NEW, strip=True,
@@ -817,7 +817,7 @@ class iThenticateReportForm(forms.ModelForm):
         client = self.client
         response = client.documents.get(self.document_id)
         if response['status'] == 200:
-            return response.get('data')[0].get('documents')
+            return response.get('data')[0].get('documents')[0]
         self.add_error(None, "Updating failed. iThenticate didn't return valid data [1]")
 
         for msg in client.messages:
