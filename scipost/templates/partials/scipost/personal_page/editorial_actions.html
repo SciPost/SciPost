@@ -1,0 +1,167 @@
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class="card-body">
+                <h2 class="card-title mb-0">Pending Editorial Actions</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% if perms.scipost.can_vet_registration_requests or perms.scipost.can_draft_registration_invitations or perms.scipost.can_manage_registration_invitations %}
+    <div class="col-md-4">
+        <h3>Registration actions</h3>
+        <ul>
+            {% if perms.scipost.can_vet_registration_requests %}
+                <li><a href="{% url 'scipost:vet_registration_requests' %}">Vet Registration requests</a> ({{ nr_reg_to_vet }})</li>
+            {% endif %}
+            {% if perms.scipost.can_resend_registration_requests %}
+                <li><a href="{% url 'scipost:registration_requests' %}">Awaiting validation</a> ({{ nr_reg_awaiting_validation }})</li>
+            {% endif %}
+            {% if perms.scipost.can_draft_registration_invitations %}
+                <li><a href="{% url 'scipost:draft_registration_invitation' %}">Draft a Registration Invitation</a></li>
+            {% endif %}
+            {% if perms.scipost.can_manage_registration_invitations %}
+                <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>
+            {% endif %}
+        </ul>
+
+        {% if perms.scipost.can_manage_registration_invitations %}
+            <h3>Notifications</h3>
+            <ul>
+                <li><a href="{% url 'scipost:citation_notifications' %}">Manage citation notifications</a></li>
+            </ul>
+        {% endif %}
+
+        {% if is_scipost_admin %}
+            <h3>Email communications</h3>
+            <ul>
+                {% if perms.scipost.can_email_group_members %}
+                    <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
+                {% endif %}
+                {% if perms.scipost.can_email_particulars %}
+                    <li><a href="{% url 'scipost:send_precooked_email' %}">Send a precooked email</a></li>
+                    <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
+                {% endif %}
+                {% if perms.scipost.can_manage_mailchimp %}
+                    <li><a href="{% url 'mailing_lists:overview' %}">Manage mailing lists</a></li>
+                {% endif %}
+            </ul>
+
+            <h3>SciPost Administation</h3>
+            <ul>
+                <li><a href="{% url 'affiliations:institutions' %}">Manage Institutions database</a></li>
+            </ul>
+        {% endif %}
+
+        {% if perms.scipost.can_view_timesheets %}
+            <h3>Finance</h3>
+            <ul>
+                <li><a href="{% url 'finances:timesheets' %}">Production Team Timesheets</a></li>
+            </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="col-md-4">
+        {% if perms.scipost.can_vet_comments or perms.scipost.can_vet_submitted_reports %}
+        <h3>Vetting actions</h3>
+        <ul>
+            {% if perms.scipost.can_vet_commentary_requests %}
+                <li><a href="{% url 'commentaries:vet_commentary_requests' %}">Vet Commentary Page requests</a> ({{ nr_commentary_page_requests_to_vet }})</li>
+            {% endif %}
+            {% if perms.scipost.can_vet_comments %}
+                <li><a href="{% url 'comments:vet_submitted_comments_list' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
+            {% endif %}
+            {% if perms.scipost.can_vet_thesislink_requests %}
+                <li><a href="{% url 'theses:unvetted_thesislinks' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
+            {% endif %}
+            {% if perms.scipost.can_vet_authorship_claims %}
+                <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
+            {% endif %}
+            {% if perms.scipost.can_vet_submitted_reports %}
+                <li><a href="{% url 'submissions:vet_submitted_reports_list' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+            {% endif %}
+        </ul>
+        {% endif %}
+
+        {% if perms.scipost.can_oversee_refereeing %}
+            <h3>Editorial Admin actions</h3>
+            <ul>
+              <li><a href="{% url 'submissions:reports_accepted_list' %}">Accepted Reports</a>{% if nr_reports_without_pdf %} ({{nr_reports_without_pdf}} unfinished){% endif %}</li>
+              <li><a href="{% url 'submissions:pool' %}">Submissions Pool</a></li>
+              <li><a href="{% url 'submissions:treated_submissions_list' %}">Fully treated Submissions</a>{% if nr_treated_submissions_without_pdf %} ({{nr_treated_submissions_without_pdf}} unfinished){% endif %}</li>
+              <li><a href="{% url 'journals:harvest_citedby_list' %}">Harvest citedby data</a></li>
+              <li><a href="{% url 'journals:manage_comment_metadata' %}">Manage Comment metadata</a></li>
+              <li><a href="{% url 'colleges:fellowships' %}">Manage Fellowships</a></li>
+              <li><a href="{% url 'journals:manage_metadata' %}">Manage Publication metadata</a></li>
+              <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
+              <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
+            </ul>
+        {% endif %}
+
+        {% if perms.scipost.can_attend_VGMs %}
+            <h3>Virtual General Meetings</h3>
+            <ul>
+                <li><a href="{% url 'virtualmeetings:VGMs' %}">List of VGMs</a></li>
+            </ul>
+        {% endif %}
+    </div>
+
+    {% if perms.scipost.can_oversee_refereeing or perms.scipost.can_take_charge_of_submissions %}
+        <div class="col-md-4">
+            <h3>Info</h3>
+            <ul>
+                <li><a href="{% url 'submissions:editorial_workflow' %}">How-to guide: summary of the editorial workflow</a></li>
+            </ul>
+
+            <h3>Submissions assignments</h3>
+            <ul>
+                <li><a href="{% url 'submissions:assignments' %}">Your assignments</a></li>
+                <li><a href="{% url 'scipost:Fellow_activity_overview' %}">View assignments overview</a></li>
+
+                {% if perms.scipost.can_assign_submissions %}
+                    <li>Assign Submissions via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_submissions_to_assign }})</li>
+                {% endif %}
+                {% if perms.scipost.can_take_charge_of_submissions %}
+                    <li>Accept or decline assignments via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_assignments_to_consider }})</li>
+                {% endif %}
+            </ul>
+
+            {% if perms.scipost.can_oversee_refereeing %}
+                <h3>Refereeing overview</h3>
+                <ul>
+                  <li>View (and act on) outstanding refereeing invitations in the <a href="{% url 'submissions:refereeing_overview' %}">refereeing overview</a></li>
+                  <li><a href="{% url 'stats:statistics' %}">View statistics</a> for submissions, refereeing, publishing</li>
+                </ul>
+                <h3>Voting</h3>
+                <ul>
+                    <li>Prepare Editorial Recommendations for voting via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_recommendations_to_prepare_for_voting }})</li>
+                </ul>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+{% if active_assignments %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="highlight">Submissions for which you are Editor-in-charge</h3>
+        </div>
+        <div class="col-12">
+            <ul class="list-group list-group-flush">
+                {% for assignment in active_assignments %}
+                    <li class="list-group-item">
+                        <div class="card-body px-0">
+                            {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
+                            {% include 'submissions/_submission_status_block.html' with submission=assignment.submission %}
+                            <p class="card-text mt-2">Manage this Submission from its <a href="{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a>.</p>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endif %}

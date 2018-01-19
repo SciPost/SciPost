@@ -1,0 +1,50 @@
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class="card-body">
+                <h2 class="card-title">Submissions</h2>
+                <ul class="mb-0">
+                    {% if nr_submission_authorships_to_claim > 0 %}
+                        <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_submission_authorships_to_claim }})</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'submissions:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# {% if own_submissions %}#}
+<div class="row" id="mysubmissionslist">
+    <div class="col-12">
+        <h3>Submissions for which you are identified as an author:</h3>
+    </div>
+    <div class="col-12">
+        <ul class="list-group list-group-flush">
+            {% for sub in own_submissions %}nr_submission_authorships_to_claim,
+                <li class="list-group-item">
+                    <div class="card-body px-0">
+                        {% include 'partials/submissions/submission_card_content.html' with submission=sub %}
+                        {% include 'submissions/_submission_status_block.html' with submission=sub %}
+
+                        {% if request.user.contributor == sub.submitted_by %}
+                            <p class="card-text mt-1">
+                                {% if sub.editor_in_charge %}
+                                    <a href="{% url 'submissions:communication' sub.arxiv_identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a>
+                                {% endif %}
+                                {% if sub.status == 'revision_requested' %}
+                                    &middot; <a href="{% url 'submissions:prefill_using_identifier' %}?identifier={{ sub.arxiv_identifier_wo_vn_nr }}">Resubmit this manuscript</a>
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    </div>
+                </li>
+            {% empty %}
+                <li class="list-group-item">
+                    <em>No Submissions found</em>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{# {% endif %}#}

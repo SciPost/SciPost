@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core import mail
+from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
@@ -715,14 +716,216 @@ def delete_unavailable_period(request, period_id):
 
 
 @login_required
-def personal_page(request):
+@user_passes_test(has_contributor)
+def _personal_page_editorial_account(request):
+    """
+    The Personal Page tab: Account
+    """
+    contributor = request.user.contributor
+    context = {
+        'contributor': contributor,
+        'unavailability_form': UnavailabilityPeriodForm(),
+        'unavailabilities': contributor.unavailability_periods.future().order_by('start')
+    }
+    return render(request, 'partials/scipost/personal_page/account.html', context)
+
+
+@user_passes_test(has_contributor)
+def _personal_page_editorial_actions(request):
+    """
+    The Personal Page tab: Editorial Actions
+    """
+    permission = request.user.groups.filter(name__in=[
+        'Ambassadors',
+        'Advisory Board',
+        'Editorial Administrators',
+        'Editorial College',
+        'Vetting Editors',
+        'Junior Ambassadors']).exists()
+
+    if not permission:
+        raise PermissionDenied
+
+    context = {}
+    contributor = request.user.contributor
+
+    if contributor.is_SP_Admin():
+        # count the number of pending registration requests
+        context['nr_reg_to_vet'] = Contributor.objects.awaiting_vetting().count()
+        context['nr_reg_awaiting_validation'] = Contributor.objects.awaiting_validation().count()
+        context['nr_submissions_to_assign'] = Submission.objects.prescreening().count()
+        context['nr_recommendations_to_prepare_for_voting'] = EICRecommendation.objects.filter(
+            submission__status='voting_in_preparation').count()
+
+    if contributor.is_VE():
+        context['nr_commentary_page_requests_to_vet'] = (Commentary.objects.awaiting_vetting()
+                                                         .exclude(requested_by=contributor).count())
+        context['nr_comments_to_vet'] = Comment.objects.awaiting_vetting().count()
+        context['nr_thesislink_requests_to_vet'] = ThesisLink.objects.awaiting_vetting().count()
+        context['nr_authorship_claims_to_vet'] = AuthorshipClaim.objects.awaiting_vetting().count()
+
+    if contributor.is_MEC():
+        context['nr_assignments_to_consider'] = contributor.editorial_assignments.open().count()
+        context['active_assignments'] = contributor.editorial_assignments.ongoing()
+        context['nr_reports_to_vet'] = Report.objects.awaiting_vetting().filter(
+            submission__editor_in_charge=contributor).count()
+
+    if contributor.is_EdCol_Admin():
+        context['nr_reports_without_pdf'] = Report.objects.accepted().filter(pdf_report='').count()
+        context['nr_treated_submissions_without_pdf'] = Submission.objects.treated().filter(
+            pdf_refereeing_pack='').count()
+
+    return render(request, 'partials/scipost/personal_page/editorial_actions.html', context)
+
+
+@permission_required('scipost.can_referee', return_403=True)
+@user_passes_test(has_contributor)
+def _personal_page_refereeing(request):
+    """
+    The Personal Page tab: Refereeing
+    """
+    context = {
+        'contributor': request.user.contributor
+    }
+    return render(request, 'partials/scipost/personal_page/refereeing.html', context)
+
+
+@login_required
+@user_passes_test(has_contributor)
+def _personal_page_publications(request):
+    """
+    The Personal Page tab: Publications
+    """
+    contributor = request.user.contributor
+    context = {
+        'contributor': contributor,
+        'own_publications': contributor.publications.order_by('-publication_date')
+    }
+    context['nr_publication_authorships_to_claim'] = Publication.objects.filter(
+        author_list__contains=request.user.last_name).exclude(
+        authors=contributor).exclude(
+        authors_claims=contributor).exclude(
+        authors_false_claims=contributor).count()
+    return render(request, 'partials/scipost/personal_page/publications.html', context)
+
+
+@login_required
+@user_passes_test(has_contributor)
+def _personal_page_submissions(request):
+    """
+    The Personal Page tab: Submissions
+    """
+    contributor = request.user.contributor
+    context = {'contributor': contributor}
+
+    context['nr_submission_authorships_to_claim'] = Submission.objects.filter(
+        author_list__contains=request.user.last_name).exclude(
+        authors=contributor).exclude(
+        authors_claims=contributor).exclude(
+        authors_false_claims=contributor).count()
+    context['own_submissions'] = contributor.submissions.filter(
+        is_current=True).order_by('-submission_date')
+    return render(request, 'partials/scipost/personal_page/submissions.html', context)
+
+
+@login_required
+@user_passes_test(has_contributor)
+def _personal_page_commentaries(request):
+    """
+    The Personal Page tab: Commentaries
+    """
+    contributor = request.user.contributor
+    context = {'contributor': contributor}
+
+    context['nr_commentary_authorships_to_claim'] = Commentary.objects.filter(
+        author_list__contains=request.user.last_name).exclude(
+        authors=contributor).exclude(
+        authors_claims=contributor).exclude(
+        authors_false_claims=contributor).count()
+    context['own_submissions'] = contributor.commentaries.order_by('-latest_activity')
+    return render(request, 'partials/scipost/personal_page/commentaries.html', context)
+
+
+@login_required
+@user_passes_test(has_contributor)
+def _personal_page_theses(request):
+    """
+    The Personal Page tab: Theses
+    """
+    contributor = request.user.contributor
+    context = {'contributor': contributor}
+
+    context['nr_thesis_authorships_to_claim'] = ThesisLink.objects.filter(
+        author__contains=request.user.last_name).exclude(
+        author_as_cont=contributor).exclude(
+        author_claims=contributor).exclude(
+        author_false_claims=contributor).count()
+    context['own_thesislinks'] = contributor.theses.all()
+    return render(request, 'partials/scipost/personal_page/theses.html', context)
+
+
+@login_required
+@user_passes_test(has_contributor)
+def _personal_page_comments(request):
+    """
+    The Personal Page tab: Comments
+    """
+    contributor = request.user.contributor
+    context = {
+        'contributor': contributor,
+        'own_comments': contributor.comments.regular_comments().order_by('-date_submitted')
+    }
+
+    return render(request, 'partials/scipost/personal_page/comments.html', context)
+
+
+@login_required
+@user_passes_test(has_contributor)
+def _personal_page_author_replies(request):
+    """
+    The Personal Page tab: Author Replies
+    """
+    contributor = request.user.contributor
+    context = {
+        'contributor': contributor,
+        'own_authorreplies': contributor.comments.author_replies().order_by('-date_submitted'),
+    }
+
+    return render(request, 'partials/scipost/personal_page/author_replies.html', context)
+
+
+@login_required
+def personal_page(request, tab='account'):
     """
     The Personal Page is the main view for accessing user functions.
     """
+    if request.is_ajax():
+        if tab == 'account':
+            return _personal_page_editorial_account(request)
+        elif tab == 'editorial_actions':
+            return _personal_page_editorial_actions(request)
+        elif tab == 'refereeing':
+            return _personal_page_refereeing(request)
+        elif tab == 'publications':
+            return _personal_page_publications(request)
+        elif tab == 'submissions':
+            return _personal_page_submissions(request)
+        elif tab == 'commentaries':
+            return _personal_page_commentaries(request)
+        elif tab == 'theses':
+            return _personal_page_theses(request)
+        elif tab == 'comments':
+            return _personal_page_comments(request)
+        elif tab == 'author_replies':
+            return _personal_page_author_replies(request)
+        raise Http404
+
     context = {
         'appellation': str(request.user),
         'needs_validation': False,
+        'tab': tab,
     }
+
     try:
         contributor = Contributor.objects.select_related('user').get(user=request.user)
         context['needs_validation'] = contributor.status != CONTRIBUTOR_NORMAL
@@ -730,127 +933,14 @@ def personal_page(request):
         contributor = None
 
     if contributor:
-        # Compile the unavailability periods:
-        now = timezone.now()
-        unavailabilities = contributor.unavailability_periods.exclude(end__lt=now).order_by('start')
-        unavailability_form = UnavailabilityPeriodForm()
-
-        # if an editor, count the number of actions required:
-        nr_reg_to_vet = 0
-        nr_reg_awaiting_validation = 0
-        nr_submissions_to_assign = 0
-        nr_recommendations_to_prepare_for_voting = 0
-        if contributor.is_SP_Admin():
-            # count the number of pending registration requests
-            nr_reg_to_vet = Contributor.objects.awaiting_vetting().count()
-            nr_reg_awaiting_validation = (Contributor.objects.awaiting_validation()
-                                          .count())
-            nr_submissions_to_assign = Submission.objects.prescreening().count()
-            nr_recommendations_to_prepare_for_voting = EICRecommendation.objects.filter(
-                submission__status='voting_in_preparation').count()
-
-        nr_assignments_to_consider = 0
-        active_assignments = None
-        nr_reports_to_vet = 0
-        if contributor.is_MEC():
-            nr_assignments_to_consider = (contributor.editorial_assignments
-                                          .open().count())
-            active_assignments = contributor.editorial_assignments.ongoing()
-            nr_reports_to_vet = (Report.objects.awaiting_vetting()
-                                 .filter(submission__editor_in_charge=contributor).count())
-
-        nr_commentary_page_requests_to_vet = 0
-        nr_comments_to_vet = 0
-        nr_thesislink_requests_to_vet = 0
-        nr_authorship_claims_to_vet = 0
-        if contributor.is_VE():
-            nr_commentary_page_requests_to_vet = (Commentary.objects.awaiting_vetting()
-                                                  .exclude(requested_by=contributor).count())
-            nr_comments_to_vet = Comment.objects.awaiting_vetting().count()
-            nr_thesislink_requests_to_vet = ThesisLink.objects.awaiting_vetting().count()
-            nr_authorship_claims_to_vet = AuthorshipClaim.objects.awaiting_vetting().count()
-
         # Refereeing
-        nr_ref_inv_to_consider = contributor.referee_invitations.open().count()
-        pending_ref_tasks = contributor.referee_invitations.in_process()
-        refereeing_tab_total_count = nr_ref_inv_to_consider + len(pending_ref_tasks)
+        refereeing_tab_total_count = contributor.referee_invitations.open().count()
+        refereeing_tab_total_count += contributor.referee_invitations.in_process().count()
         refereeing_tab_total_count += contributor.reports.in_draft().count()
 
-        # Verify if there exist objects authored by this contributor,
-        # whose authorship hasn't been claimed yet
-        own_publications = contributor.publications.order_by('-publication_date')
-        own_submissions = contributor.submissions.filter(is_current=True).order_by('-submission_date')
-        own_commentaries = contributor.commentaries.order_by('-latest_activity')
-        own_thesislinks = contributor.theses.all()
-        nr_publication_authorships_to_claim = (Publication.objects.filter(
-            author_list__contains=contributor.user.last_name)
-                                              .exclude(authors=contributor)
-                                              .exclude(authors_claims=contributor)
-                                              .exclude(authors_false_claims=contributor)
-                                              .count())
-        nr_submission_authorships_to_claim = (Submission.objects.filter(
-            author_list__contains=contributor.user.last_name)
-                                              .exclude(authors=contributor)
-                                              .exclude(authors_claims=contributor)
-                                              .exclude(authors_false_claims=contributor)
-                                              .count())
-        nr_commentary_authorships_to_claim = (Commentary.objects.filter(
-            author_list__contains=contributor.user.last_name)
-                                              .exclude(authors=contributor)
-                                              .exclude(authors_claims=contributor)
-                                              .exclude(authors_false_claims=contributor)
-                                              .count())
-        nr_thesis_authorships_to_claim = (ThesisLink.objects.filter(
-            author__contains=contributor.user.last_name)
-                                          .exclude(author_as_cont=contributor)
-                                          .exclude(author_claims=contributor)
-                                          .exclude(author_false_claims=contributor)
-                                          .count())
-        own_comments = (contributor.comments.regular_comments()
-                        .select_related('author', 'submission')
-                        .order_by('-date_submitted'))
-        own_authorreplies = (contributor.comments.author_replies()
-                             .order_by('-date_submitted'))
-
-        appellation = contributor.get_title_display() + ' ' + contributor.user.last_name
-
-        context.update({
-            'contributor': contributor,
-            'appellation': appellation,
-            'unavailabilities': unavailabilities,
-            'unavailability_form': unavailability_form,
-            'nr_reg_to_vet': nr_reg_to_vet,
-            'nr_reg_awaiting_validation': nr_reg_awaiting_validation,
-            'nr_commentary_page_requests_to_vet': nr_commentary_page_requests_to_vet,
-            'nr_comments_to_vet': nr_comments_to_vet,
-            'nr_thesislink_requests_to_vet': nr_thesislink_requests_to_vet,
-            'nr_authorship_claims_to_vet': nr_authorship_claims_to_vet,
-            'nr_reports_to_vet': nr_reports_to_vet,
-            'nr_submissions_to_assign': nr_submissions_to_assign,
-            'nr_recommendations_to_prepare_for_voting': nr_recommendations_to_prepare_for_voting,
-            'nr_assignments_to_consider': nr_assignments_to_consider,
-            'active_assignments': active_assignments,
-            'nr_publication_authorships_to_claim': nr_publication_authorships_to_claim,
-            'nr_submission_authorships_to_claim': nr_submission_authorships_to_claim,
-            'nr_commentary_authorships_to_claim': nr_commentary_authorships_to_claim,
-            'nr_thesis_authorships_to_claim': nr_thesis_authorships_to_claim,
-            'nr_ref_inv_to_consider': nr_ref_inv_to_consider,
-            'pending_ref_tasks': pending_ref_tasks,
-            'refereeing_tab_total_count': refereeing_tab_total_count,
-            'own_publications': own_publications,
-            'own_submissions': own_submissions,
-            'own_commentaries': own_commentaries,
-            'own_thesislinks': own_thesislinks,
-            'own_comments': own_comments,
-            'own_authorreplies': own_authorreplies,
-        })
-
-    # Only add variables if user has right permission
-    if request.user.has_perm('scipost.can_manage_reports'):
-        context['nr_reports_without_pdf'] = (Report.objects.accepted()
-                                             .filter(pdf_report='').count())
-        context['nr_treated_submissions_without_pdf'] = (Submission.objects.treated()
-                                                         .filter(pdf_refereeing_pack='').count())
+        context['refereeing_tab_total_count'] = refereeing_tab_total_count
+        context['appellation'] = contributor.get_title_display() + ' ' + contributor.user.last_name
+        context['contributor'] = contributor
 
     return render(request, 'scipost/personal_page.html', context)
 
