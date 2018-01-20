@@ -14,9 +14,11 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
-                       EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
+                       EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,\
+                       STATUS_DRAFT, STATUS_VETTED
 from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet,\
-                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet
+                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet,\
+                      EditorialCommunicationQueryset
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
@@ -360,6 +362,10 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     def notification_name(self):
         return self.submission.arxiv_identifier_w_vn_nr
 
+    @property
+    def related_report(self):
+        return self.submission.reports.filter(author=self.referee).first()
+
     def reset_content(self):
         self.nr_reminders = 0
         self.date_last_reminded = None
@@ -452,6 +458,14 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
 
+    @property
+    def is_in_draft(self):
+        return self.status == STATUS_DRAFT
+
+    @property
+    def is_vetted(self):
+        return self.status == STATUS_VETTED
+
     def save(self, *args, **kwargs):
         # Control Report count per Submission.
         if not self.report_nr:
@@ -512,16 +526,18 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
     """
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
-                                   related_name='editorial_communications')
-    referee = models.ForeignKey('scipost.Contributor', related_name='referee_in_correspondence',
-                                blank=True, null=True, on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    referee = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                                blank=True, null=True)
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
 
+    objects = EditorialCommunicationQueryset.as_manager()
+
     class Meta:
         ordering = ['timestamp']
+        default_related_name = 'editorial_communications'
 
     def __str__(self):
         output = self.comtype

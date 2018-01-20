@@ -320,6 +320,9 @@ class ReportQuerySet(models.QuerySet):
 
 
 class RefereeInvitationQuerySet(models.QuerySet):
+    def awaiting_response(self):
+        return self.pending().open()
+
     def pending(self):
         return self.filter(accepted=None)
 
@@ -348,3 +351,8 @@ class RefereeInvitationQuerySet(models.QuerySet):
         deadline = now
         qs = qs.filter(submission__reporting_deadline__lte=deadline)
         return qs
+
+
+class EditorialCommunicationQueryset(models.QuerySet):
+    def for_referees(self):
+        return self.filter(comtype__in=['EtoR', 'RtoE'])
