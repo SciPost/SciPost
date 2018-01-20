@@ -1103,6 +1103,7 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
     Communication between editor-in-charge, author or referee
     occurring during the submission refereeing.
     """
+    referee = None
     if comtype == 'AtoE':
         submissions_qs = Submission.objects.filter(authors__user=request.user)
     else:
@@ -1139,6 +1140,9 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
         if referee_id is not None:
             referee = get_object_or_404(Contributor, pk=referee_id)
             communication.referee = referee
+
+        if comtype == 'RtoE':
+            communication.referee = request.user.contributor
         communication.save()
         SubmissionUtils.load({'communication': communication})
         SubmissionUtils.send_communication_email()
