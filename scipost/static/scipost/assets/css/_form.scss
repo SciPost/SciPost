@@ -110,3 +110,10 @@ input[type="file"] {
         }
     }
 }
+
+// Overwrite this weird Bootstrap css rule
+select.form-control {
+  &:not([size]):not([multiple]) {
+    height: auto;
+  }
+}
