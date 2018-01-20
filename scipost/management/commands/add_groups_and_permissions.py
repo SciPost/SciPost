@@ -200,7 +200,7 @@ class Command(BaseCommand):
 
         # Statistics
         can_view_statistics, created = Permission.objects.get_or_create(
-            codenam='can_view_statistics',
+            codename='can_view_statistics',
             name='Can view statistics',
             content_type=content_type)
 
