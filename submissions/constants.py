@@ -113,7 +113,7 @@ ED_COMM_CHOICES = (
     ('EtoR', 'Editor-in-charge to Referee'),
     ('EtoS', 'Editor-in-charge to SciPost Editorial Administration'),
     ('AtoE', 'Author to Editor-in-charge'),
-    ('RtoE', 'Referee to Editor-in-Charge'),
+    ('RtoE', 'Referee to Editor-in-charge'),
     ('StoE', 'SciPost Editorial Administration to Editor-in-charge'),
 )
 

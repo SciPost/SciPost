@@ -556,10 +556,14 @@
                                                     <tr>
                                                         <th>Status:</th><td {% if report.status == 'vetted' %}class="text-success"{% elif report.status == 'unvetted' %}class="text-danger"{% endif %}>{{report.get_status_display}}</td>
                                                     </tr>
-        					    {% if report.doi_label %}
-        					    <tr>
-        					      <th>DOI:</th><td>{{ report.doi_string }}</td></th>
-        {% endif %}
+                                                    <tr>
+                                                        <th>Type:</th><td>{{ report.invited|yesno:'Invited,Contributed' }} Report</td>
+                                                    </tr>
+                            					    {% if report.doi_label %}
+                            					    <tr>
+                                                        <th>DOI:</th><td>{{ report.doi_string }}</td>
+                                                    </tr>
+                                                    {% endif %}
                                                     <tr>
                                                         <th>Anonymous:</th><td>{{report.anonymous|yesno:'Yes,No'}}</td>{% if report.anonymous %}<td>You can <a href="{% url 'journals:sign_existing_report' report_id=report.id %}">click here to sign this Report</a> (leads to confirmation page){% endif %}</td>
                                                     </tr>

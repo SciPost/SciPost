@@ -17,7 +17,8 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,\
                        STATUS_DRAFT, STATUS_VETTED
 from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet,\
-                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet
+                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet,\
+                      EditorialCommunicationQueryset
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
@@ -525,16 +526,18 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
     """
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
-                                   related_name='editorial_communications')
-    referee = models.ForeignKey('scipost.Contributor', related_name='referee_in_correspondence',
-                                blank=True, null=True, on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    referee = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                                blank=True, null=True)
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
 
+    objects = EditorialCommunicationQueryset.as_manager()
+
     class Meta:
         ordering = ['timestamp']
+        default_related_name = 'editorial_communications'
 
     def __str__(self):
         output = self.comtype

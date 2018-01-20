@@ -212,9 +212,10 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                       .filter(is_author_reply=True).order_by('-date_submitted'))
 
     # User is referee for the Submission
-    invitations = None
-    if hasattr(request.user, 'contributor'):
-        invitations = submission.referee_invitations.filter(referee=request.user.contributor)
+    invitations = submission.referee_invitations.filter(referee__user=request.user)
+    if invitations:
+        context['communication'] = submission.editorial_communications.for_referees().filter(
+            referee__user=request.user)
 
     recommendations = submission.eicrecommendations.all()
 
@@ -1149,8 +1150,10 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
         if comtype == 'EtoA' or comtype == 'EtoR' or comtype == 'EtoS':
             return redirect(reverse('submissions:editorial_page',
                                     kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
-        elif comtype == 'AtoE' or comtype == 'RtoE':
+        elif comtype == 'AtoE':
             return redirect(reverse('scipost:personal_page'))
+        elif comtype == 'RtoE':
+            return redirect(submission.get_absolute_url())
         elif comtype == 'StoE':
             return redirect(reverse('submissions:pool'))
 

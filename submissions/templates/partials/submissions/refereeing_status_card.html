@@ -43,14 +43,37 @@
             {% if invitation.related_report.anonymous %}
                 <p class="card-text">You have anonymously submitted your Report. <a href="{% url 'journals:sign_existing_report' report_id=invitation.related_report.id %}">You can click here to sign this Report</a> (leads to confirmation page).</p>
             {% endif %}
+
+            {% if invitation.submission.editor_in_charge %}
+                <h3 class="card-title">Communication</h3>
+                <a class="card-link" href="{% url 'submissions:communication' invitation.submission.arxiv_identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
+
+                <ul class="pl-4 mt-2">
+                    {% for comm in communication %}
+                        <li>
+                            <span class="font-weight-bold">
+                                {% if comm.comtype == 'RtoE' %}
+                                    From {{ comm.referee.user.first_name }} {{ comm.referee.user.last_name }} to Editor-in-charge
+                                {% elif comm.comtype == 'EtoR' %}
+                                    From Editor-in-charge to
+                                    {% if comm.referee %}
+                                        {{ comm.referee.user.first_name }} {{ comm.referee.user.last_name }}
+                                    {% endif %}
+                                {% endif %}
+                            </span>
+                            <small class="d-inline-block text-muted text-sm">on {{ comm.timestamp }}</small>
+
+                            <p class="card-text">{{ comm.text }}</p>
+                        </li>
+                    {% empty %}
+                        <li>There have been no communications for this Submission.</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         {% else %}
             <h3 class="card-title">Referee Invitation</h3>
             <p class="card-text"You have declined to contribute a Report. >Nonetheless, we thank you very much for considering this refereeing invitation.</p>
             <p class="card-text">Reason: {{ invitation.get_refusal_reason_display }}</p>
         {% endif %}
-
-        <h3 class="card-title">Communication</h3>
-        <a class="card-link" href="{% url 'submissions:communication' invitation.submission.arxiv_identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
-
     </div>
 </div>
