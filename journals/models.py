@@ -51,6 +51,19 @@ class Journal(models.Model):
     def get_abbreviation_citation(self):
         return journal_name_abbrev_citation(self.name)
 
+    def citation_rate(self):
+        """
+        Returns the citation rate in units of nr citations per article per year.
+        """
+        pubs = Publication.objects.filter(in_issue__in_volume__in_journal=self)
+        ncites = 0
+        deltat = 1 # to avoid division by zero
+        for pub in pubs:
+            if pub.citedby and pub.latest_citedby_update:
+                ncites += pub.citedby.length()
+                deltat += (pub.latest_citedby_update - pub.publication_date).seconds
+        return (ncites * 3600 * 24 * 365.25/deltat)
+
 
 class Volume(models.Model):
     in_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
@@ -69,6 +82,19 @@ class Volume(models.Model):
     @property
     def doi_string(self):
         return '10.21468/' + self.doi_label
+
+    def citation_rate(self):
+        """
+        Returns the citation rate in units of nr citations per article per year.
+        """
+        pubs = Publication.objects.filter(in_issue__in_volume=self)
+        ncites = 0
+        deltat = 1 # to avoid division by zero
+        for pub in pubs:
+            if pub.citedby and pub.latest_citedby_update:
+                ncites += pub.citedby.length()
+                deltat += (pub.latest_citedby_update - pub.publication_date).seconds
+        return (ncites * 3600 * 24 * 365.25/deltat)
 
 
 class Issue(models.Model):
@@ -120,6 +146,19 @@ class Issue(models.Model):
     def is_current(self):
         return self.start_date <= timezone.now().date() and\
                self.until_date >= timezone.now().date()
+
+    def citation_rate(self):
+        """
+        Returns the citation rate in units of nr citations per article per year.
+        """
+        pubs = Publication.objects.filter(in_issue=self)
+        ncites = 0
+        deltat = 1 # to avoid division by zero
+        for pub in pubs:
+            if pub.citedby and pub.latest_citedby_update:
+                ncites += pub.citedby.length()
+                deltat += (pub.latest_citedby_update - pub.publication_date).seconds
+        return (ncites * 3600 * 24 * 365.25/deltat)
 
 
 class Publication(models.Model):
@@ -216,6 +255,17 @@ class Publication(models.Model):
                 + ' ' + str(self.in_issue.in_volume.number)
                 + ', ' + self.get_paper_nr()
                 + ' (' + self.publication_date.strftime('%Y') + ')')
+
+    def citation_rate(self):
+        """
+        Returns the citation rate in units of nr citations per article per year.
+        """
+        if self.citedby and self.latest_citedby_update:
+            ncites = self.citedby.length()
+            deltat = (self.latest_citedby_update - self.publication_date).seconds
+            return (ncites * 3600 * 24 * 365.25/deltat)
+        else:
+            return 0
 
 
 class Deposit(models.Model):
