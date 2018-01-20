@@ -60,7 +60,7 @@ class Journal(models.Model):
         deltat = 1 # to avoid division by zero
         for pub in pubs:
             if pub.citedby and pub.latest_citedby_update:
-                ncites += pub.citedby.length()
+                ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update - pub.publication_date).seconds
         return (ncites * 3600 * 24 * 365.25/deltat)
 
@@ -92,7 +92,7 @@ class Volume(models.Model):
         deltat = 1 # to avoid division by zero
         for pub in pubs:
             if pub.citedby and pub.latest_citedby_update:
-                ncites += pub.citedby.length()
+                ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update - pub.publication_date).seconds
         return (ncites * 3600 * 24 * 365.25/deltat)
 
@@ -156,7 +156,7 @@ class Issue(models.Model):
         deltat = 1 # to avoid division by zero
         for pub in pubs:
             if pub.citedby and pub.latest_citedby_update:
-                ncites += pub.citedby.length()
+                ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update - pub.publication_date).seconds
         return (ncites * 3600 * 24 * 365.25/deltat)
 
@@ -261,7 +261,7 @@ class Publication(models.Model):
         Returns the citation rate in units of nr citations per article per year.
         """
         if self.citedby and self.latest_citedby_update:
-            ncites = self.citedby.length()
+            ncites = len(self.citedby)
             deltat = (self.latest_citedby_update - self.publication_date).seconds
             return (ncites * 3600 * 24 * 365.25/deltat)
         else:
