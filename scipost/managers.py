@@ -52,6 +52,9 @@ class UnavailabilityPeriodManager(models.Manager):
     def today(self):
         return self.filter(start__lte=today, end__gte=today)
 
+    def future(self):
+        return self.filter(end__gte=today)
+
 
 class AuthorshipClaimQuerySet(models.QuerySet):
     def awaiting_vetting(self):
