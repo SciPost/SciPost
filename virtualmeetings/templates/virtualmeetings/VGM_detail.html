@@ -159,9 +159,38 @@
     </div>
     <div class="row">
         <div class="col-12">
-            <ul class="list-group list-group-flush">
-                {% for nomination in nominations %}
-                    <li class="list-group-item border-0">
+	  <div id="accordion">
+	    {% for domain, spec in spec_list %}
+	    <div class="card">
+	      <div class="card-header" id="heading{{ domain }}">
+		<h5 class="mb-0">
+		  <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{ domain }}" aria-expanded="false" aria-controls="collapse{{ domain }}">
+		    <p>{{ domain }}</p>
+		  </button>
+		</h5>
+	      </div>
+	      <div id="collapse{{ domain }}" class="collapse" aria-labelledby="heading{{ domain }}" data-parent="#accordion">
+		<div class="card-body">
+		  <div id="accordion{{ domain }}">
+		    {% for sp, val in spec %}
+		    <div class="card">
+		      <div class="card-header" id="heading{{ sp }}">
+			<h5 class="mb-0">
+			  <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{ sp }}" aria-expanded="false" aria-controls="collapse{{ sp }}">
+			    <p>{{ sp }}</p>
+			  </button>
+			  <p>{{ val }}</p>
+			</h5>
+		      </div>
+		      <div id="collapse{{ sp }}" class="collapse show" aria-labelledby="heading{{ sp }}" data-parent="#accordion{{ domain }}">
+			<div class="card-body">
+			  <p>Hello {{ val }}</p>
+
+
+	  <ul class="list-group list-group-flush">
+            {% for nomination in nominations %}
+	    {% if sp in nomination.expertises %}
+                <li class="list-group-item border-0">
                         <div class="card-body">
                             {% include 'virtualmeetings/nomination_content.html' with nomination=nomination %}
                             <br/>
@@ -207,8 +236,27 @@
                         </div>
                     </li>
                     <hr>
-                {% endfor %}
+		    {% endif %}
+                    {% endfor %}
             </ul>
+
+
+
+
+
+			</div>
+		      </div>
+		    </div>
+		    {% endfor %}
+		  </div>
+		</div>
+	      </div>
+	    </div>
+	    {% endfor %}
+	  </div>
+
+
+
         </div>
     </div>
 {% endif %}
