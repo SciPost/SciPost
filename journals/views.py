@@ -767,7 +767,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
             paper=publication.get_paper_nr(),
             doi=publication.doi_label.replace('.', '_'),
             timestamp=timestamp)
-        f = open(settings.MEDIA_ROOT + path_with_timestamp, 'w')
+        f = open(settings.MEDIA_ROOT + path_with_timestamp, 'w', encoding='utf-8')
         f.write(publication.metadata_xml)
         f.close()
 

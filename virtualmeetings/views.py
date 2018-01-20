@@ -36,7 +36,7 @@ def VGM_detail(request, VGM_id):
     pending_inv_Fellows = RegistrationInvitation.objects.pending_invited_fellows()
     declined_inv_Fellows = RegistrationInvitation.objects.declined_invited_fellows()
     nomination_form = NominationForm()
-    nominations = Nomination.objects.filter(accepted=None).order_by('last_name')
+    nominations = Nomination.objects.filter(VGM=VGM_instance, accepted=None).order_by('last_name')
     motion_form = MotionForm()
     remark_form = RemarkForm()
     context = {
