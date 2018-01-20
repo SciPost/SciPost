@@ -11,7 +11,7 @@ from .constants import motion_categories_dict
 from .forms import FeedbackForm, NominationForm, MotionForm
 from .models import VGM, Feedback, Nomination, Motion
 
-from scipost.constants import SCIPOST_SUBJECT_AREAS, subject_areas_dict
+from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import RemarkForm
 from scipost.models import RegistrationInvitation, Contributor, Remark
 
@@ -36,7 +36,7 @@ def VGM_detail(request, VGM_id):
 
     pending_inv_Fellows = RegistrationInvitation.objects.pending_invited_fellows()
     declined_inv_Fellows = RegistrationInvitation.objects.declined_invited_fellows()
-    spec_list = SCIPOST_SUBJECT_AREAS #subject_areas_dict
+    spec_list = SCIPOST_SUBJECT_AREAS  # subject_areas_dict
     nomination_form = NominationForm()
     nominations = Nomination.objects.filter(VGM=VGM_instance, accepted=None).order_by('last_name')
     motion_form = MotionForm()
