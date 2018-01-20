@@ -62,7 +62,7 @@ class Journal(models.Model):
             if pub.citedby and pub.latest_citedby_update:
                 ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
-        return (ncites * 3600 * 24 * 365.25/deltat)
+        return (ncites * 365.25/deltat)
 
 
 class Volume(models.Model):
@@ -158,7 +158,7 @@ class Issue(models.Model):
             if pub.citedby and pub.latest_citedby_update:
                 ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
-        return (ncites * 3600 * 24 * 365.25/deltat)
+        return (ncites * 365.25/deltat)
 
 
 class Publication(models.Model):
@@ -263,7 +263,7 @@ class Publication(models.Model):
         if self.citedby and self.latest_citedby_update:
             ncites = len(self.citedby)
             deltat = (self.latest_citedby_update.date() - self.publication_date).days
-            return (ncites * 3600 * 24 * 365.25/deltat)
+            return (ncites * 365.25/deltat)
         else:
             return 0
 
