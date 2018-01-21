@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.VGMs, name='VGMs'),
-    url(r'^VGM/(?P<VGM_id>[0-9]+)/$', views.VGM_detail, name='VGM_detail'),
+    url(r'^VGM/(?P<VGM_id>[0-9]+)$', views.VGM_detail, name='VGM_detail'),
     url(r'^feedback/(?P<VGM_id>[0-9]+)$', views.feedback, name='feedback'),
     url(r'^add_remark_on_feedback/(?P<VGM_id>[0-9]+)/(?P<feedback_id>[0-9]+)$',
         views.add_remark_on_feedback, name='add_remark_on_feedback'),
