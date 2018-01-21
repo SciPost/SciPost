@@ -1,6 +1,6 @@
 <div class="Motion" id="motion_{{ motion.id }}">
     <h2 class="pb-0">Motion {{ motion.id }}</h2>
-    <h3 class="pt-0 mb-2">put forward by {{ motion.put_forward_by.user.first_name }} {{ motion.put_forward_by.user.last_name }}</h3>
+    <h3 class="pt-0 mb-2">put forward on {{ motion.date|date:"Y-m-d" }} by {{ motion.put_forward_by.user.first_name }} {{ motion.put_forward_by.user.last_name }}</h3>
 
     <h3>Background:</h3>
     <div>{{ motion.background|linebreaks }}</div>
