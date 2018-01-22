@@ -53,7 +53,7 @@
                         on {{ report.date_submitted|date:'Y-n-j' }}</h3>
                     </h3>
         		    <ul class="publicationClickables">
-        		      {% if report.doi_string %}<li>{{ report|citation }}</li>{% endif %}
+        		      {% if report.doi_string %}<li>Cite: <span class="citation">{{ report|citation }}</span></li>{% endif %}
                               {% if report.pdf_report %}
                               <li><a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download as PDF</a></li>
                               {% endif %}
