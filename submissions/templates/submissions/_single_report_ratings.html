@@ -1,32 +1,10 @@
 <div class="ratings">
-    <table>
-        <tr>
-            <th>Validity</th>
-            <td>{{ report.get_validity_display }}</td>
-        </tr>
-        <tr>
-            <th>Significance</th>
-            <td>{{ report.get_significance_display }}</td>
-        </tr>
-        <tr>
-            <th>Validity</th>
-            <td>{{ report.get_grammar_display }}</td>
-        </tr>
-        <tr>
-            <th>Originality</th>
-            <td>{{ report.get_originality_display }}</td>
-        </tr>
-        <tr>
-            <th>Clarity</th>
-            <td>{{ report.get_clarity_display }}</td>
-        </tr>
-        <tr>
-            <th>Formatting</th>
-            <td>{{ report.get_formatting_display }}</td>
-        </tr>
-        <tr>
-            <th>Grammar</th>
-            <td>{{ report.get_grammar_display }}</td>
-        </tr>
-    </table>
+    <ul>
+        <li>validity: {{report.get_validity_display}}</li>
+        <li>significance: {{report.get_significance_display}}</li>
+        <li>originality: {{report.get_originality_display}}</li>
+        <li>clarity: {{report.get_clarity_display}}</li>
+        <li>formatting: {{report.get_formatting_display}}</li>
+        <li>grammar: {{report.get_grammar_display}}</li>
+    </ul>
 </div>
