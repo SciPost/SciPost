@@ -509,7 +509,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         If it is, return a dict with info on relation to the published object,
         based on Crossref's peer review content type.
         """
-        publication = self.submission.publication
+        publication = Publication.objects.filter(
+            accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
         if publication:
             relation = {
                 'isReviewOfDOI': publication.doi_string,

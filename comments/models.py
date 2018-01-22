@@ -199,11 +199,13 @@ class Comment(TimeStampedModel):
         """
         # Import here due to circular import errors
         from submissions.models import Submission
+        from journals.models import Publication
         from commentaries.models import Commentary
 
         to_object = self.core_content_object
         if isinstance(to_object, Submission):
-            publication = to_object.publication
+            publication = Publication.objects.filter(
+                accepted_submission__arxiv_identifier_wo_vn_nr=to_object.arxiv_identifier_wo_vn_nr)
             if publication:
                 relation = {
                     'isReviewOfDOI': publication.doi_string,
