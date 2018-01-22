@@ -1090,7 +1090,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
     elif type_of_object == 'comment':
         _object = get_object_or_404(Comment, id=object_id)
 
-    relation_to_published = _object.relation_to_published()
+    relation_to_published = _object.relation_to_published
 
     if not _object.doi_label:
         _object.create_doi_label()
