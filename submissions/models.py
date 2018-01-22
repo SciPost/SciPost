@@ -452,16 +452,6 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
 
-    def save(self, *args, **kwargs):
-        # Control Report count per Submission.
-        if not self.report_nr:
-            self.report_nr = self.submission.reports.count() + 1
-        return super().save(*args, **kwargs)
-
-    def create_doi_label(self):
-        self.doi_label = 'SciPost.Report.' + str(self.id)
-        self.save()
-
     def get_absolute_url(self):
         return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
 
@@ -473,8 +463,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def doi_string(self):
         if self.doi_label:
             return '10.21468/' + self.doi_label
-        else:
-            return None
+        return ''
 
     @cached_property
     def title(self):
@@ -484,7 +473,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         return self.submission.title
 
-    @cached_property
+    @property
     def is_followup_report(self):
         """
         Check if current Report is a `FollowupReport`. A Report is a `FollowupReport` if the
@@ -493,6 +482,16 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         return (self.author.reports.accepted().filter(
             submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr,
             submission__arxiv_vn_nr__lt=self.submission.arxiv_vn_nr).exists())
+
+    def save(self, *args, **kwargs):
+        # Control Report count per Submission.
+        if not self.report_nr:
+            self.report_nr = self.submission.reports.count() + 1
+        return super().save(*args, **kwargs)
+
+    def create_doi_label(self):
+        self.doi_label = 'SciPost.Report.' + str(self.id)
+        self.save()
 
     def latest_report_from_series(self):
         """
@@ -525,8 +524,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     @property
     def citation(self):
+        citation = ''
         if self.doi_string:
-            citation = ''
             if self.anonymous:
                 citation += 'Anonymous, '
             else:
@@ -534,7 +533,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             citation += 'Report on %s, ' % self.submission.arxiv_identifier_w_vn_nr
             citation += 'SciPost Reports (%s), doi:' % self.date_submitted.strftime('%Y')
             citation += self.doi_string
-        return None
+        return citation
 
 
 ##########################
