@@ -455,7 +455,9 @@ def update_references(request, doi_label):
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
     references = publication.references.all()
-    formset = ReferenceFormSet(request.POST or None, queryset=references, publication=publication)
+
+    formset = ReferenceFormSet(request.POST or None, queryset=references, publication=publication,
+                               extra=request.GET.get('extra'))
 
     if request.GET.get('prefill'):
         formset.prefill()

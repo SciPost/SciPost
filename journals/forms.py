@@ -93,6 +93,8 @@ class BaseReferenceFormSet(BaseModelFormSet):
 
     def __init__(self, *args, **kwargs):
         self.publication = kwargs.pop('publication')
+        extra = kwargs.pop('extra')
+        self.extra = int(extra if extra else '0')
         kwargs['form_kwargs'] = {'publication': self.publication}
         super().__init__(*args, **kwargs)
 
@@ -146,7 +148,7 @@ class BaseReferenceFormSet(BaseModelFormSet):
             self.initial_extra = self.initial_references
         else:
             self.initial_extra.extend(self.initial_references)
-        self.extra = len(self.initial_extra)
+        self.extra += len(self.initial_extra)
 
 
 class ReferenceForm(forms.ModelForm):
