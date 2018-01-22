@@ -174,6 +174,30 @@ urlpatterns = [
     # Publications #
     ################
 
+    # Reports
+    url(r'^(?P<doi_label>SciPost.Report.[0-9]+)$',
+        journals_views.report_detail,
+        name='report_detail'),
+    url(r'^10.21468/(?P<doi_label>SciPost.Report.[0-9]+)$',
+        journals_views.report_detail,
+        name='report_detail'),
+
+    # Comments
+    url(r'^(?P<doi_label>SciPost.Comment.[0-9]+)$',
+        journals_views.comment_detail,
+        name='comment_detail'),
+    url(r'^10.21468/(?P<doi_label>SciPost.Comment.[0-9]+)$',
+        journals_views.comment_detail,
+        name='comment_detail'),
+
+    # Author Replies
+    url(r'^(?P<doi_label>SciPost.AuthorReply.[0-9]+)$',
+        journals_views.author_reply_detail,
+        name='author_reply_detail'),
+    url(r'^10.21468/(?P<doi_label>SciPost.AuthorReply.[0-9]+)$',
+        journals_views.author_reply_detail,
+        name='author_reply_detail'),
+
     # Publication detail (+pdf)
     url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.publication_detail,

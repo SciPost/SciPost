@@ -1218,6 +1218,21 @@ def mark_generic_deposit_success(request, deposit_id, success):
 # Viewing #
 ###########
 
+def report_detail(request, doi_label):
+    report = get_object_or_404(Report.objects.accepted(), doi_label=doi_label)
+    return redirect(report.get_absolute_url())
+
+
+def comment_detail(request, doi_label):
+    comment = get_object_or_404(Comment.objects.vetted().regular_comments(), doi_label=doi_label)
+    return redirect(comment.get_absolute_url())
+
+
+def author_reply_detail(request, doi_label):
+    comment = get_object_or_404(Comment.objects.vetted().author_replies(), doi_label=doi_label)
+    return redirect(comment.get_absolute_url())
+
+
 def publication_detail(request, doi_label):
     publication = Publication.objects.get_published(doi_label=doi_label)
     journal = publication.in_issue.in_volume.in_journal
