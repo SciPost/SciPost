@@ -1127,10 +1127,14 @@ def generic_metadata_xml_deposit(request, **kwargs):
             '<contributors>'
         )
         if _object.anonymous:
-            metadata_xml += '<anonymous/>'
+            metadata_xml += (
+                '<anonymous sequence="first" contributor_role="'
+                + relation_to_published['contributor_role'] + '">'
+            )
         else:
             metadata_xml += (
-                '<person_name>'
+                '<person_name sequence="first" contributor_role="'
+                + relation_to_published['contributor_role'] + '">'
                 '<given_name>' + _object.author.user.first_name + '</given_name>'
                 '<surname>' + _object.author.user.last_name + '</surname>'
                 '</person_name>\n'
@@ -1138,11 +1142,11 @@ def generic_metadata_xml_deposit(request, **kwargs):
         metadata_xml += (
             '</contributors>\n'
             '<titles><title>' + relation_to_published['title'] + '</title></titles>\n'
-            '<review_publication_date>'
+            '<review_publication_date><review_date>'
             '<year>' + _object.date_submitted.strftime('%Y') + '</year>'
             '<month>' + _object.date_submitted.strftime('%m') + '</month>'
             '<day>' + _object.date_submitted.strftime('%d') + '</day>'
-            '</review_publication_date>\n'
+            '</review_date></review_publication_date>\n'
             '<program xmlns="http://www.crossref.org/relations.xsd">\n'
             '<related_item>'
             '<description>' + relation_to_published['title'] + '</description>\n'

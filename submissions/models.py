@@ -517,6 +517,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
                 'stage': 'pre-publication',
                 'type': 'referee-report',
                 'title': 'Report on ' + self.submission.arxiv_identifier_w_vn_nr,
+                'contributor_role': 'reviewer',
             }
             return relation
 
