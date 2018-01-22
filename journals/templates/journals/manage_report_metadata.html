@@ -25,7 +25,7 @@ event: "focusin"
       <div class="col-12">
 	{% for page in reports.paginator.page_range %}
 	{% if forloop.counter != 1 %} | {% endif %}
-	{{ page }}
+	<a href="?page={{ page }}">{{ page }}</a>
 	{% endfor %}
       </div>
     </div>
@@ -107,7 +107,7 @@ event: "focusin"
   <div class="col-12">
     {% for page in reports.paginator.page_range %}
     {% if forloop.counter != 1 %} | {% endif %}
-    {{ page }}
+    <a href="?page={{ page }}">{{ page }}</a>
     {% endfor %}
   </div>
 </div>
