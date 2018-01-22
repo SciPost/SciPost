@@ -501,6 +501,21 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
                 .order_by('submission__arxiv_identifier_wo_vn_nr').last())
 
+
+    @property
+    def associated_published_doi(self):
+        """
+        Check if the Report relates to a SciPost-published object.
+        If it is, return the doi of the published object.
+        """
+        try:
+            publication = Publication.objects.get(
+                accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+        except Publication.DoesNotExist:
+            return None
+        return publication.doi_string
+
+
     @property
     def relation_to_published(self):
         """
@@ -508,19 +523,20 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         If it is, return a dict with info on relation to the published object,
         based on Crossref's peer review content type.
         """
-        publication = Publication.objects.get(
-            accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
-        if publication:
-            relation = {
-                'isReviewOfDOI': publication.doi_string,
-                'stage': 'pre-publication',
-                'type': 'referee-report',
-                'title': 'Report on ' + self.submission.arxiv_identifier_w_vn_nr,
-                'contributor_role': 'reviewer',
-            }
-            return relation
+        try:
+            publication = Publication.objects.get(
+                accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+        except Publication.DoesNotExist:
+            return None
 
-        return None
+        relation = {
+            'isReviewOfDOI': publication.doi_string,
+            'stage': 'pre-publication',
+            'type': 'referee-report',
+            'title': 'Report on ' + self.submission.arxiv_identifier_w_vn_nr,
+            'contributor_role': 'reviewer',
+        }
+        return relation
 
     @property
     def citation(self):
