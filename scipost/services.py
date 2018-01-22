@@ -42,9 +42,16 @@ class DOICaller:
     def _format_data(self):
         data = self._crossref_data
         title = data['title'][0]
-        author_list = ['{} {}'.format(author['given'], author['family']) for author in data['author']]
-        # author_list is given as a comma separated list of names on the relevant models (Commentary, Submission)
-        author_list = ", ".join(author_list)
+
+        # author_list is given as a comma separated list of names on the relevant models
+        author_list = []
+        for author in data['author']:
+            try:
+                author_list.append('{} {}'.format(author['given'], author['family']))
+            except KeyError:
+                author_list.append(author['name'])
+        author_list = ', '.join(author_list)
+
         journal = data['container-title'][0]
         volume = data.get('volume', '')
         pages = self._get_pages(data)
@@ -77,8 +84,8 @@ class DOICaller:
         if date_parts:
             date_parts = date_parts[0]
             year = date_parts[0]
-            month = date_parts[1]
-            day = date_parts[2]
+            month = date_parts[1] if len(date_parts) > 1 else 1
+            day = date_parts[2] if len(date_parts) > 2 else 1
             pub_date = datetime.date(year, month, day).isoformat()
         else:
             pub_date = ''

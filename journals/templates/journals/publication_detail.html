@@ -58,7 +58,6 @@
         </p>
     {% endif %}
 
-    <hr>
     {% if publication.citedby|length >= 1 %}
 
         <div class="row">
@@ -79,21 +78,17 @@
 
     <div class="row">
         <div class="col-12">
-            <h3>View more material from these authors:</h3>
-            <p>
-            {% for author in publication.authors.all %}
-              <a href="{{author.get_absolute_url}}">{{ author }}</a> {% if not forloop.last %}&nbsp;&middot;&nbsp;{% endif %}
+            <h3>Authors</h3>
+            <ul>
+                {% for author in publication.authors.all %}
+                      <li><a href="{{author.get_absolute_url}}">{{ author }}</a></li>
+                {% endfor %}
+                {% for author in publication.authors_unregistered.all %}
+                      <li>{{ author }}</li>
+                {% endfor %}
+            </ul>
 
-              {% if forloop.last %}
-                {% if publication.authors_unregistered.exists %}
-                    &nbsp;&middot;&nbsp;
-                {% endif %}
-              {% endif %}
-            {% endfor %}
-            {% for author in publication.authors_unregistered.all %}
-              {{ author }} {% if not forloop.last %}&nbsp;&middot;&nbsp;{% endif %}
-            {% endfor %}
-            </p>
+            {% include 'partials/journals/references.html' with publication=publication %}
 
             {% if is_edcol_admin %}
                 {# This function is not available for public yet! #}
@@ -165,6 +160,7 @@
               <li><a href="{% url 'journals:harvest_citedby_links' publication.doi_label %}">Update Crossref cited-by links</a></li>
               <li><a href="{% url 'journals:manage_metadata' %}">Metadata management page</a></li>
     	      <li><a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">This publication's metadata management page</a></li>
+              <li><a href="{% url 'journals:update_references' doi_label=publication.doi_label %}">Update references</a></li>
             </ul>
         </div>
     </div>
