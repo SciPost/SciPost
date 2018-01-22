@@ -1123,7 +1123,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
     if relation_to_published:
         metadata_xml += (
             '<body>\n'
-            '<peer_review stage="' + relation_to_published['stage'] + '>\n'
+            '<peer_review stage="' + relation_to_published['stage'] + '">\n'
             '<contributors>'
         )
         if _object.anonymous:
