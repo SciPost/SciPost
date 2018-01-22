@@ -509,7 +509,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         If it is, return a dict with info on relation to the published object,
         based on Crossref's peer review content type.
         """
-        publication = Publication.objects.filter(
+        publication = Publication.objects.get(
             accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
         if publication:
             relation = {
