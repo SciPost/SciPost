@@ -7,6 +7,8 @@
 
 {% block pagetitle %}: {{ publication.citation }} - {{ publication.title }}{% endblock pagetitle %}
 
+{% block body_class %}{{ block.super }} publication{% endblock %}
+
 {% block breadcrumb_items %}
     {{block.super}}
     <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
