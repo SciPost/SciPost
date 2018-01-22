@@ -531,7 +531,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             else:
                 citation += '%s %s, ' % (self.author.user.first_name, self.author.user.last_name)
             citation += 'Report on %s, ' % self.submission.arxiv_identifier_w_vn_nr
-            citation += 'Delivered %s, ' % self.date_submitted.strftime('%Y-%m-%d')
+            citation += 'delivered %s, ' % self.date_submitted.strftime('%Y-%m-%d')
             citation += 'doi: %s' % self.doi_string
         return citation
 
