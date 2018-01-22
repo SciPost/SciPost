@@ -21,6 +21,15 @@ event: "focusin"
 
 {% block content %}
 
+    <div class="rol">
+      <div class="col-12">
+	{% for page in reports.paginator.page_range %}
+	{% if forloop.counter != 1 %} | {% endif %}
+	{{ page }}
+	{% endfor %}
+      </div>
+    </div>
+
 
 <table class="table table-hover mb-5">
   <thead class="thead-default">
@@ -93,26 +102,15 @@ event: "focusin"
   </tbody>
 </table>
 
-{% if is_paginated %}
-<div class="col-12">
-  {% include 'partials/pagination.html' with page_obj=page_obj %}
+
+<div class="rol">
+  <div class="col-12">
+    {% for page in reports.paginator.page_range %}
+    {% if forloop.counter != 1 %} | {% endif %}
+    {{ page }}
+    {% endfor %}
+  </div>
 </div>
-{% endif %}
 
-<div class="pagination">
-    <span class="step-links">
-        {% if reports.has_previous %}
-            <a href="?page={{ reports.previous_page_number }}">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ reports.number }} of {{ reports.paginator.num_pages }}.
-        </span>
-
-        {% if reports.has_next %}
-            <a href="?page={{ reports.next_page_number }}">next</a>
-        {% endif %}
-    </span>
-</div>
 
 {% endblock content %}
