@@ -1090,7 +1090,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
     elif type_of_object == 'comment':
         _object = get_object_or_404(Comment, id=object_id)
 
-    relation_to_published = _object.relation_to_published()
+    relation_to_published = _object.relation_to_published
 
     if not _object.doi_label:
         _object.create_doi_label()
@@ -1123,31 +1123,35 @@ def generic_metadata_xml_deposit(request, **kwargs):
     if relation_to_published:
         metadata_xml += (
             '<body>\n'
-            '<peer_review stage="' + relation['stage'] + '>\n'
+            '<peer_review stage="' + relation_to_published['stage'] + '">\n'
             '<contributors>'
         )
         if _object.anonymous:
-            metadata_xml += '<anonymous/>'
+            metadata_xml += (
+                '<anonymous sequence="first" contributor_role="'
+                + relation_to_published['contributor_role'] + '"/>'
+            )
         else:
             metadata_xml += (
-                '<person_name>'
+                '<person_name sequence="first" contributor_role="'
+                + relation_to_published['contributor_role'] + '">'
                 '<given_name>' + _object.author.user.first_name + '</given_name>'
                 '<surname>' + _object.author.user.last_name + '</surname>'
                 '</person_name>\n'
             )
         metadata_xml += (
             '</contributors>\n'
-            '<titles><title>' + relation['title'] + '</title></titles>\n'
-            '<review_publication_date>'
-            '<year>' + _object.date_submitted.strftime('%Y') + '</year>'
+            '<titles><title>' + relation_to_published['title'] + '</title></titles>\n'
+            '<review_date>'
             '<month>' + _object.date_submitted.strftime('%m') + '</month>'
             '<day>' + _object.date_submitted.strftime('%d') + '</day>'
-            '</review_publication_date>\n'
+            '<year>' + _object.date_submitted.strftime('%Y') + '</year>'
+            '</review_date>\n'
             '<program xmlns="http://www.crossref.org/relations.xsd">\n'
             '<related_item>'
-            '<description>' + relation['title'] + '</description>\n'
+            '<description>' + relation_to_published['title'] + '</description>\n'
             '<inter_work_relation relationship-type="isReviewOf" identifier-type="doi">'
-            + relation['isReviewOfDOI'] + '</inter_work_relation></related_item>\n'
+            + relation_to_published['isReviewOfDOI'] + '</inter_work_relation></related_item>\n'
             '</program>'
             '<doi_data><doi>' + _object.doi_string + '</doi>\n'
             '<resource>https://scipost.org' + _object.get_absolute_url() +

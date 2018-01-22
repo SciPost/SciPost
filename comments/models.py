@@ -226,8 +226,10 @@ class Comment(TimeStampedModel):
                 }
                 if self.is_author_reply:
                     relation['type'] = 'author-comment'
+                    relation['contributor_role'] = 'author'
                 else:
                     relation['type'] = 'community-comment'
+                    relation['contributor_role'] = 'reviewer-external'
                 return relation
 
         return None
