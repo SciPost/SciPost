@@ -30,3 +30,8 @@ def user_is_referee(submission, user):
 @register.filter
 def is_voting_fellow(submission, user):
     return submission.voting_fellows.filter(contributor__user=user).exists()
+
+
+@register.filter
+def citation(citable):
+    return citable.citation

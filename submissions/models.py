@@ -523,6 +523,19 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
         return None
 
+    @property
+    def citation(self):
+        if self.doi_string:
+            citation = ''
+            if self.anonymous:
+                citation += 'Anonymous, '
+            else:
+                citation += '%s %s, ' % (self.author.user.first_name, self.author.user.last_name)
+            citation += 'Report on %s, ' % self.submission.arxiv_identifier_w_vn_nr
+            citation += 'SciPost Reports (%s), doi:' % self.date_submitted.strftime('%Y')
+            citation += self.doi_string
+        return None
+
 
 ##########################
 # EditorialCommunication #
