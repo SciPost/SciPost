@@ -1129,7 +1129,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
         if _object.anonymous:
             metadata_xml += (
                 '<anonymous sequence="first" contributor_role="'
-                + relation_to_published['contributor_role'] + '">'
+                + relation_to_published['contributor_role'] + '"/>'
             )
         else:
             metadata_xml += (
