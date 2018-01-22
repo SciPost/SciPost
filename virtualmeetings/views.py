@@ -125,7 +125,7 @@ def nominate_Fellow(request, VGM_id):
         nomination.update_votes(request.user.contributor.id, 'A')
         messages.success(request, 'The nomination has been registered.')
     else:
-        messages.danger(request, 'The form was not filled properly.')
+        messages.warning(request, 'The form was not filled properly.')
     return redirect(VGM_instance.get_absolute_url())
 
 
