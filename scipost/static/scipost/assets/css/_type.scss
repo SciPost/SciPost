@@ -119,6 +119,18 @@ hr.hr12 {
     &.small {
         height: 1px;
     }
+
+    &.divider {
+        height: 10px;
+        border-radius: 0;
+        background-color: $body-bg;
+        margin-left: -$grid-gutter-width;
+        margin-right: -$grid-gutter-width;
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: none;
+        width: auto;
+    }
 }
 
 .text-blue {

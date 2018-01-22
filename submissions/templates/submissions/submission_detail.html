@@ -170,8 +170,10 @@
 {% endif %}
 
 {% if invited_reports %}
-{# <hr>#}
-<div class="row mt-4">
+
+<hr class="divider">
+
+<div class="row">
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-body">
@@ -191,8 +193,9 @@
 {% endif %}
 
 {% if contributed_reports %}
-{# <hr>#}
-<div class="row mt-4">
+<hr class="divider">
+
+<div class="row">
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-body">
@@ -218,6 +221,8 @@
         <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{request.path}}">Login to report or comment</a></h3>
     {% endif %}
 {% endif %}
+
+<hr class="divider">
 
 {% include 'scipost/comments_block.html' with comments=submission.comments.vetted %}
 
