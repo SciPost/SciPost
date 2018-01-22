@@ -190,21 +190,23 @@ class Comment(TimeStampedModel):
         self.nr_D = self.in_disagreement.count()
         self.save()
 
-
-    @cached_property
+    @property
     def relation_to_published(self):
         """
         Check if the Comment relates to a SciPost-published object.
         If it is, return a dict with info on relation to the published object,
         based on Crossref's peer review content type.
         """
+        # Import here due to circular import errors
+        from submissions.models import Submission
+        from commentaries.models import Commentary
+
         to_object = self.core_content_object
         if isinstance(to_object, Submission):
-            published = Publication.objects.filter(
-                accepted_submission__arxiv_identifier_wo_vn_nr=to_object.arxiv_identifier_wo_vn_nr)
-            if published:
+            publication = to_object.publication
+            if publication:
                 relation = {
-                    'isReviewOfDOI': published.doi_string,
+                    'isReviewOfDOI': publication.doi_string,
                     'stage': 'pre-publication',
                     'title': 'Comment on ' + to_object.arxiv_identifier_w_vn_nr,
                 }

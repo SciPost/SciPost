@@ -502,18 +502,17 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
                 .order_by('submission__arxiv_identifier_wo_vn_nr').last())
 
-    @cached_property
+    @property
     def relation_to_published(self):
         """
         Check if the Report relates to a SciPost-published object.
         If it is, return a dict with info on relation to the published object,
         based on Crossref's peer review content type.
         """
-        published = Publication.objects.filter(
-            accepted_submission__arxiv_identifier_wo_vn_nr=self.submission__arxiv_identifier_wo_vn_nr)
-        if published:
+        publication = self.submission.publication
+        if publication:
             relation = {
-                'isReviewOfDOI': published.doi_string,
+                'isReviewOfDOI': publication.doi_string,
                 'stage': 'pre-publication',
                 'type': 'referee-report',
                 'title': 'Report on ' + self.submission.arxiv_identifier_w_vn_nr,
