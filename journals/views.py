@@ -1084,12 +1084,13 @@ def generic_metadata_xml_deposit(request, **kwargs):
     """
     type_of_object = kwargs['type_of_object']
     object_id = int(kwargs['object_id'])
-    relation_to_published = _object.relation_to_published()
 
     if type_of_object == 'report':
         _object = get_object_or_404(Report, id=object_id)
     elif type_of_object == 'comment':
         _object = get_object_or_404(Comment, id=object_id)
+
+    relation_to_published = _object.relation_to_published()
 
     if not _object.doi_label:
         _object.create_doi_label()
