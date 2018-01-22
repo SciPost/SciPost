@@ -28,3 +28,17 @@ table.contributor-info {
         vertical-align: top;
     }
 }
+
+.ratings {
+    background-color: $body-bg;
+    padding: 0.5rem;
+    display: inline-block;
+    border: 1px solid #ddd;
+    text-transform: capitalize;
+
+    th {
+        min-width: 120px;
+        text-align: right;
+        padding: 0.1rem 1rem;
+    }
+}
