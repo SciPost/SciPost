@@ -164,14 +164,14 @@
                     <a href="#" class="card-link" data-toggle="collapse" data-target="#collapse{{ domain }}" aria-expanded="false" aria-controls="collapse{{ domain }}">{{ domain }}</a>
                 </div>
                 <!-- Domain -->
-                <div class="card-body collapse bg-white" id="collapse{{ domain }}" aria-labelledby="heading{{ domain }}" data-parent="#accordion">
+                <div class="card-body collapse bg-white" id="collapse{{ domain|cut:" " }}" aria-labelledby="heading{{ domain|cut:" " }}" data-parent="#accordion">
             	    {% for sp, val in spec %}
                 	    <div class="card">
                             <div class="card-body bg-white">
                                 <a href="#" class="card-link" id="heading{{ forloop.counter }}" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">{{ sp }}</a>
                                 <br>{{ val }}
                             </div>
-                            <ul class="list-group list-group-flush collapse" id="collapse{{ forloop.counter }}" aria-labelledby="heading{{ forloop.counter }}" data-parent="#collapse{{ domain }}">
+                            <ul class="list-group list-group-flush collapse" id="collapse{{ forloop.counter }}" aria-labelledby="heading{{ forloop.counter }}" data-parent="#collapse{{ domain|cut:" " }}">
                                 {% for nomination in nominations %}
                                     {% if sp in nomination.expertises %}
                                         <li class="list-group-item">
