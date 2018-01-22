@@ -10,11 +10,7 @@
         }
 
         .citation {
-            color: $scipost-lightblue;
-
-            &:hover {
-                text-decoration: underline;
-            }
+            font-style: italic;
         }
     }
 }

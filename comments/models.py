@@ -244,9 +244,8 @@ class Comment(TimeStampedModel):
                 citation += '%s %s, ' % (self.author.user.first_name, self.author.user.last_name)
 
             if self.is_authorreply:
-                citation += 'SciPost Author Replies '
+                citation += 'SciPost Author Replies, '
             else:
-                citation += 'SciPost Comments '
-            citation += '(%s), doi:' % self.date_submitted.strftime('%Y')
-            citation += self.doi_string
+                citation += 'SciPost Comments, '
+            citation += 'doi: %s' % self.doi_string
         return citation
