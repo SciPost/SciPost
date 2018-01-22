@@ -515,7 +515,6 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             return None
         return publication.doi_string
 
-
     @property
     def relation_to_published(self):
         """
