@@ -1123,7 +1123,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
     if relation_to_published:
         metadata_xml += (
             '<body>\n'
-            '<peer_review stage="' + relation['stage'] + '>\n'
+            '<peer_review stage="' + relation_to_published['stage'] + '>\n'
             '<contributors>'
         )
         if _object.anonymous:
@@ -1137,7 +1137,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
             )
         metadata_xml += (
             '</contributors>\n'
-            '<titles><title>' + relation['title'] + '</title></titles>\n'
+            '<titles><title>' + relation_to_published['title'] + '</title></titles>\n'
             '<review_publication_date>'
             '<year>' + _object.date_submitted.strftime('%Y') + '</year>'
             '<month>' + _object.date_submitted.strftime('%m') + '</month>'
@@ -1145,9 +1145,9 @@ def generic_metadata_xml_deposit(request, **kwargs):
             '</review_publication_date>\n'
             '<program xmlns="http://www.crossref.org/relations.xsd">\n'
             '<related_item>'
-            '<description>' + relation['title'] + '</description>\n'
+            '<description>' + relation_to_published['title'] + '</description>\n'
             '<inter_work_relation relationship-type="isReviewOf" identifier-type="doi">'
-            + relation['isReviewOfDOI'] + '</inter_work_relation></related_item>\n'
+            + relation_to_published['isReviewOfDOI'] + '</inter_work_relation></related_item>\n'
             '</program>'
             '<doi_data><doi>' + _object.doi_string + '</doi>\n'
             '<resource>https://scipost.org' + _object.get_absolute_url() +
