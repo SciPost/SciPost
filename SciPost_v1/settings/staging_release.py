@@ -24,5 +24,5 @@ WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] = '/home/jdewit/webapps/scipost_sta
 ADMINS = MANAGERS = (('J. de Wit', 'jorrandewit@outlook.com'), )
 
 # Logging
-LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/Users/jorranwit/Develop/SciPost/logs/arxiv.log'
-LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/jorranwit/Develop/SciPost/logs/doi.log'
+LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/jdewit/webapps/scipost/logs/arxiv.log'
+LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/jdewit/webapps/scipost/logs/doi.log'
