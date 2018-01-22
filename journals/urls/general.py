@@ -53,6 +53,8 @@ urlpatterns = [
     url(r'^create_citation_list_metadata/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.create_citation_list_metadata,
         name='create_citation_list_metadata'),
+    url(r'^update_references/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+        journals_views.update_references, name='update_references'),
     url(r'^create_funding_info_metadata/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
         journals_views.create_funding_info_metadata,
         name='create_funding_info_metadata'),

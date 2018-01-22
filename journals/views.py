@@ -7,23 +7,24 @@ import shutil
 import string
 import xml.etree.ElementTree as ET
 
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib import messages
-from django.http import Http404
+from django.db import transaction
+from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.db import transaction
-from django.http import HttpResponse
 
 from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string, issue_doi_label_from_doi_label
 from .models import Journal, Issue, Publication, UnregisteredAuthor, Deposit, DOAJDeposit,\
                     GenericDOIDeposit
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
-                   UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm
+                   UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
+                   ReferenceFormSet
 from .utils import JournalUtils
 
 from comments.models import Comment
@@ -445,6 +446,30 @@ def create_citation_list_metadata(request, doi_label):
     if request.method == 'POST':
         context['citation_list'] = publication.metadata['citation_list']
     return render(request, 'journals/create_citation_list_metadata.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def update_references(request, doi_label):
+    """
+    Update the References for a certain Publication.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    references = publication.references.all()
+    formset = ReferenceFormSet(request.POST or None, queryset=references, publication=publication)
+
+    if request.GET.get('prefill'):
+        formset.prefill()
+
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, 'References saved')
+        return redirect(publication.get_absolute_url())
+
+    context = {
+        'publication': publication,
+        'formset': formset,
+    }
+    return render(request, 'journals/update_references.html', context)
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)

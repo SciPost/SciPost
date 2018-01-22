@@ -23,3 +23,20 @@ ul.events-list {
         }
     }
 }
+
+ul.references {
+    list-style: none;
+    padding-left: 0;
+
+    .counter {
+        margin-right: 0.25rem;
+    }
+
+    .title {
+        font-style: italic;
+    }
+    .doi {
+        display: block;
+        margin: 0 0 0.2rem 1.5rem;
+    }
+}

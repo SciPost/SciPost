@@ -1,0 +1,22 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Update References{% endblock pagetitle %}
+
+{% block content %}
+
+<h1>Update References</h1>
+
+<a href="{% url 'journals:update_references' publication.doi_label %}?prefill=form">Prefill forms (this might take a minute)</a>
+
+<form action="{% url 'journals:update_references' publication.doi_label %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ formset|bootstrap }}
+    <input type="submit" class="btn btn-primary" value="Submit">
+</form>
+
+
+
+
+{% endblock %}
