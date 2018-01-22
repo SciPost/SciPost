@@ -1102,7 +1102,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
     salt = salt.encode('utf8')
     idsalt = str(_object)[:10]
     idsalt = idsalt.encode('utf8')
-    timestamp=timezone.now().strftime('%Y%m%d%H%M%S')
+    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
     doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
     metadata_xml = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -1139,6 +1139,12 @@ def generic_metadata_xml_deposit(request, **kwargs):
                 '<surname>' + _object.author.user.last_name + '</surname>'
                 '</person_name>\n'
             )
+
+        if isinstance(_object, Publication):
+            url_to_declare = 'https://scipost.org{}'.format(_object.get_absolute_url())
+        else:
+            url_to_declare = 'https://scipost.org/{}'.format(_object.doi_label)
+
         metadata_xml += (
             '</contributors>\n'
             '<titles><title>' + relation_to_published['title'] + '</title></titles>\n'
@@ -1154,7 +1160,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
             + relation_to_published['isReviewOfDOI'] + '</inter_work_relation></related_item>\n'
             '</program>'
             '<doi_data><doi>' + _object.doi_string + '</doi>\n'
-            '<resource>https://scipost.org' + _object.get_absolute_url() +
+            '<resource>' + url_to_declare +
             '</resource></doi_data>\n'
             '</peer_review>\n'
             '</body>\n'
