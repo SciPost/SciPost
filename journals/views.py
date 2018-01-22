@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib import messages
@@ -1030,6 +1031,16 @@ def manage_report_metadata(request):
     the metadata of Reports.
     """
     reports = Report.objects.all()
+    paginator = Paginator(reports, 25)
+
+    page = request.GET.get('page')
+    try:
+        reports = paginator.page(page)
+    except PageNotAnInteger:
+        reports = paginator.page(1)
+    except EmptyPage:
+        reports = paginator.page(paginator.num_pages)
+
     context = {
         'reports': reports,
     }
