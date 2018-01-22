@@ -233,3 +233,20 @@ class Comment(TimeStampedModel):
                 return relation
 
         return None
+
+    @property
+    def citation(self):
+        citation = ''
+        if self.doi_string:
+            if self.anonymous:
+                citation += 'Anonymous, '
+            else:
+                citation += '%s %s, ' % (self.author.user.first_name, self.author.user.last_name)
+
+            if self.is_author_reply:
+                citation += 'SciPost Author Replies, '
+            else:
+                citation += 'SciPost Comments, '
+            citation += 'Delivered %s, ' % self.date_submitted.strftime('%Y-%m-%d')
+            citation += 'doi: %s' % self.doi_string
+        return citation

@@ -21,7 +21,10 @@
 <h3>Abstract:</h3>
 <p>{{ commentary.pub_abstract }}</p>
 
-{% include 'scipost/comments_block.html' with comments=commentary.comments.vetted type_of_object='Commentary' %}
+{% if commentary.comments.vetted %}
+    <hr class="divider">
+    {% include 'scipost/comments_block.html' with comments=commentary.comments.vetted type_of_object='Commentary' %}
+{% endif %}
 
 {% include 'comments/new_comment.html' with object_id=commentary.id type_of_object='commentary' open_for_commenting=commentary.open_for_commenting %}
 

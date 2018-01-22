@@ -17,7 +17,7 @@
             <a href="{{comment.author.get_absolute_url}}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a>
             on {{comment.date_submitted|date:'Y-m-d'}}
         {% endif %}
-	{% if comment.doi_string %}&nbsp; <small>doi:  {{ comment.doi_string }}</small>{% endif %}
+	{% if comment.doi_string %}&nbsp; <small>{{ comment|citation }}</small>{% endif %}
     </h3>
 
 

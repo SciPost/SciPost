@@ -486,32 +486,6 @@ table.tablePadded10 td {
   background-color: #990000;
 }
 
-.reportRatings {
-    font-family: 'Merriweather Sans';
-    font-size: 11px;
-    margin: 0 4px;
-    padding: 0;
-    display: inline-block;
-    box-shadow: 0 1px 0 1px #ccc;
-    background: #f4f4f4;
-}
-.reportRatings ul {
-    display: inline-block;
-    font-family: 'Merriweather Sans';
-    margin: 0;
-    padding: 2px 1px;
-}
-.reportRatings ul li {
-    border: 1px solid #002b49;
-    display: inline-block;
-    font-family: 'Merriweather Sans';
-    margin: 0 3px;
-    padding: 4px 7px;
-    border-radius: 1px;
-    background-color: #f1f1f1;
-}
-
-
 article {
   background-color:#eeeeee;
   border: 1px solid grey; border-radius:5px;

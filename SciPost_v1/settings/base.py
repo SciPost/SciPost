@@ -276,6 +276,7 @@ JOURNALS_DIR = 'journals'
 
 CROSSREF_LOGIN_ID = ''
 CROSSREF_LOGIN_PASSWORD = ''
+CROSSREF_DEBUG = True
 DOAJ_API_KEY = ''
 
 # Google reCaptcha with Google's global test keys

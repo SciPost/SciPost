@@ -1180,7 +1180,8 @@ def generic_metadata_xml_deposit(request, **kwargs):
             '</dataset></database>\n'
             '</body></doi_batch>'
         )
-    if not settings.DEBUG:
+
+    if not settings.CROSSREF_DEBUG:
         # CAUTION: Debug is False, production goes for real deposit!!!
         url = 'http://doi.crossref.org/servlet/deposit'
     else:
