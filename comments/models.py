@@ -10,6 +10,7 @@ from guardian.shortcuts import assign_perm
 
 from scipost.behaviors import TimeStampedModel
 from scipost.models import Contributor
+from commentaries.constants import COMMENTARY_PUBLISHED
 
 from .behaviors import validate_file_extension, validate_max_file_size
 from .constants import COMMENT_STATUS, STATUS_PENDING
@@ -188,3 +189,43 @@ class Comment(TimeStampedModel):
         self.nr_N = self.in_notsure.count()
         self.nr_D = self.in_disagreement.count()
         self.save()
+
+    @property
+    def relation_to_published(self):
+        """
+        Check if the Comment relates to a SciPost-published object.
+        If it is, return a dict with info on relation to the published object,
+        based on Crossref's peer review content type.
+        """
+        # Import here due to circular import errors
+        from submissions.models import Submission
+        from commentaries.models import Commentary
+
+        to_object = self.core_content_object
+        if isinstance(to_object, Submission):
+            publication = to_object.publication
+            if publication:
+                relation = {
+                    'isReviewOfDOI': publication.doi_string,
+                    'stage': 'pre-publication',
+                    'title': 'Comment on ' + to_object.arxiv_identifier_w_vn_nr,
+                }
+                if self.is_author_reply:
+                    relation['type'] = 'author-comment'
+                else:
+                    relation['type'] = 'community-comment'
+                return relation
+        if isinstance(to_object, Commentary):
+            if to_object.type == COMMENTARY_PUBLISHED:
+                relation = {
+                    'isReviewOfDOI': to_object.pub_doi,
+                    'stage': 'post-publication',
+                    'title': 'Comment on ' + to_object.pub_doi,
+                }
+                if self.is_author_reply:
+                    relation['type'] = 'author-comment'
+                else:
+                    relation['type'] = 'community-comment'
+                return relation
+
+        return None

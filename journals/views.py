@@ -1078,9 +1078,14 @@ def generic_metadata_xml_deposit(request, **kwargs):
     This method creates the metadata for non-Publication objects
     such as Reports and Comments, and deposits the metadata to
     Crossref.
+    If there exists a relation to a SciPost-published object,
+    the deposit uses Crossref's peer review content type.
+    Otherwise the deposit is done as a dataset.
     """
     type_of_object = kwargs['type_of_object']
     object_id = int(kwargs['object_id'])
+    relation_to_published = _object.relation_to_published()
+
     if type_of_object == 'report':
         _object = get_object_or_404(Report, id=object_id)
     elif type_of_object == 'comment':
@@ -1100,12 +1105,10 @@ def generic_metadata_xml_deposit(request, **kwargs):
     doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
     metadata_xml = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<doi_batch version="4.4.0" xmlns="http://www.crossref.org/schema/4.4.0" '
+        '<doi_batch version="4.4.1" xmlns="http://www.crossref.org/schema/4.4.1" '
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        'xmlns:fr="http://www.crossref.org/fundref.xsd" '
-        'xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 '
-        'http://www.crossref.org/shema/deposit/crossref4.4.0.xsd" '
-        'xmlns:ai="http://www.crossref.org/AccessIndicators.xsd">\n'
+        'xsi:schemaLocation="http://www.crossref.org/schema/4.4.1 '
+        'http://www.crossref.org/shema/deposit/crossref4.4.1.xsd">\n'
         '<head>\n'
         '<doi_batch_id>' + str(doi_batch_id) + '</doi_batch_id>\n'
         '<timestamp>' + timestamp + '</timestamp>\n'
@@ -1115,16 +1118,56 @@ def generic_metadata_xml_deposit(request, **kwargs):
         '</depositor>\n'
         '<registrant>scipost</registrant>\n'
         '</head>\n'
-        '<body>\n'
-        '<database>\n'
-        '<database_metadata language="en">\n'
-        '<titles><title>SciPost Reports and Comments</title></titles>\n'
-        '</database_metadata>\n'
-        '<dataset dataset_type="collection">\n'
-        '<doi_data><doi>' + _object.doi_string + '</doi>\n'
-        '<resource>https://scipost.org' + _object.get_absolute_url() + '</resource></doi_data>\n'
-        '</dataset></database>\n'
-        '</body></doi_batch>'
+    )
+    if relation_to_published:
+        metadata_xml += (
+            '<body>\n'
+            '<peer_review stage="' + relation['stage'] + '>\n'
+            '<contributors>'
+        )
+        if _object.anonymous:
+            metadata_xml += '<anonymous/>'
+        else:
+            metadata_xml += (
+                '<person_name>'
+                '<given_name>' + _object.author.user.first_name + '</given_name>'
+                '<surname>' + _object.author.user.last_name + '</surname>'
+                '</person_name>\n'
+            )
+        metadata_xml += (
+            '</contributors>\n'
+            '<titles><title>' + relation['title'] + '</title></titles>\n'
+            '<review_publication_date>'
+            '<year>' + _object.date_submitted.strftime('%Y') + '</year>'
+            '<month>' + _object.date_submitted.strftime('%m') + '</month>'
+            '<day>' + _object.date_submitted.strftime('%d') + '</day>'
+            '</review_publication_date>\n'
+            '<program xmlns="http://www.crossref.org/relations.xsd">\n'
+            '<related_item>'
+            '<description>' + relation['title'] + '</description>\n'
+            '<inter_work_relation relationship-type="isReviewOf" identifier-type="doi">'
+            + relation['isReviewOfDOI'] + '</inter_work_relation></related_item>\n'
+            '</program>'
+            '<doi_data><doi>' + _object.doi_string + '</doi>\n'
+            '<resource>https://scipost.org' + _object.get_absolute_url() +
+            '</resource></doi_data>\n'
+            '</peer_review>\n'
+            '</body>\n'
+            '</doi_batch>\n'
+        )
+    else:
+        metadata_xml += (
+            '<body>\n'
+            '<database>\n'
+            '<database_metadata language="en">\n'
+            '<titles><title>SciPost Reports and Comments</title></titles>\n'
+            '</database_metadata>\n'
+            '<dataset dataset_type="collection">\n'
+            '<doi_data><doi>' + _object.doi_string + '</doi>\n'
+            '<resource>https://scipost.org' + _object.get_absolute_url() +
+            '</resource></doi_data>\n'
+            '</dataset></database>\n'
+            '</body></doi_batch>'
         )
     if not settings.DEBUG:
         # CAUTION: Debug is False, production goes for real deposit!!!
