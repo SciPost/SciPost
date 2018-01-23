@@ -519,6 +519,8 @@ class ReportPDFForm(forms.ModelForm):
 
 
 class ReportForm(forms.ModelForm):
+    report_type = REPORT_NORMAL
+
     class Meta:
         model = Report
         fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes',
@@ -582,8 +584,6 @@ class ReportForm(forms.ModelForm):
 
         if self.submission.status in POST_PUBLICATION_STATUSES:
             self.report_type = REPORT_POST_PUBLICATION
-        else:
-            self.report_type = REPORT_NORMAL
 
     def save(self):
         """
@@ -591,6 +591,7 @@ class ReportForm(forms.ModelForm):
         Possibly overwrite the default status if user asks for saving as draft.
         """
         report = super().save(commit=False)
+        report.report_type = self.report_type
 
         report.submission = self.submission
         report.date_submitted = timezone.now()
