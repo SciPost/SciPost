@@ -36,6 +36,9 @@ SERVER_EMAIL = get_secret("SERVER_EMAIL")
 # Other
 CROSSREF_LOGIN_ID = get_secret("CROSSREF_LOGIN_ID")
 CROSSREF_LOGIN_PASSWORD = get_secret("CROSSREF_LOGIN_PASSWORD")
+CROSSREF_DEBUG = False
+CROSSREF_DEPOSIT_EMAIL = 'admin@scipost.org'
+
 DOAJ_API_KEY = get_secret("DOAJ_API_KEY")
 HAYSTACK_CONNECTIONS['default']['PATH'] = '/home/scipost/webapps/scipost/SciPost_v1/whoosh_index'
 MAILCHIMP_API_USER = get_secret("MAILCHIMP_API_USER")
@@ -44,3 +47,7 @@ MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")
 # iThenticate
 ITHENTICATE_USERNAME = get_secret('ITHENTICATE_USERNAME')
 ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
+
+# Logging
+LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/webapps/scipost/logs/arxiv.log'
+LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/webapps/scipost/logs/doi.log'

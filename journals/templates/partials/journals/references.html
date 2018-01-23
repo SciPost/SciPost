@@ -1,0 +1,14 @@
+{% if publication.references.all %}
+    <h3>References ({{ publication.references.all|length }})</h3>
+    <a class="mb-2 d-block" href="javascript:;" data-toggle="toggle" data-target="#reference_list">Click to expand</a>
+    <ul class="references" id="reference_list" style="display:none;">
+        {% for reference in publication.references.all %}
+            <li>
+                <span class="counter">[{{ reference.reference_number }}]</span>
+                <span class="authors">{{ reference.authors }}</span>,
+                <span class="title">{{ reference.title }}</span>{% if reference.citation %}, <span class="citation">{{ reference.citation|safe }}</span>{% endif %}
+                <span class="doi">doi: <a href="{{ reference.vor_url }}" target="_blank">{{ reference.vor }}</a></span>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

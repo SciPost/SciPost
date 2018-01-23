@@ -1,0 +1,42 @@
+.report {
+    ul.clickables {
+        display: inline-block;
+        list-style: none;
+        margin: 0.5rem 0 0 0;
+        padding: 0;
+
+        li {
+            padding: 0 0 0.25rem 0;
+        }
+
+        .citation {
+            font-style: italic;
+        }
+    }
+
+    .comment {
+        margin-top: 1rem;
+    }
+}
+
+
+.ratings {
+    background-color: #f4f4f4;
+    display: inline-block;
+    border: 1px solid #ddd;
+    text-transform: capitalize;
+
+    > ul {
+        list-style: none;
+        display: flex;
+        padding: 0;
+        margin: 0;
+
+        li {
+            border: 1px solid #ddd;
+            margin: 2px 2px;
+            padding: 0.25rem 0.5rem;
+            background: $body-bg;
+        }
+    }
+}

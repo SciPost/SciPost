@@ -1,0 +1,88 @@
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class="card-body">
+                <h2 class="card-title">Refereeing Tasks</h2>
+                <ul class="mb-0">
+                    <li><a href="{% url 'submissions:accept_or_decline_ref_invitations' %}">Accept/decline refereeing invitations</a> ({{ contributor.referee_invitations.open.count }})</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h3>Pending Refereeing Tasks:</h3>
+    </div>
+    <div class="col-12">
+        <ul class="list-group list-group-flush">
+        {% for task in contributor.referee_invitations.in_process.all %}
+            <li class="list-group-item">
+                <div class="card-body px-0">
+                    {% include 'partials/submissions/refereeing_invitation_card_content.html' with invitation=task %}
+                </div>
+            </li>
+        {% empty %}
+            <li class="list-group-item"><em>You do not have any pending refereeing task</em></li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% if contributor.reports.in_draft.all %}
+    <div class="row">
+        <div class="col-12">
+            <h3>Unfinished reports:</h3>
+        </div>
+        <div class="col-12">
+            <ul class="list-group list-group-flush">
+            {% for report in contributor.reports.in_draft.all %}
+                <li class="list-group-item">
+                    <div class="card-body px-0">
+                        {% include 'partials/submissions/submission_card_content.html' with submission=report.submission %}
+                        <a class="btn btn-outline-primary my-2" href="{% url 'submissions:submit_report' report.submission.arxiv_identifier_w_vn_nr %}">Finish report</a>
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endif %}
+
+{% if contributor.reports.non_draft.all %}
+    <div class="row">
+        <div class="col-12">
+            <h3>Finished reports:</h3>
+        </div>
+        <div class="col-12">
+            <ul class="list-group list-group-flush">
+            {% for report in contributor.reports.non_draft.all %}
+                <li class="list-group-item">
+                    {% comment %}
+                        Temporary: There is already a template for a "Report summary" in a parallel (unmerged) branch. Awaiting merge to use that template.
+                    {% endcomment %}
+                    <div class="card-body px-0 {% block cardblock_class_block %}{% endblock %}">
+                        <h3>Report on Submission <a href="{{report.submission.get_absolute_url}}">{{report.submission.title}}</a></h3>
+                        <table>
+                            <tr>
+                                <th style='min-width: 100px;'>Received:</th><td>{{ report.date_submitted|date:'Y-n-j' }}<td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th><td {% if report.status == 'vetted' %}class="text-success"{% elif report.status == 'unvetted' %}class="text-danger"{% endif %}>{{report.get_status_display}}</td>
+                            </tr>
+        {% if report.doi_label %}
+        <tr>
+          <th>DOI:</th><td>{{ report.doi_string }}</td></th>
+{% endif %}
+                            <tr>
+                                <th>Anonymous:</th><td>{{report.anonymous|yesno:'Yes,No'}}</td>{% if report.anonymous %}<td>You can <a href="{% url 'journals:sign_existing_report' report_id=report.id %}">click here to sign this Report</a> (leads to confirmation page){% endif %}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endif %}

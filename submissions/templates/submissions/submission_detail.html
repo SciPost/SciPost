@@ -10,10 +10,8 @@
     <div class="container-outside breadcrumb-nav">
         <div class="container">
             <nav class="breadcrumb">
-
-                    <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
-                    <span class="breadcrumb-item">{{submission.arxiv_identifier_w_vn_nr}}</span>
-
+                <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
+                <span class="breadcrumb-item">{{submission.arxiv_identifier_w_vn_nr}}</span>
             </nav>
         </div>
     </div>
@@ -22,7 +20,7 @@
 {% block content %}
 
 <div class="row">
-    <div class="col-12">
+    <div class="col">
         <h2>SciPost Submission Page</h2>
         <h1 class="text-primary">{{submission.title}}</h1>
         <h3 class="mb-3">by {{submission.author_list}}</h3>
@@ -59,11 +57,6 @@
             {% endif %}
         </div>
 
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
         <h3>Submission summary</h3>
         {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 %}
 
@@ -83,6 +76,14 @@
             <div class="blockquote">{{ submission.list_of_changes|linebreaks }}</div>
         {% endif %}
     </div>
+
+    {% if invitations %}
+        <div class="col-md-4">
+            {% for invitation in invitations %}
+                {% include 'partials/submissions/refereeing_status_card.html' with invitation=invitation %}
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>
 
 {% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
@@ -170,8 +171,10 @@
 {% endif %}
 
 {% if invited_reports %}
-{# <hr>#}
-<div class="row mt-4">
+
+<hr class="divider">
+
+<div class="row">
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-body">
@@ -191,8 +194,9 @@
 {% endif %}
 
 {% if contributed_reports %}
-{# <hr>#}
-<div class="row mt-4">
+<hr class="divider">
+
+<div class="row">
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-body">
@@ -219,7 +223,10 @@
     {% endif %}
 {% endif %}
 
-{% include 'scipost/comments_block.html' with comments=submission.comments.vetted %}
+{% if submission.comments.vetted %}
+    <hr class="divider">
+    {% include 'scipost/comments_block.html' with comments=submission.comments.vetted %}
+{% endif %}
 
 
 {# This is an apparent redundant logic block; however, it makes sure the "login to ..." links wouldn't be shown twice! #}

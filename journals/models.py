@@ -51,6 +51,19 @@ class Journal(models.Model):
     def get_abbreviation_citation(self):
         return journal_name_abbrev_citation(self.name)
 
+    def citation_rate(self):
+        """
+        Returns the citation rate in units of nr citations per article per year.
+        """
+        pubs = Publication.objects.filter(in_issue__in_volume__in_journal=self)
+        ncites = 0
+        deltat = 1 # to avoid division by zero
+        for pub in pubs:
+            if pub.citedby and pub.latest_citedby_update:
+                ncites += len(pub.citedby)
+                deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
+        return (ncites * 365.25/deltat)
+
 
 class Volume(models.Model):
     in_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
@@ -69,6 +82,19 @@ class Volume(models.Model):
     @property
     def doi_string(self):
         return '10.21468/' + self.doi_label
+
+    def citation_rate(self):
+        """
+        Returns the citation rate in units of nr citations per article per year.
+        """
+        pubs = Publication.objects.filter(in_issue__in_volume=self)
+        ncites = 0
+        deltat = 1 # to avoid division by zero
+        for pub in pubs:
+            if pub.citedby and pub.latest_citedby_update:
+                ncites += len(pub.citedby)
+                deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
+        return (ncites * 365.25/deltat)
 
 
 class Issue(models.Model):
@@ -121,6 +147,19 @@ class Issue(models.Model):
         return self.start_date <= timezone.now().date() and\
                self.until_date >= timezone.now().date()
 
+    def citation_rate(self):
+        """
+        Returns the citation rate in units of nr citations per article per year.
+        """
+        pubs = Publication.objects.filter(in_issue=self)
+        ncites = 0
+        deltat = 1 # to avoid division by zero
+        for pub in pubs:
+            if pub.citedby and pub.latest_citedby_update:
+                ncites += len(pub.citedby)
+                deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
+        return (ncites * 365.25/deltat)
+
 
 class Publication(models.Model):
     """
@@ -128,7 +167,8 @@ class Publication(models.Model):
     the actual publication file, author data, etc. etc.
     """
     # Publication data
-    accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE)
+    accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE,
+                                               related_name='publication')
     in_issue = models.ForeignKey('journals.Issue', on_delete=models.CASCADE)
     paper_nr = models.PositiveSmallIntegerField()
 
@@ -217,6 +257,40 @@ class Publication(models.Model):
                 + ', ' + self.get_paper_nr()
                 + ' (' + self.publication_date.strftime('%Y') + ')')
 
+    def citation_rate(self):
+        """
+        Returns the citation rate in units of nr citations per article per year.
+        """
+        if self.citedby and self.latest_citedby_update:
+            ncites = len(self.citedby)
+            deltat = (self.latest_citedby_update.date() - self.publication_date).days
+            return (ncites * 365.25/deltat)
+        else:
+            return 0
+
+
+class Reference(models.Model):
+    """
+    A Refence is a reference used in a specific Publication.
+    """
+    reference_number = models.IntegerField()
+    publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE)
+
+    authors = models.CharField(max_length=512)
+    title = models.CharField(max_length=512)
+    citation = models.CharField(max_length=512, blank=True)
+
+    vor = models.CharField(max_length=128)
+    vor_url = models.URLField()
+
+    class Meta:
+        unique_together = ('reference_number', 'publication')
+        ordering = ['reference_number']
+        default_related_name = 'references'
+
+    def __str__(self):
+        return '[{}] {}'.format(self.reference_number, self.publication.doi_label)
+
 
 class Deposit(models.Model):
     """
@@ -226,20 +300,22 @@ class Deposit(models.Model):
     All deposit history is thus contained here.
     """
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
-    timestamp = models.CharField(max_length=40, default='')
-    doi_batch_id = models.CharField(max_length=40, default='')
-    metadata_xml = models.TextField(blank=True, null=True)
+    timestamp = models.CharField(max_length=40)
+    doi_batch_id = models.CharField(max_length=40)
+    metadata_xml = models.TextField(blank=True)
     metadata_xml_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)
-    response_text = models.TextField(blank=True, null=True)
+    response_text = models.TextField(blank=True)
     deposit_successful = models.NullBooleanField(default=None)
 
     class Meta:
         ordering = ['-timestamp']
 
     def __str__(self):
-        return (self.deposition_date.strftime('%Y-%m-%D') +
-                ' for ' + self.publication.doi_label)
+        _str = ''
+        if self.deposition_date:
+            _str += '%s for ' % self.deposition_date.strftime('%Y-%m-%D')
+        return _str + self.publication.doi_label
 
 
 class DOAJDeposit(models.Model):
@@ -247,7 +323,7 @@ class DOAJDeposit(models.Model):
     For the Directory of Open Access Journals.
     """
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
-    timestamp = models.CharField(max_length=40, default='')
+    timestamp = models.CharField(max_length=40)
     metadata_DOAJ = JSONField()
     metadata_DOAJ_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)

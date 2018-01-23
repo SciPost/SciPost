@@ -31,7 +31,6 @@ def journal_publication_years(journal):
 def journal_nr_publications(journal):
     return Publication.objects.filter(in_issue__in_volume__in_journal=journal).count()
 
-
 @register.filter(name='journal_avg_processing_duration')
 def journal_avg_processing_duration(journal):
     duration = Publication.objects.filter(
@@ -40,11 +39,14 @@ def journal_avg_processing_duration(journal):
     if not duration: return 0
     return duration.days + duration.seconds/86400
 
+@register.filter(name='journal_citation_rate')
+def journal_citation_rate(journal):
+    return journal.citation_rate()
+
 
 @register.filter(name='volume_nr_publications')
 def volume_nr_publications(volume):
     return Publication.objects.filter(in_issue__in_volume=volume).count()
-
 
 @register.filter(name='volume_avg_processing_duration')
 def volume_avg_processing_duration(volume):
@@ -54,11 +56,14 @@ def volume_avg_processing_duration(volume):
     if not duration: return 0
     return duration.days + duration.seconds/86400
 
+@register.filter(name='volume_citation_rate')
+def volume_citation_rate(volume):
+    return volume.citation_rate()
+
 
 @register.filter(name='issue_nr_publications')
 def issue_nr_publications(issue):
     return Publication.objects.filter(in_issue=issue).count()
-
 
 @register.filter(name='issue_avg_processing_duration')
 def issue_avg_processing_duration(issue):
@@ -67,3 +72,7 @@ def issue_avg_processing_duration(issue):
             avg=Avg(F('publication_date') - F('submission_date')))['avg']
     if not duration: return 0
     return duration.days + duration.seconds/86400
+
+@register.filter(name='issue_citation_rate')
+def issue_citation_rate(issue):
+    return issue.citation_rate()

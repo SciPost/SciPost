@@ -26,3 +26,12 @@ DATABASES['default']['PORT'] = '5433'
 # iThenticate
 ITHENTICATE_USERNAME = get_secret('ITHENTICATE_USERNAME')
 ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
+
+# Logging
+LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/Users/jorranwit/Develop/SciPost/SciPost_v1/logs/arxiv.log'
+LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/jorranwit/Develop/SciPost/SciPost_v1/logs/doi.log'
+
+# Other
+CROSSREF_LOGIN_ID = get_secret("CROSSREF_LOGIN_ID")
+CROSSREF_LOGIN_PASSWORD = get_secret("CROSSREF_LOGIN_PASSWORD")
+CROSSREF_DEPOSIT_EMAIL = 'jorrandewit@scipost.org'

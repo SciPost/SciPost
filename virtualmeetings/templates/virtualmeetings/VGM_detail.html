@@ -151,67 +151,88 @@
     </div>
 </div>
 
-{% if nominations %}
-    <div class="row">
-        <div class="col-12">
-        	<h2 class="highlight">Nominations under consideration ({{nominations|length}})</h2>
-        </div>
+<div class="row">
+    <div class="col-12">
+    	<h2 class="highlight">Nominations under consideration ({{nominations|length}})</h2>
     </div>
-    <div class="row">
-        <div class="col-12">
-            <ul class="list-group list-group-flush">
-                {% for nomination in nominations %}
-                    <li class="list-group-item border-0">
-                        <div class="card-body">
-                            {% include 'virtualmeetings/nomination_content.html' with nomination=nomination %}
-                            <br/>
-                            <div class="opinionsDisplay  mb-3">
-                                <h4>Your opinion on this Nomination (voting deadline: {{ nomination.voting_deadline|date:'y-m-d' }}):</h4>
-                                <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='A' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="submit" class="agree" value="Agree {{ nomination.nr_A }} "/>
-                                </form>
-                                <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='N' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="submit" class="notsure" value="Not sure {{ nomination.nr_N }}"/>
-                                </form>
-                                <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='D'%}" method="post">
-                                    {% csrf_token %}
-                                    <input type="submit" class="disagree" value="Disagree {{ nomination.nr_D }}"/>
-                                </form>
-                                {% if request.user.contributor in nomination.in_agreement.all %}
-                                    <strong>(you have voted: Agreed)</strong>
-                                {% elif request.user.contributor in nomination.in_notsure.all %}
-                                    <strong>(you have voted: Not sure)</strong>
-                                {% elif request.user.contributor in nomination.in_disagreement.all %}
-                                    <strong>(you have voted: Disagree)</strong>
-                                {% endif %}
+</div>
+<div class="row">
+    <div class="col-12" id="accordion">
+        {% for domain, spec in spec_list %}
+            <div class="card">
+                <div class="card-body">
+                    <a href="#" class="card-link" data-toggle="collapse" data-target="#collapse{{ domain|cut:" " }}" aria-expanded="false" aria-controls="collapse{{ domain|cut:" " }}">{{ domain }}</a>
+                </div>
+                <!-- Domain -->
+                <div class="card-body collapse bg-white" id="collapse{{ domain|cut:" " }}" aria-labelledby="heading{{ domain|cut:" " }}" data-parent="#accordion">
+            	    {% for sp, val in spec %}
+                	    <div class="card">
+                            <div class="card-body bg-white">
+                                <a href="#" class="card-link" id="heading{{ forloop.counter }}" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">{{ sp }}</a>
+                                <br>{{ val }}
                             </div>
-                            <br>
-                            <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#remarkForm{{ nomination.id }}">Add a remark on this Nomination</a>
-                            <div class="submitRemarkForm mt-3 mb-4" id="remarkForm{{ nomination.id }}" style="display: none;">
-                                <form action="{% url 'virtualmeetings:add_remark_on_nomination' VGM_id=VGM.id nomination_id=nomination.id %}" method="post">
-                                {% csrf_token %}
-                                {{ remark_form|bootstrap:'0,12' }}
-                                <input type="submit" class="btn btn-secondary" value="Submit" />
-                                </form>
-                            </div>
-                            {% if nomination.remarks.all %}
-                                <h3>Remarks on this nomination:</h3>
-                                <ul>
-                                    {% for rem in nomination.remarks.all %}
-                                        {% include 'scipost/_remark_li.html' with remark=rem %}
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
+                            <ul class="list-group list-group-flush collapse" id="collapse{{ forloop.counter }}" aria-labelledby="heading{{ forloop.counter }}" data-parent="#collapse{{ domain|cut:" " }}">
+                                {% for nomination in nominations %}
+                                    {% if sp in nomination.expertises %}
+                                        <li class="list-group-item">
+                                            <div class="card-body bg-white">
+                                                {% include 'virtualmeetings/nomination_content.html' with nomination=nomination %}
+                                            </div>
+                                            <div class="card-body bg-white">
+                                                <div class="opinionsDisplay mx-0 px-3 py-2">
+                                                    <h4>Your opinion on this Nomination (voting deadline: {{ nomination.voting_deadline|date:'y-m-d' }}):</h4>
+                                                    <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='A' %}" method="post">
+                                                        {% csrf_token %}
+                                                        <input type="submit" class="agree" value="Agree {{ nomination.nr_A }} "/>
+                                                    </form>
+                                                    <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='N' %}" method="post">
+                                                        {% csrf_token %}
+                                                        <input type="submit" class="notsure" value="Not sure {{ nomination.nr_N }}"/>
+                                                    </form>
+                                                    <form action="{% url 'virtualmeetings:vote_on_nomination' nomination_id=nomination.id vote='D'%}" method="post">
+                                                        {% csrf_token %}
+                                                        <input type="submit" class="disagree" value="Disagree {{ nomination.nr_D }}"/>
+                                                    </form>
+                                                    {% if request.user.contributor in nomination.in_agreement.all %}
+                                                        <strong>(you have voted: Agreed)</strong>
+                                                    {% elif request.user.contributor in nomination.in_notsure.all %}
+                                                        <strong>(you have voted: Not sure)</strong>
+                                                    {% elif request.user.contributor in nomination.in_disagreement.all %}
+                                                        <strong>(you have voted: Disagree)</strong>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="card-body bg-white">
+                                                <a href="javascript:;" class="card-link btn btn-secondary" data-toggle="toggle" data-target="#remarkForm{{ nomination.id }}">Add a remark on this Nomination</a>
+                                                <div class="submitRemarkForm my-3" id="remarkForm{{ nomination.id }}" style="display: none;">
+                                                    <form action="{% url 'virtualmeetings:add_remark_on_nomination' VGM_id=VGM.id nomination_id=nomination.id %}" method="post">
+                                                    {% csrf_token %}
+                                                    {{ remark_form|bootstrap:'0,12' }}
+                                                    <input type="submit" class="btn btn-secondary" value="Submit" />
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <div class="card-body bg-white">
+                                                <h3>Remarks on this nomination</h3>
+                                                <ul>
+                                                    {% for rem in nomination.remarks.all %}
+                                                        {% include 'scipost/_remark_li.html' with remark=rem %}
+                                                    {% empty %}
+                                                        <li><em>No Remarks found</em></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </li>
+                            	    {% endif %}
+                                {% endfor %}
+                            </ul>
                         </div>
-                    </li>
-                    <hr>
-                {% endfor %}
-            </ul>
-        </div>
+            	    {% endfor %}
+                </div><!-- End Domain -->
+            </div>
+        {% endfor %}
     </div>
-{% endif %}
+</div>
 
 
 <!-- Motions -->
@@ -239,60 +260,60 @@
     </div>
 </div>
 
-{% for key, val in motion_categories_dict.items %}
-    <div class="row">
-        <div class="col-12"><h2>{{ val }}:</h2></div>
-        <div class="col-md-11 ml-auto">
-            <ul>
-            {% for motion in VGM.motion_set.all %}
-                {% if motion.category == key %}
-                    <li>
-                        {% include 'virtualmeetings/motion_content.html' with motion=motion %}
-                        <div class="d-block mb-3 opinionsDisplay">
-                            <h4>Your opinion on this Motion (voting deadline: {{ motion.voting_deadline|date:'y-m-d' }}):</h4>
-                            <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='A' %}" method="post">
-                                {% csrf_token %}
-                                <input type="submit" class="agree" value="Agree {{ motion.nr_A }} "/>
-                            </form>
-                            <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='N' %}" method="post">
-                                {% csrf_token %}
-                                <input type="submit" class="notsure" value="Not sure {{ motion.nr_N }}"/>
-                            </form>
-                            <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='D'%}" method="post">
-                                {% csrf_token %}
-                                <input type="submit" class="disagree" value="Disagree {{ motion.nr_D }}"/>
-                            </form>
-                            {% if request.user.contributor in motion.in_agreement.all %}
-                                <strong>(you have voted: Agreed)</strong>
-                            {% elif request.user.contributor in motion.in_notsure.all %}
-                                <strong>(you have voted: Not sure)</strong>
-                            {% elif request.user.contributor in motion.in_disagreement.all %}
-                                <strong>(you have voted: Disagree)</strong>
+    {% for key, val in motion_categories_dict.items %}
+        <div class="row">
+            <div class="col-12"><h2>{{ val }}:</h2></div>
+            <div class="col-md-11 ml-auto">
+                <ul>
+                {% for motion in VGM.motion_set.all %}
+                    {% if motion.category == key %}
+                        <li>
+                            {% include 'virtualmeetings/motion_content.html' with motion=motion %}
+                            <div class="d-block mb-3 opinionsDisplay">
+                                <h4>Your opinion on this Motion (voting deadline: {{ motion.voting_deadline|date:'y-m-d' }}):</h4>
+                                <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='A' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="agree" value="Agree {{ motion.nr_A }} "/>
+                                </form>
+                                <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='N' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="notsure" value="Not sure {{ motion.nr_N }}"/>
+                                </form>
+                                <form action="{% url 'virtualmeetings:vote_on_motion' motion_id=motion.id vote='D'%}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="disagree" value="Disagree {{ motion.nr_D }}"/>
+                                </form>
+                                {% if request.user.contributor in motion.in_agreement.all %}
+                                    <strong>(you have voted: Agreed)</strong>
+                                {% elif request.user.contributor in motion.in_notsure.all %}
+                                    <strong>(you have voted: Not sure)</strong>
+                                {% elif request.user.contributor in motion.in_disagreement.all %}
+                                    <strong>(you have voted: Disagree)</strong>
+                                {% endif %}
+                            </div>
+                            <a class="btn btn-secondary" href="javascript:;" data-toggle="toggle" data-target="#remarkForm{{ motion.id }}">Add a remark on this Motion</a>
+                            <div class="submitRemarkForm mt-3" id="remarkForm{{ motion.id }}" style="display: none;">
+                                <form action="{% url 'virtualmeetings:add_remark_on_motion' motion_id=motion.id %}" method="post">
+                                    {% csrf_token %}
+                                    {{ remark_form|bootstrap:"0,12" }}
+                                    <input type="submit" class="btn btn-secondary" value="Submit" />
+                                </form>
+                            </div>
+                            {% if motion.remarks.all %}
+                            <h3>Remarks on this motion:</h3>
+                                <ul>
+                                    {% for rem in motion.remarks.all %}
+                                        {% include 'scipost/_remark_li.html' with remark=rem %}
+                                    {% endfor %}
+                                </ul>
                             {% endif %}
-                        </div>
-                        <a class="btn btn-secondary" href="javascript:;" data-toggle="toggle" data-target="#remarkForm{{ motion.id }}">Add a remark on this Motion</a>
-                        <div class="submitRemarkForm mt-3" id="remarkForm{{ motion.id }}" style="display: none;">
-                            <form action="{% url 'virtualmeetings:add_remark_on_motion' motion_id=motion.id %}" method="post">
-                                {% csrf_token %}
-                                {{ remark_form|bootstrap:"0,12" }}
-                                <input type="submit" class="btn btn-secondary" value="Submit" />
-                            </form>
-                        </div>
-                        {% if motion.remarks.all %}
-                        <h3>Remarks on this motion:</h3>
-                            <ul>
-                                {% for rem in motion.remarks.all %}
-                                    {% include 'scipost/_remark_li.html' with remark=rem %}
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                        <hr>
-                    </li>
-                {% endif %}
-            {% endfor %}
-            </ul>
-    </div>
-  </div>
+                            <hr>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+        </div>
+      </div>
   {% endfor %}
 
 {% endblock %}

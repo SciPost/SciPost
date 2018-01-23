@@ -211,6 +211,12 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     author_replies = (submission.comments.vetted()
                       .filter(is_author_reply=True).order_by('-date_submitted'))
 
+    # User is referee for the Submission
+    invitations = submission.referee_invitations.filter(referee__user=request.user)
+    if invitations:
+        context['communication'] = submission.editorial_communications.for_referees().filter(
+            referee__user=request.user)
+
     recommendations = submission.eicrecommendations.all()
 
     context.update({
@@ -224,6 +230,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         'form': form,
         'is_author': is_author,
         'is_author_unchecked': is_author_unchecked,
+        'invitations': invitations,
     })
     return render(request, 'submissions/submission_detail.html', context)
 
@@ -890,8 +897,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
     RefereeInvitations need to be either accepted or declined by the invited user
     using this view. The decision will be taken one invitation at a time.
     """
-    invitation = RefereeInvitation.objects.filter(
-        referee__user=request.user, accepted=None, cancelled=False)
+    invitation = RefereeInvitation.objects.awaiting_response().filter(referee__user=request.user)
     if invitation_id:
         try:
             invitation = invitation.get(id=invitation_id)
@@ -919,7 +925,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
             invitation.accepted = False
             decision_string = 'declined'
             invitation.refusal_reason = form.cleaned_data['refusal_reason']
-            messages.success(request, ('<h1>You have declined to contribute a Report</h1>'
+            messages.success(request, ('<h3>You have declined to contribute a Report</h3>'
                                        'Nonetheless, we thank you very much for considering'
                                        ' this refereeing invitation.</p>'))
         invitation.save()
@@ -933,7 +939,10 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         invitation.submission.add_event_for_eic('Referee %s has %s the refereeing invitation.'
                                                 % (invitation.referee.user.last_name,
                                                    decision_string))
-        return redirect('submissions:accept_or_decline_ref_invitations')
+
+        if request.user.contributor.referee_invitations.awaiting_response().exists():
+            return redirect('submissions:accept_or_decline_ref_invitations')
+        return redirect(invitation.submission.get_absolute_url())
     form = ConsiderRefereeInvitationForm()
     context = {
         'invitation': invitation,
@@ -1095,6 +1104,7 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
     Communication between editor-in-charge, author or referee
     occurring during the submission refereeing.
     """
+    referee = None
     if comtype == 'AtoE':
         submissions_qs = Submission.objects.filter(authors__user=request.user)
     else:
@@ -1131,14 +1141,19 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
         if referee_id is not None:
             referee = get_object_or_404(Contributor, pk=referee_id)
             communication.referee = referee
+
+        if comtype == 'RtoE':
+            communication.referee = request.user.contributor
         communication.save()
         SubmissionUtils.load({'communication': communication})
         SubmissionUtils.send_communication_email()
         if comtype == 'EtoA' or comtype == 'EtoR' or comtype == 'EtoS':
             return redirect(reverse('submissions:editorial_page',
                                     kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
-        elif comtype == 'AtoE' or comtype == 'RtoE':
+        elif comtype == 'AtoE':
             return redirect(reverse('scipost:personal_page'))
+        elif comtype == 'RtoE':
+            return redirect(submission.get_absolute_url())
         elif comtype == 'StoE':
             return redirect(reverse('submissions:pool'))
 
@@ -1306,7 +1321,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
                                      % request.user.last_name)
 
         messages.success(request, 'Thank you for your Report')
-        return redirect(reverse('scipost:personal_page'))
+        return redirect(submission.get_absolute_url())
 
     context = {'submission': submission, 'form': form}
     return render(request, 'submissions/submit_report.html', context)

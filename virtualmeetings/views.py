@@ -11,6 +11,7 @@ from .constants import motion_categories_dict
 from .forms import FeedbackForm, NominationForm, MotionForm
 from .models import VGM, Feedback, Nomination, Motion
 
+from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import RemarkForm
 from scipost.models import RegistrationInvitation, Contributor, Remark
 
@@ -35,8 +36,9 @@ def VGM_detail(request, VGM_id):
 
     pending_inv_Fellows = RegistrationInvitation.objects.pending_invited_fellows()
     declined_inv_Fellows = RegistrationInvitation.objects.declined_invited_fellows()
+    spec_list = SCIPOST_SUBJECT_AREAS  # subject_areas_dict
     nomination_form = NominationForm()
-    nominations = Nomination.objects.filter(accepted=None).order_by('last_name')
+    nominations = Nomination.objects.filter(VGM=VGM_instance, accepted=None).order_by('last_name')
     motion_form = MotionForm()
     remark_form = RemarkForm()
     context = {
@@ -47,6 +49,7 @@ def VGM_detail(request, VGM_id):
         'current_Fellows': current_Fellows,
         'pending_inv_Fellows': pending_inv_Fellows,
         'declined_inv_Fellows': declined_inv_Fellows,
+        'spec_list': spec_list,
         'nominations': nominations,
         'nomination_form': nomination_form,
         'motion_categories_dict': motion_categories_dict,
@@ -107,22 +110,15 @@ def nominate_Fellow(request, VGM_id):
     nomination_form = NominationForm(request.POST)
 
     if nomination_form.is_valid():
-        nomination = Nomination(
-            VGM=VGM_instance,
-            by=request.user.contributor,
-            date=timezone.now().date(),
-            first_name=nomination_form.cleaned_data['first_name'],
-            last_name=nomination_form.cleaned_data['last_name'],
-            discipline=nomination_form.cleaned_data['discipline'],
-            expertises=nomination_form.cleaned_data['expertises'],
-            webpage=nomination_form.cleaned_data['webpage'],
-            voting_deadline=VGM_instance.end_date + datetime.timedelta(days=7),
-        )
+        nomination = nomination_form.save(commit=False)
+        nomination.VGM = VGM_instance
+        nomination.by = request.user.contributor
+        nomination.voting_deadline = VGM_instance.end_date + datetime.timedelta(days=7)
         nomination.save()
         nomination.update_votes(request.user.contributor.id, 'A')
         messages.success(request, 'The nomination has been registered.')
     else:
-        messages.danger(request, 'The form was not filled properly.')
+        messages.warning(request, 'The form was not filled properly.')
     return redirect(VGM_instance.get_absolute_url())
 
 

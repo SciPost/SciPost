@@ -3,34 +3,27 @@
 {% block pagetitle %}: About{% endblock pagetitle %}
 
 {% load staticfiles %}
-
 {% load scipost_extras %}
+
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <h1>About SciPost</h1>
+        </div>
+    </div>
+{% endblock %}
 
 {% block content %}
 
 
 <div class="row">
-    <div class="col-md-6">
-        <h2 class="highlight">About SciPost</h2>
-
-
+    <div class="col">
         <p>SciPost is a complete scientific publication portal.</p>
         <p>It is purely online-based, and offers freely, openly, globally and perpetually accessible science.</p>
         <p>Being managed by professional scientists, and making use of editor-solicited and contributed reviews, its Journals aim at the highest achievable standards of refereeing.</p>
         <p>SciPost Commentaries allow Contributors to seamlessly comment on all existing literature.</p>
         <h4><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h4>
-    </div>
-    <div class="col-md-6">
-        <h2 class="highlight">Acknowledgements</h2>
-
-        <h2>SciPost is endorsed by</h2>
-
-        <div class="row">
-            <div class="col-12">
-              <a target="_blank" href="http://www.nwo.nl/en"><img src="{% static 'scipost/images/NWO_logo_EN.jpg' %}" alt="NWO logo" width='300px' /></a>
-              <p id="NWOOpenAccess" class="mt-3">All articles published in SciPost Journals fulfill the Gold standard Open Access requirements of the NWO, as stipulated on the NWO’s <a href="http://www.nwo.nl/en/policies/open+science">Open Science page</a>.</p>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -82,7 +75,7 @@
       <h3>Code Development and Server Maintenance</h3>
       <ul>
     	<li>J.-S. Caux</li>
-	<li>J. de Wit</li>
+    	<li>J. de Wit</li>
       </ul>
       <p><em>with special thanks to M. Moeys, B. Ponsioen and G. Kapteijns</em></p>
     </div>
@@ -92,16 +85,16 @@
   <div class="col-md-4 col-lg-3">
     <h3>Editorial Admin</h3>
     <ul>
-      <li>M. Vonk</li>
+      <li>A. de Hoogh</li>
     </ul>
   </div>
   <div class="col-md-7 col-lg-6">
     <h3>Production</h3>
     <ul>
       <li>T. Zwart</li>
+      <li>T. Bouma</li>
+      <li>L. Ligthart</li>
       <li>P. Verhagen</li>
-      <li>S. S&aacute;nchez L&oacute;pez</li>
-      <li>T. Ritmeester</li>
     </ul>
   </div>
 </div>
@@ -116,24 +109,24 @@
 <div class="row justify-content-center">
     <div class="col-lg-3 col-md-4">
       <ul>
-	<li>Prof. <a target="_blank" href="http://www.nikhef.nl/~h02/">J. J. Engelen</a><br/>(U. van Amsterdam)</li>
-	<li>Prof. <a target="_blank" href="https://www.asc.ox.ac.uk/person/18">P. Fendley</a><br/>(Oxford; <a href="https://www.asc.ox.ac.uk/all-souls-college-oxford">All Souls College</a>)</li>
-	<li>Prof. <a target="_blank" href="http://www.ru.nl/highenergyphysics/ehep/persons/sijbrand_de_jong/">S. J. de Jong</a><br/>(Radboud Univ. Nijmegen,<br/>President CERN Council)</li>
+	<li>Prof. <a target="_blank" href="//www.nikhef.nl/~h02/">J. J. Engelen</a><br/>(U. van Amsterdam)</li>
+	<li>Prof. <a target="_blank" href="//www.asc.ox.ac.uk/person/18">P. Fendley</a><br/>(Oxford; <a href="https://www.asc.ox.ac.uk/all-souls-college-oxford">All Souls College</a>)</li>
+	<li>Prof. <a target="_blank" href="//www.ru.nl/highenergyphysics/ehep/persons/sijbrand_de_jong/">S. J. de Jong</a><br/>(Radboud Univ. Nijmegen,<br/>President CERN Council)</li>
       </ul>
     </div>
     <div class="col-lg-3 col-md-4">
       <ul>
-	<li>Prof. <a target="_blank" href="http://www.ens-lyon.fr/PHYSIQUE/presentation/annuaire/maillet-jean-michel">J. M. Maillet</a><br/>(ENS Lyon)</li>
-	<li>Prof. <a target="_blank" href="http://www.ru.nl/ssi/members/theo_rasing/">T. Rasing</a><br/>(Radboud Univ. Nijmegen)</li>
-	<li>Prof. <a target="_blank" href="http://atomchip.org/general-information/people/schmiedmayer/">J. Schmiedmayer</a><br/>(TU Vienna)</li>
+	<li>Prof. <a target="_blank" href="//www.ens-lyon.fr/PHYSIQUE/presentation/annuaire/maillet-jean-michel">J. M. Maillet</a><br/>(ENS Lyon)</li>
+	<li>Prof. <a target="_blank" href="//www.ru.nl/ssi/members/theo_rasing/">T. Rasing</a><br/>(Radboud Univ. Nijmegen)</li>
+	<li>Prof. <a target="_blank" href="//atomchip.org/general-information/people/schmiedmayer/">J. Schmiedmayer</a><br/>(TU Vienna)</li>
       </ul>
     </div>
     <div class="col-lg-3 col-md-4">
       <ul>
-	<li>Prof. <a target="_blank" href="http://www.professoren.tum.de/en/spohn-herbert/">H. Spohn</a><br/>(TU Munich)</li>
-	<li>Prof. <a target="_blank" href="http://www.comp.phys.ethz.ch/people/troyer.html">M. Troyer</a><br/>(ETH Zurich)</li>
-	<li>Prof. <a target="_blank" href="http://www.uva.nl/over-de-uva/organisatie/medewerkers/content/v/e/e.p.verlinde/e.p.verlinde.html">E. P. Verlinde</a><br/>(U. van Amsterdam)</li>
-	<li>Prof. <a target="_blank" href="https://staff.fnwi.uva.nl/j.t.m.walraven/walraven/JookWalraven.htm">J. T. M. Walraven</a><br/>(U. van Amsterdam)</li>
+	<li>Prof. <a target="_blank" href="//www.professoren.tum.de/en/spohn-herbert/">H. Spohn</a><br/>(TU Munich)</li>
+	<li>Prof. <a target="_blank" href="//www.comp.phys.ethz.ch/people/troyer.html">M. Troyer</a><br/>(ETH Zurich)</li>
+	<li>Prof. <a target="_blank" href="//www.uva.nl/over-de-uva/organisatie/medewerkers/content/v/e/e.p.verlinde/e.p.verlinde.html">E. P. Verlinde</a><br/>(U. van Amsterdam)</li>
+	<li>Prof. <a target="_blank" href="//staff.fnwi.uva.nl/j.t.m.walraven/walraven/JookWalraven.htm">J. T. M. Walraven</a><br/>(U. van Amsterdam)</li>
       </ul>
     </div>
 </div>

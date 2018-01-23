@@ -21,13 +21,24 @@ event: "focusin"
 
 {% block content %}
 
+    <div class="rol">
+      <div class="col-12">
+	{% for page in reports.paginator.page_range %}
+	{% if forloop.counter != 1 %} | {% endif %}
+	<a href="?page={{ page }}">{{ page }}</a>
+	{% endfor %}
+      </div>
+    </div>
+
 
 <table class="table table-hover mb-5">
   <thead class="thead-default">
     <tr>
       <th>Submission</th>
+      <th>Associated doi</th>
       <th>Report nr</th>
-      <th>Needs doi</th>
+      <th>Needs own doi</th>
+      <th>own doi</th>
       <th>Latest successful Crossref deposit</th>
       <th>Deposit needs updating?</th>
     </tr>
@@ -37,13 +48,15 @@ event: "focusin"
     {% for report in reports %}
     <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ report.id }}" aria-expanded="true" aria-controls="collapse{{ report.id }}" style="cursor: pointer;">
       <td>{{ report.submission.arxiv_identifier_w_vn_nr }}</td>
+      <td>{{ report.associated_published_doi }}</td>
       <td>{{ report.report_nr }}</td>
       <td>{{ report.needs_doi }}</td>
+      <td>{{ report.doi_label }}</td>
       <td>{{ report|latest_successful_crossref_deposit_report }}</td>
       <td>{{ report.doideposit_needs_updating }}</td>
     </tr>
     <tr id="collapse{{ report.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ report.id }}" style="background-color: #fff;">
-      <td colspan="5">
+      <td colspan="7">
 	<p><a href="{{ report.submission.get_absolute_url }}">{{ report.submission.arxiv_identifier_w_vn_nr }}</a>, <a href="{{ report.get_absolute_url }}">{{ report.report_nr }}</a></p>
 
 	<h2 class="ml-3">Actions</h2>
@@ -88,5 +101,16 @@ event: "focusin"
     {% endfor %}
   </tbody>
 </table>
+
+
+<div class="rol">
+  <div class="col-12">
+    {% for page in reports.paginator.page_range %}
+    {% if forloop.counter != 1 %} | {% endif %}
+    <a href="?page={{ page }}">{{ page }}</a>
+    {% endfor %}
+  </div>
+</div>
+
 
 {% endblock content %}

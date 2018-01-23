@@ -56,6 +56,7 @@
     	{% else %}
     	<th>Nr publications</th>
     	<th>Duration average</th>
+	<th>Citation rate (per paper per year)</ht>
 	{% endif %}
       </tr>
       <tr>
@@ -63,10 +64,12 @@
     	<td>{{ issue.doi_label }}</td>
     	<td>{{ issue|issue_nr_publications }}</td>
     	<td>{{ issue|issue_avg_processing_duration|floatformat:2 }} days</td>
+	<td>{{ issue|issue_citation_rate|floatformat:2 }}</td>
     	{% elif volume %}
     	<td>{{ volume.doi_label }}</td>
     	<td>{{ volume|volume_nr_publications }}</td>
     	<td>{{ volume|volume_avg_processing_duration|floatformat:2 }} days</td>
+	<td>{{ volume|volume_citation_rate|floatformat:2 }}</td>
     	{% else %}
     	<td>{{ journal.doi_label }}</td>
     	{% if year %}
@@ -80,6 +83,7 @@
     	{% else %}
     	<td>{{ journal|journal_nr_publications }}</td>
     	<td>{{ journal|journal_avg_processing_duration|floatformat:2 }} days</td>
+	<td>{{ journal|journal_citation_rate|floatformat:2 }}</td>
 	{% endif %}
     	{% endif %}
       </tr>

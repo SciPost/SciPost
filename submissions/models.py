@@ -15,9 +15,10 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
                        EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,\
-                       REPORT_TYPES, REPORT_NORMAL
+                       REPORT_TYPES, REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED
 from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet,\
-                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet
+                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet,\
+                      EditorialCommunicationQueryset
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
@@ -361,6 +362,10 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     def notification_name(self):
         return self.submission.arxiv_identifier_w_vn_nr
 
+    @property
+    def related_report(self):
+        return self.submission.reports.filter(author=self.referee).first()
+
     def reset_content(self):
         self.nr_reminders = 0
         self.date_last_reminded = None
@@ -454,6 +459,14 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
 
+    @property
+    def is_in_draft(self):
+        return self.status == STATUS_DRAFT
+
+    @property
+    def is_vetted(self):
+        return self.status == STATUS_VETTED
+
     def save(self, *args, **kwargs):
         # Control Report count per Submission.
         if not self.report_nr:
@@ -475,8 +488,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def doi_string(self):
         if self.doi_label:
             return '10.21468/' + self.doi_label
-        else:
-            return None
+        return ''
 
     @cached_property
     def title(self):
@@ -486,7 +498,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         return self.submission.title
 
-    @cached_property
+    @property
     def is_followup_report(self):
         """
         Check if current Report is a `FollowupReport`. A Report is a `FollowupReport` if the
@@ -496,6 +508,16 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr,
             submission__arxiv_vn_nr__lt=self.submission.arxiv_vn_nr).exists())
 
+    def save(self, *args, **kwargs):
+        # Control Report count per Submission.
+        if not self.report_nr:
+            self.report_nr = self.submission.reports.count() + 1
+        return super().save(*args, **kwargs)
+
+    def create_doi_label(self):
+        self.doi_label = 'SciPost.Report.' + str(self.id)
+        self.save()
+
     def latest_report_from_series(self):
         """
         Get latest Report from the same author for the Submission series.
@@ -503,6 +525,55 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         return (self.author.reports.accepted().filter(
             submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
                 .order_by('submission__arxiv_identifier_wo_vn_nr').last())
+
+
+    @property
+    def associated_published_doi(self):
+        """
+        Check if the Report relates to a SciPost-published object.
+        If it is, return the doi of the published object.
+        """
+        try:
+            publication = Publication.objects.get(
+                accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+        except Publication.DoesNotExist:
+            return None
+        return publication.doi_string
+
+    @property
+    def relation_to_published(self):
+        """
+        Check if the Report relates to a SciPost-published object.
+        If it is, return a dict with info on relation to the published object,
+        based on Crossref's peer review content type.
+        """
+        try:
+            publication = Publication.objects.get(
+                accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+        except Publication.DoesNotExist:
+            return None
+
+        relation = {
+            'isReviewOfDOI': publication.doi_string,
+            'stage': 'pre-publication',
+            'type': 'referee-report',
+            'title': 'Report on ' + self.submission.arxiv_identifier_w_vn_nr,
+            'contributor_role': 'reviewer',
+        }
+        return relation
+
+    @property
+    def citation(self):
+        citation = ''
+        if self.doi_string:
+            if self.anonymous:
+                citation += 'Anonymous, '
+            else:
+                citation += '%s %s, ' % (self.author.user.first_name, self.author.user.last_name)
+            citation += 'Report on arXiv:%s, ' % self.submission.arxiv_identifier_w_vn_nr
+            citation += 'delivered %s, ' % self.date_submitted.strftime('%Y-%m-%d')
+            citation += 'doi: %s' % self.doi_string
+        return citation
 
 
 ##########################
@@ -514,16 +585,18 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
     """
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
-                                   related_name='editorial_communications')
-    referee = models.ForeignKey('scipost.Contributor', related_name='referee_in_correspondence',
-                                blank=True, null=True, on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    referee = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                                blank=True, null=True)
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
 
+    objects = EditorialCommunicationQueryset.as_manager()
+
     class Meta:
         ordering = ['timestamp']
+        default_related_name = 'editorial_communications'
 
     def __str__(self):
         output = self.comtype
