@@ -13,7 +13,7 @@ from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUB
                        POST_PUBLICATION_STATUSES, REPORT_POST_PUBLICATION, REPORT_NORMAL
 from . import exceptions, helpers
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
-                    iThenticateReport
+                    iThenticateReport, EditorialCommunication
 
 from colleges.models import Fellowship
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC
@@ -663,11 +663,24 @@ class VetReportForm(forms.Form):
 # Communications #
 ###################
 
-class EditorialCommunicationForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea(), label='')
+class EditorialCommunicationForm(forms.ModelForm):
+    class Meta:
+        model = EditorialCommunication
+        fields = ('text',)
+# class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
+#     """
+#     Each individual communication between Editor-in-charge
+#     to and from Referees and Authors becomes an instance of this class.
+#     """
+#     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+#     referee = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+#                                 blank=True, null=True)
+#     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
+#     timestamp = models.DateTimeField(default=timezone.now)
+#     text = models.TextField()
 
     def __init__(self, *args, **kwargs):
-        super(EditorialCommunicationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['text'].widget.attrs.update(
             {'rows': 5, 'cols': 50, 'placeholder': 'Write your message in this box.'})
 

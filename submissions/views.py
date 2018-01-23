@@ -4,6 +4,7 @@ import feedparser
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction, IntegrityError
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -1105,57 +1106,60 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
     occurring during the submission refereeing.
     """
     referee = None
-    if comtype == 'AtoE':
-        submissions_qs = Submission.objects.filter(authors__user=request.user)
+    if comtype in ['EtoA', 'EtoR', 'EtoS']:
+        # Editor to {Author, Referee, Editorial Administration}
+        submissions_qs = Submission.objects.filter_for_eic(request.user)
+    elif comtype == 'AtoE':
+        # Author to Editor
+        submissions_qs = Submission.objects.filter_for_author(request.user)
+        referee = request.user.contributor
+    elif comtype == 'RtoE':
+        # Referee to Editor (Contributor account required)
+        if not hasattr(request.user, 'contributor'):
+            # Raise PermissionDenied to let the user know something is wrong with its account.
+            raise PermissionDenied
+
+        submissions_qs = Submission.objects.filter(
+            referee_invitations__referee__user=request.user)
+        referee = request.user.contributor
+    elif comtype == 'StoE':
+        # Editorial Administration to Editor
+        if not request.user.has_perm('scipost.can_oversee_refereeing'):
+            raise PermissionDenied
+        submissions_qs = Submission.objects.filter_for_author(request.user)
+        referee = request.user.contributor
     else:
-        submissions_qs = Submission.objects.pool_full(request.user)
+        # Invalid commtype in the url!
+        raise Http404
+
+    # Get the showpiece itself or return 404
     submission = get_object_or_404(submissions_qs,
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    errormessage = None
-    if comtype not in dict(ED_COMM_CHOICES).keys():
-        errormessage = 'Unknown type of cummunication.'
-    # TODO: Verify that this is requested by an authorized contributor (eic, ref, author)
-    elif (comtype in ['EtoA', 'EtoR', 'EtoS'] and
-          submission.editor_in_charge != request.user.contributor):
-        errormessage = 'Only the Editor-in-charge can perform this action.'
-    elif (comtype in ['AtoE'] and
-          not (request.user.contributor == submission.submitted_by)):
-        errormessage = 'Only the corresponding author can perform this action.'
-    elif (comtype in ['RtoE'] and
-          not (RefereeInvitation.objects
-               .filter(submission=submission, referee=request.user.contributor).exists())):
-        errormessage = 'Only invited referees for this Submission can perform this action.'
-    elif (comtype in ['StoE'] and
-          not request.user.groups.filter(name='Editorial Administrators').exists()):
-        errormessage = 'Only Editorial Administrators can perform this action.'
-    if errormessage is not None:
-        messages.warning(request, errormessage)
-        return redirect(reverse('submissions:pool'))
+
+    if referee_id and not referee:
+        # Get the Contributor to communicate with if not already defined (`Eto?` communication)
+        # To Fix: Assuming the Editorial Administrator won't make any `referee_id` mistakes
+        referee = get_object_or_404(Contributor, pk=referee_id)
 
     form = EditorialCommunicationForm(request.POST or None)
     if form.is_valid():
-        communication = EditorialCommunication(submission=submission,
-                                               comtype=comtype,
-                                               timestamp=timezone.now(),
-                                               text=form.cleaned_data['text'])
-        if referee_id is not None:
-            referee = get_object_or_404(Contributor, pk=referee_id)
-            communication.referee = referee
-
-        if comtype == 'RtoE':
-            communication.referee = request.user.contributor
+        communication = form.save(commit=False)
+        communication.submission = submission
+        communication.comtype = comtype
+        communication.referee = referee
         communication.save()
+
         SubmissionUtils.load({'communication': communication})
         SubmissionUtils.send_communication_email()
-        if comtype == 'EtoA' or comtype == 'EtoR' or comtype == 'EtoS':
+
+        if comtype in ['EtoA', 'EtoR', 'EtoS']:
             return redirect(reverse('submissions:editorial_page',
                                     kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
         elif comtype == 'AtoE':
             return redirect(reverse('scipost:personal_page'))
-        elif comtype == 'RtoE':
-            return redirect(submission.get_absolute_url())
         elif comtype == 'StoE':
             return redirect(reverse('submissions:pool'))
+        return redirect(submission.get_absolute_url())
 
     context = {
         'submission': submission,
