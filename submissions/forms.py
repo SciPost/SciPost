@@ -667,22 +667,12 @@ class EditorialCommunicationForm(forms.ModelForm):
     class Meta:
         model = EditorialCommunication
         fields = ('text',)
-# class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
-#     """
-#     Each individual communication between Editor-in-charge
-#     to and from Referees and Authors becomes an instance of this class.
-#     """
-#     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
-#     referee = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
-#                                 blank=True, null=True)
-#     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
-#     timestamp = models.DateTimeField(default=timezone.now)
-#     text = models.TextField()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['text'].widget.attrs.update(
-            {'rows': 5, 'cols': 50, 'placeholder': 'Write your message in this box.'})
+        widgets = {
+            'text': forms.Textarea(attrs={
+                'rows': 5,
+                'placeholder': 'Write your message in this box.'
+            }),
+        }
 
 
 ######################
