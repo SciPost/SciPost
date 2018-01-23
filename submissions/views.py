@@ -213,7 +213,10 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                       .filter(is_author_reply=True).order_by('-date_submitted'))
 
     # User is referee for the Submission
-    invitations = submission.referee_invitations.filter(referee__user=request.user)
+    if request.user.is_authenticated:
+        invitations = submission.referee_invitations.filter(referee__user=request.user)
+    else:
+        invitations = None
     if invitations:
         context['communication'] = submission.editorial_communications.for_referees().filter(
             referee__user=request.user)
