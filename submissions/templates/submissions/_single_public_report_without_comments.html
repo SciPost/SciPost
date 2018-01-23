@@ -11,16 +11,18 @@
                         {% if report.anonymous %}(chose public anonymity) {% endif %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
                         on {{ report.date_submitted|date:'Y-n-j' }}
                     </h3>
-            	    <ul class="clickables">
-                        {% if report.doi_string %}
-                            <li>Cite as: <span class="citation">{{ report|citation }}</span></li>
-                        {% endif %}
-                        {% if report.pdf_report %}
-                            <li>
-                                <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
-                            </li>
-                        {% endif %}
-                    </ul>
+                    {% if report.doi_string or report.pdf_report %}
+                	    <ul class="clickables">
+                            {% if report.doi_string %}
+                                <li>Cite as: <span class="citation">{{ report|citation }}</span></li>
+                            {% endif %}
+                            {% if report.pdf_report %}
+                                <li>
+                                    <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
                     {% if perms.scipost.can_manage_reports %}
                         <h3 class="mt-2">Administration</h3>
                         <ul>
@@ -63,16 +65,18 @@
                         {% if report.anonymous %}Anonymous Report {{report.report_nr}}{% else %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>{% endif %}
                         on {{ report.date_submitted|date:'Y-n-j' }}</h3>
                     </h3>
-        		    <ul class="clickables">
-                        {% if report.doi_string %}
-                            <li>Cite as: <span class="citation">{{ report|citation }}</span></li>
-                        {% endif %}
-                        {% if report.pdf_report %}
-                            <li>
-                                <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
-                            </li>
-                        {% endif %}
-                    </ul>
+                    {% if report.doi_string or report.pdf_report %}
+            		    <ul class="clickables">
+                            {% if report.doi_string %}
+                                <li>Cite as: <span class="citation">{{ report|citation }}</span></li>
+                            {% endif %}
+                            {% if report.pdf_report %}
+                                <li>
+                                    <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
                     {% if perms.scipost.can_manage_reports %}
                         <h3 class="mt-2">Administration</h3>
                         <ul>
