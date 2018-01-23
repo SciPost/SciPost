@@ -77,8 +77,8 @@ class DOICaller:
         if date_parts:
             date_parts = date_parts[0]
             year = date_parts[0]
-            month = date_parts[1]
-            day = date_parts[2]
+            month = date_parts[1] if len(date_parts) > 1 else '1'
+            day = date_parts[2] if len(date_parts) > 2 else '1'
             pub_date = datetime.date(year, month, day).isoformat()
         else:
             pub_date = ''
