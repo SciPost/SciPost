@@ -112,6 +112,14 @@ class SubmissionQuerySet(models.QuerySet):
             qs = qs.filter(editor_in_charge=user.contributor)
         return qs
 
+    def filter_for_author(self, user):
+        """
+        Return the set of Submissions for which the user is a registered author.
+        """
+        if not hasattr(user, 'contributor'):
+            return self.none()
+        return self.filter(authors=user.contributor)
+
     def prescreening(self):
         """
         Return submissions just coming in and going through pre-screening.
@@ -293,6 +301,9 @@ class EICRecommendationQuerySet(models.QuerySet):
 
     def voting_in_preparation(self):
         return self.filter(submission__status=STATUS_VOTING_IN_PREPARATION)
+
+    def active(self):
+        return self.filter(active=True)
 
 
 class ReportQuerySet(models.QuerySet):
