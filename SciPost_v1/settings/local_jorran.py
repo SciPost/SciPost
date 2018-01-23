@@ -34,3 +34,4 @@ LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/jorranwit/Develop/
 # Other
 CROSSREF_LOGIN_ID = get_secret("CROSSREF_LOGIN_ID")
 CROSSREF_LOGIN_PASSWORD = get_secret("CROSSREF_LOGIN_PASSWORD")
+CROSSREF_DEPOSIT_EMAIL = 'jorrandewit@scipost.org'
