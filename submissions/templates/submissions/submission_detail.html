@@ -10,10 +10,8 @@
     <div class="container-outside breadcrumb-nav">
         <div class="container">
             <nav class="breadcrumb">
-
-                    <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
-                    <span class="breadcrumb-item">{{submission.arxiv_identifier_w_vn_nr}}</span>
-
+                <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
+                <span class="breadcrumb-item">{{submission.arxiv_identifier_w_vn_nr}}</span>
             </nav>
         </div>
     </div>
@@ -173,8 +171,10 @@
 {% endif %}
 
 {% if invited_reports %}
-{# <hr>#}
-<div class="row mt-4">
+
+<hr class="divider">
+
+<div class="row">
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-body">
@@ -194,8 +194,9 @@
 {% endif %}
 
 {% if contributed_reports %}
-{# <hr>#}
-<div class="row mt-4">
+<hr class="divider">
+
+<div class="row">
     <div class="col-12">
         <div class="card card-grey">
             <div class="card-body">
@@ -222,7 +223,10 @@
     {% endif %}
 {% endif %}
 
-{% include 'scipost/comments_block.html' with comments=submission.comments.vetted %}
+{% if submission.comments.vetted %}
+    <hr class="divider">
+    {% include 'scipost/comments_block.html' with comments=submission.comments.vetted %}
+{% endif %}
 
 
 {# This is an apparent redundant logic block; however, it makes sure the "login to ..." links wouldn't be shown twice! #}

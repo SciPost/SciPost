@@ -487,8 +487,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def doi_string(self):
         if self.doi_label:
             return '10.21468/' + self.doi_label
-        else:
-            return None
+        return ''
 
     @cached_property
     def title(self):
@@ -498,7 +497,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         return self.submission.title
 
-    @cached_property
+    @property
     def is_followup_report(self):
         """
         Check if current Report is a `FollowupReport`. A Report is a `FollowupReport` if the
@@ -508,6 +507,16 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr,
             submission__arxiv_vn_nr__lt=self.submission.arxiv_vn_nr).exists())
 
+    def save(self, *args, **kwargs):
+        # Control Report count per Submission.
+        if not self.report_nr:
+            self.report_nr = self.submission.reports.count() + 1
+        return super().save(*args, **kwargs)
+
+    def create_doi_label(self):
+        self.doi_label = 'SciPost.Report.' + str(self.id)
+        self.save()
+
     def latest_report_from_series(self):
         """
         Get latest Report from the same author for the Submission series.
@@ -515,6 +524,55 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         return (self.author.reports.accepted().filter(
             submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
                 .order_by('submission__arxiv_identifier_wo_vn_nr').last())
+
+
+    @property
+    def associated_published_doi(self):
+        """
+        Check if the Report relates to a SciPost-published object.
+        If it is, return the doi of the published object.
+        """
+        try:
+            publication = Publication.objects.get(
+                accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+        except Publication.DoesNotExist:
+            return None
+        return publication.doi_string
+
+    @property
+    def relation_to_published(self):
+        """
+        Check if the Report relates to a SciPost-published object.
+        If it is, return a dict with info on relation to the published object,
+        based on Crossref's peer review content type.
+        """
+        try:
+            publication = Publication.objects.get(
+                accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+        except Publication.DoesNotExist:
+            return None
+
+        relation = {
+            'isReviewOfDOI': publication.doi_string,
+            'stage': 'pre-publication',
+            'type': 'referee-report',
+            'title': 'Report on ' + self.submission.arxiv_identifier_w_vn_nr,
+            'contributor_role': 'reviewer',
+        }
+        return relation
+
+    @property
+    def citation(self):
+        citation = ''
+        if self.doi_string:
+            if self.anonymous:
+                citation += 'Anonymous, '
+            else:
+                citation += '%s %s, ' % (self.author.user.first_name, self.author.user.last_name)
+            citation += 'Report on arXiv:%s, ' % self.submission.arxiv_identifier_w_vn_nr
+            citation += 'delivered %s, ' % self.date_submitted.strftime('%Y-%m-%d')
+            citation += 'doi: %s' % self.doi_string
+        return citation
 
 
 ##########################

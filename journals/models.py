@@ -167,7 +167,8 @@ class Publication(models.Model):
     the actual publication file, author data, etc. etc.
     """
     # Publication data
-    accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE)
+    accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE,
+                                               related_name='publication')
     in_issue = models.ForeignKey('journals.Issue', on_delete=models.CASCADE)
     paper_nr = models.PositiveSmallIntegerField()
 

@@ -7,18 +7,30 @@
             {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and user|is_not_author_of_submission:submission.arxiv_identifier_w_vn_nr %}
 
                 <div class="reportid">
-                    <h3>{% if report.anonymous %}(chose public anonymity) {% endif %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
-                      on {{ report.date_submitted|date:'Y-n-j' }}
+                    <h3>
+                        {% if report.anonymous %}(chose public anonymity) {% endif %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
+                        on {{ report.date_submitted|date:'Y-n-j' }}
                     </h3>
-            	    <ul class="publicationClickables">
-            	      {% if report.doi_string %}<li>doi:  {{ report.doi_string }}</li>{% endif %}
-                              {% if report.pdf_report %}
-                              <li><a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download as PDF</a></li>
+                    {% if report.doi_string or report.pdf_report %}
+                	    <ul class="clickables">
+                            {% if report.doi_string %}
+                                <li>Cite as: <span class="citation">{{ report|citation }}</span></li>
                             {% endif %}
-                            {% if perms.scipost.can_manage_reports %}
-                              <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
-                              {% endif %}
-            	    </ul>
+                            {% if report.pdf_report %}
+                                <li>
+                                    <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                    {% if perms.scipost.can_manage_reports %}
+                        <h3 class="mt-2">Administration</h3>
+                        <ul>
+                            <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
+                            <li>Mark DOI as <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=0 %}">not needed</a></li>
+                            <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
+                	    </ul>
+                    {% endif %}
                 </div>
 
                 {% if report.flagged %}
@@ -49,18 +61,30 @@
                 </div>
             {% else %}
                 <div class="reportid">
-                    <h3>{% if report.anonymous %}Anonymous Report {{report.report_nr}}{% else %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>{% endif %}
+                    <h3>
+                        {% if report.anonymous %}Anonymous Report {{report.report_nr}}{% else %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>{% endif %}
                         on {{ report.date_submitted|date:'Y-n-j' }}</h3>
                     </h3>
-        		    <ul class="publicationClickables">
-        		      {% if report.doi_string %}<li>doi:  {{ report.doi_string }}</li>{% endif %}
-                              {% if report.pdf_report %}
-                              <li><a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download as PDF</a></li>
-                              {% endif %}
-                              {% if perms.scipost.can_manage_reports %}
-                              <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
-                              {% endif %}
-        		    </ul>
+                    {% if report.doi_string or report.pdf_report %}
+            		    <ul class="clickables">
+                            {% if report.doi_string %}
+                                <li>Cite as: <span class="citation">{{ report|citation }}</span></li>
+                            {% endif %}
+                            {% if report.pdf_report %}
+                                <li>
+                                    <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                    {% if perms.scipost.can_manage_reports %}
+                        <h3 class="mt-2">Administration</h3>
+                        <ul>
+                            <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
+                            <li>Mark DOI as <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=0 %}">not needed</a></li>
+                            <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
+                	    </ul>
+                    {% endif %}
                 </div>
 
                 {% include 'submissions/_single_report_content.html' with report=report %}

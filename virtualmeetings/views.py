@@ -110,22 +110,15 @@ def nominate_Fellow(request, VGM_id):
     nomination_form = NominationForm(request.POST)
 
     if nomination_form.is_valid():
-        nomination = Nomination(
-            VGM=VGM_instance,
-            by=request.user.contributor,
-            date=timezone.now().date(),
-            first_name=nomination_form.cleaned_data['first_name'],
-            last_name=nomination_form.cleaned_data['last_name'],
-            discipline=nomination_form.cleaned_data['discipline'],
-            expertises=nomination_form.cleaned_data['expertises'],
-            webpage=nomination_form.cleaned_data['webpage'],
-            voting_deadline=VGM_instance.end_date + datetime.timedelta(days=7),
-        )
+        nomination = nomination_form.save(commit=False)
+        nomination.VGM = VGM_instance
+        nomination.by = request.user.contributor
+        nomination.voting_deadline = VGM_instance.end_date + datetime.timedelta(days=7)
         nomination.save()
         nomination.update_votes(request.user.contributor.id, 'A')
         messages.success(request, 'The nomination has been registered.')
     else:
-        messages.danger(request, 'The form was not filled properly.')
+        messages.warning(request, 'The form was not filled properly.')
     return redirect(VGM_instance.get_absolute_url())
 
 
