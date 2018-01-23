@@ -1,3 +1,4 @@
+import datetime
 import re
 
 from django import forms
@@ -681,6 +682,10 @@ class EditorialCommunicationForm(forms.ModelForm):
 ######################
 
 class EICRecommendationForm(forms.ModelForm):
+    DAYS_TO_VOTE = 7
+    assignment = None
+    earlier_recommendations = None
+
     class Meta:
         model = EICRecommendation
         fields = [
@@ -689,17 +694,97 @@ class EICRecommendationForm(forms.ModelForm):
             'requested_changes',
             'remarks_for_editorial_college'
         ]
+        widgets = {
+            'remarks_for_authors': forms.Textarea({
+                'placeholder': 'Your general remarks for the authors',
+                'rows': 10,
+            }),
+            'requested_changes': forms.Textarea({
+                'placeholder': ('If you request revisions, give a numbered (1-, 2-, ...)'
+                                ' list of specifically requested changes'),
+            }),
+            'remarks_for_editorial_college': forms.Textarea({
+                'placeholder': ('If you recommend to accept or refuse, the Editorial College '
+                                'will vote; write any relevant remarks for the EC here.'),
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop('submission')
+        self.reformulate = kwargs.pop('reformulate', False)
+        if self.reformulate:
+            self.load_earlier_recommendations()
+            latest_recommendation = self.earlier_recommendations.first()
+            if latest_recommendation:
+                kwargs['initial'] = {
+                    'recommendation': latest_recommendation.recommendation,
+                    'remarks_for_authors': latest_recommendation.remarks_for_authors,
+                    'requested_changes': latest_recommendation.requested_changes,
+                    'remarks_for_editorial_college':
+                        latest_recommendation.remarks_for_editorial_college,
+                }
+
         super().__init__(*args, **kwargs)
-        self.fields['remarks_for_authors'].widget.attrs.update(
-            {'placeholder': 'Your general remarks for the authors',
-             'rows': 10, 'cols': 100})
-        self.fields['requested_changes'].widget.attrs.update(
-            {'placeholder': 'If you request revisions, give a numbered (1-, 2-, ...) list of specifically requested changes',
-             'cols': 100})
-        self.fields['remarks_for_editorial_college'].widget.attrs.update(
-            {'placeholder': 'If you recommend to accept or refuse, the Editorial College will vote; write any relevant remarks for the EC here.'})
+        self.load_assignment()
+
+    def save(self, commit=True):
+        recommendation = super().save(commit=False)
+        recommendation.submission = self.submission
+        recommendation.voting_deadline += datetime.timedelta(days=self.DAYS_TO_VOTE)  # Test this
+        if self.reformulate:
+            # Increment version number
+            recommendation.version = len(self.earlier_recommendations) + 1
+            event_text = 'The Editorial Recommendation has been reformulated: {}.'
+        else:
+            event_text = 'An Editorial Recommendation has been formulated: {}.'
+
+        if recommendation.recommendation in [1, 2, 3, -3]:
+            # Accept/Reject: Forward to the Editorial College for voting
+            self.submission.status = 'voting_in_preparation'
+
+            if commit:
+                # Add SubmissionEvent for EIC only
+                self.submission.add_event_for_eic(event_text.format(
+                        recommendation.get_recommendation_display()))
+        elif recommendation.recommendation in [-1, -2]:
+            # Minor/Major revision: return to Author; ask to resubmit
+            self.submission.status = 'revision_requested'
+            self.submission.open_for_reporting = False
+
+            if commit:
+                # Add SubmissionEvents for both Author and EIC
+                self.submission.add_general_event(event_text.format(
+                        recommendation.get_recommendation_display()))
+
+        if commit:
+            if self.earlier_recommendations:
+                self.earlier_recommendations.update(active=False)
+
+            recommendation.save()
+            self.submission.save()
+
+            if self.assignment:
+                # The EIC has fulfilled this editorial assignment.
+                self.assignment.completed = True
+                self.assignment.save()
+
+    def revision_requested(self):
+        return self.instance.recommendation in [-1, -2]
+
+    def has_assignment(self):
+        return self.assignment is not None
+
+    def load_assignment(self):
+        # Find EditorialAssignment for Submission
+        try:
+            self.assignment = self.submission.editorial_assignments.accepted().get(
+                to=self.submission.editor_in_charge)
+            return True
+        except EditorialAssignment.DoesNotExist:
+            return False
+
+    def load_earlier_recommendations(self):
+        self.earlier_recommendations = self.submission.eicrecommendations.all()
 
 
 ###############

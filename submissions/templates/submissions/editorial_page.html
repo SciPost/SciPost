@@ -76,17 +76,16 @@
     </div>
 </div>
 
-{% with recommendation as submission.eicrecommendations.first %}
-    {% if recommendation %}
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-outline-secondary">
-                    {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
-                </div>
-            </div>
-        </div>
-    {% endif %}
-{% endwith %}
+<div class="row">
+    <div class="col-12">
+        {% for recommendation in submission.eicrecommendations.all %}
+            {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
+            {% if recommendation.may_be_reformulated %}
+                <a href="{% url 'submissions:reformulate_eic_recommendation' submission.arxiv_identifier_w_vn_nr %}">Reformulate this Editorial Recommendation</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
 
 <div class="card card-grey my-4">
     <div class="card-body">
@@ -236,6 +235,11 @@
                                     If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.
                                 </p>
                             </li>
+                        {% endif %}
+                        {% if submission.eicrecommendations.active.first %}
+                            {% if submission.eicrecommendations.active.first.may_be_reformulated %}
+                                <li><a href="{% url 'submissions:reformulate_eic_recommendation' submission.arxiv_identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a></li>
+                            {% endif %}
                         {% endif %}
                   </ul>
             </div>

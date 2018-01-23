@@ -233,6 +233,7 @@ class EICRecommendationAdminForm(forms.ModelForm):
 
 class EICRecommendationAdmin(admin.ModelAdmin):
     search_fields = ['submission__title']
+    list_display = (submission_short_title, 'recommendation', 'active', 'version')
     form = EICRecommendationAdminForm
 
 

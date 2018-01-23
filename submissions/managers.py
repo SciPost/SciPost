@@ -302,6 +302,9 @@ class EICRecommendationQuerySet(models.QuerySet):
     def voting_in_preparation(self):
         return self.filter(submission__status=STATUS_VOTING_IN_PREPARATION)
 
+    def active(self):
+        return self.filter(active=True)
+
 
 class ReportQuerySet(models.QuerySet):
     def accepted(self):

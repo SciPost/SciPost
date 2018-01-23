@@ -20,10 +20,11 @@ from django.views.generic.list import ListView
 from guardian.shortcuts import assign_perm
 
 from .constants import STATUS_VETTED, STATUS_EIC_ASSIGNED,\
-                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, ED_COMM_CHOICES,\
-                       STATUS_DRAFT, CYCLE_DIRECT_REC
+                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS,\
+                       STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_VOTING_IN_PREPARATION,\
+                       STATUS_PUT_TO_EC_VOTING
 from .models import Submission, EICRecommendation, EditorialAssignment,\
-                    RefereeInvitation, Report, EditorialCommunication, SubmissionEvent
+                    RefereeInvitation, Report, SubmissionEvent
 from .mixins import SubmissionAdminViewMixin
 from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm,\
                    RecommendationVoteForm, ConsiderAssignmentForm, AssignSubmissionForm,\
@@ -221,7 +222,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         context['communication'] = submission.editorial_communications.for_referees().filter(
             referee__user=request.user)
 
-    recommendations = submission.eicrecommendations.all()
+    recommendations = submission.eicrecommendations.active()
 
     context.update({
         'submission': submission,
@@ -358,8 +359,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
         # Mainly as fallback for the old-pool while in test phase.
         submissions = Submission.objects.pool(request.user)
 
-    # submissions = Submission.objects.pool(request.user)
-    recommendations = EICRecommendation.objects.filter(submission__in=submissions)
+    recommendations = EICRecommendation.objects.active().filter(submission__in=submissions)
     recs_to_vote_on = recommendations.user_may_vote_on(request.user)
     assignments_to_consider = EditorialAssignment.objects.open().filter(
         to=request.user.contributor)
@@ -1192,11 +1192,9 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
         return redirect(reverse('submissions:editorial_page',
                                 args=[submission.arxiv_identifier_w_vn_nr]))
 
+    form = EICRecommendationForm(request.POST or None, submission=submission)
     # Find EditorialAssignment for user
-    try:
-        assignment = submission.editorial_assignments.accepted().get(
-            to=submission.editor_in_charge)
-    except EditorialAssignment.DoesNotExist:
+    if not form.has_assignment():
         messages.warning(request, ('You cannot formulate an Editorial Recommendation,'
                                    ' because the Editorial Assignment has not been set properly.'
                                    ' Please '
@@ -1204,51 +1202,66 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
         return redirect(reverse('submissions:editorial_page',
                                 args=[submission.arxiv_identifier_w_vn_nr]))
 
-    form = EICRecommendationForm(request.POST or None)
     if form.is_valid():
-        # Create new EICRecommendation
-        recommendation = form.save(commit=False)
-        recommendation.submission = submission
-        recommendation.voting_deadline = timezone.now() + datetime.timedelta(days=7)
-        recommendation.save()
-
-        # If recommendation is to accept or reject,
-        # it is forwarded to the Editorial College for voting
-        # If it is to carry out minor or major revisions,
-        # it is returned to the Author who is asked to resubmit
-        if (recommendation.recommendation == 1 or
-                recommendation.recommendation == 2 or
-                recommendation.recommendation == 3 or
-                recommendation.recommendation == -3):
-            submission.status = 'voting_in_preparation'
-
-            # Add SubmissionEvent for EIC
-            submission.add_event_for_eic('An Editorial Recommendation has been formulated: %s.'
-                                         % recommendation.get_recommendation_display())
-
-        elif (recommendation.recommendation == -1 or
-              recommendation.recommendation == -2):
-            submission.status = 'revision_requested'
-            SubmissionUtils.load({'submission': submission,
-                                  'recommendation': recommendation})
+        recommendation = form.save()
+        if form.revision_requested():
+            # Send mail to authors to notify about the request for revision.
+            SubmissionUtils.load({
+                'submission': form.submission,
+                'recommendation': recommendation,
+            })
             SubmissionUtils.send_author_revision_requested_email()
 
-            # Add SubmissionEvents
-            submission.add_general_event('An Editorial Recommendation has been formulated: %s.'
-                                         % recommendation.get_recommendation_display())
-        submission.open_for_reporting = False
-        submission.save()
-
-        # The EIC has fulfilled this editorial assignment.
-        assignment.completed = True
-        assignment.save()
-        messages.success(request, 'Your Editorial Recommendation has been succesfully submitted')
+        messages.success(request, 'Editorial Recommendation succesfully submitted')
         return redirect(reverse('submissions:editorial_page',
                                 kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
-    context = {'submission': submission,
-               'form': form}
+    context = {
+        'submission': submission,
+        'form': form
+    }
     return render(request, 'submissions/pool/recommendation_formulate.html', context)
+
+
+@login_required
+@fellowship_or_admin_required()
+@transaction.atomic
+def reformulate_eic_recommendation(request, arxiv_identifier_w_vn_nr):
+    """
+    Reformulate EIC Recommendation.
+
+    Accessible for: Editor-in-charge and Editorial Administration
+    """
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
+                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+
+    if submission.status not in [STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING]:
+        messages.warning(request, ('With the current status of the Submission you are not '
+                                   'allowed to reformulate the Editorial Recommendation'))
+        return redirect(reverse('submissions:editorial_page',
+                                args=[submission.arxiv_identifier_w_vn_nr]))
+
+    form = EICRecommendationForm(request.POST or None, submission=submission, reformulate=True)
+
+    if form.is_valid():
+        recommendation = form.save()
+        if form.revision_requested():
+            # Send mail to authors to notify about the request for revision.
+            SubmissionUtils.load({
+                'submission': form.submission,
+                'recommendation': recommendation,
+            })
+            SubmissionUtils.send_author_revision_requested_email()
+
+        messages.success(request, 'Editorial Recommendation succesfully reformulated')
+        return redirect(reverse('submissions:editorial_page',
+                                kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
+
+    context = {
+        'submission': submission,
+        'form': form
+    }
+    return render(request, 'submissions/pool/recommendation_formulate_rewrite.html', context)
 
 
 ###########
@@ -1401,7 +1414,7 @@ def vet_submitted_report(request, report_id):
 def prepare_for_voting(request, rec_id):
     submissions = Submission.objects.pool_editable(request.user)
     recommendation = get_object_or_404(
-        EICRecommendation.objects.filter(submission__in=submissions), id=rec_id)
+        EICRecommendation.objects.active().filter(submission__in=submissions), id=rec_id)
 
     fellows_with_expertise = recommendation.submission.fellows.filter(
         contributor__expertises__contains=[recommendation.submission.subject_area])
@@ -1453,7 +1466,7 @@ def prepare_for_voting(request, rec_id):
 def vote_on_rec(request, rec_id):
     submissions = Submission.objects.pool_editable(request.user)
     recommendation = get_object_or_404(
-        EICRecommendation.objects.filter(submission__in=submissions), id=rec_id)
+        EICRecommendation.objects.active().filter(submission__in=submissions), id=rec_id)
 
     form = RecommendationVoteForm(request.POST or None)
     if form.is_valid():
@@ -1507,7 +1520,8 @@ def remind_Fellows_to_vote(request):
     TODO: This reminder function doesn't filter per submission?!
     """
     submissions = Submission.objects.pool_editable(request.user)
-    recommendations = EICRecommendation.objects.filter(submission__in=submissions).put_to_voting()
+    recommendations = EICRecommendation.objects.active().filter(
+        submission__in=submissions).put_to_voting()
 
     Fellow_emails = []
     Fellow_names = []
