@@ -91,9 +91,9 @@
                     {% endif %}
                 </div>
             </div>
-            {% if form.report_type == 'report_post_pub' %}
+            {% if form.report_type == 'report_post_edrec' %}
                 <div class="card border-warning my-4">
-                    <div class="card-body">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be flagged as <label class="label label-warning">Post-publication Report</label>.
+                    <div class="card-body">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be flagged as <label class="label label-warning">Post-Editorial Recommendation Report</label>.
                     </div>
                 </div>
             {% endif %}
@@ -103,9 +103,9 @@
                 <p>Any fields with an asterisk (*) are required.</p>
                 <input class="btn btn-primary" type="submit" name="save_submit" value="Submit your report"/>
                 <input class="btn btn-secondary ml-2" type="submit" name="save_draft" value="Save your report as draft"/>
-                {% if form.report_type == 'report_post_pub' %}
+                {% if form.report_type == 'report_post_edrec' %}
                     <div class="card border-warning mt-4">
-                        <div class="card-body">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be flagged as <label class="label label-warning">Post-publication Report</label>.
+                        <div class="card-body">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be flagged as <label class="label label-warning">Post-Editorial Recommendation Report</label>.
                         </div>
                     </div>
                 {% endif %}

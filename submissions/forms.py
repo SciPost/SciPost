@@ -11,7 +11,7 @@ from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUB
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
                        STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE,\
                        STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS,\
-                       POST_PUBLICATION_STATUSES, REPORT_POST_PUBLICATION, REPORT_NORMAL
+                       POST_PUBLICATION_STATUSES, REPORT_POST_EDREC, REPORT_NORMAL
 from . import exceptions, helpers
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
                     iThenticateReport, EditorialCommunication
@@ -584,7 +584,7 @@ class ReportForm(forms.ModelForm):
                 self.fields[field].label += ' *'
 
         if self.submission.status in POST_PUBLICATION_STATUSES:
-            self.report_type = REPORT_POST_PUBLICATION
+            self.report_type = REPORT_POST_EDREC
 
     def save(self):
         """

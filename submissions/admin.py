@@ -183,7 +183,7 @@ class ReportAdminForm(forms.ModelForm):
 
 
 class ReportAdmin(admin.ModelAdmin):
-    search_fields = ['author__user__last_name', 'submission']
+    search_fields = ['author__user__last_name', 'submission__title']
     list_display = ('author', 'status', 'doi_label', submission_short_title, 'date_submitted', )
     list_display_links = ('author',)
     date_hierarchy = 'date_submitted'
