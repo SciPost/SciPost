@@ -40,7 +40,7 @@ CROSSREF_DEBUG = False
 CROSSREF_DEPOSIT_EMAIL = 'admin@scipost.org'
 
 DOAJ_API_KEY = get_secret("DOAJ_API_KEY")
-HAYSTACK_CONNECTIONS['default']['PATH'] = '/home/scipost/webapps/scipost/SciPost_v1/whoosh_index'
+HAYSTACK_CONNECTIONS['default']['PATH'] = '/home/scipost/webapps/scipost/scipost_v1/whoosh_index'
 MAILCHIMP_API_USER = get_secret("MAILCHIMP_API_USER")
 MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")
 
