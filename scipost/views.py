@@ -1326,7 +1326,7 @@ class AboutView(ListView):
 
 def csrf_failure(request, reason=""):
     """
-    Custom CRSF Failure. Informing admins via email as well.
+    Custom CSRF Failure. Informing admins via email as well.
     """
     # Filter out privacy data
     post_data = {}
@@ -1346,5 +1346,5 @@ def csrf_failure(request, reason=""):
 
     body = json.dumps(body, indent=4)
 
-    mail.mail_admins('CRSF Failure', body)
-    return render(request, 'crsf-failure.html')
+    mail.mail_admins('CSRF Failure', body)
+    return render(request, 'csrf-failure.html')
