@@ -209,10 +209,10 @@ REPORT_STATUSES = (
 )
 
 REPORT_NORMAL = 'report_normal'
-REPORT_POST_PUBLICATION = 'report_post_pub'
+REPORT_POST_EDREC = 'report_post_edrec'
 REPORT_TYPES = (
     (REPORT_NORMAL, 'Normal Report'),
-    (REPORT_POST_PUBLICATION, 'Post-publication Report'),
+    (REPORT_POST_EDREC, 'Post-Editorial Recommendation Report'),
 )
 
 POST_PUBLICATION_STATUSES = [

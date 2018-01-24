@@ -393,7 +393,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     to explicitly implement the perticular differences in for example the form used.
     """
     status = models.CharField(max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED)
-    report_type = models.CharField(max_length=16, choices=REPORT_TYPES, default=REPORT_NORMAL)
+    report_type = models.CharField(max_length=32, choices=REPORT_TYPES, default=REPORT_NORMAL)
     submission = models.ForeignKey('submissions.Submission', related_name='reports',
                                    on_delete=models.CASCADE)
     report_nr = models.PositiveSmallIntegerField(default=0,
