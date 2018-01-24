@@ -760,6 +760,11 @@ class EICRecommendationForm(forms.ModelForm):
             if self.earlier_recommendations:
                 self.earlier_recommendations.update(active=False)
 
+                # All reports already submitted are now formulated *after* eic rec formulation
+                Report.objects.filter(
+                    submission__eicrecommendations__in=self.earlier_recommendations).update(
+                        report_type=REPORT_NORMAL)
+
             recommendation.save()
             self.submission.save()
 
