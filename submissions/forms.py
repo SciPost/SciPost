@@ -423,16 +423,23 @@ class SubmissionReportsForm(forms.ModelForm):
 # Editorial workflow #
 ######################
 
-class AssignSubmissionForm(forms.Form):
+class EditorialAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = EditorialAssignment
+        fields = ('to',)
+        labels = {
+            'to': 'Fellow',
+        }
 
     def __init__(self, *args, **kwargs):
-        discipline = kwargs.pop('discipline')
-        super(AssignSubmissionForm, self).__init__(*args, **kwargs)
-        self.fields['editor_in_charge'] = forms.ModelChoiceField(
-            queryset=Contributor.objects.filter(user__groups__name='Editorial College',
-                                                user__contributor__discipline=discipline,
-                                                ).order_by('user__last_name'),
-            required=True, label='Select an Editor-in-charge')
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+        self.fields['to'].queryset = Contributor.objects.available().filter(
+            fellowships__pool=self.submission).distinct()
+
+    def save(self, commit=True):
+        self.instance.submission = self.submission
+        return super().save(commit)
 
 
 class ConsiderAssignmentForm(forms.Form):
