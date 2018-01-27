@@ -1,28 +1,21 @@
 from django import template
-from django.db.models import Avg, F
-
-from journals.models import Publication
-from submissions.constants import SUBMISSION_STATUS_OUT_OF_POOL
-from submissions.models import Submission
 
 register = template.Library()
 
 
-
 @register.simple_tag
 def avg_processing_duration(obj, *args, **kwargs):
-    method = getattr(obj, avg_processing_duration)
-    return method(*args, **kwargs)
+    return getattr(obj, 'avg_processing_duration')(*args, **kwargs)
+
 
 @register.simple_tag
 def nr_publications(obj, *args, **kwargs):
-    method = getattr(obj, nr_publications)
-    return method(*args, **kwargs)
+    return getattr(obj, 'nr_publications')(*args, **kwargs)
+
 
 @register.simple_tag
 def citation_rate(obj, *args, **kwargs):
-    method = getattr(obj, citation_rate)
-    return method(*args, **kwargs)
+    return getattr(obj, 'citation_rate')(*args, **kwargs)
 
 
 @register.filter(name='submissions_count_distinct')

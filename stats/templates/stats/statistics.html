@@ -107,28 +107,28 @@
   <tr>
     {% if issue %}
     <td>{% issue.doi_label }}</td>
-    <td>{% nr_publications issue Tier=1 %}</td>
-    <td>{% nr_publications issue Tier=2 %}</td>
-    <td>{% nr_publications issue Tier=3 %}</td>
-    <td>{% citation_rate issue Tier=1 as cr %}{{ cr|floatformat:2 }}</td>
-    <td>{% citation_rate issue Tier=2 as cr %}{{ cr|floatformat:2 }}</td>
-    <td>{% citation_rate issue Tier=3 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% nr_publications issue tier=1 %}</td>
+    <td>{% nr_publications issue tier=2 %}</td>
+    <td>{% nr_publications issue tier=3 %}</td>
+    <td>{% citation_rate issue tier=1 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate issue tier=2 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate issue tier=3 as cr %}{{ cr|floatformat:2 }}</td>
     {% elif volume %}
     <td>{{ volume.doi_label }}</td>
-    <td>{% nr_publications volume Tier=1 %}</td>
-    <td>{% nr_publications volume Tier=2 %}</td>
-    <td>{% nr_publications volume Tier=3 %}</td>
-    <td>{% citation_rate volume Tier=1 as cr %}{{ cr|floatformat:2 }}</td>
-    <td>{% citation_rate volume Tier=2 as cr %}{{ cr|floatformat:2 }}</td>
-    <td>{% citation_rate volume Tier=3 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% nr_publications volume tier=1 %}</td>
+    <td>{% nr_publications volume tier=2 %}</td>
+    <td>{% nr_publications volume tier=3 %}</td>
+    <td>{% citation_rate volume tier=1 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate volume tier=2 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate volume tier=3 as cr %}{{ cr|floatformat:2 }}</td>
     {% else %}
     <td>{{ journal.doi_label }}</td>
-    <td>{% nr_publications journal Tier=1 %}</td>
-    <td>{% nr_publications journal Tier=2 %}</td>
-    <td>{% nr_publications journal Tier=3 %}</td>
-    <td>{% citation_rate journal Tier=1 as cr %}{{ cr|floatformat:2 }}</td>
-    <td>{% citation_rate journal Tier=2 as cr %}{{ cr|floatformat:2 }}</td>
-    <td>{% citation_rate journal Tier=3 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% nr_publications journal tier=1 %}</td>
+    <td>{% nr_publications journal tier=2 %}</td>
+    <td>{% nr_publications journal tier=3 %}</td>
+    <td>{% citation_rate journal tier=1 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate journal tier=2 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate journal tier=3 as cr %}{{ cr|floatformat:2 }}</td>
     {% endif %}
   </tr>
 </table>
