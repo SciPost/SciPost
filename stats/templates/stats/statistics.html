@@ -106,7 +106,7 @@
   </tr>
   <tr>
     {% if issue %}
-    <td>{% issue.doi_label }}</td>
+    <td>{{ issue.doi_label }}</td>
     <td>{% nr_publications issue tier=1 %}</td>
     <td>{% nr_publications issue tier=2 %}</td>
     <td>{% nr_publications issue tier=3 %}</td>
