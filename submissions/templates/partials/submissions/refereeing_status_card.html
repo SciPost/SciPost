@@ -12,7 +12,7 @@
             <h3 class="card-title">Referee Invitation</h3>
             <p class="card-text">Thank you for agreeing to referee this Submission. The following checklist will guide you through the steps needed to complete your refereeing task.</p>
             <ul class="fa-ul">
-                <li><i class="fa-li fa fa-check-square-o"></i>Accepted Invitation.</li>
+                <li><i class="fa-li fa fa-check-square-o"></i>Accepted Invitation on {{ invitation.date_responded }}.</li>
 
                 <li>
                     {% if invitation.fulfilled %}
@@ -27,15 +27,8 @@
                         {% if invitation.related_report.is_in_draft %}
                             You have a Report in draft, <a href="{% url 'submissions:submit_report' invitation.submission.arxiv_identifier_w_vn_nr %}">finish your Report</a>.
                         {% else %}
-                            <a href="{% url 'submissions:submit_report' invitation.submission.arxiv_identifier_w_vn_nr %}">Submit your Report</a>.
+                            <a href="{% url 'submissions:submit_report' invitation.submission.arxiv_identifier_w_vn_nr %}">Submit your Report</a> due on {{ invitation.submission.reporting_deadline }}.
                         {% endif %}
-                    {% endif %}
-                </li>
-                <li>
-                    {% if invitation.related_report.is_vetted %}
-                        <i class="fa-li fa fa-check-square-o"></i>Report vetted by Editor-in-charge.
-                    {% else %}
-                        <i class="fa-li fa fa-square-o"></i>Report vetted by Editor-in-charge.
                     {% endif %}
                 </li>
             </ul>
