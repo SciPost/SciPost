@@ -124,12 +124,32 @@ urlpatterns = [
     # Authentication
     url(r'^login/$', views.login_view, name='login'),
     url(r'^logout$', views.logout_view, name='logout'),
-    url(r'^personal_page$', views.personal_page, name='personal_page'),
     url(r'^change_password$', views.change_password, name='change_password'),
     url(r'^reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
         views.reset_password_confirm, name='reset_password_confirm'),
     url(r'^reset_password/$', views.reset_password, name='reset_password'),
     url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
+
+    # Personal Page
+    url(r'^personal_page/$', views.personal_page, name='personal_page'),
+    url(r'^personal_page/account$', views.personal_page,
+        name='personal_page_account', kwargs={'tab': 'account'}),
+    url(r'^personal_page/editorial_actions$', views.personal_page,
+        name='personal_page_editorial_actions', kwargs={'tab': 'editorial_actions'}),
+    url(r'^personal_page/refereeing$', views.personal_page,
+        name='personal_page_refereeing', kwargs={'tab': 'refereeing'}),
+    url(r'^personal_page/publications$', views.personal_page,
+        name='personal_page_publications', kwargs={'tab': 'publications'}),
+    url(r'^personal_page/submissions$', views.personal_page,
+        name='personal_page_submissions', kwargs={'tab': 'submissions'}),
+    url(r'^personal_page/commentaries$', views.personal_page,
+        name='personal_page_commentaries', kwargs={'tab': 'commentaries'}),
+    url(r'^personal_page/theses$', views.personal_page,
+        name='personal_page_theses', kwargs={'tab': 'theses'}),
+    url(r'^personal_page/comments$', views.personal_page,
+        name='personal_page_comments', kwargs={'tab': 'comments'}),
+    url(r'^personal_page/author_replies$', views.personal_page,
+        name='personal_page_author_replies', kwargs={'tab': 'author_replies'}),
 
     # Unavailabilities
     url(r'^unavailable_period$', views.mark_unavailable_period, name='mark_unavailable_period'),

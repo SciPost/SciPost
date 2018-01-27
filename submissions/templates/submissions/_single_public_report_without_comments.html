@@ -10,6 +10,9 @@
                     <h3>
                         {% if report.anonymous %}(chose public anonymity) {% endif %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
                         on {{ report.date_submitted|date:'Y-n-j' }}
+                        {% if report.report_type == 'report_post_edrec' %}
+                            <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <i class="fa fa-question-circle-o text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true"></i></small>
+                        {% endif %}
                     </h3>
                     {% if report.doi_string or report.pdf_report %}
                 	    <ul class="clickables">
@@ -63,7 +66,10 @@
                 <div class="reportid">
                     <h3>
                         {% if report.anonymous %}Anonymous Report {{report.report_nr}}{% else %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>{% endif %}
-                        on {{ report.date_submitted|date:'Y-n-j' }}</h3>
+                        on {{ report.date_submitted|date:'Y-n-j' }}
+                        {% if report.report_type == 'report_post_edrec' %}
+                            <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <i class="fa fa-question-circle-o text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true"></i></small>
+                        {% endif %}
                     </h3>
                     {% if report.doi_string or report.pdf_report %}
             		    <ul class="clickables">

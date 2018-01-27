@@ -16,7 +16,7 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
                        AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS
 from .fields import ChoiceArrayField
-from .managers import FellowManager, ContributorManager, RegistrationInvitationManager,\
+from .managers import FellowManager, ContributorQuerySet, RegistrationInvitationManager,\
                       UnavailabilityPeriodManager, AuthorshipClaimQuerySet
 
 today = timezone.now().date()
@@ -61,7 +61,7 @@ class Contributor(models.Model):
         default=True,
         verbose_name="I accept to receive SciPost emails")
 
-    objects = ContributorManager()
+    objects = ContributorQuerySet.as_manager()
 
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)

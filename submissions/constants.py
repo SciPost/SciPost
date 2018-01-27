@@ -58,11 +58,11 @@ SUBMISSION_STATUS_OUT_OF_POOL = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
 ]
 
 SUBMISSION_EXCLUDE_FROM_REPORTING = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
-    STATUS_AWAITING_ED_REC,
-    STATUS_REVIEW_CLOSED,
-    STATUS_ACCEPTED,
-    STATUS_VOTING_IN_PREPARATION,
-    STATUS_PUT_TO_EC_VOTING,
+    # STATUS_AWAITING_ED_REC,
+    # STATUS_REVIEW_CLOSED,
+    # STATUS_ACCEPTED,
+    # STATUS_VOTING_IN_PREPARATION,
+    # STATUS_PUT_TO_EC_VOTING,
     STATUS_WITHDRAWN,
 ]
 
@@ -113,7 +113,7 @@ ED_COMM_CHOICES = (
     ('EtoR', 'Editor-in-charge to Referee'),
     ('EtoS', 'Editor-in-charge to SciPost Editorial Administration'),
     ('AtoE', 'Author to Editor-in-charge'),
-    ('RtoE', 'Referee to Editor-in-Charge'),
+    ('RtoE', 'Referee to Editor-in-charge'),
     ('StoE', 'SciPost Editorial Administration to Editor-in-charge'),
 )
 
@@ -207,6 +207,21 @@ REPORT_STATUSES = (
     (STATUS_NOT_USEFUL, 'Rejected (not useful)'),
     (STATUS_NOT_ACADEMIC, 'Rejected (not academic in style)')
 )
+
+REPORT_NORMAL = 'report_normal'
+REPORT_POST_EDREC = 'report_post_edrec'
+REPORT_TYPES = (
+    (REPORT_NORMAL, 'Normal Report'),
+    (REPORT_POST_EDREC, 'Post-Editorial Recommendation Report'),
+)
+
+POST_PUBLICATION_STATUSES = [
+    STATUS_AWAITING_ED_REC,
+    STATUS_REVIEW_CLOSED,
+    STATUS_ACCEPTED,
+    STATUS_VOTING_IN_PREPARATION,
+    STATUS_PUT_TO_EC_VOTING,
+]
 
 CYCLE_DEFAULT = 'default'
 CYCLE_SHORT = 'short'

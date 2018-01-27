@@ -59,12 +59,6 @@ $(function(){
     // Remove all alerts in screen automatically after 15sec.
     setTimeout(function() {hide_all_alerts()}, 15000);
 
-    // Change `tab` GET parameter for page-reload
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        var tab_name = e.target.hash.substring(1)
-        window.history.replaceState({}, null, '?tab=' + tab_name);
-    });
-
     init_page();
 
     // Simple simple Angular-like loading!

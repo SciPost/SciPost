@@ -18,9 +18,14 @@ class FellowManager(models.Manager):
             ).order_by('contributor__user__last_name')
 
 
-class ContributorManager(models.Manager):
+class ContributorQuerySet(models.QuerySet):
     def active(self):
         return self.filter(user__is_active=True, status=CONTRIBUTOR_NORMAL)
+
+    def available(self):
+        return self.exclude(
+            unavailability_periods__start__lte=today,
+            unavailability_periods__end__lte=today)
 
     def awaiting_validation(self):
         return self.filter(user__is_active=False, status=CONTRIBUTOR_NEWLY_REGISTERED)
@@ -51,6 +56,9 @@ class RegistrationInvitationManager(models.Manager):
 class UnavailabilityPeriodManager(models.Manager):
     def today(self):
         return self.filter(start__lte=today, end__gte=today)
+
+    def future(self):
+        return self.filter(end__gte=today)
 
 
 class AuthorshipClaimQuerySet(models.QuerySet):

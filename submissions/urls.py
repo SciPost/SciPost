@@ -51,8 +51,6 @@ urlpatterns = [
     # Assignment of Editor-in-charge
     url(r'^assign_submission/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.assign_submission, name='assign_submission'),
-    url(r'^assign_submission_ack/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.assign_submission_ack, name='assign_submission_ack'),
     url(r'^pool/assignment_request/(?P<assignment_id>[0-9]+)$',
         views.assignment_request, name='assignment_request'),
     url(r'^volunteer_as_EIC/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
@@ -68,7 +66,8 @@ urlpatterns = [
         views.select_referee, name='select_referee'),
     url(r'^recruit_referee/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.recruit_referee, name='recruit_referee'),
-    url(r'^send_refereeing_invitation/{regex}/(?P<contributor_id>[0-9]+)$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+    url(r'^send_refereeing_invitation/{regex}/(?P<contributor_id>[0-9]+)$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX),
         views.send_refereeing_invitation, name='send_refereeing_invitation'),
     url(r'^accept_or_decline_ref_invitations/$',
         views.accept_or_decline_ref_invitations, name='accept_or_decline_ref_invitations'),
@@ -76,23 +75,30 @@ urlpatterns = [
         views.accept_or_decline_ref_invitations, name='accept_or_decline_ref_invitations'),
     url(r'^decline_ref_invitation/(?P<invitation_key>.+)$',
         views.decline_ref_invitation, name='decline_ref_invitation'),
-    url(r'^ref_invitation_reminder/{regex}/(?P<invitation_id>[0-9]+)$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+    url(r'^ref_invitation_reminder/{regex}/(?P<invitation_id>[0-9]+)$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX),
         views.ref_invitation_reminder, name='ref_invitation_reminder'),
-    url(r'^cancel_ref_invitation/{regex}/(?P<invitation_id>[0-9]+)$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+    url(r'^cancel_ref_invitation/{regex}/(?P<invitation_id>[0-9]+)$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX),
         views.cancel_ref_invitation, name='cancel_ref_invitation'),
-    url(r'^extend_refereeing_deadline/{regex}/(?P<days>[0-9]+)$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+    url(r'^extend_refereeing_deadline/{regex}/(?P<days>[0-9]+)$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX),
         views.extend_refereeing_deadline, name='extend_refereeing_deadline'),
     url(r'^set_refereeing_deadline/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.set_refereeing_deadline, name='set_refereeing_deadline'),
     url(r'^close_refereeing_round/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.close_refereeing_round, name='close_refereeing_round'),
     url(r'^refereeing_overview$', views.refereeing_overview, name='refereeing_overview'),
-    url(r'^communication/{regex}/(?P<comtype>[a-zA-Z]{{4,}})$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+    url(r'^communication/{regex}/(?P<comtype>[a-zA-Z]{{4,}})$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX),
         views.communication, name='communication'),
-    url(r'^communication/{regex}/(?P<comtype>[a-zA-Z]{{4,}})/(?P<referee_id>[0-9]+)$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+    url(r'^communication/{regex}/(?P<comtype>[a-zA-Z]{{4,}})/(?P<referee_id>[0-9]+)$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX),
         views.communication, name='communication'),
     url(r'^eic_recommendation/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.eic_recommendation, name='eic_recommendation'),
+    url(r'^eic_recommendation/{regex}/reformulate$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.reformulate_eic_recommendation, name='reformulate_eic_recommendation'),
     url(r'^cycle/{regex}/submit$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.cycle_form_submit, name='cycle_confirmation'),
 
@@ -104,7 +110,8 @@ urlpatterns = [
         name='vet_submitted_report'),
 
     # Voting
-    url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting, name='prepare_for_voting'),
+    url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting,
+        name='prepare_for_voting'),
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),
     url(r'^remind_Fellows_to_vote$', views.remind_Fellows_to_vote,
         name='remind_Fellows_to_vote'),

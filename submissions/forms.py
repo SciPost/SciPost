@@ -1,3 +1,4 @@
+import datetime
 import re
 
 from django import forms
@@ -9,10 +10,11 @@ from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUB
                        REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
                        STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
                        STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE,\
-                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS
+                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS,\
+                       POST_PUBLICATION_STATUSES, REPORT_POST_EDREC, REPORT_NORMAL
 from . import exceptions, helpers
 from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
-                    iThenticateReport
+                    iThenticateReport, EditorialCommunication
 
 from colleges.models import Fellowship
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC
@@ -421,16 +423,23 @@ class SubmissionReportsForm(forms.ModelForm):
 # Editorial workflow #
 ######################
 
-class AssignSubmissionForm(forms.Form):
+class EditorialAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = EditorialAssignment
+        fields = ('to',)
+        labels = {
+            'to': 'Fellow',
+        }
 
     def __init__(self, *args, **kwargs):
-        discipline = kwargs.pop('discipline')
-        super(AssignSubmissionForm, self).__init__(*args, **kwargs)
-        self.fields['editor_in_charge'] = forms.ModelChoiceField(
-            queryset=Contributor.objects.filter(user__groups__name='Editorial College',
-                                                user__contributor__discipline=discipline,
-                                                ).order_by('user__last_name'),
-            required=True, label='Select an Editor-in-charge')
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+        self.fields['to'].queryset = Contributor.objects.available().filter(
+            fellowships__pool=self.submission).distinct()
+
+    def save(self, commit=True):
+        self.instance.submission = self.submission
+        return super().save(commit)
 
 
 class ConsiderAssignmentForm(forms.Form):
@@ -518,6 +527,8 @@ class ReportPDFForm(forms.ModelForm):
 
 
 class ReportForm(forms.ModelForm):
+    report_type = REPORT_NORMAL
+
     class Meta:
         model = Report
         fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes',
@@ -535,6 +546,8 @@ class ReportForm(forms.ModelForm):
                         'anonymous': latest_report.anonymous
                     }
                 })
+
+        self.submission = kwargs.pop('submission')
 
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields['strengths'].widget.attrs.update({
@@ -577,14 +590,18 @@ class ReportForm(forms.ModelForm):
             if self.fields[field].required:
                 self.fields[field].label += ' *'
 
-    def save(self, submission):
+        if self.submission.status in POST_PUBLICATION_STATUSES:
+            self.report_type = REPORT_POST_EDREC
+
+    def save(self):
         """
         Update meta data if ModelForm is submitted (non-draft).
         Possibly overwrite the default status if user asks for saving as draft.
         """
         report = super().save(commit=False)
+        report.report_type = self.report_type
 
-        report.submission = submission
+        report.submission = self.submission
         report.date_submitted = timezone.now()
 
         # Save with right status asked by user
@@ -594,15 +611,14 @@ class ReportForm(forms.ModelForm):
             report.status = STATUS_UNVETTED
 
             # Update invitation and report meta data if exist
-            invitation = submission.referee_invitations.filter(referee=report.author).first()
-            if invitation:
-                invitation.fulfilled = True
-                invitation.save()
+            updated_invitations = self.submission.referee_invitations.filter(
+                referee=report.author).update(fulfilled=True)
+            if updated_invitations > 0:
                 report.invited = True
 
             # Check if report author if the report is being flagged on the submission
-            if submission.referees_flagged:
-                if report.author.user.last_name in submission.referees_flagged:
+            if self.submission.referees_flagged:
+                if report.author.user.last_name in self.submission.referees_flagged:
                     report.flagged = True
         report.save()
         return report
@@ -656,13 +672,16 @@ class VetReportForm(forms.Form):
 # Communications #
 ###################
 
-class EditorialCommunicationForm(forms.Form):
-    text = forms.CharField(widget=forms.Textarea(), label='')
-
-    def __init__(self, *args, **kwargs):
-        super(EditorialCommunicationForm, self).__init__(*args, **kwargs)
-        self.fields['text'].widget.attrs.update(
-            {'rows': 5, 'cols': 50, 'placeholder': 'Write your message in this box.'})
+class EditorialCommunicationForm(forms.ModelForm):
+    class Meta:
+        model = EditorialCommunication
+        fields = ('text',)
+        widgets = {
+            'text': forms.Textarea(attrs={
+                'rows': 5,
+                'placeholder': 'Write your message in this box.'
+            }),
+        }
 
 
 ######################
@@ -670,6 +689,10 @@ class EditorialCommunicationForm(forms.Form):
 ######################
 
 class EICRecommendationForm(forms.ModelForm):
+    DAYS_TO_VOTE = 7
+    assignment = None
+    earlier_recommendations = None
+
     class Meta:
         model = EICRecommendation
         fields = [
@@ -678,17 +701,102 @@ class EICRecommendationForm(forms.ModelForm):
             'requested_changes',
             'remarks_for_editorial_college'
         ]
+        widgets = {
+            'remarks_for_authors': forms.Textarea({
+                'placeholder': 'Your general remarks for the authors',
+                'rows': 10,
+            }),
+            'requested_changes': forms.Textarea({
+                'placeholder': ('If you request revisions, give a numbered (1-, 2-, ...)'
+                                ' list of specifically requested changes'),
+            }),
+            'remarks_for_editorial_college': forms.Textarea({
+                'placeholder': ('If you recommend to accept or refuse, the Editorial College '
+                                'will vote; write any relevant remarks for the EC here.'),
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop('submission')
+        self.reformulate = kwargs.pop('reformulate', False)
+        if self.reformulate:
+            self.load_earlier_recommendations()
+            latest_recommendation = self.earlier_recommendations.first()
+            if latest_recommendation:
+                kwargs['initial'] = {
+                    'recommendation': latest_recommendation.recommendation,
+                    'remarks_for_authors': latest_recommendation.remarks_for_authors,
+                    'requested_changes': latest_recommendation.requested_changes,
+                    'remarks_for_editorial_college':
+                        latest_recommendation.remarks_for_editorial_college,
+                }
+
         super().__init__(*args, **kwargs)
-        self.fields['remarks_for_authors'].widget.attrs.update(
-            {'placeholder': 'Your general remarks for the authors',
-             'rows': 10, 'cols': 100})
-        self.fields['requested_changes'].widget.attrs.update(
-            {'placeholder': 'If you request revisions, give a numbered (1-, 2-, ...) list of specifically requested changes',
-             'cols': 100})
-        self.fields['remarks_for_editorial_college'].widget.attrs.update(
-            {'placeholder': 'If you recommend to accept or refuse, the Editorial College will vote; write any relevant remarks for the EC here.'})
+        self.load_assignment()
+
+    def save(self, commit=True):
+        recommendation = super().save(commit=False)
+        recommendation.submission = self.submission
+        recommendation.voting_deadline += datetime.timedelta(days=self.DAYS_TO_VOTE)  # Test this
+        if self.reformulate:
+            # Increment version number
+            recommendation.version = len(self.earlier_recommendations) + 1
+            event_text = 'The Editorial Recommendation has been reformulated: {}.'
+        else:
+            event_text = 'An Editorial Recommendation has been formulated: {}.'
+
+        if recommendation.recommendation in [1, 2, 3, -3]:
+            # Accept/Reject: Forward to the Editorial College for voting
+            self.submission.status = 'voting_in_preparation'
+
+            if commit:
+                # Add SubmissionEvent for EIC only
+                self.submission.add_event_for_eic(event_text.format(
+                        recommendation.get_recommendation_display()))
+        elif recommendation.recommendation in [-1, -2]:
+            # Minor/Major revision: return to Author; ask to resubmit
+            self.submission.status = 'revision_requested'
+            self.submission.open_for_reporting = False
+
+            if commit:
+                # Add SubmissionEvents for both Author and EIC
+                self.submission.add_general_event(event_text.format(
+                        recommendation.get_recommendation_display()))
+
+        if commit:
+            if self.earlier_recommendations:
+                self.earlier_recommendations.update(active=False)
+
+                # All reports already submitted are now formulated *after* eic rec formulation
+                Report.objects.filter(
+                    submission__eicrecommendations__in=self.earlier_recommendations).update(
+                        report_type=REPORT_NORMAL)
+
+            recommendation.save()
+            self.submission.save()
+
+            if self.assignment:
+                # The EIC has fulfilled this editorial assignment.
+                self.assignment.completed = True
+                self.assignment.save()
+
+    def revision_requested(self):
+        return self.instance.recommendation in [-1, -2]
+
+    def has_assignment(self):
+        return self.assignment is not None
+
+    def load_assignment(self):
+        # Find EditorialAssignment for Submission
+        try:
+            self.assignment = self.submission.editorial_assignments.accepted().get(
+                to=self.submission.editor_in_charge)
+            return True
+        except EditorialAssignment.DoesNotExist:
+            return False
+
+    def load_earlier_recommendations(self):
+        self.earlier_recommendations = self.submission.eicrecommendations.all()
 
 
 ###############

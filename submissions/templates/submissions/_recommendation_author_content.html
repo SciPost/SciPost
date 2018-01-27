@@ -1,6 +1,6 @@
 <div class="card bg-white">
     <div class="card-body">
-        <h2 class="pb-0 mb-0">Editorial Recommendation</h2>
+        <h2 class="card-title mb-0">Editorial Recommendation <small>(version {{ recommendation.version }}){% if not recommendation.active %} (Deprecated: This Editorial Recommendation has been reformulated){% endif %}</small></h2>
 
         {% block recommendation_header %}
             <h3 class="card-title text-muted">Date {{recommendation.date_submitted}}</h3>

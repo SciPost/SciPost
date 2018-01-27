@@ -324,6 +324,29 @@ class Publication(models.Model):
             return 0
 
 
+class Reference(models.Model):
+    """
+    A Refence is a reference used in a specific Publication.
+    """
+    reference_number = models.IntegerField()
+    publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE)
+
+    authors = models.CharField(max_length=512)
+    title = models.CharField(max_length=512)
+    citation = models.CharField(max_length=512, blank=True)
+
+    vor = models.CharField(max_length=128)
+    vor_url = models.URLField()
+
+    class Meta:
+        unique_together = ('reference_number', 'publication')
+        ordering = ['reference_number']
+        default_related_name = 'references'
+
+    def __str__(self):
+        return '[{}] {}'.format(self.reference_number, self.publication.doi_label)
+
+
 class Deposit(models.Model):
     """
     Each time a Crossref deposit is made for a Publication,
@@ -355,7 +378,7 @@ class DOAJDeposit(models.Model):
     For the Directory of Open Access Journals.
     """
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
-    timestamp = models.CharField(max_length=40, default='')
+    timestamp = models.CharField(max_length=40)
     metadata_DOAJ = JSONField()
     metadata_DOAJ_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)

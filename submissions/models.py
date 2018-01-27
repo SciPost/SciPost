@@ -14,9 +14,12 @@ from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
                        RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
                        REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
                        SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
-                       EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC
+                       EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,\
+                       REPORT_TYPES, REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED,\
+                       STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING
 from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet,\
-                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet
+                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet,\
+                      EditorialCommunicationQueryset
 from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
                    GeneralSubmissionCycle
 
@@ -360,6 +363,10 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     def notification_name(self):
         return self.submission.arxiv_identifier_w_vn_nr
 
+    @property
+    def related_report(self):
+        return self.submission.reports.filter(author=self.referee).first()
+
     def reset_content(self):
         self.nr_reminders = 0
         self.date_last_reminded = None
@@ -386,6 +393,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     to explicitly implement the perticular differences in for example the form used.
     """
     status = models.CharField(max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED)
+    report_type = models.CharField(max_length=32, choices=REPORT_TYPES, default=REPORT_NORMAL)
     submission = models.ForeignKey('submissions.Submission', related_name='reports',
                                    on_delete=models.CASCADE)
     report_nr = models.PositiveSmallIntegerField(default=0,
@@ -452,6 +460,24 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
 
+    @property
+    def is_in_draft(self):
+        return self.status == STATUS_DRAFT
+
+    @property
+    def is_vetted(self):
+        return self.status == STATUS_VETTED
+
+    def save(self, *args, **kwargs):
+        # Control Report count per Submission.
+        if not self.report_nr:
+            self.report_nr = self.submission.reports.count() + 1
+        return super().save(*args, **kwargs)
+
+    def create_doi_label(self):
+        self.doi_label = 'SciPost.Report.' + str(self.id)
+        self.save()
+
     def get_absolute_url(self):
         return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
 
@@ -483,16 +509,6 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr,
             submission__arxiv_vn_nr__lt=self.submission.arxiv_vn_nr).exists())
 
-    def save(self, *args, **kwargs):
-        # Control Report count per Submission.
-        if not self.report_nr:
-            self.report_nr = self.submission.reports.count() + 1
-        return super().save(*args, **kwargs)
-
-    def create_doi_label(self):
-        self.doi_label = 'SciPost.Report.' + str(self.id)
-        self.save()
-
     def latest_report_from_series(self):
         """
         Get latest Report from the same author for the Submission series.
@@ -500,7 +516,6 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         return (self.author.reports.accepted().filter(
             submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
                 .order_by('submission__arxiv_identifier_wo_vn_nr').last())
-
 
     @property
     def associated_published_doi(self):
@@ -560,16 +575,18 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     Each individual communication between Editor-in-charge
     to and from Referees and Authors becomes an instance of this class.
     """
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
-                                   related_name='editorial_communications')
-    referee = models.ForeignKey('scipost.Contributor', related_name='referee_in_correspondence',
-                                blank=True, null=True, on_delete=models.CASCADE)
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
+    referee = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
+                                blank=True, null=True)
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
 
+    objects = EditorialCommunicationQueryset.as_manager()
+
     class Meta:
         ordering = ['timestamp']
+        default_related_name = 'editorial_communications'
 
     def __str__(self):
         output = self.comtype
@@ -595,6 +612,8 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
                                                      verbose_name='optional remarks for the'
                                                                   ' Editorial College')
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
+    version = models.SmallIntegerField(default=1)
+    active = models.BooleanField(default=True)
 
     # Editorial Fellows who have assessed this recommendation:
     eligible_to_vote = models.ManyToManyField('scipost.Contributor', blank=True,
@@ -608,9 +627,17 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
 
     objects = EICRecommendationQuerySet.as_manager()
 
+    class Meta:
+        unique_together = ('submission', 'version')
+        ordering = ['version']
+
     def __str__(self):
-        return (self.submission.title[:20] + ' by ' + self.submission.author_list[:30] +
-                ', ' + self.get_recommendation_display())
+        return '{title} by {author}, {recommendation} version {version}'.format(
+            title=self.submission.title[:20],
+            author=self.submission.author_list[:30],
+            recommendation=self.get_recommendation_display(),
+            version=self.version,
+        )
 
     def get_absolute_url(self):
         # TODO: Fix this weird redirect, but it's neccesary for the notifications to have one.
@@ -631,6 +658,12 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     @property
     def nr_abstained(self):
         return self.voted_abstain.count()
+
+    def may_be_reformulated(self):
+        if not self.active:
+            # Already reformulated before; please use the latest version
+            return False
+        return self.submission.status in [STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING]
 
 
 class iThenticateReport(TimeStampedModel):
