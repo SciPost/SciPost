@@ -16,7 +16,8 @@
 
                 <li>
                     {% if invitation.fulfilled %}
-                        <i class="fa-li fa fa-check-square-o"></i>Submitted Report on {{ invitation.related_report.date_submitted }}.
+                        Thank you!
+                        <i class="fa-li fa fa-check-square-o"></i>Report submitted on {{ invitation.related_report.date_submitted }}.
                         <ul class="list-style-none">
                             <li>Status: <span class="{% if invitation.related_report.status == 'vetted' %}text-success{% elif invitation.related_report.status == 'unvetted' %}text-danger{% endif %}">{{ invitation.related_report.get_status_display }}</span></li>
                             <li>Anonymous: {{ invitation.related_report.anonymous|yesno:'Yes,No' }}</li>
