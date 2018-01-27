@@ -26,11 +26,11 @@
             <h1>SciPost Submissions Pool</h1>
             {% if is_ECAdmin %}
 
-                {% if recommendations.voting_in_preparation.exists or recommendations.put_to_voting.exists or latest_submission_events %}
+                {% if recommendations.voting_in_preparation or recommendations.put_to_voting or latest_submission_events %}
                     <div class="quote-border">
                         <h2 class="text-primary">Administrative Tasks</h2>
 
-                        {% if recommendations.voting_in_preparation.exists %}
+                        {% if recommendations.voting_in_preparation %}
                             <h3>Recommendations to prepare for voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
                             <ul>
                                 {% for recommendation in recommendations.voting_in_preparation %}
@@ -41,7 +41,7 @@
                             </ul>
                         {% endif %}
 
-                        {% if recommendations.put_to_voting.exists %}
+                        {% if recommendations.put_to_voting %}
                             <h3>Recommendations undergoing voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
                             <ul class="fa-ul">
                                 {% for recommendation in recommendations.put_to_voting %}
