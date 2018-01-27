@@ -741,7 +741,7 @@ def _personal_page_editorial_actions(request):
         'Editorial Administrators',
         'Editorial College',
         'Vetting Editors',
-        'Junior Ambassadors']).exists()
+        'Junior Ambassadors']).exists() or request.user.is_superuser
 
     if not permission:
         raise PermissionDenied
