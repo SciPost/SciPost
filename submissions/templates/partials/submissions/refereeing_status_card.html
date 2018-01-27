@@ -34,11 +34,11 @@
             </ul>
 
             {% if invitation.related_report.anonymous %}
-                <p class="card-text">You have anonymously submitted your Report. <a href="{% url 'journals:sign_existing_report' report_id=invitation.related_report.id %}">You can click here to sign this Report</a> (leads to confirmation page).</p>
+                <p class="card-text">You have submitted your Report anonymously. <a href="{% url 'journals:sign_existing_report' report_id=invitation.related_report.id %}">You can click here to sign this Report</a> (leads to confirmation page).</p>
             {% endif %}
 
             {% if invitation.submission.editor_in_charge %}
-                <h3 class="card-title">Communication</h3>
+                <h3 class="card-title">Communications</h3>
                 <a class="card-link" href="{% url 'submissions:communication' invitation.submission.arxiv_identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
 
                 <ul class="pl-4 mt-2">

@@ -11,25 +11,6 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12">
-        <h3>Pending Refereeing Tasks:</h3>
-    </div>
-    <div class="col-12">
-        <ul class="list-group list-group-flush">
-        {% for task in contributor.referee_invitations.in_process.all %}
-            <li class="list-group-item">
-                <div class="card-body px-0">
-                    {% include 'partials/submissions/refereeing_invitation_card_content.html' with invitation=task %}
-                </div>
-            </li>
-        {% empty %}
-            <li class="list-group-item"><em>You do not have any pending refereeing task</em></li>
-        {% endfor %}
-        </ul>
-    </div>
-</div>
-
 {% if contributor.reports.in_draft.all %}
     <div class="row">
         <div class="col-12">
@@ -49,6 +30,26 @@
         </div>
     </div>
 {% endif %}
+
+
+<div class="row">
+    <div class="col-12">
+        <h3>Pending Refereeing Tasks:</h3>
+    </div>
+    <div class="col-12">
+        <ul class="list-group list-group-flush">
+        {% for task in contributor.referee_invitations.in_process.all %}
+            <li class="list-group-item">
+                <div class="card-body px-0">
+                    {% include 'partials/submissions/refereeing_invitation_card_content.html' with invitation=task %}
+                </div>
+            </li>
+        {% empty %}
+            <li class="list-group-item"><em>You do not have any pending refereeing task</em></li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
 
 {% if contributor.reports.non_draft.all %}
     <div class="row">
