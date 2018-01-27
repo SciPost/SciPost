@@ -63,7 +63,9 @@ class Journal(models.Model):
         duration = Publication.objects.filter(
             in_issue__in_volume__in_journal=self).aggregate(
                 avg=Avg(F('publication_date') - F('submission_date')))['avg']
-        return duration.total_seconds() / 86400
+        if duration:
+            return duration.total_seconds() / 86400
+        return 0
 
     def citation_rate(self, tier=None):
         """
@@ -111,7 +113,9 @@ class Volume(models.Model):
         duration = Publication.objects.filter(
             in_issue__in_volume=self).aggregate(
                 avg=Avg(F('publication_date') - F('submission_date')))['avg']
-        return duration.total_seconds() / 86400
+        if duration:
+            return duration.total_seconds() / 86400
+        return 0
 
     def citation_rate(self, tier=None):
         """
@@ -191,7 +195,9 @@ class Issue(models.Model):
         duration = Publication.objects.filter(
             in_issue=self).aggregate(
                 avg=Avg(F('publication_date') - F('submission_date')))['avg']
-        return duration.total_seconds() / 86400
+        if duration:
+            return duration.total_seconds() / 86400
+        return 0
 
     def citation_rate(self, tier=None):
         """
