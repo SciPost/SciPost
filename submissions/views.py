@@ -27,7 +27,7 @@ from .models import Submission, EICRecommendation, EditorialAssignment,\
                     RefereeInvitation, Report, SubmissionEvent
 from .mixins import SubmissionAdminViewMixin
 from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm,\
-                   RecommendationVoteForm, ConsiderAssignmentForm, AssignSubmissionForm,\
+                   RecommendationVoteForm, ConsiderAssignmentForm, EditorialAssignmentForm,\
                    SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
                    ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
                    EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
@@ -432,44 +432,21 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
     Assign Editor-in-charge to Submission.
     Action done by SciPost Administration or Editorial College Administration.
     """
-    submission_to_assign = get_object_or_404(Submission.objects.pool_editable(request.user),
-                                             arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    form = AssignSubmissionForm(discipline=submission_to_assign.discipline)
-    context = {'submission_to_assign': submission_to_assign,
-               'form': form}
-    return render(request, 'submissions/assign_submission.html', context)
-
-
-@login_required
-@permission_required('scipost.can_assign_submissions', raise_exception=True)
-def assign_submission_ack(request, arxiv_identifier_w_vn_nr):
-    """
-    Assign Editor-in-charge to Submission.
-    Action done by SciPost Administration or Editorial College Administration.
-    """
     submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if request.method == 'POST':
-        form = AssignSubmissionForm(request.POST, discipline=submission.discipline)
-        if form.is_valid():
-            suggested_editor_in_charge = form.cleaned_data['editor_in_charge']
-            # TODO: check for possible co-authorships, disqualifying this suggested EIC
-            if not suggested_editor_in_charge.is_currently_available:
-                errormessage = ('This Fellow is marked as currently unavailable. '
-                                'Please go back and select another one.')
-                return render(request, 'scipost/error.html', {'errormessage': errormessage})
-            ed_assignment = EditorialAssignment(submission=submission,
-                                                to=suggested_editor_in_charge,
-                                                date_created=timezone.now())
-            ed_assignment.save()
-            SubmissionUtils.load({'assignment': ed_assignment})
-            SubmissionUtils.send_assignment_request_email()
+    form = EditorialAssignmentForm(request.POST or None, submission=submission)
 
-    context = {'ack_header': 'Your assignment request has been sent successfully.',
-               'followup_message': 'Return to the ',
-               'followup_link': reverse('submissions:pool'),
-               'followup_link_label': 'Submissions pool'}
-    return render(request, 'scipost/acknowledgement.html', context)
+    if form.is_valid():
+        ed_assignment = form.save()
+        SubmissionUtils.load({'assignment': ed_assignment})
+        SubmissionUtils.send_assignment_request_email()
+        messages.success(request, 'Your assignment request has been sent successfully.')
+        return redirect('submissions:pool')
+    context = {
+        'submission_to_assign': submission,
+        'form': form
+    }
+    return render(request, 'submissions/assign_submission.html', context)
 
 
 @login_required

@@ -51,8 +51,6 @@ urlpatterns = [
     # Assignment of Editor-in-charge
     url(r'^assign_submission/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.assign_submission, name='assign_submission'),
-    url(r'^assign_submission_ack/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.assign_submission_ack, name='assign_submission_ack'),
     url(r'^pool/assignment_request/(?P<assignment_id>[0-9]+)$',
         views.assignment_request, name='assignment_request'),
     url(r'^volunteer_as_EIC/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),

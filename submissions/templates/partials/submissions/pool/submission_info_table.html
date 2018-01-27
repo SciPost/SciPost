@@ -4,6 +4,12 @@
         <td>{{submission.arxiv_vn_nr}} ({% if submission.is_current %}current version{% else %}deprecated version {{submission.arxiv_vn_nr}}{% endif %})</td>
     </tr>
     <tr>
+        <td>Arxiv Link:</td>
+        <td>
+            <a href="{{ submission.arxiv_link }}" target="_blank">{{ submission.arxiv_link }}</a>
+        </td>
+    </tr>
+    <tr>
         <td>Submitted</td>
         <td>{{submission.submission_date}} to {{submission.get_submitted_to_journal_display}}</td>
     </tr>
