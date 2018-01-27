@@ -53,10 +53,11 @@ class Journal(models.Model):
         return journal_name_abbrev_citation(self.name)
 
     def nr_publications(self, tier=None):
-        pubs = Publication.objects.filter(in_issue__in_volume__in_journal=self)
+        publications = Publication.objects.filter(in_issue__in_volume__in_journal=self)
         if tier:
-            pubs = pubs.filter(accepted_submission__eicrecommendations__recommendation=tier)
-        return pubs.count()
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
+        return publications.count()
 
     def avg_processing_duration(self):
         duration = Publication.objects.filter(
@@ -68,12 +69,13 @@ class Journal(models.Model):
         """
         Returns the citation rate in units of nr citations per article per year.
         """
-        pubs = Publication.objects.filter(in_issue__in_volume__in_journal=self)
+        publications = Publication.objects.filter(in_issue__in_volume__in_journal=self)
         if tier:
-            pubs.filter(accepted_submission__eicrecommendations__recommendation=tier)
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
         ncites = 0
         deltat = 1  # to avoid division by zero
-        for pub in pubs:
+        for pub in publications:
             if pub.citedby and pub.latest_citedby_update:
                 ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
@@ -99,10 +101,11 @@ class Volume(models.Model):
         return '10.21468/' + self.doi_label
 
     def nr_publications(self, tier=None):
-        pubs = Publication.objects.filter(in_issue__in_volume=self)
+        publications = Publication.objects.filter(in_issue__in_volume=self)
         if tier:
-            pubs.filter(accepted_submission__eicrecommendations__recommendation=tier)
-        return pubs.count()
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
+        return publications.count()
 
     def avg_processing_duration(self):
         duration = Publication.objects.filter(
@@ -114,12 +117,13 @@ class Volume(models.Model):
         """
         Returns the citation rate in units of nr citations per article per year.
         """
-        pubs = Publication.objects.filter(in_issue__in_volume=self)
+        publications = Publication.objects.filter(in_issue__in_volume=self)
         if tier:
-            pubs.filter(accepted_submission__eicrecommendations__recommendation=tier)
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
         ncites = 0
         deltat = 1  # to avoid division by zero
-        for pub in pubs:
+        for pub in publications:
             if pub.citedby and pub.latest_citedby_update:
                 ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
@@ -179,7 +183,8 @@ class Issue(models.Model):
     def nr_publications(self, tier=None):
         publications = Publication.objects.filter(in_issue=self)
         if tier:
-            publications.filter(accepted_submission__eicrecommendations__recommendation=tier)
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
         return publications.count()
 
     def avg_processing_duration(self):
@@ -194,7 +199,8 @@ class Issue(models.Model):
         """
         publications = Publication.objects.filter(in_issue=self)
         if tier:
-            publications.filter(accepted_submission__eicrecommendations__recommendation=tier)
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
         ncites = 0
         deltat = 1  # to avoid division by zero
         for pub in publications:
