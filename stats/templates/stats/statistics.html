@@ -41,78 +41,122 @@
 </ul>
 
 {% if journal %}
-    <h2>Results:</h2>
-    <table class="table">
-      <tr>
-    	<th>DOI label</th>
-    	{% if year %}
-    	<th>Year</th>
-    	<th>Nr submissions<br/>(distinct)</th>
-	<th>Nr submissions<br/>(including resubmissions)</th>
-	<th>Nr assignment failed</th>
-	<th>Nr accepted/<br/>published</th>
-	<th>Nr rejected</th>
-	<th>Nr withdrawn</th>
-    	{% else %}
-    	<th>Nr publications</th>
-    	<th>Duration average</th>
-	<th>Citation rate (per paper per year)</ht>
-	{% endif %}
-      </tr>
-      <tr>
-    	{% if issue %}
-    	<td>{{ issue.doi_label }}</td>
-    	<td>{{ issue|issue_nr_publications }}</td>
-    	<td>{{ issue|issue_avg_processing_duration|floatformat:2 }} days</td>
-	<td>{{ issue|issue_citation_rate|floatformat:2 }}</td>
-    	{% elif volume %}
-    	<td>{{ volume.doi_label }}</td>
-    	<td>{{ volume|volume_nr_publications }}</td>
-    	<td>{{ volume|volume_avg_processing_duration|floatformat:2 }} days</td>
-	<td>{{ volume|volume_citation_rate|floatformat:2 }}</td>
-    	{% else %}
-    	<td>{{ journal.doi_label }}</td>
-    	{% if year %}
-    	<td>{{ year }}</td>
-    	<td>{{ submissions|submissions_count_distinct }}</td>
-    	<td>{{ submissions|length }}</td>
-	<td>{{ submissions.assignment_failed.count }}</td>
-	<td>{{ submissions.accepted.count|add:submissions.published.count }}</td>
-	<td>{{ submissions.rejected.count }}</td>
-	<td>{{ submissions.withdrawn.count }}</td>
-    	{% else %}
-    	<td>{{ journal|journal_nr_publications }}</td>
-    	<td>{{ journal|journal_avg_processing_duration|floatformat:2 }} days</td>
-	<td>{{ journal|journal_citation_rate|floatformat:2 }}</td>
-	{% endif %}
-    	{% endif %}
-      </tr>
-    </table>
-    {% endif %}
-
+<h2>Results:</h2>
+<table class="table">
+  <tr>
+    <th>DOI label</th>
     {% if year %}
-    <h2>Refereeing stats for {{ year }}</h2>
-    <table class="table">
-      <tr>
-	<th>Nr refereeing<br/>invitations</th>
-	<th>Nr accepted</th>
-	<th>Nr declined</th>
-	<th>Nr pending</th>
-	<th>Nr reports<br/>obtained</th>
-	<th>Nr obtained<br/>(invited)</th>
-	<th>Nr obtained<br/>(contributed)</th>
-      </tr>
-      <tr>
-	<td>{{ nr_ref_inv }}</td>
-	<td>{{ nr_acc }} ({% widthratio nr_acc nr_ref_inv 100 %}&#37;)</td>
-	<td>{{ nr_dec }} ({% widthratio nr_dec nr_ref_inv 100 %}&#37;)</td>
-	<td>{{ nr_pen }} ({% widthratio nr_pen nr_ref_inv 100 %}&#37;)</td>
-	<td>{{ nr_rep_obt }}</td>
-	<td>{{ nr_rep_obt_inv }} ({% widthratio nr_rep_obt_inv nr_rep_obt 100 %}&#37;)</td>
-	<td>{{ nr_rep_obt_con }} ({% widthratio nr_rep_obt_con nr_rep_obt 100 %}&#37;)</td>
-      </tr>
-    </table>
+    <th>Year</th>
+    <th>Nr submissions<br/>(distinct)</th>
+    <th>Nr submissions<br/>(including resubmissions)</th>
+    <th>Nr assignment failed</th>
+    <th>Nr accepted/<br/>published</th>
+    <th>Nr rejected</th>
+    <th>Nr withdrawn</th>
+    {% else %}
+    <th>Nr publications</th>
+    <th>Duration average</th>
+    <th>Citation rate (per paper per year)</th>
     {% endif %}
+  </tr>
+  <tr>
+    {% if issue %}
+    <td>{{ issue.doi_label }}</td>
+    <td>{% nr_publications issue %}</td>
+    <td>{% avg_processing_duration issue as avg %}{{ avg|floatformat:2 }} days</td>
+    <td>{% citation_rate issue as cr %}{{ cr|floatformat:2 %}</td>
+    {% elif volume %}
+    <td>{{ volume.doi_label }}</td>
+    <td>{% nr_publications volume %}</td>
+    <td>{% avg_processing_duration volume as avg %}{{ avg|floatformat:2 }} days</td>
+    <td>{% citation_rate volume as cr %}{{ cr|floatformat:2 }}</td>
+    {% else %}
+    <td>{{ journal.doi_label }}</td>
+    {% if year %}
+    <td>{{ year }}</td>
+    <td>{{ submissions|submissions_count_distinct }}</td>
+    <td>{{ submissions|length }}</td>
+    <td>{{ submissions.assignment_failed.count }}</td>
+    <td>{{ submissions.accepted.count|add:submissions.published.count }}</td>
+    <td>{{ submissions.rejected.count }}</td>
+    <td>{{ submissions.withdrawn.count }}</td>
+    {% else %}
+    <td>{% nr_publications journal %}</td>
+    <td>{% avg_processing_duration journal as avg %}{{ avg|floatformat:2 }} days</td>
+    <td>{% citation_rate journal as cr %}{{ cr|floatformat:2 }}</td>
+    {% endif %}
+    {% endif %}
+  </tr>
+</table>
+
+<table class="table">
+  <tr>
+    <th>DOI label</th>
+    <th colspan="3">Nr per Tier</th>
+    <th colspan="3">Citation rate (per paper per year)</th>
+  </tr>
+  <tr>
+    <th></th>
+    <th>I</th>
+    <th>II</th>
+    <th>IIII</th>
+    <th>I</th>
+    <th>II</th>
+    <th>IIII</th>
+  </tr>
+  <tr>
+    {% if issue %}
+    <td>{% issue.doi_label }}</td>
+    <td>{% nr_publications issue Tier=1 %}</td>
+    <td>{% nr_publications issue Tier=2 %}</td>
+    <td>{% nr_publications issue Tier=3 %}</td>
+    <td>{% citation_rate issue Tier=1 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate issue Tier=2 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate issue Tier=3 as cr %}{{ cr|floatformat:2 }}</td>
+    {% elif volume %}
+    <td>{{ volume.doi_label }}</td>
+    <td>{% nr_publications volume Tier=1 %}</td>
+    <td>{% nr_publications volume Tier=2 %}</td>
+    <td>{% nr_publications volume Tier=3 %}</td>
+    <td>{% citation_rate volume Tier=1 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate volume Tier=2 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate volume Tier=3 as cr %}{{ cr|floatformat:2 }}</td>
+    {% else %}
+    <td>{{ journal.doi_label }}</td>
+    <td>{% nr_publications journal Tier=1 %}</td>
+    <td>{% nr_publications journal Tier=2 %}</td>
+    <td>{% nr_publications journal Tier=3 %}</td>
+    <td>{% citation_rate journal Tier=1 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate journal Tier=2 as cr %}{{ cr|floatformat:2 }}</td>
+    <td>{% citation_rate journal Tier=3 as cr %}{{ cr|floatformat:2 }}</td>
+    {% endif %}
+  </tr>
+</table>
+{% endif %}
+
+{% if year %}
+<h2>Refereeing stats for {{ year }}</h2>
+<table class="table">
+  <tr>
+    <th>Nr refereeing<br/>invitations</th>
+    <th>Nr accepted</th>
+    <th>Nr declined</th>
+    <th>Nr pending</th>
+    <th>Nr reports<br/>obtained</th>
+    <th>Nr obtained<br/>(invited)</th>
+    <th>Nr obtained<br/>(contributed)</th>
+  </tr>
+  <tr>
+    <td>{{ nr_ref_inv }}</td>
+    <td>{{ nr_acc }} ({% widthratio nr_acc nr_ref_inv 100 %}&#37;)</td>
+    <td>{{ nr_dec }} ({% widthratio nr_dec nr_ref_inv 100 %}&#37;)</td>
+    <td>{{ nr_pen }} ({% widthratio nr_pen nr_ref_inv 100 %}&#37;)</td>
+    <td>{{ nr_rep_obt }}</td>
+    <td>{{ nr_rep_obt_inv }} ({% widthratio nr_rep_obt_inv nr_rep_obt 100 %}&#37;)</td>
+    <td>{{ nr_rep_obt_con }} ({% widthratio nr_rep_obt_con nr_rep_obt 100 %}&#37;)</td>
+  </tr>
+</table>
+{% endif %}
 
 
 {% endblock content %}
