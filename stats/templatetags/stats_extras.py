@@ -1,12 +1,21 @@
 from django import template
-from django.db.models import Avg, F
-
-from journals.models import Publication
-from submissions.constants import SUBMISSION_STATUS_OUT_OF_POOL
-from submissions.models import Submission
 
 register = template.Library()
 
+
+@register.simple_tag
+def avg_processing_duration(obj, *args, **kwargs):
+    return getattr(obj, 'avg_processing_duration')(*args, **kwargs)
+
+
+@register.simple_tag
+def nr_publications(obj, *args, **kwargs):
+    return getattr(obj, 'nr_publications')(*args, **kwargs)
+
+
+@register.simple_tag
+def citation_rate(obj, *args, **kwargs):
+    return getattr(obj, 'citation_rate')(*args, **kwargs)
 
 
 @register.filter(name='submissions_count_distinct')
@@ -25,54 +34,3 @@ def journal_publication_years(journal):
         if volume.until_date.year not in years:
             years.append(volume.until_date.year)
     return sorted(years)
-
-
-@register.filter(name='journal_nr_publications')
-def journal_nr_publications(journal):
-    return Publication.objects.filter(in_issue__in_volume__in_journal=journal).count()
-
-@register.filter(name='journal_avg_processing_duration')
-def journal_avg_processing_duration(journal):
-    duration = Publication.objects.filter(
-        in_issue__in_volume__in_journal=journal).aggregate(
-            avg=Avg(F('publication_date') - F('submission_date')))['avg']
-    if not duration: return 0
-    return duration.days + duration.seconds/86400
-
-@register.filter(name='journal_citation_rate')
-def journal_citation_rate(journal):
-    return journal.citation_rate()
-
-
-@register.filter(name='volume_nr_publications')
-def volume_nr_publications(volume):
-    return Publication.objects.filter(in_issue__in_volume=volume).count()
-
-@register.filter(name='volume_avg_processing_duration')
-def volume_avg_processing_duration(volume):
-    duration = Publication.objects.filter(
-        in_issue__in_volume=volume).aggregate(
-            avg=Avg(F('publication_date') - F('submission_date')))['avg']
-    if not duration: return 0
-    return duration.days + duration.seconds/86400
-
-@register.filter(name='volume_citation_rate')
-def volume_citation_rate(volume):
-    return volume.citation_rate()
-
-
-@register.filter(name='issue_nr_publications')
-def issue_nr_publications(issue):
-    return Publication.objects.filter(in_issue=issue).count()
-
-@register.filter(name='issue_avg_processing_duration')
-def issue_avg_processing_duration(issue):
-    duration = Publication.objects.filter(
-        in_issue=issue).aggregate(
-            avg=Avg(F('publication_date') - F('submission_date')))['avg']
-    if not duration: return 0
-    return duration.days + duration.seconds/86400
-
-@register.filter(name='issue_citation_rate')
-def issue_citation_rate(issue):
-    return issue.citation_rate()

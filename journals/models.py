@@ -2,6 +2,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.db.models import Avg, F
 from django.utils import timezone
 from django.urls import reverse
 
@@ -51,14 +52,30 @@ class Journal(models.Model):
     def get_abbreviation_citation(self):
         return journal_name_abbrev_citation(self.name)
 
-    def citation_rate(self):
+    def nr_publications(self, tier=None):
+        publications = Publication.objects.filter(in_issue__in_volume__in_journal=self)
+        if tier:
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
+        return publications.count()
+
+    def avg_processing_duration(self):
+        duration = Publication.objects.filter(
+            in_issue__in_volume__in_journal=self).aggregate(
+                avg=Avg(F('publication_date') - F('submission_date')))['avg']
+        return duration.total_seconds() / 86400
+
+    def citation_rate(self, tier=None):
         """
         Returns the citation rate in units of nr citations per article per year.
         """
-        pubs = Publication.objects.filter(in_issue__in_volume__in_journal=self)
+        publications = Publication.objects.filter(in_issue__in_volume__in_journal=self)
+        if tier:
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
         ncites = 0
-        deltat = 1 # to avoid division by zero
-        for pub in pubs:
+        deltat = 1  # to avoid division by zero
+        for pub in publications:
             if pub.citedby and pub.latest_citedby_update:
                 ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
@@ -83,18 +100,34 @@ class Volume(models.Model):
     def doi_string(self):
         return '10.21468/' + self.doi_label
 
-    def citation_rate(self):
+    def nr_publications(self, tier=None):
+        publications = Publication.objects.filter(in_issue__in_volume=self)
+        if tier:
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
+        return publications.count()
+
+    def avg_processing_duration(self):
+        duration = Publication.objects.filter(
+            in_issue__in_volume=self).aggregate(
+                avg=Avg(F('publication_date') - F('submission_date')))['avg']
+        return duration.total_seconds() / 86400
+
+    def citation_rate(self, tier=None):
         """
         Returns the citation rate in units of nr citations per article per year.
         """
-        pubs = Publication.objects.filter(in_issue__in_volume=self)
+        publications = Publication.objects.filter(in_issue__in_volume=self)
+        if tier:
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
         ncites = 0
-        deltat = 1 # to avoid division by zero
-        for pub in pubs:
+        deltat = 1  # to avoid division by zero
+        for pub in publications:
             if pub.citedby and pub.latest_citedby_update:
                 ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
-        return (ncites * 365.25/deltat)
+        return (ncites * 365.25 / deltat)
 
 
 class Issue(models.Model):
@@ -147,14 +180,30 @@ class Issue(models.Model):
         return self.start_date <= timezone.now().date() and\
                self.until_date >= timezone.now().date()
 
-    def citation_rate(self):
+    def nr_publications(self, tier=None):
+        publications = Publication.objects.filter(in_issue=self)
+        if tier:
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
+        return publications.count()
+
+    def avg_processing_duration(self):
+        duration = Publication.objects.filter(
+            in_issue=self).aggregate(
+                avg=Avg(F('publication_date') - F('submission_date')))['avg']
+        return duration.total_seconds() / 86400
+
+    def citation_rate(self, tier=None):
         """
         Returns the citation rate in units of nr citations per article per year.
         """
-        pubs = Publication.objects.filter(in_issue=self)
+        publications = Publication.objects.filter(in_issue=self)
+        if tier:
+            publications = publications.filter(
+                accepted_submission__eicrecommendations__recommendation=tier)
         ncites = 0
-        deltat = 1 # to avoid division by zero
-        for pub in pubs:
+        deltat = 1  # to avoid division by zero
+        for pub in publications:
             if pub.citedby and pub.latest_citedby_update:
                 ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
