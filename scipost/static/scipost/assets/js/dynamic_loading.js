@@ -26,29 +26,4 @@ $(function(){
         dynamic_load_tab( e.target )
     })
     $('[data-toggle="tab"][sp-autoload="true"]').tab('show');
-
-    // Simple simple Angular-like loading!
-    $('a[data-toggle="dynamic"]').on('click', function(event) {
-        event.preventDefault();
-        var self = this,
-            url = $(this).attr('href'),
-            target = $(this).attr('data-target');
-
-        $(target)
-        .show()
-        .html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
-
-        $.get(url + '?json=1').done(function(data) {
-            $(target).html(data).promise().done(function() {
-                init_page();
-            });
-            $('[data-target="active-list"]')
-                .find('> li')
-                .removeClass('active')
-            $(self).parents('[data-target="active-list"] > li')
-                .addClass('active');
-
-            window.history.replaceState('scipost', document.title, url);
-        });
-    });
 });
