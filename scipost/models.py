@@ -87,7 +87,7 @@ class Contributor(models.Model):
                 or self.user.is_superuser)
 
     def is_SP_Admin(self):
-        return (self.fellowships.active().filter(name='SciPost Administrators').exists()
+        return (self.user.groups.filter(name='SciPost Administrators').exists()
                 or self.user.is_superuser)
 
     def is_MEC(self):
