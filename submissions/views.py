@@ -392,9 +392,10 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
 
     # EdColAdmin related variables
     if request.user.has_perm('scipost.can_oversee_refereeing'):
-        context['latest_submission_events'] = SubmissionEvent.objects.for_eic().last_hours()
+        context['latest_submission_events'] = SubmissionEvent.objects.for_eic().last_hours()\
+            .filter(submission__in=context['submissions'])
 
-    # Temporary test logic: only testers see the new Pool
+    # Pool gets Submission details via ajax request
     if context['submission'] and request.is_ajax():
         template = 'partials/submissions/pool/submission_details.html'
     else:
@@ -1106,7 +1107,7 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
         # Editorial Administration to Editor
         if not request.user.has_perm('scipost.can_oversee_refereeing'):
             raise PermissionDenied
-        submissions_qs = Submission.objects.filter_for_author(request.user)
+        submissions_qs = Submission.objects.pool_editable(request.user)
         referee = request.user.contributor
     else:
         # Invalid commtype in the url!

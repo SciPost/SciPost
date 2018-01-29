@@ -115,15 +115,3 @@
         </div><!-- End page content -->
     </div>
 {% endblock %}
-
-{% comment %}
-    <h3><em>Click on a submission to see its summary and actions</em></h3>
-
-    {% if is_ECAdmin %}
-        <h2>All events in the last 24 hours</h2>
-        <div id="eventslist">
-            {% include 'submissions/submission_event_list_general.html' with events=latest_events %}
-        </div>
-    {% endif %}
-
-    {% endcomment %}

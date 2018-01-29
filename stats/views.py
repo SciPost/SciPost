@@ -1,10 +1,9 @@
 import datetime
 
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, render
 
-from journals.constants import SCIPOST_JOURNALS_SUBMIT
-from journals.models import Journal, Volume, Issue, Publication
+from journals.models import Journal, Volume, Issue
 from submissions.models import Submission
 
 
@@ -19,8 +18,9 @@ def statistics(request, journal_doi_label=None, volume_nr=None, issue_nr=None, y
         context['journal'] = journal
         if year:
             context['year'] = year
-            submissions = Submission.objects.filter(submitted_to_journal=journal_doi_label
-            ).originally_submitted(datetime.date(int(year), 1, 1), datetime.date(int(year), 12, 31))
+            submissions = Submission.objects.filter(
+                submitted_to_journal=journal_doi_label).originally_submitted(
+                datetime.date(int(year), 1, 1), datetime.date(int(year), 12, 31))
             context['submissions'] = submissions
             nr_ref_inv = 0
             nr_acc = 0
@@ -29,8 +29,6 @@ def statistics(request, journal_doi_label=None, volume_nr=None, issue_nr=None, y
             nr_rep_obt = 0
             nr_rep_obt_inv = 0
             nr_rep_obt_con = 0
-            nr_rep_ref = 0
-            nr_aw_vet = 0
             for submission in submissions:
                 nr_ref_inv += submission.referee_invitations.count()
                 nr_acc += submission.count_accepted_invitations()

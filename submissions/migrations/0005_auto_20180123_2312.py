@@ -21,8 +21,4 @@ class Migration(migrations.Migration):
             name='version',
             field=models.SmallIntegerField(default=1),
         ),
-        migrations.AlterUniqueTogether(
-            name='eicrecommendation',
-            unique_together=set([('submission', 'version')]),
-        ),
     ]

@@ -83,17 +83,19 @@ class Contributor(models.Model):
         return not self.unavailability_periods.today().exists()
 
     def is_EdCol_Admin(self):
-        return self.user.groups.filter(name='Editorial Administrators').exists()
+        return (self.user.groups.filter(name='Editorial Administrators').exists()
+                or self.user.is_superuser)
 
     def is_SP_Admin(self):
         return (self.user.groups.filter(name='SciPost Administrators').exists()
                 or self.user.is_superuser)
 
     def is_MEC(self):
-        return self.user.groups.filter(name='Editorial College').exists()
+        return self.fellowships.active().exists() or self.user.is_superuser
 
     def is_VE(self):
-        return self.user.groups.filter(name='Vetting Editors').exists()
+        return (self.user.groups.filter(name='Vetting Editors').exists()
+                or self.user.is_superuser)
 
     def generate_key(self, feed=''):
         """
