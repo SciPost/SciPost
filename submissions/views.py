@@ -1107,7 +1107,7 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
         # Editorial Administration to Editor
         if not request.user.has_perm('scipost.can_oversee_refereeing'):
             raise PermissionDenied
-        submissions_qs = Submission.objects.filter_for_author(request.user)
+        submissions_qs = Submission.objects.pool_editable(request.user)
         referee = request.user.contributor
     else:
         # Invalid commtype in the url!
