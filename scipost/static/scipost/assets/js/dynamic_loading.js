@@ -22,7 +22,7 @@ function dynamic_load_tab( target_tab ) {
 
 $(function(){
     // Change `tab` GET parameter for page-reload
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    $('.tab-nav-container.dynamic a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         dynamic_load_tab( e.target )
     })
     $('[data-toggle="tab"][sp-autoload="true"]').tab('show');
