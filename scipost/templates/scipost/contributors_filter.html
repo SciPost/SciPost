@@ -1,0 +1,39 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: contributors filter{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Pool</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Contributors filter</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <form method="post">
+              {% csrf_token %}
+              {{ form|bootstrap }}
+              <input type="submit" class="btn btn-primary" value="Filter"/>
+        </form>
+    </div>
+</div>
+
+{% if form.is_bound %}
+    {% if names_not_found %}
+        <pre><code>{% for contributor in names_not_found %}{{ contributor }}{% endfor %}</code></pre>
+    {% endif %}
+    {% if names_found %}
+        <pre><code>{% for contributor in names_found %}{{ contributor }}{% endfor %}</code></pre>
+    {% endif %}
+{% endif %}
+
+{% endblock %}

@@ -779,6 +779,7 @@ class EICRecommendationForm(forms.ModelForm):
                 # The EIC has fulfilled this editorial assignment.
                 self.assignment.completed = True
                 self.assignment.save()
+        return recommendation
 
     def revision_requested(self):
         return self.instance.recommendation in [-1, -2]
