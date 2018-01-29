@@ -188,6 +188,24 @@ class DraftInvitationForm(forms.ModelForm):
         return invitation_type
 
 
+class ContributorsFilterForm(forms.Form):
+    names = forms.CharField(widget=forms.Textarea())
+
+    def filter(self):
+        names_found = []
+        names_not_found = []
+        r = self.cleaned_data['names'].replace('\r', '\n').split('\n')
+        for name in r:
+            last_name = name.split(',')[0]
+            if not last_name:
+                continue
+            if Contributor.objects.filter(user__last_name__istartswith=last_name).exists():
+                names_found.append(name)
+            else:
+                names_not_found.append(name)
+        return names_found, names_not_found
+
+
 class RegistrationInvitationForm(forms.ModelForm):
     cited_in_submission = AutoCompleteSelectField('submissions_lookup', required=False)
     cited_in_publication = AutoCompleteSelectField('publication_lookup', required=False)

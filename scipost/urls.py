@@ -89,6 +89,7 @@ urlpatterns = [
         views.registration_invitations, name="registration_invitations"),
     url(r'^draft_registration_invitation$',
         views.draft_registration_invitation, name="draft_registration_invitation"),
+    url(r'^contributors_filter$', views.contributors_filter, name="contributors_filter"),
     url(r'^edit_draft_reg_inv/(?P<draft_id>[0-9]+)$',
         views.edit_draft_reg_inv, name="edit_draft_reg_inv"),
     url(r'^map_draft_reg_inv_to_contributor/(?P<draft_id>[0-9]+)/(?P<contributor_id>[0-9]+)$',

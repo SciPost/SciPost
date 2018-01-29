@@ -6,7 +6,7 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <span class="breadcrumb-item">Pool</span>
+    <span class="breadcrumb-item">Draft registration invitation</span>
 {% endblock %}
 
 {% block content %}
@@ -35,6 +35,7 @@ $(document).ready(function(){
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Draft a registration invitation</h1>
+        <p>If you have a list of names you want to check with the current database of users, <a href="{% url 'scipost:contributors_filter' %}">please click here</a>.</p>
     </div>
 </div>
 
@@ -47,8 +48,8 @@ $(document).ready(function(){
 
         <form action="{% url 'scipost:draft_registration_invitation' %}" method="post">
               {% csrf_token %}
-              {{draft_inv_form.media}}
-              {{draft_inv_form|bootstrap}}
+              {{ form.media }}
+              {{ form|bootstrap }}
               <input type="submit" class="btn btn-primary" value="Submit"/>
         </form>
     </div>
@@ -94,7 +95,5 @@ $(document).ready(function(){
         </table>
     </div>
 </div>
-
-{% include 'scipost/_draft_registration_tables.html' %}
 
 {% endblock %}
