@@ -36,7 +36,8 @@ from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriod
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\
                    UpdatePersonalDataForm, UpdateUserDataForm, PasswordChangeForm,\
-                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm
+                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm,\
+                   ContributorsFilterForm
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from affiliations.forms import AffiliationsFormset
@@ -358,9 +359,9 @@ def draft_registration_invitation(request):
     This is similar to the registration_invitations method,
     which is used to complete the invitation process.
     """
-    draft_inv_form = DraftInvitationForm(request.POST or None, current_user=request.user)
-    if draft_inv_form.is_valid():
-        invitation = draft_inv_form.save(commit=False)
+    form = DraftInvitationForm(request.POST or None, current_user=request.user)
+    if form.is_valid():
+        invitation = form.save(commit=False)
         invitation.drafted_by = request.user.contributor
         invitation.save()
 
@@ -369,48 +370,42 @@ def draft_registration_invitation(request):
         messages.success(request, 'Draft invitation saved.')
         return redirect(reverse('scipost:draft_registration_invitation'))
 
-    sent_reg_inv = RegistrationInvitation.objects.filter(responded=False, declined=False)
-    sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
-    sent_reg_inv_contrib = sent_reg_inv.filter(invitation_type='C').order_by('last_name')
-    sent_reg_inv_ref = sent_reg_inv.filter(invitation_type='R').order_by('last_name')
-    sent_reg_inv_cited_sub = sent_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    sent_reg_inv_cited_pub = sent_reg_inv.filter(invitation_type='cp').order_by('last_name')
-
-    resp_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=False)
-    resp_reg_inv_fellows = resp_reg_inv.filter(invitation_type='F').order_by('last_name')
-    resp_reg_inv_contrib = resp_reg_inv.filter(invitation_type='C').order_by('last_name')
-    resp_reg_inv_ref = resp_reg_inv.filter(invitation_type='R').order_by('last_name')
-    resp_reg_inv_cited_sub = resp_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
-
-    decl_reg_inv = RegistrationInvitation.objects.filter(
-        responded=True, declined=True).order_by('last_name')
-
-    names_reg_contributors = (Contributor.objects.filter(status=1).order_by('user__last_name')
-                              .values_list('user__first_name', 'user__last_name'))
     existing_drafts = DraftInvitation.objects.filter(processed=False).order_by('last_name')
 
     context = {
-        'draft_inv_form': draft_inv_form,
-        'sent_reg_inv_fellows': sent_reg_inv_fellows,
-        'sent_reg_inv_contrib': sent_reg_inv_contrib,
-        'sent_reg_inv_ref': sent_reg_inv_ref,
-        'sent_reg_inv_cited_sub': sent_reg_inv_cited_sub,
-        'sent_reg_inv_cited_pub': sent_reg_inv_cited_pub,
-        'resp_reg_inv_fellows': resp_reg_inv_fellows,
-        'resp_reg_inv_contrib': resp_reg_inv_contrib,
-        'resp_reg_inv_ref': resp_reg_inv_ref,
-        'resp_reg_inv_cited_sub': resp_reg_inv_cited_sub,
-        'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
-        'decl_reg_inv': decl_reg_inv,
-        'names_reg_contributors': names_reg_contributors,
+        'form': form,
         'existing_drafts': existing_drafts,
     }
     return render(request, 'scipost/draft_registration_invitation.html', context)
 
 
+@permission_required('scipost.can_draft_registration_invitations', return_403=True)
+def contributors_filter(request):
+    """
+    For Invitation Officers that use lists of scientists as a to-do. This
+    view returns all entries of those lists with users that are certainly not registered
+    or invitated.
+    """
+    names_found = names_not_found = None
+    form = ContributorsFilterForm(request.POST or None)
+    if form.is_valid():
+        names_found, names_not_found = form.filter()
+        # messages.success(request, 'Draft invitation saved.')
+        # return redirect(reverse('scipost:draft_registration_invitation'))
+
+    context = {
+        'form': form,
+        'names_found': names_found,
+        'names_not_found': names_not_found,
+    }
+    return render(request, 'scipost/contributors_filter.html', context)
+
+
 @login_required
 def edit_draft_reg_inv(request, draft_id):
+    """
+    Edit DraftInvitation instance. It's only possible to edit istances created by the User itself.
+    """
     draft = get_object_or_404((get_objects_for_user(request.user, 'scipost.change_draftinvitation')
                                .filter(processed=False)),
                               id=draft_id)
