@@ -36,7 +36,8 @@ from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriod
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\
                    UpdatePersonalDataForm, UpdateUserDataForm, PasswordChangeForm,\
-                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm
+                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm,\
+                   ContributorsFilterForm
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from affiliations.forms import AffiliationsFormset
@@ -378,8 +379,33 @@ def draft_registration_invitation(request):
     return render(request, 'scipost/draft_registration_invitation.html', context)
 
 
+@permission_required('scipost.can_draft_registration_invitations', return_403=True)
+def contributors_filter(request):
+    """
+    For Invitation Officers that use lists of scientists as a to-do. This
+    view returns all entries of those lists with users that are certainly not registered
+    or invitated.
+    """
+    names_found = names_not_found = None
+    form = ContributorsFilterForm(request.POST or None)
+    if form.is_valid():
+        names_found, names_not_found = form.filter()
+        # messages.success(request, 'Draft invitation saved.')
+        # return redirect(reverse('scipost:draft_registration_invitation'))
+
+    context = {
+        'form': form,
+        'names_found': names_found,
+        'names_not_found': names_not_found,
+    }
+    return render(request, 'scipost/contributors_filter.html', context)
+
+
 @login_required
 def edit_draft_reg_inv(request, draft_id):
+    """
+    Edit DraftInvitation instance. It's only possible to edit istances created by the User itself.
+    """
     draft = get_object_or_404((get_objects_for_user(request.user, 'scipost.change_draftinvitation')
                                .filter(processed=False)),
                               id=draft_id)

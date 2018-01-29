@@ -6,7 +6,7 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <span class="breadcrumb-item">Pool</span>
+    <span class="breadcrumb-item">Draft registration invitation</span>
 {% endblock %}
 
 {% block content %}
@@ -35,6 +35,7 @@ $(document).ready(function(){
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Draft a registration invitation</h1>
+        <p>If you have a list of names you want to check with the current database of users, <a href="{% url 'scipost:contributors_filter' %}">please click here</a>.</p>
     </div>
 </div>
 
