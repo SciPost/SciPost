@@ -358,9 +358,9 @@ def draft_registration_invitation(request):
     This is similar to the registration_invitations method,
     which is used to complete the invitation process.
     """
-    draft_inv_form = DraftInvitationForm(request.POST or None, current_user=request.user)
-    if draft_inv_form.is_valid():
-        invitation = draft_inv_form.save(commit=False)
+    form = DraftInvitationForm(request.POST or None, current_user=request.user)
+    if form.is_valid():
+        invitation = form.save(commit=False)
         invitation.drafted_by = request.user.contributor
         invitation.save()
 
@@ -369,41 +369,10 @@ def draft_registration_invitation(request):
         messages.success(request, 'Draft invitation saved.')
         return redirect(reverse('scipost:draft_registration_invitation'))
 
-    sent_reg_inv = RegistrationInvitation.objects.filter(responded=False, declined=False)
-    sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
-    sent_reg_inv_contrib = sent_reg_inv.filter(invitation_type='C').order_by('last_name')
-    sent_reg_inv_ref = sent_reg_inv.filter(invitation_type='R').order_by('last_name')
-    sent_reg_inv_cited_sub = sent_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    sent_reg_inv_cited_pub = sent_reg_inv.filter(invitation_type='cp').order_by('last_name')
-
-    resp_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=False)
-    resp_reg_inv_fellows = resp_reg_inv.filter(invitation_type='F').order_by('last_name')
-    resp_reg_inv_contrib = resp_reg_inv.filter(invitation_type='C').order_by('last_name')
-    resp_reg_inv_ref = resp_reg_inv.filter(invitation_type='R').order_by('last_name')
-    resp_reg_inv_cited_sub = resp_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
-
-    decl_reg_inv = RegistrationInvitation.objects.filter(
-        responded=True, declined=True).order_by('last_name')
-
-    names_reg_contributors = (Contributor.objects.filter(status=1).order_by('user__last_name')
-                              .values_list('user__first_name', 'user__last_name'))
     existing_drafts = DraftInvitation.objects.filter(processed=False).order_by('last_name')
 
     context = {
-        'draft_inv_form': draft_inv_form,
-        'sent_reg_inv_fellows': sent_reg_inv_fellows,
-        'sent_reg_inv_contrib': sent_reg_inv_contrib,
-        'sent_reg_inv_ref': sent_reg_inv_ref,
-        'sent_reg_inv_cited_sub': sent_reg_inv_cited_sub,
-        'sent_reg_inv_cited_pub': sent_reg_inv_cited_pub,
-        'resp_reg_inv_fellows': resp_reg_inv_fellows,
-        'resp_reg_inv_contrib': resp_reg_inv_contrib,
-        'resp_reg_inv_ref': resp_reg_inv_ref,
-        'resp_reg_inv_cited_sub': resp_reg_inv_cited_sub,
-        'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
-        'decl_reg_inv': decl_reg_inv,
-        'names_reg_contributors': names_reg_contributors,
+        'form': form,
         'existing_drafts': existing_drafts,
     }
     return render(request, 'scipost/draft_registration_invitation.html', context)

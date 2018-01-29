@@ -47,8 +47,8 @@ $(document).ready(function(){
 
         <form action="{% url 'scipost:draft_registration_invitation' %}" method="post">
               {% csrf_token %}
-              {{draft_inv_form.media}}
-              {{draft_inv_form|bootstrap}}
+              {{ form.media }}
+              {{ form|bootstrap }}
               <input type="submit" class="btn btn-primary" value="Submit"/>
         </form>
     </div>
@@ -94,7 +94,5 @@ $(document).ready(function(){
         </table>
     </div>
 </div>
-
-{% include 'scipost/_draft_registration_tables.html' %}
 
 {% endblock %}
