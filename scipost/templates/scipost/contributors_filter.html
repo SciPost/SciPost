@@ -6,12 +6,8 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-<<<<<<< HEAD
-    <span class="breadcrumb-item">Pool</span>
-=======
     <a href="{% url 'scipost:draft_registration_invitation' %}" class="breadcrumb-item">Draft registration invitation</a>
     <span class="breadcrumb-item">Contributors filter</span>
->>>>>>> development
 {% endblock %}
 
 {% block content %}
@@ -19,16 +15,10 @@
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Contributors filter</h1>
-<<<<<<< HEAD
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-12">
-=======
         <p>This form can be used to split your list of names into a list of names with registered or already invited Contributors and a list of unknown names according to the current database.</p>
         <p>Please, for every name use the format <code>{last name}</code> or  <code>{last name}, {first name}</code> and use one name per line.</p>
->>>>>>> development
+
         <form method="post">
               {% csrf_token %}
               {{ form|bootstrap }}
@@ -38,13 +28,7 @@
 </div>
 
 {% if form.is_bound %}
-<<<<<<< HEAD
-    {% if names_not_found %}
-        <pre><code>{% for contributor in names_not_found %}{{ contributor }}{% endfor %}</code></pre>
-    {% endif %}
-    {% if names_found %}
-        <pre><code>{% for contributor in names_found %}{{ contributor }}{% endfor %}</code></pre>
-=======
+
     <hr class="divider">
     <h2>Filter result</h2>
     {% if names_not_found %}
@@ -55,7 +39,7 @@
     {% if names_found %}
         <h3>Names found in the system</h3>
         <pre><code>{% for name in names_found %}{{ name }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</code></pre>
->>>>>>> development
+
     {% endif %}
 {% endif %}
 
