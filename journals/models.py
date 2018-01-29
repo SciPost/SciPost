@@ -335,8 +335,8 @@ class Reference(models.Model):
     title = models.CharField(max_length=512)
     citation = models.CharField(max_length=512, blank=True)
 
-    vor = models.CharField(max_length=128)
-    vor_url = models.URLField()
+    vor = models.CharField(blank=True, max_length=128)
+    vor_url = models.URLField(blank=True)
 
     class Meta:
         unique_together = ('reference_number', 'publication')
