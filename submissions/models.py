@@ -193,6 +193,15 @@ class Submission(models.Model):
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).first().submission_date
 
     @cached_property
+    def thread(self):
+        """
+        Return all versions of the Submission with that arxiv id.
+        """
+        return Submission.objects.public().filter(
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
+        ).order_by('-arxiv_vn_nr')
+
+    @cached_property
     def other_versions(self):
         """
         Return all other versions of the Submission that are publicly accessible.

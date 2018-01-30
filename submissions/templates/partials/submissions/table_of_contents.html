@@ -1,0 +1,31 @@
+<div class="card border-secondary">
+    <div class="card-body">
+        <h3>Table of Contents</h3>
+        {# <p class="card-text">{{ submission.title }}</p> #}
+    </div>
+    <ul class="toc list-group list-group-flush">
+        {% for sibling in submission.thread %}
+            <li class="list-group-item"><div class="card-body pb-1">
+                <a class="pubtitleli" href="{{ sibling.get_absolute_url }}">Version {{ sibling.arxiv_vn_nr }}</a>
+                <span class="version-suffix">
+                    {% if sibling.is_current %}
+                        (current version)
+                    {% else %}
+                        (deprecated version)
+                    {% endif %}
+                </span>
+                <p class="mx-1 mt-1 mb-0">Submitted on {{ sibling.submission_date }}</p>
+                <ul class="">
+                    {% for report in sibling.reports.accepted %}
+                        <li class="py-1">
+                            <a href="{{ report.get_absolute_url }}" class="pubtitleli">Report {{ report.report_nr }}</a>
+                            <div class="mt-1 ml-1">Submitted on {{ report.date_submitted }} by {% if not report.anonymous %}{{ report.author.get_title_display }} {{ report.author.user.last_name }}{% else %}<em>Anonymous</em>{% endif %}</div>
+                        </li>
+                    {% empty %}
+                        <li><em>No Reports have been submitted yet.</em></li>
+                    {% endfor %}
+                </ul>
+            </div></li>
+        {% endfor %}
+    </ul>
+</div>
