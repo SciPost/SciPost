@@ -1,12 +1,11 @@
-<div class="card border-secondary">
+{% load request_filters %}
+
+<div class="card">
     <div class="card-body">
-        <h3>Table of Contents</h3>
-        {# <p class="card-text">{{ submission.title }}</p> #}
-    </div>
-    <ul class="toc list-group list-group-flush">
+        <h3 class="card-title">Table of Contents</h3>
         {% for sibling in submission.thread %}
-            <li class="list-group-item"><div class="card-body pb-1">
-                <a class="pubtitleli" href="{{ sibling.get_absolute_url }}">Version {{ sibling.arxiv_vn_nr }}</a>
+            <div class="mt-1">
+                <b><a href="{{ sibling.get_absolute_url }}" class="pubtitleli">Version {{ sibling.arxiv_vn_nr }}</a></b>
                 <span class="version-suffix">
                     {% if sibling.is_current %}
                         (current version)
@@ -14,18 +13,18 @@
                         (deprecated version)
                     {% endif %}
                 </span>
-                <p class="mx-1 mt-1 mb-0">Submitted on {{ sibling.submission_date }}</p>
-                <ul class="">
+            </div>
+            <div class="p-1">
+                Submitted on {{ sibling.submission_date|date:'j F Y' }}
+                <br>
+
+                <ul class="m-0">
                     {% for report in sibling.reports.accepted %}
-                        <li class="py-1">
-                            <a href="{{ report.get_absolute_url }}" class="pubtitleli">Report {{ report.report_nr }}</a>
-                            <div class="mt-1 ml-1">Submitted on {{ report.date_submitted }} by {% if not report.anonymous %}{{ report.author.get_title_display }} {{ report.author.user.last_name }}{% else %}<em>Anonymous</em>{% endif %}</div>
-                        </li>
-                    {% empty %}
-                        <li><em>No Reports have been submitted yet.</em></li>
+
+                        <li><a href="{{ report.get_absolute_url }}">Report {{ report.report_nr }} submitted on {{ report.date_submitted }} by {% if report.anonymous %}<em>Anonymous</em>{% else %}{{ report.author.get_title_display }} {{ report.author.user.last_name }}{% endif %}</a></li>
                     {% endfor %}
                 </ul>
-            </div></li>
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 </div>
