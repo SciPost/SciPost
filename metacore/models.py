@@ -6,6 +6,7 @@ from .managers import CitableQuerySet
 
 
 # Make the connection to MongoDB - this could be put in settings.py as well
+# It uses default settings for the mongo server
 connect('scipost')
 
 class Citable(DynamicDocument):
@@ -14,13 +15,17 @@ class Citable(DynamicDocument):
     (with DOI) or preprint of an published/unpublished document.
     """
 
+    # Fields that are extracted from the source metadata in order to normalize
+    # some of the data for searching / metrics
     references = ListField(StringField())
-    metadata = DynamicField()
     authors = ListField(StringField())
     title = StringField()
     publisher = StringField()
     license = URLField()
     publication_date = DateTimeField()
+
+    # Dump all the raw source metadata here
+    metadata = DynamicField()
 
     # Settings for mongoengine
     meta = {
@@ -34,6 +39,9 @@ class Citable(DynamicDocument):
 
     def author_list(self):
         return '; '.join(self.authors)
+
+    def crossref_ref_count(self):
+        return self.metadata['reference-count']
 
 
 class CitableWithDOI(Citable):
