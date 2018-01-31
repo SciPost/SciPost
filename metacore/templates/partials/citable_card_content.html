@@ -1,0 +1,15 @@
+<div class="submission_title">
+    <!-- <h5 class="pb-0 subject_area">{{ submission.get_subject_area_display }}</h5> -->
+    <h3 class="card-title mb-0 submisssion_title">
+        {{ citable.title }}
+    </h3>
+    <p class="mb-3 author_list">by {{ citable.author_list }}</p>
+</div>
+
+{% block card_footer %}
+    <p class="text-muted mb-0">
+      Cited {{ citable.times_cited }} times
+      <br>
+      Published {{ citable.publication_date|date:"d-m-Y" }} by {{ citable.publisher }}
+    </p>
+{% endblock %}

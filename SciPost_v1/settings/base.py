@@ -105,6 +105,7 @@ INSTALLED_APPS = (
     'stats',
     'petitions',
     'webpack_loader',
+    'metacore'
 )
 
 

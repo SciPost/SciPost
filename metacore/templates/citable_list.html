@@ -1,0 +1,72 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+{% load request_filters %}
+
+{% block pagetitle %}: Metacore{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card card-grey">
+            <div class="card-body min-height-190">
+              <h1 class="card-title">SciPost Metacore</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-grey">
+            <div class="card-body min-height-190">
+              <h2 class="card-title">Search Citables:</h2>
+              <form action="{% url 'metacore:citable-list' %}" class="small" method="get">
+                <!-- {{ form|bootstrap:'4,8,sm' }} -->
+                {{ form }}
+                <input class="btn btn-sm btn-secondary" type="submit" value="Search"/>
+                <a href="{% url 'metacore:citable-list' %}" class="btn btn-sm btn-secondary">Clear</a>
+              </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-grey">
+            <div class="card-body min-height-190">
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+<div class="row">
+    <div class="col-12">
+        {% if browse %}
+          <h2>Citables </h2>
+        {% else %}
+          <h2>Search results:</h3>
+        {% endif %}
+    </div>
+    {% if is_paginated %}
+        <div class="col-12">
+            {% include 'partials/pagination.html' with page_obj=page_obj %}
+        </div>
+    {% endif %}
+    <div class="col-12">
+        <ul class="list-group list-group-flush">
+            {% for citable in object_list %}
+                <li class="list-group-item">
+                    <div class="card-body px-0">
+                        {% include 'partials/citable_card_content.html' with citable=citable %}
+                    </div>
+                </li>
+            {% empty %}
+                <h3><em>No match found for your search query.</em></h3>
+            {% endfor %}
+        </ul>
+    </div>
+    {% if is_paginated %}
+        <div class="col-12">
+            {% include 'partials/pagination.html' with page_obj=page_obj %}
+        </div>
+    {% endif %}
+</div>
+
+{% endblock content %}
