@@ -3,16 +3,22 @@ from .models import Citable, CitableWithDOI
 
 def get_crossref_test():
     """
-    For testing purposes - retrieves a small dataset from CrossRef and saves it
+    For testing purposes - retrieves a "small" dataset from CrossRef and saves it
     in de database, after parsing
     """
-    # url = 'https://api.crossref.org/works'
+
+    # Member 16 is APS
     url = 'https://api.crossref.org/members/16/works'
     cursor = '*'
-    cursor = 'AoJ79tDrpd8CPwtodHRwOi8vZHguZG9pLm9yZy8xMC4xMTAzL3BoeXNyZXZiLjQyLjgxMjU='
-    rows = 1000
 
-    for i in range(1,100):
+    # Last cursor I used (after 100.000 records from APS)
+    cursor = 'AoJ79tDrpd8CPwtodHRwOi8vZHguZG9pLm9yZy8xMC4xMTAzL3BoeXNyZXZiLjQyLjgxMjU='
+
+    # If the loop is allowed to complete, it fetches (rows * batches) records
+    rows = 1000
+    batches = 100
+
+    for i in range(0,batches):
         print("Batch %s" % (i, ))
         print("-------------------------------")
         print(cursor)
@@ -24,7 +30,6 @@ def get_crossref_test():
         citables_json = r_json['message']['items']
         cursor = r_json['message']['next-cursor']
         number_of_results = len(r_json['message']['items'])
-        print(number_of_results)
 
         citables = [parse_crossref_citable(it) for it in citables_json]
         citables = [citable for citable in citables if citable is not None]
