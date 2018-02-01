@@ -30,7 +30,7 @@ class Citable(DynamicDocument):
     # Settings for mongoengine
     meta = {
             'queryset_class': CitableQuerySet, # use the custom queryset
-            'indexes': ['doi'], # define indices on database
+            'indexes': ['doi', 'authors', 'title', 'publication_date', 'publisher'], # define indices on database
             'allow_inheritance': True
             }
 

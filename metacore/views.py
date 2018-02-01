@@ -18,7 +18,8 @@ class CitableListView(ListView):
         if self.form.is_valid() and self.form.has_changed():
             queryset = self.form.search_results()
         else:
-            queryset = Citable.objects.limit(100)
+            # queryset = Citable.objects.simple().limit(100)
+            queryset = Citable.objects.simple().order_by('-metadata.is-referenced-by-count').limit(100)
 
         return queryset
 

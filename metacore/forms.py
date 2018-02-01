@@ -10,7 +10,7 @@ class CitableSearchForm(forms.Form):
 
     def search_results(self):
         """Return all Citable objects according to search"""
-        return Citable.objects.filter(
+        return Citable.objects.simple().filter(
             title__icontains=self.cleaned_data.get('title', ''),
             authors__icontains=self.cleaned_data.get('author', ''),
             publisher__icontains=self.cleaned_data.get('publisher', ''),
