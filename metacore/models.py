@@ -41,7 +41,7 @@ class Citable(DynamicDocument):
         return '; '.join(self.authors)
 
     def crossref_ref_count(self):
-        return self.metadata['reference-count']
+        return self.metadata['is-referenced-by-count']
 
 
 class CitableWithDOI(Citable):

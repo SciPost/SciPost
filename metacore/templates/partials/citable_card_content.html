@@ -8,7 +8,7 @@
 
 {% block card_footer %}
     <p class="text-muted mb-0">
-      Cited {{ citable.times_cited }} times (Crossref: {{ citable.crossref_ref_count }}) | DOI {{ citable.doi }} | 
+    Cited {{ citable.crossref_ref_count }} times | DOI <a href='https://doi.org/{{ citable.doi }}'> {{ citable.doi }} </a>
       <br>
       Published {{ citable.publication_date|date:"d-m-Y" }} by {{ citable.publisher }}
     </p>
