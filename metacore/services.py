@@ -7,12 +7,16 @@ def get_crossref_test():
     in de database, after parsing
     """
 
-    # Member 16 is APS
-    url = 'https://api.crossref.org/members/16/works'
     cursor = '*'
 
-    # Last cursor I used (after 100.000 records from APS)
-    cursor = 'AoJ79tDrpd8CPwtodHRwOi8vZHguZG9pLm9yZy8xMC4xMTAzL3BoeXNyZXZiLjQyLjgxMjU='
+    # Member 16 is APS
+    # url = 'https://api.crossref.org/members/16/works'
+    # Last cursor I used (after 100.000 records from APS) for this
+    # cursor = 'AoJ79tDrpd8CPwtodHRwOi8vZHguZG9pLm9yZy8xMC4xMTAzL3BoeXNyZXZiLjQyLjgxMjU='
+
+    # This is PRL
+    url = 'https://api.crossref.org/journals/0031-9007/works'
+    cursor = 'AoJ4wfD37eACPxBodHRwOi8vZHguZG9pLm9yZy8xMC4xMTAzL3BoeXNyZXZsZXR0LjkwLjAzNTUwNA=='
 
     # If the loop is allowed to complete, it fetches (rows * batches) records
     rows = 1000
@@ -22,7 +26,7 @@ def get_crossref_test():
         print("Batch %s" % (i, ))
         print("-------------------------------")
         print(cursor)
-        # params = {'query.publisher-name': 'American Physical Society', 'cursor': cursor, 'rows': rows}
+
         params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl'}
         r = requests.get(url, params=params)
         r_json = r.json()
@@ -40,15 +44,30 @@ def get_crossref_test():
             Citable.objects.insert(citables)
 
         if number_of_results < rows:
+            print(number_of_results)
             print('End reached.')
             break
+
+def convert_doi_to_lower_case():
+    # If you accidentally import 100.000+ records that have random uppercase characters
+    # in their reference DOI list
+    i = 0
+    cits = Citable.objects(__raw__={'references': {'$regex': '([A-Z])\w+'}})
+    for cit in cits.only('references'):
+        i = i + 1
+        refs = [ref.lower() for ref in cit.references]
+        cit.modify(references=refs)
+
+        if i % 1000 == 0:
+            print(i)
+
 
 def parse_crossref_citable(citable_item):
     if not citable_item['type'] == 'journal-article':
         return
     
     if 'DOI' in citable_item:
-        doi = citable_item['DOI']
+        doi = citable_item['DOI'].lower()
     else:
         return 
 
@@ -59,7 +78,7 @@ def parse_crossref_citable(citable_item):
 
             if 'reference' in citable_item:
                 references_with_doi = [ref for ref in citable_item['reference'] if 'DOI' in ref]
-                references = [ref['DOI'] for ref in references_with_doi]
+                references = [ref['DOI'].lower() for ref in references_with_doi]
             else:
                 references = []
 

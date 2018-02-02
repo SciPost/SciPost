@@ -30,7 +30,7 @@ class Citable(DynamicDocument):
     # Settings for mongoengine
     meta = {
             'queryset_class': CitableQuerySet, # use the custom queryset
-            'indexes': ['doi', 'authors', 'title', 'publication_date', 'publisher'], # define indices on database
+            'indexes': ['doi', 'authors', 'title', 'publication_date', 'publisher', 'references'], # define indices on database
             'allow_inheritance': True
             }
 
@@ -52,5 +52,5 @@ class CitableWithDOI(Citable):
     doi = StringField(require=True, unique=True)
 
     def times_cited(self):
-        return CitableWithDOI.objects.cited_by([self.doi]).count()
+        return CitableWithDOI.objects.cited_by(self.doi).count()
 
