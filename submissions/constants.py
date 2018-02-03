@@ -253,6 +253,6 @@ SUBMISSIONS_COMPLETE_REGEX = '(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[
 #
 # CAUTION: *triple* check whether the `default` regex also meets any other explicit journal regex!
 EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS = {
-    SCIPOST_JOURNAL_PHYSICS: '(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{5,}v[0-9]{1,2})',
+    SCIPOST_JOURNAL_PHYSICS: '(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[0-9]{1,2})',
     'default': SUBMISSIONS_COMPLETE_REGEX
 }
