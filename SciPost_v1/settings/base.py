@@ -225,7 +225,7 @@ TIME_ZONE = 'CET'
 USE_I18N = True
 
 USE_L10N = False
-DATE_FORMAT = 'Y-m-d'
+SHORT_DATE_FORMAT = DATE_FORMAT = 'Y-m-d'
 DATETIME_FORMAT = 'Y-m-d H:i'
 
 USE_TZ = True
