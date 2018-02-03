@@ -4,27 +4,17 @@
     <div class="card-body">
         <h3 class="card-title">Table of Contents</h3>
         {% for sibling in submission.thread %}
-            <div class="mt-1">
-                <b><a href="{{ sibling.get_absolute_url }}" class="pubtitleli">Version {{ sibling.arxiv_vn_nr }}</a></b>
-                <span class="version-suffix">
-                    {% if sibling.is_current %}
-                        (current version)
-                    {% else %}
-                        (deprecated version)
-                    {% endif %}
-                </span>
+            <div class="my-2">
+                {% if forloop.last %}Submission{% else %}Resubmission{% endif %} <a href="{{ sibling.get_absolute_url }}" class="pubtitleli">{{ sibling.arxiv_identifier_w_vn_nr }}</a> <em>submitted on {{ sibling.submission_date|date:'j F Y' }}</em>
             </div>
-            <div class="p-1">
-                Submitted on {{ sibling.submission_date|date:'j F Y' }}
-                <br>
+            <ul class="m-0 pl-4">
+                {% for report in sibling.reports.accepted %}
+                    <li><a href="{{ report.get_absolute_url }}">Report {{ report.report_nr }} submitted on {{ report.date_submitted }} by {% if report.anonymous %}<em>Anonymous</em>{% else %}{{ report.author.get_title_display }} {{ report.author.user.last_name }}{% endif %}</a></li>
+                    {% include 'partials/comments/comments_list.html' with comments=report.comments.vetted css_class='my-1 pl-4' %}
+                {% endfor %}
+            </ul>
 
-                <ul class="m-0">
-                    {% for report in sibling.reports.accepted %}
-
-                        <li><a href="{{ report.get_absolute_url }}">Report {{ report.report_nr }} submitted on {{ report.date_submitted }} by {% if report.anonymous %}<em>Anonymous</em>{% else %}{{ report.author.get_title_display }} {{ report.author.user.last_name }}{% endif %}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
+            {% include 'partials/comments/comments_list.html' with comments=sibling.comments.vetted css_class='my-1 pl-4' %}
         {% endfor %}
     </div>
 </div>
