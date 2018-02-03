@@ -20,7 +20,7 @@
 {% block content %}
 
 <div class="row">
-    <div class="col">
+    <div class="col-md-8">
         <h2>SciPost Submission Page</h2>
         <h1 class="text-primary">{{submission.title}}</h1>
         <h3 class="mb-3">by {{submission.author_list}}</h3>
@@ -36,28 +36,34 @@
             {% endif %}
 
             {% if unfinished_report_for_user %}
-                <h3 class="mt-0">- <span class="circle text-danger border-danger">!</span> You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here.</a></h3>
+                <h3>- <span class="circle text-danger border-danger">!</span> You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here.</a></h3>
             {% endif %}
 
-            {% if submission.other_versions or not submission.is_current %}
-                <ul class="mt-3 mb-1 list-unstyled pl-4">
-                    {% if not submission.is_current %}
-                        <li><h3 class="text-danger">This is not the current version.</h3></li>
-                    {% endif %}
-
-                    {% if submission.other_versions %}
-                        <li>Other versions of this Submission (with Reports) exist:</li>
-                        <ul class="list-unstyled">
-                            {% for vn in submission.other_versions %}
-                                <li>{% include 'submissions/_submission_version.html' with submission=vn %}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </ul>
+            {% if not submission.is_current %}
+                <h3><span class="text-danger">- This is not the current version.</span></h3>
             {% endif %}
+
+            {% comment %}
+                {% if submission.other_versions or not submission.is_current %}
+                    <ul class="mt-3 mb-1 list-unstyled pl-4">
+                        {% if not submission.is_current %}
+                            <li><h3 class="text-danger">This is not the current version.</h3></li>
+                        {% endif %}
+
+                        {% if submission.other_versions %}
+                            <li>Other versions of this Submission (with Reports) exist:</li>
+                            <ul class="list-unstyled">
+                                {% for vn in submission.other_versions %}
+                                    <li>{% include 'submissions/_submission_version.html' with submission=vn %}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            {% endcomment %}
         </div>
 
-        <h3>Submission summary</h3>
+        <h3 class="mt-2">Submission summary</h3>
         {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 %}
 
         {% include 'submissions/_submission_status_block.html' with submission=submission %}
@@ -77,13 +83,14 @@
         {% endif %}
     </div>
 
-    {% if invitations %}
-        <div class="col-md-4">
-            {% for invitation in invitations %}
-                {% include 'partials/submissions/refereeing_status_card.html' with invitation=invitation %}
-            {% endfor %}
-        </div>
-    {% endif %}
+    <div class="col-md-4">
+        {% for invitation in invitations %}
+            {% include 'partials/submissions/refereeing_status_card.html' with invitation=invitation %}
+        {% endfor %}
+
+        {% include 'partials/submissions/submission_refereeing_history.html' with submission=submission %}
+    </div>
+
 </div>
 
 {% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}

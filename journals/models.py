@@ -331,12 +331,10 @@ class Reference(models.Model):
     reference_number = models.IntegerField()
     publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE)
 
-    authors = models.CharField(max_length=512)
-    title = models.CharField(max_length=512)
-    citation = models.CharField(max_length=512, blank=True)
-
-    vor = models.CharField(blank=True, max_length=128)
-    vor_url = models.URLField(blank=True)
+    authors = models.CharField(max_length=1028)
+    citation = models.CharField(max_length=1028, blank=True)
+    identifier = models.CharField(blank=True, max_length=128)
+    link = models.URLField(blank=True)
 
     class Meta:
         unique_together = ('reference_number', 'publication')
@@ -344,7 +342,7 @@ class Reference(models.Model):
         default_related_name = 'references'
 
     def __str__(self):
-        return '[{}] {}'.format(self.reference_number, self.publication.doi_label)
+        return '[{}] {}, {}'.format(self.reference_number, self.authors[:30], self.citation[:30])
 
 
 class Deposit(models.Model):
