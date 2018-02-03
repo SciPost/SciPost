@@ -5,7 +5,7 @@
         <h3 class="card-title">Table of Contents</h3>
         {% for sibling in submission.thread %}
             <div class="my-2">
-                {% if forloop.last %}Submission{% else %}Resubmission{% endif %} <a href="{{ sibling.get_absolute_url }}" class="pubtitleli">{{ sibling.arxiv_identifier_w_vn_nr }}</a> <em>submitted on {{ sibling.submission_date|date:'j F Y' }}</em>
+                {% if forloop.last %}Submission{% else %}Resubmission{% endif %} <a href="{{ sibling.get_absolute_url }}" class="pubtitleli">{{ sibling.arxiv_identifier_w_vn_nr }}</a> ({{ sibling.submission_date|date:'j F Y' }})
             </div>
             <ul class="m-0 pl-4">
                 {% for report in sibling.reports.accepted %}
