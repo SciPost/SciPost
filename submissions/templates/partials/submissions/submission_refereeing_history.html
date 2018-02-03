@@ -2,7 +2,7 @@
 
 <div class="card">
     <div class="card-body">
-        <h3 class="card-title">Table of Contents</h3>
+        <h3 class="card-title">Submission & Refereeing History</h3>
         {% for sibling in submission.thread %}
             <div class="my-2">
                 {% if forloop.last %}Submission{% else %}Resubmission{% endif %} <a href="{{ sibling.get_absolute_url }}" class="pubtitleli">{{ sibling.arxiv_identifier_w_vn_nr }}</a> ({{ sibling.submission_date|date:'j F Y' }})
