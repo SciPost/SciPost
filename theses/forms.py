@@ -1,7 +1,6 @@
 from django import forms
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-from django.urls import reverse
 
 from scipost.models import Contributor
 
@@ -66,7 +65,7 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
         mail_params = {
             'vocative_title': thesislink.requested_by.get_title_display(),
             'thesislink': thesislink,
-            'full_url': thesislink.get_absolute_url()
+            'full_url': 'https//www.scipost.org{url}'.format(url=thesislink.get_absolute_url())
         }
         action = int(self.cleaned_data['action_option'])
 
