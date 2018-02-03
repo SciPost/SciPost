@@ -113,16 +113,15 @@ class BaseReferenceFormSet(BaseModelFormSet):
                     except KeyError:
                         author_list.append(author['name'])
 
-                if len(author_list) > 3:
-                    authors = author_list[0] + ' et al.'
-                elif len(author_list) == 3:
-                    authors = '{}, {} and {}'.format(
-                        author_list[0], author_list[1], author_list[2])
+                if len(author_list) > 2:
+                    authors = ', '.join(author_list[:-1])
+                    authors += ' and ' + author_list[-1]
                 else:
                     authors = ' and '.join(author_list)
 
                 # Citation
-                citation = '{} <b>{}</b>, {} ({})'.format(
+                citation = '<em>{}</em> {} <b>{}</b>, {} ({})'.format(
+                    caller.data['title'],
                     caller.data['journal'],
                     caller.data['volume'],
                     caller.data['pages'],
@@ -131,16 +130,15 @@ class BaseReferenceFormSet(BaseModelFormSet):
                 self.initial_references.append({
                     'reference_number': cite['key'][3:],
                     'authors': authors,
-                    'title': caller.data['title'],
                     'citation': citation,
-                    'vor': cite['doi'],
-                    'vor_url': 'https://doi.org/{}'.format(cite['doi']),
+                    'identifier': cite['doi'],
+                    'link': 'https://doi.org/{}'.format(cite['doi']),
                 })
             else:
                 self.initial_references.append({
                     'reference_number': cite['key'][3:],
-                    'vor': cite['doi'],
-                    'vor_url': 'https://doi.org/{}'.format(cite['doi']),
+                    'identifier': cite['doi'],
+                    'link': 'https://doi.org/{}'.format(cite['doi']),
                 })
 
         # Add prefill information to the form
@@ -157,10 +155,9 @@ class ReferenceForm(forms.ModelForm):
         fields = [
             'reference_number',
             'authors',
-            'title',
             'citation',
-            'vor',
-            'vor_url',
+            'identifier',
+            'link',
         ]
 
     def __init__(self, *args, **kwargs):
