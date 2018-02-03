@@ -342,7 +342,7 @@ class Reference(models.Model):
         default_related_name = 'references'
 
     def __str__(self):
-        return '[{}] {}'.format(self.reference_number, self.publication.doi_label)
+        return '[{}] {}, {}'.format(self.reference_number, self.authors[:30], self.citation[:30])
 
 
 class Deposit(models.Model):
