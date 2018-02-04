@@ -1,0 +1,22 @@
+<p>Dear {{ report.author.get_title_display }} {{ report.author.user.last_name }},</p>
+
+<p>
+  Your Report on Submission:
+</p>
+<p>
+  {{ report.submission.title }}
+  <br/>
+  by {{ report.submission.author_list }}
+</p>
+<p>
+  has been ascribed DOI {{ report.doi_label }}, and is thus now citable in the form:
+</p>
+<p>
+  {{ report.citation }}.
+</p>
+<p>
+  We thank you again very much for your contribution.<br/>
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}

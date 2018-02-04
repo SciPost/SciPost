@@ -1263,6 +1263,30 @@ def mark_generic_deposit_success(request, deposit_id, success):
         return redirect(reverse('journals:manage_comment_metadata'))
 
 
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def email_object_made_citable(request, **kwargs):
+    """
+    This method sends an email to the author of a Report or a Comment,
+    to notify that the object has been made citable (doi registered).
+    """
+    type_of_object = kwargs['type_of_object']
+    object_id = int(kwargs['object_id'])
+
+    if type_of_object == 'report':
+        _object = get_object_or_404(Report, id=object_id)
+    elif type_of_object == 'comment':
+        _object = get_object_or_404(Comment, id=object_id)
+
+    if type_of_object == 'report':
+        JournalUtils.load({'report': _object, })
+        JournalUtils.email_report_made_citable()
+        return redirect(reverse('journals:manage_report_metadata'))
+    else:
+        JournalUtils.load({'comment': _object, })
+        JournalUtils.email_comment_made_citable()
+        return redirect(reverse('journals:manage_comment_metadata'))
+
+
 ###########
 # Viewing #
 ###########

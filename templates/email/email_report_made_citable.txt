@@ -1,0 +1,8 @@
+Dear {{ report.author.get_title_display }} {{ report.author.user.last_name }},\n\n
+Your Report on Submission:\n\n
+{{ report.submission.title }}\n
+by {{ report.submission.author_list }}\n\n
+has been ascribed DOI {{ report.doi_label }}, and is thus now citable in the form:\n\n
+{{ report.citation }}.\n\n
+We thank you again very much for your contribution.\n
+The SciPost Team

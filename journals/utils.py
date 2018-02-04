@@ -1,12 +1,11 @@
 from django.core.mail import EmailMessage
 
+from scipost.utils import EMAIL_FOOTER
+from common.utils import BaseMailUtil
 
-class JournalUtils(object):
 
-    @classmethod
-    def load(cls, dict):
-        for var_name in dict:
-            setattr(cls, var_name, dict[var_name])
+class JournalUtils(BaseMailUtil):
+
 
     @classmethod
     def send_authors_paper_published_email(cls):
@@ -88,3 +87,18 @@ class JournalUtils(object):
             }
         }
         return md
+
+
+    @classmethod
+    def email_report_made_citable(cls):
+        """ Requires loading 'report' attribute. """
+        cls._send_mail(cls, 'email_report_made_citable',
+                       [cls._context['report'].author.user.email],
+                       'Report made citable')
+
+    @classmethod
+    def email_comment_made_citable(cls):
+        """ Requires loading 'comment' attribute. """
+        cls._send_mail(cls, 'email_comment_made_citable',
+                       [cls._context['comment'].author.user.email],
+                       'Comment made citable')
