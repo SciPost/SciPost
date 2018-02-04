@@ -280,8 +280,8 @@ def validate_publication(request):
         submission.save()
 
         # Update ProductionStream
-        stream = submission.production_stream
-        if stream:
+        if hasattr(submission, 'production_stream'):
+            stream = submission.production_stream
             stream.status = PROOFS_PUBLISHED
             stream.save()
             if request.user.production_user:
@@ -1274,17 +1274,25 @@ def email_object_made_citable(request, **kwargs):
 
     if type_of_object == 'report':
         _object = get_object_or_404(Report, id=object_id)
+        redirect_to = reverse('journals:manage_report_metadata')
     elif type_of_object == 'comment':
         _object = get_object_or_404(Comment, id=object_id)
+        redirect_to = reverse('journals:manage_comment_metadata')
+    else:
+        raise Http404
+
+    if not _object.doi_label:
+        messages.warning(request, 'This object does not have a DOI yet.')
+        return redirect(redirect_to)
 
     if type_of_object == 'report':
         JournalUtils.load({'report': _object, })
         JournalUtils.email_report_made_citable()
-        return redirect(reverse('journals:manage_report_metadata'))
     else:
         JournalUtils.load({'comment': _object, })
         JournalUtils.email_comment_made_citable()
-        return redirect(reverse('journals:manage_comment_metadata'))
+    messages.success(request, 'Email sent')
+    return redirect(redirect_to)
 
 
 ###########

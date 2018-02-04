@@ -9,7 +9,7 @@
   by {{ report.submission.author_list }}
 </p>
 <p>
-  has been ascribed DOI {{ report.doi_label }}, and is thus now citable in the form:
+  has been ascribed DOI <a href="//doi.org/{{ report.doi_string }}">{{ report.doi_string }}</a> (https://doi.org/{{ report.doi_string }}), and is thus now citable in the form:
 </p>
 <p>
   {{ report.citation }}.

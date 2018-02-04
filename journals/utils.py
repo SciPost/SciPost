@@ -1,12 +1,9 @@
 from django.core.mail import EmailMessage
 
-from scipost.utils import EMAIL_FOOTER
 from common.utils import BaseMailUtil
 
 
 class JournalUtils(BaseMailUtil):
-
-
     @classmethod
     def send_authors_paper_published_email(cls):
         """ Requires loading 'publication' attribute. """
@@ -87,7 +84,6 @@ class JournalUtils(BaseMailUtil):
             }
         }
         return md
-
 
     @classmethod
     def email_report_made_citable(cls):
