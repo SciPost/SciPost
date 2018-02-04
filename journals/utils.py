@@ -4,6 +4,9 @@ from common.utils import BaseMailUtil
 
 
 class JournalUtils(BaseMailUtil):
+    mail_sender = 'edadmin@scipost.org'
+    mail_sender_title = 'SciPost Editorial Admin'
+
     @classmethod
     def send_authors_paper_published_email(cls):
         """ Requires loading 'publication' attribute. """
