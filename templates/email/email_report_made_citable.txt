@@ -1,7 +1,10 @@
 Dear {{ report.author.get_title_display }} {{ report.author.user.last_name }},\n\n
 Your Report on Submission:\n\n
 {{ report.submission.title }}\n
-by {{ report.submission.author_list }}\n\n
+by {{ report.submission.author_list }}\n
+{% if publication_citation %}
+(published as {{ publication_citation }}, https://doi.org/{{ publication_doi }})\n\n
+{% endif %}
 has been ascribed DOI {{ report.doi_string }} (https://doi.org/{{ report.doi_string }}), and is thus now citable in the form:\n\n
 {{ report.citation }}.\n\n
 We thank you again very much for your contribution.\n

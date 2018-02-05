@@ -1275,6 +1275,14 @@ def email_object_made_citable(request, **kwargs):
     if type_of_object == 'report':
         _object = get_object_or_404(Report, id=object_id)
         redirect_to = reverse('journals:manage_report_metadata')
+        publication_citation=None
+        publication_doi=None
+        try:
+            publication=Publication.objects.get(doi_label=_object.associated_published_doi)
+            publication_ciation = publication.citation()
+            publication_doi = publication.doi_string
+        except Publication.DoesNotExist:
+            pass
     elif type_of_object == 'comment':
         _object = get_object_or_404(Comment, id=object_id)
         redirect_to = reverse('journals:manage_comment_metadata')
@@ -1286,7 +1294,9 @@ def email_object_made_citable(request, **kwargs):
         return redirect(redirect_to)
 
     if type_of_object == 'report':
-        JournalUtils.load({'report': _object, })
+        JournalUtils.load({'report': _object,
+                           'publication_citation': publication_citation,
+                           'publication_doi': publication_doi})
         JournalUtils.email_report_made_citable()
     else:
         JournalUtils.load({'comment': _object, })
