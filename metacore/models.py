@@ -30,9 +30,16 @@ class Citable(DynamicDocument):
     # Settings for mongoengine
     meta = {
             'queryset_class': CitableQuerySet, # use the custom queryset
-            'indexes': ['doi', 'authors', 'title', 'publication_date', 'publisher', 'references'], # define indices on database
+            'indexes': ['doi', 'title', 'publication_date', 'publisher', 'references'], # define indices on database
             'allow_inheritance': True
             }
+    """
+    NOTE: extra text index for authors/title is defined through mongo shell!
+    This should be in the readme, but I'll temporarily add it here for ease of use:
+    For the text index, execute this in the mongo shell:
+        use scipost
+        db.citable.createIndex({authors: "text", title: "text"})
+    """
 
     def times_cited(self):
         return []

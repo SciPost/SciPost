@@ -14,3 +14,14 @@ class CitableQuerySet(QuerySet):
 
     def prl(self):
         return self.filter(metadata__ISSN='1079-7114')
+
+    def omni_search(self, query, mode='and'):
+        if mode == 'and':
+            query_list = query.split(' ')
+            query_with_quotes = '"{0}"'.format('" "'.join(query_list))
+            return self.search_text(query_with_quotes)
+        elif mode == 'or':
+            return self.search_text(query)
+        else:
+            raise ValueError('Invalid mode used in omni_search')
+
