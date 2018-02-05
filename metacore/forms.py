@@ -23,5 +23,5 @@ class CitableSearchForm(forms.Form):
                 title__icontains=self.cleaned_data.get('title', ''),
                 authors__icontains=self.cleaned_data.get('author', ''),
                 publisher__icontains=self.cleaned_data.get('publisher', ''),
-            ).omni_search(self.cleaned_data.get('omni'))
+            ).omni_search(self.cleaned_data.get('omni'), 'and')
 
