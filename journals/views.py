@@ -1280,7 +1280,7 @@ def email_object_made_citable(request, **kwargs):
         try:
             publication=Publication.objects.get(
                 accepted_submission__arxiv_identifier_wo_vn_nr=_object.submission.arxiv_identifier_wo_vn_nr)
-            publication_ciation = publication.citation()
+            publication_citation = publication.citation()
             publication_doi = publication.doi_string
         except Publication.DoesNotExist:
             pass
