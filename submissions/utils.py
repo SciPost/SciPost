@@ -262,12 +262,9 @@ class SubmissionUtils(BaseMailUtil):
         # Import here due to circular import error
         from .models import EditorialAssignment
 
-        assignments_to_deprecate = (EditorialAssignment.objects
-                                    .filter(submission=cls.assignment.submission, accepted=None)
-                                    .exclude(to=cls.assignment.to))
-        for atd in assignments_to_deprecate:
-            atd.deprecated = True
-            atd.save()
+        EditorialAssignment.objects.filter(submission=cls.assignment.submission, accepted=None)\
+            .exclude(to=cls.assignment.to)\
+            .update(deprecated=True)
 
     @classmethod
     def deprecate_all_assignments(cls):
@@ -1368,17 +1365,3 @@ class SubmissionUtils(BaseMailUtil):
             reply_to=['admin@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
-
-    @classmethod
-    def email_Fellow_tasklist(cls):
-        """
-        Email list of current and upcoming tasks to an individual Fellow.
-
-        Requires context to contain:
-        - `fellow`
-        """
-        cls._send_mail(cls, 'email_fellow_tasklist',
-#                       [cls._context['fellow'].email_address],
-                       ['jscaux@scipost.org'], # temporary, for testing
-                       'Current and upcoming tasks')
