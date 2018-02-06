@@ -14,8 +14,8 @@ class Command(BaseCommand):
         ).order_by('user__last_name')
 
         for fellow in fellows:
-            submissions_as_eic = Submission.objects.filter(
-                editor_in_charge=fellow).order_by('submission_date')
+            submissions_as_eic = Submission.objects.filter_for_eic(
+                fellow.user).order_by('submission_date')
             assignments_to_consider = EditorialAssignment.objects.open().filter(
                 to=fellow)
             if submissions_as_eic or assignments_to_consider:

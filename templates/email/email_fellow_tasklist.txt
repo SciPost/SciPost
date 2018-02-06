@@ -24,6 +24,6 @@ No actions required\n
 {% endfor %}
 {% endif %}
 \n
-You can take action on all of these starting from your personal page at https://scipost.org/personal_page.\n\n
-Many thanks for your work,\n
+You can take action on all of these starting from your personal page at https://scipost.org/personal_page. Don't hesitate to email the editorial administration at edadmin@scipost.org if you need any assistance.\n\n
+Many thanks,\n
 The SciPost Team.
