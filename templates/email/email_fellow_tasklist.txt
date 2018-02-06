@@ -18,7 +18,7 @@ Required actions:\n
 {% for action in assignment.submission.cycle.get_required_actions %}
 {{action.1}}\n
 {% empty %}
-No actions required\n
+No action required. Great job!\n
 {% endfor %}
 {% endif %}
 {% endfor %}
