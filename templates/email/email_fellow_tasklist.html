@@ -1,0 +1,35 @@
+{% load submissions_extras %}
+<p>Dear {{ fellow.get_title_display }} {{ fellow.user.last_name }},</p>
+<p>Please find below a digest of your pending and upcoming required actions as SciPost Fellow. Many thanks in advance for your timely invervention.</p>
+{% if assignments_to_consider %}
+<h3>Assignments for you to consider:</h3>
+<ul>
+{% for assignment in assignments_to_consider %}
+<li>On submission: {{ assignment.submission }}<br>
+  <a href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% if submissions_as_eic %}
+<h3>Submissions for which you are Editor-in-charge:</h3>
+<ul>
+{% for submission in submissions_as_eic %}
+<li>
+<div class="pool-item">
+    <p class="mb-1">
+        <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}">{{ submission.title }}</a><br>
+        <em>by {{ submission.author_list }}</em>
+    </p>
+    <p><a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial page</a></p>
+    {% include 'submissions/_required_actions_block.html' with submission=submission %}
+</div>
+</li>
+{% endfor %}
+</ul>
+{% endif %}
+<p>
+    Many thanks for your work,<br>
+    The SciPost Team.
+</p>
+{% include 'email/_footer.html' %}

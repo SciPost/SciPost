@@ -1,0 +1,29 @@
+{% load submissions_extras %}
+Dear {{ fellow.get_title_display }} {{ fellow.user.last_name }},\n\n
+Please find below a digest of your pending and upcoming required actions as SciPost Fellow. Many thanks in advance for your timely invervention.\n\n
+{% if assignments_to_consider %}
+Assignments for you to consider:\n\n
+{% for assignment in assignments_to_consider %}
+On submission: {{ assignment.submission }}\n
+Accept or decline at {% url 'submissions:assignment_request' assignment.id %}"
+{% endfor %}
+{% endif %}
+{% if submissions_as_eic %}
+Submissions for which you are Editor-in-charge:\n\n
+{% for submission in submissions_as_eic %}
+{{ submission.title }}\n
+by {{ submission.author_list }}\n\n
+{% if submission.cycle.has_required_actions %}
+Required actions:\n
+{% for action in submission.cycle.get_required_actions %}
+{{action.1}}\n
+{% empty %}
+No actions required\n
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+\n
+You can take action on all of these starting from your personal page at https://scipost.org/personal_page.\n\n
+Many thanks for your work,\n
+The SciPost Team.
