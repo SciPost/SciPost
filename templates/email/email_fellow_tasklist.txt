@@ -1,6 +1,6 @@
 {% load submissions_extras %}
 Dear {{ fellow.get_title_display }} {{ fellow.user.last_name }},\n\n
-Please find below a digest of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely invervention.\n\n
+Please find below a digest of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely intervention.\n\n
 {% if assignments_to_consider %}
 Assignments for you to consider:\n\n
 {% for assignment in assignments_to_consider %}
