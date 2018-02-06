@@ -1,7 +1,7 @@
 {% load bootstrap %}
 {% load submissions_extras %}
 <p>Dear {{ fellow.get_title_display }} {{ fellow.user.last_name }},</p>
-<p>Please find below a digest of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely intervention, if it turns out to be needed.</p>
+<p>Please find below a digest of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely intervention on any point in need of attention.</p>
 {% if assignments_to_consider %}
 <h3>Assignments for you to consider:</h3>
 <ul>
@@ -22,7 +22,7 @@
       <em>by {{ assignment.submission.author_list }}</em>
     </p>
     {% if assignment.submission.cycle.has_required_actions %}
-    <h3>Required actions:</h3>
+    <h3>Required actions (go to the <a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Editorial page</a>):</h3>
     <ul>
       {% for action in assignment.submission.cycle.get_required_actions %}
       <li>{{action.1}}</li>
@@ -30,7 +30,6 @@
       <li>No actions required</li>
       {% endfor %}
     </ul>
-    <p><em>Manage this Submission from its </em><a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Editorial page</a></p>
     {% endif %}
   </li>
   {% endfor %}
@@ -46,7 +45,7 @@
       <em>by {{ assignment.submission.author_list }}</em>
     </p>
     <p>Refereeing deadline: {{ assignment.submission.reporting_deadline|date:"Y-m-d" }}.</p>
-    <p><em>Manage this Submission from its </em><a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Editorial page</a></p>
+    <p><em>You can manage this Submission from its </em><a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Editorial page</a></p>
   </li>
   {% endfor %}
 </ul>
