@@ -1,7 +1,7 @@
 {% load bootstrap %}
 {% load submissions_extras %}
 <p>Dear {{ fellow.get_title_display }} {{ fellow.user.last_name }},</p>
-<p>Please find below a digest of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely intervention.</p>
+<p>Please find below a digest of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely intervention, if it turns out to be needed.</p>
 {% if assignments_to_consider %}
 <h3>Assignments for you to consider:</h3>
 <ul>
@@ -51,6 +51,7 @@
   {% endfor %}
 </ul>
 {% endif %}
+<h3>Need help or assistance?</h3>
 <p>
   Don't hesitate to <a href="mailto:edadmin@scipost.org">email the editorial administration</a> if you need any assistance.
 </p>
