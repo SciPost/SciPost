@@ -128,8 +128,9 @@ class Submission(models.Model):
             version=self.arxiv_vn_nr)
         self.arxiv_identifier_w_vn_nr = arxiv_w_vn
 
-        super().save(*args, **kwargs)
+        obj = super().save(*args, **kwargs)
         self._update_cycle()
+        return obj
 
     def __str__(self):
         header = (self.arxiv_identifier_w_vn_nr + ', '

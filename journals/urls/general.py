@@ -109,4 +109,7 @@ urlpatterns = [
     url(r'^mark_generic_deposit_success/(?P<deposit_id>[0-9]+)/(?P<success>[0-1])$',
         journals_views.mark_generic_deposit_success,
         name='mark_generic_deposit_success'),
+    url(r'^email_object_made_citable/(?P<type_of_object>[a-z]+)/(?P<object_id>[0-9]+)$',
+        journals_views.email_object_made_citable,
+        name='email_object_made_citable'),
 ]

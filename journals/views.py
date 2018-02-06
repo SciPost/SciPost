@@ -280,8 +280,8 @@ def validate_publication(request):
         submission.save()
 
         # Update ProductionStream
-        stream = submission.production_stream
-        if stream:
+        if hasattr(submission, 'production_stream'):
+            stream = submission.production_stream
             stream.status = PROOFS_PUBLISHED
             stream.save()
             if request.user.production_user:
@@ -1261,6 +1261,49 @@ def mark_generic_deposit_success(request, deposit_id, success):
         return redirect(reverse('journals:manage_report_metadata'))
     else:
         return redirect(reverse('journals:manage_comment_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def email_object_made_citable(request, **kwargs):
+    """
+    This method sends an email to the author of a Report or a Comment,
+    to notify that the object has been made citable (doi registered).
+    """
+    type_of_object = kwargs['type_of_object']
+    object_id = int(kwargs['object_id'])
+
+    if type_of_object == 'report':
+        _object = get_object_or_404(Report, id=object_id)
+        redirect_to = reverse('journals:manage_report_metadata')
+        publication_citation=None
+        publication_doi=None
+        try:
+            publication=Publication.objects.get(
+                accepted_submission__arxiv_identifier_wo_vn_nr=_object.submission.arxiv_identifier_wo_vn_nr)
+            publication_citation = publication.citation()
+            publication_doi = publication.doi_string
+        except Publication.DoesNotExist:
+            pass
+    elif type_of_object == 'comment':
+        _object = get_object_or_404(Comment, id=object_id)
+        redirect_to = reverse('journals:manage_comment_metadata')
+    else:
+        raise Http404
+
+    if not _object.doi_label:
+        messages.warning(request, 'This object does not have a DOI yet.')
+        return redirect(redirect_to)
+
+    if type_of_object == 'report':
+        JournalUtils.load({'report': _object,
+                           'publication_citation': publication_citation,
+                           'publication_doi': publication_doi})
+        JournalUtils.email_report_made_citable()
+    else:
+        JournalUtils.load({'comment': _object, })
+        JournalUtils.email_comment_made_citable()
+    messages.success(request, 'Email sent')
+    return redirect(redirect_to)
 
 
 ###########
