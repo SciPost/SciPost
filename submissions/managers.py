@@ -50,7 +50,7 @@ class SubmissionQuerySet(models.QuerySet):
 
     def _pool(self, user):
         """
-        This filter creates 'the complete pool' for an user. This new-style pool does
+        This filter creates 'the complete pool' for a user. This new-style pool does
         explicitly not have the author filter anymore, but registered pools for every Submission.
 
         !!!  IMPORTANT SECURITY NOTICE  !!!
@@ -255,6 +255,11 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 
     def open(self):
         return self.filter(accepted=None, deprecated=False)
+
+    def refereeing_deadline_within(self, days=7):
+        return self.exclude(
+            submission__reporting_deadline_gt=timezone.now() + timezone.timedelta(days=days)
+            ).exclude(submission__reporting_deadline_lt=timezone.now())
 
 
 class EICRecommendationQuerySet(models.QuerySet):

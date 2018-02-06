@@ -14,12 +14,16 @@ class Command(BaseCommand):
         ).order_by('user__last_name')
 
         for fellow in fellows:
-            submissions_as_eic = Submission.objects.filter_for_eic(
-                fellow.user).order_by('submission_date')
-            assignments_to_consider = EditorialAssignment.objects.open().filter(
-                to=fellow)
-            if submissions_as_eic or assignments_to_consider:
-                SubmissionUtils.load({'fellow': fellow,
-                                      'submissions_as_eic': submissions_as_eic,
-                                      'assignments_to_consider': assignments_to_consider,})
+            assignments_ongoing = fellow.editorial_assignments.ongoing()
+            assignments_to_consider = fellow.editorial_assignments.open()
+            assignments_upcoming_deadline = fellow.editorial_assignments_deadline_within(days=7)
+            if assignments_ongoing or assignments_to_consider or assignments_upcoming_deadline:
+                SubmissionUtils.load(
+                    {
+                        'fellow': fellow,
+                        'assignments_ongoing': assignments_ongoing,
+                        'assignments_to_consider': assignments_to_consider,
+                        'assignments_upcoming_deadline': assignments_upcoming_deadline,
+                    }
+                )
                 SubmissionUtils.email_Fellow_tasklist()
