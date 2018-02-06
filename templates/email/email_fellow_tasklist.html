@@ -18,7 +18,7 @@
   {% for assignment in assignments_ongoing %}
   <li>
     <p>
-      <a href="https://scipost.org{% url 'submissions:submission' assignment.submission.arxiv_identifier_w_vn_nr %}">{{ assignment.submission.title }}</a><br>
+      <h3><a href="https://scipost.org{% url 'submissions:submission' assignment.submission.arxiv_identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3><br>
       <em>by {{ assignment.submission.author_list }}</em>
     </p>
     <p><a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial page</a></p>
@@ -42,7 +42,7 @@
   {% for assignment in assignments_upcoming_deadline %}
   <li>
     <p>
-      <a href="https://scipost.org{% url 'submissions:pool' assignment.submission.arxiv_identifier_w_vn_nr %}">{{ assignment.submission.title }}</a><br>
+      <h3><a href="https://scipost.org{% url 'submissions:pool' assignment.submission.arxiv_identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3><br>
       <em>by {{ assignment.submission.author_list }}</em>
     </p>
     <p>Refereeing deadline: {{ assignment.submission.reporting_deadline|date:"Y-m-d" }}.</p>
