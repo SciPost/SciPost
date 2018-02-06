@@ -17,14 +17,21 @@
 <ul>
   {% for assignment in assignments_ongoing %}
   <li>
-    <div class="pool-item">
-      <p class="mb-1">
-        <a href="https://scipost.org{% url 'submissions:pool' assignment.submission.arxiv_identifier_w_vn_nr %}">{{ assignment.submission.title }}</a><br>
-        <em>by {{ assignment.submission.author_list }}</em>
-      </p>
-      <p><a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial page</a></p>
-      {% include 'submissions/_required_actions_block.html' with submission=assignment.submission %}
-    </div>
+    <p>
+      <a href="https://scipost.org{% url 'submissions:pool' assignment.submission.arxiv_identifier_w_vn_nr %}">{{ assignment.submission.title }}</a><br>
+      <em>by {{ assignment.submission.author_list }}</em>
+    </p>
+    <p><a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial page</a></p>
+    {% if assignment.submission.cycle.has_required_actions %}
+    <h3>Required actions:</h3>
+    <ul>
+      {% for action in assignment.submission.cycle.get_required_actions %}
+      <li>{{action.1}}</li>
+      {% empty %}
+      <li>No actions required</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
   </li>
   {% endfor %}
 </ul>
@@ -34,14 +41,12 @@
 <ul>
   {% for assignment in assignments_upcoming_deadline %}
   <li>
-    <div class="pool-item">
-      <p class="mb-1">
-        <a href="https://scipost.org{% url 'submissions:pool' assignment.submission.arxiv_identifier_w_vn_nr %}">{{ assignment.submission.title }}</a><br>
-        <em>by {{ assignment.submission.author_list }}</em>
-      </p>
-      <p>Refereeing deadline: {{ assignment.submission.reporting_deadline|date:"Y-m-d" }}.</p>
-      <p><a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial page</a></p>
-    </div>
+    <p>
+      <a href="https://scipost.org{% url 'submissions:pool' assignment.submission.arxiv_identifier_w_vn_nr %}">{{ assignment.submission.title }}</a><br>
+      <em>by {{ assignment.submission.author_list }}</em>
+    </p>
+    <p>Refereeing deadline: {{ assignment.submission.reporting_deadline|date:"Y-m-d" }}.</p>
+    <p><a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial page</a></p>
   </li>
   {% endfor %}
 </ul>
