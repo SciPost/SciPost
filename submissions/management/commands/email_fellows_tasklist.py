@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = 'Sends an email to Fellows with current and upcoming tasks list'
     def handle(self, *args, **kwargs):
         fellows = Contributor.objects.fellows(
-        ).filter(user__last_name__startswith='B' # temporary limitation, to ease testing
+        ).filter(user__last_name__istartswith='C' # temporary limitation, to ease testing
         ).order_by('user__last_name')
 
         for fellow in fellows:

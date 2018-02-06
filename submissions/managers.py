@@ -251,7 +251,7 @@ class EditorialAssignmentQuerySet(models.QuerySet):
         return self.filter(completed=True)
 
     def ongoing(self):
-        return self.filter(completed=False).accepted()
+        return self.filter(completed=False, deprecated=False).accepted()
 
     def open(self):
         return self.filter(accepted=None, deprecated=False)
