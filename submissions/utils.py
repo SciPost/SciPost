@@ -1375,5 +1375,5 @@ class SubmissionUtils(BaseMailUtil):
         - `fellow`
         """
         cls._send_mail(cls, 'email_fellow_tasklist',
-                       [cls._context['fellow'].user.email_address],
+                       [cls._context['fellow'].user.email],
                        'current assignments, pending tasks')
