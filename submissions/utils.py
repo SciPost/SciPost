@@ -1375,6 +1375,5 @@ class SubmissionUtils(BaseMailUtil):
         - `fellow`
         """
         cls._send_mail(cls, 'email_fellow_tasklist',
-#                       [cls._context['fellow'].email_address],
-                       ['jscaux@scipost.org'], # temporary, for testing
+                       [cls._context['fellow'].email_address],
                        'current assignments, pending tasks')
