@@ -258,8 +258,8 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 
     def refereeing_deadline_within(self, days=7):
         return self.exclude(
-            submission__reporting_deadline_gt=timezone.now() + timezone.timedelta(days=days)
-            ).exclude(submission__reporting_deadline_lt=timezone.now())
+            submission__reporting_deadline__gt=timezone.now() + timezone.timedelta(days=days)
+            ).exclude(submission__reporting_deadline__lt=timezone.now())
 
 
 class EICRecommendationQuerySet(models.QuerySet):
