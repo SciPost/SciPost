@@ -1,6 +1,6 @@
 {% load submissions_extras %}
 Dear {{ fellow.get_title_display }} {{ fellow.user.last_name }},\n\n
-Please find below a digest of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely intervention on any point in need of attention.\n\n
+Please find below a digest of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely intervention on any point in need of attention. Your good work as an Editorial Fellow is greatly appreciated!\n\n
 {% if assignments_to_consider %}
 Assignments for you to consider:\n\n
 {% for assignment in assignments_to_consider %}
@@ -34,5 +34,5 @@ Refereeing deadline: {{ assignment.submission.reporting_deadline|date:"Y-m-d" }}
 {% endif %}
 \n
 You can take action on all of these starting from your personal page at https://scipost.org/personal_page. Don't hesitate to email the editorial administration at edadmin@scipost.org if you need any assistance.\n\n
-Many thanks,\n
-The SciPost Team.
+Many thanks for your valuable work,\n
+SciPost Editorial Administration
