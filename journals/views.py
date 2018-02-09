@@ -374,29 +374,22 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
         return redirect(reverse('journals:manage_metadata',
                                 kwargs={'doi_label': publication.doi_label}))
 
-    if request.method == 'POST':
+    contributors_found = None
+    if request.POST:
         form = UnregisteredAuthorForm(request.POST)
         if form.is_valid():
             contributors_found = Contributor.objects.filter(
                 user__last_name__icontains=form.cleaned_data['last_name'])
-            unregistered_authors_found = UnregisteredAuthor.objects.filter(
-                last_name__icontains=form.cleaned_data['last_name'])
-            new_unreg_author_form = UnregisteredAuthorForm(
-                initial={'first_name': form.cleaned_data['first_name'],
-                         'last_name': form.cleaned_data['last_name'], })
-        else:
-            errormessage = 'Please fill in the form properly'
-            return render(request, 'scipost/error.html', context={'errormessage': errormessage})
     else:
-        form = UnregisteredAuthorForm()
-        contributors_found = None
-        unregistered_authors_found = None
-        new_unreg_author_form = UnregisteredAuthorForm()
-    context = {'publication': publication,
-               'contributors_found': contributors_found,
-               'unregistered_authors_found': unregistered_authors_found,
-               'form': form,
-               'new_unreg_author_form': new_unreg_author_form, }
+        form = UnregisteredAuthorForm(request.GET or None)
+        if form.is_valid():
+            contributors_found = Contributor.objects.filter(
+                user__last_name__icontains=form.cleaned_data['last_name'])
+    context = {
+        'publication': publication,
+        'contributors_found': contributors_found,
+        'form': form,
+    }
     return render(request, 'journals/add_author.html', context)
 
 

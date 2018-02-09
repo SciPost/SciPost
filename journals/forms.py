@@ -6,8 +6,9 @@ from django import forms
 from django.forms import BaseModelFormSet, modelformset_factory
 from django.utils import timezone
 
-from .models import UnregisteredAuthor, Issue, Publication, Reference
+from .models import Issue, Publication, Reference
 
+from scipost.models import Contributor
 from scipost.services import DOICaller
 from submissions.models import Submission
 
@@ -30,9 +31,12 @@ class ValidatePublicationForm(forms.ModelForm):
 
 
 class UnregisteredAuthorForm(forms.ModelForm):
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+
     class Meta:
-        model = UnregisteredAuthor
-        fields = ['first_name', 'last_name']
+        model = Contributor
+        fields = ()
 
 
 class CitationListBibitemsForm(forms.Form):
