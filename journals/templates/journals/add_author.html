@@ -29,18 +29,16 @@
 
 <div class="row">
     <div class="col-12">
-      <h3>Current list of authors as contributors:</h3>
+      <h3>Current list of authors</h3>
       <ul>
         {% for author in publication.authors.all %}
-            <li><a href="{% url 'scipost:contributor_info' author.id %}">{{ author.user.first_name }} {{ author.user.last_name }}</a></li>
-        {% empty %}
-            <li>No unregistered authors known.</li>
-        {% endfor %}
-      </ul>
-      <h3>Current list of additional authors (unregistered):</h3>
-      <ul>
-        {% for author in publication.authors_unregistered.all %}
-            <li>{{ author }}</li>
+            <li>
+                {% if author.is_registered %}
+                    <a href="{{ author.contributor.get_absolute_url }}">{{ author.contributor }}</a>
+                {% else %}
+                    {{ author.unregistered_author }}
+                {% endif %}
+            </li>
         {% empty %}
             <li>No unregistered authors known.</li>
         {% endfor %}
@@ -57,7 +55,7 @@
 
       {% if form.has_changed %}
           <br>
-            <h3>Identified as contributor:</h3>
+            <h3>Identified as Contributor:</h3>
             <ul>
               {% for contributor in contributors_found %}
                   <li>
@@ -70,17 +68,17 @@
             </ul>
 
             <h3>You can otherwise add the author manually and link it to the publication</h3>
-            <form action="{% url 'journals:add_new_unreg_author' publication_id=publication.id %}" method="post">
+            <form action="{% url 'journals:add_author' publication_id=publication.id %}" method="post">
                 {% csrf_token %}
                 {{ form|bootstrap }}
                 <input class="btn btn-primary" type="submit" value="Add">
             </form>
         <br>
       {% endif %}
-
-      <p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a>.</p>
     </div>
 </div>
+
+<p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a>.</p>
 
 
 {% endblock content %}

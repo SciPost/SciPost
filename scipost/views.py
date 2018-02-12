@@ -44,7 +44,7 @@ from affiliations.forms import AffiliationsFormset
 from colleges.permissions import fellowship_or_admin_required
 from commentaries.models import Commentary
 from comments.models import Comment
-from journals.models import Publication, Journal
+from journals.models import Publication, Journal, PublicationAuthorsTable
 from mails.views import MailEditingSubView
 from news.models import NewsItem
 from submissions.models import Submission, RefereeInvitation,\
@@ -798,7 +798,7 @@ def _personal_page_publications(request):
     }
     context['nr_publication_authorships_to_claim'] = Publication.objects.filter(
         author_list__contains=request.user.last_name).exclude(
-        authors=contributor).exclude(
+        authors_registered=contributor).exclude(
         authors_claims=contributor).exclude(
         authors_false_claims=contributor).count()
     return render(request, 'partials/scipost/personal_page/publications.html', context)
@@ -1026,28 +1026,28 @@ def claim_authorships(request):
     contributor = Contributor.objects.get(user=request.user)
 
     publication_authorships_to_claim = (Publication.objects
-                                       .filter(author_list__contains=contributor.user.last_name)
-                                       .exclude(authors__in=[contributor])
-                                       .exclude(authors_claims__in=[contributor])
-                                       .exclude(authors_false_claims__in=[contributor]))
+                                        .filter(author_list__contains=contributor.user.last_name)
+                                        .exclude(authors_registered=contributor)
+                                        .exclude(authors_claims=contributor)
+                                        .exclude(authors_false_claims=contributor))
     pub_auth_claim_form = AuthorshipClaimForm()
     submission_authorships_to_claim = (Submission.objects
                                        .filter(author_list__contains=contributor.user.last_name)
-                                       .exclude(authors__in=[contributor])
-                                       .exclude(authors_claims__in=[contributor])
-                                       .exclude(authors_false_claims__in=[contributor]))
+                                       .exclude(authors=contributor)
+                                       .exclude(authors_claims=contributor)
+                                       .exclude(authors_false_claims=contributor))
     sub_auth_claim_form = AuthorshipClaimForm()
     commentary_authorships_to_claim = (Commentary.objects
                                        .filter(author_list__contains=contributor.user.last_name)
-                                       .exclude(authors__in=[contributor])
-                                       .exclude(authors_claims__in=[contributor])
-                                       .exclude(authors_false_claims__in=[contributor]))
+                                       .exclude(authors=contributor)
+                                       .exclude(authors_claims=contributor)
+                                       .exclude(authors_false_claims=contributor))
     com_auth_claim_form = AuthorshipClaimForm()
     thesis_authorships_to_claim = (ThesisLink.objects
                                    .filter(author__contains=contributor.user.last_name)
-                                   .exclude(author_as_cont__in=[contributor])
-                                   .exclude(author_claims__in=[contributor])
-                                   .exclude(author_false_claims__in=[contributor]))
+                                   .exclude(author_as_cont=contributor)
+                                   .exclude(author_claims=contributor)
+                                   .exclude(author_false_claims=contributor))
     thesis_auth_claim_form = AuthorshipClaimForm()
 
     context = {
@@ -1140,16 +1140,17 @@ def vet_authorship_claim(request, claim_id, claim):
         vetting_contributor = Contributor.objects.get(user=request.user)
         claim_to_vet = AuthorshipClaim.objects.get(pk=claim_id)
 
-        if claim_to_vet.publication is not None:
+        if claim_to_vet.publication:
             claim_to_vet.publication.authors_claims.remove(claim_to_vet.claimant)
             if claim == '1':
-                claim_to_vet.publication.authors.add(claim_to_vet.claimant)
+                PublicationAuthorsTable.objects.create(
+                    publication=claim_to_vet.publication, contributor=claim_to_vet.claimant)
                 claim_to_vet.status = '1'
             elif claim == '0':
                 claim_to_vet.publication.authors_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
             claim_to_vet.publication.save()
-        if claim_to_vet.submission is not None:
+        if claim_to_vet.submission:
             claim_to_vet.submission.authors_claims.remove(claim_to_vet.claimant)
             if claim == '1':
                 claim_to_vet.submission.authors.add(claim_to_vet.claimant)
@@ -1158,7 +1159,7 @@ def vet_authorship_claim(request, claim_id, claim):
                 claim_to_vet.submission.authors_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
             claim_to_vet.submission.save()
-        if claim_to_vet.commentary is not None:
+        if claim_to_vet.commentary:
             claim_to_vet.commentary.authors_claims.remove(claim_to_vet.claimant)
             if claim == '1':
                 claim_to_vet.commentary.authors.add(claim_to_vet.claimant)
@@ -1167,7 +1168,7 @@ def vet_authorship_claim(request, claim_id, claim):
                 claim_to_vet.commentary.authors_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
             claim_to_vet.commentary.save()
-        if claim_to_vet.thesislink is not None:
+        if claim_to_vet.thesislink:
             claim_to_vet.thesislink.author_claims.remove(claim_to_vet.claimant)
             if claim == '1':
                 claim_to_vet.thesislink.author_as_cont.add(claim_to_vet.claimant)
@@ -1189,7 +1190,7 @@ def contributor_info(request, contributor_id):
     on the relevant name (in listing headers of Submissions, ...).
     """
     contributor = get_object_or_404(Contributor, pk=contributor_id)
-    contributor_publications = Publication.objects.published().filter(authors=contributor)
+    contributor_publications = Publication.objects.published().filter(authors_registered=contributor)
     contributor_submissions = Submission.objects.public_unlisted().filter(authors=contributor)
     contributor_commentaries = Commentary.objects.filter(authors=contributor)
     contributor_theses = ThesisLink.objects.vetted().filter(author_as_cont=contributor)
