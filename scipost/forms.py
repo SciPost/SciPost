@@ -121,7 +121,7 @@ class RegistrationForm(forms.Form):
             country=self.cleaned_data['country_of_employment'],
             name=self.cleaned_data['affiliation'],
         )
-        contributor, new = Contributor.objects.get_or_create(**{
+        contributor, __ = Contributor.objects.get_or_create(**{
             'user': user,
             'invitation_key': self.cleaned_data.get('invitation_key', ''),
             'title': self.cleaned_data['title'],
@@ -133,10 +133,6 @@ class RegistrationForm(forms.Form):
             contributor=contributor,
             institution=institution,
         )
-
-        if contributor.activation_key == '':
-            # Seems redundant?
-            contributor.generate_key()
         contributor.save()
         return contributor
 
@@ -317,7 +313,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
         and changes the orcid_id. It marks all Publications, Reports and Comments
         authors by this Contributor with a deposit_requires_update == True.
         """
-        publications = Publication.objects.filter(authors=self.instance)
+        publications = Publication.objects.filter(authors_registered=self.instance)
         for publication in publications:
             publication.doideposit_needs_updating = True
             publication.save()
