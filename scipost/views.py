@@ -386,17 +386,16 @@ def contributors_filter(request):
     view returns all entries of those lists with users that are certainly not registered
     or invitated.
     """
-    names_found = names_not_found = None
+    names_found = names_not_found = invitations_found = None
     form = ContributorsFilterForm(request.POST or None)
     if form.is_valid():
-        names_found, names_not_found = form.filter()
-        # messages.success(request, 'Draft invitation saved.')
-        # return redirect(reverse('scipost:draft_registration_invitation'))
+        names_found, names_not_found, invitations_found = form.filter()
 
     context = {
         'form': form,
         'names_found': names_found,
         'names_not_found': names_not_found,
+        'invitations_found': invitations_found,
     }
     return render(request, 'scipost/contributors_filter.html', context)
 
