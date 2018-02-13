@@ -186,20 +186,27 @@ class DraftInvitationForm(forms.ModelForm):
 
 class ContributorsFilterForm(forms.Form):
     names = forms.CharField(widget=forms.Textarea())
+    include_invitations = forms.BooleanField(required=False, initial=True,
+                                             label='Include invitations in the filter.')
 
     def filter(self):
         names_found = []
         names_not_found = []
+        invitations_found = []
         r = self.cleaned_data['names'].replace('\r', '\n').split('\n')
+        include_invitations = self.cleaned_data.get('include_invitations', False)
         for name in r:
             last_name = name.split(',')[0]
             if not last_name:
                 continue
             if Contributor.objects.filter(user__last_name__istartswith=last_name).exists():
                 names_found.append(name)
+            elif include_invitations and RegistrationInvitation.objects.pending_response().filter(
+              last_name__istartswith=last_name).exists():
+                invitations_found.append(name)
             else:
                 names_not_found.append(name)
-        return names_found, names_not_found
+        return names_found, names_not_found, invitations_found
 
 
 class RegistrationInvitationForm(forms.ModelForm):
