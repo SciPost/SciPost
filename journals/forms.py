@@ -6,7 +6,7 @@ from django import forms
 from django.forms import BaseModelFormSet, modelformset_factory
 from django.utils import timezone
 
-from .models import UnregisteredAuthor, Issue, Publication, Reference
+from .models import Issue, Publication, Reference, UnregisteredAuthor
 
 from scipost.services import DOICaller
 from submissions.models import Submission
@@ -32,7 +32,7 @@ class ValidatePublicationForm(forms.ModelForm):
 class UnregisteredAuthorForm(forms.ModelForm):
     class Meta:
         model = UnregisteredAuthor
-        fields = ['first_name', 'last_name']
+        fields = ('first_name', 'last_name')
 
 
 class CitationListBibitemsForm(forms.Form):

@@ -33,13 +33,17 @@
     <h2>Filter result</h2>
     {% if names_not_found %}
         <h3>New names</h3>
-        <pre><code>{% for name in names_not_found %}{{ name }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</code></pre>
+        <pre class="mb-3"><code>{% for name in names_not_found %}{{ name }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</code></pre>
     {% endif %}
-    <br>
+
     {% if names_found %}
         <h3>Names found in the system</h3>
-        <pre><code>{% for name in names_found %}{{ name }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</code></pre>
+        <pre class="mb-3"><code>{% for name in names_found %}{{ name }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</code></pre>
+    {% endif %}
 
+    {% if invitations_found %}
+        <h3>Invitations (pending response) found in database</h3>
+        <pre class="mb-3"><code>{% for name in invitations_found %}{{ name }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</code></pre>
     {% endif %}
 {% endif %}
 

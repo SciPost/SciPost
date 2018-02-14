@@ -121,7 +121,7 @@ class RegistrationForm(forms.Form):
             country=self.cleaned_data['country_of_employment'],
             name=self.cleaned_data['affiliation'],
         )
-        contributor, new = Contributor.objects.get_or_create(**{
+        contributor, __ = Contributor.objects.get_or_create(**{
             'user': user,
             'invitation_key': self.cleaned_data.get('invitation_key', ''),
             'title': self.cleaned_data['title'],
@@ -133,10 +133,6 @@ class RegistrationForm(forms.Form):
             contributor=contributor,
             institution=institution,
         )
-
-        if contributor.activation_key == '':
-            # Seems redundant?
-            contributor.generate_key()
         contributor.save()
         return contributor
 
@@ -190,20 +186,27 @@ class DraftInvitationForm(forms.ModelForm):
 
 class ContributorsFilterForm(forms.Form):
     names = forms.CharField(widget=forms.Textarea())
+    include_invitations = forms.BooleanField(required=False, initial=True,
+                                             label='Include invitations in the filter.')
 
     def filter(self):
         names_found = []
         names_not_found = []
+        invitations_found = []
         r = self.cleaned_data['names'].replace('\r', '\n').split('\n')
+        include_invitations = self.cleaned_data.get('include_invitations', False)
         for name in r:
             last_name = name.split(',')[0]
             if not last_name:
                 continue
             if Contributor.objects.filter(user__last_name__istartswith=last_name).exists():
                 names_found.append(name)
+            elif include_invitations and RegistrationInvitation.objects.pending_response().filter(
+              last_name__istartswith=last_name).exists():
+                invitations_found.append(name)
             else:
                 names_not_found.append(name)
-        return names_found, names_not_found
+        return names_found, names_not_found, invitations_found
 
 
 class RegistrationInvitationForm(forms.ModelForm):
@@ -317,7 +320,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
         and changes the orcid_id. It marks all Publications, Reports and Comments
         authors by this Contributor with a deposit_requires_update == True.
         """
-        publications = Publication.objects.filter(authors=self.instance)
+        publications = Publication.objects.filter(authors_registered=self.instance)
         for publication in publications:
             publication.doideposit_needs_updating = True
             publication.save()

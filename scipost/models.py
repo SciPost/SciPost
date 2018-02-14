@@ -4,7 +4,8 @@ import random
 import string
 
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
@@ -14,7 +15,8 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        subject_areas_dict, CONTRIBUTOR_STATUS, TITLE_CHOICES,\
                        INVITATION_STYLE, INVITATION_TYPE,\
                        INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
-                       AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS
+                       AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS,\
+                       CONTRIBUTOR_NEWLY_REGISTERED
 from .fields import ChoiceArrayField
 from .managers import FellowManager, ContributorQuerySet, RegistrationInvitationManager,\
                       UnavailabilityPeriodManager, AuthorshipClaimQuerySet
@@ -28,7 +30,7 @@ def get_sentinel_user():
     status: "deactivated" and anonymized.
     Fallback user for models relying on Contributor that is being deleted.
     '''
-    user, new = User.objects.get_or_create(username='deleted')
+    user, __ = get_user_model().objects.get_or_create(username='deleted')
     return Contributor.objects.get_or_create(status=-4, user=user)[0]
 
 
@@ -37,11 +39,12 @@ class Contributor(models.Model):
     All *science* users of SciPost are Contributors.
     username, password, email, first_name and last_name are inherited from User.
     """
-    user = models.OneToOneField(User, on_delete=models.PROTECT, unique=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, unique=True)
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
-    status = models.SmallIntegerField(default=0, choices=CONTRIBUTOR_STATUS)
+    status = models.SmallIntegerField(default=CONTRIBUTOR_NEWLY_REGISTERED,
+                                      choices=CONTRIBUTOR_STATUS)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
                                   default='physics', verbose_name='Main discipline')
@@ -69,7 +72,7 @@ class Contributor(models.Model):
     def save(self, *args, **kwargs):
         if not self.activation_key:
             self.generate_key()
-        super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('scipost:contributor_info', args=(self.id,))
