@@ -41,8 +41,6 @@ admin.site.register(Issue, IssueAdmin)
 class PublicationAdminForm(forms.ModelForm):
     accepted_submission = forms.ModelChoiceField(
         queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
-    authors = forms.ModelMultipleChoiceField(
-        queryset=Contributor.objects.order_by('user__last_name'))
     authors_claims = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
