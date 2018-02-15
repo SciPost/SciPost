@@ -481,7 +481,7 @@ def assignment_request(request, assignment_id):
         if form.cleaned_data['accept'] == 'True':
             assignment.accepted = True
             assignment.to = request.user.contributor
-            assignment.submission.status = 'EICassigned'
+            assignment.submission.status = STATUS_EIC_ASSIGNED
             assignment.submission.editor_in_charge = request.user.contributor
             assignment.submission.open_for_reporting = True
             deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
@@ -546,22 +546,28 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
         messages.warning(request, errormessage)
         return redirect(reverse('submissions:pool'))
     contributor = Contributor.objects.get(user=request.user)
-    assignment = EditorialAssignment(submission=submission,
-                                     to=contributor,
-                                     accepted=True,
-                                     date_created=timezone.now(),
-                                     date_answered=timezone.now())
+
+    # The Contributor may already have an EditorialAssignment due to an earlier invitation.
+    assignment, __ = EditorialAssignment.objects.get_or_create(
+        submission=submission,
+        to=contributor)
+    assignment.accepted = True
+    assignment.date_answered = timezone.now()
+    assignment.save()
+
+    # Set deadlines
     deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
     if submission.submitted_to_journal == 'SciPostPhysLectNotes':
         deadline += datetime.timedelta(days=28)
-    submission.status = 'EICassigned'
+
+    # Update Submission data
+    submission.status = STATUS_EIC_ASSIGNED
     submission.editor_in_charge = contributor
     submission.open_for_reporting = True
     submission.reporting_deadline = deadline
     submission.open_for_commenting = True
-    submission.latest_activity = timezone.now()
-    assignment.save()
     submission.save()
+    submission.touch()
 
     SubmissionUtils.load({'assignment': assignment})
     SubmissionUtils.deprecate_other_assignments()

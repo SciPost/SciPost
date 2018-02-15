@@ -36,14 +36,15 @@ from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriod
                    RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
                    ModifyPersonalMessageForm, SearchForm, VetRegistrationForm, reg_ref_dict,\
                    UpdatePersonalDataForm, UpdateUserDataForm, PasswordChangeForm,\
-                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm
+                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm,\
+                   ContributorsFilterForm
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from affiliations.forms import AffiliationsFormset
 from colleges.permissions import fellowship_or_admin_required
 from commentaries.models import Commentary
 from comments.models import Comment
-from journals.models import Publication, Journal
+from journals.models import Publication, Journal, PublicationAuthorsTable
 from mails.views import MailEditingSubView
 from news.models import NewsItem
 from submissions.models import Submission, RefereeInvitation,\
@@ -358,9 +359,9 @@ def draft_registration_invitation(request):
     This is similar to the registration_invitations method,
     which is used to complete the invitation process.
     """
-    draft_inv_form = DraftInvitationForm(request.POST or None, current_user=request.user)
-    if draft_inv_form.is_valid():
-        invitation = draft_inv_form.save(commit=False)
+    form = DraftInvitationForm(request.POST or None, current_user=request.user)
+    if form.is_valid():
+        invitation = form.save(commit=False)
         invitation.drafted_by = request.user.contributor
         invitation.save()
 
@@ -369,48 +370,41 @@ def draft_registration_invitation(request):
         messages.success(request, 'Draft invitation saved.')
         return redirect(reverse('scipost:draft_registration_invitation'))
 
-    sent_reg_inv = RegistrationInvitation.objects.filter(responded=False, declined=False)
-    sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
-    sent_reg_inv_contrib = sent_reg_inv.filter(invitation_type='C').order_by('last_name')
-    sent_reg_inv_ref = sent_reg_inv.filter(invitation_type='R').order_by('last_name')
-    sent_reg_inv_cited_sub = sent_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    sent_reg_inv_cited_pub = sent_reg_inv.filter(invitation_type='cp').order_by('last_name')
-
-    resp_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=False)
-    resp_reg_inv_fellows = resp_reg_inv.filter(invitation_type='F').order_by('last_name')
-    resp_reg_inv_contrib = resp_reg_inv.filter(invitation_type='C').order_by('last_name')
-    resp_reg_inv_ref = resp_reg_inv.filter(invitation_type='R').order_by('last_name')
-    resp_reg_inv_cited_sub = resp_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
-
-    decl_reg_inv = RegistrationInvitation.objects.filter(
-        responded=True, declined=True).order_by('last_name')
-
-    names_reg_contributors = (Contributor.objects.filter(status=1).order_by('user__last_name')
-                              .values_list('user__first_name', 'user__last_name'))
     existing_drafts = DraftInvitation.objects.filter(processed=False).order_by('last_name')
 
     context = {
-        'draft_inv_form': draft_inv_form,
-        'sent_reg_inv_fellows': sent_reg_inv_fellows,
-        'sent_reg_inv_contrib': sent_reg_inv_contrib,
-        'sent_reg_inv_ref': sent_reg_inv_ref,
-        'sent_reg_inv_cited_sub': sent_reg_inv_cited_sub,
-        'sent_reg_inv_cited_pub': sent_reg_inv_cited_pub,
-        'resp_reg_inv_fellows': resp_reg_inv_fellows,
-        'resp_reg_inv_contrib': resp_reg_inv_contrib,
-        'resp_reg_inv_ref': resp_reg_inv_ref,
-        'resp_reg_inv_cited_sub': resp_reg_inv_cited_sub,
-        'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
-        'decl_reg_inv': decl_reg_inv,
-        'names_reg_contributors': names_reg_contributors,
+        'form': form,
         'existing_drafts': existing_drafts,
     }
     return render(request, 'scipost/draft_registration_invitation.html', context)
 
 
+@permission_required('scipost.can_draft_registration_invitations', return_403=True)
+def contributors_filter(request):
+    """
+    For Invitation Officers that use lists of scientists as a to-do. This
+    view returns all entries of those lists with users that are certainly not registered
+    or invitated.
+    """
+    names_found = names_not_found = invitations_found = None
+    form = ContributorsFilterForm(request.POST or None)
+    if form.is_valid():
+        names_found, names_not_found, invitations_found = form.filter()
+
+    context = {
+        'form': form,
+        'names_found': names_found,
+        'names_not_found': names_not_found,
+        'invitations_found': invitations_found,
+    }
+    return render(request, 'scipost/contributors_filter.html', context)
+
+
 @login_required
 def edit_draft_reg_inv(request, draft_id):
+    """
+    Edit DraftInvitation instance. It's only possible to edit istances created by the User itself.
+    """
     draft = get_object_or_404((get_objects_for_user(request.user, 'scipost.change_draftinvitation')
                                .filter(processed=False)),
                               id=draft_id)
@@ -803,7 +797,7 @@ def _personal_page_publications(request):
     }
     context['nr_publication_authorships_to_claim'] = Publication.objects.filter(
         author_list__contains=request.user.last_name).exclude(
-        authors=contributor).exclude(
+        authors_registered=contributor).exclude(
         authors_claims=contributor).exclude(
         authors_false_claims=contributor).count()
     return render(request, 'partials/scipost/personal_page/publications.html', context)
@@ -1031,28 +1025,28 @@ def claim_authorships(request):
     contributor = Contributor.objects.get(user=request.user)
 
     publication_authorships_to_claim = (Publication.objects
-                                       .filter(author_list__contains=contributor.user.last_name)
-                                       .exclude(authors__in=[contributor])
-                                       .exclude(authors_claims__in=[contributor])
-                                       .exclude(authors_false_claims__in=[contributor]))
+                                        .filter(author_list__contains=contributor.user.last_name)
+                                        .exclude(authors_registered=contributor)
+                                        .exclude(authors_claims=contributor)
+                                        .exclude(authors_false_claims=contributor))
     pub_auth_claim_form = AuthorshipClaimForm()
     submission_authorships_to_claim = (Submission.objects
                                        .filter(author_list__contains=contributor.user.last_name)
-                                       .exclude(authors__in=[contributor])
-                                       .exclude(authors_claims__in=[contributor])
-                                       .exclude(authors_false_claims__in=[contributor]))
+                                       .exclude(authors=contributor)
+                                       .exclude(authors_claims=contributor)
+                                       .exclude(authors_false_claims=contributor))
     sub_auth_claim_form = AuthorshipClaimForm()
     commentary_authorships_to_claim = (Commentary.objects
                                        .filter(author_list__contains=contributor.user.last_name)
-                                       .exclude(authors__in=[contributor])
-                                       .exclude(authors_claims__in=[contributor])
-                                       .exclude(authors_false_claims__in=[contributor]))
+                                       .exclude(authors=contributor)
+                                       .exclude(authors_claims=contributor)
+                                       .exclude(authors_false_claims=contributor))
     com_auth_claim_form = AuthorshipClaimForm()
     thesis_authorships_to_claim = (ThesisLink.objects
                                    .filter(author__contains=contributor.user.last_name)
-                                   .exclude(author_as_cont__in=[contributor])
-                                   .exclude(author_claims__in=[contributor])
-                                   .exclude(author_false_claims__in=[contributor]))
+                                   .exclude(author_as_cont=contributor)
+                                   .exclude(author_claims=contributor)
+                                   .exclude(author_false_claims=contributor))
     thesis_auth_claim_form = AuthorshipClaimForm()
 
     context = {
@@ -1145,16 +1139,17 @@ def vet_authorship_claim(request, claim_id, claim):
         vetting_contributor = Contributor.objects.get(user=request.user)
         claim_to_vet = AuthorshipClaim.objects.get(pk=claim_id)
 
-        if claim_to_vet.publication is not None:
+        if claim_to_vet.publication:
             claim_to_vet.publication.authors_claims.remove(claim_to_vet.claimant)
             if claim == '1':
-                claim_to_vet.publication.authors.add(claim_to_vet.claimant)
+                PublicationAuthorsTable.objects.create(
+                    publication=claim_to_vet.publication, contributor=claim_to_vet.claimant)
                 claim_to_vet.status = '1'
             elif claim == '0':
                 claim_to_vet.publication.authors_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
             claim_to_vet.publication.save()
-        if claim_to_vet.submission is not None:
+        if claim_to_vet.submission:
             claim_to_vet.submission.authors_claims.remove(claim_to_vet.claimant)
             if claim == '1':
                 claim_to_vet.submission.authors.add(claim_to_vet.claimant)
@@ -1163,7 +1158,7 @@ def vet_authorship_claim(request, claim_id, claim):
                 claim_to_vet.submission.authors_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
             claim_to_vet.submission.save()
-        if claim_to_vet.commentary is not None:
+        if claim_to_vet.commentary:
             claim_to_vet.commentary.authors_claims.remove(claim_to_vet.claimant)
             if claim == '1':
                 claim_to_vet.commentary.authors.add(claim_to_vet.claimant)
@@ -1172,7 +1167,7 @@ def vet_authorship_claim(request, claim_id, claim):
                 claim_to_vet.commentary.authors_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
             claim_to_vet.commentary.save()
-        if claim_to_vet.thesislink is not None:
+        if claim_to_vet.thesislink:
             claim_to_vet.thesislink.author_claims.remove(claim_to_vet.claimant)
             if claim == '1':
                 claim_to_vet.thesislink.author_as_cont.add(claim_to_vet.claimant)
@@ -1194,7 +1189,7 @@ def contributor_info(request, contributor_id):
     on the relevant name (in listing headers of Submissions, ...).
     """
     contributor = get_object_or_404(Contributor, pk=contributor_id)
-    contributor_publications = Publication.objects.published().filter(authors=contributor)
+    contributor_publications = Publication.objects.published().filter(authors_registered=contributor)
     contributor_submissions = Submission.objects.public_unlisted().filter(authors=contributor)
     contributor_commentaries = Commentary.objects.filter(authors=contributor)
     contributor_theses = ThesisLink.objects.vetted().filter(author_as_cont=contributor)

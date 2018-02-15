@@ -169,7 +169,7 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
         for ref_inv in self.submission.referee_invitations.all():
             if not ref_inv.cancelled:
                 if ref_inv.accepted is None:
-                    '''An invited referee may have not responsed yet.'''
+                    '''An invited referee may have not responded yet.'''
                     timelapse = timezone.now() - ref_inv.date_invited
                     if timelapse > datetime.timedelta(days=3):
                         text = ('Referee %s has not responded for %i days. '
@@ -185,10 +185,10 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
                         if timeleft.days < 0:
                             text += '(%i days overdue). ' % (- timeleft.days)
                         elif timeleft.days == 1:
-                            text += '(with 1 day left). '
+                            text += '(with 1 day left). Consider sending an urgent reminder.'
                         else:
-                            text += '(with %i days left). ' % timeleft.days
-                        text += 'Consider sending a reminder or cancelling the invitation.'
+                            text += ('(with %i days left). Consider sending a reminder if '
+                                     'you think it can ensure a timely Report.' % timeleft.days)
                         self.required_actions.append(('referee_no_delivery', text,))
 
         if self.submission.reporting_deadline < timezone.now():
@@ -262,12 +262,9 @@ class SubmissionUtils(BaseMailUtil):
         # Import here due to circular import error
         from .models import EditorialAssignment
 
-        assignments_to_deprecate = (EditorialAssignment.objects
-                                    .filter(submission=cls.assignment.submission, accepted=None)
-                                    .exclude(to=cls.assignment.to))
-        for atd in assignments_to_deprecate:
-            atd.deprecated = True
-            atd.save()
+        EditorialAssignment.objects.filter(submission=cls.assignment.submission, accepted=None)\
+            .exclude(to=cls.assignment.to)\
+            .update(deprecated=True)
 
     @classmethod
     def deprecate_all_assignments(cls):
@@ -1368,3 +1365,16 @@ class SubmissionUtils(BaseMailUtil):
             reply_to=['admin@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
+
+    @classmethod
+    def email_Fellow_tasklist(cls):
+        """
+        Email list of current and upcoming tasks to an individual Fellow.
+
+        Requires context to contain:
+        - `fellow`
+        """
+        cls._send_mail(cls, 'email_fellow_tasklist',
+#                       [cls._context['fellow'].email_address],
+                       ['jscaux@scipost.org'], # temporary, for testing
+                       'Current and upcoming tasks')

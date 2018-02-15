@@ -20,10 +20,11 @@
 
     <meta name="citation_title" content="{{ publication.title }}"/>
     {% for author in publication.authors.all %}
-    <meta name="citation_author" content="{{ author.user.last_name }}, {{ author.user.first_name }}"/>
-    {% endfor %}
-    {% for author in publication.authors_unregistered.all %}
-    <meta name="citation_author" content="{{ author.last_name }}, {{ author.first_name }}"/>
+        {% if author.contributor %}
+            <meta name="citation_author" content="{{ author.contributor.user.last_name }}, {{ author.contributor.user.first_name }}"/>
+        {% elif author.unregistered_author %}
+            <meta name="citation_author" content="{{ author.unregistered_author.last_name }}, {{ author.unregistered_author.first_name }}"/>
+        {% endif %}
     {% endfor %}
     <meta name="citation_doi" content="{{ publication.doi_string }}"/>
     <meta name="citation_publication_date" content="{{ publication.publication_date|date:'Y/m/d' }}"/>
@@ -83,18 +84,21 @@
             <h3>Authors</h3>
             <ul>
                 {% for author in publication.authors.all %}
-                      <li><a href="{{author.get_absolute_url}}">{{ author }}</a></li>
-                {% endfor %}
-                {% for author in publication.authors_unregistered.all %}
-                      <li>{{ author }}</li>
+                    {% if author.is_registered %}
+                        <li><a href="{{ author.contributor.get_absolute_url }}">{{ author.contributor }}</a></li>
+                    {% else %}
+                        <li>{{ author.unregistered_author }}</li>
+                    {% endif %}
                 {% endfor %}
             </ul>
 
-            {% include 'partials/journals/references.html' with publication=publication %}
+
 
             {% if is_edcol_admin %}
                 {# This function is not available for public yet! #}
                 <em>The following is not available for the public yet:</em>
+                {% include 'partials/journals/references.html' with publication=publication %}
+
                 {% if publication.funders_generic.exists %}
                     <h3>Funder{{ publication.funders_generic.count|pluralize }} for this publication:</h3>
                     <ul>
@@ -116,7 +120,7 @@
         </div>
     </div>
 
-    {% if request.user and request.user.contributor in publication.authors.all %}
+    {% if request.user and request.user.contributor in publication.registered_authors.all %}
         <h3>Author actions</h3>
         <ul>
             <li><a href="{% url 'commentaries:comment_on_publication' publication.doi_label %}">Place a comment on this publication</a></li>
@@ -129,29 +133,15 @@
         <div class="col-12">
             <h3>Editorial Administration tools: </h3>
             <ul>
-              <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }} {% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
-                <div class="row">
-                    <div class="col-md-5">
-                      <p>registered authors:</p>
-                      <ul>
-                        {% for author in publication.authors.all %}
-                          <li>
-                            <a href="{% url 'journals:mark_first_author' publication_id=publication.id contributor_id=author.id %}">{{ author }}</a>
-                          </li>
-                        {% endfor %}
-                      </ul>
-                    </div>
-                    <div class="col-md-5">
-                      <p>unregistered authors:</p>
-                      <ul>
-                        {% for author_unreg in publication.authors_unregistered.all %}
-                          <li>
-                            <a href="{% url 'journals:mark_first_author_unregistered' publication_id=publication.id unregistered_author_id=author_unreg.id %}">{{ author_unreg }}</a>
-                          </li>
-                        {% endfor %}
-                      </ul>
-                    </div>
-                </div>
+              <li>
+                  Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }}{% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
+                  <ul class="list-unstyled pl-4">
+                    {% for author in publication.authors.all %}
+                      <li>
+                        {{ author.order }}. <a href="{% url 'journals:mark_first_author' publication_id=publication.id author_object_id=author.id %}">{{ author }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
               </li>
               <li><a href="{% url 'journals:add_author' publication.id %}">Add a missing author</a></li>
               <li><a href="{% url 'journals:create_citation_list_metadata' publication.doi_label %}">Create/update citation list metadata</a></li>

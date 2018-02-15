@@ -21,8 +21,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 
 from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string, issue_doi_label_from_doi_label
-from .models import Journal, Issue, Publication, UnregisteredAuthor, Deposit, DOAJDeposit,\
-                    GenericDOIDeposit
+from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
+                    GenericDOIDeposit, PublicationAuthorsTable
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet
@@ -246,18 +246,22 @@ def validate_publication(request):
     if validate_publication_form.is_valid():
         publication = validate_publication_form.save()
 
-        # Fill in remaining data
+        # Fill remaining data
         submission = publication.accepted_submission
-        publication.authors.add(*submission.authors.all())
-        if publication.first_author:
-            publication.authors.add(publication.first_author)
         if publication.first_author_unregistered:
-            publication.authors_unregistered.add(publication.first_author_unregistered)
+            PublicationAuthorsTable.objects.create(
+                order=1,
+                publication=publication,
+                unregistered_author=publication.first_author_unregistered)
+
+        for submission_author in submission.authors.all():
+            PublicationAuthorsTable.objects.create(
+                publication=publication, contributor=submission_author)
         publication.authors_claims.add(*submission.authors_claims.all())
         publication.authors_false_claims.add(*submission.authors_false_claims.all())
 
         # Add Institutions to the publication
-        for author in publication.authors.all():
+        for author in publication.authors_registered.all():
             for current_affiliation in author.affiliations.active():
                 publication.institutions.add(current_affiliation.institution)
 
@@ -280,8 +284,8 @@ def validate_publication(request):
         submission.save()
 
         # Update ProductionStream
-        stream = submission.production_stream
-        if stream:
+        if hasattr(submission, 'production_stream'):
+            stream = submission.production_stream
             stream.status = PROOFS_PUBLISHED
             stream.save()
             if request.user.production_user:
@@ -334,25 +338,29 @@ def manage_metadata(request, issue_doi_label=None, doi_label=None):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-@transaction.atomic
-def mark_first_author(request, publication_id, contributor_id):
+def mark_first_author(request, publication_id, author_object_id):
     publication = get_object_or_404(Publication, id=publication_id)
-    contributor = get_object_or_404(Contributor, id=contributor_id)
-    publication.first_author = contributor
-    publication.first_author_unregistered = None
-    publication.save()
-    return redirect(reverse('journals:manage_metadata',
-                            kwargs={'doi_label': publication.doi_label}))
+    author_object = get_object_or_404(publication.authors, id=author_object_id)
 
-
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
-@transaction.atomic
-def mark_first_author_unregistered(request, publication_id, unregistered_author_id):
-    publication = get_object_or_404(Publication, id=publication_id)
-    unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
-    publication.first_author = None
-    publication.first_author_unregistered = unregistered_author
+    # Save explicit relation
+    if author_object.is_registered:
+        publication.first_author = author_object.contributor
+        publication.first_author_unregistered = None
+    else:
+        publication.first_author = None
+        publication.first_author_unregistered = author_object.unregistered_author
     publication.save()
+
+    # Redo ordering
+    author_object.order = 1
+    author_object.save()
+    author_objects = publication.authors.exclude(id=author_object.id)
+    count = 2
+    for author in author_objects:
+        author.order = count
+        author.save()
+        count += 1
+    messages.success(request, 'Marked {} first author'.format(author_object))
     return redirect(reverse('journals:manage_metadata',
                             kwargs={'doi_label': publication.doi_label}))
 
@@ -369,60 +377,35 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
     publication = get_object_or_404(Publication, id=publication_id)
     if contributor_id:
         contributor = get_object_or_404(Contributor, id=contributor_id)
-        publication.authors.add(contributor)
+        PublicationAuthorsTable.objects.create(contributor=contributor, publication=publication)
         publication.save()
+        messages.success(request, 'Added {} as an author.'.format(contributor))
         return redirect(reverse('journals:manage_metadata',
                                 kwargs={'doi_label': publication.doi_label}))
 
-    if request.method == 'POST':
-        form = UnregisteredAuthorForm(request.POST)
-        if form.is_valid():
-            contributors_found = Contributor.objects.filter(
-                user__last_name__icontains=form.cleaned_data['last_name'])
-            unregistered_authors_found = UnregisteredAuthor.objects.filter(
-                last_name__icontains=form.cleaned_data['last_name'])
-            new_unreg_author_form = UnregisteredAuthorForm(
-                initial={'first_name': form.cleaned_data['first_name'],
-                         'last_name': form.cleaned_data['last_name'], })
-        else:
-            errormessage = 'Please fill in the form properly'
-            return render(request, 'scipost/error.html', context={'errormessage': errormessage})
-    else:
-        form = UnregisteredAuthorForm()
-        contributors_found = None
-        unregistered_authors_found = None
-        new_unreg_author_form = UnregisteredAuthorForm()
-    context = {'publication': publication,
-               'contributors_found': contributors_found,
-               'unregistered_authors_found': unregistered_authors_found,
-               'form': form,
-               'new_unreg_author_form': new_unreg_author_form, }
+    contributors_found = None
+    form = UnregisteredAuthorForm(request.POST or request.GET or None)
+
+    if request.POST and form.is_valid():
+        unregistered_author = form.save()
+        PublicationAuthorsTable.objects.create(
+            publication=publication,
+            unregistered_author=unregistered_author)
+        messages.success(request, 'Added {} as an unregistered author.'.format(
+            unregistered_author
+        ))
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': publication.doi_label}))
+    elif form.is_valid():
+        contributors_found = Contributor.objects.filter(
+            # user__first_name__icontains=form.cleaned_data['first_name'],
+            user__last_name__icontains=form.cleaned_data['last_name'])
+    context = {
+        'publication': publication,
+        'contributors_found': contributors_found,
+        'form': form,
+    }
     return render(request, 'journals/add_author.html', context)
-
-
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
-@transaction.atomic
-def add_unregistered_author(request, publication_id, unregistered_author_id):
-    publication = get_object_or_404(Publication, id=publication_id)
-    unregistered_author = get_object_or_404(UnregisteredAuthor, id=unregistered_author_id)
-    publication.authors_unregistered.add(unregistered_author)
-    publication.save()
-    return redirect(reverse('journals:manage_metadata',
-                            kwargs={'doi_label': publication.doi_label}))
-
-
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
-@transaction.atomic
-def add_new_unreg_author(request, publication_id):
-    publication = get_object_or_404(Publication, id=publication_id)
-    if request.method == 'POST':
-        new_unreg_author_form = UnregisteredAuthorForm(request.POST)
-        if new_unreg_author_form.is_valid():
-            new_unreg_author = new_unreg_author_form.save()
-            publication.authors_unregistered.add(new_unreg_author)
-            return redirect(reverse('journals:manage_metadata',
-                                    kwargs={'doi_label': publication.doi_label}))
-    raise Http404
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -611,40 +594,27 @@ def create_metadata_xml(request, doi_label):
         '</journal_issue>\n'
         '<journal_article publication_type=\'full_text\'>\n'
         '<titles><title>' + publication.title + '</title></titles>\n'
-        '<contributors>\n'
     )
 
     # Precondition: all authors MUST be listed in authors field of publication instance,
     # this to be checked by EdAdmin before publishing.
-    for author in publication.authors.all():
-        if author == publication.first_author:
+    initial['metadata_xml'] += '<contributors>\n'
+    for author_object in publication.authors.all():
+        if author_object.order == 1:
             initial['metadata_xml'] += (
                 '<person_name sequence=\'first\' contributor_role=\'author\'> '
-                '<given_name>' + author.user.first_name + '</given_name> '
-                '<surname>' + author.user.last_name + '</surname> '
+                '<given_name>' + author_object.first_name + '</given_name> '
+                '<surname>' + author_object.last_name + '</surname> '
             )
         else:
             initial['metadata_xml'] += (
                 '<person_name sequence=\'additional\' contributor_role=\'author\'> '
-                '<given_name>' + author.user.first_name + '</given_name> '
-                '<surname>' + author.user.last_name + '</surname> '
+                '<given_name>' + author_object.first_name + '</given_name> '
+                '<surname>' + author_object.last_name + '</surname> '
             )
-        if author.orcid_id:
-            initial['metadata_xml'] += '<ORCID>http://orcid.org/' + author.orcid_id + '</ORCID>'
-        initial['metadata_xml'] += '</person_name>\n'
-
-    for author_unreg in publication.authors_unregistered.all():
-        if author_unreg == publication.first_author_unregistered:
+        if author_object.contributor and author_object.contributor.orcid_id:
             initial['metadata_xml'] += (
-                '<person_name sequence=\'first\' contributor_role=\'author\'> '
-                '<given_name>' + author_unreg.first_name + '</given_name> '
-                '<surname>' + author_unreg.last_name + '</surname> '
-            )
-        else:
-            initial['metadata_xml'] += (
-                '<person_name sequence=\'additional\' contributor_role=\'author\'> '
-                '<given_name>' + author_unreg.first_name + '</given_name> '
-                '<surname>' + author_unreg.last_name + '</surname> '
+                '<ORCID>http://orcid.org/' + author_object.contributor.orcid_id + '</ORCID>'
             )
         initial['metadata_xml'] += '</person_name>\n'
     initial['metadata_xml'] += '</contributors>\n'
@@ -1261,6 +1231,49 @@ def mark_generic_deposit_success(request, deposit_id, success):
         return redirect(reverse('journals:manage_report_metadata'))
     else:
         return redirect(reverse('journals:manage_comment_metadata'))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def email_object_made_citable(request, **kwargs):
+    """
+    This method sends an email to the author of a Report or a Comment,
+    to notify that the object has been made citable (doi registered).
+    """
+    type_of_object = kwargs['type_of_object']
+    object_id = int(kwargs['object_id'])
+
+    if type_of_object == 'report':
+        _object = get_object_or_404(Report, id=object_id)
+        redirect_to = reverse('journals:manage_report_metadata')
+        publication_citation=None
+        publication_doi=None
+        try:
+            publication=Publication.objects.get(
+                accepted_submission__arxiv_identifier_wo_vn_nr=_object.submission.arxiv_identifier_wo_vn_nr)
+            publication_citation = publication.citation()
+            publication_doi = publication.doi_string
+        except Publication.DoesNotExist:
+            pass
+    elif type_of_object == 'comment':
+        _object = get_object_or_404(Comment, id=object_id)
+        redirect_to = reverse('journals:manage_comment_metadata')
+    else:
+        raise Http404
+
+    if not _object.doi_label:
+        messages.warning(request, 'This object does not have a DOI yet.')
+        return redirect(redirect_to)
+
+    if type_of_object == 'report':
+        JournalUtils.load({'report': _object,
+                           'publication_citation': publication_citation,
+                           'publication_doi': publication_doi})
+        JournalUtils.email_report_made_citable()
+    else:
+        JournalUtils.load({'comment': _object, })
+        JournalUtils.email_comment_made_citable()
+    messages.success(request, 'Email sent')
+    return redirect(redirect_to)
 
 
 ###########

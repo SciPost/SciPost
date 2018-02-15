@@ -128,8 +128,9 @@ class Submission(models.Model):
             version=self.arxiv_vn_nr)
         self.arxiv_identifier_w_vn_nr = arxiv_w_vn
 
-        super().save(*args, **kwargs)
+        obj = super().save(*args, **kwargs)
         self._update_cycle()
+        return obj
 
     def __str__(self):
         header = (self.arxiv_identifier_w_vn_nr + ', '
@@ -191,6 +192,15 @@ class Submission(models.Model):
     def original_submission_date(self):
         return Submission.objects.filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).first().submission_date
+
+    @cached_property
+    def thread(self):
+        """
+        Return all versions of the Submission with that arxiv id.
+        """
+        return Submission.objects.public().filter(
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
+        ).order_by('-arxiv_vn_nr')
 
     @cached_property
     def other_versions(self):

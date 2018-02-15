@@ -74,20 +74,11 @@ event: "focusin"
 	<div class="row">
           <div class="col-md-5">
             <ul>
-              <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }} {% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
-                <p>registered authors:</p>
-                <ul>
+              <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }}{% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
+                <ul class="list-unstyled pl-4">
                   {% for author in publication.authors.all %}
                   <li>
-                    <a href="{% url 'journals:mark_first_author' publication_id=publication.id contributor_id=author.id %}">{{ author }}</a>
-                  </li>
-                  {% endfor %}
-                </ul>
-                <p>unregistered authors:</p>
-                <ul>
-                  {% for author_unreg in publication.authors_unregistered.all %}
-                  <li>
-                    <a href="{% url 'journals:mark_first_author_unregistered' publication_id=publication.id unregistered_author_id=author_unreg.id %}">{{ author_unreg }}</a>
+                    {{ author.order }}. <a href="{% url 'journals:mark_first_author' publication_id=publication.id author_object_id=author.id %}">{{ author }}</a>
                   </li>
                   {% endfor %}
                 </ul>

@@ -30,6 +30,46 @@ class UnregisteredAuthor(models.Model):
         return self.last_name + ', ' + self.first_name
 
 
+class PublicationAuthorsTable(models.Model):
+    publication = models.ForeignKey('journals.Publication', related_name='authors')
+    unregistered_author = models.ForeignKey('journals.UnregisteredAuthor', null=True, blank=True,
+                                            related_name='+')
+    contributor = models.ForeignKey('scipost.Contributor', null=True, blank=True, related_name='+')
+    order = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ('order',)
+
+    def __str__(self):
+        if self.contributor:
+            return str(self.contributor)
+        elif self.unregistered_author:
+            return str(self.unregistered_author)
+
+    def save(self, *args, **kwargs):
+        if not self.order:
+            self.order = self.publication.authors.count() + 1
+        return super().save(*args, **kwargs)
+
+    @property
+    def is_registered(self):
+        return self.contributor is not None
+
+    @property
+    def first_name(self):
+        if self.contributor:
+            return self.contributor.user.first_name
+        if self.unregistered_author:
+            return self.unregistered_author.first_name
+
+    @property
+    def last_name(self):
+        if self.contributor:
+            return self.contributor.user.last_name
+        if self.unregistered_author:
+            return self.unregistered_author.last_name
+
+
 class Journal(models.Model):
     name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS, unique=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
@@ -240,9 +280,15 @@ class Publication(models.Model):
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), blank=True, null=True)
 
     # Authors
-    authors = models.ManyToManyField('scipost.Contributor', blank=True,
-                                     related_name='publications')
+    authors_registered = models.ManyToManyField('scipost.Contributor', blank=True,
+                                                through='PublicationAuthorsTable',
+                                                through_fields=('publication', 'contributor'),
+                                                related_name='publications')
     authors_unregistered = models.ManyToManyField('journals.UnregisteredAuthor', blank=True,
+                                                  through='PublicationAuthorsTable',
+                                                  through_fields=(
+                                                    'publication',
+                                                    'unregistered_author'),
                                                   related_name='publications')
     first_author = models.ForeignKey('scipost.Contributor', blank=True, null=True,
                                      on_delete=models.CASCADE,
@@ -281,6 +327,12 @@ class Publication(models.Model):
     latest_citedby_update = models.DateTimeField(null=True, blank=True)
     latest_metadata_update = models.DateTimeField(blank=True, null=True)
     latest_activity = models.DateTimeField(default=timezone.now)
+
+    # Deprecated fields. About to be removed after successful database migration on production.
+    authors_old = models.ManyToManyField('scipost.Contributor', blank=True,
+                                         related_name='publications_old')
+    authors_unregistered_old = models.ManyToManyField('journals.UnregisteredAuthor', blank=True,
+                                                      related_name='publications_old')
 
     objects = PublicationQuerySet.as_manager()
 
@@ -331,12 +383,10 @@ class Reference(models.Model):
     reference_number = models.IntegerField()
     publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE)
 
-    authors = models.CharField(max_length=512)
-    title = models.CharField(max_length=512)
-    citation = models.CharField(max_length=512, blank=True)
-
-    vor = models.CharField(max_length=128)
-    vor_url = models.URLField()
+    authors = models.CharField(max_length=1028)
+    citation = models.CharField(max_length=1028, blank=True)
+    identifier = models.CharField(blank=True, max_length=128)
+    link = models.URLField(blank=True)
 
     class Meta:
         unique_together = ('reference_number', 'publication')
@@ -344,7 +394,7 @@ class Reference(models.Model):
         default_related_name = 'references'
 
     def __str__(self):
-        return '[{}] {}'.format(self.reference_number, self.publication.doi_label)
+        return '[{}] {}, {}'.format(self.reference_number, self.authors[:30], self.citation[:30])
 
 
 class Deposit(models.Model):
