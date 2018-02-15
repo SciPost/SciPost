@@ -23,3 +23,7 @@ WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] = '/home/jdewit/webapps/scipost_sta
 # Logging
 LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/jdewit/webapps/scipost/logs/arxiv.log'
 LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/jdewit/webapps/scipost/logs/doi.log'
+
+MONGO_DATABASE['user'] = get_secret('MONGO_DB_USER')
+MONGO_DATABASE['password'] = get_secret('MONGO_DB_PASSWORD')
+MONGO_DATABASE['port'] = get_secret("MONGO_DB_PORT")

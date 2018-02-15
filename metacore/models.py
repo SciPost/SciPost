@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+
 from mongoengine import connect, DynamicDocument, ListField, StringField,\
                         DynamicField, URLField, DateTimeField
 
@@ -7,7 +9,12 @@ from .managers import CitableQuerySet
 
 # Make the connection to MongoDB - this could be put in settings.py as well
 # It uses default settings for the mongo server
-connect('scipost')
+connect(settings.MONGO_DATABASE['database'],
+        host=settings.MONGO_DATABASE['host'],
+        user=settings.MONGO_DATABASE['user'],
+        password=settings.MONGO_DATABASE['password']
+        port=settings.MONGO_DATABASE['port'])
+
 
 class Citable(DynamicDocument):
     """
@@ -60,4 +67,3 @@ class CitableWithDOI(Citable):
 
     def times_cited(self):
         return CitableWithDOI.objects.cited_by(self.doi).count()
-

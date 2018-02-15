@@ -209,7 +209,13 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
+MONGO_DATABASE = {
+    'database': 'scipost',
+    'host': 'localhost',
+    'user': '',
+    'password': '',
+    'port': '27017',
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
