@@ -1,0 +1,49 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Produce metadata DOAJ{% endblock pagetitle %}
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <nav class="breadcrumb hidden-sm-down">
+                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+                <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="breadcrumb-item">{{ publication.citation }}</a>
+                <span class="breadcrumb-item active">Produce metadata DOAJ</span>
+            </nav>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Produce metadata DOAJ for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
+  </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h3>Existing DOAJ metadata</h3>
+        {% if publication.metadata_DOAJ %}
+            <pre><code>{{ publication.metadata_DOAJ }}</code></pre>
+        {% else %}
+            <p>No existing DOAJ Metadata found.</p>
+        {% endif %}
+
+        <br>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <input class="btn btn-primary" type="submit" value="{% if publication.metadata_DOAJ %}Reproduce{% else %}Produce{% endif %}">
+            <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="ml-3 btn btn-link">Back to Admin for {{ publication.doi_label }}</a>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -95,8 +95,7 @@ class PublicationFactory(factory.django.DjangoModelFactory):
 
         # Authors
         self.author_list = self.accepted_submission.author_list
-        self.authors.add(*self.accepted_submission.authors.all())
-        self.first_author = self.accepted_submission.authors.first()
+        # self.authors.add(*self.accepted_submission.authors.all())
         self.authors_claims.add(*self.accepted_submission.authors_claims.all())
         self.authors_false_claims.add(*self.accepted_submission.authors_false_claims.all())
 

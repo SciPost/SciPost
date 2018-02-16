@@ -60,7 +60,7 @@
               {% for contributor in contributors_found %}
                   <li>
                     <div class="font-weight-bold">{{ contributor.user.first_name }} {{ contributor.user.last_name }}</div>
-                    <a href="{% url 'journals:add_author' publication_id=publication.id contributor_id=contributor.id %}">Add this Contributor as author of this Publication</a>
+                    <a href="{% url 'journals:add_author' doi_label=publication.doi_label contributor_id=contributor.id %}">Add this Contributor as author of this Publication</a>
                   </li>
               {% empty %}
                   <li><span class="text-danger">No Contributor with this name could be identified.</span></li>
@@ -68,7 +68,7 @@
             </ul>
 
             <h3>You can otherwise add the author manually and link it to the publication</h3>
-            <form action="{% url 'journals:add_author' publication_id=publication.id %}" method="post">
+            <form action="{% url 'journals:add_author'  doi_label=publication.doi_label %}" method="post">
                 {% csrf_token %}
                 {{ form|bootstrap }}
                 <input class="btn btn-primary" type="submit" value="Add">

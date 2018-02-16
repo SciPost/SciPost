@@ -290,12 +290,6 @@ class Publication(models.Model):
                                                     'publication',
                                                     'unregistered_author'),
                                                   related_name='publications')
-    first_author = models.ForeignKey('scipost.Contributor', blank=True, null=True,
-                                     on_delete=models.CASCADE,
-                                     related_name='first_author_publications')
-    first_author_unregistered = models.ForeignKey('journals.UnregisteredAuthor', blank=True, null=True,
-                                                  on_delete=models.CASCADE,
-                                                  related_name='first_author_publications')
     authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
                                             related_name='claimed_publications')
     authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,
@@ -327,12 +321,6 @@ class Publication(models.Model):
     latest_citedby_update = models.DateTimeField(null=True, blank=True)
     latest_metadata_update = models.DateTimeField(blank=True, null=True)
     latest_activity = models.DateTimeField(default=timezone.now)
-
-    # Deprecated fields. About to be removed after successful database migration on production.
-    authors_old = models.ManyToManyField('scipost.Contributor', blank=True,
-                                         related_name='publications_old')
-    authors_unregistered_old = models.ManyToManyField('journals.UnregisteredAuthor', blank=True,
-                                                      related_name='publications_old')
 
     objects = PublicationQuerySet.as_manager()
 
