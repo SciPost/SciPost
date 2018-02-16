@@ -25,7 +25,7 @@ class ContributorQuerySet(models.QuerySet):
     def available(self):
         return self.exclude(
             unavailability_periods__start__lte=today,
-            unavailability_periods__end__lte=today)
+            unavailability_periods__end__gte=today)
 
     def awaiting_validation(self):
         return self.filter(user__is_active=False, status=CONTRIBUTOR_NEWLY_REGISTERED)
