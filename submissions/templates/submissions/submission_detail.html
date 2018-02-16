@@ -54,7 +54,7 @@
                             <li>Other versions of this Submission (with Reports) exist:</li>
                             <ul class="list-unstyled">
                                 {% for vn in submission.other_versions %}
-                                    <li>{% include 'submissions/_submission_version.html' with submission=vn %}</li>
+                                    <li>{% include 'partials/submissions/submission_version.html' with submission=vn %}</li>
                                 {% endfor %}
                             </ul>
                         {% endif %}
@@ -64,9 +64,9 @@
         </div>
 
         <h3 class="mt-2">Submission summary</h3>
-        {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 %}
+        {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
-        {% include 'submissions/_submission_status_block.html' with submission=submission %}
+        {% include 'partials/submissions/submission_status.html' with submission=submission %}
 
         <br>
         <br>
@@ -96,14 +96,14 @@
 {% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
     {% for recommendation in recommendations %}
         {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' or recommendation|is_viewable_by_authors %}
-            {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
+            {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
         {% endif %}
     {% endfor %}
 
     <div class="mb-4">
         <h2>Events</h2>
         <div id="eventslist">
-            {% include 'submissions/submission_event_list.html' with events=submission.events.for_author %}
+            {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
         </div>
     </div>
 {% endif %}
@@ -194,7 +194,7 @@
 
 <div id="invitedreportslist">
     {% for report in invited_reports %}
-        {% include 'submissions/_single_public_report.html' with report=report user=request.user perms=perms %}
+        {% include 'partials/submissions/report_public.html' with report=report user=request.user perms=perms %}
     {% endfor %}
 </div>
 
@@ -216,7 +216,7 @@
 
 <div id="contributedreportslist">
     {% for report in contributed_reports %}
-        {% include 'submissions/_single_public_report.html' with report=report user=request.user perms=perms %}
+        {% include 'partials/submissions/report_public.html' with report=report user=request.user perms=perms %}
     {% endfor %}
 </div>
 

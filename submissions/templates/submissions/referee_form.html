@@ -28,7 +28,7 @@
 <div class="row">
     <div class="col-12">
         <h2>Submission:</h2>
-        {% include 'submissions/_submission_summary.html' with submission=submission %}
+        {% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
 
         {% if submission.referees_flagged %}
             <h3>Referees flagged upon submission (treat reports with caution):</h3>
@@ -61,7 +61,7 @@
                 <ul class="list-group list-group-flush">
                     {% for entry in queryresults.entries %}
                         <li class="list-group-item">
-                            {% include 'submissions/_arxiv_queryresult.html' with item=entry %}
+                            {% include 'partials/submissions/arxiv_queryresult.html' with item=entry %}
                         </li>
                     {% endfor %}
                 </ul>

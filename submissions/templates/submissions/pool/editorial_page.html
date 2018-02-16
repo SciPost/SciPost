@@ -26,7 +26,7 @@
         </div>
 
         <h3 class="mt-4">Submission summary</h3>
-        {% include 'submissions/_submission_summary_short.html' with submission=submission hide_title=1 %}
+        {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 %}
 
         <br>
         {% if submission.author_comments %}
@@ -56,7 +56,7 @@
 
 
         {% for recommendation in submission.eicrecommendations.all %}
-            {% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
+            {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
             {% if recommendation.may_be_reformulated %}
                 <a href="{% url 'submissions:reformulate_eic_recommendation' submission.arxiv_identifier_w_vn_nr %}">Reformulate this Editorial Recommendation</a>
             {% endif %}
@@ -77,7 +77,7 @@
 
 <div class="row"><!-- Status -->
     <div class="col-md-12">
-        {% include 'submissions/_submission_status_block.html' with submission=submission %}
+        {% include 'partials/submissions/submission_status.html' with submission=submission %}
         {% if submission.plagiarism_report %}
             <h4>Plagiarism report status: {% if submission.plagiarism_report.percent_match %}<b>{{submission.plagiarism_report.percent_match}}%</b>{% else %}<em>Scan in progress</em>{% endif %}</h4>
         {% endif %}
@@ -87,7 +87,7 @@
 {% if full_access %}
     <div class="row">
         <div class="col-md-10 col-lg-8">
-            {% include 'submissions/_required_actions_block.html' with submission=submission %}
+            {% include 'partials/submissions/pool/required_actions_block.html' with submission=submission %}
         </div>
     </div>
 {% endif %}
@@ -96,7 +96,7 @@
     {% if full_access %}
         <div class="row">
             <div class="col-12">
-                {% include 'submissions/_form_submission_cycle_choice.html' with form=cycle_choice_form submission=submission %}
+                {% include 'partials/submissions/pool/submission_cycle_choice_form.html' with form=cycle_choice_form submission=submission %}
             </div>
         </div>
     {% else %}
@@ -111,7 +111,7 @@
         <div class="row">
             <div class="col-12">
                 <h3>Refereeing status summary:</h3>
-                {% include 'submissions/_submission_refereeing_status.html' with submission=submission %}
+                {% include 'partials/submissions/pool/referee_invitations_status.html' with submission=submission %}
             </div>
         </div>
 
@@ -119,7 +119,7 @@
             <div class="row">
                 <div class="col-12">
                     <h3 class="mb-2">Detail of refereeing invitations:</h3>
-                    {% include 'submissions/_submission_refereeing_invitations.html' with submission=submission invitations=submission.referee_invitations.all %}
+                    {% include 'partials/submissions/pool/referee_invitations.html' with submission=submission invitations=submission.referee_invitations.all %}
                 </div>
             </div>
         {% endif %}
@@ -245,7 +245,7 @@
                 <ul class="list-group list-group-flush">
                     {% for comm in submission.editorial_communications.all %}
                         <li class="list-group-item">
-                            {% include 'submissions/_editorial_communication_content.html' with communication=comm %}
+                            {% include 'partials/submissions/pool/editorial_communication_content.html' with communication=comm %}
                         </li>
                     {% empty %}
                         <li class="list-group-item">There have been no communications for this Submission.</li>
@@ -255,8 +255,7 @@
     </div>
 
     <h2 class="mt-3">Events</h2>
-    {% include 'submissions/submission_event_list.html' with events=submission.events.for_eic %}
-
+    {% include 'partials/submissions/submission_events.html' with events=submission.events.for_eic %}
 {% endif %}
 
 <div class="mb-5"></div>
