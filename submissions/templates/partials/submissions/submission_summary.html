@@ -54,4 +54,12 @@
     </tr>
 </table>
 
-{% block submission_summary_footer %}{% endblock %}
+{% if show_abstract %}
+    {% if submission.pdf_refereeing_pack %}
+        <p class="mt-3">
+            <a href="{% url 'submissions:refereeing_package_pdf' submission.arxiv_identifier_w_vn_nr %}" target="_blank" class="btn btn-outline-primary">Download Refereeing Package</a>
+        </p>
+    {% endif %}
+    <h3 class="mt-3">Abstract</h3>
+    <p>{{submission.abstract}}</p>
+{% endif %}
