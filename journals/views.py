@@ -25,7 +25,7 @@ from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
-                   ReferenceFormSet
+                   ReferenceFormSet, CreateMetadataDOAJForm
 from .utils import JournalUtils
 
 from comments.models import Comment
@@ -353,14 +353,14 @@ def mark_first_author(request, publication_id, author_object_id):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
-def add_author(request, publication_id, contributor_id=None, unregistered_author_id=None):
+def add_author(request, doi_label, contributor_id=None, unregistered_author_id=None):
     """
     If not all authors are registered Contributors or if they have not
     all claimed authorship, this method allows editorial administrators
     to associated them to the publication.
     This is important for the Crossref metadata, in which all authors must appear.
     """
-    publication = get_object_or_404(Publication, id=publication_id)
+    publication = get_object_or_404(Publication, doi_label=doi_label)
     if contributor_id:
         contributor = get_object_or_404(Contributor, id=contributor_id)
         PublicationAuthorsTable.objects.create(contributor=contributor, publication=publication)
@@ -384,7 +384,6 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
                                 kwargs={'doi_label': publication.doi_label}))
     elif form.is_valid():
         contributors_found = Contributor.objects.filter(
-            # user__first_name__icontains=form.cleaned_data['first_name'],
             user__last_name__icontains=form.cleaned_data['last_name'])
     context = {
         'publication': publication,
@@ -403,12 +402,13 @@ def create_citation_list_metadata(request, doi_label):
     in the metadata field in a Publication instance.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if request.method == 'POST':
-        bibitems_form = CitationListBibitemsForm(request.POST, request.FILES)
-        if bibitems_form.is_valid():
-            publication.metadata['citation_list'] = bibitems_form.extract_dois()
-            publication.save()
-    bibitems_form = CitationListBibitemsForm()
+    bibitems_form = CitationListBibitemsForm(request.POST or None, request.FILES or None)
+    if bibitems_form.is_valid():
+        publication.metadata['citation_list'] = bibitems_form.extract_dois()
+        publication.save()
+        messages.success(request, 'Updated citation list')
+        return redirect(reverse('journals:create_citation_list_metadata',
+                        kwargs={'doi_label': publication.doi_label}))
     context = {
         'publication': publication,
         'bibitems_form': bibitems_form,
@@ -792,12 +792,17 @@ def mark_deposit_success(request, deposit_id, success):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def produce_metadata_DOAJ(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    JournalUtils.load({'request': request, 'publication': publication})
-    publication.metadata_DOAJ = JournalUtils.generate_metadata_DOAJ()
-    publication.save()
-    messages.success(request, '<h3>%s</h3>Successfully produced metadata DOAJ.'
-                              % publication.doi_label)
-    return redirect(reverse('journals:manage_metadata'))
+    form = CreateMetadataDOAJForm(request.POST or None, instance=publication, request=request)
+    if form.is_valid():
+        form.save()
+        messages.success(request, '<h3>%s</h3>Successfully produced metadata DOAJ.'
+                                  % publication.doi_label)
+        return redirect(reverse('journals:manage_metadata'))
+    context = {
+        'publication': publication,
+        'form': form
+    }
+    return render(request, 'journals/metadata_doaj_create.html', context)
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)

@@ -138,12 +138,12 @@
                   <ul class="list-unstyled pl-4">
                     {% for author in publication.authors.all %}
                       <li>
-                        {{ author.order }}. <a href="{% url 'journals:mark_first_author' publication_id=publication.id author_object_id=author.id %}">{{ author }}</a>
+                        {{ author.order }}. <a href="{% url 'journals:mark_first_author' doi_label=publication.doi_label author_object_id=author.id %}">{{ author }}</a>
                       </li>
                     {% endfor %}
                   </ul>
               </li>
-              <li><a href="{% url 'journals:add_author' publication.id %}">Add a missing author</a></li>
+              <li><a href="{% url 'journals:add_author' doi_label=publication.doi_label %}">Add a missing author</a></li>
               <li><a href="{% url 'journals:create_citation_list_metadata' publication.doi_label %}">Create/update citation list metadata</a></li>
               <li><a href="{% url 'journals:create_funding_info_metadata' publication.doi_label %}">Create/update funding info metadata</a></li>
               <li><a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">Create/update the XML metadata</a></li>

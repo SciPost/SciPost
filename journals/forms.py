@@ -83,6 +83,69 @@ class CreateMetadataXMLForm(forms.ModelForm):
         })
 
 
+class CreateMetadataDOAJForm(forms.ModelForm):
+    class Meta:
+        model = Publication
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.instance.metadata_DOAJ = self.generate(self.instance)
+        super().save(*args, **kwargs)
+
+    def generate(self, publication):
+        md = {
+            'bibjson': {
+                'author': [{'name': publication.author_list}],
+                'title': publication.title,
+                'abstract': publication.abstract,
+                'year': publication.publication_date.strftime('%Y'),
+                'month': publication.publication_date.strftime('%m'),
+                'start_page': publication.get_paper_nr(),
+                'identifier': [
+                    {
+                        'type': 'eissn',
+                        'id': str(publication.in_issue.in_volume.in_journal.issn)
+                    },
+                    {
+                        'type': 'doi',
+                        'id': publication.doi_string
+                    }
+                ],
+                'link': [
+                    {
+                        'url': self.request.build_absolute_uri(publication.get_absolute_url()),
+                        'type': 'fulltext',
+                    }
+                ],
+                'journal': {
+                    'publisher': 'SciPost',
+                    'volume': str(publication.in_issue.in_volume.number),
+                    'number': str(publication.in_issue.number),
+                    'identifier': [{
+                        'type': 'eissn',
+                        'id': str(publication.in_issue.in_volume.in_journal.issn)
+                    }],
+                    'license': [
+                        {
+                            'url': self.request.build_absolute_uri(
+                                publication.in_issue.in_volume.in_journal.get_absolute_url()),
+                            'open_access': 'true',
+                            'type': publication.get_cc_license_display(),
+                            'title': publication.get_cc_license_display(),
+                        }
+                    ],
+                    'language': ['EN'],
+                    'title': publication.in_issue.in_volume.in_journal.get_name_display(),
+                }
+            }
+        }
+        return md
+
+
 class BaseReferenceFormSet(BaseModelFormSet):
     """
     BaseReferenceFormSet is used to help fill the Reference list for Publications

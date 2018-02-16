@@ -7,9 +7,8 @@
         <div class="container">
             <nav class="breadcrumb hidden-sm-down">
                 <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-                <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
-                <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
-                <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+                <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="breadcrumb-item">{{ publication.citation }}</a>
                 <span class="breadcrumb-item active">Create citation list metadata</span>
             </nav>
         </div>
@@ -22,24 +21,20 @@
 
 <div class="row">
   <div class="col-12">
-    <h1 class="highlight">Create citation list metadata page</h1>
+    <h1 class="highlight">Create citation list metadata page for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
   </div>
 </div>
 
 
 <div class="row">
   <div class="col-12">
-      {% if errormessage %}
-        <h2 class="text-danger">{{ errormessage }}</h2>
-      {% endif %}
-
       <form action="{% url 'journals:create_citation_list_metadata' publication.doi_label %}" method="post">
         {% csrf_token %}
         {{ bibitems_form|bootstrap }}
-        <input type="submit" class="btn btn-secondary" value="Submit">
+        <input type="submit" class="btn btn-primary" value="Submit">
       </form>
 
-      <hr>
+      <hr class="divider">
 
       <h3>Current citation list metadata:</h3>
       <table>
@@ -52,7 +47,7 @@
 
       <hr>
 
-      <h3>Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></h3>
+      <p>Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></p>
     </div>
 </div>
 
