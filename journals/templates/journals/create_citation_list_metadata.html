@@ -32,12 +32,13 @@
         {% csrf_token %}
         {{ bibitems_form|bootstrap }}
         <input type="submit" class="btn btn-primary" value="Submit">
+        <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="ml-3 btn btn-link">Back to Admin for {{ publication.doi_label }}</a>
       </form>
 
       <hr class="divider">
 
       <h3>Current citation list metadata:</h3>
-      <table>
+      <table class="table">
         {% for citation in citation_list %}
           <tr>
             <td>{{ citation.key }}</td><td>{{ citation.doi }}</td>

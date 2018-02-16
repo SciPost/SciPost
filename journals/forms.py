@@ -58,16 +58,19 @@ class CitationListBibitemsForm(forms.Form):
         return dois
 
 
-class FundingInfoForm(forms.Form):
-    funding_statement = forms.CharField(widget=forms.Textarea())
+class FundingInfoForm(forms.ModelForm):
+    funding_statement = forms.CharField(widget=forms.Textarea({
+        'rows': 10,
+        'placeholder': 'Paste the funding info statement here'
+    }))
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['funding_statement'].widget.attrs.update({
-            'rows': 10,
-            'cols': 50,
-            'placeholder': 'Paste the funding info statement here'
-        })
+    class Meta:
+        model = Publication
+        fields = ()
+
+    def save(self, *args, **kwargs):
+        self.instance.metadata['funding_statement'] = self.cleaned_data['funding_statement']
+        return super().save(*args, **kwargs)
 
 
 class CreateMetadataXMLForm(forms.ModelForm):
@@ -77,10 +80,7 @@ class CreateMetadataXMLForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['metadata_xml'].widget.attrs.update({
-            'rows': 50,
-            'cols': 50
-        })
+        self.fields['metadata_xml'].widget.attrs.update({'rows': 50})
 
 
 class CreateMetadataDOAJForm(forms.ModelForm):
@@ -94,7 +94,7 @@ class CreateMetadataDOAJForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.metadata_DOAJ = self.generate(self.instance)
-        super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def generate(self, publication):
         md = {

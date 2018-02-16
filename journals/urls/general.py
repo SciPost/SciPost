@@ -41,7 +41,7 @@ urlpatterns = [
     url(r'^admin/manage_metadata/$',
         journals_views.manage_metadata,
         name='manage_metadata'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/create_citation_list_metadata$',
+    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/citation_list_metadata$',
         journals_views.create_citation_list_metadata,
         name='create_citation_list_metadata'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/update_references$',
