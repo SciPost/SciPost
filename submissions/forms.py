@@ -435,7 +435,7 @@ class EditorialAssignmentForm(forms.ModelForm):
         self.submission = kwargs.pop('submission')
         super().__init__(*args, **kwargs)
         self.fields['to'].queryset = Contributor.objects.available().filter(
-            fellowships__pool=self.submission).distinct()
+            fellowships__pool=self.submission).distinct().order_by('user__last_name')
 
     def save(self, commit=True):
         self.instance.submission = self.submission

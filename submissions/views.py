@@ -490,6 +490,9 @@ def assignment_request(request, assignment_id):
             assignment.submission.reporting_deadline = deadline
             assignment.submission.open_for_commenting = True
             assignment.submission.latest_activity = timezone.now()
+            # Save assignment and submission
+            assignment.save()
+            assignment.submission.save()
 
             SubmissionUtils.load({'assignment': assignment})
             SubmissionUtils.deprecate_other_assignments()
@@ -505,11 +508,12 @@ def assignment_request(request, assignment_id):
             assignment.accepted = False
             assignment.refusal_reason = form.cleaned_data['refusal_reason']
             assignment.submission.status = 'unassigned'
+
+            # Save assignment and submission
+            assignment.save()
+            assignment.submission.save()
             msg = 'Thank you for considering'
             url = reverse('submissions:pool')
-        # Save assignment and submission
-        assignment.save()
-        assignment.submission.save()
 
         # Form submitted, redirect user
         messages.success(request, msg)
