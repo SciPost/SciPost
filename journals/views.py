@@ -248,11 +248,6 @@ def validate_publication(request):
 
         # Fill remaining data
         submission = publication.accepted_submission
-        if publication.first_author_unregistered:
-            PublicationAuthorsTable.objects.create(
-                order=1,
-                publication=publication,
-                unregistered_author=publication.first_author_unregistered)
 
         for submission_author in submission.authors.all():
             PublicationAuthorsTable.objects.create(
@@ -341,15 +336,6 @@ def manage_metadata(request, issue_doi_label=None, doi_label=None):
 def mark_first_author(request, publication_id, author_object_id):
     publication = get_object_or_404(Publication, id=publication_id)
     author_object = get_object_or_404(publication.authors, id=author_object_id)
-
-    # Save explicit relation
-    if author_object.is_registered:
-        publication.first_author = author_object.contributor
-        publication.first_author_unregistered = None
-    else:
-        publication.first_author = None
-        publication.first_author_unregistered = author_object.unregistered_author
-    publication.save()
 
     # Redo ordering
     author_object.order = 1

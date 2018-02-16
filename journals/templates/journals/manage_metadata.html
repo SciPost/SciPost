@@ -74,7 +74,7 @@ event: "focusin"
 	<div class="row">
           <div class="col-md-5">
             <ul>
-              <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }}{% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
+              <li>Mark the first author
                 <ul class="list-unstyled pl-4">
                   {% for author in publication.authors.all %}
                   <li>

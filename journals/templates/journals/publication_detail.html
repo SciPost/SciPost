@@ -134,7 +134,7 @@
             <h3>Editorial Administration tools: </h3>
             <ul>
               <li>
-                  Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }}{% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
+                  Mark the first author
                   <ul class="list-unstyled pl-4">
                     {% for author in publication.authors.all %}
                       <li>
