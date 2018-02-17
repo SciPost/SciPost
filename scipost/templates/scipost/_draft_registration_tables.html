@@ -27,10 +27,10 @@
             <td>{{ fellow.get_invitation_type_display }}</td>
             <td>{{ fellow.invited_by.user.first_name }} {{ fellow.invited_by.user.last_name }}</td>
             <td>
-                {% if perms.scipost.can_invite_Fellows %}
+                {% if perms.scipost.can_invite_fellows %}
                     <a href="{% url 'scipost:renew_registration_invitation' invitation_id=fellow.id %}">Renew</a> ({{ fellow.nr_reminders }}) {% if fellow.date_last_reminded %}(last: {{ fellow.date_last_reminded|date:"Y-m-d" }}){% endif %}
                     &middot;
-                    <a href="{% url 'scipost:mark_reg_inv_as_declined' invitation_id=fellow.id %}">Declined</a>
+                    <a href="{% url 'scipost:registration_invitation_mark_declined' invitation_id=fellow.id %}">Declined</a>
                 {% endif %}
             </td>
 
@@ -70,10 +70,10 @@
             <td>{{ invitation.get_invitation_type_display }}</td>
             <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
             <td>
-                {% if perms.scipost.can_invite_Fellows %}
+                {% if perms.scipost.can_invite_fellows %}
                     <a href="{% url 'scipost:renew_registration_invitation' invitation_id=invitation.id %}">Renew</a> ({{ invitation.nr_reminders }}) {% if invitation.date_last_reminded %}(last: {{ invitation.date_last_reminded|date:"Y-m-d" }}){% endif %}
                     &middot;
-                    <a href="{% url 'scipost:mark_reg_inv_as_declined' invitation_id=invitation.id %}">Declined</a>
+                    <a href="{% url 'scipost:registration_invitation_mark_declined' invitation_id=invitation.id %}">Declined</a>
                 {% endif %}
             </td>
           </tr>
@@ -113,7 +113,7 @@
             <td>{{ invitation.get_invitation_type_display }}</td>
             <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
             <td>
-                {% if perms.scipost.can_invite_Fellows %}
+                {% if perms.scipost.can_invite_fellows %}
                     <a href="{% url 'scipost:renew_registration_invitation' invitation_id=invitation.id %}">Renew</a> ({{ invitation.nr_reminders }}) {% if invitation.date_last_reminded %}(last: {{ invitation.date_last_reminded|date:"Y-m-d" }}){% endif %}
                 {% endif %}
             </td>
@@ -153,7 +153,7 @@
             <td>{{ invitation.get_invitation_type_display }}</td>
             <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
             <td>
-                {% if perms.scipost.can_invite_Fellows %}
+                {% if perms.scipost.can_invite_fellows %}
                     <a href="{% url 'scipost:renew_registration_invitation' invitation_id=invitation.id %}">Renew</a> ({{ invitation.nr_reminders }}) {% if invitation.date_last_reminded %}(last: {{ invitation.date_last_reminded|date:"Y-m-d" }}){% endif %}
                 {% endif %}
             </td>
@@ -194,7 +194,7 @@
             <td>{{ invitation.get_invitation_type_display }}</td>
             <td>{{ invitation.invited_by.user.first_name }} {{ invitation.invited_by.user.last_name }}</td>
             <td>
-                {% if perms.scipost.can_invite_Fellows %}
+                {% if perms.scipost.can_invite_fellows %}
                     <a href="{% url 'scipost:renew_registration_invitation' invitation_id=invitation.id %}">Renew</a> ({{ invitation.nr_reminders }}) {% if invitation.date_last_reminded %}(last: {{ invitation.date_last_reminded|date:"Y-m-d" }}){% endif %}
                 {% endif %}
             </td>

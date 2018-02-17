@@ -25,12 +25,13 @@ class EmailTemplateForm(forms.Form):
         self.mail_fields = None
 
         data = {}
-        if args[0].get('subject'):
-            data['subject'] = args[0]['subject']
-        if args[0].get('text'):
-            data['text'] = args[0]['text']
-        if args[0].get('extra_recipient'):
-            data['extra_recipient'] = args[0]['extra_recipient']
+        if args[0]:
+            if args[0].get('subject'):
+                data['subject'] = args[0]['subject']
+            if args[0].get('text'):
+                data['text'] = args[0]['text']
+            if args[0].get('extra_recipient'):
+                data['extra_recipient'] = args[0]['extra_recipient']
         super().__init__(data or None)
 
         # Gather data
@@ -148,10 +149,3 @@ class HiddenDataForm(forms.Form):
         for name, field in form.fields.items():
             self.fields[name] = field
             self.fields[name].widget = forms.HiddenInput()
-
-        # for name, field in form.fields.items():
-        #     self.fields[name] = field
-        # d = form.data
-        # raise
-        # for field, value in form.data.items():
-        #     self.fields[name].initial = value

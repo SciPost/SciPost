@@ -167,7 +167,7 @@ class DraftInvitationForm(forms.ModelForm):
 
     def clean_invitation_type(self):
         invitation_type = self.cleaned_data['invitation_type']
-        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_Fellows'):
+        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_fellows'):
             self.add_error('invitation_type', ('You do not have the authorization'
                                                ' to send a Fellow-type invitation.'
                                                ' Consider Contributor, or cited (sub/pub).'))
@@ -212,8 +212,7 @@ class RegistrationInvitationForm(forms.ModelForm):
         fields = ['title', 'first_name', 'last_name', 'email',
                   'invitation_type',
                   'cited_in_submission', 'cited_in_publication',
-                  'message_style', 'personal_message'
-                  ]
+                  'message_style', 'personal_message']
 
     def __init__(self, *args, **kwargs):
         '''
@@ -256,7 +255,7 @@ class RegistrationInvitationForm(forms.ModelForm):
 
     def clean_invitation_type(self):
         invitation_type = self.cleaned_data['invitation_type']
-        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_Fellows'):
+        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_fellows'):
             self.add_error('invitation_type', ('You do not have the authorization'
                                                ' to send a Fellow-type invitation.'
                                                ' Consider Contributor, or cited (sub/pub).'))

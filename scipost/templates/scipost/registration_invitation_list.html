@@ -73,7 +73,7 @@ $(document).ready(function(){
                     <td>{{ draft.get_invitation_type_display }}</td>
                     <td>{{ draft.drafted_by.user.first_name }} {{ draft.drafted_by.user.last_name }}</td>
                     <td>
-                        <a href="{% url 'scipost:edit_draft_reg_inv' draft_id=draft.id %}">Edit</a> |
+                        <a href="{% url 'scipost:draft_registration_invitation_form' draft_id=draft.id %}">Edit</a> |
                         <a href="{% url 'scipost:registration_invitations_from_draft' draft_id=draft.id %}">Process</a> |
                         <a href="{% url 'scipost:mark_draft_inv_as_processed' draft_id=draft.id %}">Mark as processed</a>
                     </td>

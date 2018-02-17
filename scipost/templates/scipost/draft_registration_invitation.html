@@ -83,7 +83,7 @@ $(document).ready(function(){
                     <td>{{ draft.drafted_by.user.first_name }} {{ draft.drafted_by.user.last_name }}</td>
                     <td>
                         {% if draft.drafted_by.user == request.user %}
-                            <a href="{% url 'scipost:edit_draft_reg_inv' draft.id %}">Edit</a>
+                            <a href="{% url 'scipost:draft_registration_invitation_form' draft.id %}">Edit</a>
                         {% endif %}</td>
                   </tr>
                 {% empty %}

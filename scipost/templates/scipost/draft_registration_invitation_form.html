@@ -36,7 +36,7 @@ $(document).ready(function(){
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Edit a draft registration invitation</h1>
-        <form action="{% url 'scipost:edit_draft_reg_inv' draft_id=draft_inv_form.instance.id %}" method="post">
+        <form action="{% url 'scipost:draft_registration_invitation_form' draft_id=draft_inv_form.instance.id %}" method="post">
             {% csrf_token %}
             {{draft_inv_form.media}}
             {{draft_inv_form|bootstrap}}

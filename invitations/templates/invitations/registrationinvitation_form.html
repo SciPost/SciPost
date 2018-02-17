@@ -1,0 +1,41 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: {% if object %}Edit{% else %}New{% endif %} Registration Invitation{% endblock pagetitle %}
+
+{% load scipost_extras %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+    <span class="breadcrumb-item">{% if object %}Edit{% else %}New{% endif %}</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">{% if object %}Registration Invitation {{ object.id }}{% else %}New Registration Invitation{% endif %}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <form method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <button type="submit" class="btn btn-primary" name="save" value="save">{% if object %}Update{% else %}Create{% endif %}</button>
+            {% if perms.scipost.can_manage_registration_invitations %}
+                <button type="submit" class="ml-2 btn btn-primary" name="save" value="save_and_send">{% if object %}Update{% else %}Create{% endif %} and send</button>
+            {% endif %}
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer_script %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock footer_script %}

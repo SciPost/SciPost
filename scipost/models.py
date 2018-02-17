@@ -192,8 +192,8 @@ class RegistrationInvitation(models.Model):
     Invitation to particular persons for registration
     """
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    first_name = models.CharField(max_length=30, default='')
-    last_name = models.CharField(max_length=30, default='')
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
     email = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE,
                                        default=INVITATION_CONTRIBUTOR)
@@ -210,7 +210,7 @@ class RegistrationInvitation(models.Model):
     invitation_key = models.CharField(max_length=40, unique=True)
     key_expires = models.DateTimeField(default=timezone.now)
     date_sent = models.DateTimeField(default=timezone.now)
-    invited_by = models.ForeignKey(Contributor,
+    invited_by = models.ForeignKey('scipost.Contributor',
                                    on_delete=models.CASCADE,
                                    blank=True, null=True)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
