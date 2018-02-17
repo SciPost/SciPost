@@ -35,32 +35,16 @@ $(document).ready(function(){
 
 <div class="row">
     <div class="col-12">
-        <div class="card card-grey">
-            <div class="card-body">
-                <h1 class="card-title">Registration Invitations</h1>
-                {% if request.user|is_in_group:'SciPost Administrators' %}
-                    <h3>Perform a <a href="{% url 'scipost:registration_invitations_cleanup' %}">cleanup</a> of existing invitations.</h3>
-                {% endif %}
-            </div>
-        </div>
+        <h1 class="highlight">Registration Invitations</h1>
+        <h3>Actions</h3>
+        <ul>
+            {% if perms.scipost.can_manage_registration_invitations %}
+                <li><a href="{% url 'scipost:registration_invitations_cleanup' %}">Perform a cleanup</a> of existing invitations</li>
+            {% endif %}
+            <li><a href="#">Send new invitation</a></li>
+        </ul>
     </div>
 </div>
-
-<div class="row">
-    <div class="col-12">
-        <h2 class="highlight">Send a new invitation</h2>
-        {% if errormessage %}
-            <h3 class="text-danger">{{ errormessage }}</h3>
-        {% endif %}
-        <form action="{% url 'scipost:registration_invitations' %}" method="post">
-            {% csrf_token %}
-            {{reg_inv_form.media}}
-            {{reg_inv_form|bootstrap}}
-            <input type="submit" class="btn btn-primary" value="Submit">
-        </form>
-    </div>
-</div>
-
 
 <div class="row">
     <div class="col-12">

@@ -442,42 +442,96 @@ def map_draft_reg_inv_to_contributor(request, draft_id, contributor_id):
 
 
 @permission_required('scipost.can_invite_Fellows', return_403=True)
-def registration_invitations(request, draft_id=None):
+def registration_invitations_form(request, draft_id):
+    draft = get_object_or_404(DraftInvitation, id=draft_id)
+    initial = {
+        'title': draft.title,
+        'first_name': draft.first_name,
+        'last_name': draft.last_name,
+        'email': draft.email,
+        'invitation_type': draft.invitation_type,
+        'cited_in_submission': draft.cited_in_submission,
+        'cited_in_publication': draft.cited_in_publication,
+    }
+    form = RegistrationInvitationForm(request.POST or None, initial=initial,
+                                      current_user=request.user)
+    mail_request = MailEditingSubView(request, mail_code='registration_invitation',
+                                      invitation=draft)
+    if form.is_valid():
+        if mail_request.is_valid():
+            # invitation.nr_reminders += 1
+            # invitation.date_last_reminded = timezone.now()
+            # invitation.save()
+            # invitation.refresh_keys()
+            # messages.success(request, 'Registration invitation has been sent.')
+            # mail_request.send()
+            invitation = form.save(commit=False)
+            invitation.invited_by = request.user.contributor
+            invitation.save()
+            invitation.refresh_keys()
+
+            Utils.load({'invitation': invitation})
+            Utils.send_registration_invitation_email()
+            DraftInvitation.objects.filter(email=form.cleaned_data['email']).update(processed=True)
+
+            messages.success(request, 'Registration Invitation sent')
+            return redirect(reverse('scipost:registration_invitations'))
+        else:
+            mail_request.add_form(form)
+            return mail_request.return_render()
+    context = {
+        'form': form,
+    }
+    return render(request, 'scipost/registration_invitation_form.html', context)
+
+
+@permission_required('scipost.can_invite_Fellows', return_403=True)
+def registration_invitations(request):
     """ Overview and tools for administrators """
     # List invitations sent; send new ones
-    associated_contributors = None
-    initial = {}
-    if draft_id:
-        # Fill draft data if draft_id given
-        draft = get_object_or_404(DraftInvitation, id=draft_id)
-        associated_contributors = Contributor.objects.filter(
-            user__last_name__icontains=draft.last_name)
-        initial = {
-            'title': draft.title,
-            'first_name': draft.first_name,
-            'last_name': draft.last_name,
-            'email': draft.email,
-            'invitation_type': draft.invitation_type,
-            'cited_in_submission': draft.cited_in_submission,
-            'cited_in_publication': draft.cited_in_publication,
-        }
+    # associated_contributors = None
+    # initial = {}
+    # draft = None
+    # if draft_id:
+    #     # Fill draft data if draft_id given
+    #     draft = get_object_or_404(DraftInvitation, id=draft_id)
+    #     associated_contributors = Contributor.objects.filter(
+    #         user__last_name__icontains=draft.last_name)
+    #     initial = {
+    #         'title': draft.title,
+    #         'first_name': draft.first_name,
+    #         'last_name': draft.last_name,
+    #         'email': draft.email,
+    #         'invitation_type': draft.invitation_type,
+    #         'cited_in_submission': draft.cited_in_submission,
+    #         'cited_in_publication': draft.cited_in_publication,
+    #     }
 
-    # Send invitation from form information
-    reg_inv_form = RegistrationInvitationForm(request.POST or None, initial=initial,
-                                              current_user=request.user)
-    if reg_inv_form.is_valid():
-        invitation = reg_inv_form.save(commit=False)
-        invitation.invited_by = request.user.contributor
-        invitation.save()
-        invitation.refresh_keys()
-
-        Utils.load({'invitation': invitation})
-        Utils.send_registration_invitation_email()
-        (DraftInvitation.objects.filter(email=reg_inv_form.cleaned_data['email'])
-         .update(processed=True))
-
-        messages.success(request, 'Registration Invitation sent')
-        return redirect(reverse('scipost:registration_invitations'))
+    # # Send invitation from form information
+    # reg_inv_form = RegistrationInvitationForm(request.POST or None, initial=initial,
+    #                                           current_user=request.user)
+    # if reg_inv_form.is_valid():
+    #     if mail_request.is_valid():
+    #         # invitation.nr_reminders += 1
+    #         # invitation.date_last_reminded = timezone.now()
+    #         # invitation.save()
+    #         # invitation.refresh_keys()
+    #         # messages.success(request, 'Registration invitation has been sent.')
+    #         # mail_request.send()
+    #         invitation = reg_inv_form.save(commit=False)
+    #         invitation.invited_by = request.user.contributor
+    #         invitation.save()
+    #         invitation.refresh_keys()
+    #
+    #         Utils.load({'invitation': invitation})
+    #         Utils.send_registration_invitation_email()
+    #         (DraftInvitation.objects.filter(email=reg_inv_form.cleaned_data['email'])
+    #          .update(processed=True))
+    #
+    #         messages.success(request, 'Registration Invitation sent')
+    #         return redirect(reverse('scipost:registration_invitations'))
+    #     else:
+    #         return mail_request.return_render()
 
     sent_reg_inv = RegistrationInvitation.objects.filter(responded=False, declined=False)
     sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
@@ -498,10 +552,10 @@ def registration_invitations(request, draft_id=None):
     names_reg_contributors = Contributor.objects.filter(
         status=1).order_by('user__last_name').values_list(
         'user__first_name', 'user__last_name')
-    existing_drafts = DraftInvitation.objects.filter(processed=False).order_by('last_name')
+    existing_drafts = DraftInvitation.objects.filter(processed=False).order_by('last_name', 'email')
 
     context = {
-        'reg_inv_form': reg_inv_form,
+        # 'reg_inv_form': reg_inv_form,
         'sent_reg_inv_fellows': sent_reg_inv_fellows,
         'sent_reg_inv_contrib': sent_reg_inv_contrib,
         'sent_reg_inv_ref': sent_reg_inv_ref,
@@ -515,7 +569,7 @@ def registration_invitations(request, draft_id=None):
         'decl_reg_inv': decl_reg_inv,
         'names_reg_contributors': names_reg_contributors,
         'existing_drafts': existing_drafts,
-        'associated_contributors': associated_contributors,
+        # 'associated_contributors': associated_contributors,
     }
     return render(request, 'scipost/registration_invitations.html', context)
 

@@ -145,8 +145,7 @@ class DraftInvitationForm(forms.ModelForm):
         model = DraftInvitation
         fields = ['title', 'first_name', 'last_name', 'email',
                   'invitation_type',
-                  'cited_in_submission', 'cited_in_publication'
-                  ]
+                  'cited_in_submission', 'cited_in_publication']
 
     def __init__(self, *args, **kwargs):
         '''
@@ -161,12 +160,7 @@ class DraftInvitationForm(forms.ModelForm):
         if self.instance.id:
             return email
 
-        if RegistrationInvitation.objects.filter(email=email).exists():
-            self.add_error('email', 'This email address has already been used for an invitation')
-        elif DraftInvitation.objects.filter(email=email).exists():
-            self.add_error('email', ('This email address has already been'
-                                     ' used for a draft invitation'))
-        elif User.objects.filter(email=email).exists():
+        if User.objects.filter(email=email).exists():
             self.add_error('email', 'This email address is already associated to a Contributor')
 
         return email
@@ -253,9 +247,9 @@ class RegistrationInvitationForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data['email']
-        if RegistrationInvitation.objects.filter(email=email).exists():
-            self.add_error('email', 'This email address has already been used for an invitation')
-        elif User.objects.filter(email=email).exists():
+        # if RegistrationInvitation.objects.filter(email=email).exists():
+        #     self.add_error('email', 'This email address has already been used for an invitation')
+        if User.objects.filter(email=email).exists():
             self.add_error('email', 'This email address is already associated to a Contributor')
 
         return email

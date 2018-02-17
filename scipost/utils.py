@@ -280,16 +280,6 @@ class Utils(BaseMailUtil):
             'useful to your work as a professional scientist.</p>'
             '\n<p>Many thanks in advance for taking a few minutes to look into it,</p>'
             '<p>On behalf of the SciPost Foundation,</p>'
-            # '<br/>Prof. dr Jean-Sébastien Caux'
-            # '<br/>---------------------------------------------'
-            # '<br/>Institute for Theoretical Physics'
-            # '<br/>University of Amsterdam'
-            # '<br/>Science Park 904'
-            # '<br/>1098 XH Amsterdam<br/>The Netherlands'
-            # '<br/>---------------------------------------------'
-            # '<br/>tel.: +31 (0)20 5255775'
-            # '<br/>fax: +31 (0)20 5255778'
-            # '<br/>---------------------------------------------'
             '<p>' + signature + '</p>'
         )
         email_context['invitation_key'] = cls.invitation.invitation_key

@@ -84,7 +84,7 @@ urlpatterns = [
     url(r'^registration_requests/(?P<contributor_id>[0-9]+)/reset$',
         views.registration_requests_reset, name="registration_requests_reset"),
     url(r'^registration_invitations/(?P<draft_id>[0-9]+)$',
-        views.registration_invitations, name="registration_invitations_from_draft"),
+        views.registration_invitations_form, name="registration_invitations_from_draft"),
     url(r'^registration_invitations$',
         views.registration_invitations, name="registration_invitations"),
     url(r'^draft_registration_invitation$',

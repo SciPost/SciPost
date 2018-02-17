@@ -18,11 +18,20 @@ class EmailTemplateForm(forms.Form):
     subject = forms.CharField(max_length=250, label="Subject*")
     text = forms.CharField(widget=SummernoteEditor, label="Text*")
     extra_recipient = forms.EmailField(label="Optional: bcc this email to", required=False)
+    prefix = 'mail_form'
 
     def __init__(self, *args, **kwargs):
         self.mail_code = kwargs.pop('mail_code')
         self.mail_fields = None
-        super().__init__(*args)
+
+        data = {}
+        if args[0].get('subject'):
+            data['subject'] = args[0]['subject']
+        if args[0].get('text'):
+            data['text'] = args[0]['text']
+        if args[0].get('extra_recipient'):
+            data['extra_recipient'] = args[0]['extra_recipient']
+        super().__init__(data or None)
 
         # Gather data
         mail_template = loader.get_template('mail_templates/%s.html' % self.mail_code)
@@ -131,3 +140,18 @@ class EmailTemplateForm(forms.Form):
             reply_to=[self.mail_data.get('from_address', 'no-reply@scipost.org')])
         email.attach_alternative(self.mail_fields['html_message'], 'text/html')
         email.send(fail_silently=False)
+
+
+class HiddenDataForm(forms.Form):
+    def __init__(self, form, *args, **kwargs):
+        super().__init__(form.data, *args, **kwargs)
+        for name, field in form.fields.items():
+            self.fields[name] = field
+            self.fields[name].widget = forms.HiddenInput()
+
+        # for name, field in form.fields.items():
+        #     self.fields[name] = field
+        # d = form.data
+        # raise
+        # for field, value in form.data.items():
+        #     self.fields[name].initial = value

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from .forms import EmailTemplateForm
+from .forms import EmailTemplateForm, HiddenDataForm
 
 
 class MailEditingSubView(object):
@@ -13,6 +13,9 @@ class MailEditingSubView(object):
     @property
     def recipients_string(self):
         return ', '.join(getattr(self.mail_form, 'mail_fields', {}).get('recipients', ['']))
+
+    def add_form(self, form):
+        self.context['transfer_data_form'] = HiddenDataForm(form)
 
     def is_valid(self):
         return self.mail_form.is_valid()
