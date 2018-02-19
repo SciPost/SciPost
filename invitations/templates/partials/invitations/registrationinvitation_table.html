@@ -18,7 +18,7 @@
           <tr>
             <td>{{ invitation.last_name }}, {{ invitation.first_name }}</td>
             <td>{{ invitation.email }}</td>
-            <td>{{ invitation.get_status_display }}</td>
+            <td{% if invitation.status == 'draft' %} class="text-warning"{% endif %}>{{ invitation.get_status_display }}</td>
             <td>{{ invitation.get_invitation_type_display }}</td>
             <td>{{ invitation.created_by.first_name }} {{ invitation.created_by.last_name }}</td>
             <td>{{ invitation.created }}</td>

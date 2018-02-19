@@ -73,17 +73,6 @@ class CitationNotificationProcessForm(AcceptRequestMixin, forms.ModelForm):
     def get_all_notifications(self):
         return self.instance.related_notifications().unprocessed()
 
-    def save(self, *args, **kwargs):
-        if kwargs.get('commit', True):
-            self.get_all_notifications().update(processed=True)
-
-            contributor = self.get_all_notifications().filter(contributor__isnull=False)[0]
-            send_mail = (contributor and contributor.accepts_SciPost_emails) or not contributor
-            if send_mail:
-                Utils.load({'notifications': self.get_all_notifications()})
-                Utils.citation_notifications_email()
-        return super().save(*args, **kwargs)
-
 
 class RegistrationInvitationAddCitationForm(AcceptRequestMixin, forms.ModelForm):
     cited_in_submissions = AutoCompleteSelectMultipleField('submissions_lookup', required=False)

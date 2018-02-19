@@ -40,7 +40,11 @@ class EmailTemplateForm(forms.Form):
         # Gather meta data
         json_location = '%s/mails/templates/mail_templates/%s.json' % (settings.BASE_DIR,
                                                                        self.mail_code)
-        self.mail_data = json.loads(open(json_location).read())
+        try:
+            self.mail_data = json.loads(open(json_location).read())
+        except OSError:
+            raise NotImplementedError(('You did not create a valid .html and .json file '
+                                       'for mail_code: %s' % self.mail_code))
 
         # Digest the templates
         mail_template = loader.get_template('mail_templates/%s.html' % self.mail_code)

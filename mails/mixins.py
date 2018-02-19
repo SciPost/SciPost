@@ -1,3 +1,5 @@
+from django.contrib import messages
+
 from .forms import EmailTemplateForm, HiddenDataForm
 
 
@@ -10,6 +12,7 @@ class MailEditorMixin:
     """
     object = None
     mail_form = None
+    has_permission_to_send_mail = True
 
     def __init__(self, *args, **kwargs):
         if not self.mail_code:
@@ -28,6 +31,9 @@ class MailEditorMixin:
         """
         Handle POST requests, but interpect the data if the mail form data isn't valid.
         """
+        if not self.has_permission_to_send_mail:
+            # Don't use the mail form; don't send out the mail.
+            return super().post(request, *args, **kwargs)
         self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
@@ -47,29 +53,14 @@ class MailEditorMixin:
         """
         If both the regular form and mailing form are valid, save the form and run the mail form.
         """
-        self.mail_form.send()
+        # Don't use the mail form; don't send out the mail.
+        if not self.has_permission_to_send_mail:
+            return super().form_valid(form)
+
+        try:
+            self.mail_form.send()
+        except AttributeError:
+            # self.mail_form is None
+            raise AttributeError('Did you check the order in which MailEditorMixin is used?')
+        messages.success(self.request, 'Mail sent')
         return super().form_valid(form)
-
-
-    # def __init__(self, request, mail_code, **kwargs):
-    #     self.request = request
-    #     self.context = kwargs.get('context', {})
-    #     self.template_name = kwargs.get('template', 'mails/mail_form.html')
-    #     self.mail_form = EmailTemplateForm(request.POST or None, mail_code=mail_code, **kwargs)
-    #
-    # @property
-    # def recipients_string(self):
-    #     return ', '.join(getattr(self.mail_form, 'mail_fields', {}).get('recipients', ['']))
-    #
-    # def add_form(self, form):
-    #     self.context['transfer_data_form'] = HiddenDataForm(form)
-    #
-    # def is_valid(self):
-    #     return self.mail_form.is_valid()
-    #
-    # def send(self):
-    #     return self.mail_form.send()
-    #
-    # def return_render(self):
-    #     self.context['form'] = self.mail_form
-    #     return render(self.request, self.template_name, self.context)

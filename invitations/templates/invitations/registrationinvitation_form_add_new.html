@@ -16,6 +16,9 @@
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">New Registration Invitation</h1>
+        <p>
+            If you want to invite a new Contributor to SciPost, first try to use the following search form to see if this person already is available in the SciPost database.
+        </p>
 
         {% if contributor_search_form %}
             <h3 class="mb-1">Search for existing Contributor</h3>
@@ -31,6 +34,9 @@
             {% if contributor_search_form.is_bound %}
                 {% if suggested_invitations %}
                     <h3>Registration Invitations found</h3>
+                    <p>
+                        If the person you are trying to invite is within this list of Registration Invitations, please use it by extending that particular invitation.
+                    </p>
                     <ul class="mb-2">
                         {% for inv in suggested_invitations %}
                             <li><a href="{% url 'invitations:add_citation' inv.id %}">Use Registration Invitation for {{ inv.first_name }} {{ inv.last_name }}</a></li>
@@ -39,7 +45,9 @@
                 {% endif %}
 
                 <h3>Citation Notification</h3>
-                <br>
+                <p>
+                    If the person you are trying to invite is already a registered Contributor, it'll be listed in the following form. If not, you can <a href="{% url 'invitations:new' %}?prefill-last_name={{ contributor_search_form.last_name.value|urlencode }}">write a new Registration Invitation</a>.
+                </p>
             {% else %}
                 <h3 class="mb-1">...or write a new Registration Invitation</h3>
             {% endif %}

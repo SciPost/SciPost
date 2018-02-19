@@ -28,7 +28,7 @@ class RegistrationInvitationsView(PermissionsMixin, ListView):
         search_form = RegistrationInvitationFilterForm(self.request.GET or None)
         if search_form.is_valid():
             context['object_list'] = search_form.search(context['object_list'])
-        context['object_list'] = context['object_list'].order_by('status', 'last_name')
+        context['object_list'] = context['object_list'].order_by('date_sent_last', 'last_name')
         context['search_form'] = search_form
         return context
 
@@ -45,11 +45,24 @@ class CitationNotificationsView(PermissionsMixin, ListView):
         'invitation', 'contributor', 'contributor__user')
 
 
-class CitationNotificationsProcessView(PermissionsMixin, RequestArgumentMixin, UpdateView):
+class CitationNotificationsProcessView(PermissionsMixin, RequestArgumentMixin,
+                                       MailEditorMixin, UpdateView):
     permission_required = 'scipost.can_manage_registration_invitations'
     form_class = CitationNotificationProcessForm
     queryset = CitationNotification.objects.unprocessed()
     success_url = reverse_lazy('invitations:citation_notification_list')
+    mail_code = 'citation_notification'
+
+    @transaction.atomic
+    def form_valid(self, form):
+        """
+        Form is valid; use the MailEditorMixin to send out the mail if
+        (possible) Contributor didn't opt-out from mails.
+        """
+        form.get_all_notifications().update(processed=True)
+        contributor = form.get_all_notifications().filter(contributor__isnull=False).first()
+        self.send_mail = (contributor and contributor.accepts_SciPost_emails) or not contributor
+        return super().form_valid(form)
 
 
 @login_required
@@ -62,26 +75,36 @@ def create_registration_invitation_or_citation(request):
     """
     contributors = []
     suggested_invitations = []
-    contributor_search_form = ContributorSearchForm(request.GET or None)
+
+    # Only take specific GET data to prevent for unexpected bound forms.
+    search_data = {}
+    initial_search_data = {}
+    if request.GET.get('last_name'):
+        search_data['last_name'] = request.GET['last_name']
+    if request.GET.get('prefill-last_name'):
+        initial_search_data['last_name'] = request.GET['prefill-last_name']
+    contributor_search_form = ContributorSearchForm(search_data or None,
+                                                    initial=initial_search_data)
     if contributor_search_form.is_valid():
         contributors, suggested_invitations = contributor_search_form.search()
     citation_form = CitationNotificationForm(request.POST or None, contributors=contributors,
                                              prefix='notification', request=request)
 
-    # New citation is related to a Contributor: CitationNotification
-    if citation_form.is_valid():
-        citation_form.save()
-        messages.success(request, 'New Citation Notification created')
+    # New citation is related to a Contributor: RegistationInvitation
+    invitation_form = RegistrationInvitationForm(request.POST or None, request=request,
+                                                 prefix='invitation',
+                                                 initial=initial_search_data)
+    if invitation_form.is_valid():
+        invitation_form.save()
+        messages.success(request, 'New Registration Invitation created')
         if request.POST.get('save') == 'save_and_create':
             return redirect('invitations:new')
         return redirect('invitations:list')
 
-    # New citation is related to a Contributor: RegistationInvitation
-    invitation_form = RegistrationInvitationForm(request.POST or None, request=request,
-                                                 prefix='invitation')
-    if invitation_form.is_valid():
-        invitation_form.save()
-        messages.success(request, 'New Registration Invitation created')
+    # New citation is related to a Contributor: CitationNotification
+    if citation_form.is_valid():
+        citation_form.save()
+        messages.success(request, 'New Citation Notification created')
         if request.POST.get('save') == 'save_and_create':
             return redirect('invitations:new')
         return redirect('invitations:list')
@@ -99,7 +122,6 @@ class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin,
                                         SaveAndSendFormMixin, MailEditorMixin, UpdateView):
     permission_required = 'scipost.can_create_registration_invitations'
     form_class = RegistrationInvitationForm
-    utils_email_method = 'invite_contributor_email'
     mail_code = 'registration_invitation'
 
     def get_context_data(self, **kwargs):
@@ -147,13 +169,13 @@ class RegistrationInvitationsMapToContributorView(RequestArgumentMixin, Permissi
 
 
 class RegistrationInvitationsReminderView(RequestArgumentMixin, PermissionsMixin,
-                                          SaveAndSendFormMixin, UpdateView):
+                                          SaveAndSendFormMixin, MailEditorMixin, UpdateView):
     permission_required = 'scipost.can_manage_registration_invitations'
     queryset = RegistrationInvitation.objects.sent()
     success_url = reverse_lazy('invitations:list')
     form_class = RegistrationInvitationReminderForm
     template_name = 'invitations/registrationinvitation_reminder_form.html'
-    utils_email_method = 'invite_contributor_reminder_email'
+    mail_code = 'registration_invitation_reminder'
 
 
 class RegistrationInvitationsDeleteView(PermissionsMixin, DeleteView):

@@ -160,5 +160,29 @@ class CitationNotification(models.Model):
         self.save()
 
     def related_notifications(self):
-        return CitationNotification.objects.filter(
+        return CitationNotification.objects.unprocessed().filter(
             models.Q(contributor=self.contributor) | models.Q(invitation=self.invitation))
+
+    def get_first_related_contributor(self):
+        return self.related_notifications().filter(contributor__isnull=False).first()
+
+    @property
+    def email(self):
+        if self.invitation:
+            return self.invitation.email
+        elif self.contributor:
+            return self.contributor.user.email
+
+    @property
+    def last_name(self):
+        if self.invitation:
+            return self.invitation.last_name
+        elif self.contributor:
+            return self.contributor.last_name
+
+    @property
+    def get_title(self):
+        if self.invitation:
+            return self.invitation.get_title_display()
+        elif self.contributor:
+            return self.contributor.get_title_display()
