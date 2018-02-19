@@ -1,8 +1,9 @@
-STATUS_DRAFT, STATUS_SENT = ('draft', 'sent')
+STATUS_DRAFT, STATUS_SENT, STATUS_SENT_AND_EDITED = ('draft', 'sent', 'edited')
 STATUS_DECLINED, STATUS_REGISTERED = ('declined', 'register')
 REGISTATION_INVITATION_STATUSES = (
     (STATUS_DRAFT, 'Draft'),
     (STATUS_SENT, 'Sent'),
+    (STATUS_SENT_AND_EDITED, 'Sent and edited'),
     (STATUS_DECLINED, 'Declined'),
     (STATUS_REGISTERED, 'Registered'),
 )

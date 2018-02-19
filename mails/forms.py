@@ -20,33 +20,40 @@ class EmailTemplateForm(forms.Form):
     extra_recipient = forms.EmailField(label="Optional: bcc this email to", required=False)
     prefix = 'mail_form'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, data, *args, **kwargs):
         self.mail_code = kwargs.pop('mail_code')
         self.mail_fields = None
+        # This is a pseudo-modelform; it does not take `instance` by default
+        instance = kwargs.pop('instance', None)
 
-        data = {}
-        if args[0]:
-            if args[0].get('subject'):
-                data['subject'] = args[0]['subject']
-            if args[0].get('text'):
-                data['text'] = args[0]['text']
-            if args[0].get('extra_recipient'):
-                data['extra_recipient'] = args[0]['extra_recipient']
-        super().__init__(data or None)
+        # This form shouldn't be is_bound==True is there is any non-relavant POST data given.
+        if '%s-subject' % self.prefix in data.keys():
+            data = {
+                '%s-subject' % self.prefix: data.get('%s-subject' % self.prefix),
+                '%s-text' % self.prefix: data.get('%s-text' % self.prefix),
+                '%s-extra_recipient' % self.prefix: data.get('%s-extra_recipient' % self.prefix),
+            }
+        else:
+            data = None
+        super().__init__(data, *args, **kwargs)
 
-        # Gather data
+        # Gather meta data
+        json_location = '%s/mails/templates/mail_templates/%s.json' % (settings.BASE_DIR,
+                                                                       self.mail_code)
+        self.mail_data = json.loads(open(json_location).read())
+
+        # Digest the templates
         mail_template = loader.get_template('mail_templates/%s.html' % self.mail_code)
+        if instance and self.mail_data.get('context_object'):
+            kwargs[self.mail_data['context_object']] = instance
         mail_template = mail_template.render(kwargs)
         # self.doc = html.fromstring(mail_template)
         # self.doc2 = self.doc.text_content()
         # print(self.doc2)
 
-        json_location = '%s/mails/templates/mail_templates/%s.json' % (settings.BASE_DIR,
-                                                                       self.mail_code)
-        self.mail_data = json.loads(open(json_location).read())
-
         # Object
         self.object = kwargs.get(self.mail_data.get('context_object', ''), None)
+        self.object = self.object or instance
         self.recipient = None
         if self.object:
             recipient = self.object
@@ -141,6 +148,8 @@ class EmailTemplateForm(forms.Form):
             reply_to=[self.mail_data.get('from_address', 'no-reply@scipost.org')])
         email.attach_alternative(self.mail_fields['html_message'], 'text/html')
         email.send(fail_silently=False)
+        if self.object and hasattr(self.object, 'mail_sent'):
+            self.object.mail_sent()
 
 
 class HiddenDataForm(forms.Form):

@@ -9,8 +9,6 @@
     <h1>Complete and send mail</h1>
     <h3 class="mb-4">You may edit the mail before sending it.</h3>
 
-    {{ transfer_data }}
-
     <form enctype="multipart/form-data" method="post">
         {% csrf_token %}
         {% if transfer_data_form %}{{ transfer_data_form }}{% endif %}

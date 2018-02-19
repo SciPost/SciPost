@@ -1,0 +1,81 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: New Registration Invitation{% endblock pagetitle %}
+
+{% load scipost_extras %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+    <span class="breadcrumb-item">New</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">New Registration Invitation</h1>
+
+        {% if contributor_search_form %}
+            <h3 class="mb-1">Search for existing Contributor</h3>
+            <form method="get">
+                {{ contributor_search_form|bootstrap }}
+                <input type="submit" class="btn btn-primary" value="Search">
+                {% if contributor_search_form.is_bound %}
+                    <a href="{% url 'invitations:new' %}" class="ml-2 btn btn-link">Cancel search</a>
+                {% endif %}
+            </form>
+
+            <hr class="divider">
+            {% if contributor_search_form.is_bound %}
+                {% if suggested_invitations %}
+                    <h3>Registration Invitations found</h3>
+                    <ul class="mb-2">
+                        {% for inv in suggested_invitations %}
+                            <li><a href="{% url 'invitations:add_citation' inv.id %}">Use Registration Invitation for {{ inv.first_name }} {{ inv.last_name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                <h3>Citation Notification</h3>
+                <br>
+            {% else %}
+                <h3 class="mb-1">...or write a new Registration Invitation</h3>
+            {% endif %}
+
+        {% endif %}
+
+        {% if contributor_search_form.is_bound %}
+            <form method="post">
+                {% csrf_token %}
+                {{ citation_form|bootstrap }}
+                <button type="submit" class="btn btn-primary" name="save" value="save">Save</button>
+                <button type="submit" class="ml-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
+                {% if perms.scipost.can_manage_registration_invitations %}
+                    <button type="submit" class="ml-2 btn btn-secondary" name="save" value="save_and_send">Save and send mail</button>
+                {% endif %}
+            </form>
+
+            <br>
+            <a href="{% url 'invitations:new' %}">Cancel search here</a> to write a new Registration Invitation.
+        {% else %}
+            <form method="post">
+                {% csrf_token %}
+                {{ invitation_form|bootstrap }}
+                <button type="submit" class="btn btn-primary" name="save" value="save">Save</button>
+                <button type="submit" class="ml-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
+                {% if perms.scipost.can_manage_registration_invitations %}
+                    <button type="submit" class="ml-2 btn btn-secondary" name="save" value="save_and_send">Save and send mail</button>
+                {% endif %}
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer_script %}
+    {{ block.super }}
+    {{ invitation_form.media }}
+{% endblock footer_script %}

@@ -1,0 +1,25 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Unprocessed Citation Notifications{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+    <span class="breadcrumb-item">Unprocessed Citation Notifications</span>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="highlight">Unprocessed Citation Notifications</h1>
+<a href="{% url 'invitations:list' %}">Back to Registration Invitations</a>
+
+<div class="row">
+    <div class="col-12">
+        <br>
+        {% include 'partials/invitations/citationnotification_table.html' with notifications=object_list %}
+    </div>
+</div>
+
+{% endblock %}

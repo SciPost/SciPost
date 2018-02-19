@@ -3,12 +3,12 @@ import hashlib
 import random
 import string
 
-from django.db import models
+from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils import timezone
 
 from . import constants
-from .managers import RegistrationInvitationQuerySet
+from .managers import RegistrationInvitationQuerySet, CitationNotificationQuerySet
 
 from scipost.constants import TITLE_CHOICES
 
@@ -35,10 +35,10 @@ class RegistrationInvitation(models.Model):
     # Related to objects
     invitation_type = models.CharField(max_length=2, choices=constants.INVITATION_TYPE,
                                        default=constants.INVITATION_CONTRIBUTOR)
-    cited_in_submission = models.ManyToManyField('submissions.Submission',
-                                                 blank=True, related_name='+')
-    cited_in_publication = models.ManyToManyField('journals.Publication',
-                                                  blank=True, related_name='+')
+    # cited_in_submissions = models.ManyToManyField('submissions.Submission',
+    #                                               blank=True, related_name='+')
+    # cited_in_publications = models.ManyToManyField('journals.Publication',
+    #                                                blank=True, related_name='+')
 
     # Response keys
     invitation_key = models.CharField(max_length=40, unique=True)
@@ -88,5 +88,77 @@ class RegistrationInvitation(models.Model):
             self.date_sent_first = timezone.now()
         self.date_sent_last = timezone.now()
         self.invited_by = user or self.created_by
-        self.times_sent = self.times_sent + 1
+        self.times_sent += 1
+        self.citation_notifications.update(processed=True)
         self.save()
+
+
+class CitationNotification(models.Model):
+    invitation = models.ForeignKey('invitations.RegistrationInvitation',
+                                   on_delete=models.SET_NULL,
+                                   null=True, blank=True)
+    contributor = models.ForeignKey('scipost.Contributor',
+                                    on_delete=models.CASCADE,
+                                    null=True, blank=True,
+                                    related_name='+')
+
+    # Content
+    submission = models.ForeignKey('submissions.Submission', null=True, blank=True,
+                                   related_name='+')
+    publication = models.ForeignKey('journals.Publication', null=True, blank=True,
+                                    related_name='+')
+    processed = models.BooleanField(default=False)
+
+    # Meta info
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='notifications_created')
+    date_sent = models.DateTimeField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    objects = CitationNotificationQuerySet.as_manager()
+
+    class Meta:
+        default_related_name = 'citation_notifications'
+        unique_together = (
+            ('invitation', 'submission'),
+            ('invitation', 'publication'),
+            ('contributor', 'submission'),
+            ('contributor', 'publication'),
+        )
+
+    def __str__(self):
+        _str = 'Citation for '
+        if self.invitation:
+            _str += ' Invitation ({} {})'.format(
+                self.invitation.first_name,
+                self.invitation.last_name,
+            )
+        elif self.contributor:
+            _str += ' Contributor ({})'.format(self.contributor)
+
+        _str += ' on '
+        if self.submission:
+            _str += 'Submission ({})'.format(self.submission.arxiv_identifier_w_vn_nr)
+        elif self.publication:
+            _str += 'Publication ({})'.format(self.publication.doi_label)
+        return _str
+
+    def save(self, *args, **kwargs):
+        if not self.submission and not self.publication:
+            raise IntegrityError(('CitationNotification needs to be related to either a '
+                                  'Submission or Publication object.'))
+        return super().save(*args, **kwargs)
+
+    def mail_sent(self):
+        """
+        Update instance fields as if a new citation notification mail has been sent out.
+        """
+        self.processed = True
+        if not self.date_sent:
+            # Don't overwrite by accident...
+            self.date_sent = timezone.now()
+        self.save()
+
+    def related_notifications(self):
+        return CitationNotification.objects.filter(
+            models.Q(contributor=self.contributor) | models.Q(invitation=self.invitation))

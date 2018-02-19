@@ -1,21 +1,21 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
-{% block pagetitle %}: Send reminder for Registration Invitation{% endblock pagetitle %}
+{% block pagetitle %}: Map Registration Invitation{% endblock pagetitle %}
 
-{% load scipost_extras %}
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
     {{block.super}}
     <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
-    <span class="breadcrumb-item">Send reminder</span>
+    <span class="breadcrumb-item">Map to Contributor</span>
 {% endblock %}
 
 {% block content %}
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Send reminder for Registration Invitation</h1>
+        <h1 class="highlight">Map Registration Invitation to Contributor</h1>
+        <h3>Registration Invitation</h3>
         {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
     </div>
 </div>
@@ -25,7 +25,11 @@
         <form method="post">
             {% csrf_token %}
             {{ form|bootstrap }}
-            <input type="submit" class="btn btn-primary" value="Send reminder">
+            <h3>Map to Contributor</h3>
+            {{ form.get_contributor.get_title_display }} {{ form.get_contributor.user.first_name }} {{ form.get_contributor.user.last_name }}
+            <br>
+            <br>
+            <input type="submit" class="btn btn-primary" name="save" value="Map to Contributor">
         </form>
 
     </div>

@@ -1,21 +1,20 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
-{% block pagetitle %}: Send reminder for Registration Invitation{% endblock pagetitle %}
+{% block pagetitle %}: Mark Registration Invitation {{ request.resolver_match.kwargs.label }}{% endblock pagetitle %}
 
-{% load scipost_extras %}
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
     {{block.super}}
     <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
-    <span class="breadcrumb-item">Send reminder</span>
+    <span class="breadcrumb-item">Mark {{ request.resolver_match.kwargs.label }}</span>
 {% endblock %}
 
 {% block content %}
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Send reminder for Registration Invitation</h1>
+        <h1 class="highlight">Mark Registration Invitation {{ request.resolver_match.kwargs.label }}</h1>
         {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
     </div>
 </div>
@@ -25,7 +24,7 @@
         <form method="post">
             {% csrf_token %}
             {{ form|bootstrap }}
-            <input type="submit" class="btn btn-primary" value="Send reminder">
+            <button type="submit" class="btn btn-primary" name="save" value="save">Mark {{ request.resolver_match.kwargs.label }}</button>
         </form>
 
     </div>

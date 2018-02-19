@@ -1,25 +1,35 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.db import transaction
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy, reverse
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import UpdateView, DeleteView
 
-from .forms import RegistrationInvitationForm, RegistrationInvitationReminderForm
-from .mixins import RegistrationInvitationFormMixin
-from .models import RegistrationInvitation
+from .forms import RegistrationInvitationForm, RegistrationInvitationReminderForm,\
+    RegistrationInvitationMarkForm, RegistrationInvitationMapToContributorForm,\
+    CitationNotificationForm, ContributorSearchForm, RegistrationInvitationFilterForm,\
+    CitationNotificationProcessForm, RegistrationInvitationAddCitationForm
+from .mixins import RequestArgumentMixin, PermissionsMixin, SaveAndSendFormMixin
+from .models import RegistrationInvitation, CitationNotification
 
 from scipost.models import Contributor
+from mails.mixins import MailEditorMixin
 
 
-class RegistrationInvitationsView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class RegistrationInvitationsView(PermissionsMixin, ListView):
     permission_required = 'scipost.can_create_registration_invitations'
-    queryset = RegistrationInvitation.objects.drafts()
+    queryset = RegistrationInvitation.objects.no_response()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['count_in_draft'] = RegistrationInvitation.objects.drafts().count()
-        context['count_pending'] = RegistrationInvitation.objects.pending_response().count()
+        context['count_pending'] = RegistrationInvitation.objects.sent().count()
+        search_form = RegistrationInvitationFilterForm(self.request.GET or None)
+        if search_form.is_valid():
+            context['object_list'] = search_form.search(context['object_list'])
+        context['object_list'] = context['object_list'].order_by('status', 'last_name')
+        context['search_form'] = search_form
         return context
 
     def get_queryset(self, *args, **kwargs):
@@ -29,23 +39,78 @@ class RegistrationInvitationsView(LoginRequiredMixin, PermissionRequiredMixin, L
         return qs
 
 
-class PendingRegistrationInvitationsView(RegistrationInvitationsView):
+class CitationNotificationsView(PermissionsMixin, ListView):
     permission_required = 'scipost.can_manage_registration_invitations'
-    queryset = RegistrationInvitation.objects.pending_response()
-    template_name = 'invitations/registrationinvitation_pending_list.html'
+    queryset = CitationNotification.objects.unprocessed().prefetch_related(
+        'invitation', 'contributor', 'contributor__user')
 
 
-class RegistrationInvitationsCreateView(RegistrationInvitationFormMixin, CreateView):
+class CitationNotificationsProcessView(PermissionsMixin, RequestArgumentMixin, UpdateView):
+    permission_required = 'scipost.can_manage_registration_invitations'
+    form_class = CitationNotificationProcessForm
+    queryset = CitationNotification.objects.unprocessed()
+    success_url = reverse_lazy('invitations:citation_notification_list')
+
+
+@login_required
+@permission_required('scipost.can_create_registration_invitations', raise_exception=True)
+@transaction.atomic
+def create_registration_invitation_or_citation(request):
+    """
+    Create a new Registration Invitation or Citation Notification, depending whether
+    it is meant for an already existing Contributor or not.
+    """
+    contributors = []
+    suggested_invitations = []
+    contributor_search_form = ContributorSearchForm(request.GET or None)
+    if contributor_search_form.is_valid():
+        contributors, suggested_invitations = contributor_search_form.search()
+    citation_form = CitationNotificationForm(request.POST or None, contributors=contributors,
+                                             prefix='notification', request=request)
+
+    # New citation is related to a Contributor: CitationNotification
+    if citation_form.is_valid():
+        citation_form.save()
+        messages.success(request, 'New Citation Notification created')
+        if request.POST.get('save') == 'save_and_create':
+            return redirect('invitations:new')
+        return redirect('invitations:list')
+
+    # New citation is related to a Contributor: RegistationInvitation
+    invitation_form = RegistrationInvitationForm(request.POST or None, request=request,
+                                                 prefix='invitation')
+    if invitation_form.is_valid():
+        invitation_form.save()
+        messages.success(request, 'New Registration Invitation created')
+        if request.POST.get('save') == 'save_and_create':
+            return redirect('invitations:new')
+        return redirect('invitations:list')
+
+    context = {
+        'contributor_search_form': contributor_search_form,
+        'citation_form': citation_form,
+        'suggested_invitations': suggested_invitations,
+        'invitation_form': invitation_form,
+    }
+    return render(request, 'invitations/registrationinvitation_form_add_new.html', context)
+
+
+class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin,
+                                        SaveAndSendFormMixin, MailEditorMixin, UpdateView):
     permission_required = 'scipost.can_create_registration_invitations'
     form_class = RegistrationInvitationForm
-    model = RegistrationInvitation
-    success_url = reverse_lazy('invitations:list')
+    utils_email_method = 'invite_contributor_email'
+    mail_code = 'registration_invitation'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['invitation_form'] = context['form']
+        return context
 
-class RegistrationInvitationsUpdateView(RegistrationInvitationFormMixin, UpdateView):
-    permission_required = 'scipost.can_create_registration_invitations'
-    form_class = RegistrationInvitationForm
-    success_url = reverse_lazy('invitations:list')
+    def get_success_url(self):
+        if self.request.POST.get('save') == 'save_and_create':
+            return reverse('invitations:new')
+        return reverse('invitations:list')
 
     def get_queryset(self, *args, **kwargs):
         qs = RegistrationInvitation.objects.drafts()
@@ -56,14 +121,42 @@ class RegistrationInvitationsUpdateView(RegistrationInvitationFormMixin, UpdateV
         return qs
 
 
-class RegistrationInvitationsReminderView(RegistrationInvitationFormMixin, UpdateView):
+class RegistrationInvitationsAddCitationView(RequestArgumentMixin, PermissionsMixin, UpdateView):
+    permission_required = 'scipost.can_create_registration_invitations'
+    form_class = RegistrationInvitationAddCitationForm
+    template_name = 'invitations/registrationinvitation_form_add_citation.html'
+    success_url = reverse_lazy('invitations:list')
+    queryset = RegistrationInvitation.objects.no_response()
+
+
+class RegistrationInvitationsMarkView(RequestArgumentMixin, PermissionsMixin, UpdateView):
     permission_required = 'scipost.can_manage_registration_invitations'
-    queryset = RegistrationInvitation.objects.pending_response()
+    queryset = RegistrationInvitation.objects.drafts()
+    form_class = RegistrationInvitationMarkForm
+    template_name = 'invitations/registrationinvitation_form_mark_as.html'
+    success_url = reverse_lazy('invitations:list')
+
+
+class RegistrationInvitationsMapToContributorView(RequestArgumentMixin, PermissionsMixin,
+                                                  UpdateView):
+    permission_required = 'scipost.can_manage_registration_invitations'
+    model = RegistrationInvitation
+    form_class = RegistrationInvitationMapToContributorForm
+    template_name = 'invitations/registrationinvitation_form_map_to_contributor.html'
+    success_url = reverse_lazy('invitations:list')
+
+
+class RegistrationInvitationsReminderView(RequestArgumentMixin, PermissionsMixin,
+                                          SaveAndSendFormMixin, UpdateView):
+    permission_required = 'scipost.can_manage_registration_invitations'
+    queryset = RegistrationInvitation.objects.sent()
+    success_url = reverse_lazy('invitations:list')
     form_class = RegistrationInvitationReminderForm
     template_name = 'invitations/registrationinvitation_reminder_form.html'
+    utils_email_method = 'invite_contributor_reminder_email'
 
 
-class RegistrationInvitationsDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class RegistrationInvitationsDeleteView(PermissionsMixin, DeleteView):
     permission_required = 'scipost.can_manage_registration_invitations'
     model = RegistrationInvitation
     success_url = reverse_lazy('invitations:list')
@@ -77,8 +170,7 @@ def cleanup(request):
     database of registered Contributors. Flags overlaps.
     """
     contributor_email_list = Contributor.objects.values_list('user__email', flat=True)
-    invitations = RegistrationInvitation.objects.pending_response().filter(
-        email__in=contributor_email_list)
+    invitations = RegistrationInvitation.objects.sent().filter(email__in=contributor_email_list)
     context = {
         'invitations': invitations
     }

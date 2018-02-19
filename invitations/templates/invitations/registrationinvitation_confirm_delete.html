@@ -14,12 +14,7 @@
     <div class="col-12">
         <h1 class="highlight">Delete Registration Invitation {{ object.id }}</h1>
         <p>Are you sure you want to delete the Registration Invitation?</p>
-
-        <p>
-            Name: <strong>{{ object.first_name }} {{ object.last_name }}</strong>
-            <br>
-            Email: <strong>{{ object.email }}</strong>
-        </p>
+        {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
 
         <form method="post">
             {% csrf_token %}

@@ -3,55 +3,68 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Last name</th>
-            <th>First name</th>
+            <th>Name</th>
             <th>Email</th>
-            <th>Date</th>
+            <th>Status</th>
             <th>Type</th>
             <th>Drafted by</th>
-            <th{% if perms.scipost.can_manage_registration_invitations %} colspan="2"{% endif %}>Actions</th>
+            <th>Date created</th>
+            <th>Times sent</th>
+            <th colspan="2">Actions</th>
         </tr>
     </thead>
     <tbody>
         {% for invitation in invitations %}
           <tr>
-            <td>{{ invitation.last_name }}</td>
-            <td>{{ invitation.first_name }}</td>
+            <td>{{ invitation.last_name }}, {{ invitation.first_name }}</td>
             <td>{{ invitation.email }}</td>
+            <td>{{ invitation.get_status_display }}</td>
+            <td>{{ invitation.get_invitation_type_display }}</td>
+            <td>{{ invitation.created_by.first_name }} {{ invitation.created_by.last_name }}</td>
+            <td>{{ invitation.created }}</td>
             <td>
-                {% if invitation.status == 'draft' %}
-                    {{ invitation.modified }}
+                {% if invitation.times_sent %}
+                    <strong>{{ invitation.times_sent }}</strong> time{{ invitation.times_sent|pluralize }}
+                    &middot; {{ invitation.date_sent_last|timesince }} ago
                 {% else %}
-                    {{ invitation.date_sent_last }}
+                    -
                 {% endif %}
             </td>
-            <td>{{ invitation.get_invitation_type_display }}</td>
-            <td>{{ invitation.created_by.user.first_name }} {{ invitation.created_by.user.last_name }}</td>
             {% if perms.scipost.can_manage_registration_invitations %}
                 <td>
-                    {% if invitation.status == 'draft' %}
-                        <a href="{% url 'invitations:update' invitation.id %}">Edit or send</a> &middot;
-                        <a href="{% url 'scipost:mark_draft_inv_as_processed' draft_id=invitation.id %}">Mark as send</a>
-                    {% elif invitation.status == 'sent' %}
-                        <a href="{% url 'invitations:send_reminder' invitation.id %}">Send reminder</a>
-                    {% endif %}
+                    <ul class="pl-3 mb-0">
+                        {% if invitation.status == 'draft' %}
+                            <li><a href="{% url 'invitations:update' invitation.id %}">Edit or send</a></li>
+                            <li><a href="{% url 'invitations:mark' invitation.id 'sent' %}">Mark as sent</a></li>
+                        {% elif invitation.status == 'sent' or invitation.status == 'edited' %}
+                            <li><a href="{% url 'invitations:send_reminder' invitation.id %}">Send reminder</a></li>
+                        {% endif %}
+                    </ul>
+                </td>
+                <td>
+                    <ul class="mb-0">
+                        {% for ac in invitation|associated_contributors %}
+                            <li>
+                                <a href="{% url 'invitations:map_to_contributor' pk=invitation.id contributor_id=ac.id %}">Map to {{ ac.user.first_name }} {{ ac.user.last_name }}</a>
+                            </li>
+                        {% endfor %}
+                        <li><a href="{% url 'invitations:add_citation' invitation.id %}">Add new Citation to Invitation</a></li>
+                    </ul>
+                </td>
+            {% else %}
+                <td colspan="2">
+                    <ul class="pl-3 mb-0">
+                        <li><a href="{% url 'invitations:add_citation' invitation.id %}">Add new Citation to Invitation</a></li>
+                        {% if invitation.status == 'draft' and invitation.created_by == request.user %}
+                            <li><a href="{% url 'invitations:update' invitation.id %}">Edit Invitation</a></li>
+                        {% endif %}
+                    </ul>
                 </td>
             {% endif %}
-            <td>
-                <ul class="mb-0">
-                    {% for ac in invitation|associated_contributors %}
-                        <li>
-                            <a href="{% url 'scipost:map_draft_reg_inv_to_contributor' draft_id=invitation.id contributor_id=ac.id %}">Map to {{ ac.user.first_name }} {{ ac.user.last_name }}</a>
-                        </li>
-                    {% empty %}
-                        <li>No associated contributors found.</li>
-                    {% endfor %}
-                </ul>
-            </td>
           </tr>
         {% empty %}
             <tr>
-                <td colspan="8">No Invitations found.</td>
+                <td colspan="9">No Invitations found.</td>
             </tr>
         {% endfor %}
     </tbody>
