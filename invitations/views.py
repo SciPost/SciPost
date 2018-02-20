@@ -10,7 +10,7 @@ from .forms import RegistrationInvitationForm, RegistrationInvitationReminderFor
     RegistrationInvitationMarkForm, RegistrationInvitationMapToContributorForm,\
     CitationNotificationForm, SuggestionSearchForm, RegistrationInvitationFilterForm,\
     CitationNotificationProcessForm, RegistrationInvitationAddCitationForm
-from .mixins import RequestArgumentMixin, PermissionsMixin, SaveAndSendFormMixin
+from .mixins import RequestArgumentMixin, PermissionsMixin, SaveAndSendFormMixin, SendMailFormMixin
 from .models import RegistrationInvitation, CitationNotification
 
 from scipost.models import Contributor
@@ -172,7 +172,7 @@ class RegistrationInvitationsMapToContributorView(RequestArgumentMixin, Permissi
 
 
 class RegistrationInvitationsReminderView(RequestArgumentMixin, PermissionsMixin,
-                                          SaveAndSendFormMixin, MailEditorMixin, UpdateView):
+                                          SendMailFormMixin, MailEditorMixin, UpdateView):
     permission_required = 'scipost.can_manage_registration_invitations'
     queryset = RegistrationInvitation.objects.sent()
     success_url = reverse_lazy('invitations:list')

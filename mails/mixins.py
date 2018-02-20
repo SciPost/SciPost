@@ -87,8 +87,16 @@ class MailUtilsMixin:
     mail_template = ''
     html_message = ''
     message = ''
+    original_recipient = ''
 
     def __init__(self, *args, **kwargs):
+        self.pre_validation(*args, **kwargs)
+        super().__init__(*args)
+
+    def pre_validation(self, *args, **kwargs):
+        """
+        This method should be called when initiating the object.
+        """
         self.mail_code = kwargs.pop('mail_code')
         self.instance = kwargs.pop('instance', None)
 
@@ -122,8 +130,7 @@ class MailUtilsMixin:
 
         self.subject = self.mail_data['subject']
 
-
-    def validate_recipients(self):
+    def validate_bcc_list(self):
         # Get recipients list. Try to send through BCC to prevent privacy issues!
         self.bcc_list = []
         if self.mail_data.get('bcc_to', False) and self.object:
@@ -141,6 +148,7 @@ class MailUtilsMixin:
         elif re.match("[^@]+@[^@]+\.[^@]+", self.mail_data.get('bcc_to', '')):
             self.bcc_list = [self.mail_data.get('bcc_to')]
 
+    def validate_recipients(self):
         # Check the send list
         if isinstance(self.original_recipient, list):
             recipients = self.original_recipient
@@ -177,6 +185,7 @@ class MailUtilsMixin:
         Only to be used when the default data is used, eg. not in the EmailTemplateForm.
         """
         self.validate_message()
+        self.validate_bcc_list()
         self.validate_recipients()
         self.save_mail_data()
 

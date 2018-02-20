@@ -11,8 +11,10 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
     prefix = 'mail_form'
 
     def __init__(self, *args, **kwargs):
+        self.pre_validation(*args, **kwargs)
+
         # This form shouldn't be is_bound==True is there is any non-relavant POST data given.
-        data = args[0]
+        data = args[0] or {}
         if '%s-subject' % self.prefix in data.keys():
             data = {
                 '%s-subject' % self.prefix: data.get('%s-subject' % self.prefix),
@@ -21,7 +23,7 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
             }
         else:
             data = None
-        super().__init__(data, *args, **kwargs)
+        super().__init__(data or None)
 
         if not self.original_recipient:
             self.fields['extra_recipient'].label = "Send this email to"
@@ -36,6 +38,7 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
         self.html_message = self.cleaned_data['text']
         self.subject = self.cleaned_data['subject']
         self.validate_message()
+        self.validate_bcc_list()
 
         # Get recipients list. Try to send through BCC to prevent privacy issues!
         if self.cleaned_data.get('extra_recipient') and self.original_recipient:
