@@ -19,7 +19,7 @@ from mails.mixins import MailEditorMixin
 
 class RegistrationInvitationsView(PermissionsMixin, ListView):
     permission_required = 'scipost.can_create_registration_invitations'
-    queryset = RegistrationInvitation.objects.no_response()
+    queryset = RegistrationInvitation.objects.drafts()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -38,6 +38,12 @@ class RegistrationInvitationsView(PermissionsMixin, ListView):
         if not self.request.user.has_perm('scipost.can_invite_fellows'):
             qs = qs.not_for_fellows()
         return qs
+
+
+class RegistrationInvitationsSentView(PermissionsMixin, ListView):
+    permission_required = 'scipost.can_create_registration_invitations'
+    queryset = RegistrationInvitation.objects.sent()
+    template_name = 'invitations/registrationinvitation_list_sent.html'
 
 
 class CitationNotificationsView(PermissionsMixin, ListView):

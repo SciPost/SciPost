@@ -24,6 +24,7 @@
                 <li><a href="{% url 'invitations:cleanup' %}">Perform a cleanup</a></li>
                 <li><a href="{% url 'invitations:citation_notification_list' %}">List unprocessed Citation Notifications</a></li>
             {% endif %}
+            <li><a href="{% url 'invitations:list_sent' %}">Show all Invitations pending response</a></li>
         </ul>
     </div>
     <div class="col-md-6 text-md-right">
