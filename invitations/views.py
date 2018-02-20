@@ -142,7 +142,7 @@ class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin,
         if not self.request.user.has_perm('scipost.can_invite_fellows'):
             qs = qs.not_for_fellows()
         if not self.request.user.has_perm('scipost.can_manage_registration_invitations'):
-            qs = qs.invited_by(self.request.user)
+            qs = qs.created_by(self.request.user)
         return qs
 
 

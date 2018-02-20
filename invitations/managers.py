@@ -33,6 +33,9 @@ class RegistrationInvitationQuerySet(models.QuerySet):
     def invited_by(self, user):
         return self.filter(invited_by=user)
 
+    def created_by(self, user):
+        return self.filter(created_by=user)
+
 
 class CitationNotificationQuerySet(models.QuerySet):
     def for_submissions(self):
