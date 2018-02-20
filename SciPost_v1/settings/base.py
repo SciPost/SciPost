@@ -89,6 +89,7 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'finances',
+    'invitations',
     'journals',
     'mails',
     'mailing_lists',

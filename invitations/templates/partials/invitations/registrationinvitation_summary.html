@@ -1,0 +1,53 @@
+<table class="registration_invitation">
+    <tr>
+        <th>Name</th>
+        <td>{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>{{ invitation.email }}</td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>{{ invitation.get_status_display }}</td>
+    </tr>
+
+    <tr>
+        <th>Submission(s)</th>
+        <td>
+            <ul class="pl-3 mb-0">
+                {% for citation in invitation.citation_notifications.for_submissions %}
+                    <li>{{ citation.submission }}</li>
+                {% empty %}
+                    <li><em>No submissions linked</em></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th>Publication(s)</th>
+        <td>
+            <ul class="pl-3 mb-0">
+                {% for citation in invitation.citation_notifications.for_publications %}
+                    <li>{{ citation.publication }}</li>
+                {% empty %}
+                    <li><em>No publications linked</em></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th>Created</th>
+        <td>{{ invitation.created }}</td>
+    </tr>
+    <tr>
+        <th>Times sent</th>
+        <td><strong>{{ invitation.times_sent }}</strong> time{{ invitation.times_sent|pluralize }}{% if invitation.times_sent %} (last time: {{ invitation.date_sent_last }}){% endif %}</td>
+    </tr>
+</table>
+
+{% if invitation.personal_message %}
+    <br>
+    <strong>Personal Message</strong>
+    <p>{{ invitation.personal_message|linebreaksbr }}</p>
+{% endif %}
