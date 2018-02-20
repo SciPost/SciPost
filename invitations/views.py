@@ -8,7 +8,7 @@ from django.views.generic.edit import UpdateView, DeleteView
 
 from .forms import RegistrationInvitationForm, RegistrationInvitationReminderForm,\
     RegistrationInvitationMarkForm, RegistrationInvitationMapToContributorForm,\
-    CitationNotificationForm, SuggestionSearchForm, RegistrationInvitationFilterForm,\
+    CitationNotificationForm, SuggestionSearchForm,\
     CitationNotificationProcessForm, RegistrationInvitationAddCitationForm
 from .mixins import RequestArgumentMixin, PermissionsMixin, SaveAndSendFormMixin, SendMailFormMixin
 from .models import RegistrationInvitation, CitationNotification
@@ -27,10 +27,6 @@ class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['count_in_draft'] = RegistrationInvitation.objects.drafts().count()
         context['count_pending'] = RegistrationInvitation.objects.sent().count()
-        search_form = RegistrationInvitationFilterForm(self.request.GET or None)
-        if search_form.is_valid():
-            context['object_list'] = search_form.search(context['object_list'])
-        context['search_form'] = search_form
         return context
 
     def get_queryset(self, *args, **kwargs):

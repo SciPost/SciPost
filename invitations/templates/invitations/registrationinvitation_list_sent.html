@@ -19,30 +19,26 @@
     <div class="col-12">
         <h2 class="highlight">Registration Invitations</h2>
     </div>
-    <div class="col-md-6">
-        <form method="get">
-            {{ search_form|bootstrap }}
-            <input class="btn btn-primary" type="submit" value="Filter">
-            <a href="{% url 'invitations:list_sent' %}" class="btn btn-link">Reset filter</a>
-        </form>
-    </div>
+    {% if is_paginated %}
+        <div class="col-12">
+            {% include 'partials/pagination.html' with page_obj=page_obj %}
+            <br>
+        </div>
+    {% endif %}
     <div class="col-12">
         <br>
-        {% if is_paginated %}
-            <div class="col-12">
-                {% include 'partials/pagination.html' with page_obj=page_obj %}
-            </div>
-        {% endif %}
+
         {% include 'partials/invitations/registrationinvitation_table.html' with invitations=object_list %}
-        {% if is_paginated %}
-            <div class="col-12">
-                {% include 'partials/pagination.html' with page_obj=page_obj %}
-            </div>
-        {% endif %}
         {% if search_form.is_bound %}
             <a href="{% url 'invitations:list_sent' %}" class="btn btn-link">Reset filter</a>
         {% endif %}
     </div>
+    {% if is_paginated %}
+        <div class="col-12">
+            <br>
+            {% include 'partials/pagination.html' with page_obj=page_obj %}
+        </div>
+    {% endif %}
 </div>
 
 {% endblock %}

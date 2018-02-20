@@ -17,14 +17,6 @@ class AcceptRequestMixin:
         super().__init__(*args, **kwargs)
 
 
-class RegistrationInvitationFilterForm(forms.Form):
-    last_name = forms.CharField()
-
-    def search(self, qs):
-        last_name = self.cleaned_data.get('last_name')
-        return qs.filter(last_name__icontains=last_name)
-
-
 class SuggestionSearchForm(forms.Form):
     last_name = forms.CharField()
 
