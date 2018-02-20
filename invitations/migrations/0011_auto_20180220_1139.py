@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 
 
 def transfer_old_invitations_to_new_tables(apps, schema_editor):
-    OldDraftInvitation = apps.get_model('scipost', 'RegistrationInvitation')
+    OldDraftInvitation = apps.get_model('scipost', 'DraftInvitation')
     OldRegistrationInvitation = apps.get_model('scipost', 'RegistrationInvitation')
     OldCitationNotification = apps.get_model('scipost', 'CitationNotification')
     NewRegistrationInvitation = apps.get_model('invitations', 'RegistrationInvitation')
