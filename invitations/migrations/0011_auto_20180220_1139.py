@@ -59,7 +59,7 @@ def transfer_old_invitations_to_new_tables(apps, schema_editor):
                 created=new_inv.created,
                 modified=new_inv.modified,
                 submission_id=invitation.cited_in_submission.id,
-                date_sent=invitation.date_sent_first,
+                date_sent=invitation.date_last_reminded,
                 processed=(new_inv.status in ['declined', 'register', 'sent']),
             )
         if invitation.cited_in_publication:
@@ -69,7 +69,7 @@ def transfer_old_invitations_to_new_tables(apps, schema_editor):
                 created=new_inv.created,
                 modified=new_inv.modified,
                 publication_id=invitation.cited_in_publication.id,
-                date_sent=invitation.date_sent_first,
+                date_sent=invitation.date_last_reminded,
                 processed=(new_inv.status in ['declined', 'register', 'sent']),
             )
 
