@@ -41,8 +41,8 @@ def get_crossref_test():
 
         # Mass insert in database (will fail on encountering existing documents
         # with same DOI
-        # if citables:
-            # Citable.objects.insert(citables)
+        if citables:
+            Citable.objects.insert(citables)
 
         if number_of_results < rows:
             print(number_of_results)
