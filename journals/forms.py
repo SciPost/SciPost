@@ -24,9 +24,9 @@ class InitiatePublicationForm(forms.Form):
 class ValidatePublicationForm(forms.ModelForm):
     class Meta:
         model = Publication
-        exclude = ['authors', 'authors_claims', 'authors_false_claims',
-                   'metadata', 'metadata_xml',
-                   'latest_activity']
+        exclude = ['authors_claims', 'authors_false_claims',
+                   'metadata', 'metadata_xml', 'authors_registered',
+                   'authors_unregistered', 'latest_activity']
 
 
 class UnregisteredAuthorForm(forms.ModelForm):

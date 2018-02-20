@@ -64,7 +64,7 @@
     <td>{{ issue.doi_label }}</td>
     <td>{% nr_publications issue %}</td>
     <td>{% avg_processing_duration issue as avg %}{{ avg|floatformat:2 }} days</td>
-    <td>{% citation_rate issue as cr %}{{ cr|floatformat:2 %}</td>
+    <td>{% citation_rate issue as cr %}{{ cr|floatformat:2 }}</td>
     {% elif volume %}
     <td>{{ volume.doi_label }}</td>
     <td>{% nr_publications volume %}</td>
