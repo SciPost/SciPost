@@ -18,7 +18,7 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS,\
                        CONTRIBUTOR_NEWLY_REGISTERED
 from .fields import ChoiceArrayField
-from .managers import FellowManager, ContributorQuerySet, RegistrationInvitationManager,\
+from .managers import FellowManager, ContributorQuerySet,\
                       UnavailabilityPeriodManager, AuthorshipClaimQuerySet
 
 today = timezone.now().date()
@@ -218,26 +218,26 @@ class RegistrationInvitation(models.Model):
     responded = models.BooleanField(default=False)
     declined = models.BooleanField(default=False)
 
-    objects = RegistrationInvitationManager()
-
-    class Meta:
-        ordering = ['last_name']
-
-    def __str__(self):
-        return (self.first_name + ' ' + self.last_name
-                + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
-
-    def refresh_keys(self, force_new_key=False):
-        # Generate email activation key and link
-        if not self.invitation_key or force_new_key:
-            salt = ""
-            for i in range(5):
-                salt = salt + random.choice(string.ascii_letters)
-            salt = salt.encode('utf8')
-            invitationsalt = self.last_name.encode('utf8')
-            self.invitation_key = hashlib.sha1(salt + invitationsalt).hexdigest()
-        self.key_expires = timezone.now() + datetime.timedelta(days=365)
-        self.save()
+    # objects = RegistrationInvitationManager()
+    #
+    # class Meta:
+    #     ordering = ['last_name']
+    #
+    # def __str__(self):
+    #     return (self.first_name + ' ' + self.last_name
+    #             + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
+    #
+    # def refresh_keys(self, force_new_key=False):
+    #     # Generate email activation key and link
+    #     if not self.invitation_key or force_new_key:
+    #         salt = ""
+    #         for i in range(5):
+    #             salt = salt + random.choice(string.ascii_letters)
+    #         salt = salt.encode('utf8')
+    #         invitationsalt = self.last_name.encode('utf8')
+    #         self.invitation_key = hashlib.sha1(salt + invitationsalt).hexdigest()
+    #     self.key_expires = timezone.now() + datetime.timedelta(days=365)
+    #     self.save()
 
 
 class CitationNotification(models.Model):
@@ -250,15 +250,15 @@ class CitationNotification(models.Model):
                                              blank=True, null=True)
     processed = models.BooleanField(default=False)
 
-    def __str__(self):
-        text = str(self.contributor) + ', cited in '
-        if self.cited_in_submission:
-            text += self.cited_in_submission.arxiv_identifier_w_vn_nr
-        elif self.cited_in_publication:
-            text += self.cited_in_publication.citation()
-        if self.processed:
-            text += ' (processed)'
-        return text
+    # def __str__(self):
+    #     text = str(self.contributor) + ', cited in '
+    #     if self.cited_in_submission:
+    #         text += self.cited_in_submission.arxiv_identifier_w_vn_nr
+    #     elif self.cited_in_publication:
+    #         text += self.cited_in_publication.citation()
+    #     if self.processed:
+    #         text += ' (processed)'
+    #     return text
 
 
 class AuthorshipClaim(models.Model):

@@ -88,6 +88,10 @@ class RegistrationInvitation(models.Model):
         self.citation_notifications.update(processed=True)
         self.save()
 
+    @property
+    def has_responded(self):
+        return self.status in [constants.STATUS_DECLINED, constants.STATUS_REGISTERED]
+
 
 class CitationNotification(models.Model):
     invitation = models.ForeignKey('invitations.RegistrationInvitation',

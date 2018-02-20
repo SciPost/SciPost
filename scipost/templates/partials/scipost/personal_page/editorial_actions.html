@@ -23,6 +23,7 @@
             {% if perms.scipost.can_draft_registration_invitations %}
                 <li><a href="{% url 'scipost:contributors_filter' %}">Contributors filter</a></li>
                 <li><a href="{% url 'scipost:draft_registration_invitation' %}">Draft a Registration Invitation</a></li>
+                <li><a href="{% url 'invitations:list' %}">Manage Registration Invitations</a></li>
             {% endif %}
             {% if perms.scipost.can_manage_registration_invitations %}
                 <li><a href="{% url 'scipost:registration_invitations' %}">Manage Registration Invitations</a></li>

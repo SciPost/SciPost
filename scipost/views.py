@@ -23,29 +23,27 @@ from django.views.debug import cleanse_setting
 from django.views.static import serve
 
 from guardian.decorators import permission_required
-from guardian.shortcuts import assign_perm, get_objects_for_user
 from haystack.generic_views import SearchView
 
 from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict,\
                        CONTRIBUTOR_NORMAL
 from .decorators import has_contributor
-from .models import Contributor, CitationNotification, UnavailabilityPeriod,\
-                    DraftInvitation, RegistrationInvitation,\
+from .models import Contributor, UnavailabilityPeriod,\
                     AuthorshipClaim, EditorialCollege, EditorialCollegeFellowship
-from .forms import AuthenticationForm, DraftInvitationForm, UnavailabilityPeriodForm,\
-                   RegistrationForm, RegistrationInvitationForm, AuthorshipClaimForm,\
+from .forms import AuthenticationForm, UnavailabilityPeriodForm,\
+                   RegistrationForm, AuthorshipClaimForm,\
                    SearchForm, VetRegistrationForm, reg_ref_dict,\
                    UpdatePersonalDataForm, UpdateUserDataForm, PasswordChangeForm,\
-                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm,\
-                   ContributorsFilterForm
+                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from affiliations.forms import AffiliationsFormset
 from colleges.permissions import fellowship_or_admin_required
 from commentaries.models import Commentary
 from comments.models import Comment
+from invitations.constants import STATUS_REGISTERED
+from invitations.models import RegistrationInvitation
 from journals.models import Publication, Journal, PublicationAuthorsTable
-from mails.views import MailEditingSubView
 from news.models import NewsItem
 from submissions.models import Submission, RefereeInvitation,\
                                Report, EICRecommendation
@@ -140,8 +138,8 @@ def register(request):
         Utils.send_registration_email()
 
         # Disable invitations related to the new Contributor
-        (RegistrationInvitation.objects.filter(email=form.cleaned_data['email'])
-         .update(responded=True))
+        RegistrationInvitation.objects.declined_or_without_response().filter(
+            email=form.cleaned_data['email']).update(status=STATUS_REGISTERED)
 
         context = {
             'ack_header': 'Thanks for registering to SciPost.',
@@ -163,7 +161,7 @@ def invitation(request, key):
     the default registration form.
     """
     invitation = get_object_or_404(RegistrationInvitation, invitation_key=key)
-    if invitation.responded:
+    if invitation.has_responded:
         errormessage = ('This invitation token has already been used, '
                         'or this email address is already associated to a registration.')
     elif timezone.now() > invitation.key_expires:
@@ -352,258 +350,258 @@ def registration_requests_reset(request, contributor_id):
     return redirect(reverse('scipost:registration_requests'))
 
 
-@permission_required('scipost.can_draft_registration_invitations', return_403=True)
-def draft_registration_invitation(request):
-    """
-    For officers to prefill registration invitations.
-    This is similar to the registration_invitations method,
-    which is used to complete the invitation process.
-    """
-    form = DraftInvitationForm(request.POST or None, current_user=request.user)
-    if form.is_valid():
-        invitation = form.save(commit=False)
-        invitation.drafted_by = request.user.contributor
-        invitation.save()
-
-        # Assign permission to 'drafter' to edit the draft afterwards
-        assign_perm('comments.change_draftinvitation', request.user, invitation)
-        messages.success(request, 'Draft invitation saved.')
-        return redirect(reverse('scipost:draft_registration_invitation'))
-
-    existing_drafts = DraftInvitation.objects.filter(processed=False).order_by('last_name')
-
-    context = {
-        'form': form,
-        'existing_drafts': existing_drafts,
-    }
-    return render(request, 'scipost/draft_registration_invitation.html', context)
-
-
-@permission_required('scipost.can_draft_registration_invitations', return_403=True)
-def contributors_filter(request):
-    """
-    For Invitation Officers that use lists of scientists as a to-do. This
-    view returns all entries of those lists with users that are certainly not registered
-    or invitated.
-    """
-    names_found = names_not_found = invitations_found = None
-    form = ContributorsFilterForm(request.POST or None)
-    if form.is_valid():
-        names_found, names_not_found, invitations_found = form.filter()
-
-    context = {
-        'form': form,
-        'names_found': names_found,
-        'names_not_found': names_not_found,
-        'invitations_found': invitations_found,
-    }
-    return render(request, 'scipost/contributors_filter.html', context)
+# @permission_required('scipost.can_draft_registration_invitations', return_403=True)
+# def draft_registration_invitation(request):
+#     """
+#     For officers to prefill registration invitations.
+#     This is similar to the registration_invitations method,
+#     which is used to complete the invitation process.
+#     """
+#     form = DraftInvitationForm(request.POST or None, current_user=request.user)
+#     if form.is_valid():
+#         invitation = form.save(commit=False)
+#         invitation.drafted_by = request.user.contributor
+#         invitation.save()
+#
+#         # Assign permission to 'drafter' to edit the draft afterwards
+#         assign_perm('comments.change_draftinvitation', request.user, invitation)
+#         messages.success(request, 'Draft invitation saved.')
+#         return redirect(reverse('scipost:draft_registration_invitation'))
+#
+#     existing_drafts = DraftInvitation.objects.filter(processed=False).order_by('last_name')
+#
+#     context = {
+#         'form': form,
+#         'existing_drafts': existing_drafts,
+#     }
+#     return render(request, 'scipost/draft_registration_invitation.html', context)
 
 
-@login_required
-def draft_registration_invitation_form(request, draft_id):
-    """
-    Edit DraftInvitation instance. It's only possible to edit istances created by the User itself.
-    """
-    draft = get_object_or_404((get_objects_for_user(request.user, 'scipost.change_draftinvitation')
-                               .filter(processed=False)),
-                              id=draft_id)
-
-    draft_inv_form = DraftInvitationForm(request.POST or None, current_user=request.user,
-                                         instance=draft)
-    if draft_inv_form.is_valid():
-        draft = draft_inv_form.save()
-        messages.success(request, 'Draft invitation saved.')
-        return redirect(reverse('scipost:registration_invitations'))
-
-    context = {'draft_inv_form': draft_inv_form}
-    return render(request, 'scipost/draft_registration_invitation_form.html', context)
-
-
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
-def map_draft_reg_inv_to_contributor(request, draft_id, contributor_id):
-    """
-    If a draft invitation actually points to an already-registered
-    Contributor, this method marks the draft invitation as processed
-    and, if the draft invitation was for a citation type,
-    creates an instance of CitationNotification.
-    """
-    draft = get_object_or_404(DraftInvitation, id=draft_id)
-    contributor = get_object_or_404(Contributor, id=contributor_id)
-    draft.processed = True
-    draft.save()
-    citation = CitationNotification(
-        contributor=contributor,
-        cited_in_submission=draft.cited_in_submission,
-        cited_in_publication=draft.cited_in_publication,
-        processed=False)
-    citation.save()
-    return redirect(reverse('scipost:registration_invitations'))
+# @permission_required('scipost.can_draft_registration_invitations', return_403=True)
+# def contributors_filter(request):
+#     """
+#     For Invitation Officers that use lists of scientists as a to-do. This
+#     view returns all entries of those lists with users that are certainly not registered
+#     or invitated.
+#     """
+#     names_found = names_not_found = invitations_found = None
+#     form = ContributorsFilterForm(request.POST or None)
+#     if form.is_valid():
+#         names_found, names_not_found, invitations_found = form.filter()
+#
+#     context = {
+#         'form': form,
+#         'names_found': names_found,
+#         'names_not_found': names_not_found,
+#         'invitations_found': invitations_found,
+#     }
+#     return render(request, 'scipost/contributors_filter.html', context)
 
 
-@permission_required('scipost.can_invite_fellows', return_403=True)
-def registration_invitations_form(request, draft_id):
-    draft = get_object_or_404(DraftInvitation, id=draft_id)
-    initial = {
-        'title': draft.title,
-        'first_name': draft.first_name,
-        'last_name': draft.last_name,
-        'email': draft.email,
-        'invitation_type': draft.invitation_type,
-        'cited_in_submission': draft.cited_in_submission,
-        'cited_in_publication': draft.cited_in_publication,
-    }
-    form = RegistrationInvitationForm(request.POST or None, initial=initial,
-                                      current_user=request.user)
-    mail_request = MailEditingSubView(request, mail_code='registration_invitation',
-                                      invitation=draft)
-    if form.is_valid():
-        if mail_request.is_valid():
-            invitation = form.save(commit=False)
-            invitation.invited_by = request.user.contributor
-            invitation.save()
-            invitation.refresh_keys()
-
-            Utils.load({'invitation': invitation})
-            Utils.send_registration_invitation_email()
-            DraftInvitation.objects.filter(email=form.cleaned_data['email']).update(processed=True)
-
-            messages.success(request, 'Registration Invitation sent')
-            return redirect(reverse('scipost:registration_invitations'))
-        else:
-            mail_request.add_form(form)
-            return mail_request.return_render()
-    context = {
-        'form': form,
-    }
-    return render(request, 'scipost/registration_invitation_form.html', context)
+# @login_required
+# def draft_registration_invitation_form(request, draft_id):
+#     """
+#     Edit DraftInvitation instance. It's only possible to edit istances created by the User itself.
+#     """
+#     draft = get_object_or_404((get_objects_for_user(request.user, 'scipost.change_draftinvitation')
+#                                .filter(processed=False)),
+#                               id=draft_id)
+#
+#     draft_inv_form = DraftInvitationForm(request.POST or None, current_user=request.user,
+#                                          instance=draft)
+#     if draft_inv_form.is_valid():
+#         draft = draft_inv_form.save()
+#         messages.success(request, 'Draft invitation saved.')
+#         return redirect(reverse('scipost:registration_invitations'))
+#
+#     context = {'draft_inv_form': draft_inv_form}
+#     return render(request, 'scipost/draft_registration_invitation_form.html', context)
 
 
-@permission_required('scipost.can_invite_fellows', return_403=True)
-def registration_invitation_list(request):
-    """ Overview and tools for administrators """
-    sent_reg_inv = RegistrationInvitation.objects.filter(responded=False, declined=False)
-    sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
-    sent_reg_inv_contrib = sent_reg_inv.filter(invitation_type='C').order_by('last_name')
-    sent_reg_inv_ref = sent_reg_inv.filter(invitation_type='R').order_by('last_name')
-    sent_reg_inv_cited_sub = sent_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    sent_reg_inv_cited_pub = sent_reg_inv.filter(invitation_type='cp').order_by('last_name')
-
-    resp_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=False)
-    resp_reg_inv_fellows = resp_reg_inv.filter(invitation_type='F').order_by('last_name')
-    resp_reg_inv_contrib = resp_reg_inv.filter(invitation_type='C').order_by('last_name')
-    resp_reg_inv_ref = resp_reg_inv.filter(invitation_type='R').order_by('last_name')
-    resp_reg_inv_cited_sub = resp_reg_inv.filter(invitation_type='ci').order_by('last_name')
-    resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
-
-    decl_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=True)
-
-    names_reg_contributors = Contributor.objects.active().order_by('user__last_name').values_list(
-        'user__first_name', 'user__last_name')
-    existing_drafts = DraftInvitation.objects.filter(
-        processed=False).order_by('last_name', 'email')
-
-    context = {
-        'sent_reg_inv_fellows': sent_reg_inv_fellows,
-        'sent_reg_inv_contrib': sent_reg_inv_contrib,
-        'sent_reg_inv_ref': sent_reg_inv_ref,
-        'sent_reg_inv_cited_sub': sent_reg_inv_cited_sub,
-        'sent_reg_inv_cited_pub': sent_reg_inv_cited_pub,
-        'resp_reg_inv_fellows': resp_reg_inv_fellows,
-        'resp_reg_inv_contrib': resp_reg_inv_contrib,
-        'resp_reg_inv_ref': resp_reg_inv_ref,
-        'resp_reg_inv_cited_sub': resp_reg_inv_cited_sub,
-        'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
-        'decl_reg_inv': decl_reg_inv,
-        'names_reg_contributors': names_reg_contributors,
-        'existing_drafts': existing_drafts,
-    }
-    return render(request, 'scipost/registration_invitation_list.html', context)
+# @permission_required('scipost.can_manage_registration_invitations', return_403=True)
+# def map_draft_reg_inv_to_contributor(request, draft_id, contributor_id):
+#     """
+#     If a draft invitation actually points to an already-registered
+#     Contributor, this method marks the draft invitation as processed
+#     and, if the draft invitation was for a citation type,
+#     creates an instance of CitationNotification.
+#     """
+#     draft = get_object_or_404(DraftInvitation, id=draft_id)
+#     contributor = get_object_or_404(Contributor, id=contributor_id)
+#     draft.processed = True
+#     draft.save()
+#     citation = CitationNotification(
+#         contributor=contributor,
+#         cited_in_submission=draft.cited_in_submission,
+#         cited_in_publication=draft.cited_in_publication,
+#         processed=False)
+#     citation.save()
+#     return redirect(reverse('scipost:registration_invitations'))
 
 
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
-def registration_invitations_cleanup(request):
-    """
-    Compares the email addresses of invitations with those in the
-    database of registered Contributors. Flags overlaps.
-    """
-    contributor_email_list = Contributor.objects.values_list('user__email', flat=True)
-    invs_to_cleanup = RegistrationInvitation.objects.filter(
-        responded=False, email__in=contributor_email_list)
-    context = {'invs_to_cleanup': invs_to_cleanup}
-    return render(request, 'scipost/registration_invitations_cleanup.html', context)
+# @permission_required('scipost.can_invite_fellows', return_403=True)
+# def registration_invitations_form(request, draft_id):
+#     draft = get_object_or_404(DraftInvitation, id=draft_id)
+#     initial = {
+#         'title': draft.title,
+#         'first_name': draft.first_name,
+#         'last_name': draft.last_name,
+#         'email': draft.email,
+#         'invitation_type': draft.invitation_type,
+#         'cited_in_submission': draft.cited_in_submission,
+#         'cited_in_publication': draft.cited_in_publication,
+#     }
+#     form = RegistrationInvitationForm(request.POST or None, initial=initial,
+#                                       current_user=request.user)
+#     mail_request = MailEditingSubView(request, mail_code='registration_invitation',
+#                                       invitation=draft)
+#     if form.is_valid():
+#         if mail_request.is_valid():
+#             invitation = form.save(commit=False)
+#             invitation.invited_by = request.user.contributor
+#             invitation.save()
+#             invitation.refresh_keys()
+#
+#             Utils.load({'invitation': invitation})
+#             Utils.send_registration_invitation_email()
+#             DraftInvitation.objects.filter(email=form.cleaned_data['email']).update(processed=True)
+#
+#             messages.success(request, 'Registration Invitation sent')
+#             return redirect(reverse('scipost:registration_invitations'))
+#         else:
+#             mail_request.add_form(form)
+#             return mail_request.return_render()
+#     context = {
+#         'form': form,
+#     }
+#     return render(request, 'scipost/registration_invitation_form.html', context)
 
 
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
-def remove_registration_invitation(request, invitation_id):
-    """
-    Remove an invitation (called from registration_invitations_cleanup).
-    """
-    invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
-    invitation.delete()
-    return redirect(reverse('scipost:registration_invitations_cleanup'))
+# @permission_required('scipost.can_invite_fellows', return_403=True)
+# def registration_invitation_list(request):
+#     """ Overview and tools for administrators """
+#     sent_reg_inv = RegistrationInvitation.objects.filter(responded=False, declined=False)
+#     sent_reg_inv_fellows = sent_reg_inv.filter(invitation_type='F').order_by('last_name')
+#     sent_reg_inv_contrib = sent_reg_inv.filter(invitation_type='C').order_by('last_name')
+#     sent_reg_inv_ref = sent_reg_inv.filter(invitation_type='R').order_by('last_name')
+#     sent_reg_inv_cited_sub = sent_reg_inv.filter(invitation_type='ci').order_by('last_name')
+#     sent_reg_inv_cited_pub = sent_reg_inv.filter(invitation_type='cp').order_by('last_name')
+#
+#     resp_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=False)
+#     resp_reg_inv_fellows = resp_reg_inv.filter(invitation_type='F').order_by('last_name')
+#     resp_reg_inv_contrib = resp_reg_inv.filter(invitation_type='C').order_by('last_name')
+#     resp_reg_inv_ref = resp_reg_inv.filter(invitation_type='R').order_by('last_name')
+#     resp_reg_inv_cited_sub = resp_reg_inv.filter(invitation_type='ci').order_by('last_name')
+#     resp_reg_inv_cited_pub = resp_reg_inv.filter(invitation_type='cp').order_by('last_name')
+#
+#     decl_reg_inv = RegistrationInvitation.objects.filter(responded=True, declined=True)
+#
+#     names_reg_contributors = Contributor.objects.active().order_by('user__last_name').values_list(
+#         'user__first_name', 'user__last_name')
+#     existing_drafts = DraftInvitation.objects.filter(
+#         processed=False).order_by('last_name', 'email')
+#
+#     context = {
+#         'sent_reg_inv_fellows': sent_reg_inv_fellows,
+#         'sent_reg_inv_contrib': sent_reg_inv_contrib,
+#         'sent_reg_inv_ref': sent_reg_inv_ref,
+#         'sent_reg_inv_cited_sub': sent_reg_inv_cited_sub,
+#         'sent_reg_inv_cited_pub': sent_reg_inv_cited_pub,
+#         'resp_reg_inv_fellows': resp_reg_inv_fellows,
+#         'resp_reg_inv_contrib': resp_reg_inv_contrib,
+#         'resp_reg_inv_ref': resp_reg_inv_ref,
+#         'resp_reg_inv_cited_sub': resp_reg_inv_cited_sub,
+#         'resp_reg_inv_cited_pub': resp_reg_inv_cited_pub,
+#         'decl_reg_inv': decl_reg_inv,
+#         'names_reg_contributors': names_reg_contributors,
+#         'existing_drafts': existing_drafts,
+#     }
+#     return render(request, 'scipost/registration_invitation_list.html', context)
 
 
-@permission_required('scipost.can_invite_fellows', return_403=True)
-def renew_registration_invitation(request, invitation_id):
-    """
-    Renew an invitation (called from registration_invitations).
-    """
-    invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
-
-    # Utils.load({'invitation': invitation})
-    # Utils.send_registration_invitation_email(True)
-    mail_request = MailEditingSubView(request, mail_code='registration_invitation_renewal',
-                                      invitation=invitation)
-    if mail_request.is_valid():
-        invitation.nr_reminders += 1
-        invitation.date_last_reminded = timezone.now()
-        invitation.save()
-        invitation.refresh_keys()
-        messages.success(request, 'Registration invitation has been sent.')
-        mail_request.send()
-        return redirect('scipost:registration_invitations')
-    else:
-        return mail_request.return_render()
+# @permission_required('scipost.can_manage_registration_invitations', return_403=True)
+# def registration_invitations_cleanup(request):
+#     """
+#     Compares the email addresses of invitations with those in the
+#     database of registered Contributors. Flags overlaps.
+#     """
+#     contributor_email_list = Contributor.objects.values_list('user__email', flat=True)
+#     invs_to_cleanup = RegistrationInvitation.objects.filter(
+#         responded=False, email__in=contributor_email_list)
+#     context = {'invs_to_cleanup': invs_to_cleanup}
+#     return render(request, 'scipost/registration_invitations_cleanup.html', context)
 
 
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
-def registration_invitation_mark_declined(request, invitation_id):
-    """
-    Mark an invitation as declined (called from registration_invitation_list).
-    """
-    invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
-    invitation.responded = True
-    invitation.declined = True
-    invitation.save()
-    return redirect(reverse('scipost:registration_invitations'))
+# @permission_required('scipost.can_manage_registration_invitations', return_403=True)
+# def remove_registration_invitation(request, invitation_id):
+#     """
+#     Remove an invitation (called from registration_invitations_cleanup).
+#     """
+#     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
+#     invitation.delete()
+#     return redirect(reverse('scipost:registration_invitations_cleanup'))
 
 
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
-def citation_notifications(request):
-    unprocessed_notifications = CitationNotification.objects.filter(
-        processed=False).order_by('contributor__user__last_name')
-    context = {'unprocessed_notifications': unprocessed_notifications, }
-    return render(request, 'scipost/citation_notifications.html', context)
+# @permission_required('scipost.can_invite_fellows', return_403=True)
+# def renew_registration_invitation(request, invitation_id):
+#     """
+#     Renew an invitation (called from registration_invitations).
+#     """
+#     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
+#
+#     # Utils.load({'invitation': invitation})
+#     # Utils.send_registration_invitation_email(True)
+#     mail_request = MailEditingSubView(request, mail_code='registration_invitation_renewal',
+#                                       invitation=invitation)
+#     if mail_request.is_valid():
+#         invitation.nr_reminders += 1
+#         invitation.date_last_reminded = timezone.now()
+#         invitation.save()
+#         invitation.refresh_keys()
+#         messages.success(request, 'Registration invitation has been sent.')
+#         mail_request.send()
+#         return redirect('scipost:registration_invitations')
+#     else:
+#         return mail_request.return_render()
 
 
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
-def process_citation_notification(request, cn_id):
-    notification = get_object_or_404(CitationNotification, id=cn_id)
-    notification.processed = True
-    notification.save()
-    if notification.contributor.accepts_SciPost_emails:
-        Utils.load({'notification': notification})
-        Utils.send_citation_notification_email()
-    return redirect(reverse('scipost:citation_notifications'))
+# @permission_required('scipost.can_manage_registration_invitations', return_403=True)
+# def registration_invitation_mark_declined(request, invitation_id):
+#     """
+#     Mark an invitation as declined (called from registration_invitation_list).
+#     """
+#     invitation = get_object_or_404(RegistrationInvitation, pk=invitation_id)
+#     invitation.responded = True
+#     invitation.declined = True
+#     invitation.save()
+#     return redirect(reverse('scipost:registration_invitations'))
 
 
-@permission_required('scipost.can_manage_registration_invitations', return_403=True)
-def draft_registration_invitation_processed(request, draft_id):
-    draft = get_object_or_404(DraftInvitation, id=draft_id)
-    draft.processed = True
-    draft.save()
-    return redirect(reverse('scipost:registration_invitations'))
+# @permission_required('scipost.can_manage_registration_invitations', return_403=True)
+# def citation_notifications(request):
+#     unprocessed_notifications = CitationNotification.objects.filter(
+#         processed=False).order_by('contributor__user__last_name')
+#     context = {'unprocessed_notifications': unprocessed_notifications, }
+#     return render(request, 'scipost/citation_notifications.html', context)
+
+
+# @permission_required('scipost.can_manage_registration_invitations', return_403=True)
+# def process_citation_notification(request, cn_id):
+#     notification = get_object_or_404(CitationNotification, id=cn_id)
+#     notification.processed = True
+#     notification.save()
+#     if notification.contributor.accepts_SciPost_emails:
+#         Utils.load({'notification': notification})
+#         Utils.send_citation_notification_email()
+#     return redirect(reverse('scipost:citation_notifications'))
+
+
+# @permission_required('scipost.can_manage_registration_invitations', return_403=True)
+# def draft_registration_invitation_processed(request, draft_id):
+#     draft = get_object_or_404(DraftInvitation, id=draft_id)
+#     draft.processed = True
+#     draft.save()
+#     return redirect(reverse('scipost:registration_invitations'))
 
 
 def login_view(request):

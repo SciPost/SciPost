@@ -336,11 +336,11 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     referee = models.ForeignKey('scipost.Contributor', related_name='referee_invitations',
                                 blank=True, null=True, on_delete=models.CASCADE)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    first_name = models.CharField(max_length=30, default='')
-    last_name = models.CharField(max_length=30, default='')
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
     email_address = models.EmailField()
     # if Contributor not found, person is invited to register
-    invitation_key = models.CharField(max_length=40, default='')
+    invitation_key = models.CharField(max_length=40)
     date_invited = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey('scipost.Contributor', related_name='referee_invited_by',
                                    blank=True, null=True, on_delete=models.CASCADE)

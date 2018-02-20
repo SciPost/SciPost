@@ -64,3 +64,9 @@ class MailEditorMixin:
             raise AttributeError('Did you check the order in which MailEditorMixin is used?')
         messages.success(self.request, 'Mail sent')
         return super().form_valid(form)
+
+
+class MailUtilsMixin:
+    """
+    This mixin takes care of inserting the default data into the Utils or Form.
+    """

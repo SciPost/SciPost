@@ -11,31 +11,17 @@ from django.template import loader
 
 from scipost.models import Contributor
 
+# from .mixins import MailUtilsMixin
 from .widgets import SummernoteEditor
 
 
-class EmailTemplateForm(forms.Form):
-    subject = forms.CharField(max_length=250, label="Subject*")
-    text = forms.CharField(widget=SummernoteEditor, label="Text*")
-    extra_recipient = forms.EmailField(label="Optional: bcc this email to", required=False)
-    prefix = 'mail_form'
+class MailUtilsMixin:
+    mail_fields = None
+    mail_template = ''
 
-    def __init__(self, data, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.mail_code = kwargs.pop('mail_code')
-        self.mail_fields = None
-        # This is a pseudo-modelform; it does not take `instance` by default
-        instance = kwargs.pop('instance', None)
-
-        # This form shouldn't be is_bound==True is there is any non-relavant POST data given.
-        if '%s-subject' % self.prefix in data.keys():
-            data = {
-                '%s-subject' % self.prefix: data.get('%s-subject' % self.prefix),
-                '%s-text' % self.prefix: data.get('%s-text' % self.prefix),
-                '%s-extra_recipient' % self.prefix: data.get('%s-extra_recipient' % self.prefix),
-            }
-        else:
-            data = None
-        super().__init__(data, *args, **kwargs)
+        self.instance = kwargs.pop('instance', None)
 
         # Gather meta data
         json_location = '%s/mails/templates/mail_templates/%s.json' % (settings.BASE_DIR,
@@ -46,19 +32,17 @@ class EmailTemplateForm(forms.Form):
             raise NotImplementedError(('You did not create a valid .html and .json file '
                                        'for mail_code: %s' % self.mail_code))
 
+        # Save central object/instance
+        self.object = self.get_object(**kwargs)
+
         # Digest the templates
         mail_template = loader.get_template('mail_templates/%s.html' % self.mail_code)
-        if instance and self.mail_data.get('context_object'):
-            kwargs[self.mail_data['context_object']] = instance
-        mail_template = mail_template.render(kwargs)
-        # self.doc = html.fromstring(mail_template)
-        # self.doc2 = self.doc.text_content()
-        # print(self.doc2)
+        if self.instance and self.mail_data.get('context_object'):
+            kwargs[self.mail_data['context_object']] = self.instance
+        self.mail_template = mail_template.render(kwargs)
 
-        # Object
-        self.object = kwargs.get(self.mail_data.get('context_object', ''), None)
-        self.object = self.object or instance
-        self.recipient = None
+        # Gather Recipients data
+        self.recipient = ''
         if self.object:
             recipient = self.object
             for attr in self.mail_data.get('to_address').split('.'):
@@ -66,13 +50,43 @@ class EmailTemplateForm(forms.Form):
                 if inspect.ismethod(recipient):
                     recipient = recipient()
             self.recipient = recipient
+        super().__init__(*args, **kwargs)
+
+    def get_object(self, **kwargs):
+        if self.object:
+            return self.object
+        if self.instance:
+            return self.instance
+
+        if self.mail_data.get('context_object'):
+            return kwargs.get(self.mail_data['context_object'], None)
+
+
+class EmailTemplateForm(MailUtilsMixin, forms.Form):
+    subject = forms.CharField(max_length=250, label="Subject*")
+    text = forms.CharField(widget=SummernoteEditor, label="Text*")
+    extra_recipient = forms.EmailField(label="Optional: bcc this email to", required=False)
+    prefix = 'mail_form'
+
+    def __init__(self, *args, **kwargs):
+        # This form shouldn't be is_bound==True is there is any non-relavant POST data given.
+        data = args[0]
+        if '%s-subject' % self.prefix in data.keys():
+            data = {
+                '%s-subject' % self.prefix: data.get('%s-subject' % self.prefix),
+                '%s-text' % self.prefix: data.get('%s-text' % self.prefix),
+                '%s-extra_recipient' % self.prefix: data.get('%s-extra_recipient' % self.prefix),
+            }
+        else:
+            data = None
+        super().__init__(data, *args, **kwargs)
 
         if not self.recipient:
             self.fields['extra_recipient'].label = "Send this email to"
             self.fields['extra_recipient'].required = True
 
         # Set the data as initials
-        self.fields['text'].initial = mail_template
+        self.fields['text'].initial = self.mail_template
         self.fields['subject'].initial = self.mail_data['subject']
 
     def save_data(self):
