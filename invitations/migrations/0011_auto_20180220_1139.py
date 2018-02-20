@@ -92,6 +92,7 @@ def transfer_old_invitations_to_new_tables(apps, schema_editor):
         )
         if new_inv.invitation_type in ['ci', 'cp']:
             new_inv.invitation_type = 'C'
+        new_inv.refresh_keys(force_new_key=True)
         new_inv.save()
 
         if invitation.cited_in_submission:
