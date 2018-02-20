@@ -20,7 +20,7 @@ from mails.mixins import MailEditorMixin
 
 class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
     permission_required = 'scipost.can_create_registration_invitations'
-    queryset = RegistrationInvitation.objects.drafts()
+    queryset = RegistrationInvitation.objects.drafts().not_for_fellows()
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
@@ -29,17 +29,17 @@ class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
         context['count_pending'] = RegistrationInvitation.objects.sent().count()
         return context
 
-    def get_queryset(self, *args, **kwargs):
-        qs = super().get_queryset(*args, **kwargs)
-        if not self.request.user.has_perm('scipost.can_invite_fellows'):
-            qs = qs.not_for_fellows()
-        return qs
-
 
 class RegistrationInvitationsSentView(RegistrationInvitationsView):
     permission_required = 'scipost.can_create_registration_invitations'
-    queryset = RegistrationInvitation.objects.sent()
+    queryset = RegistrationInvitation.objects.sent().not_for_fellows()
     template_name = 'invitations/registrationinvitation_list_sent.html'
+
+
+class RegistrationInvitationsFellowView(RegistrationInvitationsView):
+    permission_required = 'scipost.can_invite_fellows'
+    queryset = RegistrationInvitation.objects.for_fellows()
+    template_name = 'invitations/registrationinvitation_list_fellows.html'
 
 
 class CitationNotificationsView(PermissionsMixin, ListView):
