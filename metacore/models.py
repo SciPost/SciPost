@@ -13,7 +13,8 @@ connect(settings.MONGO_DATABASE['database'],
         host=settings.MONGO_DATABASE['host'],
         username=settings.MONGO_DATABASE['user'],
         password=settings.MONGO_DATABASE['password'],
-        port=settings.MONGO_DATABASE['port'])
+        port=settings.MONGO_DATABASE['port'],
+        authSource='admin')
 
 
 class Citable(DynamicDocument):
