@@ -1,0 +1,38 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Map Registration Invitation{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+    <span class="breadcrumb-item">Map to Contributor</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Map Registration Invitation to Contributor</h1>
+        <h3>Registration Invitation</h3>
+        {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <form method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <h3>Map to Contributor</h3>
+            {{ form.get_contributor.get_title_display }} {{ form.get_contributor.user.first_name }} {{ form.get_contributor.user.last_name }}
+            <br>
+            <br>
+            <input type="submit" class="btn btn-primary" name="save" value="Map to Contributor">
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

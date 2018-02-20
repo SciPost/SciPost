@@ -19,10 +19,9 @@ from captcha.fields import ReCaptchaField
 from ajax_select.fields import AutoCompleteSelectField
 from haystack.forms import ModelSearchForm as HayStackSearchForm
 
-from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,\
-    INVITATION_CITED_SUBMISSION, INVITATION_CITED_PUBLICATION
+from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES
 from .decorators import has_contributor
-from .models import Contributor, DraftInvitation, RegistrationInvitation,\
+from .models import Contributor, DraftInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
 
 from affiliations.models import Affiliation, Institution
@@ -145,8 +144,7 @@ class DraftInvitationForm(forms.ModelForm):
         model = DraftInvitation
         fields = ['title', 'first_name', 'last_name', 'email',
                   'invitation_type',
-                  'cited_in_submission', 'cited_in_publication'
-                  ]
+                  'cited_in_submission', 'cited_in_publication']
 
     def __init__(self, *args, **kwargs):
         '''
@@ -161,19 +159,14 @@ class DraftInvitationForm(forms.ModelForm):
         if self.instance.id:
             return email
 
-        if RegistrationInvitation.objects.filter(email=email).exists():
-            self.add_error('email', 'This email address has already been used for an invitation')
-        elif DraftInvitation.objects.filter(email=email).exists():
-            self.add_error('email', ('This email address has already been'
-                                     ' used for a draft invitation'))
-        elif User.objects.filter(email=email).exists():
+        if User.objects.filter(email=email).exists():
             self.add_error('email', 'This email address is already associated to a Contributor')
 
         return email
 
     def clean_invitation_type(self):
         invitation_type = self.cleaned_data['invitation_type']
-        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_Fellows'):
+        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_fellows'):
             self.add_error('invitation_type', ('You do not have the authorization'
                                                ' to send a Fellow-type invitation.'
                                                ' Consider Contributor, or cited (sub/pub).'))
@@ -181,95 +174,6 @@ class DraftInvitationForm(forms.ModelForm):
             self.add_error('invitation_type', ('Referee-type invitations must be made'
                                                'by the Editor-in-charge at the relevant'
                                                ' Submission\'s Editorial Page.'))
-        return invitation_type
-
-
-class ContributorsFilterForm(forms.Form):
-    names = forms.CharField(widget=forms.Textarea())
-    include_invitations = forms.BooleanField(required=False, initial=True,
-                                             label='Include invitations in the filter.')
-
-    def filter(self):
-        names_found = []
-        names_not_found = []
-        invitations_found = []
-        r = self.cleaned_data['names'].replace('\r', '\n').split('\n')
-        include_invitations = self.cleaned_data.get('include_invitations', False)
-        for name in r:
-            last_name = name.split(',')[0]
-            if not last_name:
-                continue
-            if Contributor.objects.filter(user__last_name__istartswith=last_name).exists():
-                names_found.append(name)
-            elif include_invitations and RegistrationInvitation.objects.pending_response().filter(
-              last_name__istartswith=last_name).exists():
-                invitations_found.append(name)
-            else:
-                names_not_found.append(name)
-        return names_found, names_not_found, invitations_found
-
-
-class RegistrationInvitationForm(forms.ModelForm):
-    cited_in_submission = AutoCompleteSelectField('submissions_lookup', required=False)
-    cited_in_publication = AutoCompleteSelectField('publication_lookup', required=False)
-
-    class Meta:
-        model = RegistrationInvitation
-        fields = ['title', 'first_name', 'last_name', 'email',
-                  'invitation_type',
-                  'cited_in_submission', 'cited_in_publication',
-                  'message_style', 'personal_message'
-                  ]
-
-    def __init__(self, *args, **kwargs):
-        '''
-        This form has a required keyword argument `current_user` which is used for validation of
-        the form fields.
-        '''
-        self.current_user = kwargs.pop('current_user')
-        if kwargs.get('initial', {}).get('cited_in_submission', False):
-            kwargs['initial']['cited_in_submission'] = kwargs['initial']['cited_in_submission'].id
-        if kwargs.get('initial', {}).get('cited_in_publication', False):
-            kwargs['initial']['cited_in_publication'] = kwargs['initial']['cited_in_publication'].id
-
-        super().__init__(*args, **kwargs)
-        self.fields['personal_message'].widget.attrs.update(
-            {'placeholder': ('NOTE: a personal phrase or two.'
-                             ' The bulk of the text will be auto-generated.')})
-
-        self.fields['cited_in_publication'] = forms.ModelChoiceField(
-            queryset=Publication.objects.all().order_by('-publication_date'),
-            required=False)
-
-    def clean(self):
-        data = self.cleaned_data
-        if data.get('invitation_type') == INVITATION_CITED_SUBMISSION:
-            if not data.get('cited_in_submission'):
-                self.add_error('cited_in_submission', 'Please state the Submission cited.')
-        if data.get('invitation_type') == INVITATION_CITED_PUBLICATION:
-            if not data.get('cited_in_publication'):
-                self.add_error('cited_in_publication', 'Please state the Publication cited.')
-        return data
-
-    def clean_email(self):
-        email = self.cleaned_data['email']
-        if RegistrationInvitation.objects.filter(email=email).exists():
-            self.add_error('email', 'This email address has already been used for an invitation')
-        elif User.objects.filter(email=email).exists():
-            self.add_error('email', 'This email address is already associated to a Contributor')
-
-        return email
-
-    def clean_invitation_type(self):
-        invitation_type = self.cleaned_data['invitation_type']
-        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_Fellows'):
-            self.add_error('invitation_type', ('You do not have the authorization'
-                                               ' to send a Fellow-type invitation.'
-                                               ' Consider Contributor, or cited (sub/pub).'))
-        if invitation_type == 'R':
-            self.add_error('invitation_type', ('Referee-type invitations must be made by the'
-                                               ' Editor-in-charge at the relevant Submission'
-                                               '\'s Editorial Page. '))
         return invitation_type
 
 

@@ -66,27 +66,20 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Registration and invitations
-        change_draft_invitation, created = Permission.objects.get_or_create(
-            codename='change_draftinvitation',
-            defaults={
-                'name': 'Can vet registration requests',
-                'content_type': content_type_draft_invitation
-            }
-        )
         can_vet_registration_requests, created = Permission.objects.get_or_create(
             codename='can_vet_registration_requests',
             name='Can vet registration requests',
             content_type=content_type)
-        can_draft_registration_invitations, created = Permission.objects.get_or_create(
-            codename='can_draft_registration_invitations',
-            name='Can draft registration invitations',
+        can_create_registration_invitations, created = Permission.objects.get_or_create(
+            codename='can_create_registration_invitations',
+            name='Can create registration invitations',
             content_type=content_type)
         can_manage_registration_invitations, created = Permission.objects.get_or_create(
             codename='can_manage_registration_invitations',
             name='Can manage registration invitations',
             content_type=content_type)
-        can_invite_Fellows, created = Permission.objects.get_or_create(
-            codename='can_invite_Fellows',
+        can_invite_fellows, created = Permission.objects.get_or_create(
+            codename='can_invite_fellows',
             name='Can invite Fellows',
             content_type=content_type)
         can_resend_registration_requests, created = Permission.objects.get_or_create(
@@ -284,7 +277,7 @@ class Command(BaseCommand):
         SciPostAdmin.permissions.set([
             can_read_all_privacy_sensitive_data,
             can_manage_registration_invitations,
-            change_draft_invitation,
+            can_create_registration_invitations,
             can_email_group_members,
             can_email_particulars,
             can_resend_registration_requests,
@@ -315,14 +308,14 @@ class Command(BaseCommand):
 
         AdvisoryBoard.permissions.set([
             can_manage_registration_invitations,
-            change_draft_invitation,
+            can_create_registration_invitations,
             can_attend_VGMs,
             can_view_statistics,
         ])
 
         EditorialAdmin.permissions.set([
             can_view_pool,
-            can_invite_Fellows,
+            can_invite_fellows,
             can_assign_submissions,
             can_do_plagiarism_checks,
             can_oversee_refereeing,
@@ -372,12 +365,12 @@ class Command(BaseCommand):
         ])
 
         Ambassadors.permissions.set([
+            can_create_registration_invitations,
             can_manage_registration_invitations,
-            change_draft_invitation,
         ])
 
         JuniorAmbassadors.permissions.set([
-            can_draft_registration_invitations,
+            can_create_registration_invitations,
         ])
 
         ProductionSupervisors.permissions.set([

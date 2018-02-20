@@ -2,8 +2,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from .constants import CONTRIBUTOR_NORMAL, INVITATION_EDITORIAL_FELLOW,\
-                       CONTRIBUTOR_NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
+from .constants import CONTRIBUTOR_NORMAL, CONTRIBUTOR_NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
 
 today = timezone.now().date()
 
@@ -35,25 +34,6 @@ class ContributorQuerySet(models.QuerySet):
 
     def fellows(self):
         return self.filter(user__groups__name='Editorial College')
-
-
-class RegistrationInvitationManager(models.Manager):
-    def pending_invited_fellows(self):
-        return self.filter(invitation_type=INVITATION_EDITORIAL_FELLOW,
-                           responded=False, declined=False)
-
-    def declined_invited_fellows(self):
-        return self.filter(invitation_type=INVITATION_EDITORIAL_FELLOW,
-                           responded=False, declined=True)
-
-    def declined(self):
-        return self.filter(responded=True, declined=True)
-
-    def pending_response(self):
-        return self.filter(responded=False)
-
-    def declined_or_without_response(self):
-        return self.filter(Q(responded=True, declined=True) | Q(responded=False))
 
 
 class UnavailabilityPeriodManager(models.Manager):

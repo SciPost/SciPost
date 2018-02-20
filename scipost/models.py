@@ -18,7 +18,7 @@ from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS,\
                        CONTRIBUTOR_NEWLY_REGISTERED
 from .fields import ChoiceArrayField
-from .managers import FellowManager, ContributorQuerySet, RegistrationInvitationManager,\
+from .managers import FellowManager, ContributorQuerySet,\
                       UnavailabilityPeriodManager, AuthorshipClaimQuerySet
 
 today = timezone.now().date()
@@ -189,11 +189,11 @@ class DraftInvitation(models.Model):
 
 class RegistrationInvitation(models.Model):
     """
-    Invitation to particular persons for registration
+    Deprecated: Use the `invitations` app
     """
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    first_name = models.CharField(max_length=30, default='')
-    last_name = models.CharField(max_length=30, default='')
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
     email = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE,
                                        default=INVITATION_CONTRIBUTOR)
@@ -210,7 +210,7 @@ class RegistrationInvitation(models.Model):
     invitation_key = models.CharField(max_length=40, unique=True)
     key_expires = models.DateTimeField(default=timezone.now)
     date_sent = models.DateTimeField(default=timezone.now)
-    invited_by = models.ForeignKey(Contributor,
+    invited_by = models.ForeignKey('scipost.Contributor',
                                    on_delete=models.CASCADE,
                                    blank=True, null=True)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
@@ -218,29 +218,11 @@ class RegistrationInvitation(models.Model):
     responded = models.BooleanField(default=False)
     declined = models.BooleanField(default=False)
 
-    objects = RegistrationInvitationManager()
-
-    class Meta:
-        ordering = ['last_name']
-
-    def __str__(self):
-        return (self.first_name + ' ' + self.last_name
-                + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
-
-    def refresh_keys(self, force_new_key=False):
-        # Generate email activation key and link
-        if not self.invitation_key or force_new_key:
-            salt = ""
-            for i in range(5):
-                salt = salt + random.choice(string.ascii_letters)
-            salt = salt.encode('utf8')
-            invitationsalt = self.last_name.encode('utf8')
-            self.invitation_key = hashlib.sha1(salt + invitationsalt).hexdigest()
-        self.key_expires = timezone.now() + datetime.timedelta(days=365)
-        self.save()
-
 
 class CitationNotification(models.Model):
+    """
+    Deprecated: Use the `invitations` app
+    """
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     cited_in_submission = models.ForeignKey('submissions.Submission',
                                             on_delete=models.CASCADE,
@@ -249,16 +231,6 @@ class CitationNotification(models.Model):
                                              on_delete=models.CASCADE,
                                              blank=True, null=True)
     processed = models.BooleanField(default=False)
-
-    def __str__(self):
-        text = str(self.contributor) + ', cited in '
-        if self.cited_in_submission:
-            text += self.cited_in_submission.arxiv_identifier_w_vn_nr
-        elif self.cited_in_publication:
-            text += self.cited_in_publication.citation()
-        if self.processed:
-            text += ' (processed)'
-        return text
 
 
 class AuthorshipClaim(models.Model):

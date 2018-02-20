@@ -1,11 +1,11 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
-{% block pagetitle %}: registration invitations cleanup{% endblock pagetitle %}
+{% block pagetitle %}: Registration Invitations cleanup{% endblock pagetitle %}
 
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{% url 'scipost:registration_invitations' %}" class="breadcrumb-item">Registration invitations</a>
+    {{ block.super }}
+    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
     <span class="breadcrumb-item">Cleanup</span>
 {% endblock %}
 
@@ -15,13 +15,13 @@
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Registration Invitations Cleanup</h1>
+        <h3>Email duplicates (a contributor exists with the email address in these invitations)</h3>
     </div>
 </div>
 
 
 <div class="row">
     <div class="col-12">
-        <h3>Email duplicates (a contributor exists with the email address in these invitations)</h3>
         <table class="table">
             <thead>
                 <tr>
@@ -34,29 +34,23 @@
                 </tr>
             </thead>
             <tbody>
-                {% for inv in invs_to_cleanup %}
+                {% for inv in invitations %}
                     <tr>
                         <td>{{ inv.last_name }}</td>
                         <td>{{ inv.first_name }}</td>
                         <td>{{ inv.email }}</td>
-                        <td>{{ inv.date_sent }} </td>
-                        <td>{{ inv.invitation_type }}</td>
-                        <td>{{ inv.invited_by.user.last_name }}</td>
-                        <td>
-                            <a href="{% url 'scipost:remove_registration_invitation' invitation_id=inv.id %}">Remove</a>
-                        </td>
+                        <td>{{ inv.date_sent_first }} </td>
+                        <td>{{ inv.get_invitation_type_display }}</td>
+                        <td>{{ inv.invited_by }}</td>
+                        <td><a href="{% url 'invitations:delete' inv.id %}">Remove</a></td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="7">
-                            There were no duplicate emails found in the sets of Contributors/Invitations.
-                        </td>
+                        <td colspan="7">There were no duplicate emails found in the sets of Contributors/Invitations.</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        <p>Return to the <a href="{% url 'scipost:registration_invitations' %}">Registration Invitations</a> page.</p>
     </div>
 </div>
 
