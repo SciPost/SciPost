@@ -40,7 +40,7 @@ class RegistrationInvitationsView(PermissionsMixin, ListView):
         return qs
 
 
-class RegistrationInvitationsSentView(PermissionsMixin, ListView):
+class RegistrationInvitationsSentView(RegistrationInvitationsView):
     permission_required = 'scipost.can_create_registration_invitations'
     queryset = RegistrationInvitation.objects.sent()
     template_name = 'invitations/registrationinvitation_list_sent.html'
