@@ -74,7 +74,7 @@ def transfer_old_invitations_to_new_tables(apps, schema_editor):
             )
 
     # Draft Invitations
-    for invitation in OldDraftInvitation.objects.processed(processed=False):
+    for invitation in OldDraftInvitation.objects.filter(processed=False):
         new_inv = NewRegistrationInvitation(
             title=invitation.title,
             first_name=invitation.first_name,
