@@ -2,13 +2,11 @@ import requests
 from .models import Citable, CitableWithDOI
 
 
-def get_crossref_test():
+def get_crossref_test(cursor='*'):
     """
     For testing purposes - retrieves a "small" dataset from CrossRef and saves it
     in de database, after parsing
     """
-
-    cursor = '*'
 
     # Member 16 is APS
     # url = 'https://api.crossref.org/members/16/works'
