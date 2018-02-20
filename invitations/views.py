@@ -28,7 +28,8 @@ class RegistrationInvitationsView(PermissionsMixin, ListView):
         search_form = RegistrationInvitationFilterForm(self.request.GET or None)
         if search_form.is_valid():
             context['object_list'] = search_form.search(context['object_list'])
-        context['object_list'] = context['object_list'].order_by('date_sent_last', 'last_name')
+        context['object_list'] = context['object_list'].order_by(
+            'status', 'date_sent_last', 'last_name')
         context['search_form'] = search_form
         return context
 

@@ -39,6 +39,7 @@
                         {% elif invitation.status == 'sent' or invitation.status == 'edited' %}
                             <li><a href="{% url 'invitations:send_reminder' invitation.id %}">Send reminder</a></li>
                         {% endif %}
+                        <li><a class="text-danger" href="{% url 'invitations:delete' invitation.id %}">Delete</a></li>
                     </ul>
                 </td>
                 <td>
