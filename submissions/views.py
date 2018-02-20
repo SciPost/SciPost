@@ -40,11 +40,11 @@ from mails.views import MailEditingSubView
 from scipost.forms import ModifyPersonalMessageForm, RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
-from scipost.utils import Utils
 
 from comments.forms import CommentForm
 from invitations.constants import INVITATION_REFEREEING
 from invitations.models import RegistrationInvitation
+from mails.utils import DirectMailUtil
 from production.forms import ProofsDecisionForm
 from production.models import ProductionStream
 
@@ -770,14 +770,15 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
             ref_invitation = ref_recruit_form.save(commit=False)
             ref_invitation.submission = submission
             ref_invitation.invited_by = request.user.contributor
-            ref_invitation.save()
 
             # Create and send a registration invitation
-            ref_inv_message_head = """
-                On behalf of the Editor-in-charge {eic_title} {eic_last_name}, we would
-                like to invite you to referee a Submission to {journal},
-                namely {sub_title} by {sub_author_list} (see https://scipost.org/{sub_url}).
-                """.format(
+            ref_inv_message_head = (
+                'On behalf of the Editor-in-charge {eic_title} {eic_last_name}, we would'
+                'like to invite you to referee a Submission to {journal}, namely'
+                '\n{sub_title}'
+                '\nby {sub_author_list}'
+                '\n(see https://scipost.org/{sub_url}).'
+                ).format(
                     eic_title=submission.editor_in_charge.get_title_display(),
                     eic_last_name=submission.editor_in_charge.user.last_name,
                     journal=submission.get_submitted_to_journal_display(),
@@ -790,18 +791,20 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
                 last_name=ref_recruit_form.cleaned_data['last_name'],
                 email=ref_recruit_form.cleaned_data['email_address'],
                 invitation_type=INVITATION_REFEREEING,
-                invited_by=request.user.contributor,
+                created_by=request.user.contributor.user,
+                invited_by=request.user.contributor.user,
                 personal_message=ref_inv_message_head)
 
             reg_invitation.save()
-            Utils.load({'invitation': reg_invitation})
-            Utils.send_registration_invitation_email()
+            # Copy the key to the refereeing invitation
+            ref_invitation.invitation_key = reg_invitation.invitation_key
+            ref_invitation.save()
+            mail_sender = DirectMailUtil(mail_code='registration_invitation',
+                                         instance=reg_invitation)
+            mail_sender.send()
             submission.add_event_for_author('A referee has been invited.')
             submission.add_event_for_eic('%s has been recruited and invited as a referee.'
                                          % ref_recruit_form.cleaned_data['last_name'])
-            # Copy the key to the refereeing invitation:
-            ref_invitation.invitation_key = reg_invitation.invitation_key
-            ref_invitation.save()
 
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))

@@ -8,7 +8,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
 <br><br>
 
 {% if invitation.personal_message %}
-    {{ personal_message|linebreaks }}
+    {{ invitation.personal_message|linebreaksbr }}
     <br>
 {% endif %}
 
@@ -39,6 +39,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
     </p>
 
 {% elif invitation.invitation_type == 'C' %}
+    {# "Regular" invite #}
     {% if invitation.citation_notifications.for_publications %}
         <p>
             Your work has been cited in
@@ -120,6 +121,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         {{ invitation.invited_by.contributor.get_title_display }} {{ invitation.invited_by.first_name }} {{ invitation.invited_by.last_name }}
     </p>
 {% elif invitation.invitation_type == 'F' %}
+    {# Fellow invite #}
     <p>
         You will perhaps have already heard about SciPost, a publication
         portal established by and for professional scientists.
