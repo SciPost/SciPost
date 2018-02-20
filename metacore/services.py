@@ -16,10 +16,10 @@ def get_crossref_test():
 
     # This is PRL
     url = 'https://api.crossref.org/journals/0031-9007/works'
-    # cursor = 'AoJ4wfD37eACPxBodHRwOi8vZHguZG9pLm9yZy8xMC4xMTAzL3BoeXNyZXZsZXR0LjkwLjAzNTUwNA=='
+    # cursor = 'AoJ2/dSFrt8CPxFodHRwOi8vZHguZG9pLm9yZy8xMC4xMTAzL3BoeXNyZXZsZXR0LjExMy4yMzY2MDM='
 
     # If the loop is allowed to complete, it fetches (rows * batches) records
-    rows = 100
+    rows = 1000
     batches = 100
 
     for i in range(0,batches):
