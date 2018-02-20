@@ -14,12 +14,14 @@ from .mixins import RequestArgumentMixin, PermissionsMixin, SaveAndSendFormMixin
 from .models import RegistrationInvitation, CitationNotification
 
 from scipost.models import Contributor
+from scipost.mixins import PaginationMixin
 from mails.mixins import MailEditorMixin
 
 
-class RegistrationInvitationsView(PermissionsMixin, ListView):
+class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
     permission_required = 'scipost.can_create_registration_invitations'
     queryset = RegistrationInvitation.objects.drafts()
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
