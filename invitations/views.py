@@ -8,7 +8,7 @@ from django.views.generic.edit import UpdateView, DeleteView
 
 from .forms import RegistrationInvitationForm, RegistrationInvitationReminderForm,\
     RegistrationInvitationMarkForm, RegistrationInvitationMapToContributorForm,\
-    CitationNotificationForm, ContributorSearchForm, RegistrationInvitationFilterForm,\
+    CitationNotificationForm, SuggestionSearchForm, RegistrationInvitationFilterForm,\
     CitationNotificationProcessForm, RegistrationInvitationAddCitationForm
 from .mixins import RequestArgumentMixin, PermissionsMixin, SaveAndSendFormMixin
 from .models import RegistrationInvitation, CitationNotification
@@ -75,6 +75,7 @@ def create_registration_invitation_or_citation(request):
     """
     contributors = []
     suggested_invitations = []
+    declined_invitations = []
 
     # Only take specific GET data to prevent for unexpected bound forms.
     search_data = {}
@@ -83,10 +84,10 @@ def create_registration_invitation_or_citation(request):
         search_data['last_name'] = request.GET['last_name']
     if request.GET.get('prefill-last_name'):
         initial_search_data['last_name'] = request.GET['prefill-last_name']
-    contributor_search_form = ContributorSearchForm(search_data or None,
-                                                    initial=initial_search_data)
-    if contributor_search_form.is_valid():
-        contributors, suggested_invitations = contributor_search_form.search()
+    suggestion_search_form = SuggestionSearchForm(search_data or None,
+                                                  initial=initial_search_data)
+    if suggestion_search_form.is_valid():
+        contributors, suggested_invitations, declined_invitations = suggestion_search_form.search()
     citation_form = CitationNotificationForm(request.POST or None, contributors=contributors,
                                              prefix='notification', request=request)
 
@@ -110,9 +111,10 @@ def create_registration_invitation_or_citation(request):
         return redirect('invitations:list')
 
     context = {
-        'contributor_search_form': contributor_search_form,
+        'suggestion_search_form': suggestion_search_form,
         'citation_form': citation_form,
         'suggested_invitations': suggested_invitations,
+        'declined_invitations': declined_invitations,
         'invitation_form': invitation_form,
     }
     return render(request, 'invitations/registrationinvitation_form_add_new.html', context)

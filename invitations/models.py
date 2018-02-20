@@ -35,10 +35,6 @@ class RegistrationInvitation(models.Model):
     # Related to objects
     invitation_type = models.CharField(max_length=2, choices=constants.INVITATION_TYPE,
                                        default=constants.INVITATION_CONTRIBUTOR)
-    # cited_in_submissions = models.ManyToManyField('submissions.Submission',
-    #                                               blank=True, related_name='+')
-    # cited_in_publications = models.ManyToManyField('journals.Publication',
-    #                                                blank=True, related_name='+')
 
     # Response keys
     invitation_key = models.CharField(max_length=40, unique=True)

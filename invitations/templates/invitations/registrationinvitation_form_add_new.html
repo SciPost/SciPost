@@ -20,18 +20,18 @@
             If you want to invite a new Contributor to SciPost, first try to use the following search form to see if this person already is available in the SciPost database.
         </p>
 
-        {% if contributor_search_form %}
+        {% if suggestion_search_form %}
             <h3 class="mb-1">Search for existing Contributor</h3>
             <form method="get">
-                {{ contributor_search_form|bootstrap }}
+                {{ suggestion_search_form|bootstrap }}
                 <input type="submit" class="btn btn-primary" value="Search">
-                {% if contributor_search_form.is_bound %}
+                {% if suggestion_search_form.is_bound %}
                     <a href="{% url 'invitations:new' %}" class="ml-2 btn btn-link">Cancel search</a>
                 {% endif %}
             </form>
 
             <hr class="divider">
-            {% if contributor_search_form.is_bound %}
+            {% if suggestion_search_form.is_bound %}
                 {% if suggested_invitations %}
                     <h3>Registration Invitations found</h3>
                     <p>
@@ -43,10 +43,21 @@
                         {% endfor %}
                     </ul>
                 {% endif %}
+                {% if declined_invitations %}
+                    <h3>Declined Registration Invitations</h3>
+                    <p>
+                        If the person you are trying to invite is within this list of Registration Invitations, do not invite them again. They have already declined an earlier invitation.
+                    </p>
+                    <ul class="mb-2">
+                        {% for inv in declined_invitations %}
+                            <li>{{ inv.first_name }} {{ inv.last_name }}: {{ inv.email }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
 
                 <h3>Citation Notification</h3>
                 <p>
-                    If the person you are trying to invite is already a registered Contributor, it'll be listed in the following form. If not, you can <a href="{% url 'invitations:new' %}?prefill-last_name={{ contributor_search_form.last_name.value|urlencode }}">write a new Registration Invitation</a>.
+                    If the person you are trying to invite is already a registered Contributor, it'll be listed in the following form. If not, you can <a href="{% url 'invitations:new' %}?prefill-last_name={{ suggestion_search_form.last_name.value|urlencode }}">write a new Registration Invitation</a>.
                 </p>
             {% else %}
                 <h3 class="mb-1">...or write a new Registration Invitation</h3>
@@ -54,7 +65,7 @@
 
         {% endif %}
 
-        {% if contributor_search_form.is_bound %}
+        {% if suggestion_search_form.is_bound %}
             <form method="post">
                 {% csrf_token %}
                 {{ citation_form|bootstrap }}

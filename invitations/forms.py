@@ -7,7 +7,6 @@ from submissions.models import Submission
 
 from . import constants
 from .models import RegistrationInvitation, CitationNotification
-from .utils import Utils
 
 from ajax_select.fields import AutoCompleteSelectField, AutoCompleteSelectMultipleField
 
@@ -26,7 +25,7 @@ class RegistrationInvitationFilterForm(forms.Form):
         return qs.filter(last_name__icontains=last_name)
 
 
-class ContributorSearchForm(forms.Form):
+class SuggestionSearchForm(forms.Form):
     last_name = forms.CharField()
 
     def search(self):
@@ -35,7 +34,9 @@ class ContributorSearchForm(forms.Form):
         if last_name:
             contributors = Contributor.objects.filter(user__last_name__icontains=last_name)
             invitations = RegistrationInvitation.objects.filter(last_name__icontains=last_name)
-            return contributors, invitations
+            declines = RegistrationInvitation.objects.declined().filter(
+                last_name__icontains=last_name)
+            return contributors, invitations, declines
         return Contributor.objects.none(), RegistrationInvitation.objects.none()
 
 
@@ -141,6 +142,16 @@ class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
         if not self.request.user.has_perm('scipost.can_manage_registration_invitations'):
             del self.fields['message_style']
             del self.fields['personal_message']
+
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if Contributor.objects.filter(user__email=email).exists():
+            self.add_error('email', 'This email address is already associated to a Contributor')
+        elif RegistrationInvitation.objects.declined().filter(email=email).exists():
+            self.add_error('email', 'This person has already declined an earlier invitation')
+
+        return email
 
     def save(self, *args, **kwargs):
         if not hasattr(self.instance, 'created_by'):
