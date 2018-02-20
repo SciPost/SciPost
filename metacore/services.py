@@ -1,6 +1,7 @@
 import requests
 from .models import Citable, CitableWithDOI
 
+
 def get_crossref_test():
     """
     For testing purposes - retrieves a "small" dataset from CrossRef and saves it
@@ -19,8 +20,8 @@ def get_crossref_test():
     # cursor = 'AoJ2/dSFrt8CPxFodHRwOi8vZHguZG9pLm9yZy8xMC4xMTAzL3BoeXNyZXZsZXR0LjExMy4yMzY2MDM='
 
     # If the loop is allowed to complete, it fetches (rows * batches) records
-    rows = 200
-    batches = 500
+    rows = 500
+    batches = 2000
 
     for i in range(0,batches):
         print("Batch %s" % (i, ))
@@ -40,13 +41,16 @@ def get_crossref_test():
 
         # Mass insert in database (will fail on encountering existing documents
         # with same DOI
-        if citables:
-            Citable.objects.insert(citables)
+        # if citables:
+            # Citable.objects.insert(citables)
 
         if number_of_results < rows:
             print(number_of_results)
             print('End reached.')
             break
+
+        citable = []
+
 
 def convert_doi_to_lower_case():
     # If you accidentally import 100.000+ records that have random uppercase characters
