@@ -36,3 +36,7 @@ LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/boris/Documents/We
 # CROSSREF_LOGIN_PASSWORD = get_secret("CROSSREF_LOGIN_PASSWORD")
 # CROSSREF_DEPOSIT_EMAIL = 'borisponsioen@scipost.org'
 
+# Mongo
+MONGO_DATABASE['user'] = get_secret('MONGO_DB_USER')
+MONGO_DATABASE['password'] = get_secret('MONGO_DB_PASSWORD')
+MONGO_DATABASE['port'] = get_secret('MONGO_DB_PORT')

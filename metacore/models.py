@@ -11,8 +11,8 @@ from .managers import CitableQuerySet
 # It uses default settings for the mongo server
 connect(settings.MONGO_DATABASE['database'],
         host=settings.MONGO_DATABASE['host'],
-        user=settings.MONGO_DATABASE['user'],
-        password=settings.MONGO_DATABASE['password']
+        username=settings.MONGO_DATABASE['user'],
+        password=settings.MONGO_DATABASE['password'],
         port=settings.MONGO_DATABASE['port'])
 
 
