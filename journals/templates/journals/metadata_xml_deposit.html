@@ -7,9 +7,8 @@
         <div class="container">
             <nav class="breadcrumb hidden-sm-down">
                 <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-                <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
-                <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
-                <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+                <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="breadcrumb-item">{{ publication.citation }}</a>
                 <span class="breadcrumb-item active">Metadata XML deposit</span>
             </nav>
         </div>
@@ -25,29 +24,35 @@
   </div>
 </div>
 
+{% if valid %}
+    <div class="row">
+      <div class="col-12">
 
-<div class="row">
-  <div class="col-12">
+          <h3 class="my-1">Response headers:</h3>
+          <pre><code>{{ response_headers|linebreaks }}</code></pre>
 
-  {% if errormessage %}
-    <h2 class="text-danger">{{ errormessage }}</h2>
-  {% endif %}
+          <h3 class="mt-3">Response text:</h3>
+          <pre><code>{{ response_text|linebreaks }}</code></pre>
 
-  <h3 class="my-1">Response headers:</h3>
-  <div>
-      <pre><code>{{ response_headers|linebreaks }}</code></pre>
-  </div>
-
-  <h3 class="mt-3">Response text:</h3>
-  <div>
-      <pre><code>{{ response_text|linebreaks }}</code></pre>
-  </div>
-
-  <h3><a href="{{publication.get_absolute_url}}">return to the publication's page</a>, to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></h3>
+          <br>
+          <p><a href="{{publication.get_absolute_url}}">return to the publication's page</a>, to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></p>
 
 
+        </div>
     </div>
-</div>
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <p>
+                <span class="text-danger">The metadata file for this metadata timestamp already exists.</span><br>
+                You might want to <a href="{% url 'journals:create_metadata_xml' doi_label=publication.doi_label %}">produce new metadata</a> to do a new deposit instead.
+            <p>
+
+            <br>
+            <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">Back to Admin for {{ publication.doi_label }}</a>
+        </div>
+    </div>
+{% endif %}
 
 
 {% endblock %}

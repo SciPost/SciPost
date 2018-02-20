@@ -58,16 +58,19 @@ class CitationListBibitemsForm(forms.Form):
         return dois
 
 
-class FundingInfoForm(forms.Form):
-    funding_statement = forms.CharField(widget=forms.Textarea())
+class FundingInfoForm(forms.ModelForm):
+    funding_statement = forms.CharField(widget=forms.Textarea({
+        'rows': 10,
+        'placeholder': 'Paste the funding info statement here'
+    }))
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['funding_statement'].widget.attrs.update({
-            'rows': 10,
-            'cols': 50,
-            'placeholder': 'Paste the funding info statement here'
-        })
+    class Meta:
+        model = Publication
+        fields = ()
+
+    def save(self, *args, **kwargs):
+        self.instance.metadata['funding_statement'] = self.cleaned_data['funding_statement']
+        return super().save(*args, **kwargs)
 
 
 class CreateMetadataXMLForm(forms.ModelForm):
@@ -77,10 +80,70 @@ class CreateMetadataXMLForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['metadata_xml'].widget.attrs.update({
-            'rows': 50,
-            'cols': 50
-        })
+        self.fields['metadata_xml'].widget.attrs.update({'rows': 50})
+
+
+class CreateMetadataDOAJForm(forms.ModelForm):
+    class Meta:
+        model = Publication
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.instance.metadata_DOAJ = self.generate(self.instance)
+        return super().save(*args, **kwargs)
+
+    def generate(self, publication):
+        md = {
+            'bibjson': {
+                'author': [{'name': publication.author_list}],
+                'title': publication.title,
+                'abstract': publication.abstract,
+                'year': publication.publication_date.strftime('%Y'),
+                'month': publication.publication_date.strftime('%m'),
+                'start_page': publication.get_paper_nr(),
+                'identifier': [
+                    {
+                        'type': 'eissn',
+                        'id': str(publication.in_issue.in_volume.in_journal.issn)
+                    },
+                    {
+                        'type': 'doi',
+                        'id': publication.doi_string
+                    }
+                ],
+                'link': [
+                    {
+                        'url': self.request.build_absolute_uri(publication.get_absolute_url()),
+                        'type': 'fulltext',
+                    }
+                ],
+                'journal': {
+                    'publisher': 'SciPost',
+                    'volume': str(publication.in_issue.in_volume.number),
+                    'number': str(publication.in_issue.number),
+                    'identifier': [{
+                        'type': 'eissn',
+                        'id': str(publication.in_issue.in_volume.in_journal.issn)
+                    }],
+                    'license': [
+                        {
+                            'url': self.request.build_absolute_uri(
+                                publication.in_issue.in_volume.in_journal.get_absolute_url()),
+                            'open_access': 'true',
+                            'type': publication.get_cc_license_display(),
+                            'title': publication.get_cc_license_display(),
+                        }
+                    ],
+                    'language': ['EN'],
+                    'title': publication.in_issue.in_volume.in_journal.get_name_display(),
+                }
+            }
+        }
+        return md
 
 
 class BaseReferenceFormSet(BaseModelFormSet):

@@ -47,7 +47,7 @@
                     </div>
                 </div>
 
-                {% include 'submissions/_single_report_content.html' with report=report %}
+                {% include 'partials/submissions/report_content.html' with report=report %}
 
                 <div class="row">
                     <div class="col-12">
@@ -93,7 +93,7 @@
                     {% endif %}
                 </div>
 
-                {% include 'submissions/_single_report_content.html' with report=report %}
+                {% include 'partials/submissions/report_content.html' with report=report %}
             {% endif %}
 
             {% block single_report_footer %}{% endblock %}

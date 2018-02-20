@@ -59,7 +59,7 @@ import strings
 class RequestSubmission(CreateView):
     success_url = reverse_lazy('scipost:personal_page')
     form_class = RequestSubmissionForm
-    template_name = 'submissions/new_submission.html'
+    template_name = 'submissions/submission_form.html'
 
     def get(self, request):
         return redirect('submissions:prefill_using_identifier')
@@ -117,17 +117,16 @@ def prefill_using_arxiv_identifier(request):
         context = {
             'form': form,
         }
-        return render(request, 'submissions/new_submission.html', context)
+        return render(request, 'submissions/submission_form.html', context)
 
     context = {
         'form': query_form,
     }
-    return render(request, 'submissions/prefill_using_identifier.html', context)
+    return render(request, 'submissions/submission_prefill_form.html', context)
 
 
 class SubmissionListView(PaginationMixin, ListView):
     model = Submission
-    template_name = 'submissions/submissions.html'
     form = SubmissionSearchForm
     submission_search_list = []
     paginate_by = 10
@@ -281,7 +280,7 @@ def reports_accepted_list(request):
     context = {
         'reports': reports
     }
-    return render(request, 'submissions/reports_accepted_list.html', context)
+    return render(request, 'submissions/admin/report_list.html', context)
 
 
 @permission_required('scipost.can_manage_reports', raise_exception=True)
@@ -296,7 +295,7 @@ def report_pdf_compile(request, report_id):
         'report': report,
         'form': form
     }
-    return render(request, 'submissions/reports_pdf_compile.html', context)
+    return render(request, 'submissions/admin/report_compile_form.html', context)
 
 
 @permission_required('scipost.can_manage_reports', raise_exception=True)
@@ -309,7 +308,7 @@ def treated_submissions_list(request):
     context = {
         'submissions': submissions
     }
-    return render(request, 'submissions/treated_submissions_list.html', context)
+    return render(request, 'submissions/treated_submission_list.html', context)
 
 
 @permission_required('scipost.can_manage_reports', raise_exception=True)
@@ -447,7 +446,7 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
         'submission_to_assign': submission,
         'form': form
     }
-    return render(request, 'submissions/assign_submission.html', context)
+    return render(request, 'submissions/admin/editorial_assignment_form.html', context)
 
 
 @login_required
@@ -618,7 +617,7 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
         form = ModifyPersonalMessageForm()
     context = {'submission': submission,
                'form': form}
-    return render(request, 'submissions/assignment_failed.html', context)
+    return render(request, 'submissions/admin/editorial_assignment_failed.html', context)
 
 
 @login_required
@@ -668,7 +667,7 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
         'cycle_choice_form': SubmissionCycleChoiceForm(instance=submission),
         'full_access': full_access,
     }
-    return render(request, 'submissions/editorial_page.html', context)
+    return render(request, 'submissions/pool/editorial_page.html', context)
 
 
 @login_required
@@ -742,7 +741,7 @@ def select_referee(request, arxiv_identifier_w_vn_nr):
         'ref_search_form': ref_search_form,
         'queryresults': queryresults
     })
-    return render(request, 'submissions/select_referee.html', context)
+    return render(request, 'submissions/referee_form.html', context)
 
 
 @login_required
@@ -940,7 +939,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         'invitation': invitation,
         'form': form
     }
-    return render(request, 'submissions/accept_or_decline_ref_invitations.html', context)
+    return render(request, 'submissions/referee_invitations_form.html', context)
 
 
 def decline_ref_invitation(request, invitation_key):
@@ -954,7 +953,7 @@ def decline_ref_invitation(request, invitation_key):
             # User filled in: Accept
             messages.warning(request, 'Please login and go to your personal page if you'
                                       ' want to accept the invitation.')
-            return render(request, 'submissions/decline_ref_invitation.html', context)
+            return render(request, 'submissions/referee_invitations_decline.html', context)
 
         invitation.accepted = False
         invitation.refusal_reason = form.cleaned_data['refusal_reason']
@@ -970,7 +969,7 @@ def decline_ref_invitation(request, invitation_key):
 
         messages.success(request, 'Thank you for informing us that you will not provide a Report.')
         return redirect(reverse('scipost:index'))
-    return render(request, 'submissions/decline_ref_invitation.html', context)
+    return render(request, 'submissions/referee_invitations_decline.html', context)
 
 
 @login_required
@@ -1317,7 +1316,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
                                        'You may carry on working on it,'
                                        ' or leave the page and finish it later.'))
             context = {'submission': submission, 'form': form}
-            return render(request, 'submissions/submit_report.html', context)
+            return render(request, 'submissions/report_form.html', context)
 
         # Send mails if report is submitted
         SubmissionUtils.load({'report': newreport}, request)
@@ -1332,7 +1331,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         return redirect(submission.get_absolute_url())
 
     context = {'submission': submission, 'form': form}
-    return render(request, 'submissions/submit_report.html', context)
+    return render(request, 'submissions/report_form.html', context)
 
 
 @login_required

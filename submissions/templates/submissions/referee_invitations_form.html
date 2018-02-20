@@ -36,7 +36,7 @@ $(document).ready(function(){
     <div class="row">
         <div class="col-12">
             <h1 class="highlight">SciPost Submission which you are asked to Referee (see below to accept/decline):</h1>
-            {% include 'submissions/_submission_summary.html' with submission=invitation.submission %}
+            {% include 'partials/submissions/submission_summary.html' with submission=invitation.submission show_abstract=1 %}
         </div>
     </div>
     <div class="row">

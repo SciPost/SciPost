@@ -1,4 +1,4 @@
-{% extends 'submissions/_pool_base.html' %}
+{% extends 'submissions/pool/base.html' %}
 
 {% block pagetitle %}: vet reports{% endblock pagetitle %}
 
@@ -39,13 +39,13 @@ $(document).ready(function(){
             <h2 class="mb-2">Submission associated to Report:</h2>
             <div class="row">
                 <div class="col-12">
-                    {% include 'submissions/_submission_summary_short.html' with submission=report_to_vet.submission %}
+                    {% include 'partials/submissions/submission_summary.html' with submission=report_to_vet.submission %}
                 </div>
             </div>
 
             <h2 class="mb-2">Report to vet:</h2>
 
-            {% include 'submissions/_single_public_report_without_comments.html' with submission=report_to_vet.submission report=report_to_vet %}
+            {% include 'partials/submissions/report_public_without_comments.html' with submission=report_to_vet.submission report=report_to_vet %}
 
             <hr class="small">
             <h2>Please vet this Report:</h2>

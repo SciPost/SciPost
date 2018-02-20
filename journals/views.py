@@ -25,7 +25,7 @@ from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
-                   ReferenceFormSet
+                   ReferenceFormSet, CreateMetadataDOAJForm
 from .utils import JournalUtils
 
 from comments.models import Comment
@@ -248,11 +248,6 @@ def validate_publication(request):
 
         # Fill remaining data
         submission = publication.accepted_submission
-        if publication.first_author_unregistered:
-            PublicationAuthorsTable.objects.create(
-                order=1,
-                publication=publication,
-                unregistered_author=publication.first_author_unregistered)
 
         for submission_author in submission.authors.all():
             PublicationAuthorsTable.objects.create(
@@ -342,15 +337,6 @@ def mark_first_author(request, publication_id, author_object_id):
     publication = get_object_or_404(Publication, id=publication_id)
     author_object = get_object_or_404(publication.authors, id=author_object_id)
 
-    # Save explicit relation
-    if author_object.is_registered:
-        publication.first_author = author_object.contributor
-        publication.first_author_unregistered = None
-    else:
-        publication.first_author = None
-        publication.first_author_unregistered = author_object.unregistered_author
-    publication.save()
-
     # Redo ordering
     author_object.order = 1
     author_object.save()
@@ -367,14 +353,14 @@ def mark_first_author(request, publication_id, author_object_id):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
-def add_author(request, publication_id, contributor_id=None, unregistered_author_id=None):
+def add_author(request, doi_label, contributor_id=None, unregistered_author_id=None):
     """
     If not all authors are registered Contributors or if they have not
     all claimed authorship, this method allows editorial administrators
     to associated them to the publication.
     This is important for the Crossref metadata, in which all authors must appear.
     """
-    publication = get_object_or_404(Publication, id=publication_id)
+    publication = get_object_or_404(Publication, doi_label=doi_label)
     if contributor_id:
         contributor = get_object_or_404(Contributor, id=contributor_id)
         PublicationAuthorsTable.objects.create(contributor=contributor, publication=publication)
@@ -398,7 +384,6 @@ def add_author(request, publication_id, contributor_id=None, unregistered_author
                                 kwargs={'doi_label': publication.doi_label}))
     elif form.is_valid():
         contributors_found = Contributor.objects.filter(
-            # user__first_name__icontains=form.cleaned_data['first_name'],
             user__last_name__icontains=form.cleaned_data['last_name'])
     context = {
         'publication': publication,
@@ -417,18 +402,18 @@ def create_citation_list_metadata(request, doi_label):
     in the metadata field in a Publication instance.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if request.method == 'POST':
-        bibitems_form = CitationListBibitemsForm(request.POST, request.FILES)
-        if bibitems_form.is_valid():
-            publication.metadata['citation_list'] = bibitems_form.extract_dois()
-            publication.save()
-    bibitems_form = CitationListBibitemsForm()
+    bibitems_form = CitationListBibitemsForm(request.POST or None, request.FILES or None)
+    if bibitems_form.is_valid():
+        publication.metadata['citation_list'] = bibitems_form.extract_dois()
+        publication.save()
+        messages.success(request, 'Updated citation list')
+        return redirect(reverse('journals:create_citation_list_metadata',
+                        kwargs={'doi_label': publication.doi_label}))
     context = {
         'publication': publication,
         'bibitems_form': bibitems_form,
+        'citation_list': publication.metadata.get('citation_list', '')
     }
-    if request.method == 'POST':
-        context['citation_list'] = publication.metadata['citation_list']
     return render(request, 'journals/create_citation_list_metadata.html', context)
 
 
@@ -468,22 +453,22 @@ def create_funding_info_metadata(request, doi_label):
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
 
-    funding_info_form = FundingInfoForm(request.POST or None)
-    if funding_info_form.is_valid():
-        publication.metadata['funding_statement'] = funding_info_form.cleaned_data[
-                                                        'funding_statement']
-        publication.save()
+    funding_statement = publication.metadata.get('funding_statement', '')
+    initial = {
+        'funding_statement': funding_statement,
+    }
+    form = FundingInfoForm(request.POST or None, instance=publication, initial=initial)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Updated funding info')
+        return redirect(reverse('journals:create_funding_info_metadata',
+                                kwargs={'doi_label': publication.doi_label}))
 
-    try:
-        initial = {'funding_statement': publication.metadata['funding_statement']}
-        funding_statement = initial['funding_statement']
-    except KeyError:
-        initial = {'funding_statement': ''}
-        funding_statement = ''
-
-    context = {'publication': publication,
-               'funding_info_form': FundingInfoForm(initial=initial),
-               'funding_statement': funding_statement}
+    context = {
+        'publication': publication,
+        'funding_info_form': form,
+        'funding_statement': funding_statement,
+    }
 
     return render(request, 'journals/create_funding_info_metadata.html', context)
 
@@ -532,13 +517,6 @@ def create_metadata_xml(request, doi_label):
     The contents can then be sent to Crossref for registration.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-
-    create_metadata_xml_form = CreateMetadataXMLForm(request.POST or None, instance=publication)
-    if create_metadata_xml_form.is_valid():
-        create_metadata_xml_form.save()
-        messages.success(request, 'Metadata XML saved')
-        return redirect(reverse('journals:manage_metadata',
-                                kwargs={'doi_label': doi_label}))
 
     # create a doi_batch_id
     salt = ""
@@ -699,11 +677,20 @@ def create_metadata_xml(request, doi_label):
     )
     initial['metadata_xml'] += '</body>\n</doi_batch>'
 
+    create_metadata_xml_form = CreateMetadataXMLForm(request.POST or None,
+                                                     instance=publication,
+                                                     initial=initial)
+    if create_metadata_xml_form.is_valid():
+        create_metadata_xml_form.save()
+        messages.success(request, 'Metadata XML saved')
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': doi_label}))
+
     publication.latest_metadata_update = timezone.now()
     publication.save()
     context = {
         'publication': publication,
-        'create_metadata_xml_form': CreateMetadataXMLForm(initial=initial, instance=publication),
+        'create_metadata_xml_form': create_metadata_xml_form,
     }
     return render(request, 'journals/create_metadata_xml.html', context)
 
@@ -719,8 +706,11 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     publication = get_object_or_404(Publication, doi_label=doi_label)
 
     if publication.metadata_xml is None:
-        errormessage = 'This publication has no metadata. Produce it first before saving it.'
-        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+        messages.warning(
+            request,
+            'This publication has no metadata. Produce it first before saving it.')
+        return redirect(reverse('journals:create_metadata_xml',
+                                kwargs={'doi_label': publication.doi_label}))
 
     timestamp = (publication.metadata_xml.partition(
         '<timestamp>'))[2].partition('</timestamp>')[0]
@@ -730,63 +720,71 @@ def metadata_xml_deposit(request, doi_label, option='test'):
             + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
             + '_Crossref_' + timestamp + '.xml')
 
+    valid = True
+    response_headers = None
+    response_text = None
     if os.path.isfile(path):
-        errormessage = 'The metadata file for this metadata timestamp already exists'
-        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
-
-    if option == 'deposit' and not settings.DEBUG:
-        # CAUTION: Real deposit only on production (non-debug-mode)
-        url = 'http://doi.crossref.org/servlet/deposit'
+        # Deposit already done before.
+        valid = False
     else:
-        url = 'http://test.crossref.org/servlet/deposit'
+        # New deposit, go for it.
+        if option == 'deposit' and not settings.DEBUG:
+            # CAUTION: Real deposit only on production (non-debug-mode)
+            url = 'http://doi.crossref.org/servlet/deposit'
+        else:
+            url = 'http://test.crossref.org/servlet/deposit'
 
-    # First perform the actual deposit to Crossref
-    params = {
-        'operation': 'doMDUpload',
-        'login_id': settings.CROSSREF_LOGIN_ID,
-        'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
+        # First perform the actual deposit to Crossref
+        params = {
+            'operation': 'doMDUpload',
+            'login_id': settings.CROSSREF_LOGIN_ID,
+            'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
+            }
+        files = {
+            'fname': ('metadata.xml', publication.metadata_xml.encode('utf-8'), 'multipart/form-data')
         }
-    files = {
-        'fname': ('metadata.xml', publication.metadata_xml.encode('utf-8'), 'multipart/form-data')
-    }
-    r = requests.post(url, params=params, files=files)
-    response_headers = r.headers
-    response_text = r.text
+        r = requests.post(url, params=params, files=files)
+        response_headers = r.headers
+        response_text = r.text
 
-    # Then create the associated Deposit object (saving the metadata to a file)
-    if option == 'deposit':
-        deposit = Deposit(publication=publication, timestamp=timestamp, doi_batch_id=doi_batch_id,
-                          metadata_xml=publication.metadata_xml, deposition_date=timezone.now())
-        deposit.response_text = r.text
+        # Then create the associated Deposit object (saving the metadata to a file)
+        if option == 'deposit':
+            deposit = Deposit(publication=publication,
+                              timestamp=timestamp,
+                              doi_batch_id=doi_batch_id,
+                              metadata_xml=publication.metadata_xml,
+                              deposition_date=timezone.now())
+            deposit.response_text = r.text
 
-        # Save the filename with timestamp
-        path_with_timestamp = '{issue}/{paper}/{doi}_Crossref_{timestamp}.xml'.format(
-            issue=publication.in_issue.path,
-            paper=publication.get_paper_nr(),
-            doi=publication.doi_label.replace('.', '_'),
-            timestamp=timestamp)
-        f = open(settings.MEDIA_ROOT + path_with_timestamp, 'w', encoding='utf-8')
-        f.write(publication.metadata_xml)
-        f.close()
+            # Save the filename with timestamp
+            path_with_timestamp = '{issue}/{paper}/{doi}_Crossref_{timestamp}.xml'.format(
+                issue=publication.in_issue.path,
+                paper=publication.get_paper_nr(),
+                doi=publication.doi_label.replace('.', '_'),
+                timestamp=timestamp)
+            f = open(settings.MEDIA_ROOT + path_with_timestamp, 'w', encoding='utf-8')
+            f.write(publication.metadata_xml)
+            f.close()
 
-        # Copy file
-        path_without_timestamp = '{issue}/{paper}/{doi}_Crossref.xml'.format(
-            issue=publication.in_issue.path,
-            paper=publication.get_paper_nr(),
-            doi=publication.doi_label.replace('.', '_'))
-        shutil.copyfile(settings.MEDIA_ROOT + path_with_timestamp,
-                        settings.MEDIA_ROOT + path_without_timestamp)
+            # Copy file
+            path_without_timestamp = '{issue}/{paper}/{doi}_Crossref.xml'.format(
+                issue=publication.in_issue.path,
+                paper=publication.get_paper_nr(),
+                doi=publication.doi_label.replace('.', '_'))
+            shutil.copyfile(settings.MEDIA_ROOT + path_with_timestamp,
+                            settings.MEDIA_ROOT + path_without_timestamp)
 
-        deposit.metadata_xml_file = path_with_timestamp
-        deposit.save()
-        publication.latest_crossref_deposit = timezone.now()
-        publication.save()
+            deposit.metadata_xml_file = path_with_timestamp
+            deposit.save()
+            publication.latest_crossref_deposit = timezone.now()
+            publication.save()
 
     context = {
         'option': option,
         'publication': publication,
         'response_headers': response_headers,
         'response_text': response_text,
+        'valid': valid,
     }
     return render(request, 'journals/metadata_xml_deposit.html', context)
 
@@ -806,12 +804,17 @@ def mark_deposit_success(request, deposit_id, success):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def produce_metadata_DOAJ(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    JournalUtils.load({'request': request, 'publication': publication})
-    publication.metadata_DOAJ = JournalUtils.generate_metadata_DOAJ()
-    publication.save()
-    messages.success(request, '<h3>%s</h3>Successfully produced metadata DOAJ.'
-                              % publication.doi_label)
-    return redirect(reverse('journals:manage_metadata'))
+    form = CreateMetadataDOAJForm(request.POST or None, instance=publication, request=request)
+    if form.is_valid():
+        form.save()
+        messages.success(request, '<h3>%s</h3>Successfully produced metadata DOAJ.'
+                                  % publication.doi_label)
+        return redirect(reverse('journals:manage_metadata'))
+    context = {
+        'publication': publication,
+        'form': form
+    }
+    return render(request, 'journals/metadata_doaj_create.html', context)
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -1245,10 +1248,10 @@ def email_object_made_citable(request, **kwargs):
     if type_of_object == 'report':
         _object = get_object_or_404(Report, id=object_id)
         redirect_to = reverse('journals:manage_report_metadata')
-        publication_citation=None
-        publication_doi=None
+        publication_citation = None
+        publication_doi = None
         try:
-            publication=Publication.objects.get(
+            publication = Publication.objects.get(
                 accepted_submission__arxiv_identifier_wo_vn_nr=_object.submission.arxiv_identifier_wo_vn_nr)
             publication_citation = publication.citation()
             publication_doi = publication.doi_string
