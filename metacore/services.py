@@ -19,8 +19,8 @@ def get_crossref_test():
     # cursor = 'AoJ2/dSFrt8CPxFodHRwOi8vZHguZG9pLm9yZy8xMC4xMTAzL3BoeXNyZXZsZXR0LjExMy4yMzY2MDM='
 
     # If the loop is allowed to complete, it fetches (rows * batches) records
-    rows = 1000
-    batches = 100
+    rows = 200
+    batches = 500
 
     for i in range(0,batches):
         print("Batch %s" % (i, ))
