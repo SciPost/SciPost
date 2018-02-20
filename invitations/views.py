@@ -8,36 +8,38 @@ from django.views.generic.edit import UpdateView, DeleteView
 
 from .forms import RegistrationInvitationForm, RegistrationInvitationReminderForm,\
     RegistrationInvitationMarkForm, RegistrationInvitationMapToContributorForm,\
-    CitationNotificationForm, SuggestionSearchForm, RegistrationInvitationFilterForm,\
+    CitationNotificationForm, SuggestionSearchForm,\
     CitationNotificationProcessForm, RegistrationInvitationAddCitationForm
 from .mixins import RequestArgumentMixin, PermissionsMixin, SaveAndSendFormMixin, SendMailFormMixin
 from .models import RegistrationInvitation, CitationNotification
 
 from scipost.models import Contributor
+from scipost.mixins import PaginationMixin
 from mails.mixins import MailEditorMixin
 
 
-class RegistrationInvitationsView(PermissionsMixin, ListView):
+class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
     permission_required = 'scipost.can_create_registration_invitations'
-    queryset = RegistrationInvitation.objects.no_response()
+    queryset = RegistrationInvitation.objects.drafts().not_for_fellows()
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['count_in_draft'] = RegistrationInvitation.objects.drafts().count()
         context['count_pending'] = RegistrationInvitation.objects.sent().count()
-        search_form = RegistrationInvitationFilterForm(self.request.GET or None)
-        if search_form.is_valid():
-            context['object_list'] = search_form.search(context['object_list'])
-        context['object_list'] = context['object_list'].order_by(
-            'status', 'date_sent_last', 'last_name')
-        context['search_form'] = search_form
         return context
 
-    def get_queryset(self, *args, **kwargs):
-        qs = super().get_queryset(*args, **kwargs)
-        if not self.request.user.has_perm('scipost.can_invite_fellows'):
-            qs = qs.not_for_fellows()
-        return qs
+
+class RegistrationInvitationsSentView(RegistrationInvitationsView):
+    permission_required = 'scipost.can_create_registration_invitations'
+    queryset = RegistrationInvitation.objects.sent().not_for_fellows()
+    template_name = 'invitations/registrationinvitation_list_sent.html'
+
+
+class RegistrationInvitationsFellowView(RegistrationInvitationsView):
+    permission_required = 'scipost.can_invite_fellows'
+    queryset = RegistrationInvitation.objects.for_fellows()
+    template_name = 'invitations/registrationinvitation_list_fellows.html'
 
 
 class CitationNotificationsView(PermissionsMixin, ListView):

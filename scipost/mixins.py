@@ -1,7 +1,7 @@
 from .paginator import SciPostPaginator
 
 
-class PaginationMixin(object):
+class PaginationMixin:
     """
     Mixin for generic class-based views (e.g. django.views.generic.ListView)
     """

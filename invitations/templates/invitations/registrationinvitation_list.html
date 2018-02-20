@@ -24,6 +24,11 @@
                 <li><a href="{% url 'invitations:cleanup' %}">Perform a cleanup</a></li>
                 <li><a href="{% url 'invitations:citation_notification_list' %}">List unprocessed Citation Notifications</a></li>
             {% endif %}
+            {% if perms.scipost.can_invite_fellows %}
+                <li><a href="{% url 'invitations:list_fellows' %}">List Fellow Invitations</a></li>
+            {% endif %}
+
+            <li><a href="{% url 'invitations:list_sent' %}">Show all Invitations pending response</a></li>
         </ul>
     </div>
     <div class="col-md-6 text-md-right">
@@ -42,13 +47,11 @@
     <div class="col-12">
         <h2 class="highlight">Registration Invitations</h2>
     </div>
-    <div class="col-md-6">
-        <form method="get">
-            {{ search_form|bootstrap }}
-            <input class="btn btn-primary" type="submit" value="Filter">
-            <a href="{% url 'invitations:list' %}" class="btn btn-link">Reset filter</a>
-        </form>
-    </div>
+    {% if is_paginated %}
+        <div class="col-12">
+            {% include 'partials/pagination.html' with page_obj=page_obj %}
+        </div>
+    {% endif %}
     <div class="col-12">
         <br>
         {% include 'partials/invitations/registrationinvitation_table.html' with invitations=object_list %}
@@ -56,6 +59,11 @@
             <a href="{% url 'invitations:list' %}" class="btn btn-link">Reset filter</a>
         {% endif %}
     </div>
+    {% if is_paginated %}
+        <div class="col-12">
+            {% include 'partials/pagination.html' with page_obj=page_obj %}
+        </div>
+    {% endif %}
 </div>
 
 {% endblock %}
