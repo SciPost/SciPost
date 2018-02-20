@@ -277,7 +277,7 @@ class Command(BaseCommand):
         SciPostAdmin.permissions.set([
             can_read_all_privacy_sensitive_data,
             can_manage_registration_invitations,
-            can_create_registration_invitations
+            can_create_registration_invitations,
             can_email_group_members,
             can_email_particulars,
             can_resend_registration_requests,
@@ -308,7 +308,7 @@ class Command(BaseCommand):
 
         AdvisoryBoard.permissions.set([
             can_manage_registration_invitations,
-            can_create_registration_invitations
+            can_create_registration_invitations,
             can_attend_VGMs,
             can_view_statistics,
         ])
