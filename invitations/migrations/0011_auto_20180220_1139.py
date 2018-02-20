@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 
 
 def transfer_old_invitations_to_new_tables(apps, schema_editor):
+    OldDraftInvitation = apps.get_model('scipost', 'RegistrationInvitation')
     OldRegistrationInvitation = apps.get_model('scipost', 'RegistrationInvitation')
     OldCitationNotification = apps.get_model('scipost', 'CitationNotification')
     NewRegistrationInvitation = apps.get_model('invitations', 'RegistrationInvitation')
@@ -70,6 +71,48 @@ def transfer_old_invitations_to_new_tables(apps, schema_editor):
                 publication_id=invitation.cited_in_publication.id,
                 date_sent=invitation.date_sent_first,
                 processed=(new_inv.status in ['declined', 'register', 'sent']),
+            )
+
+    # Draft Invitations
+    for invitation in OldDraftInvitation.objects.processed(processed=False):
+        new_inv = NewRegistrationInvitation(
+            title=invitation.title,
+            first_name=invitation.first_name,
+            last_name=invitation.last_name,
+            email=invitation.email,
+            invitation_type=invitation.invitation_type,
+            created_by_id=invitation.drafted_by.user.id if invitation.drafted_by else random_user.id,
+            invited_by_id=None,
+            times_sent=0,
+            date_sent_first=None,
+            date_sent_last=None,
+            created=invitation.date_drafted,
+            modified=invitation.date_drafted,
+            status='draft',
+        )
+        if new_inv.invitation_type in ['ci', 'cp']:
+            new_inv.invitation_type = 'C'
+        new_inv.save()
+
+        if invitation.cited_in_submission:
+            NewCitationNotification.objects.create(
+                invitation_id=new_inv.id,
+                created_by_id=invitation.drafted_by.user.id if invitation.drafted_by else random_user.id,
+                created=new_inv.created,
+                modified=new_inv.modified,
+                submission_id=invitation.cited_in_submission.id,
+                date_sent=None,
+                processed=False,
+            )
+        if invitation.cited_in_publication:
+            NewCitationNotification.objects.create(
+                invitation_id=new_inv.id,
+                created_by_id=invitation.drafted_by.user.id if invitation.drafted_by else random_user.id,
+                created=new_inv.created,
+                modified=new_inv.modified,
+                publication_id=invitation.cited_in_publication.id,
+                date_sent=None,
+                processed=False,
             )
 
     # Old CitationNotifications
