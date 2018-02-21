@@ -773,7 +773,7 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
 
             # Create and send a registration invitation
             ref_inv_message_head = (
-                'On behalf of the Editor-in-charge {eic_title} {eic_last_name}, we would'
+                'On behalf of the Editor-in-charge {eic_title} {eic_last_name}, we would '
                 'like to invite you to referee a Submission to {journal}, namely'
                 '\n{sub_title}'
                 '\nby {sub_author_list}'
