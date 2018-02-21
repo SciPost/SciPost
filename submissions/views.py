@@ -801,6 +801,7 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
             ref_invitation.save()
             mail_sender = DirectMailUtil(mail_code='registration_invitation',
                                          instance=reg_invitation)
+            mail_sender.set_alternative_sender('SciPost Refereeing', 'refereeing@scipost.org')
             mail_sender.send()
             submission.add_event_for_author('A referee has been invited.')
             submission.add_event_for_eic('%s has been recruited and invited as a referee.'

@@ -1,8 +1,8 @@
 {
     "subject": "SciPost: invitation",
     "to_address": "email",
-    "bcc_to": "jscaux@scipost.org",
-    "from_address_name": "SciPost Refereeing",
-    "from_address": "refereeing@scipost.org",
+    "bcc_to": "invited_by.email",
+    "from_address_name": "SciPost Registration",
+    "from_address": "registration@scipost.org",
     "context_object": "invitation"
 }

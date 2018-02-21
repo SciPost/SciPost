@@ -198,6 +198,14 @@ class MailUtilsMixin:
             'bcc_list': self.bcc_list,
         }
 
+    def set_alternative_sender(self, from_name, from_address):
+        """
+        Set an alternative from address/name from the default values received from the json
+        config file. The arguments only take raw string data, no methods/properties!
+        """
+        self.mail_data['from_address_name'] = from_name
+        self.mail_data['from_address'] = from_address
+
     def get_object(self, **kwargs):
         if self.object:
             return self.object
