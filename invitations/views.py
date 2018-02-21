@@ -8,7 +8,7 @@ from django.views.generic.edit import UpdateView, DeleteView
 
 from .forms import RegistrationInvitationForm, RegistrationInvitationReminderForm,\
     RegistrationInvitationMarkForm, RegistrationInvitationMapToContributorForm,\
-    CitationNotificationForm, SuggestionSearchForm,\
+    CitationNotificationForm, SuggestionSearchForm, RegistrationInvitationFilterForm,\
     CitationNotificationProcessForm, RegistrationInvitationAddCitationForm
 from .mixins import RequestArgumentMixin, PermissionsMixin, SaveAndSendFormMixin, SendMailFormMixin
 from .models import RegistrationInvitation, CitationNotification
@@ -23,11 +23,19 @@ class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
     queryset = RegistrationInvitation.objects.drafts().not_for_fellows()
     paginate_by = 10
     ordering = ['date_sent_last', 'last_name']
+    search_form = None
+
+    def get_queryset(self):
+        self.search_form = RegistrationInvitationFilterForm(self.request.GET or None)
+        if self.search_form.is_valid():
+            self.queryset = self.search_form.search(self.queryset)
+        return super().get_queryset()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['count_in_draft'] = RegistrationInvitation.objects.drafts().count()
         context['count_pending'] = RegistrationInvitation.objects.sent().count()
+        context['search_form'] = self.search_form
         return context
 
 

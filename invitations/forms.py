@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import messages
+from django.db.models import Q
 
 from journals.models import Publication
 from scipost.models import Contributor
@@ -15,6 +16,17 @@ class AcceptRequestMixin:
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
+
+
+class RegistrationInvitationFilterForm(forms.Form):
+    term = forms.CharField(help_text="You may search on arXiv identifier, DOI or last name.")
+
+    def search(self, qs):
+        term = self.cleaned_data.get('term')
+        return qs.filter(
+            Q(last_name__icontains=term) |
+            Q(citation_notifications__submission__arxiv_identifier_w_vn_nr__icontains=term) |
+            Q(citation_notifications__publication__doi_label__icontains=term))
 
 
 class SuggestionSearchForm(forms.Form):
