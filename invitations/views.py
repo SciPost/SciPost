@@ -148,7 +148,7 @@ class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin,
             return reverse('invitations:new')
         return reverse('invitations:list')
 
-    def get_queryset(self, *args, **kwargs):
+    def get_queryset(self):
         qs = RegistrationInvitation.objects.drafts()
         if not self.request.user.has_perm('scipost.can_invite_fellows'):
             qs = qs.not_for_fellows()
