@@ -71,8 +71,9 @@ class CitationNotificationsProcessView(PermissionsMixin, RequestArgumentMixin,
         Form is valid; use the MailEditorMixin to send out the mail if
         (possible) Contributor didn't opt-out from mails.
         """
+        citation = form.get_all_notifications().filter(contributor__isnull=False).first()
+        contributor = citation.contributor
         form.get_all_notifications().update(processed=True)
-        contributor = form.get_all_notifications().filter(contributor__isnull=False).first()
         self.send_mail = (contributor and contributor.accepts_SciPost_emails) or not contributor
         return super().form_valid(form)
 
