@@ -22,6 +22,7 @@ class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
     permission_required = 'scipost.can_create_registration_invitations'
     queryset = RegistrationInvitation.objects.drafts().not_for_fellows()
     paginate_by = 10
+    ordering = ['date_sent_last', 'last_name']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
