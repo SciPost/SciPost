@@ -128,6 +128,7 @@ class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
             'last_name',
             'email',
             'message_style',
+            'invitation_type',
             'personal_message')
 
     def __init__(self, *args, **kwargs):
@@ -146,7 +147,8 @@ class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
         if not self.request.user.has_perm('scipost.can_manage_registration_invitations'):
             del self.fields['message_style']
             del self.fields['personal_message']
-
+        if not self.request.user.has_perm('scipost.can_invite_fellows'):
+            del self.fields['invitation_type']  # Only admins can invite fellows
 
     def clean_email(self):
         email = self.cleaned_data['email']
