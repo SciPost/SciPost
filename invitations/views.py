@@ -47,7 +47,7 @@ class RegistrationInvitationsSentView(RegistrationInvitationsView):
 
 class RegistrationInvitationsFellowView(RegistrationInvitationsView):
     permission_required = 'scipost.can_invite_fellows'
-    queryset = RegistrationInvitation.objects.for_fellows()
+    queryset = RegistrationInvitation.objects.no_response().for_fellows()
     template_name = 'invitations/registrationinvitation_list_fellows.html'
 
 
