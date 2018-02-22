@@ -25,6 +25,7 @@ class MailEditorMixin:
     object = None
     mail_form = None
     has_permission_to_send_mail = True
+    alternative_from_address = None  # Tuple: ('from_name', 'from_address')
 
     def __init__(self, *args, **kwargs):
         if not self.mail_code:
@@ -69,13 +70,19 @@ class MailEditorMixin:
         if not self.has_permission_to_send_mail:
             return super().form_valid(form)
 
+        if self.alternative_from_address:
+            # Set different from address if given.
+            self.mail_form.set_alternative_sender(
+                self.alternative_from_address[0], self.alternative_from_address[1])
+
+        response = super().form_valid(form)
         try:
             self.mail_form.send()
         except AttributeError:
             # self.mail_form is None
             raise AttributeError('Did you check the order in which MailEditorMixin is used?')
         messages.success(self.request, 'Mail sent')
-        return super().form_valid(form)
+        return response
 
 
 class MailUtilsMixin:
@@ -139,7 +146,11 @@ class MailUtilsMixin:
             else:
                 bcc_to = self.object
                 for attr in self.mail_data.get('bcc_to').split('.'):
-                    bcc_to = getattr(bcc_to, attr)
+                    try:
+                        bcc_to = getattr(bcc_to, attr)
+                    except AttributeError:
+                        # Invalid property, don't use bcc
+                        return
 
                 if not isinstance(bcc_to, list):
                     self.bcc_list = [bcc_to]

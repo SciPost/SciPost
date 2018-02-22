@@ -2,6 +2,9 @@ from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
+from .constants import INVITATION_EDITORIAL_FELLOW
+from .models import RegistrationInvitation
+
 
 class RequestArgumentMixin:
     """
@@ -25,8 +28,9 @@ class BaseFormViewMixin:
         # Communication with the user.
         model_name = self.object._meta.verbose_name
         model_name = model_name[:1].upper() + model_name[1:]  # Hack it to capitalize the name
+
         if self.send_mail:
-            self.object.mail_sent()
+            self.object.mail_sent(user=self.request.user)
             messages.success(self.request, '{} updated and sent'.format(model_name))
         else:
             messages.success(self.request, '{} updated'.format(model_name))
@@ -44,6 +48,10 @@ class SendMailFormMixin(BaseFormViewMixin):
             # Communicate with the `MailEditorMixin` whether the mails should go out or not.
             self.send_mail = request.user.has_perm('scipost.can_manage_registration_invitations')
             self.has_permission_to_send_mail = self.send_mail
+
+        if isinstance(self.object, RegistrationInvitation):
+            if self.object.invitation_type == INVITATION_EDITORIAL_FELLOW:
+                self.alternative_from_address = ('J-S Caux', 'jscaux@scipost.org')
         return super().post(request, *args, **kwargs)
 
 
@@ -55,10 +63,14 @@ class SaveAndSendFormMixin(BaseFormViewMixin):
         # Intercept the specific submit value before validation the form so `MailEditorMixin`
         # can use this data.
         if self.send_mail is None:
-            self.send_mail = request.POST.get('save', '') == 'save_and_send'
+            self.send_mail = request.POST.get('save', '') in ['save_and_send', 'send_from_editor']
             if self.send_mail:
                 self.send_mail = request.user.has_perm('scipost.can_manage_registration_invitations')
 
         # Communicate with the `MailEditorMixin` whether the mails should go out or not.
         self.has_permission_to_send_mail = self.send_mail
+        instance = self.get_object()
+        if isinstance(instance, RegistrationInvitation):
+            if instance.invitation_type == INVITATION_EDITORIAL_FELLOW:
+                self.alternative_from_address = ('J-S Caux', 'jscaux@scipost.org')
         return super().post(request, *args, **kwargs)

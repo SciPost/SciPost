@@ -803,6 +803,7 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
                                          instance=reg_invitation)
             mail_sender.set_alternative_sender('SciPost Refereeing', 'refereeing@scipost.org')
             mail_sender.send()
+            messages.success(request, 'Referee {} invited'.format(reg_invitation.last_name))
             submission.add_event_for_author('A referee has been invited.')
             submission.add_event_for_eic('%s has been recruited and invited as a referee.'
                                          % ref_recruit_form.cleaned_data['last_name'])
