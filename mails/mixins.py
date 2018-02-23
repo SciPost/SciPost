@@ -25,6 +25,7 @@ class MailEditorMixin:
     object = None
     mail_form = None
     has_permission_to_send_mail = True
+    alternative_from_address = None  # Tuple: ('from_name', 'from_address')
 
     def __init__(self, *args, **kwargs):
         if not self.mail_code:
@@ -69,13 +70,19 @@ class MailEditorMixin:
         if not self.has_permission_to_send_mail:
             return super().form_valid(form)
 
+        if self.alternative_from_address:
+            # Set different from address if given.
+            self.mail_form.set_alternative_sender(
+                self.alternative_from_address[0], self.alternative_from_address[1])
+
+        response = super().form_valid(form)
         try:
             self.mail_form.send()
         except AttributeError:
             # self.mail_form is None
             raise AttributeError('Did you check the order in which MailEditorMixin is used?')
         messages.success(self.request, 'Mail sent')
-        return super().form_valid(form)
+        return response
 
 
 class MailUtilsMixin:
@@ -130,23 +137,41 @@ class MailUtilsMixin:
 
         self.subject = self.mail_data['subject']
 
-    def validate_bcc_list(self):
-        # Get recipients list. Try to send through BCC to prevent privacy issues!
-        self.bcc_list = []
-        if self.mail_data.get('bcc_to', False) and self.object:
-            if re.match("[^@]+@[^@]+\.[^@]+", self.mail_data.get('bcc_to')):
-                self.bcc_list = [self.mail_data.get('bcc_to')]
+    def _validate_single_entry(self, entry):
+        """
+        entry -- raw email string or path or properties leading to email mail field
+
+        Returns a list of email addresses found.
+        """
+        if entry and self.object:
+            if re.match("[^@]+@[^@]+\.[^@]+", entry):
+                # Email string
+                return [entry]
             else:
                 bcc_to = self.object
-                for attr in self.mail_data.get('bcc_to').split('.'):
-                    bcc_to = getattr(bcc_to, attr)
+                for attr in entry.split('.'):
+                    try:
+                        bcc_to = getattr(bcc_to, attr)
+                    except AttributeError:
+                        # Invalid property, don't use bcc
+                        return []
 
                 if not isinstance(bcc_to, list):
-                    self.bcc_list = [bcc_to]
+                    return [bcc_to]
                 else:
-                    self.bcc_list = bcc_to
-        elif re.match("[^@]+@[^@]+\.[^@]+", self.mail_data.get('bcc_to', '')):
-            self.bcc_list = [self.mail_data.get('bcc_to')]
+                    return bcc_to
+        elif re.match("[^@]+@[^@]+\.[^@]+", entry):
+            return [entry]
+
+    def validate_bcc_list(self):
+        """
+        bcc_to in the .json file may contain multiple raw email addreses or property paths to
+        an email field. The different entries need to be comma separated.
+        """
+        # Get recipients list. Try to send through BCC to prevent privacy issues!
+        self.bcc_list = []
+        for bcc_entry in self.mail_data.get('bcc_to', '').split(','):
+            self.bcc_list += self._validate_single_entry(bcc_entry)
 
     def validate_recipients(self):
         # Check the send list
@@ -197,6 +222,14 @@ class MailUtilsMixin:
             'recipients': self.recipients,
             'bcc_list': self.bcc_list,
         }
+
+    def set_alternative_sender(self, from_name, from_address):
+        """
+        Set an alternative from address/name from the default values received from the json
+        config file. The arguments only take raw string data, no methods/properties!
+        """
+        self.mail_data['from_address_name'] = from_name
+        self.mail_data['from_address'] = from_address
 
     def get_object(self, **kwargs):
         if self.object:

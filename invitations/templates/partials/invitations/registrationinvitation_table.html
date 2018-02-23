@@ -1,6 +1,6 @@
 {% load scipost_extras %}
 
-<table class="table">
+<table class="table table-hover">
     <thead>
         <tr>
             <th>Name</th>
@@ -16,7 +16,10 @@
     <tbody>
         {% for invitation in invitations %}
           <tr>
-            <td>{{ invitation.last_name }}, {{ invitation.first_name }}</td>
+            <td>
+                <small><i class="fa fa-paperclip" data-toggle="tooltip" data-html="true" data-title="<ul style='margin-bottom:0; padding: 0 10px 0 20px; min-height: 20px;'>{% for cit in invitation.citation_notifications.all %}<li>{% if cit.submission %}{{ cit.submission.arxiv_identifier_w_vn_nr }}{% endif %}{% if cit.publication %}{{ cit.publication.doi_label }}{% endif %}</li>{% endfor %}</ul>"></i></small>
+                {{ invitation.last_name }}, {{ invitation.first_name }}
+            </td>
             <td>{{ invitation.email }}</td>
             <td{% if invitation.status == 'draft' %} class="text-warning"{% endif %}>{{ invitation.get_status_display }}</td>
             <td>{{ invitation.get_invitation_type_display }}</td>

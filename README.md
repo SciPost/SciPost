@@ -194,6 +194,68 @@ To build the documentation, run:
 
 After this, generated documentation should be available in `docs/_build/html`.
 
+## Mails
+The `mails` app shall be used as the mailing processor of SciPost. It may be used in either one of two possible ways: with or without editor.
+
+The actual mails only have to be written in the html version, the text based alternative is automatically generated before sending. Creating a new `mail_code` is easily done by creating new files in the `mails/templates/mail_templates` folder called `<mail_code>.html` and `<mail_code>.json` acting as resp. a content and configuration file.
+
+##### The config file is configured as follows
+`mails/templates/mail_templates/<mail_code>.json`
+
+* `context_object` - (_required_) Instance of the main object. This instance needs to be passed as `instance` or `<context_object>` in the views and as `<context_object>` in the template file (see description below);
+* `subject` - (_string, required_) Default subject value;
+* `to_address` - (_string or path of properties, required_) Default to address;
+* `bcc_to` - (_string or path of properties, optional_) - A comma-separated bcc list of mail addresses;
+* `from_address` - (_string, optional_) - From address' default value: `no-reply@scipost.org`;
+* `from_address_name` - (_string, optional_) - From address name's default value: `SciPost`.
+
+
+### Mailing with editor
+Any regular method or class based view may be used together with the builtin wysiwyg editor. The class based views inherited from Django's UpdateView are easily extended for use with the editor.
+
+```python
+from django.views.generic.edit import UpdateView
+from mails.mixins import MailEditorMixin
+
+class AnyUpdateView(MailEditorMixin, UpdateView):
+    mail_code = '<any_valid_mail_code>'
+```
+
+For method based views, one implements the mails construction as:
+
+```python
+from mails.views import MailEditingSubView
+
+def any_method_based_view(request):
+    # Initialize mail view
+    mail_request = MailEditingSubView(request, mail_code='<any_valid_mail_code>', instance=django_model_instance)
+    if mail_request.is_valid():
+        # Send mail
+        mail_request.send()
+        return redirect('reverse:url')
+    else:
+        # Render the wsyiwyg editor
+        return mail_request.return_render()
+```
+
+### Direct mailing
+Mailing is also possible without intercepting the request for completing or editing the mail's content. For this, use the `DirectMailUtil` instead.
+
+```python
+from mails.utils import DirectMailUtil
+
+def any_python_method_within_django():
+    # Init mailer
+    mail_sender = DirectMailUtil(mail_code='<any_valid_mail_code>', instance=django_model_instance)
+
+    # Optionally(!) alter from_address from config file
+    mail_sender.set_alternative_sender('SciPost Refereeing', 'refereeing@scipost.org')
+
+    # Send the actual mail
+    mail_sender.send()
+    return
+```
+
 ## Django-extensions
 [django-extensions](https://github.com/django-extensions/django-extensions) provide added commands like
 `./manage.py shell_plus`, which preloads all models in a shell session. Additional imports may be specified in `settings.py` as follows:

@@ -8,7 +8,7 @@ from django.views.generic.edit import UpdateView, DeleteView
 
 from .forms import RegistrationInvitationForm, RegistrationInvitationReminderForm,\
     RegistrationInvitationMarkForm, RegistrationInvitationMapToContributorForm,\
-    CitationNotificationForm, SuggestionSearchForm,\
+    CitationNotificationForm, SuggestionSearchForm, RegistrationInvitationFilterForm,\
     CitationNotificationProcessForm, RegistrationInvitationAddCitationForm
 from .mixins import RequestArgumentMixin, PermissionsMixin, SaveAndSendFormMixin, SendMailFormMixin
 from .models import RegistrationInvitation, CitationNotification
@@ -22,11 +22,20 @@ class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
     permission_required = 'scipost.can_create_registration_invitations'
     queryset = RegistrationInvitation.objects.drafts().not_for_fellows()
     paginate_by = 10
+    ordering = ['date_sent_last', 'last_name']
+    search_form = None
+
+    def get_queryset(self):
+        self.search_form = RegistrationInvitationFilterForm(self.request.GET or None)
+        if self.search_form.is_valid():
+            self.queryset = self.search_form.search(self.queryset)
+        return super().get_queryset()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['count_in_draft'] = RegistrationInvitation.objects.drafts().count()
         context['count_pending'] = RegistrationInvitation.objects.sent().count()
+        context['search_form'] = self.search_form
         return context
 
 
@@ -38,7 +47,7 @@ class RegistrationInvitationsSentView(RegistrationInvitationsView):
 
 class RegistrationInvitationsFellowView(RegistrationInvitationsView):
     permission_required = 'scipost.can_invite_fellows'
-    queryset = RegistrationInvitation.objects.for_fellows()
+    queryset = RegistrationInvitation.objects.no_response().for_fellows()
     template_name = 'invitations/registrationinvitation_list_fellows.html'
 
 
@@ -62,8 +71,9 @@ class CitationNotificationsProcessView(PermissionsMixin, RequestArgumentMixin,
         Form is valid; use the MailEditorMixin to send out the mail if
         (possible) Contributor didn't opt-out from mails.
         """
+        citation = form.get_all_notifications().filter(contributor__isnull=False).first()
+        contributor = citation.contributor
         form.get_all_notifications().update(processed=True)
-        contributor = form.get_all_notifications().filter(contributor__isnull=False).first()
         self.send_mail = (contributor and contributor.accepts_SciPost_emails) or not contributor
         return super().form_valid(form)
 
@@ -139,7 +149,7 @@ class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin,
             return reverse('invitations:new')
         return reverse('invitations:list')
 
-    def get_queryset(self, *args, **kwargs):
+    def get_queryset(self):
         qs = RegistrationInvitation.objects.drafts()
         if not self.request.user.has_perm('scipost.can_invite_fellows'):
             qs = qs.not_for_fellows()

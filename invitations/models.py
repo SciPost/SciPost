@@ -178,7 +178,7 @@ class CitationNotification(models.Model):
         if self.invitation:
             return self.invitation.last_name
         elif self.contributor:
-            return self.contributor.last_name
+            return self.contributor.user.last_name
 
     @property
     def get_title(self):

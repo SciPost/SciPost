@@ -54,7 +54,7 @@ Dear {{ notification.get_title }} {{ notification.last_name }},
     The SciPost Team
 </p>
 
-{% if notification.get_first_related_contributor %}
+{% if notification.get_first_related_contributor and notification.get_first_related_contributor.activation_key %}
     <p style="font-size: 10px;">
         Don\'t want to receive such emails? <a href="https://scipost.org/{% url 'scipost:unsubscribe' notification.get_first_related_contributor.id notification.get_first_related_contributor.activation_key %}">Unsubscribe</a>
     </p>
