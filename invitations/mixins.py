@@ -73,4 +73,7 @@ class SaveAndSendFormMixin(BaseFormViewMixin):
         if isinstance(instance, RegistrationInvitation):
             if instance.invitation_type == INVITATION_EDITORIAL_FELLOW:
                 self.alternative_from_address = ('J-S Caux', 'jscaux@scipost.org')
+            if not instance.invited_by and self.has_permission_to_send_mail:
+                instance.invited_by = self.request.user
+                instance.save()
         return super().post(request, *args, **kwargs)
