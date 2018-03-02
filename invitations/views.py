@@ -10,11 +10,11 @@ from .forms import RegistrationInvitationForm, RegistrationInvitationReminderFor
     RegistrationInvitationMarkForm, RegistrationInvitationMapToContributorForm,\
     CitationNotificationForm, SuggestionSearchForm, RegistrationInvitationFilterForm,\
     CitationNotificationProcessForm, RegistrationInvitationAddCitationForm
-from .mixins import RequestArgumentMixin, PermissionsMixin, SaveAndSendFormMixin, SendMailFormMixin
+from .mixins import RequestArgumentMixin, SaveAndSendFormMixin, SendMailFormMixin
 from .models import RegistrationInvitation, CitationNotification
 
 from scipost.models import Contributor
-from scipost.mixins import PaginationMixin
+from scipost.mixins import PaginationMixin, PermissionsMixin
 from mails.mixins import MailEditorMixin
 
 

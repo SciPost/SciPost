@@ -234,3 +234,9 @@ class ReferenceForm(forms.ModelForm):
 
 ReferenceFormSet = modelformset_factory(Reference, formset=BaseReferenceFormSet,
                                         form=ReferenceForm, can_delete=True)
+
+
+class DraftPublicationForm(forms.ModelForm):
+    class Meta:
+        model = Publication
+        fields = ['doi_label', 'pdf_file']

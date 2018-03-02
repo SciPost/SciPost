@@ -64,7 +64,7 @@ class AuthorsInline(admin.TabularInline):
 
 class PublicationAdmin(admin.ModelAdmin):
     search_fields = ['title', 'author_list']
-    list_display = ['title', 'author_list', 'in_issue', 'doi_string', 'publication_date']
+    list_display = ['title', 'author_list', 'in_issue', 'doi_string', 'publication_date', 'status']
     date_hierarchy = 'publication_date'
     list_filter = ['in_issue']
     inlines = [AuthorsInline, ReferenceInline]

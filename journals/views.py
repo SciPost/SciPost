@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.utils import timezone
+from django.views.generic.edit import FormView
 from django.shortcuts import get_object_or_404, render, redirect
 
 from .exceptions import PaperNumberingError
@@ -25,7 +26,7 @@ from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
-                   ReferenceFormSet, CreateMetadataDOAJForm
+                   ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm
 from .utils import JournalUtils
 
 from comments.models import Comment
@@ -38,6 +39,7 @@ from production.signals import notify_stream_status_change
 
 from funders.forms import FunderSelectForm, GrantSelectForm
 from scipost.forms import ConfirmationForm
+from scipost.mixins import PermissionsMixin
 
 from guardian.decorators import permission_required
 
@@ -160,6 +162,23 @@ def issue_detail(request, doi_label):
 #######################
 # Publication process #
 #######################
+
+class DraftPublicationView(PermissionsMixin, FormView):
+    permission_required = 'scipost.can_draft_publication'
+    model = Publication
+    form_class = DraftPublicationForm
+    template_name = 'journals/publication_form.html'
+
+
+@permission_required('scipost.can_draft_publication', return_403=True)
+def draft_publication(request):
+    """
+    Any Production Officer or Administrator can draft a new publication without publishing here.
+    The actual publishing is done lin a later stadium, after the draft has been finished.
+    """
+    context = {}
+    return render(request, 'journals/publication_form.html', context)
+
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic

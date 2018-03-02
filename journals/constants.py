@@ -71,3 +71,10 @@ CC_LICENSES_URI = (
     (CCBYSA4, 'https://creativecommons.org/licenses/by-sa/4.0'),
     (CCBYNC4, 'https://creativecommons.org/licenses/by-nc/4.0'),
     )
+
+PUBLICATION_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED = ('draft', 'prepub', 'pub')
+PUBLICATION_STATUSES = (
+    (PUBLICATION_DRAFT, 'Draft'),
+    (PUBLICATION_PREPUBLISHED, 'Pre-published'),
+    (PUBLICATION_PUBLISHED, 'Published'),
+)

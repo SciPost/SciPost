@@ -1,0 +1,21 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Draft publication{% endblock pagetitle %}
+
+{% block content %}
+
+
+<h1>Draft publication</h1>
+
+<form action="{% url 'journals:initiate_publication' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input type="submit" class="btn btn-primary" value="Save">
+</form>
+
+
+
+
+{% endblock %}

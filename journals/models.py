@@ -10,7 +10,7 @@ from .behaviors import doi_journal_validator, doi_volume_validator,\
                        doi_issue_validator, doi_publication_validator
 from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
                        STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,\
-                       CCBY4, CC_LICENSES, CC_LICENSES_URI
+                       CCBY4, CC_LICENSES, CC_LICENSES_URI, PUBLICATION_STATUSES, PUBLICATION_DRAFT
 from .helpers import paper_nr_string, journal_name_abbrev_citation
 from .managers import IssueManager, PublicationQuerySet, JournalManager
 
@@ -266,6 +266,8 @@ class Publication(models.Model):
                                                related_name='publication')
     in_issue = models.ForeignKey('journals.Issue', on_delete=models.CASCADE)
     paper_nr = models.PositiveSmallIntegerField()
+    status = models.CharField(max_length=8,
+                              choices=PUBLICATION_STATUSES, default=PUBLICATION_DRAFT)
 
     # Core fields
     title = models.CharField(max_length=300)
