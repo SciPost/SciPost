@@ -960,6 +960,7 @@ def decline_ref_invitation(request, invitation_key):
             return render(request, 'submissions/referee_invitations_decline.html', context)
 
         invitation.accepted = False
+        invitation.date_responded = timezone.now()
         invitation.refusal_reason = form.cleaned_data['refusal_reason']
         invitation.save()
         SubmissionUtils.load({'invitation': invitation}, request)

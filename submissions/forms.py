@@ -833,9 +833,10 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['refereeing_cycle'].default = None
-        other_submission = self.instance.other_versions_pool.first()
-        if other_submission:
-            self.fields['referees_reinvite'].queryset = other_submission.referee_invitations.all()
+        other_submissions = self.instance.other_versions_pool.all()
+        if other_submissions:
+            self.fields['referees_reinvite'].queryset = RefereeInvitation.objects.filter(
+                submission__in=other_submissions).distinct()
 
 
 class iThenticateReportForm(forms.ModelForm):

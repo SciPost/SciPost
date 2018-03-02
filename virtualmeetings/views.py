@@ -13,7 +13,8 @@ from .models import VGM, Feedback, Nomination, Motion
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import RemarkForm
-from scipost.models import RegistrationInvitation, Contributor, Remark
+from scipost.models import Contributor, Remark
+from invitations.models import RegistrationInvitation
 
 
 @login_required
@@ -34,8 +35,8 @@ def VGM_detail(request, VGM_id):
     current_Fellows = Contributor.objects.filter(
         user__groups__name='Editorial College').order_by('user__last_name')
 
-    pending_inv_Fellows = RegistrationInvitation.objects.pending_invited_fellows()
-    declined_inv_Fellows = RegistrationInvitation.objects.declined_invited_fellows()
+    pending_inv_Fellows = RegistrationInvitation.objects.for_fellows().no_response()
+    declined_inv_Fellows = RegistrationInvitation.objects.for_fellows().declined()
     spec_list = SCIPOST_SUBJECT_AREAS  # subject_areas_dict
     nomination_form = NominationForm()
     nominations = Nomination.objects.filter(VGM=VGM_instance, accepted=None).order_by('last_name')
