@@ -164,20 +164,14 @@ def issue_detail(request, doi_label):
 #######################
 
 class DraftPublicationView(PermissionsMixin, FormView):
-    permission_required = 'scipost.can_draft_publication'
-    model = Publication
-    form_class = DraftPublicationForm
-    template_name = 'journals/publication_form.html'
-
-
-@permission_required('scipost.can_draft_publication', return_403=True)
-def draft_publication(request):
     """
     Any Production Officer or Administrator can draft a new publication without publishing here.
     The actual publishing is done lin a later stadium, after the draft has been finished.
     """
-    context = {}
-    return render(request, 'journals/publication_form.html', context)
+    permission_required = 'scipost.can_draft_publication'
+    model = Publication
+    form_class = DraftPublicationForm
+    template_name = 'journals/publication_form.html'
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
