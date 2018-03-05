@@ -52,14 +52,7 @@ class MailUtilsMixin:
         self.mail_template = mail_template.render(kwargs)
 
         # Gather Recipients data
-        self.original_recipient = ''
-        if self.object:
-            recipient = self.object
-            for attr in self.mail_data.get('to_address').split('.'):
-                recipient = getattr(recipient, attr)
-                if inspect.ismethod(recipient):
-                    recipient = recipient()
-            self.original_recipient = recipient
+        self.original_recipient = self._validate_single_entry(self.mail_data.get('to_address'))[0]
 
         self.subject = self.mail_data['subject']
 
@@ -74,18 +67,20 @@ class MailUtilsMixin:
                 # Email string
                 return [entry]
             else:
-                bcc_to = self.object
+                mail_to = self.object
                 for attr in entry.split('.'):
                     try:
-                        bcc_to = getattr(bcc_to, attr)
+                        mail_to = getattr(mail_to, attr)
+                        if inspect.ismethod(mail_to):
+                            mail_to = mail_to()
                     except AttributeError:
-                        # Invalid property, don't use bcc
+                        # Invalid property/mail
                         return []
 
-                if not isinstance(bcc_to, list):
-                    return [bcc_to]
+                if not isinstance(mail_to, list):
+                    return [mail_to]
                 else:
-                    return bcc_to
+                    return mail_to
         elif re.match("[^@]+@[^@]+\.[^@]+", entry):
             return [entry]
 
@@ -96,8 +91,9 @@ class MailUtilsMixin:
         """
         # Get recipients list. Try to send through BCC to prevent privacy issues!
         self.bcc_list = []
-        for bcc_entry in self.mail_data.get('bcc_to', '').split(','):
-            self.bcc_list += self._validate_single_entry(bcc_entry)
+        if self.mail_data.get('bcc_to'):
+            for bcc_entry in self.mail_data['bcc_to'].split(','):
+                self.bcc_list += self._validate_single_entry(bcc_entry)
 
     def validate_recipients(self):
         # Check the send list

@@ -4,6 +4,8 @@ import json
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db import transaction
+from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView
 from django.shortcuts import get_object_or_404, render, redirect
 
@@ -78,6 +80,7 @@ class HttpRefererMixin:
         return super().form_valid(form)
 
 
+@method_decorator(transaction.atomic, name='dispatch')
 class CreateGrantView(PermissionsMixin, HttpRefererMixin, CreateView):
     """
     Create a Grant in a separate window which may also be used by Production Supervisors.
