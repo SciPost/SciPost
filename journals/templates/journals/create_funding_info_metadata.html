@@ -22,16 +22,10 @@
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Create funding info metadata page for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
-    </div>
-</div>
-
-
-<div class="row">
-    <div class="col-12">
-
-      {% if errormessage %}
-        <h2 class="text-danger">{{ errormessage }}</h2>
-      {% endif %}
+        <p>
+            The following field is prefilled with the current funding info of the Publication object. Once you submit, it will overwrite the current funding info, shown below.
+        </p>
+        <br>
 
       <form method="post">
         {% csrf_token %}
@@ -42,12 +36,7 @@
 
      <hr class="divider">
         <h3>Current funding info metadata:</h3>
-        <p>{{ funding_statement|linebreaksbr }}</p>
-
-      <hr>
-
-      <p class="mb-0">Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></p>
-
+        <p class="mb-0">{{ funding_statement|linebreaksbr }}</p>
     </div>
 </div>
 

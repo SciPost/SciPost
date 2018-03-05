@@ -17,29 +17,31 @@ from django.contrib import messages
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.utils import timezone
-from django.views.generic.edit import FormView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import UpdateView
 from django.shortcuts import get_object_or_404, render, redirect
 
+from .constants import STATUS_DRAFT
 from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string, issue_doi_label_from_doi_label
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
-                   ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm
+                   ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
+                   PublicationGrantsForm, DraftPublicationApprovalForm
 from .utils import JournalUtils
 
 from comments.models import Comment
-from funders.models import Funder
+from funders.forms import FunderSelectForm, GrantSelectForm
+from funders.models import Funder, Grant
 from submissions.models import Submission, Report
+from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
+from scipost.mixins import PermissionsMixin
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
 from production.signals import notify_stream_status_change
-
-from funders.forms import FunderSelectForm, GrantSelectForm
-from scipost.forms import ConfirmationForm
-from scipost.mixins import PermissionsMixin
 
 from guardian.decorators import permission_required
 
@@ -96,7 +98,7 @@ def recent(request, doi_label):
     Display page for the most recent 20 publications in SciPost Physics.
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    recent_papers = Publication.objects.published(
+    recent_papers = Publication.objects.published().filter(
         in_issue__in_volume__in_journal=journal).order_by('-publication_date',
                                                           '-paper_nr')[:20]
     context = {
@@ -162,16 +164,70 @@ def issue_detail(request, doi_label):
 #######################
 # Publication process #
 #######################
+class PublicationGrantsView(PermissionsMixin, UpdateView):
+    """
+    Add/update grants associated to a Publication.
+    """
+    permission_required = 'scipost.can_draft_publication'
+    queryset = Publication.objects.drafts()
+    slug_field = slug_url_kwarg = 'doi_label'
+    form_class = PublicationGrantsForm
+    template_name = 'journals/grants_form.html'
 
-class DraftPublicationView(PermissionsMixin, FormView):
+
+class PublicationGrantsRemovalView(PermissionsMixin, DetailView):
+    """
+    Remove grant associated to a Publication.
+    """
+    permission_required = 'scipost.can_draft_publication'
+    queryset = Publication.objects.drafts()
+    slug_field = slug_url_kwarg = 'doi_label'
+
+    def get(self, request, *args, **kwargs):
+        super().get(request, *args, **kwargs)
+        grant = get_object_or_404(Grant, id=kwargs.get('grant_id'))
+        self.object.grants.remove(grant)
+        return redirect(reverse('journals:update_grants', args=(self.object.doi_label,)))
+
+
+class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
     """
     Any Production Officer or Administrator can draft a new publication without publishing here.
     The actual publishing is done lin a later stadium, after the draft has been finished.
     """
     permission_required = 'scipost.can_draft_publication'
-    model = Publication
+    queryset = Publication.objects.drafts()
+    slug_url_kwarg = 'arxiv_identifier_w_vn_nr'
+    slug_field = 'accepted_submission__arxiv_identifier_w_vn_nr'
     form_class = DraftPublicationForm
-    template_name = 'journals/publication_form.html'
+
+    def get_object(self, queryset=None):
+        try:
+            publication = Publication.objects.get(
+                accepted_submission__arxiv_identifier_w_vn_nr=self.kwargs.get(
+                    'arxiv_identifier_w_vn_nr'))
+        except Publication.DoesNotExist:
+            if Submission.objects.accepted().filter(arxiv_identifier_w_vn_nr=self.kwargs.get(
+              'arxiv_identifier_w_vn_nr')).exists():
+                return None
+            raise Http404('No accepted Submission found')
+        if publication.status == STATUS_DRAFT:
+            return publication
+        raise Http404('Found Publication is not in draft')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['arxiv_identifier_w_vn_nr'] = self.kwargs.get('arxiv_identifier_w_vn_nr')
+        kwargs['issue_id'] = self.request.GET.get('issue')
+        return kwargs
+
+
+class DraftPublicationApprovalView(PermissionsMixin, UpdateView):
+    permission_required = 'scipost.can_draft_publication'
+    queryset = Publication.objects.drafts()
+    slug_field = slug_url_kwarg = 'doi_label'
+    form_class = DraftPublicationApprovalForm
+    template_name = 'journals/publication_approval_form.html'
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -1312,7 +1368,14 @@ def author_reply_detail(request, doi_label):
 
 
 def publication_detail(request, doi_label):
-    publication = Publication.objects.get_published(doi_label=doi_label)
+    """
+    The actual Publication detail page. This is visible for everyone if published or
+    visible for Production Supervisors and Administrators if in draft.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not publication.is_published and not request.user.has_perm('scipost.can_draft_publication'):
+        raise Http404('Publication is not publicly visible')
+
     journal = publication.in_issue.in_volume.in_journal
 
     context = {
@@ -1323,7 +1386,14 @@ def publication_detail(request, doi_label):
 
 
 def publication_detail_pdf(request, doi_label):
-    publication = Publication.objects.get_published(doi_label=doi_label)
+    """
+    The actual Publication pdf. This is visible for everyone if published or
+    visible for Production Supervisors and Administrators if in draft.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not publication.is_published and not request.user.has_perm('scipost.can_draft_publication'):
+        raise Http404('Publication is not publicly visible')
+
     response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
     response['Content-Disposition'] = ('filename='
                                        + publication.doi_label.replace('.', '_') + '.pdf')

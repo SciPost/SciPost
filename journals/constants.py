@@ -57,6 +57,13 @@ ISSUE_STATUSES = (
     (STATUS_PUBLISHED, 'Published'),
 )
 
+PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED = ('prepub', 'pub')
+PUBLICATION_STATUSES = (
+    (STATUS_DRAFT, 'Draft'),
+    (PUBLICATION_PREPUBLISHED, 'Pre-published'),
+    (PUBLICATION_PUBLISHED, 'Published'),
+)
+
 CCBY4 = 'CC BY 4.0'
 CCBYSA4 = 'CC BY-SA 4.0'
 CCBYNC4 = 'CC BY-NC 4.0'
@@ -71,10 +78,3 @@ CC_LICENSES_URI = (
     (CCBYSA4, 'https://creativecommons.org/licenses/by-sa/4.0'),
     (CCBYNC4, 'https://creativecommons.org/licenses/by-nc/4.0'),
     )
-
-PUBLICATION_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED = ('draft', 'prepub', 'pub')
-PUBLICATION_STATUSES = (
-    (PUBLICATION_DRAFT, 'Draft'),
-    (PUBLICATION_PREPUBLISHED, 'Pre-published'),
-    (PUBLICATION_PUBLISHED, 'Published'),
-)

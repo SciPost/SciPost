@@ -2,6 +2,8 @@ from django.conf.urls import url
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 
+from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
+
 from journals import views as journals_views
 
 urlpatterns = [
@@ -17,9 +19,18 @@ urlpatterns = [
         name='crossmark_policy'),
 
     # Publication creation
-    url(r'^admin/publications/create$',
-        journals_views.DraftPublicationView.as_view(),
-        name='create_publication'),
+    url(r'^admin/publications/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        journals_views.DraftPublicationUpdateView.as_view(),
+        name='update_publication'),
+    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/approval$',
+        journals_views.DraftPublicationApprovalView.as_view(),
+        name='send_publication_for_approval'),
+    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/grants$',
+        journals_views.PublicationGrantsView.as_view(),
+        name='update_grants'),
+    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/grants/(?P<grant_id>[0-9]+)/remove$',
+        journals_views.PublicationGrantsRemovalView.as_view(),
+        name='remove_grant'),
 
     # Editorial and Administrative Workflow
     url(r'^admin/initiate_publication$',

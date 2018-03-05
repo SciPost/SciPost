@@ -15,7 +15,7 @@ from .models import RegistrationInvitation, CitationNotification
 
 from scipost.models import Contributor
 from scipost.mixins import PaginationMixin, PermissionsMixin
-from mails.mixins import MailEditorMixin
+from mails.views import MailEditorMixin
 
 
 class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
