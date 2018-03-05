@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -23,14 +24,14 @@ from django.views.generic.edit import UpdateView
 from django.shortcuts import get_object_or_404, render, redirect
 
 from .constants import STATUS_DRAFT
-from .exceptions import PaperNumberingError
 from .helpers import paper_nr_string, issue_doi_label_from_doi_label
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
-from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
+from .forms import FundingInfoForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
                    PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm
+from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .utils import JournalUtils
 
 from comments.models import Comment
@@ -40,9 +41,6 @@ from submissions.models import Submission, Report
 from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
 from scipost.mixins import PermissionsMixin, RequestViewMixin
-from production.constants import PROOFS_PUBLISHED
-from production.models import ProductionEvent
-from production.signals import notify_stream_status_change
 
 from guardian.decorators import permission_required
 
@@ -201,6 +199,7 @@ class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
     slug_url_kwarg = 'arxiv_identifier_w_vn_nr'
     slug_field = 'accepted_submission__arxiv_identifier_w_vn_nr'
     form_class = DraftPublicationForm
+    template_name = 'journals/publication_form.html'
 
     def get_object(self, queryset=None):
         try:
@@ -243,156 +242,6 @@ class PublicationPublishView(PermissionsMixin, RequestViewMixin, UpdateView):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-@transaction.atomic
-def initiate_publication(request):
-    """
-    Called by an Editorial Administrator.
-    Publish the manuscript after proofs have been accepted.
-    This method prefills a ValidatePublicationForm for further
-    processing (verification in validate_publication method).
-    """
-    initiate_publication_form = InitiatePublicationForm(request.POST or None)
-    if initiate_publication_form.is_valid():
-        submission = initiate_publication_form.cleaned_data['accepted_submission']
-        current_issue = initiate_publication_form.cleaned_data['to_be_issued_in']
-
-        # Determine next available paper number:
-        paper_nr = Publication.objects.filter(in_issue__in_volume=current_issue.in_volume).count()
-        paper_nr += 1
-        if paper_nr > 999:
-            raise PaperNumberingError(paper_nr)
-
-        # Build form data
-        doi_label = (
-            current_issue.in_volume.in_journal.name
-            + '.' + str(current_issue.in_volume.number)
-            + '.' + str(current_issue.number) + '.' + paper_nr_string(paper_nr)
-        )
-        doi_string = '10.21468/' + doi_label
-        BiBTeX_entry = (
-            '@Article{' + doi_label + ',\n'
-            '\ttitle={{' + submission.title + '}},\n'
-            '\tauthor={' + submission.author_list.replace(',', ' and') + '},\n'
-            '\tjournal={'
-            + current_issue.in_volume.in_journal.get_abbreviation_citation()
-            + '},\n'
-            '\tvolume={' + str(current_issue.in_volume.number) + '},\n'
-            '\tissue={' + str(current_issue.number) + '},\n'
-            '\tpages={' + paper_nr_string(paper_nr) + '},\n'
-            '\tyear={' + current_issue.until_date.strftime('%Y') + '},\n'
-            '\tpublisher={SciPost},\n'
-            '\tdoi={' + doi_string + '},\n'
-            '\turl={https://scipost.org/' + doi_string + '},\n'
-            '}\n'
-        )
-        initial = {
-            'accepted_submission': submission,
-            'in_issue': current_issue,
-            'paper_nr': paper_nr,
-            'discipline': submission.discipline,
-            'domain': submission.domain,
-            'subject_area': submission.subject_area,
-            'secondary_areas': submission.secondary_areas,
-            'title': submission.title,
-            'author_list': submission.author_list,
-            'abstract': submission.abstract,
-            'BiBTeX_entry': BiBTeX_entry,
-            'doi_label': doi_label,
-            'acceptance_date': submission.acceptance_date,
-            'submission_date': submission.submission_date,
-            'publication_date': timezone.now(),
-        }
-        validate_publication_form = ValidatePublicationForm(initial=initial)
-        context = {'validate_publication_form': validate_publication_form}
-        return render(request, 'journals/validate_publication.html', context)
-
-    context = {'initiate_publication_form': initiate_publication_form}
-    return render(request, 'journals/initiate_publication.html', context)
-
-
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
-@transaction.atomic
-def validate_publication(request):
-    """
-    This creates a Publication instance from the ValidatePublicationForm,
-    pre-filled by the initiate_publication method above.
-    """
-    # TODO: move from uploads to Journal folder
-    # TODO: create metadata
-    # TODO: set DOI, register with Crossref
-    # TODO: add funding info
-    context = {}
-    validate_publication_form = ValidatePublicationForm(request.POST or None,
-                                                        request.FILES or None)
-    if validate_publication_form.is_valid():
-        publication = validate_publication_form.save()
-
-        # Fill remaining data
-        submission = publication.accepted_submission
-
-        for submission_author in submission.authors.all():
-            PublicationAuthorsTable.objects.create(
-                publication=publication, contributor=submission_author)
-        publication.authors_claims.add(*submission.authors_claims.all())
-        publication.authors_false_claims.add(*submission.authors_false_claims.all())
-
-        # Add Institutions to the publication
-        for author in publication.authors_registered.all():
-            for current_affiliation in author.affiliations.active():
-                publication.institutions.add(current_affiliation.institution)
-
-        # Save the beast
-        publication.save()
-
-        # Move file to final location
-        initial_path = publication.pdf_file.path
-        new_dir = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-                   + publication.get_paper_nr())
-        new_path = new_dir + '/' + publication.doi_label.replace('.', '_') + '.pdf'
-        os.makedirs(new_dir)
-        os.rename(initial_path, new_path)
-        publication.pdf_file.name = new_path
-        publication.save()
-
-        # Mark the submission as having been published:
-        submission.published_as = publication
-        submission.status = 'published'
-        submission.save()
-
-        # Update ProductionStream
-        if hasattr(submission, 'production_stream'):
-            stream = submission.production_stream
-            stream.status = PROOFS_PUBLISHED
-            stream.save()
-            if request.user.production_user:
-                prodevent = ProductionEvent(
-                    stream=stream,
-                    event='status',
-                    comments=' published the manuscript.',
-                    noted_by=request.user.production_user
-                )
-                prodevent.save()
-            notify_stream_status_change(request.user, stream, False)
-
-        # TODO: Create a Commentary Page
-        # Email authors
-        JournalUtils.load({'publication': publication})
-        JournalUtils.send_authors_paper_published_email()
-
-        # Add SubmissionEvents
-        submission.add_general_event('The Submission has been published as %s.'
-                                     % publication.doi_label)
-
-        messages.success(request, 'The publication has been validated.')
-        return redirect(publication.get_absolute_url())
-    else:
-        context['errormessage'] = 'The form was invalid.'
-
-    context['validate_publication_form'] = validate_publication_form
-    return render(request, 'journals/validate_publication.html', context)
-
-
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def manage_metadata(request, issue_doi_label=None, doi_label=None):
     issues = Issue.objects.all().order_by('-until_date')
     publications = Publication.objects.all()
@@ -432,7 +281,7 @@ def mark_first_author(request, publication_id, author_object_id):
                             kwargs={'doi_label': publication.doi_label}))
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required('scipost.can_draft_publication', return_403=True)
 @transaction.atomic
 def add_author(request, doi_label, contributor_id=None, unregistered_author_id=None):
     """
@@ -442,6 +291,9 @@ def add_author(request, doi_label, contributor_id=None, unregistered_author_id=N
     This is important for the Crossref metadata, in which all authors must appear.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not publication.is_draft and not request.user.has_perm('can_publish_accepted_submission'):
+        raise Http404('You do not have permission to edit this non-draft Publication')
+
     if contributor_id:
         contributor = get_object_or_404(Contributor, id=contributor_id)
         PublicationAuthorsTable.objects.create(contributor=contributor, publication=publication)
@@ -474,38 +326,16 @@ def add_author(request, doi_label, contributor_id=None, unregistered_author_id=N
     return render(request, 'journals/add_author.html', context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
-@transaction.atomic
-def create_citation_list_metadata(request, doi_label):
-    """
-    Called by an Editorial Administrator.
-    This populates the citation_list dictionary entry
-    in the metadata field in a Publication instance.
-    """
-    publication = get_object_or_404(Publication, doi_label=doi_label)
-    bibitems_form = CitationListBibitemsForm(request.POST or None, request.FILES or None)
-    if bibitems_form.is_valid():
-        publication.metadata['citation_list'] = bibitems_form.extract_dois()
-        publication.save()
-        messages.success(request, 'Updated citation list')
-        return redirect(reverse('journals:create_citation_list_metadata',
-                        kwargs={'doi_label': publication.doi_label}))
-    context = {
-        'publication': publication,
-        'bibitems_form': bibitems_form,
-        'citation_list': publication.metadata.get('citation_list', '')
-    }
-    return render(request, 'journals/create_citation_list_metadata.html', context)
-
-
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required('scipost.can_draft_publication', return_403=True)
 def update_references(request, doi_label):
     """
     Update the References for a certain Publication.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    references = publication.references.all()
+    if not publication.is_draft and not request.user.has_perm('can_publish_accepted_submission'):
+        raise Http404('You do not have permission to edit this non-draft Publication')
 
+    references = publication.references.all()
     formset = ReferenceFormSet(request.POST or None, queryset=references, publication=publication,
                                extra=request.GET.get('extra'))
 
@@ -524,34 +354,20 @@ def update_references(request, doi_label):
     return render(request, 'journals/update_references.html', context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
-@transaction.atomic
-def create_funding_info_metadata(request, doi_label):
+class CitationUpdateView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
     """
-    Called by an Editorial Administrator.
-    This populates the funding_info dictionary entry
-    in the metadata field in a Publication instance.
+    Populates the citation_list dictionary entry in the metadata field in a Publication instance.
     """
-    publication = get_object_or_404(Publication, doi_label=doi_label)
+    form_class = CitationListBibitemsForm
+    template_name = 'journals/create_citation_list_metadata.html'
 
-    funding_statement = publication.metadata.get('funding_statement', '')
-    initial = {
-        'funding_statement': funding_statement,
-    }
-    form = FundingInfoForm(request.POST or None, instance=publication, initial=initial)
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'Updated funding info')
-        return redirect(reverse('journals:create_funding_info_metadata',
-                                kwargs={'doi_label': publication.doi_label}))
 
-    context = {
-        'publication': publication,
-        'funding_info_form': form,
-        'funding_statement': funding_statement,
-    }
-
-    return render(request, 'journals/create_funding_info_metadata.html', context)
+class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
+    """
+    Add/update funding statement to the xml_metadata
+    """
+    form_class = FundingInfoForm
+    template_name = 'journals/create_funding_info_metadata.html'
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -588,195 +404,19 @@ def add_generic_funder(request, doi_label):
                             kwargs={'doi_label': doi_label}))
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
-@transaction.atomic
-def create_metadata_xml(request, doi_label):
+class CreateMetadataXMLView(PublicationMixin,
+                            ProdSupervisorPublicationPermissionMixin,
+                            UpdateView):
     """
-    To be called by an EdAdmin after the citation_list,
-    funding_info entries have been filled.
-    Populates the metadata_xml field of a Publication instance.
+    To be called by an EdAdmin (or Production Supervisor) after the citation_list, funding_info
+    entries have been filled. Populates the metadata_xml field of a Publication instance.
     The contents can then be sent to Crossref for registration.
     """
-    publication = get_object_or_404(Publication, doi_label=doi_label)
-
-    # create a doi_batch_id
-    salt = ""
-    for i in range(5):
-        salt = salt + random.choice(string.ascii_letters)
-    salt = salt.encode('utf8')
-    idsalt = publication.title[:10]
-    idsalt = idsalt.encode('utf8')
-    doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
-
-    initial = {'metadata_xml': ''}
-    initial['metadata_xml'] += (
-        '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<doi_batch version="4.4.0" xmlns="http://www.crossref.org/schema/4.4.0" '
-        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        'xmlns:fr="http://www.crossref.org/fundref.xsd" '
-        'xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 '
-        'http://www.crossref.org/shema/deposit/crossref4.4.0.xsd" '
-        'xmlns:ai="http://www.crossref.org/AccessIndicators.xsd">\n'
-        '<head>\n'
-        '<doi_batch_id>' + str(doi_batch_id) + '</doi_batch_id>\n'
-        '<timestamp>' + timezone.now().strftime('%Y%m%d%H%M%S') + '</timestamp>\n'
-        '<depositor>\n'
-        '<depositor_name>scipost</depositor_name>\n'
-        '<email_address>' + settings.CROSSREF_DEPOSIT_EMAIL + '</email_address>\n'
-        '</depositor>\n'
-        '<registrant>scipost</registrant>\n'
-        '</head>\n'
-        '<body>\n'
-        '<journal>\n'
-        '<journal_metadata>\n'
-        '<full_title>' + publication.in_issue.in_volume.in_journal.get_name_display()
-        + '</full_title>\n'
-        '<abbrev_title>'
-        + publication.in_issue.in_volume.in_journal.get_abbreviation_citation() +
-        '</abbrev_title>\n'
-        '<issn media_type=\'electronic\'>' + publication.in_issue.in_volume.in_journal.issn
-        + '</issn>\n'
-        '<doi_data>\n'
-        '<doi>' + publication.in_issue.in_volume.in_journal.doi_string + '</doi>\n'
-        '<resource>https://scipost.org/'
-        + publication.in_issue.in_volume.in_journal.doi_string + '</resource>\n'
-        '</doi_data>\n'
-        '</journal_metadata>\n'
-        '<journal_issue>\n'
-        '<publication_date media_type=\'online\'>\n'
-        '<year>' + publication.publication_date.strftime('%Y') + '</year>\n'
-        '</publication_date>\n'
-        '<journal_volume>\n'
-        '<volume>' + str(publication.in_issue.in_volume.number) + '</volume>\n'
-        '</journal_volume>\n'
-        '<issue>' + str(publication.in_issue.number) + '</issue>\n'
-        '</journal_issue>\n'
-        '<journal_article publication_type=\'full_text\'>\n'
-        '<titles><title>' + publication.title + '</title></titles>\n'
-    )
-
-    # Precondition: all authors MUST be listed in authors field of publication instance,
-    # this to be checked by EdAdmin before publishing.
-    initial['metadata_xml'] += '<contributors>\n'
-    for author_object in publication.authors.all():
-        if author_object.order == 1:
-            initial['metadata_xml'] += (
-                '<person_name sequence=\'first\' contributor_role=\'author\'> '
-                '<given_name>' + author_object.first_name + '</given_name> '
-                '<surname>' + author_object.last_name + '</surname> '
-            )
-        else:
-            initial['metadata_xml'] += (
-                '<person_name sequence=\'additional\' contributor_role=\'author\'> '
-                '<given_name>' + author_object.first_name + '</given_name> '
-                '<surname>' + author_object.last_name + '</surname> '
-            )
-        if author_object.contributor and author_object.contributor.orcid_id:
-            initial['metadata_xml'] += (
-                '<ORCID>http://orcid.org/' + author_object.contributor.orcid_id + '</ORCID>'
-            )
-        initial['metadata_xml'] += '</person_name>\n'
-    initial['metadata_xml'] += '</contributors>\n'
-
-    initial['metadata_xml'] += (
-        '<publication_date media_type=\'online\'>\n'
-        '<month>' + publication.publication_date.strftime('%m') + '</month>'
-        '<day>' + publication.publication_date.strftime('%d') + '</day>'
-        '<year>' + publication.publication_date.strftime('%Y') + '</year>'
-        '</publication_date>\n'
-        '<publisher_item><item_number item_number_type="article_number">'
-        + paper_nr_string(publication.paper_nr) +
-        '</item_number></publisher_item>\n'
-        '<crossmark>\n'
-        '<crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>\n'
-        '<crossmark_domains>\n'
-        '<crossmark_domain><domain>scipost.org</domain></crossmark_domain>\n'
-        '</crossmark_domains>\n'
-        '<crossmark_domain_exclusive>false</crossmark_domain_exclusive>\n'
-        )
-    funders = (Funder.objects.filter(grant__in=publication.grants.all())
-               | publication.funders_generic.all()).distinct()
-    nr_funders = funders.count()
-    initial['metadata_xml'] += '<custom_metadata>\n'
-    if nr_funders > 0:
-        initial['metadata_xml'] += '<fr:program name="fundref">\n'
-        for funder in funders:
-            if nr_funders > 1:
-                initial['metadata_xml'] += '<fr:assertion name="fundgroup">\n'
-            initial['metadata_xml'] += (
-                '<fr:assertion name="funder_name">' + funder.name + '\n'
-                '<fr:assertion name="funder_identifier">'
-                + funder.identifier + '</fr:assertion>\n'
-                '</fr:assertion>\n')
-            for grant in publication.grants.all():
-                if grant.funder == funder:
-                    initial['metadata_xml'] += (
-                        '<fr:assertion name="award_number">'
-                        + grant.number + '</fr:assertion>\n')
-            if nr_funders > 1:
-                initial['metadata_xml'] += '</fr:assertion>\n'
-        initial['metadata_xml'] += '</fr:program>\n'
-    initial['metadata_xml'] += (
-        '<ai:program name="AccessIndicators">\n'
-        '<ai:license_ref>' + publication.get_cc_license_URI() +
-        '</ai:license_ref>\n'
-        '</ai:program>\n'
-    )
-    initial['metadata_xml'] += '</custom_metadata>\n'
-    initial['metadata_xml'] += (
-        '</crossmark>\n'
-        '<archive_locations><archive name="CLOCKSS"></archive></archive_locations>\n'
-        '<doi_data>\n'
-        '<doi>' + publication.doi_string + '</doi>\n'
-        '<resource>https://scipost.org/' + publication.doi_string + '</resource>\n'
-        '<collection property="crawler-based">\n'
-        '<item crawler="iParadigms">\n'
-        '<resource>https://scipost.org/'
-        + publication.doi_string + '/pdf</resource>\n'
-        '</item></collection>\n'
-        '<collection property="text-mining">\n'
-        '<item><resource mime_type="application/pdf">'
-        'https://scipost.org/' + publication.doi_string + '/pdf</resource></item>\n'
-        '</collection>'
-        '</doi_data>\n'
-    )
-    try:
-        if publication.metadata['citation_list']:
-            initial['metadata_xml'] += '<citation_list>\n'
-            for ref in publication.metadata['citation_list']:
-                initial['metadata_xml'] += (
-                    '<citation key="' + ref['key'] + '">'
-                    '<doi>' + ref['doi'] + '</doi>'
-                    '</citation>\n'
-                )
-        initial['metadata_xml'] += '</citation_list>\n'
-    except KeyError:
-        pass
-    initial['metadata_xml'] += (
-        '</journal_article>\n'
-        '</journal>\n'
-    )
-    initial['metadata_xml'] += '</body>\n</doi_batch>'
-
-    create_metadata_xml_form = CreateMetadataXMLForm(request.POST or None,
-                                                     instance=publication,
-                                                     initial=initial)
-    if create_metadata_xml_form.is_valid():
-        create_metadata_xml_form.save()
-        messages.success(request, 'Metadata XML saved')
-        return redirect(reverse('journals:manage_metadata',
-                                kwargs={'doi_label': doi_label}))
-
-    publication.latest_metadata_update = timezone.now()
-    publication.save()
-    context = {
-        'publication': publication,
-        'create_metadata_xml_form': create_metadata_xml_form,
-    }
-    return render(request, 'journals/create_metadata_xml.html', context)
+    form_class = CreateMetadataXMLForm
+    template_name = 'journals/create_metadata_xml.html'
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required('scipost.can_draft_publication', return_403=True)
 @transaction.atomic
 def metadata_xml_deposit(request, doi_label, option='test'):
     """
@@ -785,6 +425,10 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     Makes use of the python requests module.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not publication.is_draft and not request.user.has_perm('can_publish_accepted_submission'):
+        raise Http404('You do not have permission to access this non-draft Publication')
+    if not request.user.has_perm('can_publish_accepted_submission') and option != 'test':
+        raise PermissionDenied('You do not have permission to do real Crossref deposits')
 
     if publication.metadata_xml is None:
         messages.warning(
@@ -822,7 +466,9 @@ def metadata_xml_deposit(request, doi_label, option='test'):
             'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
             }
         files = {
-            'fname': ('metadata.xml', publication.metadata_xml.encode('utf-8'), 'multipart/form-data')
+            'fname': ('metadata.xml',
+                      publication.metadata_xml.encode('utf-8'),
+                      'multipart/form-data')
         }
         r = requests.post(url, params=params, files=files)
         response_headers = r.headers

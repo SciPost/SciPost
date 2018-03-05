@@ -29,14 +29,14 @@
 
       <form method="post">
         {% csrf_token %}
-        {{ funding_info_form|bootstrap }}
+        {{ form|bootstrap }}
         <input type="submit" class="btn btn-primary" value="Submit">
         <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="ml-3 btn btn-link">Back to Admin for {{ publication.doi_label }}</a>
       </form>
 
      <hr class="divider">
         <h3>Current funding info metadata:</h3>
-        <p class="mb-0">{{ funding_statement|linebreaksbr }}</p>
+        <p class="mb-0">{{ publication.metadata.funding_statement|linebreaksbr }}</p>
     </div>
 </div>
 

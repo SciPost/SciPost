@@ -36,12 +36,6 @@ urlpatterns = [
         name='remove_grant'),
 
     # Editorial and Administrative Workflow
-    url(r'^admin/initiate_publication$',
-        journals_views.initiate_publication,
-        name='initiate_publication'),
-    url(r'^admin/validate_publication$',
-        journals_views.validate_publication,
-        name='validate_publication'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/authors/add/(?P<contributor_id>[0-9]+)$',
         journals_views.add_author,
         name='add_author'),
@@ -61,12 +55,12 @@ urlpatterns = [
         journals_views.manage_metadata,
         name='manage_metadata'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/citation_list_metadata$',
-        journals_views.create_citation_list_metadata,
+        journals_views.CitationUpdateView.as_view(),
         name='create_citation_list_metadata'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/update_references$',
         journals_views.update_references, name='update_references'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/funders/create_metadata$',
-        journals_views.create_funding_info_metadata,
+        journals_views.FundingInfoView.as_view(),
         name='create_funding_info_metadata'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/funders/add_generic$',
         journals_views.add_generic_funder,
@@ -77,7 +71,7 @@ urlpatterns = [
 
     # Metadata handling
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/metadata/crossref/create$',
-        journals_views.create_metadata_xml,
+        journals_views.CreateMetadataXMLView.as_view(),
         name='create_metadata_xml'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/metadata/crossref/deposit/(?P<option>[a-z]+)$',
         journals_views.metadata_xml_deposit,

@@ -20,7 +20,7 @@ def funders(request):
     funders = Funder.objects.all()
     form = FunderRegistrySearchForm()
     grants = Grant.objects.all()
-    grant_form = GrantForm()
+    grant_form = GrantForm(request=request)
     context = {'form': form, 'funders': funders,
                'grants': grants, 'grant_form': grant_form}
     return render(request, 'funders/funders.html', context)
@@ -58,7 +58,6 @@ def add_funder(request):
     return redirect(reverse('funders:funders'))
 
 
-# @permission_required('scipost.can_view_all_funding_info', raise_exception=True)
 def funder_publications(request, funder_id):
     """
     See details of specific Funder (publicly accessible).

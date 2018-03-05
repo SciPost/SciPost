@@ -346,6 +346,10 @@ class Publication(models.Model):
         return '10.21468/' + self.doi_label
 
     @property
+    def is_draft(self):
+        return self.status == STATUS_DRAFT
+
+    @property
     def is_published(self):
         return self.status == PUBLICATION_PUBLISHED and self.in_issue.status == STATUS_PUBLISHED
 

@@ -1,11 +1,15 @@
+import hashlib
 import os
+import random
 import re
+import string
 
 from datetime import datetime
 
 from django import forms
 from django.conf import settings
 from django.forms import BaseModelFormSet, modelformset_factory
+from django.template import loader
 from django.utils import timezone
 
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED
@@ -14,7 +18,7 @@ from .models import Issue, Publication, Reference, UnregisteredAuthor, Publicati
 from .utils import JournalUtils
 
 
-from funders.models import Grant
+from funders.models import Grant, Funder
 from mails.utils import DirectMailUtil
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
@@ -22,23 +26,6 @@ from production.signals import notify_stream_status_change
 from scipost.forms import RequestFormMixin
 from scipost.services import DOICaller
 from submissions.models import Submission
-
-
-class InitiatePublicationForm(forms.Form):
-    accepted_submission = forms.ModelChoiceField(queryset=Submission.objects.accepted())
-    to_be_issued_in = forms.ModelChoiceField(
-        queryset=Issue.objects.filter(until_date__gte=timezone.now()))
-
-    def __init__(self, *args, **kwargs):
-        super(InitiatePublicationForm, self).__init__(*args, **kwargs)
-
-
-class ValidatePublicationForm(forms.ModelForm):
-    class Meta:
-        model = Publication
-        exclude = ['authors_claims', 'authors_false_claims',
-                   'metadata', 'metadata_xml', 'authors_registered',
-                   'authors_unregistered', 'latest_activity']
 
 
 class UnregisteredAuthorForm(forms.ModelForm):
@@ -69,6 +56,10 @@ class CitationListBibitemsForm(forms.Form):
             nentries += 1
         return dois
 
+    def save(self, *args, **kwargs):
+        self.instance.metadata['citation_list'] = self.extract_dois()
+        return super().save(*args, **kwargs)
+
 
 class FundingInfoForm(forms.ModelForm):
     funding_statement = forms.CharField(widget=forms.Textarea({
@@ -77,6 +68,10 @@ class FundingInfoForm(forms.ModelForm):
     class Meta:
         model = Publication
         fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['funding_statement'].initial = self.instance.metadata.get('funding_statement')
 
     def save(self, *args, **kwargs):
         self.instance.metadata['funding_statement'] = self.cleaned_data['funding_statement']
@@ -87,6 +82,42 @@ class CreateMetadataXMLForm(forms.ModelForm):
     class Meta:
         model = Publication
         fields = ['metadata_xml']
+
+    def __init__(self, *args, **kwargs):
+        kwargs['initial'] = {
+            'metadata_xml': self.new_xml(kwargs.get('instance'))
+        }
+        super().__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.instance.latest_metadata_update = timezone.now()
+        return super().save(*args, **kwargs)
+
+    def new_xml(self, publication):
+        """
+        Create new XML structure, return as a string
+        """
+        # Create a doi_batch_id
+        salt = ""
+        for i in range(5):
+            salt = salt + random.choice(string.ascii_letters)
+        salt = salt.encode('utf8')
+        idsalt = publication.title[:10]
+        idsalt = idsalt.encode('utf8')
+        doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
+
+        funders = (Funder.objects.filter(grant__in=publication.grants.all())
+                   | publication.funders_generic.all()).distinct()
+
+        # Render from template
+        template = loader.get_template('xml/publication_crossref.html')
+        context = {
+            'publication': publication,
+            'doi_batch_id': doi_batch_id,
+            'deposit_email': settings.CROSSREF_DEPOSIT_EMAIL,
+            'funders': funders,
+        }
+        return template.render(context)
 
 
 class CreateMetadataDOAJForm(forms.ModelForm):
@@ -278,15 +309,22 @@ class DraftPublicationForm(forms.ModelForm):
             except Submission.DoesNotExist:
                 self.submission = None
         if issue_id:
-            self.issue = Issue.objects.filter(until_date__gte=timezone.now()).get(id=issue_id)
+            try:
+                self.issue = self.get_possible_issues().get(id=issue_id)
+            except Issue.DoesNotExist:
+                self.issue = None
+
         super().__init__(data, *args, **kwargs)
         if kwargs.get('instance') or self.issue:
             # When updating: fix in_issue, because many fields are directly related to the issue.
             del self.fields['in_issue']
             self.prefill_fields()
         else:
-            self.fields['in_issue'].queryset = Issue.objects.filter(until_date__gte=timezone.now())
+            self.fields['in_issue'].queryset = self.get_possible_issues()
             self.delete_secondary_fields()
+
+    def get_possible_issues(self):
+        return Issue.objects.filter(until_date__gte=timezone.now())
 
     def delete_secondary_fields(self):
         """

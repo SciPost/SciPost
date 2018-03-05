@@ -29,7 +29,7 @@
 
       <form action="{% url 'journals:create_citation_list_metadata' publication.doi_label %}" method="post">
         {% csrf_token %}
-        {{ bibitems_form|bootstrap }}
+        {{ form|bootstrap }}
         <input type="submit" class="btn btn-primary" value="Submit">
         <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="ml-3 btn btn-link">Back to Admin for {{ publication.doi_label }}</a>
       </form>
@@ -39,7 +39,7 @@
       <h3>Current citation list metadata:</h3>
       <br>
       <table class="table">
-        {% for citation in citation_list %}
+        {% for citation in publication.metadata.citation_list %}
           <tr>
             <td>{{ citation.key }}</td><td>{{ citation.doi }}</td>
           </tr>
