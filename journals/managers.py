@@ -49,6 +49,9 @@ class PublicationQuerySet(models.QuerySet):
     def published(self, **kwargs):
         return self.filter(status=PUBLICATION_PUBLISHED, in_issue__status=STATUS_PUBLISHED)
 
+    def unpublished(self):
+        return self.exclude(status=PUBLICATION_PUBLISHED)
+
     def in_draft(self, **kwargs):
         return self.filter(in_issue__status=STATUS_DRAFT, **kwargs)
 

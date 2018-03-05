@@ -42,13 +42,21 @@ REGISTRATION_REFUSAL_CHOICES = (
 reg_ref_dict = dict(REGISTRATION_REFUSAL_CHOICES)
 
 
-class HttpRefererFormMixin:
+class RequestFormMixin:
+    """
+    This mixin lets the Form accept `request` as an argument.
+    """
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+
+
+class HttpRefererFormMixin(RequestFormMixin):
     """
     This mixin adds a HiddenInput to the form which tracks the previous url, which can
     be used to redirect to.
     """
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
         self.fields['http_referer'] = forms.URLField(widget=forms.HiddenInput(), required=False)
         if self.request:

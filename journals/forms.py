@@ -1,17 +1,25 @@
+import os
 import re
 
 from datetime import datetime
 
 from django import forms
+from django.conf import settings
 from django.forms import BaseModelFormSet, modelformset_factory
 from django.utils import timezone
 
-from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED
+from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED
 from .exceptions import PaperNumberingError
 from .models import Issue, Publication, Reference, UnregisteredAuthor, PublicationAuthorsTable
+from .utils import JournalUtils
+
 
 from funders.models import Grant
 from mails.utils import DirectMailUtil
+from production.constants import PROOFS_PUBLISHED
+from production.models import ProductionEvent
+from production.signals import notify_stream_status_change
+from scipost.forms import RequestFormMixin
 from scipost.services import DOICaller
 from submissions.models import Submission
 
@@ -264,8 +272,11 @@ class DraftPublicationForm(forms.ModelForm):
         self.submission = None
         self.issue = None
         if arxiv_identifier_w_vn_nr:
-            self.submission = Submission.objects.accepted().get(
-                arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+            try:
+                self.submission = Submission.objects.accepted().get(
+                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+            except Submission.DoesNotExist:
+                self.submission = None
         if issue_id:
             self.issue = Issue.objects.filter(until_date__gte=timezone.now()).get(id=issue_id)
         super().__init__(data, *args, **kwargs)
@@ -276,7 +287,6 @@ class DraftPublicationForm(forms.ModelForm):
         else:
             self.fields['in_issue'].queryset = Issue.objects.filter(until_date__gte=timezone.now())
             self.delete_secondary_fields()
-
 
     def delete_secondary_fields(self):
         """
@@ -304,11 +314,11 @@ class DraftPublicationForm(forms.ModelForm):
         Save the Publication object always as a draft and prefill the Publication with
         related Submission data only when appending the Publication.
         """
-        self.instance.status = STATUS_DRAFT
         do_prefill = False
         if not self.instance.id:
             do_prefill = True
-            self.instance.accepted_submission = self.submission
+            if self.submission:
+                self.instance.accepted_submission = self.submission
             self.instance.in_issue = self.issue
         self.instance = super().save(*args, **kwargs)
         if do_prefill:
@@ -320,12 +330,15 @@ class DraftPublicationForm(forms.ModelForm):
         Take over fields from related Submission object. This can only be done after
         the Publication object has been added to the database due to m2m relations.
         """
-        # Copy all existing author and non-author relations to Publication
-        for submission_author in self.submission.authors.all():
-            PublicationAuthorsTable.objects.create(
-                publication=self.instance, contributor=submission_author)
-        self.instance.authors_claims.add(*self.submission.authors_claims.all())
-        self.instance.authors_false_claims.add(*self.submission.authors_false_claims.all())
+        self.instance.status = STATUS_DRAFT
+
+        if self.submission:
+            # Copy all existing author and non-author relations to Publication
+            for submission_author in self.submission.authors.all():
+                PublicationAuthorsTable.objects.create(
+                    publication=self.instance, contributor=submission_author)
+            self.instance.authors_claims.add(*self.submission.authors_claims.all())
+            self.instance.authors_false_claims.add(*self.submission.authors_false_claims.all())
 
         # Add Institutions to the publication related to the current authors
         for author in self.instance.authors_registered.all():
@@ -419,4 +432,61 @@ class PublicationGrantsForm(forms.ModelForm):
     def save(self, commit=True):
         if commit:
             self.instance.grants.add(self.cleaned_data['grant'])
+        return self.instance
+
+
+class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
+    class Meta:
+        model = Publication
+        fields = []
+
+    def move_pdf(self):
+        # Move file to final location
+        initial_path = self.instance.pdf_file.path
+        new_dir = (settings.MEDIA_ROOT + self.instance.in_issue.path + '/'
+                   + self.instance.get_paper_nr())
+        new_path = new_dir + '/' + self.instance.doi_label.replace('.', '_') + '.pdf'
+        os.makedirs(new_dir)
+        os.rename(initial_path, new_path)
+        self.instance.pdf_file.name = new_path
+        self.instance.status = PUBLICATION_PUBLISHED
+        self.instance.save()
+
+    def update_submission(self):
+        # Mark the submission as having been published:
+        submission = self.instance.accepted_submission
+        submission.published_as = self.instance
+        submission.status = 'published'
+        submission.save()
+
+        # Add SubmissionEvents
+        submission.add_general_event(
+            'The Submission has been published as %s.' % self.instance.doi_label)
+
+    def update_stream(self):
+        # Update ProductionStream
+        submission = self.instance.accepted_submission
+        if hasattr(submission, 'production_stream'):
+            stream = submission.production_stream
+            stream.status = PROOFS_PUBLISHED
+            stream.save()
+            if self.request.user.production_user:
+                prodevent = ProductionEvent(
+                    stream=stream,
+                    event='status',
+                    comments=' published the manuscript.',
+                    noted_by=self.request.user.production_user
+                )
+                prodevent.save()
+            notify_stream_status_change(self.request.user, stream, False)
+
+    def save(self, commit=True):
+        if commit:
+            self.move_pdf()
+            self.update_submission()
+            self.update_stream()
+
+            # Email authors
+            JournalUtils.load({'publication': self.instance})
+            JournalUtils.send_authors_paper_published_email()
         return self.instance

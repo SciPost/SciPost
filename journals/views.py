@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.shortcuts import get_object_or_404, render, redirect
@@ -29,7 +30,7 @@ from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
 from .forms import FundingInfoForm, InitiatePublicationForm, ValidatePublicationForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
-                   PublicationGrantsForm, DraftPublicationApprovalForm
+                   PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm
 from .utils import JournalUtils
 
 from comments.models import Comment
@@ -38,7 +39,7 @@ from funders.models import Funder, Grant
 from submissions.models import Submission, Report
 from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
-from scipost.mixins import PermissionsMixin
+from scipost.mixins import PermissionsMixin, RequestViewMixin
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
 from production.signals import notify_stream_status_change
@@ -196,7 +197,7 @@ class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
     The actual publishing is done lin a later stadium, after the draft has been finished.
     """
     permission_required = 'scipost.can_draft_publication'
-    queryset = Publication.objects.drafts()
+    queryset = Publication.objects.unpublished()
     slug_url_kwarg = 'arxiv_identifier_w_vn_nr'
     slug_field = 'accepted_submission__arxiv_identifier_w_vn_nr'
     form_class = DraftPublicationForm
@@ -213,6 +214,8 @@ class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
             raise Http404('No accepted Submission found')
         if publication.status == STATUS_DRAFT:
             return publication
+        if self.request.user.has_perm('scipost.can_publish_accepted_submission'):
+            return publication
         raise Http404('Found Publication is not in draft')
 
     def get_form_kwargs(self):
@@ -228,6 +231,15 @@ class DraftPublicationApprovalView(PermissionsMixin, UpdateView):
     slug_field = slug_url_kwarg = 'doi_label'
     form_class = DraftPublicationApprovalForm
     template_name = 'journals/publication_approval_form.html'
+
+
+@method_decorator(transaction.atomic, name='dispatch')
+class PublicationPublishView(PermissionsMixin, RequestViewMixin, UpdateView):
+    permission_required = 'scipost.can_publish_accepted_submission'
+    queryset = Publication.objects.unpublished()
+    slug_field = slug_url_kwarg = 'doi_label'
+    form_class = PublicationPublishForm
+    template_name = 'journals/publication_publish_form.html'
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
