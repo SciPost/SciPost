@@ -4,7 +4,7 @@
     <p class="text-muted mb-0">
         Version {{ submission.arxiv_vn_nr }} ({% if submission.is_current %}current version{% else %}deprecated version {{ submission.arxiv_vn_nr }}{% endif %})
         <br>
-        {% if submission.publication %}
+        {% if submission.publication and submission.publication.is_published %}
             Published as <a href="{{ submission.publication.get_absolute_url }}">{{ submission.publication.in_issue.in_volume.in_journal.get_abbreviation_citation }} <strong>{{ submission.publication.in_issue.in_volume.number }}</strong>, {{ submission.publication.get_paper_nr }} ({{ submission.publication.publication_date|date:'Y' }})</a>
         {% else %}
             Submitted {{ submission.submission_date }} to {{ submission.get_submitted_to_journal_display }}
