@@ -34,8 +34,10 @@
           <h3 class="mt-3">Response text:</h3>
           <pre><code>{{ response_text|linebreaks }}</code></pre>
 
-          <br>
-          <p><a href="{{publication.get_absolute_url}}">return to the publication's page</a>, to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></p>
+          {% if perms.scipost.can_publish_accepted_submission %}
+              <br>
+              <p><a href="{{publication.get_absolute_url}}">return to the publication's page</a>, to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></p>
+          {% endif %}
 
 
         </div>
@@ -48,8 +50,11 @@
                 You might want to <a href="{% url 'journals:create_metadata_xml' doi_label=publication.doi_label %}">produce new metadata</a> to do a new deposit instead.
             <p>
 
-            <br>
-            <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">Back to Admin for {{ publication.doi_label }}</a>
+            {% if perms.scipost.can_publish_accepted_submission %}
+                <p>
+                    <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">Back to Admin for {{ publication.doi_label }}</a>
+                </p>
+            {% endif %}
         </div>
     </div>
 {% endif %}

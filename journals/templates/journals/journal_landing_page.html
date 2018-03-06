@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-12">
                 <ul class="list-unstyled">
-                    {% for paper in current_issue.publication_set.all|dictsort:"paper_nr" %}
+                    {% for paper in current_issue.publications.published|dictsort:"paper_nr" %}
                         <li>
                             {% include 'partials/journals/publication_card.html' with publication=paper %}
                         </li>
@@ -43,7 +43,7 @@
         <div class="row">
             <div class="col-12">
                 <ul class="list-unstyled">
-                    {% for paper in latest_issue.publication_set.all|dictsort:"paper_nr" %}
+                    {% for paper in latest_issue.publications.published|dictsort:"paper_nr" %}
                         <li>
                             {% include 'partials/journals/publication_card.html' with publication=paper %}
                         </li>

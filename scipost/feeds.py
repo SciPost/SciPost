@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib.syndication.views import Feed
+from django.http import Http404
 from django.utils.feedgenerator import Atom1Feed
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -34,7 +35,7 @@ class LatestCommentsFeedRSS(Feed):
         elif item.submission:
             return reverse('submissions:submission',
                            kwargs={'arxiv_identifier_w_vn_nr':
-                                   item.submission.arxiv_identifier_w_vn_nr,})
+                                   item.submission.arxiv_identifier_w_vn_nr})
         elif item.thesislink:
             return reverse('theses:thesis',
                            kwargs={'thesislink_id': item.thesislink.id})
@@ -142,27 +143,26 @@ class LatestPublicationsFeedRSS(Feed):
     link = "/journals/"
 
     def get_object(self, request, subject_area=''):
-        if subject_area != '':
-            queryset = Publication.objects.filter(
-                Q(subject_area=subject_area) | Q(secondary_areas__contains=[subject_area])
-            ).order_by('-publication_date')[:10]
-            queryset.subject_area = subject_area
-        else:
-            queryset = Publication.objects.order_by('-publication_date')[:10]
-            queryset.subject_area = None
-        return queryset
+        if subject_area and subject_area not in subject_areas_dict:
+            raise Http404('Invalid subject area')
+        qs = Publication.objects.published()
+        if subject_area:
+            qs = qs.filter(
+                Q(subject_area=subject_area) | Q(secondary_areas__contains=[subject_area]))
+        self.subject_area = subject_area
+        return qs.order_by('-publication_date')[:10]
 
     def title(self, obj):
         title_text = 'SciPost: Latest Publications'
-        if obj.subject_area:
-            title_text += ' in %s' % subject_areas_dict[obj.subject_area]
+        if self.subject_area:
+            title_text += ' in %s' % subject_areas_dict.get(self.subject_area)
         return title_text
 
     def description(self, obj):
         desc = 'SciPost: most recent publications'
         try:
-            if obj.subject_area:
-                desc += ' in %s' % subject_areas_dict[obj.subject_area]
+            if self.subject_area:
+                desc += ' in %s' % subject_areas_dict.get(self.subject_area)
         except KeyError:
             pass
         return desc

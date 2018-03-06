@@ -2,6 +2,8 @@ from django.conf.urls import url
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 
+from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
+
 from journals import views as journals_views
 
 urlpatterns = [
@@ -16,13 +18,24 @@ urlpatterns = [
         TemplateView.as_view(template_name='journals/crossmark_policy.html'),
         name='crossmark_policy'),
 
+    # Publication creation
+    url(r'^admin/publications/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        journals_views.DraftPublicationUpdateView.as_view(),
+        name='update_publication'),
+    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/publish$',
+        journals_views.PublicationPublishView.as_view(),
+        name='publish_publication'),
+    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/approval$',
+        journals_views.DraftPublicationApprovalView.as_view(),
+        name='send_publication_for_approval'),
+    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/grants$',
+        journals_views.PublicationGrantsView.as_view(),
+        name='update_grants'),
+    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/grants/(?P<grant_id>[0-9]+)/remove$',
+        journals_views.PublicationGrantsRemovalView.as_view(),
+        name='remove_grant'),
+
     # Editorial and Administrative Workflow
-    url(r'^admin/initiate_publication$',
-        journals_views.initiate_publication,
-        name='initiate_publication'),
-    url(r'^admin/validate_publication$',
-        journals_views.validate_publication,
-        name='validate_publication'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/authors/add/(?P<contributor_id>[0-9]+)$',
         journals_views.add_author,
         name='add_author'),
@@ -42,12 +55,12 @@ urlpatterns = [
         journals_views.manage_metadata,
         name='manage_metadata'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/citation_list_metadata$',
-        journals_views.create_citation_list_metadata,
+        journals_views.CitationUpdateView.as_view(),
         name='create_citation_list_metadata'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/update_references$',
         journals_views.update_references, name='update_references'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/funders/create_metadata$',
-        journals_views.create_funding_info_metadata,
+        journals_views.FundingInfoView.as_view(),
         name='create_funding_info_metadata'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/funders/add_generic$',
         journals_views.add_generic_funder,
@@ -58,7 +71,7 @@ urlpatterns = [
 
     # Metadata handling
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/metadata/crossref/create$',
-        journals_views.create_metadata_xml,
+        journals_views.CreateMetadataXMLView.as_view(),
         name='create_metadata_xml'),
     url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/metadata/crossref/deposit/(?P<option>[a-z]+)$',
         journals_views.metadata_xml_deposit,

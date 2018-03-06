@@ -80,7 +80,7 @@ class PublicationFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def doi(self, create, extracted, **kwargs):
-        paper_nr = self.in_issue.publication_set.count()
+        paper_nr = self.in_issue.publications.count()
         self.paper_nr = paper_nr
         self.doi_label = self.in_issue.doi_label + '.' + str(paper_nr).rjust(3, '0')
 

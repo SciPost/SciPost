@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doi_batch version="4.4.0" xmlns="http://www.crossref.org/schema/4.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fr="http://www.crossref.org/fundref.xsd" xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 http://www.crossref.org/shema/deposit/crossref4.4.0.xsd" xmlns:ai="http://www.crossref.org/AccessIndicators.xsd">
+    <head>
+        <doi_batch_id>{{ doi_batch_id }}</doi_batch_id>
+        <timestamp>{% now "YmdHis" %}</timestamp>
+        <depositor>
+            <depositor_name>scipost</depositor_name>
+            <email_address>{{ deposit_email }}</email_address>
+        </depositor>
+        <registrant>scipost</registrant>
+    </head>
+    <body>
+        <journal>
+            <journal_metadata>
+                <full_title>{{ publication.in_issue.in_volume.in_journal.get_name_display }}</full_title>
+                <abbrev_title>{{ publication.in_issue.in_volume.in_journal.get_abbreviation_citation }}</abbrev_title>
+                <issn media_type='electronic'>{{ publication.in_issue.in_volume.in_journal.issn }}</issn>
+                <doi_data>
+                    <doi>{{ publication.in_issue.in_volume.in_journal.doi_string }}</doi>
+                    <resource>https://scipost.org/{{ publication.in_issue.in_volume.in_journal.doi_string }}</resource>
+                </doi_data>
+            </journal_metadata>
+            <journal_issue>
+                <publication_date media_type='online'>
+                    <year>{{ publication.publication_date|date:'Y' }}</year>
+                </publication_date>
+                <journal_volume>
+                    <volume>{{ publication.in_issue.in_volume.number }}</volume>
+                </journal_volume>
+                <issue>{{ publication.in_issue.number }}</issue>
+            </journal_issue>
+            <journal_article publication_type='full_text'>
+                <titles>
+                    <title>{{ publication.title }}</title>
+                </titles>
+
+                <contributors>
+                    {% for author_object in publication.authors.all %}
+                        {% if author_object.order == 1 %}
+                            <person_name sequence='first' contributor_role='author'>
+                        {% else %}
+                            <person_name sequence='additional' contributor_role='author'>
+                        {% endif %}
+                        <given_name>{{ author_object.first_name }}</given_name>
+                        <surname>{{ author_object.last_name }}</surname>
+                        {% if author_object.contributor and author_object.contributor.orcid_id %}
+                            <ORCID>http://orcid.org/'{{ author_object.contributor.orcid_id }}</ORCID>
+                        {% endif %}
+                        </person_name>
+                    {% endfor %}
+                </contributors>
+
+                <publication_date media_type='online'>
+                    <month>{{ publication.publication_date|date:'m' }}</month>
+                    <day>{{ publication.publication_date|date:'d' }}</day>
+                    <year>{{ publication.publication_date|date:'Y' }}</year>
+                </publication_date>
+                <publisher_item>
+                    <item_number item_number_type='article_number'>{{ publication.paper_nr }}</item_number>
+                </publisher_item>
+                <crossmark>
+                    <crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>
+                    <crossmark_domains>
+                        <crossmark_domain><domain>scipost.org</domain></crossmark_domain>
+                    </crossmark_domains>
+                    <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
+                    <custom_metadata>
+                        {% if funders %}
+                            <fr:program name='fundref'>
+                                {% for funder in funders %}
+                                    {% if funders|length > 1 %}
+                                        <fr:assertion name='fundgroup'>
+                                    {% endif %}
+
+                                    <fr:assertion name='funder_name'>{{ funder.name }}
+                                        <fr:assertion name='funder_identifier'>{{ funder.identifier }}</fr:assertion>
+                                    </fr:assertion>
+
+                                    {% for grant in publication.grants.all %}
+                                        {% if grant.funder == funder %}
+                                            <fr:assertion name='award_number'>{{ grant.number }}</fr:assertion>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if funders|length > 1 %}
+                                        </fr:assertion>
+                                    {% endif %}
+                                {% endfor %}
+                            </fr:program>
+                        {% endif %}
+
+                        <ai:program name="AccessIndicators">
+                            <ai:license_ref>{{ publication.get_cc_license_URI }}</ai:license_ref>
+                        </ai:program>
+                    </custom_metadata>
+                </crossmark>
+                <archive_locations>
+                    <archive name="CLOCKSS"></archive>
+                </archive_locations>
+                <doi_data>
+                    <doi>{{ publication.doi_string }}</doi>
+                    <resource>https://scipost.org/{{ publication.doi_string }}</resource>
+                    <collection property='crawler-based'>
+                        <item crawler='iParadigms'>
+                            <resource>https://scipost.org/{{ publication.doi_string }}/pdf</resource>
+                        </item>
+                    </collection>
+                    <collection property='text-mining'>
+                        <item>
+                            <resource mime_type='application/pdf'>https://scipost.org/{{ publication.doi_string }}/pdf</resource>
+                        </item>
+                    </collection>
+                </doi_data>
+                {% if publication.metadata.citation_list %}
+                    <citation_list>
+                        {% for ref in publication.metadata.citation_list %}
+                            <citation key='{{ ref.key }}'>
+                                <doi>{{ ref.doi }}</doi>
+                            </citation>
+                        {% endfor %}
+                    </citation_list>
+                {% endif %}
+            </journal_article>
+        </journal>
+    </body>
+</doi_batch>

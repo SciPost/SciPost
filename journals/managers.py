@@ -2,7 +2,7 @@ from django.db import models
 from django.http import Http404
 from django.utils import timezone
 
-from .constants import STATUS_PUBLISHED, STATUS_DRAFT
+from .constants import STATUS_PUBLISHED, STATUS_DRAFT, PUBLICATION_PUBLISHED
 
 
 class JournalManager(models.Manager):
@@ -42,12 +42,18 @@ class IssueManager(models.Manager):
 class PublicationQuerySet(models.QuerySet):
     def get_published(self, *args, **kwargs):
         try:
-            return self.published(*args, **kwargs)[0]
+            return self.published().filter(*args, **kwargs)[0]
         except IndexError:
             raise Http404
 
     def published(self, **kwargs):
-        return self.filter(in_issue__status=STATUS_PUBLISHED, **kwargs)
+        return self.filter(status=PUBLICATION_PUBLISHED, in_issue__status=STATUS_PUBLISHED)
+
+    def unpublished(self):
+        return self.exclude(status=PUBLICATION_PUBLISHED)
 
     def in_draft(self, **kwargs):
         return self.filter(in_issue__status=STATUS_DRAFT, **kwargs)
+
+    def drafts(self):
+        return self.filter(status=STATUS_DRAFT)

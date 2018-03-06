@@ -1,0 +1,32 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Draft publication{% endblock pagetitle %}
+
+{% block content %}
+
+
+<h1>Draft publication</h1>
+
+{% if request.GET.issue or form.instance.id %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input type="submit" class="btn btn-primary" value="Save">
+    </form>
+{% else %}
+    <h3>Pick the Issue to publish in</h3>
+    <ul>
+        {% for issue in form.get_possible_issues %}
+            <li><a href="?issue={{ issue.id }}">{{ issue }}</a></li>
+        {% empty %}
+            <li><em>No Issues found. Please contact administration</em></li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+
+
+
+{% endblock %}

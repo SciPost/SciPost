@@ -1,7 +1,7 @@
-from . import mixins
+from .mixins import MailUtilsMixin
 
 
-class DirectMailUtil(mixins.MailUtilsMixin):
+class DirectMailUtil(MailUtilsMixin):
     """
     Same templates and json files as the form EmailTemplateForm, but this will directly send
     the mails out, without intercepting and showing the mail editor to the user.

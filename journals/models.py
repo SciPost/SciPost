@@ -9,8 +9,8 @@ from django.urls import reverse
 from .behaviors import doi_journal_validator, doi_volume_validator,\
                        doi_issue_validator, doi_publication_validator
 from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
-                       STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,\
-                       CCBY4, CC_LICENSES, CC_LICENSES_URI
+                       STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES, PUBLICATION_PUBLISHED,\
+                       CCBY4, CC_LICENSES, CC_LICENSES_URI, PUBLICATION_STATUSES
 from .helpers import paper_nr_string, journal_name_abbrev_citation
 from .managers import IssueManager, PublicationQuerySet, JournalManager
 
@@ -264,8 +264,11 @@ class Publication(models.Model):
     # Publication data
     accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE,
                                                related_name='publication')
-    in_issue = models.ForeignKey('journals.Issue', on_delete=models.CASCADE)
+    in_issue = models.ForeignKey('journals.Issue', on_delete=models.CASCADE,
+                                 related_name='publications')
     paper_nr = models.PositiveSmallIntegerField()
+    status = models.CharField(max_length=8,
+                              choices=PUBLICATION_STATUSES, default=STATUS_DRAFT)
 
     # Core fields
     title = models.CharField(max_length=300)
@@ -306,11 +309,11 @@ class Publication(models.Model):
 
     # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
-    metadata_xml = models.TextField(blank=True, null=True)  # for Crossref deposit
+    metadata_xml = models.TextField(blank=True)  # for Crossref deposit
     metadata_DOAJ = JSONField(default={}, blank=True, null=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_publication_validator])
-    BiBTeX_entry = models.TextField(blank=True, null=True)
+    BiBTeX_entry = models.TextField(blank=True)
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = JSONField(default={}, blank=True, null=True)
 
@@ -342,6 +345,30 @@ class Publication(models.Model):
     @property
     def doi_string(self):
         return '10.21468/' + self.doi_label
+
+    @property
+    def is_draft(self):
+        return self.status == STATUS_DRAFT
+
+    @property
+    def is_published(self):
+        return self.status == PUBLICATION_PUBLISHED and self.in_issue.status == STATUS_PUBLISHED
+
+    @property
+    def has_xml_metadata(self):
+        return self.metadata_xml != ''
+
+    @property
+    def has_bibtex_entry(self):
+        return self.BiBTeX_entry != ''
+
+    @property
+    def has_citation_list(self):
+        return 'citation_list' in self.metadata and len(self.metadata['citation_list']) > 0
+
+    @property
+    def has_funding_statement(self):
+        return 'funding_statement' in self.metadata and self.metadata['funding_statement']
 
     def get_paper_nr(self):
         return paper_nr_string(self.paper_nr)

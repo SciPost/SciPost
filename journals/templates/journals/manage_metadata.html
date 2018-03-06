@@ -53,7 +53,7 @@ event: "focusin"
 
   <tbody id="accordion" role="tablist" aria-multiselectable="true">
     {% for publication in publications %}
-    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ publication.id }}" aria-expanded="true" aria-controls="collapse{{ publication.id }}" style="cursor: pointer;">
+    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ publication.id }}" aria-expanded="true" aria-controls="collapse{{ publication.id }}" style="cursor: pointer;"{% if not publication.is_published %} class="table-warning"{% endif %}>
       <td><a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></td>
       <td>{{ publication.publication_date }}</td>
       {% if publication.latest_metadata_update %}
@@ -68,11 +68,16 @@ event: "focusin"
       <td>{{ publication|latest_successful_DOAJ_deposit }}</td>
     </tr>
     <tr id="collapse{{ publication.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ publication.id }}" style="background-color: #fff;">
-      <td colspan="6">
+      <td colspan="6" class="py-3">
+        <div class="row">
+          {% if not publication.is_published %}
+            <div class="col-12">
+                <h3 class="text-center bg-warning text-white mb-3">Current status: <em>{{ publication.get_status_display }}</em></h3>
+            </div>
+          {% endif %}
 
-	<h2 class="ml-3">Actions</h2>
-	<div class="row">
-          <div class="col-md-5">
+          <div class="col-md-6">
+              <h2 class="ml-3">Actions</h2>
             <ul>
               <li>Mark the first author
                 <ul class="list-unstyled pl-4">
@@ -93,10 +98,14 @@ event: "focusin"
 	      <li><a href="{% url 'journals:produce_metadata_DOAJ' doi_label=publication.doi_label %}">Produce DOAJ metadata</a></li>
 	      <li><a href="{% url 'journals:metadata_DOAJ_deposit' doi_label=publication.doi_label %}">Deposit the metadata to DOAJ</a></li>
               <li><a href="{% url 'journals:harvest_citedby_links' publication.doi_label %}">Update Crossref cited-by links</a></li>
+              {% if not publication.is_published %}
+                  <li><a href="{% url 'journals:update_publication' publication.accepted_submission.arxiv_identifier_w_vn_nr %}">Update Publication object</a></li>
+                  <li><strong><a href="{% url 'journals:publish_publication' publication.doi_label %}">Publish this Publication</a></strong></li>
+              {% endif %}
             </ul>
           </div>
 
-          <div class="col-md-5">
+          <div class="col-md-6">
 	    <h2>Funding statement for this publication:</h2>
 	    {% if publication.metadata.funding_statement %}
 	    <p>{{ publication.metadata.funding_statement }}</p>

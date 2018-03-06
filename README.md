@@ -215,7 +215,7 @@ Any regular method or class based view may be used together with the builtin wys
 
 ```python
 from django.views.generic.edit import UpdateView
-from mails.mixins import MailEditorMixin
+from mails.views import MailEditorMixin
 
 class AnyUpdateView(MailEditorMixin, UpdateView):
     mail_code = '<any_valid_mail_code>'

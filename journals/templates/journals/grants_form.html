@@ -1,0 +1,34 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Publication related grant(s){% endblock pagetitle %}
+
+{% block content %}
+
+
+<h1>Publication related grant(s)</h1>
+
+
+<h3>Add existing grant to this Publication</h3>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input type="submit" class="btn btn-primary" value="Add">
+    <a class="btn btn-link ml-2" href="{% url 'funders:add_grant' %}">Create new Grant</a>
+</form>
+
+<hr class="divider">
+
+
+<h3>Current grant(s)</h3>
+<ul>
+    {% for grant in publication.grants.all %}
+        <li>{{ grant }} - <a class="text-danger" href="{% url 'journals:remove_grant' form.instance.doi_label grant.id %}">Remove grant from Publication</a></li>
+    {% empty %}
+        <li><em>No grants added</em></li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}

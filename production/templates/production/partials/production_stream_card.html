@@ -99,10 +99,10 @@
               {% endif %}
 
               {% if perms.scipost.can_publish_accepted_submission %}
-                  {% if not stream.submission.publication %}
-                    <li><a href="{% url 'journals:initiate_publication' %}">Initiate the publication process</a></li>
-                  {% endif %}
                     <li><a href="{% url 'production:mark_as_completed' stream_id=stream.id %}">Mark this stream as completed</a></li>
+              {% endif %}
+              {% if perms.scipost.can_draft_publication and stream.status == 'accepted' %}
+                    <li><a href="{% url 'journals:update_publication' stream.submission.arxiv_identifier_w_vn_nr %}">Draft Publication</a></li>
               {% endif %}
           </ul>
     {% endif %}

@@ -139,11 +139,9 @@ class Submission(models.Model):
             header += ' (current version)'
         else:
             header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
-        try:
+        if hasattr(self, 'publication') and self.publication.is_published:
             header += ' (published as %s (%s))' % (
                 self.publication.doi_string, self.publication.publication_date.strftime('%Y'))
-        except Publication.DoesNotExist:
-            pass
         return header
 
     def touch(self):

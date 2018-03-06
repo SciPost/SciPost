@@ -1,7 +1,7 @@
 import notifications from './notifications.js';
 
 function hide_all_alerts() {
-    $(".alert").fadeOut(300);
+    $(".alert").remove('.no-dismiss').fadeOut(300);
 }
 
 var activate_tooltip = function() {
