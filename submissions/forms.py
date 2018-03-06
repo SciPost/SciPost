@@ -495,11 +495,8 @@ class VotingEligibilityForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Do we need this discipline filter still with the new Pool construction???
-        # -- JdW; Oct 20th, 2017
         self.fields['eligible_fellows'].queryset = Contributor.objects.filter(
                 fellowships__pool=self.instance.submission,
-                discipline=self.instance.submission.discipline,
                 expertises__contains=[self.instance.submission.subject_area]
                 ).order_by('user__last_name')
 
