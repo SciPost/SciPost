@@ -15,6 +15,18 @@ img {
     display: none;
 }
 
+footer {
+    .social-media a {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+        margin-right: 0.25rem;
+
+        &:hover {
+            color: $scipost-lightblue;
+        }
+    }
+}
+
 footer.secondary {
     color: $scipost-darkblue;
     background: $white;

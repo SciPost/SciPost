@@ -194,7 +194,7 @@ class Issue(models.Model):
         text = self.issue_number
         if hasattr(self, 'proceedings'):
             return text
-        text += self.period_as_string()
+        text += ' (%s)' % self.period_as_string
         if self.status == STATUS_DRAFT:
             text += ' (In draft)'
         return text
@@ -210,15 +210,15 @@ class Issue(models.Model):
     def issue_number(self):
         return '%s issue %s' % (self.in_volume, self.number)
 
+    @property
     def short_str(self):
         return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
 
+    @property
     def period_as_string(self):
         if self.start_date.month == self.until_date.month:
-            return ' (%s %s)' % (self.until_date.strftime('%B'), self.until_date.strftime('%Y'))
-        else:
-            return (' (' + self.start_date.strftime('%B') + '-' + self.until_date.strftime('%B') +
-                    ' ' + self.until_date.strftime('%Y') + ')')
+            return '%s %s' % (self.until_date.strftime('%B'), self.until_date.strftime('%Y'))
+        return '%s - %s' % (self.start_date.strftime('%B'), self.until_date.strftime('%B %Y'))
 
     def is_current(self):
         return self.start_date <= timezone.now().date() and\

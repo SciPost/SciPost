@@ -57,3 +57,8 @@ class PublicationQuerySet(models.QuerySet):
 
     def drafts(self):
         return self.filter(status=STATUS_DRAFT)
+
+    def for_subject(self, subject_code):
+        return self.filter(
+            models.Q(subject_area=subject_code) |
+            models.Q(secondary_areas__contains=[subject_code]))

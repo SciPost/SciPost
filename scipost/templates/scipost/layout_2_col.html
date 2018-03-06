@@ -1,15 +1,30 @@
 {% extends 'scipost/bare_base.html' %}
 
-{% block body_class %}{{block.super}} has-sidebar{% endblock %}
+{% block body_class %}{{block.super}} has-sidebar layout-2-col{% endblock %}
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <nav class="breadcrumb hidden-sm-down">
+                {% block breadcrumb_items %}
+                    <a href="{% url 'scipost:index' %}" class="breadcrumb-item">SciPost</a>
+                {% endblock %}
+            </nav>
+        </div>
+    </div>
+{% endblock %}
+
 
 {% block base %}
+        <div class="container mb-4 header">
+            {% block page_header %}{% endblock page_header %}
+        </div>
+
         <div class="container">
             <div class="content-wrapper">
                 <div class="main-panel">
                     <div class="container-inner">
                         <div class="{% block container_class %}{% endblock %}">
-                            {% block page_header %}{% endblock page_header %}
-
                             {% block content %}{% endblock content %}
 
                             {% block content_footer %}{% endblock content_footer %}
@@ -20,7 +35,7 @@
 
                 </div>
 
-                <div class="sidebar">
+                <div class="sidebar {% block sidebar_class %}{% endblock %}">
                     <div class="container-inner">
                         {% block sidebar %}{% endblock %}
                     </div>

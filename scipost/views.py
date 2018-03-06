@@ -71,10 +71,6 @@ class SearchView(SearchView):
         ctx = super().get_context_data(*args, **kwargs)
         ctx['search_query'] = self.request.GET.get('q')
         ctx['results_count'] = kwargs['object_list'].count()
-
-        # Methods not supported by Whoosh engine
-        # ctx['stats_results'] = kwargs['object_list'].stats_results()
-        # ctx['facet_counts'] = kwargs['object_list'].facet('text').facet_counts()
         return ctx
 
 
