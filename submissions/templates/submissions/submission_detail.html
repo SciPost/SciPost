@@ -42,25 +42,6 @@
             {% if not submission.is_current %}
                 <h3><span class="text-danger">- This is not the current version.</span></h3>
             {% endif %}
-
-            {% comment %}
-                {% if submission.other_versions or not submission.is_current %}
-                    <ul class="mt-3 mb-1 list-unstyled pl-4">
-                        {% if not submission.is_current %}
-                            <li><h3 class="text-danger">This is not the current version.</h3></li>
-                        {% endif %}
-
-                        {% if submission.other_versions %}
-                            <li>Other versions of this Submission (with Reports) exist:</li>
-                            <ul class="list-unstyled">
-                                {% for vn in submission.other_versions %}
-                                    <li>{% include 'partials/submissions/submission_version.html' with submission=vn %}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                    </ul>
-                {% endif %}
-            {% endcomment %}
         </div>
 
         <h3 class="mt-2">Submission summary</h3>

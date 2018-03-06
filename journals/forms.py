@@ -34,8 +34,12 @@ class UnregisteredAuthorForm(forms.ModelForm):
         fields = ('first_name', 'last_name')
 
 
-class CitationListBibitemsForm(forms.Form):
+class CitationListBibitemsForm(forms.ModelForm):
     latex_bibitems = forms.CharField(widget=forms.Textarea())
+
+    class Meta:
+        model = Publication
+        fields = ()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -47,13 +51,13 @@ class CitationListBibitemsForm(forms.Form):
         entries_list = re.sub(r'(?m)^\%.*\n?', '', entries_list)
         entries_list = entries_list.split('\doi{')
         dois = []
-        nentries = 1
+        n_entry = 1
         for entry in entries_list[1:]:  # drop first bit before first \doi{
             dois.append(
-                {'key': 'ref' + str(nentries),
+                {'key': 'ref' + str(n_entry),
                  'doi': entry.partition('}')[0], }
             )
-            nentries += 1
+            n_entry += 1
         return dois
 
     def save(self, *args, **kwargs):

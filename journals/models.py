@@ -264,7 +264,8 @@ class Publication(models.Model):
     # Publication data
     accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE,
                                                related_name='publication')
-    in_issue = models.ForeignKey('journals.Issue', on_delete=models.CASCADE)
+    in_issue = models.ForeignKey('journals.Issue', on_delete=models.CASCADE,
+                                 related_name='publications')
     paper_nr = models.PositiveSmallIntegerField()
     status = models.CharField(max_length=8,
                               choices=PUBLICATION_STATUSES, default=STATUS_DRAFT)

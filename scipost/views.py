@@ -511,7 +511,7 @@ def _personal_page_publications(request):
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
-        'own_publications': contributor.publications.order_by('-publication_date')
+        'own_publications': contributor.publications.published().order_by('-publication_date')
     }
     context['nr_publication_authorships_to_claim'] = Publication.objects.filter(
         author_list__contains=request.user.last_name).exclude(

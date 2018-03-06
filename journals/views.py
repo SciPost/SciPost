@@ -143,7 +143,7 @@ def issue_detail(request, doi_label):
     issue = Issue.objects.get_published(doi_label=doi_label)
     journal = issue.in_volume.in_journal
 
-    papers = issue.publication_set.order_by('paper_nr')
+    papers = issue.publications.published().order_by('paper_nr')
     next_issue = (Issue.objects.published(in_volume__in_journal=journal,
                                           start_date__gt=issue.start_date)
                                .order_by('start_date').first())

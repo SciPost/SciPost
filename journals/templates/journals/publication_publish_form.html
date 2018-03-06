@@ -33,17 +33,18 @@
 
 {% include 'partials/journals/references.html' with publication=form.instance %}
 
-<div class="my-3">
-    Publishing will do the following:
+<hr class="divider">
+<h3>Publishing will do the following:</h3>
+<div>
     <ul>
         <li>Move the pdf file to the appropriate folder</li>
         <li>Update the Submission status</li>
         <li>Update the Production Stream status</li>
         <li>Send the authors a publication-email</li>
     </ul>
-    <em>Is the metadata already deposited at Crossref?</em>
+    <em>Reminder: Is the metadata already deposited at Crossref?</em>
 </div>
-
+<br>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form|bootstrap }}
