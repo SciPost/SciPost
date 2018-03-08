@@ -1,9 +1,9 @@
-<h5 class="pb-0">{{publication.get_subject_area_display}}</h5>
+<h5 class="pb-0">{{ publication.citation }}</h5>
 <h3><a href="{{publication.get_absolute_url}}">{{publication.title}}</a></h3>
 
 <p class="mt-0 mb-2">{{ publication.author_list }}</p>
 <p class="text-muted">
-    {{ publication.citation }} &middot;
+    doi: <a href="{{ publication.get_absolute_url }}">{{ publication.doi_string }}</a> &middot;
     <span class="font-weight-light">published {{ publication.publication_date|date:'j F Y' }}</span> &middot;
     <a href="{% url 'scipost:publication_pdf' publication.doi_label %}" target="_blank"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> pdf</a>
 </p>
