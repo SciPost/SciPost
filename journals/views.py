@@ -1329,7 +1329,7 @@ def arxiv_doi_feed(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
     feedxml = ('<preprint xmlns="http://arxiv.org/doi_feed" '
                'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-               'identifier="SciPost.org arXiv.org DOI feed" '
+               'identifier="SciPost.org ' + doi_label + ' arXiv.org DOI feed" '
                'version="DOI SnappyFeed v1.0" '
                'xsi:schemaLocation="http://arxiv.org/doi_feed '
                'http://arxiv.org/schemas/doi_feed.xsd">')
