@@ -1333,6 +1333,9 @@ def arxiv_doi_feed(request, doi_label):
                'version="DOI SnappyFeed v1.0" '
                'xsi:schemaLocation="http://arxiv.org/doi_feed '
                'http://arxiv.org/schemas/doi_feed.xsd">')
+    now = timezone.now()
+    feedxml += '<date year="%s" month="%s" day="%s" />' % (now.strftime('%Y'),
+                                                           now.strftime('%m'), now.strftime('%d'))
     publications = Publication.objects.filter(
         in_issue__in_volume__in_journal=journal).order_by('-publication_date')[:100]
     for publication in publications:
