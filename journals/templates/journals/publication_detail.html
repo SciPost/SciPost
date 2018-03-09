@@ -179,6 +179,7 @@
                       </ul>
                   </li>
                   <li><a href="{% url 'journals:add_author' doi_label=publication.doi_label %}">Add a missing author</a></li>
+                  <li><a href="{% url 'journals:update_author_ordering' doi_label=publication.doi_label %}">Update Author ordering</a></li>
                   <li><a href="{% url 'journals:create_citation_list_metadata' publication.doi_label %}">Create/update citation list metadata</a></li>
                   <li><a href="{% url 'journals:create_funding_info_metadata' publication.doi_label %}">Create/update funding info metadata</a></li>
                   <li><a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">Create/update the XML metadata</a></li>

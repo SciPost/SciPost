@@ -24,19 +24,20 @@ from django.views.generic.edit import UpdateView
 from django.shortcuts import get_object_or_404, render, redirect
 
 from .constants import STATUS_DRAFT
-from .helpers import paper_nr_string, issue_doi_label_from_doi_label
+from .helpers import issue_doi_label_from_doi_label
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
 from .forms import FundingInfoForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
-                   PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm
+                   PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
+                   PublicaitonAuthorOrderingForm
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .utils import JournalUtils
 
 from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
-from funders.models import Funder, Grant
+from funders.models import Grant
 from submissions.models import Submission, Report
 from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
@@ -187,6 +188,17 @@ class PublicationGrantsRemovalView(PermissionsMixin, DetailView):
         grant = get_object_or_404(Grant, id=kwargs.get('grant_id'))
         self.object.grants.remove(grant)
         return redirect(reverse('journals:update_grants', args=(self.object.doi_label,)))
+
+
+class PublicationAuthorOrderingView(PermissionsMixin, UpdateView):
+    """
+    Remove grant associated to a Publication.
+    """
+    permission_required = 'scipost.can_publish_accepted_submission'
+    model = Publication
+    slug_field = slug_url_kwarg = 'doi_label'
+    form_class = PublicaitonAuthorOrderingForm
+    template_name = 'journals/publication_authors_form.html'
 
 
 class DraftPublicationUpdateView(PermissionsMixin, UpdateView):

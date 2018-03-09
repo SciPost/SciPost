@@ -1,0 +1,19 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Publication Authors{% endblock pagetitle %}
+
+{% block content %}
+
+
+<h1>Publication Authors</h1>
+
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input type="submit" class="btn btn-primary" value="Save">
+</form>
+
+{% endblock %}

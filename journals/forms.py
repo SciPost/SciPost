@@ -82,6 +82,14 @@ class FundingInfoForm(forms.ModelForm):
         return super().save(*args, **kwargs)
 
 
+class PublicaitonAuthorOrderingForm(forms.ModelForm):
+    authors = forms.CharField()
+
+    class Meta:
+        model = Publication
+        fields = []
+
+
 class CreateMetadataXMLForm(forms.ModelForm):
     class Meta:
         model = Publication
