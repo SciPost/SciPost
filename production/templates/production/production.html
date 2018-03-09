@@ -62,6 +62,7 @@
                                     Officer: {% if stream.officer %}{{ stream.officer.user.first_name }} {{ stream.officer.user.last_name }}{% else %}<em>Unassigned</em>{% endif %}
                                 "></i>
                                 {% if stream.supervisor.user == request.user %}
+                                    <br>
                                     <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="You are assigned as supervisor"></i>
                                 {% endif %}
                             </div>
