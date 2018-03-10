@@ -1090,3 +1090,32 @@ def publication_detail_pdf(request, doi_label):
     response['Content-Disposition'] = ('filename='
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response
+
+
+######################
+# Feed DOIs to arXiv #
+######################
+
+"""
+This method provides arXiv with the doi and journal ref of the 100 most recent
+publications in the journal specified by doi_label.
+"""
+def arxiv_doi_feed(request, doi_label):
+    journal = get_object_or_404(Journal, doi_label=doi_label)
+    feedxml = ('<preprint xmlns="http://arxiv.org/doi_feed" '
+               'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+               'identifier="SciPost.org ' + doi_label + ' arXiv.org DOI feed" '
+               'version="DOI SnappyFeed v1.0" '
+               'xsi:schemaLocation="http://arxiv.org/doi_feed '
+               'http://arxiv.org/schemas/doi_feed.xsd">')
+    now = timezone.now()
+    feedxml += '<date year="%s" month="%s" day="%s" />' % (now.strftime('%Y'),
+                                                           now.strftime('%m'), now.strftime('%d'))
+    publications = Publication.objects.filter(
+        in_issue__in_volume__in_journal=journal).order_by('-publication_date')[:100]
+    for publication in publications:
+        feedxml += ('\n<article preprint_id="%s" doi="%s" journal_ref="%s" />' % (
+            publication.accepted_submission.arxiv_identifier_wo_vn_nr, publication.doi_string,
+            publication.citation()))
+    feedxml += '\n</preprint>'
+    return HttpResponse(feedxml, content_type='text/xml')
