@@ -21,10 +21,10 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 
 from .constants import STATUS_DRAFT
-from .helpers import paper_nr_string, issue_doi_label_from_doi_label
+from .helpers import issue_doi_label_from_doi_label
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
 from .forms import FundingInfoForm,\
@@ -36,7 +36,7 @@ from .utils import JournalUtils
 
 from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
-from funders.models import Funder, Grant
+from funders.models import Grant
 from submissions.models import Submission, Report
 from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
@@ -56,100 +56,100 @@ def journals(request):
 
 
 def landing_page(request, doi_label):
+    """
+    The landing page of a Journal lists either the latest and the current issue of a Journal
+    of paginates the individual Publications.
+    """
     journal = get_object_or_404(Journal, doi_label=doi_label)
-
-    current_issue = Issue.objects.published(
-        in_volume__in_journal=journal,
-        start_date__lte=timezone.now(),
-        until_date__gte=timezone.now()).order_by('-until_date').first()
-    latest_issue = Issue.objects.published(
-        in_volume__in_journal=journal,
-        until_date__lte=timezone.now()).order_by('-until_date').first()
-
-    prev_issue = None
-    if current_issue:
-        prev_issue = (Issue.objects.published(in_volume__in_journal=journal,
-                                              start_date__lt=current_issue.start_date)
-                                   .order_by('start_date').last())
-
     context = {
-        'current_issue': current_issue,
-        'latest_issue': latest_issue,
-        'prev_issue': prev_issue,
         'journal': journal
     }
+
+    if journal.has_issues:
+        current_issue = Issue.objects.published().filter(
+            in_volume__in_journal=journal,
+            start_date__lte=timezone.now(),
+            until_date__gte=timezone.now()).first()
+        latest_issue = Issue.objects.published().filter(
+            in_volume__in_journal=journal,
+            until_date__lte=timezone.now()).first()
+        prev_issue = None
+        if current_issue:
+            prev_issue = Issue.objects.published().filter(
+                in_volume__in_journal=journal, start_date__lt=current_issue.start_date
+                ).order_by('start_date').last()
+
+        context.update({
+            'current_issue': current_issue,
+            'latest_issue': latest_issue,
+            'prev_issue': prev_issue,
+        })
+    else:
+        paginator = Paginator(journal.publications.published(), 10)
+        context.update({
+            'page_object': paginator.page(request.GET.get('page', 1)),
+        })
     return render(request, 'journals/journal_landing_page.html', context)
 
 
-def issues(request, doi_label):
-    journal = get_object_or_404(Journal, doi_label=doi_label)
-
-    issues = Issue.objects.published(in_volume__in_journal=journal).order_by('-until_date')
-    context = {
-        'issues': issues,
-        'journal': journal
-    }
-    return render(request, 'journals/journal_issues.html', context)
-
-
-def recent(request, doi_label):
+class IssuesView(DetailView):
     """
-    Display page for the most recent 20 publications in SciPost Physics.
+    List all Issues sorted per Journal.
     """
-    journal = get_object_or_404(Journal, doi_label=doi_label)
-    recent_papers = Publication.objects.published().filter(
-        in_issue__in_volume__in_journal=journal).order_by('-publication_date',
-                                                          '-paper_nr')[:20]
-    context = {
-        'recent_papers': recent_papers,
-        'journal': journal,
-    }
-    return render(request, 'journals/journal_recent.html', context)
+    queryset = Journal.objects.has_issues()
+    slug_field = slug_url_kwarg = 'doi_label'
+    template_name = 'journals/journal_issues.html'
 
 
-def accepted(request, doi_label):
+class RecentView(DetailView):
     """
-    Display page for submissions to SciPost Physics which
-    have been accepted but are not yet published.
+    List all recent Publications for a specific Journal.
     """
-    journal = get_object_or_404(Journal, doi_label=doi_label)
-    accepted_SP_submissions = (Submission.objects.accepted()
-                               .filter(submitted_to_journal=journal.name)
-                               .order_by('-latest_activity'))
-    context = {
-        'accepted_SP_submissions': accepted_SP_submissions,
-        'journal': journal
-    }
-    return render(request, 'journals/journal_accepted.html', context)
+    queryset = Journal.objects.active()
+    slug_field = slug_url_kwarg = 'doi_label'
+    template_name = 'journals/journal_recent.html'
+
+
+class AcceptedView(DetailView):
+    """
+    List all Submissions for a specific Journal which have been accepted but are not
+    yet published.
+    """
+    queryset = Journal.objects.active()
+    slug_field = slug_url_kwarg = 'doi_label'
+    template_name = 'journals/journal_accepted.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['accepted_submissions'] = Submission.objects.accepted().filter(
+            submitted_to_journal=context['journal'].name).order_by('-latest_activity')
+        return context
 
 
 def info_for_authors(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    context = {
-        'journal': journal
-    }
+    context = {'journal': journal}
     return render(request, 'journals/%s_info_for_authors.html' % doi_label, context)
 
 
 def about(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    context = {
-        'journal': journal
-    }
+    context = {'journal': journal}
     return render(request, 'journals/%s_about.html' % doi_label, context)
 
 
 def issue_detail(request, doi_label):
-    issue = Issue.objects.get_published(doi_label=doi_label)
+    issue = get_object_or_404(Issue.objects.published(), doi_label=doi_label)
     journal = issue.in_volume.in_journal
 
     papers = issue.publications.published().order_by('paper_nr')
-    next_issue = (Issue.objects.published(in_volume__in_journal=journal,
-                                          start_date__gt=issue.start_date)
-                               .order_by('start_date').first())
-    prev_issue = (Issue.objects.published(in_volume__in_journal=journal,
-                                          start_date__lt=issue.start_date)
-                               .order_by('start_date').last())
+    next_issue = Issue.objects.published().filter(
+        in_volume__in_journal=journal, start_date__gt=issue.start_date
+        ).order_by('start_date').first()
+    prev_issue = Issue.objects.published().filter(
+        in_volume__in_journal=journal, start_date__lt=issue.start_date
+        ).order_by('start_date').last()
+
     context = {
         'issue': issue,
         'prev_issue': prev_issue,
@@ -242,19 +242,40 @@ class PublicationPublishView(PermissionsMixin, RequestViewMixin, UpdateView):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def manage_metadata(request, issue_doi_label=None, doi_label=None):
-    issues = Issue.objects.all().order_by('-until_date')
-    publications = Publication.objects.all()
+def manage_metadata(request, doi_label=None, issue_doi_label=None, journal_doi_label=None):
+    journal = None
+    journals = Journal.objects.all()
+    issue = None
+
     if doi_label:
-        issue_doi_label = issue_doi_label_from_doi_label(doi_label)
-    if issue_doi_label:
-        publications = publications.filter(in_issue__doi_label=issue_doi_label)
-    publications = publications.order_by('-publication_date', '-paper_nr')
+        publications = get_list_or_404(Publication, doi_label=doi_label)
+        journal = publications[0].get_journal()
+    elif issue_doi_label:
+        issue = get_object_or_404(Issue, doi_label=issue_doi_label)
+        if issue.in_volume:
+            journal = issue.in_volume.in_journal
+        else:
+            journal = issue.in_journal
+        publications = issue.publications.all()
+    elif journal_doi_label:
+        journal = get_object_or_404(Journal, doi_label=journal_doi_label)
+        publications = Publication.objects.for_journal(journal.name)
+    else:
+        # Limit the amount of Publications to still an idiot size
+        publications = Publication.objects.all()[:50]
+
+    # Speeds up operations by reducing the number of queries
+    if not isinstance(publications, list):
+        publications = publications.prefetch_related(
+            'authors', 'funders_generic', 'deposit_set', 'doajdeposit_set')
+
     associate_grant_form = GrantSelectForm()
     associate_generic_funder_form = FunderSelectForm()
     context = {
-        'issues': issues,
+        'journal': journal,
+        'journals': journals,
         'issue_doi_label': issue_doi_label,
+        'journal_doi_label': journal_doi_label,
         'publications': publications,
         'associate_grant_form': associate_grant_form,
         'associate_generic_funder_form': associate_generic_funder_form,
@@ -437,13 +458,27 @@ def metadata_xml_deposit(request, doi_label, option='test'):
         return redirect(reverse('journals:create_metadata_xml',
                                 kwargs={'doi_label': publication.doi_label}))
 
-    timestamp = (publication.metadata_xml.partition(
-        '<timestamp>'))[2].partition('</timestamp>')[0]
-    doi_batch_id = (publication.metadata_xml.partition(
-        '<doi_batch_id>'))[2].partition('</doi_batch_id>')[0]
-    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-            + '_Crossref_' + timestamp + '.xml')
+    timestamp = publication.metadata_xml.partition(
+        '<timestamp>')[2].partition('</timestamp>')[0]
+    doi_batch_id = publication.metadata_xml.partition(
+        '<doi_batch_id>')[2].partition('</doi_batch_id>')[0]
+
+    # Find Crossref xml files
+    path = settings.MEDIA_ROOT
+    if publication.in_issue:
+        path += '{issue_path}/{paper_nr}/{doi_label}_Crossref'.format(
+            issue_path=publication.in_issue.path,
+            paper_nr=publication.get_paper_nr(),
+            doi_label=publication.doi_label.replace('.', '_'))
+
+    if publication.in_journal:
+        path += 'SCIPOST_JOURNALS/{journal_name}/{paper_nr}/{doi_label}_Crossref'.format(
+            journal_name=publication.in_journal.name,
+            paper_nr=publication.get_paper_nr(),
+            doi_label=publication.doi_label.replace('.', '_'))
+
+    path_wo_timestamp = path + '.xml'
+    path += '_{timestamp}.xml'.format(timestamp=timestamp)
 
     valid = True
     response_headers = None
@@ -454,7 +489,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     else:
         # New deposit, go for it.
         if option == 'deposit' and not settings.DEBUG:
-            # CAUTION: Real deposit only on production (non-debug-mode)
+            # CAUTION: Real deposit only on production!
             url = 'http://doi.crossref.org/servlet/deposit'
         else:
             url = 'http://test.crossref.org/servlet/deposit'
@@ -484,24 +519,14 @@ def metadata_xml_deposit(request, doi_label, option='test'):
             deposit.response_text = r.text
 
             # Save the filename with timestamp
-            path_with_timestamp = '{issue}/{paper}/{doi}_Crossref_{timestamp}.xml'.format(
-                issue=publication.in_issue.path,
-                paper=publication.get_paper_nr(),
-                doi=publication.doi_label.replace('.', '_'),
-                timestamp=timestamp)
-            f = open(settings.MEDIA_ROOT + path_with_timestamp, 'w', encoding='utf-8')
+            f = open(settings.MEDIA_ROOT + path, 'w', encoding='utf-8')
             f.write(publication.metadata_xml)
             f.close()
 
-            # Copy file
-            path_without_timestamp = '{issue}/{paper}/{doi}_Crossref.xml'.format(
-                issue=publication.in_issue.path,
-                paper=publication.get_paper_nr(),
-                doi=publication.doi_label.replace('.', '_'))
-            shutil.copyfile(settings.MEDIA_ROOT + path_with_timestamp,
-                            settings.MEDIA_ROOT + path_without_timestamp)
-
-            deposit.metadata_xml_file = path_with_timestamp
+            # Update Crossref timestamp-free file to latest deposit
+            shutil.copyfile(settings.MEDIA_ROOT + path,
+                            settings.MEDIA_ROOT + path_wo_timestamp)
+            deposit.metadata_xml_file = path
             deposit.save()
             publication.latest_crossref_deposit = timezone.now()
             publication.save()
@@ -558,11 +583,24 @@ def metadata_DOAJ_deposit(request, doi_label):
                                   'DOAJ metadata before depositing.' % publication.doi_label)
         return redirect(reverse('journals:manage_metadata'))
 
-    timestamp = (publication.metadata_xml.partition(
-        '<timestamp>'))[2].partition('</timestamp>')[0]
-    path = (settings.MEDIA_ROOT + publication.in_issue.path + '/'
-            + publication.get_paper_nr() + '/' + publication.doi_label.replace('.', '_')
-            + '_DOAJ_' + timestamp + '.json')
+    timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
+
+    # Find DOAJ xml files
+    path = settings.MEDIA_ROOT
+    if publication.in_issue:
+        path += '{issue_path}/{paper_nr}/{doi_label}_DOAJ'.format(
+            issue_path=publication.in_issue.path,
+            paper_nr=publication.get_paper_nr(),
+            doi_label=publication.doi_label.replace('.', '_'))
+    elif publication.in_journal:
+        path += 'SCIPOST_JOURNALS/{journal_name}/{paper_nr}/{doi_label}_DOAJ'.format(
+            journal_name=publication.in_journal.name,
+            paper_nr=publication.get_paper_nr(),
+            doi_label=publication.doi_label.replace('.', '_'))
+
+    path_wo_timestamp = path + '.json'
+    path += '_{timestamp}.json'.format(timestamp=timestamp)
+
     if os.path.isfile(path):
         errormessage = 'The metadata file for this metadata timestamp already exists'
         return render(request, 'scipost/error.html', context={'errormessage': errormessage})
@@ -584,25 +622,16 @@ def metadata_DOAJ_deposit(request, doi_label):
     deposit.response_text = r.text
 
     # Save a copy to the filename with and without timestamp
-    path_with_timestamp = '{issue}/{paper}/{doi}_DOAJ_{timestamp}.json'.format(
-        issue=publication.in_issue.path,
-        paper=publication.get_paper_nr(),
-        doi=publication.doi_label.replace('.', '_'),
-        timestamp=timestamp)
-    f = open(settings.MEDIA_ROOT + path_with_timestamp, 'w')
+    f = open(settings.MEDIA_ROOT + path, 'w')
     f.write(json.dumps(publication.metadata_DOAJ))
     f.close()
 
     # Copy file
-    path_without_timestamp = '{issue}/{paper}/{doi}_DOAJ.json'.format(
-        issue=publication.in_issue.path,
-        paper=publication.get_paper_nr(),
-        doi=publication.doi_label.replace('.', '_'))
-    shutil.copyfile(settings.MEDIA_ROOT + path_with_timestamp,
-                    settings.MEDIA_ROOT + path_without_timestamp)
+    shutil.copyfile(settings.MEDIA_ROOT + path,
+                    settings.MEDIA_ROOT + path_wo_timestamp)
 
     # Save the database entry
-    deposit.metadata_DOAJ_file = path_with_timestamp
+    deposit.metadata_DOAJ_file = path
     deposit.save()
 
     messages.success(request, '<h3>%s</h3>Successfull deposit of metadata DOAJ.'
@@ -980,7 +1009,7 @@ def email_object_made_citable(request, **kwargs):
         try:
             publication = Publication.objects.get(
                 accepted_submission__arxiv_identifier_wo_vn_nr=_object.submission.arxiv_identifier_wo_vn_nr)
-            publication_citation = publication.citation()
+            publication_citation = publication.citation
             publication_doi = publication.doi_string
         except Publication.DoesNotExist:
             pass
@@ -1034,7 +1063,12 @@ def publication_detail(request, doi_label):
     if not publication.is_published and not request.user.has_perm('scipost.can_draft_publication'):
         raise Http404('Publication is not publicly visible')
 
-    journal = publication.in_issue.in_volume.in_journal
+    if publication.in_issue:
+        journal = publication.in_issue.in_volume.in_journal
+    elif publication.in_journal:
+        journal = publication.in_journal
+    else:
+        raise Http404('Publication configuration is valid')
 
     context = {
         'publication': publication,

@@ -46,5 +46,5 @@
 
 {% if commentary.scipost_publication %}
     <br>
-    <p class="my-0">Published in {{commentary.scipost_publication.in_issue.in_volume.in_journal.get_name_display}}: <a href="{{commentary.scipost_publication.get_absolute_url}}">{{commentary.scipost_publication.in_issue.in_volume.in_journal.get_abbreviation_citation}} <strong>{{commentary.scipost_publication.in_issue.in_volume.number}}</strong>, {{commentary.scipost_publication.get_paper_nr}} ({{commentary.scipost_publication.publication_date|date:'Y'}})</a></p>
+    <p class="my-0">Published in {{commentary.scipost_publication.in_issue.in_volume.in_journal.get_name_display}}: <a href="{{commentary.scipost_publication.get_absolute_url}}">{{commentary.scipost_publication.in_issue.in_volume.in_journal.abbreviation_citation}} <strong>{{commentary.scipost_publication.in_issue.in_volume.number}}</strong>, {{commentary.scipost_publication.get_paper_nr}} ({{commentary.scipost_publication.publication_date|date:'Y'}})</a></p>
 {% endif %}

@@ -19,7 +19,7 @@
     <div class="row">
         <div class="col-12">
             <ul class="list-group list-group-flush">
-                {% for submission in accepted_SP_submissions %}
+                {% for submission in accepted_submissions %}
                     <li class="list-group-item">
                         <div class="card-body px-0">
                             {% include 'partials/submissions/submission_card_content.html' with submission=submission %}

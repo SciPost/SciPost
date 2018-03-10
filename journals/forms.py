@@ -19,6 +19,7 @@ from .utils import JournalUtils
 
 
 from funders.models import Grant, Funder
+from journals.models import Journal
 from mails.utils import DirectMailUtil
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
@@ -127,17 +128,20 @@ class CreateMetadataXMLForm(forms.ModelForm):
 class CreateMetadataDOAJForm(forms.ModelForm):
     class Meta:
         model = Publication
-        fields = ()
+        fields = ['metadata_DOAJ']
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
+        kwargs['initial'] = {
+            'metadata_DOAJ': self.generate(kwargs.get('instance'))
+        }
         super().__init__(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
-        self.instance.metadata_DOAJ = self.generate(self.instance)
-        return super().save(*args, **kwargs)
-
     def generate(self, publication):
+        if publication.in_issue:
+            issn = str(publication.in_issue.in_volume.in_journal.issn)
+        else:
+            issn = str(publication.in_journal.issn)
         md = {
             'bibjson': {
                 'author': [{'name': publication.author_list}],
@@ -149,7 +153,7 @@ class CreateMetadataDOAJForm(forms.ModelForm):
                 'identifier': [
                     {
                         'type': 'eissn',
-                        'id': str(publication.in_issue.in_volume.in_journal.issn)
+                        'id': issn
                     },
                     {
                         'type': 'doi',
@@ -162,28 +166,48 @@ class CreateMetadataDOAJForm(forms.ModelForm):
                         'type': 'fulltext',
                     }
                 ],
-                'journal': {
-                    'publisher': 'SciPost',
-                    'volume': str(publication.in_issue.in_volume.number),
-                    'number': str(publication.in_issue.number),
-                    'identifier': [{
-                        'type': 'eissn',
-                        'id': str(publication.in_issue.in_volume.in_journal.issn)
-                    }],
-                    'license': [
-                        {
-                            'url': self.request.build_absolute_uri(
-                                publication.in_issue.in_volume.in_journal.get_absolute_url()),
-                            'open_access': 'true',
-                            'type': publication.get_cc_license_display(),
-                            'title': publication.get_cc_license_display(),
-                        }
-                    ],
-                    'language': ['EN'],
-                    'title': publication.in_issue.in_volume.in_journal.get_name_display(),
-                }
             }
         }
+        if publication.in_issue:
+            md['journal'] = {
+                'publisher': 'SciPost',
+                'volume': str(publication.in_issue.in_volume.number),
+                'number': str(publication.in_issue.number),
+                'identifier': [{
+                    'type': 'eissn',
+                    'id': issn
+                }],
+                'license': [
+                    {
+                        'url': self.request.build_absolute_uri(
+                            publication.in_issue.in_volume.in_journal.get_absolute_url()),
+                        'open_access': 'true',
+                        'type': publication.get_cc_license_display(),
+                        'title': publication.get_cc_license_display(),
+                    }
+                ],
+                'language': ['EN'],
+                'title': publication.in_issue.in_volume.in_journal.get_name_display(),
+            }
+        else:
+            md['journal'] = {
+                'publisher': 'SciPost',
+                'identifier': [{
+                    'type': 'eissn',
+                    'id': issn
+                }],
+                'license': [
+                    {
+                        'url': self.request.build_absolute_uri(
+                            publication.in_journal.get_absolute_url()),
+                        'open_access': 'true',
+                        'type': publication.get_cc_license_display(),
+                        'title': publication.get_cc_license_display(),
+                    }
+                ],
+                'language': ['EN'],
+                'title': publication.in_journal.get_name_display(),
+            }
         return md
 
 
@@ -306,20 +330,32 @@ class DraftPublicationForm(forms.ModelForm):
         # Use separate instance to be able to prefill the form without any existing Publication
         self.submission = None
         self.issue = None
+        self.to_journal = None
         if arxiv_identifier_w_vn_nr:
             try:
                 self.submission = Submission.objects.accepted().get(
                     arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
             except Submission.DoesNotExist:
                 self.submission = None
-        if issue_id:
+
+        # Check if the Submission is related to a Journal with individual Publications only
+        if self.submission:
+            try:
+                self.to_journal = Journal.objects.has_individual_publications().get(
+                    name=self.submission.submitted_to_journal)
+            except Journal.DoesNotExist:
+                self.to_journal = None
+
+        # If the Journal is not for individual publications, choose a Issue for Publication
+        if issue_id and not self.to_journal:
             try:
                 self.issue = self.get_possible_issues().get(id=issue_id)
             except Issue.DoesNotExist:
                 self.issue = None
 
         super().__init__(data, *args, **kwargs)
-        if kwargs.get('instance') or self.issue:
+
+        if kwargs.get('instance') or self.issue or self.to_journal:
             # When updating: fix in_issue, because many fields are directly related to the issue.
             del self.fields['in_issue']
             self.prefill_fields()
@@ -328,7 +364,10 @@ class DraftPublicationForm(forms.ModelForm):
             self.delete_secondary_fields()
 
     def get_possible_issues(self):
-        return Issue.objects.filter(until_date__gte=timezone.now())
+        issues = Issue.objects.filter(until_date__gte=timezone.now())
+        if self.submission:
+            issues = issues.for_journal(self.submission.submitted_to_journal)
+        return issues
 
     def delete_secondary_fields(self):
         """
@@ -351,6 +390,17 @@ class DraftPublicationForm(forms.ModelForm):
         del self.fields['acceptance_date']
         del self.fields['publication_date']
 
+    def clean(self):
+        data = super().clean()
+        if not self.instance.id:
+            if self.submission:
+                self.instance.accepted_submission = self.submission
+            if self.issue:
+                self.instance.in_issue = self.issue
+            if self.to_journal:
+                self.instance.in_journal = self.to_journal
+        return data
+
     def save(self, *args, **kwargs):
         """
         Save the Publication object always as a draft and prefill the Publication with
@@ -359,10 +409,7 @@ class DraftPublicationForm(forms.ModelForm):
         do_prefill = False
         if not self.instance.id:
             do_prefill = True
-            if self.submission:
-                self.instance.accepted_submission = self.submission
-            self.instance.in_issue = self.issue
-        self.instance = super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
         if do_prefill:
             self.first_time_fill()
         return self.instance
@@ -398,51 +445,101 @@ class DraftPublicationForm(forms.ModelForm):
             self.fields['secondary_areas'].initial = self.submission.secondary_areas
             self.fields['submission_date'].initial = self.submission.submission_date
             self.fields['acceptance_date'].initial = self.submission.acceptance_date
+            self.fields['publication_date'].initial = timezone.now()
 
         # Fill data that may be derived from the issue data
-        issue = self.instance.in_issue if hasattr(self.instance, 'in_issue') else self.issue
+        issue = None
+        if hasattr(self.instance, 'in_issue') and self.instance.in_issue:
+            issue = self.instance.in_issue
+        elif self.issue:
+            issue = self.issue
         if issue:
-            # Determine next available paper number:
-            paper_nr = Publication.objects.filter(in_issue__in_volume=issue.in_volume).count()
-            paper_nr += paper_nr
-            if paper_nr > 999:
-                raise PaperNumberingError(paper_nr)
-            self.fields['paper_nr'].initial = str(paper_nr)
-            doi_label = '{journal}.{vol}.{issue}.{paper}'.format(
-                journal=issue.in_volume.in_journal.name,
-                vol=issue.in_volume.number,
-                issue=issue.number,
-                paper=str(paper_nr).rjust(3, '0'))
-            self.fields['doi_label'].initial = doi_label
+            self.prefill_with_issue(issue)
 
-            doi_string = '10.21468/{doi}'.format(doi=doi_label)
-            bibtex_entry = (
-                '@Article{%s,\n'
-                '\ttitle={{%s},\n'
-                '\tauthor={%s},\n'
-                '\tjournal={%s},\n'
-                '\tvolume={%i},\n'
-                '\tissue={%i},\n'
-                '\tpages={%i},\n'
-                '\tyear={%s},\n'
-                '\tpublisher={SciPost},\n'
-                '\tdoi={%s},\n'
-                '\turl={https://scipost.org/%s},\n'
-                '}'
-            ) % (
-                doi_string,
-                self.submission.title,
-                self.submission.author_list.replace(',', ' and'),
-                issue.in_volume.in_journal.get_abbreviation_citation(),
-                issue.in_volume.number,
-                issue.number,
-                paper_nr,
-                issue.until_date.strftime('%Y'),
-                doi_string,
-                doi_string)
-            self.fields['BiBTeX_entry'].initial = bibtex_entry
-            if not self.instance.BiBTeX_entry:
-                self.instance.BiBTeX_entry = bibtex_entry
+        # Fill data that may be derived from the issue data
+        journal = None
+        if hasattr(self.instance, 'in_journal') and self.instance.in_journal:
+            journal = self.instance.in_issue
+        elif self.to_journal:
+            journal = self.to_journal
+        if journal:
+            self.prefill_with_journal(journal)
+
+    def prefill_with_issue(self, issue):
+        # Determine next available paper number:
+        paper_nr = Publication.objects.filter(in_issue__in_volume=issue.in_volume).count() + 1
+        if paper_nr > 999:
+            raise PaperNumberingError(paper_nr)
+        self.fields['paper_nr'].initial = str(paper_nr)
+        doi_label = '{journal}.{vol}.{issue}.{paper}'.format(
+            journal=issue.in_volume.in_journal.name,
+            vol=issue.in_volume.number,
+            issue=issue.number,
+            paper=str(paper_nr).rjust(3, '0'))
+        self.fields['doi_label'].initial = doi_label
+
+        doi_string = '10.21468/{doi}'.format(doi=doi_label)
+        bibtex_entry = (
+            '@Article{%s,\n'
+            '\ttitle={{%s},\n'
+            '\tauthor={%s},\n'
+            '\tjournal={%s},\n'
+            '\tvolume={%i},\n'
+            '\tissue={%i},\n'
+            '\tpages={%i},\n'
+            '\tyear={%s},\n'
+            '\tpublisher={SciPost},\n'
+            '\tdoi={%s},\n'
+            '\turl={https://scipost.org/%s},\n'
+            '}'
+        ) % (
+            doi_string,
+            self.submission.title,
+            self.submission.author_list.replace(',', ' and'),
+            issue.in_volume.in_journal.abbreviation_citation,
+            issue.in_volume.number,
+            issue.number,
+            paper_nr,
+            issue.until_date.strftime('%Y'),
+            doi_string,
+            doi_string)
+        self.fields['BiBTeX_entry'].initial = bibtex_entry
+        if not self.instance.BiBTeX_entry:
+            self.instance.BiBTeX_entry = bibtex_entry
+
+    def prefill_with_journal(self, journal):
+        # Determine next available paper number:
+        paper_nr = journal.publications.count() + 1
+        self.fields['paper_nr'].initial = str(paper_nr)
+        doi_label = '{journal}.{paper}'.format(
+            journal=journal.name,
+            paper=paper_nr)
+        self.fields['doi_label'].initial = doi_label
+
+        doi_string = '10.21468/{doi}'.format(doi=doi_label)
+        bibtex_entry = (
+            '@Article{%s,\n'
+            '\ttitle={{%s},\n'
+            '\tauthor={%s},\n'
+            '\tjournal={%s},\n'
+            '\tpages={%i},\n'
+            '\tyear={%s},\n'
+            '\tpublisher={SciPost},\n'
+            '\tdoi={%s},\n'
+            '\turl={https://scipost.org/%s},\n'
+            '}'
+        ) % (
+            doi_string,
+            self.submission.title,
+            self.submission.author_list.replace(',', ' and'),
+            journal.abbreviation_citation,
+            paper_nr,
+            timezone.now().year,
+            doi_string,
+            doi_string)
+        self.fields['BiBTeX_entry'].initial = bibtex_entry
+        if not self.instance.BiBTeX_entry:
+            self.instance.BiBTeX_entry = bibtex_entry
 
 
 class DraftPublicationApprovalForm(forms.ModelForm):
@@ -483,14 +580,24 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
         fields = []
 
     def move_pdf(self):
-        # Move file to final location
+        """
+        To keep the Publication pdfs organized we move the pdfs to their own folder
+        organized by journal and optional issue folder.
+        """
         initial_path = self.instance.pdf_file.path
-        new_dir = (settings.MEDIA_ROOT + self.instance.in_issue.path + '/'
-                   + self.instance.get_paper_nr())
-        new_path = new_dir + '/' + self.instance.doi_label.replace('.', '_') + '.pdf'
-        os.makedirs(new_dir)
-        os.rename(initial_path, new_path)
-        self.instance.pdf_file.name = new_path
+
+        new_dir = ''
+        if self.instance.in_issue:
+            new_dir += self.instance.in_issue.path
+        elif self.instance.in_journal:
+            new_dir += 'SCIPOST_JOURNALS/{name}'.format(name=self.instance.in_journal.name)
+
+        new_dir += '/{paper_nr}'.format(paper_nr=self.instance.get_paper_nr())
+        os.makedirs(settings.MEDIA_ROOT + new_dir)
+
+        new_dir += '/{doi}.pdf'.format(doi=self.instance.doi_label.replace('.', '_'))
+        os.rename(initial_path, settings.MEDIA_ROOT + new_dir)
+        self.instance.pdf_file.name = new_dir
         self.instance.status = PUBLICATION_PUBLISHED
         self.instance.save()
 

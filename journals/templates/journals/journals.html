@@ -77,9 +77,13 @@
         </div>
     </div>
     <div class="col-md-6">
-        <h1 class="banner">SciPost Physics Lecture Notes</h1>
+        <h1 class="banner"><a href="{% url 'scipost:landing_page' 'SciPostPhysLectNotes' %}">SciPost Physics Lecture Notes</a></h1>
         <div class="py-2">
-          <p>Research-level didactic material in all domains and subject areas of Physics.</p>
+          <p>
+              <a href="{% url 'journal:about' 'SciPostPhysLectNotes' %}">Go directly to SciPost Physics Lecture Notes</a>
+              <br><br>
+              Research-level didactic material in all domains and subject areas of Physics.
+          </p>
         </div>
     </div>
 </div>
