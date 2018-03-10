@@ -26,6 +26,7 @@ REGEX_CHOICES = '|'.join([
     SCIPOST_JOURNAL_PHYSICS
 ])
 
+PUBLICATION_DOI_REGEX = PUBLICATION_DOI_VALIDATION_REGEX = '[a-zA-Z]+.[0-9]+(.[0-9]+.[0-9]{3,})?'
 
 SCIPOST_JOURNALS_DOMAINS = (
     ('E', 'Experimental'),
@@ -85,6 +86,6 @@ ISSUES_ONLY = 'IO'
 INDIVIDUAL_PUBLCATIONS = 'IP'
 JOURNAL_STRUCTURE = (
     (ISSUES_AND_VOLUMES, 'Issues and Volumes'),
-    (ISSUES_ONLY, 'Issues only'),
+    # (ISSUES_ONLY, 'Issues only'),  # This option complies with Crossref's rules, but is not implemented (yet).
     (INDIVIDUAL_PUBLCATIONS, 'Individual Publications'),
 )

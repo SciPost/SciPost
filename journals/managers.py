@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from .constants import STATUS_PUBLISHED, STATUS_DRAFT, PUBLICATION_PUBLISHED, ISSUES_AND_VOLUMES,\
-    ISSUES_ONLY
+    ISSUES_ONLY, INDIVIDUAL_PUBLCATIONS
 
 
 class JournalQuerySet(models.QuerySet):
@@ -12,19 +12,21 @@ class JournalQuerySet(models.QuerySet):
     def has_issues(self):
         return self.filter(structure__in=(ISSUES_AND_VOLUMES, ISSUES_ONLY))
 
+    def has_individual_publications(self):
+        return self.filter(structure=INDIVIDUAL_PUBLCATIONS)
+
 
 class IssueQuerySet(models.QuerySet):
-    def published(self, journal=None):
-        issues = self.filter(status=STATUS_PUBLISHED)
-        if journal:
-            issues.filter(in_volume__in_journal=journal)
-        return issues
+    def published(self):
+        return self.filter(status=STATUS_PUBLISHED)
 
-    def in_draft(self, journal=None):
-        issues = self.filter(status=STATUS_DRAFT)
-        if journal:
-            issues.filter(in_volume__in_journal=journal)
-        return issues
+    def in_draft(self):
+        return self.filter(status=STATUS_DRAFT)
+
+    def for_journal(self, journal_name):
+        return self.filter(
+            models.Q(in_volume__in_journal__name=journal_name) |
+            models.Q(in_journal__name=journal_name))
 
     def get_current_issue(self):
         return self.published(
@@ -32,7 +34,7 @@ class IssueQuerySet(models.QuerySet):
 
 
 class PublicationQuerySet(models.QuerySet):
-    def published(self, **kwargs):
+    def published(self):
         return self.filter(status=PUBLICATION_PUBLISHED).filter(
             models.Q(in_issue__status=STATUS_PUBLISHED) | models.Q(in_journal__active=True))
 
@@ -44,3 +46,8 @@ class PublicationQuerySet(models.QuerySet):
 
     def drafts(self):
         return self.filter(status=STATUS_DRAFT)
+
+    def for_journal(self, journal_name):
+        return self.filter(
+            models.Q(in_issue__in_volume__in_journal__name=journal_name) |
+            models.Q(in_journal__name=journal_name))

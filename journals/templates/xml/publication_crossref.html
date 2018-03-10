@@ -11,24 +11,36 @@
     </head>
     <body>
         <journal>
-            <journal_metadata>
-                <full_title>{{ publication.in_issue.in_volume.in_journal.get_name_display }}</full_title>
-                <abbrev_title>{{ publication.in_issue.in_volume.in_journal.abbreviation_citation }}</abbrev_title>
-                <issn media_type='electronic'>{{ publication.in_issue.in_volume.in_journal.issn }}</issn>
-                <doi_data>
-                    <doi>{{ publication.in_issue.in_volume.in_journal.doi_string }}</doi>
-                    <resource>https://scipost.org/{{ publication.in_issue.in_volume.in_journal.doi_string }}</resource>
-                </doi_data>
-            </journal_metadata>
-            <journal_issue>
-                <publication_date media_type='online'>
-                    <year>{{ publication.publication_date|date:'Y' }}</year>
-                </publication_date>
-                <journal_volume>
-                    <volume>{{ publication.in_issue.in_volume.number }}</volume>
-                </journal_volume>
-                <issue>{{ publication.in_issue.number }}</issue>
-            </journal_issue>
+            {% if publication.in_issue %}
+                <journal_metadata>
+                    <full_title>{{ publication.in_issue.in_volume.in_journal.get_name_display }}</full_title>
+                    <abbrev_title>{{ publication.in_issue.in_volume.in_journal.abbreviation_citation }}</abbrev_title>
+                    <issn media_type='electronic'>{{ publication.in_issue.in_volume.in_journal.issn }}</issn>
+                    <doi_data>
+                        <doi>{{ publication.in_issue.in_volume.in_journal.doi_string }}</doi>
+                        <resource>https://scipost.org/{{ publication.in_issue.in_volume.in_journal.doi_string }}</resource>
+                    </doi_data>
+                </journal_metadata>
+                <journal_issue>
+                    <publication_date media_type='online'>
+                        <year>{{ publication.publication_date|date:'Y' }}</year>
+                    </publication_date>
+                    <journal_volume>
+                        <volume>{{ publication.in_issue.in_volume.number }}</volume>
+                    </journal_volume>
+                    <issue>{{ publication.in_issue.number }}</issue>
+                </journal_issue>
+            {% else %}
+                <journal_metadata>
+                    <full_title>{{ publication.in_journal.get_name_display }}</full_title>
+                    <abbrev_title>{{ publication.in_journal.abbreviation_citation }}</abbrev_title>
+                    <issn media_type='electronic'>{{ publication.in_journal.issn }}</issn>
+                    <doi_data>
+                        <doi>{{ publication.in_journal.doi_string }}</doi>
+                        <resource>https://scipost.org/{{ publication.in_journal.doi_string }}</resource>
+                    </doi_data>
+                </journal_metadata>
+            {% endif %}
             <journal_article publication_type='full_text'>
                 <titles>
                     <title>{{ publication.title }}</title>

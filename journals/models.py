@@ -109,6 +109,20 @@ class Journal(models.Model):
     def abbreviation_citation(self):
         return journal_name_abbrev_citation(self.name)
 
+    def get_issues(self):
+        if self.structure == ISSUES_AND_VOLUMES:
+            return Issue.objects.filter(in_volume__in_journal=self)
+        elif self.structure == ISSUES_ONLY:
+            return self.issues.all()
+        return Issue.objects.none()
+
+    def get_publications(self):
+        if self.structure == ISSUES_AND_VOLUMES:
+            return Publication.objects.filter(in_issue__in_volume__in_journal=self)
+        elif self.structure == ISSUES_ONLY:
+            return Publication.objects.filter(in_issue__in_journal=self)
+        return self.publications.all()
+
     def nr_publications(self, tier=None):
         publications = Publication.objects.filter(in_issue__in_volume__in_journal=self)
         if tier:
@@ -153,6 +167,7 @@ class Volume(models.Model):
                                  validators=[doi_volume_validator])
 
     class Meta:
+        default_related_name = 'volumes'
         unique_together = ('number', 'in_journal')
 
     def __str__(self):
@@ -227,6 +242,7 @@ class Issue(models.Model):
     objects = IssueQuerySet.as_manager()
 
     class Meta:
+        default_related_name = 'issues'
         ordering = ('-until_date',)
         unique_together = ('number', 'in_volume')
 
@@ -494,6 +510,9 @@ class Publication(models.Model):
             paper_nr=self.get_paper_nr(),
             year=self.publication_date.strftime('%Y'))
         return txt
+
+    def get_journal(self):
+        return self.in_journal or self.in_issue.in_volume.in_journal
 
     def get_paper_nr(self):
         return paper_nr_string(self.paper_nr)
