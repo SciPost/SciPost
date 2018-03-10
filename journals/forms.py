@@ -433,7 +433,7 @@ class DraftPublicationForm(forms.ModelForm):
                 doi_string,
                 self.submission.title,
                 self.submission.author_list.replace(',', ' and'),
-                issue.in_volume.in_journal.get_abbreviation_citation(),
+                issue.in_volume.in_journal.abbreviation_citation,
                 issue.in_volume.number,
                 issue.number,
                 paper_nr,

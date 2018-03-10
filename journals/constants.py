@@ -78,3 +78,13 @@ CC_LICENSES_URI = (
     (CCBYSA4, 'https://creativecommons.org/licenses/by-sa/4.0'),
     (CCBYNC4, 'https://creativecommons.org/licenses/by-nc/4.0'),
     )
+
+
+ISSUES_AND_VOLUMES = 'IV'
+ISSUES_ONLY = 'IO'
+INDIVIDUAL_PUBLCATIONS = 'IP'
+JOURNAL_STRUCTURE = (
+    (ISSUES_AND_VOLUMES, 'Issues and Volumes'),
+    (ISSUES_ONLY, 'Issues only'),
+    (INDIVIDUAL_PUBLCATIONS, 'Individual Publications'),
+)

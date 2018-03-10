@@ -56,35 +56,43 @@ def journals(request):
 
 
 def landing_page(request, doi_label):
+    """
+    The landing page of a Journal lists either the latest and the current issue of a Journal
+    of paginates the individual Publications.
+    """
     journal = get_object_or_404(Journal, doi_label=doi_label)
-
-    current_issue = Issue.objects.published(
-        in_volume__in_journal=journal,
-        start_date__lte=timezone.now(),
-        until_date__gte=timezone.now()).order_by('-until_date').first()
-    latest_issue = Issue.objects.published(
-        in_volume__in_journal=journal,
-        until_date__lte=timezone.now()).order_by('-until_date').first()
-
-    prev_issue = None
-    if current_issue:
-        prev_issue = (Issue.objects.published(in_volume__in_journal=journal,
-                                              start_date__lt=current_issue.start_date)
-                                   .order_by('start_date').last())
-
     context = {
-        'current_issue': current_issue,
-        'latest_issue': latest_issue,
-        'prev_issue': prev_issue,
         'journal': journal
     }
+
+    if journal.has_issues:
+        current_issue = Issue.objects.published().filter(
+            in_volume__in_journal=journal,
+            start_date__lte=timezone.now,
+            until_date__gte=timezone.now).first()
+        latest_issue = Issue.objects.published().filter(
+            in_volume__in_journal=journal,
+            until_date__lte=timezone.now).first()
+        prev_issue = None
+        if current_issue:
+            prev_issue = Issue.objects.published().filter(
+                in_volume__in_journal=journal, start_date__lt=current_issue.start_date
+                ).order_by('start_date').last()
+
+        context.update({
+            'current_issue': current_issue,
+            'latest_issue': latest_issue,
+            'prev_issue': prev_issue,
+        })
+    else:
+        context['publications'] = journal.publications.published()
     return render(request, 'journals/journal_landing_page.html', context)
 
 
 def issues(request, doi_label):
-    journal = get_object_or_404(Journal, doi_label=doi_label)
+    journal = get_object_or_404(Journal.objects.has_issues(), doi_label=doi_label)
 
-    issues = Issue.objects.published(in_volume__in_journal=journal).order_by('-until_date')
+    issues = Issue.objects.published().filter(in_volume__in_journal=journal)
     context = {
         'issues': issues,
         'journal': journal
@@ -140,16 +148,17 @@ def about(request, doi_label):
 
 
 def issue_detail(request, doi_label):
-    issue = Issue.objects.get_published(doi_label=doi_label)
+    issue = get_object_or_404(Issue.objects.published(), doi_label=doi_label)
     journal = issue.in_volume.in_journal
 
     papers = issue.publications.published().order_by('paper_nr')
-    next_issue = (Issue.objects.published(in_volume__in_journal=journal,
-                                          start_date__gt=issue.start_date)
-                               .order_by('start_date').first())
-    prev_issue = (Issue.objects.published(in_volume__in_journal=journal,
-                                          start_date__lt=issue.start_date)
-                               .order_by('start_date').last())
+    next_issue = Issue.objects.published().filter(
+        in_volume__in_journal=journal, start_date__gt=issue.start_date
+        ).order_by('start_date').first()
+    prev_issue = Issue.objects.published().filter(
+        in_volume__in_journal=journal, start_date__lt=issue.start_date
+        ).order_by('start_date').last()
+
     context = {
         'issue': issue,
         'prev_issue': prev_issue,
@@ -980,7 +989,7 @@ def email_object_made_citable(request, **kwargs):
         try:
             publication = Publication.objects.get(
                 accepted_submission__arxiv_identifier_wo_vn_nr=_object.submission.arxiv_identifier_wo_vn_nr)
-            publication_citation = publication.citation()
+            publication_citation = publication.citation
             publication_doi = publication.doi_string
         except Publication.DoesNotExist:
             pass
@@ -1034,7 +1043,12 @@ def publication_detail(request, doi_label):
     if not publication.is_published and not request.user.has_perm('scipost.can_draft_publication'):
         raise Http404('Publication is not publicly visible')
 
-    journal = publication.in_issue.in_volume.in_journal
+    if publication.in_issue:
+        journal = publication.in_issue.in_volume.in_journal
+    elif publication.in_journal:
+        journal = publication.in_journal
+    else:
+        raise Http404('Publication configuration is valid')
 
     context = {
         'publication': publication,

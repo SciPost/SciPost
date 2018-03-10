@@ -12,8 +12,10 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
-    <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
+    <a href="{{ journal.get_absolute_url }}" class="breadcrumb-item">{{ journal }}</a>
+    {% if publication.in_issue %}
+        <a href="{{ publication.in_issue.get_absolute_url }}" class="breadcrumb-item">{{ publication.in_issue.short_str }}</a>
+    {% endif %}
     <span class="breadcrumb-item active">{{publication.title}}</span>
 {% endblock %}
 
@@ -31,8 +33,10 @@
     <meta name="citation_publication_date" content="{{ publication.publication_date|date:'Y/m/d' }}"/>
     <meta name="citation_journal_title" content="{{ journal }}"/>
     <meta name="citation_issn" content="{{ journal.issn }}"/>
-    <meta name="citation_volume" content="{{ publication.in_issue.in_volume.number }}"/>
-    <meta name="citation_issue" content="{{ publication.in_issue.number }}"/>
+    {% if publication.in_issue %}
+        <meta name="citation_volume" content="{{ publication.in_issue.in_volume.number }}"/>
+        <meta name="citation_issue" content="{{ publication.in_issue.number }}"/>
+    {% endif %}
     <meta name="citation_firstpage" content="{{ publication.paper_nr|paper_nr_string_filter }}"/>
     <meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
     <meta name="dc.identifier" content="doi:{{ publication.doi_string }}"/>
