@@ -19,6 +19,7 @@ from captcha.fields import ReCaptchaField
 from ajax_select.fields import AutoCompleteSelectField
 from haystack.forms import ModelSearchForm as HayStackSearchForm
 
+from .behaviors import orcid_validator
 from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES
 from .decorators import has_contributor
 from .models import Contributor, DraftInvitation,\
@@ -76,6 +77,7 @@ class RegistrationForm(forms.Form):
     email = forms.EmailField(label='* Email address')
     invitation_key = forms.CharField(max_length=40, widget=forms.HiddenInput(), required=False)
     orcid_id = forms.CharField(label="ORCID id", max_length=20, required=False,
+                               validators=[orcid_validator],
                                widget=forms.TextInput(
                                     {'placeholder': 'Recommended. Get one at orcid.org'}))
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')

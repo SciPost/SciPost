@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 from django.utils import timezone
 
 from .db.fields import AutoDateTimeField
@@ -15,3 +16,7 @@ class TimeStampedModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+orcid_validator = RegexValidator(r'^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$',
+                                 'Please follow the ORCID format, e.g.: 0000-0001-2345-6789')
