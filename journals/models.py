@@ -498,18 +498,19 @@ class Publication(models.Model):
         Return Publication name in the preferred citation format.
         """
         if self.in_issue:
-            txt = '{journal} {volume}'.format(
+            return '{journal} {volume}, {paper_nr} ({year})'.format(
                 journal=self.in_issue.in_volume.in_journal.abbreviation_citation,
-                volume=self.in_issue.in_volume.number)
+                volume=self.in_issue.in_volume.number,
+                paper_nr=self.get_paper_nr(),
+                year=self.publication_date.strftime('%Y'))
         elif self.in_journal:
-            txt = self.in_journal.abbreviation_citation
-        else:
-            txt = 'Invalid'
-
-        txt += ', {paper_nr} ({year})'.format(
-            paper_nr=self.get_paper_nr(),
+            return '{journal}, {paper_nr} ({year})'.format(
+                journal=self.in_journal.abbreviation_citation,
+                paper_nr=self.paper_nr,
+                year=self.publication_date.strftime('%Y'))
+        return '{paper_nr} ({year})'.format(
+            paper_nr=self.paper_nr,
             year=self.publication_date.strftime('%Y'))
-        return txt
 
     def get_journal(self):
         return self.in_journal or self.in_issue.in_volume.in_journal
