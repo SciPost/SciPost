@@ -64,6 +64,12 @@ class CitationNotificationForm(AcceptRequestMixin, forms.ModelForm):
         else:
             self.fields['contributor'].queryset = Contributor.objects.none()
 
+    def clean(self, *args, **kwargs):
+        data = super().clean(*args, **kwargs)
+        if not data.get('submission') and not data.get('publication'):
+            self.add_error('submission', 'Either a Submission or Publication has to be filled out')
+            self.add_error('publication', 'Either a Submission or Publication has to be filled out')
+
     def save(self, *args, **kwargs):
         if not hasattr(self.instance, 'created_by'):
             self.instance.created_by = self.request.user
