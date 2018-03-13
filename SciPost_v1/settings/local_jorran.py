@@ -35,3 +35,7 @@ LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/jorranwit/Develop/
 CROSSREF_LOGIN_ID = get_secret("CROSSREF_LOGIN_ID")
 CROSSREF_LOGIN_PASSWORD = get_secret("CROSSREF_LOGIN_PASSWORD")
 CROSSREF_DEPOSIT_EMAIL = 'jorrandewit@scipost.org'
+
+# Customized mailbackend
+EMAIL_BACKEND = 'mails.backends.filebased.EmailBackend'
+EMAIL_BACKEND_ORIGINAL = 'django.core.mail.backends.filebased.EmailBackend'

@@ -260,7 +260,7 @@ WEBPACK_LOADER = {
 }
 
 # Email
-EMAIL_BACKEND = 'mails.backends.extendedfilebased.EmailBackend'
+EMAIL_BACKEND = 'mails.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = 'local_files/email/'
 EMAIL_SUBJECT_PREFIX = '[SciPost Server] '
 MAILCHIMP_DATABASE_CODE = 'us6'
