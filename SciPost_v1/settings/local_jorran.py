@@ -37,5 +37,5 @@ CROSSREF_LOGIN_PASSWORD = get_secret("CROSSREF_LOGIN_PASSWORD")
 CROSSREF_DEPOSIT_EMAIL = 'jorrandewit@scipost.org'
 
 # Customized mailbackend
-EMAIL_BACKEND = 'mails.backends.filebased.EmailBackend'
-EMAIL_BACKEND_ORIGINAL = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_BACKEND = 'mails.backends.filebased.ModelEmailBackend'
+EMAIL_BACKEND_ORIGINAL = 'mails.backends.filebased.EmailBackend'

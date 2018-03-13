@@ -19,7 +19,12 @@ class Command(BaseCommand):
         if hasattr(settings, 'EMAIL_BACKEND_ORIGINAL'):
             backend = settings.EMAIL_BACKEND_ORIGINAL
         else:
+            # Fallback to Django's default
             backend = 'django.core.mail.backends.smtp.EmailBackend'
+
+        if backend == 'mails.backends.filebased.ModelEmailBackend':
+            raise AssertionError('The `EMAIL_BACKEND_ORIGINAL` cannot be the ModelEmailBackend')
+
         connection = get_connection(backend=backend, fail_silently=False)
         for db_mail in mails:
             mail = EmailMultiAlternatives(
@@ -32,8 +37,11 @@ class Command(BaseCommand):
                 connection=connection)
             if db_mail.body_html:
                 mail.attach_alternative(db_mail.body_html, 'text/html')
-            print('mail ' + str(db_mail.id))
-        return mail.send()
+        response = mail.send()
+        if response:
+            db_mail.processed = True
+            db_mail.save()
+        return response
 
     def handle(self, *args, **options):
         if options.get('id'):

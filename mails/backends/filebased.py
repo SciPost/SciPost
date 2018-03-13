@@ -12,6 +12,8 @@ class EmailBackend(FileBacked):
         self.stream.write(b'Bcc: ' + bcc_str + b'\n')
         super().write_message(message)
 
+
+class ModelEmailBackend(FileBacked):
     def send_messages(self, email_messages, force_original=False):
         """Write all messages to the stream in a thread-safe way."""
         if force_original:
