@@ -4,9 +4,8 @@ from commentaries.factories import CommentaryFactory
 from comments.factories import CommentaryCommentFactory, SubmissionCommentFactory,\
                                ThesislinkCommentFactory, ReplyCommentFactory
 from scipost.factories import SubmissionRemarkFactory
-from journals.factories import JournalFactory, VolumeFactory, IssueFactory, PublicationFactory
+from journals.factories import JournalFactory, VolumeFactory, IssueFactory
 from news.factories import NewsItemFactory
-from submissions.factories import EICassignedSubmissionFactory
 from theses.factories import ThesisLinkFactory
 
 from ...factories import ContributorFactory, EditorialCollegeFactory,\
@@ -58,20 +57,6 @@ class Command(BaseCommand):
             help='Add 5 Issues, Volumes and Journals',
         )
         parser.add_argument(
-            '--submissions',
-            action='store_true',
-            dest='submissions',
-            default=False,
-            help='Add 5 new submissions status EIC assigned',
-        )
-        parser.add_argument(
-            '--publications',
-            action='store_true',
-            dest='publications',
-            default=False,
-            help='Add 5 Publications (includes --issues action)',
-        )
-        parser.add_argument(
             '--remarks',
             action='store_true',
             dest='remarks',
@@ -109,12 +94,8 @@ class Command(BaseCommand):
             self.create_editorial_college_fellows()
         if kwargs['news'] or kwargs['all']:
             self.create_news_items()
-        if kwargs['submissions'] or kwargs['all']:
-            self.create_submissions()
         if kwargs['pubset'] or kwargs['all']:
             self.create_pubset()
-        if kwargs['publications'] or kwargs['all']:
-            self.create_publications()
         if kwargs['remarks'] or kwargs['all']:
             self.create_remarks()
         if kwargs['theses'] or kwargs['all']:
@@ -147,19 +128,11 @@ class Command(BaseCommand):
         NewsItemFactory.create_batch(5)
         self.stdout.write(self.style.SUCCESS('Successfully created 5 News items.'))
 
-    def create_submissions(self):
-        EICassignedSubmissionFactory.create_batch(5)
-        self.stdout.write(self.style.SUCCESS('Successfully created 5 Submissions.'))
-
     def create_pubset(self):
         JournalFactory.create_batch(4)  # 4 == all Journals
         VolumeFactory.create_batch(3)
         IssueFactory.create_batch(12)
         self.stdout.write(self.style.SUCCESS('Successfully created 12 Issues.'))
-
-    def create_publications(self):
-        PublicationFactory.create_batch(5)
-        self.stdout.write(self.style.SUCCESS('Successfully created 5 Publications.'))
 
     def create_remarks(self):
         SubmissionRemarkFactory.create_batch(5)

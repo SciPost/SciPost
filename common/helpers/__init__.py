@@ -46,14 +46,23 @@ def random_scipost_journal():
 
 def random_external_journal_abbrev():
     return random.choice((
-        'PhysRevA',
-        'PhysRevB',
-        'PhysRevC',
-        'PhysRevLett',
-        'nature'
-        'S0550-3213(01)',
-        '1742-5468',
-        '0550-3213(96)'
+        'Ann. Phys.',
+        'Phys. Rev. A',
+        'Phys. Rev. B',
+        'Phys. Rev. C',
+        'Phys. Rev. Lett.',
+        'Europhys. Lett.',
+        'J. Math. Anal. Appl.',
+        'Nat. Phys.'
+        'J. Phys. A',
+        'J. Stat. Phys.',
+        'J. Stat. Mech.',
+        'J. Math. Phys.',
+        'Lett. Math. Phys.',
+        'Sov. Phys. JETP',
+        'Sov. Phys. JETP',
+        'Nucl. Phys. B',
+        'Adv. Phys.'
     ))
 
 
@@ -66,7 +75,7 @@ def random_scipost_doi():
 
 
 def random_scipost_report_doi_label():
-    return 'SciPost.Report.%i' % random_digits(4)
+    return 'SciPost.Report.%s' % random_digits(4)
 
 
 def random_external_doi():
@@ -74,8 +83,18 @@ def random_external_doi():
     Return a fake/random doi as if all journal abbrev and pub_number are separated by `.`, which
     can be helpfull for testing purposes.
     """
+    journal = random.choice((
+        'PhysRevA',
+        'PhysRevB',
+        'PhysRevC',
+        'PhysRevLett',
+        'nature'
+        'S0550-3213(01)',
+        '1742-5468',
+        '0550-3213(96)'
+    ))
     return '10.%s/%s.%s' % (
-        random_digits(5), random_external_journal_abbrev(), random_pub_number())
+        random_digits(5), journal, random_pub_number())
 
 
 def random_digits(n):
