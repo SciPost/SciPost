@@ -7,7 +7,7 @@ from scipost.factories import SubmissionRemarkFactory
 from journals.factories import VolumeFactory, IssueFactory, PublicationFactory
 from news.factories import NewsItemFactory
 from submissions.factories import EICassignedSubmissionFactory
-from theses.factories import VettedThesisLinkFactory
+from theses.factories import ThesisLinkFactory
 
 from ...factories import ContributorFactory, EditorialCollegeFactory,\
                          EditorialCollegeFellowshipFactory
@@ -179,5 +179,5 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Successfully created 5 Remarks.'))
 
     def create_theses(self):
-        VettedThesisLinkFactory.create_batch(5)
+        ThesisLinkFactory.create_batch(5)
         self.stdout.write(self.style.SUCCESS('Successfully created 5 ThesisLinks.'))
