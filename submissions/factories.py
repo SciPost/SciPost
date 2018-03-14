@@ -6,7 +6,8 @@ from django.utils import timezone
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.models import Contributor
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
-from common.helpers import random_arxiv_identifier_without_version_number, random_scipost_journal
+from common.helpers import random_arxiv_identifier_without_version_number, random_scipost_journal,\
+    random_scipost_report_doi_label
 
 from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSION_INCOMING,\
                        STATUS_PUBLISHED, SUBMISSION_TYPE, STATUS_RESUBMITTED, STATUS_VETTED,\
@@ -23,26 +24,29 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
 
     author_list = factory.Faker('name')
     submitted_by = factory.Iterator(Contributor.objects.all())
+    submission_type = factory.Iterator(SUBMISSION_TYPE, getter=lambda c: c[0])
     submitted_to_journal = factory.Sequence(lambda n: random_scipost_journal())
-    title = factory.lazy_attribute(lambda x: Faker().sentence())
-    abstract = factory.lazy_attribute(lambda x: Faker().paragraph())
+    title = factory.Faker('sentence')
+    abstract = factory.Faker('paragraph', nb_sentences=10)
     arxiv_link = factory.Faker('uri')
     arxiv_identifier_wo_vn_nr = factory.Sequence(
-                                    lambda n: random_arxiv_identifier_without_version_number())
+        lambda n: random_arxiv_identifier_without_version_number())
     subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
     domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
-    abstract = Faker().paragraph()
-    author_comments = Faker().paragraph()
-    remarks_for_editors = Faker().paragraph()
-    submission_type = factory.Iterator(SUBMISSION_TYPE, getter=lambda c: c[0])
+    abstract = factory.Faker('paragraph')
+    author_comments = factory.Faker('paragraph')
+    remarks_for_editors = factory.Faker('paragraph')
     is_current = True
+
+    submission_date = factory.Faker('date_this_decade')
 
     @factory.post_generation
     def fill_arxiv_fields(self, create, extracted, **kwargs):
         '''Fill empty arxiv fields.'''
+        arxiv_vn_nr = kwargs.get('arxiv_vn_nr', 1)
         self.arxiv_link = 'https://arxiv.org/abs/%s' % self.arxiv_identifier_wo_vn_nr
-        self.arxiv_identifier_w_vn_nr = '%sv1' % self.arxiv_identifier_wo_vn_nr
-        self.arxiv_vn_nr = kwargs.get('arxiv_vn_nr', 1)
+        self.arxiv_identifier_w_vn_nr = '%sv%i' % (self.arxiv_identifier_wo_vn_nr, arxiv_vn_nr)
+        self.arxiv_vn_nr = arxiv_vn_nr
 
     @factory.post_generation
     def contributors(self, create, extracted, **kwargs):
@@ -50,6 +54,8 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
 
         # Auto-add the submitter as an author
         self.submitted_by = contributors.pop()
+        self.author_list = ', '.join([
+            '%s %s' % (c.user.first_name, c.user.last_name) for c in contributors])
 
         if not create:
             return
@@ -58,17 +64,9 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
         # Add three random authors
         for contrib in contributors:
             self.authors.add(contrib)
-            self.author_list += ', %s %s' % (contrib.user.first_name, contrib.user.last_name)
 
     @factory.post_generation
     def dates(self, create, extracted, **kwargs):
-        timezone.now()
-        if kwargs.get('submission', False):
-            self.submission_date = kwargs['submission']
-            self.cycle.update_deadline()
-            return
-        self.submission_date = Faker().date_time_between(start_date="-3y", end_date="now",
-                                                         tzinfo=pytz.UTC).date()
         self.latest_activity = Faker().date_time_between(start_date=self.submission_date,
                                                          end_date="now", tzinfo=pytz.UTC)
         self.cycle.update_deadline()
@@ -145,6 +143,11 @@ class PublishedSubmissionFactory(SubmissionFactory):
     open_for_commenting = False
     open_for_reporting = False
 
+    @factory.post_generation
+    def acceptance_date(self, create, extracted, **kwargs):
+        self.latest_activity = Faker().date_time_between(start_date=self.submission_date,
+                                                         end_date="now", tzinfo=pytz.UTC)
+
 
 class ReportFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -152,14 +155,15 @@ class ReportFactory(factory.django.DjangoModelFactory):
 
     status = factory.Iterator(REPORT_STATUSES, getter=lambda c: c[0])
     submission = factory.Iterator(Submission.objects.all())
-    date_submitted = Faker().date_time_between(start_date="-3y", end_date="now", tzinfo=pytz.UTC)
+    date_submitted = factory.Faker('date_time_this_decade')
     vetted_by = factory.Iterator(Contributor.objects.all())
     author = factory.Iterator(Contributor.objects.all())
     qualification = factory.Iterator(REFEREE_QUALIFICATION, getter=lambda c: c[0])
-    strengths = Faker().paragraph()
-    weaknesses = Faker().paragraph()
-    report = Faker().paragraph()
-    requested_changes = Faker().paragraph()
+    strengths = factory.Faker('paragraph')
+    weaknesses = factory.Faker('paragraph')
+    report = factory.Faker('paragraph')
+    requested_changes = factory.Faker('paragraph')
+
     validity = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
     significance = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
     originality = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
@@ -167,7 +171,10 @@ class ReportFactory(factory.django.DjangoModelFactory):
     formatting = factory.Iterator(QUALITY_SPEC, getter=lambda c: c[0])
     grammar = factory.Iterator(QUALITY_SPEC, getter=lambda c: c[0])
     recommendation = factory.Iterator(REPORT_REC, getter=lambda c: c[0])
-    remarks_for_editors = Faker().paragraph()
+
+    remarks_for_editors = factory.Faker('paragraph')
+    flagged = factory.Faker('boolean', chance_of_getting_true=10)
+    anonymous = factory.Faker('boolean', chance_of_getting_true=75)
 
 
 class DraftReportFactory(ReportFactory):
@@ -182,6 +189,10 @@ class UnVettedReportFactory(ReportFactory):
 
 class VettedReportFactory(ReportFactory):
     status = STATUS_VETTED
+    needs_doi = True
+    doideposit_needs_updating = factory.Faker('boolean')
+    doi_label = factory.lazy_attribute(lambda n: random_scipost_report_doi_label())
+    pdf_report = factory.Faker('file_name', extension='pdf')
 
 
 class RefereeInvitationFactory(factory.django.DjangoModelFactory):

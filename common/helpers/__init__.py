@@ -65,6 +65,10 @@ def random_scipost_doi():
     return '10.21468/%s.%s' % (random_scipost_journal(), random_pub_number())
 
 
+def random_scipost_report_doi_label():
+    return 'SciPost.Report.%i' % random_digits(4)
+
+
 def random_external_doi():
     """
     Return a fake/random doi as if all journal abbrev and pub_number are separated by `.`, which

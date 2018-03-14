@@ -4,7 +4,7 @@ from commentaries.factories import CommentaryFactory
 from comments.factories import CommentaryCommentFactory, SubmissionCommentFactory,\
                                ThesislinkCommentFactory, ReplyCommentFactory
 from scipost.factories import SubmissionRemarkFactory
-from journals.factories import VolumeFactory, IssueFactory, PublicationFactory
+from journals.factories import JournalFactory, VolumeFactory, IssueFactory, PublicationFactory
 from news.factories import NewsItemFactory
 from submissions.factories import EICassignedSubmissionFactory
 from theses.factories import ThesisLinkFactory
@@ -56,13 +56,6 @@ class Command(BaseCommand):
             dest='pubset',
             default=False,
             help='Add 5 Issues, Volumes and Journals',
-        )
-        parser.add_argument(
-            '--issues',
-            action='store_true',
-            dest='issues',
-            default=False,
-            help='Add 5 Issues',
         )
         parser.add_argument(
             '--submissions',
@@ -120,8 +113,6 @@ class Command(BaseCommand):
             self.create_submissions()
         if kwargs['pubset'] or kwargs['all']:
             self.create_pubset()
-        if kwargs['issues'] or kwargs['all']:
-            self.create_issues()
         if kwargs['publications'] or kwargs['all']:
             self.create_publications()
         if kwargs['remarks'] or kwargs['all']:
@@ -161,14 +152,10 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Successfully created 5 Submissions.'))
 
     def create_pubset(self):
-        VolumeFactory.create_batch(5)
-        IssueFactory.create_batch(5)
-        self.stdout.write(self.style.SUCCESS(
-                          'Successfully created 5x {Journal, Volume and Issue}.'))
-
-    def create_issues(self):
-        IssueFactory.create_batch(5)
-        self.stdout.write(self.style.SUCCESS('Successfully created 5 Issue.'))
+        JournalFactory.create_batch(4)  # 4 == all Journals
+        VolumeFactory.create_batch(3)
+        IssueFactory.create_batch(12)
+        self.stdout.write(self.style.SUCCESS('Successfully created 12 Issues.'))
 
     def create_publications(self):
         PublicationFactory.create_batch(5)

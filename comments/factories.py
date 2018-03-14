@@ -2,7 +2,7 @@ import factory
 
 from commentaries.models import Commentary
 from scipost.models import Contributor
-from submissions.models import Submission
+from submissions.models import Submission, Report
 from theses.models import ThesisLink
 
 from .constants import STATUS_VETTED
@@ -52,3 +52,7 @@ class ReplyCommentFactory(CommentFactory):
 
 class ThesislinkCommentFactory(CommentFactory):
     content_object = factory.Iterator(ThesisLink.objects.all())
+
+
+class ReportCommentFactory(CommentFactory):
+    content_object = factory.Iterator(Report.objects.all())
