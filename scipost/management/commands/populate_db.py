@@ -168,8 +168,7 @@ class Command(BaseCommand):
 
     def create_issues(self):
         IssueFactory.create_batch(5)
-        self.stdout.write(self.style.SUCCESS(
-                          'Successfully created 5 Issue.'))
+        self.stdout.write(self.style.SUCCESS('Successfully created 5 Issue.'))
 
     def create_publications(self):
         PublicationFactory.create_batch(5)
