@@ -1,7 +1,5 @@
 import factory
 
-from django.utils import timezone
-
 from common.helpers.factories import FormFactory
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
@@ -10,10 +8,6 @@ from scipost.models import Contributor
 from .models import ThesisLink
 from .forms import VetThesisLinkForm
 from .constants import THESIS_TYPES
-
-from faker import Faker
-
-timezone.now()
 
 
 class ThesisLinkFactory(factory.django.DjangoModelFactory):
@@ -31,7 +25,7 @@ class ThesisLinkFactory(factory.django.DjangoModelFactory):
     supervisor = factory.Faker('name')
     institution = factory.Faker('company')
     defense_date = factory.Faker('date')
-    abstract = factory.lazy_attribute(lambda x: Faker().paragraph())
+    abstract = factory.Faker('paragraph')
 
 
 class VettedThesisLinkFactory(ThesisLinkFactory):
