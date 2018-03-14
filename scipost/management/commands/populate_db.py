@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from commentaries.factories import VettedCommentaryFactory
+from commentaries.factories import CommentaryFactory
 from comments.factories import CommentaryCommentFactory, SubmissionCommentFactory,\
                                ThesislinkCommentFactory
 from scipost.factories import SubmissionRemarkFactory
@@ -104,6 +104,7 @@ class Command(BaseCommand):
         if kwargs['contributor'] or kwargs['all']:
             n = 5
             if kwargs['all']:
+                # Add extra Contributors for a bit more diversity
                 n += 10
             self.create_contributors(n)
         if kwargs['commentaries'] or kwargs['all']:
@@ -133,7 +134,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Successfully created %i Contributors.' % n))
 
     def create_commentaries(self):
-        VettedCommentaryFactory.create_batch(5)
+        CommentaryFactory.create_batch(5)
         self.stdout.write(self.style.SUCCESS('Successfully created 5 Commentaries.'))
 
     def create_comments(self):

@@ -3,7 +3,7 @@ import pytz
 
 from django.utils import timezone
 
-from commentaries.factories import VettedCommentaryFactory
+from commentaries.factories import CommentaryFactory
 from scipost.models import Contributor
 from submissions.factories import EICassignedSubmissionFactory
 from theses.factories import VettedThesisLinkFactory
@@ -31,7 +31,7 @@ class CommentFactory(factory.django.DjangoModelFactory):
 
 
 class CommentaryCommentFactory(CommentFactory):
-    content_object = factory.SubFactory(VettedCommentaryFactory)
+    content_object = factory.SubFactory(CommentaryFactory)
 
 
 class SubmissionCommentFactory(CommentFactory):

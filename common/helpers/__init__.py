@@ -32,8 +32,8 @@ def model_form_data(model, form_class, form_kwargs={}):
     return filter_keys(model_data, form_fields)
 
 
-def random_arxiv_identifier_with_version_number():
-    return random_arxiv_identifier_without_version_number() + "v0"
+def random_arxiv_identifier_with_version_number(version_nr='0'):
+    return random_arxiv_identifier_without_version_number() + 'v' + str(version_nr)
 
 
 def random_arxiv_identifier_without_version_number():
@@ -44,14 +44,15 @@ def random_scipost_journal():
     return random.choice(SCIPOST_JOURNALS_SUBMIT)[0]
 
 
-def random_external_journal():
+def random_external_journal_abbrev():
     return random.choice((
-        'PhysRevA.',
-        'PhysRevB.',
-        'PhysRevC.',
-        'nature.'
+        'PhysRevA',
+        'PhysRevB',
+        'PhysRevC',
+        'PhysRevLett',
+        'nature'
         'S0550-3213(01)',
-        '1742-5468/',
+        '1742-5468',
         '0550-3213(96)'
     ))
 
@@ -65,7 +66,12 @@ def random_scipost_doi():
 
 
 def random_external_doi():
-    return '10.%s/%s%s' % (random_digits(5), random_external_journal(), random_pub_number())
+    """
+    Return a fake/random doi as if all journal abbrev and pub_number are separated by `.`, which
+    can be helpfull for testing purposes.
+    """
+    return '10.%s/%s.%s' % (
+        random_digits(5), random_external_journal_abbrev(), random_pub_number())
 
 
 def random_digits(n):
