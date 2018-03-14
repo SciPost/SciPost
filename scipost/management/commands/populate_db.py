@@ -2,9 +2,9 @@ from django.core.management.base import BaseCommand
 
 from commentaries.factories import CommentaryFactory
 from comments.factories import CommentaryCommentFactory, SubmissionCommentFactory,\
-                               ThesislinkCommentFactory
+                               ThesislinkCommentFactory, ReplyCommentFactory
 from scipost.factories import SubmissionRemarkFactory
-from journals.factories import JournalFactory, VolumeFactory, IssueFactory, PublicationFactory
+from journals.factories import VolumeFactory, IssueFactory, PublicationFactory
 from news.factories import NewsItemFactory
 from submissions.factories import EICassignedSubmissionFactory
 from theses.factories import VettedThesisLinkFactory
@@ -140,6 +140,7 @@ class Command(BaseCommand):
     def create_comments(self):
         CommentaryCommentFactory.create_batch(3)
         SubmissionCommentFactory.create_batch(4)
+        ReplyCommentFactory.create_batch(2)
         ThesislinkCommentFactory.create_batch(3)
         self.stdout.write(self.style.SUCCESS('Successfully created 10 Comments.'))
 

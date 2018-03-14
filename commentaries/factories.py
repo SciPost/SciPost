@@ -8,8 +8,6 @@ from common.helpers import random_arxiv_identifier_with_version_number, random_e
 from .constants import COMMENTARY_TYPES
 from .models import Commentary
 
-# from faker import Faker
-
 
 class BaseCommentaryFactory(factory.django.DjangoModelFactory):
     class Meta:

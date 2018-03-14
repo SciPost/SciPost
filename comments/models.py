@@ -17,7 +17,8 @@ from .constants import COMMENT_STATUS, STATUS_PENDING
 from .managers import CommentQuerySet
 
 
-WARNING_TEXT = 'Warning: Rather use/edit `content_object` instead or be 100% sure you know what you are doing!'
+WARNING_TEXT = ('Warning: Rather use/edit `content_object` instead or be 100% sure you'
+                ' know what you are doing!')
 US_NOTICE = 'Warning: This field is out of service and will be removed in the future.'
 
 
@@ -28,9 +29,9 @@ class Comment(TimeStampedModel):
     status = models.SmallIntegerField(default=STATUS_PENDING, choices=COMMENT_STATUS)
     vetted_by = models.ForeignKey('scipost.Contributor', blank=True, null=True,
                                   on_delete=models.CASCADE, related_name='comment_vetted_by')
-    file_attachment = models.FileField(upload_to='uploads/comments/%Y/%m/%d/', blank=True,
-                                       validators=[validate_file_extension, validate_max_file_size]
-                                       )
+    file_attachment = models.FileField(
+        upload_to='uploads/comments/%Y/%m/%d/', blank=True,
+        validators=[validate_file_extension, validate_max_file_size])
 
     # A Comment is always related to another model
     # This construction implicitly has property: `on_delete=models.CASCADE`
@@ -60,6 +61,7 @@ class Comment(TimeStampedModel):
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
+
     # Opinions
     nr_A = models.PositiveIntegerField(default=0)
     in_agreement = models.ManyToManyField('scipost.Contributor', related_name='in_agreement',
