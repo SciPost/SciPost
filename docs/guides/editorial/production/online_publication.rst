@@ -11,7 +11,7 @@ Version: 2017-05-11.
 Finalization of manuscript production
 -------------------------------------
 
-The steps described here follow up on the :doc:`production` instructions used by production officers.
+The steps described here follow up on the :doc:`../production/initial_production` instructions used by production officers.
 
 
 Preparation of final version of record

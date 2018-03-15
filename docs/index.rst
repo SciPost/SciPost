@@ -11,8 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   roles/roles
-   guides/guides
+   roles
+   guides
    developers/developers
 
 

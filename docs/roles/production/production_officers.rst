@@ -2,5 +2,11 @@ Production Officers
 ===================
 
 
-.. toctree::
-   :maxdepth: 2
+This document describes the roles of **Production Officers**.
+
+
+
+Tasks
+-----
+
+   * Upon being assigned a production stream, produce the first version of the proofs
