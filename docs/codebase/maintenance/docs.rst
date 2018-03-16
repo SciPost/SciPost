@@ -2,6 +2,7 @@ Maintenance of SciPost documentation
 ====================================
 
 
+
 Sphinx-generated docs
 ---------------------
 
@@ -15,6 +16,17 @@ In the `docs` subfolders `codebase`, `admin` and `users`, invoke ``make html``. 
 
 Sphinxdoc-generated docs (viewable online)
 ------------------------------------------
+
+
+Setting things up
+~~~~~~~~~~~~~~~~~
+
+The `django-sphinxdoc` app creates `Project` and `Document` classes. In the admin, one should create the following projects (slug in parentheses):
+
+   * SciPost Admin (admin)
+   * SciPost Codebase (codebase)
+   * SciPost Users (users)
+
 
 Updating the docs:
 ~~~~~~~~~~~~~~~~~~
