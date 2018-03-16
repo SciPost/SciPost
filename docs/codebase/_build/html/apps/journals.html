@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>journals &mdash; SciPost 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="SciPost 1.0 documentation" href="../index.html"/>
+        <link rel="up" title="Apps" href="../apps.html"/>
+        <link rel="next" title="comments" href="comments.html"/>
+        <link rel="prev" title="submissions" href="submissions.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> SciPost
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../maintenance.html">Maintenance</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apps.html">Apps</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="scipost.html">scipost</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submissions.html">submissions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">journals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-journals.models">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-journals.views">Views</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="comments.html">comments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commentaries.html">commentaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theses.html">theses</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">SciPost</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../apps.html">Apps</a> &raquo;</li>
+      
+    <li>journals</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/apps/journals.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="journals">
+<h1>journals<a class="headerlink" href="#journals" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-journals.models">
+<span id="models"></span><h2>Models<a class="headerlink" href="#module-journals.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="journals.models.DOAJDeposit">
+<em class="property">class </em><code class="descclassname">journals.models.</code><code class="descname">DOAJDeposit</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#DOAJDeposit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.DOAJDeposit" title="Permalink to this definition">¶</a></dt>
+<dd><p>For the Directory of Open Access Journals.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="journals.models.Deposit">
+<em class="property">class </em><code class="descclassname">journals.models.</code><code class="descname">Deposit</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#Deposit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.Deposit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Each time a Crossref deposit is made for a Publication,
+a Deposit object instance is created containing the Publication&#8217;s
+current version of the metadata_xml field.
+All deposit history is thus contained here.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="journals.models.GenericDOIDeposit">
+<em class="property">class </em><code class="descclassname">journals.models.</code><code class="descname">GenericDOIDeposit</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#GenericDOIDeposit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.GenericDOIDeposit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instances of this class represent Crossref deposits for non-publication
+objects such as Reports, Comments etc.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="journals.models.Issue">
+<em class="property">class </em><code class="descclassname">journals.models.</code><code class="descname">Issue</code><span class="sig-paren">(</span><em>id</em>, <em>in_volume</em>, <em>number</em>, <em>start_date</em>, <em>until_date</em>, <em>status</em>, <em>doi_label</em>, <em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#Issue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.Issue" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="journals.models.Issue.citation_rate">
+<code class="descname">citation_rate</code><span class="sig-paren">(</span><em>tier=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#Issue.citation_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.Issue.citation_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the citation rate in units of nr citations per article per year.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="journals.models.Journal">
+<em class="property">class </em><code class="descclassname">journals.models.</code><code class="descname">Journal</code><span class="sig-paren">(</span><em>id</em>, <em>name</em>, <em>doi_label</em>, <em>issn</em>, <em>active</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#Journal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.Journal" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="journals.models.Journal.citation_rate">
+<code class="descname">citation_rate</code><span class="sig-paren">(</span><em>tier=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#Journal.citation_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.Journal.citation_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the citation rate in units of nr citations per article per year.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="journals.models.Publication">
+<em class="property">class </em><code class="descclassname">journals.models.</code><code class="descname">Publication</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#Publication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.Publication" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Publication is an object directly related to an accepted Submission. It contains metadata,
+the actual publication file, author data, etc. etc.</p>
+<dl class="method">
+<dt id="journals.models.Publication.citation_rate">
+<code class="descname">citation_rate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#Publication.citation_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.Publication.citation_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the citation rate in units of nr citations per article per year.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="journals.models.PublicationAuthorsTable">
+<em class="property">class </em><code class="descclassname">journals.models.</code><code class="descname">PublicationAuthorsTable</code><span class="sig-paren">(</span><em>id</em>, <em>publication</em>, <em>unregistered_author</em>, <em>contributor</em>, <em>order</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#PublicationAuthorsTable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.PublicationAuthorsTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="journals.models.Reference">
+<em class="property">class </em><code class="descclassname">journals.models.</code><code class="descname">Reference</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#Reference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.Reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Refence is a reference used in a specific Publication.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="journals.models.UnregisteredAuthor">
+<em class="property">class </em><code class="descclassname">journals.models.</code><code class="descname">UnregisteredAuthor</code><span class="sig-paren">(</span><em>id</em>, <em>first_name</em>, <em>last_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#UnregisteredAuthor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.UnregisteredAuthor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="journals.models.Volume">
+<em class="property">class </em><code class="descclassname">journals.models.</code><code class="descname">Volume</code><span class="sig-paren">(</span><em>id</em>, <em>in_journal</em>, <em>number</em>, <em>start_date</em>, <em>until_date</em>, <em>doi_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#Volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.Volume" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="journals.models.Volume.citation_rate">
+<code class="descname">citation_rate</code><span class="sig-paren">(</span><em>tier=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/models.html#Volume.citation_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.models.Volume.citation_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the citation rate in units of nr citations per article per year.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-journals.views">
+<span id="views"></span><h2>Views<a class="headerlink" href="#module-journals.views" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="journals.views.accepted">
+<code class="descclassname">journals.views.</code><code class="descname">accepted</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#accepted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.accepted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display page for submissions to SciPost Physics which
+have been accepted but are not yet published.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.add_associated_grant">
+<code class="descclassname">journals.views.</code><code class="descname">add_associated_grant</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#add_associated_grant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.add_associated_grant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by an Editorial Administrator.
+This associates a grant from the database to this publication.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.add_author">
+<code class="descclassname">journals.views.</code><code class="descname">add_author</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em>, <em>contributor_id=None</em>, <em>unregistered_author_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#add_author"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.add_author" title="Permalink to this definition">¶</a></dt>
+<dd><p>If not all authors are registered Contributors or if they have not
+all claimed authorship, this method allows editorial administrators
+to associated them to the publication.
+This is important for the Crossref metadata, in which all authors must appear.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.add_generic_funder">
+<code class="descclassname">journals.views.</code><code class="descname">add_generic_funder</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#add_generic_funder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.add_generic_funder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by an Editorial Administrator.
+This associates a funder (generic, not via grant) from the database to this publication.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.create_citation_list_metadata">
+<code class="descclassname">journals.views.</code><code class="descname">create_citation_list_metadata</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#create_citation_list_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.create_citation_list_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by an Editorial Administrator.
+This populates the citation_list dictionary entry
+in the metadata field in a Publication instance.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.create_funding_info_metadata">
+<code class="descclassname">journals.views.</code><code class="descname">create_funding_info_metadata</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#create_funding_info_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.create_funding_info_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by an Editorial Administrator.
+This populates the funding_info dictionary entry
+in the metadata field in a Publication instance.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.create_metadata_xml">
+<code class="descclassname">journals.views.</code><code class="descname">create_metadata_xml</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#create_metadata_xml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.create_metadata_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>To be called by an EdAdmin after the citation_list,
+funding_info entries have been filled.
+Populates the metadata_xml field of a Publication instance.
+The contents can then be sent to Crossref for registration.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.email_object_made_citable">
+<code class="descclassname">journals.views.</code><code class="descname">email_object_made_citable</code><span class="sig-paren">(</span><em>request</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#email_object_made_citable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.email_object_made_citable" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method sends an email to the author of a Report or a Comment,
+to notify that the object has been made citable (doi registered).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.generic_metadata_xml_deposit">
+<code class="descclassname">journals.views.</code><code class="descname">generic_metadata_xml_deposit</code><span class="sig-paren">(</span><em>request</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#generic_metadata_xml_deposit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.generic_metadata_xml_deposit" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method creates the metadata for non-Publication objects
+such as Reports and Comments, and deposits the metadata to
+Crossref.
+If there exists a relation to a SciPost-published object,
+the deposit uses Crossref&#8217;s peer review content type.
+Otherwise the deposit is done as a dataset.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.initiate_publication">
+<code class="descclassname">journals.views.</code><code class="descname">initiate_publication</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#initiate_publication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.initiate_publication" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by an Editorial Administrator.
+Publish the manuscript after proofs have been accepted.
+This method prefills a ValidatePublicationForm for further
+processing (verification in validate_publication method).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.journals">
+<code class="descclassname">journals.views.</code><code class="descname">journals</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#journals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.journals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main landing page for Journals application.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.manage_comment_metadata">
+<code class="descclassname">journals.views.</code><code class="descname">manage_comment_metadata</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#manage_comment_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.manage_comment_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>This page offers Editorial Administrators tools for managing
+the metadata of Comments.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.manage_report_metadata">
+<code class="descclassname">journals.views.</code><code class="descname">manage_report_metadata</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#manage_report_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.manage_report_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>This page offers Editorial Administrators tools for managing
+the metadata of Reports.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.metadata_DOAJ_deposit">
+<code class="descclassname">journals.views.</code><code class="descname">metadata_DOAJ_deposit</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#metadata_DOAJ_deposit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.metadata_DOAJ_deposit" title="Permalink to this definition">¶</a></dt>
+<dd><p>DOAJ metadata deposit.
+Makes use of the python requests module.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.metadata_xml_deposit">
+<code class="descclassname">journals.views.</code><code class="descname">metadata_xml_deposit</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em>, <em>option='test'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#metadata_xml_deposit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.metadata_xml_deposit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crossref metadata deposit.
+If test==True, test the metadata_xml using the Crossref test server.
+Makes use of the python requests module.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.recent">
+<code class="descclassname">journals.views.</code><code class="descname">recent</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#recent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.recent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display page for the most recent 20 publications in SciPost Physics.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.sign_existing_report">
+<code class="descclassname">journals.views.</code><code class="descname">sign_existing_report</code><span class="sig-paren">(</span><em>request</em>, <em>report_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#sign_existing_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.sign_existing_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows the author of a Report, originally submitted anonymously,
+to sign the Report.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.update_references">
+<code class="descclassname">journals.views.</code><code class="descname">update_references</code><span class="sig-paren">(</span><em>request</em>, <em>doi_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#update_references"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.update_references" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the References for a certain Publication.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="journals.views.validate_publication">
+<code class="descclassname">journals.views.</code><code class="descname">validate_publication</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/journals/views.html#validate_publication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#journals.views.validate_publication" title="Permalink to this definition">¶</a></dt>
+<dd><p>This creates a Publication instance from the ValidatePublicationForm,
+pre-filled by the initiate_publication method above.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="comments.html" class="btn btn-neutral float-right" title="comments" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="submissions.html" class="btn btn-neutral" title="submissions" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jean-Sébastien Caux.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
