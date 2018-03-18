@@ -59,6 +59,22 @@ The settings files itself are saved into `SciPost_v1/settings/local_<name>.py`. 
 
 One can of course also add the variable to the `~/.bash_profile` for convenience.
 
+### Mail
+
+In the `mails` application a special [Email Backend](https://docs.djangoproject.com/en/1.11/topics/email/#email-backends) is defined. This will write all emails to the database. To use this backend, in the settings set the the variable `EMAIL_BACKEND` as:
+
+```python
+# settings.py
+EMAIL_BACKEND = 'mails.backends.filebased.ModelEmailBackend'
+EMAIL_BACKEND_ORIGINAL = 'mails.backends.filebased.EmailBackend'
+```
+
+A management command is defined to send the unsent mails in the database. This management command uses the Email Backend defined in the settings under variable `EMAIL_BACKEND_ORIGINAL`. If not defined, this defaults to the Django default: `django.core.mail.backends.smtp.EmailBackend`.
+
+```shell
+(scipostenv) $ ./manage.py send_mails
+```
+
 ### Check, double check
 To make sure everything is set up and configured well, run:
 
