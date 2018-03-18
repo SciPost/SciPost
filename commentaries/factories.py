@@ -30,10 +30,9 @@ class BaseCommentaryFactory(factory.django.DjangoModelFactory):
     pub_date = factory.Faker('date_this_decade')
     pub_abstract = factory.Faker('paragraph')
 
-    @factory.post_generation
-    def arxiv_link(self, create, extracted, **kwargs):
-        self.arxiv_link = 'https://arxiv.org/abs/%s' % self.arxiv_identifier
-        self.arxiv_or_DOI_string = self.arxiv_identifier
+    arxiv_link = factory.lazy_attribute(lambda o: 'https://arxiv.org/abs/%s' % o.arxiv_identifier)
+    arxiv_or_DOI_string = factory.lazy_attribute(lambda o: (
+        o.arxiv_identifier if o.arxiv_identifier else o.pub_DOI))
 
     @factory.post_generation
     def create_urls(self, create, extracted, **kwargs):
@@ -77,3 +76,9 @@ class UnpublishedCommentaryFactory(BaseCommentaryFactory):
 class UnvettedUnpublishedCommentaryFactory(UnpublishedCommentaryFactory):
     vetted = False
     vetted_by = None
+
+
+class PublishedCommentaryFactory(BaseCommentaryFactory):
+    arxiv_identifier = ''
+    arxiv_link = ''
+    arxiv_or_DOI_string = factory.lazy_attribute(lambda o: o.pub_DOI)

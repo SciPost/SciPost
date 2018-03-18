@@ -93,12 +93,20 @@ def random_external_doi():
         '1742-5468',
         '0550-3213(96)'
     ))
-    return '10.%s/%s.%s' % (
-        random_digits(5), journal, random_pub_number())
+    return '10.%s/%s.%s' % (random_digits(5), journal, random_pub_number())
 
 
 def random_digits(n):
     return "".join(random.choice(string.digits) for _ in range(n))
+
+
+def generate_orcid():
+    return '{}-{}-{}-{}'.format(
+        random_digits(4),
+        random_digits(4),
+        random_digits(4),
+        random_digits(4),
+    )
 
 
 def filter_keys(dictionary, keys_to_keep):

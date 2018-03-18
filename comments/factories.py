@@ -1,3 +1,4 @@
+import random
 import factory
 
 from commentaries.models import Commentary
@@ -44,9 +45,15 @@ class CommentaryCommentFactory(CommentFactory):
 class SubmissionCommentFactory(CommentFactory):
     content_object = factory.Iterator(Submission.objects.all())
 
+    @factory.post_generation
+    def replies(self, create, extracted, **kwargs):
+        if create:
+            for i in range(random.randint(0, 2)):
+                ReplyCommentFactory(content_object=self)
+
 
 class ReplyCommentFactory(CommentFactory):
-    content_object = factory.SubFactory(SubmissionCommentFactory)
+    content_object = factory.SubFactory(SubmissionCommentFactory, replies=False)
     is_author_reply = factory.Faker('boolean')
 
 

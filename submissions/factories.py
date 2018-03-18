@@ -2,6 +2,7 @@ import factory
 import pytz
 import random
 
+from comments.factories import SubmissionCommentFactory
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.models import Contributor
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
@@ -12,7 +13,7 @@ from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSI
                        STATUS_PUBLISHED, SUBMISSION_TYPE, STATUS_RESUBMITTED, STATUS_VETTED,\
                        REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC, REPORT_REC,\
                        REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT
-from .models import Submission, Report, RefereeInvitation
+from .models import Submission, Report, RefereeInvitation, EICRecommendation
 
 from faker import Faker
 
@@ -94,6 +95,17 @@ class EICassignedSubmissionFactory(SubmissionFactory):
 
         for i in range(random.randint(0, 2)):
             FulfilledRefereeInvitationFactory(submission=self)
+
+    @factory.post_generation
+    def comments(self, create, extracted, **kwargs):
+        if create:
+            for i in range(random.randint(0, 3)):
+                SubmissionCommentFactory(content_object=self)
+
+    @factory.post_generation
+    def eic_recommendation(self, create, extracted, **kwargs):
+        if create:
+            EICRecommendationFactory(submission=self)
 
 
 class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
@@ -294,6 +306,11 @@ class AcceptedRefereeInvitationFactory(RefereeInvitationFactory):
     date_responded = factory.lazy_attribute(lambda o: Faker().date_time_between(
         start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC))
 
+    @factory.post_generation
+    def report(self, create, extracted, **kwargs):
+        if create:
+            VettedReportFactory(submission=self.submission, author=self.referee)
+
 
 class FulfilledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
     fulfilled = True
@@ -302,7 +319,8 @@ class FulfilledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
 
     @factory.post_generation
     def report(self, create, extracted, **kwargs):
-        VettedReportFactory(submission=self.submission, author=self.referee)
+        if create:
+            VettedReportFactory(submission=self.submission, author=self.referee)
 
 
 class CancelledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
@@ -310,3 +328,18 @@ class CancelledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
     cancelled = True
     date_responded = factory.lazy_attribute(lambda o: Faker().date_time_between(
         start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC))
+
+
+class EICRecommendationFactory(factory.django.DjangoModelFactory):
+    submission = factory.Iterator(Submission.objects.all())
+    date_submitted = factory.lazy_attribute(lambda o: Faker().date_time_between(
+        start_date=o.submission.submission_date, end_date="now", tzinfo=pytz.UTC))
+    remarks_for_authors = factory.Faker('paragraph')
+    requested_changes = factory.Faker('paragraph')
+    remarks_for_editorial_college = factory.Faker('paragraph')
+    recommendation = factory.Iterator(REPORT_REC[1:], getter=lambda c: c[0])
+    version = 1
+    active = True
+
+    class Meta:
+        model = EICRecommendation
