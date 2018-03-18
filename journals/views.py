@@ -24,14 +24,13 @@ from django.views.generic.edit import UpdateView
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 
 from .constants import STATUS_DRAFT
-from .helpers import issue_doi_label_from_doi_label
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
 from .forms import FundingInfoForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
                    PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
-                   PublicationAuthorOrderingForm
+                   PublicationAuthorOrderingFormSet
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .utils import JournalUtils
 
@@ -190,15 +189,20 @@ class PublicationGrantsRemovalView(PermissionsMixin, DetailView):
         return redirect(reverse('journals:update_grants', args=(self.object.doi_label,)))
 
 
-class PublicationAuthorOrderingView(PermissionsMixin, UpdateView):
-    """
-    Remove grant associated to a Publication.
-    """
-    permission_required = 'scipost.can_publish_accepted_submission'
-    model = Publication
-    slug_field = slug_url_kwarg = 'doi_label'
-    form_class = PublicationAuthorOrderingForm
-    template_name = 'journals/publication_authors_form.html'
+@permission_required('scipost.can_publish_accepted_submission', raise_exception=True)
+def publication_authors_ordering(request, doi_label):
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    formset = PublicationAuthorOrderingFormSet(
+        request.POST or None, queryset=publication.authors.order_by('order'))
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, 'Author ordering updated')
+        return redirect(publication.get_absolute_url())
+    context = {
+        'formset': formset,
+        'publication': publication,
+    }
+    return render(request, 'journals/publication_authors_form.html', context)
 
 
 class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
@@ -293,25 +297,6 @@ def manage_metadata(request, doi_label=None, issue_doi_label=None, journal_doi_l
         'associate_generic_funder_form': associate_generic_funder_form,
     }
     return render(request, 'journals/manage_metadata.html', context)
-
-
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def mark_first_author(request, publication_id, author_object_id):
-    publication = get_object_or_404(Publication, id=publication_id)
-    author_object = get_object_or_404(publication.authors, id=author_object_id)
-
-    # Redo ordering
-    author_object.order = 1
-    author_object.save()
-    author_objects = publication.authors.exclude(id=author_object.id)
-    count = 2
-    for author in author_objects:
-        author.order = count
-        author.save()
-        count += 1
-    messages.success(request, 'Marked {} first author'.format(author_object))
-    return redirect(reverse('journals:manage_metadata',
-                            kwargs={'doi_label': publication.doi_label}))
 
 
 @permission_required('scipost.can_draft_publication', return_403=True)
