@@ -31,7 +31,7 @@ from .forms import FundingInfoForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
                    PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
-                   PublicaitonAuthorOrderingForm
+                   PublicationAuthorOrderingForm
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .utils import JournalUtils
 
@@ -197,7 +197,7 @@ class PublicationAuthorOrderingView(PermissionsMixin, UpdateView):
     permission_required = 'scipost.can_publish_accepted_submission'
     model = Publication
     slug_field = slug_url_kwarg = 'doi_label'
-    form_class = PublicaitonAuthorOrderingForm
+    form_class = PublicationAuthorOrderingForm
     template_name = 'journals/publication_authors_form.html'
 
 

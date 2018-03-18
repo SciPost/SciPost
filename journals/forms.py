@@ -83,7 +83,7 @@ class FundingInfoForm(forms.ModelForm):
         return super().save(*args, **kwargs)
 
 
-class PublicaitonAuthorOrderingForm(forms.ModelForm):
+class PublicationAuthorOrderingForm(forms.ModelForm):
     authors = forms.CharField()
 
     class Meta:
