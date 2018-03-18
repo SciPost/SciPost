@@ -56,5 +56,10 @@ ul.sortable-list {
         border: 1px solid $scipost-darkblue;
         padding: 0.5rem;
         margin-bottom: -1px;
+        cursor: move;
+
+        &:hover {
+            background-color: $gray-200;
+        }
     }
 }
