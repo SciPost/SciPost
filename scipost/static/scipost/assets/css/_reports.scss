@@ -40,3 +40,22 @@
         }
     }
 }
+
+.anonymous-alert {
+    margin-bottom: 0.5rem;
+
+    .anonymous-yes {
+        color: $red;
+    }
+    .anonymous-no {
+        color: $green;
+    }
+}
+
+.report-preview {
+    .latex-preview {
+        border: 1px solid $scipost-darkblue;
+        padding: 0.5rem 0.75rem;
+        white-space: pre-wrap;
+    }
+}
