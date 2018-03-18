@@ -224,10 +224,10 @@ class Issue(models.Model):
     An Issue may be used as a subgroup of Publications related to a specific Journal object.
     """
     in_journal = models.ForeignKey(
-        'journals.Journal', on_delete=models.PROTECT, null=True, blank=True,
+        'journals.Journal', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Volume or Journal to the Issue')
     in_volume = models.ForeignKey(
-        'journals.Volume', on_delete=models.PROTECT, null=True, blank=True,
+        'journals.Volume', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Volume or Journal to the Issue')
     number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
@@ -341,10 +341,10 @@ class Publication(models.Model):
     accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE,
                                                related_name='publication')
     in_issue = models.ForeignKey(
-        'journals.Issue', on_delete=models.PROTECT, null=True, blank=True,
+        'journals.Issue', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Issue or Journal to the Publication')
     in_journal = models.ForeignKey(
-        'journals.Journal', on_delete=models.PROTECT, null=True, blank=True,
+        'journals.Journal', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Issue or Journal to the Publication')
     paper_nr = models.PositiveSmallIntegerField()
     status = models.CharField(max_length=8,

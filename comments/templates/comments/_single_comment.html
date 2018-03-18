@@ -15,24 +15,24 @@
 
     <p class="my-3 pb-2">
         {{ comment.comment_text|linebreaksbr }}
-
-        {% if comment.file_attachment %}
-            <h3>Attachment:</h3>
-            <p>
-                <a target="_blank" href="{{ comment.get_attachment_url }}">
-                    {% if comment.file_attachment|is_image %}
-                        <img class="attachment attachment-comment" src="{{ comment.get_attachment_url }}">
-                    {% else %}
-                        {{ comment.file_attachment|filename }}<br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
-                    {% endif %}
-                </a>
-            </p>
-        {% endif %}
     </p>
+    {% if comment.file_attachment %}
+        <h3>Attachment:</h3>
+        <p>
+            <a target="_blank" href="{{ comment.get_attachment_url }}">
+                {% if comment.file_attachment|is_image %}
+                    <img class="attachment attachment-comment" src="{{ comment.get_attachment_url }}">
+                {% else %}
+                    {{ comment.file_attachment|filename }}
+                {% endif %}
+            </a>
+        </p>
+    {% endif %}
+
     {% if is_editorial_college or is_edcol_admin %}
         {% if comment.remarks_for_editors %}
             <h3>Remarks for editors:</h3>
-            <p>{{ comment.remarks_for_editors|linebreaks }}</p>
+            <p>{{ comment.remarks_for_editors|linebreaksbr }}</p>
         {% endif %}
     {% endif %}
 

@@ -1,108 +1,170 @@
 import factory
 import pytz
+import random
 
-from django.utils import timezone
-
+from comments.factories import SubmissionCommentFactory
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.models import Contributor
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
-from common.helpers import random_arxiv_identifier_without_version_number, random_scipost_journal
+from common.helpers import random_arxiv_identifier_without_version_number, random_scipost_journal,\
+    random_scipost_report_doi_label
 
 from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSION_INCOMING,\
                        STATUS_PUBLISHED, SUBMISSION_TYPE, STATUS_RESUBMITTED, STATUS_VETTED,\
                        REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC, REPORT_REC,\
                        REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT
-from .models import Submission, Report, RefereeInvitation
+from .models import Submission, Report, RefereeInvitation, EICRecommendation
 
 from faker import Faker
 
 
 class SubmissionFactory(factory.django.DjangoModelFactory):
+    author_list = factory.Faker('name')
+    submitted_by = factory.Iterator(Contributor.objects.all())
+    submission_type = factory.Iterator(SUBMISSION_TYPE, getter=lambda c: c[0])
+    submitted_to_journal = factory.Sequence(lambda n: random_scipost_journal())
+    title = factory.Faker('sentence')
+    abstract = factory.Faker('paragraph', nb_sentences=10)
+    arxiv_link = factory.Faker('uri')
+    arxiv_identifier_wo_vn_nr = factory.Sequence(
+        lambda n: random_arxiv_identifier_without_version_number())
+    subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
+    domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
+    abstract = factory.Faker('paragraph')
+    author_comments = factory.Faker('paragraph')
+    remarks_for_editors = factory.Faker('paragraph')
+    is_current = True
+    arxiv_vn_nr = 1
+    arxiv_link = factory.lazy_attribute(lambda o: (
+        'https://arxiv.org/abs/%s' % o.arxiv_identifier_wo_vn_nr))
+    arxiv_identifier_w_vn_nr = factory.lazy_attribute(lambda o: '%sv%i' % (
+        o.arxiv_identifier_wo_vn_nr, o.arxiv_vn_nr))
+    submission_date = factory.Faker('date_this_decade')
+    latest_activity = factory.LazyAttribute(lambda o: Faker().date_time_between(
+        start_date=o.submission_date, end_date="now", tzinfo=pytz.UTC))
+
     class Meta:
         model = Submission
 
-    author_list = factory.Faker('name')
-    submitted_by = factory.Iterator(Contributor.objects.all())
-    submitted_to_journal = factory.Sequence(lambda n: random_scipost_journal())
-    title = factory.lazy_attribute(lambda x: Faker().sentence())
-    abstract = factory.lazy_attribute(lambda x: Faker().paragraph())
-    arxiv_link = factory.Faker('uri')
-    arxiv_identifier_wo_vn_nr = factory.Sequence(
-                                    lambda n: random_arxiv_identifier_without_version_number())
-    subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
-    domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
-    abstract = Faker().paragraph()
-    author_comments = Faker().paragraph()
-    remarks_for_editors = Faker().paragraph()
-    submission_type = factory.Iterator(SUBMISSION_TYPE, getter=lambda c: c[0])
-    is_current = True
-
-    @factory.post_generation
-    def fill_arxiv_fields(self, create, extracted, **kwargs):
-        '''Fill empty arxiv fields.'''
-        self.arxiv_link = 'https://arxiv.org/abs/%s' % self.arxiv_identifier_wo_vn_nr
-        self.arxiv_identifier_w_vn_nr = '%sv1' % self.arxiv_identifier_wo_vn_nr
-        self.arxiv_vn_nr = kwargs.get('arxiv_vn_nr', 1)
-
     @factory.post_generation
     def contributors(self, create, extracted, **kwargs):
-        contributors = list(Contributor.objects.order_by('?')[:4])
+        contributors = Contributor.objects.all()
+        if self.editor_in_charge:
+            contributors = contributors.exclude(id=self.editor_in_charge.id)
+        contributors = contributors.order_by('?')[:random.randint(1, 6)]
 
         # Auto-add the submitter as an author
-        self.submitted_by = contributors.pop()
+        self.submitted_by = contributors[0]
+        self.author_list = ', '.join([
+            '%s %s' % (c.user.first_name, c.user.last_name) for c in contributors])
 
         if not create:
             return
-        self.authors.add(self.submitted_by)
 
         # Add three random authors
-        for contrib in contributors:
-            self.authors.add(contrib)
-            self.author_list += ', %s %s' % (contrib.user.first_name, contrib.user.last_name)
-
-    @factory.post_generation
-    def dates(self, create, extracted, **kwargs):
-        timezone.now()
-        if kwargs.get('submission', False):
-            self.submission_date = kwargs['submission']
-            self.cycle.update_deadline()
-            return
-        self.submission_date = Faker().date_time_between(start_date="-3y", end_date="now",
-                                                         tzinfo=pytz.UTC).date()
-        self.latest_activity = Faker().date_time_between(start_date=self.submission_date,
-                                                         end_date="now", tzinfo=pytz.UTC)
+        self.authors.add(*contributors)
         self.cycle.update_deadline()
 
 
 class UnassignedSubmissionFactory(SubmissionFactory):
-    '''This Submission is a 'new request' by a Contributor for its Submission.'''
+    """
+    A new incoming Submission without any EIC assigned.
+    """
     status = STATUS_UNASSIGNED
 
 
 class EICassignedSubmissionFactory(SubmissionFactory):
+    """
+    A Submission with an EIC assigned, visible in the pool and refereeing in process.
+    """
     status = STATUS_EIC_ASSIGNED
     open_for_commenting = True
     open_for_reporting = True
 
+    @factory.lazy_attribute
+    def editor_in_charge(self):
+        return Contributor.objects.order_by('?').first()
+
     @factory.post_generation
-    def eic(self, create, extracted, **kwargs):
-        '''Assign an EIC to submission.'''
-        author_ids = list(self.authors.values_list('id', flat=True))
-        self.editor_in_charge = (Contributor.objects.order_by('?')
-                                            .exclude(pk=self.submitted_by.pk)
-                                            .exclude(pk__in=author_ids).first())
+    def referee_invites(self, create, extracted, **kwargs):
+        for i in range(random.randint(1, 3)):
+            RefereeInvitationFactory(submission=self)
+
+        for i in range(random.randint(0, 2)):
+            AcceptedRefereeInvitationFactory(submission=self)
+
+        for i in range(random.randint(0, 2)):
+            FulfilledRefereeInvitationFactory(submission=self)
+
+    @factory.post_generation
+    def comments(self, create, extracted, **kwargs):
+        if create:
+            for i in range(random.randint(0, 3)):
+                SubmissionCommentFactory(content_object=self)
+
+    @factory.post_generation
+    def eic_recommendation(self, create, extracted, **kwargs):
+        if create:
+            EICRecommendationFactory(submission=self)
 
 
-class ResubmittedSubmissionFactory(SubmissionFactory):
-    '''This Submission is a `resubmitted` version.'''
+class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
+    """
+    A Submission that has a newer Submission version in the database
+    with a successive version number.
+    """
     status = STATUS_RESUBMITTED
     open_for_commenting = False
     open_for_reporting = False
     is_current = False
     is_resubmission = False
 
+    @factory.post_generation
+    def successive_submission(self, create, extracted, **kwargs):
+        """
+        Generate a second Submission that's the successive version of the resubmitted Submission
+        """
+        if create and extracted is not False:
+            # Prevent infinite loops by checking the extracted argument
+            ResubmissionFactory(arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr,
+                                previous_submission=False)
 
-class ResubmissionFactory(SubmissionFactory):
+    @factory.post_generation
+    def gather_successor_data(self, create, extracted, **kwargs):
+        """
+        Gather some data from Submission with same arxiv id such that this Submission
+        more or less looks like any regular real resubmission.
+        """
+        submission = Submission.objects.filter(
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(
+            arxiv_vn_nr=self.arxiv_vn_nr).first()
+        if not submission:
+            return
+
+        self.author_list = submission.author_list
+        self.submitted_by = submission.submitted_by
+        self.editor_in_charge = submission.editor_in_charge
+        self.submission_type = submission.submission_type
+        self.submitted_to_journal = submission.submitted_to_journal
+        self.title = submission.title
+        self.subject_area = submission.subject_area
+        self.domain = submission.domain
+        self.title = submission.title
+        self.authors.set(self.authors.all())
+
+    @factory.post_generation
+    def referee_invites(self, create, extracted, **kwargs):
+        """
+        This Submission is deactivated for refereeing.
+        """
+        for i in range(random.randint(0, 2)):
+            FulfilledRefereeInvitationFactory(submission=self)
+
+        for i in range(random.randint(1, 3)):
+            CancelledRefereeInvitationFactory(submission=self)
+
+
+class ResubmissionFactory(EICassignedSubmissionFactory):
     """
     This Submission is a newer version of a Submission which is
     already known by the SciPost database.
@@ -111,63 +173,94 @@ class ResubmissionFactory(SubmissionFactory):
     open_for_commenting = True
     open_for_reporting = True
     is_resubmission = True
+    arxiv_vn_nr = 2
 
     @factory.post_generation
-    def fill_arxiv_fields(self, create, extracted, **kwargs):
-        '''Fill empty arxiv fields.'''
-        self.arxiv_link = 'https://arxiv.org/abs/%s' % self.arxiv_identifier_wo_vn_nr
-        self.arxiv_identifier_w_vn_nr = '%sv2' % self.arxiv_identifier_wo_vn_nr
-        self.arxiv_vn_nr = 2
+    def previous_submission(self, create, extracted, **kwargs):
+        if create and extracted is not False:
+            # Prevent infinite loops by checking the extracted argument
+            ResubmittedSubmissionFactory(arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr,
+                                         successive_submission=False)
 
     @factory.post_generation
-    def eic(self, create, extracted, **kwargs):
-        '''Assign an EIC to submission.'''
-        author_ids = list(self.authors.values_list('id', flat=True))
-        self.editor_in_charge = (Contributor.objects.order_by('?')
-                                            .exclude(pk=self.submitted_by.pk)
-                                            .exclude(pk__in=author_ids).first())
-
-    @factory.post_generation
-    def dates(self, create, extracted, **kwargs):
-        """Overwrite the parent `dates` method to skip the update_deadline call."""
-        timezone.now()
-        if kwargs.get('submission', False):
-            self.submission_date = kwargs['submission']
+    def gather_predecessor_data(self, create, extracted, **kwargs):
+        """
+        Gather some data from Submission with same arxiv id such that this Submission
+        more or less looks like any regular real resubmission.
+        """
+        submission = Submission.objects.filter(
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(
+            arxiv_vn_nr=self.arxiv_vn_nr).first()
+        if not submission:
             return
-        self.submission_date = Faker().date_time_between(start_date="-3y", end_date="now",
-                                                         tzinfo=pytz.UTC).date()
-        self.latest_activity = Faker().date_time_between(start_date=self.submission_date,
-                                                         end_date="now", tzinfo=pytz.UTC)
+
+        self.author_list = submission.author_list
+        self.submitted_by = submission.submitted_by
+        self.editor_in_charge = submission.editor_in_charge
+        self.submission_type = submission.submission_type
+        self.submitted_to_journal = submission.submitted_to_journal
+        self.title = submission.title
+        self.subject_area = submission.subject_area
+        self.domain = submission.domain
+        self.title = submission.title
+        self.authors.set(self.authors.all())
+
+    @factory.post_generation
+    def referee_invites(self, create, extracted, **kwargs):
+        """
+        Referees for resubmissions are invited once the cycle has been chosen.
+        """
+        pass
 
 
-class PublishedSubmissionFactory(SubmissionFactory):
+class PublishedSubmissionFactory(EICassignedSubmissionFactory):
     status = STATUS_PUBLISHED
     open_for_commenting = False
     open_for_reporting = False
 
+    @factory.post_generation
+    def generate_publication(self, create, extracted, **kwargs):
+        if create and extracted is not False:
+            from journals.factories import PublicationFactory
+            PublicationFactory(
+                journal=self.submitted_to_journal,
+                accepted_submission=self, title=self.title, author_list=self.author_list)
+
+    @factory.post_generation
+    def referee_invites(self, create, extracted, **kwargs):
+        for i in range(random.randint(2, 4)):
+            FulfilledRefereeInvitationFactory(submission=self)
+
+        for i in range(random.randint(0, 2)):
+            CancelledRefereeInvitationFactory(submission=self)
+
 
 class ReportFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Report
-
     status = factory.Iterator(REPORT_STATUSES, getter=lambda c: c[0])
     submission = factory.Iterator(Submission.objects.all())
-    date_submitted = Faker().date_time_between(start_date="-3y", end_date="now", tzinfo=pytz.UTC)
+    date_submitted = factory.Faker('date_time_this_decade')
     vetted_by = factory.Iterator(Contributor.objects.all())
     author = factory.Iterator(Contributor.objects.all())
-    qualification = factory.Iterator(REFEREE_QUALIFICATION, getter=lambda c: c[0])
-    strengths = Faker().paragraph()
-    weaknesses = Faker().paragraph()
-    report = Faker().paragraph()
-    requested_changes = Faker().paragraph()
-    validity = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
-    significance = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
-    originality = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
-    clarity = factory.Iterator(RANKING_CHOICES, getter=lambda c: c[0])
-    formatting = factory.Iterator(QUALITY_SPEC, getter=lambda c: c[0])
-    grammar = factory.Iterator(QUALITY_SPEC, getter=lambda c: c[0])
-    recommendation = factory.Iterator(REPORT_REC, getter=lambda c: c[0])
-    remarks_for_editors = Faker().paragraph()
+    strengths = factory.Faker('paragraph')
+    weaknesses = factory.Faker('paragraph')
+    report = factory.Faker('paragraph')
+    requested_changes = factory.Faker('paragraph')
+
+    qualification = factory.Iterator(REFEREE_QUALIFICATION[1:], getter=lambda c: c[0])
+    validity = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
+    significance = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
+    originality = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
+    clarity = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
+    formatting = factory.Iterator(QUALITY_SPEC[1:], getter=lambda c: c[0])
+    grammar = factory.Iterator(QUALITY_SPEC[1:], getter=lambda c: c[0])
+    recommendation = factory.Iterator(REPORT_REC[1:], getter=lambda c: c[0])
+
+    remarks_for_editors = factory.Faker('paragraph')
+    flagged = factory.Faker('boolean', chance_of_getting_true=10)
+    anonymous = factory.Faker('boolean', chance_of_getting_true=75)
+
+    class Meta:
+        model = Report
 
 
 class DraftReportFactory(ReportFactory):
@@ -182,26 +275,71 @@ class UnVettedReportFactory(ReportFactory):
 
 class VettedReportFactory(ReportFactory):
     status = STATUS_VETTED
+    needs_doi = True
+    doideposit_needs_updating = factory.Faker('boolean')
+    doi_label = factory.lazy_attribute(lambda n: random_scipost_report_doi_label())
+    pdf_report = factory.Faker('file_name', extension='pdf')
 
 
 class RefereeInvitationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = RefereeInvitation
-
     submission = factory.SubFactory('submissions.factories.SubmissionFactory')
-    referee = factory.Iterator(Contributor.objects.all())
+    referee = factory.lazy_attribute(lambda o: Contributor.objects.exclude(
+        id__in=o.submission.authors.all()).order_by('?').first())
+
+    title = factory.lazy_attribute(lambda o: o.referee.title)
+    first_name = factory.lazy_attribute(lambda o: o.referee.user.first_name)
+    last_name = factory.lazy_attribute(lambda o: o.referee.user.last_name)
+    email_address = factory.lazy_attribute(lambda o: o.referee.user.email)
+    date_invited = factory.lazy_attribute(lambda o: o.submission.latest_activity)
+    nr_reminders = factory.lazy_attribute(lambda o: random.randint(0, 4))
+    date_last_reminded = factory.lazy_attribute(lambda o: o.submission.latest_activity)
 
     invitation_key = factory.Faker('md5')
-    invited_by = factory.Iterator(Contributor.objects.all())
+    invited_by = factory.lazy_attribute(lambda o: o.submission.editor_in_charge)
 
-    @factory.post_generation
-    def contributor_fields(self, create, extracted, **kwargs):
-        self.title = self.referee.title
-        self.first_name = self.referee.user.first_name
-        self.last_name = self.referee.user.last_name
-        self.email_address = self.referee.user.email
+    class Meta:
+        model = RefereeInvitation
 
 
 class AcceptedRefereeInvitationFactory(RefereeInvitationFactory):
     accepted = True
-    date_responded = Faker().date_time_between(start_date="-1y", end_date="now", tzinfo=pytz.UTC)
+    date_responded = factory.lazy_attribute(lambda o: Faker().date_time_between(
+        start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC))
+
+    @factory.post_generation
+    def report(self, create, extracted, **kwargs):
+        if create:
+            VettedReportFactory(submission=self.submission, author=self.referee)
+
+
+class FulfilledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
+    fulfilled = True
+    date_responded = factory.lazy_attribute(lambda o: Faker().date_time_between(
+        start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC))
+
+    @factory.post_generation
+    def report(self, create, extracted, **kwargs):
+        if create:
+            VettedReportFactory(submission=self.submission, author=self.referee)
+
+
+class CancelledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
+    fulfilled = False
+    cancelled = True
+    date_responded = factory.lazy_attribute(lambda o: Faker().date_time_between(
+        start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC))
+
+
+class EICRecommendationFactory(factory.django.DjangoModelFactory):
+    submission = factory.Iterator(Submission.objects.all())
+    date_submitted = factory.lazy_attribute(lambda o: Faker().date_time_between(
+        start_date=o.submission.submission_date, end_date="now", tzinfo=pytz.UTC))
+    remarks_for_authors = factory.Faker('paragraph')
+    requested_changes = factory.Faker('paragraph')
+    remarks_for_editorial_college = factory.Faker('paragraph')
+    recommendation = factory.Iterator(REPORT_REC[1:], getter=lambda c: c[0])
+    version = 1
+    active = True
+
+    class Meta:
+        model = EICRecommendation
