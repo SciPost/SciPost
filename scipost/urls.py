@@ -7,7 +7,7 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
-from journals.constants import REGEX_CHOICES
+from journals.constants import REGEX_CHOICES, PUBLICATION_DOI_REGEX
 from submissions import views as submission_views
 
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
@@ -185,16 +185,16 @@ urlpatterns = [
         name='author_reply_detail'),
 
     # Publication detail (+pdf)
-    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+    url(r'^10.21468/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail,
         name='publication_detail'),
-    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+    url(r'^(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail,
         name='publication_detail'),
-    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
+    url(r'^10.21468/(?P<doi_label>{regex})/pdf$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail_pdf,
         name='publication_pdf'),
-    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
+    url(r'^(?P<doi_label>{regex})/pdf$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail_pdf,
         name='publication_pdf'),
 
@@ -207,6 +207,7 @@ urlpatterns = [
     # Journal landing page
     url(r'^10.21468/%s' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
     url(r'^%s' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
+    url(r'^arxiv_doi_feed/%s' % JOURNAL_REGEX, journals_views.arxiv_doi_feed, name='arxiv_doi_feed'),
 
     ################
     # Howto guides #

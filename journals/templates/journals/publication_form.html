@@ -9,7 +9,7 @@
 
 <h1>Draft publication</h1>
 
-{% if request.GET.issue or form.instance.id %}
+{% if request.GET.issue or form.instance.id or form.to_journal %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|bootstrap }}

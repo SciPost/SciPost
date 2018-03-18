@@ -44,7 +44,7 @@
 <div class="row">
     <div class="col-12">
         {% if recent %}
-          <h2>Recent Submissions:</h2>
+          <h2>Recent Submissions{% if to_journal %} to {{ to_journal }}{% endif %}:</h2>
         {% elif browse %}
           <h2>Submissions in {{ discipline }} in the last {{ nrweeksback }} week{% if nrweeksback == '1' %}{% else %}s{% endif %}:</h2>
         {% else %}
