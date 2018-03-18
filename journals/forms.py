@@ -83,6 +83,20 @@ class FundingInfoForm(forms.ModelForm):
         return super().save(*args, **kwargs)
 
 
+class BasePublicationAuthorsTableFormSet(BaseModelFormSet):
+    def save(self, *args, **kwargs):
+        objects = super().save(*args, **kwargs)
+        for form in self.ordered_forms:
+            form.instance.order = form.cleaned_data['ORDER']
+            form.instance.save()
+        return objects
+
+
+PublicationAuthorOrderingFormSet = modelformset_factory(
+    PublicationAuthorsTable, fields=(), can_order=True, extra=0,
+    formset=BasePublicationAuthorsTableFormSet)
+
+
 class CreateMetadataXMLForm(forms.ModelForm):
     class Meta:
         model = Publication
