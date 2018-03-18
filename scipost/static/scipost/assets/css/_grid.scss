@@ -40,12 +40,20 @@ footer.secondary {
 
 
 .container-inner {
-    padding: $grid-gutter-width;
+    padding: ($grid-gutter-width / 2);
     background-color: $white;
 }
 
 .container {
     max-width: 1500px;
-    padding-left: 30px;
-    padding-right: 30px;
+}
+
+@media screen and (min-width: 768px) {
+    .container-inner {
+        padding: $grid-gutter-width;
+    }
+    .container {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
 }

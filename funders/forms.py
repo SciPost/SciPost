@@ -28,9 +28,9 @@ class GrantForm(HttpRefererFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['recipient'] = forms.ModelChoiceField(
-            queryset=Contributor.objects.all().order_by('user__last_name'),
+            queryset=Contributor.objects.select_related('user').order_by('user__last_name'),
             required=False)
 
 
 class GrantSelectForm(forms.Form):
-    grant = forms.ModelChoiceField(queryset=Grant.objects.all())
+    grant = forms.ModelChoiceField(queryset=Grant.objects.all().select_related('funder'))

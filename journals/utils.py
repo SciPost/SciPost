@@ -18,7 +18,7 @@ class JournalUtils(BaseMailUtil):
                       cls.publication.accepted_submission.title +
                       ' by ' + cls.publication.accepted_submission.author_list +
                       '\n\nhas been published online with reference '
-                      + cls.publication.citation() + '.'
+                      + cls.publication.citation + '.'
                       '\n\nThe publication page is located at the permanent link '
                       'https://scipost.org/' + cls.publication.doi_label + '.'
                       '\n\nThe permanent DOI for your publication is 10.21468/'

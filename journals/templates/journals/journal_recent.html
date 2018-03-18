@@ -19,7 +19,7 @@
     <div class="row">
         <div class="col-12">
             <ul class="list-unstyled">
-                {% for paper in recent_papers %}
+                {% for paper in journal.get_publications.published|slice:':20' %}
                     <li>
                         {% include 'partials/journals/publication_card.html' with publication=paper %}
                     </li>

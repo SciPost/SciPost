@@ -4,7 +4,9 @@ from django.views.generic import TemplateView, RedirectView
 
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
+from journals.constants import PUBLICATION_DOI_REGEX, REGEX_CHOICES
 from journals import views as journals_views
+
 
 urlpatterns = [
     # Journals
@@ -23,64 +25,76 @@ urlpatterns = [
     url(r'^admin/publications/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         journals_views.DraftPublicationUpdateView.as_view(),
         name='update_publication'),
-    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/publish$',
+    url(r'^admin/publications/(?P<doi_label>{regex})/publish$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.PublicationPublishView.as_view(),
         name='publish_publication'),
-    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/approval$',
+    url(r'^admin/publications/(?P<doi_label>{regex})/approval$'.format(
+            regex=PUBLICATION_DOI_REGEX),
         journals_views.DraftPublicationApprovalView.as_view(),
         name='send_publication_for_approval'),
-    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/grants$',
+    url(r'^admin/publications/(?P<doi_label>{regex})/grants$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.PublicationGrantsView.as_view(),
         name='update_grants'),
-    url(r'^admin/publications/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/grants/(?P<grant_id>[0-9]+)/remove$',
+    url(r'^admin/publications/(?P<doi_label>{regex})/grants/(?P<grant_id>[0-9]+)/remove$'.format(
+            regex=PUBLICATION_DOI_REGEX),
         journals_views.PublicationGrantsRemovalView.as_view(),
         name='remove_grant'),
 
     # Editorial and Administrative Workflow
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/authors/add/(?P<contributor_id>[0-9]+)$',
+    url(r'^admin/(?P<doi_label>{regex})/authors/add/(?P<contributor_id>[0-9]+)$'.format(
+            regex=PUBLICATION_DOI_REGEX),
         journals_views.add_author,
         name='add_author'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/authors/add$',
+    url(r'^admin/(?P<doi_label>{regex})/authors/add$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.add_author,
         name='add_author'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/authors/mark_first/(?P<author_object_id>[0-9]+)$',
+    url(r'^admin/(?P<doi_label>{regex})/authors/mark_first/(?P<author_object_id>[0-9]+)$'.format(
+            regex=PUBLICATION_DOI_REGEX),
         journals_views.mark_first_author,
         name='mark_first_author'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/manage_metadata$',
+    url(r'^admin/(?P<doi_label>{regex})/manage_metadata$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.manage_metadata,
         name='manage_metadata'),
     url(r'^admin/(?P<issue_doi_label>[a-zA-Z]+.[0-9]+.[0-9]+)/manage_metadata$',
         journals_views.manage_metadata,
         name='manage_metadata'),
+    url(r'^admin/(?P<journal_doi_label>{regex})/manage_metadata$'.format(regex=REGEX_CHOICES),
+        journals_views.manage_metadata,
+        name='manage_metadata'),
     url(r'^admin/manage_metadata/$',
         journals_views.manage_metadata,
         name='manage_metadata'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/citation_list_metadata$',
+    url(r'^admin/(?P<doi_label>{regex})/citation_list_metadata$'.format(
+            regex=PUBLICATION_DOI_REGEX),
         journals_views.CitationUpdateView.as_view(),
         name='create_citation_list_metadata'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/update_references$',
+    url(r'^admin/(?P<doi_label>{regex})/update_references$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.update_references, name='update_references'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/funders/create_metadata$',
+    url(r'^admin/(?P<doi_label>{regex})/funders/create_metadata$'.format(
+            regex=PUBLICATION_DOI_REGEX),
         journals_views.FundingInfoView.as_view(),
         name='create_funding_info_metadata'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/funders/add_generic$',
+    url(r'^admin/(?P<doi_label>{regex})/funders/add_generic$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.add_generic_funder,
         name='add_generic_funder'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/grants/add$',
+    url(r'^admin/(?P<doi_label>{regex})/grants/add$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.add_associated_grant,
         name='add_associated_grant'),
 
     # Metadata handling
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/metadata/crossref/create$',
+    url(r'^admin/(?P<doi_label>{regex})/metadata/crossref/create$'.format(
+            regex=PUBLICATION_DOI_REGEX),
         journals_views.CreateMetadataXMLView.as_view(),
         name='create_metadata_xml'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/metadata/crossref/deposit/(?P<option>[a-z]+)$',
+    url(r'^admin/(?P<doi_label>{regex})/metadata/crossref/deposit/(?P<option>[a-z]+)$'.format(
+            regex=PUBLICATION_DOI_REGEX),
         journals_views.metadata_xml_deposit,
         name='metadata_xml_deposit'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/metadata/DOAJ$',
+    url(r'^admin/(?P<doi_label>{regex})/metadata/DOAJ$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.produce_metadata_DOAJ,
         name='produce_metadata_DOAJ'),
-    url(r'^admin/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/metadata/DOAJ/deposit$',
+    url(r'^admin/(?P<doi_label>{regex})/metadata/DOAJ/deposit$'.format(
+            regex=PUBLICATION_DOI_REGEX),
         journals_views.metadata_DOAJ_deposit,
         name='metadata_DOAJ_deposit'),
     url(r'^admin/metadata/crossref/(?P<deposit_id>[0-9]+)/mark/(?P<success>[0-1])$',
@@ -103,7 +117,7 @@ urlpatterns = [
     url(r'^admin/citedby/$',
         journals_views.harvest_citedby_list,
         name='harvest_citedby_list'),
-    url(r'^admin/citedby/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/harvest$',
+    url(r'^admin/citedby/(?P<doi_label>{regex})/harvest$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.harvest_citedby_links,
         name='harvest_citedby_links'),
 

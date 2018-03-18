@@ -11,18 +11,21 @@
 
     .links {
         background-color: #ddd;
-        display: inline-block;
+        display: flex;
         font-size: 16px;
         border-radius: $card-border-radius;
         border: 1px solid #c5c5c5;
         margin: 0;
         width: 100%;
         padding: 0;
+        flex-direction: row;
+        overflow: auto;
+        list-style: none;
 
         > li {
-            display: inline-block;
             margin: 0;
             padding: 0.5rem;
+            white-space: nowrap;
 
             a {
                 padding: 0.25rem 0.75rem;

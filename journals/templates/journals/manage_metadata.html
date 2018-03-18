@@ -19,22 +19,46 @@ event: "focusin"
     <span class="breadcrumb-item">Manage metadata</span>
 {% endblock %}
 
+{% block body_class %}{{ block.super }} manage_metadata{% endblock %}
+
 {% block content %}
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Manage Publications Metadata{% if issue_doi_label %} for issue {{ issue_doi_label }}{% endif %}</h1>
-	{% if issue_doi_label %}
-	<h3>Return to the <a href="{% url 'journals:manage_metadata' %}">Main manage metadata page</a></h3>
-	{% endif %}
-	<h3>Manage metadata per issue:</h3>
-        <ul>
-          {% for issue in issues %}
-          <li>
-            <a href="{% url 'journals:manage_metadata' issue_doi_label=issue.doi_label %}">{{ issue }}</a>
-          </li>
-          {% endfor %}
+        <h1 class="highlight">Manage Publications Metadata{% if issue_doi_label %} for issue {{ issue_doi_label }}{% elif journal %} for {{ journal }}{% endif %}</h1>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <h3>Available journals</h3>
+        <ul class="links">
+            {% for journal in journals %}
+                {% url 'journals:manage_metadata' journal_doi_label=journal.doi_label as url %}
+                <li class="{% if url == request.path %}active{% endif %}">
+                    <a href="{{ url }}">{{ journal }}</a>
+                </li>
+            {% endfor %}
         </ul>
+    </div>
+    <div class="col-md-6">
+        <h3>Manage metadata per issue:</h3>
+        {% if journal.has_issues %}
+            <ul class="links">
+              {% for volume in journal.volumes.all %}
+                  {% for issue in volume.issues.all %}
+                      {% url 'journals:manage_metadata' issue_doi_label=journal.doi_label as url %}
+                      <li class="{% if url == request.path %}active{% endif %}">
+                        <a href="{{ url }}">{{ issue }}</a>
+                      </li>
+                  {% endfor %}
+              {% empty %}
+                <li><em>There are no Volumes and Issues for this Journal</em></li>
+              {% endfor %}
+            </ul>
+        {% else %}
+            <em>This Journal does not have Issues, but individual Publications.</em>
+        {% endif %}
     </div>
 </div>
 

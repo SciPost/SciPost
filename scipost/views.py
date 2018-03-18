@@ -708,9 +708,6 @@ def _update_personal_data_contributor(request):
             cont_form.propagate_orcid()
         messages.success(request, 'Your personal data has been updated.')
         return redirect(reverse('scipost:update_personal_data'))
-    else:
-        user_form = UpdateUserDataForm(instance=contributor.user)
-        cont_form = UpdatePersonalDataForm(instance=contributor)
 
     context = {
         'user_form': user_form,
