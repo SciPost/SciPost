@@ -11,6 +11,7 @@ from journals import views as journals_views
 urlpatterns = [
     # Journals
     url(r'^$', journals_views.journals, name='journals'),
+    url(r'^publications$', journals_views.PublicationListView.as_view(), name='publications'),
     url(r'scipost_physics', RedirectView.as_view(url=reverse_lazy('scipost:landing_page',
                                                  args=['SciPostPhys']))),
     url(r'^journals_terms_and_conditions$',

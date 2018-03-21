@@ -21,6 +21,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
+from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 
 from .constants import STATUS_DRAFT
@@ -38,9 +39,10 @@ from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
 from submissions.models import Submission, Report
+from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
-from scipost.mixins import PermissionsMixin, RequestViewMixin
+from scipost.mixins import PermissionsMixin, RequestViewMixin, PaginationMixin
 
 from guardian.decorators import permission_required
 
@@ -53,6 +55,28 @@ def journals(request):
     '''Main landing page for Journals application.'''
     context = {'journals': Journal.objects.order_by('name')}
     return render(request, 'journals/journals.html', context)
+
+
+class PublicationListView(PaginationMixin, ListView):
+    """
+    Show Publications filtered per subject area.
+    """
+    queryset = Publication.objects.published()
+    paginate_by = 10
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.GET.get('issue'):
+            qs = qs.filter(in_issue__id=int(self.request.GET['issue']))
+        if self.request.GET.get('subject'):
+            qs = qs.for_subject(self.request.GET['subject'])
+        return qs.order_by('-publication_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['recent_issues'] = Issue.objects.published().order_by('-start_date')[:5]
+        context['subject_areas'] = (('', 'Show all'),) + SCIPOST_SUBJECT_AREAS[0][1]
+        return context
 
 
 def landing_page(request, doi_label):
@@ -1093,11 +1117,11 @@ def publication_detail_pdf(request, doi_label):
 # Feed DOIs to arXiv #
 ######################
 
-"""
-This method provides arXiv with the doi and journal ref of the 100 most recent
-publications in the journal specified by doi_label.
-"""
 def arxiv_doi_feed(request, doi_label):
+    """
+    This method provides arXiv with the doi and journal ref of the 100 most recent
+    publications in the journal specified by doi_label.
+    """
     journal = get_object_or_404(Journal, doi_label=doi_label)
     feedxml = ('<preprint xmlns="http://arxiv.org/doi_feed" '
                'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
