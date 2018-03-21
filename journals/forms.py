@@ -16,6 +16,7 @@ from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLI
 from .exceptions import PaperNumberingError
 from .models import Issue, Publication, Reference, UnregisteredAuthor, PublicationAuthorsTable
 from .utils import JournalUtils
+from .signals import notify_manuscript_published
 
 
 from funders.models import Grant, Funder
@@ -652,4 +653,6 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
             # Email authors
             JournalUtils.load({'publication': self.instance})
             JournalUtils.send_authors_paper_published_email()
+            notify_manuscript_published(self.request.user, self.instance, False)
+
         return self.instance

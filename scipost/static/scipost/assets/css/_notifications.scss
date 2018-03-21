@@ -30,20 +30,48 @@
     }
 }
 
-.popover {
-    top: 9px !important;
-}
+
 .popover-template {
     display: none;
 }
 
 .notifications {
     padding: 0;
-    min-width: 500px;
+    min-width: 450px;
+    border-color: $gray-600;
+    border-radius: 1px;
+    margin-top: 17px !important;
+
+    .inbox-header,
+    .header {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid $gray-600;
+        margin: 0 1rem;
+    }
+
+    .inbox-header {
+        border-top: 1px solid $gray-600;
+        border-bottom: 0;
+        margin-top: 0.25rem;
+    }
 
     .header {
-        padding: 1rem 1rem 0.5rem 1rem;
-        background-color: #f9f9f9;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        margin-bottom: 0.25rem;
+
+        h3,
+        .item {
+            border: 0;
+            line-height: 20px;
+            display: inline-block;
+        }
+
+        .item {
+            float: right;
+            padding-left: 0;
+            padding-right: 0;
+        }
     }
 
     li.item {
@@ -55,7 +83,7 @@
     .item {
         padding: 0.4rem 1rem;
         border-radius: 0;
-        border-top: 1px solid #fff;
+        border-top: 1px solid $white;
         border-left: 0;
         border-right: 0;
         flex-direction: row;
@@ -77,6 +105,30 @@
 
         &:last-child {
             border-bottom: 0;
+        }
+    }
+
+    .live_notify_list {
+        max-height: 250px;
+        overflow: scroll;
+
+        &::after {
+            bottom: 0;
+            content: '';
+            display: block;
+            width: 100%;
+            position: absolute;
+            height: 20px;
+            box-shadow: inset 0 -3px 9px 0px $gray-600;
+        }
+
+        .meta {
+            font-size: 90%;
+            margin-top: 0.5rem;
+        }
+
+        .item {
+            border-color: $gray-600;
         }
     }
 
@@ -114,7 +166,48 @@
         }
     }
 
+
+    .links .item {
+        &.active,
+        &.active[href]:hover {
+            background-color: transparent;
+        }
+
+        &.active {
+            font-weight: 600;
+            text-decoration: underline;
+        }
+    }
+
     .item:hover .actions {
         opacity: 1.0;
+    }
+
+    .unavailable {
+        margin: 0 1rem 0.25rem;
+        padding: 0.5rem 0 0.75rem;
+        border-bottom: 1px solid $gray-600;
+
+        .head {
+            color: $orange;
+            font-weight: 600;
+        }
+    }
+
+    .arrow {
+        top: -5px !important;
+
+        &::before {
+            border-bottom-color: $gray-600 !important;
+            border-width: 12px;
+            left: -2px;
+            top: -7px !important;
+        }
+
+        &::after {
+            border-bottom-color: $white;
+            border-width: 10px;
+            // left: -2px;
+        }
     }
 }

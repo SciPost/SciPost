@@ -1,0 +1,52 @@
+{% load request_filters %}
+
+<div class="popover-template popover">
+    <div class="popover notifications" role="tooltip">
+        <div class="arrow"></div>
+        {% if user.contributor %}
+            <div class="header">
+                <h3>{{ user.contributor.get_title_display }} {{ user.first_name }} {{ user.last_name }}</h3>
+                <a class="item" href="{% url 'scipost:update_personal_data' %}"><i class="fa fa-gear"></i> Update personal data</a>
+            </div>
+            {% if not user.contributor.is_currently_available %}
+                <div class="unavailable">
+                    <div class="head">You are currently unavailable</div>
+                    <div class="text">Check your availability in your personal page if this should not be the case.</div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="header">
+                <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+            </div>
+        {% endif %}
+
+        <div class="links">
+            <a class="item {% active 'scipost:personal_page' %}" href="{% url 'scipost:personal_page' %}">Personal Page</a>
+            {% if user.partner_contact or perms.scipost.can_read_partner_page %}
+                  <a class="item {% active 'partners:dashboard' %}" href="{% url 'partners:dashboard' %}">Partner Page</a>
+            {% endif %}
+
+            {% if perms.scipost.can_view_timesheets %}
+                <a class="item {% active 'finances:finance' %}" href="{% url 'finances:finance' %}">Financial Administration</a>
+            {% endif %}
+
+            {% if perms.scipost.can_view_all_funding_info %}
+                <a class="item {% active 'funders:funders' %}" href="{% url 'funders:funders' %}">Funders</a>
+            {% endif %}
+
+            {% if perms.scipost.can_view_production %}
+                <a class="item {% active 'production:production' %}" href="{% url 'production:production' %}">Production</a>
+            {% endif %}
+
+            {% if perms.scipost.can_view_pool %}
+                <a class="item {% active 'submissions:pool' %}" href="{% url 'submissions:pool' %}">Submissions Pool</a>
+            {% endif %}
+
+            <a class="item" href="{% url 'scipost:logout' %}">Logout</a>
+        </div>
+
+        <h4 class="inbox-header">Inbox</h4>
+        <div class="live_notify_list"></div>
+    </div>
+    <div class="popover-body"></div>
+</div>

@@ -70,10 +70,6 @@
                   </li>
               {% endif %}
 
-              <li class="nav-item search-item">
-                <a class="nav-link" href="{% url 'scipost:search' %}">Search</a>
-              </li>
-
             </ul>
             <form action="{% url 'scipost:search' %}" method="get" class="form-inline search-nav-form">
                 <input class="form-control mr-sm-2" id="id_q" maxlength="100" name="q" type="text" aria-label="Search" value="{{ search_query|default:'' }}">

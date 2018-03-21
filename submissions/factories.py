@@ -13,7 +13,7 @@ from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSI
                        STATUS_PUBLISHED, SUBMISSION_TYPE, STATUS_RESUBMITTED, STATUS_VETTED,\
                        REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC, REPORT_REC,\
                        REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT
-from .models import Submission, Report, RefereeInvitation, EICRecommendation
+from .models import Submission, Report, RefereeInvitation, EICRecommendation, EditorialAssignment
 
 from faker import Faker
 
@@ -84,6 +84,11 @@ class EICassignedSubmissionFactory(SubmissionFactory):
     @factory.lazy_attribute
     def editor_in_charge(self):
         return Contributor.objects.order_by('?').first()
+
+    @factory.post_generation
+    def eic_assignment(self, create, extracted, **kwargs):
+        if create:
+            EditorialAssignmentFactory(submission=self, to=self.editor_in_charge)
 
     @factory.post_generation
     def referee_invites(self, create, extracted, **kwargs):
@@ -227,6 +232,11 @@ class PublishedSubmissionFactory(EICassignedSubmissionFactory):
                 accepted_submission=self, title=self.title, author_list=self.author_list)
 
     @factory.post_generation
+    def eic_assignment(self, create, extracted, **kwargs):
+        if create:
+            EditorialAssignmentFactory(submission=self, to=self.editor_in_charge, completed=True)
+
+    @factory.post_generation
     def referee_invites(self, create, extracted, **kwargs):
         for i in range(random.randint(2, 4)):
             FulfilledRefereeInvitationFactory(submission=self)
@@ -343,3 +353,20 @@ class EICRecommendationFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = EICRecommendation
+
+
+class EditorialAssignmentFactory(factory.django.DjangoModelFactory):
+    """
+    A EditorialAssignmentFactory should always have a `submission` explicitly assigned. This will
+    mostly be done using the post_generation hook in any SubmissionFactory.
+    """
+    submission = None
+    to = factory.Iterator(Contributor.objects.all())
+    accepted = True
+    deprecated = False
+    completed = False
+    date_created = factory.lazy_attribute(lambda o: o.submission.latest_activity)
+    date_answered = factory.lazy_attribute(lambda o: o.submission.latest_activity)
+
+    class Meta:
+        model = EditorialAssignment

@@ -63,11 +63,11 @@ function update_list_callback(data, args) {
             }
         }
         if(typeof item.timesince !== 'undefined'){
-            message += "<br><small>";
+            message += "<div class='meta'>";
             if(typeof item.forward_link !== 'undefined') {
                 message += " <a href='" + item.forward_link + "'>Direct link</a> &middot; ";
             }
-            message += "<span class='text-muted'>" + item.timesince + " ago</span></small>";
+            message += "<span class='text-muted'>" + item.timesince + " ago</span></div>";
         }
 
         // Notification actions
@@ -127,7 +127,7 @@ var badge_timer = setInterval(trigger_badge, 60000);
 function initiate_popover() {
     var template = $('.notifications_container .popover-template').html();
     $('.notifications_container a[data-toggle="popover"]').popover({
-        trigger: 'focus',
+        // trigger: 'focus',
         template: template,
         placement: 'bottom',
         title: 'empty-on-purpose'
