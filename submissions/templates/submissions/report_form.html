@@ -10,56 +10,27 @@
 {% block pagetitle %}: submit report{% endblock pagetitle %}
 
 {% block content %}
+    <script>
+        $(function(){
+            function set_preview(el) {
+                $('#preview-' + $(el).attr('id')).text($(el).val())
+            }
+            $('#id_weaknesses, #id_strengths, #id_report, #id_requested_changes').on('keyup', function(){
+                set_preview(this)
+                MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+            })
 
-<script>
-  $(document).ready(function(){
-
-    var strengths_input = $("#id_strengths");
-    function set_strengths(value) {
-      $("#preview-strengths").text(value)
-    }
-    set_strengths(strengths_input.val())
-    strengths_input.keyup(function(){
-      var new_text = $(this).val()
-      set_strengths(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
-
-    var weaknesses_input = $("#id_weaknesses");
-    function set_weaknesses(value) {
-      $("#preview-weaknesses").text(value)
-    }
-    set_weaknesses(weaknesses_input.val())
-    weaknesses_input.keyup(function(){
-      var new_text = $(this).val()
-      set_weaknesses(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
-
-    var report_input = $("#id_report");
-    function set_report(value) {
-      $("#preview-report").text(value)
-    }
-    set_report(report_input.val())
-    report_input.keyup(function(){
-      var new_text = $(this).val()
-      set_report(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
-
-    var requested_changes_input = $("#id_requested_changes");
-    function set_requested_changes(value) {
-      $("#preview-requested_changes").text(value)
-    }
-    set_requested_changes(requested_changes_input.val())
-    requested_changes_input.keyup(function(){
-      var new_text = $(this).val()
-      set_requested_changes(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
-
-  });
-</script>
+            $('input[name$="anonymous"]').on('change', function() {
+                $('.anonymous-alert').show()
+                .children('h3').hide()
+                if ($(this).prop('checked')) {
+                    $('.anonymous-yes').show();
+                } else {
+                    $('.anonymous-no').show();
+                }
+            }).trigger('change');
+        });
+    </script>
 
 
 {% if user.is_authenticated %}
@@ -76,7 +47,7 @@
         </div>
     </div>
 
-    <hr>
+    <hr class="divider">
     <div class="row">
         <div class="col-12">
             <div class="card card-grey">
@@ -97,9 +68,14 @@
                     </div>
                 </div>
             {% endif %}
+            <br>
             <form action="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
                 {% csrf_token %}
                 {{ form|bootstrap:'3,9' }}
+                <div class="anonymous-alert" style="display: none;">
+                    <h3 class="anonymous-yes">Your Report will remain anonymous.</h3>
+                    <h3 class="anonymous-no">Your Report will be signed. Thank you very much!</h3>
+                </div>
                 <p>Any fields with an asterisk (*) are required.</p>
                 <input class="btn btn-primary" type="submit" name="save_submit" value="Submit your report"/>
                 <input class="btn btn-secondary ml-2" type="submit" name="save_draft" value="Save your report as draft"/>
@@ -118,20 +94,20 @@
 
     <hr>
     <div class="row">
-        <div class="col-12">
+        <div class="col-12 report-preview">
             <h3>Preview of your report (text areas only):</h3>
 
             <h4>Strengths:</h4>
-            <p class="p-2" id="preview-strengths"></p>
+            <p class="latex-preview" id="preview-id_strengths"></p>
 
             <h4>Weaknesses:</h4>
-            <p class="p-2" id="preview-weaknesses"></p>
+            <p class="latex-preview" id="preview-id_weaknesses"></p>
 
             <h4>Report:</h4>
-            <p class="p-2" id="preview-report"></p>
+            <p class="latex-preview" id="preview-id_report"></p>
 
             <h4>Requested changes:</h4>
-            <p class="p-2" id="preview-requested_changes"></p>
+            <p class="latex-preview" id="preview-id_requested_changes"></p>
         </div>
     </div>
 

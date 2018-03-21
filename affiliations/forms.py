@@ -1,6 +1,5 @@
 from django import forms
 from django.forms import BaseModelFormSet, modelformset_factory
-# from django.db.models import F
 
 from django_countries import countries
 from django_countries.fields import LazyTypedChoiceField

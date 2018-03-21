@@ -118,9 +118,6 @@ class BaseSubmissionCycle:
         Reset the reporting deadline according to current datetime and default cycle length.
         New reporting deadline may be explicitly given as datetime instance.
         """
-        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
-            raise CycleUpdateDeadlineError('Submission has invalid status: %s'
-                                           % self.submission.status)
         delta_d = period or self.default_days
         deadline = timezone.now() + datetime.timedelta(days=delta_d)
         self.submission.reporting_deadline = deadline

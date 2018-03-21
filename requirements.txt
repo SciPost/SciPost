@@ -32,9 +32,8 @@ sphinx-rtd-theme==0.1.9  # Sphinx theme
 
 
 # Testing
-factory-boy==2.9.2
-Faker==0.7.18
-fake-factory==0.7.2  # Old version of Faker package
+factory-boy==2.10.0
+Faker==0.8.12
 
 
 # Django Utils

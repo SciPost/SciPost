@@ -666,22 +666,6 @@ p.publicationAuthors {
     padding: 1rem;
     border-radius: 1.4px;
 }
-#preview-strengths {
-  border: 1px solid black;
-  white-space: pre-wrap;
-}
-#preview-weaknesses {
-  border: 1px solid black;
-  white-space: pre-wrap;
-}
-#preview-report {
-  border: 1px solid black;
-  white-space: pre-wrap;
-}
-#preview-requested_changes {
-  border: 1px solid black;
-  white-space: pre-wrap;
-}
 
 /* Styling of sphinxdoc-generated docs */
 .pagination-top {
