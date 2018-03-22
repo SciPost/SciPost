@@ -30,7 +30,7 @@
         <form method="post">
             {% csrf_token %}
             {{form|bootstrap}}
-            <input type="submit" value="Update" class="btn btn-secondary" />
+            <input type="submit" value="Update" class="btn btn-outline-secondary" />
         </form>
         {% if request.GET.bulkid %}
             <div class="mb-3 mt-5">

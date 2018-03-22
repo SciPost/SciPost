@@ -19,7 +19,7 @@
 
         <div class="row">
             <div class="col-12">
-              <hr class="hr12">
+              <hr>
               <h3>Your credentials will soon be verified by an Editor.</h3>
               <p>If accepted, you will become a registered Contributor, enabling you to submit, comment and vote.</p>
             </div>
@@ -44,39 +44,39 @@
                     <div class="tab-nav-inner">
                         <!-- Nav tabs -->
                         <ul class="nav btn-group personal-page-nav" role="tablist">
-                          <li class="nav-item btn btn-secondary">
+                          <li class="nav-item btn btn-outline-secondary">
                             <a class="nav-link" {% if tab == 'account' %}sp-autoload='true'{% endif %} href="#account" sp-dynamic-load="{% url 'scipost:personal_page_account' %}" data-toggle="tab">Account</a>
                           </li>
                           {% if is_scipost_admin or is_edcol_admin or is_editorial_college or is_advisory_board or is_vetting_editor or is_ambassador or is_junior_ambassador %}
-                              <li class="nav-item btn btn-secondary">
+                              <li class="nav-item btn btn-outline-secondary">
                                 <a class="nav-link" {% if tab == 'editorial_actions' %}sp-autoload='true'{% endif %} href="#editorial-actions" sp-dynamic-load="{% url 'scipost:personal_page_editorial_actions' %}" data-toggle="tab">Editorial Actions</a>
                               </li>
             		      {% endif %}
                           {% if perms.scipost.can_referee %}
-                              <li class="nav-item btn btn-secondary">
+                              <li class="nav-item btn btn-outline-secondary">
                                 <a class="nav-link" {% if tab == 'refereeing' %}sp-autoload='true'{% endif %} data-toggle="tab" href="#refereeing" sp-dynamic-load="{% url 'scipost:personal_page_refereeing' %}">Refereeing {% if refereeing_tab_total_count %}({{refereeing_tab_total_count}}){% endif %}</a>
                               </li>
                           {% endif %}
                           {% if contributor %}
                           {# If user is contributor #}
-                              <li class="nav-item btn btn-secondary">
+                              <li class="nav-item btn btn-outline-secondary">
                                 <a class="nav-link" {% if tab == 'publications' %}sp-autoload='true'{% endif %} data-toggle="tab" sp-dynamic-load="{% url 'scipost:personal_page_publications' %}" href="#publications">Publications</a>
                               </li>
-                              <li class="nav-item btn btn-secondary">
+                              <li class="nav-item btn btn-outline-secondary">
                                 <a class="nav-link" {% if tab == 'submissions' %}sp-autoload='true'{% endif %} data-toggle="tab" sp-dynamic-load="{% url 'scipost:personal_page_submissions' %}" href="#submissions">Submissions</a>
                               </li>
-                              <li class="nav-item btn btn-secondary">
+                              <li class="nav-item btn btn-outline-secondary">
                                 <a class="nav-link" {% if tab == 'commentaries' %}sp-autoload='true'{% endif %} data-toggle="tab" sp-dynamic-load="{% url 'scipost:personal_page_commentaries' %}" href="#commentaries">Commentaries</a>
                               </li>
-                              <li class="nav-item btn btn-secondary">
+                              <li class="nav-item btn btn-outline-secondary">
                                 <a class="nav-link" {% if tab == 'theses' %}sp-autoload='true'{% endif %} data-toggle="tab" sp-dynamic-load="{% url 'scipost:personal_page_theses' %}" href="#theses">Theses</a>
                               </li>
-                              <li class="nav-item btn btn-secondary">
+                              <li class="nav-item btn btn-outline-secondary">
                                   {% with contributor.comments.regular_comments.awaiting_vetting.count as count %}
                                     <a class="nav-link" {% if tab == 'comments' %}sp-autoload='true'{% endif %} data-toggle="tab" sp-dynamic-load="{% url 'scipost:personal_page_comments' %}" href="#comments">Comments{% if count %} ({{count}} unvetted){% endif %}</a>
                                   {% endwith %}
                               </li>
-                              <li class="nav-item btn btn-secondary">
+                              <li class="nav-item btn btn-outline-secondary">
                                   {% with contributor.comments.author_replies.awaiting_vetting.count as count %}
                                     <a class="nav-link" {% if tab == 'author_replies' %}sp-autoload='true'{% endif %} data-toggle="tab" sp-dynamic-load="{% url 'scipost:personal_page_author_replies' %}" href="#author-replies">Author Replies{% if count %} ({{count}} unvetted){% endif %}</a>
                                   {% endwith %}
