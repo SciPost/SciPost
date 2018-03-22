@@ -21,15 +21,14 @@ WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] =\
 MAILCHIMP_API_USER = get_secret("MAILCHIMP_API_USER")
 MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")
 
-DATABASES['default']['PORT'] = '5432'
 
 # iThenticate
 ITHENTICATE_USERNAME = get_secret('ITHENTICATE_USERNAME')
 ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
 
 # Logging
-LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/Users/jorrandewit/Documents/Develop/SciPost/SciPost_v1/logs/arxiv.log'
-LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/jorrandewit/Documents/Develop/SciPost/SciPost_v1/logs/doi.log'
+LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/Users/jorrandewit/Documents/Develop/SciPost/scipost_v1/logs/arxiv.log'
+LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/jorrandewit/Documents/Develop/SciPost/scipost_v1/logs/doi.log'
 
 # Other
 CROSSREF_LOGIN_ID = get_secret("CROSSREF_LOGIN_ID")
