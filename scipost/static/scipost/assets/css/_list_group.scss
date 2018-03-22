@@ -63,3 +63,41 @@ ul.sortable-list {
         }
     }
 }
+
+
+li,
+.li {
+    .thesis,
+    .commentary,
+    .submission,
+    .publication {
+        .subject {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            color: $text-muted;
+        }
+
+        .title {
+            margin-bottom: 0;
+        }
+
+        .authors {
+            margin-bottom: 0.5rem;
+        }
+
+        .meta {
+            color: $text-muted;
+        }
+
+        .abstract {
+            margin-bottom: 0.25rem;
+        }
+    }
+
+    .submission,
+    .commentary {
+        .meta {
+            margin-bottom: 0.25rem;
+        }
+    }
+}

@@ -22,7 +22,7 @@
         <form action="{% url 'commentaries:prefill_using_arxiv_identifier' %}" method="post">
           {% csrf_token %}
           {{ query_form|bootstrap }}
-          <input class="btn btn-secondary" type="submit" value="Query arXiv"/>
+          <input class="btn btn-outline-secondary" type="submit" value="Query arXiv"/>
         </form>
     </div>
 </div>

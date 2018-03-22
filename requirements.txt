@@ -24,7 +24,6 @@ django-webpack-loader==0.5
 
 
 # Documentation Packages
-alabaster==0.7.10  # Sphinx theme
 docutils==0.12  # What's this thing?
 Pygments==2.2.0  # Syntax highlighter
 Sphinx==1.4.9

@@ -36,7 +36,7 @@
         <form action="{% url 'commentaries:modify_commentary_request' commentary_id=commentary.id %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap }}
-            <input type="submit" class="btn btn-secondary" value="Submit and accept" />
+            <input type="submit" class="btn btn-outline-secondary" value="Submit and accept" />
         </form>
     </div>
 </div>

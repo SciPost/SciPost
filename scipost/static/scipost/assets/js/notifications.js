@@ -127,9 +127,12 @@ var badge_timer = setInterval(trigger_badge, 60000);
 function initiate_popover() {
     var template = $('.notifications_container .popover-template').html();
     $('.notifications_container a[data-toggle="popover"]').popover({
-        // trigger: 'focus',
+        trigger: 'focus',
+        animation: false,
+        offset: '0, 10px',
         template: template,
         placement: 'bottom',
+        boundary: 'viewport',
         title: 'empty-on-purpose'
     })
     .on('inserted.bs.popover', function() {
