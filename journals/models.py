@@ -516,6 +516,8 @@ class Publication(models.Model):
         return self.in_journal or self.in_issue.in_volume.in_journal
 
     def get_paper_nr(self):
+        if self.in_journal:
+            return self.paper_nr
         return paper_nr_string(self.paper_nr)
 
     def citation_rate(self):
