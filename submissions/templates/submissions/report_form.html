@@ -10,56 +10,46 @@
 {% block pagetitle %}: submit report{% endblock pagetitle %}
 
 {% block content %}
+    <script>
+        $(function(){
+            function set_preview(el) {
+                $('[data-receive$="' + $(el).attr('id').split('id_')[1] + '"]').text($(el).val())
+            }
+            function set_preview_select(el) {
+                $('[data-receive$="' + $(el).attr('id').split('id_')[1] + '"]').text($(el).find('option:selected').text())
+            }
+            function update_identity_preview(show_identity) {
+                $('[data-receive="report-identity"] [if-anonymous]').hide();
+                if (show_identity) {
+                    $('[data-receive="report-identity"] [if-anonymous="false"]').show();
+                } else {
+                    $('[data-receive="report-identity"] [if-anonymous="true"]').show();
+                }
+            }
+            $('#id_weaknesses, #id_strengths, #id_report, #id_requested_changes').on('keyup', function(){
+                set_preview(this)
+                if (typeof MathJax !== "undefined") {
+                    // First trigger will fail since MathJax is loaded in the footer.
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+                }
+            }).trigger('keyup');
+            $('#id_validity, #id_originality, #id_significance, #id_clarity, #id_formatting, #id_grammar').on('change', function(){
+                set_preview_select(this);
+            }).trigger('change');
 
-<script>
-  $(document).ready(function(){
-
-    var strengths_input = $("#id_strengths");
-    function set_strengths(value) {
-      $("#preview-strengths").text(value)
-    }
-    set_strengths(strengths_input.val())
-    strengths_input.keyup(function(){
-      var new_text = $(this).val()
-      set_strengths(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
-
-    var weaknesses_input = $("#id_weaknesses");
-    function set_weaknesses(value) {
-      $("#preview-weaknesses").text(value)
-    }
-    set_weaknesses(weaknesses_input.val())
-    weaknesses_input.keyup(function(){
-      var new_text = $(this).val()
-      set_weaknesses(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
-
-    var report_input = $("#id_report");
-    function set_report(value) {
-      $("#preview-report").text(value)
-    }
-    set_report(report_input.val())
-    report_input.keyup(function(){
-      var new_text = $(this).val()
-      set_report(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
-
-    var requested_changes_input = $("#id_requested_changes");
-    function set_requested_changes(value) {
-      $("#preview-requested_changes").text(value)
-    }
-    set_requested_changes(requested_changes_input.val())
-    requested_changes_input.keyup(function(){
-      var new_text = $(this).val()
-      set_requested_changes(new_text)
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    })
-
-  });
-</script>
+            $('input[name$="anonymous"]').on('change', function() {
+                $('.anonymous-alert').show()
+                .children('h3').hide()
+                if ($(this).prop('checked')) {
+                    update_identity_preview(false);
+                    $('.anonymous-yes').show();
+                } else {
+                    update_identity_preview(true);
+                    $('.anonymous-no').show();
+                }
+            }).trigger('change');
+        });
+    </script>
 
 
 {% if user.is_authenticated %}
@@ -71,18 +61,18 @@
 
     <div class="row">
         <div class="col-12">
-            <h2>Submission</h2>
+            <h3>Submission</h3>
             {% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
         </div>
     </div>
 
-    <hr>
+    <hr class="divider">
     <div class="row">
         <div class="col-12">
             <div class="card card-grey">
                 <div class="card-body">
-                    <h1>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h1>
-                    <p>A preview of text areas will appear below as you type (you can use LaTeX \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
+                    <h2>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h2>
+                    <p>A preview of text areas will appear below as you type (you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
                     <p class="mb-0">Any fields with an asterisk (*) are required.</p>
                     {% if form.instance.is_followup_report %}
                         <p class="mb-0">
@@ -97,41 +87,35 @@
                     </div>
                 </div>
             {% endif %}
-            <form action="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
-                {% csrf_token %}
-                {{ form|bootstrap:'3,9' }}
-                <p>Any fields with an asterisk (*) are required.</p>
-                <input class="btn btn-primary" type="submit" name="save_submit" value="Submit your report"/>
-                <input class="btn btn-secondary ml-2" type="submit" name="save_draft" value="Save your report as draft"/>
-                {% if form.report_type == 'report_post_edrec' %}
-                    <div class="card border-warning mt-4">
-                        <div class="card-body">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be labelled as <label class="label label-warning">Post-Editorial Recommendation Report</label>.
+
+            <div class="row">
+                <div class="col-md-6">
+                    <br>
+                    <form action="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+                        {% csrf_token %}
+                        {{ form|bootstrap:'12,12' }}
+                        <div class="anonymous-alert" style="display: none;">
+                            <h3 class="anonymous-yes">Your Report will remain anonymous.</h3>
+                            <h3 class="anonymous-no"><span class="text-danger">Your Report will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
                         </div>
-                    </div>
-                {% endif %}
-                <div class="my-4">
-                    <em>By clicking on Submit, you state that you abide by the <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.</em>
+                        <p>Any fields with an asterisk (*) are required.</p>
+                        <input class="btn btn-primary" type="submit" name="save_submit" value="Submit your report"/>
+                        <input class="btn btn-outline-secondary ml-2" type="submit" name="save_draft" value="Save your report as draft"/>
+                        {% if form.report_type == 'report_post_edrec' %}
+                            <div class="card border-warning mt-4">
+                                <div class="card-body">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be labelled as <label class="label label-warning">Post-Editorial Recommendation Report</label>.
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="my-4">
+                            <em>By clicking on Submit, you state that you abide by the <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct" target="_blank">referee code of conduct</a>.</em>
+                        </div>
+                    </form>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <hr>
-    <div class="row">
-        <div class="col-12">
-            <h3>Preview of your report (text areas only):</h3>
-
-            <h4>Strengths:</h4>
-            <p class="p-2" id="preview-strengths"></p>
-
-            <h4>Weaknesses:</h4>
-            <p class="p-2" id="preview-weaknesses"></p>
-
-            <h4>Report:</h4>
-            <p class="p-2" id="preview-report"></p>
-
-            <h4>Requested changes:</h4>
-            <p class="p-2" id="preview-requested_changes"></p>
+                <div class="col-md-6">
+                    {% include 'partials/submissions/report_preview.html' %}
+                </div>
+            </div>
         </div>
     </div>
 

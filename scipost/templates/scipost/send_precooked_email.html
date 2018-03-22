@@ -18,7 +18,7 @@
           <form action="{% url 'scipost:send_precooked_email' %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap }}
-            <input type="submit" class="btn btn-secondary" value="Send email"/>
+            <input type="submit" class="btn btn-outline-secondary" value="Send email"/>
           </form>
     </div>
 </div>

@@ -233,13 +233,7 @@ def commentary_detail(request, arxiv_or_DOI_string):
                                    arxiv_or_DOI_string=arxiv_or_DOI_string)
 
     form = CommentForm()
-    try:
-        author_replies = Comment.objects.filter(
-            commentary=commentary, is_author_reply=True, status__gte=1)
-    except Comment.DoesNotExist:
-        author_replies = ()
-    context = {'commentary': commentary,
-               'author_replies': author_replies, 'form': form}
+    context = {'commentary': commentary, 'form': form}
     return render(request, 'commentaries/commentary_detail.html', context)
 
 

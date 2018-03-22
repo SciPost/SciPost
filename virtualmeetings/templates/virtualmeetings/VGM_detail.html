@@ -53,13 +53,13 @@
       <div class="card card-grey my-2">
           <div class="card-header">
               <h2>Feedback on SciPost</h2>
-              <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#submitFeedback">Provide feedback</a>
+              <a href="javascript:;" class="btn btn-outline-secondary" data-toggle="toggle" data-target="#submitFeedback">Provide feedback</a>
           </div>
           <div class="card-body" style="display: none;" id="submitFeedback">
               <form action="{% url 'virtualmeetings:feedback' VGM_id=VGM.id %}" method="post">
             	{% csrf_token %}
             	{{ feedback_form|bootstrap }}
-            	<input class="btn btn-secondary" type="submit" value="Submit"/>
+            	<input class="btn btn-outline-secondary" type="submit" value="Submit"/>
               </form>
           </div>
       </div>
@@ -74,12 +74,12 @@
           	<li id="feedback{{feedback.id}}">
                 {% include 'virtualmeetings/feedback_content.html' with feedback=feedback %}
             </li>
-              	<a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#remarkfeedbackForm{{ feedback.id }}">Add a remark on this Feedback</a>
+              	<a href="javascript:;" class="btn btn-outline-secondary" data-toggle="toggle" data-target="#remarkfeedbackForm{{ feedback.id }}">Add a remark on this Feedback</a>
               	<div class="py-2" id="remarkfeedbackForm{{ feedback.id }}">
               	  <form action="{% url 'virtualmeetings:add_remark_on_feedback' VGM_id=VGM.id feedback_id=feedback.id %}" method="post">
               	    {% csrf_token %}
               	    {{ remark_form|bootstrap:'0,12' }}
-              	    <input class="btn btn-secondary" type="submit" value="Submit" />
+              	    <input class="btn btn-outline-secondary" type="submit" value="Submit" />
               	  </form>
               	</div>
               	{% if feedback.remarks.all %}
@@ -103,13 +103,13 @@
           <div class="card card-grey my-2">
               <div class="card-header">
                   <h2>Nominations to the Editorial College</h2>
-                  <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#submitNominationForm">Nominate an Editorial Fellow candidate</a>
+                  <a href="javascript:;" class="btn btn-outline-secondary" data-toggle="toggle" data-target="#submitNominationForm">Nominate an Editorial Fellow candidate</a>
               </div>
               <div class="card-body" style="display: none;" id="submitNominationForm">
                   <form action="{% url 'virtualmeetings:nominate_Fellow' VGM_id=VGM.id %}" method="post">
                 	{% csrf_token %}
                 	{{ nomination_form|bootstrap }}
-                	<input class="btn btn-secondary" type="submit" value="Submit"/>
+                	<input class="btn btn-outline-secondary" type="submit" value="Submit"/>
                   </form>
               </div>
           </div>
@@ -203,12 +203,12 @@
                                                 </div>
                                             </div>
                                             <div class="card-body bg-white">
-                                                <a href="javascript:;" class="card-link btn btn-secondary" data-toggle="toggle" data-target="#remarkForm{{ nomination.id }}">Add a remark on this Nomination</a>
+                                                <a href="javascript:;" class="card-link btn btn-outline-secondary" data-toggle="toggle" data-target="#remarkForm{{ nomination.id }}">Add a remark on this Nomination</a>
                                                 <div class="submitRemarkForm my-3" id="remarkForm{{ nomination.id }}" style="display: none;">
                                                     <form action="{% url 'virtualmeetings:add_remark_on_nomination' VGM_id=VGM.id nomination_id=nomination.id %}" method="post">
                                                     {% csrf_token %}
                                                     {{ remark_form|bootstrap:'0,12' }}
-                                                    <input type="submit" class="btn btn-secondary" value="Submit" />
+                                                    <input type="submit" class="btn btn-outline-secondary" value="Submit" />
                                                     </form>
                                                 </div>
                                             </div>
@@ -241,13 +241,13 @@
         <div class="card card-grey my-2">
             <div class="card-header">
                 <h2>Submit a new Motion</h2>
-                <a href="javascript:;" class="btn btn-secondary" data-toggle="toggle" data-target="#submitMotionForm">Put a new Motion forward</a>
+                <a href="javascript:;" class="btn btn-outline-secondary" data-toggle="toggle" data-target="#submitMotionForm">Put a new Motion forward</a>
             </div>
             <div class="card-body" style="display: none;" id="submitMotionForm">
                 <form action="{% url 'virtualmeetings:put_motion_forward' VGM_id=VGM.id %}" method="post">
                   {% csrf_token %}
                   {{ motion_form|bootstrap }}
-                  <input class="btn btn-secondary" type="submit" value="Submit"/>
+                  <input class="btn btn-outline-secondary" type="submit" value="Submit"/>
                 </form>
             </div>
         </div>
@@ -291,12 +291,12 @@
                                     <strong>(you have voted: Disagree)</strong>
                                 {% endif %}
                             </div>
-                            <a class="btn btn-secondary" href="javascript:;" data-toggle="toggle" data-target="#remarkForm{{ motion.id }}">Add a remark on this Motion</a>
+                            <a class="btn btn-outline-secondary" href="javascript:;" data-toggle="toggle" data-target="#remarkForm{{ motion.id }}">Add a remark on this Motion</a>
                             <div class="submitRemarkForm mt-3" id="remarkForm{{ motion.id }}" style="display: none;">
                                 <form action="{% url 'virtualmeetings:add_remark_on_motion' motion_id=motion.id %}" method="post">
                                     {% csrf_token %}
                                     {{ remark_form|bootstrap:"0,12" }}
-                                    <input type="submit" class="btn btn-secondary" value="Submit" />
+                                    <input type="submit" class="btn btn-outline-secondary" value="Submit" />
                                 </form>
                             </div>
                             {% if motion.remarks.all %}

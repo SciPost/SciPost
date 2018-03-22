@@ -1,0 +1,47 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Publication Authors{% endblock pagetitle %}
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <nav class="breadcrumb hidden-sm-down">
+                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+                <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+                <span class="breadcrumb-item active">Author ordering</span>
+
+            </nav>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+
+<h1 class="highlight">Author Ordering</h1>
+
+<div class="mb-4">
+    {% include 'partials/journals/publication_li_content.html' with publication=publication %}
+</div>
+<a href="{% url 'journals:add_author' publication.doi_label %}">Add missing author</a>
+<h3 class="highlight">Ordering</h3>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <ul class="fa-ul sortable-list d-inline-block">
+        {% for form in formset %}
+            <li>
+                <i class="fa fa-sort"></i>
+                {{ form.instance.first_name }} {{ form.instance.last_name }}
+                <div class="d-none">{{ form }}</div>
+            </li>
+        {% endfor %}
+    </ul>
+    <br>
+    <input type="submit" class="btn btn-primary" value="Save ordering">
+</form>
+
+{% endblock %}

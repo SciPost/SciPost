@@ -82,7 +82,7 @@
     {% endfor %}
 
     <div class="mb-4">
-        <h2>Events</h2>
+        <h3>Events</h3>
         <div id="eventslist">
             {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
         </div>
@@ -92,7 +92,7 @@
 {% if is_author or user|is_in_group:'Editorial Administrators' %}
     {% if submission.production_stream.proofs.for_authors.exists %}
         <div class="mb-4" id="proofsslist">
-            <h2>Proofs</h2>
+            <h3>Proofs</h3>
             <ul>
                 {% for proofs in submission.production_stream.proofs.for_authors %}
                     <li>

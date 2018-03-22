@@ -33,18 +33,62 @@ body #MathJax_Message {
     margin: 0 auto;
 }
 
-footer .logos a {
-    width: 25%;
-    display: inline-block;
-    max-width: 100px;
-    padding: 0 0.25rem;
-}
+footer {
+    background-color: $scipost-darkblue;
+    color: $white;
 
-// body > .container {
-//     padding-bottom: 1.5rem;
-// }
+    a,
+    a:hover {
+        color: $white;
+    }
+
+    .logos a {
+        width: 25%;
+        display: inline-block;
+        max-width: 100px;
+        padding: 0 0.25rem;
+    }
+}
 
 .quote-border {
     border-left: 3px solid $scipost-lightblue;
     padding-left: 1rem;
+}
+
+
+
+header {
+    background-color: $scipost-darkblue;
+    color: $white;
+    border: 0;
+    margin: 0;
+    padding: 0 5px;
+
+    img {
+        padding: 0;
+        margin: 10px 20px;
+    }
+
+    p {
+        margin: 25px;
+    }
+
+    .content {
+        display: flex;
+        flex-wrap: nowrap;
+
+        .logobox {
+            align-self: center;
+
+            a {
+                display: block;
+            }
+        }
+
+        .blurbbox {
+            align-self: center;
+            margin-left: auto;
+            text-align: right;
+        }
+    }
 }

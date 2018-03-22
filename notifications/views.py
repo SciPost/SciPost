@@ -60,7 +60,7 @@ def live_notification_list(request):
 
     try:
         # Default to 5 as a max number of notifications
-        num_to_fetch = max(int(request.GET.get('max', 5)), 1)
+        num_to_fetch = max(int(request.GET.get('max', 10)), 1)
         num_to_fetch = min(num_to_fetch, 100)
     except ValueError:
         num_to_fetch = 5

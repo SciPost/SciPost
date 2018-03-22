@@ -21,16 +21,17 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
+from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 
 from .constants import STATUS_DRAFT
-from .helpers import issue_doi_label_from_doi_label
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
 from .forms import FundingInfoForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
-                   PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm
+                   PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
+                   PublicationAuthorOrderingFormSet
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .utils import JournalUtils
 
@@ -38,9 +39,10 @@ from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
 from submissions.models import Submission, Report
+from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
-from scipost.mixins import PermissionsMixin, RequestViewMixin
+from scipost.mixins import PermissionsMixin, RequestViewMixin, PaginationMixin
 
 from guardian.decorators import permission_required
 
@@ -53,6 +55,28 @@ def journals(request):
     '''Main landing page for Journals application.'''
     context = {'journals': Journal.objects.order_by('name')}
     return render(request, 'journals/journals.html', context)
+
+
+class PublicationListView(PaginationMixin, ListView):
+    """
+    Show Publications filtered per subject area.
+    """
+    queryset = Publication.objects.published()
+    paginate_by = 10
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.GET.get('issue'):
+            qs = qs.filter(in_issue__id=int(self.request.GET['issue']))
+        if self.request.GET.get('subject'):
+            qs = qs.for_subject(self.request.GET['subject'])
+        return qs.order_by('-publication_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['recent_issues'] = Issue.objects.published().order_by('-start_date')[:5]
+        context['subject_areas'] = (('', 'Show all'),) + SCIPOST_SUBJECT_AREAS[0][1]
+        return context
 
 
 def landing_page(request, doi_label):
@@ -189,6 +213,22 @@ class PublicationGrantsRemovalView(PermissionsMixin, DetailView):
         return redirect(reverse('journals:update_grants', args=(self.object.doi_label,)))
 
 
+@permission_required('scipost.can_publish_accepted_submission', raise_exception=True)
+def publication_authors_ordering(request, doi_label):
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    formset = PublicationAuthorOrderingFormSet(
+        request.POST or None, queryset=publication.authors.order_by('order'))
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, 'Author ordering updated')
+        return redirect(publication.get_absolute_url())
+    context = {
+        'formset': formset,
+        'publication': publication,
+    }
+    return render(request, 'journals/publication_authors_form.html', context)
+
+
 class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
     """
     Any Production Officer or Administrator can draft a new publication without publishing here.
@@ -281,25 +321,6 @@ def manage_metadata(request, doi_label=None, issue_doi_label=None, journal_doi_l
         'associate_generic_funder_form': associate_generic_funder_form,
     }
     return render(request, 'journals/manage_metadata.html', context)
-
-
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def mark_first_author(request, publication_id, author_object_id):
-    publication = get_object_or_404(Publication, id=publication_id)
-    author_object = get_object_or_404(publication.authors, id=author_object_id)
-
-    # Redo ordering
-    author_object.order = 1
-    author_object.save()
-    author_objects = publication.authors.exclude(id=author_object.id)
-    count = 2
-    for author in author_objects:
-        author.order = count
-        author.save()
-        count += 1
-    messages.success(request, 'Marked {} first author'.format(author_object))
-    return redirect(reverse('journals:manage_metadata',
-                            kwargs={'doi_label': publication.doi_label}))
 
 
 @permission_required('scipost.can_draft_publication', return_403=True)
@@ -1096,11 +1117,11 @@ def publication_detail_pdf(request, doi_label):
 # Feed DOIs to arXiv #
 ######################
 
-"""
-This method provides arXiv with the doi and journal ref of the 100 most recent
-publications in the journal specified by doi_label.
-"""
 def arxiv_doi_feed(request, doi_label):
+    """
+    This method provides arXiv with the doi and journal ref of the 100 most recent
+    publications in the journal specified by doi_label.
+    """
     journal = get_object_or_404(Journal, doi_label=doi_label)
     feedxml = ('<preprint xmlns="http://arxiv.org/doi_feed" '
                'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '

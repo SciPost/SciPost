@@ -42,7 +42,7 @@
                 <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
                   {% csrf_token %}
                   {{ form|bootstrap }}
-                  <input type="submit" class="btn btn-secondary" value="Query arXiv"/>
+                  <input type="submit" class="btn btn-outline-secondary" value="Query arXiv"/>
                 </form>
             </div>
         </div>

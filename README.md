@@ -189,7 +189,7 @@ The documentation is saved in the local database as a Project with name `SciPost
 
 To update the docs, simply run
 ```shell
-(scipostenv) $ python3 ../manage.py updatedoc -b scipost
+(scipostenv) $ ./manage.py updatedoc -b scipost
 ```
 
 The documentation is then viewable by navigating to `docs/`.

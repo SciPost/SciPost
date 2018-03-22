@@ -34,6 +34,7 @@ from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSe
                    EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
                    SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm,\
                    iThenticateReportForm, SubmissionPoolFilterForm
+from .signals import notify_manuscript_accepted
 from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
@@ -1573,6 +1574,7 @@ def fix_College_decision(request, rec_id):
         # Add SubmissionEvent for authors
         # Do not write a new event for minor/major modification: already done at moment of
         # creation.
+        notify_manuscript_accepted(request.user, submission, False)
         submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
                                         % recommendation.get_recommendation_display())
     elif recommendation.recommendation == -3:
