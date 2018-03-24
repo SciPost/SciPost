@@ -1,0 +1,28 @@
+{% spaceless %}
+    <pre>
+        <code>
+        <span>TY  - JOUR</span><br>
+        <span>PB  - SciPost Foundation</span><br>
+        <span>DO  - {{ publication.doi_string }}</span><br>
+        <span>TI  - {{ publication.title }}</span><br>
+        <span>PY  - {{ publication.publication_date|date:'Y/m/d' }}</span><br>
+        <span>UR  - https://scipost.org{{ publication.get_absolute_url }}</span><br>
+        <span>JF  - {{ publication.get_journal.get_name_display }}</span><br>
+        <span>JA  - {{ publication.get_journal.abbreviation_citation }}</span><br>
+        {% if publication.in_issue %}
+            <span>VL  - {{ publication.in_issue.in_volume.number }}</span><br>
+            <span>IS  - {{ publication.in_issue.number }}</span><br>
+        {% endif %}
+        <span>SP  - {{ publication.get_paper_nr }}</span><br>
+        {% for author in publication.authors.all %}
+            {% if forloop.first %}
+                <span>A1  - {{ author.last_name }}, {{ author.first_name }}</span><br>
+            {% else %}
+                <span>AU  - {{ author.last_name }}, {{ author.first_name }}</span><br>
+            {% endif %}
+        {% endfor %}
+        <span>AB  - {{ publication.abstract }}</span><br>
+        <span>ER  -</span>
+        </code>
+    </pre>
+{% endspaceless %}

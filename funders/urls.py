@@ -9,5 +9,5 @@ urlpatterns = [
     url(r'^add$', views.add_funder, name='add_funder'),
     url(r'^(?P<funder_id>[0-9]+)/$', views.funder_publications,
         name='funder_publications'),
-    url(r'^grants/add$', views.add_grant, name='add_grant'),
+    url(r'^grants/add$', views.CreateGrantView.as_view(), name='add_grant'),
 ]

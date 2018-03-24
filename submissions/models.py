@@ -66,8 +66,7 @@ class Submission(models.Model):
                                      related_name='pool')
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
-                                       blank=True, null=True, default=None)
+    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                      related_name='submitted_submissions')
     voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
@@ -139,11 +138,9 @@ class Submission(models.Model):
             header += ' (current version)'
         else:
             header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
-        try:
+        if hasattr(self, 'publication') and self.publication.is_published:
             header += ' (published as %s (%s))' % (
                 self.publication.doi_string, self.publication.publication_date.strftime('%Y'))
-        except Publication.DoesNotExist:
-            pass
         return header
 
     def touch(self):

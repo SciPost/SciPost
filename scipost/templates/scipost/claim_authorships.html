@@ -34,7 +34,7 @@
                     <div class="card-footer">
                         <form class="d-inline-block" action="{% url 'scipost:claim_pub_authorship' publication_id=pub.id claim=1 %}" method="post">
                             {% csrf_token %}
-                            <input class="btn btn-secondary" type="submit" value="I am an author" />
+                            <input class="btn btn-outline-secondary" type="submit" value="I am an author" />
                         </form>
                         <form class="d-inline-block ml-1" action="{% url 'scipost:claim_pub_authorship' publication_id=pub.id claim=0 %}" method="post">
                             {% csrf_token %}
@@ -62,7 +62,7 @@
                     <div class="card-footer">
                         <form class="d-inline-block" action="{% url 'scipost:claim_sub_authorship' submission_id=sub.id claim=1 %}" method="post">
                             {% csrf_token %}
-                            <input class="btn btn-secondary" type="submit" value="I am an author" />
+                            <input class="btn btn-outline-secondary" type="submit" value="I am an author" />
                         </form>
                         <form class="d-inline-block ml-1" action="{% url 'scipost:claim_sub_authorship' submission_id=sub.id claim=0 %}" method="post">
                             {% csrf_token %}
@@ -91,7 +91,7 @@
                     <div class="card-footer">
                         <form class="d-inline-block" action="{% url 'scipost:claim_com_authorship' commentary_id=com.id claim=1 %}" method="post">
                             {% csrf_token %}
-                            <input class="btn btn-secondary" type="submit" value="I am an author" />
+                            <input class="btn btn-outline-secondary" type="submit" value="I am an author" />
                         </form>
                         <form class="d-inline-block ml-1" action="{% url 'scipost:claim_com_authorship' commentary_id=com.id claim=0 %}" method="post">
                             {% csrf_token %}
@@ -119,7 +119,7 @@
                     <div class="card-footer">
                         <form class="d-inline-block" action="{% url 'scipost:claim_thesis_authorship' thesis_id=thesis.id claim=1%}" method="post">
                             {% csrf_token %}
-                            <input class="btn btn-secondary" type="submit" value="I am an author" />
+                            <input class="btn btn-outline-secondary" type="submit" value="I am an author" />
                         </form>
                         <form class="d-inline-block ml-1" action="{% url 'scipost:claim_thesis_authorship' thesis_id=thesis.id claim=0%}" method="post">
                             {% csrf_token %}

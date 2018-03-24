@@ -1,5 +1,6 @@
 import datetime
 import feedparser
+import strings
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -33,22 +34,21 @@ from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSe
                    EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
                    SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm,\
                    iThenticateReportForm, SubmissionPoolFilterForm
+from .signals import notify_manuscript_accepted
 from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
-from mails.views import MailEditingSubView
-from scipost.forms import ModifyPersonalMessageForm, RemarkForm
-from scipost.mixins import PaginationMixin
-from scipost.models import Contributor, Remark
-
 from comments.forms import CommentForm
 from invitations.constants import INVITATION_REFEREEING
 from invitations.models import RegistrationInvitation
+from journals.models import Journal
 from mails.utils import DirectMailUtil
+from mails.views import MailEditingSubView
 from production.forms import ProofsDecisionForm
 from production.models import ProductionStream
-
-import strings
+from scipost.forms import ModifyPersonalMessageForm, RemarkForm
+from scipost.mixins import PaginationMixin
+from scipost.models import Contributor, Remark
 
 
 ###############
@@ -136,10 +136,10 @@ class SubmissionListView(PaginationMixin, ListView):
     def get_queryset(self):
         queryset = Submission.objects.public_newest()
         self.form = self.form(self.request.GET)
-        if 'to_journal' in self.kwargs:
+        if 'to_journal' in self.request.GET:
             queryset = queryset.filter(
                 latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
-                submitted_to_journal=self.kwargs['to_journal']
+                submitted_to_journal=self.request.GET['to_journal']
             )
         elif 'discipline' in self.kwargs and 'nrweeksback' in self.kwargs:
             discipline = self.kwargs['discipline']
@@ -161,8 +161,12 @@ class SubmissionListView(PaginationMixin, ListView):
         context['form'] = self.form
 
         # To customize display in the template
-        if 'to_journal' in self.kwargs:
-            context['to_journal'] = self.kwargs['to_journal']
+        if 'to_journal' in self.request.GET:
+            try:
+                context['to_journal'] = Journal.objects.filter(
+                    name=self.request.GET['to_journal']).first().get_name_display()
+            except (Journal.DoesNotExist, AttributeError):
+                context['to_journal'] = self.request.GET['to_journal']
         if 'discipline' in self.kwargs:
             context['discipline'] = self.kwargs['discipline']
             context['nrweeksback'] = self.kwargs['nrweeksback']
@@ -1570,6 +1574,7 @@ def fix_College_decision(request, rec_id):
         # Add SubmissionEvent for authors
         # Do not write a new event for minor/major modification: already done at moment of
         # creation.
+        notify_manuscript_accepted(request.user, submission, False)
         submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
                                         % recommendation.get_recommendation_display())
     elif recommendation.recommendation == -3:

@@ -43,10 +43,10 @@
         "collapse": true,
         "dropdown": true,
         "modal": true,
+        "popover": true,
         "scrollspy": true,
         "tab": true,
         "tooltip": true,
         "util": true,
-        "popover": true,
     }
 }

@@ -4,85 +4,11 @@ import inspect
 from html2text import HTML2Text
 
 from django.core.mail import EmailMultiAlternatives
-from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.template import loader
 
 from scipost.models import Contributor
-
-
-from . import forms
-
-
-class MailEditorMixin:
-    """
-    Use MailEditorMixin in edit CBVs to automatically implement the mail editor as
-    a post-form_valid hook.
-
-    The view must specify the `mail_code` variable.
-    """
-    object = None
-    mail_form = None
-    has_permission_to_send_mail = True
-    alternative_from_address = None  # Tuple: ('from_name', 'from_address')
-
-    def __init__(self, *args, **kwargs):
-        if not self.mail_code:
-            raise AttributeError(self.__class__.__name__ + ' object has no attribute `mail_code`')
-        super().__init__(*args, **kwargs)
-
-    def get_template_names(self):
-        """
-        The mail editor form has its own template.
-        """
-        if self.mail_form and not self.mail_form.is_valid():
-            return ['mails/mail_form.html']
-        return super().get_template_names()
-
-    def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests, but interpect the data if the mail form data isn't valid.
-        """
-        if not self.has_permission_to_send_mail:
-            # Don't use the mail form; don't send out the mail.
-            return super().post(request, *args, **kwargs)
-        self.object = self.get_object()
-        form = self.get_form()
-        if form.is_valid():
-            self.mail_form = forms.EmailTemplateForm(request.POST or None,
-                                                     mail_code=self.mail_code,
-                                                     instance=self.object)
-            if self.mail_form.is_valid():
-                return self.form_valid(form)
-
-            return self.render_to_response(
-                self.get_context_data(form=self.mail_form,
-                                      transfer_data_form=forms.HiddenDataForm(form)))
-        else:
-            return self.form_invalid(form)
-
-    def form_valid(self, form):
-        """
-        If both the regular form and mailing form are valid, save the form and run the mail form.
-        """
-        # Don't use the mail form; don't send out the mail.
-        if not self.has_permission_to_send_mail:
-            return super().form_valid(form)
-
-        if self.alternative_from_address:
-            # Set different from address if given.
-            self.mail_form.set_alternative_sender(
-                self.alternative_from_address[0], self.alternative_from_address[1])
-
-        response = super().form_valid(form)
-        try:
-            self.mail_form.send()
-        except AttributeError:
-            # self.mail_form is None
-            raise AttributeError('Did you check the order in which MailEditorMixin is used?')
-        messages.success(self.request, 'Mail sent')
-        return response
 
 
 class MailUtilsMixin:
@@ -126,14 +52,7 @@ class MailUtilsMixin:
         self.mail_template = mail_template.render(kwargs)
 
         # Gather Recipients data
-        self.original_recipient = ''
-        if self.object:
-            recipient = self.object
-            for attr in self.mail_data.get('to_address').split('.'):
-                recipient = getattr(recipient, attr)
-                if inspect.ismethod(recipient):
-                    recipient = recipient()
-            self.original_recipient = recipient
+        self.original_recipient = self._validate_single_entry(self.mail_data.get('to_address'))[0]
 
         self.subject = self.mail_data['subject']
 
@@ -148,18 +67,20 @@ class MailUtilsMixin:
                 # Email string
                 return [entry]
             else:
-                bcc_to = self.object
+                mail_to = self.object
                 for attr in entry.split('.'):
                     try:
-                        bcc_to = getattr(bcc_to, attr)
+                        mail_to = getattr(mail_to, attr)
+                        if inspect.ismethod(mail_to):
+                            mail_to = mail_to()
                     except AttributeError:
-                        # Invalid property, don't use bcc
+                        # Invalid property/mail
                         return []
 
-                if not isinstance(bcc_to, list):
-                    return [bcc_to]
+                if not isinstance(mail_to, list):
+                    return [mail_to]
                 else:
-                    return bcc_to
+                    return mail_to
         elif re.match("[^@]+@[^@]+\.[^@]+", entry):
             return [entry]
 
@@ -170,8 +91,9 @@ class MailUtilsMixin:
         """
         # Get recipients list. Try to send through BCC to prevent privacy issues!
         self.bcc_list = []
-        for bcc_entry in self.mail_data.get('bcc_to', '').split(','):
-            self.bcc_list += self._validate_single_entry(bcc_entry)
+        if self.mail_data.get('bcc_to'):
+            for bcc_entry in self.mail_data['bcc_to'].split(','):
+                self.bcc_list += self._validate_single_entry(bcc_entry)
 
     def validate_recipients(self):
         # Check the send list

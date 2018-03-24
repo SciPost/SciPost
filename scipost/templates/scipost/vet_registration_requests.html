@@ -47,7 +47,7 @@ $(function() {
             <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">
                 {% csrf_token %}
                 {{form|bootstrap}}
-                <input type="submit" class="btn btn-secondary" />
+                <input type="submit" class="btn btn-outline-secondary" />
             </form>
         </div>
     </div>

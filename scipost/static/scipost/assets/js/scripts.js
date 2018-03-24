@@ -1,7 +1,10 @@
+require('jquery-ui/ui/widgets/sortable');
+require('jquery-ui/ui/disable-selection');
+
 import notifications from './notifications.js';
 
 function hide_all_alerts() {
-    $(".alert").fadeOut(300);
+    $(".alert").remove('.no-dismiss').fadeOut(300);
 }
 
 var activate_tooltip = function() {
@@ -11,6 +14,19 @@ var activate_tooltip = function() {
         placement: 'auto'
     });
 }
+
+
+var sort_form_list = function(list_el) {
+    $(list_el).sortable({
+        update: function(event, ui) {
+            $.each($(list_el + ' li'), function(index, el) {
+                $(el).find('input[name$=ORDER]').val(index + 1);
+            });
+        }
+    });
+};
+
+
 
 var getUrlParameter = function getUrlParameter(sParam) {
     var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -53,6 +69,7 @@ function init_page() {
     });
 
     activate_tooltip();
+    sort_form_list('form ul.sortable-list');
 }
 
 $(function(){

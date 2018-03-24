@@ -10,7 +10,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
-from .behaviors import TimeStampedModel
+from .behaviors import TimeStampedModel, orcid_validator
 from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
                        subject_areas_dict, CONTRIBUTOR_STATUS, TITLE_CHOICES,\
                        INVITATION_STYLE, INVITATION_TYPE,\
@@ -52,7 +52,7 @@ class Contributor(models.Model):
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
-                                blank=True)
+                                blank=True, validators=[orcid_validator])
     address = models.CharField(max_length=1000, verbose_name="address",
                                blank=True)
     personalwebpage = models.URLField(verbose_name='personal web page',

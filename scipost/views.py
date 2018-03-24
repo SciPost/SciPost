@@ -71,10 +71,6 @@ class SearchView(SearchView):
         ctx = super().get_context_data(*args, **kwargs)
         ctx['search_query'] = self.request.GET.get('q')
         ctx['results_count'] = kwargs['object_list'].count()
-
-        # Methods not supported by Whoosh engine
-        # ctx['stats_results'] = kwargs['object_list'].stats_results()
-        # ctx['facet_counts'] = kwargs['object_list'].facet('text').facet_counts()
         return ctx
 
 
@@ -511,7 +507,7 @@ def _personal_page_publications(request):
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
-        'own_publications': contributor.publications.order_by('-publication_date')
+        'own_publications': contributor.publications.published().order_by('-publication_date')
     }
     context['nr_publication_authorships_to_claim'] = Publication.objects.filter(
         author_list__contains=request.user.last_name).exclude(
@@ -712,9 +708,6 @@ def _update_personal_data_contributor(request):
             cont_form.propagate_orcid()
         messages.success(request, 'Your personal data has been updated.')
         return redirect(reverse('scipost:update_personal_data'))
-    else:
-        user_form = UpdateUserDataForm(instance=contributor.user)
-        cont_form = UpdatePersonalDataForm(instance=contributor)
 
     context = {
         'user_form': user_form,

@@ -63,11 +63,11 @@ function update_list_callback(data, args) {
             }
         }
         if(typeof item.timesince !== 'undefined'){
-            message += "<br><small>";
+            message += "<div class='meta'>";
             if(typeof item.forward_link !== 'undefined') {
                 message += " <a href='" + item.forward_link + "'>Direct link</a> &middot; ";
             }
-            message += "<span class='text-muted'>" + item.timesince + " ago</span></small>";
+            message += "<span class='text-muted'>" + item.timesince + " ago</span></div>";
         }
 
         // Notification actions
@@ -128,12 +128,23 @@ function initiate_popover() {
     var template = $('.notifications_container .popover-template').html();
     $('.notifications_container a[data-toggle="popover"]').popover({
         trigger: 'focus',
+        animation: false,
+        offset: '0, 10px',
         template: template,
+        delay: {
+            'show': 0,
+            'hide': 200,
+        },
         placement: 'bottom',
+        boundary: 'viewport',
         title: 'empty-on-purpose'
     })
     .on('inserted.bs.popover', function() {
         $('body').trigger('notification_open_list');
+        var self = this;
+        $('.popover').on('click', function() {
+            $('.notifications_container a[data-toggle="popover"]').focus();
+        });
     })
     .on('hide.bs.popover', function() {
         // Bug: force removal of tooltip

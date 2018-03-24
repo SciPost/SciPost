@@ -11,6 +11,8 @@
     white-space: nowrap;
     overflow: auto;
     padding: 0.5rem 1.0rem;
+    display: flex;
+    flex-direction: row;
 
     .breadcrumb-item {
         margin-bottom: 0;

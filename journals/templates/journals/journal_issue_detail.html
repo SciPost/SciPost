@@ -14,10 +14,10 @@
 
 {% block journal_header_block %}
     {% if prev_issue %}
-        <h4 class="d-inline-block"><a href="{{prev_issue.get_absolute_url}}">< Previous issue | {{prev_issue.short_str}}</a></h4>
+        <h4 class="d-inline-block"><a href="{{prev_issue.get_absolute_url}}"><i class="fa fa-long-arrow-left"></i> Previous issue | {{prev_issue.short_str}}</a></h4>
     {% endif %}
     {% if next_issue %}
-        <h4 class="float-right d-inline-block"><a href="{{next_issue.get_absolute_url}}">{{next_issue.short_str}} | Next issue ></a></h4>
+        <h4 class="float-right d-inline-block"><a href="{{next_issue.get_absolute_url}}">{{next_issue.short_str}} | Next issue <i class="fa fa-long-arrow-right"></i></a></h4>
     {% endif %}
 {% endblock %}
 
