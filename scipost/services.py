@@ -41,18 +41,18 @@ class DOICaller:
 
     def _format_data(self):
         data = self._crossref_data
-        title = data['title'][0]
+        title = data.get('title', [])[0]
 
         # author_list is given as a comma separated list of names on the relevant models
         author_list = []
-        for author in data['author']:
+        for author in data.get('author', []):
             try:
                 author_list.append('{} {}'.format(author['given'], author['family']))
             except KeyError:
                 author_list.append(author['name'])
         author_list = ', '.join(author_list)
 
-        journal = data['container-title'][0]
+        journal = data.get('container-title', [])[0]
         volume = data.get('volume', '')
         pages = self._get_pages(data)
         pub_date = self._get_pub_date(data)
@@ -129,7 +129,7 @@ class ArxivCaller:
     def _format_data(self):
         data = self._arxiv_data
         title = data['title']
-        author_list = [author['name'] for author in data['authors']]
+        author_list = [author['name'] for author in data.get('authors', [])]
         # author_list is given as a comma separated list of names on the relevant models (Commentary, Submission)
         author_list = ", ".join(author_list)
         arxiv_link = data['id']
