@@ -467,7 +467,7 @@ class Publication(models.Model):
 
     @property
     def is_published(self):
-        if self.status not in (PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED):
+        if self.status != PUBLICATION_PUBLISHED:
             return False
 
         if self.in_issue:
