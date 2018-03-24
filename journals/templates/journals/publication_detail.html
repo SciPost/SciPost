@@ -146,22 +146,7 @@
         <hr class="divider">
         <div class="row">
             <div class="col-12">
-                <h3>Publication preparation</h3>
-                <ul class="fa-ul">
-                    <li><i class="fa-li fa fa-check-square text-success"></i><a href="{% url 'journals:update_publication' publication.accepted_submission.arxiv_identifier_w_vn_nr %}">Create/update Publication object</a></li>
-                    <li><i class="fa-li fa {% if publication|has_all_author_relations %}fa-check-square text-success{% else %}fa-square{% endif %}"></i><a href="{% url 'journals:add_author' publication.doi_label %}">Create all author relations</a></li>
-                    <li><i class="fa-li fa {% if publication.has_citation_list %}fa-check-square text-success{% else %}fa-square{% endif %}"></i><a href="{% url 'journals:create_citation_list_metadata' publication.doi_label %}">Create/update citation metadata</a></li>
-                    <li><i class="fa-li fa {% if publication.has_funding_statement %}fa-check-square text-success{% else %}fa-square{% endif %}"></i><a href="{% url 'journals:create_funding_info_metadata' publication.doi_label %}">Create/update funding info metadata</a></li>
-                    <li><i class="fa-li fa {% if publication.grants.exists %}fa-check-square text-success{% else %}fa-square{% endif %}"></i><a href="{% url 'journals:update_grants' publication.doi_label %}">Create/update grants</a></li>
-                    <li><i class="fa-li fa {% if publication.has_xml_metadata %}fa-check-square text-success{% else %}fa-square{% endif %}"></i><a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">Create/update Crossref metadata</a> <em>(please do after citation and funding info are added)</em></li>
-                    <li><i class="fa-li fa {% if publication.references.exists %}fa-check-square text-success{% else %}fa-square{% endif %}"></i><a href="{% url 'journals:update_references' doi_label=publication.doi_label %}">Create/update references</a></li>
-                </ul>
-
-                <h3>Tools</h3>
-                <ul>
-                    <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'test' %}">Test Crossref deposit</a></li>
-                </ul>
-                Preparation completed? <a href="{% url 'journals:send_publication_for_approval' publication.doi_label %}">Send to administration for approval</a>.
+                {% include 'partials/journals/publication_preparation.html' with publication=publication %}
             </div>
         </div>
     {% endif %}
@@ -171,23 +156,7 @@
         <div class="row">
             <div class="col-12">
                 <h3>Editorial Administration tools</h3>
-                <ul class="mb-0">
-                  <li><a href="{% url 'journals:add_author' doi_label=publication.doi_label %}">Add a missing author</a></li>
-                  <li><a href="{% url 'journals:update_author_ordering' doi_label=publication.doi_label %}">Update Author ordering</a></li>
-                  <li><a href="{% url 'journals:create_citation_list_metadata' publication.doi_label %}">Create/update citation list metadata</a></li>
-                  <li><a href="{% url 'journals:create_funding_info_metadata' publication.doi_label %}">Create/update funding info metadata</a></li>
-                  <li><a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">Create/update the XML metadata</a></li>
-                  <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'test' %}">Test metadata deposit (via Crossref test server)</a></li>
-                  <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'deposit' %}">Deposit the metadata to Crossref</a></li>
-                  <li><a href="{% url 'journals:harvest_citedby_links' publication.doi_label %}">Update Crossref cited-by links</a></li>
-                  <li><a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">Metadata management page</a></li>
-        	      <li><a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">This publication's metadata management page</a></li>
-                  <li><a href="{% url 'journals:update_references' doi_label=publication.doi_label %}">Update references</a></li>
-                  {% if not publication.is_published %}
-                      <li><a href="{% url 'journals:update_publication' publication.accepted_submission.arxiv_identifier_w_vn_nr %}">Update Publication object</a></li>
-                      <li><strong><a href="{% url 'journals:publish_publication' publication.doi_label %}">Publish this Publication</a></strong></li>
-                  {% endif %}
-                </ul>
+                {% include 'partials/journals/admin/publication_actions.html' with publication=publication %}
             </div>
         </div>
     {% endif %}
