@@ -131,12 +131,20 @@ function initiate_popover() {
         animation: false,
         offset: '0, 10px',
         template: template,
+        delay: {
+            'show': 0,
+            'hide': 200,
+        },
         placement: 'bottom',
         boundary: 'viewport',
         title: 'empty-on-purpose'
     })
     .on('inserted.bs.popover', function() {
         $('body').trigger('notification_open_list');
+        var self = this;
+        $('.popover').on('click', function() {
+            $('.notifications_container a[data-toggle="popover"]').focus();
+        });
     })
     .on('hide.bs.popover', function() {
         // Bug: force removal of tooltip

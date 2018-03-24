@@ -15,7 +15,7 @@
         }
     }
 
-    &.show .fa-inbox {
+    a[data-toggle="popover"][aria-describedby] {
         color: $scipost-darkblue;
     }
 
@@ -40,7 +40,6 @@
     min-width: 450px;
     border-color: $gray-600;
     border-radius: 1px;
-    // margin-top: 17px !important;
 
     .inbox-header,
     .header {

@@ -65,7 +65,7 @@ class AffiliationForm(forms.ModelForm):
         return affiliation
 
 
-class AffiliationsFormSet(BaseModelFormSet):
+class BaseAffiliationsFormSet(BaseModelFormSet):
     """
     This formset helps update the Institutions for the Contributor at specific time periods.
     """
@@ -92,7 +92,7 @@ class AffiliationsFormSet(BaseModelFormSet):
 
 
 AffiliationsFormset = modelformset_factory(Affiliation, form=AffiliationForm, can_delete=True,
-                                           formset=AffiliationsFormSet, extra=0)
+                                           formset=BaseAffiliationsFormSet, extra=0)
 
 
 class InstitutionMergeForm(forms.ModelForm):
