@@ -54,7 +54,7 @@
 {% endblock headsup %}
 
 {% block content %}
-    {% if not publication.is_published %}
+    {% if not publication.is_published and perms.can_publish_accepted_submission %}
         <div class="card bg-warning text-white">
             <div class="card-body">
                 <p class="card-text text-center">
