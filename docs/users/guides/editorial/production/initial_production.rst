@@ -161,6 +161,8 @@ Step-by-step procedure
       and should be in textbf. No ``comma`` but rather an ``and`` before
       the last author. If multiple authors and affiliations, use ``\textsuperscript``
       and positive integer labels, with a ``$\star$`` for the corresponding author.
+      If all authors are from the same institution, there is no need for superscripts
+      (except to mark the corresponding author if desired).
       If multiple email addresses are given, reference them with ``$\dagger$, ...``.
 
 
