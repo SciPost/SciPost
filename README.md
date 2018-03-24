@@ -1,5 +1,11 @@
 # SciPost
-The complete scientific publication portal
+This repository carries the entire codebase for the [scipost.org](https://scipost.org) scientific publication portal.
+
+## Project organization
+Development work for SciPost is headed by [Jean-Sébastien Caux](https://jscaux.org) and Jorran de Wit. The development team can be contacted at [techsupport@scipost.org](mailto:techsupport@scipost.org).
+
+## License
+This codebase is released under the terms of the GNU Affero General Public License (Version 3, 19 November 2007).
 
 ## Dependencies
 SciPost is written in Python 3.5 using Django 1.11 and requires PostgreSQL 9.4 or
