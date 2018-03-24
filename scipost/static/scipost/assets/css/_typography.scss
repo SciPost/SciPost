@@ -13,13 +13,9 @@ a:hover {
     text-decoration: underline;
 }
 h1, h2, h3, h4, h5, h6 {
-    margin: 0;
-    padding: 5px 0;
+    padding-top: 5px;
+    padding-bottom: 5px;
     text-shadow: none;
-}
-
-h1 {
-    line-height: 1.4;
 }
 
 h1 > a {
@@ -27,16 +23,22 @@ h1 > a {
 }
 
 h3,
-h4 {
-    line-height: normal;
-}
-
-h5 {
-    font-weight: 300;
+.h3,
+h4,
+.h4,
+h5,
+.h5,
+h6
+.h6 {
+    margin-bottom: 0;
 }
 
 .text-black {
     color: $scipost-darkblue;
+}
+
+.text-underline {
+    text-decoration: underline;
 }
 
 .orange-underline {
@@ -51,7 +53,6 @@ h5 {
 
 .container-outside.header {
     background-color: $gray-200;
-    // box-shadow: 0 1px 0 0 $card-shadow-color;
 
     h1,
     h2 {
@@ -102,7 +103,7 @@ h3.highlight-empty {
 
 h5,
 .h5 {
-    color: #636c72;
+    font-weight: 300;
 }
 
 hr,

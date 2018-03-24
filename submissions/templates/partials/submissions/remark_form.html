@@ -20,15 +20,15 @@ $(document).ready(function(){
     <form action="{% url 'submissions:add_remark' submission.arxiv_identifier_w_vn_nr %}" method="post" class="pb-2">
         {% csrf_token %}
         {{ form|bootstrap:'0,12' }}
-        <input class="btn btn-secondary" type="submit" value="Submit" />
+        <input class="btn btn-outline-secondary" type="submit" value="Submit" />
     </form>
 {% else %}
-    <button class="btn btn-secondary mb-2" data-toggle="toggle" data-target="#remarkForm{{ submission.id }}" id="remarkButton{{ submission.id }}">Add a remark on this Submission</button>
+    <button class="btn btn-outline-secondary mb-2" data-toggle="toggle" data-target="#remarkForm{{ submission.id }}" id="remarkButton{{ submission.id }}">Add a remark on this Submission</button>
     <div class="submitRemarkForm pb-2" id="remarkForm{{ submission.id }}" style="display:none;">
         <form action="{% url 'submissions:add_remark' submission.arxiv_identifier_w_vn_nr %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap:'0,12' }}
-            <input class="btn btn-secondary" type="submit" value="Submit" />
+            <input class="btn btn-outline-secondary" type="submit" value="Submit" />
         </form>
     </div>
 {% endif %}

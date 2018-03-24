@@ -1,53 +1,58 @@
 from django.db import models
-from django.http import Http404
 from django.utils import timezone
 
-from .constants import STATUS_PUBLISHED, STATUS_DRAFT
+from .constants import STATUS_PUBLISHED, STATUS_DRAFT, PUBLICATION_PUBLISHED, ISSUES_AND_VOLUMES,\
+    ISSUES_ONLY, INDIVIDUAL_PUBLCATIONS
 
 
-class JournalManager(models.Manager):
+class JournalQuerySet(models.QuerySet):
     def active(self):
         return self.filter(active=True)
 
+    def has_issues(self):
+        return self.filter(structure__in=(ISSUES_AND_VOLUMES, ISSUES_ONLY))
 
-class IssueManager(models.Manager):
-    def get_published(self, *args, **kwargs):
-        try:
-            return self.published(*args, **kwargs)[0]
-        except IndexError:
-            raise Http404
+    def has_individual_publications(self):
+        return self.filter(structure=INDIVIDUAL_PUBLCATIONS)
 
-    def published(self, journal=None, **kwargs):
-        issues = self.filter(status=STATUS_PUBLISHED, **kwargs)
-        if journal:
-            issues.filter(in_volume__in_journal=journal)
-        return issues
 
-    def in_draft(self, journal=None, **kwargs):
-        issues = self.filter(status=STATUS_DRAFT, **kwargs)
-        if journal:
-            issues.filter(in_volume__in_journal=journal)
-        return issues
+class IssueQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(status=STATUS_PUBLISHED)
 
-    def get_current_issue(self, *args, **kwargs):
-        return self.published(start_date__lte=timezone.now(),
-                              until_date__gte=timezone.now(),
-                              **kwargs).order_by('-until_date').first()
+    def in_draft(self):
+        return self.filter(status=STATUS_DRAFT)
 
-    def get_last_filled_issue(self, *args, **kwargs):
-        return self.published(publication__isnull=False,
-                              **kwargs).order_by('-until_date').first()
+    def for_journal(self, journal_name):
+        return self.filter(
+            models.Q(in_volume__in_journal__name=journal_name) |
+            models.Q(in_journal__name=journal_name))
+
+    def get_current_issue(self):
+        return self.published(
+            start_date__lte=timezone.now(), until_date__gte=timezone.now()).first()
 
 
 class PublicationQuerySet(models.QuerySet):
-    def get_published(self, *args, **kwargs):
-        try:
-            return self.published(*args, **kwargs)[0]
-        except IndexError:
-            raise Http404
+    def published(self):
+        return self.filter(status=PUBLICATION_PUBLISHED).filter(
+            models.Q(in_issue__status=STATUS_PUBLISHED) | models.Q(in_journal__active=True))
 
-    def published(self, **kwargs):
-        return self.filter(in_issue__status=STATUS_PUBLISHED, **kwargs)
+    def unpublished(self):
+        return self.exclude(status=PUBLICATION_PUBLISHED)
 
-    def in_draft(self, **kwargs):
-        return self.filter(in_issue__status=STATUS_DRAFT, **kwargs)
+    def in_draft(self):
+        return self.filter(in_issue__status=STATUS_DRAFT)
+
+    def drafts(self):
+        return self.filter(status=STATUS_DRAFT)
+
+    def for_subject(self, subject_code):
+        return self.filter(
+            models.Q(subject_area=subject_code) |
+            models.Q(secondary_areas__contains=[subject_code]))
+
+    def for_journal(self, journal_name):
+        return self.filter(
+            models.Q(in_issue__in_volume__in_journal__name=journal_name) |
+            models.Q(in_journal__name=journal_name))

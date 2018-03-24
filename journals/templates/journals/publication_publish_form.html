@@ -1,0 +1,57 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Publish Publication{% endblock pagetitle %}
+
+{% block content %}
+
+
+<h1 class="highlight">Publish Publication</h1>
+{% include 'partials/journals/publication_summary.html' with publication=form.instance %}
+
+<h3>Authors</h3>
+<ul>
+    {% for author in form.instance.authors.all %}
+        <li>{{ author }}</li>
+    {% empty %}
+        <li>No authors assigned</li>
+    {% endfor %}
+</ul>
+
+<h3>Funding statement</h3>
+<p>{{ form.instance.metadata.funding_statement|default:'<em>No funding statement found.</em>' }}</p>
+
+<h3>Grants</h3>
+<ul>
+    {% for grant in form.instance.grants.all %}
+        <li>{{ grant }}</li>
+    {% empty %}
+        <li>No grants assigned</li>
+    {% endfor %}
+</ul>
+
+{% include 'partials/journals/references.html' with publication=form.instance %}
+
+<hr class="divider">
+<h3>Publishing will do the following:</h3>
+<div>
+    <ul>
+        <li>Move the pdf file to the appropriate folder</li>
+        <li>Update the Submission status</li>
+        <li>Update the Production Stream status</li>
+        <li>Send the authors a publication-email</li>
+    </ul>
+    <em>Reminder: Is the metadata already deposited at Crossref?</em>
+</div>
+<br>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input type="submit" class="btn btn-primary" value="Publish">
+</form>
+
+
+
+
+{% endblock %}

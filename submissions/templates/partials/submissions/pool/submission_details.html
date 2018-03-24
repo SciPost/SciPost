@@ -94,7 +94,7 @@
                 {# Accepted submission actions #}
                 {% if submission.status == 'accepted' %}
                     <li><a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
-                    <li>After proofs have been accepted, you can <a href="{% url 'journals:initiate_publication' %}">initiate the publication process</a> (leads to the validation page)</li>
+                    <li><a href="{% url 'journals:update_publication' submission.arxiv_identifier_w_vn_nr %}">Draft Publication</a></li>
                 {% endif %}
 
             </ul>

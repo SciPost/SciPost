@@ -179,7 +179,7 @@ The documentation is saved in the local database as a Project with name `SciPost
 
 To update the docs, simply run
 ```shell
-(scipostenv) $ python3 ../manage.py updatedoc -b scipost
+(scipostenv) $ ./manage.py updatedoc -b scipost
 ```
 
 The documentation is then viewable by navigating to `docs/`.
@@ -221,7 +221,7 @@ Any regular method or class based view may be used together with the builtin wys
 
 ```python
 from django.views.generic.edit import UpdateView
-from mails.mixins import MailEditorMixin
+from mails.views import MailEditorMixin
 
 class AnyUpdateView(MailEditorMixin, UpdateView):
     mail_code = '<any_valid_mail_code>'

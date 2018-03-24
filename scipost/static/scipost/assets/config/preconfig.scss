@@ -34,17 +34,13 @@ $white: #fff;
 $blue: $scipost-lightblue;  // Primary
 $green: #6ebb6e;
 $cyan: $scipost-lightestblue;
+$orange: $scipost-orange;
 $yellow: $scipost-orange;
 $gray-100: $scipost-white;
 $gray-200: #e5e5e5;
 $gray-300: #dfdfdf;
 $gray-600: #ccc;
 $text-muted: #636c72;
-// Others, now as default
-// $red: $red;
-// $gray-100: $gray-100;
-// $gray-600: $gray-600;  // Secondary
-// $gray-800: $gray-800;
 
 // Body
 //
@@ -79,8 +75,8 @@ $breadcrumb-divider-color: $scipost-orange;
 $input-btn-padding-y-sm: 0.1rem;
 $input-btn-padding-x: 0.5rem;
 $input-btn-padding-y: 0.25rem;
-$input-btn-padding-y-lg: 0.25rem;
 $input-btn-padding-x-lg: 0.75rem;
+$input-btn-padding-y-lg: 0.325rem;
 $input-btn-line-height-lg: 1.4;
 $input-border-radius-sm: $base-border-radius;
 $input-border-radius: $base-border-radius;
@@ -110,15 +106,15 @@ $font-family-monospace:  $font-family-sans-serif;
 $font-family-base:       $font-family-sans-serif;
 
 $font-size-base: 0.8rem;
-$font-size-sm: 0.75rem;
+$font-size-sm: 0.7rem;
 $font-size-lg: 1.0rem;
 
 $h1-font-size: 1.8em;
 $h2-font-size: 1.5em;
-$h3-font-size: 1.25em;
-$h4-font-size: 0.8rem;
-$h5-font-size: 0.8rem;
-$h6-font-size: 0.8rem;
+$h3-font-size: 1.3em;
+$h4-font-size: 1.2em;
+$h5-font-size: 1.0em;
+$h6-font-size: 1.0em;
 
 $close-font-weight: 100;
 
@@ -127,13 +123,16 @@ $close-font-weight: 100;
 $table-cell-padding: 0.25rem 0.5rem;
 
 
+// Tooltip
+//
+$tooltip-font-size: $font-size-sm;
+
 // Navbar
 //
 $navbar-light-color: $scipost-darkblue;
 $navbar-light-hover-color: $scipost-darkblue;
 $navbar-padding-x: 0.3rem;
-$navbar-padding-y: 0.3rem;
-// $nav-link-padding-y: 0.4rem;
+$navbar-padding-y: 0.35rem;
 
 $input-border-radius: 0;
 $btn-border-radius: $base-border-radius;
@@ -144,19 +143,17 @@ $btn-border-radius-lg: $base-border-radius;
 // Block quote
 //
 $blockquote-font-size: $font-size-base;
-// $blockquote-border-color: #ececec;
 
 
 // Popover
 //
-$popover-border-color:                #dddddd;
-$popover-arrow-width:                 5px;
-$popover-arrow-height:                5px;
-// $popover-arrow-color:                 $popover-bg;
-$popover-max-width:                   500px;
-
-$popover-arrow-outer-width:           ($popover-arrow-width + 1px);
-
+$popover-font-size:                 $font-size-sm;
+$popover-border-color:              $gray-600;
+$popover-arrow-width:               20px;
+$popover-arrow-height:              10px;
+$popover-arrow-color:               $white;
+$popover-arrow-outer-color:         $gray-600;
+$popover-max-width:                 500px;
 
 
 //  ---

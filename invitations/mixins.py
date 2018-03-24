@@ -1,6 +1,5 @@
 from django.db import transaction
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from .constants import INVITATION_EDITORIAL_FELLOW
 from .models import RegistrationInvitation
@@ -14,10 +13,6 @@ class RequestArgumentMixin:
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
-
-
-class PermissionsMixin(LoginRequiredMixin, PermissionRequiredMixin):
-    pass
 
 
 class BaseFormViewMixin:

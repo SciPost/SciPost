@@ -18,7 +18,7 @@
     <div class="row">
         <div class="col-12">
             <ul>
-                {% for issue in issues %}
+                {% for issue in journal.get_issues %}
                     <li>
                         <a href="{{issue.get_absolute_url}}">{{issue}}</a>
                         {% if issue.proceedings %}

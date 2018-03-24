@@ -140,9 +140,9 @@ SHELL_PLUS_POST_IMPORTS = (
     ('submissions.factories', ('SubmissionFactory', 'EICassignedSubmissionFactory')),
     ('commentaries.factories',
         ('EmptyCommentaryFactory',
-         'VettedCommentaryFactory',
+         'CommentaryFactory',
          'UnvettedCommentaryFactory',
-         'UnpublishedVettedCommentaryFactory',)),
+         'UnpublishedCommentaryFactory',)),
     ('scipost.factories', ('ContributorFactory')),
 )
 
