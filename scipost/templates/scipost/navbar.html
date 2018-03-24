@@ -10,6 +10,10 @@
               <li class="nav-item{% if request.path == '/' %} active{% endif %}">
                 <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
               </li>
+
+              <li class="nav-item{% if '/journals/' == request.path %} active{% endif %}">
+                <a href="{% url 'journals:journals' %}" class="nav-link">Journals</a>
+              </li>
               <li class="nav-item{% if '/journals/publications' in request.path %} active{% endif %}">
                 <a href="{% url 'journals:publications' %}" class="nav-link">Publications</a>
               </li>
