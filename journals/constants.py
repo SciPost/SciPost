@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 # These are DOI's of the Journals, they are used as keys for the choicefield in `models.Journal`!
 SCIPOST_JOURNAL_PHYSICS = 'SciPostPhys'
 SCIPOST_JOURNAL_PHYSICS_SELECT = 'SciPostPhysSel'

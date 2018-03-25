@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 # Module for making external api calls as needed in the submissions cycle
 import feedparser
 import requests

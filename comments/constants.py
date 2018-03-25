@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 EXTENTIONS_IMAGES = ['.jpg', '.png']
 EXTENTIONS_PDF = ['.pdf']
 EXTENTIONS_FILES = EXTENTIONS_PDF + EXTENTIONS_IMAGES

@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 NOTIFICATION_REFEREE_DEADLINE = 'referee_task_deadline'
 NOTIFICATION_REFEREE_OVERDUE = 'referee_task_overdue'
 
