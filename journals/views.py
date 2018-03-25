@@ -502,6 +502,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
             paper_nr=publication.get_paper_nr(),
             doi_label=publication.doi_label.replace('.', '_'))
 
+    os.makedirs(settings.MEDIA_ROOT + path, exist_ok=True)
     path_wo_timestamp = path + '.xml'
     path += '_{timestamp}.xml'.format(timestamp=timestamp)
 
@@ -623,6 +624,7 @@ def metadata_DOAJ_deposit(request, doi_label):
             paper_nr=publication.get_paper_nr(),
             doi_label=publication.doi_label.replace('.', '_'))
 
+    os.makedirs(settings.MEDIA_ROOT + path, exist_ok=True)
     path_wo_timestamp = path + '.json'
     path += '_{timestamp}.json'.format(timestamp=timestamp)
 

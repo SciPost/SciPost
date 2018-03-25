@@ -612,7 +612,7 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
             new_dir += 'SCIPOST_JOURNALS/{name}'.format(name=self.instance.in_journal.name)
 
         new_dir += '/{paper_nr}'.format(paper_nr=self.instance.get_paper_nr())
-        os.makedirs(settings.MEDIA_ROOT + new_dir)
+        os.makedirs(settings.MEDIA_ROOT + new_dir, exist_ok=True)
 
         new_dir += '/{doi}.pdf'.format(doi=self.instance.doi_label.replace('.', '_'))
         os.rename(initial_path, settings.MEDIA_ROOT + new_dir)
