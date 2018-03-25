@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 acknowledge_request_thesis_link = (
     "Thank you for your request for a Thesis Link. Your request"
     " will soon be handled by an editor."

@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from ajax_select import register, LookupChannel
 from ..models import Submission
 

@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 # -*- coding: utf-8 -*-
 from django.template import Library
 from django.template.loader import render_to_string

@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 STATUS_DRAFT, STATUS_SENT, STATUS_SENT_AND_EDITED = ('draft', 'sent', 'edited')
 STATUS_DECLINED, STATUS_REGISTERED = ('declined', 'register')
 REGISTATION_INVITATION_STATUSES = (

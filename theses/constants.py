@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 MASTER_THESIS = 'MA'
 PHD_THESIS = 'PhD'
 HABILITATION_THESIS = 'Hab'

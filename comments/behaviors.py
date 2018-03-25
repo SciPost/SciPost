@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import filesizeformat
