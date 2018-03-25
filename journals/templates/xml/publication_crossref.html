@@ -57,7 +57,7 @@
                         <given_name>{{ author_object.first_name }}</given_name>
                         <surname>{{ author_object.last_name }}</surname>
                         {% if author_object.contributor and author_object.contributor.orcid_id %}
-                            <ORCID>http://orcid.org/'{{ author_object.contributor.orcid_id }}</ORCID>
+                            <ORCID>https://orcid.org/{{ author_object.contributor.orcid_id }}</ORCID>
                         {% endif %}
                         </person_name>
                     {% endfor %}
