@@ -489,7 +489,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
         '<doi_batch_id>')[2].partition('</doi_batch_id>')[0]
 
     # Find Crossref xml files
-    path = settings.MEDIA_ROOT
+    path = ''
     if publication.in_issue:
         path += '{issue_path}/{paper_nr}/{doi_label}_Crossref'.format(
             issue_path=publication.in_issue.path,
@@ -508,7 +508,7 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     valid = True
     response_headers = None
     response_text = None
-    if os.path.isfile(path):
+    if os.path.isfile(settings.MEDIA_ROOT + path):
         # Deposit already done before.
         valid = False
     else:
@@ -611,7 +611,7 @@ def metadata_DOAJ_deposit(request, doi_label):
     timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
 
     # Find DOAJ xml files
-    path = settings.MEDIA_ROOT
+    path = ''
     if publication.in_issue:
         path += '{issue_path}/{paper_nr}/{doi_label}_DOAJ'.format(
             issue_path=publication.in_issue.path,
@@ -626,7 +626,7 @@ def metadata_DOAJ_deposit(request, doi_label):
     path_wo_timestamp = path + '.json'
     path += '_{timestamp}.json'.format(timestamp=timestamp)
 
-    if os.path.isfile(path):
+    if os.path.isfile(settings.MEDIA_ROOT + path):
         errormessage = 'The metadata file for this metadata timestamp already exists'
         return render(request, 'scipost/error.html', context={'errormessage': errormessage})
 
