@@ -2,7 +2,9 @@
 This repository carries the entire codebase for the [scipost.org](https://scipost.org) scientific publication portal.
 
 ## Project organization
-Development work for SciPost is headed by [Jean-Sébastien Caux](https://jscaux.org) and Jorran de Wit. The development team can be contacted at [techsupport@scipost.org](mailto:techsupport@scipost.org).
+Development work for SciPost is headed by [Jean-Sébastien Caux](https://jscaux.org) and Jorran de Wit. Bug reports, issues, suggestions and ideas can be emailed to [techsupport@scipost.org](mailto:techsupport@scipost.org).
+
+If you are competent in web development and would like to join our core development team, please email your credentials to [jscaux@scipost.org](mailto:jscaux@scipost.org).
 
 ## License
 This codebase is released under the terms of the GNU Affero General Public License (Version 3, 19 November 2007).
@@ -18,11 +20,11 @@ Make sure that PostgreSQL is installed and running and that a database with user
 good guide how to do this can be found [here](https://djangogirls.gitbooks.io/django-girls-tutorial-extensions/content/optional_postgresql_installation/) (NOTE: stop before the 'Update settings' part).
 
 ### Python version
-Make sure you're using Python 3.5. You are strongly encouraged to use a [virtual environment](https://virtualenv.pypa.io/en/stable/).
+Make sure you're using Python 3.5. You are strongly encouraged to use a [virtual environment](https://docs.python.org/3.5/library/venv.html).
 
 
 ```shell
-$ virtualenv scipostenv --python=python3.5
+$ pyvenv scipostenv
 $ source scipostenv/bin/activate
 ```
 
@@ -40,7 +42,7 @@ Now install dependencies:
 ```
 
 ### Settings
-In this project, most settings are tracked using Git. Some settings however, are still secret are and should stay that way. These settings may be saved into the  `secrets.json` file in the root of the project. The minimum required structure is as follows, please mind the non-empty, but still invalid `SECRET_KEY`:
+In this project, many settings are not sensitive and are thus tracked using Git. Some settings are however secret. These settings may be saved into the  `secrets.json` file in the root of the project. The minimum required structure is as follows (please mind the non-empty, but still invalid `SECRET_KEY`):
 
 ```json
 {
@@ -51,22 +53,22 @@ In this project, most settings are tracked using Git. Some settings however, are
 }
 ```
 
-The settings files itself are saved into `SciPost_v1/settings/local_<name>.py`. Be sure to *wildcard import* the `base.py` file in the top of your settings file. To run the server, one can do it two ways. Either:
+The settings file itself is saved into `SciPost_v1/settings/local_<name>.py`. Be sure to *wildcard import* the `base.py` file in the top of your settings file. To run the server, use one of two ways. Either:
 
 ```shell
 (scipostenv) $ ./manage.py runserver --settings=SciPost_v1.settings.local_<name>
 ```
 
-...or for convenience, export the same settingsfile path to the `DJANGO_SETTINGS_MODULE` variable, so that one can run the django commands are default:
+... or for convenience, export the same settingsfile path to the `DJANGO_SETTINGS_MODULE` variable, so that one can run the django commands by default:
 
 ```shell
 (scipostenv) $ export DJANGO_SETTINGS_MODULE="SciPost_v1.settings.local_<name>"
 ```
 
-One can of course also add the variable to the `~/.bash_profile` for convenience.
+One can of course also add this variable to the `~/.bash_profile` for convenience.
 
 ### Check, double check
-To make sure everything is set up and configured well, run:
+To make sure everything is set up and correctly configured, run:
 
 ```shell
 (scipostenv) $ ./manage.py check
@@ -85,62 +87,62 @@ While editing assets, it may be helpful to put Webpack in _watch_ mode. This wil
 (scipostenv) $ npm run webpack-live
 ```
 
-#### Sass and bootstrap
+#### Sass and Bootstrap
 Styling will mainly be configured using [.scss files](http://www.sass-lang.com/) in the `scipost/static/scipost/scss/preconfig.scss` file, relying on [Bootstrap v4.0.0-beta](//www.getbootstrap.com/). A full list of variables available by default can be found [here](https://github.com/twbs/bootstrap/blob/v4-dev/scss/_variables.scss).
-All modules are configured in the `.bootstraprc` file; All modules are disabled by default.
+All modules are configured in the `.bootstraprc` file. All modules are disabled by default.
 
 ### Collectstatic
-In order to collect static files from all `INSTALLED_APPS`, i.e. the assets managed by Webpack, run:
+In order to collect static files from all `INSTALLED_APPS` (i.e. the assets managed by Webpack), run:
 
 ```shell
 (scipostenv) $ ./manage.py collectstatic
 ```
 
-This will put all static files in the `STATIC_ROOT` folder defined in your settings file. It's a good idea to use the clear option in order to remove stale static files:
+This will put all static files in the `STATIC_ROOT` folder defined in your settings file. If needed, you can remove stale static files through:
 
 ```shell
 (scipostenv) $ ./manage.py collectstatic --clear
 ```
 
 ### Create and run migrations
-Now that everything is setup, we can set up the datastructures.
+Now that everything is set up, we can create the relevant tables in the database:
 ```shell
 (scipostenv) $ ./manage.py migrate
 ```
 
 ### Create a superuser
-In order to use the admin site, you'll need a superuser account.
+In order to use the admin site, you'll need a superuser account, which can be created using:
 ```shell
 (scipostenv) $ ./manage.py createsuperuser
 ```
 
 ### Create groups and permissions
-Groups and their respective permissions are set using the management command.
+Groups and their respective permissions are set using the management command:
 
 ```shell
 (scipostenv) $ ./manage.py add_groups_and_permissions
 ```
 
-### Run development server
-You are now ready to run the development server:
+### Run server
+You are now ready to run the server:
 
 ```shell
 (scipostenv) $ ./manage.py runserver
 ```
 
 ## Contributors
-Users of the portal are known as Contributors and are created through the registration form accessible from the home page.
+Users of the SciPost portal are known as Contributors and are created through the registration form accessible from the home page.
 
 You can create a number of users, and use the admin site to give them various permissions through memberships of certain groups. For example, you'll want members of the SciPost Administrators and Editorial Administrators groups in order to access the internal management and editorial tools.
 
 ## Initial data
-If you're working on an (almost) empty database, one can easily fill its test database using one of the built-in commands. To create few instances for each available object, simply run:
+If you're working on an (almost) empty test database, you can easily fill it using one of the built-in commands. To create a few instances for each available object, simply run:
 
 ```shell
 (scipostenv) $ ./manage.py populate_db --all
 ```
 
-Run the help argument to find arguments to create instances for individual models.
+Run the same command with the `--help` argument to find arguments to create instances for individual models:
 
 ```shell
 (scipostenv) $ ./manage.py populate_db --help
@@ -152,40 +154,43 @@ Every time fields in any of the models change, a [database migration](https://do
 needs to be created and applied. The first documents a database change and its
 inverse, the second actually changes the database.
 
-Make sure to commit the migration to GIT after applying it, so other developers
+Make sure to commit the migration to Git after applying it, so other developers
 can use them.
 
 ```shell
-(scipostenv) $ ./manage.py makemigration
+(scipostenv) $ ./manage.py makemigrations
 (scipostenv) $ ./manage.py migrate
 ```
 
 ## Search engine
-[Django Haystack]() is used to handle search queries. The search engine needs indexing before proper use.
+[Django Haystack]() is used to handle search queries. The search engine needs indexing before you can use it:
 
 ```shell
 (scipostenv) $ ./manage.py update_index -u default
 ```
-Models involved in searches are re-indexed as per `post_save` signal.
+Models involved in searches are re-indexed using `post_save` signals.
 
 
 ## Documentation
 All project documentation is gathered from `.rst` files and code-embedded docstrings.
-The documentation itself can be found in `docs`.
+The documentation for the codebase can be found in `docs/codebase`.
 
 ### Sphinxdoc
-The documentation is saved in the local database as a Project with name `SciPost`
+The documentation is saved in the local database as a Project with name `SciPost Codebase`,
+with slug `codebase` and path `/docs/codebase`
 (this project should be manually created in the admin under the `Sphinxdoc` app).
 
 To update the docs, simply run
 ```shell
-(scipostenv) $ ./manage.py updatedoc -b scipost
+(scipostenv) $ ./manage.py updatedoc -b codebase
 ```
 
-The documentation is then viewable by navigating to `docs/`.
+The documentation is then viewable by navigating to `docs/codebase`.
+
+There are also other Projects containing information about SciPost, user guides etc. The list can be found on by viewing `docs` in the browser.
 
 
-### Locally-served
+### Locally-served documentation
 The documentation can be rendered using
 [Sphinx](http://www.sphinx-doc.org/). Note that rendering documentation is only
 available from the virtual environment - and only when the host settings have
@@ -194,16 +199,20 @@ been configured.
 To build the documentation, run:
 
 ```shell
-(scipostenv) $ cd docs
+(scipostenv) $ cd docs/[project slug]
 (scipostenv) $ make html
 ```
 
-After this, generated documentation should be available in `docs/_build/html`.
+for each of the documentation projects.
+After this, generated documentation are available in `docs/[project slug]/_build/html`.
 
 ## Mails
-The `mails` app shall be used as the mailing processor of SciPost. It may be used in either one of two possible ways: with or without editor.
+The `mails` app is used as the mailing processor of SciPost.
+It may be used in one of two possible ways: with or without editor.
 
-The actual mails only have to be written in the html version, the text based alternative is automatically generated before sending. Creating a new `mail_code` is easily done by creating new files in the `mails/templates/mail_templates` folder called `<mail_code>.html` and `<mail_code>.json` acting as resp. a content and configuration file.
+The actual mails only have to be written in the html version
+(the text based alternative is automatically generated before sending).
+Creating a new `mail_code` is easily done by creating new files in the `mails/templates/mail_templates` folder called `<mail_code>.html` and `<mail_code>.json` acting as resp. a content and configuration file.
 
 ##### The config file is configured as follows
 `mails/templates/mail_templates/<mail_code>.json`
@@ -217,7 +226,7 @@ The actual mails only have to be written in the html version, the text based alt
 
 
 ### Mailing with editor
-Any regular method or class based view may be used together with the builtin wysiwyg editor. The class based views inherited from Django's UpdateView are easily extended for use with the editor.
+Any regular method or class-based view may be used together with the builtin wysiwyg editor. The class-based views inherited from Django's UpdateView are easily extended for use with the editor.
 
 ```python
 from django.views.generic.edit import UpdateView
@@ -227,7 +236,7 @@ class AnyUpdateView(MailEditorMixin, UpdateView):
     mail_code = '<any_valid_mail_code>'
 ```
 
-For method based views, one implements the mails construction as:
+For method-based views, one implements the mails construction as:
 
 ```python
 from mails.views import MailEditingSubView
