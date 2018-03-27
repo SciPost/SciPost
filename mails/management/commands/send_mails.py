@@ -26,6 +26,7 @@ class Command(BaseCommand):
             raise AssertionError('The `EMAIL_BACKEND_ORIGINAL` cannot be the ModelEmailBackend')
 
         connection = get_connection(backend=backend, fail_silently=False)
+        count = 0
         for db_mail in mails:
             mail = EmailMultiAlternatives(
                 db_mail.subject,
@@ -37,15 +38,17 @@ class Command(BaseCommand):
                 connection=connection)
             if db_mail.body_html:
                 mail.attach_alternative(db_mail.body_html, 'text/html')
-        response = mail.send()
-        if response:
-            db_mail.processed = True
-            db_mail.save()
-        return response
+            response = mail.send()
+            if response:
+                count += 1
+                db_mail.processed = True
+                db_mail.save()
+        return count
 
     def handle(self, *args, **options):
         if options.get('id'):
             mails = MailLog.objects.filter(id=options['id'])
         else:
             mails = MailLog.objects.unprocessed()
-        self.send_mails(mails)
+        nr_mails = self.send_mails(mails)
+        self.stdout.write('Sent {} mails.'.format(nr_mails))
