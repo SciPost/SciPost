@@ -587,7 +587,8 @@ def produce_metadata_DOAJ(request, doi_label):
         form.save()
         messages.success(request, '<h3>%s</h3>Successfully produced metadata DOAJ.'
                                   % publication.doi_label)
-        return redirect(reverse('journals:manage_metadata'))
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': doi_label}))
     context = {
         'publication': publication,
         'form': form
@@ -607,7 +608,8 @@ def metadata_DOAJ_deposit(request, doi_label):
     if not publication.metadata_DOAJ:
         messages.warning(request, '<h3>%s</h3>Failed: please first produce '
                                   'DOAJ metadata before depositing.' % publication.doi_label)
-        return redirect(reverse('journals:manage_metadata'))
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': doi_label}))
 
     timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
 
