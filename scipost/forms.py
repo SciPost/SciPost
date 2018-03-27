@@ -429,7 +429,7 @@ def get_date_filter_choices():
 
 
 class SearchForm(HayStackSearchForm):
-    # The date filters doesn't function well...
+    # The date filters don't function well...
     start = forms.DateField(widget=MonthYearWidget(), required=False)  # Month
     end = forms.DateField(widget=MonthYearWidget(end=True), required=False)  # Month
 

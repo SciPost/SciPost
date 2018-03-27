@@ -5,10 +5,10 @@ from submissions.models import Submission
 
 
 class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
-    def prepare_submission_indexing(self, sender, submissions):
+    def remove_objects_indexes(self, sender, objects):
         """
-        Given an individual model instance, determine which backends the
-        update should be sent to & update the object on those backends.
+        Given a set of `objects` model instances, remove them from the index as preparation
+        for the new index.
         """
         try:
             using_backends = self.connection_router.for_write(instance=submissions[0])
@@ -16,7 +16,7 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
             # No submissions given, stop processing here
             return None
 
-        for instance in submissions:
+        for instance in objects:
             for using in using_backends:
                 try:
                     index = self.connections[using].get_unified_index().get_index(sender)
@@ -32,7 +32,7 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
         try:
             using_backends = self.connection_router.for_write(instance=instance)
         except IndexError:
-            # No submissions given, stop processing here
+            # No valid instance given, stop processing here
             return None
 
         for using in using_backends:
@@ -47,8 +47,11 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
         if isinstance(instance, Submission):
             # Submission have complex status handling, so a status change should lead to
             # more drastic reindexing.
-            self.prepare_submission_indexing(sender, [instance])
-            self.prepare_submission_indexing(sender, instance.other_versions)
+            self.remove_objects_indexes(sender, instance.thread)
             self.update_instance_indexes(sender, instance)
         else:
-            super().handle_save(sender, instance, **kwargs)
+            # Objects such as Reports, Comments, Commentaries, etc. may get rejected. This
+            # does not remove them from the index. Therefore, do a complete rebuild_index
+            # action on that specific instance every time the index signal is triggered.
+            self.remove_objects_indexes(sender, [instance])
+            self.update_instance_indexes(sender, instance)
