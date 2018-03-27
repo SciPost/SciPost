@@ -172,6 +172,7 @@ class Volume(models.Model):
 
     class Meta:
         default_related_name = 'volumes'
+        ordering = ('-until_date',)
         unique_together = ('number', 'in_journal')
 
     def __str__(self):
