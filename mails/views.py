@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render
 
 from .forms import EmailTemplateForm, HiddenDataForm
