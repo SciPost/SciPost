@@ -47,7 +47,7 @@ event: "focusin"
             <ul class="links">
               {% for volume in journal.volumes.all %}
                   {% for issue in volume.issues.all %}
-                      {% url 'journals:manage_metadata' issue_doi_label=journal.doi_label as url %}
+                      {% url 'journals:manage_metadata' issue_doi_label=issue.doi_label as url %}
                       <li class="{% if url == request.path %}active{% endif %}">
                         <a href="{{ url }}">{{ issue }}</a>
                       </li>
