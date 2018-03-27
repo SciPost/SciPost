@@ -1,3 +1,5 @@
+{% load publication_administration %}
+
 <h3>Publication preparation</h3>
 <ul class="fa-ul">
     <li><i class="fa-li fa fa-check-square text-success"></i><a href="{% url 'journals:update_publication' publication.accepted_submission.arxiv_identifier_w_vn_nr %}">Create/update Publication object</a></li>
