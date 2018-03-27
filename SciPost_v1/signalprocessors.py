@@ -11,7 +11,7 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
         for the new index.
         """
         try:
-            using_backends = self.connection_router.for_write(instance=submissions[0])
+            using_backends = self.connection_router.for_write(instance=objects[0])
         except IndexError:
             # No submissions given, stop processing here
             return None
