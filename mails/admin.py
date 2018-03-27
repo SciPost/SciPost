@@ -4,4 +4,11 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-# Register your models here.
+from .models import MailLog
+
+
+class MailLogAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'processed']
+
+
+admin.site.register(MailLog, MailLogAdmin)
