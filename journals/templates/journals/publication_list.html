@@ -1,0 +1,65 @@
+{% extends 'scipost/layout_2_col.html' %}
+
+{% load bootstrap %}
+{% load request_filters %}
+{% load submissions_extras %}
+{% load request_filters %}
+
+{% block body_class %}{{block.super}} sidebar-left{% endblock %}
+
+{% block pagetitle %}: Publications{% endblock pagetitle %}
+
+{% block page_header %}<h1 class="highlight">Recent SciPost Publications</h1>{% endblock page_header %}
+
+{% block breadcrumb_items %}
+    <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+    <span class="breadcrumb-item">Publications</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <ul class="list-group list-group-flush">
+            {% for publication in object_list %}
+                <li class="list-group-item">
+                    <div class="card-body px-0">
+                        {% include 'partials/journals/publication_li_content_extended.html' with publication=publication %}
+                    </div>
+                </li>
+            {% empty %}
+                <h3><em>No match found for your search query.</em></h3>
+            {% endfor %}
+        </ul>
+    </div>
+    {% if is_paginated %}
+        <div class="col-12">
+            {% include 'partials/pagination.html' with page_obj=page_obj %}
+        </div>
+    {% endif %}
+</div>
+
+{% endblock content %}
+
+
+{% block sidebar %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-2">Recent Issues</h2>
+            <div class="mb-1 pl-2">
+                <a href="?{% url_replace issue='' page='' %}" class="{% active_get_request 'issue' '' %}">All Issues</a>
+            </div>
+            {% for issue in recent_issues %}
+                <div class="mb-1 pl-2">
+                    <a href="?{% url_replace issue=issue.id page='' %}" class="{% active_get_request 'issue' issue.id %}">{{ issue.in_volume.in_journal }} {{ issue.short_str }}</a>
+                    <br>{{ issue.period_as_string }}
+                </div>
+            {% endfor %}
+
+            <h2 class="mb-2 mt-4">Subject area</h2>
+            {% for subject in subject_areas %}
+                <a href="?{% url_replace subject=subject.0 page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'subject' subject.0 %}">{{ subject.1 }}</a><br>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

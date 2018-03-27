@@ -11,6 +11,7 @@ from journals import views as journals_views
 urlpatterns = [
     # Journals
     url(r'^$', journals_views.journals, name='journals'),
+    url(r'^publications$', journals_views.PublicationListView.as_view(), name='publications'),
     url(r'scipost_physics', RedirectView.as_view(url=reverse_lazy('scipost:landing_page',
                                                  args=['SciPostPhys']))),
     url(r'^journals_terms_and_conditions$',
@@ -31,6 +32,10 @@ urlpatterns = [
             regex=PUBLICATION_DOI_REGEX),
         journals_views.DraftPublicationApprovalView.as_view(),
         name='send_publication_for_approval'),
+    url(r'^admin/publications/(?P<doi_label>{regex})/authors$'.format(regex=PUBLICATION_DOI_REGEX),
+        # journals_views.PublicationAuthorOrderingView.as_view(),
+        journals_views.publication_authors_ordering,
+        name='update_author_ordering'),
     url(r'^admin/publications/(?P<doi_label>{regex})/grants$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.PublicationGrantsView.as_view(),
         name='update_grants'),
@@ -47,10 +52,6 @@ urlpatterns = [
     url(r'^admin/(?P<doi_label>{regex})/authors/add$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.add_author,
         name='add_author'),
-    url(r'^admin/(?P<doi_label>{regex})/authors/mark_first/(?P<author_object_id>[0-9]+)$'.format(
-            regex=PUBLICATION_DOI_REGEX),
-        journals_views.mark_first_author,
-        name='mark_first_author'),
     url(r'^admin/(?P<doi_label>{regex})/manage_metadata$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.manage_metadata,
         name='manage_metadata'),

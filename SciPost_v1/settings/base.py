@@ -125,7 +125,9 @@ HAYSTACK_SIGNAL_PROCESSOR = 'SciPost_v1.signalprocessors.AutoSearchIndexingProce
 
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
 SPHINXDOC_PROTECTED_PROJECTS = {
-    'scipost': ['scipost.can_view_docs_scipost'],
+    'admin': ['scipost.can_view_docs_scipost'],
+    'codebase': ['scipost.can_view_docs_scipost'],
+    'users': ['scipost.can_view_docs_scipost'],
 }
 
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
@@ -138,9 +140,9 @@ SHELL_PLUS_POST_IMPORTS = (
     ('submissions.factories', ('SubmissionFactory', 'EICassignedSubmissionFactory')),
     ('commentaries.factories',
         ('EmptyCommentaryFactory',
-         'VettedCommentaryFactory',
+         'CommentaryFactory',
          'UnvettedCommentaryFactory',
-         'UnpublishedVettedCommentaryFactory',)),
+         'UnpublishedCommentaryFactory',)),
     ('scipost.factories', ('ContributorFactory')),
 )
 

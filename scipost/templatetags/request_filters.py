@@ -25,3 +25,9 @@ def active(context, pattern_or_urlname):
     if re.search(pattern, path):
         return 'active'
     return ''
+
+
+@register.simple_tag(takes_context=True)
+def active_get_request(context, get_key, get_value):
+    query = context['request'].GET.dict()
+    return 'active' if query.get(get_key) == str(get_value) else ''

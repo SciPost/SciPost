@@ -49,3 +49,55 @@ ul.references {
 ul.links > li.active a {
     font-weight: 700;
 }
+
+ul.sortable-list {
+    li {
+        background-color: $white;
+        border: 1px solid $scipost-darkblue;
+        padding: 0.5rem;
+        margin-bottom: -1px;
+        cursor: move;
+
+        &:hover {
+            background-color: $gray-200;
+        }
+    }
+}
+
+
+li,
+.li {
+    .thesis,
+    .commentary,
+    .submission,
+    .publication {
+        .subject {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            color: $text-muted;
+        }
+
+        .title {
+            margin-bottom: 0;
+        }
+
+        .authors {
+            margin-bottom: 0.5rem;
+        }
+
+        .meta {
+            color: $text-muted;
+        }
+
+        .abstract {
+            margin-bottom: 0.25rem;
+        }
+    }
+
+    .submission,
+    .commentary {
+        .meta {
+            margin-bottom: 0.25rem;
+        }
+    }
+}

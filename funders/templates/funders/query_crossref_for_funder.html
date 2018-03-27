@@ -12,7 +12,7 @@
         <form action="{% url 'funders:query_crossref_for_funder' %}" method="post">
           {% csrf_token %}
           {{form|bootstrap}}
-          <input class="btn btn-secondary" type="submit" value="Search">
+          <input class="btn btn-outline-secondary" type="submit" value="Search">
         </form>
 	{% if response_headers %}
 	<p>{{ response_headers }}</p>
@@ -31,7 +31,7 @@
 	      <input name='name' style="width: 64%" value='{{ item.name }}'>
 	      <input name='acronym' style="width: 64%" placeholder='acronym (if known)'>
 	      <input name='identifier' style="width: 64%" value='{{ item.uri }}'>
-              <input class="btn btn-secondary" type="submit" value="Add this funder">
+              <input class="btn btn-outline-secondary" type="submit" value="Add this funder">
 	    </form>
 	  </li>
 	  {% endfor %}
@@ -39,7 +39,7 @@
 	<form action="{% url 'funders:add_funder' %}" method="post">
           {% csrf_token %}
           {{funder_form|bootstrap}}
-          <input class="btn btn-secondary" type="submit" value="Submit">
+          <input class="btn btn-outline-secondary" type="submit" value="Submit">
         </form>
 	{% endif %}
   </div>

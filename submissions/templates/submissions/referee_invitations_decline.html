@@ -34,7 +34,7 @@ $(document).ready(function(){
     <form action="{% url 'submissions:decline_ref_invitation' invitation_key=invitation.invitation_key %}" method="post">
       {% csrf_token %}
       {{ form|bootstrap }}
-      <input type="submit" class="btn btn-secondary" value="Submit" />
+      <input type="submit" class="btn btn-outline-secondary" value="Submit" />
     </form>
   </div>
 </div>

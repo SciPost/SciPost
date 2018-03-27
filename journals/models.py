@@ -224,10 +224,10 @@ class Issue(models.Model):
     An Issue may be used as a subgroup of Publications related to a specific Journal object.
     """
     in_journal = models.ForeignKey(
-        'journals.Journal', on_delete=models.PROTECT, null=True, blank=True,
+        'journals.Journal', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Volume or Journal to the Issue')
     in_volume = models.ForeignKey(
-        'journals.Volume', on_delete=models.PROTECT, null=True, blank=True,
+        'journals.Volume', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Volume or Journal to the Issue')
     number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
@@ -250,7 +250,7 @@ class Issue(models.Model):
         text = self.issue_number
         if hasattr(self, 'proceedings'):
             return text
-        text += self.period_as_string()
+        text += ' (%s)' % self.period_as_string
         if self.status == STATUS_DRAFT:
             text += ' (In draft)'
         return text
@@ -284,15 +284,15 @@ class Issue(models.Model):
     def issue_number(self):
         return '%s issue %s' % (self.in_volume, self.number)
 
+    @property
     def short_str(self):
         return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
 
+    @property
     def period_as_string(self):
         if self.start_date.month == self.until_date.month:
-            return ' (%s %s)' % (self.until_date.strftime('%B'), self.until_date.strftime('%Y'))
-        else:
-            return (' (' + self.start_date.strftime('%B') + '-' + self.until_date.strftime('%B') +
-                    ' ' + self.until_date.strftime('%Y') + ')')
+            return '%s %s' % (self.until_date.strftime('%B'), self.until_date.strftime('%Y'))
+        return '%s - %s' % (self.start_date.strftime('%B'), self.until_date.strftime('%B %Y'))
 
     def is_current(self):
         return self.start_date <= timezone.now().date() and\
@@ -341,10 +341,10 @@ class Publication(models.Model):
     accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE,
                                                related_name='publication')
     in_issue = models.ForeignKey(
-        'journals.Issue', on_delete=models.PROTECT, null=True, blank=True,
+        'journals.Issue', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Issue or Journal to the Publication')
     in_journal = models.ForeignKey(
-        'journals.Journal', on_delete=models.PROTECT, null=True, blank=True,
+        'journals.Journal', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Issue or Journal to the Publication')
     paper_nr = models.PositiveSmallIntegerField()
     status = models.CharField(max_length=8,
@@ -516,6 +516,8 @@ class Publication(models.Model):
         return self.in_journal or self.in_issue.in_volume.in_journal
 
     def get_paper_nr(self):
+        if self.in_journal:
+            return self.paper_nr
         return paper_nr_string(self.paper_nr)
 
     def citation_rate(self):

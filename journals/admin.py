@@ -55,6 +55,7 @@ class PublicationAdminForm(forms.ModelForm):
 
 class ReferenceInline(admin.TabularInline):
     model = Reference
+    extra = 0
 
 
 class AuthorsInline(admin.TabularInline):

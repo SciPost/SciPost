@@ -16,6 +16,7 @@ from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLI
 from .exceptions import PaperNumberingError
 from .models import Issue, Publication, Reference, UnregisteredAuthor, PublicationAuthorsTable
 from .utils import JournalUtils
+from .signals import notify_manuscript_published
 
 
 from funders.models import Grant, Funder
@@ -81,6 +82,20 @@ class FundingInfoForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         self.instance.metadata['funding_statement'] = self.cleaned_data['funding_statement']
         return super().save(*args, **kwargs)
+
+
+class BasePublicationAuthorsTableFormSet(BaseModelFormSet):
+    def save(self, *args, **kwargs):
+        objects = super().save(*args, **kwargs)
+        for form in self.ordered_forms:
+            form.instance.order = form.cleaned_data['ORDER']
+            form.instance.save()
+        return objects
+
+
+PublicationAuthorOrderingFormSet = modelformset_factory(
+    PublicationAuthorsTable, fields=(), can_order=True, extra=0,
+    formset=BasePublicationAuthorsTableFormSet)
 
 
 class CreateMetadataXMLForm(forms.ModelForm):
@@ -638,4 +653,6 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
             # Email authors
             JournalUtils.load({'publication': self.instance})
             JournalUtils.send_authors_paper_published_email()
+            notify_manuscript_published(self.request.user, self.instance, False)
+
         return self.instance

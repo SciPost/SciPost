@@ -1,7 +1,7 @@
 {% load staticfiles %}
 <footer class="footer">
-    <div class="container-fluid py-1">
-      <div class="row my-3">
+    <div class="container py-4">
+      <div class="row mb-0">
 
         <div class="col-md-4 mb-3 mb-md-0">
           Copyright &copy; <a href="{% url 'scipost:foundation' %}" target="_">SciPost Foundation</a>
@@ -9,19 +9,41 @@
           Contact the <a href="mailto:admin@scipost.org">administrators</a> or <a href="mailto:techsupport@scipost.org">tech support</a>
           <br/>
           <a href="{% url 'scipost:terms_and_conditions' %}">Terms and conditions</a>
-        </div>
-        <div class="col-md-3 mb-3 mb-md-0">
-          Follow us:<br/>
-          <table>
+
+          <table class="mt-2 social-media">
         	<tr>
-        	  <td><a href="//www.facebook.com/scipost" target="_blank" title="Facebook"><img src="{% static 'scipost/images/FB-f-Logo__white_29.png' %}" width="20" alt="Facebook"/></a></td>
-        	  <td><a href="//twitter.com/scipost_dot_org" target="_blank" title="Twitter"><img src="{% static 'scipost/images/Twitter_Logo_Blue.png' %}" width="32" alt="Twitter"/></a></td>
-        	  <td><a style="float: right;" href="{% url 'scipost:feeds' %}"><img src="{% static 'scipost/images/feed-icon-28x28.png' %}" alt="Feed logo" width="20"></a></td>
+        	  <td>
+                  <a href="//www.facebook.com/scipost" target="_blank" title="Facebook">
+                      <i class="fa fa-facebook" aria-hidden="true"></i>
+                  </a>
+              </td>
+        	  <td>
+                  <a href="//twitter.com/scipost_dot_org" target="_blank" title="Twitter">
+                      <i class="fa fa-twitter" aria-hidden="true"></i>
+                  </a>
+              </td>
+        	  <td>
+                  <a href="{% url 'scipost:feeds' %}" title="RSS feeds">
+                      <i class="fa fa-rss" aria-hidden="true"></i>
+                  </a>
+              </td>
         	</tr>
           </table>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-4 mb-3 mb-md-0">
           <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank"><img alt="Creative Commons License" style="border-width:0" src="//i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />Except where otherwise noted, all content on SciPost is licensed under a <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.
+        </div>
+        <div class="col-md-4 mb-3 mb-md-0 text-right">
+            <a href="{% url 'journals:journals' %}">Journals</a>
+            <br>
+            <a href="{% url 'submissions:submissions' %}">Submissions</a>
+            <br>
+            <a href="{% url 'commentaries:commentaries' %}">Commentaries</a>
+            <br>
+            <a href="{% url 'theses:theses' %}">Theses</a>
+            <br>
+            <a href="{% url 'scipost:about' %}">About SciPost</a>
+            <br>
         </div>
       </div>
   </div>

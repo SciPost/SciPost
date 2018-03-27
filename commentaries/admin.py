@@ -29,4 +29,5 @@ class CommentaryAdmin(admin.ModelAdmin):
     date_hierarchy = 'latest_activity'
     form = CommentaryAdminForm
 
+
 admin.site.register(Commentary, CommentaryAdmin)

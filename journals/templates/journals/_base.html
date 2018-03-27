@@ -21,7 +21,7 @@
 <div class="container mt-3">
     <div class="row">
         <div class="col journal">
-            <h2 class="banner d-inline-block mr-2"><a href="{{ journal.get_absolute_url }}">{{journal}}</a></h2>
+            <h2 class="banner d-inline-block mr-2 mb-0"><a href="{{ journal.get_absolute_url }}">{{journal}}</a></h2>
             <ul class="links">
                 {% if journal.active or request.user.is_staff %}
                     {% if journal.has_issues %}

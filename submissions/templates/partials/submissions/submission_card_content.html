@@ -1,7 +1,7 @@
-{% include 'partials/submissions/submission_title.html' with submission=submission %}
+{% extends 'partials/submissions/submission_li.html' %}
 
 {% block card_footer %}
-    <p class="text-muted mb-0">
+    <p class="meta">
         Version {{ submission.arxiv_vn_nr }} ({% if submission.is_current %}current version{% else %}deprecated version {{ submission.arxiv_vn_nr }}{% endif %})
         <br>
         {% if submission.publication and submission.publication.is_published %}

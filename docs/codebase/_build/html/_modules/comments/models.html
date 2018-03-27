@@ -1,0 +1,447 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>comments.models &mdash; SciPost 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="SciPost 1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SciPost
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../maintenance.html">Maintenance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apps.html">Apps</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">SciPost</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>comments.models</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for comments.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericForeignKey</span><span class="p">,</span> <span class="n">GenericRelation</span>
+<span class="kn">from</span> <span class="nn">django.contrib.contenttypes.models</span> <span class="k">import</span> <span class="n">ContentType</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="k">import</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">django.utils.functional</span> <span class="k">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="k">import</span> <span class="n">reverse</span>
+
+<span class="kn">from</span> <span class="nn">guardian.shortcuts</span> <span class="k">import</span> <span class="n">assign_perm</span>
+
+<span class="kn">from</span> <span class="nn">scipost.behaviors</span> <span class="k">import</span> <span class="n">TimeStampedModel</span>
+<span class="kn">from</span> <span class="nn">scipost.models</span> <span class="k">import</span> <span class="n">Contributor</span>
+<span class="kn">from</span> <span class="nn">commentaries.constants</span> <span class="k">import</span> <span class="n">COMMENTARY_PUBLISHED</span>
+
+<span class="kn">from</span> <span class="nn">.behaviors</span> <span class="k">import</span> <span class="n">validate_file_extension</span><span class="p">,</span> <span class="n">validate_max_file_size</span>
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="k">import</span> <span class="n">COMMENT_STATUS</span><span class="p">,</span> <span class="n">STATUS_PENDING</span>
+<span class="kn">from</span> <span class="nn">.managers</span> <span class="k">import</span> <span class="n">CommentQuerySet</span>
+
+
+<span class="n">WARNING_TEXT</span> <span class="o">=</span> <span class="s1">&#39;Warning: Rather use/edit `content_object` instead or be 100</span><span class="si">% s</span><span class="s1">ure you know what you are doing!&#39;</span>
+<span class="n">US_NOTICE</span> <span class="o">=</span> <span class="s1">&#39;Warning: This field is out of service and will be removed in the future.&#39;</span>
+
+
+<div class="viewcode-block" id="Comment"><a class="viewcode-back" href="../../apps/comments.html#comments.models.Comment">[docs]</a><span class="k">class</span> <span class="nc">Comment</span><span class="p">(</span><span class="n">TimeStampedModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A Comment is an unsollicited note, submitted by a Contributor,</span>
+<span class="sd">    on a particular publication or in reply to an earlier Comment. &quot;&quot;&quot;</span>
+
+    <span class="n">status</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">STATUS_PENDING</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">COMMENT_STATUS</span><span class="p">)</span>
+    <span class="n">vetted_by</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;scipost.Contributor&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                  <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;comment_vetted_by&#39;</span><span class="p">)</span>
+    <span class="n">file_attachment</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FileField</span><span class="p">(</span><span class="n">upload_to</span><span class="o">=</span><span class="s1">&#39;uploads/comments/%Y/%m/</span><span class="si">%d</span><span class="s1">/&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">validate_file_extension</span><span class="p">,</span> <span class="n">validate_max_file_size</span><span class="p">]</span>
+                                       <span class="p">)</span>
+
+    <span class="c1"># A Comment is always related to another model</span>
+    <span class="c1"># This construction implicitly has property: `on_delete=models.CASCADE`</span>
+    <span class="n">content_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">ContentType</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="n">WARNING_TEXT</span><span class="p">)</span>
+    <span class="n">object_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="n">WARNING_TEXT</span><span class="p">)</span>
+    <span class="n">content_object</span> <span class="o">=</span> <span class="n">GenericForeignKey</span><span class="p">()</span>
+
+    <span class="n">nested_comments</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="s1">&#39;comments.Comment&#39;</span><span class="p">,</span> <span class="n">related_query_name</span><span class="o">=</span><span class="s1">&#39;comments&#39;</span><span class="p">)</span>
+
+    <span class="c1"># -- U/S</span>
+    <span class="c1"># These fields will be removed in the future.</span>
+    <span class="c1"># They still exists only to prevent possible data loss.</span>
+    <span class="n">commentary</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;commentaries.Commentary&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="n">US_NOTICE</span><span class="p">)</span>
+    <span class="n">submission</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;submissions.Submission&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;comments_old&#39;</span><span class="p">,</span>
+                                   <span class="n">help_text</span><span class="o">=</span><span class="n">US_NOTICE</span><span class="p">)</span>
+    <span class="n">thesislink</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;theses.ThesisLink&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="n">US_NOTICE</span><span class="p">)</span>
+    <span class="n">in_reply_to_comment</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                            <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;nested_comments_old&quot;</span><span class="p">,</span>
+                                            <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="n">US_NOTICE</span><span class="p">)</span>
+    <span class="n">in_reply_to_report</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;submissions.Report&#39;</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                           <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="n">US_NOTICE</span><span class="p">)</span>
+    <span class="c1"># -- End U/S</span>
+
+    <span class="c1"># Author info</span>
+    <span class="n">is_author_reply</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">author</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;scipost.Contributor&#39;</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+                               <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;comments&#39;</span><span class="p">)</span>
+    <span class="n">anonymous</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;Publish anonymously&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Categories:</span>
+    <span class="n">is_cor</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;correction/erratum&#39;</span><span class="p">)</span>
+    <span class="n">is_rem</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;remark&#39;</span><span class="p">)</span>
+    <span class="n">is_que</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;question&#39;</span><span class="p">)</span>
+    <span class="n">is_ans</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;answer to question&#39;</span><span class="p">)</span>
+    <span class="n">is_obj</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;objection&#39;</span><span class="p">)</span>
+    <span class="n">is_rep</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;reply to objection&#39;</span><span class="p">)</span>
+    <span class="n">is_val</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;validation or rederivation&#39;</span><span class="p">)</span>
+    <span class="n">is_lit</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;pointer to related literature&#39;</span><span class="p">)</span>
+    <span class="n">is_sug</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;suggestion for further work&#39;</span><span class="p">)</span>
+    <span class="n">comment_text</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="n">remarks_for_editors</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                           <span class="n">verbose_name</span><span class="o">=</span><span class="s1">&#39;optional remarks for the Editors only&#39;</span><span class="p">)</span>
+    <span class="n">date_submitted</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="s1">&#39;date submitted&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+    <span class="c1"># Opinions</span>
+    <span class="n">nr_A</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">in_agreement</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="s1">&#39;scipost.Contributor&#39;</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;in_agreement&#39;</span><span class="p">,</span>
+                                          <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">nr_N</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">in_notsure</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="s1">&#39;scipost.Contributor&#39;</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;in_notsure&#39;</span><span class="p">,</span>
+                                        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">nr_D</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">in_disagreement</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="s1">&#39;scipost.Contributor&#39;</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;in_disagreement&#39;</span><span class="p">,</span>
+                                             <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">needs_doi</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">NullBooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">doideposit_needs_updating</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">genericdoideposit</span> <span class="o">=</span> <span class="n">GenericRelation</span><span class="p">(</span><span class="s1">&#39;journals.GenericDOIDeposit&#39;</span><span class="p">,</span>
+                                        <span class="n">related_query_name</span><span class="o">=</span><span class="s1">&#39;genericdoideposit&#39;</span><span class="p">)</span>
+    <span class="n">doi_label</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">CommentQuerySet</span><span class="o">.</span><span class="n">as_manager</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">permissions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s1">&#39;can_vet_comments&#39;</span><span class="p">,</span> <span class="s1">&#39;Can vet submitted Comments&#39;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;by &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span> <span class="o">+</span>
+                <span class="s1">&#39; on &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_submitted</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment_text</span><span class="p">[:</span><span class="mi">30</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This property is (mainly) used to let Comments get the title of the Submission without</span>
+<span class="sd">        annoying logic.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_object</span><span class="o">.</span><span class="n">title</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_type</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">core_content_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Import here due to circular import errors</span>
+        <span class="kn">from</span> <span class="nn">commentaries.models</span> <span class="k">import</span> <span class="n">Commentary</span>
+        <span class="kn">from</span> <span class="nn">submissions.models</span> <span class="k">import</span> <span class="n">Submission</span><span class="p">,</span> <span class="n">Report</span>
+        <span class="kn">from</span> <span class="nn">theses.models</span> <span class="k">import</span> <span class="n">ThesisLink</span>
+
+        <span class="n">to_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_object</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">to_object</span><span class="p">,</span> <span class="n">Submission</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_object</span><span class="p">,</span> <span class="n">Commentary</span><span class="p">)</span> <span class="ow">or</span>
+               <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_object</span><span class="p">,</span> <span class="n">ThesisLink</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">to_object</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_object</span><span class="p">,</span> <span class="n">Report</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">to_object</span><span class="o">.</span><span class="n">submission</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_object</span><span class="p">,</span> <span class="n">Comment</span><span class="p">):</span>
+                <span class="c1"># Nested Comment.</span>
+                <span class="n">to_object</span> <span class="o">=</span> <span class="n">to_object</span><span class="o">.</span><span class="n">content_object</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span>
+
+    <span class="k">def</span> <span class="nf">create_doi_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doi_label</span> <span class="o">=</span> <span class="s1">&#39;SciPost.Comment.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">doi_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi_label</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;10.21468/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi_label</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">get_absolute_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">content_object</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;#comment_id&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_attachment_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;comments:attachment&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,))</span>
+
+    <span class="k">def</span> <span class="nf">grant_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Import here due to circular import errors</span>
+        <span class="kn">from</span> <span class="nn">submissions.models</span> <span class="k">import</span> <span class="n">Submission</span>
+
+        <span class="n">to_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">core_content_object</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_object</span><span class="p">,</span> <span class="n">Submission</span><span class="p">):</span>
+            <span class="c1"># Add permissions for EIC only, the Vetting-group already has it!</span>
+            <span class="n">assign_perm</span><span class="p">(</span><span class="s1">&#39;comments.can_vet_comments&#39;</span><span class="p">,</span> <span class="n">to_object</span><span class="o">.</span><span class="n">editor_in_charge</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Comment.get_author"><a class="viewcode-back" href="../../apps/comments.html#comments.models.Comment.get_author">[docs]</a>    <span class="k">def</span> <span class="nf">get_author</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get author, if and only if comment is not anonymous!!!&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">anonymous</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">author</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Comment.get_author_str"><a class="viewcode-back" href="../../apps/comments.html#comments.models.Comment.get_author_str">[docs]</a>    <span class="k">def</span> <span class="nf">get_author_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get author string, if and only if comment is not anonymous!!!&#39;&#39;&#39;</span>
+        <span class="n">author</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_author</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">author</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">author</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">author</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span>
+        <span class="k">return</span> <span class="s1">&#39;Anonymous&#39;</span></div>
+
+    <span class="k">def</span> <span class="nf">update_opinions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contributor_id</span><span class="p">,</span> <span class="n">opinion</span><span class="p">):</span>
+        <span class="n">contributor</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Contributor</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">contributor_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_agreement</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">contributor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_notsure</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">contributor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_disagreement</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">contributor</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">opinion</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">in_agreement</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">contributor</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">opinion</span> <span class="o">==</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">in_notsure</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">contributor</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">opinion</span> <span class="o">==</span> <span class="s1">&#39;D&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">in_disagreement</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">contributor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nr_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_agreement</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nr_N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_notsure</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nr_D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_disagreement</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">relation_to_published</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the Comment relates to a SciPost-published object.</span>
+<span class="sd">        If it is, return a dict with info on relation to the published object,</span>
+<span class="sd">        based on Crossref&#39;s peer review content type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Import here due to circular import errors</span>
+        <span class="kn">from</span> <span class="nn">submissions.models</span> <span class="k">import</span> <span class="n">Submission</span>
+        <span class="kn">from</span> <span class="nn">journals.models</span> <span class="k">import</span> <span class="n">Publication</span>
+        <span class="kn">from</span> <span class="nn">commentaries.models</span> <span class="k">import</span> <span class="n">Commentary</span>
+
+        <span class="n">to_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">core_content_object</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_object</span><span class="p">,</span> <span class="n">Submission</span><span class="p">):</span>
+            <span class="n">publication</span> <span class="o">=</span> <span class="n">Publication</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">accepted_submission__arxiv_identifier_wo_vn_nr</span><span class="o">=</span><span class="n">to_object</span><span class="o">.</span><span class="n">arxiv_identifier_wo_vn_nr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">publication</span><span class="p">:</span>
+                <span class="n">relation</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;isReviewOfDOI&#39;</span><span class="p">:</span> <span class="n">publication</span><span class="o">.</span><span class="n">doi_string</span><span class="p">,</span>
+                    <span class="s1">&#39;stage&#39;</span><span class="p">:</span> <span class="s1">&#39;pre-publication&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Comment on &#39;</span> <span class="o">+</span> <span class="n">to_object</span><span class="o">.</span><span class="n">arxiv_identifier_w_vn_nr</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_author_reply</span><span class="p">:</span>
+                    <span class="n">relation</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;author-comment&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">relation</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;community-comment&#39;</span>
+                <span class="k">return</span> <span class="n">relation</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_object</span><span class="p">,</span> <span class="n">Commentary</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">to_object</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">COMMENTARY_PUBLISHED</span><span class="p">:</span>
+                <span class="n">relation</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;isReviewOfDOI&#39;</span><span class="p">:</span> <span class="n">to_object</span><span class="o">.</span><span class="n">pub_doi</span><span class="p">,</span>
+                    <span class="s1">&#39;stage&#39;</span><span class="p">:</span> <span class="s1">&#39;post-publication&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Comment on &#39;</span> <span class="o">+</span> <span class="n">to_object</span><span class="o">.</span><span class="n">pub_doi</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_author_reply</span><span class="p">:</span>
+                    <span class="n">relation</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;author-comment&#39;</span>
+                    <span class="n">relation</span><span class="p">[</span><span class="s1">&#39;contributor_role&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;author&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">relation</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;community-comment&#39;</span>
+                    <span class="n">relation</span><span class="p">[</span><span class="s1">&#39;contributor_role&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;reviewer-external&#39;</span>
+                <span class="k">return</span> <span class="n">relation</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">citation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">citation</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi_string</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">anonymous</span><span class="p">:</span>
+                <span class="n">citation</span> <span class="o">+=</span> <span class="s1">&#39;Anonymous, &#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">citation</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">, &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">last_name</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_author_reply</span><span class="p">:</span>
+                <span class="n">citation</span> <span class="o">+=</span> <span class="s1">&#39;SciPost Author Replies, &#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">citation</span> <span class="o">+=</span> <span class="s1">&#39;SciPost Comments, &#39;</span>
+            <span class="n">citation</span> <span class="o">+=</span> <span class="s1">&#39;Delivered </span><span class="si">%s</span><span class="s1">, &#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_submitted</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">citation</span> <span class="o">+=</span> <span class="s1">&#39;doi: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi_string</span>
+        <span class="k">return</span> <span class="n">citation</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jean-Sébastien Caux.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
