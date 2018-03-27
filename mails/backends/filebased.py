@@ -42,9 +42,12 @@ class ModelEmailBackend(FileBacked):
         body = email_message.body
         subject = email_message.subject
         body_html = ''
-        for alt in email_message.alternatives:
-            if alt[1] == 'text/html':
-                body_html += alt[0]
+        try:
+            for alt in email_message.alternatives:
+                if alt[1] == 'text/html':
+                    body_html += alt[0]
+        except AttributeError:
+            pass
 
         MailLog.objects.create(
             body=body,
