@@ -24,6 +24,7 @@ __pycache__
 
 /uploads*
 /media*
+/logs*
 
 SCIPOST_JOURNALS
 UPLOADS

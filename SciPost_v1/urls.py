@@ -53,6 +53,7 @@ urlpatterns = [
     url(r'^stats/', include('stats.urls', namespace="stats")),
     # Keep temporarily for historical reasons
     url(r'^supporting_partners/', include('partners.urls', namespace="_partners")),
+    url(r'^silk/', include('silk.urls', namespace='silk')),
 ]
 
 if settings.DEBUG:
