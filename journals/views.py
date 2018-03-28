@@ -427,6 +427,7 @@ def add_associated_grant(request, doi_label):
     grant_select_form = GrantSelectForm(request.POST or None)
     if grant_select_form.is_valid():
         publication.grants.add(grant_select_form.cleaned_data['grant'])
+        publication.doideposit_needs_updating = True
         publication.save()
         messages.success(request, 'Grant added to publication %s' % str(publication))
     return redirect(reverse('journals:manage_metadata',
