@@ -163,7 +163,6 @@ class Submission(models.Model):
     @property
     def cycle(self):
         """Get cycle object that's relevant for the Submission."""
-        print('asdfs')
         if not hasattr(self, '__cycle'):
             self.set_cycle()
         return self.__cycle
