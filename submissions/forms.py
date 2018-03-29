@@ -21,6 +21,7 @@ from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     iThenticateReport, EditorialCommunication)
 
+from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
 from invitations.models import RegistrationInvitation
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC
@@ -459,11 +460,23 @@ class RefereeRecruitmentForm(forms.ModelForm):
 
     class Meta:
         model = RefereeInvitation
-        fields = ['title', 'first_name', 'last_name', 'email_address']
+        fields = [
+            'title',
+            'first_name',
+            'last_name',
+            'email_address',
+            'invitation_key']
+        widgets = {
+            'invitation_key': forms.HiddenInput()
+        }
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         self.submission = kwargs.pop('submission', None)
+
+        initial = kwargs.pop('initial', {})
+        initial['invitation_key'] = get_new_secrets_key()
+        kwargs['initial'] = initial
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -481,8 +494,10 @@ class RefereeRecruitmentForm(forms.ModelForm):
             email=referee_invitation.email_address,
             invitation_type=INVITATION_REFEREEING,
             created_by=self.request.user,
-            invited_by=self.request.user)
-        referee_invitation.invitation_key = registration_invitation.invitation_key
+            invited_by=self.request.user,
+            invitation_key=referee_invitation.invitation_key,
+            key_expires=timezone.now() + datetime.timedelta(days=365))
+
         if commit:
             referee_invitation.save()
             registration_invitation.save()

@@ -47,7 +47,6 @@ from comments.forms import CommentForm
 from invitations.constants import INVITATION_REFEREEING
 from invitations.models import RegistrationInvitation
 from journals.models import Journal
-from mails.utils import DirectMailUtil
 from mails.views import MailEditingSubView
 from production.forms import ProofsDecisionForm
 from production.models import ProductionStream
@@ -778,21 +777,19 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
         request.POST or None, request=request, submission=submission)
     if ref_recruit_form.is_valid():
         referee_invitation, registration_invitation = ref_recruit_form.save(commit=False)
-        mail_request = MailEditingSubView(request, mail_code='registration_invitation',
-                                          instance=registration_invitation)
+        mail_request = MailEditingSubView(request, mail_code='registration_invitation_refereeing',
+                                          instance=referee_invitation)
         mail_request.add_form(ref_recruit_form)
         if mail_request.is_valid():
             referee_invitation.save()
             registration_invitation.save()
 
-            # Copy the key to the refereeing invitation
             messages.success(request, 'Referee {} invited'.format(
                 registration_invitation.last_name))
             submission.add_event_for_author('A referee has been invited.')
             submission.add_event_for_eic('{} has been recruited and invited as a referee.'.format(
                 referee_invitation.last_name))
 
-            mail_request.set_alternative_sender('SciPost Refereeing', 'refereeing@scipost.org')
             mail_request.send()
             return redirect(reverse('submissions:editorial_page',
                                     kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))

@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import hashlib
 import random
 import string
 
@@ -116,3 +117,10 @@ def generate_orcid():
 def filter_keys(dictionary, keys_to_keep):
     # Field is empty if not on model.
     return {key: dictionary.get(key, "") for key in keys_to_keep}
+
+def get_new_secrets_key(salt='', salt2=''):
+    key = salt or generate_orcid()
+    for i in range(5):
+        key += random.choice(string.ascii_letters)
+    key = key.encode('utf8')
+    return hashlib.sha1(key + salt2.encode('utf8')).hexdigest()
