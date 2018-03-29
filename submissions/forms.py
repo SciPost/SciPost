@@ -342,38 +342,30 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         if not self.last_submission:
             raise Submission.DoesNotExist
 
-        # Open for comment and reporting
-        submission.open_for_reporting = True
-        submission.open_for_commenting = True
-
         # Close last submission
-        self.last_submission.is_current = False
-        self.last_submission.open_for_reporting = False
-        self.last_submission.status = STATUS_RESUBMITTED
-        self.last_submission.save()
+        Submission.objects.filter(id=self.last_submission.id).update(
+            is_current=False,
+            open_for_reporting=False,
+            status=STATUS_RESUBMITTED)
 
-        # Editor-in-charge
-        submission.editor_in_charge = self.last_submission.editor_in_charge
-        submission.status = STATUS_RESUBMISSION_INCOMING
+        # Open for comment and reporting and copy EIC info
+        Submission.objects.filter(id=submission.id).update(
+            open_for_reporting=True,
+            open_for_commenting=True,
+            editor_in_charge=self.last_submission.editor_in_charge,
+            status=STATUS_RESUBMISSION_INCOMING)
 
-        # Author claim fields
+        # Add author(s) (claim) fields
         submission.authors.add(*self.last_submission.authors.all())
         submission.authors_claims.add(*self.last_submission.authors_claims.all())
         submission.authors_false_claims.add(*self.last_submission.authors_false_claims.all())
-        submission.save()
-        return submission
 
-    @transaction.atomic
-    def reassign_eic_and_admins(self, submission):
-        # Assign editor
+        # Create new EditorialAssigment for the current Editor-in-Charge
         assignment = EditorialAssignment(
             submission=submission,
-            to=submission.editor_in_charge,
-            accepted=True
-        )
+            to=self.last_submission.editor_in_charge,
+            accepted=True)
         assignment.save()
-        submission.save()
-        return submission
 
     def set_pool(self, submission):
         qs = Fellowship.objects.active()
@@ -410,8 +402,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         # Save
         submission.save()
         if self.submission_is_resubmission():
-            submission = self.copy_and_save_data_from_resubmission(submission)
-            submission = self.reassign_eic_and_admins(submission)
+            self.copy_and_save_data_from_resubmission(submission)
         submission.authors.add(self.requested_by.contributor)
         self.set_pool(submission)
         return submission
@@ -540,7 +531,7 @@ class ReportForm(forms.ModelForm):
         if kwargs.get('instance'):
             if kwargs['instance'].is_followup_report:
                 # Prefill data from latest report in the series
-                latest_report = kwargs['instance'].latest_report_from_series()
+                latest_report = kwargs['instance'].latest_report_from_thread()
                 kwargs.update({
                     'initial': {
                         'qualification': latest_report.qualification,
@@ -834,7 +825,7 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['refereeing_cycle'].default = None
-        other_submissions = self.instance.other_versions_pool.all()
+        other_submissions = self.instance.other_versions.all()
         if other_submissions:
             self.fields['referees_reinvite'].queryset = RefereeInvitation.objects.filter(
                 submission__in=other_submissions).distinct()

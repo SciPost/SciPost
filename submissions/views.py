@@ -23,7 +23,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from guardian.shortcuts import assign_perm
-from silk.profiling.profiler import silk_profile
+# from silk.profiling.profiler import silk_profile
 
 from .constants import STATUS_VETTED, STATUS_EIC_ASSIGNED,\
                        SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS,\
@@ -354,7 +354,7 @@ def editorial_workflow(request):
 
 @login_required
 @fellowship_or_admin_required()
-@silk_profile(name='Pool')
+# @silk_profile(name='Pool')
 def pool(request, arxiv_identifier_w_vn_nr=None):
     """
     The Submissions pool contains all submissions which are undergoing
@@ -440,8 +440,8 @@ def add_remark(request, arxiv_identifier_w_vn_nr):
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 def assign_submission(request, arxiv_identifier_w_vn_nr):
-    """
-    Assign Editor-in-charge to Submission.
+    """Assign Editor-in-charge to Submission.
+
     Action done by SciPost Administration or Editorial College Administration.
     """
     submission = get_object_or_404(Submission.objects.pool_editable(request.user),
@@ -465,9 +465,7 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
 @fellowship_required()
 @transaction.atomic
 def assignment_request(request, assignment_id):
-    """
-    Process EditorialAssignment acceptance/denial form or show if not submitted.
-    """
+    """Process EditorialAssignment acceptance/rejection form or show if not submitted."""
     assignment = get_object_or_404(EditorialAssignment.objects.open(),
                                    to=request.user.contributor, pk=assignment_id)
 
@@ -540,7 +538,7 @@ def assignment_request(request, assignment_id):
 @login_required
 @fellowship_required()
 @transaction.atomic
-@silk_profile(name='Volunteer as EIC')
+# @silk_profile(name='Volunteer as EIC')
 def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     """
     Called when a Fellow volunteers while perusing the submissions pool.
@@ -635,7 +633,7 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @fellowship_required()
-@silk_profile(name='EditorialAssignment overview')
+# @silk_profile(name='EditorialAssignment overview')
 def assignments(request):
     """
     This page provides a Fellow with an explicit task list
@@ -761,7 +759,7 @@ def select_referee(request, arxiv_identifier_w_vn_nr):
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-@silk_profile(name='Recruit referee')
+# @silk_profile(name='Recruit referee')
 def recruit_referee(request, arxiv_identifier_w_vn_nr):
     """
     If the Editor-in-charge does not find the desired referee among Contributors
@@ -874,7 +872,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
 
 @login_required
 @fellowship_or_admin_required()
-@silk_profile(name='Remind Referee')
+# @silk_profile(name='Remind Referee')
 def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
     """
     This method is used by the Editor-in-charge from the editorial_page
@@ -1182,7 +1180,7 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-@silk_profile(name='Editorial Assignment processing')
+# @silk_profile(name='Editorial Assignment processing')
 def eic_recommendation(request, arxiv_identifier_w_vn_nr):
     """
     Write EIC Recommendation.
@@ -1370,7 +1368,7 @@ def vet_submitted_reports_list(request):
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-@silk_profile(name='Vet submitted Report')
+# @silk_profile(name='Vet submitted Report')
 def vet_submitted_report(request, report_id):
     """
     Report with status `unvetted` will be shown. A user may only vet reports of submissions
@@ -1592,7 +1590,7 @@ def fix_College_decision(request, rec_id):
     elif recommendation.recommendation == -3:
         # Reject + update-reject other versions of submission
         submission.status = 'rejected'
-        for sub in submission.other_versions_pool:
+        for sub in submission.other_versions:
             sub.status = 'resubmitted_rejected'
             sub.save()
 
