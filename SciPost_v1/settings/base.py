@@ -106,7 +106,7 @@ INSTALLED_APPS = (
     'stats',
     'petitions',
     'webpack_loader',
-    # 'silk',
+    'silk',
 )
 
 
@@ -169,7 +169,7 @@ MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-# SILKY_PYTHON_PROFILER = True
+SILKY_PYTHON_PROFILER = False
 # SILKY_PYTHON_PROFILE_BINARY = False
 # SILKY_AUTHENTICATION = True
 # SILKY_AUTHORIZATION = True
