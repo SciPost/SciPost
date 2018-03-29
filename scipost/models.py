@@ -222,6 +222,9 @@ class RegistrationInvitation(models.Model):
     responded = models.BooleanField(default=False)
     declined = models.BooleanField(default=False)
 
+    def __str__(self):
+        return 'DEPRECATED'
+
 
 class CitationNotification(models.Model):
     """

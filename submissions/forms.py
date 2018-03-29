@@ -10,19 +10,21 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
-from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED,\
-                       REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
-                       STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
-                       STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE,\
-                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS,\
-                       POST_PUBLICATION_STATUSES, REPORT_POST_EDREC, REPORT_NORMAL
+from .constants import (
+    ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
+    REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED, STATUS_REJECTED, STATUS_REJECTED_VISIBLE,
+    STATUS_RESUBMISSION_INCOMING, STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT,
+    REPORT_ACTION_REFUSE, STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS,
+    POST_PUBLICATION_STATUSES, REPORT_POST_EDREC, REPORT_NORMAL)
 from . import exceptions, helpers
-from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
-                    iThenticateReport, EditorialCommunication
+from .models import (
+    Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
+    iThenticateReport, EditorialCommunication)
 
 from colleges.models import Fellowship
+from invitations.models import RegistrationInvitation
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC
-from scipost.constants import SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
 from scipost.models import Contributor
 import strings
@@ -453,14 +455,38 @@ class RefereeSelectForm(forms.Form):
 
 
 class RefereeRecruitmentForm(forms.ModelForm):
+    """Invite non-registered scientist to register and referee a Submission."""
+
     class Meta:
         model = RefereeInvitation
         fields = ['title', 'first_name', 'last_name', 'email_address']
 
     def __init__(self, *args, **kwargs):
-        super(RefereeRecruitmentForm, self).__init__(*args, **kwargs)
-        self.fields['first_name'].widget.attrs.update({'size': 20})
-        self.fields['last_name'].widget.attrs.update({'size': 20})
+        self.request = kwargs.pop('request', None)
+        self.submission = kwargs.pop('submission', None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        if not self.request or not self.submission:
+            raise forms.ValidationError('No request or Submission given.')
+
+        self.instance.submission = self.submission
+        self.instance.invited_by = self.request.user.contributor
+        referee_invitation = super().save(commit=False)
+
+        registration_invitation = RegistrationInvitation(
+            title=referee_invitation.title,
+            first_name=referee_invitation.first_name,
+            last_name=referee_invitation.last_name,
+            email=referee_invitation.email_address,
+            invitation_type=INVITATION_REFEREEING,
+            created_by=self.request.user,
+            invited_by=self.request.user)
+        referee_invitation.invitation_key = registration_invitation.invitation_key
+        if commit:
+            referee_invitation.save()
+            registration_invitation.save()
+        return (referee_invitation, registration_invitation)
 
 
 class ConsiderRefereeInvitationForm(forms.Form):
