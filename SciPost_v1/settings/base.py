@@ -220,7 +220,7 @@ DATABASES = {
         'USER': get_secret("DB_USER"),
         'PASSWORD': get_secret("DB_PWD"),
         'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'PORT': '5432'
     }
 }
 
