@@ -105,8 +105,7 @@ INSTALLED_APPS = (
     'funders',
     'stats',
     'petitions',
-    'webpack_loader',
-    'silk',
+    'webpack_loader'
 )
 
 
@@ -156,7 +155,6 @@ MATHJAX_CONFIG_DATA = {
     }
 
 MIDDLEWARE = (
-    # 'silk.middleware.SilkyMiddleware',
     # 'django.middleware.http.ConditionalGetMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -168,15 +166,6 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
-
-SILKY_PYTHON_PROFILER = False
-# SILKY_PYTHON_PROFILE_BINARY = False
-# SILKY_AUTHENTICATION = True
-# SILKY_AUTHORIZATION = True
-# SILKY_META = True
-# SILKY_INTERCEPT_PERCENT = 100
-# SILKY_MAX_RECORDED_REQUESTS = 10**4
-# SILKY_PERMISSIONS = lambda user: user.is_superuser
 
 ROOT_URLCONF = 'SciPost_v1.urls'
 
