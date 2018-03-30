@@ -51,8 +51,9 @@ class SummernoteEditor(widgets.Textarea):
 
     def trigger_summernote(self, el_id, options):
         str = """
-        <script>
-            $(function(){
+        <script type='text/javascript'>
+            var $ = jQuery;
+            $(document).ready(function() {
                 $('#%s').summernote(%s)
             });
         </script>""" % (el_id, options)

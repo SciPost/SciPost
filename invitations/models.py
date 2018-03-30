@@ -56,15 +56,16 @@ class RegistrationInvitation(models.Model):
     class Meta:
         ordering = ['last_name']
 
+    def __init__(self, *args, **kwargs):
+        response = super().__init__(*args, **kwargs)
+        self.refresh_keys()
+        return response
+
     def __str__(self):
         return '{} {} on {}'.format(self.first_name, self.last_name,
                                     self.created.strftime("%Y-%m-%d"))
 
-    def save(self, *args, **kwargs):
-        self.refresh_keys(commit=False)
-        return super().save(*args, **kwargs)
-
-    def refresh_keys(self, force_new_key=False, commit=True):
+    def refresh_keys(self, force_new_key=False):
         # Generate email activation key and link
         if not self.invitation_key or force_new_key:
             # TODO: Replace this all by the `secrets` package available from python 3.6(!)
@@ -75,8 +76,6 @@ class RegistrationInvitation(models.Model):
             invitationsalt = self.last_name.encode('utf8')
             self.invitation_key = hashlib.sha1(salt + invitationsalt).hexdigest()
             self.key_expires = timezone.now() + datetime.timedelta(days=365)
-        if commit:
-            self.save()
 
     def mail_sent(self, user=None):
         """

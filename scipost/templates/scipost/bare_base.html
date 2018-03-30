@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,700" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'fa/css/font-awesome.min.css' %}" />
+    <script async src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script async src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
     {% render_bundle 'main' 'css' %}
 
@@ -19,8 +21,6 @@
     <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
 
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-
-
 
     {% block headsup %}
     {% endblock headsup %}
@@ -37,8 +37,6 @@
 
     {% block base %}{% endblock base %}
 
-    <script async src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
-    <script async src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({
             tex2jax: {
