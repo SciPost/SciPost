@@ -19,5 +19,5 @@ RECAPTCHA_PUBLIC_KEY = get_secret("GOOGLE_RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = get_secret("GOOGLE_RECAPTCHA_PRIVATE_KEY")
 
 # Logging location
-LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/jdewit/webapps/scipost/logs/arxiv.log'
-LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/jdewit/webapps/scipost/logs/doi.log'
+LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipoststg/webapps/scipost/logs/arxiv.log'
+LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipoststg/webapps/scipost/logs/doi.log'
