@@ -1,8 +1,8 @@
-# #!/bin/bash
-#
-# # Long period (days) cronjobs for staging area
-#
-# cd /home/scipost/webapps/scipost/scipost_v1
-# source venv/bin/activate
-#
-# ./manage.py remind_fellows_to_submit_report
+#!/bin/bash
+
+# Weekly cronjobs for staging area
+
+cd /home/scipoststg/webapps/scipost/scipost_v1
+source venv/bin/activate
+
+python manage.py email_fellows_tasklist
