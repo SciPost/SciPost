@@ -71,7 +71,12 @@ class PublicationListView(PaginationMixin, ListView):
     def get_queryset(self):
         qs = super().get_queryset()
         if self.request.GET.get('issue'):
-            qs = qs.filter(in_issue__id=int(self.request.GET['issue']))
+            try:
+                issue = int(self.request.GET['issue'])
+            except ValueError:
+                issue = None
+            if issue:
+                qs = qs.filter(in_issue__id=issue)
         if self.request.GET.get('subject'):
             qs = qs.for_subject(self.request.GET['subject'])
         return qs.order_by('-publication_date')
