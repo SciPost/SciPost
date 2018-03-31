@@ -30,7 +30,11 @@ REGEX_CHOICES = '|'.join([
     SCIPOST_JOURNAL_PHYSICS
 ])
 
-PUBLICATION_DOI_REGEX = PUBLICATION_DOI_VALIDATION_REGEX = '[a-zA-Z]+.[0-9]+(.[0-9]+.[0-9]{3,})?'
+# Regex used for URLs of specific Publications and for
+# doi validation during the publication process.
+PUBLICATION_DOI_REGEX = '({})'.format(REGEX_CHOICES)
+PUBLICATION_DOI_REGEX += '.[0-9]+(.[0-9]+.[0-9]{3,})?'
+PUBLICATION_DOI_VALIDATION_REGEX = PUBLICATION_DOI_REGEX
 
 SCIPOST_JOURNALS_DOMAINS = (
     ('E', 'Experimental'),
