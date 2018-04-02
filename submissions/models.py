@@ -501,8 +501,13 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def save(self, *args, **kwargs):
         """Update report number before saving on creation."""
         if not self.report_nr:
-            self.report_nr = self.submission.reports.aggregate(
-                models.Max('report_nr')).get('report_nr__max', 0) + 1
+            new_report_nr = self.submission.reports.aggregate(
+                models.Max('report_nr')).get('report_nr__max')
+            if new_report_nr:
+                new_report_nr += 1
+            else:
+                new_report_nr = 1
+            self.report_nr = new_report_nr
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
