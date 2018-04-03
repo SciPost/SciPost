@@ -4,3 +4,4 @@
 {{object.abstract}}
 {{object.doi_string}}
 {{object.citation}}
+{% for institution in object.institutions.all %}{{ institution.name }}{% endfor %}
