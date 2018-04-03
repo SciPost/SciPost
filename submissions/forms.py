@@ -408,7 +408,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             self.copy_and_save_data_from_resubmission(submission)
         submission.authors.add(self.requested_by.contributor)
         self.set_pool(submission)
-        return submission
+
+        # Return latest version of the Submission. It could be outdated by now.
+        return Submission.objects.get(id=submission.id)
 
 
 class SubmissionReportsForm(forms.ModelForm):
