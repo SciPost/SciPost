@@ -9,6 +9,8 @@ from .forms import EmailTemplateForm, HiddenDataForm
 
 
 class MailEditingSubView(object):
+    alternative_from_address = None  # Tuple: ('from_name', 'from_address')
+
     def __init__(self, request, mail_code, **kwargs):
         self.request = request
         self.context = kwargs.get('context', {})
@@ -22,10 +24,16 @@ class MailEditingSubView(object):
     def add_form(self, form):
         self.context['transfer_data_form'] = HiddenDataForm(form)
 
+    def set_alternative_sender(self, from_name, from_address):
+        self.alternative_from_address = (from_name, from_address)
+
     def is_valid(self):
         return self.mail_form.is_valid()
 
     def send(self):
+        if self.alternative_from_address:
+            self.mail_form.set_alternative_sender(
+                self.alternative_from_address[0], self.alternative_from_address[1])
         return self.mail_form.send()
 
     def return_render(self):

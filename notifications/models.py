@@ -110,21 +110,14 @@ class Notification(models.Model):
 
     def mark_toggle(self):
         if self.pseudo_unread:
-            self.unread = False
-            self.pseudo_unread = False
+            self.mark_as_read()
         else:
-            self.unread = True
-            self.pseudo_unread = True
-        self.save()
+            self.mark_as_unread()
 
     def mark_as_read(self):
         if self.unread or self.pseudo_unread:
-            self.unread = False
-            self.pseudo_unread = False
-            self.save()
+            Notification.objects.filter(id=self.id).update(unread=False, pseudo_unread=False)
 
     def mark_as_unread(self):
         if not self.unread or not self.pseudo_unread:
-            self.unread = True
-            self.pseudo_unread = True
-            self.save()
+            Notification.objects.filter(id=self.id).update(unread=True, pseudo_unread=True)

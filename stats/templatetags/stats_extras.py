@@ -33,8 +33,10 @@ def submissions_count_distinct(submissions):
 
 @register.filter(name='journal_publication_years')
 def journal_publication_years(journal):
+    """Return a sorted list of active years of the Journal."""
     years = []
-    for volume in journal.volume_set.all():
-        if volume.until_date.year not in years:
-            years.append(volume.until_date.year)
-    return sorted(years)
+    if journal.has_volumes:
+        years = journal.volumes.dates('until_date', 'year')
+    else:
+        years = journal.publications.dates('publication_date', 'year')
+    return [x.year for x in years]

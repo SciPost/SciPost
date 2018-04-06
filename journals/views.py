@@ -71,7 +71,12 @@ class PublicationListView(PaginationMixin, ListView):
     def get_queryset(self):
         qs = super().get_queryset()
         if self.request.GET.get('issue'):
-            qs = qs.filter(in_issue__id=int(self.request.GET['issue']))
+            try:
+                issue = int(self.request.GET['issue'])
+            except ValueError:
+                issue = None
+            if issue:
+                qs = qs.filter(in_issue__id=issue)
         if self.request.GET.get('subject'):
             qs = qs.for_subject(self.request.GET['subject'])
         return qs.order_by('-publication_date')
@@ -427,6 +432,7 @@ def add_associated_grant(request, doi_label):
     grant_select_form = GrantSelectForm(request.POST or None)
     if grant_select_form.is_valid():
         publication.grants.add(grant_select_form.cleaned_data['grant'])
+        publication.doideposit_needs_updating = True
         publication.save()
         messages.success(request, 'Grant added to publication %s' % str(publication))
     return redirect(reverse('journals:manage_metadata',

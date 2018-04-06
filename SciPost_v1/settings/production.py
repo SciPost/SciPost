@@ -25,8 +25,6 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 # Email
-
-# Customized mailbackend
 EMAIL_BACKEND = 'mails.backends.filebased.ModelEmailBackend'
 EMAIL_BACKEND_ORIGINAL = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = get_secret("EMAIL_HOST")

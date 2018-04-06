@@ -105,7 +105,7 @@ INSTALLED_APPS = (
     'funders',
     'stats',
     'petitions',
-    'webpack_loader',
+    'webpack_loader'
 )
 
 
@@ -155,6 +155,7 @@ MATHJAX_CONFIG_DATA = {
     }
 
 MIDDLEWARE = (
+    # 'django.middleware.http.ConditionalGetMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -163,7 +164,7 @@ MIDDLEWARE = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware'
+    'django.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'SciPost_v1.urls'
@@ -208,7 +209,7 @@ DATABASES = {
         'USER': get_secret("DB_USER"),
         'PASSWORD': get_secret("DB_PWD"),
         'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'PORT': '5432'
     }
 }
 

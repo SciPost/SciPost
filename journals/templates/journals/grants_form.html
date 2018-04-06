@@ -9,6 +9,12 @@
 
 <h1>Publication related grant(s)</h1>
 
+<h3>Funding acknowledgement of this Publication:</h3>
+{% if publication.has_funding_statement %}
+<p>{{ publication.metadata.funding_statement }}</p>
+{% else %}
+<p>No funding statement was registered.</p>
+{% endif %}
 
 <h3>Add existing grant to this Publication</h3>
 <form method="post" enctype="multipart/form-data">

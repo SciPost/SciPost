@@ -10,19 +10,22 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
-from .constants import ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED,\
-                       REPORT_ACTION_CHOICES, REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED,\
-                       STATUS_REJECTED, STATUS_REJECTED_VISIBLE, STATUS_RESUBMISSION_INCOMING,\
-                       STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE,\
-                       STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS,\
-                       POST_PUBLICATION_STATUSES, REPORT_POST_EDREC, REPORT_NORMAL
+from .constants import (
+    ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
+    REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED, STATUS_REJECTED, STATUS_REJECTED_VISIBLE,
+    STATUS_RESUBMISSION_INCOMING, STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT,
+    REPORT_ACTION_REFUSE, STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS,
+    POST_PUBLICATION_STATUSES, REPORT_POST_EDREC, REPORT_NORMAL)
 from . import exceptions, helpers
-from .models import Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,\
-                    iThenticateReport, EditorialCommunication
+from .models import (
+    Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
+    iThenticateReport, EditorialCommunication)
 
+from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
+from invitations.models import RegistrationInvitation
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC
-from scipost.constants import SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
 from scipost.models import Contributor
 import strings
@@ -342,38 +345,30 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         if not self.last_submission:
             raise Submission.DoesNotExist
 
-        # Open for comment and reporting
-        submission.open_for_reporting = True
-        submission.open_for_commenting = True
-
         # Close last submission
-        self.last_submission.is_current = False
-        self.last_submission.open_for_reporting = False
-        self.last_submission.status = STATUS_RESUBMITTED
-        self.last_submission.save()
+        Submission.objects.filter(id=self.last_submission.id).update(
+            is_current=False,
+            open_for_reporting=False,
+            status=STATUS_RESUBMITTED)
 
-        # Editor-in-charge
-        submission.editor_in_charge = self.last_submission.editor_in_charge
-        submission.status = STATUS_RESUBMISSION_INCOMING
+        # Open for comment and reporting and copy EIC info
+        Submission.objects.filter(id=submission.id).update(
+            open_for_reporting=True,
+            open_for_commenting=True,
+            editor_in_charge=self.last_submission.editor_in_charge,
+            status=STATUS_RESUBMISSION_INCOMING)
 
-        # Author claim fields
+        # Add author(s) (claim) fields
         submission.authors.add(*self.last_submission.authors.all())
         submission.authors_claims.add(*self.last_submission.authors_claims.all())
         submission.authors_false_claims.add(*self.last_submission.authors_false_claims.all())
-        submission.save()
-        return submission
 
-    @transaction.atomic
-    def reassign_eic_and_admins(self, submission):
-        # Assign editor
+        # Create new EditorialAssigment for the current Editor-in-Charge
         assignment = EditorialAssignment(
             submission=submission,
-            to=submission.editor_in_charge,
-            accepted=True
-        )
+            to=self.last_submission.editor_in_charge,
+            accepted=True)
         assignment.save()
-        submission.save()
-        return submission
 
     def set_pool(self, submission):
         qs = Fellowship.objects.active()
@@ -410,11 +405,12 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         # Save
         submission.save()
         if self.submission_is_resubmission():
-            submission = self.copy_and_save_data_from_resubmission(submission)
-            submission = self.reassign_eic_and_admins(submission)
+            self.copy_and_save_data_from_resubmission(submission)
         submission.authors.add(self.requested_by.contributor)
         self.set_pool(submission)
-        return submission
+
+        # Return latest version of the Submission. It could be outdated by now.
+        return Submission.objects.get(id=submission.id)
 
 
 class SubmissionReportsForm(forms.ModelForm):
@@ -462,14 +458,52 @@ class RefereeSelectForm(forms.Form):
 
 
 class RefereeRecruitmentForm(forms.ModelForm):
+    """Invite non-registered scientist to register and referee a Submission."""
+
     class Meta:
         model = RefereeInvitation
-        fields = ['title', 'first_name', 'last_name', 'email_address']
+        fields = [
+            'title',
+            'first_name',
+            'last_name',
+            'email_address',
+            'invitation_key']
+        widgets = {
+            'invitation_key': forms.HiddenInput()
+        }
 
     def __init__(self, *args, **kwargs):
-        super(RefereeRecruitmentForm, self).__init__(*args, **kwargs)
-        self.fields['first_name'].widget.attrs.update({'size': 20})
-        self.fields['last_name'].widget.attrs.update({'size': 20})
+        self.request = kwargs.pop('request', None)
+        self.submission = kwargs.pop('submission', None)
+
+        initial = kwargs.pop('initial', {})
+        initial['invitation_key'] = get_new_secrets_key()
+        kwargs['initial'] = initial
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        if not self.request or not self.submission:
+            raise forms.ValidationError('No request or Submission given.')
+
+        self.instance.submission = self.submission
+        self.instance.invited_by = self.request.user.contributor
+        referee_invitation = super().save(commit=False)
+
+        registration_invitation = RegistrationInvitation(
+            title=referee_invitation.title,
+            first_name=referee_invitation.first_name,
+            last_name=referee_invitation.last_name,
+            email=referee_invitation.email_address,
+            invitation_type=INVITATION_REFEREEING,
+            created_by=self.request.user,
+            invited_by=self.request.user,
+            invitation_key=referee_invitation.invitation_key,
+            key_expires=timezone.now() + datetime.timedelta(days=365))
+
+        if commit:
+            referee_invitation.save()
+            registration_invitation.save()
+        return (referee_invitation, registration_invitation)
 
 
 class ConsiderRefereeInvitationForm(forms.Form):
@@ -540,7 +574,7 @@ class ReportForm(forms.ModelForm):
         if kwargs.get('instance'):
             if kwargs['instance'].is_followup_report:
                 # Prefill data from latest report in the series
-                latest_report = kwargs['instance'].latest_report_from_series()
+                latest_report = kwargs['instance'].latest_report_from_thread()
                 kwargs.update({
                     'initial': {
                         'qualification': latest_report.qualification,
@@ -834,7 +868,7 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['refereeing_cycle'].default = None
-        other_submissions = self.instance.other_versions_pool.all()
+        other_submissions = self.instance.other_versions.all()
         if other_submissions:
             self.fields['referees_reinvite'].queryset = RefereeInvitation.objects.filter(
                 submission__in=other_submissions).distinct()

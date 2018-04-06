@@ -46,7 +46,6 @@ from comments.forms import CommentForm
 from invitations.constants import INVITATION_REFEREEING
 from invitations.models import RegistrationInvitation
 from journals.models import Journal
-from mails.utils import DirectMailUtil
 from mails.views import MailEditingSubView
 from production.forms import ProofsDecisionForm
 from production.models import ProductionStream
@@ -438,8 +437,8 @@ def add_remark(request, arxiv_identifier_w_vn_nr):
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 def assign_submission(request, arxiv_identifier_w_vn_nr):
-    """
-    Assign Editor-in-charge to Submission.
+    """Assign Editor-in-charge to Submission.
+
     Action done by SciPost Administration or Editorial College Administration.
     """
     submission = get_object_or_404(Submission.objects.pool_editable(request.user),
@@ -463,9 +462,7 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
 @fellowship_required()
 @transaction.atomic
 def assignment_request(request, assignment_id):
-    """
-    Process EditorialAssignment acceptance/denial form or show if not submitted.
-    """
+    """Process EditorialAssignment acceptance/rejection form or show if not submitted."""
     assignment = get_object_or_404(EditorialAssignment.objects.open(),
                                    to=request.user.contributor, pk=assignment_id)
 
@@ -712,16 +709,18 @@ def cycle_form_submit(request, arxiv_identifier_w_vn_nr):
 @login_required
 @fellowship_or_admin_required()
 def select_referee(request, arxiv_identifier_w_vn_nr):
-    """
-    Select/Invite referees by first listing them here.
+    """Invite scientist to referee a Submission.
 
-    Accessible for: Editor-in-charge and Editorial Administration
+    Accessible for: Editor-in-charge and Editorial Administration.
+    It'll list possible already registered Contributors that match the search. If the scientist
+    is not yet registered, he will be invited using a RegistrationInvitation as well. In
+    addition the page will show possible conflicts of interests, with that information
+    coming from the ArXiv API.
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     context = {}
     queryresults = ''
-
     ref_search_form = RefereeSelectForm(request.POST or None)
     if ref_search_form.is_valid():
         contributors_found = Contributor.objects.filter(
@@ -758,64 +757,40 @@ def select_referee(request, arxiv_identifier_w_vn_nr):
 @fellowship_or_admin_required()
 @transaction.atomic
 def recruit_referee(request, arxiv_identifier_w_vn_nr):
-    """
-    If the Editor-in-charge does not find the desired referee among Contributors
-    (otherwise, the method send_refereeing_invitation below is used instead),
-    he/she can invite somebody by providing name + contact details.
-    This function emails a registration invitation to this person.
-    The pending refereeing invitation is then recognized upon registration,
-    using the invitation token.
+    """Invite a non-registered scientist to register and referee a Submission.
 
     Accessible for: Editor-in-charge and Editorial Administration
+    If the Editor-in-charge does not find the desired referee among Contributors
+    (otherwise, the method send_refereeing_invitation is used), he/she can invite somebody
+    by providing name + contact details. This function emails a registration invitation to this
+    person. The pending refereeing invitation is then recognized upon registration, using the
+    invitation token.
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
-    if request.method == 'POST':
-        ref_recruit_form = RefereeRecruitmentForm(request.POST)
-        if ref_recruit_form.is_valid():
-            # TODO check if email already taken
-            ref_invitation = ref_recruit_form.save(commit=False)
-            ref_invitation.submission = submission
-            ref_invitation.invited_by = request.user.contributor
+    ref_recruit_form = RefereeRecruitmentForm(
+        request.POST or None, request=request, submission=submission)
+    if ref_recruit_form.is_valid():
+        referee_invitation, registration_invitation = ref_recruit_form.save(commit=False)
+        mail_request = MailEditingSubView(request, mail_code='registration_invitation_refereeing',
+                                          instance=referee_invitation)
+        mail_request.add_form(ref_recruit_form)
+        if mail_request.is_valid():
+            referee_invitation.save()
+            registration_invitation.save()
 
-            # Create and send a registration invitation
-            ref_inv_message_head = (
-                'On behalf of the Editor-in-charge {eic_title} {eic_last_name}, we would '
-                'like to invite you to referee a Submission to {journal}, namely'
-                '\n{sub_title}'
-                '\nby {sub_author_list}'
-                '\n(see https://scipost.org/{sub_url}).'
-                ).format(
-                    eic_title=submission.editor_in_charge.get_title_display(),
-                    eic_last_name=submission.editor_in_charge.user.last_name,
-                    journal=submission.get_submitted_to_journal_display(),
-                    sub_title=submission.title,
-                    sub_author_list=submission.author_list,
-                    sub_url=submission.get_absolute_url())
-            reg_invitation = RegistrationInvitation(
-                title=ref_recruit_form.cleaned_data['title'],
-                first_name=ref_recruit_form.cleaned_data['first_name'],
-                last_name=ref_recruit_form.cleaned_data['last_name'],
-                email=ref_recruit_form.cleaned_data['email_address'],
-                invitation_type=INVITATION_REFEREEING,
-                created_by=request.user.contributor.user,
-                invited_by=request.user.contributor.user,
-                personal_message=ref_inv_message_head)
-
-            reg_invitation.save()
-            # Copy the key to the refereeing invitation
-            ref_invitation.invitation_key = reg_invitation.invitation_key
-            ref_invitation.save()
-            mail_sender = DirectMailUtil(mail_code='registration_invitation',
-                                         instance=reg_invitation)
-            mail_sender.set_alternative_sender('SciPost Refereeing', 'refereeing@scipost.org')
-            mail_sender.send()
-            messages.success(request, 'Referee {} invited'.format(reg_invitation.last_name))
+            messages.success(request, 'Referee {} invited'.format(
+                registration_invitation.last_name))
             submission.add_event_for_author('A referee has been invited.')
-            submission.add_event_for_eic('%s has been recruited and invited as a referee.'
-                                         % ref_recruit_form.cleaned_data['last_name'])
+            submission.add_event_for_eic('{} has been recruited and invited as a referee.'.format(
+                referee_invitation.last_name))
 
+            mail_request.send()
+            return redirect(reverse('submissions:editorial_page',
+                                    kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
+        else:
+            return mail_request.return_render()
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
@@ -855,8 +830,6 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
                                       invitation=invitation)
     if mail_request.is_valid():
         invitation.save()
-        # SubmissionUtils.load({'invitation': invitation})
-        # SubmissionUtils.send_refereeing_invitation_email()
         submission.add_event_for_author('A referee has been invited.')
         submission.add_event_for_eic('Referee %s has been invited.' % contributor.user.last_name)
         messages.success(request, 'Invitation sent')
@@ -1584,7 +1557,7 @@ def fix_College_decision(request, rec_id):
     elif recommendation.recommendation == -3:
         # Reject + update-reject other versions of submission
         submission.status = 'rejected'
-        for sub in submission.other_versions_pool:
+        for sub in submission.other_versions:
             sub.status = 'resubmitted_rejected'
             sub.save()
 
