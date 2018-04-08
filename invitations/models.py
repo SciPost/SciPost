@@ -98,7 +98,7 @@ class RegistrationInvitation(models.Model):
 
 class CitationNotification(models.Model):
     invitation = models.ForeignKey('invitations.RegistrationInvitation',
-                                   on_delete=models.SET_NULL,
+                                   on_delete=models.CASCADE,
                                    null=True, blank=True)
     contributor = models.ForeignKey('scipost.Contributor',
                                     on_delete=models.CASCADE,
