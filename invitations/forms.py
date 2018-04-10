@@ -126,6 +126,65 @@ class RegistrationInvitationAddCitationForm(AcceptRequestMixin, forms.ModelForm)
         return self.instance
 
 
+class RegistrationInvitationMergeForm(AcceptRequestMixin, forms.ModelForm):
+    """Merge RegistrationInvitations.
+
+    This form will merge the instance with any other RegistrationInvitation selected
+    into a single RegistrationInvitation.
+    """
+
+    invitation = forms.ModelChoiceField(queryset=RegistrationInvitation.objects.none(),
+                                        label="Invitation to merge with")
+
+    class Meta:
+        model = RegistrationInvitation
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        """Update queryset according to the passed instance."""
+        super().__init__(*args, **kwargs)
+        self.fields['invitation'].queryset = RegistrationInvitation.objects.no_response().filter(
+            last_name__icontains=self.instance.last_name).exclude(id=self.instance.id)
+
+    def save(self, *args, **kwargs):
+        """Merge the two RegistationInvitations into one."""
+        if kwargs.get('commit', True):
+            # Pick the right Invitation, with the most up-to-date invitation_key
+            selected_invitation = self.cleaned_data['invitation']
+            if not selected_invitation.date_sent_last:
+                # Selected Invitation has never been sent yet.
+                leading_invitation = self.instance
+                deprecated_invitation = selected_invitation
+            elif not self.instance.date_sent_last:
+                # Instance has never been sent yet.
+                leading_invitation = selected_invitation
+                deprecated_invitation = self.instance
+            elif selected_invitation.date_sent_last > self.instance.date_sent_last:
+                # Lastest reminder: selected Invitation
+                leading_invitation = selected_invitation
+                deprecated_invitation = self.instance
+            else:
+                # Lastest reminder: instance
+                leading_invitation = self.instance
+                deprecated_invitation = selected_invitation
+
+            # Move CitationNotification to the new leading Invitation
+            deprecated_invitation.citation_notifications.update(invitation=leading_invitation)
+            leading_invitation.times_sent += deprecated_invitation.times_sent   # Update counts
+
+            qs_contributor = deprecated_invitation.citation_notifications.filter(
+                contributor__isnull=False).values_list('contributor', flat=True)
+            if qs_contributor:
+                if not leading_invitation.citation_notifications.filter(contributor__isnull=False):
+                    # Contributor is already assigned in "old" RegistrationInvitation, copy it.
+                    leading_invitation.citation_notifications.filter(contributor=qs_contributor[0])
+
+            # Magic.
+            deprecated_invitation.delete()
+        return self.instance
+
+
+
 class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
     cited_in_submissions = AutoCompleteSelectMultipleField('submissions_lookup', required=False)
     cited_in_publications = AutoCompleteSelectMultipleField('publication_lookup', required=False)
