@@ -1392,7 +1392,7 @@ def prepare_for_voting(request, rec_id):
     fellows_with_expertise = recommendation.submission.fellows.filter(
         contributor__expertises__contains=[recommendation.submission.subject_area])
 
-    coauthorships = []
+    coauthorships = {}
     eligibility_form = VotingEligibilityForm(request.POST or None, instance=recommendation)
     if eligibility_form.is_valid():
         eligibility_form.save()
@@ -1406,27 +1406,25 @@ def prepare_for_voting(request, rec_id):
                                 args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
         # Identify possible co-authorships in last 3 years, disqualifying Fellow from voting:
-        if recommendation.submission.metadata is not None:
+        if recommendation.submission.metadata and 'entries' in recommendation.submission.metadata:
             author_last_names = []
             for author in recommendation.submission.metadata['entries'][0]['authors']:
                 # Gather author data to do conflict-of-interest queries with
                 author_last_names.append(author['name'].split()[-1])
+            authors_last_names_str = '+OR+'.join(author_last_names)
 
-            fellow_last_names = []
             for fellow in fellows_with_expertise:
                 # For each fellow found, so a query with the authors to check for conflicts
-                fellow_last_names.append(fellow.contributor.user.last_name)
-
-            search_query = 'au:(({fellows})+AND+({authors}))'.format(
-                fellows='+OR+'.join(fellow_last_names),
-                authors='+OR+'.join(author_last_names))
-            queryurl = 'https://export.arxiv.org/api/query?search_query={sq}'.format(
-                sq=search_query)
-            queryurl += '&sortBy=submittedDate&sortOrder=descending&max_results=5'
-            queryurl = queryurl.replace(' ', '+')  # Fallback for some last names with spaces
-            queryresults = feedparser.parse(queryurl)
-            if queryresults.entries:
-                coauthorships = queryresults
+                search_query = 'au:({fellow}+AND+({authors}))'.format(
+                    fellow=fellow.contributor.user.last_name,
+                    authors=authors_last_names_str)
+                queryurl = 'https://export.arxiv.org/api/query?search_query={sq}'.format(
+                    sq=search_query)
+                queryurl += '&sortBy=submittedDate&sortOrder=descending&max_results=5'
+                queryurl = queryurl.replace(' ', '+')  # Fallback for some last names with spaces
+                queryresults = feedparser.parse(queryurl)
+                if queryresults.entries:
+                    coauthorships[fellow.contributor.user.last_name] = queryresults
 
     context = {
         'recommendation': recommendation,
