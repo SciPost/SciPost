@@ -736,7 +736,7 @@ def select_referee(request, arxiv_identifier_w_vn_nr):
                 sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
             sub_auth_boolean_str += ')+AND+'
             search_str = sub_auth_boolean_str + ref_search_form.cleaned_data['last_name'] + ')'
-            queryurl = ('http://export.arxiv.org/api/query?search_query=au:%s'
+            queryurl = ('https://export.arxiv.org/api/query?search_query=au:%s'
                         % search_str + '&sortBy=submittedDate&sortOrder=descending'
                         '&max_results=5')
             arxivquery = feedparser.parse(queryurl)
@@ -1424,7 +1424,7 @@ def prepare_for_voting(request, rec_id):
                 queryurl = queryurl.replace(' ', '+')  # Fallback for some last names with spaces
                 queryresults = feedparser.parse(queryurl)
                 if queryresults.entries:
-                    coauthorships[fellow.contributor.user.last_name] = queryresults
+                    coauthorships[fellow.contributor.user.last_name] = queryresults.entries
 
     context = {
         'recommendation': recommendation,

@@ -1152,6 +1152,6 @@ def arxiv_doi_feed(request, doi_label):
     for publication in publications:
         feedxml += ('\n<article preprint_id="%s" doi="%s" journal_ref="%s" />' % (
             publication.accepted_submission.arxiv_identifier_wo_vn_nr, publication.doi_string,
-            publication.citation()))
+            publication.citation)
     feedxml += '\n</preprint>'
     return HttpResponse(feedxml, content_type='text/xml')
