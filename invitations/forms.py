@@ -171,6 +171,7 @@ class RegistrationInvitationMergeForm(AcceptRequestMixin, forms.ModelForm):
             # Move CitationNotification to the new leading Invitation
             deprecated_invitation.citation_notifications.update(invitation=leading_invitation)
             leading_invitation.times_sent += deprecated_invitation.times_sent   # Update counts
+            leading_invitation.save()
 
             qs_contributor = deprecated_invitation.citation_notifications.filter(
                 contributor__isnull=False).values_list('contributor', flat=True)
