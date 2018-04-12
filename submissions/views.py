@@ -445,16 +445,16 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     form = EditorialAssignmentForm(request.POST or None, submission=submission)
 
-    fellows_with_expertise = submission.fellows.filter(
-        contributor__expertises__contains=[submission.subject_area])
-    coauthorships = submission.flag_coauthorships_arxiv(fellows_with_expertise)
-
     if form.is_valid():
         ed_assignment = form.save()
         SubmissionUtils.load({'assignment': ed_assignment})
         SubmissionUtils.send_assignment_request_email()
         messages.success(request, 'Your assignment request has been sent successfully.')
         return redirect('submissions:pool')
+
+    fellows_with_expertise = submission.fellows.filter(
+        contributor__expertises__contains=[submission.subject_area])
+    coauthorships = submission.flag_coauthorships_arxiv(fellows_with_expertise)
 
     context = {
         'submission_to_assign': submission,
@@ -1396,10 +1396,6 @@ def prepare_for_voting(request, rec_id):
     recommendation = get_object_or_404(
         EICRecommendation.objects.active().filter(submission__in=submissions), id=rec_id)
 
-    fellows_with_expertise = recommendation.submission.fellows.filter(
-        contributor__expertises__contains=[recommendation.submission.subject_area])
-
-    coauthorships = {}
     eligibility_form = VotingEligibilityForm(request.POST or None, instance=recommendation)
     if eligibility_form.is_valid():
         eligibility_form.save()
@@ -1412,6 +1408,8 @@ def prepare_for_voting(request, rec_id):
         return redirect(reverse('submissions:editorial_page',
                                 args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
+        fellows_with_expertise = recommendation.submission.fellows.filter(
+            contributor__expertises__contains=[recommendation.submission.subject_area])
         coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
 
     context = {
