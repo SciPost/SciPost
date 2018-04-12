@@ -56,13 +56,13 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        {% for author, value in coauthorships.items %}
+                        {% for author, entries in coauthorships.items %}
                             <li class="list-group-item pt-3">
                                 <div class="card-content">
                                     <h3>For Fellow: {{ author }}</h3>
-                                </div>
+                                </div>{{ value}}
                             </li>
-                            {% for entry in value.entries %}
+                            {% for entry in entries %}
                                 <li class="list-group-item">
                                     {% include 'partials/submissions/arxiv_queryresult.html' with item=entry %}
                                 </li>
