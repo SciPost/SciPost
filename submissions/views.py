@@ -452,13 +452,11 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
         messages.success(request, 'Your assignment request has been sent successfully.')
         return redirect('submissions:pool')
 
-    fellows_with_expertise = submission.fellows.filter(
-        contributor__expertises__contains=[submission.subject_area])
+    fellows_with_expertise = submission.fellows.all()
     coauthorships = submission.flag_coauthorships_arxiv(fellows_with_expertise)
 
     context = {
         'submission_to_assign': submission,
-        'fellows_with_expertise': fellows_with_expertise,
         'coauthorships': coauthorships,
         'form': form
     }
