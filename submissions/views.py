@@ -445,14 +445,21 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     form = EditorialAssignmentForm(request.POST or None, submission=submission)
 
+    fellows_with_expertise = submission.fellows.filter(
+        contributor__expertises__contains=[submission.subject_area])
+    coauthorships = submission.flag_coauthorships_arxiv(fellows_with_expertise)
+
     if form.is_valid():
         ed_assignment = form.save()
         SubmissionUtils.load({'assignment': ed_assignment})
         SubmissionUtils.send_assignment_request_email()
         messages.success(request, 'Your assignment request has been sent successfully.')
         return redirect('submissions:pool')
+
     context = {
         'submission_to_assign': submission,
+        'fellows_with_expertise': fellows_with_expertise,
+        'coauthorships': coauthorships,
         'form': form
     }
     return render(request, 'submissions/admin/editorial_assignment_form.html', context)
@@ -1405,26 +1412,7 @@ def prepare_for_voting(request, rec_id):
         return redirect(reverse('submissions:editorial_page',
                                 args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
-        # Identify possible co-authorships in last 3 years, disqualifying Fellow from voting:
-        if recommendation.submission.metadata and 'entries' in recommendation.submission.metadata:
-            author_last_names = []
-            for author in recommendation.submission.metadata['entries'][0]['authors']:
-                # Gather author data to do conflict-of-interest queries with
-                author_last_names.append(author['name'].split()[-1])
-            authors_last_names_str = '+OR+'.join(author_last_names)
-
-            for fellow in fellows_with_expertise:
-                # For each fellow found, so a query with the authors to check for conflicts
-                search_query = 'au:({fellow}+AND+({authors}))'.format(
-                    fellow=fellow.contributor.user.last_name,
-                    authors=authors_last_names_str)
-                queryurl = 'https://export.arxiv.org/api/query?search_query={sq}'.format(
-                    sq=search_query)
-                queryurl += '&sortBy=submittedDate&sortOrder=descending&max_results=5'
-                queryurl = queryurl.replace(' ', '+')  # Fallback for some last names with spaces
-                queryresults = feedparser.parse(queryurl)
-                if queryresults.entries:
-                    coauthorships[fellow.contributor.user.last_name] = queryresults.entries
+        coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
 
     context = {
         'recommendation': recommendation,
