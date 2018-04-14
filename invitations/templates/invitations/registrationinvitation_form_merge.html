@@ -1,0 +1,34 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Edit Registration Invitation{% endblock pagetitle %}
+
+{% load scipost_extras %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+    <span class="breadcrumb-item">Edit</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Registration Invitation {{ object.id }}</h1>
+        {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <button type="submit" class="btn btn-primary" name="save" value="save">Merge</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer_script %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock footer_script %}

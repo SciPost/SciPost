@@ -56,15 +56,15 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        {% for key, value in coauthorships.items %}
+                        {% for author, entries in coauthorships.items %}
                             <li class="list-group-item pt-3">
                                 <div class="card-content">
-                                    <h3>For Fellow {{key}}:</h3>
-                                </div>
+                                    <h3>For Fellow: {{ author }}</h3>
+                                </div>{{ value}}
                             </li>
-                            {% for entry in value.entries %}
+                            {% for entry in entries %}
                                 <li class="list-group-item">
-                                    {% include 'partials/submissions/arxiv_queryresult.html' with item=entry %}
+                                    {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter %}
                                 </li>
                             {% endfor %}
                         {% endfor %}

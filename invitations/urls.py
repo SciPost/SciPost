@@ -16,6 +16,8 @@ urlpatterns = [
         name='add_citation'),
     url(r'^(?P<pk>[0-9]+)/delete$', views.RegistrationInvitationsDeleteView.as_view(),
         name='delete'),
+    url(r'^(?P<pk>[0-9]+)/merge$', views.RegistrationInvitationsMergeView.as_view(),
+        name='merge'),
     url(r'^(?P<pk>[0-9]+)/mark/(?P<label>sent)$', views.RegistrationInvitationsMarkView.as_view(),
         name='mark'),
     url(r'^(?P<pk>[0-9]+)/map_to_contributor/(?P<contributor_id>[0-9]+)/$',
