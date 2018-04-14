@@ -25,8 +25,20 @@ class CommentUtils(BaseMailUtil):
         Requires loading:
         comment -- Comment
         """
+        from submissions.models import Submission, Report
+
+        comment = cls._context['comment']
+        send_mail = True
+        if isinstance(comment.content_object, Submission):
+            send_mail = comment.author not in comment.content_object.authors.all()
+        elif isinstance(comment.content_object, Report):
+            send_mail = comment.author not in comment.content_object.submission.authors.all()
+
+        if not send_mail:
+            return
+
         cls._send_mail(cls, 'comment_vet_accepted',
-                       [cls._context['comment'].author.user.email],
+                       [comment.author.user.email],
                        'SciPost Comment published')
 
     @classmethod
