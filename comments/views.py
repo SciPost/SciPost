@@ -76,10 +76,6 @@ def vet_submitted_comment(request, comment_id):
             comment.vetted_by = request.user.contributor
             comment.save()
 
-            # Send emails
-            CommentUtils.load({'comment': comment})
-            CommentUtils.email_comment_vet_accepted_to_author()
-
             # Update `latest_activity` fields
             content_object = comment.content_object
             content_object.latest_activity = timezone.now()
@@ -99,6 +95,10 @@ def vet_submitted_comment(request, comment_id):
                 if not comment.is_author_reply:
                     SubmissionUtils.load({'submission': content_object.submission})
                     SubmissionUtils.send_author_comment_received_email()
+
+            # Send emails
+            CommentUtils.load({'comment': comment})
+            CommentUtils.email_comment_vet_accepted_to_author()
 
         elif form.cleaned_data['action_option'] == '2':
             # The comment request is simply rejected
