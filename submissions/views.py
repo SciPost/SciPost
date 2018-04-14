@@ -451,8 +451,13 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
         SubmissionUtils.send_assignment_request_email()
         messages.success(request, 'Your assignment request has been sent successfully.')
         return redirect('submissions:pool')
+
+    fellows_with_expertise = submission.fellows.all()
+    coauthorships = submission.flag_coauthorships_arxiv(fellows_with_expertise)
+
     context = {
         'submission_to_assign': submission,
+        'coauthorships': coauthorships,
         'form': form
     }
     return render(request, 'submissions/admin/editorial_assignment_form.html', context)
@@ -736,7 +741,7 @@ def select_referee(request, arxiv_identifier_w_vn_nr):
                 sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
             sub_auth_boolean_str += ')+AND+'
             search_str = sub_auth_boolean_str + ref_search_form.cleaned_data['last_name'] + ')'
-            queryurl = ('http://export.arxiv.org/api/query?search_query=au:%s'
+            queryurl = ('https://export.arxiv.org/api/query?search_query=au:%s'
                         % search_str + '&sortBy=submittedDate&sortOrder=descending'
                         '&max_results=5')
             arxivquery = feedparser.parse(queryurl)
@@ -1389,11 +1394,6 @@ def prepare_for_voting(request, rec_id):
     recommendation = get_object_or_404(
         EICRecommendation.objects.active().filter(submission__in=submissions), id=rec_id)
 
-    fellows_with_expertise = recommendation.submission.fellows.filter(
-        contributor__expertises__contains=[recommendation.submission.subject_area])
-
-    coauthorships = {}
-
     eligibility_form = VotingEligibilityForm(request.POST or None, instance=recommendation)
     if eligibility_form.is_valid():
         eligibility_form.save()
@@ -1406,23 +1406,9 @@ def prepare_for_voting(request, rec_id):
         return redirect(reverse('submissions:editorial_page',
                                 args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
-        # Identify possible co-authorships in last 3 years, disqualifying Fellow from voting:
-        if recommendation.submission.metadata is not None:
-            for fellow in fellows_with_expertise:
-                sub_auth_boolean_str = '((' + (recommendation.submission
-                                               .metadata['entries'][0]['authors'][0]['name']
-                                               .split()[-1])
-                for author in recommendation.submission.metadata['entries'][0]['authors'][1:]:
-                    sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
-                    sub_auth_boolean_str += ')+AND+'
-                    search_str = sub_auth_boolean_str + fellow.contributor.user.last_name + ')'
-                    queryurl = ('http://export.arxiv.org/api/query?search_query=au:%s'
-                                % search_str + '&sortBy=submittedDate&sortOrder=descending'
-                                '&max_results=5')
-                    arxivquery = feedparser.parse(queryurl)
-                    queryresults = arxivquery
-                    if queryresults.entries:
-                        coauthorships[fellow.contributor.user.last_name] = queryresults
+        fellows_with_expertise = recommendation.submission.fellows.filter(
+            contributor__expertises__contains=[recommendation.submission.subject_area])
+        coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
 
     context = {
         'recommendation': recommendation,

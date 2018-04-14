@@ -20,7 +20,7 @@ admin.site.register(RegistrationInvitation, RegistrationInvitationAdmin)
 class CitationNotificationAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_sent'
     search_fields = ['invitation__first_name', 'invitation__last_name',
-                     'contributor__first_name', 'contributor__last_name']
+                     'contributor__user__first_name', 'contributor__user__last_name']
     list_display = ['__str__', 'created_by', 'date_sent', 'processed']
     list_filter = ['processed']
 
