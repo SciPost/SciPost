@@ -24,30 +24,23 @@ STATUS_PUT_TO_EC_VOTING = 'put_to_EC_voting'
 STATUS_EC_VOTE_COMPLETED = 'EC_vote_completed'
 STATUS_WITHDRAWN = 'withdrawn'
 
+# New:
+STATUS_NEW_INCOMING = 'unassigned_incoming'
+STATUS_EIC_REC_FORMULATED = 'recommendation_formulated'
+
+# All possible Submission statuses
 SUBMISSION_STATUS = (
-    (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
-    (STATUS_RESUBMISSION_INCOMING, 'Resubmission incoming'),
+    (STATUS_NEW_INCOMING, 'Unassigned, undergoing pre-screening'),
     (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
-    (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned, manuscript under review'),
-    (STATUS_REVIEW_CLOSED, 'Review period closed, editorial recommendation pending'),
-    # If revisions required: resubmission creates a new Submission object
-    (STATUS_REVISION_REQUESTED, 'Editor-in-charge has requested revision'),
-    (STATUS_RESUBMITTED, 'Has been resubmitted'),
-    (STATUS_RESUBMITTED_REJECTED, 'Has been resubmitted and subsequently rejected'),
-    (STATUS_RESUBMITTED_REJECTED_VISIBLE,
-     'Has been resubmitted and subsequently rejected (still publicly visible)'),
-    # If acceptance/rejection:
-    (STATUS_VOTING_IN_PREPARATION, 'Voting in preparation (eligible Fellows being selected)'),
-    (STATUS_PUT_TO_EC_VOTING, 'Undergoing voting at the Editorial College'),
+    (STATUS_EIC_REC_FORMULATED, 'Editorial Recommendation formulated'),
     (STATUS_AWAITING_ED_REC, 'Awaiting Editorial Recommendation'),
-    (STATUS_EC_VOTE_COMPLETED, 'Editorial College voting rounded up'),
+    (STATUS_RESUBMITTED, 'Has been resubmitted'),
     (STATUS_ACCEPTED, 'Publication decision taken: accept'),
     (STATUS_REJECTED, 'Publication decision taken: reject'),
-    (STATUS_REJECTED_VISIBLE, 'Publication decision taken: reject (still publicly visible)'),
-    (STATUS_PUBLISHED, 'Published'),
-    # If withdrawn:
     (STATUS_WITHDRAWN, 'Withdrawn by the Authors'),
+    (STATUS_PUBLISHED, 'Published'),
 )
+
 
 SUBMISSION_HTTP404_ON_EDITORIAL_PAGE = [
     STATUS_ASSIGNMENT_FAILED,
@@ -246,6 +239,16 @@ EVENT_TYPES = (
     (EVENT_GENERAL, 'General comment'),
     (EVENT_FOR_EIC, 'Comment for Editor-in-charge'),
     (EVENT_FOR_AUTHOR, 'Comment for author'),
+)
+
+VOTING_IN_PREP, PUT_TO_VOTING, VOTE_COMPLETED = 'voting_in_prep', 'put_to_voting', 'vote_completed'
+DECISION_FIXED, DEPRECATED = 'decision_fixed', 'deprecated'
+EIC_REC_STATUSES = (
+    (VOTING_IN_PREP, 'Voting in preparation'),
+    (PUT_TO_VOTING, 'Undergoing voting at the Editorial College'),
+    (VOTE_COMPLETED, 'Editorial College voting rounded up'),
+    (DECISION_FIXED, 'Editorial Recommendation fixed'),
+    (DEPRECATED, 'Editorial Recommendation deprecated'),
 )
 
 # Use `.format()` https://docs.python.org/3.5/library/string.html#format-string-syntax

@@ -20,7 +20,7 @@ from .constants import (
     SUBMISSION_EIC_RECOMMENDATION_REQUIRED, SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
     REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, STATUS_VOTING_IN_PREPARATION,
-    STATUS_PUT_TO_EC_VOTING)
+    STATUS_PUT_TO_EC_VOTING, EIC_REC_STATUSES, VOTING_IN_PREP)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
@@ -51,8 +51,7 @@ class Submission(models.Model):
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     editor_in_charge = models.ForeignKey('scipost.Contributor', related_name='EIC', blank=True,
                                          null=True, on_delete=models.CASCADE)
-    is_current = models.BooleanField(default=True)
-    is_resubmission = models.BooleanField(default=False)
+
     list_of_changes = models.TextField(blank=True)
     open_for_commenting = models.BooleanField(default=False)
     open_for_reporting = models.BooleanField(default=False)
@@ -64,10 +63,15 @@ class Submission(models.Model):
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
 
-    # Refereeing fields
+    # Submission status fields
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_UNASSIGNED)
+    is_current = models.BooleanField(default=True)
+    visible_public = models.BooleanField("Is publicly visible", default=False)
+    visible_pool = models.BooleanField("Is visible in the Pool", default=True)
+    is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(max_length=30, choices=SUBMISSION_CYCLES,
                                         default=CYCLE_DEFAULT)
+
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
@@ -665,6 +669,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
                                                      verbose_name='optional remarks for the'
                                                                   ' Editorial College')
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
+    status = models.CharField(max_length=32, choices=EIC_REC_STATUSES, default=VOTING_IN_PREP)
     version = models.SmallIntegerField(default=1)
     active = models.BooleanField(default=True)
 

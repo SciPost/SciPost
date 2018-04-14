@@ -107,6 +107,7 @@ class SubmissionAdmin(GuardedModelAdmin):
             'fields': (
                 'editor_in_charge',
                 'status',
+                ('visible_public', 'visible_pool'),
                 'refereeing_cycle',
                 ('open_for_commenting', 'open_for_reporting'),
                 'reporting_deadline',

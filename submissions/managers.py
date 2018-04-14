@@ -75,16 +75,13 @@ class SubmissionQuerySet(models.QuerySet):
             return self.filter(fellows__in=qs)
 
     def pool(self, user):
-        """
-        Return the pool for a certain user: filtered to "in active referee phase".
-        """
+        """Return the pool for a certain user: filtered to "in active referee phase"."""
         qs = self._pool(user)
         qs = qs.exclude(is_current=False).exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
         return qs
 
     def pool_editable(self, user):
-        """
-        Return the editable pool for a certain user.
+        """Return the editable pool for a certain user.
 
         This is similar to the regular pool, however it also contains submissions that are
         hidden in the regular pool, but should still be able to be opened by for example
