@@ -29,8 +29,7 @@ SCIPOST_SUBJECT_AREAS = (
         ('Phys:NE', 'Nuclear Physics - Experiment'),
         ('Phys:NT', 'Nuclear Physics - Theory'),
         ('Phys:QP', 'Quantum Physics'),
-        ('Phys:SM', 'Statistical and Soft Matter Physics'),
-        )
+        ('Phys:SM', 'Statistical and Soft Matter Physics'))
      ),
     ('Astrophysics', (
         ('Astro:GA', 'Astrophysics of Galaxies'),
@@ -38,8 +37,7 @@ SCIPOST_SUBJECT_AREAS = (
         ('Astro:EP', 'Earth and Planetary Astrophysics'),
         ('Astro:HE', 'High Energy Astrophysical Phenomena'),
         ('Astro:IM', 'Instrumentation and Methods for Astrophysics'),
-        ('Astro:SR', 'Solar and Stellar Astrophysics'),
-        )
+        ('Astro:SR', 'Solar and Stellar Astrophysics'))
      ),
     ('Mathematics', (
         ('Math:AG', 'Algebraic Geometry'),
@@ -73,8 +71,7 @@ SCIPOST_SUBJECT_AREAS = (
         ('Math:RA', 'Rings and Algebras'),
         ('Math:SP', 'Spectral Theory'),
         ('Math:ST', 'Statistics Theory'),
-        ('Math:SG', 'Symplectic Geometry'),
-        )
+        ('Math:SG', 'Symplectic Geometry'))
      ),
     ('Computer Science', (
         ('Comp:AI', 'Artificial Intelligence'),
@@ -115,9 +112,8 @@ SCIPOST_SUBJECT_AREAS = (
         ('Comp:SE', 'Software Engineering'),
         ('Comp:SD', 'Sound'),
         ('Comp:SC', 'Symbolic Computation'),
-        ('Comp:SY', 'Systems and Control'),
-        )
-     ),
+        ('Comp:SY', 'Systems and Control'))
+     )
 )
 subject_areas_raw_dict = dict(SCIPOST_SUBJECT_AREAS)
 
@@ -126,25 +122,20 @@ subject_areas_dict = {}
 for k in subject_areas_raw_dict.keys():
     subject_areas_dict.update(dict(subject_areas_raw_dict[k]))
 
-CONTRIBUTOR_NEWLY_REGISTERED = 0
-CONTRIBUTOR_NORMAL = 1
-CONTRIBUTOR_STATUS = (
-    # status determine the type of Contributor:
-    # 0: newly registered (unverified; not allowed to submit, comment or vote)
-    # 1: contributor has been vetted through
-    #
-    # Negative status denotes rejected requests or:
-    # -1: not a professional scientist (>= PhD student in known university)
-    # -2: other account already exists for this person
-    # -3: barred from SciPost (abusive behaviour)
-    # -4: disabled account (deceased)
-    (CONTRIBUTOR_NEWLY_REGISTERED, 'newly registered'),
-    (CONTRIBUTOR_NORMAL, 'normal user'),
-    (-1, 'not a professional scientist'),  # Soon to be deprecated
-    (-2, 'other account already exists'),
-    (-3, 'barred from SciPost'),
-    (-4, 'account disabled'),
-    )
+# Contributor types
+NEWLY_REGISTERED, NORMAL_CONTRIBUTOR = 'newly_registered', 'normal'
+NO_SCIENTIST, DOUBLE_ACCOUNT, OUT_OF_ACADEMIA = 'no_scientist', 'double_account', 'out_of_academia'
+BARRED, DISABLED, DECEASED = 'barred', 'disabled', 'deceased'
+CONTRIBUTOR_STATUSES = (
+    (NEWLY_REGISTERED, 'Newly registered'),
+    (NORMAL_CONTRIBUTOR, 'Normal user'),
+    (NO_SCIENTIST, 'Not a professional scientist'),
+    (DOUBLE_ACCOUNT, 'Other account already exists'),
+    (OUT_OF_ACADEMIA, 'Out of academia'),
+    (BARRED, 'Barred from SciPost'),
+    (DISABLED, 'Account disabled'),
+    (DECEASED, 'Person deceased')
+)
 
 TITLE_CHOICES = (
     ('PR', 'Prof.'),

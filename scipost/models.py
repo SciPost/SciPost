@@ -16,11 +16,11 @@ from django.utils import timezone
 
 from .behaviors import TimeStampedModel, orcid_validator
 from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
-                       subject_areas_dict, CONTRIBUTOR_STATUS, TITLE_CHOICES,\
+                       subject_areas_dict, TITLE_CHOICES,\
                        INVITATION_STYLE, INVITATION_TYPE,\
                        INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
                        AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS,\
-                       CONTRIBUTOR_NEWLY_REGISTERED
+                       CONTRIBUTOR_STATUSES, NEWLY_REGISTERED
 from .fields import ChoiceArrayField
 from .managers import FellowManager, ContributorQuerySet,\
                       UnavailabilityPeriodManager, AuthorshipClaimQuerySet
@@ -47,8 +47,7 @@ class Contributor(models.Model):
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
-    status = models.SmallIntegerField(default=CONTRIBUTOR_NEWLY_REGISTERED,
-                                      choices=CONTRIBUTOR_STATUS)
+    status = models.CharField(max_length=16, choices=CONTRIBUTOR_STATUSES, default=NEWLY_REGISTERED)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
                                   default='physics', verbose_name='Main discipline')
