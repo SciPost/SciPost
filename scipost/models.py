@@ -10,45 +10,50 @@ import string
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
 from .behaviors import TimeStampedModel, orcid_validator
-from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
-                       subject_areas_dict, CONTRIBUTOR_STATUS, TITLE_CHOICES,\
-                       INVITATION_STYLE, INVITATION_TYPE,\
-                       INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
-                       AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS,\
-                       CONTRIBUTOR_NEWLY_REGISTERED
+from .constants import (
+    SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, DISABLED,
+    TITLE_CHOICES, INVITATION_STYLE, INVITATION_TYPE, INVITATION_CONTRIBUTOR, INVITATION_FORMAL,
+    AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS, CONTRIBUTOR_STATUSES, NEWLY_REGISTERED)
 from .fields import ChoiceArrayField
-from .managers import FellowManager, ContributorQuerySet,\
-                      UnavailabilityPeriodManager, AuthorshipClaimQuerySet
+from .managers import (
+    FellowManager, ContributorQuerySet, UnavailabilityPeriodManager, AuthorshipClaimQuerySet)
 
 today = timezone.now().date()
 
 
 def get_sentinel_user():
-    '''
-    Temporary fix: eventually the 'to-be-removed-Contributor' should be
-    status: "deactivated" and anonymized.
+    """Temporary fix to be able to delete Contributor instances.
+
+    Eventually the 'to-be-removed-Contributor' should be status: "deactivated" and anonymized.
     Fallback user for models relying on Contributor that is being deleted.
-    '''
+    """
     user, __ = get_user_model().objects.get_or_create(username='deleted')
-    return Contributor.objects.get_or_create(status=-4, user=user)[0]
+    return Contributor.objects.get_or_create(status=DISABLED, user=user)[0]
+
+
+class User(AbstractUser):
+    class Meta:
+        db_table = 'auth_user'
 
 
 class Contributor(models.Model):
-    """
+    """A Contributor is an academic extention of the User model.
+
     All *science* users of SciPost are Contributors.
     username, password, email, first_name and last_name are inherited from User.
     """
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, unique=True)
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
-    status = models.SmallIntegerField(default=CONTRIBUTOR_NEWLY_REGISTERED,
-                                      choices=CONTRIBUTOR_STATUS)
+    status = models.CharField(max_length=16, choices=CONTRIBUTOR_STATUSES, default=NEWLY_REGISTERED)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
                                   default='physics', verbose_name='Main discipline')

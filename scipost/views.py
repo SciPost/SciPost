@@ -30,7 +30,7 @@ from guardian.decorators import permission_required
 from haystack.generic_views import SearchView
 
 from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict,\
-                       CONTRIBUTOR_NORMAL
+                       NORMAL_CONTRIBUTOR
 from .decorators import has_contributor
 from .models import Contributor, UnavailabilityPeriod,\
                     AuthorshipClaim, EditorialCollege, EditorialCollegeFellowship
@@ -259,7 +259,7 @@ def vet_registration_request_ack(request, contributor_id):
     contributor = Contributor.objects.get(pk=contributor_id)
     if form.is_valid():
         if form.promote_to_registered_contributor():
-            contributor.status = 1
+            contributor.status = NORMAL_CONTRIBUTOR
             contributor.vetted_by = request.user.contributor
             contributor.save()
             group = Group.objects.get(name='Registered Contributors')
@@ -292,7 +292,7 @@ def vet_registration_request_ack(request, contributor_id):
                                         reply_to=['registration@scipost.org'])
             emailmessage.send(fail_silently=False)
         else:
-            ref_reason = int(form.cleaned_data['refusal_reason'])
+            ref_reason = form.cleaned_data['refusal_reason']
             email_text = ('Dear ' + contributor.get_title_display() + ' '
                           + contributor.user.last_name +
                           ', \n\nYour registration to the SciPost publication portal '
@@ -640,7 +640,7 @@ def personal_page(request, tab='account'):
 
     try:
         contributor = Contributor.objects.select_related('user').get(user=request.user)
-        context['needs_validation'] = contributor.status != CONTRIBUTOR_NORMAL
+        context['needs_validation'] = contributor.status != NORMAL_CONTRIBUTOR
     except Contributor.DoesNotExist:
         contributor = None
 

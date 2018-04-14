@@ -17,7 +17,7 @@ from .constants import MAIL_LIST_STATUSES, MAIL_LIST_STATUS_ACTIVE,\
 from .managers import MailListManager
 
 from scipost.behaviors import TimeStampedModel
-from scipost.constants import CONTRIBUTOR_NORMAL
+from scipost.constants import NORMAL_CONTRIBUTOR
 from scipost.models import Contributor
 
 
@@ -88,7 +88,7 @@ class MailchimpList(TimeStampedModel):
         # are not in the list yet.
         db_subscribers = (User.objects
                           .filter(contributor__isnull=False)
-                          .filter(is_active=True, contributor__status=CONTRIBUTOR_NORMAL)
+                          .filter(is_active=True, contributor__status=NORMAL_CONTRIBUTOR)
                           .filter(contributor__accepts_SciPost_emails=True,
                                   groups__in=self.allowed_groups.all(),
                                   email__isnull=False,

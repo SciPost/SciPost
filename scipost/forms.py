@@ -24,7 +24,8 @@ from ajax_select.fields import AutoCompleteSelectField
 from haystack.forms import ModelSearchForm as HayStackSearchForm
 
 from .behaviors import orcid_validator
-from .constants import SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES
+from .constants import (SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,
+    NO_SCIENTIST, DOUBLE_ACCOUNT, BARRED)
 from .decorators import has_contributor
 from .models import Contributor, DraftInvitation,\
                     UnavailabilityPeriod, PrecookedEmail
@@ -39,11 +40,11 @@ from submissions.models import Report
 
 
 REGISTRATION_REFUSAL_CHOICES = (
-    (0, '-'),
-    (-1, 'not a professional scientist (>= PhD student)'),
-    (-2, 'another account already exists for this person'),
-    (-3, 'barred from SciPost (abusive behaviour)'),
-    )
+    (None, '-'),
+    (NO_SCIENTIST, 'not a professional scientist (>= PhD student)'),
+    (DOUBLE_ACCOUNT, 'another account already exists for this person'),
+    (BARRED, 'barred from SciPost (abusive behaviour)')
+)
 reg_ref_dict = dict(REGISTRATION_REFUSAL_CHOICES)
 
 
