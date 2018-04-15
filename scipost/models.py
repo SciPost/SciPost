@@ -56,16 +56,12 @@ class Contributor(models.Model):
         blank=True, null=True)
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
                                 blank=True, validators=[orcid_validator])
-    address = models.CharField(max_length=1000, verbose_name="address",
-                               blank=True)
-    personalwebpage = models.URLField(verbose_name='personal web page',
-                                      blank=True)
+    address = models.CharField(max_length=1000, verbose_name="address", blank=True)
+    personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
     vetted_by = models.ForeignKey('self', on_delete=models.SET(get_sentinel_user),
-                                  related_name="contrib_vetted_by",
-                                  blank=True, null=True)
+                                  related_name="contrib_vetted_by", blank=True, null=True)
     accepts_SciPost_emails = models.BooleanField(
-        default=True,
-        verbose_name="I accept to receive SciPost emails")
+        default=True, verbose_name="I accept to receive SciPost emails")
 
     objects = ContributorQuerySet.as_manager()
 
@@ -73,48 +69,50 @@ class Contributor(models.Model):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
 
     def save(self, *args, **kwargs):
+        """Generate new activitation key if not set."""
         if not self.activation_key:
             self.generate_key()
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
+        """Return public information page url."""
         return reverse('scipost:contributor_info', args=(self.id,))
 
     @property
-    def get_formal_display(self):
-        return '%s %s %s' % (self.get_title_display(), self.user.first_name, self.user.last_name)
-
-    @property
     def is_currently_available(self):
+        """Check if Contributor is currently not marked as unavailable."""
         return not self.unavailability_periods.today().exists()
 
     def is_EdCol_Admin(self):
+        """Check if Contributor is an Editorial Administrator."""
         return (self.user.groups.filter(name='Editorial Administrators').exists()
                 or self.user.is_superuser)
 
     def is_SP_Admin(self):
+        """Check if Contributor is a SciPost Administrator."""
         return (self.user.groups.filter(name='SciPost Administrators').exists()
                 or self.user.is_superuser)
 
     def is_MEC(self):
+        """Check if Contributor is a member of the Editorial College."""
         return self.fellowships.active().exists() or self.user.is_superuser
 
     def is_VE(self):
+        """Check if Contributor is a Vetting Editor."""
         return (self.user.groups.filter(name='Vetting Editors').exists()
                 or self.user.is_superuser)
 
     def generate_key(self, feed=''):
-        """
-        Generate and save a new activation_key for the contributor, given a certain feed.
-        """
+        """Generate a new activation_key for the contributor, given a certain feed."""
         for i in range(5):
             feed += random.choice(string.ascii_letters)
         feed = feed.encode('utf8')
         salt = self.user.username.encode('utf8')
-        self.activation_key = hashlib.sha1(salt+salt).hexdigest()
+        self.activation_key = hashlib.sha1(salt + salt).hexdigest()
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
 
     def expertises_as_string(self):
+        """Return joined expertises."""
         if self.expertises:
             return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
         return ''
