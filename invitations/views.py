@@ -44,8 +44,8 @@ class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
         return context
 
 
-class RegistrationInvitationsSentView(RegistrationInvitationsView):
-    permission_required = 'scipost.can_create_registration_invitations'
+class RegistrationInvitationsSendView(RegistrationInvitationsView):
+    permission_required = 'scipost.can_manage_registration_invitations'
     queryset = RegistrationInvitation.objects.sent().not_for_fellows()
     template_name = 'invitations/registrationinvitation_list_sent.html'
 
@@ -54,6 +54,7 @@ class RegistrationInvitationsFellowView(RegistrationInvitationsView):
     permission_required = 'scipost.can_invite_fellows'
     queryset = RegistrationInvitation.objects.no_response().for_fellows()
     template_name = 'invitations/registrationinvitation_list_fellows.html'
+
 
 class CitationNotificationsView(PermissionsMixin, ListView):
     permission_required = 'scipost.can_manage_registration_invitations'
