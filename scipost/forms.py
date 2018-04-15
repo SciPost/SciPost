@@ -24,11 +24,11 @@ from ajax_select.fields import AutoCompleteSelectField
 from haystack.forms import ModelSearchForm as HayStackSearchForm
 
 from .behaviors import orcid_validator
-from .constants import (SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,
-    NO_SCIENTIST, DOUBLE_ACCOUNT, BARRED)
+from .constants import (
+    SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES, NO_SCIENTIST, DOUBLE_ACCOUNT,
+    BARRED)
 from .decorators import has_contributor
-from .models import Contributor, DraftInvitation,\
-                    UnavailabilityPeriod, PrecookedEmail
+from .models import Contributor, DraftInvitation, UnavailabilityPeriod, PrecookedEmail
 
 from affiliations.models import Affiliation, Institution
 from common.forms import MonthYearWidget
@@ -81,10 +81,10 @@ class RegistrationForm(forms.Form):
     last_name = forms.CharField(label='* Last name', max_length=100)
     email = forms.EmailField(label='* Email address')
     invitation_key = forms.CharField(max_length=40, widget=forms.HiddenInput(), required=False)
-    orcid_id = forms.CharField(label="ORCID id", max_length=20, required=False,
-                               validators=[orcid_validator],
-                               widget=forms.TextInput(
-                                    {'placeholder': 'Recommended. Get one at orcid.org'}))
+    orcid_id = forms.CharField(
+        label="ORCID id", max_length=20, required=False, validators=[orcid_validator],
+        widget=forms.TextInput({
+            'placeholder': 'Recommended. Get one at orcid.org'}))
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
     country_of_employment = LazyTypedChoiceField(
         choices=countries, label='* Country of employment', initial='NL',
@@ -94,12 +94,10 @@ class RegistrationForm(forms.Form):
     affiliation = forms.CharField(label='* Affiliation', max_length=300)
     address = forms.CharField(
         label='Address', max_length=1000,
-        widget=forms.TextInput({'placeholder': 'For postal correspondence'}),
-        required=False)
+        widget=forms.TextInput({'placeholder': 'For postal correspondence'}), required=False)
     personalwebpage = forms.URLField(
-        label='Personal web page',
-        widget=forms.TextInput({'placeholder': 'full URL, e.g. http://www.[yourpage].com'}),
-        required=False)
+        label='Personal web page', required=False,
+        widget=forms.TextInput({'placeholder': 'full URL, e.g. http://www.[yourpage].com'}))
     username = forms.CharField(label='* Username', max_length=100)
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput(),
@@ -284,8 +282,9 @@ class AuthenticationForm(forms.Form):
     next = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def user_is_inactive(self):
-        """
-        Check if the User is active but only if the password is valid, to prevent any
+        """Check if the User is active only if the password is valid.
+
+        Only check  to prevent any
         possible clue (?) of the password.
         """
         username = self.cleaned_data['username']
