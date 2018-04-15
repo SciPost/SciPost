@@ -868,10 +868,10 @@ def contributor_info(request, contributor_id):
     contributor_submissions = Submission.objects.public_unlisted().filter(authors=contributor)
     contributor_commentaries = Commentary.objects.filter(authors=contributor)
     contributor_theses = ThesisLink.objects.vetted().filter(author_as_cont=contributor)
-    contributor_comments = (Comment.objects.vetted()
+    contributor_comments = (Comment.objects.vetted().publicly_visible()
                             .filter(author=contributor, is_author_reply=False)
                             .order_by('-date_submitted'))
-    contributor_authorreplies = (Comment.objects.vetted()
+    contributor_authorreplies = (Comment.objects.vetted().publicly_visible()
                                  .filter(author=contributor, is_author_reply=True)
                                  .order_by('-date_submitted'))
     context = {'contributor': contributor,

@@ -8,7 +8,7 @@ from common.utils import BaseMailUtil
 
 
 def validate_file_extention(value, allowed_extentions):
-    '''Check if a filefield (value) has allowed extentions.'''
+    """Check if a filefield (value) has allowed extentions."""
     ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
     return ext.lower() in allowed_extentions
 
@@ -19,8 +19,7 @@ class CommentUtils(BaseMailUtil):
 
     @classmethod
     def email_comment_vet_accepted_to_author(cls):
-        """
-        Send mail after Comment is vetted: `Accept`
+        """Send mail after Comment is vetted: `Accept`.
 
         Requires loading:
         comment -- Comment
@@ -43,8 +42,7 @@ class CommentUtils(BaseMailUtil):
 
     @classmethod
     def email_comment_vet_rejected_to_author(cls, email_response=''):
-        """
-        Send mail after Comment is vetted: `Reject`
+        """Send mail after Comment is vetted: `Reject`.
 
         Requires loading:
         comment -- Comment

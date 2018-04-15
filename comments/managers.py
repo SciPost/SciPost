@@ -19,3 +19,6 @@ class CommentQuerySet(models.QuerySet):
 
     def author_replies(self):
         return self.filter(is_author_reply=True)
+
+    def publicly_visible(self):
+        return self.filter(anonymous=False, status__gte=1)
