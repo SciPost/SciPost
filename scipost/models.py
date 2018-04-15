@@ -10,7 +10,6 @@ import string
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
@@ -35,11 +34,6 @@ def get_sentinel_user():
     """
     user, __ = get_user_model().objects.get_or_create(username='deleted')
     return Contributor.objects.get_or_create(status=DISABLED, user=user)[0]
-
-
-class User(AbstractUser):
-    class Meta:
-        db_table = 'auth_user'
 
 
 class Contributor(models.Model):
