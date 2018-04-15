@@ -378,7 +378,7 @@ def logout_view(request):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def mark_unavailable_period(request):
     """Form view to mark period unavailable for Contributor."""
     unav_form = UnavailabilityPeriodForm(request.POST or None)
@@ -396,7 +396,7 @@ def mark_unavailable_period(request):
 
 @require_POST
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def delete_unavailable_period(request, period_id):
     """Delete period unavailable registered."""
     unav = get_object_or_404(UnavailabilityPeriod,
@@ -407,7 +407,7 @@ def delete_unavailable_period(request, period_id):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def _personal_page_editorial_account(request):
     """Personal Page tab: Account."""
     contributor = request.user.contributor
@@ -419,7 +419,7 @@ def _personal_page_editorial_account(request):
     return render(request, 'partials/scipost/personal_page/account.html', context)
 
 
-@is_contributor_user
+@is_contributor_user()
 def _personal_page_editorial_actions(request):
     """Personal Page tab: Editorial Actions."""
     permission = request.user.groups.filter(name__in=[
@@ -466,7 +466,7 @@ def _personal_page_editorial_actions(request):
 
 
 @permission_required('scipost.can_referee', return_403=True)
-@is_contributor_user
+@is_contributor_user()
 def _personal_page_refereeing(request):
     """Personal Page tab: Refereeing."""
     context = {
@@ -476,7 +476,7 @@ def _personal_page_refereeing(request):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def _personal_page_publications(request):
     """Personal Page tab: Publications."""
     contributor = request.user.contributor
@@ -493,7 +493,7 @@ def _personal_page_publications(request):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def _personal_page_submissions(request):
     """Personal Page tab: Submissions."""
     contributor = request.user.contributor
@@ -510,7 +510,7 @@ def _personal_page_submissions(request):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def _personal_page_commentaries(request):
     """Personal Page tab: Commentaries."""
     contributor = request.user.contributor
@@ -526,7 +526,7 @@ def _personal_page_commentaries(request):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def _personal_page_theses(request):
     """Personal Page tab: Theses."""
     contributor = request.user.contributor
@@ -542,7 +542,7 @@ def _personal_page_theses(request):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def _personal_page_comments(request):
     """Personal Page tab: Comments."""
     contributor = request.user.contributor
@@ -555,7 +555,7 @@ def _personal_page_comments(request):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def _personal_page_author_replies(request):
     """Personal Page tab: Author Replies."""
     contributor = request.user.contributor
@@ -689,7 +689,7 @@ def update_personal_data(request):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def claim_authorships(request):
     """
     The system auto-detects potential authorships (of submissions,
@@ -738,7 +738,7 @@ def claim_authorships(request):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def claim_pub_authorship(request, publication_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -754,7 +754,7 @@ def claim_pub_authorship(request, publication_id, claim):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def claim_sub_authorship(request, submission_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -770,7 +770,7 @@ def claim_sub_authorship(request, submission_id, claim):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def claim_com_authorship(request, commentary_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -786,7 +786,7 @@ def claim_com_authorship(request, commentary_id, claim):
 
 
 @login_required
-@is_contributor_user
+@is_contributor_user()
 def claim_thesis_authorship(request, thesis_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
