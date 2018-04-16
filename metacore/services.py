@@ -28,13 +28,13 @@ def get_crossref_test(cursor='*'):
         print("Last cursor: ", last_cursor)
         print("Current cursor: ", cursor)
 
+        params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl'}
+        last_cursor = cursor
         for j in range(0,2):
-            params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl'}
             r = requests.get(url, params=params)
             r_json = r.json()
 
             citables_json = r_json['message']['items']
-            last_cursor = cursor
             cursor = r_json['message']['next-cursor']
             number_of_results = len(r_json['message']['items'])
 
