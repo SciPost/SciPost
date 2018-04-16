@@ -22,8 +22,8 @@ def get_crossref_test(cursor='*'):
     batches = 2000
 
     for i in range(0,batches):
-        print("Batch %s" % (i, ))
         print("-------------------------------")
+        print("Batch %s" % (i, ))
         print(cursor)
 
         params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl'}
@@ -74,40 +74,41 @@ def parse_crossref_citable(citable_item):
         return 
 
     if not Citable.objects(doi=doi):
-        try:
-            # Parse certain fields for storage on top level in document
-            # Blame the convoluted joining and looping on CR
+        # try:
+        # Parse certain fields for storage on top level in document
+        # Blame the convoluted joining and looping on CR
 
-            if 'reference' in citable_item:
-                references_with_doi = [ref for ref in citable_item['reference'] if 'DOI' in ref]
-                references = [ref['DOI'].lower() for ref in references_with_doi]
-            else:
-                references = []
+        if 'reference' in citable_item:
+            references_with_doi = [ref for ref in citable_item['reference'] if 'DOI' in ref]
+            references = [ref['DOI'].lower() for ref in references_with_doi]
+        else:
+            references = []
 
-            authors = []
-            for author_names in citable_item['author']:
-                author = []
-                if 'given' in author_names:
-                    author.append(author_names['given'])
-                if 'family' in author_names:
-                    author.append(author_names['family'])
+        authors = []
+        for author_names in citable_item['author']:
+            author = []
+            if 'given' in author_names:
+                author.append(author_names['given'])
+            if 'family' in author_names:
+                author.append(author_names['family'])
 
-                authors.append(' '.join(author))
+            authors.append(' '.join(author))
 
-            publisher = citable_item['publisher']
-            title = citable_item['title'][0]
-            publication_date = '-'.join([str(date_part) for date_part in citable_item['issued']['date-parts'][0]])
-            if 'license' in citable_item:
-                license = citable_item['license'][0]['URL']
-            else:
-                license = ''
+        publisher = citable_item['publisher']
+        title = citable_item['title'][0]
+        publication_date = '-'.join([str(date_part) for date_part in citable_item['issued']['date-parts'][0]])
+        if 'license' in citable_item:
+            license = citable_item['license'][0]['URL']
+        else:
+            license = ''
 
-            return CitableWithDOI(doi=doi, references=references, authors=authors, publisher=publisher, title=title, 
-                    publication_date=publication_date, license=license, metadata=citable_item)
+        return CitableWithDOI(doi=doi, references=references, authors=authors, publisher=publisher, title=title, 
+                publication_date=publication_date, license=license, metadata=citable_item)
 
-        except BaseException as e:
-            print(e)
-            # raise
-        except e:
-            print("Error: ", e)
-            print(citable_item)
+        # except BaseException as e:
+        #     print("Error!")
+        #     print(e)
+        #     # raise
+        # except e:
+        #     print("Error: ", e)
+        #     print(citable_item)
