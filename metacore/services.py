@@ -20,17 +20,20 @@ def get_crossref_test(cursor='*'):
     # If the loop is allowed to complete, it fetches (rows * batches) records
     rows = 500
     batches = 2000
+    last_cursor = cursor
 
     for i in range(0,batches):
         print("-------------------------------")
         print("Batch %s" % (i, ))
-        print(cursor)
+        print("Last cursor: ", last_cursor)
+        print("Current cursor: ", cursor)
 
         params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl'}
         r = requests.get(url, params=params)
         r_json = r.json()
 
         citables_json = r_json['message']['items']
+        last_cursor = cursor
         cursor = r_json['message']['next-cursor']
         number_of_results = len(r_json['message']['items'])
 
@@ -111,4 +114,4 @@ def parse_crossref_citable(citable_item):
             #     # raise
         except Exception as e:
             print("Error: ", e)
-            print(citable_item)
+            print(citable_item['DOI'])
