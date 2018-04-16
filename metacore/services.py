@@ -39,6 +39,8 @@ def get_crossref_test(cursor='*'):
             number_of_results = len(r_json['message']['items'])
 
             citables = [parse_crossref_citable(it) for it in citables_json]
+            # Parser returns None if there's an error
+            errors = any([not i for i in a if not i])
             citables = [citable for citable in citables if citable is not None]
 
             # Mass insert in database (will fail on encountering existing documents
@@ -46,8 +48,10 @@ def get_crossref_test(cursor='*'):
             if citables:
                 Citable.objects.insert(citables)
                 break
-            else:
+            elif errors:
                 print("Trying again")
+            else:
+                break
 
             citable = []
 
@@ -118,3 +122,4 @@ def parse_crossref_citable(citable_item):
         except Exception as e:
             print("Error: ", e)
             print(citable_item['DOI'])
+            return False
