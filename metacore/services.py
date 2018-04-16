@@ -30,31 +30,25 @@ def get_crossref_test(cursor='*'):
 
         params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl'}
         last_cursor = cursor
-        for j in range(0,2):
-            r = requests.get(url, params=params)
-            r_json = r.json()
+        r = requests.get(url, params=params)
+        r_json = r.json()
 
-            citables_json = r_json['message']['items']
-            cursor = r_json['message']['next-cursor']
-            number_of_results = len(r_json['message']['items'])
+        citables_json = r_json['message']['items']
+        cursor = r_json['message']['next-cursor']
+        number_of_results = len(r_json['message']['items'])
 
-            citables = [parse_crossref_citable(it) for it in citables_json]
-            # Parser returns None if there's an error
-            errors = any([not i for i in citables if i == False])
-            orig_citables = citables
-            citables = [citable for citable in citables if citable]
+        citables = [parse_crossref_citable(it) for it in citables_json]
+        # Parser returns None if there's an error
+        errors = any([not i for i in citables if i == False])
+        orig_citables = citables
+        citables = [citable for citable in citables if citable]
 
-            # Mass insert in database (will fail on encountering existing documents
-            # with same DOI
-            if citables:
-                Citable.objects.insert(citables)
-                break
-            elif errors:
-                print("Trying again")
-            else:
-                break
+        # Mass insert in database (will fail on encountering existing documents
+        # with same DOI
+        if citables:
+            Citable.objects.insert(citables)
 
-            citable = []
+        citable = []
 
         if number_of_results < rows:
             print(number_of_results)
