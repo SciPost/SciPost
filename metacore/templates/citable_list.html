@@ -6,30 +6,75 @@
 {% block pagetitle %}: Metacore{% endblock pagetitle %}
 
 {% block content %}
+<!-- <div class="row"> -->
+<!--     <div class="col-md-4"> -->
+<!--         <div class="card card-grey"> -->
+<!--             <div class="card-body min-height-190"> -->
+<!--               <h1 class="card-title">SciPost Metacore</h1> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--     </div> -->
+<!--     <div class="col-md-4"> -->
+<!--         <div class="card card-grey"> -->
+<!--             <div class="card-body min-height-190"> -->
+<!--               <h2 class="card-title">Search Citables:</h2> -->
+<!--               <form action="{% url 'metacore:citable-list' %}" class="small" method="get"> -->
+<!--                 <1!-- {{ form|bootstrap:'4,8,sm' }} --1> -->
+<!--                 {{ form }} -->
+<!--                 <input class="btn btn-sm btn-secondary" type="submit" value="Search"/> -->
+<!--                 <a href="{% url 'metacore:citable-list' %}" class="btn btn-sm btn-secondary">Clear</a> -->
+<!--               </form> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--     </div> -->
+<!--     <div class="col-md-4"> -->
+<!--         <div class="card card-grey"> -->
+<!--             <div class="card-body min-height-190"> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--     </div> -->
+<!-- </div> -->
 <div class="row">
-    <div class="col-md-4">
-        <div class="card card-grey">
-            <div class="card-body min-height-190">
-              <h1 class="card-title">SciPost Metacore</h1>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card card-grey">
             <div class="card-body min-height-190">
               <h2 class="card-title">Search Citables:</h2>
               <form action="{% url 'metacore:citable-list' %}" class="small" method="get">
-                <!-- {{ form|bootstrap:'4,8,sm' }} -->
-                {{ form }}
+                <!-- {{ form|bootstrap:'2,6,lg' }} -->
+
+                <div class="fieldWrapper">
+                  {{ form.omni.errors }}
+                  <label for="{{ form.subject.id_for_label }}">Author and/or title (matches full words)</label>
+                  {{ form.omni }}
+                </div>
+                <br/>
                 <input class="btn btn-sm btn-secondary" type="submit" value="Search"/>
                 <a href="{% url 'metacore:citable-list' %}" class="btn btn-sm btn-secondary">Clear</a>
+                <!-- <hr/> -->
+                <!-- <h3>Advanced search</h3> -->
+
+                <!-- {% for field in form %} -->
+                <!--     <div class="fieldWrapper"> -->
+                <!--         {% if field.id_for_label != 'id_omni' %} -->
+                <!--           {{ field.errors }} -->
+                <!--           {{ field.label_tag }} {{ field }} -->
+                <!--           {% if field.help_text %} -->
+                <!--           <p class="help">{{ field.help_text|safe }}</p> -->
+                <!--           {% endif %} -->
+                <!--         {% endif %} -->
+                <!--     </div> -->
+                <!-- {% endfor %} -->
+                <!-- <input class="btn btn-sm btn-secondary" type="submit" value="Search"/> -->
+                <!-- <a href="{% url 'metacore:citable-list' %}" class="btn btn-sm btn-secondary">Clear</a> -->
+
               </form>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card card-grey">
             <div class="card-body min-height-190">
+              <h1 class="card-title">SciPost Metacore</h1>
             </div>
         </div>
     </div>

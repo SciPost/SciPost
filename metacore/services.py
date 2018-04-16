@@ -108,5 +108,6 @@ def parse_crossref_citable(citable_item):
         except BaseException as e:
             print(e)
             # raise
-        except:
+        except e:
+            print("Error: ", e)
             print(citable_item)
