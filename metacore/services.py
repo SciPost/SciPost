@@ -42,7 +42,7 @@ def get_crossref_test(cursor='*'):
             # Parser returns None if there's an error
             errors = any([not i for i in citables if i == False])
             orig_citables = citables
-            citables = [citable for citable in citables if citable is not None]
+            citables = [citable for citable in citables if citable]
 
             # Mass insert in database (will fail on encountering existing documents
             # with same DOI
