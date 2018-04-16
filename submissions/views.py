@@ -43,8 +43,6 @@ from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
 from comments.forms import CommentForm
-from invitations.constants import INVITATION_REFEREEING
-from invitations.models import RegistrationInvitation
 from journals.models import Journal
 from mails.views import MailEditingSubView
 from production.forms import ProofsDecisionForm
