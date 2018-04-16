@@ -28,30 +28,33 @@ def get_crossref_test(cursor='*'):
         print("Last cursor: ", last_cursor)
         print("Current cursor: ", cursor)
 
-        params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl'}
-        r = requests.get(url, params=params)
-        r_json = r.json()
+        for j in range(0,2):
+            params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl'}
+            r = requests.get(url, params=params)
+            r_json = r.json()
 
-        citables_json = r_json['message']['items']
-        last_cursor = cursor
-        cursor = r_json['message']['next-cursor']
-        number_of_results = len(r_json['message']['items'])
+            citables_json = r_json['message']['items']
+            last_cursor = cursor
+            cursor = r_json['message']['next-cursor']
+            number_of_results = len(r_json['message']['items'])
 
-        citables = [parse_crossref_citable(it) for it in citables_json]
-        citables = [citable for citable in citables if citable is not None]
+            citables = [parse_crossref_citable(it) for it in citables_json]
+            citables = [citable for citable in citables if citable is not None]
 
-        # Mass insert in database (will fail on encountering existing documents
-        # with same DOI
-        if citables:
-            Citable.objects.insert(citables)
+            # Mass insert in database (will fail on encountering existing documents
+            # with same DOI
+            if citables:
+                Citable.objects.insert(citables)
+                break
+            else:
+                print("Trying again")
+
+            citable = []
 
         if number_of_results < rows:
             print(number_of_results)
             print('End reached.')
             break
-
-        citable = []
-
 
 def convert_doi_to_lower_case():
     # If you accidentally import 100.000+ records that have random uppercase characters
