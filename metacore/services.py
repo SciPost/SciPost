@@ -40,7 +40,7 @@ def get_crossref_test(cursor='*'):
 
             citables = [parse_crossref_citable(it) for it in citables_json]
             # Parser returns None if there's an error
-            errors = any([not i for i in a if not i])
+            errors = any([not i for i in citables if not i])
             citables = [citable for citable in citables if citable is not None]
 
             # Mass insert in database (will fail on encountering existing documents
