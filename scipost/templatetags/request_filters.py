@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import re
 
 from django import template
@@ -25,3 +29,9 @@ def active(context, pattern_or_urlname):
     if re.search(pattern, path):
         return 'active'
     return ''
+
+
+@register.simple_tag(takes_context=True)
+def active_get_request(context, get_key, get_value):
+    query = context['request'].GET.dict()
+    return 'active' if query.get(get_key) == str(get_value) else ''

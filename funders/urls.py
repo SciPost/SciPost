@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.conf.urls import url
 
 from . import views
@@ -9,5 +13,5 @@ urlpatterns = [
     url(r'^add$', views.add_funder, name='add_funder'),
     url(r'^(?P<funder_id>[0-9]+)/$', views.funder_publications,
         name='funder_publications'),
-    url(r'^grants/add$', views.add_grant, name='add_grant'),
+    url(r'^grants/add$', views.CreateGrantView.as_view(), name='add_grant'),
 ]

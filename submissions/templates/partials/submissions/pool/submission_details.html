@@ -26,7 +26,7 @@
     <div>
         <h3>Remarks on this submission:</h3>
         {% if remark_form %}
-            {% include 'submissions/_remark_add_form.html' with submission=submission form=remark_form auto_show=1 %}
+            {% include 'partials/submissions/remark_form.html' with submission=submission form=remark_form auto_show=1 %}
         {% endif %}
         <p class="mb-1">Current remarks:</p>
         <ul>
@@ -39,7 +39,7 @@
 
         {% if is_editor_in_charge or is_editorial_admin or submission|is_voting_fellow:request.user %}
             <br>
-            {% include 'submissions/_required_actions_block.html' with submission=submission %}
+            {% include 'partials/submissions/pool/required_actions_block.html' with submission=submission %}
             <h4>
                 <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
             </h4>
@@ -56,7 +56,7 @@
                     <li>EIC Assignment requests:</li>
                     <ul class="pl-3">
                         {% for assignment in submission.editorial_assignments.all %}
-                            {% include 'submissions/_assignment_info.html' with assignment=assignment %}
+                            {% include 'partials/submissions/pool/assignment_info.html' with assignment=assignment %}
                         {% empty %}
                             <li>No assignment requests have been sent</li>
                         {% endfor %}
@@ -94,14 +94,14 @@
                 {# Accepted submission actions #}
                 {% if submission.status == 'accepted' %}
                     <li><a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
-                    <li>After proofs have been accepted, you can <a href="{% url 'journals:initiate_publication' %}">initiate the publication process</a> (leads to the validation page)</li>
+                    <li><a href="{% url 'journals:update_publication' submission.arxiv_identifier_w_vn_nr %}">Draft Publication</a></li>
                 {% endif %}
 
             </ul>
 
             <h3>Events</h3>
             <div id="eventslist">
-                {% include 'submissions/submission_event_list.html' with events=submission.events.for_eic %}
+                {% include 'partials/submissions/submission_events.html' with events=submission.events.for_eic %}
             </div>
         {% endif %}
     </div>

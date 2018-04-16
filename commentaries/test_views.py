@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from django.test import TestCase, Client, RequestFactory
@@ -5,8 +9,8 @@ from django.test import TestCase, Client, RequestFactory
 from scipost.models import Contributor
 from scipost.factories import ContributorFactory, UserFactory
 
-from .factories import UnvettedCommentaryFactory, VettedCommentaryFactory, UnpublishedVettedCommentaryFactory, \
-    UnvettedArxivPreprintCommentaryFactory
+from .factories import UnvettedCommentaryFactory, CommentaryFactory, UnpublishedCommentaryFactory, \
+    UnvettedUnpublishedCommentaryFactory
 from .forms import CommentarySearchForm, RequestPublishedArticleForm
 from .models import Commentary
 from .views import RequestPublishedArticle, prefill_using_DOI, RequestArxivPreprint
@@ -57,7 +61,7 @@ class RequestArxivPreprintTest(TestCase):
         add_groups_and_permissions()
         self.target = reverse('commentaries:request_arxiv_preprint')
         self.contributor = ContributorFactory()
-        self.commentary_instance = UnvettedArxivPreprintCommentaryFactory.build(requested_by=self.contributor)
+        self.commentary_instance = UnvettedUnpublishedCommentaryFactory.build(requested_by=self.contributor)
         self.valid_form_data = model_form_data(self.commentary_instance, RequestPublishedArticleForm)
         # The form field is called 'identifier', while the model field is called 'arxiv_identifier',
         # so model_form_data doesn't include it.
@@ -75,6 +79,7 @@ class RequestArxivPreprintTest(TestCase):
         self.assertEqual(commentary.type, 'preprint')
         self.assertEqual(commentary.arxiv_or_DOI_string, "arXiv:" + self.commentary_instance.arxiv_identifier)
         self.assertEqual(commentary.requested_by, self.contributor)
+
 
 class VetCommentaryRequestsTest(TestCase):
     """Test cases for `vet_commentary_requests` view method"""
@@ -119,7 +124,7 @@ class VetCommentaryRequestsTest(TestCase):
 
         # Only vetted Commentaries exist!
         # ContributorFactory.create_batch(5)
-        VettedCommentaryFactory(requested_by=ContributorFactory(), vetted_by=ContributorFactory())
+        CommentaryFactory(requested_by=ContributorFactory(), vetted_by=ContributorFactory())
         response = self.client.get(self.view_url)
         self.assertEquals(response.context['commentary_to_vet'], None)
 
@@ -134,7 +139,7 @@ class BrowseCommentariesTest(TestCase):
 
     def setUp(self):
         add_groups_and_permissions()
-        VettedCommentaryFactory(discipline='physics', requested_by=ContributorFactory())
+        CommentaryFactory(discipline='physics', requested_by=ContributorFactory())
         self.view_url = reverse('commentaries:browse', kwargs={
             'discipline': 'physics',
             'nrweeksback': '1'
@@ -155,7 +160,7 @@ class CommentaryDetailTest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.client = Client()
-        self.commentary = UnpublishedVettedCommentaryFactory(
+        self.commentary = UnpublishedCommentaryFactory(
             requested_by=ContributorFactory(), vetted_by=ContributorFactory())
         self.target = reverse(
             'commentaries:commentary',

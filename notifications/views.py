@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.forms import model_to_dict
@@ -60,7 +64,7 @@ def live_notification_list(request):
 
     try:
         # Default to 5 as a max number of notifications
-        num_to_fetch = max(int(request.GET.get('max', 5)), 1)
+        num_to_fetch = max(int(request.GET.get('max', 10)), 1)
         num_to_fetch = min(num_to_fetch, 100)
     except ValueError:
         num_to_fetch = 5

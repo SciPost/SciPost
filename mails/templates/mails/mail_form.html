@@ -11,11 +11,12 @@
 
     <form enctype="multipart/form-data" method="post">
         {% csrf_token %}
+        {% if transfer_data_form %}{{ transfer_data_form }}{% endif %}
         {{ form|bootstrap }}
         <div class="form-group row">
             <div class="offset-md-2 col-md-10">
-                <input class="btn btn-secondary mr-2" type="reset" value="Reset to default">
-                <input class="btn btn-primary mr-2" type="submit" value="Send mail">
+                <input class="btn btn-outline-secondary mr-2" type="reset" value="Reset to default">
+                <button class="btn btn-primary mr-2" type="submit" name="save" value="send_from_editor">Send mail</button>
             </div>
         </div>
     </form>

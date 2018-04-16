@@ -1,0 +1,57 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: submit manuscript{% endblock pagetitle %}
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <h1>Submit a manuscript to SciPost</h1>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <p class="mb-1">
+            Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
+        </p>
+        <p class="mb-1">
+            You should also make sure you understand the <a href="{% url 'submissions:sub_and_ref_procedure' %}#pwr">refereeing procedure</a> and its open aspect.
+        </p>
+        <p class="mb-1">
+            In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations"> author obligations</a>.
+        </p>
+        <p>
+            Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
+        </p>
+    </div>
+</div>
+
+{% if perms.scipost.can_submit_manuscript %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class='card-body'>
+                <h3>Please provide the arXiv identifier for your Submission</h3>
+                <p><em>(give the identifier without prefix but with version number, as per the placeholder)</em></p>
+                <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
+                  {% csrf_token %}
+                  {{ form|bootstrap }}
+                  <input type="submit" class="btn btn-outline-secondary" value="Query arXiv"/>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+  <h3>You are currently not allowed to submit a manuscript.</h3>
+{% endif %}
+
+
+{% endblock content %}

@@ -67,11 +67,17 @@ ul.publicationClickables {
         display: inline-block;
         margin: 0 10px;
         padding: 5px;
+        width: 100%;
 
         &.publicationPDF {
             font-size: 130%;
             font-weight: 600;
         }
+    }
+}
+@media screen and (min-width: 768px) {
+    ul.publicationClickables li {
+        width: auto;
     }
 }
 

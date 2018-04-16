@@ -1,15 +1,25 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+
 from .paginator import SciPostPaginator
 
 
-class PaginationMixin(object):
+class PermissionsMixin(LoginRequiredMixin, PermissionRequiredMixin):
+    pass
+
+
+class PaginationMixin:
     """
     Mixin for generic class-based views (e.g. django.views.generic.ListView)
     """
     paginator_class = SciPostPaginator
 
-    # def get_paginator(self, queryset, per_page, orphans=0, allow_empty_first_page=True):
-    #     # Pass the request object to the paginator to keep the parameters in the
-    #     # url querystring ("?page=2&old_param=...")
-    #     request = self.request
-    #     return self.paginator_class(queryset, per_page, orphans=orphans,
-    #                                 allow_empty_first_page=allow_empty_first_page, request=request)
+
+class RequestViewMixin:
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs

@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.contrib import admin
 
 from django import forms
@@ -28,5 +32,6 @@ class CommentaryAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'vetted', 'latest_activity',)
     date_hierarchy = 'latest_activity'
     form = CommentaryAdminForm
+
 
 admin.site.register(Commentary, CommentaryAdmin)

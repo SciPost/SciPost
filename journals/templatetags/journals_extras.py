@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django import template
 
 from journals.helpers import paper_nr_string
@@ -9,6 +13,7 @@ register = template.Library()
 def paper_nr_string_filter(nr):
     return paper_nr_string(nr)
 
+
 @register.filter(name='latest_successful_crossref_deposit')
 def latest_successful_crossref_deposit(publication):
     latest = publication.deposit_set.filter(
@@ -17,6 +22,7 @@ def latest_successful_crossref_deposit(publication):
         return latest.deposition_date.strftime('%Y-%m-%d')
     else:
         return "No successful deposit found"
+
 
 @register.filter(name='latest_successful_DOAJ_deposit')
 def latest_successful_DOAJ_deposit(publication):
@@ -27,8 +33,9 @@ def latest_successful_DOAJ_deposit(publication):
     else:
         return "No successful deposit found"
 
+
 @register.filter(name='latest_successful_crossref_deposit_report')
-def latest_successful_crossref_deposit(report):
+def latest_successful_crossref_deposit_report(report):
     latest = report.genericdoideposit.filter(
         deposit_successful=True).order_by('-deposition_date').first()
     if latest:
@@ -36,8 +43,9 @@ def latest_successful_crossref_deposit(report):
     else:
         return "No successful deposit found"
 
+
 @register.filter(name='latest_successful_crossref_deposit_comment')
-def latest_successful_crossref_deposit(comment):
+def latest_successful_crossref_deposit_comment(comment):
     latest = comment.genericdoideposit.filter(
         deposit_successful=True).order_by('-deposition_date').first()
     if latest:

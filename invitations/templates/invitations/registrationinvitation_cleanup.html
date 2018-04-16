@@ -1,0 +1,57 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Registration Invitations cleanup{% endblock pagetitle %}
+
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+    <span class="breadcrumb-item">Cleanup</span>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Registration Invitations Cleanup</h1>
+        <h3>Email duplicates (a contributor exists with the email address in these invitations)</h3>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-12">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Last name</th>
+                    <th>First name</th>
+                    <th>Email</th>
+                    <th>Date sent</th>
+                    <th>Type</th>
+                    <th>Invited by</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inv in invitations %}
+                    <tr>
+                        <td>{{ inv.last_name }}</td>
+                        <td>{{ inv.first_name }}</td>
+                        <td>{{ inv.email }}</td>
+                        <td>{{ inv.date_sent_first }} </td>
+                        <td>{{ inv.get_invitation_type_display }}</td>
+                        <td>{{ inv.invited_by }}</td>
+                        <td><a href="{% url 'invitations:delete' inv.id %}">Remove</a></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7">There were no duplicate emails found in the sets of Contributors/Invitations.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock content %}

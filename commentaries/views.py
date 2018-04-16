@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -233,13 +237,7 @@ def commentary_detail(request, arxiv_or_DOI_string):
                                    arxiv_or_DOI_string=arxiv_or_DOI_string)
 
     form = CommentForm()
-    try:
-        author_replies = Comment.objects.filter(
-            commentary=commentary, is_author_reply=True, status__gte=1)
-    except Comment.DoesNotExist:
-        author_replies = ()
-    context = {'commentary': commentary,
-               'author_replies': author_replies, 'form': form}
+    context = {'commentary': commentary, 'form': form}
     return render(request, 'commentaries/commentary_detail.html', context)
 
 

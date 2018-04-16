@@ -1,0 +1,18 @@
+<p>
+    Dear {{ stream.invitations_officer.user.last_name }},
+</p>
+<p>
+    You are now assigned as Production Supervisor to the stream
+</p>
+
+<p>
+    {{ stream }}
+</p>
+<p>
+    The stream will now be open for you on the <a href="https://scipost.org/{% url 'production:production' %}">Production page</a>.
+</p>
+
+
+<p><em>
+    This mail is automatically generated and therefore not signed.
+</em></p>

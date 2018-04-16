@@ -1,0 +1,74 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Upload Report PDF{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:reports_accepted_list' %}" class="breadcrumb-item">Accepted Reports</a>
+    <span class="breadcrumb-item">Upload Report PDF</span>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-12">
+            <h1 class="highlight">Upload Report PDF</h1>
+            <div class="card">
+                {% include 'partials/submissions/report_summary.html' with submission=report %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <h3>Please process this code in your Tex Compiler:</h3>
+            <p>To compile, one needs the SciPost Latex Package. Please <a href="mailto: info@scipost.org">contact SciPost</a> if you did not receive it.</p>
+            <pre class="clickfocus" style="max-height: 200px;"><code>{% include 'partials/submissions/report_tex_template.html' with report=report %}</code></pre>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-12">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <input class="btn btn-outline-secondary" type="submit" value="Upload"/>
+          </form>
+        </div>
+    </div>
+
+<script>
+    jQuery.fn.selectText = function(){
+        this.find('input').each(function() {
+            if($(this).prev().length == 0 || !$(this).prev().hasClass('p_copy')) {
+                $('<p class="p_copy" style="position: absolute; z-index: -1;"></p>').insertBefore($(this));
+            }
+            $(this).prev().html($(this).val());
+        });
+        var doc = document;
+        var element = this[0];
+
+        if (doc.body.createTextRange) {
+            var range = document.body.createTextRange();
+            range.moveToElementText(element);
+            range.select();
+        } else if (window.getSelection) {
+            var selection = window.getSelection();
+            var range = document.createRange();
+            range.selectNodeContents(element);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    };
+
+    $(function() {
+        $('.clickfocus').on('click', function() {
+            $(this).find('code').selectText();
+        });
+    });
+</script>
+
+{% endblock %}

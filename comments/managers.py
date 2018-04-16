@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.db import models
 
 from .constants import STATUS_PENDING
@@ -15,3 +19,6 @@ class CommentQuerySet(models.QuerySet):
 
     def author_replies(self):
         return self.filter(is_author_reply=True)
+
+    def publicly_visible(self):
+        return self.filter(anonymous=False, status__gte=1)

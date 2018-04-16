@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.contrib import admin, messages
 from django import forms
 
@@ -41,8 +45,6 @@ admin.site.register(Issue, IssueAdmin)
 class PublicationAdminForm(forms.ModelForm):
     accepted_submission = forms.ModelChoiceField(
         queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
-    authors = forms.ModelMultipleChoiceField(
-        queryset=Contributor.objects.order_by('user__last_name'))
     authors_claims = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
@@ -57,6 +59,7 @@ class PublicationAdminForm(forms.ModelForm):
 
 class ReferenceInline(admin.TabularInline):
     model = Reference
+    extra = 0
 
 
 class AuthorsInline(admin.TabularInline):
@@ -66,7 +69,7 @@ class AuthorsInline(admin.TabularInline):
 
 class PublicationAdmin(admin.ModelAdmin):
     search_fields = ['title', 'author_list']
-    list_display = ['title', 'author_list', 'in_issue', 'doi_string', 'publication_date']
+    list_display = ['title', 'author_list', 'in_issue', 'doi_string', 'publication_date', 'status']
     date_hierarchy = 'publication_date'
     list_filter = ['in_issue']
     inlines = [AuthorsInline, ReferenceInline]

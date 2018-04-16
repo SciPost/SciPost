@@ -1,4 +1,9 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import datetime
+import feedparser
 
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.fields import GenericRelation
@@ -9,36 +14,38 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 
 from .behaviors import SubmissionRelatedObjectMixin
-from .constants import ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL,\
-                       SUBMISSION_TYPE, ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC,\
-                       RANKING_CHOICES, REPORT_REC, SUBMISSION_STATUS, STATUS_UNASSIGNED,\
-                       REPORT_STATUSES, STATUS_UNVETTED, SUBMISSION_EIC_RECOMMENDATION_REQUIRED,\
-                       SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,\
-                       EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,\
-                       REPORT_TYPES, REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED,\
-                       STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING
-from .managers import SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet,\
-                      ReportQuerySet, SubmissionEventQuerySet, RefereeInvitationQuerySet,\
-                      EditorialCommunicationQueryset
-from .utils import ShortSubmissionCycle, DirectRecommendationSubmissionCycle,\
-                   GeneralSubmissionCycle
+from .constants import (
+    ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE,
+    ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, REPORT_REC,
+    SUBMISSION_STATUS, STATUS_UNASSIGNED, REPORT_STATUSES, STATUS_UNVETTED,
+    SUBMISSION_EIC_RECOMMENDATION_REQUIRED, SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT,
+    CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
+    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, STATUS_VOTING_IN_PREPARATION,
+    STATUS_PUT_TO_EC_VOTING)
+from .managers import (
+    SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
+    SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
+from .utils import (
+    ShortSubmissionCycle, DirectRecommendationSubmissionCycle, GeneralSubmissionCycle)
 
 from comments.models import Comment
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
-from scipost.fields import ChoiceArrayField
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
+from scipost.fields import ChoiceArrayField
 from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
 
 
 class Submission(models.Model):
+    """SciPost register of an preprint (ArXiv articles only for now).
+
+    A Submission is a centralized information package used in the refereeing cycle of a preprint.
+    It collects information about authors, referee reports, editorial recommendations,
+    college decisions, etc. etc. After an 'acceptance editorial recommendation', the Publication
+    will directly be related to the latest Submission in the thread.
     """
-    Submission is a SciPost register of an ArXiv article. This object is the central
-    instance for every action, recommendation, communication, etc. etc. that is related to the
-    refereeing cycle of a Submission. A possible Publication object is later directly related
-    to this Submission instance.
-    """
+
     author_comments = models.TextField(blank=True)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
@@ -64,10 +71,11 @@ class Submission(models.Model):
                                         default=CYCLE_DEFAULT)
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
+    # visible_pool = models.BooleanField(default=True)
+    # visible_public = models.BooleanField(default=False)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE,
-                                       blank=True, null=True, default=None)
+    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                      related_name='submitted_submissions')
     voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
@@ -117,129 +125,132 @@ class Submission(models.Model):
     class Meta:
         app_label = 'submissions'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._update_cycle()
-
     def save(self, *args, **kwargs):
-        # Fill `arxiv_identifier_w_vn_nr` as a dummy field for convenience
+        """Prefill some fields before saving."""
         arxiv_w_vn = '{arxiv}v{version}'.format(
             arxiv=self.arxiv_identifier_wo_vn_nr,
             version=self.arxiv_vn_nr)
         self.arxiv_identifier_w_vn_nr = arxiv_w_vn
 
         obj = super().save(*args, **kwargs)
-        self._update_cycle()
+        if hasattr(self, 'cycle'):
+            self.set_cycle()
         return obj
 
     def __str__(self):
-        header = (self.arxiv_identifier_w_vn_nr + ', '
-                  + self.title[:30] + ' by ' + self.author_list[:30])
+        """Summerize the Submission in a string."""
+        header = '{arxiv_id}, {title} by {authors}'.format(
+            arxiv_id=self.arxiv_identifier_w_vn_nr,
+            title=self.title[:30],
+            authors=self.author_list[:30])
         if self.is_current:
             header += ' (current version)'
         else:
             header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
-        try:
+        if hasattr(self, 'publication') and self.publication.is_published:
             header += ' (published as %s (%s))' % (
                 self.publication.doi_string, self.publication.publication_date.strftime('%Y'))
-        except Publication.DoesNotExist:
-            pass
         return header
 
     def touch(self):
-        """ Update latest activity as a service """
-        self.latest_activity = timezone.now()
-        self.save()
+        """Update latest activity timestamp."""
+        Submission.objects.filter(id=self.id).update(latest_activity=timezone.now())
 
     def comments_set_complete(self):
-        """
-        Return comments to Submission, comments on Reports of Submission and
-        nested comments related to this Submission.
-        """
+        """Return Comments on Submissions, Reports and other Comments."""
         return Comment.objects.filter(Q(submissions=self) |
                                       Q(reports__submission=self) |
                                       Q(comments__reports__submission=self) |
                                       Q(comments__submissions=self)).distinct()
 
-    def _update_cycle(self):
-        """
-        Append the specific submission cycle to the instance to eventually handle the
-        complete submission cycle outside the submission instance itself.
-        """
+    @property
+    def cycle(self):
+        """Get cycle object that's relevant for the Submission."""
+        if not hasattr(self, '__cycle'):
+            self.set_cycle()
+        return self.__cycle
+
+    def set_cycle(self):
+        """Set cycle to the Submission on request."""
         if self.refereeing_cycle == CYCLE_SHORT:
-            self.cycle = ShortSubmissionCycle(self)
+            cycle = ShortSubmissionCycle(self)
         elif self.refereeing_cycle == CYCLE_DIRECT_REC:
-            self.cycle = DirectRecommendationSubmissionCycle(self)
+            cycle = DirectRecommendationSubmissionCycle(self)
         else:
-            self.cycle = GeneralSubmissionCycle(self)
+            cycle = GeneralSubmissionCycle(self)
+        self.__cycle = cycle
 
     def get_absolute_url(self):
-        return reverse('submissions:submission', args=[self.arxiv_identifier_w_vn_nr])
+        """Return url of the Submission detail page."""
+        return reverse('submissions:submission', args=(self.arxiv_identifier_w_vn_nr,))
 
     @property
     def notification_name(self):
+        """Return string representation of this Submission as shown in Notifications."""
         return self.arxiv_identifier_w_vn_nr
 
     @property
     def eic_recommendation_required(self):
+        """Return if Submission needs a EICRecommendation to be formulated."""
         return self.status in SUBMISSION_EIC_RECOMMENDATION_REQUIRED
 
     @property
     def reporting_deadline_has_passed(self):
+        """Check if Submission has passed it's reporting deadline."""
         return timezone.now() > self.reporting_deadline
 
     @property
     def original_submission_date(self):
+        """Return the submission_date of the first Submission in the thread."""
         return Submission.objects.filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).first().submission_date
 
     @cached_property
     def thread(self):
-        """
-        Return all versions of the Submission with that arxiv id.
-        """
+        """Return all (public) Submissions in the database in this ArXiv identifier series."""
+        return Submission.objects.public().filter(
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).order_by('-arxiv_vn_nr')
+
+    @cached_property
+    def other_versions_public(self):
+        """Return other (public) Submissions in the database in this ArXiv identifier series."""
         return Submission.objects.public().filter(
             arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
-        ).order_by('-arxiv_vn_nr')
+        ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
 
     @cached_property
     def other_versions(self):
-        """
-        Return all other versions of the Submission that are publicly accessible.
-        """
-        return Submission.objects.public().filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
-        ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
-
-    @cached_property
-    def other_versions_pool(self):
-        """
-        Return all other versions of the Submission.
-        """
+        """Return other Submissions in the database in this ArXiv identifier series."""
         return Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
-        ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(
+            pk=self.id).order_by('-arxiv_vn_nr')
 
-    # Underneath: All very inefficient methods as they initiate a new query
     def count_accepted_invitations(self):
+        """Count number of accepted RefereeInvitations for this Submission."""
         return self.referee_invitations.filter(accepted=True).count()
 
     def count_declined_invitations(self):
+        """Count number of declined RefereeInvitations for this Submission."""
         return self.referee_invitations.filter(accepted=False).count()
 
     def count_pending_invitations(self):
+        """Count number of RefereeInvitations awaiting response for this Submission."""
         return self.referee_invitations.filter(accepted=None).count()
 
     def count_invited_reports(self):
+        """Count number of invited Reports for this Submission."""
         return self.reports.accepted().filter(invited=True).count()
 
     def count_contrib_reports(self):
+        """Count number of contributed Reports for this Submission."""
         return self.reports.accepted().filter(invited=False).count()
 
     def count_obtained_reports(self):
+        """Count total number of Reports for this Submission."""
         return self.reports.accepted().filter(invited__isnull=False).count()
 
     def add_general_event(self, message):
+        """Generate message meant for EIC and authors."""
         event = SubmissionEvent(
             submission=self,
             event=EVENT_GENERAL,
@@ -248,6 +259,7 @@ class Submission(models.Model):
         event.save()
 
     def add_event_for_author(self, message):
+        """Generate message meant for authors only."""
         event = SubmissionEvent(
             submission=self,
             event=EVENT_FOR_AUTHOR,
@@ -256,6 +268,7 @@ class Submission(models.Model):
         event.save()
 
     def add_event_for_eic(self, message):
+        """Generate message meant for EIC and Editorial Administration only."""
         event = SubmissionEvent(
             submission=self,
             event=EVENT_FOR_EIC,
@@ -263,18 +276,44 @@ class Submission(models.Model):
         )
         event.save()
 
+    """
+    Identify coauthorships from arXiv, using author surname matching.
+    """
+    def flag_coauthorships_arxiv(self, fellows):
+        coauthorships = {}
+        if self.metadata and 'entries' in self.metadata:
+            author_last_names = []
+            for author in self.metadata['entries'][0]['authors']:
+                # Gather author data to do conflict-of-interest queries with
+                author_last_names.append(author['name'].split()[-1])
+            authors_last_names_str = '+OR+'.join(author_last_names)
+
+            for fellow in fellows:
+                # For each fellow found, so a query with the authors to check for conflicts
+                search_query = 'au:({fellow}+AND+({authors}))'.format(
+                    fellow=fellow.contributor.user.last_name,
+                    authors=authors_last_names_str)
+                queryurl = 'https://export.arxiv.org/api/query?search_query={sq}'.format(
+                    sq=search_query)
+                queryurl += '&sortBy=submittedDate&sortOrder=descending&max_results=5'
+                queryurl = queryurl.replace(' ', '+')  # Fallback for some last names with spaces
+                queryresults = feedparser.parse(queryurl)
+                if queryresults.entries:
+                    coauthorships[fellow.contributor.user.last_name] = queryresults.entries
+        return coauthorships
+
 
 class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
-    """
-    The SubmissionEvent's goal is to act as a messaging/logging model
-    for the Submission cycle. Its main audience will be the author(s) and
-    the Editor-in-charge of a Submission.
+    """Private message directly related to a Submission.
 
-    Be aware!
-    Both the author and editor-in-charge will read the submission event.
-    Make sure the right text is given to the right event-type, to protect
+    The SubmissionEvent's goal is to act as a messaging model for the Submission cycle.
+    Its main audience will be the author(s) and the Editor-in-charge of a Submission.
+
+    Be aware that both the author and editor-in-charge will read the submission event.
+    Make sure the right text is given to the appropriate event-type, to protect
     the fellow's identity.
     """
+
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='events')
     event = models.CharField(max_length=4, choices=EVENT_TYPES, default=EVENT_GENERAL)
@@ -286,6 +325,7 @@ class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
         ordering = ['-created']
 
     def __str__(self):
+        """Summerize the SubmissionEvent's meta information."""
         return '%s: %s' % (str(self.submission), self.get_event_display())
 
 
@@ -294,11 +334,13 @@ class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
 ######################
 
 class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
+    """Unique Fellow assignment to a Submission as Editor-in-Charge.
+
+    An EditorialAssignment could be an invitation to be the Editor-in-Charge for a Submission,
+    containing either its acceptance or rejection, or it is an immediate accepted assignment. In
+    addition is registers whether the Fellow's duties are fullfilled or still ongoing.
     """
-    EditorialAssignment is a registration for Fellows of their duties of being a
-    Editor-in-charge for a specific Submission. This model could start as a invitation only,
-    which should then be accepted or declined by the invited.
-    """
+
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
     to = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
@@ -318,29 +360,40 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
         ordering = ['-date_created']
 
     def __str__(self):
+        """Summerize the EditorialAssignment's basic information."""
         return (self.to.user.first_name + ' ' + self.to.user.last_name + ' to become EIC of ' +
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', requested on ' + self.date_created.strftime('%Y-%m-%d'))
 
     def get_absolute_url(self):
+        """Return url of the assignment's processing page."""
         return reverse('submissions:assignment_request', args=(self.id,))
 
     @property
     def notification_name(self):
+        """Return string representation of this EditorialAssigment as shown in Notifications."""
         return self.submission.arxiv_identifier_w_vn_nr
 
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
+    """Invitation to a scientist to referee a Submission.
+
+    A RefereeInvitation will invite a Contributor or a non-registered scientist to send
+    a Report for a specific Submission. It will register its response to the invitation and
+    the current status its refereeing duty if the invitation has been accepted.
+    """
+
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='referee_invitations')
     referee = models.ForeignKey('scipost.Contributor', related_name='referee_invitations',
                                 blank=True, null=True, on_delete=models.CASCADE)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    first_name = models.CharField(max_length=30, default='')
-    last_name = models.CharField(max_length=30, default='')
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
     email_address = models.EmailField()
+
     # if Contributor not found, person is invited to register
-    invitation_key = models.CharField(max_length=40, default='')
+    invitation_key = models.CharField(max_length=40)
     date_invited = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey('scipost.Contributor', related_name='referee_invited_by',
                                    blank=True, null=True, on_delete=models.CASCADE)
@@ -356,28 +409,34 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     objects = RefereeInvitationQuerySet.as_manager()
 
     def __str__(self):
+        """Summerize the RefereeInvitation's basic information."""
         return (self.first_name + ' ' + self.last_name + ' to referee ' +
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))
 
     def get_absolute_url(self):
+        """Return url of the invitation's processing page."""
         return reverse('submissions:accept_or_decline_ref_invitations', args=(self.id,))
 
     @property
     def referee_str(self):
+        """Return the most up-to-date name of the Referee."""
         if self.referee:
             return str(self.referee)
         return self.last_name + ', ' + self.first_name
 
     @property
     def notification_name(self):
+        """Return string representation of this RefereeInvitation as shown in Notifications."""
         return self.submission.arxiv_identifier_w_vn_nr
 
     @property
     def related_report(self):
+        """Return the Report that's been created for this invitation."""
         return self.submission.reports.filter(author=self.referee).first()
 
     def reset_content(self):
+        """Reset the invitation's information as a new invitation."""
         self.nr_reminders = 0
         self.date_last_reminded = None
         self.accepted = None
@@ -391,17 +450,14 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
 ###########
 
 class Report(SubmissionRelatedObjectMixin, models.Model):
-    """
-    Both types of reports, invited or contributed.
+    """Report on a Submission written by a Contributor.
 
-    This Report model acts as both a regular `Report` and a `FollowupReport`; A normal Report
-    should have all fields required, whereas a FollowupReport only has the `report` field as
-    a required field.
-
-    Important note!
-    Due to the construction of the two different types within a single model, it is important
-    to explicitly implement the perticular differences in for example the form used.
+    The refereeing Report has evaluation (text) fields for different categories. In general,
+    the Report shall have all of these fields filled. In case the Contributor has already written
+    a Report on a earlier version of the Submission, he will be able to write a 'follow-up report'.
+    A follow-up report is a Report with only the general `report` evaluation field being required.
     """
+
     status = models.CharField(max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED)
     report_type = models.CharField(max_length=32, choices=REPORT_TYPES, default=REPORT_NORMAL)
     submission = models.ForeignKey('submissions.Submission', related_name='reports',
@@ -467,71 +523,74 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         ordering = ['-date_submitted']
 
     def __str__(self):
+        """Summerize the RefereeInvitation's basic information."""
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
 
+    def save(self, *args, **kwargs):
+        """Update report number before saving on creation."""
+        if not self.report_nr:
+            new_report_nr = self.submission.reports.aggregate(
+                models.Max('report_nr')).get('report_nr__max')
+            if new_report_nr:
+                new_report_nr += 1
+            else:
+                new_report_nr = 1
+            self.report_nr = new_report_nr
+        return super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        """Return url of the Report on the Submission detail page."""
+        return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
+
     @property
     def is_in_draft(self):
+        """Return if Report is in draft."""
         return self.status == STATUS_DRAFT
 
     @property
     def is_vetted(self):
+        """Return if Report is publicly available."""
         return self.status == STATUS_VETTED
-
-    def save(self, *args, **kwargs):
-        # Control Report count per Submission.
-        if not self.report_nr:
-            self.report_nr = self.submission.reports.count() + 1
-        return super().save(*args, **kwargs)
-
-    def create_doi_label(self):
-        self.doi_label = 'SciPost.Report.' + str(self.id)
-        self.save()
-
-    def get_absolute_url(self):
-        return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
 
     @property
     def notification_name(self):
+        """Return string representation of this Report as shown in Notifications."""
         return self.submission.arxiv_identifier_w_vn_nr
 
     @property
     def doi_string(self):
+        """Return the doi with the registrant identifier prefix."""
         if self.doi_label:
             return '10.21468/' + self.doi_label
         return ''
 
     @cached_property
     def title(self):
-        """
+        """Return the submission's title.
+
         This property is (mainly) used to let Comments get the title of the Submission without
-        annoying logic.
+        overcomplicated logic.
         """
         return self.submission.title
 
     @property
     def is_followup_report(self):
-        """
-        Check if current Report is a `FollowupReport`. A Report is a `FollowupReport` if the
-        author of the report already has a vetted report in the series of the specific Submission.
+        """Return if Report is a follow-up Report instead of a regular Report.
+
+        This property is used in the ReportForm, but will be candidate to become a database
+        field if this information will become necessary in more general information representation.
         """
         return (self.author.reports.accepted().filter(
             submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr,
             submission__arxiv_vn_nr__lt=self.submission.arxiv_vn_nr).exists())
 
-    def latest_report_from_series(self):
-        """
-        Get latest Report from the same author for the Submission series.
-        """
-        return (self.author.reports.accepted().filter(
-            submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
-                .order_by('submission__arxiv_identifier_wo_vn_nr').last())
-
     @property
     def associated_published_doi(self):
-        """
-        Check if the Report relates to a SciPost-published object.
-        If it is, return the doi of the published object.
+        """Return the related Publication doi.
+
+        Check if the Report relates to a SciPost-published object. If it is, return the doi
+        of the published object.
         """
         try:
             publication = Publication.objects.get(
@@ -542,10 +601,10 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     @property
     def relation_to_published(self):
-        """
-        Check if the Report relates to a SciPost-published object.
-        If it is, return a dict with info on relation to the published object,
-        based on Crossref's peer review content type.
+        """Return dictionary with published object information.
+
+        Check if the Report relates to a SciPost-published object. If it is, return a dict with
+        info on relation to the published object, based on Crossref's peer review content type.
         """
         try:
             publication = Publication.objects.get(
@@ -564,6 +623,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     @property
     def citation(self):
+        """Return the proper citation format for this Report."""
         citation = ''
         if self.doi_string:
             if self.anonymous:
@@ -575,16 +635,24 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             citation += 'doi: %s' % self.doi_string
         return citation
 
+    def create_doi_label(self):
+        """Create a doi in the default format."""
+        Report.objects.filter(id=self.id).update(doi_label='SciPost.Report.{}'.format(self.id))
+
+    def latest_report_from_thread(self):
+        """Get latest Report of this Report's author for the Submission thread."""
+        return self.author.reports.accepted().filter(
+            submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr
+        ).order_by('submission__arxiv_identifier_wo_vn_nr').last()
+
 
 ##########################
 # EditorialCommunication #
 ##########################
 
 class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
-    """
-    Each individual communication between Editor-in-charge
-    to and from Referees and Authors becomes an instance of this class.
-    """
+    """Message between two of the EIC, referees, Editorial Administration and/or authors."""
+
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
     referee = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                 blank=True, null=True)
@@ -599,20 +667,24 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
         default_related_name = 'editorial_communications'
 
     def __str__(self):
+        """Summerize the EditorialCommunication's meta information."""
         output = self.comtype
         if self.referee is not None:
             output += ' ' + self.referee.user.first_name + ' ' + self.referee.user.last_name
-        output += (' for submission ' + self.submission.title[:30] + ' by '
-                   + self.submission.author_list[:30])
+        output += ' for submission {title} by {authors}'.format(
+            title=self.submission.title[:30],
+            authors=self.submission.author_list[:30])
         return output
 
 
 class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
+    """The recommendation formulated for a specific Submission, formulated by the EIC.
+
+    The EICRecommendation is the recommendation of a Submission written by the Editor-in-charge
+    formulated at the end of the refereeing cycle. It can be voted for by a subset of Fellows and
+    should contain the actual publication decision.
     """
-    The EICRecommendation is the recommendation of a Submission written by
-    the Editor-in-charge made at the end of the refereeing cycle. It can be voted for by
-    a subset of Fellows and should contain the actual publication decision.
-    """
+
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='eicrecommendations')
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
@@ -642,6 +714,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         ordering = ['version']
 
     def __str__(self):
+        """Summerize the EICRecommendation's meta information."""
         return '{title} by {author}, {recommendation} version {version}'.format(
             title=self.submission.title[:20],
             author=self.submission.author_list[:30],
@@ -650,26 +723,35 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         )
 
     def get_absolute_url(self):
-        # TODO: Fix this weird redirect, but it's neccesary for the notifications to have one.
+        """Return url of the Submission detail page.
+
+        Note that the EICRecommendation is not publicly visible, so the use of this url
+        is limited.
+        """
         return self.submission.get_absolute_url()
 
     @property
     def notification_name(self):
+        """Return string representation of this EICRecommendation as shown in Notifications."""
         return self.submission.arxiv_identifier_w_vn_nr
 
     @property
     def nr_for(self):
+        """Return the number of votes 'for'."""
         return self.voted_for.count()
 
     @property
     def nr_against(self):
+        """Return the number of votes 'against'."""
         return self.voted_against.count()
 
     @property
     def nr_abstained(self):
+        """Return the number of votes 'abstained'."""
         return self.voted_abstain.count()
 
     def may_be_reformulated(self):
+        """Check if this EICRecommdation is allowed to be reformulated in a new version."""
         if not self.active:
             # Already reformulated before; please use the latest version
             return False
@@ -677,10 +759,12 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
 
 
 class iThenticateReport(TimeStampedModel):
+    """iThenticate report registration.
+
+    iThenticateReport is the SciPost register of an iThenticate report saving basic information
+    coming from iThenticate into the SciPost database for easy access.
     """
-    iThenticateReport is the SciPost register of an iThenticate report. It saves
-    basic information coming from iThenticate into the SciPost database for easy access.
-    """
+
     uploaded_time = models.DateTimeField(null=True, blank=True)
     processed_time = models.DateTimeField(null=True, blank=True)
     doc_id = models.IntegerField(primary_key=True)
@@ -691,16 +775,31 @@ class iThenticateReport(TimeStampedModel):
         verbose_name = 'iThenticate Report'
         verbose_name_plural = 'iThenticate Reports'
 
-    def get_absolute_url(self):
+    def __str__(self):
+        """Summerize the iThenticateReport's meta information."""
+        _str = 'Report {doc_id}'.format(doc_id=self.doc_id)
         if hasattr(self, 'to_submission'):
-            return reverse('submissions:plagiarism', kwargs={
-                            'arxiv_identifier_w_vn_nr':
-                            self.to_submission.arxiv_identifier_w_vn_nr})
-        return None
+            _str += ' on Submission {arxiv}'.format(
+                arxiv=self.to_submission.arxiv_identifier_w_vn_nr)
+        return _str
+
+    def save(self, *args, **kwargs):
+        """Update the Submission's latest update timestamp on update."""
+        obj = super().save(*args, **kwargs)
+        if hasattr(self, 'to_submission') and kwargs.get('commit', True):
+            self.to_submission.touch()
+        return obj
+
+    def get_absolute_url(self):
+        """Return url of the plagiarism detail page."""
+        if hasattr(self, 'to_submission'):
+            return reverse(
+                'submissions:plagiarism',
+                kwargs={'arxiv_identifier_w_vn_nr': self.to_submission.arxiv_identifier_w_vn_nr})
+        return ''
 
     def get_report_url(self):
-        """
-        Request new read-only url from iThenticate and return.
+        """Request and return new read-only url from the iThenticate API.
 
         Note: The read-only link is valid for only 15 minutes, saving may be worthless
         """
@@ -711,19 +810,7 @@ class iThenticateReport(TimeStampedModel):
         plagiarism = iThenticate()
         return plagiarism.get_url(self.part_id)
 
-    def __str__(self):
-        _str = 'Report {doc_id}'.format(doc_id=self.doc_id)
-        if hasattr(self, 'to_submission'):
-            _str += ' on Submission {arxiv}'.format(
-                        arxiv=self.to_submission.arxiv_identifier_w_vn_nr)
-        return _str
-
-    def save(self, *args, **kwargs):
-        obj = super().save(*args, **kwargs)
-        if hasattr(self, 'to_submission') and kwargs.get('commit', True):
-            self.to_submission.touch()
-        return obj
-
     @property
     def score(self):
+        """Return the iThenticate score returned by their API as saved in the database."""
         return self.percent_match

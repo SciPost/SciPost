@@ -67,7 +67,7 @@
       <form class="d-block mt-2 mb-3" action="{% url 'partners:add_prospartner_event' prospartner_id=pp.id %}" method="post">
         {% csrf_token %}
         {{ ppevent_form|bootstrap }}
-        <input type="submit" name="submit" value="Submit" class="btn btn-secondary">
+        <input type="submit" name="submit" value="Submit" class="btn btn-outline-secondary">
       </form>
 
       <h3>Partner status</h3>

@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import mimetypes
 
 from django.contrib import messages
@@ -25,7 +29,7 @@ from .forms import ProductionEventForm, AssignOfficerForm, UserToOfficerForm,\
                    AssignInvitationsOfficerForm
 from .permissions import is_production_user
 from .signals import notify_stream_status_change,  notify_new_stream_assignment
-from .utils import proofs_slug_to_id
+from .utils import proofs_slug_to_id, ProductionUtils
 
 
 ######################
@@ -248,6 +252,11 @@ def add_officer(request, stream_id):
             noted_to=officer,
             noted_by=request.user.production_user)
         event.save()
+
+        # Temp fix.
+        # TODO: Implement proper email
+        ProductionUtils.load({'stream': stream})
+        ProductionUtils.email_assigned_production_officer()
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
@@ -278,6 +287,11 @@ def add_invitations_officer(request, stream_id):
             noted_to=officer,
             noted_by=request.user.production_user)
         event.save()
+
+        # Temp fix.
+        # TODO: Implement proper email
+        ProductionUtils.load({'stream': stream})
+        ProductionUtils.email_assigned_invitation_officer()
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
@@ -349,6 +363,11 @@ def add_supervisor(request, stream_id):
 
         assign_perm('can_work_for_stream', supervisor.user, stream)
         assign_perm('can_perform_supervisory_actions', supervisor.user, stream)
+
+        # Temp fix.
+        # TODO: Implement proper email
+        ProductionUtils.load({'stream': stream})
+        ProductionUtils.email_assigned_supervisor()
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])

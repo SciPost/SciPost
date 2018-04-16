@@ -10,8 +10,12 @@
               <li class="nav-item{% if request.path == '/' %} active{% endif %}">
                 <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
               </li>
-              <li class="nav-item{% if '/journals/' in request.path %} active{% endif %}">
+
+              <li class="nav-item{% if '/journals/' == request.path %} active{% endif %}">
                 <a href="{% url 'journals:journals' %}" class="nav-link">Journals</a>
+              </li>
+              <li class="nav-item{% if '/journals/publications' in request.path %} active{% endif %}">
+                <a href="{% url 'journals:publications' %}" class="nav-link">Publications</a>
               </li>
               <li class="nav-item{% if '/submissions/' in request.path %} active{% endif %}">
                 <a class="nav-link" href="{% url 'submissions:submissions' %}">Submissions</a>
@@ -69,10 +73,6 @@
                     <a class="nav-link" href="{% url 'scipost:login' %}">Login</a>
                   </li>
               {% endif %}
-
-              <li class="nav-item search-item">
-                <a class="nav-link" href="{% url 'scipost:search' %}">Search</a>
-              </li>
 
             </ul>
             <form action="{% url 'scipost:search' %}" method="get" class="form-inline search-nav-form">

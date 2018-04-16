@@ -1,29 +1,41 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
+import random
 import factory
-import pytz
 
-from django.utils import timezone
-
-from commentaries.factories import VettedCommentaryFactory
+from commentaries.models import Commentary
 from scipost.models import Contributor
-from submissions.factories import EICassignedSubmissionFactory
-from theses.factories import VettedThesisLinkFactory
+from submissions.models import Submission, Report
+from theses.models import ThesisLink
 
 from .constants import STATUS_VETTED
 from .models import Comment
 
 from faker import Faker
 
-timezone.now()
-
 
 class CommentFactory(factory.django.DjangoModelFactory):
-    author = factory.Iterator(Contributor.objects.all())
-    comment_text = factory.lazy_attribute(lambda x: Faker().paragraph())
-    remarks_for_editors = factory.lazy_attribute(lambda x: Faker().paragraph())
-    file_attachment = Faker().file_name(extension='pdf')
-    status = STATUS_VETTED  # All comments will have status vetted!
+    status = STATUS_VETTED
     vetted_by = factory.Iterator(Contributor.objects.all())
-    date_submitted = Faker().date_time_between(start_date="-3y", end_date="now", tzinfo=pytz.UTC)
+
+    author = factory.Iterator(Contributor.objects.all())
+    comment_text = factory.Faker('paragraph')
+    remarks_for_editors = factory.Faker('paragraph')
+    file_attachment = Faker().file_name(extension='pdf')
+    date_submitted = factory.Faker('date_this_decade')
+
+    # Categories
+    is_cor = factory.Faker('boolean', chance_of_getting_true=20)
+    is_rem = factory.Faker('boolean', chance_of_getting_true=20)
+    is_que = factory.Faker('boolean', chance_of_getting_true=20)
+    is_ans = factory.Faker('boolean', chance_of_getting_true=20)
+    is_obj = factory.Faker('boolean', chance_of_getting_true=20)
+    is_rep = factory.Faker('boolean', chance_of_getting_true=20)
+    is_val = factory.Faker('boolean', chance_of_getting_true=20)
+    is_lit = factory.Faker('boolean', chance_of_getting_true=20)
+    is_sug = factory.Faker('boolean', chance_of_getting_true=20)
 
     class Meta:
         model = Comment
@@ -31,16 +43,27 @@ class CommentFactory(factory.django.DjangoModelFactory):
 
 
 class CommentaryCommentFactory(CommentFactory):
-    content_object = factory.SubFactory(VettedCommentaryFactory)
+    content_object = factory.Iterator(Commentary.objects.all())
 
 
 class SubmissionCommentFactory(CommentFactory):
-    content_object = factory.SubFactory(EICassignedSubmissionFactory)
+    content_object = factory.Iterator(Submission.objects.all())
 
-
-class ThesislinkCommentFactory(CommentFactory):
-    content_object = factory.SubFactory(VettedThesisLinkFactory)
+    @factory.post_generation
+    def replies(self, create, extracted, **kwargs):
+        if create:
+            for i in range(random.randint(0, 2)):
+                ReplyCommentFactory(content_object=self)
 
 
 class ReplyCommentFactory(CommentFactory):
-    content_object = factory.SubFactory(SubmissionCommentFactory)
+    content_object = factory.SubFactory(SubmissionCommentFactory, replies=False)
+    is_author_reply = factory.Faker('boolean')
+
+
+class ThesislinkCommentFactory(CommentFactory):
+    content_object = factory.Iterator(ThesisLink.objects.all())
+
+
+class ReportCommentFactory(CommentFactory):
+    content_object = factory.Iterator(Report.objects.all())

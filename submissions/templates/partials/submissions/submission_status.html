@@ -1,0 +1,15 @@
+<div class="submission status">
+    <h6 class="prefix">Current status:</h6>
+    <div class="status">
+        <span class="label label-secondary">{{submission.get_status_display}}</span>
+        {% if submission.publication and submission.publication.is_published %}
+            as <a href="{{submission.publication.get_absolute_url}}">
+                {% if submission.publication.in_issue %}
+                    {{submission.publication.in_issue.in_volume.in_journal.abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}}
+                {% else %}
+                    {{submission.publication.in_journal.abbreviation_citation}}, {{submission.publication.paper_nr}}
+                {% endif %}
+                ({{submission.publication.publication_date|date:'Y'}})</a>
+        {% endif %}
+    </div>
+</div>

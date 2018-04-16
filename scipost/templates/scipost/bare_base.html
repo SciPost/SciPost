@@ -8,6 +8,9 @@
 
     <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,700" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'fa/css/font-awesome.min.css' %}" />
+    <script async src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script async src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
     {% render_bundle 'main' 'css' %}
 
@@ -17,11 +20,7 @@
 
     <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
 
-    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-
-    <script src="https://use.fontawesome.com/1f60a2fe64.js"></script><!-- Temporary -->
 
     {% block headsup %}
     {% endblock headsup %}
@@ -39,11 +38,12 @@
     {% block base %}{% endblock base %}
 
     <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-      tex2jax: {
-      inlineMath: [['$','$'], ['\\(','\\)']],
-      processEscapes: true
-      }});
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                processEscapes: true
+            }
+        });
     </script>
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 

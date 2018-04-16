@@ -1,0 +1,42 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: decline refereeing invitation{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<script>
+$(document).ready(function(){
+
+  $('[name="accept"]').on('change', function() {
+      if($('[name="accept"]:checked').val() == 'False') {
+          $('#id_refusal_reason').parents('.form-group').show();
+      }
+      else {
+          $('#id_refusal_reason').parents('.form-group').hide();
+      }
+    }).trigger('change');
+  });
+</script>
+
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">SciPost Submission which you have been asked to Referee:</h1>
+    <h3><a href="{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a></h3>
+    <p>{{ invitation.submission.author_list }}</p>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">You are choosing to decline this Refereeing Invitation</h3>
+    <form action="{% url 'submissions:decline_ref_invitation' invitation_key=invitation.invitation_key %}" method="post">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+      <input type="submit" class="btn btn-outline-secondary" value="Submit" />
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

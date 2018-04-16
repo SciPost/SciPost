@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django import template
 
 from ..models import Comment
@@ -20,7 +24,7 @@ class CommentTemplateNode(template.Node):
     def render(self, context):
         content_object = self.content_object.resolve(context)
         if isinstance(content_object, Submission):
-            t = context.template.engine.get_template('submissions/_submission_summary_short.html')
+            t = context.template.engine.get_template('partials/submissions/submission_summary.html')
             return t.render(template.Context({'submission': content_object}))
         elif isinstance(content_object, Commentary):
             t = context.template.engine.get_template('commentaries/_commentary_summary.html')

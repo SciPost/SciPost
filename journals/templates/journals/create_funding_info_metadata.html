@@ -7,9 +7,8 @@
         <div class="container">
             <nav class="breadcrumb hidden-sm-down">
                 <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-                <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
-                <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
-                <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+                <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="breadcrumb-item">{{ publication.citation }}</a>
                 <span class="breadcrumb-item active">Create funding info metadata</span>
             </nav>
         </div>
@@ -22,32 +21,22 @@
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Create funding info metadata page</h1>
-    </div>
-</div>
+        <h1 class="highlight">Create funding info metadata page for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
+        <p>
+            The following field is prefilled with the current funding info of the Publication object. Once you submit, it will overwrite the current funding info, shown below.
+        </p>
+        <br>
 
-
-<div class="row">
-    <div class="col-12">
-
-      {% if errormessage %}
-        <h2 class="text-danger">{{ errormessage }}</h2>
-      {% endif %}
-
-      <form action="{% url 'journals:create_funding_info_metadata' publication.doi_label %}" method="post">
+      <form method="post">
         {% csrf_token %}
-        {{ funding_info_form|bootstrap }}
-        <input type="submit" class="btn btn-secondary" value="Submit">
+        {{ form|bootstrap }}
+        <input type="submit" class="btn btn-primary" value="Submit">
+        <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="ml-3 btn btn-link">Back to Admin for {{ publication.doi_label }}</a>
       </form>
 
-     <hr>
-        <h3 class="mt-3">Current funding info metadata:</h3>
-        <p>{{funding_statement|linebreaks}}</p>
-
-      <hr>
-
-      <h3>Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></h3>
-
+     <hr class="divider">
+        <h3>Current funding info metadata:</h3>
+        <p class="mb-0">{{ publication.metadata.funding_statement|linebreaksbr }}</p>
     </div>
 </div>
 

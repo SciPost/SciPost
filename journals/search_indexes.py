@@ -1,4 +1,6 @@
-# import datetime
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
 
 from haystack import indexes
 
@@ -11,6 +13,10 @@ class PublicationIndex(indexes.SearchIndex, indexes.Indexable):
     date = indexes.DateTimeField(model_attr='publication_date')
     abstract = indexes.CharField(model_attr='abstract')
     doi_label = indexes.CharField(model_attr='doi_label')
+    institutions = indexes.MultiValueField()
+
+    def prepare_institutions(self, obj):
+        return [inst.name for inst in obj.institutions.all()]
 
     def get_model(self):
         return Publication

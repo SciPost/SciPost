@@ -5,7 +5,11 @@
     </div>
 
     <p>"{{comment.comment_text|linebreaksbr}}"</p>
-    <p class="card-text">by <a href="{{comment.author.get_absolute_url}}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a> in {{comment.content_type|capfirst}} on <a href="{{comment.content_object.get_absolute_url}}" class="pubtitleli">{{comment.title}}</a> {% if comment.content_object.author_list %} <span class="text-muted">by {{comment.content_object.author_list}}</span>{% endif %}</p>
+    {% if comment.anonymous %}
+        <p class="card-text">by Anonymous in {{comment.content_type|capfirst}} on <a href="{{comment.content_object.get_absolute_url}}" class="pubtitleli">{{comment.title}}</a> {% if comment.content_object.author_list %} <span class="text-muted">by {{comment.content_object.author_list}}</span>{% endif %}</p>
+    {% else %}
+        <p class="card-text">by <a href="{{comment.author.get_absolute_url}}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a> in {{comment.content_type|capfirst}} on <a href="{{comment.content_object.get_absolute_url}}" class="pubtitleli">{{comment.title}}</a> {% if comment.content_object.author_list %} <span class="text-muted">by {{comment.content_object.author_list}}</span>{% endif %}</p>
+    {% endif %}
 
     {% comment %}
         Using 'by xxx' on non-submission comments here would be ambigious. Does the `by xxx` apply to the

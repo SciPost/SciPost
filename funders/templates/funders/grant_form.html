@@ -1,0 +1,25 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Create new Grant{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+        <h1 class="highlight">Create new Grant</h1>
+  </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <form method="post">
+          {% csrf_token %}
+          {{ form|bootstrap }}
+          <input class="btn btn-primary" type="submit" value="Submit">
+        </form>
+	</div>
+</div>
+
+{% endblock content %}

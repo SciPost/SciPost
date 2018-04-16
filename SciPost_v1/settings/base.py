@@ -89,6 +89,7 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'finances',
+    'invitations',
     'journals',
     'mails',
     'mailing_lists',
@@ -105,7 +106,7 @@ INSTALLED_APPS = (
     'stats',
     'petitions',
     'webpack_loader',
-    'metacore'
+    'metacore',
 )
 
 
@@ -125,7 +126,9 @@ HAYSTACK_SIGNAL_PROCESSOR = 'SciPost_v1.signalprocessors.AutoSearchIndexingProce
 
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
 SPHINXDOC_PROTECTED_PROJECTS = {
-    'scipost': ['scipost.can_view_docs_scipost'],
+    'admin': ['scipost.can_view_docs_scipost'],
+    'codebase': ['scipost.can_view_docs_scipost'],
+    'users': ['scipost.can_view_docs_scipost'],
 }
 
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
@@ -138,9 +141,9 @@ SHELL_PLUS_POST_IMPORTS = (
     ('submissions.factories', ('SubmissionFactory', 'EICassignedSubmissionFactory')),
     ('commentaries.factories',
         ('EmptyCommentaryFactory',
-         'VettedCommentaryFactory',
+         'CommentaryFactory',
          'UnvettedCommentaryFactory',
-         'UnpublishedVettedCommentaryFactory',)),
+         'UnpublishedCommentaryFactory',)),
     ('scipost.factories', ('ContributorFactory')),
 )
 
@@ -153,6 +156,7 @@ MATHJAX_CONFIG_DATA = {
     }
 
 MIDDLEWARE = (
+    # 'django.middleware.http.ConditionalGetMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -161,7 +165,7 @@ MIDDLEWARE = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware'
+    'django.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'SciPost_v1.urls'
@@ -206,7 +210,7 @@ DATABASES = {
         'USER': get_secret("DB_USER"),
         'PASSWORD': get_secret("DB_PWD"),
         'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'PORT': '5432'
     }
 }
 MONGO_DATABASE = {
@@ -266,7 +270,7 @@ WEBPACK_LOADER = {
 }
 
 # Email
-EMAIL_BACKEND = 'mails.backends.extendedfilebased.EmailBackend'
+EMAIL_BACKEND = 'mails.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = 'local_files/email/'
 EMAIL_SUBJECT_PREFIX = '[SciPost Server] '
 MAILCHIMP_DATABASE_CODE = 'us6'

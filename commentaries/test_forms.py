@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import re
 
 from django.test import TestCase
@@ -5,8 +9,8 @@ from django.test import TestCase
 from common.helpers import model_form_data
 from scipost.factories import UserFactory, ContributorFactory
 
-from .factories import VettedCommentaryFactory, UnvettedCommentaryFactory,\
-                       UnvettedArxivPreprintCommentaryFactory
+from .factories import CommentaryFactory, UnvettedCommentaryFactory,\
+                       UnvettedUnpublishedCommentaryFactory
 from .forms import RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm,\
                    ArxivQueryForm, RequestArxivPreprintForm
 from .models import Commentary
@@ -189,7 +193,7 @@ class TestRequestArxivPreprintForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
-        factory_instance = UnvettedArxivPreprintCommentaryFactory.build()
+        factory_instance = UnvettedUnpublishedCommentaryFactory.build()
         self.user = UserFactory()
         self.valid_form_data = model_form_data(factory_instance, RequestPublishedArticleForm)
         self.valid_form_data['arxiv_identifier'] = factory_instance.arxiv_identifier
@@ -199,7 +203,7 @@ class TestRequestArxivPreprintForm(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_identifier_that_already_has_commentary_page_is_invalid(self):
-        commentary = UnvettedArxivPreprintCommentaryFactory()
+        commentary = UnvettedUnpublishedCommentaryFactory()
         invalid_data = {**self.valid_form_data, **{'arxiv_identifier': commentary.arxiv_identifier}}
         form = RequestArxivPreprintForm(invalid_data)
         self.assertEqual(form.is_valid(), False)

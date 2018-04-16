@@ -34,7 +34,7 @@
         <form action="{% url 'journals:sign_existing_report' report_id=report.id %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap }}
-            <input class="btn btn-secondary" type="submit" value="Submit" />
+            <input class="btn btn-outline-secondary" type="submit" value="Submit" />
         </form>
     </div>
 </div>
@@ -42,7 +42,7 @@
 <div class="row">
     <div class="col-12">
         <h3>Report on Submission <a href="{{report.submission.get_absolute_url}}">{{report.submission.title}}</a></h3>
-        {% include 'submissions/_single_public_report_without_comments.html' with report=report user=request.user perms=perms %}
+        {% include 'partials/submissions/report_public_without_comments.html' with report=report user=request.user perms=perms %}
     </div>
 </div>
 

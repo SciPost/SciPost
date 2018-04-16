@@ -1,33 +1,42 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import factory
 import random
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
+from common.helpers import generate_orcid
 from submissions.models import Submission
 
 from .models import Contributor, EditorialCollege, EditorialCollegeFellowship, Remark
 from .constants import TITLE_CHOICES, SCIPOST_SUBJECT_AREAS
 
-from django_countries.data import COUNTRIES
-from faker import Faker
-
 
 class ContributorFactory(factory.django.DjangoModelFactory):
-    title = random.choice(list(dict(TITLE_CHOICES).keys()))
+    title = factory.Iterator(TITLE_CHOICES, getter=lambda c: c[0])
     user = factory.SubFactory('scipost.factories.UserFactory', contributor=None)
-    status = 1  # normal user
-    vetted_by = factory.SubFactory('scipost.factories.ContributorFactory', vetted_by=None)
-    personalwebpage = factory.Faker('url')
-    country_of_employment = factory.Iterator(list(COUNTRIES))
-    affiliation = factory.Faker('company')
+    status = 'normal'  # normal user
+    vetted_by = factory.Iterator(Contributor.objects.all())
+    personalwebpage = factory.Faker('uri')
     expertises = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: [c[0]])
-    personalwebpage = factory.Faker('domain_name')
+    orcid_id = factory.lazy_attribute(lambda n: generate_orcid())
     address = factory.Faker('address')
+    invitation_key = factory.Faker('md5')
+    activation_key = factory.Faker('md5')
+    key_expires = factory.Faker('future_datetime')
 
     class Meta:
         model = Contributor
         django_get_or_create = ('user',)
+
+    @factory.post_generation
+    def add_to_vetting_editors(self, create, extracted, **kwargs):
+        if create:
+            from affiliations.factories import AffiliationFactory
+            AffiliationFactory(contributor=self)
 
 
 class VettingEditorFactory(ContributorFactory):
@@ -69,7 +78,7 @@ class EditorialCollegeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = EditorialCollege
-        django_get_or_create = ('discipline', )
+        django_get_or_create = ('discipline',)
 
 
 class EditorialCollegeFellowshipFactory(factory.django.DjangoModelFactory):
@@ -85,7 +94,7 @@ class SubmissionRemarkFactory(factory.django.DjangoModelFactory):
     contributor = factory.Iterator(Contributor.objects.all())
     submission = factory.Iterator(Submission.objects.all())
     date = factory.Faker('date_time_this_decade')
-    remark = factory.lazy_attribute(lambda x: Faker().paragraph())
+    remark = factory.Faker('paragraph')
 
     class Meta:
         model = Remark

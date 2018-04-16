@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.conf.urls import url
 from django.views.generic import TemplateView
 
@@ -7,7 +11,7 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
-from journals.constants import REGEX_CHOICES
+from journals.constants import REGEX_CHOICES, PUBLICATION_DOI_REGEX
 from submissions import views as submission_views
 
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
@@ -83,44 +87,9 @@ urlpatterns = [
     url(r'^registration_requests$', views.registration_requests, name="registration_requests"),
     url(r'^registration_requests/(?P<contributor_id>[0-9]+)/reset$',
         views.registration_requests_reset, name="registration_requests_reset"),
-    url(r'^registration_invitations/(?P<draft_id>[0-9]+)$',
-        views.registration_invitations, name="registration_invitations_from_draft"),
-    url(r'^registration_invitations$',
-        views.registration_invitations, name="registration_invitations"),
-    url(r'^draft_registration_invitation$',
-        views.draft_registration_invitation, name="draft_registration_invitation"),
-    url(r'^contributors_filter$', views.contributors_filter, name="contributors_filter"),
-    url(r'^edit_draft_reg_inv/(?P<draft_id>[0-9]+)$',
-        views.edit_draft_reg_inv, name="edit_draft_reg_inv"),
-    url(r'^map_draft_reg_inv_to_contributor/(?P<draft_id>[0-9]+)/(?P<contributor_id>[0-9]+)$',
-        views.map_draft_reg_inv_to_contributor, name="map_draft_reg_inv_to_contributor"),
-    url(r'^registration_invitations_cleanup$',
-        views.registration_invitations_cleanup,
-        name="registration_invitations_cleanup"),
-    url(r'^remove_registration_invitation/(?P<invitation_id>[0-9]+)$',
-        views.remove_registration_invitation,
-        name="remove_registration_invitation"),
-    url(r'^edit_invitation_personal_message/(?P<invitation_id>[0-9]+)$',
-        views.edit_invitation_personal_message,
-        name="edit_invitation_personal_message"),
-    url(r'^renew_registration_invitation/(?P<invitation_id>[0-9]+)$',
-        views.renew_registration_invitation,
-        name="renew_registration_invitation"),
-    url(r'^mark_reg_inv_as_declined/(?P<invitation_id>[0-9]+)$',
-        views.mark_reg_inv_as_declined,
-        name="mark_reg_inv_as_declined"),
-    url(r'^registration_invitation_sent$',
-        TemplateView.as_view(template_name='scipost/registration_invitation_sent.html'),
-        name='registration_invitation_sent'),
 
-    # Registration invitations
+    # Registration invitations (Never change this route! Thank you.)
     url(r'^invitation/(?P<key>.+)$', views.invitation, name='invitation'),
-    url(r'^mark_draft_inv_as_processed/(?P<draft_id>[0-9]+)$',
-        views.mark_draft_inv_as_processed, name='mark_draft_inv_as_processed'),
-    url(r'^citation_notifications$',
-        views.citation_notifications, name='citation_notifications'),
-    url(r'^process_citation_notification/(?P<cn_id>[0-9]+)$',
-        views.process_citation_notification, name='process_citation_notification'),
 
     # Authentication
     url(r'^login/$', views.login_view, name='login'),
@@ -220,16 +189,16 @@ urlpatterns = [
         name='author_reply_detail'),
 
     # Publication detail (+pdf)
-    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+    url(r'^10.21468/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail,
         name='publication_detail'),
-    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})$',
+    url(r'^(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail,
         name='publication_detail'),
-    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
+    url(r'^10.21468/(?P<doi_label>{regex})/pdf$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail_pdf,
         name='publication_pdf'),
-    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,})/pdf$',
+    url(r'^(?P<doi_label>{regex})/pdf$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail_pdf,
         name='publication_pdf'),
 
@@ -242,6 +211,7 @@ urlpatterns = [
     # Journal landing page
     url(r'^10.21468/%s' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
     url(r'^%s' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
+    url(r'^arxiv_doi_feed/%s' % JOURNAL_REGEX, journals_views.arxiv_doi_feed, name='arxiv_doi_feed'),
 
     ################
     # Howto guides #

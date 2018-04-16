@@ -1,14 +1,17 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import datetime
 
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 from django.utils import timezone
 
-from .constants import NO_REQUIRED_ACTION_STATUSES, STATUS_VETTED, STATUS_UNCLEAR,\
-                       STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
-                       STATUS_REVISION_REQUESTED, STATUS_EIC_ASSIGNED,\
-                       STATUS_RESUBMISSION_INCOMING, STATUS_AWAITING_ED_REC
-from .exceptions import CycleUpdateDeadlineError
+from .constants import (
+    NO_REQUIRED_ACTION_STATUSES, STATUS_VETTED, STATUS_UNCLEAR, STATUS_INCORRECT,
+    STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, STATUS_REVISION_REQUESTED, STATUS_EIC_ASSIGNED,
+    STATUS_RESUBMISSION_INCOMING, STATUS_AWAITING_ED_REC)
 
 from scipost.utils import EMAIL_FOOTER
 from common.utils import BaseMailUtil
@@ -118,13 +121,11 @@ class BaseSubmissionCycle:
         Reset the reporting deadline according to current datetime and default cycle length.
         New reporting deadline may be explicitly given as datetime instance.
         """
-        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
-            raise CycleUpdateDeadlineError('Submission has invalid status: %s'
-                                           % self.submission.status)
         delta_d = period or self.default_days
         deadline = timezone.now() + datetime.timedelta(days=delta_d)
-        self.submission.reporting_deadline = deadline
-        self.submission.save()
+
+        from .models import Submission
+        Submission.objects.filter(id=self.submission.id).update(reporting_deadline=deadline)
 
     def get_required_actions(self):
         '''Return list of the submission its required actions'''
@@ -158,8 +159,8 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
     """
     def update_status(self):
         if self.submission.status == STATUS_RESUBMISSION_INCOMING:
-            self.submission.status = STATUS_EIC_ASSIGNED
-            self.submission.save()
+            from .models import Submission
+            Submission.objects.filter(id=self.submission.id).update(status=STATUS_EIC_ASSIGNED)
 
     def _update_actions(self):
         continue_update = super()._update_actions()
@@ -235,8 +236,8 @@ class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
 
     def update_status(self):
         if self.submission.status == STATUS_RESUBMISSION_INCOMING:
-            self.submission.status = STATUS_AWAITING_ED_REC
-            self.submission.save()
+            from .models import Submission
+            Submission.objects.filter(id=self.submission.id).update(status=STATUS_AWAITING_ED_REC)
 
     def _update_actions(self):
         continue_update = super()._update_actions()
@@ -275,11 +276,8 @@ class SubmissionUtils(BaseMailUtil):
         # Import here due to circular import error
         from .models import EditorialAssignment
 
-        assignments_to_deprecate = (EditorialAssignment.objects
-                                    .filter(submission=cls.submission, accepted=None))
-        for atd in assignments_to_deprecate:
-            atd.deprecated = True
-            atd.save()
+        EditorialAssignment.objects.filter(
+            submission=cls.submission, accepted=None).update(deprecated=True)
 
     @classmethod
     def reinvite_referees_email(cls):
@@ -1375,6 +1373,5 @@ class SubmissionUtils(BaseMailUtil):
         - `fellow`
         """
         cls._send_mail(cls, 'email_fellow_tasklist',
-#                       [cls._context['fellow'].email_address],
-                       ['jscaux@scipost.org'], # temporary, for testing
-                       'Current and upcoming tasks')
+                       [cls._context['fellow'].user.email],
+                       'current assignments, pending tasks')

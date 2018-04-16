@@ -1,13 +1,22 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import requests
 import json
 
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.db import transaction
+from django.utils.decorators import method_decorator
+from django.views.generic.edit import CreateView
 from django.shortcuts import get_object_or_404, render, redirect
 
 from .models import Funder, Grant
 from .forms import FunderRegistrySearchForm, FunderForm, GrantForm
+
+from scipost.mixins import PermissionsMixin
 
 
 @permission_required('scipost.can_view_all_funding_info', raise_exception=True)
@@ -15,7 +24,7 @@ def funders(request):
     funders = Funder.objects.all()
     form = FunderRegistrySearchForm()
     grants = Grant.objects.all()
-    grant_form = GrantForm()
+    grant_form = GrantForm(request=request)
     context = {'form': form, 'funders': funders,
                'grants': grants, 'grant_form': grant_form}
     return render(request, 'funders/funders.html', context)
@@ -53,7 +62,6 @@ def add_funder(request):
     return redirect(reverse('funders:funders'))
 
 
-# @permission_required('scipost.can_view_all_funding_info', raise_exception=True)
 def funder_publications(request, funder_id):
     """
     See details of specific Funder (publicly accessible).
@@ -63,13 +71,24 @@ def funder_publications(request, funder_id):
     return render(request, 'funders/funder_details.html', context)
 
 
-@permission_required('scipost.can_view_all_funding_info', raise_exception=True)
-def add_grant(request):
-    grant_form = GrantForm(request.POST or None)
-    if grant_form.is_valid():
-        grant = grant_form.save()
-        messages.success(request, ('<h3>Grant %s successfully added</h3>') %
-                         str(grant))
-    elif grant_form.has_changed():
-        messages.warning(request, 'The form was invalidly filled (grant already exists?).')
-    return redirect(reverse('funders:funders'))
+class HttpRefererMixin:
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def form_valid(self, form):
+        if form.cleaned_data.get('http_referer'):
+            self.success_url = form.cleaned_data['http_referer']
+        return super().form_valid(form)
+
+
+@method_decorator(transaction.atomic, name='dispatch')
+class CreateGrantView(PermissionsMixin, HttpRefererMixin, CreateView):
+    """
+    Create a Grant in a separate window which may also be used by Production Supervisors.
+    """
+    permission_required = 'scipost.can_create_grants'
+    model = Grant
+    form_class = GrantForm
+    success_url = reverse_lazy('funders:funders')

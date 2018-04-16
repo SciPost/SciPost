@@ -14,7 +14,7 @@
     <form action="{% url 'production:add_event' stream_id=stream.id %}" method="post" class="mb-2">
         {% csrf_token %}
         {{ prodevent_form|bootstrap }}
-        <input type="submit" class="btn btn-secondary" name="submit" value="Submit">
+        <input type="submit" class="btn btn-outline-secondary" name="submit" value="Submit">
     </form>
   {% endif %}
 
@@ -26,7 +26,7 @@
             <form id="log_form" style="display: none;" action="{% url 'production:add_work_log' stream_id=stream.id %}" method="post" class="mb-2">
                 {% csrf_token %}
                 {{ work_log_form|bootstrap }}
-                <input type="submit" class="btn btn-secondary" name="submit" value="Log">
+                <input type="submit" class="btn btn-outline-secondary" name="submit" value="Log">
             </form>
         </li>
     </ul>
@@ -99,10 +99,10 @@
               {% endif %}
 
               {% if perms.scipost.can_publish_accepted_submission %}
-                  {% if not stream.submission.publication %}
-                    <li><a href="{% url 'journals:initiate_publication' %}">Initiate the publication process</a></li>
-                  {% endif %}
                     <li><a href="{% url 'production:mark_as_completed' stream_id=stream.id %}">Mark this stream as completed</a></li>
+              {% endif %}
+              {% if perms.scipost.can_draft_publication and stream.status == 'accepted' %}
+                    <li><a href="{% url 'journals:update_publication' stream.submission.arxiv_identifier_w_vn_nr %}">Draft Publication</a></li>
               {% endif %}
           </ul>
     {% endif %}

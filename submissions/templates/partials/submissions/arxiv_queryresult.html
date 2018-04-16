@@ -1,0 +1,12 @@
+<div class="card-body">
+    <h3 class="card-title">{{ item.title }}</h3>
+    <div class="card-text">
+        <div class="authors mb-2" id="arxiv_authors_{{ id }}" style="display: none;">
+            {% for author in item.authors %}
+                {{ author.name }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        </div>
+        <a href="javascript:;" data-toggle="toggle" data-target="#arxiv_authors_{{ id }}">Toggle authors</a> &middot; <a href="{{ item.link }}" target="_blank">{{ item.id }}</a>
+    </div>
+    <p class="card-text text-muted">Published: {{ item.published }}</p>
+</div>

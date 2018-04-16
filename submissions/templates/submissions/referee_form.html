@@ -1,0 +1,106 @@
+{% extends 'submissions/pool/base.html' %}
+
+{% block pagetitle %}: select referee for submission{% endblock pagetitle %}
+
+{% load scipost_extras %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</a>
+    <span class="breadcrumb-item">Select Referee</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-grey">
+            <div class="card-body">
+                <h1 class="card-text">Referee Selection Page for Submission</h1>
+                <p class="card-text">(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</p>
+                <p class="card-text">(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h2>Submission:</h2>
+        {% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
+
+        {% if submission.referees_flagged %}
+            <h3>Referees flagged upon submission (treat reports with caution):</h3>
+            <p>{{ submission.referees_flagged }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="highlight" id="form">Select an additional Referee</h2>
+
+        <form action="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}#form" method="post">
+            {% csrf_token %}
+            {{ ref_search_form|bootstrap }}
+            <input class="btn btn-primary" type="submit" value="Find referee">
+        </form>
+    </div>
+</div>
+
+{% if queryresults.entries %}
+<div class="row">
+    <div class="col-12">
+        <div class="card card-outline-danger">
+            <div class="card-body">
+                <h3 class="card-title text-danger">The system identified the following potential coauthorships (from arXiv database)</h3>
+                <p class="card-text text-danger">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for entry in queryresults.entries %}
+                        <li class="list-group-item">
+                            {% include 'partials/submissions/arxiv_queryresult.html' with item=entry %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-12">
+        {% if contributors_found %}
+                <h3>Identified as contributor:</h3>
+                <table class="table">
+                    {% for contributor in contributors_found %}
+                        <tr>
+                            <td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td>
+                            <td><a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+        {% elif ref_search_form.has_changed %}
+            <p>No Contributor with this last name could be identified.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if ref_recruit_form %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-2">If the referee you were looking for was not found by using the method above, you can send a registration and refereeing invitation by filling this form:</h3>
+            <form action="{% url 'submissions:recruit_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+                {% csrf_token %}
+                {{ ref_recruit_form|bootstrap }}
+                <input type="submit" name="submit" value="Send invitation" class="btn btn-primary">
+            </form>
+        </div>
+    </div>
+{% endif %}
+
+
+{% endblock %}

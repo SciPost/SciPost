@@ -47,3 +47,12 @@ table.submission_header {
         background-color: $green;
     }
 }
+
+.submission {
+    &.status {
+        .prefix,
+        .status {
+            display: inline-block;
+        }
+    }
+}

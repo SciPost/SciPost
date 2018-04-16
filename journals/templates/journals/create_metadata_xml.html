@@ -7,9 +7,8 @@
         <div class="container">
             <nav class="breadcrumb hidden-sm-down">
                 <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-                <a href="{{publication.in_issue.in_volume.in_journal.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.in_volume.in_journal}}</a>
-                <a href="{{publication.in_issue.get_absolute_url}}" class="breadcrumb-item">{{publication.in_issue.short_str}}</a>
-                <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+                <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="breadcrumb-item">{{ publication.citation }}</a>
                 <span class="breadcrumb-item active">Create metadata XML</span>
             </nav>
         </div>
@@ -23,30 +22,22 @@
 <div class="row">
     <div class="col-12">
         <h1 class="highlight">Create metadata XML (for Crossref deposit)</h1>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-      {% if errormessage %}
-          <h2 class="text-danger">{{ errormessage }}</h2>
-      {% endif %}
-
+        <p>
+            The following field is prefilled with data from the Publication object. Once you accept them, they will overwrite the current metadata, shown below.
+        </p>
+        <br>
       <form action="{% url 'journals:create_metadata_xml' publication.doi_label %}" method="post">
         {% csrf_token %}
-        {{ create_metadata_xml_form|bootstrap }}
-        <input type="submit" class="btn btn-secondary" value="Accept the metadata">
+        {{ form|bootstrap }}
+        <input type="submit" class="btn btn-primary" value="Accept the metadata">
+        <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="ml-3 btn btn-link">Back to Admin for {{ publication.doi_label }}</a>
       </form>
 
-      <hr class="hr6"/>
+      <hr class="divider">
 
-      <h3>Current metadata xml:</h3>
-      <div>
-          <pre><code>{{ publication.metadata_xml|linebreaksbr }}</code></pre>
-      </div>
-
-      <h3>Once you're happy with this metadata, you can <a href="{{publication.get_absolute_url}}">return to the publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a></h3>
-
+      <h3>Current metadata xml</h3>
+      <br>
+      <pre><code>{{ publication.metadata_xml|linebreaksbr }}</code></pre>
     </div>
 </div>
 

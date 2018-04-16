@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -17,20 +21,23 @@ from .constants import COMMENT_STATUS, STATUS_PENDING
 from .managers import CommentQuerySet
 
 
-WARNING_TEXT = 'Warning: Rather use/edit `content_object` instead or be 100% sure you know what you are doing!'
+WARNING_TEXT = ('Warning: Rather use/edit `content_object` instead or be 100% sure you'
+                ' know what you are doing!')
 US_NOTICE = 'Warning: This field is out of service and will be removed in the future.'
 
 
 class Comment(TimeStampedModel):
-    """ A Comment is an unsollicited note, submitted by a Contributor,
-    on a particular publication or in reply to an earlier Comment. """
+    """ A Comment is an unsollicited note, submitted by a Contributor.
+
+    A Comment is pointed to a particular publication or in reply to an earlier Comment. It
+    may be l"""
 
     status = models.SmallIntegerField(default=STATUS_PENDING, choices=COMMENT_STATUS)
     vetted_by = models.ForeignKey('scipost.Contributor', blank=True, null=True,
                                   on_delete=models.CASCADE, related_name='comment_vetted_by')
-    file_attachment = models.FileField(upload_to='uploads/comments/%Y/%m/%d/', blank=True,
-                                       validators=[validate_file_extension, validate_max_file_size]
-                                       )
+    file_attachment = models.FileField(
+        upload_to='uploads/comments/%Y/%m/%d/', blank=True,
+        validators=[validate_file_extension, validate_max_file_size])
 
     # A Comment is always related to another model
     # This construction implicitly has property: `on_delete=models.CASCADE`
@@ -39,23 +46,6 @@ class Comment(TimeStampedModel):
     content_object = GenericForeignKey()
 
     nested_comments = GenericRelation('comments.Comment', related_query_name='comments')
-
-    # -- U/S
-    # These fields will be removed in the future.
-    # They still exists only to prevent possible data loss.
-    commentary = models.ForeignKey('commentaries.Commentary', blank=True, null=True,
-                                   on_delete=models.CASCADE, help_text=US_NOTICE)
-    submission = models.ForeignKey('submissions.Submission', blank=True, null=True,
-                                   on_delete=models.CASCADE, related_name='comments_old',
-                                   help_text=US_NOTICE)
-    thesislink = models.ForeignKey('theses.ThesisLink', blank=True, null=True,
-                                   on_delete=models.CASCADE, help_text=US_NOTICE)
-    in_reply_to_comment = models.ForeignKey('self', blank=True, null=True,
-                                            related_name="nested_comments_old",
-                                            on_delete=models.CASCADE, help_text=US_NOTICE)
-    in_reply_to_report = models.ForeignKey('submissions.Report', blank=True, null=True,
-                                           on_delete=models.CASCADE, help_text=US_NOTICE)
-    # -- End U/S
 
     # Author info
     is_author_reply = models.BooleanField(default=False)
@@ -77,6 +67,7 @@ class Comment(TimeStampedModel):
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
+
     # Opinions
     nr_A = models.PositiveIntegerField(default=0)
     in_agreement = models.ManyToManyField('scipost.Contributor', related_name='in_agreement',
@@ -162,16 +153,16 @@ class Comment(TimeStampedModel):
             assign_perm('comments.can_vet_comments', to_object.editor_in_charge.user, self)
 
     def get_author(self):
-        '''Get author, if and only if comment is not anonymous!!!'''
+        """Return Contributor instance of object if not anonymous."""
         if not self.anonymous:
             return self.author
         return None
 
     def get_author_str(self):
-        '''Get author string, if and only if comment is not anonymous!!!'''
+        """Return author string if not anonymous."""
         author = self.get_author()
         if author:
-            return author.user.first_name + ' ' + author.user.last_name
+            return '{} {}'.format(author.get_title_display(), author.user.last_name)
         return 'Anonymous'
 
     def update_opinions(self, contributor_id, opinion):

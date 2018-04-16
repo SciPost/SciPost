@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import json
 
 from django.core.urlresolvers import reverse, NoReverseMatch
@@ -47,8 +51,9 @@ class SummernoteEditor(widgets.Textarea):
 
     def trigger_summernote(self, el_id, options):
         str = """
-        <script>
-            $(function(){
+        <script type='text/javascript'>
+            var $ = jQuery;
+            $(document).ready(function() {
                 $('#%s').summernote(%s)
             });
         </script>""" % (el_id, options)

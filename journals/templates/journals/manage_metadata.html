@@ -19,22 +19,46 @@ event: "focusin"
     <span class="breadcrumb-item">Manage metadata</span>
 {% endblock %}
 
+{% block body_class %}{{ block.super }} manage_metadata{% endblock %}
+
 {% block content %}
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Manage Publications Metadata{% if issue_doi_label %} for issue {{ issue_doi_label }}{% endif %}</h1>
-	{% if issue_doi_label %}
-	<h3>Return to the <a href="{% url 'journals:manage_metadata' %}">Main manage metadata page</a></h3>
-	{% endif %}
-	<h3>Manage metadata per issue:</h3>
-        <ul>
-          {% for issue in issues %}
-          <li>
-            <a href="{% url 'journals:manage_metadata' issue_doi_label=issue.doi_label %}">{{ issue }}</a>
-          </li>
-          {% endfor %}
+        <h1 class="highlight">Manage Publications Metadata{% if issue_doi_label %} for issue {{ issue_doi_label }}{% elif journal %} for {{ journal }}{% endif %}</h1>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <h3>Available journals</h3>
+        <ul class="links">
+            {% for journal in journals %}
+                {% url 'journals:manage_metadata' journal_doi_label=journal.doi_label as url %}
+                <li class="{% if url == request.path %}active{% endif %}">
+                    <a href="{{ url }}">{{ journal }}</a>
+                </li>
+            {% endfor %}
         </ul>
+    </div>
+    <div class="col-md-6">
+        <h3>Manage metadata per issue:</h3>
+        {% if journal.has_issues %}
+            <ul class="links">
+              {% for volume in journal.volumes.all %}
+                  {% for issue in volume.issues.all %}
+                      {% url 'journals:manage_metadata' issue_doi_label=issue.doi_label as url %}
+                      <li class="{% if url == request.path %}active{% endif %}">
+                        <a href="{{ url }}">{{ issue }}</a>
+                      </li>
+                  {% endfor %}
+              {% empty %}
+                <li><em>There are no Volumes and Issues for this Journal</em></li>
+              {% endfor %}
+            </ul>
+        {% else %}
+            <em>This Journal does not have Issues, but individual Publications.</em>
+        {% endif %}
     </div>
 </div>
 
@@ -53,7 +77,7 @@ event: "focusin"
 
   <tbody id="accordion" role="tablist" aria-multiselectable="true">
     {% for publication in publications %}
-    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ publication.id }}" aria-expanded="true" aria-controls="collapse{{ publication.id }}" style="cursor: pointer;">
+    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ publication.id }}" aria-expanded="true" aria-controls="collapse{{ publication.id }}" style="cursor: pointer;"{% if not publication.is_published %} class="table-warning"{% endif %}>
       <td><a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></td>
       <td>{{ publication.publication_date }}</td>
       {% if publication.latest_metadata_update %}
@@ -68,35 +92,25 @@ event: "focusin"
       <td>{{ publication|latest_successful_DOAJ_deposit }}</td>
     </tr>
     <tr id="collapse{{ publication.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ publication.id }}" style="background-color: #fff;">
-      <td colspan="6">
+      <td colspan="6" class="py-3">
+        <div class="row">
+          {% if not publication.is_published %}
+            <div class="col-12">
+                <h3 class="text-center bg-warning text-white mb-3">Current status: <em>{{ publication.get_status_display }}</em></h3>
+            </div>
+          {% endif %}
 
-	<h2 class="ml-3">Actions</h2>
-	<div class="row">
-          <div class="col-md-5">
-            <ul>
-              <li>Mark the first author (currently: {% if publication.first_author %}{{ publication.first_author }}{% elif publication.first_author_unregistered %}{{ publication.first_author_unregistered }} (unregistered){% endif %})
-                <ul class="list-unstyled pl-4">
-                  {% for author in publication.authors.all %}
-                  <li>
-                    {{ author.order }}. <a href="{% url 'journals:mark_first_author' publication_id=publication.id author_object_id=author.id %}">{{ author }}</a>
-                  </li>
-                  {% endfor %}
-                </ul>
-	      </li>
-              <li><a href="{% url 'journals:add_author' publication.id %}">Add a missing author</a></li>
-              <li><a href="{% url 'journals:create_citation_list_metadata' publication.doi_label %}">Create/update citation list metadata</a></li>
-              <li><a href="{% url 'journals:create_funding_info_metadata' publication.doi_label %}">Create/update funding info metadata</a></li>
+          <div class="col-md-6">
+              {% if publication.status == 'draft' %}
+                  {% include 'partials/journals/publication_preparation.html' with publication=publication %}
+                  <hr>
+              {% endif %}
 
-              <li><a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">(re)create metadata</a></li>
-              <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'test' %}">Test metadata deposit (via Crossref test server)</a></li>
-              <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'deposit' %}">Deposit the metadata to Crossref</a></li>
-	      <li><a href="{% url 'journals:produce_metadata_DOAJ' doi_label=publication.doi_label %}">Produce DOAJ metadata</a></li>
-	      <li><a href="{% url 'journals:metadata_DOAJ_deposit' doi_label=publication.doi_label %}">Deposit the metadata to DOAJ</a></li>
-              <li><a href="{% url 'journals:harvest_citedby_links' publication.doi_label %}">Update Crossref cited-by links</a></li>
-            </ul>
+              <h2 class="ml-3">Actions</h2>
+              {% include 'partials/journals/admin/publication_actions.html' with publication=publication %}
           </div>
 
-          <div class="col-md-5">
+          <div class="col-md-6">
 	    <h2>Funding statement for this publication:</h2>
 	    {% if publication.metadata.funding_statement %}
 	    <p>{{ publication.metadata.funding_statement }}</p>
@@ -116,7 +130,7 @@ event: "focusin"
 	    <form action="{% url 'journals:add_associated_grant' publication.doi_label %}" method="post">
 	      {% csrf_token %}
 	      {{associate_grant_form|bootstrap}}
-	      <input class="btn btn-secondary" type="submit" value="Add">
+	      <input class="btn btn-outline-secondary" type="submit" value="Add">
 	    </form>
 	    <br/>
 	    <h2>Generic (not via grant) funders associated to this publication:</h2>
@@ -131,7 +145,7 @@ event: "focusin"
 	    <form action="{% url 'journals:add_generic_funder' publication.doi_label %}" method="post">
 	      {% csrf_token %}
 	      {{associate_generic_funder_form|bootstrap}}
-	      <input class="btn btn-secondary" type="submit" value="Add">
+	      <input class="btn btn-outline-secondary" type="submit" value="Add">
 	    </form>
 	    <br/>
 	    <h3>Other funding-related actions:</h3>

@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import re
 
 from django.core import mail
@@ -13,7 +17,7 @@ from comments.factories import CommentFactory
 from comments.forms import CommentForm
 from comments.models import Comment
 from .views import RequestThesisLink, VetThesisLink, thesis_detail
-from .factories import ThesisLinkFactory, VettedThesisLinkFactory, VetThesisLinkFormFactory
+from .factories import ThesisLinkFactory, ThesisLinkFactory, VetThesisLinkFormFactory
 from .models import ThesisLink
 from .forms import VetThesisLinkForm
 from common.helpers import model_form_data
@@ -163,14 +167,14 @@ class TestTheses(TestCase):
         self.target = reverse('theses:theses')
 
     def test_empty_search_query(self):
-        thesislink = VettedThesisLinkFactory()
+        thesislink = ThesisLinkFactory()
         response = self.client.get(self.target)
         search_results = response.context["object_list"]
         self.assertTrue(thesislink in search_results)
 
     def test_search_query_on_author(self):
-        thesislink = VettedThesisLinkFactory()
-        other_thesislink = VettedThesisLinkFactory()
+        thesislink = ThesisLinkFactory()
+        other_thesislink = ThesisLinkFactory()
         form_data = {'author': thesislink.author}
         response = self.client.get(self.target, form_data)
         search_results = response.context['object_list']

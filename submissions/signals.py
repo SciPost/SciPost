@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.contrib.auth.models import User, Group
 
 from notifications.constants import NOTIFICATION_REFEREE_DEADLINE, NOTIFICATION_REFEREE_OVERDUE
@@ -85,3 +89,17 @@ def notify_invitation_overdue(sender, instance, created, **kwargs):
                         verb=(' would like to remind you that your Refereeing Task is overdue, '
                               'please submit your Report'),
                         target=instance.submission, type=NOTIFICATION_REFEREE_OVERDUE)
+
+
+def notify_manuscript_accepted(sender, instance, created, **kwargs):
+    """
+    Notify authors about their manuscript decision.
+
+    instance --- Submission
+    """
+    college = Group.objects.get(name='Editorial College')
+    authors = User.objects.filter(contributor__submissions=instance)
+    for user in authors:
+        notify.send(sender=sender, recipient=user, actor=college,
+                    verb=' has accepted your manuscript for publication.',
+                    target=instance)

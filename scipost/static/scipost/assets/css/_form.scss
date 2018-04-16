@@ -117,3 +117,24 @@ select.form-control {
     height: auto;
   }
 }
+
+
+// Autocomplete fields
+.results_on_deck {
+    .help-block {
+        color: #666;
+        font-style: italic;
+    }
+
+    > div {
+        background-color: $scipost-lightestblue;
+        padding: 2px 10px;
+        display: inline-block;
+        border-radius: 5px;
+
+        .ui-icon {
+            margin-top: 0;
+            margin-right: 3px;
+        }
+    }
+}

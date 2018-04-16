@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from ajax_select import register, LookupChannel
 from ..models import Publication
 
@@ -28,4 +32,4 @@ class PublicationLookup(LookupChannel):
         Right now only used for draft registration invitations. May be extended in the
         future for other purposes as well.
         """
-        return request.user.has_perm('can_draft_registration_invitations')
+        return request.user.has_perm('can_create_registration_invitations')

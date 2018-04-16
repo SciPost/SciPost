@@ -76,7 +76,7 @@ NewsTicker = (function() {
 
     // Start
     $('#news ul').scipost_newsticker({
-        url: 'api/news',
+        url: 'api/news/',
         interval: 6000
     })
 }(jQuery));

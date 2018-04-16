@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.contrib import admin
 from django import forms
 
@@ -5,12 +9,9 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Permission
 
 from scipost.models import Contributor, Remark,\
-                           DraftInvitation,\
-                           RegistrationInvitation,\
                            AuthorshipClaim, PrecookedEmail,\
                            EditorialCollege, EditorialCollegeFellowship, UnavailabilityPeriod
 
-from journals.models import Publication
 from partners.admin import ContactToUserInline
 from production.admin import ProductionUserInline
 from submissions.models import Submission
@@ -25,7 +26,7 @@ class ContributorAdmin(admin.ModelAdmin):
         'user__last_name',
         'user__email',
         'orcid_id',
-        'affiliation']
+        'affiliations__institution__name']
 
 
 class ContributorInline(admin.StackedInline):
@@ -122,49 +123,6 @@ class RemarkAdmin(admin.ModelAdmin):
 admin.site.register(Remark, RemarkAdmin)
 
 
-class DraftInvitationAdminForm(forms.ModelForm):
-    cited_in_submission = forms.ModelChoiceField(
-        required=False,
-        queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
-    cited_in_publication = forms.ModelChoiceField(
-        required=False,
-        queryset=Publication.objects.order_by('-publication_date'))
-
-    class Meta:
-        model = DraftInvitation
-        fields = '__all__'
-
-
-class DraftInvitationAdmin(admin.ModelAdmin):
-    search_fields = ['first_name', 'last_name', 'email', 'processed']
-    form = DraftInvitationAdminForm
-
-
-admin.site.register(DraftInvitation, DraftInvitationAdmin)
-
-
-class RegistrationInvitationAdminForm(forms.ModelForm):
-    cited_in_submission = forms.ModelChoiceField(
-        required=False,
-        queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
-    cited_in_publication = forms.ModelChoiceField(
-        required=False,
-        queryset=Publication.objects.order_by('-publication_date'))
-
-    class Meta:
-        model = RegistrationInvitation
-        fields = '__all__'
-
-
-class RegistrationInvitationAdmin(admin.ModelAdmin):
-    search_fields = ['first_name', 'last_name', 'email', 'invitation_key']
-    list_display = ['__str__', 'invitation_type', 'invited_by', 'responded']
-    list_filter = ['invitation_type', 'message_style', 'responded', 'declined']
-    date_hierarchy = 'date_sent'
-    form = RegistrationInvitationAdminForm
-
-
-admin.site.register(RegistrationInvitation, RegistrationInvitationAdmin)
 admin.site.register(AuthorshipClaim)
 admin.site.register(Permission)
 

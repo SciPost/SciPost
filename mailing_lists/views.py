@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import csv
 
 from django.contrib import messages
@@ -9,7 +13,7 @@ from django.views.generic.list import ListView
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 
-from scipost.models import RegistrationInvitation
+from invitations.models import RegistrationInvitation
 
 from .forms import MailchimpUpdateForm
 from .models import MailchimpList

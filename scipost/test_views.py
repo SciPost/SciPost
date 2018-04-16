@@ -1,9 +1,13 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from django.test import TestCase, Client, tag
 
-from commentaries.factories import UnvettedCommentaryFactory, VettedCommentaryFactory,\
-                                   UnpublishedVettedCommentaryFactory
+from commentaries.factories import UnvettedCommentaryFactory, CommentaryFactory,\
+                                   UnpublishedCommentaryFactory
 from commentaries.forms import CommentarySearchForm
 from commentaries.models import Commentary
 
@@ -81,7 +85,7 @@ class VetCommentaryRequestsTest(TestCase):
         self.assertEquals(response.context['commentary_to_vet'], None)
 
         # Only vetted Commentaries exist!
-        VettedCommentaryFactory()
+        CommentaryFactory()
         response = self.client.get(self.view_url)
         self.assertEquals(response.context['commentary_to_vet'], None)
 
@@ -96,7 +100,7 @@ class BrowseCommentariesTest(TestCase):
     fixtures = ['groups', 'permissions']
 
     def setUp(self):
-        VettedCommentaryFactory(discipline='physics')
+        CommentaryFactory(discipline='physics')
         self.view_url = reverse('commentaries:browse', kwargs={
             'discipline': 'physics',
             'nrweeksback': '1'
@@ -118,7 +122,7 @@ class CommentaryDetailTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.commentary = UnpublishedVettedCommentaryFactory()
+        self.commentary = UnpublishedCommentaryFactory()
         self.target = reverse(
             'commentaries:commentary',
             kwargs={'arxiv_or_DOI_string': self.commentary.arxiv_or_DOI_string}

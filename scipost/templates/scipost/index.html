@@ -3,7 +3,7 @@
 {% load render_bundle from webpack_loader %}
 {% load staticfiles %}
 
-{% block body_class %}{{block.super}} has-sidebar has-breadcrumb-submenu homepage{% endblock %}
+{% block body_class %}{{block.super}} has-breadcrumb-submenu homepage{% endblock %}
 
 {% block breadcrumb %}
     <div class="container-outside sub-nav">
@@ -36,7 +36,7 @@
             <!-- Latest publications -->
             <div class="card card-grey px-3">
                 <div class="card-header px-0">
-                    <h2><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
+                    <h2 class="mb-0"><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
                 </div>
                 <div class="card-body p-0">
                   <ul class="list-group list-group-flush">
@@ -61,7 +61,7 @@
             <!-- Latest submissions -->
             <div class="card card-grey px-3">
                 <div class="card-header px-0">
-                    <h2><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
+                    <h2 class="mb-0"><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
                 </div>
                 <div class="card-body p-0">
                   <ul class="list-group list-group-flush">
@@ -195,6 +195,7 @@
                 <a href="//www.doaj.org" target="_blank"><img src="{% static 'scipost/images/doaj_logo_200.jpg' %}" width="90" alt="DOAJ logo"></a>
                 <a href="//www.clockss.org" target="_blank"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" width="80" alt="Clockss logo"></a>
                 <a href="//i4oc.org/" target="_blank"><img width="100" src="{% static 'scipost/images/I4OC.png' %}"></a>
+		<a href="//freejournals.org" target="_blank"><img width="100" src="{% static 'scipost/images/FJN-logo-long.png' %}"></a>
             </div>
 	    </div>
 	    <div class="row">

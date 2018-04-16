@@ -1,9 +1,12 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.utils import timezone
 
 from .constants import NOTIFICATION_TYPES
 from .managers import NotificationQuerySet
@@ -107,21 +110,14 @@ class Notification(models.Model):
 
     def mark_toggle(self):
         if self.pseudo_unread:
-            self.unread = False
-            self.pseudo_unread = False
+            self.mark_as_read()
         else:
-            self.unread = True
-            self.pseudo_unread = True
-        self.save()
+            self.mark_as_unread()
 
     def mark_as_read(self):
         if self.unread or self.pseudo_unread:
-            self.unread = False
-            self.pseudo_unread = False
-            self.save()
+            Notification.objects.filter(id=self.id).update(unread=False, pseudo_unread=False)
 
     def mark_as_unread(self):
         if not self.unread or not self.pseudo_unread:
-            self.unread = True
-            self.pseudo_unread = True
-            self.save()
+            Notification.objects.filter(id=self.id).update(unread=True, pseudo_unread=True)

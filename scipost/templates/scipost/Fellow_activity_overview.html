@@ -19,8 +19,8 @@
     </div>
 </div>
 
-<table class="assignments_listing w-100">
-    <thead class="">
+<table class="table table-bordered table-hover">
+    <thead class="thead-light">
         <tr>
           <th>Name</th>
           <th>Expertises</th>
@@ -61,7 +61,7 @@
                   <li class="list-group-item">
                       <div class="card-body px-0">
                           {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
-                          {% include 'submissions/_submission_status_block.html' with submission=assignment.submission %}
+                          {% include 'partials/submissions/submission_status.html' with submission=assignment.submission %}
                       </div>
                   </li>
               {% empty %}
@@ -80,7 +80,7 @@
                 <li class="list-group-item">
                     <div class="card-body px-0">
                         {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
-                        {% include 'submissions/_submission_status_block.html' with submission=assignment.submission %}
+                        {% include 'partials/submissions/submission_status.html' with submission=assignment.submission %}
                     </div>
                 </li>
             {% empty %}

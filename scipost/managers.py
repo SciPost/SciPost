@@ -1,9 +1,12 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from .constants import CONTRIBUTOR_NORMAL, INVITATION_EDITORIAL_FELLOW,\
-                       CONTRIBUTOR_NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
+from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
 
 today = timezone.now().date()
 
@@ -20,40 +23,21 @@ class FellowManager(models.Manager):
 
 class ContributorQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(user__is_active=True, status=CONTRIBUTOR_NORMAL)
+        return self.filter(user__is_active=True, status=NORMAL_CONTRIBUTOR)
 
     def available(self):
         return self.exclude(
             unavailability_periods__start__lte=today,
-            unavailability_periods__end__lte=today)
+            unavailability_periods__end__gte=today)
 
     def awaiting_validation(self):
-        return self.filter(user__is_active=False, status=CONTRIBUTOR_NEWLY_REGISTERED)
+        return self.filter(user__is_active=False, status=NEWLY_REGISTERED)
 
     def awaiting_vetting(self):
-        return self.filter(user__is_active=True, status=CONTRIBUTOR_NEWLY_REGISTERED)
+        return self.filter(user__is_active=True, status=NEWLY_REGISTERED)
 
     def fellows(self):
         return self.filter(user__groups__name='Editorial College')
-
-
-class RegistrationInvitationManager(models.Manager):
-    def pending_invited_fellows(self):
-        return self.filter(invitation_type=INVITATION_EDITORIAL_FELLOW,
-                           responded=False, declined=False)
-
-    def declined_invited_fellows(self):
-        return self.filter(invitation_type=INVITATION_EDITORIAL_FELLOW,
-                           responded=False, declined=True)
-
-    def declined(self):
-        return self.filter(responded=True, declined=True)
-
-    def pending_response(self):
-        return self.filter(responded=False)
-
-    def declined_or_without_response(self):
-        return self.filter(Q(responded=True, declined=True) | Q(responded=False))
 
 
 class UnavailabilityPeriodManager(models.Manager):

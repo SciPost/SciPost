@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import datetime
 import hashlib
 import random
@@ -10,41 +14,40 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
-from .behaviors import TimeStampedModel
-from .constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
-                       subject_areas_dict, CONTRIBUTOR_STATUS, TITLE_CHOICES,\
-                       INVITATION_STYLE, INVITATION_TYPE,\
-                       INVITATION_CONTRIBUTOR, INVITATION_FORMAL,\
-                       AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS,\
-                       CONTRIBUTOR_NEWLY_REGISTERED
+from .behaviors import TimeStampedModel, orcid_validator
+from .constants import (
+    SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, DISABLED,
+    TITLE_CHOICES, INVITATION_STYLE, INVITATION_TYPE, INVITATION_CONTRIBUTOR, INVITATION_FORMAL,
+    AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS, CONTRIBUTOR_STATUSES, NEWLY_REGISTERED)
 from .fields import ChoiceArrayField
-from .managers import FellowManager, ContributorQuerySet, RegistrationInvitationManager,\
-                      UnavailabilityPeriodManager, AuthorshipClaimQuerySet
+from .managers import (
+    FellowManager, ContributorQuerySet, UnavailabilityPeriodManager, AuthorshipClaimQuerySet)
 
 today = timezone.now().date()
 
 
 def get_sentinel_user():
-    '''
-    Temporary fix: eventually the 'to-be-removed-Contributor' should be
-    status: "deactivated" and anonymized.
+    """Temporary fix to be able to delete Contributor instances.
+
+    Eventually the 'to-be-removed-Contributor' should be status: "deactivated" and anonymized.
     Fallback user for models relying on Contributor that is being deleted.
-    '''
+    """
     user, __ = get_user_model().objects.get_or_create(username='deleted')
-    return Contributor.objects.get_or_create(status=-4, user=user)[0]
+    return Contributor.objects.get_or_create(status=DISABLED, user=user)[0]
 
 
 class Contributor(models.Model):
-    """
+    """A Contributor is an academic extention of the User model.
+
     All *science* users of SciPost are Contributors.
     username, password, email, first_name and last_name are inherited from User.
     """
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, unique=True)
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
-    status = models.SmallIntegerField(default=CONTRIBUTOR_NEWLY_REGISTERED,
-                                      choices=CONTRIBUTOR_STATUS)
+    status = models.CharField(max_length=16, choices=CONTRIBUTOR_STATUSES, default=NEWLY_REGISTERED)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
                                   default='physics', verbose_name='Main discipline')
@@ -52,17 +55,13 @@ class Contributor(models.Model):
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
-                                blank=True)
-    address = models.CharField(max_length=1000, verbose_name="address",
-                               blank=True)
-    personalwebpage = models.URLField(verbose_name='personal web page',
-                                      blank=True)
+                                blank=True, validators=[orcid_validator])
+    address = models.CharField(max_length=1000, verbose_name="address", blank=True)
+    personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
     vetted_by = models.ForeignKey('self', on_delete=models.SET(get_sentinel_user),
-                                  related_name="contrib_vetted_by",
-                                  blank=True, null=True)
+                                  related_name="contrib_vetted_by", blank=True, null=True)
     accepts_SciPost_emails = models.BooleanField(
-        default=True,
-        verbose_name="I accept to receive SciPost emails")
+        default=True, verbose_name="I accept to receive SciPost emails")
 
     objects = ContributorQuerySet.as_manager()
 
@@ -70,48 +69,50 @@ class Contributor(models.Model):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
 
     def save(self, *args, **kwargs):
+        """Generate new activitation key if not set."""
         if not self.activation_key:
             self.generate_key()
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
+        """Return public information page url."""
         return reverse('scipost:contributor_info', args=(self.id,))
 
     @property
-    def get_formal_display(self):
-        return '%s %s %s' % (self.get_title_display(), self.user.first_name, self.user.last_name)
-
-    @property
     def is_currently_available(self):
+        """Check if Contributor is currently not marked as unavailable."""
         return not self.unavailability_periods.today().exists()
 
     def is_EdCol_Admin(self):
+        """Check if Contributor is an Editorial Administrator."""
         return (self.user.groups.filter(name='Editorial Administrators').exists()
                 or self.user.is_superuser)
 
     def is_SP_Admin(self):
+        """Check if Contributor is a SciPost Administrator."""
         return (self.user.groups.filter(name='SciPost Administrators').exists()
                 or self.user.is_superuser)
 
     def is_MEC(self):
+        """Check if Contributor is a member of the Editorial College."""
         return self.fellowships.active().exists() or self.user.is_superuser
 
     def is_VE(self):
+        """Check if Contributor is a Vetting Editor."""
         return (self.user.groups.filter(name='Vetting Editors').exists()
                 or self.user.is_superuser)
 
     def generate_key(self, feed=''):
-        """
-        Generate and save a new activation_key for the contributor, given a certain feed.
-        """
+        """Generate a new activation_key for the contributor, given a certain feed."""
         for i in range(5):
             feed += random.choice(string.ascii_letters)
         feed = feed.encode('utf8')
         salt = self.user.username.encode('utf8')
-        self.activation_key = hashlib.sha1(salt+salt).hexdigest()
+        self.activation_key = hashlib.sha1(salt + salt).hexdigest()
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
 
     def expertises_as_string(self):
+        """Return joined expertises."""
         if self.expertises:
             return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
         return ''
@@ -189,11 +190,11 @@ class DraftInvitation(models.Model):
 
 class RegistrationInvitation(models.Model):
     """
-    Invitation to particular persons for registration
+    Deprecated: Use the `invitations` app
     """
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    first_name = models.CharField(max_length=30, default='')
-    last_name = models.CharField(max_length=30, default='')
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
     email = models.EmailField()
     invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE,
                                        default=INVITATION_CONTRIBUTOR)
@@ -210,7 +211,7 @@ class RegistrationInvitation(models.Model):
     invitation_key = models.CharField(max_length=40, unique=True)
     key_expires = models.DateTimeField(default=timezone.now)
     date_sent = models.DateTimeField(default=timezone.now)
-    invited_by = models.ForeignKey(Contributor,
+    invited_by = models.ForeignKey('scipost.Contributor',
                                    on_delete=models.CASCADE,
                                    blank=True, null=True)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
@@ -218,29 +219,14 @@ class RegistrationInvitation(models.Model):
     responded = models.BooleanField(default=False)
     declined = models.BooleanField(default=False)
 
-    objects = RegistrationInvitationManager()
-
-    class Meta:
-        ordering = ['last_name']
-
     def __str__(self):
-        return (self.first_name + ' ' + self.last_name
-                + ' on ' + self.date_sent.strftime("%Y-%m-%d"))
-
-    def refresh_keys(self, force_new_key=False):
-        # Generate email activation key and link
-        if not self.invitation_key or force_new_key:
-            salt = ""
-            for i in range(5):
-                salt = salt + random.choice(string.ascii_letters)
-            salt = salt.encode('utf8')
-            invitationsalt = self.last_name.encode('utf8')
-            self.invitation_key = hashlib.sha1(salt + invitationsalt).hexdigest()
-        self.key_expires = timezone.now() + datetime.timedelta(days=365)
-        self.save()
+        return 'DEPRECATED'
 
 
 class CitationNotification(models.Model):
+    """
+    Deprecated: Use the `invitations` app
+    """
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     cited_in_submission = models.ForeignKey('submissions.Submission',
                                             on_delete=models.CASCADE,
@@ -249,16 +235,6 @@ class CitationNotification(models.Model):
                                              on_delete=models.CASCADE,
                                              blank=True, null=True)
     processed = models.BooleanField(default=False)
-
-    def __str__(self):
-        text = str(self.contributor) + ', cited in '
-        if self.cited_in_submission:
-            text += self.cited_in_submission.arxiv_identifier_w_vn_nr
-        elif self.cited_in_publication:
-            text += self.cited_in_publication.citation()
-        if self.processed:
-            text += ' (processed)'
-        return text
 
 
 class AuthorshipClaim(models.Model):

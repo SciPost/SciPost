@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.core.management.base import BaseCommand
 
 from django.contrib.auth.models import Group, Permission
@@ -66,27 +70,20 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Registration and invitations
-        change_draft_invitation, created = Permission.objects.get_or_create(
-            codename='change_draftinvitation',
-            defaults={
-                'name': 'Can vet registration requests',
-                'content_type': content_type_draft_invitation
-            }
-        )
         can_vet_registration_requests, created = Permission.objects.get_or_create(
             codename='can_vet_registration_requests',
             name='Can vet registration requests',
             content_type=content_type)
-        can_draft_registration_invitations, created = Permission.objects.get_or_create(
-            codename='can_draft_registration_invitations',
-            name='Can draft registration invitations',
+        can_create_registration_invitations, created = Permission.objects.get_or_create(
+            codename='can_create_registration_invitations',
+            name='Can create registration invitations',
             content_type=content_type)
         can_manage_registration_invitations, created = Permission.objects.get_or_create(
             codename='can_manage_registration_invitations',
             name='Can manage registration invitations',
             content_type=content_type)
-        can_invite_Fellows, created = Permission.objects.get_or_create(
-            codename='can_invite_Fellows',
+        can_invite_fellows, created = Permission.objects.get_or_create(
+            codename='can_invite_fellows',
             name='Can invite Fellows',
             content_type=content_type)
         can_resend_registration_requests, created = Permission.objects.get_or_create(
@@ -255,6 +252,14 @@ class Command(BaseCommand):
             codename='can_view_all_funding_info',
             name='Can view all Funders info',
             content_type=content_type)
+        can_create_grants, created = Permission.objects.get_or_create(
+            codename='can_create_grants',
+            name='Can create Grant',
+            content_type=content_type)
+        can_draft_publication, created = Permission.objects.get_or_create(
+            codename='can_draft_publication',
+            name='Can draft Publication',
+            content_type=content_type)
 
         # Documentation
         can_view_docs_scipost, created = Permission.objects.get_or_create(
@@ -284,7 +289,7 @@ class Command(BaseCommand):
         SciPostAdmin.permissions.set([
             can_read_all_privacy_sensitive_data,
             can_manage_registration_invitations,
-            change_draft_invitation,
+            can_create_registration_invitations,
             can_email_group_members,
             can_email_particulars,
             can_resend_registration_requests,
@@ -315,14 +320,14 @@ class Command(BaseCommand):
 
         AdvisoryBoard.permissions.set([
             can_manage_registration_invitations,
-            change_draft_invitation,
+            can_create_registration_invitations,
             can_attend_VGMs,
             can_view_statistics,
         ])
 
         EditorialAdmin.permissions.set([
             can_view_pool,
-            can_invite_Fellows,
+            can_invite_fellows,
             can_assign_submissions,
             can_do_plagiarism_checks,
             can_oversee_refereeing,
@@ -332,7 +337,9 @@ class Command(BaseCommand):
             can_view_production,
             can_view_timesheets,
             can_publish_accepted_submission,
+            can_draft_publication,
             can_view_all_funding_info,
+            can_create_grants,
             can_attend_VGMs,
             can_manage_reports,
             can_assign_production_supervisor,
@@ -372,17 +379,19 @@ class Command(BaseCommand):
         ])
 
         Ambassadors.permissions.set([
+            can_create_registration_invitations,
             can_manage_registration_invitations,
-            change_draft_invitation,
         ])
 
         JuniorAmbassadors.permissions.set([
-            can_draft_registration_invitations,
+            can_create_registration_invitations,
         ])
 
         ProductionSupervisors.permissions.set([
             can_assign_production_officer,
             can_take_decisions_related_to_proofs,
+            # can_draft_publication,
+            # can_create_grants,
             can_view_all_production_streams,
             can_run_proofs_by_authors,
             can_view_docs_scipost,

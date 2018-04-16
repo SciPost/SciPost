@@ -14,14 +14,14 @@
     <h1>Editorial Recommendation to vote on</h1>
 
 
-    {% include 'partials/submissions/submission_title.html' with submission=recommendation.submission %}
+    {% include 'partials/submissions/submission_li.html' with submission=recommendation.submission %}
 
     <a class="d-inline-block mb-3" href="{{ recommendation.submission.get_absolute_url }}" target="_blank">View Reports and Submission details</a>
 
     {% include 'partials/submissions/pool/submission_info_table.html' with submission=recommendation.submission %}
     <br>
 
-    {% include 'submissions/_recommendation_fellow_content.html' with recommendation=recommendation %}
+    {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
 
     <div class="card">
         <div class="card-body">
@@ -82,7 +82,7 @@
         <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap:'0,12' }}
-            <input type="submit" name="submit" value="Cast your vote" class="btn btn-primary submitButton" id="submit-id-submit">
+            <input type="submit" name="submit" value="Cast your vote" class="btn btn-primary" id="submit-id-submit">
         </form>
     {% endif %}
 

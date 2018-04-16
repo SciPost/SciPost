@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.test import TestCase, RequestFactory, Client
 from django.urls import reverse
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -6,7 +10,7 @@ from django.http import Http404
 from scipost.factories import ContributorFactory
 from theses.factories import ThesisLinkFactory
 from submissions.factories import EICassignedSubmissionFactory
-from commentaries.factories import UnpublishedVettedCommentaryFactory
+from commentaries.factories import UnpublishedCommentaryFactory
 
 from .factories import CommentFactory
 from .forms import CommentForm
@@ -84,7 +88,7 @@ class TestNewComment(TestCase):
         """ Valid Comment gets saved """
 
         contributor = ContributorFactory()
-        commentary = UnpublishedVettedCommentaryFactory()
+        commentary = UnpublishedCommentaryFactory()
         valid_comment_data = model_form_data(CommentFactory, CommentForm)
         target = reverse('comments:new_comment', kwargs={'object_id': commentary.id, 'type_of_object': 'commentary'})
 

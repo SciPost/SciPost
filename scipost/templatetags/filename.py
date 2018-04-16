@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import os
 
 from django import template
@@ -8,4 +12,7 @@ register = template.Library()
 
 @register.filter
 def filename(value):
-    return os.path.basename(value.file.name)
+    try:
+        return os.path.basename(value.file.name)
+    except OSError:
+        return 'Error: File not found'
