@@ -10,7 +10,7 @@ class CitableQuerySet(QuerySet):
             return self.only('references').filter(references=dois)
 
     def simple(self):
-        return self.only('doi', 'title', 'authors', 'metadata.is-referenced-by-count', 'publication_date', 'publisher')
+        return self.only('doi', 'title', 'authors', 'metadata.is-referenced-by-count', 'publication_date', 'publisher', 'metadata.container-title')
 
     def prl(self):
         return self.filter(metadata__ISSN='0031-9007')

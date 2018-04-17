@@ -12,5 +12,9 @@
         | DOI <a href='https://doi.org/{{ citable.doi }}'> {{ citable.doi }} </a>
       <br>
       Published {{ citable.publication_date|date:"d-m-Y" }} by {{ citable.publisher }}
+      {% if citable.journal %}
+        <br>
+        in {{ citable.journal }} 
+      {% endif %}
     </p>
 {% endblock %}

@@ -107,6 +107,7 @@ INSTALLED_APPS = (
     'petitions',
     'webpack_loader',
     'metacore',
+    'background_task',
 )
 
 
