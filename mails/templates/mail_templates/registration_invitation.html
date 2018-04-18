@@ -115,10 +115,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
     <p>
         Many thanks in advance for taking a few minutes to look into it,
         <br>
-        On behalf of the SciPost Foundation,
-        <br>
-        <br>
-        {{ invitation.invited_by.contributor.get_title_display }} {{ invitation.invited_by.first_name }} {{ invitation.invited_by.last_name }}
+        On behalf of the SciPost Foundation
     </p>
 {% elif invitation.invitation_type == 'F' %}
     {# Fellow invite #}
