@@ -13,13 +13,15 @@ from .managers import FellowQuerySet
 
 
 class Fellowship(TimeStampedModel):
-    """
-    Editorial College Fellowship connecting Editorial College and Contributors,
-    possibly with a limiting start/until date.
+    """A Fellowship gives access to the Submission Pool to Contributors.
+
+    Editorial College Fellowship connects the Editorial College and Contributors,
+    possibly with a limiting start/until date and/or a Proceedings event.
 
     The date range will effectively be used while determining 'the pool' for a specific
     Submission, so it has a direct effect on the submission date.
     """
+
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                     related_name='fellowships')
     start_date = models.DateField(null=True, blank=True)
@@ -39,15 +41,15 @@ class Fellowship(TimeStampedModel):
         return _str
 
     def get_absolute_url(self):
+        """Return the admin fellowship page."""
         return reverse('colleges:fellowship', args=(self.id,))
 
     def sibling_fellowships(self):
-        """
-        Return all Fellowships that are directly related to the Fellow of this Fellowship.
-        """
+        """Return all Fellowships that are directly related to the Fellow of this Fellowship."""
         return self.contributor.fellowships.all()
 
     def is_active(self):
+        """Check if the instance is within start and until date."""
         today = datetime.date.today()
         if not self.start_date:
             if not self.until_date:

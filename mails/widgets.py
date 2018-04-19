@@ -52,9 +52,8 @@ class SummernoteEditor(widgets.Textarea):
     def trigger_summernote(self, el_id, options):
         str = """
         <script type='text/javascript'>
-            var $ = jQuery;
-            $(document).ready(function() {
-                $('#%s').summernote(%s)
+            $(function() {
+                $('#%s').summernote(%s);
             });
         </script>""" % (el_id, options)
         return str
@@ -66,7 +65,7 @@ class SummernoteEditor(widgets.Textarea):
         }
         js = ('//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote-bs4.js',)
 
-        if self.include_jquery:
-            js = ('//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js',) + js
+        # if self.include_jquery:
+        #     js = ('//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js',) + js
 
         return Media(css=css, js=js)

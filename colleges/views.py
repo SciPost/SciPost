@@ -19,9 +19,7 @@ from .models import Fellowship
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
 def fellowships(request):
-    """
-    List all fellowships to be able to edit them, or create new ones.
-    """
+    """List all fellowships to be able to edit them, or create new ones."""
     fellowships = Fellowship.objects.active()
 
     context = {
@@ -33,9 +31,7 @@ def fellowships(request):
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
 def fellowship_detail(request, id):
-    """
-    View details of a specific fellowship
-    """
+    """View details of a specific fellowship."""
     fellowship = get_object_or_404(Fellowship, id=id)
 
     context = {

@@ -52,16 +52,16 @@
 {% if queryresults.entries %}
 <div class="row">
     <div class="col-12">
-        <div class="card card-outline-danger">
+        <div class="card border-danger">
             <div class="card-body">
                 <h3 class="card-title text-danger">The system identified the following potential coauthorships (from arXiv database)</h3>
                 <p class="card-text text-danger">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
             </div>
             <div class="card-body">
-                <ul class="list-group list-group-flush">
+                <ul class="list-group list-group-flush px-0">
                     {% for entry in queryresults.entries %}
                         <li class="list-group-item">
-                            {% include 'partials/submissions/arxiv_queryresult.html' with item=entry %}
+                            {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter %}
                         </li>
                     {% endfor %}
                 </ul>
