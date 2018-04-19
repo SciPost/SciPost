@@ -71,8 +71,8 @@ class Submission(models.Model):
                                         default=CYCLE_DEFAULT)
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
-    visible_pool = models.BooleanField(default=True)
-    visible_public = models.BooleanField(default=False)
+    # visible_pool = models.BooleanField(default=True)
+    # visible_public = models.BooleanField(default=False)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE)
