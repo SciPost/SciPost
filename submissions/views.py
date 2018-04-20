@@ -599,12 +599,12 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 @transaction.atomic
 def assignment_failed(request, arxiv_identifier_w_vn_nr):
+    """Reject a Submission in pre-screening.
+
+    No Editorial Fellow has accepted or volunteered to become Editor-in-charge., hence the
+    Submission is rejected. An Editorial Administrator can access this view from the Pool.
     """
-    No Editorial Fellow has accepted or volunteered to become Editor-in-charge.
-    The submission is rejected.
-    This method is called from pool.html by an Editorial Administrator.
-    """
-    submission = get_object_or_404(Submission.objects.pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool(request.user).prescreening(),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     if request.method == 'POST':
         form = ModifyPersonalMessageForm(request.POST)
@@ -633,7 +633,8 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
 @login_required
 @fellowship_required()
 def assignments(request):
-    """
+    """List editorial tasks for a Fellow.
+
     This page provides a Fellow with an explicit task list
     of editorial actions which should be undertaken.
     """
@@ -654,10 +655,10 @@ def assignments(request):
 @login_required
 @fellowship_or_admin_required()
 def editorial_page(request, arxiv_identifier_w_vn_nr):
-    """
-    The central page for the EIC to manage all its Editorial duties.
+    """Detail page of a Submission its editorial tasks.
 
-    Accessible for: Editor-in-charge and Editorial Administration
+    The central page for the Editor-in-charge to manage all its Editorial duties. It's accessible
+    for both the Editor-in-charge of the Submission and the Editorial Administration.
     """
     submission = get_object_or_404(Submission.objects.pool_full(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
