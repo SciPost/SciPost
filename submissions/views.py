@@ -25,7 +25,7 @@ from django.views.generic.list import ListView
 from guardian.shortcuts import assign_perm
 
 from .constants import STATUS_VETTED, STATUS_EIC_ASSIGNED,\
-                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS,\
+                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,\
                        STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_VOTING_IN_PREPARATION,\
                        STATUS_PUT_TO_EC_VOTING
 from .models import Submission, EICRecommendation, EditorialAssignment,\
@@ -606,28 +606,26 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
     """
     submission = get_object_or_404(Submission.objects.pool(request.user).prescreening(),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if request.method == 'POST':
-        form = ModifyPersonalMessageForm(request.POST)
-        if form.is_valid():
-            submission.status = 'assignment_failed'
-            submission.latest_activity = timezone.now()
-            submission.save()
-            SubmissionUtils.load({'submission': submission,
-                                  'personal_message': form.cleaned_data['personal_message']})
-            SubmissionUtils.deprecate_all_assignments()
-            SubmissionUtils.assignment_failed_email_authors()
-            context = {'ack_header': ('Submission ' + submission.arxiv_identifier_w_vn_nr +
-                                      ' has failed pre-screening and been rejected. '
-                                      'Authors have been informed by email.'),
-                       'followup_message': 'Return to the ',
-                       'followup_link': reverse('submissions:pool'),
-                       'followup_link_label': 'Submissions pool'}
-            return render(request, 'scipost/acknowledgement.html', context)
+
+    mail_request = MailEditingSubView(
+        request, mail_code='submissions_assignment_failed', instance=submission,
+        header_template='partials/submissions/admin/editorial_assignment_failed.html')
+    if mail_request.is_valid():
+        # Deprecate old Editorial Assignments
+        EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
+
+        # Update status of Submission
+        submission.touch()
+        Submission.objects.filter(id=submission.id).update(status=STATUS_ASSIGNMENT_FAILED)
+
+        messages.success(
+            request, 'Submission {arxiv} has failed pre-screening and been rejected.'.format(
+                arxiv=submission.arxiv_identifier_w_vn_nr))
+        messages.success(request, 'Authors have been informed by email.')
+        mail_request.send()
+        return redirect(reverse('submissions:pool'))
     else:
-        form = ModifyPersonalMessageForm()
-    context = {'submission': submission,
-               'form': form}
-    return render(request, 'submissions/admin/editorial_assignment_failed.html', context)
+        return mail_request.return_render()
 
 
 @login_required
