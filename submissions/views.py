@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+ip__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -574,14 +574,18 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
         deadline += datetime.timedelta(days=28)
 
     # Update Submission data
-    submission.status = STATUS_EIC_ASSIGNED
-    submission.editor_in_charge = contributor
-    submission.open_for_reporting = True
-    submission.reporting_deadline = deadline
-    submission.open_for_commenting = True
-    submission.save()
-    submission.touch()
+    Submission.objects.filter(id=submission.id).update(
+        status=STATUS_EIC_ASSIGNED,
+        editor_in_charge=contributor,
+        open_for_reporting=True,
+        reporting_deadline=deadline,
+        open_for_commenting=True,
+        latest_activity=timezone.now())
 
+    # Deprecate old Editorial Assignments
+    EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
+
+    # Send emails to EIC and authors regarding the EIC assignment.
     SubmissionUtils.load({'assignment': assignment})
     SubmissionUtils.deprecate_other_assignments()
     SubmissionUtils.send_EIC_appointment_email()
