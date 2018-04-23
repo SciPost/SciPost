@@ -14,22 +14,20 @@ from django.urls import reverse
 
 from django_countries.fields import CountryField
 
-from .constants import PARTNER_KINDS, PARTNER_STATUS, CONSORTIUM_STATUS, MEMBERSHIP_DURATION,\
-                       PROSPECTIVE_PARTNER_STATUS, PROSPECTIVE_PARTNER_EVENTS, PARTNER_EVENTS,\
-                       MEMBERSHIP_AGREEMENT_STATUS, PROSPECTIVE_PARTNER_ADDED,\
-                       PARTNER_KIND_UNI_LIBRARY
-from .constants import PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
-                       PROSPECTIVE_PARTNER_APPROACHED,\
-                       PROSPECTIVE_PARTNER_EVENT_INITIATE_NEGOTIATION,\
-                       PROSPECTIVE_PARTNER_NEGOTIATING,\
-                       PROSPECTIVE_PARTNER_EVENT_MARKED_AS_UNINTERESTED,\
-                       PROSPECTIVE_PARTNER_UNINTERESTED,\
-                       PROSPECTIVE_PARTNER_EVENT_PROMOTED,\
-                       PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
-                       PARTNER_INITIATED, REQUEST_STATUSES, REQUEST_INITIATED
+from .constants import (
+    PARTNER_KINDS, PARTNER_STATUS, CONSORTIUM_STATUS, MEMBERSHIP_DURATION, PARTNER_EVENTS,
+    PROSPECTIVE_PARTNER_STATUS, PROSPECTIVE_PARTNER_EVENTS, MEMBERSHIP_AGREEMENT_STATUS,
+    PROSPECTIVE_PARTNER_ADDED, PARTNER_KIND_UNI_LIBRARY)
+from .constants import (
+    PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT, PROSPECTIVE_PARTNER_APPROACHED, PARTNER_INITIATED,
+    PROSPECTIVE_PARTNER_EVENT_INITIATE_NEGOTIATION, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,
+    PROSPECTIVE_PARTNER_NEGOTIATING, PROSPECTIVE_PARTNER_EVENT_MARKED_AS_UNINTERESTED,
+    REQUEST_STATUSES, PROSPECTIVE_PARTNER_UNINTERESTED, PROSPECTIVE_PARTNER_EVENT_PROMOTED,
+    REQUEST_INITIATED)
 
-from .managers import MembershipAgreementManager, ProspectivePartnerManager, PartnerManager,\
-                      ContactRequestManager, PartnersAttachmentManager
+from .managers import (
+    MembershipAgreementManager, ProspectivePartnerManager, PartnerManager, ContactRequestManager,
+    PartnersAttachmentManager)
 
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
@@ -44,9 +42,8 @@ now = timezone.now()
 ########################
 
 class ProspectivePartner(models.Model):
-    """
-    Created from the membership_request page, after submitting a query form.
-    """
+    """A prospect Partner is a Partner without explicit contract with SciPost yet."""
+
     kind = models.CharField(max_length=32, choices=PARTNER_KINDS, default=PARTNER_KIND_UNI_LIBRARY)
     institution_name = models.CharField(max_length=256)
     country = CountryField()
@@ -61,6 +58,11 @@ class ProspectivePartner(models.Model):
         return '%s (received %s), %s' % (self.institution_name,
                                          self.date_received.strftime("%Y-%m-%d"),
                                          self.get_status_display())
+
+    @property
+    def is_promoted_to_partner(self):
+        """Check if Prospect is already known to be a Partner."""
+        return self.status == PROSPECTIVE_PARTNER_PROCESSED
 
     def update_status_from_event(self, event):
         if event == PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT:
