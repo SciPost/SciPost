@@ -15,6 +15,7 @@ class MailEditingSubView(object):
         self.request = request
         self.context = kwargs.get('context', {})
         self.template_name = kwargs.get('template', 'mails/mail_form.html')
+        self.header_template = kwargs.get('header_template', '')
         self.mail_form = EmailTemplateForm(request.POST or None, mail_code=mail_code, **kwargs)
 
     @property
@@ -38,6 +39,11 @@ class MailEditingSubView(object):
 
     def return_render(self):
         self.context['form'] = self.mail_form
+        self.context['header_template'] = self.header_template
+        if hasattr(self.mail_form, 'instance') and self.mail_form.instance:
+            self.context['object'] = self.mail_form.instance
+        else:
+            self.context['object'] = None
         return render(self.request, self.template_name, self.context)
 
 

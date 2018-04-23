@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+ip__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -25,7 +25,7 @@ from django.views.generic.list import ListView
 from guardian.shortcuts import assign_perm
 
 from .constants import STATUS_VETTED, STATUS_EIC_ASSIGNED,\
-                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS,\
+                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,\
                        STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_VOTING_IN_PREPARATION,\
                        STATUS_PUT_TO_EC_VOTING
 from .models import Submission, EICRecommendation, EditorialAssignment,\
@@ -574,14 +574,18 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
         deadline += datetime.timedelta(days=28)
 
     # Update Submission data
-    submission.status = STATUS_EIC_ASSIGNED
-    submission.editor_in_charge = contributor
-    submission.open_for_reporting = True
-    submission.reporting_deadline = deadline
-    submission.open_for_commenting = True
-    submission.save()
-    submission.touch()
+    Submission.objects.filter(id=submission.id).update(
+        status=STATUS_EIC_ASSIGNED,
+        editor_in_charge=contributor,
+        open_for_reporting=True,
+        reporting_deadline=deadline,
+        open_for_commenting=True,
+        latest_activity=timezone.now())
 
+    # Deprecate old Editorial Assignments
+    EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
+
+    # Send emails to EIC and authors regarding the EIC assignment.
     SubmissionUtils.load({'assignment': assignment})
     SubmissionUtils.deprecate_other_assignments()
     SubmissionUtils.send_EIC_appointment_email()
@@ -599,41 +603,40 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 @transaction.atomic
 def assignment_failed(request, arxiv_identifier_w_vn_nr):
+    """Reject a Submission in pre-screening.
+
+    No Editorial Fellow has accepted or volunteered to become Editor-in-charge., hence the
+    Submission is rejected. An Editorial Administrator can access this view from the Pool.
     """
-    No Editorial Fellow has accepted or volunteered to become Editor-in-charge.
-    The submission is rejected.
-    This method is called from pool.html by an Editorial Administrator.
-    """
-    submission = get_object_or_404(Submission.objects.pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool(request.user).prescreening(),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if request.method == 'POST':
-        form = ModifyPersonalMessageForm(request.POST)
-        if form.is_valid():
-            submission.status = 'assignment_failed'
-            submission.latest_activity = timezone.now()
-            submission.save()
-            SubmissionUtils.load({'submission': submission,
-                                  'personal_message': form.cleaned_data['personal_message']})
-            SubmissionUtils.deprecate_all_assignments()
-            SubmissionUtils.assignment_failed_email_authors()
-            context = {'ack_header': ('Submission ' + submission.arxiv_identifier_w_vn_nr +
-                                      ' has failed pre-screening and been rejected. '
-                                      'Authors have been informed by email.'),
-                       'followup_message': 'Return to the ',
-                       'followup_link': reverse('submissions:pool'),
-                       'followup_link_label': 'Submissions pool'}
-            return render(request, 'scipost/acknowledgement.html', context)
+
+    mail_request = MailEditingSubView(
+        request, mail_code='submissions_assignment_failed', instance=submission,
+        header_template='partials/submissions/admin/editorial_assignment_failed.html')
+    if mail_request.is_valid():
+        # Deprecate old Editorial Assignments
+        EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
+
+        # Update status of Submission
+        submission.touch()
+        Submission.objects.filter(id=submission.id).update(status=STATUS_ASSIGNMENT_FAILED)
+
+        messages.success(
+            request, 'Submission {arxiv} has failed pre-screening and been rejected.'.format(
+                arxiv=submission.arxiv_identifier_w_vn_nr))
+        messages.success(request, 'Authors have been informed by email.')
+        mail_request.send()
+        return redirect(reverse('submissions:pool'))
     else:
-        form = ModifyPersonalMessageForm()
-    context = {'submission': submission,
-               'form': form}
-    return render(request, 'submissions/admin/editorial_assignment_failed.html', context)
+        return mail_request.return_render()
 
 
 @login_required
 @fellowship_required()
 def assignments(request):
-    """
+    """List editorial tasks for a Fellow.
+
     This page provides a Fellow with an explicit task list
     of editorial actions which should be undertaken.
     """
@@ -654,10 +657,10 @@ def assignments(request):
 @login_required
 @fellowship_or_admin_required()
 def editorial_page(request, arxiv_identifier_w_vn_nr):
-    """
-    The central page for the EIC to manage all its Editorial duties.
+    """Detail page of a Submission its editorial tasks.
 
-    Accessible for: Editor-in-charge and Editorial Administration
+    The central page for the Editor-in-charge to manage all its Editorial duties. It's accessible
+    for both the Editor-in-charge of the Submission and the Editorial Administration.
     """
     submission = get_object_or_404(Submission.objects.pool_full(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
