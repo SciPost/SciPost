@@ -60,11 +60,11 @@
                             <li class="list-group-item pt-3">
                                 <div class="card-content">
                                     <h3>For Fellow: {{ author }}</h3>
-                                </div>{{ value}}
+                                </div>
                             </li>
                             {% for entry in entries %}
                                 <li class="list-group-item">
-                                    {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter %}
+                                    {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter id2=forloop.parentloop.counter %}
                                 </li>
                             {% endfor %}
                         {% endfor %}

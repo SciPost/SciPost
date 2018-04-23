@@ -61,7 +61,7 @@
                 <ul class="list-group list-group-flush px-0">
                     {% for entry in queryresults.entries %}
                         <li class="list-group-item">
-                            {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter %}
+                            {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter id2=0 %}
                         </li>
                     {% endfor %}
                 </ul>
