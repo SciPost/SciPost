@@ -107,24 +107,22 @@
                 {% endfor %}
             </ul>
 
-
+            {% if publication.funders_generic.all %}
+                <h3>Funder{{ publication.funders_generic.count|pluralize }} for this publication</h3>
+                <ul>
+                    {% for funder in publication.funders_generic.all %}
+                        <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
 
             {% if is_edcol_admin %}
                 {# This function is not available for public yet! #}
                 <em>The following is not available for the public yet:</em>
                 {% include 'partials/journals/references.html' with publication=publication %}
 
-                {% if publication.funders_generic.exists %}
-                    <h3>Funder{{ publication.funders_generic.count|pluralize }} for this publication:</h3>
-                    <ul>
-                        {% for funder in publication.funders_generic.all %}
-                            <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-
                 {% if publication.institutions.exists %}
-                    <h3>Institution{{ publication.institutions.count|pluralize }} related to this Publication:</h3>
+                    <h3>Institution{{ publication.institutions.count|pluralize }} related to this Publication</h3>
                     <ul>
                         {% for institution in publication.institutions.all %}
                             <li>{{ institution }}</li>
