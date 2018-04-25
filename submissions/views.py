@@ -779,7 +779,8 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
         request.POST or None, request=request, submission=submission)
     if ref_recruit_form.is_valid():
         referee_invitation, registration_invitation = ref_recruit_form.save(commit=False)
-        mail_request = MailEditingSubView(request, mail_code='registration_invitation_refereeing',
+        mail_request = MailEditingSubView(request,
+                                          mail_code='referees/registration_invitation_refereeing',
                                           instance=referee_invitation)
         mail_request.add_form(ref_recruit_form)
         if mail_request.is_valid():
