@@ -780,7 +780,7 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
     if ref_recruit_form.is_valid():
         referee_invitation, registration_invitation = ref_recruit_form.save(commit=False)
         mail_request = MailEditingSubView(request,
-                                          mail_code='referees/registration_invitation_refereeing',
+                                          mail_code='referees/invite_unregistered_to_referee',
                                           instance=referee_invitation)
         mail_request.add_form(ref_recruit_form)
         if mail_request.is_valid():
@@ -833,7 +833,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
                                    date_invited=timezone.now(),
                                    invited_by=request.user.contributor)
 
-    mail_request = MailEditingSubView(request, mail_code='referees/submissions_referee_invite',
+    mail_request = MailEditingSubView(request, mail_code='referees/invite_contributor_to_referee',
                                       invitation=invitation)
     if mail_request.is_valid():
         invitation.save()
