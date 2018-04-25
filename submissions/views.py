@@ -833,7 +833,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
                                    date_invited=timezone.now(),
                                    invited_by=request.user.contributor)
 
-    mail_request = MailEditingSubView(request, mail_code='submissions_referee_invite',
+    mail_request = MailEditingSubView(request, mail_code='referees/submissions_referee_invite',
                                       invitation=invitation)
     if mail_request.is_valid():
         invitation.save()
