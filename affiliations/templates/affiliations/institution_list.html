@@ -1,23 +1,29 @@
-{% extends 'scipost/_personal_page_base.html' %}
+{% extends 'affiliations/base.html' %}
 
 
 {% block pagetitle %}: Institutions{% endblock pagetitle %}
 
+
 {% block breadcrumb_items %}
-    {{ block.super }}
     <span class="breadcrumb-item">Institutions</span>
 {% endblock %}
 
 {% block content %}
 
-<h1>All Institutions in the database</h1>
+<h1 class="highlight">Institutions</h1>
+
+<h3>All Institutions with a SciPost publication</h3>
 
 {% if is_paginated %}
     {% include 'partials/pagination.html' with page_obj=page_obj %}
 {% endif %}
+
 <ul>
     {% for institution in object_list %}
-        <li><a href="{% url 'affiliations:institution_details' institution.id %}">{{ institution }}</a></li>
+        <li>
+            <a href="{{ institution.get_absolute_url }}">{{ institution }}</a>
+            {% if perms.scipost.can_manage_affiliations %} &middot; <a href="{% url 'affiliations:institution_edit' institution.id %}"><i class="fa fa-pencil"></i></a>{% endif %}
+        </li>
     {% empty %}
         <li><em>There are no Institutions known yet.</em><li>
     {% endfor %}

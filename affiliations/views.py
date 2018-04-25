@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404
@@ -15,10 +16,14 @@ from .forms import InstitutionMergeForm
 from .models import Institution
 
 
-@method_decorator(permission_required('scipost.can_manage_affiliations'), name='dispatch')
 class InstitutionListView(ListView):
+    queryset = Institution.objects.has_publications()
+    paginate_by = 20
+
+
+class InstitutionDetailView(DetailView):
     model = Institution
-    paginate_by = 100
+    pk_url_kwarg = 'institution_id'
 
 
 @method_decorator(permission_required('scipost.can_manage_affiliations'), name='dispatch')
@@ -53,4 +58,4 @@ def merge_institutions(request, institution_id):
         messages.success(request, 'Institution {a} merged into {b}'.format(
             a=form.cleaned_data.get('institution', '?'), b=institution))
 
-    return redirect(reverse('affiliations:institution_details', args=(institution.id,)))
+    return redirect(reverse('affiliations:institution_edit', args=(institution.id,)))
