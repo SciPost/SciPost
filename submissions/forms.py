@@ -24,7 +24,7 @@ from .models import (
 from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
 from invitations.models import RegistrationInvitation
-from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC
+from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
 from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
 from scipost.models import Contributor
@@ -290,6 +290,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             del self.fields['proceedings']
 
         # Update placeholder for the other fields
+        self.fields['submission_type'].required = False
         self.fields['arxiv_link'].widget.attrs.update({
             'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
         self.fields['abstract'].widget.attrs.update({'cols': 100})
@@ -322,9 +323,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         return cleaned_data
 
     def clean_author_list(self):
-        """
-        Important check!
-
+        """Check if author list matches the Contributor submitting.
+    
         The submitting user must be an author of the submission.
         Also possibly may be extended to check permissions and give ultimate submission
         power to certain user groups.
@@ -336,12 +336,20 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             raise forms.ValidationError(error_message, code='not_an_author')
         return author_list
 
+    def clean_submission_type(self):
+        """Validate Submission type.
+
+        The SciPost Physics journal requires a Submission type to be specified.
+        """
+        submission_type = self.cleaned_data['submission_type']
+        journal = self.cleaned_data['submitted_to_journal']
+        if journal == SCIPOST_JOURNAL_PHYSICS and not submission_type:
+            self.add_error('submission_type', 'Please specify the submission type.')
+        return submission_type
+
     @transaction.atomic
     def copy_and_save_data_from_resubmission(self, submission):
-        """
-        Fill given Submission with data coming from last_submission in the SubmissionChecks
-        blueprint.
-        """
+        """Fill given Submission with data coming from last_submission."""
         if not self.last_submission:
             raise Submission.DoesNotExist
 

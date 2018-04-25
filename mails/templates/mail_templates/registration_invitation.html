@@ -80,7 +80,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         </ul>
     {% endif %}
     <p>
-        I would hereby like to use this opportunity to quickly introduce you to the SciPost initiative, and to invite you to become an active Contributor.
+        We would hereby like to use this opportunity to quickly introduce you to the SciPost initiative, and to invite you to become an active Contributor.
     </p>
     <p>
         In summary, SciPost.org is a publication portal managed by
@@ -115,10 +115,12 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
     <p>
         Many thanks in advance for taking a few minutes to look into it,
         <br>
-        On behalf of the SciPost Foundation,
-        <br>
-        <br>
-        {{ invitation.invited_by.contributor.get_title_display }} {{ invitation.invited_by.first_name }} {{ invitation.invited_by.last_name }}
+        <br>SciPost Foundation
+        <br>Institute for Theoretial Physics
+        <br>University of Amsterdam
+        <br>Science Park 904
+        <br>1098 XH Amsterdam
+        <br>The Netherlands
     </p>
 {% elif invitation.invitation_type == 'F' %}
     {# Fellow invite #}
